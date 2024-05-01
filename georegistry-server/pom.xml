@@ -37,87 +37,93 @@
 	</properties>
 
 	<dependencies>
-    <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-validator -->
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-validator</artifactId>
-      <version>5.4.3.Final</version>
-    </dependency>    
-    
-    <!-- The OrientDB Server is using the locationtech jts. Orientdb-Spatial is using vividsolutions jts.
-         There is a very specific scenario that can happen, when creating a new index during patching,
-         which can cause the orientdb-spatial jar to fetch a transaction from the OrientDB server. When
-         it does that, it attempts to deserialize a locationtech class, which we need to have on the
-         classpath (because we're using the vividsolutions jts, not locationtech). Adding this jar here
-         is a very dumb hack, but it seems to work so here we are.
-     -->
-    <dependency>
-        <groupId>org.locationtech.jts.io</groupId>
-        <artifactId>jts-io-common</artifactId>
-        <version>1.17.1</version>
-    </dependency>
-    <dependency>
-      <groupId>com.wdtinc</groupId>
-      <artifactId>mapbox-vector-tile</artifactId>
-      <version>3.1.2-TF</version>
-    </dependency>
-    <dependency>
-      <groupId>net.geoprism</groupId>
-      <artifactId>dhis2adapter</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    
+		<!-- Spring! -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>5.3.27</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-validator -->
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>5.4.3.Final</version>
+		</dependency>
+
+		<!-- The OrientDB Server is using the locationtech jts. Orientdb-Spatial is using vividsolutions jts.
+             There is a very specific scenario that can happen, when creating a new index during patching,
+             which can cause the orientdb-spatial jar to fetch a transaction from the OrientDB server. When
+             it does that, it attempts to deserialize a locationtech class, which we need to have on the
+             classpath (because we're using the vividsolutions jts, not locationtech). Adding this jar here
+             is a very dumb hack, but it seems to work so here we are.
+         -->
+		<dependency>
+			<groupId>org.locationtech.jts.io</groupId>
+			<artifactId>jts-io-common</artifactId>
+			<version>1.17.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.wdtinc</groupId>
+			<artifactId>mapbox-vector-tile</artifactId>
+			<version>3.1.2-TF</version>
+		</dependency>
+		<dependency>
+			<groupId>net.geoprism</groupId>
+			<artifactId>dhis2adapter</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
 		<dependency>
 			<groupId>net.geoprism</groupId>
 			<artifactId>geoprism-classifier</artifactId>
 			<version>${geoprism.version}</version>
 		</dependency>
 		<dependency>
-      <groupId>net.geoprism</groupId>
-      <artifactId>geoprism-external-profile</artifactId>
-      <version>${geoprism.version}</version>
-    </dependency>
-	<dependency>
-		<groupId>net.geoprism</groupId>
-		<artifactId>geoprism-labeled-property-graph</artifactId>
-		<version>${geoprism.version}</version>
-	</dependency>    
-    <dependency>
-      <groupId>net.geoprism</groupId>
-      <artifactId>geoprism-forgot-password</artifactId>
-      <version>${geoprism.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>net.geoprism</groupId>
-      <artifactId>geoprism-user-invite</artifactId>
-      <version>${geoprism.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>net.geoprism</groupId>
-      <artifactId>geoprism-graphrepo</artifactId>
-      <version>${geoprism.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>net.geoprism</groupId>
-      <artifactId>geoprism-logos</artifactId>
-      <version>${geoprism.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>net.geoprism</groupId>
-      <artifactId>geoprism-email</artifactId>
-      <version>${geoprism.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>net.geoprism</groupId>
-      <artifactId>geoprism-geoserver</artifactId>
-      <version>${geoprism.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>net.geoprism</groupId>
-      <artifactId>geoprism-excel</artifactId>
-      <version>${geoprism.version}</version>
-    </dependency>
-		
+			<groupId>net.geoprism</groupId>
+			<artifactId>geoprism-external-profile</artifactId>
+			<version>${geoprism.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.geoprism</groupId>
+			<artifactId>geoprism-labeled-property-graph</artifactId>
+			<version>${geoprism.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.geoprism</groupId>
+			<artifactId>geoprism-forgot-password</artifactId>
+			<version>${geoprism.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.geoprism</groupId>
+			<artifactId>geoprism-user-invite</artifactId>
+			<version>${geoprism.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.geoprism</groupId>
+			<artifactId>geoprism-graphrepo</artifactId>
+			<version>${geoprism.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.geoprism</groupId>
+			<artifactId>geoprism-logos</artifactId>
+			<version>${geoprism.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.geoprism</groupId>
+			<artifactId>geoprism-email</artifactId>
+			<version>${geoprism.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.geoprism</groupId>
+			<artifactId>geoprism-geoserver</artifactId>
+			<version>${geoprism.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.geoprism</groupId>
+			<artifactId>geoprism-excel</artifactId>
+			<version>${geoprism.version}</version>
+		</dependency>
+
 		<dependency>
 			<groupId>net.geoprism</groupId>
 			<artifactId>georegistry-adapter</artifactId>
@@ -140,75 +146,75 @@
 			<artifactId>commons-lang</artifactId>
 			<version>2.6</version>
 		</dependency>
-    <dependency>
-      <groupId>javax.websocket</groupId>
-      <artifactId>javax.websocket-api</artifactId>
-      <version>1.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-api</artifactId>
-      <version>2.17.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
-      <version>2.17.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-slf4j-impl</artifactId>
-      <version>2.17.1</version>
-    </dependency>
-    <dependency>
-      <groupId>ca.uhn.hapi.fhir</groupId>
-      <artifactId>hapi-fhir-base</artifactId>
-      <version>${hapifhir_version}</version>
-    </dependency>
-      
-      <!-- Include the client -->
-      <dependency>
-      <groupId>ca.uhn.hapi.fhir</groupId>
-      <artifactId>hapi-fhir-client</artifactId>
-      <version>${hapifhir_version}</version>
-      </dependency>
+		<dependency>
+			<groupId>javax.websocket</groupId>
+			<artifactId>javax.websocket-api</artifactId>
+			<version>1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+			<version>2.17.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>2.17.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-slf4j-impl</artifactId>
+			<version>2.17.1</version>
+		</dependency>
+		<dependency>
+			<groupId>ca.uhn.hapi.fhir</groupId>
+			<artifactId>hapi-fhir-base</artifactId>
+			<version>${hapifhir_version}</version>
+		</dependency>
 
-    <!-- At least one "structures" JAR must also be included -->
-    <dependency>
-      <groupId>ca.uhn.hapi.fhir</groupId>
-      <artifactId>hapi-fhir-structures-r4</artifactId>
-      <version>${hapifhir_version}</version>
-    </dependency> 
-    <dependency>
-      <groupId>ca.uhn.hapi.fhir</groupId>
-      <artifactId>hapi-fhir-validation</artifactId>
-      <version>${hapifhir_version}</version>
-    </dependency> 
-    <!-- https://mvnrepository.com/artifact/com.github.ben-manes.caffeine/caffeine -->
-    <dependency>
-        <groupId>com.github.ben-manes.caffeine</groupId>
-        <artifactId>caffeine</artifactId>
-        <version>2.9.2</version>
-    </dependency>
-<!--
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-annotations</artifactId>
-        <version>2.10.0</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-        <version>2.10.0</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-core</artifactId>
-        <version>2.10.0</version>
-      </dependency>
-    </dependencies>
--->
-	<!-- These profiles allow for Maven execution of Runway-SDK's Java Tools, 
+		<!-- Include the client -->
+		<dependency>
+			<groupId>ca.uhn.hapi.fhir</groupId>
+			<artifactId>hapi-fhir-client</artifactId>
+			<version>${hapifhir_version}</version>
+		</dependency>
+
+		<!-- At least one "structures" JAR must also be included -->
+		<dependency>
+			<groupId>ca.uhn.hapi.fhir</groupId>
+			<artifactId>hapi-fhir-structures-r4</artifactId>
+			<version>${hapifhir_version}</version>
+		</dependency>
+		<dependency>
+			<groupId>ca.uhn.hapi.fhir</groupId>
+			<artifactId>hapi-fhir-validation</artifactId>
+			<version>${hapifhir_version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.github.ben-manes.caffeine/caffeine -->
+		<dependency>
+			<groupId>com.github.ben-manes.caffeine</groupId>
+			<artifactId>caffeine</artifactId>
+			<version>2.9.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+			<version>2.10.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.10.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>2.10.0</version>
+		</dependency>
+	</dependencies>
+
+	<!-- These profiles allow for Maven execution of Runway-SDK's Java Tools,
 		like rebuilding the database and importing schemas. -->
 	<profiles>
 		<profile>
@@ -332,7 +338,7 @@
 											<key>project.basedir</key>
 											<value>${project.basedir}</value>
 										</systemProperty>
-										<!-- <systemProperty> <key>jsp.dir</key> <value>georegistry-web/src/main/webapp/WEB-INF</value> 
+										<!-- <systemProperty> <key>jsp.dir</key> <value>georegistry-web/src/main/webapp/WEB-INF</value>
 											</systemProperty> -->
 									</systemProperties>
 								</configuration>
@@ -374,8 +380,8 @@
 										<argument>--rootUser=${db.rootUser}</argument>
 										<argument>--rootPass=${db.rootPass}</argument>
 										<argument>--templateDb=${db.rootDb}</argument>
-                    <argument>--clean=${db.clean}</argument>
-                    <argument>--patch=${db.patch}</argument>
+										<argument>--clean=${db.clean}</argument>
+										<argument>--patch=${db.patch}</argument>
 									</arguments>
 									<systemProperties>
 										<systemProperty>
@@ -418,28 +424,28 @@
 		</resources>
 
 		<plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <version>3.3.0</version>
-        <executions>
-          <execution>
-            <id>regex-property</id>
-            <phase>validate</phase>
-            <goals>
-              <goal>regex-property</goal>
-            </goals>
-            <configuration>
-              <name>geoprism.build.version</name>
-              <value>${project.version}</value>
-              <regex>-SNAPSHOT</regex>
-              <replacement>+(${maven.build.timestamp})</replacement>
-              <failIfNoMatch>false</failIfNoMatch>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>3.3.0</version>
+				<executions>
+					<execution>
+						<id>regex-property</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>regex-property</goal>
+						</goals>
+						<configuration>
+							<name>geoprism.build.version</name>
+							<value>${project.version}</value>
+							<regex>-SNAPSHOT</regex>
+							<replacement>+(${maven.build.timestamp})</replacement>
+							<failIfNoMatch>false</failIfNoMatch>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
 			<!-- Weave Aspects -->
 			<plugin>
 				<groupId>dev.aspectj</groupId>
@@ -477,35 +483,35 @@
 			</plugin>
 		</plugins>
 		<pluginManagement>
-		  <plugins>
-		    <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
-		    <plugin>
-		      <groupId>org.eclipse.m2e</groupId>
-		      <artifactId>lifecycle-mapping</artifactId>
-		      <version>1.0.0</version>
-		      <configuration>
-		        <lifecycleMappingMetadata>
-		          <pluginExecutions>
-		            <pluginExecution>
-		              <pluginExecutionFilter>
-		                <groupId>org.codehaus.mojo</groupId>
-		                <artifactId>
-		                  build-helper-maven-plugin
-		                </artifactId>
-		                <versionRange>[1.9.1,)</versionRange>
-		                <goals>
-		                  <goal>regex-property</goal>
-		                </goals>
-		              </pluginExecutionFilter>
-		              <action>
-		                <ignore />
-		              </action>
-		            </pluginExecution>
-		          </pluginExecutions>
-		        </lifecycleMappingMetadata>
-		      </configuration>
-		    </plugin>
-		  </plugins>
+			<plugins>
+				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.codehaus.mojo</groupId>
+										<artifactId>
+											build-helper-maven-plugin
+										</artifactId>
+										<versionRange>[1.9.1,)</versionRange>
+										<goals>
+											<goal>regex-property</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
 		</pluginManagement>
 	</build>
 </project>
