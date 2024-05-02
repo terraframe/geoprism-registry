@@ -142,7 +142,7 @@ export class LabeledPropertyGraphTypeComponent implements OnInit, OnDestroy {
     }
     
     onExportRDF(entry, version): void {
-        window.location.href = environment.apiUrl + "api/rdf/export?versionId=" + version.oid;
+        window.location.href = environment.apiUrl + "/api/rdf/export?versionId=" + version.oid;
     }
 
     onDelete(entry: LabeledPropertyGraphTypeEntry, version: LabeledPropertyGraphTypeVersion): void {
