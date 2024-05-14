@@ -261,8 +261,8 @@ public class ListTypeExcelExporter
 
     int rowNumber = 0;
 
-    this.createRow(sheet, locale, metadata, rowNumber++, ListType.DISPLAYLABEL, this.list.getDisplayLabel().getValue());
-    this.createRow(sheet, locale, metadata, rowNumber++, ListType.CODE, this.list.getCode());
+    //this.createRow(sheet, locale, metadata, rowNumber++, ListType.DISPLAYLABEL, this.list.getDisplayLabel().getValue());
+    //this.createRow(sheet, locale, metadata, rowNumber++, ListType.CODE, this.list.getCode());
     this.createRow(sheet, rowNumber++, LocalizationFacade.localize("masterlist.publishDate"), stripTime(this.version.getPublishDate()));
     this.createRow(sheet, rowNumber++, LocalizationFacade.localize("masterlist.forDate"), stripTime(this.version.getForDate()));
 
@@ -272,7 +272,7 @@ public class ListTypeExcelExporter
       this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTLABEL, this.version.getListLabel().getValue());
       this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTDESCRIPTION, this.version.getListDescription().getValue());
       this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTPROCESS, this.version.getListProcess().getValue());
-      this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTPROGRESS, this.version.getListProgress());
+      this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTPROGRESS, this.version.getListProgress().getValue());
       this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTACCESSCONSTRAINTS, this.version.getListAccessConstraints().getValue());
       this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTUSECONSTRAINTS, this.version.getListUseConstraints().getValue());
       this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTDISCLAIMER, this.version.getListDisclaimer().getValue());
