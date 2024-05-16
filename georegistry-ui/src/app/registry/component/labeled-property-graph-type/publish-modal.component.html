@@ -362,6 +362,7 @@
                                 <ul id="dropdown-triggers-manual" *dropdownMenu class="dropdown-menu orgUnit-ul"
                                     role="menu" aria-labelledby="button-triggers-manual">
                                     <li *ngFor="let graphType of graphTypes" (click)="clickGraphTypeOption($event, graphType)" role="menuitem" [ngClass]="{'multiselect-listitem-selected': (type.graphTypes != null && type.graphTypes.indexOf(graphType.code) !== -1)}">
+                                      <span style="position:relative;"><input [checked]="type.graphTypes != null && type.graphTypes.indexOf(graphType.code) !== -1" type="checkbox" style="position:absolute; top: -9px; left: 2px;"></span>
                                       <a class="dropdown-item">{{graphType.label.localizedValue}}</a>
                                     </li>
                                 </ul>
@@ -394,6 +395,7 @@
                                 <ul id="dropdown-triggers-manual" *dropdownMenu class="dropdown-menu orgUnit-ul"
                                     role="menu" aria-labelledby="button-triggers-manual">
                                     <li *ngFor="let geoObjectType of types" (click)="clickGeoObjectTypeOption($event, geoObjectType)" role="menuitem" [ngClass]="{'multiselect-listitem-selected': (type.geoObjectTypeCodes != null && type.geoObjectTypeCodes.indexOf(geoObjectType.code) !== -1)}">
+                                        <span style="position:relative;"><input [checked]="type.geoObjectTypeCodes != null && type.geoObjectTypeCodes.indexOf(geoObjectType.code) !== -1" type="checkbox" style="position:absolute; top: -9px; left: 2px;"></span>
                                         <a class="dropdown-item">{{geoObjectType.label.localizedValue}}</a>
                                     </li>
                                 </ul>
