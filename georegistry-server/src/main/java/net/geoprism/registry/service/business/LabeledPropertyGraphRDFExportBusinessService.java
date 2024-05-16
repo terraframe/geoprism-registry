@@ -49,6 +49,7 @@ import net.geoprism.graph.GraphTypeSnapshot;
 import net.geoprism.graph.LabeledPropertyGraphType;
 import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
 import net.geoprism.registry.InvalidMasterListException;
+import net.geoprism.registry.etl.upload.ClassificationCache;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
@@ -76,6 +77,8 @@ public class LabeledPropertyGraphRDFExportBusinessService
   
   @Autowired
   protected ClassificationBusinessServiceIF classificationService;
+  
+  private ClassificationCache classiCache = new ClassificationCache();
   
   public static class CachedGraphTypeSnapshot
   {
@@ -214,9 +217,23 @@ public class LabeledPropertyGraphRDFExportBusinessService
 
           if (value != null)
           {
-            Classification classification = this.classificationService.get((AttributeClassificationType) attribute, value);
+            String classificationTypeCode = ((AttributeClassificationType) attribute).getClassificationType();
+            Classification classification = classiCache.getClassification(classificationTypeCode, value.toString().trim());
 
-            literal = classification.getDisplayLabel().getValue();
+            if (classification == null)
+            {
+              classification = this.classificationService.get((AttributeClassificationType) attribute, value);
+
+              if (classification != null)
+              {
+                literal = classification.getDisplayLabel().getValue();
+                classiCache.putClassification(classificationTypeCode, value.toString().trim(), classification);
+              }
+            }
+            else
+            {
+              literal = classification.getDisplayLabel().getValue();
+            }
           }
         }
         else

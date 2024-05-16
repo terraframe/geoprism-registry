@@ -222,7 +222,7 @@ public class GeoObjectImporter implements ObjectImporterIF
 
   protected Map<String, ServerGeoObjectIF> parentCache;
 
-  protected ClassifierCache                classifierCache            = new ClassifierCache();
+  protected ClassifierVertexCache                classifierCache            = new ClassifierVertexCache();
 
   protected static final String            parentConcatToken          = "&";
 

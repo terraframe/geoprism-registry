@@ -51,7 +51,8 @@ import com.runwaysdk.session.WritePermissionException;
 import net.geoprism.registry.etl.export.GeoObjectExportFormat;
 import net.geoprism.registry.etl.export.GeoObjectJsonExporter;
 import net.geoprism.registry.etl.export.RevealGeoObjectJsonAdapters;
-import net.geoprism.registry.etl.upload.ClassifierCache;
+import net.geoprism.registry.etl.upload.ClassificationCache;
+import net.geoprism.registry.etl.upload.ClassifierVertexCache;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
@@ -303,7 +304,7 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
   }
 
   @Override
-  public GeoObjectOverTime toGeoObjectOverTime(ServerGeoObjectIF sgo, boolean generateUid, ClassifierCache classifierCache)
+  public GeoObjectOverTime toGeoObjectOverTime(ServerGeoObjectIF sgo, boolean generateUid, ClassifierVertexCache classifierCache)
   {
     GeoObjectOverTime geoObj = super.toGeoObjectOverTime(sgo, generateUid, classifierCache);
 
@@ -316,9 +317,9 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
   }
 
   @Override
-  public GeoObject toGeoObject(ServerGeoObjectIF sgo, Date date, boolean includeExternalIds)
+  public GeoObject toGeoObject(ServerGeoObjectIF sgo, Date date, boolean includeExternalIds, ClassificationCache classiCache)
   {
-    GeoObject geoObj = super.toGeoObject(sgo, date, includeExternalIds);
+    GeoObject geoObj = super.toGeoObject(sgo, date, includeExternalIds, classiCache);
 
     if (includeExternalIds)
     {

@@ -52,6 +52,7 @@ import net.geoprism.graph.LabeledPropertyGraphSynchronization;
 import net.geoprism.graph.LabeledPropertyGraphType;
 import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
 import net.geoprism.registry.InvalidMasterListException;
+import net.geoprism.registry.etl.upload.ClassificationCache;
 import net.geoprism.registry.model.EdgeConstant;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.progress.Progress;
@@ -72,6 +73,8 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
   private Map<String, CachedGOTSnapshot> gotSnaps;
   
   private Set<String> allAttributeColumns;
+  
+  private ClassificationCache classiCache;
 
   private static class TraversalState extends State
   {
@@ -81,7 +84,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
     {
       super(synchronization, version);
 
-      int cacheSize = 10000;
+      int cacheSize = 1000;
       
       this.cache = new LinkedHashMap<String, VertexObject>(cacheSize + 1, .75F, true)
       {
@@ -241,7 +244,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
           VertexObject publishedIn;
           if (!publishedGOs.contains(edge.in.getUid()))
           {
-            publishedIn = super.publish(state, publishInMdVertex, this.objectService.toGeoObject(edge.in, version.getForDate(), false));
+            publishedIn = super.publish(state, publishInMdVertex, this.objectService.toGeoObject(edge.in, version.getForDate(), false, classiCache));
             publishedGOs.add(edge.in.getUid());
             state.cache.put(edge.in.getUid(), publishedIn);
           }
@@ -256,7 +259,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
           VertexObject publishedOut;
           if (!publishedGOs.contains(edge.out.getUid()))
           {
-            publishedOut = super.publish(state, publishOutMdVertex, this.objectService.toGeoObject(edge.out, version.getForDate(), false));
+            publishedOut = super.publish(state, publishOutMdVertex, this.objectService.toGeoObject(edge.out, version.getForDate(), false, classiCache));
             publishedGOs.add(edge.out.getUid());
             state.cache.put(edge.out.getUid(), publishedOut);
           }
@@ -293,6 +296,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
     }
     
     allAttributeColumns = EdgeAndVerticiesResultSetConverter.allAttributeColumns();
+    classiCache = new ClassificationCache();
   }
   
   private VertexObject getVertex(TraversalState state, MdVertex mdVertex, String uid)
@@ -306,6 +310,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
       MdVertexDAOIF mdVertexDAO = (MdVertexDAOIF) BusinessFacade.getEntityDAO(mdVertex);
       MdAttributeDAOIF attribute = mdVertexDAO.definesAttribute(DefaultAttribute.UID.getName());
   
+      // TODO : If geometries are enabled we might need to exclude them from this query
       StringBuffer statement = new StringBuffer();
       statement.append("SELECT FROM " + mdVertex.getDbClassName());
       statement.append(" WHERE " + attribute.getColumnName() + " = :uid");
