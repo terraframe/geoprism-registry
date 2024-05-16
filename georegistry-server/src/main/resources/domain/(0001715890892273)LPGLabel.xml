@@ -1,0 +1,32 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create></create>
+    <update></update>
+    <createOrUpdate>      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="lpg.menu">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="lpg.menu" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Labeled Property Graphs" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="lpg.graphTypes">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="lpg.graphTypes" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Edge Types" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="lpg.assignGraphTypes">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="lpg.assignGraphTypes" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Assign Edge Types" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

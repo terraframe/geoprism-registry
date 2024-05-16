@@ -129,7 +129,7 @@
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="lpg.menu" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="Manage Labeled Property Graphs" />
+          <attribute name="defaultLocale" value="Labeled Property Graphs" />
         </attributeStruct>
       </object>                        
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="lpg.types">

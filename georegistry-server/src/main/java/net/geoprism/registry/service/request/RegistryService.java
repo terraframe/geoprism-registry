@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest.AuthenticationRequestBuilder;
@@ -204,13 +205,16 @@ public class RegistryService implements RegistryServiceIF
 
     if (publicOnly && UserInfo.isPublicUser())
     {
-      ServiceFactory.getMetadataCache().getAllGeoObjectTypes().stream().filter(got -> !got.getIsPrivate()).forEach(got -> {
-        types.add(got.toJSON(serializer));
-      });
+      ServiceFactory.getMetadataCache().getAllGeoObjectTypes().stream()
+        .filter(got -> !got.getIsPrivate())
+        .sorted((a,b) -> a.getLabel().getValue().compareTo(b.getLabel().getValue()))
+        .forEach(got -> {
+          types.add(got.toJSON(serializer));
+        });
     }
     else
     {
-      List<GeoObjectType> gots = this.gTypeService.getGeoObjectTypes(null, PermissionContext.READ);
+      List<GeoObjectType> gots = this.gTypeService.getGeoObjectTypes(null, PermissionContext.READ).stream().sorted((a,b) -> a.getLabel().getValue().compareTo(b.getLabel().getValue())).collect(Collectors.toList());
       HierarchyType[] hts = this.hTypeService.getHierarchyTypes(sessionId, null, PermissionContext.READ);
 
       for (GeoObjectType got : gots)
@@ -260,7 +264,9 @@ public class RegistryService implements RegistryServiceIF
     {
       final JsonArray graphTypes = new JsonArray();
       
-      graphTypeService.getGraphTypes(sessionId, null).forEach(t -> graphTypes.add(t.toJSON()));
+      graphTypeService.getGraphTypes(sessionId, null).stream()
+        .sorted((a,b) -> a.getLabel().getValue().compareTo(b.getLabel().getValue()))
+        .forEach(t -> graphTypes.add(t.toJSON()));
       
       response.add("graphTypes", graphTypes);
     }

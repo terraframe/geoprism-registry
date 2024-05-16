@@ -12,7 +12,7 @@
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="lpg.assignGraphTypes" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="Assign Graph Types" />
+          <attribute name="defaultLocale" value="Assign Edge Types" />
         </attributeStruct>
       </object>
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="lpg.assignGeoObjectTypes">

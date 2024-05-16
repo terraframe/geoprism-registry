@@ -132,7 +132,7 @@ export class LabeledPropertyGraphTypePublishModalComponent implements OnInit {
     }
 
     buildGraphTypeButtonLabel(showAll: boolean = false): string {
-      let codes: string[] = [];
+      let labels: string[] = [];
       let sep = "$@~";
       let agtr: string[] = (this.type.graphTypes == null || this.type.graphTypes.length == 0) ? [] : JSON.parse(this.type.graphTypes);
       
@@ -141,18 +141,18 @@ export class LabeledPropertyGraphTypePublishModalComponent implements OnInit {
         let typeCode = agtr[i].split(sep)[0];
         let code = agtr[i].split(sep)[1];
         
-        codes.push(code);
+        labels.push(this.graphTypes.find(t => t.code == code).label.localizedValue);
       }
       
       if (showAll) {
-        return codes.join(", ");
-      } else if (codes == null || codes.length == 0) {
+        return labels.join(", ");
+      } else if (labels == null || labels.length == 0) {
         // return this.lService.decode("sync.dhis2.orgUnit.noneSelected");
         return this.lService.decode("lpg.assignGraphTypes");
-      } else if (codes.length > 2) {
+      } else if (labels.length > 2) {
         return this.lService.decode("sync.dhis2.orgUnit.multipleSelected");
       } else {
-        return codes.join(", ");
+        return labels.join(", ");
       }
     }
     
@@ -166,27 +166,26 @@ export class LabeledPropertyGraphTypePublishModalComponent implements OnInit {
       }
       else
       {
-        agtr.splice(agtr.indexOf(key));
+        agtr.splice(agtr.indexOf(key), 1);
       }
 
       this.type.graphTypes = JSON.stringify(agtr);
 
-      console.log(this.type.graphTypes);
-      
       $event.stopPropagation();
     }
 
     buildGeoObjectTypeButtonLabel(showAll: boolean = false): string {
         let typeCodes: string[] = (this.type.geoObjectTypeCodes == null || this.type.geoObjectTypeCodes.length == 0) ? [] : JSON.parse(this.type.geoObjectTypeCodes);
-        
+        let typeLabels = typeCodes.map(c => this.types.find(t => t.code == c).label.localizedValue);
+
         if (showAll) {
-          return typeCodes.join(", ");
-        } else if (typeCodes == null || typeCodes.length == 0) {
+          return typeLabels.join(", ");
+        } else if (typeLabels == null || typeLabels.length == 0) {
           return this.lService.decode("lpg.assignGeoObjectTypes");
-        } else if (typeCodes.length > 2) {
+        } else if (typeLabels.length > 2) {
           return this.lService.decode("sync.dhis2.orgUnit.multipleSelected");
         } else {
-          return typeCodes.join(", ");
+          return typeLabels.join(", ");
         }
       }
       
@@ -199,13 +198,11 @@ export class LabeledPropertyGraphTypePublishModalComponent implements OnInit {
         }
         else
         {
-            typeCodes.splice(typeCodes.indexOf(geoObjectType.code));
+            typeCodes.splice(typeCodes.indexOf(geoObjectType.code), 1);
         }
   
         this.type.geoObjectTypeCodes = JSON.stringify(typeCodes);
   
-        console.log(this.type.geoObjectTypeCodes);
-        
         $event.stopPropagation();
       }
 
