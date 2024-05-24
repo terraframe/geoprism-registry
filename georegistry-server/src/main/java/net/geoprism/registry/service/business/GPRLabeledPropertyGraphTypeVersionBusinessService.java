@@ -240,16 +240,17 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
     
     if (goTypeCodes.size() > 0 && gtrs.size() > 0)
     {
+      // Publish snapshots for all graph types
       for (GraphTypeReference gtr : gtrs)
       {
         createGraphTypeSnapshot(version, gtr, root);
-        
-        // Loop over types and create snapshots
-        for (String goTypeCode : goTypeCodes)
-        {
-          GeoObjectTypeSnapshot snapshot = this.create(version, ServerGeoObjectType.get(goTypeCode), root);
-          root.addChildSnapshot(snapshot).apply();
-        }
+      }
+      
+      // Publish snapshots for all geo-object types
+      for (String goTypeCode : goTypeCodes)
+      {
+        GeoObjectTypeSnapshot snapshot = this.create(version, ServerGeoObjectType.get(goTypeCode), root);
+        root.addChildSnapshot(snapshot).apply();
       }
     }
     else if (lpgt.getStrategyType().equals(LabeledPropertyGraphType.TREE))

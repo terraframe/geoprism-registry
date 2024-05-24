@@ -106,7 +106,7 @@ public class LabeledPropertyGraphRDFExportBusinessService
     {
       logger.info("Begin rdf exporting " + total + " objects");
       
-      writer = StreamRDFWriter.getWriterStream(os , Lang.TURTLE);
+      writer = StreamRDFWriter.getWriterStream(os , Lang.TRIG);
       
       long skip = 0;
       long count = 0;

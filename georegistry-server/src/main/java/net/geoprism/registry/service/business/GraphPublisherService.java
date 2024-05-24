@@ -55,6 +55,7 @@ import net.geoprism.registry.InvalidMasterListException;
 import net.geoprism.registry.etl.upload.ClassificationCache;
 import net.geoprism.registry.model.EdgeConstant;
 import net.geoprism.registry.model.GraphType;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.service.business.EdgeAndVerticiesResultSetConverter.EdgeAndInOut;
@@ -98,6 +99,9 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
 
   @Autowired
   private GeoObjectBusinessServiceIF             objectService;
+  
+  @Autowired
+  private GeoObjectTypeBusinessServiceIF         typeService;
 
   @Autowired
   private GeoObjectTypeSnapshotBusinessServiceIF tSnapshotService;
@@ -199,6 +203,13 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
     final String inAttrs = StringUtils.join(allAttributeColumns.stream().map(c -> EdgeAndVerticiesResultSetConverter.IN_ATTR_PREFIX + "." + c).collect(Collectors.toList()), ", ");
     final String outAttrs = StringUtils.join(allAttributeColumns.stream().map(c -> EdgeAndVerticiesResultSetConverter.OUT_ATTR_PREFIX + "." + c).collect(Collectors.toList()), ", ");
     
+    List<String> types = gotSnaps.values().stream().filter(gs -> !gs.got.isRoot()).map(gs -> ServerGeoObjectType.get(gs.got.getCode()).getDBClassName()).collect(Collectors.toList());
+    final String typeCriteria = "("
+        + String.join(" OR ", types.stream().map(t -> "in.@class='" + t + "'").collect(Collectors.toList()))
+        + ") AND ("
+        + String.join(" OR ", types.stream().map(t -> "out.@class='" + t + "'").collect(Collectors.toList()))
+        + ")";
+    
     while (skip == 0 || edges.size() > 0)
     {
       logger.info("Publishing block " + skip + " through " + (skip + BLOCK_SIZE) + " of total " + total);
@@ -222,7 +233,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
       sb.append("  SELECT expand(d) FROM (");
       sb.append("    SELECT unionAll( $b, $c ) as d");
       sb.append("    LET $a = (SELECT in, in.out(" + valueEdges + ") as inAttr, out, out.out(" + valueEdges + ") as outAttr, @class as edgeClass, oid as edgeOid FROM (");
-      sb.append("      SELECT * FROM " + graphType.getMdEdgeDAO().getDBClassName() + " ORDER BY oid SKIP " + skip + " LIMIT " + BLOCK_SIZE);
+      sb.append("      SELECT * FROM " + graphType.getMdEdgeDAO().getDBClassName() + " WHERE " + typeCriteria + " ORDER BY oid SKIP " + skip + " LIMIT " + BLOCK_SIZE);
       sb.append("    )),");
       sb.append("    $b = (SELECT in, in.out(" + valueEdges + ") as inAttr, edgeClass, edgeOid FROM $a UNWIND inAttr),");
       sb.append("    $c = (SELECT out, out.out(" + valueEdges + ") as outAttr, edgeClass, edgeOid FROM $a UNWIND outAttr)");

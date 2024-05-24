@@ -37,7 +37,7 @@ public class LabeledPropertyGraphRDFExportService
     
     try
     {
-      File file = File.createTempFile(version.getOid(), ".ttl");
+      File file = File.createTempFile(version.getOid(), ".trig");
       
       try (FileOutputStream fos = new FileOutputStream(file))
       {
