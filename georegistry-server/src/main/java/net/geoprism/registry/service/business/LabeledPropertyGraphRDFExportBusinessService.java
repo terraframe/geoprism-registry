@@ -377,6 +377,22 @@ public class LabeledPropertyGraphRDFExportBusinessService implements LabeledProp
         NodeFactory.createURI(prefixes.get(LPGS) + "LabeledPropertyGraph")
     ));
     
+    // Our LPG has a code
+    writer.quad(Quad.create(
+        NodeFactory.createURI(prefixes.get(LPG)),
+        NodeFactory.createURI(prefixes.get(LPGV)),
+        NodeFactory.createURI(prefixes.get(LPGS) + "code"),
+        NodeFactory.createLiteral(lpg.getCode())
+    ));
+    
+    // Our LPG has a version number
+    writer.quad(Quad.create(
+        NodeFactory.createURI(prefixes.get(LPG)),
+        NodeFactory.createURI(prefixes.get(LPGV)),
+        NodeFactory.createURI(prefixes.get(LPGS) + "versionNumber"),
+        NodeFactory.createLiteral(version.getVersionNumber().toString())
+    ));
+    
     // Our LPG has a label with value..
     writer.quad(Quad.create(
         NodeFactory.createURI(prefixes.get(LPG)),
