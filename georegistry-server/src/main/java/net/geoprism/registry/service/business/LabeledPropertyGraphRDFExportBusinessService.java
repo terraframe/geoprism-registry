@@ -27,8 +27,6 @@ import java.util.stream.Collectors;
 
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.riot.system.StreamRDFWriter;
@@ -87,8 +85,6 @@ public class LabeledPropertyGraphRDFExportBusinessService implements LabeledProp
   @Autowired
   private ClassificationBusinessServiceIF classificationService;
   
-  protected Model model;
-  
   protected Map<String, String> prefixes = new HashMap<String,String>();
   
   protected LabeledPropertyGraphTypeVersion version;
@@ -127,7 +123,6 @@ public class LabeledPropertyGraphRDFExportBusinessService implements LabeledProp
     this.version = version;
     this.entry = version.getEntry();
     this.lpg = entry.getGraphType();
-    this.model = ModelFactory.createDefaultModel();
     
     long startTime = System.currentTimeMillis();
     
@@ -242,7 +237,7 @@ public class LabeledPropertyGraphRDFExportBusinessService implements LabeledProp
     writer.quad(Quad.create(
         NodeFactory.createURI(quadGraphName),
         buildGeoObjectUri(code, type.getCode(), orgCode, false),
-        NodeFactory.createURI(prefixes.get(RDF) + "type"),
+        org.apache.jena.vocabulary.RDF.type.asNode(),
         NodeFactory.createURI(prefixes.get(LPGVS) + type.getCode())
     ));
     
@@ -347,8 +342,8 @@ public class LabeledPropertyGraphRDFExportBusinessService implements LabeledProp
     // Due to this quirk, most prefixes here should probably end with a # (unless they're only used in metadata and not instance data).
     // If for some reason a uri does have a # or a / outside the prefix, the prefix will not be used.
     
-    prefixes.put(RDF, "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-    prefixes.put(RDFS, "http://www.w3.org/2000/01/rdf-schema#");
+//    prefixes.put(RDF, org.apache.jena.vocabulary.RDF.getURI()); // If we include this Jena won't replace rdf:type with 'a', which is just a little syntactic sugar
+    prefixes.put(RDFS, org.apache.jena.vocabulary.RDFS.getURI());
     prefixes.put(DCTERMS, "http://purl.org/dc/terms/");
     
     prefixes.put(LPG, GeoprismProperties.getRemoteServerUrl() + "lpg#");
@@ -361,7 +356,6 @@ public class LabeledPropertyGraphRDFExportBusinessService implements LabeledProp
     for(String key : prefixes.keySet())
     {
       writer.prefix(key, prefixes.get(key));
-      model.setNsPrefix(key, prefixes.get(key));
     }
     
     quadGraphName = buildQuadGraphName(version);
@@ -373,7 +367,7 @@ public class LabeledPropertyGraphRDFExportBusinessService implements LabeledProp
     writer.quad(Quad.create(
         NodeFactory.createURI(prefixes.get(LPG)),
         NodeFactory.createURI(prefixes.get(LPGV)),
-        NodeFactory.createURI(prefixes.get(RDF) + "type"),
+        org.apache.jena.vocabulary.RDF.type.asNode(),
         NodeFactory.createURI(prefixes.get(LPGS) + "LabeledPropertyGraph")
     ));
     
@@ -397,7 +391,7 @@ public class LabeledPropertyGraphRDFExportBusinessService implements LabeledProp
     writer.quad(Quad.create(
         NodeFactory.createURI(prefixes.get(LPG)),
         NodeFactory.createURI(prefixes.get(LPGV)),
-        NodeFactory.createURI(prefixes.get(RDFS) + "label"),
+        org.apache.jena.vocabulary.RDFS.label.asNode(),
         NodeFactory.createLiteral(lpg.getDisplayLabel().getValue())
     ));
     
