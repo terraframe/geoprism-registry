@@ -79,6 +79,8 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
 
   private static class TraversalState extends State
   {
+    protected Set<String> publishedGOs = new HashSet<String>();
+    
     protected Map<String, VertexObject> cache;
 
     public TraversalState(LabeledPropertyGraphSynchronization synchronization, LabeledPropertyGraphTypeVersion version)
@@ -195,7 +197,6 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
     List<EdgeAndInOut> edges = new ArrayList<EdgeAndInOut>();
     
     long skip = 0;
-    Set<String> publishedGOs = new HashSet<String>();
     
     long total = queryTotal(graphType);
     logger.info("Beginning publishing " + total + " records of graphType " + graphType.getMdEdgeDAO().getDBClassName());
@@ -210,7 +211,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
         + String.join(" OR ", types.stream().map(t -> "out.@class='" + t + "'").collect(Collectors.toList()))
         + ")";
     
-    while (skip == 0 || edges.size() > 0)
+    while (skip == 0 || (edges.size() > 0 && edges.size() >= BLOCK_SIZE))
     {
       logger.info("Publishing block " + skip + " through " + (skip + BLOCK_SIZE) + " of total " + total);
       
@@ -253,10 +254,10 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
           MdVertex publishInMdVertex = inGotCached.graphMdVertex;
           
           VertexObject publishedIn;
-          if (!publishedGOs.contains(edge.in.getUid()))
+          if (!state.publishedGOs.contains(edge.in.getUid()))
           {
             publishedIn = super.publish(state, publishInMdVertex, this.objectService.toGeoObject(edge.in, version.getForDate(), false, classiCache));
-            publishedGOs.add(edge.in.getUid());
+            state.publishedGOs.add(edge.in.getUid());
             state.cache.put(edge.in.getUid(), publishedIn);
           }
           else
@@ -268,10 +269,10 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
           MdVertex publishOutMdVertex = outGotCached.graphMdVertex;
           
           VertexObject publishedOut;
-          if (!publishedGOs.contains(edge.out.getUid()))
+          if (!state.publishedGOs.contains(edge.out.getUid()))
           {
             publishedOut = super.publish(state, publishOutMdVertex, this.objectService.toGeoObject(edge.out, version.getForDate(), false, classiCache));
-            publishedGOs.add(edge.out.getUid());
+            state.publishedGOs.add(edge.out.getUid());
             state.cache.put(edge.out.getUid(), publishedOut);
           }
           else

@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
-import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessService;
+import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessServiceIF;
 
 @Service
 public class LabeledPropertyGraphRDFExportService
@@ -28,7 +28,7 @@ public class LabeledPropertyGraphRDFExportService
   private static final Logger logger = LoggerFactory.getLogger(LabeledPropertyGraphRDFExportService.class);
   
   @Autowired
-  private LabeledPropertyGraphRDFExportBusinessService  rdfExportService;
+  private LabeledPropertyGraphRDFExportBusinessServiceIF  rdfExportService;
   
   @Request
   public InputStream export(String sessionId, String versionId)
