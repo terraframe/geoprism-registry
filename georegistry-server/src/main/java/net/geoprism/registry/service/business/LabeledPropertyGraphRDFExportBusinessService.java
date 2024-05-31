@@ -243,7 +243,7 @@ public class LabeledPropertyGraphRDFExportBusinessService implements LabeledProp
         NodeFactory.createURI(quadGraphName),
         buildGeoObjectUri(code, type.getCode(), orgCode, false),
         NodeFactory.createURI(prefixes.get(RDF) + "type"),
-        NodeFactory.createURI(prefixes.get(LPGS) + type.getCode())
+        NodeFactory.createURI(prefixes.get(LPGVS) + type.getCode())
     ));
     
     type.getAttributeTypes().forEach(attribute -> {
