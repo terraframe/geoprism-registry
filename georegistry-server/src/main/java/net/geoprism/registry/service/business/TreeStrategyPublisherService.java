@@ -44,8 +44,7 @@ import net.geoprism.graph.LabeledPropertyGraphSynchronization;
 import net.geoprism.graph.LabeledPropertyGraphType;
 import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
 import net.geoprism.registry.InvalidMasterListException;
-import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.etl.upload.ClassificationCache;
+import net.geoprism.registry.cache.ClassificationCache;
 import net.geoprism.registry.lpg.TreeStrategyConfiguration;
 import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -53,11 +52,6 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
-import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
-import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
-import net.geoprism.registry.service.business.GeoObjectTypeSnapshotBusinessServiceIF;
-import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
-import net.geoprism.registry.service.business.HierarchyTypeSnapshotBusinessServiceIF;
 
 @Service
 public class TreeStrategyPublisherService extends AbstractGraphVersionPublisherService
@@ -205,7 +199,7 @@ public class TreeStrategyPublisherService extends AbstractGraphVersionPublisherS
 
     if (!state.uids.contains(snapshot.node.getUid()))
     {
-      vertex = this.publish(state, mdVertex, this.objectService.toGeoObject(snapshot.node, forDate, false, classiCache));
+      vertex = this.publish(state, mdVertex, this.objectService.toGeoObject(snapshot.node, forDate, false, classiCache), classiCache);
 
       final VertexObject parent = vertex;
 

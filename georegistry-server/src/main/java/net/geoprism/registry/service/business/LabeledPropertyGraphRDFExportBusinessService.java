@@ -53,7 +53,7 @@ import net.geoprism.graph.LabeledPropertyGraphType;
 import net.geoprism.graph.LabeledPropertyGraphTypeEntry;
 import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
 import net.geoprism.registry.InvalidMasterListException;
-import net.geoprism.registry.etl.upload.ClassificationCache;
+import net.geoprism.registry.cache.ClassificationCache;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
@@ -135,7 +135,7 @@ public class LabeledPropertyGraphRDFExportBusinessService implements LabeledProp
     {
       logger.info("Begin rdf exporting " + total + " objects");
       
-      writer = StreamRDFWriter.getWriterStream(os , RDFFormat.TRIG_BLOCKS);
+      writer = StreamRDFWriter.getWriterStream(os , RDFFormat.TURTLE_BLOCKS);
       
       long skip = 0;
       long count = 0;
@@ -201,9 +201,12 @@ public class LabeledPropertyGraphRDFExportBusinessService implements LabeledProp
       
       for (GeoObjectTypeSnapshot got : gotSnaps.values())
       {
-        got.getAttributeTypes().stream().filter(t -> t instanceof AttributeClassificationType).forEach(attribute -> {
-          sb.append(", " + attribute.getName() + ".displayLabel.defaultLocale as " + attribute.getName() + "_l");
-        });
+        if (!got.isRoot())
+        {
+          got.getAttributeTypes().stream().filter(t -> t instanceof AttributeClassificationType).forEach(attribute -> {
+            sb.append(", " + attribute.getName() + ".displayLabel.defaultLocale as " + attribute.getName() + "_l");
+          });
+        }
       }
       
       sb.append(" FROM " + mdVertex.getDbClassName());
@@ -301,6 +304,7 @@ public class LabeledPropertyGraphRDFExportBusinessService implements LabeledProp
     for (CachedGraphTypeSnapshot graphType : graphTypes)
     {
       final String edge = graphType.graphMdEdge.getDbClassName();
+      String inKey = null;
       
       if (valueMap.containsKey("in_" + edge + "_clazz") && valueMap.get("in_" + edge + "_clazz") != null)
       {
@@ -308,6 +312,8 @@ public class LabeledPropertyGraphRDFExportBusinessService implements LabeledProp
         final String refCode = valueMap.get("in_" + edge + "_code").toString();
         final String refTypeCode = refType.getCode();
         final String refOrgCode = refType.getOrgCode();
+        
+        inKey = refCode + "-" + refTypeCode + "-" + refOrgCode;
         
         writer.quad(Quad.create(
             NodeFactory.createURI(quadGraphName),
@@ -324,12 +330,16 @@ public class LabeledPropertyGraphRDFExportBusinessService implements LabeledProp
         final String refTypeCode = refType.getCode();
         final String refOrgCode = refType.getOrgCode();
         
-        writer.quad(Quad.create(
-            NodeFactory.createURI(quadGraphName),
-            buildGeoObjectUri(code, type.getCode(), orgCode, false),
-            NodeFactory.createURI(buildGraphTypeUri(orgCode, graphType)),
-            buildGeoObjectUri(refCode, refTypeCode, refOrgCode, false)
-        ));
+        String outKey = refCode + "-" + refTypeCode + "-" + refOrgCode;
+        if (!outKey.equals(inKey))
+        {
+          writer.quad(Quad.create(
+              NodeFactory.createURI(quadGraphName),
+              buildGeoObjectUri(code, type.getCode(), orgCode, false),
+              NodeFactory.createURI(buildGraphTypeUri(orgCode, graphType)),
+              buildGeoObjectUri(refCode, refTypeCode, refOrgCode, false)
+          ));
+        }
       }
     }
   }
@@ -420,21 +430,45 @@ public class LabeledPropertyGraphRDFExportBusinessService implements LabeledProp
         NodeFactory.createURI(prefixes.get(LPGS) + "orgCode"),
         NodeFactory.createLiteral(lpg.getOrganization().getCode())
     ));
+    
+    // Our LPG has the following GeoObjectTypes
+    for (GeoObjectTypeSnapshot got : gotSnaps.values())
+    {
+      if (!got.isRoot())
+      {
+        writer.quad(Quad.create(
+            NodeFactory.createURI(prefixes.get(LPG)),
+            NodeFactory.createURI(prefixes.get(LPGVS) + got.getCode()),
+            NodeFactory.createURI(prefixes.get(RDFS) + "subClassOf"),
+            NodeFactory.createURI(prefixes.get(LPGS) + "GeoObjectType")
+        ));
+      }
+    }
+    
+    // Our LPG has the following GraphTypes
+    for (CachedGraphTypeSnapshot graphType : graphTypes)
+    {
+      writer.quad(Quad.create(
+          NodeFactory.createURI(prefixes.get(LPG)),
+          NodeFactory.createURI(prefixes.get(LPGVS) + graphType.graphType.getCode()),
+          NodeFactory.createURI(prefixes.get(RDFS) + "subClassOf"),
+          NodeFactory.createURI(prefixes.get(LPGS) + "GraphType")
+      ));
+    }
   }
 
   protected String buildAttributeUri(final GeoObjectTypeSnapshot type, final String orgCode, AttributeType attribute)
   {
-//    return "urn:" + orgCode + ":" + type.getCode() + "#" + attribute.getName();
+    if (attribute.getIsDefault())
+    {
+      return prefixes.get(LPGS) + "GeoObjectType-" + attribute.getName();
+    }
     
     return prefixes.get(LPGVS) + type.getCode() + "-" + attribute.getName();
-    
-//    return (Node) model.createProperty(LPG_SCHEMA, ":#" + type.getCode() + "/" + attribute.getName());
   }
 
   protected String buildGraphTypeUri(final String orgCode, CachedGraphTypeSnapshot graphType)
   {
-//    return "urn:" + orgCode + ":" + graphType.graphType.getCode();
-    
     return prefixes.get(LPGVS) + graphType.graphType.getCode();
   }
 
@@ -442,44 +476,11 @@ public class LabeledPropertyGraphRDFExportBusinessService implements LabeledProp
   {
     String uri = prefixes.get(LPGV) + typeCode + "-" + code;
     
-//    if (includeType)
-//    {
-////      uri += " a " + prefixes.get(LPG_SCHEMA) + "#" + typeCode;
-//      
-//      return model.createResource(uri, model.createResource(prefixes.get(LPGS) + typeCode)).asNode();
-//      
-////      NodeFactory.getType(prefixes.get(LPGS) + typeCode)
-//    }
-    
     return NodeFactory.createURI(uri);
-//    return NodeFactory.createLiteral("lpg:#" + typeCode + "-" + code);
-//    return NodeFactory.
-//    return NodeFactory.createURI("lpg:#" + typeCode + "-" + code);
-    
-//    final String obj = prefixes.get(LPG) + ":#" + typeCode + "/" + code;
-//    final String type = prefixes.get(LPG_SCHEMA) + ":#" + typeCode;
-    
-////    Property obj = (Property) model.createProperty(LPG, ":#" + typeCode + "/" + code);
-//    Resource obj = model.createResource(prefixes.get(LPG) + ":#" + typeCode + "/" + code);
-//    
-//    if (includeType)
-//    {
-//      // model.createProperty(LPG_SCHEMA, ":#" + typeCode)
-////      return (Property) model.createResource(obj.getURI(), model.type);
-//      return (Node) obj.asNode();
-//    }
-//    else
-//    {
-//      return (Node) obj.asNode();
-//    }
   }
   
   protected String buildQuadGraphName(LabeledPropertyGraphTypeVersion version)
   {
-//    final String url = GeoprismProperties.getRemoteServerUrl() + "lpg/";
-//    
-//    return url + version.getGraphType().getCode() + "/" + version.getVersionNumber();
-    
     return prefixes.get(LPGV);
   }
 

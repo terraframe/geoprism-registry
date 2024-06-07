@@ -48,10 +48,10 @@ import com.runwaysdk.session.CreatePermissionException;
 import com.runwaysdk.session.ReadPermissionException;
 import com.runwaysdk.session.WritePermissionException;
 
+import net.geoprism.registry.cache.ClassificationCache;
 import net.geoprism.registry.etl.export.GeoObjectExportFormat;
 import net.geoprism.registry.etl.export.GeoObjectJsonExporter;
 import net.geoprism.registry.etl.export.RevealGeoObjectJsonAdapters;
-import net.geoprism.registry.etl.upload.ClassificationCache;
 import net.geoprism.registry.etl.upload.ClassifierVertexCache;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.ExternalSystem;

@@ -18,7 +18,6 @@
  */
 package net.geoprism.registry.service.business;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -52,19 +51,19 @@ import net.geoprism.graph.LabeledPropertyGraphSynchronization;
 import net.geoprism.graph.LabeledPropertyGraphType;
 import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
 import net.geoprism.registry.InvalidMasterListException;
-import net.geoprism.registry.etl.upload.ClassificationCache;
+import net.geoprism.registry.cache.ClassificationCache;
 import net.geoprism.registry.model.EdgeConstant;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
-import net.geoprism.registry.service.business.EdgeAndVerticiesResultSetConverter.EdgeAndInOut;
-import net.geoprism.registry.service.business.EdgeAndVerticiesResultSetConverter.EdgeAndVerticies;
+import net.geoprism.registry.service.business.ReadonlyEdgeAndInOutResultSetConverter.EdgeAndGOInOut;
+import net.geoprism.registry.service.business.ReadonlyEdgeAndInOutResultSetConverter.ReadonlyEdgeAndVerticies;
 
 @Service
 public class GraphPublisherService extends AbstractGraphVersionPublisherService
 {
-  public static final long BLOCK_SIZE = 1000;
+  public static final long BLOCK_SIZE = 4000;
   
   public static final boolean PUBLISH_GEOMETRIES = false;
   
@@ -87,7 +86,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
     {
       super(synchronization, version);
 
-      int cacheSize = 1000;
+      int cacheSize = 2000;
       
       this.cache = new LinkedHashMap<String, VertexObject>(cacheSize + 1, .75F, true)
       {
@@ -104,6 +103,12 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
   
   @Autowired
   private GeoObjectTypeBusinessServiceIF         typeService;
+  
+  @Autowired
+  protected ClassificationBusinessServiceIF cService;
+  
+  @Autowired
+  protected ClassificationTypeBusinessServiceIF cTypeService;
 
   @Autowired
   private GeoObjectTypeSnapshotBusinessServiceIF tSnapshotService;
@@ -190,17 +195,14 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
     )
     ORDER BY edgeOid, in.oid, out.oid
    */
-  @Transaction
   protected void publish(TraversalState state, GraphType graphType, GraphTypeSnapshot graphSnapshot, LabeledPropertyGraphTypeVersion version)
   {
     final MdEdge graphMdEdge = graphSnapshot.getGraphMdEdge();
-    List<EdgeAndInOut> edges = new ArrayList<EdgeAndInOut>();
+    List<EdgeAndGOInOut> edges = null;
     
     long skip = 0;
+    boolean hasMoreData = true;
     
-    long total = queryTotal(graphType);
-    logger.info("Beginning publishing " + total + " records of graphType " + graphType.getMdEdgeDAO().getDBClassName());
-     
     final String inAttrs = StringUtils.join(allAttributeColumns.stream().map(c -> EdgeAndVerticiesResultSetConverter.IN_ATTR_PREFIX + "." + c).collect(Collectors.toList()), ", ");
     final String outAttrs = StringUtils.join(allAttributeColumns.stream().map(c -> EdgeAndVerticiesResultSetConverter.OUT_ATTR_PREFIX + "." + c).collect(Collectors.toList()), ", ");
     
@@ -211,9 +213,12 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
         + String.join(" OR ", types.stream().map(t -> "out.@class='" + t + "'").collect(Collectors.toList()))
         + ")";
     
-    while (skip == 0 || (edges.size() > 0 && edges.size() >= BLOCK_SIZE))
+    long total = queryTotal(graphType, typeCriteria);
+    logger.info("Beginning publishing " + total + " records of graphType " + graphType.getMdEdgeDAO().getDBClassName());
+    
+    while (hasMoreData)
     {
-      logger.info("Publishing block " + skip + " through " + (skip + BLOCK_SIZE) + " of total " + total);
+      logger.info("Publishing block " + skip + " through " + Math.min(skip + BLOCK_SIZE, total) + " of total " + total);
       
       final String valueEdges;
       if (PUBLISH_GEOMETRIES)
@@ -242,55 +247,65 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
       sb.append(")");
       sb.append("ORDER BY edgeOid, in.oid, out.oid");
       
-      List<EdgeAndVerticies> edgeAndVerticies = new GraphQuery<EdgeAndVerticies>(sb.toString(), null, new EdgeAndVerticiesResultSetConverter()).getResults();
+      List<ReadonlyEdgeAndVerticies> edgeAndVerticies = new GraphQuery<ReadonlyEdgeAndVerticies>(sb.toString(), null, new ReadonlyEdgeAndInOutResultSetConverter()).getResults();
       
-      edges = EdgeAndVerticiesResultSetConverter.convertResults(edgeAndVerticies, version.getForDate());
+      edges = ReadonlyEdgeAndInOutResultSetConverter.convertResults(edgeAndVerticies, version.getForDate(), classiCache, cService, cTypeService);
+      edgeAndVerticies = null; // We don't need this data anymore. Allow GC to remove it.
       
-      for (EdgeAndInOut edge : edges)
+      for (EdgeAndGOInOut edge : edges)
       {
         if (this.gotSnaps.containsKey(edge.in.getType().getCode()) && this.gotSnaps.containsKey(edge.out.getType().getCode()))
         {
-          CachedGOTSnapshot inGotCached = this.gotSnaps.get(edge.in.getType().getCode());
-          MdVertex publishInMdVertex = inGotCached.graphMdVertex;
-          
-          VertexObject publishedIn;
-          if (!state.publishedGOs.contains(edge.in.getUid()))
-          {
-            publishedIn = super.publish(state, publishInMdVertex, this.objectService.toGeoObject(edge.in, version.getForDate(), false, classiCache));
-            state.publishedGOs.add(edge.in.getUid());
-            state.cache.put(edge.in.getUid(), publishedIn);
-          }
-          else
-          {
-            publishedIn = getVertex(state, publishInMdVertex, edge.in.getUid());
-          }
-          
-          CachedGOTSnapshot outGotCached = this.gotSnaps.get(edge.out.getType().getCode());
-          MdVertex publishOutMdVertex = outGotCached.graphMdVertex;
-          
-          VertexObject publishedOut;
-          if (!state.publishedGOs.contains(edge.out.getUid()))
-          {
-            publishedOut = super.publish(state, publishOutMdVertex, this.objectService.toGeoObject(edge.out, version.getForDate(), false, classiCache));
-            state.publishedGOs.add(edge.out.getUid());
-            state.cache.put(edge.out.getUid(), publishedOut);
-          }
-          else
-          {
-            publishedOut = getVertex(state, publishOutMdVertex, edge.out.getUid());
-          }
-          
-          publishedOut.addChild(publishedIn, graphMdEdge.definesType()).apply();
+          publishEdge(state, version, graphMdEdge, edge);
         }
       }
       
       skip += BLOCK_SIZE;
+      
+      hasMoreData = edges.size() > 0;
+      edges = null; // Explicitly drop all references to the old data so that it can be GC'd
     }
   }
-  
-  private long queryTotal(GraphType graphType)
+
+  @Transaction
+  protected void publishEdge(TraversalState state, LabeledPropertyGraphTypeVersion version, final MdEdge graphMdEdge, EdgeAndGOInOut edge)
   {
-    final String sql = "SELECT COUNT(*) FROM " + graphType.getMdEdgeDAO().getDBClassName();
+    CachedGOTSnapshot inGotCached = this.gotSnaps.get(edge.in.getType().getCode());
+    MdVertex publishInMdVertex = inGotCached.graphMdVertex;
+    
+    VertexObject publishedIn;
+    if (!state.publishedGOs.contains(edge.in.getUid()))
+    {
+      publishedIn = super.publish(state, publishInMdVertex, edge.in, classiCache);
+      state.publishedGOs.add(edge.in.getUid());
+      state.cache.put(edge.in.getUid(), publishedIn);
+    }
+    else
+    {
+      publishedIn = getVertex(state, publishInMdVertex, edge.in.getUid());
+    }
+    
+    CachedGOTSnapshot outGotCached = this.gotSnaps.get(edge.out.getType().getCode());
+    MdVertex publishOutMdVertex = outGotCached.graphMdVertex;
+    
+    VertexObject publishedOut;
+    if (!state.publishedGOs.contains(edge.out.getUid()))
+    {
+      publishedOut = super.publish(state, publishOutMdVertex, edge.out, classiCache);
+      state.publishedGOs.add(edge.out.getUid());
+      state.cache.put(edge.out.getUid(), publishedOut);
+    }
+    else
+    {
+      publishedOut = getVertex(state, publishOutMdVertex, edge.out.getUid());
+    }
+    
+    publishedOut.addChild(publishedIn, graphMdEdge.definesType()).apply();
+  }
+  
+  private long queryTotal(GraphType graphType, String typeCriteria)
+  {
+    final String sql = "SELECT COUNT(*) FROM " + graphType.getMdEdgeDAO().getDBClassName() + " WHERE " + typeCriteria;
     
     return new GraphQuery<Long>(sql).getSingleResult();
   }
