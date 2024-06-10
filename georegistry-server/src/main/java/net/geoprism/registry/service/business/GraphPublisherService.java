@@ -33,15 +33,25 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.id.ORecordId;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
+import com.runwaysdk.dataaccess.MdEntityDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
+import com.runwaysdk.dataaccess.database.ServerIDGenerator;
+import com.runwaysdk.dataaccess.graph.GraphDBService;
+import com.runwaysdk.dataaccess.graph.GraphRequest;
+import com.runwaysdk.dataaccess.graph.orientdb.OrientDBRequest;
+import com.runwaysdk.dataaccess.metadata.MdEntityDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.metadata.MdEdge;
 import com.runwaysdk.system.metadata.MdVertex;
+import com.runwaysdk.util.IDGenerator;
+import com.runwaysdk.util.IdParser;
 
 import net.geoprism.graph.GeoObjectTypeSnapshot;
 import net.geoprism.graph.GeoObjectTypeSnapshotQuery;
@@ -80,15 +90,17 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
   {
     protected Set<String> publishedGOs = new HashSet<String>();
     
-    protected Map<String, VertexObject> cache;
+    protected Map<String, String> cache;
 
     public TraversalState(LabeledPropertyGraphSynchronization synchronization, LabeledPropertyGraphTypeVersion version)
     {
       super(synchronization, version);
 
-      int cacheSize = 2000;
+      // Estimated RAM use for a million mappings is 54MB
+      // 36 * 1000000 + (36/2) * 1000000 = 54MB
+      int cacheSize = 2000000;
       
-      this.cache = new LinkedHashMap<String, VertexObject>(cacheSize + 1, .75F, true)
+      this.cache = new LinkedHashMap<String, String>(cacheSize + 1, .75F, true)
       {
         public boolean removeEldestEntry(@SuppressWarnings("rawtypes") Map.Entry eldest)
         {
@@ -267,40 +279,52 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
     }
   }
 
-  @Transaction
+//  @Transaction
   protected void publishEdge(TraversalState state, LabeledPropertyGraphTypeVersion version, final MdEdge graphMdEdge, EdgeAndGOInOut edge)
   {
     CachedGOTSnapshot inGotCached = this.gotSnaps.get(edge.in.getType().getCode());
     MdVertex publishInMdVertex = inGotCached.graphMdVertex;
     
-    VertexObject publishedIn;
+    String publishedInRid;
     if (!state.publishedGOs.contains(edge.in.getUid()))
     {
-      publishedIn = super.publish(state, publishInMdVertex, edge.in, classiCache);
+      publishedInRid = super.publish(state, publishInMdVertex, edge.in, classiCache).getRID().toString();
       state.publishedGOs.add(edge.in.getUid());
-      state.cache.put(edge.in.getUid(), publishedIn);
+      state.cache.put(edge.in.getUid(), publishedInRid);
     }
     else
     {
-      publishedIn = getVertex(state, publishInMdVertex, edge.in.getUid());
+      publishedInRid = getRid(state, publishInMdVertex, edge.in.getUid());
     }
     
     CachedGOTSnapshot outGotCached = this.gotSnaps.get(edge.out.getType().getCode());
     MdVertex publishOutMdVertex = outGotCached.graphMdVertex;
     
-    VertexObject publishedOut;
+    String publishedOutRid;
     if (!state.publishedGOs.contains(edge.out.getUid()))
     {
-      publishedOut = super.publish(state, publishOutMdVertex, edge.out, classiCache);
+      publishedOutRid = super.publish(state, publishOutMdVertex, edge.out, classiCache).getRID().toString();
       state.publishedGOs.add(edge.out.getUid());
-      state.cache.put(edge.out.getUid(), publishedOut);
+      state.cache.put(edge.out.getUid(), publishedOutRid);
     }
     else
     {
-      publishedOut = getVertex(state, publishOutMdVertex, edge.out.getUid());
+      publishedOutRid = getRid(state, publishOutMdVertex, edge.out.getUid());
     }
     
-    publishedOut.addChild(publishedIn, graphMdEdge.definesType()).apply();
+    createEdge(publishedOutRid, publishedInRid, graphMdEdge);
+  }
+  
+  private void createEdge(final String parentRid, final String childRid, final MdEdge graphMdEdge)
+  {
+    final String sql = "CREATE EDGE " + graphMdEdge.getDbClassName() + " FROM " + parentRid + " TO " + childRid + " SET oid = :oid";
+    
+    Map<String, Object> parameters = new HashMap<String, Object>();
+    parameters.put("oid", IDGenerator.nextID());
+    
+    GraphDBService service = GraphDBService.getInstance();
+    GraphRequest request = service.getGraphDBRequest();
+    service.command(request, sql, parameters);
   }
   
   private long queryTotal(GraphType graphType, String typeCriteria)
@@ -326,7 +350,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
     classiCache = new ClassificationCache();
   }
   
-  private VertexObject getVertex(TraversalState state, MdVertex mdVertex, String uid)
+  private String getRid(TraversalState state, MdVertex mdVertex, String uid)
   {
     if (state.cache.containsKey(uid))
     {
@@ -337,24 +361,23 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
       MdVertexDAOIF mdVertexDAO = (MdVertexDAOIF) BusinessFacade.getEntityDAO(mdVertex);
       MdAttributeDAOIF attribute = mdVertexDAO.definesAttribute(DefaultAttribute.UID.getName());
   
-      // TODO : If geometries are enabled we might need to exclude them from this query
       StringBuffer statement = new StringBuffer();
-      statement.append("SELECT FROM " + mdVertex.getDbClassName());
+      statement.append("SELECT @rid FROM " + mdVertex.getDbClassName());
       statement.append(" WHERE " + attribute.getColumnName() + " = :uid");
   
-      GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
+      GraphQuery<ORecordId> query = new GraphQuery<ORecordId>(statement.toString());
       query.setParameter("uid", uid);
   
-      VertexObject result = query.getSingleResult();
+      ORecordId rid = (ORecordId) query.getSingleResult();
       
-      if (result == null)
+      if (rid == null)
       {
         throw new RuntimeException("Query returned null which is not allowed. " + statement.toString());
       }
       
-      state.cache.put(uid, result);
+      state.cache.put(uid, rid.toString());
       
-      return result;
+      return rid.toString();
     }
   }
 
