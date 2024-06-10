@@ -312,12 +312,12 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
       publishedOutRid = getRid(state, publishOutMdVertex, edge.out.getUid());
     }
     
-    createEdge(publishedOutRid, publishedInRid, graphMdEdge);
+    createEdge(publishedInRid, publishedOutRid, graphMdEdge);
   }
   
-  private void createEdge(final String parentRid, final String childRid, final MdEdge graphMdEdge)
+  private void createEdge(final String inRid, final String outRid, final MdEdge graphMdEdge)
   {
-    final String sql = "CREATE EDGE " + graphMdEdge.getDbClassName() + " FROM " + parentRid + " TO " + childRid + " SET oid = :oid";
+    final String sql = "CREATE EDGE " + graphMdEdge.getDbClassName() + " FROM " + inRid + " TO " + outRid + " SET oid = :oid";
     
     Map<String, Object> parameters = new HashMap<String, Object>();
     parameters.put("oid", IDGenerator.nextID());
