@@ -141,8 +141,8 @@ export class LabeledPropertyGraphTypeComponent implements OnInit, OnDestroy {
         this.bsModalRef.content.init(null, type);
     }
     
-    onExportRDF(entry, version): void {
-        window.location.href = environment.apiUrl + "/api/rdf/export?versionId=" + version.oid;
+    onExportRDF(entry, version, withGeometries): void {
+        window.location.href = environment.apiUrl + "/api/rdf/export?writeGeometries=" + withGeometries + "&versionId=" + version.oid;
     }
 
     onDelete(entry: LabeledPropertyGraphTypeEntry, version: LabeledPropertyGraphTypeVersion): void {

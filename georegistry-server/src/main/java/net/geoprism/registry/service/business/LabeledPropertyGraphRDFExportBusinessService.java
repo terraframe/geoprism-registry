@@ -31,9 +31,11 @@ import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.riot.system.StreamRDFWriter;
 import org.apache.jena.sparql.core.Quad;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
+import org.locationtech.jts.geom.Geometry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,6 +107,8 @@ public class LabeledPropertyGraphRDFExportBusinessService implements LabeledProp
   
   protected ClassificationCache classiCache = new ClassificationCache();
   
+  protected boolean writeGeometries;
+  
   public static class CachedGraphTypeSnapshot
   {
     public GraphTypeSnapshot graphType;
@@ -118,8 +122,9 @@ public class LabeledPropertyGraphRDFExportBusinessService implements LabeledProp
     }
   }
 
-  public void export(LabeledPropertyGraphTypeVersion version, OutputStream os)
+  public void export(LabeledPropertyGraphTypeVersion version, boolean writeGeometries, OutputStream os)
   {
+    this.writeGeometries = writeGeometries;
     this.version = version;
     this.entry = version.getEntry();
     this.lpg = entry.getGraphType();
@@ -300,6 +305,21 @@ public class LabeledPropertyGraphRDFExportBusinessService implements LabeledProp
       }
 
     });
+    
+    if (this.writeGeometries && valueMap.containsKey(DefaultAttribute.GEOMETRY.getName()))
+    {
+      Geometry geom = (Geometry) valueMap.get(DefaultAttribute.GEOMETRY.getName());
+      
+      if (geom != null)
+      {
+        writer.quad(Quad.create(
+            NodeFactory.createURI(quadGraphName),
+            buildGeoObjectUri(code, type.getCode(), orgCode, false),
+            NodeFactory.createURI(buildAttributeUri(type, orgCode, DefaultAttribute.GEOMETRY.createAttributeType())),
+            NodeFactory.createLiteral(geom.toText())
+        ));
+      }
+    }
     
     for (CachedGraphTypeSnapshot graphType : graphTypes)
     {

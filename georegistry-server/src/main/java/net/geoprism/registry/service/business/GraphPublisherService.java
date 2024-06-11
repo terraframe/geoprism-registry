@@ -73,9 +73,9 @@ import net.geoprism.registry.service.business.ReadonlyEdgeAndInOutResultSetConve
 @Service
 public class GraphPublisherService extends AbstractGraphVersionPublisherService
 {
-  public static final long BLOCK_SIZE = 4000;
+  public static final long BLOCK_SIZE_YES_GEOMS = 1000;
   
-  public static final boolean PUBLISH_GEOMETRIES = false;
+  public static final long BLOCK_SIZE_NO_GEOMS = 4000;
   
   
   private static final Logger logger = LoggerFactory.getLogger(GraphPublisherService.class);
@@ -85,6 +85,10 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
   private Set<String> allAttributeColumns;
   
   private ClassificationCache classiCache;
+  
+  private long BLOCK_SIZE;
+  
+  private boolean publishGeometries;
 
   private static class TraversalState extends State
   {
@@ -140,9 +144,17 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
       this.graphMdVertex = got.getGraphMdVertex();
     }
   }
-
+  
   public void publish(LabeledPropertyGraphTypeVersion version)
   {
+    publish(version, true);
+  }
+
+  public void publish(LabeledPropertyGraphTypeVersion version, boolean withGeoms)
+  {
+    publishGeometries = withGeoms;
+    BLOCK_SIZE = withGeoms ? BLOCK_SIZE_YES_GEOMS : BLOCK_SIZE_NO_GEOMS;
+    
     TraversalState state = new TraversalState(null, version);
     cacheMetadata(version);
 
@@ -160,7 +172,6 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
 
       try
       {
-
         if (!type.isValid())
         {
           throw new InvalidMasterListException();
@@ -233,7 +244,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
       logger.info("Publishing block " + skip + " through " + Math.min(skip + BLOCK_SIZE, total) + " of total " + total);
       
       final String valueEdges;
-      if (PUBLISH_GEOMETRIES)
+      if (publishGeometries)
       {
         valueEdges = "'" + EdgeConstant.HAS_VALUE.getDBClassName() + "', '" + EdgeConstant.HAS_GEOMETRY.getDBClassName() + "'";
       }

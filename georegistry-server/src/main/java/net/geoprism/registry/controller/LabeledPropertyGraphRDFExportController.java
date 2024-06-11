@@ -26,9 +26,11 @@ public class LabeledPropertyGraphRDFExportController extends RunwaySpringControl
   private LabeledPropertyGraphRDFExportService  rdfExportService;
   
   @GetMapping(API_PATH + "/export")
-  public ResponseEntity<?> export(HttpServletRequest request, @RequestParam(required = true) String versionId)
+  public ResponseEntity<?> export(HttpServletRequest request, @RequestParam(required = false) Boolean writeGeometries, @RequestParam(required = true) String versionId)
   {
-    InputStream is = rdfExportService.export(getSessionId(), versionId);
+    if (writeGeometries == null) writeGeometries = Boolean.FALSE;
+    
+    InputStream is = rdfExportService.export(getSessionId(), versionId, writeGeometries);
     
     HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Content-Type", "application/zip");

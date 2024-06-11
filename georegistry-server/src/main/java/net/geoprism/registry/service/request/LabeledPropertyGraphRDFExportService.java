@@ -31,7 +31,7 @@ public class LabeledPropertyGraphRDFExportService
   private LabeledPropertyGraphRDFExportBusinessServiceIF  rdfExportService;
   
   @Request
-  public InputStream export(String sessionId, String versionId)
+  public InputStream export(String sessionId, String versionId, boolean writeGeometries)
   {
     LabeledPropertyGraphTypeVersion version = LabeledPropertyGraphTypeVersion.get(versionId);
     
@@ -41,7 +41,7 @@ public class LabeledPropertyGraphRDFExportService
       
       try (FileOutputStream fos = new FileOutputStream(file))
       {
-        rdfExportService.export(version, fos);
+        rdfExportService.export(version, writeGeometries, fos);
         fos.flush();
         
         // Zip up the entire contents of the file

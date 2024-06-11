@@ -6,7 +6,7 @@ import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
 
 public interface LabeledPropertyGraphRDFExportBusinessServiceIF
 {
-  public void export(LabeledPropertyGraphTypeVersion version, OutputStream os);
+  public void export(LabeledPropertyGraphTypeVersion version, boolean writeGeometries, OutputStream os);
   
   
 }
