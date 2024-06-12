@@ -132,6 +132,7 @@ export interface AttributedType {
 
 export class GraphType {
   code: string;
+  typeCode: string;
   label: LocalizedValue;
   description?: LocalizedValue;
 }

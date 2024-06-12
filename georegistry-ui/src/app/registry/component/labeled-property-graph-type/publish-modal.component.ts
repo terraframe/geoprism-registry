@@ -145,18 +145,24 @@ export class LabeledPropertyGraphTypePublishModalComponent implements OnInit {
       }
       
       if (showAll) {
-        return labels.join(", ");
+        // if (labels.length == 0) return this.lService.decode("synchronization.config.none");
+        return labels.sort().join(", ");
+      } else {
+      	return this.lService.decode("lpg.assignGraphTypes");
+      }
+        
+      /*
       } else if (labels == null || labels.length == 0) {
-        // return this.lService.decode("sync.dhis2.orgUnit.noneSelected");
         return this.lService.decode("lpg.assignGraphTypes");
       } else if (labels.length > 2) {
         return this.lService.decode("sync.dhis2.orgUnit.multipleSelected");
       } else {
         return labels.join(", ");
       }
+      */
     }
     
-    clickGraphTypeOption($event, graphType) {
+    clickGraphTypeOption($event, graphType: GraphType) {
       let agtr: string[] = (this.type.graphTypes == null || this.type.graphTypes.length == 0) ? [] : JSON.parse(this.type.graphTypes);
       let key = graphType.typeCode + "$@~" + graphType.code;
       
@@ -179,7 +185,13 @@ export class LabeledPropertyGraphTypePublishModalComponent implements OnInit {
         let typeLabels = typeCodes.map(c => this.types.find(t => t.code == c).label.localizedValue);
 
         if (showAll) {
-          return typeLabels.join(", ");
+          // if (typeLabels.length == 0) return this.lService.decode("synchronization.config.none");
+          return typeLabels.sort().join(", ");
+        } else {
+          return this.lService.decode("lpg.assignGeoObjectTypes");
+        }
+        
+        /*
         } else if (typeLabels == null || typeLabels.length == 0) {
           return this.lService.decode("lpg.assignGeoObjectTypes");
         } else if (typeLabels.length > 2) {
@@ -187,6 +199,7 @@ export class LabeledPropertyGraphTypePublishModalComponent implements OnInit {
         } else {
           return typeLabels.join(", ");
         }
+        */
       }
       
       clickGeoObjectTypeOption($event, geoObjectType: GeoObjectType) {
@@ -227,6 +240,11 @@ export class LabeledPropertyGraphTypePublishModalComponent implements OnInit {
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
+    }
+    
+    public strArrayContains(haystack, needle): boolean {
+    	if (haystack == null) return false;
+    	return JSON.parse(haystack).indexOf(needle) != -1;
     }
 
 

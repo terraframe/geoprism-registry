@@ -353,7 +353,7 @@
                             <div class="col-md-12">
 
                                 <!-- Custom Multi-Select widget built ontop of Bootstrap Dropdown component
-                                    - ngx-bootstrap-multiselect was investigated as a potential solution and found to have lots of styling issues and as such was intentionally decided against.                      
+                                    - ngx-bootstrap-multiselect was investigated as a potential solution and found to have lots of styling issues and as such was intentionally decided against.                       
                                 -->
                                 <div class="btn-group" dropdown #dropdown="bs-dropdown" [autoClose]="true" container="#select-root">
                                 <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle">
@@ -361,15 +361,15 @@
                                 </button>
                                 <ul id="dropdown-triggers-manual" *dropdownMenu class="dropdown-menu orgUnit-ul"
                                     role="menu" aria-labelledby="button-triggers-manual">
-                                    <li *ngFor="let graphType of graphTypes" (click)="clickGraphTypeOption($event, graphType)" role="menuitem" [ngClass]="{'multiselect-listitem-selected': (type.graphTypes != null && type.graphTypes.indexOf(graphType.code) !== -1)}">
-                                      <span style="position:relative;"><input [checked]="type.graphTypes != null && type.graphTypes.indexOf(graphType.code) !== -1" type="checkbox" style="position:absolute; top: -9px; left: 2px;"></span>
+                                    <li *ngFor="let graphType of graphTypes" (click)="clickGraphTypeOption($event, graphType)" role="menuitem" [ngClass]="{'multiselect-listitem-selected': strArrayContains(type.graphTypes, graphType.typeCode + '$@~' + graphType.code)}">
+                                      <!--  <span style="position:relative;"><input [checked]="type.graphTypes != null && type.graphTypes.indexOf(graphType.code) !== -1" type="checkbox" style="position:absolute; top: -9px; left: 2px;"></span> -->
                                       <a class="dropdown-item">{{graphType.label.localizedValue}}</a>
                                     </li>
                                 </ul>
                                 </div>
                             </div>
                         </div>
-                        <div class="row" *ngIf="readonly || !isNew">
+                        <div class="row">
                           <div class="col-md-12" style="line-height: 41px;"> {{buildGraphTypeButtonLabel(true)}} </div>
                         </div>
                     </div>
@@ -394,17 +394,17 @@
                                 </button>
                                 <ul id="dropdown-triggers-manual" *dropdownMenu class="dropdown-menu orgUnit-ul"
                                     role="menu" aria-labelledby="button-triggers-manual">
-                                    <li *ngFor="let geoObjectType of types" (click)="clickGeoObjectTypeOption($event, geoObjectType)" role="menuitem" [ngClass]="{'multiselect-listitem-selected': (type.geoObjectTypeCodes != null && type.geoObjectTypeCodes.indexOf(geoObjectType.code) !== -1)}">
-                                        <span style="position:relative;"><input [checked]="type.geoObjectTypeCodes != null && type.geoObjectTypeCodes.indexOf(geoObjectType.code) !== -1" type="checkbox" style="position:absolute; top: -9px; left: 2px;"></span>
+                                    <li *ngFor="let geoObjectType of types" (click)="clickGeoObjectTypeOption($event, geoObjectType)" role="menuitem" [ngClass]="{'multiselect-listitem-selected': strArrayContains(type.geoObjectTypeCodes, geoObjectType.code)}">
+                                        <!-- <span style="position:relative;"><input [checked]="type.geoObjectTypeCodes != null && type.geoObjectTypeCodes.indexOf(geoObjectType.code) !== -1" type="checkbox" style="position:absolute; top: -9px; left: 2px;"></span> -->
                                         <a class="dropdown-item">{{geoObjectType.label.localizedValue}}</a>
                                     </li>
                                 </ul>
                                 </div>
                             </div>
                         </div>
-                        <div class="row" *ngIf="readonly || !isNew">
-		                      <div class="col-md-12" style="line-height: 41px;"> {{buildGeoObjectTypeButtonLabel(true)}} </div>
-		                    </div>
+                        <div class="row">
+	                      <div class="col-md-12" style="line-height: 41px;"> {{buildGeoObjectTypeButtonLabel(true)}} </div>
+	                    </div>
                     </div>
                 </div>
 
