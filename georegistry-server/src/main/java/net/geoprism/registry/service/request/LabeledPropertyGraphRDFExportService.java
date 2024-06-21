@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
+import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessService.GeometryExportType;
 import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessServiceIF;
 
 @Service
@@ -31,7 +32,7 @@ public class LabeledPropertyGraphRDFExportService
   private LabeledPropertyGraphRDFExportBusinessServiceIF  rdfExportService;
   
   @Request
-  public InputStream export(String sessionId, String versionId, boolean writeGeometries)
+  public InputStream export(String sessionId, String versionId, GeometryExportType geomExportType)
   {
     LabeledPropertyGraphTypeVersion version = LabeledPropertyGraphTypeVersion.get(versionId);
     
@@ -41,7 +42,7 @@ public class LabeledPropertyGraphRDFExportService
       
       try (FileOutputStream fos = new FileOutputStream(file))
       {
-        rdfExportService.export(version, writeGeometries, fos);
+        rdfExportService.export(version, geomExportType, fos);
         fos.flush();
         
         // Zip up the entire contents of the file

@@ -4,6 +4,7 @@ import java.io.InputStream;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessService.GeometryExportType;
 import net.geoprism.registry.service.request.LabeledPropertyGraphRDFExportService;
 
 @RestController
@@ -26,11 +28,13 @@ public class LabeledPropertyGraphRDFExportController extends RunwaySpringControl
   private LabeledPropertyGraphRDFExportService  rdfExportService;
   
   @GetMapping(API_PATH + "/export")
-  public ResponseEntity<?> export(HttpServletRequest request, @RequestParam(required = false) Boolean writeGeometries, @RequestParam(required = true) String versionId)
+  public ResponseEntity<?> export(HttpServletRequest request, @RequestParam(name = "geomExportType", required = false) String sGeomExportType, @RequestParam(required = true) String versionId)
   {
-    if (writeGeometries == null) writeGeometries = Boolean.FALSE;
+    GeometryExportType geomExportType = GeometryExportType.NO_GEOMETRIES;
+    if (StringUtils.isBlank(sGeomExportType)) geomExportType = GeometryExportType.NO_GEOMETRIES;
+    else geomExportType = GeometryExportType.valueOf(sGeomExportType);
     
-    InputStream is = rdfExportService.export(getSessionId(), versionId, writeGeometries);
+    InputStream is = rdfExportService.export(getSessionId(), versionId, geomExportType);
     
     HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Content-Type", "application/zip");

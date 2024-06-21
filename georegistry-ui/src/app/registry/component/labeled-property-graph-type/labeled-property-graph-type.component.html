@@ -39,8 +39,9 @@
 			  </button>
 			  <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu"
 			      role="menu" aria-labelledby="button-basic">
-			    <li role="menuitem"><a class="dropdown-item" (click)="onExportRDF(entry, version, true)">With Geometries</a></li>
-			    <li role="menuitem"><a class="dropdown-item" (click)="onExportRDF(entry, version, false)">Without Geometries</a></li>
+			    <li role="menuitem"><a class="dropdown-item" (click)="onExportRDF(entry, version, 'WRITE_GEOMETRIES')">With Geometries</a></li>
+			    <li role="menuitem"><a class="dropdown-item" (click)="onExportRDF(entry, version, 'WRITE_SIMPLIFIED_GEOMETRIES')">With Simplified Geometries</a></li>
+			    <li role="menuitem"><a class="dropdown-item" (click)="onExportRDF(entry, version, 'NO_GEOMETRIES')">Without Geometries</a></li>
 			  </ul>
 			</div>
             <button type="submit" (click)="onDelete(entry, version)"

@@ -36,6 +36,7 @@ import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.simplify.TopologyPreservingSimplifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,7 +108,7 @@ public class LabeledPropertyGraphRDFExportBusinessService implements LabeledProp
   
   protected ClassificationCache classiCache = new ClassificationCache();
   
-  protected boolean writeGeometries;
+  protected GeometryExportType geomExportType;
   
   public static class CachedGraphTypeSnapshot
   {
@@ -121,10 +122,17 @@ public class LabeledPropertyGraphRDFExportBusinessService implements LabeledProp
       this.graphMdEdge = this.graphType.getGraphMdEdge();
     }
   }
-
-  public void export(LabeledPropertyGraphTypeVersion version, boolean writeGeometries, OutputStream os)
+  
+  public static enum GeometryExportType
   {
-    this.writeGeometries = writeGeometries;
+    WRITE_GEOMETRIES,
+    WRITE_SIMPLIFIED_GEOMETRIES,
+    NO_GEOMETRIES
+  }
+
+  public void export(LabeledPropertyGraphTypeVersion version, GeometryExportType geomExportType, OutputStream os)
+  {
+    this.geomExportType = geomExportType;
     this.version = version;
     this.entry = version.getEntry();
     this.lpg = entry.getGraphType();
@@ -306,12 +314,22 @@ public class LabeledPropertyGraphRDFExportBusinessService implements LabeledProp
 
     });
     
-    if (this.writeGeometries && valueMap.containsKey(DefaultAttribute.GEOMETRY.getName()))
+    boolean includeGeoms = !GeometryExportType.NO_GEOMETRIES.equals(geomExportType);
+    if (includeGeoms && valueMap.containsKey(DefaultAttribute.GEOMETRY.getName()))
     {
       Geometry geom = (Geometry) valueMap.get(DefaultAttribute.GEOMETRY.getName());
       
       if (geom != null)
       {
+        final double MAX_POINTS = 10000;
+        
+        if (GeometryExportType.WRITE_SIMPLIFIED_GEOMETRIES.equals(geomExportType) && geom.getNumPoints() > MAX_POINTS)
+        {
+          System.out.println("Simplifying geometry. numPoints = " + geom.getNumPoints());
+          double tolerance = 360/43200; // corresponds to 30" degrees (appr. 1 km at the equator)
+          geom = TopologyPreservingSimplifier.simplify(geom, tolerance);
+        }
+        
         writer.quad(Quad.create(
             NodeFactory.createURI(quadGraphName),
             buildGeoObjectUri(code, type.getCode(), orgCode, false),
