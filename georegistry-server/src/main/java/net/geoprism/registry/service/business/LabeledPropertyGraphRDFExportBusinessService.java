@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.math3.util.MathUtils;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.riot.RDFFormat;
@@ -321,13 +322,15 @@ public class LabeledPropertyGraphRDFExportBusinessService implements LabeledProp
       
       if (geom != null)
       {
+        final boolean simplify = GeometryExportType.WRITE_SIMPLIFIED_GEOMETRIES.equals(geomExportType);
         final double MAX_POINTS = 10000;
+        final int numPoints = simplify ? geom.getNumPoints() : -1;
         
-        if (GeometryExportType.WRITE_SIMPLIFIED_GEOMETRIES.equals(geomExportType) && geom.getNumPoints() > MAX_POINTS)
+        if (simplify && numPoints > MAX_POINTS)
         {
-          System.out.println("Simplifying geometry. numPoints = " + geom.getNumPoints());
-          double tolerance = 360/43200; // corresponds to 30" degrees (appr. 1 km at the equator)
+          double tolerance = Math.min(4d, 0.0000000006d * numPoints);
           geom = TopologyPreservingSimplifier.simplify(geom, tolerance);
+          logger.info("Simplified geometry from " + numPoints + " to " + geom.getNumPoints());
         }
         
         writer.quad(Quad.create(
