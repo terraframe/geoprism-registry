@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.commons.math3.util.MathUtils;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.riot.RDFFormat;
@@ -78,6 +77,10 @@ public class LabeledPropertyGraphRDFExportBusinessService implements LabeledProp
   public static final String RDFS = "rdfs";
   
   public static final String DCTERMS = "dcterms";
+  
+  public static final String GEO = "geo";
+  
+  public static final String SF = "sf";
   
   public static final long BLOCK_SIZE = 1000;
   
@@ -333,11 +336,41 @@ public class LabeledPropertyGraphRDFExportBusinessService implements LabeledProp
           logger.info("Simplified geometry from " + numPoints + " to " + geom.getNumPoints());
         }
         
+        // This GeoObject has a Geometry
         writer.quad(Quad.create(
             NodeFactory.createURI(quadGraphName),
             buildGeoObjectUri(code, type.getCode(), orgCode, false),
-            NodeFactory.createURI(buildAttributeUri(type, orgCode, DefaultAttribute.GEOMETRY.createAttributeType())),
-            NodeFactory.createLiteral(geom.toText())
+            NodeFactory.createURI(prefixes.get(GEO) + "hasGeometry"),
+            NodeFactory.createURI(prefixes.get(LPGV) + type.getCode() + "-" + code + "Geometry")
+        ));
+        
+        String srs_uri = "http://www.opengis.net/def/crs/OGC/1.3/CRS84";
+        if (geom.getSRID() > 0) { srs_uri = "http://www.opengis.net/def/crs/EPSG/0/" + geom.getSRID(); }
+        
+        // Write a Geometry Node
+        writer.quad(Quad.create(
+            NodeFactory.createURI(quadGraphName),
+            NodeFactory.createURI(prefixes.get(LPGV) + type.getCode() + "-" + code + "Geometry"),
+            org.apache.jena.vocabulary.RDF.type.asNode(),
+            NodeFactory.createURI(prefixes.get(GEO) + "Geometry")
+        ));
+        writer.quad(Quad.create(
+            NodeFactory.createURI(quadGraphName),
+            NodeFactory.createURI(prefixes.get(LPGV) + type.getCode() + "-" + code + "Geometry"),
+            org.apache.jena.vocabulary.RDF.type.asNode(),
+            NodeFactory.createURI(prefixes.get(SF) + geom.getClass().getSimpleName())
+        ));
+        writer.quad(Quad.create(
+            NodeFactory.createURI(quadGraphName),
+            NodeFactory.createURI(prefixes.get(LPGV) + type.getCode() + "-" + code + "Geometry"),
+            NodeFactory.createURI(prefixes.get(GEO) + "asWKT"),
+            NodeFactory.createLiteral("<" + srs_uri + "> " + geom.toText(), new org.apache.jena.datatypes.BaseDatatype(prefixes.get(GEO) + "wktLiteral"))
+            
+            // The Jena GeoSPARQL Java API was found to be incompatible with our stack due to the fact that we are using a GeoTools below v30.
+            // Geotools v26.7 includes within in it embedded GeoAPI source (see https://docs.geotools.org/stable/userguide/library/api/faq.html)
+            // This embedded source code conflicts with the GeoAPI library dependency which Jena GeoSPARQL brings in and causes compile errors
+            // For this reason, we are instead manually building the literal reference.
+//            GeometryWrapperFactory.createGeometry(geom, SRSInfo.convertSRID(geom.getSRID()), WKTDatatype.INSTANCE.getURI()).asNode()
         ));
       }
     }
@@ -396,6 +429,8 @@ public class LabeledPropertyGraphRDFExportBusinessService implements LabeledProp
 //    prefixes.put(RDF, org.apache.jena.vocabulary.RDF.getURI()); // If we include this Jena won't replace rdf:type with 'a', which is just a little syntactic sugar
     prefixes.put(RDFS, org.apache.jena.vocabulary.RDFS.getURI());
     prefixes.put(DCTERMS, "http://purl.org/dc/terms/");
+    prefixes.put(GEO, "http://www.opengis.net/ont/geosparql#");
+    prefixes.put(SF, "http://www.opengis.net/ont/sf#");
     
     prefixes.put(LPG, GeoprismProperties.getRemoteServerUrl() + "lpg#");
     prefixes.put(LPGS, GeoprismProperties.getRemoteServerUrl() + "lpg/rdfs#");
@@ -472,7 +507,21 @@ public class LabeledPropertyGraphRDFExportBusinessService implements LabeledProp
         NodeFactory.createLiteral(lpg.getOrganization().getCode())
     ));
     
-    // Our LPG has the following GeoObjectTypes
+    // GeoObject definition
+    writer.quad(Quad.create(
+        NodeFactory.createURI(prefixes.get(LPG)),
+        NodeFactory.createURI(prefixes.get(LPGS) + "GeoObject"),
+        org.apache.jena.vocabulary.RDF.type.asNode(),
+        org.apache.jena.vocabulary.RDFS.Class.asNode()
+    ));
+    writer.quad(Quad.create(
+            NodeFactory.createURI(prefixes.get(LPG)),
+            NodeFactory.createURI(prefixes.get(LPGS) + "GeoObject"),
+            org.apache.jena.vocabulary.RDFS.subClassOf.asNode(),
+            NodeFactory.createURI(prefixes.get(GEO) + "feature")
+        ));
+    
+    // Our LPG has the following GeoObjects
     for (GeoObjectTypeSnapshot got : gotSnaps.values())
     {
       if (!got.isRoot())
@@ -481,7 +530,7 @@ public class LabeledPropertyGraphRDFExportBusinessService implements LabeledProp
             NodeFactory.createURI(prefixes.get(LPG)),
             NodeFactory.createURI(prefixes.get(LPGVS) + got.getCode()),
             NodeFactory.createURI(prefixes.get(RDFS) + "subClassOf"),
-            NodeFactory.createURI(prefixes.get(LPGS) + "GeoObjectType")
+            NodeFactory.createURI(prefixes.get(LPGS) + "GeoObject")
         ));
       }
     }
@@ -502,7 +551,7 @@ public class LabeledPropertyGraphRDFExportBusinessService implements LabeledProp
   {
     if (attribute.getIsDefault())
     {
-      return prefixes.get(LPGS) + "GeoObjectType-" + attribute.getName();
+      return prefixes.get(LPGS) + "GeoObject-" + attribute.getName();
     }
     
     return prefixes.get(LPGVS) + type.getCode() + "-" + attribute.getName();
