@@ -551,6 +551,11 @@ public class LabeledPropertyGraphRDFExportBusinessService implements LabeledProp
   {
     if (attribute.getIsDefault())
     {
+      if (attribute.getName().equals(DefaultAttribute.DISPLAY_LABEL.getName()))
+      {
+        return prefixes.get(RDFS) + "label";
+      }
+      
       return prefixes.get(LPGS) + "GeoObject-" + attribute.getName();
     }
     
