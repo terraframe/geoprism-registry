@@ -23,13 +23,21 @@
   <xs:element name="CGR" type="rootOptions" />
   <xs:complexType name="rootOptions">
     <xs:choice minOccurs="0" maxOccurs="unbounded">
-      <xs:element name="type" type="type" />
-      <xs:element name="business-type" type="business-type" />
-      <xs:element name="hierarchy" type="hierarchy" />
-      <xs:element name="dag" type="graph" />
-      <xs:element name="undirected-graph" type="graph" />      
-      <xs:element name="business-edge" type="business-edge" />      
+      <xs:element name="organization" type="organization" />
     </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="organization">
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="type" type="type" />
+        <xs:element name="business-type" type="business-type" />
+        <xs:element name="hierarchy" type="hierarchy" />
+        <xs:element name="dag" type="graph" />
+        <xs:element name="undirected-graph" type="graph" />
+        <xs:element name="business-edge" type="business-edge" />
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute name="code" type="xs:string" use="required" />
   </xs:complexType>
   <xs:complexType name="hierarchy">
     <xs:sequence>
