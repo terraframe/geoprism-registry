@@ -21,8 +21,6 @@ package net.geoprism.registry;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
-import javax.servlet.Filter;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -31,13 +29,17 @@ import org.springframework.format.datetime.DateFormatterRegistrar;
 import org.springframework.format.datetime.standard.DateTimeFormatterRegistrar;
 import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.format.support.FormattingConversionService;
-import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.util.unit.DataSize;
+import org.springframework.web.multipart.MultipartResolver;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.springframework.web.servlet.view.BeanNameViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 
+import jakarta.servlet.Filter;
+import jakarta.servlet.MultipartConfigElement;
 import net.geoprism.EncodingFilter;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.service.SessionFilter;
@@ -50,11 +52,16 @@ public class SpringAppConfig extends WebMvcConfigurationSupport
 {
 
   @Bean(name = "multipartResolver")
-  public CommonsMultipartResolver multipartResolver()
+  public MultipartResolver multipartResolver()
   {
-    CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver();
-    multipartResolver.setMaxUploadSize(-1);
+    StandardServletMultipartResolver multipartResolver = new StandardServletMultipartResolver();
     return multipartResolver;
+  }
+  
+  @Bean
+  public MultipartConfigElement multipartConfigElement() {
+      // Unlimited file size (-1 for maxFileSize and maxRequestSize)
+      return new MultipartConfigElement("", -1, -1, 0);
   }
 
   @Bean

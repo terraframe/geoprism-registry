@@ -83,15 +83,15 @@
 				<plugins>
 					<plugin>
 						<groupId>org.codehaus.cargo</groupId>
-						<artifactId>cargo-maven2-plugin</artifactId>
-						<version>1.7.11</version>
+						<artifactId>cargo-maven3-plugin</artifactId>
+						<version>1.10.15</version>
 						<configuration>
 							<container>
-								<containerId>tomcat8x</containerId>
+								<containerId>tomcat11x</containerId>
 								<artifactInstaller>
 									<groupId>org.apache.tomcat</groupId>
 									<artifactId>tomcat</artifactId>
-									<version>8.5.77</version>
+									<version>11.0.0</version>
 								</artifactInstaller>
 								<timeout>4800000</timeout>
 							</container>

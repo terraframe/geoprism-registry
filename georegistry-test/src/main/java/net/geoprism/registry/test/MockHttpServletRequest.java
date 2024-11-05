@@ -12,19 +12,21 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.servlet.AsyncContext;
-import javax.servlet.DispatcherType;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletInputStream;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.Part;
+import jakarta.servlet.AsyncContext;
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletConnection;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpUpgradeHandler;
+import jakarta.servlet.http.Part;
 
 import com.runwaysdk.constants.ClientConstants;
 import com.runwaysdk.constants.ClientRequestIF;
@@ -210,13 +212,6 @@ public class MockHttpServletRequest implements HttpServletRequest
 
   @Override
   public RequestDispatcher getRequestDispatcher(String path)
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public String getRealPath(String path)
   {
     // TODO Auto-generated method stub
     return null;
@@ -468,13 +463,6 @@ public class MockHttpServletRequest implements HttpServletRequest
   }
 
   @Override
-  public boolean isRequestedSessionIdFromUrl()
-  {
-    // TODO Auto-generated method stub
-    return false;
-  }
-
-  @Override
   public boolean authenticate(HttpServletResponse response) throws IOException, ServletException
   {
     // TODO Auto-generated method stub
@@ -504,6 +492,48 @@ public class MockHttpServletRequest implements HttpServletRequest
 
   @Override
   public Part getPart(String name) throws IOException, ServletException
+  {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public long getContentLengthLong()
+  {
+    // TODO Auto-generated method stub
+    return 0;
+  }
+
+  @Override
+  public String getRequestId()
+  {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public String getProtocolRequestId()
+  {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public ServletConnection getServletConnection()
+  {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public String changeSessionId()
+  {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, ServletException
   {
     // TODO Auto-generated method stub
     return null;
