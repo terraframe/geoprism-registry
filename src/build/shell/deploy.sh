@@ -7,11 +7,6 @@
 
 export ANSIBLE_HOST_KEY_CHECKING=false
 
-# TODO : Remove this later
-echo | openssl s_client -connect repo.osgeo.org:443 -servername repo.osgeo.org | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > osgeo.crt
-yes | keytool -importcert -file osgeo.crt -alias osgeo -keystore $JAVA_HOME/lib/security/cacerts -storepass changeit
-
-
 :
 : ----------------------------------
 :  Build and test
