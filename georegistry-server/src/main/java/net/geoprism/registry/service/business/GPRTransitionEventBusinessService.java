@@ -252,7 +252,7 @@ public class GPRTransitionEventBusinessService extends TransitionEventBusinessSe
 
     Long count = getCount(type, startDate, endDate);
 
-    List<HistoricalRow> results = query.getRawResults().stream().map(list -> HistoricalRow.parse(list)).collect(Collectors.toList());
+    List<HistoricalRow> results = query.getResults().stream().map(list -> HistoricalRow.parse(list)).collect(Collectors.toList());
 
     return new Page<HistoricalRow>(count, pageNumber, pageSize, results);
   }
