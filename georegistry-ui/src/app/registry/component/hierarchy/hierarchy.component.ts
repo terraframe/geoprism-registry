@@ -1375,7 +1375,7 @@ export class HierarchyComponent implements OnInit {
 
         this.bsModalRef.content.onNodeChange.subscribe(orgCode => {
             if (orgCode != null && orgCode.length > 0) {
-                window.location.href = environment.apiUrl + "api/cgr/export-types?code=" + orgCode;
+                window.location.href = environment.apiUrl + "/api/cgr/export-types?code=" + orgCode;
             }
         });
     }
