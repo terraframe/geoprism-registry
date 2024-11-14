@@ -1360,7 +1360,7 @@ public class GeoObjectImporter implements ObjectImporterIF
 
           if (Boolean.TRUE.equals(validationResult))
           {
-            attrClass.setSkipValidation(true);
+            attrClass.setValidate(false);
 
             try
             {
@@ -1368,7 +1368,7 @@ public class GeoObjectImporter implements ObjectImporterIF
             }
             finally
             {
-              attrClass.setSkipValidation(false);
+              attrClass.setValidate(true);
             }
           }
           else
