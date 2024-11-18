@@ -87,11 +87,11 @@
 						<version>1.7.11</version>
 						<configuration>
 							<container>
-								<containerId>tomcat8x</containerId>
+								<containerId>tomcat9x</containerId>
 								<artifactInstaller>
 									<groupId>org.apache.tomcat</groupId>
 									<artifactId>tomcat</artifactId>
-									<version>8.5.77</version>
+									<version>9.0.97</version>
 								</artifactInstaller>
 								<timeout>4800000</timeout>
 							</container>

@@ -2,7 +2,7 @@
 #
 #
 
-FROM tomcat:8.5-jdk11-openjdk
+FROM tomcat:9-jdk11-openjdk
 
 ENV CGR_VERSION=LATEST
 ENV GEOSERVER_VERSION=2.20.2-terraframe
