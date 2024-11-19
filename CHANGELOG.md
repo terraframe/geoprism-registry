@@ -4,6 +4,10 @@
 
 ## [1.5.0](https://github.com/terraframe/geoprism-registry/releases/tag/1.5.0) (2024-11-19)
 
+### Features
+
+   - **maintenance** Backup and restore mechanism for instance data. Will be required for patching to 1.6.0.
+   - **admin** added status column to admin user table
 
 ### Bug Fixes
 
