@@ -61,7 +61,6 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
-import net.geoprism.registry.service.business.GraphPublisherServiceOld.CachedGOTSnapshot;
 
 @Service
 public class GraphPublisherService extends AbstractGraphVersionPublisherService
