@@ -2,6 +2,19 @@
 # Release Notes
 
 
+## [1.5.0](https://github.com/terraframe/geoprism-registry/releases/tag/1.5.0) (2024-11-19)
+
+### Features
+
+   - **maintenance** Backup and restore mechanism for instance data. Will be required for patching to 1.6.0.
+   - **admin** added status column to admin user table
+
+### Bug Fixes
+
+   - **security** upgrade to tomcat 9 to get latest security updates   ([d5624](https://github.com/terraframe/geoprism-registry/commit/d5624be257bfdb2ab040f453ae0ff1dc60775b1e))
+
+
+
 ## [1.4.0](https://github.com/terraframe/geoprism-registry/releases/tag/1.4.0) (2024-01-05)
 
 ### Features
