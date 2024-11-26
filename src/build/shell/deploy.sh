@@ -21,10 +21,11 @@ if [ "$build_artifact" == "true" ]; then
   #node --max_old_space_size=4096 ./node_modules/webpack/bin/webpack.js --config config/webpack.prod.js --profile
   npm run build  
   
-  cd $WORKSPACE
-  git clone -b attribution-node git@github.com:terraframe/geoprism.git
-  cd geoprism
-  mvn clean install -B
+  ## If you need a specific version of geoprism you can set that here.
+  #cd $WORKSPACE
+  #git clone -b attribution-node git@github.com:terraframe/geoprism.git
+  #cd geoprism
+  #mvn clean install -B
   
   cd $WORKSPACE/georegistry
   #mvn clean install -B -Djavax.net.ssl.trustStore=$WORKSPACE/georegistry/georegistry-web/src/test/resources/tomcat.truststore -Djavax.net.ssl.trustStorePassword=2v8hVW2rPFncN6m -Djavax.net.ssl.keyStore=$WORKSPACE/georegistry/georegistry-web/src/test/resources/keystore.ks -Djavax.net.ssl.keyStorePassword=2v8hVW2rPFncN6m
