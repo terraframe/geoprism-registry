@@ -245,7 +245,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
   protected void publish(TraversalState state, GraphType graphType, GraphTypeSnapshot graphSnapshot, LabeledPropertyGraphTypeVersion version)
   {
     final String dbClass = graphType.getMdEdgeDAO().getDBClassName();
-    final MdEdge mdEdge = MdEdge.get(graphType.getMdEdgeDAO().getOid());
+    final MdEdge snapshotMdEdge = graphSnapshot.getGraphMdEdge();
     
     long skip = 0;
     boolean hasMoreData = true;
@@ -261,15 +261,15 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
       
       for (EdgeObject result : results)
       {
-        CachedGOTSnapshot inGotCached = this.gotSnaps.get(result.getParent().getObjectValue(DefaultAttribute.CODE.getName()));
-        CachedGOTSnapshot outGotCached = this.gotSnaps.get(result.getChild().getObjectValue(DefaultAttribute.CODE.getName()));
+        CachedGOTSnapshot inGotCached = this.gotSnaps.get(ServerGeoObjectType.get((MdVertexDAOIF) result.getParent().getMdClass()).getCode());
+        CachedGOTSnapshot outGotCached = this.gotSnaps.get(ServerGeoObjectType.get((MdVertexDAOIF) result.getChild().getMdClass()).getCode());
         
         if (inGotCached != null && outGotCached != null)
         {
-          final String inRid = getRid(state, inGotCached.graphMdVertex, result.getChild().getObjectValue(DefaultAttribute.UID.getName()));
+          final String inRid = getRid(state, inGotCached.graphMdVertex, result.getParent().getObjectValue(DefaultAttribute.UID.getName()));
           final String outRid = getRid(state, outGotCached.graphMdVertex, result.getChild().getObjectValue(DefaultAttribute.UID.getName()));
           
-          createEdge(inRid, outRid, mdEdge);
+          createEdge(inRid, outRid, snapshotMdEdge);
         }
       }
       

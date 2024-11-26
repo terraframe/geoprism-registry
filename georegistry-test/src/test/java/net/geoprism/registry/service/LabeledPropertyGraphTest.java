@@ -435,21 +435,25 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
       GeoObjectTypeSnapshot graphVertex = this.objectService.get(version, USATestData.COUNTRY.getCode());
       MdVertex mdVertex = graphVertex.getGraphMdVertex();
 
-//      GraphTypeSnapshot graphEdge = this.graphSnapshotService.get(version, GraphType.getTypeCode(dagType), dagType.getCode());
-
-      GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>("SELECT FROM " + mdVertex.getDbClassName());
-      List<EdgeObject> results = query.getResults();
+      /*
+       * We should expect to see 3 countries
+       */
+      GraphQuery<VertexObject> query = new GraphQuery<VertexObject>("SELECT FROM " + mdVertex.getDbClassName());
+      List<VertexObject> results = query.getResults();
 
       Assert.assertEquals(3, results.size());
+      
+      /*
+       * There should be an edge between USA and Colorado
+       */
+      GraphTypeSnapshot graphEdge = this.graphSnapshotService.get(version, GraphType.getTypeCode(dagType), dagType.getCode());
 
-//      EdgeObject result = results.get(0);
-//      
-//      String codeValue = result.getObjectValue(DefaultAttribute.CODE.getName());
-//      Assert.assertTrue(codeValue.equals(USATestData.USA.getCode()) || codeValue.equals(USATestData.COLORADO.getCode()));
-//
-//      List<VertexObject> children = result.getChildren(graphEdge.getGraphMdEdge().definesType(), VertexObject.class);
-//
-//      Assert.assertEquals(2, children.size());
+      VertexObject usa = results.stream().filter(r -> r.getObjectValue(DefaultAttribute.CODE.getName()).equals(USATestData.USA.getCode())).findFirst().get();
+
+      List<VertexObject> children = usa.getChildren(graphEdge.getGraphMdEdge().definesType(), VertexObject.class);
+
+      Assert.assertEquals(1, children.size());
+      Assert.assertEquals(USATestData.COLORADO.getCode(), children.get(0).getObjectValue(DefaultAttribute.CODE.getName()));
     }
     finally
     {
