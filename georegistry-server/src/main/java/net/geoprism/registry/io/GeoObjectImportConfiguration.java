@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang3.StringUtils;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
@@ -469,7 +470,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
         // In the case of a spreadsheet, this ends up being the column header
         String target = attribute.getString(TARGET);
 
-        String functionType = attribute.getString(CLASS);
+        String functionType = attribute.has(CLASS) ? attribute.getString(CLASS) : "";
 
         if (attribute.has("locale"))
         {
@@ -491,7 +492,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
         {
           this.setFunction(attributeName, new BasicColumnFunction(target));
         }
-        else
+        else if (!StringUtils.isBlank(functionType))
         {
           try
           {
@@ -503,6 +504,10 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
           catch (Exception e)
           {
           }
+        }
+        else
+        {
+          this.setFunction(attributeName, new BasicColumnFunction(target));
         }
       }
     }
@@ -520,7 +525,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
         String target = location.getString(TARGET);
         ParentMatchStrategy matchStrategy = ParentMatchStrategy.valueOf(location.getString(MATCH_STRATEGY));
 
-        String functionType = location.getString(CLASS);
+        String functionType = location.has(CLASS) ? location.getString(CLASS) : "";
 
         if (functionType.equals(ConstantShapefileFunction.class.getName()))
         {
@@ -530,7 +535,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
         {
           this.addParent(new Location(pType, pHierarchy, new BasicColumnFunction(target), matchStrategy));
         }
-        else
+        else if (!StringUtils.isBlank(functionType))
         {
           try
           {
@@ -542,6 +547,10 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
           catch (Exception e)
           {
           }
+        }
+        else
+        {
+          this.addParent(new Location(pType, pHierarchy, new BasicColumnFunction(target), matchStrategy));
         }
       }
     }
