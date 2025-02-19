@@ -46,7 +46,7 @@ public class LabeledPropertyGraphRDFExportController extends RunwaySpringControl
   private LabeledPropertyGraphRDFExportService  rdfExportService;
   
   @GetMapping(API_PATH + "/export")
-  public ResponseEntity<?> export(HttpServletRequest request, @RequestParam(name = "geomExportType", required = false) String sGeomExportType, @RequestParam(required = true) String versionId)
+  public ResponseEntity<InputStreamResource> export(HttpServletRequest request, @RequestParam(name = "geomExportType", required = false) String sGeomExportType, @RequestParam(required = true) String versionId)
   {
     GeometryExportType geomExportType = GeometryExportType.NO_GEOMETRIES;
     if (StringUtils.isBlank(sGeomExportType)) geomExportType = GeometryExportType.NO_GEOMETRIES;

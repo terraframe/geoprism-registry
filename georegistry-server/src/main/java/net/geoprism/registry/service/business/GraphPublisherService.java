@@ -218,11 +218,11 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
     boolean hasMoreData = true;
     
     long total = new GraphQuery<Long>("SELECT COUNT(*) FROM " + dbClass).getSingleResult();
-    logger.error("Beginning publishing " + total + " records of GeoObjectType " + dbClass);
+    logger.info("Beginning publishing " + total + " records of GeoObjectType " + dbClass);
     
     while (hasMoreData)
     {
-      logger.error("Publishing block " + skip + " through " + Math.min(skip + BLOCK_SIZE, total) + " of total " + total);
+      logger.info("Publishing block " + skip + " through " + Math.min(skip + BLOCK_SIZE, total) + " of total " + total);
       
       VertexGeoObjectQuery query = new VertexGeoObjectQuery(type, null);
       query.setLimit((int) BLOCK_SIZE);
