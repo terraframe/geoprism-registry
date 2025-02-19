@@ -19,12 +19,15 @@
 package net.geoprism.registry.service.business;
 
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
@@ -51,6 +54,7 @@ import org.springframework.stereotype.Service;
 
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.metadata.MdVertex;
 
@@ -284,54 +288,34 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
 
           if (value != null)
           {
-            writer.quad(
-                Quad.create(
-                    NodeFactory.createURI(quadGraphName), 
-                    buildGeoObjectUri(code, type.getCode(), orgCode, false), 
-                    NodeFactory.createURI(buildAttributeUri(type, orgCode, attribute)), 
-                    NodeFactory.createLiteralByValue(value, XSDDatatype.XSDlong)));
+            writer.quad(Quad.create(NodeFactory.createURI(quadGraphName), buildGeoObjectUri(code, type.getCode(), orgCode, false), NodeFactory.createURI(buildAttributeUri(type, orgCode, attribute)), NodeFactory.createLiteralByValue(value, XSDDatatype.XSDlong)));
           }
         }
         else if (attribute instanceof AttributeFloatType)
         {
           Object value = valueMap.get(attribute.getName());
-          
+
           if (value != null)
           {
-            writer.quad(
-                Quad.create(
-                    NodeFactory.createURI(quadGraphName), 
-                    buildGeoObjectUri(code, type.getCode(), orgCode, false), 
-                    NodeFactory.createURI(buildAttributeUri(type, orgCode, attribute)), 
-                    NodeFactory.createLiteralByValue(value, XSDDatatype.XSDdouble)));
+            writer.quad(Quad.create(NodeFactory.createURI(quadGraphName), buildGeoObjectUri(code, type.getCode(), orgCode, false), NodeFactory.createURI(buildAttributeUri(type, orgCode, attribute)), NodeFactory.createLiteralByValue(value, XSDDatatype.XSDdouble)));
           }
         }
         else if (attribute instanceof AttributeDateType)
         {
           Object value = valueMap.get(attribute.getName());
-          
+
           if (value != null)
           {
-            writer.quad(
-                Quad.create(
-                    NodeFactory.createURI(quadGraphName), 
-                    buildGeoObjectUri(code, type.getCode(), orgCode, false), 
-                    NodeFactory.createURI(buildAttributeUri(type, orgCode, attribute)), 
-                    NodeFactory.createLiteralByValue(value, XSDDatatype.XSDdateTime)));
+            writer.quad(Quad.create(NodeFactory.createURI(quadGraphName), buildGeoObjectUri(code, type.getCode(), orgCode, false), NodeFactory.createURI(buildAttributeUri(type, orgCode, attribute)), NodeFactory.createLiteralByValue(value, XSDDatatype.XSDdateTime)));
           }
         }
         else if (attribute instanceof AttributeBooleanType)
         {
           Object value = valueMap.get(attribute.getName());
-          
+
           if (value != null)
           {
-            writer.quad(
-                Quad.create(
-                    NodeFactory.createURI(quadGraphName), 
-                    buildGeoObjectUri(code, type.getCode(), orgCode, false), 
-                    NodeFactory.createURI(buildAttributeUri(type, orgCode, attribute)), 
-                    NodeFactory.createLiteralByValue(value, XSDDatatype.XSDboolean)));
+            writer.quad(Quad.create(NodeFactory.createURI(quadGraphName), buildGeoObjectUri(code, type.getCode(), orgCode, false), NodeFactory.createURI(buildAttributeUri(type, orgCode, attribute)), NodeFactory.createLiteralByValue(value, XSDDatatype.XSDboolean)));
           }
         }
         else
@@ -379,12 +363,7 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
 
           if (literal != null)
           {
-            writer.quad(
-                Quad.create(
-                    NodeFactory.createURI(quadGraphName), 
-                    buildGeoObjectUri(code, type.getCode(), orgCode, false), 
-                    NodeFactory.createURI(buildAttributeUri(type, orgCode, attribute)), 
-                    NodeFactory.createLiteral(literal)));
+            writer.quad(Quad.create(NodeFactory.createURI(quadGraphName), buildGeoObjectUri(code, type.getCode(), orgCode, false), NodeFactory.createURI(buildAttributeUri(type, orgCode, attribute)), NodeFactory.createLiteral(literal)));
           }
         }
       }
@@ -543,9 +522,16 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
 
   protected Node buildGeoObjectUri(String code, final String typeCode, final String orgCode, boolean includeType)
   {
-    String uri = prefixes.get(LPGV) + typeCode + "-" + code;
+    try
+    {
+      String uri = prefixes.get(LPGV) + typeCode + "-" + URLEncoder.encode(code, "UTF-8");
 
-    return NodeFactory.createURI(uri);
+      return NodeFactory.createURI(uri);
+    }
+    catch (UnsupportedEncodingException e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
   }
 
   protected String buildQuadGraphName(LabeledPropertyGraphTypeVersion version)
