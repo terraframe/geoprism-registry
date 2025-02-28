@@ -169,16 +169,20 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
           throw new InvalidMasterListException();
         }
         
-        ProgressService.put(lpgt.getOid(), new Progress(0L, (long) lpgt.getGraphTypeReferences().size(), version.getOid()));
+        List<CachedGOTSnapshot> publishedTypes = gotSnaps.values().stream().filter(gs -> !gs.got.isRoot()).collect(Collectors.toList());
+        
+        long totalWork = lpgt.getGraphTypeReferences().size() + publishedTypes.size();
+        
+        ProgressService.put(lpgt.getOid(), new Progress(0L, totalWork, version.getOid()));
         
         // Publish all the GeoObjectTypes
-        for (CachedGOTSnapshot gotSnap : gotSnaps.values().stream().filter(gs -> !gs.got.isRoot()).collect(Collectors.toList()))
+        for (CachedGOTSnapshot gotSnap : publishedTypes)
         {
           publish(state, gotSnap, version);
           
           count++;
           
-          ProgressService.put(lpgt.getOid(), new Progress(count, (long) lpgt.getGraphTypeReferences().size(), version.getOid()));
+          ProgressService.put(lpgt.getOid(), new Progress(count, totalWork, version.getOid()));
         }
         
         // Publish the edges
@@ -190,10 +194,10 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
           
           count++;
           
-          ProgressService.put(lpgt.getOid(), new Progress(count, (long) lpgt.getGraphTypeReferences().size(), version.getOid()));
+          ProgressService.put(lpgt.getOid(), new Progress(count, totalWork, version.getOid()));
         }
 
-        ProgressService.put(lpgt.getOid(), new Progress((long) lpgt.getGraphTypeReferences().size(), (long) lpgt.getGraphTypeReferences().size(), version.getOid()));
+        ProgressService.put(lpgt.getOid(), new Progress(totalWork, totalWork, version.getOid()));
       }
       finally
       {
