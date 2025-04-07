@@ -261,7 +261,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
     {
       logger.info("Publishing block " + skip + " through " + Math.min(skip + BLOCK_SIZE, total) + " of total " + total);
       
-      List<EdgeObject> results = new GraphQuery<EdgeObject>("SELECT * FROM " + dbClass + " LIMIT " + BLOCK_SIZE + " SKIP " + skip).getResults();
+      List<EdgeObject> results = new GraphQuery<EdgeObject>("SELECT * FROM " + dbClass + " ORDER BY out.@class, in.@class, out, in LIMIT " + BLOCK_SIZE + " SKIP " + skip).getResults();
       
       for (EdgeObject result : results)
       {
