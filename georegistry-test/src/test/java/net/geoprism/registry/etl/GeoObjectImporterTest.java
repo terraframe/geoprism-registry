@@ -57,9 +57,9 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.request.ETLService;
 import net.geoprism.registry.service.request.ExcelService;
-import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
@@ -80,8 +80,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
   private ETLService                 etlService;
 
   @Autowired
-  private ExcelService                 service;
-
+  private ExcelService               service;
 
   @Override
   public void beforeClassSetup() throws Exception
@@ -123,7 +122,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
 
     for (int i = 1; i < 11; ++i)
     {
-      TestGeoObjectInfo one = testData.newTestGeoObjectInfo("000" + i, USATestData.DISTRICT);
+      TestGeoObjectInfo one = testData.newTestGeoObjectInfo("000" + i, USATestData.DISTRICT, USATestData.SOURCE);
       one.setCode("000" + i);
       one.delete();
     }
@@ -439,10 +438,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     ServerGeoObjectIF coloradoDistOne = this.objectService.getGeoObjectByCode(USATestData.CO_D_ONE.getCode(), USATestData.DISTRICT.getCode());
 
     GeometryFactory cd1_factory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 4326);
-    MultiPoint cd1_expected = new MultiPoint(new Point[] {
-        new Point(new CoordinateSequence2D(Double.valueOf(110), Double.valueOf(80)), cd1_factory),
-        new Point(new CoordinateSequence2D(Double.valueOf(120), Double.valueOf(70)), cd1_factory)
-    }, cd1_factory);
+    MultiPoint cd1_expected = new MultiPoint(new Point[] { new Point(new CoordinateSequence2D(Double.valueOf(110), Double.valueOf(80)), cd1_factory), new Point(new CoordinateSequence2D(Double.valueOf(120), Double.valueOf(70)), cd1_factory) }, cd1_factory);
 
     Geometry cd1_geometry = coloradoDistOne.getGeometry();
     Assert.assertEquals(cd1_expected, cd1_geometry);
@@ -456,7 +452,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
   @Request
   public void testErrorSerializeParents() throws InterruptedException
   {
-    TestGeoObjectInfo state00 = testData.newTestGeoObjectInfo("00", USATestData.STATE);
+    TestGeoObjectInfo state00 = testData.newTestGeoObjectInfo("00", USATestData.STATE, USATestData.SOURCE);
     state00.setCode("00");
     state00.setDisplayLabel("Test Label");
     state00.setRegistryId(ServiceFactory.getIdService().getUids(1)[0]);
@@ -552,11 +548,11 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
   @Request
   public void testGetImportDetails() throws InterruptedException
   {
-    TestGeoObjectInfo one = testData.newTestGeoObjectInfo("0001", USATestData.DISTRICT);
+    TestGeoObjectInfo one = testData.newTestGeoObjectInfo("0001", USATestData.DISTRICT, USATestData.SOURCE);
     one.setCode("0001");
     one.delete();
 
-    TestGeoObjectInfo two = testData.newTestGeoObjectInfo("0002", USATestData.DISTRICT);
+    TestGeoObjectInfo two = testData.newTestGeoObjectInfo("0002", USATestData.DISTRICT, USATestData.SOURCE);
     two.setCode("0002");
     two.delete();
 

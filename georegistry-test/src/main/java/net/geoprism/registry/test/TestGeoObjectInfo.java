@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.RegistryAdapter;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -53,27 +54,29 @@ public class TestGeoObjectInfo extends TestCachedObject<ServerGeoObjectIF>
 
   private Date                    date;
 
+  private TestSourceInfo          source;
+
   private HashMap<String, Object> defaultValues;
 
-  public TestGeoObjectInfo(String label, String code, TestGeoObjectTypeInfo testUni, String wkt, Boolean exists, Boolean isNew)
+  public TestGeoObjectInfo(String label, String code, TestGeoObjectTypeInfo testUni, String wkt, Boolean exists, Boolean isNew, TestSourceInfo source)
   {
-    initialize(code, testUni, exists, isNew);
+    initialize(code, testUni, exists, isNew, source);
     this.displayLabel = label;
     this.wkt = wkt;
   }
 
-  public TestGeoObjectInfo(String code, TestGeoObjectTypeInfo testUni, String wkt, Boolean exists, Boolean isNew)
+  public TestGeoObjectInfo(String code, TestGeoObjectTypeInfo testUni, String wkt, Boolean exists, Boolean isNew, TestSourceInfo source)
   {
-    initialize(code, testUni, exists, isNew);
+    initialize(code, testUni, exists, isNew, source);
     this.wkt = wkt;
   }
 
-  public TestGeoObjectInfo(String code, TestGeoObjectTypeInfo testUni)
+  public TestGeoObjectInfo(String code, TestGeoObjectTypeInfo testUni, TestSourceInfo source)
   {
-    initialize(code, testUni, true, true);
+    initialize(code, testUni, true, true, source);
   }
 
-  private void initialize(String code, TestGeoObjectTypeInfo testUni, Boolean exists, Boolean isNew)
+  private void initialize(String code, TestGeoObjectTypeInfo testUni, Boolean exists, Boolean isNew, TestSourceInfo source)
   {
     if (code.contains(" "))
     {
@@ -83,6 +86,7 @@ public class TestGeoObjectInfo extends TestCachedObject<ServerGeoObjectIF>
     this.code = code;
     this.displayLabel = code;
     this.geoObjectType = testUni;
+    this.source = source;
     this.children = new LinkedList<TestGeoObjectInfo>();
     this.parents = new LinkedList<TestGeoObjectInfo>();
     this.exists = exists;
@@ -568,6 +572,7 @@ public class TestGeoObjectInfo extends TestCachedObject<ServerGeoObjectIF>
     geoObj.getDisplayLabel().setValue(this.getDisplayLabel());
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, this.getDisplayLabel());
     geoObj.setExists(this.exists);
+    geoObj.setValue(DefaultAttribute.SOURCE.getName(), this.source.getSource().getOid());
 
     if (registryId != null)
     {
@@ -601,6 +606,7 @@ public class TestGeoObjectInfo extends TestCachedObject<ServerGeoObjectIF>
     geoObj.setDisplayLabel(label, date, TestDataSet.DEFAULT_END_TIME_DATE);
 
     geoObj.setExists(this.exists, date, TestDataSet.DEFAULT_END_TIME_DATE);
+    geoObj.setValue(DefaultAttribute.SOURCE.getName(), this.source.getSource().getOid(), date, TestDataSet.DEFAULT_END_TIME_DATE);
 
     if (registryId != null)
     {

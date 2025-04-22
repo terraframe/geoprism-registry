@@ -262,7 +262,7 @@ public class CurationTest extends FastDatasetTest implements InstanceTestClassLi
   @Request
   public void testCurator() throws Throwable
   {
-    TestGeoObjectInfo noGeomGo = testData.newTestGeoObjectInfo("curationJobTest-NoGeom", FastTestDataset.PROVINCE);
+    TestGeoObjectInfo noGeomGo = testData.newTestGeoObjectInfo("curationJobTest-NoGeom", FastTestDataset.PROVINCE, FastTestDataset.SOURCE);
     noGeomGo.setWkt(null);
     noGeomGo.apply();
 
@@ -376,7 +376,7 @@ public class CurationTest extends FastDatasetTest implements InstanceTestClassLi
   @Request
   private Object[] setUpTestCurate() throws Throwable
   {
-    TestGeoObjectInfo noGeomGo = testData.newTestGeoObjectInfo("curationJobTest-NoGeom", FastTestDataset.PROVINCE);
+    TestGeoObjectInfo noGeomGo = testData.newTestGeoObjectInfo("curationJobTest-NoGeom", FastTestDataset.PROVINCE, FastTestDataset.SOURCE);
     noGeomGo.setWkt(null);
     noGeomGo.apply();
 

@@ -75,6 +75,7 @@ import com.runwaysdk.dataaccess.MdAttributeDateDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeDateTimeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeDoubleDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeFloatDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeGraphReferenceDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeIntegerDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeLongDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTextDAOIF;
@@ -438,6 +439,10 @@ public class ListTypeShapefileExporter
     if (mdAttribute instanceof MdAttributeBooleanDAOIF)
     {
       return Boolean.class;
+    }
+    else if (mdAttribute instanceof MdAttributeGraphReferenceDAOIF)
+    {
+      return String.class;
     }
     else if (mdAttribute instanceof MdAttributeCharacterDAOIF)
     {

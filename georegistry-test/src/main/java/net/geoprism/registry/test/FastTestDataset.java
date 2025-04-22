@@ -20,7 +20,6 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 
 import net.geoprism.registry.graph.InheritedHierarchyAnnotation;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
-import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 
 /**
@@ -37,6 +36,8 @@ import net.geoprism.registry.service.business.ServiceFactory;
 public class FastTestDataset extends TestDataSet
 {
   public static final String                    TEST_DATA_KEY         = "FAST";
+  
+  public static final TestSourceInfo            SOURCE                = new TestSourceInfo("FastSource");
 
   public static final TestOrganizationInfo      ORG_CGOV              = new TestOrganizationInfo(TEST_DATA_KEY + "_" + "CGOV", "Central Government");
 
@@ -66,17 +67,17 @@ public class FastTestDataset extends TestDataSet
 
   public static final TestGeoObjectTypeInfo     HOSPITAL              = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "Hospital", GeometryType.MULTIPOLYGON, ORG_MOHA);
 
-  public static final TestGeoObjectInfo         CAMBODIA              = new TestGeoObjectInfo(TEST_DATA_KEY + "Cambodia", COUNTRY);
+  public static final TestGeoObjectInfo         CAMBODIA              = new TestGeoObjectInfo(TEST_DATA_KEY + "Cambodia", COUNTRY, SOURCE);
 
-  public static final TestGeoObjectInfo         PROV_CENTRAL          = new TestGeoObjectInfo(TEST_DATA_KEY + "CentralProvince", PROVINCE);
+  public static final TestGeoObjectInfo         PROV_CENTRAL          = new TestGeoObjectInfo(TEST_DATA_KEY + "CentralProvince", PROVINCE, SOURCE);
 
-  public static final TestGeoObjectInfo         PROV_WESTERN          = new TestGeoObjectInfo(TEST_DATA_KEY + "WesternProvince", PROVINCE);
+  public static final TestGeoObjectInfo         PROV_WESTERN          = new TestGeoObjectInfo(TEST_DATA_KEY + "WesternProvince", PROVINCE, SOURCE);
 
-  public static final TestGeoObjectInfo         PROV_CENTRAL_PRIVATE  = new TestGeoObjectInfo(TEST_DATA_KEY + "CentralProvincePrivate", PROVINCE_PRIVATE);
+  public static final TestGeoObjectInfo         PROV_CENTRAL_PRIVATE  = new TestGeoObjectInfo(TEST_DATA_KEY + "CentralProvincePrivate", PROVINCE_PRIVATE, SOURCE);
 
-  public static final TestGeoObjectInfo         DIST_CENTRAL          = new TestGeoObjectInfo(TEST_DATA_KEY + "CentralDistrict", DISTRICT);
+  public static final TestGeoObjectInfo         DIST_CENTRAL          = new TestGeoObjectInfo(TEST_DATA_KEY + "CentralDistrict", DISTRICT, SOURCE);
 
-  public static final TestGeoObjectInfo         CENTRAL_HOSPITAL      = new TestGeoObjectInfo(TEST_DATA_KEY + "CentralHospital", HOSPITAL);
+  public static final TestGeoObjectInfo         CENTRAL_HOSPITAL      = new TestGeoObjectInfo(TEST_DATA_KEY + "CentralHospital", HOSPITAL, SOURCE);
 
   public static final TestAttributeTypeInfo     AT_National_Anthem    = new TestAttributeTypeInfo("NationalAnthem", "National Anthem", COUNTRY, AttributeCharacterType.TYPE);
 
@@ -123,6 +124,8 @@ public class FastTestDataset extends TestDataSet
   public static final TestTermInfo              T_Other               = new TestTermInfo("Other", AT_RELIGION);
 
   {
+    managedSources.add(SOURCE);
+
     managedOrganizationInfos.add(ORG_CGOV);
     managedOrganizationInfos.add(ORG_MOHA);
 

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service.business;
 
@@ -33,6 +33,7 @@ import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
+import org.commongeoregistry.adapter.metadata.AttributeSourceType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,10 +50,12 @@ import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.constants.MdAttributeCharacterInfo;
 import com.runwaysdk.constants.MdAttributeConcreteInfo;
 import com.runwaysdk.constants.MdAttributeDoubleInfo;
+import com.runwaysdk.constants.MdAttributeGraphReferenceInfo;
 import com.runwaysdk.constants.UserInfo;
 import com.runwaysdk.constants.graph.MdEdgeInfo;
 import com.runwaysdk.constants.graph.MdVertexInfo;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
+import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -65,6 +68,7 @@ import com.runwaysdk.system.metadata.MdAttributeClassification;
 import com.runwaysdk.system.metadata.MdAttributeConcrete;
 import com.runwaysdk.system.metadata.MdAttributeDateTime;
 import com.runwaysdk.system.metadata.MdAttributeDouble;
+import com.runwaysdk.system.metadata.MdAttributeGraphReference;
 import com.runwaysdk.system.metadata.MdAttributeLocalCharacterEmbedded;
 import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdEdge;
@@ -89,6 +93,7 @@ import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.etl.DuplicateJobException;
+import net.geoprism.registry.graph.Source;
 import net.geoprism.registry.lpg.StrategyConfiguration;
 import net.geoprism.registry.lpg.TreeStrategyConfiguration;
 import net.geoprism.registry.model.Classification;
@@ -124,7 +129,7 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
 
   @Autowired
   private HierarchyTypeSnapshotBusinessServiceIF hSnapshotService;
-  
+
   @Autowired
   private GraphTypeSnapshotBusinessServiceIF     graphSnapshotService;
 
@@ -136,13 +141,13 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
 
   @Autowired
   private ClassificationTypeBusinessServiceIF    cTypeService;
-  
+
   @Autowired
   private ClassificationBusinessServiceIF        cService;
-  
+
   @Autowired
   private TreeStrategyPublisherService           treePublisherService;
-  
+
   @Autowired
   private GraphPublisherService                  graphPublisherService;
 
@@ -160,7 +165,7 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
 
     super.delete(version);
   }
-  
+
   @Override
   public void publishNoAuth(LabeledPropertyGraphTypeVersion version)
   {
@@ -177,7 +182,7 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
     }
     else
     {
-      throw new UnsupportedOperationException("Unsupported publisher " + (configuration == null ? "null" : configuration.getClass().getName()));
+      throw new UnsupportedOperationException("Unsupported publisher " + ( configuration == null ? "null" : configuration.getClass().getName() ));
     }
   }
 
@@ -231,13 +236,13 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
   public LabeledPropertyGraphTypeVersion create(LabeledPropertyGraphTypeEntry listEntry, boolean working, int versionNumber)
   {
     LabeledPropertyGraphTypeVersion version = super.create(listEntry, working, versionNumber);
-    
+
     GeoObjectTypeSnapshot root = this.oSnapshotService.createRoot(version);
 
     LabeledPropertyGraphType lpgt = version.getGraphType();
     List<GraphTypeReference> gtrs = lpgt.getGraphTypeReferences();
     List<String> goTypeCodes = lpgt.getGeoObjectTypeCodesList();
-    
+
     if (goTypeCodes.size() > 0)
     {
       // Publish snapshots for all graph types
@@ -245,7 +250,7 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
       {
         createGraphTypeSnapshot(version, gtr, root);
       }
-      
+
       // Publish snapshots for all geo-object types
       for (String goTypeCode : goTypeCodes)
       {
@@ -256,32 +261,32 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
     else if (lpgt.getStrategyType().equals(LabeledPropertyGraphType.TREE))
     {
       ServerHierarchyType hierarchy = ServerHierarchyType.get(lpgt.getHierarchy());
-  
+
       this.create(version, hierarchy, root);
-  
+
       Stack<StackItem> stack = new Stack<StackItem>();
-  
+
       this.hierarchyService.getDirectRootNodes(hierarchy).forEach(type -> stack.push(new StackItem(type, root)));
-  
+
       while (!stack.isEmpty())
       {
         StackItem item = stack.pop();
         ServerGeoObjectType type = item.type;
-  
+
         GeoObjectTypeSnapshot parent = this.create(version, type, root);
-  
+
         if (type.getIsAbstract())
         {
           this.typeService.getSubtypes(type).forEach(subtype -> {
             this.create(version, subtype, parent);
           });
         }
-  
+
         if (item.parent != null)
         {
           item.parent.addChildSnapshot(parent).apply();
         }
-  
+
         this.hierarchyService.getChildren(hierarchy, type).forEach(child -> {
           stack.push(new StackItem(child, parent));
         });
@@ -298,7 +303,7 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
   private GraphTypeSnapshot createGraphTypeSnapshot(LabeledPropertyGraphTypeVersion version, GraphTypeReference gtr, GeoObjectTypeSnapshot root)
   {
     GraphType graphType = GraphType.resolve(gtr);
-    
+
     String viewName = getEdgeName(graphType);
 
     MdEdgeDAO mdEdgeDAO = MdEdgeDAO.newInstance();
@@ -315,7 +320,7 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
     MdEdge mdEdge = (MdEdge) BusinessFacade.get(mdEdgeDAO);
 
     this.assignPermissions(mdEdge);
-    
+
     GraphTypeSnapshot snapshot;
     if (gtr.typeCode.equals(GraphTypeSnapshot.DIRECTED_ACYCLIC_GRAPH_TYPE))
     {
@@ -326,7 +331,7 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
       LocalizedValueConverter.populate(htsnapshot.getDisplayLabel(), graphType.getLabel());
       LocalizedValueConverter.populate(htsnapshot.getDescription(), graphType.getDescriptionLV());
       htsnapshot.apply();
-      
+
       snapshot = htsnapshot;
     }
     else if (gtr.typeCode.equals(GraphTypeSnapshot.UNDIRECTED_GRAPH_TYPE))
@@ -338,7 +343,7 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
       LocalizedValueConverter.populate(htsnapshot.getDisplayLabel(), graphType.getLabel());
       LocalizedValueConverter.populate(htsnapshot.getDescription(), graphType.getDescriptionLV());
       htsnapshot.apply();
-      
+
       snapshot = htsnapshot;
     }
     else if (gtr.typeCode.equals(GraphTypeSnapshot.HIERARCHY_TYPE))
@@ -350,14 +355,14 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
       LocalizedValueConverter.populate(htsnapshot.getDisplayLabel(), graphType.getLabel());
       LocalizedValueConverter.populate(htsnapshot.getDescription(), graphType.getDescriptionLV());
       htsnapshot.apply();
-      
+
       snapshot = htsnapshot;
     }
     else
     {
       throw new UnsupportedOperationException();
     }
-    
+
     return snapshot;
   }
 
@@ -427,14 +432,12 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
 
     GeoObjectType dto = type.toDTO();
     Map<String, net.geoprism.registry.graph.AttributeType> attributes = type.getAttributeMap();
-    
+
     attributes.forEach((attributeName, attribute) -> {
-      if (! ( attribute instanceof net.geoprism.registry.graph.AttributeGeometryType )
-          && ! ( attribute instanceof net.geoprism.registry.graph.AttributeTermType )
-          && !existingAttributes.contains(attributeName))
+      if (! ( attribute instanceof net.geoprism.registry.graph.AttributeGeometryType ) && ! ( attribute instanceof net.geoprism.registry.graph.AttributeTermType ) && !existingAttributes.contains(attributeName))
       {
         AttributeType attributeType = dto.getAttribute(attributeName).get();
-        
+
         MdAttributeConcrete mdAttribute = null;
 
         if (attributeType.getType().equals(AttributeCharacterType.TYPE))
@@ -459,14 +462,15 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
           mdAttribute.setValue(MdAttributeDoubleInfo.LENGTH, Integer.toString(attributeFloatType.getPrecision()));
           mdAttribute.setValue(MdAttributeDoubleInfo.DECIMAL, Integer.toString(attributeFloatType.getScale()));
         }
-//        else if (attributeType.getType().equals(AttributeTermType.TYPE))
-//        {
-//          mdAttribute = new MdAttributeTerm();
-//          MdAttributeTerm mdAttributeTerm = (MdAttributeTerm) mdAttribute;
-//
-//          MdBusiness classifierMdBusiness = MdBusiness.getMdBusiness(Classifier.CLASS);
-//          mdAttributeTerm.setMdBusiness(classifierMdBusiness);
-//        }
+        // else if (attributeType.getType().equals(AttributeTermType.TYPE))
+        // {
+        // mdAttribute = new MdAttributeTerm();
+        // MdAttributeTerm mdAttributeTerm = (MdAttributeTerm) mdAttribute;
+        //
+        // MdBusiness classifierMdBusiness =
+        // MdBusiness.getMdBusiness(Classifier.CLASS);
+        // mdAttributeTerm.setMdBusiness(classifierMdBusiness);
+        // }
         else if (attributeType.getType().equals(AttributeClassificationType.TYPE))
         {
           AttributeClassificationType attributeClassificationType = (AttributeClassificationType) attributeType;
@@ -501,6 +505,13 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
         {
           mdAttribute = new MdAttributeBoolean();
         }
+        else if (attributeType.getType().equals(AttributeSourceType.TYPE))
+        {
+          MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(Source.CLASS);
+
+          mdAttribute = new MdAttributeGraphReference();
+          mdAttribute.setValue(MdAttributeGraphReferenceInfo.REFERENCE_MD_VERTEX, mdVertex.getOid());
+        }
         else if (attributeType.getType().equals(AttributeLocalType.TYPE))
         {
           mdAttribute = new MdAttributeLocalCharacterEmbedded();
@@ -511,7 +522,7 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
         }
 
         mdAttribute.setAttributeName(attributeType.getName());
-        
+
         RegistryLocalizedValueConverter.populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
         RegistryLocalizedValueConverter.populate(mdAttribute.getDescription(), attributeType.getDescription());
 
@@ -519,7 +530,7 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
         mdAttribute.apply();
       }
     });
-    
+
     MdVertex graphMdVertex = (MdVertex) BusinessFacade.get(mdVertexDAO);
 
     GeoObjectTypeSnapshot snapshot = new GeoObjectTypeSnapshot();

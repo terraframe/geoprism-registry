@@ -169,6 +169,9 @@ import { LabeledPropertyGraphTypeService } from "./service/labeled-property-grap
 import { LabeledPropertyGraphTypePublishModalComponent } from "./component/labeled-property-graph-type/publish-modal.component";
 import { ConfigurationModalComponent } from "./component/scheduled-jobs/configuration-modal.component";
 import { ExportTypesModalComponent } from "./component/hierarchy/modals/export-types-modal.component";
+import { SourceManagerComponent } from "./component/source/source-manager.component";
+import { ManageSourceModalComponent } from "./component/source/modals/manage-source-modal.component";
+import { SourceService } from "./service/source.service";
 
 @NgModule({
     imports: [
@@ -304,7 +307,10 @@ import { ExportTypesModalComponent } from "./component/hierarchy/modals/export-t
         // Labeled Property Graph Type
         LabeledPropertyGraphTypeManagerComponent,
         LabeledPropertyGraphTypeComponent,
-        LabeledPropertyGraphTypePublishModalComponent
+        LabeledPropertyGraphTypePublishModalComponent,
+        // Source
+        SourceManagerComponent,
+        ManageSourceModalComponent
     ],
     providers: [
         MapService,
@@ -329,7 +335,8 @@ import { ExportTypesModalComponent } from "./component/hierarchy/modals/export-t
         ClassificationTypeService,
         ClassificationService,
         GeometryService,
-        VotService
+        VotService,
+        SourceService
     ],
     entryComponents: [
         ExportTypesModalComponent,
@@ -370,7 +377,8 @@ import { ExportTypesModalComponent } from "./component/hierarchy/modals/export-t
         ListModalComponent,
         RecordPopupComponent,
         LabeledPropertyGraphTypePublishModalComponent,
-        ConfigurationModalComponent
+        ConfigurationModalComponent,
+        ManageSourceModalComponent
     ]
 })
 export class RegistryModule { }

@@ -26,18 +26,19 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.service.business.SearchService;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestGeoObjectInfo;
+import net.geoprism.registry.test.TestSourceInfo;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
 public class SearchServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  public static final TestGeoObjectInfo BELIZE_CITY      = new TestGeoObjectInfo("Belize Ci't/=&y*)(0$#-@!\"}{][.,;:", "BelizeCity", FastTestDataset.COUNTRY, FastTestDataset.WKT_DEFAULT_MULTIPOLYGON, true, true);
+  public static final TestGeoObjectInfo BELIZE_CITY      = new TestGeoObjectInfo("Belize Ci't/=&y*)(0$#-@!\"}{][.,;:", "BelizeCity", FastTestDataset.COUNTRY, FastTestDataset.WKT_DEFAULT_MULTIPOLYGON, true, true, FastTestDataset.SOURCE);
 
-  public static final TestGeoObjectInfo EXACT_MATCH_TEST = new TestGeoObjectInfo("Exact-Term(Test) Match Test", "ExactMatchTest", FastTestDataset.COUNTRY, FastTestDataset.WKT_DEFAULT_MULTIPOLYGON, true, true);
+  public static final TestGeoObjectInfo EXACT_MATCH_TEST = new TestGeoObjectInfo("Exact-Term(Test) Match Test", "ExactMatchTest", FastTestDataset.COUNTRY, FastTestDataset.WKT_DEFAULT_MULTIPOLYGON, true, true, FastTestDataset.SOURCE);
 
-  public static final TestGeoObjectInfo EXACT_MATCH_FAIL = new TestGeoObjectInfo("Exact-Term(Test) Match Fail", "ExactMatchFail", FastTestDataset.COUNTRY, FastTestDataset.WKT_DEFAULT_MULTIPOLYGON, true, true);
+  public static final TestGeoObjectInfo EXACT_MATCH_FAIL = new TestGeoObjectInfo("Exact-Term(Test) Match Fail", "ExactMatchFail", FastTestDataset.COUNTRY, FastTestDataset.WKT_DEFAULT_MULTIPOLYGON, true, true, FastTestDataset.SOURCE);
 
-  public static final TestGeoObjectInfo EXACT_WRONG_FAIL = new TestGeoObjectInfo("Exact-Term(Test) Wrong Fail", "ExactWrongFail", FastTestDataset.COUNTRY, FastTestDataset.WKT_DEFAULT_MULTIPOLYGON, true, true);
+  public static final TestGeoObjectInfo EXACT_WRONG_FAIL = new TestGeoObjectInfo("Exact-Term(Test) Wrong Fail", "ExactWrongFail", FastTestDataset.COUNTRY, FastTestDataset.WKT_DEFAULT_MULTIPOLYGON, true, true, FastTestDataset.SOURCE);
 
   @Autowired
   private SearchService                 service;

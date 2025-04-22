@@ -168,7 +168,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
   {
     SchedulerTestUtils.clearImportData();
 
-    TestGeoObjectInfo parent = new TestGeoObjectInfo("00", USATestData.COUNTRY);
+    TestGeoObjectInfo parent = new TestGeoObjectInfo("00", USATestData.COUNTRY, USATestData.SOURCE);
     parent.delete();
   }
 
@@ -228,7 +228,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     JSONArray tAttributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 
-    Assert.assertEquals(4, tAttributes.length());
+    Assert.assertEquals(5, tAttributes.length());
 
     boolean hasCode = false;
 
@@ -1075,7 +1075,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
   @Request
   public void testResumeImport() throws Throwable
   {
-    TestGeoObjectInfo parent = new TestGeoObjectInfo("00", USATestData.COUNTRY);
+    TestGeoObjectInfo parent = new TestGeoObjectInfo("00", USATestData.COUNTRY, USATestData.SOURCE);
     parent.apply();
 
     List<String> sortedGeoIds = shapefileSort();

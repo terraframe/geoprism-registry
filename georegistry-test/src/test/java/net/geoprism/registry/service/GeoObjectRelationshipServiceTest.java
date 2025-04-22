@@ -609,7 +609,7 @@ public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements
     Date startDate = FastTestDataset.DEFAULT_OVER_TIME_DATE;
     Date endDate = FastTestDataset.DEFAULT_END_TIME_DATE;
 
-    TestGeoObjectInfo testAddChild = testData.newTestGeoObjectInfo("TEST_ADD_CHILD", FastTestDataset.PROVINCE);
+    TestGeoObjectInfo testAddChild = testData.newTestGeoObjectInfo("TEST_ADD_CHILD", FastTestDataset.PROVINCE, FastTestDataset.SOURCE);
     testAddChild.apply();
 
     ParentTreeNode ptnTestState = client.addChild(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), testAddChild.getCode(), testAddChild.getGeoObjectType().getCode(), FastTestDataset.HIER_ADMIN.getCode(), startDate, endDate);
@@ -646,7 +646,7 @@ public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements
     Date startDate = FastTestDataset.DEFAULT_OVER_TIME_DATE;
     Date endDate = FastTestDataset.DEFAULT_END_TIME_DATE;
 
-    TestGeoObjectInfo testAddChild = testData.newTestGeoObjectInfo("TEST_ADD_CHILD", FastTestDataset.PROVINCE);
+    TestGeoObjectInfo testAddChild = testData.newTestGeoObjectInfo("TEST_ADD_CHILD", FastTestDataset.PROVINCE, FastTestDataset.SOURCE);
     testAddChild.apply();
 
     ParentTreeNode ptnTestState = client.addChild(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), testAddChild.getCode(), testAddChild.getGeoObjectType().getCode(), FastTestDataset.HIER_ADMIN.getCode(), startDate, endDate);

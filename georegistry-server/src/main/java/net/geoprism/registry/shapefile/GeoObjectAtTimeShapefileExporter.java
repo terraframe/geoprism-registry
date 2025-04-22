@@ -48,6 +48,7 @@ import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
+import org.commongeoregistry.adapter.metadata.AttributeSourceType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.geotools.data.DefaultTransaction;
@@ -404,6 +405,10 @@ public class GeoObjectAtTimeShapefileExporter
     if (attribute instanceof AttributeBooleanType)
     {
       return Boolean.class;
+    }
+    else if (attribute instanceof AttributeSourceType)
+    {
+      return String.class;
     }
     else if (attribute instanceof AttributeCharacterType)
     {

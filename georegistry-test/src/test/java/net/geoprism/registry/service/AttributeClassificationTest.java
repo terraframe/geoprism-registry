@@ -49,7 +49,7 @@ public class AttributeClassificationTest extends FastDatasetTest implements Inst
 
   public static TestGeoObjectTypeInfo         TEST_GOT = new TestGeoObjectTypeInfo("GOTTest_TEST1", FastTestDataset.ORG_CGOV);
 
-  public static final TestGeoObjectInfo       TEST_GO  = new TestGeoObjectInfo(TEST_KEY + "_NeverNeverLand", TEST_GOT);
+  public static final TestGeoObjectInfo       TEST_GO  = new TestGeoObjectInfo(TEST_KEY + "_NeverNeverLand", TEST_GOT, FastTestDataset.SOURCE);
 
   private static String                       CODE     = "Classification-ROOT";
 

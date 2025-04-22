@@ -70,9 +70,9 @@ import net.geoprism.registry.view.action.UpdateParentValueOverTimeView;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class ChangeRequestServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  public static final TestGeoObjectInfo BELIZE                  = new TestGeoObjectInfo("Belize", FastTestDataset.COUNTRY);
+  public static final TestGeoObjectInfo BELIZE                  = new TestGeoObjectInfo("Belize", FastTestDataset.COUNTRY, FastTestDataset.SOURCE);
 
-  public static final TestGeoObjectInfo TEST_NEW_PROVINCE       = new TestGeoObjectInfo("CR_TEST_NEW_PROVINCE", FastTestDataset.PROVINCE);
+  public static final TestGeoObjectInfo TEST_NEW_PROVINCE       = new TestGeoObjectInfo("CR_TEST_NEW_PROVINCE", FastTestDataset.PROVINCE, FastTestDataset.SOURCE);
 
   private static final String           NEW_ANTHEM              = "NEW_ANTHEM";
 
