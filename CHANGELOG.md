@@ -2,6 +2,16 @@
 # Release Notes
 
 
+## [1.6.1](https://github.com/terraframe/geoprism-registry/releases/tag/1.6.1) (2025-04-23)
+
+
+### Bug Fixes
+
+   - **docker** update tomcat upstream tag   ([0b979](https://github.com/terraframe/geoprism-registry/commit/0b979c6f6873a534f5ac3bbced58d2ecac44fbb3))
+   - **security** upgrade to tomcat 9 to get latest security updates   ([d5624](https://github.com/terraframe/geoprism-registry/commit/d5624be257bfdb2ab040f453ae0ff1dc60775b1e))
+
+
+
 ## [1.6.0](https://github.com/terraframe/geoprism-registry/releases/tag/1.6.0) (2025-02-09)
 
 
