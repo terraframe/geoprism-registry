@@ -308,7 +308,7 @@ abstract public class TestDataSet
   {
     GraphRepoServiceIF service = ServiceFactory.getBean(GraphRepoServiceIF.class);
 
-    tearDownMetadata();
+//    tearDownMetadata();
 
     setUpOrgsInTrans();
     setUpMetadataInTrans();

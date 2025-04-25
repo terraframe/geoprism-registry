@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
@@ -83,6 +84,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
   private ExcelService               service;
 
   @Override
+  @Request
   public void beforeClassSetup() throws Exception
   {
     super.beforeClassSetup();
@@ -94,6 +96,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
   }
 
   @Before
+  @Request
   public void setUp()
   {
     testData.setUpInstanceData();
@@ -443,6 +446,10 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     Geometry cd1_geometry = coloradoDistOne.getGeometry();
     Assert.assertEquals(cd1_expected, cd1_geometry);
 
+    Object value = coloradoDistOne.getValue(DefaultAttribute.SOURCE.getName());
+
+    Assert.assertNotNull(value);
+
     JSONObject json = new JSONObject(this.etlService.getImportErrors(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
 
     Assert.assertEquals(1, json.getJSONArray("resultSet").length());
@@ -631,6 +638,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     result.put(ImportConfiguration.OBJECT_TYPE, ObjectImportType.GEO_OBJECT);
 
     GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(result.toString(), true);
+    configuration.setSource(USATestData.SOURCE.getSource());
 
     return configuration;
   }

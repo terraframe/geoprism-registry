@@ -27,11 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
-import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.riot.system.StreamRDFWriter;
@@ -43,6 +41,7 @@ import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
+import org.commongeoregistry.adapter.metadata.AttributeSourceType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.simplify.TopologyPreservingSimplifier;
@@ -66,6 +65,7 @@ import net.geoprism.graph.LabeledPropertyGraphTypeEntry;
 import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
 import net.geoprism.registry.InvalidMasterListException;
 import net.geoprism.registry.cache.ClassificationCache;
+import net.geoprism.registry.graph.Source;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
@@ -104,6 +104,9 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
   @Autowired
   private ClassificationBusinessServiceIF                  classificationService;
 
+  @Autowired
+  private SourceBusinessServiceIF                          sourceService;
+
   protected Map<String, String>                            prefixes    = new HashMap<String, String>();
 
   protected LabeledPropertyGraphTypeVersion                version;
@@ -113,6 +116,8 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
   protected LabeledPropertyGraphType                       lpg;
 
   protected StreamRDF                                      writer;
+
+  protected List<Source>                                   sources;
 
   protected List<CachedGraphTypeSnapshot>                  graphTypes;
 
@@ -180,6 +185,7 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
     }
   }
 
+
   private void exportEdgeType(LabeledPropertyGraphTypeVersion version, CachedGraphTypeSnapshot graphType)
   {
     long skip = 0;
@@ -243,8 +249,12 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
       {
         if (!got.isRoot())
         {
-          got.getAttributeTypes().stream().filter(t -> t instanceof AttributeClassificationType).forEach(attribute -> {
+          got.getAttributeTypes().stream().filter(t -> t instanceof AttributeClassificationType).forEach(attribute -> {            
             sb.append(", " + attribute.getName() + ".displayLabel.defaultLocale as " + attribute.getName() + "_l");
+          });
+          
+          got.getAttributeTypes().stream().filter(t -> t instanceof AttributeSourceType).forEach(attribute -> {            
+            sb.append(", " + attribute.getName() + ".code as " + attribute.getName() + "_c");
           });
         }
       }
@@ -316,6 +326,22 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
           if (value != null)
           {
             writer.quad(Quad.create(NodeFactory.createURI(quadGraphName), buildGeoObjectUri(code, type.getCode(), orgCode, false), NodeFactory.createURI(buildAttributeUri(type, orgCode, attribute)), NodeFactory.createLiteralByValue(value, XSDDatatype.XSDboolean)));
+          }
+        }
+        else if (attribute instanceof AttributeSourceType)
+        {
+          Object value = valueMap.get(attribute.getName() + "_c");
+          
+          if (value != null)
+          {
+            writer.quad(
+                Quad.create(
+                    NodeFactory.createURI(quadGraphName), 
+                    buildGeoObjectUri(code, type.getCode(), orgCode, false), 
+                    NodeFactory.createURI(buildAttributeUri(type, orgCode, attribute)), 
+                    NodeFactory.createURI(buildSourceUri((String) value))
+                )
+            );
           }
         }
         else
@@ -500,6 +526,11 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
     }
   }
 
+  protected String buildSourceUri(String code)
+  {
+    return prefixes.get(LPGVS) + "Source-" + code;
+  }
+  
   protected String buildAttributeUri(final GeoObjectTypeSnapshot type, final String orgCode, AttributeType attribute)
   {
     if (attribute.getIsDefault())

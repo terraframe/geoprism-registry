@@ -9,13 +9,13 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
-import com.google.gson.JsonObject;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.graph.Source;
+import net.geoprism.registry.model.SourceDTO;
 import net.geoprism.registry.service.business.SourceBusinessServiceIF;
 
 @ContextConfiguration(classes = { TestConfig.class })
@@ -44,8 +44,8 @@ public class SourceServiceTest implements InstanceTestClassListener
   {
     Source source = createMock();
 
-    JsonObject json = this.service.toJSON(source);
-    json.remove("oid");
+    SourceDTO json = this.service.toDTO(source);
+    json.setOid(null);
 
     Source result = this.service.apply(json);
 

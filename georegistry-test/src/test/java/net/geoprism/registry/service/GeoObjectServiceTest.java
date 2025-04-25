@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.Set;
 import java.util.UUID;
 
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.geotools.geometry.jts.GeometryBuilder;
@@ -141,6 +142,7 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
 
         Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(client.getAdapter(), geoObj.toJSON().toString()).toJSON().toString());
         Assert.assertEquals(true, geoObj.getExists());
+        Assert.assertEquals(FastTestDataset.SOURCE.getCode(), geoObj.getValue(DefaultAttribute.SOURCE.getName()));
       });
     }
   }

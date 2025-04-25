@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -222,7 +222,7 @@ public class GeoObjectImporter implements ObjectImporterIF
 
   protected Map<String, ServerGeoObjectIF> parentCache;
 
-  protected ClassifierVertexCache                classifierCache            = new ClassifierVertexCache();
+  protected ClassifierVertexCache          classifierCache            = new ClassifierVertexCache();
 
   protected static final String            parentConcatToken          = "&";
 
@@ -679,6 +679,11 @@ public class GeoObjectImporter implements ObjectImporterIF
       if (geometry != null)
       {
         serverGo.setGeometry(geometry, this.configuration.getStartDate(), this.configuration.getEndDate());
+      }
+
+      if (this.configuration.getSource() != null && serverGo.hasAttribute(DefaultAttribute.SOURCE.getName()))
+      {
+        serverGo.setValue(DefaultAttribute.SOURCE.getName(), this.configuration.getSource(), this.configuration.getStartDate(), this.configuration.getEndDate());
       }
 
       if (isNew)
@@ -1333,27 +1338,28 @@ public class GeoObjectImporter implements ObjectImporterIF
           }
 
           // TODO : Was this merged correctly? I don't know...
-//<<<<<<< HEAD
+          // <<<<<<< HEAD
           entity.setValue(attributeName, classifier.getOid(), startDate, endDate, !validationResult);
-//=======
-//          if (Boolean.TRUE.equals(validationResult))
-//          {
-//            attrClass.setValidate(false);
-//
-//            try
-//            {
-//              attrClass.setValue(classifier, startDate, endDate);
-//            }
-//            finally
-//            {
-//              attrClass.setValidate(true);
-//            }
-//          }
-//          else
-//          {
-//            throw new ClassificationValidationException("Value must be a child of the attribute root");
-//          }
-//>>>>>>> refs/remotes/origin/master
+          // =======
+          // if (Boolean.TRUE.equals(validationResult))
+          // {
+          // attrClass.setValidate(false);
+          //
+          // try
+          // {
+          // attrClass.setValue(classifier, startDate, endDate);
+          // }
+          // finally
+          // {
+          // attrClass.setValidate(true);
+          // }
+          // }
+          // else
+          // {
+          // throw new ClassificationValidationException("Value must be a child
+          // of the attribute root");
+          // }
+          // >>>>>>> refs/remotes/origin/master
         }
       }
       catch (UnknownTermException e)
