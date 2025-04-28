@@ -133,8 +133,6 @@ import com.runwaysdk.system.scheduler.ExecutableJob;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.rbac.RoleConstants;
-import net.geoprism.registry.command.GeoserverCreateWMSCommand;
-import net.geoprism.registry.command.GeoserverRemoveWMSCommand;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.curation.ListCurationHistory;
 import net.geoprism.registry.etl.PublishListTypeVersionJob;
@@ -170,9 +168,9 @@ import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceI
 import net.geoprism.registry.service.business.CurationBusinessService;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
 import net.geoprism.registry.service.request.SerializedListTypeCache;
-import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.shapefile.ListTypeShapefileExporter;
 import net.geoprism.registry.util.GeometryUtilFacade;
 import net.geoprism.registry.view.JsonSerializable;
@@ -821,11 +819,6 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       mdBusiness.deleteAllRecords();
 
       mdTable.delete();
-    }
-
-    if (this.getGeospatialVisibility().equals(ListType.PUBLIC))
-    {
-      new GeoserverRemoveWMSCommand(this).doIt();
     }
 
     SerializedListTypeCache.getInstance().remove(this.getListTypeOid());
