@@ -86,12 +86,12 @@ import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 
-import net.geoprism.gis.geoserver.SessionPredicate;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.excel.MasterListExcelExporter;
 import net.geoprism.registry.excel.MasterListExcelExporter.MasterListExcelExporterSheet;
+import net.geoprism.registry.util.SessionPredicate;
 
 public class MasterListShapefileExporter
 {

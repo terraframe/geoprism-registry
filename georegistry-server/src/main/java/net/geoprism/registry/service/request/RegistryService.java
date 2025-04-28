@@ -55,7 +55,6 @@ import com.runwaysdk.session.Session;
 import net.geoprism.account.OauthServer;
 import net.geoprism.account.OauthServerIF;
 import net.geoprism.configuration.GeoprismProperties;
-import net.geoprism.gis.geoserver.GeoserverProperties;
 import net.geoprism.registry.CGRApplication;
 import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.UserInfo;
@@ -396,7 +395,7 @@ public class RegistryService implements RegistryServiceIF
     config.addProperty("graphVisualizerEnabled", GeoregistryProperties.isGraphVisualizerEnabled());
     config.addProperty("enableBusinessData", GeoregistryProperties.isBusinessDataEnabled());
     config.addProperty("enableLabeledPropertyGraph", GeoregistryProperties.isLabeledPropertyGraphEnabled());
-    config.addProperty("mapboxAccessToken", GeoserverProperties.getMapboxglAccessToken());
+    config.addProperty("mapboxAccessToken", GeoregistryProperties.getMapboxglAccessToken());
     config.add("defaultMapBounds", JsonParser.parseString(GeoregistryProperties.getDefaultMapBounds()));
     config.add("localization", JsonParser.parseString(getLocalizationMap(sessionId)));
     config.addProperty("googleanalyticstoken", GeoregistryProperties.getGoogleAnalyticsToken());

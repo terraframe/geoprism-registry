@@ -91,7 +91,6 @@ import com.runwaysdk.gis.dataaccess.MdAttributePolygonDAOIF;
 import com.runwaysdk.gis.dataaccess.MdAttributeShapeDAOIF;
 import com.runwaysdk.query.OIterator;
 
-import net.geoprism.gis.geoserver.SessionPredicate;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.RegistryConstants;
@@ -102,6 +101,7 @@ import net.geoprism.registry.masterlist.AbstractListColumnVisitor;
 import net.geoprism.registry.masterlist.ListAttribute;
 import net.geoprism.registry.masterlist.ListColumn;
 import net.geoprism.registry.masterlist.ListColumnVisitor;
+import net.geoprism.registry.util.SessionPredicate;
 
 public class ListTypeShapefileExporter
 {

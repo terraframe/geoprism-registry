@@ -96,6 +96,11 @@ public class GeoregistryProperties
     return Arrays.asList(whitelist.split(","));
   }
   
+  public static String getMapboxglAccessToken()
+  {
+    return Singleton.INSTANCE.props.getString("mapboxgl.accessToken");
+  }
+  
   /**
    * Can be used to provide the default map bounds for all map activities such as the location manager.
    * This parameter should be specified as a <a href="https://docs.mapbox.com/mapbox-gl-js/api/geography/#lnglatboundslike">LngLatBoundsLike</a>

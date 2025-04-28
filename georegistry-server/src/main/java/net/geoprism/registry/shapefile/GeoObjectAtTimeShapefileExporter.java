@@ -79,12 +79,12 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Session;
 
-import net.geoprism.gis.geoserver.SessionPredicate;
 import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.query.graph.VertexSelectGeoObjectQuery;
+import net.geoprism.registry.util.SessionPredicate;
 
 public class GeoObjectAtTimeShapefileExporter
 {

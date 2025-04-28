@@ -29,8 +29,10 @@ import java.nio.file.Files;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.commongeoregistry.adapter.constants.GeometryType;
-import org.jaitools.jts.CoordinateSequence2D;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.PrecisionModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,11 +40,6 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.resource.CloseableFile;
 import com.runwaysdk.session.Request;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.MultiPoint;
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.PrecisionModel;
 
 import net.geoprism.data.etl.excel.CountSheetHandler;
 import net.geoprism.data.etl.excel.ExcelDataFormatter;
@@ -55,7 +52,6 @@ import net.geoprism.registry.etl.ImportStage;
 import net.geoprism.registry.graph.RevealExternalSystem;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.LatLonException;
-import net.geoprism.registry.model.ServerGeoObjectType;
 
 /**
  * Class responsible for reading data from a spreadsheet row by row and making
@@ -278,7 +274,7 @@ public class ExcelImporter implements FormatSpecificImporterIF
             throw ex;
           }
           
-          return new Point(new CoordinateSequence2D(lon, lat), factory);
+          return factory.createPoint(new Coordinate(lon, lat));
         }
       }
 

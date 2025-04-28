@@ -23,18 +23,17 @@ import java.util.List;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
-import net.geoprism.gis.geoserver.GeoserverFacade;
-import net.geoprism.gis.geoserver.GeoserverService;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.TableEntity;
 
+@Deprecated
 public class WMSService
 {
 
   private static final String PREFIX  = "gs";
 
-  GeoserverService            service = GeoserverFacade.getService();
+//  GeoserverService            service = GeoserverFacade.getService();
 
   @Request
   public void createAllWMSLayers(boolean forceGeneration)
@@ -72,25 +71,25 @@ public class WMSService
 
   public void createGeoServerLayer(TableEntity version, boolean forceGeneration)
   {
-    String tableName = version.getMdBusiness().getTableName();
-
-    if (forceGeneration)
-    {
-      service.forceRemoveLayer(tableName);
-    }
-
-    // Now that the database transaction is complete we can create the geoserver
-    // layer
-    if (!service.layerExists(tableName))
-    {
-      service.publishLayer(tableName, null);
-    }
+//    String tableName = version.getMdBusiness().getTableName();
+//
+//    if (forceGeneration)
+//    {
+//      service.forceRemoveLayer(tableName);
+//    }
+//
+//    // Now that the database transaction is complete we can create the geoserver
+//    // layer
+//    if (!service.layerExists(tableName))
+//    {
+//      service.publishLayer(tableName, null);
+//    }
   }
 
   public void deleteWMSLayer(TableEntity version)
   {
-    String tableName = version.getMdBusiness().getTableName();
-
-    service.forceRemoveLayer(tableName);
+//    String tableName = version.getMdBusiness().getTableName();
+//
+//    service.forceRemoveLayer(tableName);
   }
 }
