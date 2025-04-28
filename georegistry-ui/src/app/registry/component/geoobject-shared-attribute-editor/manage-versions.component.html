@@ -103,6 +103,10 @@
                                     [disabled]="readonly || viewModel.summaryKey === 'DELETE'">
                                    </classification-field>
                                  </div>
+
+                                 <div *ngIf="attributeType.type === 'source'">
+                                  <input type="text" class="form-control" [name]="'source-val-' + i" [(ngModel)]="viewModel.value" [disabled]="true" required>
+                                </div>                             
                                  
                                  <div *ngIf="attributeType.type === 'character'">
                                    <input [ngClass]="{'has-changed': (viewModel.oldValue && !isNew)}" type="text" class="form-control" [name]="'char-val-' + i" [(ngModel)]="viewModel.value" [disabled]="readonly || viewModel.summaryKey === 'DELETE'" required>
