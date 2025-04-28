@@ -22,8 +22,6 @@
     <root.db>postgres</root.db>
     <root.user>postgres</root.user>
     <root.pass>postgres</root.pass>
-
-    <geoserver.version>2.5.0.1</geoserver.version>
   </properties>
 
   <dependencies>
@@ -60,13 +58,6 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>[4.13.1,)</version>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver</groupId>
-      <artifactId>geoserver</artifactId>
-      <version>${geoserver.version}</version>
-      <type>war</type>
-      <scope>provided</scope>
     </dependency>
   </dependencies>
 
@@ -138,14 +129,6 @@
                   <type>war</type>
                   <properties>
                     <context>ROOT</context>
-                  </properties>
-                </deployable>
-                <deployable>
-                  <groupId>org.geoserver</groupId>
-                  <artifactId>geoserver</artifactId>
-                  <type>war</type>
-                  <properties>
-                    <context>geoserver</context>
                   </properties>
                 </deployable>
               </deployables>
@@ -285,14 +268,6 @@
                   <type>war</type>
                   <properties>
                     <context>georegistry</context>
-                  </properties>
-                </deployable>
-                <deployable>
-                  <groupId>org.geoserver</groupId>
-                  <artifactId>geoserver</artifactId>
-                  <type>war</type>
-                  <properties>
-                    <context>geoserver</context>
                   </properties>
                 </deployable>
               </deployables>
