@@ -16,7 +16,6 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.jaitools.jts.CoordinateSequence2D;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
@@ -24,6 +23,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.MultiPoint;
@@ -277,7 +277,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     Double lon = Double.valueOf(1.134232);
 
     GeometryFactory factory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 4326);
-    MultiPoint expected = new MultiPoint(new Point[] { new Point(new CoordinateSequence2D(lon, lat), factory) }, factory);
+    MultiPoint expected = new MultiPoint(new Point[] { factory.createPoint(new Coordinate(lon, lat)) }, factory);
 
     Assert.assertEquals(expected, geometry);
 
@@ -287,7 +287,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     Double cd1_lon = Double.valueOf(1.222);
 
     GeometryFactory cd1_factory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 4326);
-    MultiPoint cd1_expected = new MultiPoint(new Point[] { new Point(new CoordinateSequence2D(cd1_lon, cd1_lat), cd1_factory) }, cd1_factory);
+    MultiPoint cd1_expected = new MultiPoint(new Point[] { cd1_factory.createPoint(new Coordinate(cd1_lon, cd1_lat)) }, cd1_factory);
 
     Geometry cd1_geometry = coloradoDistOne.getGeometry(TestDataSet.DEFAULT_OVER_TIME_DATE);
     Assert.assertEquals(cd1_expected, cd1_geometry);
@@ -337,7 +337,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     Double cd1_lon = Double.valueOf(1.222);
 
     GeometryFactory cd1_factory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 4326);
-    MultiPoint cd1_expected = new MultiPoint(new Point[] { new Point(new CoordinateSequence2D(cd1_lon, cd1_lat), cd1_factory) }, cd1_factory);
+    MultiPoint cd1_expected = new MultiPoint(new Point[] {  cd1_factory.createPoint(new Coordinate(cd1_lon, cd1_lat)) }, cd1_factory);
 
     Geometry cd1_geometry = coloradoDistOne.getGeometry(TestDataSet.DEFAULT_OVER_TIME_DATE);
     Assert.assertEquals(cd1_expected, cd1_geometry);
@@ -434,14 +434,18 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     Double lon = Double.valueOf(1.134232);
 
     GeometryFactory factory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 4326);
-    MultiPoint expected = new MultiPoint(new Point[] { new Point(new CoordinateSequence2D(lon, lat), factory) }, factory);
+    MultiPoint expected = new MultiPoint(new Point[] { factory.createPoint(new Coordinate(lon, lat)) }, factory);
 
     Assert.assertEquals(expected, geometry);
 
     ServerGeoObjectIF coloradoDistOne = this.objectService.getGeoObjectByCode(USATestData.CO_D_ONE.getCode(), USATestData.DISTRICT.getCode());
 
     GeometryFactory cd1_factory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 4326);
-    MultiPoint cd1_expected = new MultiPoint(new Point[] { new Point(new CoordinateSequence2D(Double.valueOf(110), Double.valueOf(80)), cd1_factory), new Point(new CoordinateSequence2D(Double.valueOf(120), Double.valueOf(70)), cd1_factory) }, cd1_factory);
+    
+    MultiPoint cd1_expected = new MultiPoint(new Point[] {
+        cd1_factory.createPoint(new Coordinate(Double.valueOf(110), Double.valueOf(80))),
+        cd1_factory.createPoint(new Coordinate(Double.valueOf(120), Double.valueOf(70)))
+    }, cd1_factory);
 
     Geometry cd1_geometry = coloradoDistOne.getGeometry();
     Assert.assertEquals(cd1_expected, cd1_geometry);

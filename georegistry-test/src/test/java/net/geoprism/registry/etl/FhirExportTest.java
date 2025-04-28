@@ -73,6 +73,7 @@ public class FhirExportTest extends USADatasetTest implements InstanceTestClassL
     TestDataSet.deleteExternalSystems("FHIRExportTest");
 
     super.beforeClassSetup();
+    
     testData.setUpInstanceData();
 
     classSetupInRequest();

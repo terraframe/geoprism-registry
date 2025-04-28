@@ -2,6 +2,15 @@
 # Release Notes
 
 
+## [1.6.1](https://github.com/terraframe/geoprism-registry/releases/tag/1.6.1) (2025-04-23)
+
+
+### Bug Fixes
+
+   - **security** update tomcat to latest fix version   ([0b979](https://github.com/terraframe/geoprism-registry/commit/0b979c6f6873a534f5ac3bbced58d2ecac44fbb3))
+
+
+
 ## [1.6.0](https://github.com/terraframe/geoprism-registry/releases/tag/1.6.0) (2025-02-09)
 
 

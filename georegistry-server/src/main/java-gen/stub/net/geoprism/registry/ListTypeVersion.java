@@ -133,7 +133,6 @@ import com.runwaysdk.system.metadata.MdAttributeText;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.scheduler.ExecutableJob;
 
-import net.geoprism.gis.geoserver.GeoserverFacade;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.rbac.RoleConstants;
 import net.geoprism.registry.command.GeoserverCreateWMSCommand;
@@ -178,6 +177,7 @@ import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
 import net.geoprism.registry.service.request.SerializedListTypeCache;
 import net.geoprism.registry.shapefile.ListTypeShapefileExporter;
+import net.geoprism.registry.util.GeometryUtilFacade;
 import net.geoprism.registry.view.JsonSerializable;
 import net.geoprism.registry.view.Page;
 
@@ -1680,7 +1680,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
     // collect all the views and extend the bounding box
     ValueQuery union = new ValueQuery(new QueryFactory());
-    union.SELECT(union.aSQLClob(GeoserverFacade.GEOM_COLUMN, GeoserverFacade.GEOM_COLUMN, GeoserverFacade.GEOM_COLUMN));
+    union.SELECT(union.aSQLClob(GeometryUtilFacade.GEOM_COLUMN, GeometryUtilFacade.GEOM_COLUMN, GeometryUtilFacade.GEOM_COLUMN));
     union.FROM(tableName, tableName);
 
     if (uid != null && uid.length() > 0)
@@ -1691,7 +1691,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     }
 
     ValueQuery collected = new ValueQuery(union.getQueryFactory());
-    collected.SELECT(collected.aSQLAggregateClob("collected", "st_collect(" + GeoserverFacade.GEOM_COLUMN + ")", "collected"));
+    collected.SELECT(collected.aSQLAggregateClob("collected", "st_collect(" + GeometryUtilFacade.GEOM_COLUMN + ")", "collected"));
     collected.FROM("(" + union.getSQL() + ")", "unioned");
 
     ValueQuery outer = new ValueQuery(union.getQueryFactory());

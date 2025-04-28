@@ -112,9 +112,6 @@
     <listener-class>net.geoprism.SchedulerContextListener</listener-class>
   </listener>
   <listener>
-    <listener-class>net.geoprism.gis.geoserver.GeoserverContextListener</listener-class>
-  </listener>
-  <listener>
     <listener-class>net.geoprism.registry.context.RegistryServerContextListener</listener-class>
   </listener>
 </web-app>

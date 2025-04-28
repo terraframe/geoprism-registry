@@ -27,7 +27,6 @@ import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.geotools.geometry.jts.JTSFactoryFinder;
-import org.jaitools.jts.CoordinateSequence2D;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
@@ -90,10 +89,10 @@ import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
 import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.business.TermBusinessServiceIF;
 import net.geoprism.registry.service.request.ETLService;
 import net.geoprism.registry.service.request.ExcelService;
-import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
@@ -350,7 +349,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
     Double lon = Double.valueOf(1.134232);
 
     GeometryFactory factory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 4326);
-    MultiPoint expected = factory.createMultiPoint(new Point[] { new Point(new CoordinateSequence2D(lon, lat), factory) });
+    MultiPoint expected = factory.createMultiPoint(new Point[] { factory.createPoint(new Coordinate(lon, lat)) });
 
     Assert.assertEquals(expected, geometry);
   }

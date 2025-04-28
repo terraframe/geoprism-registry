@@ -23,13 +23,12 @@
 	<parent>
 		<groupId>net.geoprism</groupId>
 		<artifactId>georegistry</artifactId>
-		<version>1.6.1-SNAPSHOT</version>
+		<version>1.6.2-SNAPSHOT</version>
 	</parent>
 	<artifactId>georegistry-web</artifactId>
 	<packaging>war</packaging>
 	<name>GeoRegistry Web</name>
 	<properties>
-		<geoserver.version>2.20.2-terraframe</geoserver.version>
 		<db.name>georegistry</db.name>
 		<db.user>georegistry</db.user>
 		<db.port>5432</db.port>
@@ -39,13 +38,6 @@
 			<groupId>net.geoprism</groupId>
 			<artifactId>georegistry-server</artifactId>
 			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.geoserver</groupId>
-			<artifactId>geoserver</artifactId>
-			<version>${geoserver.version}</version>
-			<type>war</type>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.jawr</groupId>
@@ -130,14 +122,6 @@
 									<type>war</type>
 									<properties>
 										<context>georegistry</context>
-									</properties>
-								</deployable>
-								<deployable>
-									<groupId>org.geoserver</groupId>
-									<artifactId>geoserver</artifactId>
-									<type>war</type>
-									<properties>
-										<context>geoserver</context>
 									</properties>
 								</deployable>
 							</deployables>
