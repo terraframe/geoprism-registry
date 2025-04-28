@@ -71,7 +71,7 @@ if [ "$release_georegistry" == "true" ]; then
   # Georegistry : Release
   cd $WORKSPACE/georegistry
   git checkout $release_branch
-  mvn release:prepare -B -q -DdryRun=$dry_run -Dtag=$CGR_RELEASE_VERSION \
+  mvn release:prepare -B -e -X -q -DdryRun=$dry_run -Dtag=$CGR_RELEASE_VERSION \
                    -DreleaseVersion=$CGR_RELEASE_VERSION \
                    -DdevelopmentVersion=$CGR_NEXT_VERSION
   mvn release:perform -B -q -DdryRun=$dry_run -Darguments="-Dmaven.javadoc.skip=true -Dmaven.site.skip=true"
