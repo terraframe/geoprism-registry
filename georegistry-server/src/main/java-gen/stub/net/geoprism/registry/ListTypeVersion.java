@@ -229,11 +229,6 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
     super.apply();
 
-    if (this.getGeospatialVisibility().equals(ListType.PUBLIC))
-    {
-      new GeoserverCreateWMSCommand(this).doIt();
-    }
-
     SerializedListTypeCache.getInstance().remove(this.getListTypeOid());
   }
 

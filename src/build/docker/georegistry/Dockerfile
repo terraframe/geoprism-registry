@@ -5,15 +5,10 @@
 FROM tomcat:9-jdk11
 
 ENV CGR_VERSION=LATEST
-ENV GEOSERVER_VERSION=2.20.2-terraframe
 ENV LOG_LEVEL=error
 ENV POSTGRES_PORT=5432
 
 RUN mkdir -p $CATALINA_HOME/wars
-
-# Embedded Geoserver
-RUN wget -nv -O $CATALINA_HOME/wars/geoserver.war "https://dl.cloudsmith.io/public/terraframe/public/maven/org/geoserver/geoserver/$GEOSERVER_VERSION/geoserver-$GEOSERVER_VERSION.war"
-RUN mkdir -p $CATALINA_HOME/webapps/geoserver && cd $CATALINA_HOME/webapps/geoserver && $JAVA_HOME/bin/jar xf $CATALINA_HOME/wars/geoserver.war
 
 # Copy CGR WAR
 COPY target/georegistry.war $CATALINA_HOME/wars/geoprism.war
