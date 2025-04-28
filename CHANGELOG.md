@@ -8,6 +8,7 @@
 ### Bug Fixes
 
    - **security** remove geoserver from deployment   ([e87e4](https://github.com/terraframe/geoprism-registry/commit/e87e4a109f863c6af5bf1de2fd723af532f3f32a))
+   - **security** various dependency updates
 
 
 
