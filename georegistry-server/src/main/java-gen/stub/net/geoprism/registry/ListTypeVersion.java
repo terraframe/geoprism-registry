@@ -135,8 +135,6 @@ import com.runwaysdk.system.scheduler.ExecutableJob;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.rbac.RoleConstants;
-import net.geoprism.registry.command.GeoserverCreateWMSCommand;
-import net.geoprism.registry.command.GeoserverRemoveWMSCommand;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.curation.ListCurationHistory;
 import net.geoprism.registry.etl.PublishListTypeVersionJob;
@@ -231,11 +229,6 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     }
 
     super.apply();
-
-    if (this.getGeospatialVisibility().equals(ListType.PUBLIC))
-    {
-      new GeoserverCreateWMSCommand(this).doIt();
-    }
 
     SerializedListTypeCache.getInstance().remove(this.getListTypeOid());
   }
@@ -833,11 +826,6 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       mdBusiness.deleteAllRecords();
 
       mdTable.delete();
-    }
-
-    if (this.getGeospatialVisibility().equals(ListType.PUBLIC))
-    {
-      new GeoserverRemoveWMSCommand(this).doIt();
     }
 
     SerializedListTypeCache.getInstance().remove(this.getListTypeOid());
