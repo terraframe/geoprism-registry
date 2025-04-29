@@ -24,7 +24,7 @@ import { Map, NavigationControl, AttributionControl, IControl, LngLatBounds } fr
 
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
-import * as ColorGen from "color-generator";
+import uniqolor from 'uniqolor';
 
 import { GeoObject, GeoObjectType, GeoObjectTypeCache } from "@registry/model/registry";
 import { ModalState, PANEL_SIZE_STATE } from "@registry/model/location-manager";
@@ -761,7 +761,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 const collection = data as FeatureCollection;
 
                 if (data != null && collection.features.length > 0) {
-                    let layer = dataSource.createLayer(this.lService.decode("explorer.search.layer") + " (" + this.searchFieldText + ")", true, ColorGen().hexString());
+                    let layer = dataSource.createLayer(this.lService.decode("explorer.search.layer") + " (" + this.searchFieldText + ")", true, uniqolor.random().color);
                     layers.splice(0, 0, layer);
                     this.geomService.zoomOnReady(layer.getId());
 

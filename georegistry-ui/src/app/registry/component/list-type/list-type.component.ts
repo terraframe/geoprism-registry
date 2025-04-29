@@ -29,7 +29,7 @@ import { ListTypeService } from "@registry/service/list-type.service";
 import { PublishVersionComponent } from "./publish-version.component";
 import { Router } from "@angular/router";
 import { LngLatBounds } from "maplibre-gl";
-import * as ColorGen from "color-generator";
+import uniqolor from 'uniqolor';
 import { ListVectorLayerDataSource } from "@registry/service/layer-data-source";
 import { GeometryService } from "@registry/service/geometry.service";
 
@@ -153,7 +153,7 @@ export class ListTypeComponent implements OnInit, OnDestroy {
 
     layerFromVersion(version: ListTypeVersion): any {
         let dataSource = new ListVectorLayerDataSource(this.service, version.oid);
-        let layer = dataSource.createLayer(version.displayLabel, true, ColorGen().hexString());
+        let layer = dataSource.createLayer(version.displayLabel, true, uniqolor(version.oid).color);
         this.geomService.zoomOnReady(layer.getId());
         return this.geomService.getDataSourceFactory().serializeLayers([layer]);
     }

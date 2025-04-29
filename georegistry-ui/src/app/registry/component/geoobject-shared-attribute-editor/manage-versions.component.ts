@@ -60,7 +60,7 @@ import { TypeaheadMatch } from "ngx-bootstrap/typeahead";
 import { HierarchyCREditor } from "./HierarchyCREditor";
 import { ChangeRequestEditor } from "./change-request-editor";
 import { ChangeRequestChangeOverTimeAttributeEditor } from "./change-request-change-over-time-attribute-editor";
-import * as ColorGen from "color-generator";
+import uniqolor from 'uniqolor';
 import { CHANGE_REQUEST_SOURCE_TYPE_NEW, CHANGE_REQUEST_SOURCE_TYPE_OLD, GeoJsonLayer, GeoObjectLayerDataSource, Layer, ValueOverTimeDataSource } from "@registry/service/layer-data-source";
 import { LocationManagerState } from "../location-manager/location-manager.component";
 
@@ -480,7 +480,7 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
                 let label = displayLabel + " " + this.dateService.formatDateForDisplay(view.editor.startDate) + " (" + typeLabel + ")";
 
                 let dataSource = new GeoObjectLayerDataSource(this.service, geoObject.attributes["code"], this.changeRequestEditor.geoObjectType.code, view.editor.startDate);
-                view.objectLayer = dataSource.createLayer(label, true, ColorGen().hexString());
+                view.objectLayer = dataSource.createLayer(label, true, uniqolor(this.changeRequestEditor.geoObjectType.code).color);
 
                 this.geomService.addOrUpdateLayer(view.objectLayer, 0);
             }
@@ -499,7 +499,7 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
                 let label = displayLabel + "* " + this.dateService.formatDateForDisplay(view.editor.startDate) + " (" + typeLabel + ")";
 
                 let dataSource = new ValueOverTimeDataSource("NEW", view.editor);
-                view.editingLayer = dataSource.createLayer(label, true, ColorGen().hexString()) as GeoJsonLayer;
+                view.editingLayer = dataSource.createLayer(label, true, uniqolor(this.changeRequestEditor.geoObjectType.code).color) as GeoJsonLayer;
                 this.geomService.registerDataSource(dataSource);
 
                 this.geomService.addOrUpdateLayer(view.editingLayer, 0);

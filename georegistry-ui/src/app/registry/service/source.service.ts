@@ -48,6 +48,13 @@ export class SourceService {
             })))
     }
 
+    search(text: string): Promise<Source[]> {
+        let params: HttpParams = new HttpParams();
+        params = params.append('text', text);
+
+        return firstValueFrom(this.http.get<Source[]>(environment.apiUrl + "/api/source/search", { params: params }))
+    }
+
     get(code: string): Promise<Source> {
         let params: HttpParams = new HttpParams();
         params = params.append("code", code);

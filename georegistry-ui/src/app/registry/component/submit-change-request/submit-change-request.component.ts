@@ -27,7 +27,7 @@ import { TypeaheadMatch } from "ngx-bootstrap/typeahead";
 import { ErrorHandler } from "@shared/component";
 import { LocalizationService, AuthService, DateService } from "@shared/service";
 
-import * as ColorGen from "color-generator";
+import uniqolor from 'uniqolor';
 import { RegistryService, ChangeRequestService, GeometryService } from "@registry/service";
 import { GeoObjectType, GeoObjectOverTime } from "@registry/model/registry";
 import { GeoObjectLayerDataSource } from "@registry/service/layer-data-source";
@@ -173,7 +173,7 @@ export class SubmitChangeRequestComponent implements OnInit {
         let sDate = this.dateStr == null ? "" : " " + this.dateService.formatDateForDisplay(this.dateStr);
         let label = displayLabel + " " + sDate + "(" + typeLabel + ")";
 
-        let layer = dataSource.createLayer(label, true, ColorGen().hexString());
+        let layer = dataSource.createLayer(label, true, uniqolor(this.geoObject.attributes.code).color);
 
         this.geomService.zoomOnReady(layer.getId());
         let layers = this.geomService.getDataSourceFactory().serializeLayers([layer]);

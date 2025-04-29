@@ -27,7 +27,7 @@ import { RegistryCacheService } from "@registry/service/registry-cache.service";
 import { GeoObjectLayerDataSource, Layer, ListVectorLayer, ListVectorLayerDataSource, RelationshipVisualizionDataSource, SearchLayerDataSource } from "./layer-data-source";
 import { DateService } from "@shared/service";
 import { GeometryService, RegistryService } from ".";
-import * as ColorGen from "color-generator";
+import uniqolor from 'uniqolor';
 import { ListTypeService } from "./list-type.service";
 import { SELECTED_COLOR } from "./geometry.service";
 
@@ -116,7 +116,7 @@ export class LocationManagerStateService {
 
         let color;
         if (objectFilter == null) {
-            color = ColorGen().hexString();
+            color = uniqolor(version.oid).color;
         } else {
             color = SELECTED_COLOR;
         }
@@ -150,7 +150,7 @@ export class LocationManagerStateService {
         let sDate = date == null ? "" : " " + this.dateService.formatDateForDisplay(date);
         let label = displayLabel + " " + sDate + "(" + typeLabel + ")";
 
-        let layer = dataSource.createLayer(label, true, ColorGen().hexString());
+        let layer = dataSource.createLayer(label, true, uniqolor(geoObject.properties.code).color);
 
         // Remove any existing Geo-Object layer(s)
         layers = layers.filter(l =>

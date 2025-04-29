@@ -80,6 +80,7 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Session;
 
+import net.geoprism.registry.graph.Source;
 import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -293,6 +294,12 @@ public class GeoObjectAtTimeShapefileExporter
             {
               builder.set(columnName, GeoObjectUtil.convertToTermString((AttributeClassificationType) attribute, value));
             }
+            else if (attribute instanceof AttributeSourceType)
+            {
+              Source source = Source.get((String) value);
+
+              builder.set(columnName, source.getCode());
+            }            
             else if (attribute instanceof AttributeLocalType)
             {
               builder.set(columnName, ( (LocalizedValue) value ).getValue());
@@ -431,6 +438,10 @@ public class GeoObjectAtTimeShapefileExporter
       return String.class;
     }
     else if (attribute instanceof AttributeClassificationType)
+    {
+      return String.class;
+    }
+    else if (attribute instanceof AttributeSourceType)
     {
       return String.class;
     }

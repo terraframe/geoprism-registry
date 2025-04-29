@@ -4,23 +4,24 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.view.action;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.Term;
@@ -32,6 +33,7 @@ import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
+import org.commongeoregistry.adapter.metadata.AttributeSourceType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.locationtech.jts.geom.Geometry;
@@ -52,11 +54,13 @@ import net.geoprism.registry.RegistryJsonTimeFormatter;
 import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
 import net.geoprism.registry.action.InvalidChangeRequestException;
 import net.geoprism.registry.conversion.TermConverter;
+import net.geoprism.registry.graph.Source;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
+import net.geoprism.registry.service.business.SourceBusinessServiceIF;
 
 public class UpdateValueOverTimeView
 {
@@ -344,11 +348,26 @@ public class UpdateValueOverTimeView
               convertedValue = classifier.getOid();
             }
           }
+          else if (attype instanceof AttributeSourceType)
+          {
+            String code = this.newValue.getAsString();
+
+            SourceBusinessServiceIF service = ServiceFactory.getBean(SourceBusinessServiceIF.class);
+
+            Optional<Source> value = service.getByCode(code);
+
+            if (value.isPresent())
+            {
+              Source source = value.get();
+
+              convertedValue = new AttributeGraphRef.ID(source.getOid(), source.getRID());
+            }
+          }
           else if (attype instanceof AttributeClassificationType)
           {
             JsonObject object = this.newValue.getAsJsonObject();
             String code = object.get("code").getAsString();
-            
+
             ClassificationBusinessServiceIF service = ServiceFactory.getBean(ClassificationBusinessServiceIF.class);
 
             Classification classification = service.get((AttributeClassificationType) attype, code);

@@ -172,6 +172,7 @@ import { ExportTypesModalComponent } from "./component/hierarchy/modals/export-t
 import { SourceManagerComponent } from "./component/source/source-manager.component";
 import { ManageSourceModalComponent } from "./component/source/modals/manage-source-modal.component";
 import { SourceService } from "./service/source.service";
+import { SourceFieldComponent } from "./component/form-fields/source-field/source-field.component";
 
 @NgModule({
     imports: [
@@ -310,7 +311,8 @@ import { SourceService } from "./service/source.service";
         LabeledPropertyGraphTypePublishModalComponent,
         // Source
         SourceManagerComponent,
-        ManageSourceModalComponent
+        ManageSourceModalComponent,
+        SourceFieldComponent
     ],
     providers: [
         MapService,

@@ -94,4 +94,12 @@ public class SourceController extends RunwaySpringController
     return new ResponseEntity<SourceDTO>(source, HttpStatus.OK);
   }
 
+  @GetMapping(API_PATH + "/search")
+  public ResponseEntity<List<SourceDTO>> search(@RequestParam(required = false) String text)
+  {
+    List<SourceDTO> sources = this.service.search(this.getSessionId(), text);
+
+    return new ResponseEntity<List<SourceDTO>>(sources, HttpStatus.OK);
+  }
+
 }
