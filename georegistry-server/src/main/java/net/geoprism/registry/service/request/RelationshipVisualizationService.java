@@ -553,8 +553,9 @@ public class RelationshipVisualizationService
   {
     final ServerGeoObjectIF childGO = root.getGeoObject();
 
-    root.getParents().forEach(node -> {
-
+    List<ServerParentGraphNode> parent = root.getParents();
+    
+    parent.forEach(node -> {
       if (node.getOid() != null)
       {
         ServerGeoObjectIF parentGO = node.getGeoObject();
@@ -623,7 +624,9 @@ public class RelationshipVisualizationService
 
     boolean readable = objectPermissions.canRead(type.getOrganization().getCode(), type);
 
-    String label = go.getDisplayLabel().getValue();
+    LocalizedValue displayLabel = go.getDisplayLabel();
+    
+    String label = displayLabel != null ? displayLabel.getValue() : "";
 
     return new VertexView(ObjectType.GEOOBJECT, "g-" + go.getUid(), go.getCode(), go.getType().getCode(), ( label == null || label.length() == 0 ) ? go.getCode() : label, relation, readable);
   }
