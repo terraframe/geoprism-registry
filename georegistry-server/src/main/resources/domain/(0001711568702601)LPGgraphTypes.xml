@@ -1,3 +1,23 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
 <version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
     <createOrUpdate>
@@ -51,55 +71,6 @@
         </attributeStruct>
       </object>
     </createOrUpdate>
-    <create>
-      <mdBusiness name="net.geoprism.graph.DirectedAcyclicGraphTypeSnapshot" table="dag_type_snapshot" label="Directed Acyclic Graph Type Snapshot" generateController="false" publish="true">
-        <attributes>
-          <char name="code" label="Code" size="255" required="true" />
-          <localChar name="displayLabel" label="Label" required="true" />
-          <localText name="description"/>
-          <reference name="graphMdEdge" type="com.runwaysdk.system.metadata.MdEdge" required="true" label="MdEdge" />
-          <reference name="version" type="net.geoprism.graph.LabeledPropertyGraphTypeVersion" required="true" label="Version" />
-        </attributes>
-      </mdBusiness>
-      <mdBusiness name="net.geoprism.graph.UndirectedGraphTypeSnapshot" table="undirected_type_snapshot" label="Undirected Graph Type Snapshot" generateController="false" publish="true">
-        <attributes>
-          <char name="code" label="Code" size="255" required="true" />
-          <localChar name="displayLabel" label="Label" required="true" />
-          <localText name="description"/>
-          <reference name="graphMdEdge" type="com.runwaysdk.system.metadata.MdEdge" required="true" label="MdEdge" />
-          <reference name="version" type="net.geoprism.graph.LabeledPropertyGraphTypeVersion" required="true" label="Version" />
-        </attributes>
-      </mdBusiness>
-    </create>
-    <update>
-      <mdBusiness name="net.geoprism.graph.GeoObjectTypeSnapshot" label="Geo-Object Type Snapshot" generateController="false" publish="true">
-        <create>
-	        <attributes>
-	          <text name="orgCode" label="Organization Code" required="false" />
-	        </attributes>
-        </create>
-      </mdBusiness>
-      <mdBusiness name="net.geoprism.graph.LabeledPropertyGraphType">
-        <create>
-	        <attributes>
-	          <text name="graphTypes" label="GraphTypes" description="An array of typeCode:code pairings referencing one of [DirectedAcyclicGraphType | UndirectedGraphType | HierarchicalRelationshipType]" />
-	          <text name="geoObjectTypeCodes" label="GeoObjectTypeCodes" description="An array of geo-object type codes which are allowed to participate in the graph. Is allowed to be null if there is a hierarchy specified instead." />
-	        </attributes>
-        </create>
-      </mdBusiness>
-    </update>
-    <permissions>
-      <role roleName="geoprism.admin.Administrator">
-        <grant>
-          <mdBusinessPermission type="net.geoprism.graph.DirectedAcyclicGraphTypeSnapshot">
-            <operation name="ALL" />
-          </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.graph.UndirectedGraphTypeSnapshot">
-            <operation name="ALL" />
-          </mdBusinessPermission>
-        </grant>
-      </role>
-    </permissions>
   </doIt>
   <undoIt>
     <delete>

@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang3.StringUtils;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
@@ -58,8 +59,8 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
-import net.geoprism.registry.service.permission.RolePermissionService;
 import net.geoprism.registry.service.business.ServiceFactory;
+import net.geoprism.registry.service.permission.RolePermissionService;
 
 public class GeoObjectImportConfiguration extends ImportConfiguration
 {
@@ -86,6 +87,8 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
   public static final String                          LOCATIONS              = "locations";
 
   public static final String                          TYPE                   = "type";
+
+  public static final String                          CLASS                  = "class";
 
   public static final String                          HAS_POSTAL_CODE        = "hasPostalCode";
 
@@ -311,11 +314,9 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
       {
         ShapefileFunction function = this.functions.get(attributeName);
 
-        if (function instanceof BasicColumnFunction)
-        {
-          attribute.put(TARGET, function.toJson());
-        }
-        else if (function instanceof LocalizedValueFunction)
+        attribute.put(CLASS, function.getClass().getName());
+
+        if (function instanceof LocalizedValueFunction)
         {
           String locale = attribute.getString("locale");
 
@@ -326,9 +327,8 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
             attribute.put(TARGET, localeFunction.toJson());
           }
         }
-        else if (function instanceof ConstantShapefileFunction)
+        else
         {
-          attribute.put(TYPE, function.getClass().getName());
           attribute.put(TARGET, function.toJson());
         }
       }
@@ -470,28 +470,44 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
         // In the case of a spreadsheet, this ends up being the column header
         String target = attribute.getString(TARGET);
 
-        if (attribute.has("type") && attribute.getString("type").equals(ConstantShapefileFunction.class.getName()))
+        String functionType = attribute.has(CLASS) ? attribute.getString(CLASS) : "";
+
+        if (attribute.has("locale"))
+        {
+          String locale = attribute.getString("locale");
+
+          if (this.getFunction(attributeName) == null)
+          {
+            this.setFunction(attributeName, new LocalizedValueFunction());
+          }
+
+          LocalizedValueFunction function = (LocalizedValueFunction) this.getFunction(attributeName);
+          function.add(locale, new BasicColumnFunction(target));
+        }
+        else if (functionType.equals(ConstantShapefileFunction.class.getName()))
         {
           this.setFunction(attributeName, new ConstantShapefileFunction(target));
         }
+        else if (functionType.equals(BasicColumnFunction.class.getName()))
+        {
+          this.setFunction(attributeName, new BasicColumnFunction(target));
+        }
+        else if (!StringUtils.isBlank(functionType))
+        {
+          try
+          {
+            Class<?> clazz = this.getClass().getClassLoader().loadClass(functionType);
+            ShapefileFunction function = (ShapefileFunction) clazz.getConstructor().newInstance();
+
+            this.setFunction(attributeName, function);
+          }
+          catch (Exception e)
+          {
+          }
+        }
         else
         {
-          if (attribute.has("locale"))
-          {
-            String locale = attribute.getString("locale");
-
-            if (this.getFunction(attributeName) == null)
-            {
-              this.setFunction(attributeName, new LocalizedValueFunction());
-            }
-
-            LocalizedValueFunction function = (LocalizedValueFunction) this.getFunction(attributeName);
-            function.add(locale, new BasicColumnFunction(target));
-          }
-          else
-          {
-            this.setFunction(attributeName, new BasicColumnFunction(target));
-          }
+          this.setFunction(attributeName, new BasicColumnFunction(target));
         }
       }
     }
@@ -509,9 +525,28 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
         String target = location.getString(TARGET);
         ParentMatchStrategy matchStrategy = ParentMatchStrategy.valueOf(location.getString(MATCH_STRATEGY));
 
-        if (location.has("type") && location.getString("type").equals(ConstantShapefileFunction.class.getName()))
+        String functionType = location.has(CLASS) ? location.getString(CLASS) : "";
+
+        if (functionType.equals(ConstantShapefileFunction.class.getName()))
         {
           this.addParent(new Location(pType, pHierarchy, new ConstantShapefileFunction(target), matchStrategy));
+        }
+        else if (functionType.equals(BasicColumnFunction.class.getName()) || functionType.equals(LocalizedValueFunction.class.getName()))
+        {
+          this.addParent(new Location(pType, pHierarchy, new BasicColumnFunction(target), matchStrategy));
+        }
+        else if (!StringUtils.isBlank(functionType))
+        {
+          try
+          {
+            Class<?> clazz = this.getClass().getClassLoader().loadClass(functionType);
+            ShapefileFunction function = (ShapefileFunction) clazz.getConstructor().newInstance();
+
+            this.addParent(new Location(pType, pHierarchy, function, matchStrategy));
+          }
+          catch (Exception e)
+          {
+          }
         }
         else
         {

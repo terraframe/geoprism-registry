@@ -3,7 +3,7 @@
 #
 
 # This tells the build which version of npm to use:
-. $NVM_DIR/nvm.sh && nvm install lts/hydrogen
+. $NVM_DIR/nvm.sh && nvm install lts/jod
 
 export ANSIBLE_HOST_KEY_CHECKING=false
 
@@ -21,13 +21,15 @@ if [ "$build_artifact" == "true" ]; then
   #node --max_old_space_size=4096 ./node_modules/webpack/bin/webpack.js --config config/webpack.prod.js --profile
   npm run build  
   
-  cd $WORKSPACE
-  git clone -b attribution-node git@github.com:terraframe/geoprism.git
-  cd geoprism
-  mvn clean install -B
+  ## If you need a specific version of geoprism you can set that here.
+  #cd $WORKSPACE
+  #git clone -b attribution-node git@github.com:terraframe/geoprism.git
+  #cd geoprism
+  #mvn clean install -B
   
   cd $WORKSPACE/georegistry
-  mvn clean install -B -Djavax.net.ssl.trustStore=$WORKSPACE/georegistry/georegistry-web/src/test/resources/tomcat.truststore -Djavax.net.ssl.trustStorePassword=2v8hVW2rPFncN6m -Djavax.net.ssl.keyStore=$WORKSPACE/georegistry/georegistry-web/src/test/resources/keystore.ks -Djavax.net.ssl.keyStorePassword=2v8hVW2rPFncN6m
+  #mvn clean install -B -Djavax.net.ssl.trustStore=$WORKSPACE/georegistry/georegistry-web/src/test/resources/tomcat.truststore -Djavax.net.ssl.trustStorePassword=2v8hVW2rPFncN6m -Djavax.net.ssl.keyStore=$WORKSPACE/georegistry/georegistry-web/src/test/resources/keystore.ks -Djavax.net.ssl.keyStorePassword=2v8hVW2rPFncN6m
+  mvn clean install -B
 else
   if [ "$tag" == "latest" ]; then
     # As far as I can tell Cloudsmith doesn't support fetching the latest version of an artifact from their REST API. So we're using Maven dependency:copy plugin.

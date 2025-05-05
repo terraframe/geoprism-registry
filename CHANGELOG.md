@@ -2,6 +2,47 @@
 # Release Notes
 
 
+## [1.6.2](https://github.com/terraframe/geoprism-registry/releases/tag/1.6.2) (2025-04-28)
+
+
+### Bug Fixes
+
+   - **security** remove geoserver from deployment   ([e87e4](https://github.com/terraframe/geoprism-registry/commit/e87e4a109f863c6af5bf1de2fd723af532f3f32a))
+   - **security** various dependency updates
+
+
+
+## [1.6.1](https://github.com/terraframe/geoprism-registry/releases/tag/1.6.1) (2025-04-23)
+
+
+### Bug Fixes
+
+   - **security** update tomcat to latest fix version   ([0b979](https://github.com/terraframe/geoprism-registry/commit/0b979c6f6873a534f5ac3bbced58d2ecac44fbb3))
+
+
+
+## [1.6.0](https://github.com/terraframe/geoprism-registry/releases/tag/1.6.0) (2025-02-09)
+
+
+### Bug Fixes
+
+   - **security** upgrade to tomcat 9 to get latest security updates   ([d5624](https://github.com/terraframe/geoprism-registry/commit/d5624be257bfdb2ab040f453ae0ff1dc60775b1e))
+
+
+
+## [1.5.0](https://github.com/terraframe/geoprism-registry/releases/tag/1.5.0) (2024-11-19)
+
+### Features
+
+   - **maintenance** Backup and restore mechanism for instance data. Will be required for patching to 1.6.0.
+   - **admin** added status column to admin user table
+
+### Bug Fixes
+
+   - **security** upgrade to tomcat 9 to get latest security updates   ([d5624](https://github.com/terraframe/geoprism-registry/commit/d5624be257bfdb2ab040f453ae0ff1dc60775b1e))
+
+
+
 ## [1.4.0](https://github.com/terraframe/geoprism-registry/releases/tag/1.4.0) (2024-01-05)
 
 ### Features

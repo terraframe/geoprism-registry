@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import net.geoprism.registry.graph.GeoVertex;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
@@ -65,8 +64,6 @@ import com.runwaysdk.system.scheduler.JobHistoryQuery;
 
 import net.geoprism.GeoprismUser;
 import net.geoprism.GeoprismUserQuery;
-import net.geoprism.gis.geoserver.GeoserverFacade;
-import net.geoprism.gis.geoserver.NullGeoserverService;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.ClassifierIsARelationship;
 import net.geoprism.ontology.ClassifierQuery;
@@ -86,6 +83,7 @@ import net.geoprism.registry.action.ChangeRequestQuery;
 import net.geoprism.registry.conversion.RegistryRoleConverter;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.graph.ExternalSystem;
+import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GraphRepoServiceIF;
@@ -176,7 +174,6 @@ abstract public class TestDataSet
   {
     checkDuplicateClasspathResources();
     LocalProperties.setSkipCodeGenAndCompile(true);
-    GeoserverFacade.setService(new NullGeoserverService());
   }
 
   public ArrayList<TestOrganizationInfo> getManagedOrganizations()

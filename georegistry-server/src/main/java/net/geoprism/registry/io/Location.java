@@ -94,7 +94,7 @@ public class Location
     object.put("label", this.type.getLabel().getValue());
     object.put("code", this.type.getCode());
     object.put("target", this.function.toJson());
-    object.put("type", this.function.getClass().getName());
+    object.put("class", this.function.getClass().getName());
     object.put(GeoObjectImportConfiguration.MATCH_STRATEGY, this.matchStrategy);
 
     return object;

@@ -81,7 +81,7 @@ public class GeoregistryProperties
   
   public static Boolean isGraphVisualizerEnabled()
   {
-    return Singleton.INSTANCE.props.getBoolean("cgr.graph.visualizer.enabled", false);
+    return Singleton.INSTANCE.props.getBoolean("cgr.graph.visualizer.enabled", true);
   }
   
   public static List<String> getCorsWhitelist()
@@ -94,6 +94,11 @@ public class GeoregistryProperties
     }
 
     return Arrays.asList(whitelist.split(","));
+  }
+  
+  public static String getMapboxglAccessToken()
+  {
+    return Singleton.INSTANCE.props.getString("mapboxgl.accessToken");
   }
   
   /**

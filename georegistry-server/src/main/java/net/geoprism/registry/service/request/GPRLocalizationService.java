@@ -118,11 +118,6 @@ public class GPRLocalizationService extends RepoLocalizationService
 
   private void refreshCaches(boolean refreshWMS)
   {
-    if (refreshWMS)
-    {
-      new WMSService().createAllWMSLayers(true);
-    }
-
     // Refresh the users session
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
 

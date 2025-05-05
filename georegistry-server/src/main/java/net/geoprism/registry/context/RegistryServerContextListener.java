@@ -25,11 +25,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
 
-import it.geosolutions.geoserver.rest.GeoServerRESTReader;
-import net.geoprism.gis.geoserver.GeoserverFacade;
-import net.geoprism.gis.geoserver.GeoserverProperties;
-import net.geoprism.registry.service.request.WMSService;
-
 @Component
 public class RegistryServerContextListener implements ServletContextListener
 {
@@ -46,51 +41,21 @@ public class RegistryServerContextListener implements ServletContextListener
     @Override
     public void run()
     {
-      GeoServerRESTReader reader = GeoserverProperties.getReader();
-
-      while (true)
-      {
-        try
-        {
-          if (reader.existGeoserver() && GeoserverFacade.workspaceExists())
-          {
-            new WMSService().createAllWMSLayers(false);
-
-            return; // we are done here
-          }
-          else
-          {
-            log.debug("Waiting for geoserver");
-
-            try
-            {
-              Thread.sleep(1000);
-            }
-            catch (InterruptedException e)
-            {
-            }
-          }
-        }
-        catch (Throwable t)
-        {
-          // we couldn't hit the application correctly, so log the error
-          // and quit the loop to avoid excessive logging
-          log.error("Unable to start the application.", t);
-
-          return;
-        }
-      }
+      // No longer does anything
+      // Left in case we need to rebuild something on boot
     }
   }
 
   @Override
-  public void contextInitialized(ServletContextEvent sce) {
+  public void contextInitialized(ServletContextEvent sce)
+  {
     Thread t = new Thread(new StartupThread());
     t.setDaemon(true);
     t.start();
-  } 
-  
+  }
+
   @Override
-  public void contextDestroyed(ServletContextEvent sce) { 
+  public void contextDestroyed(ServletContextEvent sce)
+  {
   }
 }

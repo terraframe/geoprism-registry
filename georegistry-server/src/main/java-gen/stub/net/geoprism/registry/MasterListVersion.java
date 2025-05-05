@@ -127,7 +127,6 @@ import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.scheduler.ExecutableJob;
 
-import net.geoprism.gis.geoserver.GeoserverFacade;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.rbac.RoleConstants;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
@@ -151,6 +150,7 @@ import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.shapefile.MasterListShapefileExporter;
+import net.geoprism.registry.util.GeometryUtilFacade;
 
 public class MasterListVersion extends MasterListVersionBase implements TableEntity
 {
@@ -1489,7 +1489,7 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
   {
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid());
 
-    double[] geometry = GeoserverFacade.getBBOX(mdBusiness.getTableName());
+    double[] geometry = GeometryUtilFacade.getBBOX(mdBusiness.getTableName());
 
     if (geometry != null)
     {

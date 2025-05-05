@@ -1332,7 +1332,28 @@ public class GeoObjectImporter implements ObjectImporterIF
             this.classifierCache.putClassifierAttributeValidation(mdAttribute.getOid(), classifier, validationResult);
           }
 
+          // TODO : Was this merged correctly? I don't know...
+//<<<<<<< HEAD
           entity.setValue(attributeName, classifier.getOid(), startDate, endDate, !validationResult);
+//=======
+//          if (Boolean.TRUE.equals(validationResult))
+//          {
+//            attrClass.setValidate(false);
+//
+//            try
+//            {
+//              attrClass.setValue(classifier, startDate, endDate);
+//            }
+//            finally
+//            {
+//              attrClass.setValidate(true);
+//            }
+//          }
+//          else
+//          {
+//            throw new ClassificationValidationException("Value must be a child of the attribute root");
+//          }
+//>>>>>>> refs/remotes/origin/master
         }
       }
       catch (UnknownTermException e)

@@ -303,6 +303,7 @@ public class TestGeoObjectInfo extends TestCachedObject<ServerGeoObjectIF>
       {
         if (expectedChild.getCode().equals(compareChild.getGeoObject().getCode()))
         {
+          expectedChild.assertEquals(compareChild.getGeoObject());
           tnChild = compareChild;
         }
       }

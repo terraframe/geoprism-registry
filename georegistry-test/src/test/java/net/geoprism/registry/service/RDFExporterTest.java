@@ -4,7 +4,6 @@
 package net.geoprism.registry.service;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -42,10 +41,10 @@ import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.lpg.jena.JenaBridge;
 import net.geoprism.registry.lpg.jena.JenaConnector;
+import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessService.GeometryExportType;
 import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessServiceIF;
 import net.geoprism.registry.service.business.LabeledPropertyGraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.LabeledPropertyGraphTypeEntryBusinessServiceIF;
-import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessService.GeometryExportType;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 

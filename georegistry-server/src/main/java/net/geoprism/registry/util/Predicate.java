@@ -16,14 +16,11 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.service.business;
+package net.geoprism.registry.util;
 
-import java.io.InputStream;
 
-import org.springframework.stereotype.Component;
 
-@Component
-public interface RestoreServiceIF
+public interface Predicate<T> 
 {
-  void restoreFromBackup(InputStream istream);
+  public boolean evaulate(T _t);
 }

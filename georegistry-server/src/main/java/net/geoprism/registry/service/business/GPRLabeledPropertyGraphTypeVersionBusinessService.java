@@ -238,7 +238,7 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
     List<GraphTypeReference> gtrs = lpgt.getGraphTypeReferences();
     List<String> goTypeCodes = lpgt.getGeoObjectTypeCodesList();
     
-    if (goTypeCodes.size() > 0 && gtrs.size() > 0)
+    if (goTypeCodes.size() > 0)
     {
       // Publish snapshots for all graph types
       for (GraphTypeReference gtr : gtrs)
