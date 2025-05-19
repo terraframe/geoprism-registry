@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -46,6 +46,7 @@ import com.runwaysdk.session.Request;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
+import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Organization;
@@ -54,8 +55,10 @@ import net.geoprism.registry.io.ConstantShapefileFunction;
 import net.geoprism.registry.io.LocalizedValueFunction;
 import net.geoprism.registry.io.Location;
 import net.geoprism.registry.io.ParentMatchStrategy;
+import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 
@@ -74,6 +77,10 @@ public class BusinessObjectImportConfiguration extends ImportConfiguration
   public static final String                               NUMERIC          = "numeric";
 
   public static final String                               HIERARCHY        = "hierarchy";
+
+  public static final String                               EDGE_TYPE        = "edgeType";
+
+  public static final String                               DIRECTION        = "direction";
 
   public static final String                               LOCATIONS        = "locations";
 
@@ -97,15 +104,22 @@ public class BusinessObjectImportConfiguration extends ImportConfiguration
 
   private ServerHierarchyType                              hierarchy;
 
+  private BusinessEdgeType                                 edgeType;
+
+  private EdgeDirection                                    direction;
+
   private Date                                             date;
 
   private LinkedList<BusinessObjectRecordedErrorException> errors           = new LinkedList<BusinessObjectRecordedErrorException>();
 
   private BusinessTypeBusinessServiceIF                    typeService;
 
+  private BusinessEdgeTypeBusinessServiceIF                edgeService;
+
   public BusinessObjectImportConfiguration()
   {
     this.typeService = ServiceFactory.getBean(BusinessTypeBusinessServiceIF.class);
+    this.edgeService = ServiceFactory.getBean(BusinessEdgeTypeBusinessServiceIF.class);
 
     this.functions = new HashMap<String, ShapefileFunction>();
     this.locations = new LinkedList<Location>();
@@ -120,6 +134,26 @@ public class BusinessObjectImportConfiguration extends ImportConfiguration
   public void setType(BusinessType type)
   {
     this.type = type;
+  }
+
+  public BusinessEdgeType getEdgeType()
+  {
+    return edgeType;
+  }
+
+  public void setEdgeType(BusinessEdgeType edgeType)
+  {
+    this.edgeType = edgeType;
+  }
+
+  public EdgeDirection getDirection()
+  {
+    return direction;
+  }
+
+  public void setDirection(EdgeDirection direction)
+  {
+    this.direction = direction;
   }
 
   public Date getDate()
@@ -256,6 +290,11 @@ public class BusinessObjectImportConfiguration extends ImportConfiguration
     config.put(BusinessObjectImportConfiguration.TYPE, type);
     config.put(BusinessObjectImportConfiguration.LOCATIONS, locations);
 
+    if (this.getEdgeType() != null)
+    {
+      config.put(BusinessObjectImportConfiguration.EDGE_TYPE, type);
+    }
+
     if (this.getDate() != null)
     {
       config.put(BusinessObjectImportConfiguration.DATE, format.format(this.getDate()));
@@ -302,6 +341,11 @@ public class BusinessObjectImportConfiguration extends ImportConfiguration
     BusinessType businessType = this.typeService.getByCode(code);
 
     this.setType(businessType);
+
+    if (config.has(BusinessObjectImportConfiguration.EDGE_TYPE))
+    {
+      this.setEdgeType(this.edgeService.getByCode(config.getString(BusinessObjectImportConfiguration.EDGE_TYPE)));
+    }
 
     try
     {

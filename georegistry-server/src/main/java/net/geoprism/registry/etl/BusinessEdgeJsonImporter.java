@@ -88,8 +88,8 @@ public class BusinessEdgeJsonImporter
         final String code = joGraphType.get("code").getAsString();
 
         final BusinessEdgeType edgeType = this.edgeTypeService.getByCode(code);
-        BusinessType sourceType = this.edgeTypeService.getParent(edgeType);
-        BusinessType targetType = this.edgeTypeService.getChild(edgeType);
+        BusinessType sourceType = this.edgeTypeService.getParent(edgeType).toBusinessType();
+        BusinessType targetType = this.edgeTypeService.getChild(edgeType).toBusinessType();
 
         JsonArray edges = joGraphType.get("edges").getAsJsonArray();
 

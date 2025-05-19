@@ -87,9 +87,12 @@ public class BusinessObjectController extends RunwaySpringController
   public ResponseEntity<String> getGeoObjects( 
       @NotEmpty @RequestParam String businessTypeCode,
       @NotEmpty @RequestParam String code,
-      @NotEmpty @RequestParam String date)
+      @NotEmpty @RequestParam String date,
+      @NotEmpty @RequestParam String edgeTypeCode,
+      @NotEmpty @RequestParam String direction
+)
   {
-    JsonArray geoObjects = this.service.getGeoObjects(this.getSessionId(), businessTypeCode, code, date);
+    JsonArray geoObjects = this.service.getGeoObjects(this.getSessionId(), businessTypeCode, code, date, edgeTypeCode, direction);
     
     return new ResponseEntity<String>(geoObjects.toString(), HttpStatus.OK);
   }

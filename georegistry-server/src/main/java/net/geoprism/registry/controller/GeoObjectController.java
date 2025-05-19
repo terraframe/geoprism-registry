@@ -346,14 +346,13 @@ public class GeoObjectController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/business-objects")
-  public ResponseEntity<String> getBusinessObjects(@NotEmpty
-  @RequestParam String typeCode,
-      @NotEmpty
-      @RequestParam String code,
-      @NotEmpty
-      @RequestParam String businessTypeCode)
+  public ResponseEntity<String> getBusinessObjects(
+      @NotEmpty @RequestParam String typeCode,
+      @NotEmpty @RequestParam String code,
+      @NotEmpty @RequestParam String edgeTypeCode,
+      @NotEmpty @RequestParam String direction)
   {
-    JsonArray objects = this.objectService.getBusinessObjects(this.getSessionId(), typeCode, code, businessTypeCode);
+    JsonArray objects = this.objectService.getBusinessObjects(this.getSessionId(), typeCode, code, edgeTypeCode, direction);
 
     return new ResponseEntity<String>(objects.toString(), HttpStatus.OK);
   }

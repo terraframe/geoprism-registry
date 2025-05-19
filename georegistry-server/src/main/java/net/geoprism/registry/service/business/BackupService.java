@@ -103,8 +103,6 @@ public class BackupService implements BackupServiceIF
 
         exportBusinessObjectData(directory);
 
-        exportBusinessGeoObjectEdgeData(directory);
-
         exportBusinessEdgeData(directory);
 
         exportHistoricalEventData(directory);
@@ -520,77 +518,6 @@ public class BackupService implements BackupServiceIF
     for (BusinessEdgeType type : types)
     {
       exportBusinessEdgeData(data, type);
-    }
-  }
-
-  protected void exportBusinessGeoObjectEdgeData(File directory) throws IOException
-  {
-    File data = new File(directory, "business-geoobject-edges");
-    data.mkdirs();
-
-    List<BusinessType> types = this.bTypeService.getAll();
-
-    for (BusinessType type : types)
-    {
-      exportBusinessGeoObjectEdgeData(data, type);
-    }
-  }
-
-  private void exportBusinessGeoObjectEdgeData(File directory, BusinessType type) throws IOException
-  {
-    try (JsonWriter writer = new JsonWriter(new FileWriter(new File(directory, type.getCode() + ".json"))))
-    {
-      Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-      writer.beginArray();
-
-      MdEdge mdEdge = type.getMdEdge();
-      Long count = new GraphQuery<Long>("SELECT COUNT(*) FROM " + mdEdge.getDbClassName()).getSingleResult();
-
-      if (count == null)
-      {
-        count = 0L;
-      }
-
-      int pageSize = 1000;
-
-      long skip = 0;
-
-      while (skip < count)
-      {
-        StringBuilder statement = new StringBuilder();
-        statement.append("SELECT out.code AS geoObjectCode, out.@class AS geoObjectClass, in.code AS businessCode");
-        statement.append(" FROM " + mdEdge.getDbClassName());
-        statement.append(" ORDER BY out.code, in.code");
-        statement.append(" SKIP " + skip);
-        statement.append(" LIMIT " + pageSize);
-
-        GraphQuery<Map<String, Object>> query = new GraphQuery<Map<String, Object>>(statement.toString());
-        List<Map<String, Object>> results = query.getResults();
-
-        for (Map<String, Object> result : results)
-        {
-          String geoObjectCode = (String) result.get("geoObjectCode");
-          String geoObjectClass = (String) result.get("geoObjectClass");
-          String businessCode = (String) result.get("businessCode");
-
-          MdVertexDAOIF geoObjectVertex = (MdVertexDAOIF) ObjectCache.getMdClassByTableName(geoObjectClass);
-
-          ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(geoObjectVertex);
-
-          JsonObject object = new JsonObject();
-          object.addProperty("geoObjectCode", geoObjectCode);
-          object.addProperty("geoObjectType", geoObjectType.getCode());
-          object.addProperty("businessCode", businessCode);
-          object.addProperty("businessType", type.getCode());
-
-          gson.toJson(object, writer);
-        }
-
-        skip += pageSize;
-      }
-
-      writer.endArray();
     }
   }
 

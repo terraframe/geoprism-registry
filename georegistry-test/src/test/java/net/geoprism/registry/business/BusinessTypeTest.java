@@ -27,6 +27,7 @@ import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
+import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
@@ -37,7 +38,7 @@ public class BusinessTypeTest extends FastDatasetTest implements InstanceTestCla
 {
   @Autowired
   private BusinessTypeBusinessServiceIF typeService;
-
+  
   @Test
   @Request
   public void testCreate()
@@ -59,7 +60,6 @@ public class BusinessTypeTest extends FastDatasetTest implements InstanceTestCla
       Assert.assertEquals(orgCode, type.getOrganization().getCode());
       Assert.assertEquals(label, type.getDisplayLabel().getValue());
       Assert.assertNotNull(type.getMdVertex());
-      Assert.assertNotNull(type.getMdEdge());
     }
     finally
     {

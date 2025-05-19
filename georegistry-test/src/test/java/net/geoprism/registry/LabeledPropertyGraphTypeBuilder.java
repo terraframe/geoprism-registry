@@ -18,18 +18,22 @@ import net.geoprism.registry.test.TestHierarchyTypeInfo;
 public class LabeledPropertyGraphTypeBuilder
 {
   private TestHierarchyTypeInfo ht;
-  
-  private GraphTypeReference[] graphTypeReferences;
+
+  private GraphTypeReference[]  graphTypeReferences;
 
   private String                code;
 
   private StrategyConfiguration configuration;
-  
-  private String strategyType;
-  
-  private Organization organization;
-  
-  private String[] geoObjectTypeCodes;
+
+  private String                strategyType;
+
+  private Organization          organization;
+
+  private String[]              geoObjectTypeCodes;
+
+  private String[]              businessTypeCodes;
+
+  private String[]              businessEdgeCodes;
 
   public LabeledPropertyGraphTypeBuilder()
   {
@@ -44,7 +48,7 @@ public class LabeledPropertyGraphTypeBuilder
   public void setConfiguration(StrategyConfiguration configuration)
   {
     this.configuration = configuration;
-    
+
     if (configuration instanceof TreeStrategyConfiguration)
     {
       this.strategyType = LabeledPropertyGraphType.TREE;
@@ -54,12 +58,12 @@ public class LabeledPropertyGraphTypeBuilder
       throw new UnsupportedOperationException();
     }
   }
-  
+
   public void setGeoObjectTypeCodes(String[] geoObjectTypeCodes)
   {
     this.geoObjectTypeCodes = geoObjectTypeCodes;
   }
-  
+
   public Organization getOrganization()
   {
     return organization;
@@ -74,7 +78,7 @@ public class LabeledPropertyGraphTypeBuilder
   {
     this.graphTypeReferences = graphTypeReferences;
   }
-  
+
   public void setStrategyType(String strategyType)
   {
     this.strategyType = strategyType;
@@ -94,6 +98,26 @@ public class LabeledPropertyGraphTypeBuilder
     return this;
   }
 
+  public String[] getBusinessTypeCodes()
+  {
+    return businessTypeCodes;
+  }
+
+  public void setBusinessTypeCodes(String[] businessTypeCodes)
+  {
+    this.businessTypeCodes = businessTypeCodes;
+  }
+
+  public String[] getBusinessEdgeCodes()
+  {
+    return businessEdgeCodes;
+  }
+
+  public void setBusinessEdgeCodes(String[] businessEdgeCodes)
+  {
+    this.businessEdgeCodes = businessEdgeCodes;
+  }
+
   @Request
   public JsonObject buildJSON()
   {
@@ -107,7 +131,9 @@ public class LabeledPropertyGraphTypeBuilder
     graph.setStrategyType(strategyType);
     graph.setStrategyConfiguration(this.configuration);
     graph.setGeoObjectTypeCodesList(this.geoObjectTypeCodes);
-    
+    graph.setBusinessTypeCodesList(this.businessTypeCodes);
+    graph.setBusinessEdgeCodesList(this.businessEdgeCodes);
+
     if (organization != null)
     {
       graph.setOrganization(organization);

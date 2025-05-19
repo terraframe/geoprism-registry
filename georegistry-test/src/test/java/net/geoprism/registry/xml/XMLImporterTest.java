@@ -137,7 +137,7 @@ public class XMLImporterTest implements InstanceTestClassListener
       {
         graphRepo.refreshMetadataCache();
 
-        Assert.assertEquals(7, results.size());
+        Assert.assertEquals(8, results.size());
 
         ServerGeoObjectType type = ServerGeoObjectType.get(results.get(0).getCode());
 
@@ -261,6 +261,9 @@ public class XMLImporterTest implements InstanceTestClassListener
         BusinessEdgeType businessEdge = bizEdgeService.getByCode(results.get(6).getCode());
         Assert.assertEquals("BUS_EDGE", businessEdge.getCode());
 
+        BusinessEdgeType businessGeoEdge = bizEdgeService.getByCode(results.get(7).getCode());
+        Assert.assertEquals("BUS_GEO_EDGE", businessGeoEdge.getCode());
+        
         XMLExporter exporter = new XMLExporter(serverOrg);
         exporter.build();
 

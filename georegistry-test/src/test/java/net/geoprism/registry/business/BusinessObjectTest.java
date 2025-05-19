@@ -24,6 +24,7 @@ import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.model.BusinessObject;
+import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
@@ -31,6 +32,7 @@ import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
+import net.geoprism.registry.test.USATestData;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
@@ -43,6 +45,8 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
   private static AttributeType              attribute;
 
   private static BusinessEdgeType           relationshipType;
+
+  private static BusinessEdgeType           bGeoEdgeType;
 
   @Autowired
   private BusinessTypeBusinessServiceIF     bTypeService;
@@ -83,6 +87,9 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     attribute = this.bTypeService.createAttributeType(type, new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test True"), false, false, false));
 
     relationshipType = this.bEdgeService.create(FastTestDataset.ORG_CGOV.getCode(), "TEST_REL", new LocalizedValue("Test Rel"), new LocalizedValue("Test Rel"), type.getCode(), type.getCode());
+    
+    bGeoEdgeType = this.bEdgeService.createGeoEdge(FastTestDataset.ORG_CGOV.getCode(), "GEO_EDGE", new LocalizedValue("Geo Edge"), new LocalizedValue("Geo Edge"), type.getCode(), EdgeDirection.PARENT);
+
   }
 
   @Override
@@ -105,6 +112,12 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     {
       this.bEdgeService.delete(relationshipType);
     }
+    
+    if (bGeoEdgeType != null)
+    {
+      this.bEdgeService.delete(this.bEdgeService.getByCode(bGeoEdgeType.getCode()));
+    }
+    
 
     if (type != null)
     {
@@ -205,9 +218,9 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
     try
     {
-      this.bObjectService.addGeoObject(object, serverObject);
+      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT);
 
-      List<VertexServerGeoObject> results = this.bObjectService.getGeoObjects(object);
+      List<VertexServerGeoObject> results = this.bObjectService.getGeoObjects(object, bGeoEdgeType, EdgeDirection.PARENT);
 
       Assert.assertEquals(1, results.size());
 
@@ -234,10 +247,10 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
     try
     {
-      this.bObjectService.addGeoObject(object, serverObject);
-      this.bObjectService.removeGeoObject(object, serverObject);
+      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT);
+      this.bObjectService.removeGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT);
 
-      Assert.assertEquals(0, this.bObjectService.getGeoObjects(object).size());
+      Assert.assertEquals(0, this.bObjectService.getGeoObjects(object, bGeoEdgeType, EdgeDirection.PARENT).size());
     }
     finally
     {
@@ -258,12 +271,12 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
     try
     {
-      this.bObjectService.addGeoObject(object, serverObject);
-      this.bObjectService.addGeoObject(object, serverObject);
-      this.bObjectService.addGeoObject(object, serverObject);
-      this.bObjectService.addGeoObject(object, serverObject);
+      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT);
+      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT);
+      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT);
+      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT);
 
-      List<VertexServerGeoObject> results = this.bObjectService.getGeoObjects(object);
+      List<VertexServerGeoObject> results = this.bObjectService.getGeoObjects(object, bGeoEdgeType, EdgeDirection.PARENT);
 
       Assert.assertEquals(1, results.size());
 
@@ -290,9 +303,9 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
     try
     {
-      this.bObjectService.addGeoObject(object, serverObject);
+      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT);
 
-      List<BusinessObject> results = this.objectService.getBusinessObjects((VertexServerGeoObject) serverObject, type);
+      List<BusinessObject> results = this.objectService.getBusinessObjects((VertexServerGeoObject) serverObject, bGeoEdgeType, EdgeDirection.CHILD);
 
       Assert.assertEquals(1, results.size());
 
@@ -319,9 +332,9 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
     try
     {
-      this.bObjectService.addGeoObject(object, serverObject);
+      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT);
 
-      List<BusinessObject> results = this.objectService.getBusinessObjects((VertexServerGeoObject) serverObject);
+      List<BusinessObject> results = this.objectService.getBusinessObjects((VertexServerGeoObject) serverObject, bGeoEdgeType, EdgeDirection.CHILD);
 
       Assert.assertEquals(1, results.size());
 
@@ -370,7 +383,8 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     }
     finally
     {
-      this.bObjectService.delete(parent);;
+      this.bObjectService.delete(parent);
+      ;
     }
   }
 
@@ -404,7 +418,8 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     }
     finally
     {
-      this.bObjectService.delete(parent);;
+      this.bObjectService.delete(parent);
+      ;
     }
   }
 
@@ -447,7 +462,8 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     }
     finally
     {
-      this.bObjectService.delete(parent);;
+      this.bObjectService.delete(parent);
+      ;
     }
   }
 
@@ -486,7 +502,8 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     }
     finally
     {
-      this.bObjectService.delete(parent);;
+      this.bObjectService.delete(parent);
+      ;
     }
   }
 
@@ -520,7 +537,8 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     }
     finally
     {
-      this.bObjectService.delete(parent);;
+      this.bObjectService.delete(parent);
+      ;
     }
   }
 
@@ -541,7 +559,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
       this.bObjectService.apply(child);
 
       try
-      {        
+      {
         this.bObjectService.addChild(parent, relationshipType, child);
         this.bObjectService.addChild(parent, relationshipType, child);
         this.bObjectService.addChild(parent, relationshipType, child);
@@ -563,7 +581,8 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     }
     finally
     {
-      this.bObjectService.delete(parent);;
+      this.bObjectService.delete(parent);
+      ;
     }
   }
 

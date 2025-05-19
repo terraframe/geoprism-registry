@@ -64,6 +64,7 @@ import net.geoprism.registry.DirectedAcyclicGraphType;
 import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.cache.TransactionCacheFacade;
 import net.geoprism.registry.conversion.TermConverter;
+import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.RootGeoObjectType;
 import net.geoprism.registry.model.ServerElement;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -152,6 +153,7 @@ public class XMLImporter {
                         list.addAll(this.createHierarchies(organization, elem));
                         list.addAll(this.createBusinessTypes(organization, elem));
                         list.addAll(this.createBusinessEdgeTypes(organization, elem));
+                        list.addAll(this.createBusinessGeoObjectEdgeTypes(organization, elem));
                     });
                 }
             }
@@ -201,6 +203,24 @@ public class XMLImporter {
         return list;
     }
 
+    private List<ServerElement> createBusinessGeoObjectEdgeTypes(ServerOrganization organization, Element parent) {
+      LinkedList<ServerElement> list = new LinkedList<ServerElement>();
+      
+      NodeList nList = parent.getElementsByTagName("business-geoobject-edge");
+      
+      for (int i = 0; i < nList.getLength(); i++) {
+        Node nNode = nList.item(i);
+        
+        if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+          Element elem = (Element) nNode;
+          
+          createBusinessGeoObjectEdgeType(organization, elem).ifPresent(list::add);
+        }
+      }
+      
+      return list;
+    }
+    
     private List<ServerElement> createDirectedAcyclicGraphTypes(Document doc) {
         LinkedList<ServerElement> list = new LinkedList<ServerElement>();
 
@@ -568,6 +588,28 @@ public class XMLImporter {
         return Optional.empty();
     }
 
+    private Optional<BusinessEdgeType> createBusinessGeoObjectEdgeType(ServerOrganization organization, Element elem) {
+      String code = elem.getAttribute("code");
+      
+      if (!this.importedTypes.contains(BUSINESS_TYPE_PREFIX + code)) {
+        LocalizedValue label = this.getLabel(elem);
+        LocalizedValue description = this.getDescription(elem);
+        String typeCode = elem.getAttribute("typeCode");
+        String direction = elem.getAttribute("direction");
+        
+        ServiceFactory.getHierarchyPermissionService().enforceCanCreate(organization.getCode());
+        
+        BusinessEdgeType type = this.bEdgeService.createGeoEdge(organization.getCode(), code, label, description, typeCode, EdgeDirection.valueOf(direction));
+        
+        TransactionCacheFacade.put(type);
+        this.importedTypes.add(BUSINESS_EDGE_TYPE_PREFIX + type.getCode());
+        
+        return Optional.of(type);
+      }
+      
+      return Optional.empty();
+    }
+    
     private List<ServerElement> createServerGeoObjectType(ServerOrganization organization, Element elem) {
         List<ServerElement> list = new LinkedList<ServerElement>();
 

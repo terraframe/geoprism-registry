@@ -178,7 +178,11 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
     graphType.setMdEdgeId(mdEdge.getOid());
     graphType.apply();
 
-    JsonObject json = LabeledPropertyGraphTest.getJson(graphType, new String[] { FastTestDataset.COUNTRY.getCode(), FastTestDataset.PROVINCE.getCode() }, FastTestDataset.ORG_CGOV.getServerObject().getOrganization());
+    JsonObject json = LabeledPropertyGraphTest.getJson(graphType, 
+        new String[] { FastTestDataset.COUNTRY.getCode(), FastTestDataset.PROVINCE.getCode() },
+        new String[] {}, 
+        new String[] {}, 
+        FastTestDataset.ORG_CGOV.getServerObject().getOrganization());
 
     LabeledPropertyGraphType test1 = this.typeService.apply(json);
 
@@ -236,7 +240,11 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
     dagType.setMdEdgeId(mdEdge.getOid());
     dagType.apply();
 
-    JsonObject json = LabeledPropertyGraphTest.getJson(dagType, new String[] { FastTestDataset.COUNTRY.getCode(), FastTestDataset.PROVINCE.getCode() }, FastTestDataset.ORG_CGOV.getServerObject().getOrganization());
+    JsonObject json = LabeledPropertyGraphTest.getJson(dagType, 
+        new String[] { FastTestDataset.COUNTRY.getCode(), FastTestDataset.PROVINCE.getCode() },
+        new String[] {}, 
+        new String[] {}, 
+        FastTestDataset.ORG_CGOV.getServerObject().getOrganization());
 
     LabeledPropertyGraphType test1 = this.typeService.apply(json);
 

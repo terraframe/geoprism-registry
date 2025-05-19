@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service.request;
 
@@ -78,7 +78,7 @@ public class RelationshipVisualizationService
 
   @Autowired
   private BusinessObjectBusinessServiceIF   bObjectService;
-  
+
   @Autowired
   private GeoObjectBusinessServiceIF        geoObjectService;
 
@@ -165,23 +165,27 @@ public class RelationshipVisualizationService
     {
       if (SHOW_GEOOBJECTS_RELATIONSHIP_TYPE.equals(relationshipType))
       {
-        final BusinessType type = this.bTypeService.getByCode(sourceView.getTypeCode());
-
-        if (canReadBusinessData(type))
-        {
-          final BusinessObject selected = this.bObjectService.getByCode(type, sourceView.getCode());
-
-          List<VertexServerGeoObject> objects = this.bObjectService.getGeoObjects(selected);
-
-          long endIndex = Math.min(maxResults, objects.size());
-
-          for (int i = 0; i < endIndex; ++i)
-          {
-            VertexServerGeoObject object = objects.get(i);
-
-            geoObjects.add(this.objectService.toGeoObject(object, date));
-          }
-        }
+        // TODO: Figure this out
+        // final BusinessType type =
+        // this.bTypeService.getByCode(sourceView.getTypeCode());
+        //
+        // if (canReadBusinessData(type))
+        // {
+        // final BusinessObject selected = this.bObjectService.getByCode(type,
+        // sourceView.getCode());
+        //
+        // List<VertexServerGeoObject> objects =
+        // this.bObjectService.getGeoObjects(selected);
+        //
+        // long endIndex = Math.min(maxResults, objects.size());
+        //
+        // for (int i = 0; i < endIndex; ++i)
+        // {
+        // VertexServerGeoObject object = objects.get(i);
+        //
+        // geoObjects.add(this.objectService.toGeoObject(object, date));
+        // }
+        // }
       }
       else
       {
@@ -233,22 +237,25 @@ public class RelationshipVisualizationService
 
         if (SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE.equals(relationshipType))
         {
-          List<BusinessObject> objects = this.objectService.getBusinessObjects(selected);
-
-          long endIndex = Math.min(maxResults, objects.size());
-
-          for (int i = 0; i < endIndex; ++i)
-          {
-            BusinessObject child = objects.get(i);
-
-            if (!verticies.containsKey(child.getCode()))
-            {
-              verticies.put(child.getCode(), this.fromBusinessObject(child, "CHILD"));
-              EdgeView edge = EdgeView.create(selected, child);
-              edges.put(edge.getId(), edge);
-              addRelatedType(relatedTypes, child.getType());
-            }
-          }
+          // TODO: FIGURE THIS OUT
+          // List<BusinessObject> objects =
+          // this.objectService.getBusinessObjects(selected);
+          //
+          // long endIndex = Math.min(maxResults, objects.size());
+          //
+          // for (int i = 0; i < endIndex; ++i)
+          // {
+          // BusinessObject child = objects.get(i);
+          //
+          // if (!verticies.containsKey(child.getCode()))
+          // {
+          // verticies.put(child.getCode(), this.fromBusinessObject(child,
+          // "CHILD"));
+          // EdgeView edge = EdgeView.create(selected, child);
+          // edges.put(edge.getId(), edge);
+          // addRelatedType(relatedTypes, child.getType());
+          // }
+          // }
         }
         else
         {
@@ -293,22 +300,24 @@ public class RelationshipVisualizationService
 
         if (SHOW_GEOOBJECTS_RELATIONSHIP_TYPE.equals(relationshipType))
         {
-          List<VertexServerGeoObject> objects = this.bObjectService.getGeoObjects(selected);
-
-          long endIndex = Math.min(maxResults, objects.size());
-
-          for (int i = 0; i < endIndex; ++i)
-          {
-            VertexServerGeoObject child = objects.get(i);
-
-            if (!verticies.containsKey(child.getCode()))
-            {
-              verticies.put(child.getCode(), this.fromGeoObject(child, "CHILD"));
-              EdgeView edge = EdgeView.create(selected, child);
-              edges.put(edge.getId(), edge);
-              addRelatedType(relatedTypes, child.getType());
-            }
-          }
+          // TODO: Figure this out
+          // List<VertexServerGeoObject> objects =
+          // this.bObjectService.getGeoObjects(selected);
+          //
+          // long endIndex = Math.min(maxResults, objects.size());
+          //
+          // for (int i = 0; i < endIndex; ++i)
+          // {
+          // VertexServerGeoObject child = objects.get(i);
+          //
+          // if (!verticies.containsKey(child.getCode()))
+          // {
+          // verticies.put(child.getCode(), this.fromGeoObject(child, "CHILD"));
+          // EdgeView edge = EdgeView.create(selected, child);
+          // edges.put(edge.getId(), edge);
+          // addRelatedType(relatedTypes, child.getType());
+          // }
+          // }
         }
         else
         {
@@ -509,14 +518,16 @@ public class RelationshipVisualizationService
         views.add(jo);
       });
 
-      // Show all business objects which are related to a Geo-Object
-      JsonObject jo = new JsonObject();
-      jo.addProperty("oid", SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE);
-      jo.addProperty("code", SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE);
-      jo.addProperty(UndirectedGraphType.TYPE, SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE);
-      jo.add("label", new LocalizedValue(LocalizationFacade.localize("graph.visualizer.showBusinessObjects")).toJSON());
-      jo.addProperty("layout", "HORIZONTAL");
-      views.add(jo);
+      bEdgeService.getAll().forEach(graphType -> {
+        // Show all business objects which are related to a Geo-Object
+        if (this.bEdgeService.getParent(graphType).isGeoObjectType() || this.bEdgeService.getChild(graphType).isGeoObjectType())
+        {
+          JsonObject jo = this.bEdgeService.toJSON(graphType);
+          jo.addProperty("layout", "HORIZONTAL");
+          views.add(jo);
+        }
+      });
+
     }
     else if (objectType.equals(VertexView.ObjectType.BUSINESS))
     {
@@ -528,15 +539,26 @@ public class RelationshipVisualizationService
         jo.addProperty("layout", "HORIZONTAL");
         views.add(jo);
       });
-
-      // Show all GeoObjects which are related to a Business Object
-      JsonObject jo = new JsonObject();
-      jo.addProperty("oid", SHOW_GEOOBJECTS_RELATIONSHIP_TYPE);
-      jo.addProperty("code", SHOW_GEOOBJECTS_RELATIONSHIP_TYPE);
-      jo.addProperty(UndirectedGraphType.TYPE, SHOW_GEOOBJECTS_RELATIONSHIP_TYPE);
-      jo.add("label", new LocalizedValue(LocalizationFacade.localize("graph.visualizer.showGeoObjects")).toJSON());
-      jo.addProperty("layout", "HORIZONTAL");
-      views.add(jo);
+      
+      bEdgeService.getAll().forEach(graphType -> {
+        // Show all business objects which are related to a Geo-Object
+        if (this.bEdgeService.getParent(graphType).isGeoObjectType() || this.bEdgeService.getChild(graphType).isGeoObjectType())
+        {
+          JsonObject jo = this.bEdgeService.toJSON(graphType);
+          jo.addProperty("layout", "HORIZONTAL");
+          views.add(jo);
+        }
+      });
+      
+      bEdgeService.getAll().forEach(graphType -> {
+        // Show all business objects which are related to a Geo-Object
+        if (this.bEdgeService.getParent(graphType).isGeoObjectType() || this.bEdgeService.getChild(graphType).isGeoObjectType())
+        {
+          JsonObject jo = this.bEdgeService.toJSON(graphType);
+          jo.addProperty("layout", "HORIZONTAL");
+          views.add(jo);
+        }
+      });
     }
 
     return views;
@@ -554,7 +576,7 @@ public class RelationshipVisualizationService
     final ServerGeoObjectIF childGO = root.getGeoObject();
 
     List<ServerParentGraphNode> parent = root.getParents();
-    
+
     parent.forEach(node -> {
       if (node.getOid() != null)
       {
@@ -625,7 +647,7 @@ public class RelationshipVisualizationService
     boolean readable = objectPermissions.canRead(type.getOrganization().getCode(), type);
 
     LocalizedValue displayLabel = go.getDisplayLabel();
-    
+
     String label = displayLabel != null ? displayLabel.getValue() : "";
 
     return new VertexView(ObjectType.GEOOBJECT, "g-" + go.getUid(), go.getCode(), go.getType().getCode(), ( label == null || label.length() == 0 ) ? go.getCode() : label, relation, readable);

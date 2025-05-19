@@ -36,6 +36,7 @@ import net.geoprism.registry.graph.transition.Transition.TransitionImpact;
 import net.geoprism.registry.graph.transition.Transition.TransitionType;
 import net.geoprism.registry.graph.transition.TransitionEvent;
 import net.geoprism.registry.model.BusinessObject;
+import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerParentGraphNode;
 import net.geoprism.registry.model.ServerParentTreeNode;
@@ -65,6 +66,8 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
   private static BusinessType                       bType;
 
   private static BusinessEdgeType                   bEdgeType;
+
+  private static BusinessEdgeType                   bGeoEdgeType;
 
   private static BusinessObject                     boParent;
 
@@ -122,6 +125,8 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
     LocalizedValue description = new LocalizedValue("Test Edge Description");
 
     bEdgeType = this.bEdgeService.create(USATestData.ORG_NPS.getCode(), code, label, description, bType.getCode(), bType.getCode());
+    
+    bGeoEdgeType = this.bEdgeService.createGeoEdge(USATestData.ORG_NPS.getCode(), "GEO_EDGE", new LocalizedValue("Geo Edge"), new LocalizedValue("Geo Edge"), bType.getCode(), EdgeDirection.PARENT);
   }
 
   @Override
@@ -146,6 +151,11 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
         this.bEdgeService.delete(this.bEdgeService.getByCode(bEdgeType.getCode()));
       }
 
+      if (bGeoEdgeType != null)
+      {
+        this.bEdgeService.delete(this.bEdgeService.getByCode(bGeoEdgeType.getCode()));
+      }
+      
       if (bType != null)
       {
         this.bTypeService.delete(this.bTypeService.getByCode(bType.getCode()));
@@ -182,7 +192,7 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
 
     this.bObjectService.addChild(boParent, bEdgeType, boChild);
 
-    this.bObjectService.addGeoObject(boChild, USATestData.COLORADO.getServerObject());
+    this.bObjectService.addGeoObject(boChild, bGeoEdgeType, USATestData.COLORADO.getServerObject(), EdgeDirection.PARENT);
 
     TransitionEvent event = new TransitionEvent();
 
@@ -300,7 +310,7 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
           Assert.assertEquals(boChild.getCode(), children.get(0).getCode());
 
           // Validate Business-GeoObject edges
-          List<VertexServerGeoObject> geoObjects = this.bObjectService.getGeoObjects(boChild);
+          List<VertexServerGeoObject> geoObjects = this.bObjectService.getGeoObjects(boChild, bGeoEdgeType, EdgeDirection.PARENT);
 
           Assert.assertEquals(1, geoObjects.size());
 
