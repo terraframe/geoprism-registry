@@ -22,13 +22,13 @@ import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { finalize } from "rxjs/operators";
 
 import { EventService } from "@shared/service";
-import { BusinessType, BusinessTypeByOrg } from "@registry/model/business-type";
+import { BusinessEdgeType, BusinessType, BusinessTypeByOrg } from "@registry/model/business-type";
 import { AttributeType } from "@registry/model/registry";
-import { GeoRegistryConfiguration } from "@core/model/core";
 import { GenericTableService } from "@shared/model/generic-table";
 import { PageResult } from "@shared/model/core";
 
 import { environment } from 'src/environments/environment';
+import { firstValueFrom } from "rxjs";
 
 @Injectable()
 export class BusinessTypeService implements GenericTableService {
@@ -41,11 +41,10 @@ export class BusinessTypeService implements GenericTableService {
 
         this.eventService.start();
 
-        return this.http.get<BusinessTypeByOrg[]>(environment.apiUrl + "/api/business-type/get-by-org", { params: params })
+        return firstValueFrom(this.http.get<BusinessTypeByOrg[]>(environment.apiUrl + "/api/business-type/get-by-org", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
-            }))
-            .toPromise();
+            })));
     }
 
     getAll(): Promise<BusinessType[]> {
@@ -53,12 +52,24 @@ export class BusinessTypeService implements GenericTableService {
 
         this.eventService.start();
 
-        return this.http.get<BusinessType[]>(environment.apiUrl + "/api/business-type/get-all", { params: params })
+        return firstValueFrom(this.http.get<BusinessType[]>(environment.apiUrl + "/api/business-type/get-all", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
-            }))
-            .toPromise();
+            })))
     }
+
+    getEdges(): Promise<BusinessEdgeType[]> {
+        let params: HttpParams = new HttpParams();
+
+        this.eventService.start();
+
+        return firstValueFrom(this.http.get<BusinessEdgeType[]>(environment.apiUrl + "/api/business-type/get-edges", { params: params })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            })))
+    }
+
+
 
     get(oid: string): Promise<BusinessType> {
         let params: HttpParams = new HttpParams();
@@ -66,11 +77,11 @@ export class BusinessTypeService implements GenericTableService {
 
         this.eventService.start();
 
-        return this.http.get<BusinessType>(environment.apiUrl + "/api/business-type/get", { params: params })
+        return firstValueFrom(this.http.get<BusinessType>(environment.apiUrl + "/api/business-type/get", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
-            .toPromise();
+        );
     }
 
     apply(type: BusinessType): Promise<BusinessType> {
@@ -80,12 +91,11 @@ export class BusinessTypeService implements GenericTableService {
 
         this.eventService.start();
 
-        return this.http
+        return firstValueFrom(this.http
             .post<BusinessType>(environment.apiUrl + "/api/business-type/apply", JSON.stringify({ type: type }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
-            }))
-            .toPromise();
+            })));
     }
 
     remove(type: BusinessType): Promise<BusinessType> {
@@ -95,12 +105,11 @@ export class BusinessTypeService implements GenericTableService {
 
         this.eventService.start();
 
-        return this.http
+        return firstValueFrom(this.http
             .post<BusinessType>(environment.apiUrl + "/api/business-type/remove", JSON.stringify({ oid: type.oid }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
-            }))
-            .toPromise();
+            })));
     }
 
     edit(oid: string): Promise<BusinessType> {
@@ -110,12 +119,11 @@ export class BusinessTypeService implements GenericTableService {
 
         this.eventService.start();
 
-        return this.http
+        return firstValueFrom(this.http
             .post<BusinessType>(environment.apiUrl + "/api/business-type/edit", JSON.stringify({ oid: oid }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
-            }))
-            .toPromise();
+            })));
     }
 
     unlock(oid: string): Promise<BusinessType> {
@@ -125,12 +133,11 @@ export class BusinessTypeService implements GenericTableService {
 
         this.eventService.start();
 
-        return this.http
+        return firstValueFrom(this.http
             .post<BusinessType>(environment.apiUrl + "/api/business-type/unlock", JSON.stringify({ oid: oid }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
-            }))
-            .toPromise();
+            })));
     }
 
     addAttributeType(typeCode: string, attribute: AttributeType): Promise<AttributeType> {
@@ -140,12 +147,11 @@ export class BusinessTypeService implements GenericTableService {
 
         this.eventService.start();
 
-        return this.http
+        return firstValueFrom(this.http
             .post<AttributeType>(environment.apiUrl + "/api/business-type/add-attribute", JSON.stringify({ typeCode: typeCode, attributeType: attribute }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
-            }))
-            .toPromise();
+            })));
     }
 
     updateAttributeType(typeCode: string, attribute: AttributeType): Promise<AttributeType> {
@@ -155,12 +161,11 @@ export class BusinessTypeService implements GenericTableService {
 
         this.eventService.start();
 
-        return this.http
+        return firstValueFrom(this.http
             .post<AttributeType>(environment.apiUrl + "/api/business-type/update-attribute", JSON.stringify({ typeCode: typeCode, attributeType: attribute }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
-            }))
-            .toPromise();
+            })));
     }
 
     deleteAttributeType(typeCode: string, attributeName: string): Promise<boolean> {
@@ -170,12 +175,11 @@ export class BusinessTypeService implements GenericTableService {
 
         this.eventService.start();
 
-        return this.http
+        return firstValueFrom(this.http
             .post<boolean>(environment.apiUrl + "/api/business-type/remove-attribute", JSON.stringify({ typeCode: typeCode, attributeName: attributeName }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
-            }))
-            .toPromise();
+            })));
     }
 
     page(criteria: Object, pageConfig: any): Promise<PageResult<Object>> {
@@ -183,9 +187,8 @@ export class BusinessTypeService implements GenericTableService {
         params = params.set("criteria", JSON.stringify(criteria));
         params = params.set("typeCode", pageConfig.typeCode);
 
-        return this.http
-            .get<PageResult<Object>>(environment.apiUrl + "/api/business-type/data", { params: params })
-            .toPromise();
+        return firstValueFrom(this.http
+            .get<PageResult<Object>>(environment.apiUrl + "/api/business-type/data", { params: params }));
     }
 
 }

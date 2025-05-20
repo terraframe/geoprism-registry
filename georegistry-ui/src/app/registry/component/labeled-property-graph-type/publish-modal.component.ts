@@ -36,6 +36,8 @@ import Utils from "@registry/utility/Utils";
 import { PRESENT } from "@shared/model/date";
 import { HierarchyNode, HierarchyType } from "@registry/model/hierarchy";
 import { TypeaheadMatch } from "ngx-bootstrap/typeahead";
+import { BusinessEdgeType, BusinessType } from "@registry/model/business-type";
+import { BusinessTypeService } from "@registry/service/business-type.service";
 
 @Component({
     selector: "labeled-property-graph-type-publish-modal",
@@ -55,6 +57,9 @@ export class LabeledPropertyGraphTypePublishModalComponent implements OnInit {
     graphTypes: GraphType[] = [];
     organizations: Organization[] = [];
 
+    businessTypes: BusinessType[] = [];
+    edgeTypes: BusinessEdgeType[] = [];
+
     tab: string = "LIST";
 
     readonly: boolean = false;
@@ -73,6 +78,7 @@ export class LabeledPropertyGraphTypePublishModalComponent implements OnInit {
     // eslint-disable-next-line no-useless-constructor
     constructor(
         private service: LabeledPropertyGraphTypeService,
+        private businessService: BusinessTypeService,
         private registryService: RegistryService,
         private lService: LocalizationService,
         private bsModalRef: BsModalRef,
@@ -92,6 +98,14 @@ export class LabeledPropertyGraphTypePublishModalComponent implements OnInit {
     init(onChange: any, type?: LabeledPropertyGraphType): void {
 
         this.onChange = onChange;
+
+        this.businessService.getAll().then(response => {
+            this.businessTypes = response;
+        })
+
+        this.businessService.getEdges().then(response => {
+            this.edgeTypes = response;
+        })
 
         this.registryService.init(false, true).then(response => {
             this.hierarchies = response.hierarchies;
@@ -132,92 +146,109 @@ export class LabeledPropertyGraphTypePublishModalComponent implements OnInit {
     }
 
     buildGraphTypeButtonLabel(showAll: boolean = false): string {
-      let labels: string[] = [];
-      let sep = "$@~";
-      let agtr: string[] = (this.type.graphTypes == null || this.type.graphTypes.length == 0) ? [] : JSON.parse(this.type.graphTypes);
-      
-      for (let i = 0; i < agtr.length; ++i)
-      {
-        let typeCode = agtr[i].split(sep)[0];
-        let code = agtr[i].split(sep)[1];
-        
-        labels.push(this.graphTypes.find(t => t.code == code).label.localizedValue);
-      }
-      
-      if (showAll) {
-        // if (labels.length == 0) return this.lService.decode("synchronization.config.none");
-        return labels.sort().join(", ");
-      } else {
-      	return this.lService.decode("lpg.assignGraphTypes");
-      }
-        
-      /*
-      } else if (labels == null || labels.length == 0) {
-        return this.lService.decode("lpg.assignGraphTypes");
-      } else if (labels.length > 2) {
-        return this.lService.decode("sync.dhis2.orgUnit.multipleSelected");
-      } else {
-        return labels.join(", ");
-      }
-      */
+        let labels: string[] = [];
+        let sep = "$@~";
+        let agtr: string[] = (this.type.graphTypes == null || this.type.graphTypes.length == 0) ? [] : JSON.parse(this.type.graphTypes);
+
+        for (let i = 0; i < agtr.length; ++i) {
+            let typeCode = agtr[i].split(sep)[0];
+            let code = agtr[i].split(sep)[1];
+
+            labels.push(this.graphTypes.find(t => t.code == code).label.localizedValue);
+        }
+
+        if (showAll) {
+            // if (labels.length == 0) return this.lService.decode("synchronization.config.none");
+            return labels.sort().join(", ");
+        } else {
+            return this.lService.decode("lpg.assignGraphTypes");
+        }
+
+        /*
+        } else if (labels == null || labels.length == 0) {
+          return this.lService.decode("lpg.assignGraphTypes");
+        } else if (labels.length > 2) {
+          return this.lService.decode("sync.dhis2.orgUnit.multipleSelected");
+        } else {
+          return labels.join(", ");
+        }
+        */
     }
-    
+
     clickGraphTypeOption($event, graphType: GraphType) {
-      let agtr: string[] = (this.type.graphTypes == null || this.type.graphTypes.length == 0) ? [] : JSON.parse(this.type.graphTypes);
-      let key = graphType.typeCode + "$@~" + graphType.code;
-      
-      if (agtr.indexOf(key) == -1)
-      {
-        agtr.push(key);
-      }
-      else
-      {
-        agtr.splice(agtr.indexOf(key), 1);
-      }
+        let agtr: string[] = (this.type.graphTypes == null || this.type.graphTypes.length == 0) ? [] : JSON.parse(this.type.graphTypes);
+        let key = graphType.typeCode + "$@~" + graphType.code;
 
-      this.type.graphTypes = JSON.stringify(agtr);
+        if (agtr.indexOf(key) == -1) {
+            agtr.push(key);
+        }
+        else {
+            agtr.splice(agtr.indexOf(key), 1);
+        }
 
-      $event.stopPropagation();
+        this.type.graphTypes = JSON.stringify(agtr);
+
+        $event.stopPropagation();
     }
 
     buildGeoObjectTypeButtonLabel(showAll: boolean = false): string {
-        let typeCodes: string[] = (this.type.geoObjectTypeCodes == null || this.type.geoObjectTypeCodes.length == 0) ? [] : JSON.parse(this.type.geoObjectTypeCodes);
-        let typeLabels = typeCodes.map(c => this.types.find(t => t.code == c).label.localizedValue);
+        return this.buildTypeButtonLabel(this.types, this.type.geoObjectTypeCodes, 'label', this.lService.decode("lpg.assignGeoObjectTypes"), showAll)
+    }
+
+    buildBusinessTypeButtonLabel(showAll: boolean = false): string {
+        return this.buildTypeButtonLabel(this.businessTypes, this.type.businessTypeCodes, 'displayLabel', 'Assign Business Types', showAll)
+    }
+
+    buildEdgeTypeButtonLabel(showAll: boolean = false): string {
+        return this.buildTypeButtonLabel(this.edgeTypes, this.type.businessEdgeCodes, 'label', 'Assign Business Edges', showAll)
+    }
+
+    buildTypeButtonLabel(types: any, codes: string, labelAttribute: string, text: string, showAll: boolean = false): string {
+        let typeCodes: string[] = (codes == null || codes.length == 0) ? [] : JSON.parse(codes);
+        let typeLabels = typeCodes.map(c => types.find(t => t.code == c)[labelAttribute].localizedValue);
 
         if (showAll) {
-          // if (typeLabels.length == 0) return this.lService.decode("synchronization.config.none");
-          return typeLabels.sort().join(", ");
+            return typeLabels.sort().join(", ");
         } else {
-          return this.lService.decode("lpg.assignGeoObjectTypes");
+            return text
         }
-        
-        /*
-        } else if (typeLabels == null || typeLabels.length == 0) {
-          return this.lService.decode("lpg.assignGeoObjectTypes");
-        } else if (typeLabels.length > 2) {
-          return this.lService.decode("sync.dhis2.orgUnit.multipleSelected");
-        } else {
-          return typeLabels.join(", ");
-        }
-        */
-      }
-      
-      clickGeoObjectTypeOption($event, geoObjectType: GeoObjectType) {
-        let typeCodes: string[] = (this.type.geoObjectTypeCodes == null || this.type.geoObjectTypeCodes.length == 0) ? [] : JSON.parse(this.type.geoObjectTypeCodes);
-        
-        if (typeCodes.indexOf(geoObjectType.code) == -1)
-        {
-            typeCodes.push(geoObjectType.code);
-        }
-        else
-        {
-            typeCodes.splice(typeCodes.indexOf(geoObjectType.code), 1);
-        }
-  
-        this.type.geoObjectTypeCodes = JSON.stringify(typeCodes);
-  
+    }
+
+    clickGeoObjectTypeOption($event, geoObjectType: GeoObjectType) {
+
+        this.clickTypeOption(this.type.geoObjectTypeCodes, geoObjectType, "geoObjectTypeCodes")
+
         $event.stopPropagation();
-      }
+    }
+
+    clickBusinessTypeOption($event, businessType: BusinessType) {
+
+        this.clickTypeOption(this.type.businessTypeCodes, businessType, "businessTypeCodes")
+
+        $event.stopPropagation();
+    }
+
+    clickBusinessEdgeOption($event, edgeType: BusinessEdgeType) {
+
+        this.clickTypeOption(this.type.businessEdgeCodes, edgeType, "businessEdgeCodes")
+
+        $event.stopPropagation();
+    }
+
+    clickTypeOption(codes:string, type: any, attribute: string) {
+        let typeCodes: string[] = (codes == null || codes.length == 0) ? [] : JSON.parse(codes);
+
+        if (typeCodes.indexOf(type.code) == -1) {
+            typeCodes.push(type.code);
+        }
+        else {
+            typeCodes.splice(typeCodes.indexOf(type.code), 1);
+        }
+
+        this.type[attribute] = JSON.stringify(typeCodes);
+    }
+
+
 
     getIsDisabled(event): boolean {
         let elClasses = event.target.classList;
@@ -241,10 +272,10 @@ export class LabeledPropertyGraphTypePublishModalComponent implements OnInit {
             this.error(err);
         });
     }
-    
+
     public strArrayContains(haystack, needle): boolean {
-    	if (haystack == null) return false;
-    	return JSON.parse(haystack).indexOf(needle) != -1;
+        if (haystack == null) return false;
+        return JSON.parse(haystack).indexOf(needle) != -1;
     }
 
 

@@ -407,6 +407,70 @@
 	                    </div>
                     </div>
                 </div>
+                
+                <!--Business object configuration-->
+                <div *ngIf="type.strategyType == 'GRAPH'" class="row-holder">
+                    <div class="label-holder">
+                        <label>
+                            Edges with Business Types 
+                        </label>
+                    </div>
+                    <div class="holder">
+                        <div class="row" *ngIf="!(readonly || !isNew)">
+                            <div class="col-md-12">
+
+                                <div class="btn-group" dropdown #dropdown="bs-dropdown" [autoClose]="true" container="#select-root">
+                                <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle">
+                                    {{buildEdgeTypeButtonLabel()}} <span class="caret"></span>
+                                </button>
+                                <ul id="dropdown-triggers-manual" *dropdownMenu class="dropdown-menu orgUnit-ul"
+                                    role="menu" aria-labelledby="button-triggers-manual">
+                                    <li *ngFor="let graphType of edgeTypes" (click)="clickBusinessEdgeOption($event, graphType)" role="menuitem" [ngClass]="{'multiselect-listitem-selected': strArrayContains(type.businessEdgeCodes, graphType.code)}">
+                                      <a class="dropdown-item">{{graphType.label.localizedValue}}</a>
+                                    </li>
+                                </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-12" style="line-height: 41px;"> {{buildEdgeTypeButtonLabel(true)}} </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div *ngIf="type.strategyType == 'GRAPH'" class="row-holder">
+                    <div class="label-holder">
+                        <label>
+                            Business Types
+                        </label>
+                    </div>
+                    <div class="holder">
+                        <div class="row" *ngIf="!(readonly || !isNew)">
+                            <div class="col-md-12">
+
+                                <!-- Custom Multi-Select widget built ontop of Bootstrap Dropdown component
+                                    - ngx-bootstrap-multiselect was investigated as a potential solution and found to have lots of styling issues and as such was intentionally decided against.                      
+                                -->
+                                <div class="btn-group" dropdown #dropdown="bs-dropdown" [autoClose]="true" container="#select-root">
+                                <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle">
+                                    {{buildBusinessTypeButtonLabel()}} <span class="caret"></span>
+                                </button>
+                                <ul id="dropdown-triggers-manual" *dropdownMenu class="dropdown-menu orgUnit-ul"
+                                    role="menu" aria-labelledby="button-triggers-manual">
+                                    <li *ngFor="let bType of businessTypes" (click)="clickBusinessTypeOption($event, bType)" role="menuitem" [ngClass]="{'multiselect-listitem-selected': strArrayContains(type.businessTypeCodes, bType.code)}">
+                                        <a class="dropdown-item">{{bType.displayLabel.localizedValue}}</a>
+                                    </li>
+                                </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+	                      <div class="col-md-12" style="line-height: 41px;"> {{buildBusinessTypeButtonLabel(true)}} </div>
+	                    </div>
+
+                    </div>
+                </div>
+
 
                 <div class="row-holder">
                     <div class="label-holder"></div>
