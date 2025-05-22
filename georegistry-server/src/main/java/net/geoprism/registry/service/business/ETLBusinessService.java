@@ -339,7 +339,7 @@ public class ETLBusinessService
     QueryFactory qf = new QueryFactory();
     ImportHistoryQuery ihq = new ImportHistoryQuery(qf);
     ihq.WHERE(ihq.getStatus().containsExactly(AllJobStatus.RUNNING).OR(ihq.getStatus().containsExactly(AllJobStatus.NEW)).OR(ihq.getStatus().containsExactly(AllJobStatus.QUEUED)).OR(ihq.getStatus().containsExactly(AllJobStatus.FEEDBACK)));
-
+    
     this.filterHistoryQueryBasedOnPermissions(ihq);
 
     ihq.restrictRows(pageSize, pageNumber);
@@ -348,12 +348,12 @@ public class ETLBusinessService
     try (OIterator<? extends ImportHistory> it = ihq.getIterator())
     {
       List<JsonWrapper> results = it.getAll().stream().map(hist -> {
-        DataImportJob job = (DataImportJob) hist.getAllJob().getAll().get(0);
+        var job = hist.getAllJob().getAll().get(0);
         GeoprismUser user = ( job.getRunAsUser() == null ) ? null : GeoprismUser.get(job.getRunAsUser().getOid());
 
         return new JsonWrapper(serializeHistory(hist, user, job));
       }).collect(Collectors.toList());
-
+      
       return new Page<JsonWrapper>(ihq.getCount(), ihq.getPageNumber(), ihq.getPageSize(), results).toJSON();
     }
   }
@@ -372,7 +372,7 @@ public class ETLBusinessService
     try (OIterator<? extends ImportHistory> it = ihq.getIterator())
     {
       List<JsonWrapper> results = it.getAll().stream().map(hist -> {
-        DataImportJob job = (DataImportJob) hist.getAllJob().getAll().get(0);
+        var job = hist.getAllJob().getAll().get(0);
         GeoprismUser user = ( job.getRunAsUser() == null ) ? null : GeoprismUser.get(job.getRunAsUser().getOid());
 
         return new JsonWrapper(serializeHistory(hist, user, job));
@@ -404,9 +404,12 @@ public class ETLBusinessService
 
       jo.addProperty("stage", iHist.getStage().get(0).name());
 
-      JsonObject config = JsonParser.parseString(iHist.getConfigJson()).getAsJsonObject();
-      jo.addProperty("fileName", config.get(ImportConfiguration.FILE_NAME).getAsString());
-      jo.add("configuration", JsonParser.parseString(config.toString()));
+      if (StringUtils.isNotBlank(iHist.getConfigJson()) && iHist.getConfigJson().startsWith("{"))
+      {
+        JsonObject config = JsonParser.parseString(iHist.getConfigJson()).getAsJsonObject();
+        jo.addProperty("fileName", config.get(ImportConfiguration.FILE_NAME).getAsString());
+        jo.add("configuration", JsonParser.parseString(config.toString()));
+      }
     }
     else if (hist instanceof ExportHistory)
     {
@@ -479,9 +482,9 @@ public class ETLBusinessService
   public JsonObject getImportDetails(String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
   {
     ImportHistory hist = ImportHistory.get(historyId);
-    DataImportJob job = (DataImportJob) hist.getAllJob().getAll().get(0);
+    var job = hist.getAllJob().getAll().get(0);
     GeoprismUser user = ( job.getRunAsUser() == null ) ? null : GeoprismUser.get(job.getRunAsUser().getOid());
-    hist.getConfig().enforceExecutePermissions();
+    hist.enforceExecutePermissions();
 
     JsonObject jo = this.serializeHistory(hist, user, job);
 
@@ -500,7 +503,7 @@ public class ETLBusinessService
   public JsonObject getExportDetails(String historyId, int pageSize, int pageNumber)
   {
     ExportHistory hist = ExportHistory.get(historyId);
-    DataExportJob job = (DataExportJob) hist.getAllJob().getAll().get(0);
+    var job = hist.getAllJob().getAll().get(0);
     GeoprismUser user = ( job.getRunAsUser() == null ) ? null : GeoprismUser.get(job.getRunAsUser().getOid());
 
     JsonObject jo = this.serializeHistory(hist, user, job);

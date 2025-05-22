@@ -110,7 +110,7 @@ public abstract class ImportConfiguration
 
     boolean includeCoordinates = false;
 
-    if (jo.get(FORMAT_TYPE).equals(FormatImporterType.EXCEL.name()))
+    if (jo.has(FORMAT_TYPE) && jo.get(FORMAT_TYPE).equals(FormatImporterType.EXCEL.name()))
     {
       includeCoordinates = true;
     }

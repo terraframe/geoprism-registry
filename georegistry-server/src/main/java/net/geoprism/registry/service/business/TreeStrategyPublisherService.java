@@ -45,6 +45,8 @@ import net.geoprism.graph.LabeledPropertyGraphType;
 import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
 import net.geoprism.registry.InvalidMasterListException;
 import net.geoprism.registry.cache.ClassificationCache;
+import net.geoprism.registry.etl.ImportStage;
+import net.geoprism.registry.lpg.LPGPublishProgressMonitorIF;
 import net.geoprism.registry.lpg.TreeStrategyConfiguration;
 import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -112,13 +114,12 @@ public class TreeStrategyPublisherService extends AbstractGraphVersionPublisherS
   
   private ClassificationCache classiCache = new ClassificationCache();
 
-  public void publish(TreeStrategyConfiguration configuration, LabeledPropertyGraphTypeVersion version)
+  public void publish(LPGPublishProgressMonitorIF monitor, TreeStrategyConfiguration configuration, LabeledPropertyGraphTypeVersion version)
   {
+    super.monitor = monitor;
     TreeState state = new TreeState(null, version);
 
     long startTime = System.currentTimeMillis();
-
-    System.out.println("Started publishing");
 
     version.lock();
 
@@ -129,6 +130,7 @@ public class TreeStrategyPublisherService extends AbstractGraphVersionPublisherS
       LabeledPropertyGraphType type = version.getGraphType();
 
       ProgressService.put(type.getOid(), new Progress(0L, 1L, version.getOid()));
+      beginWork(1L, ImportStage.IMPORT);
 
       try
       {
@@ -169,9 +171,11 @@ public class TreeStrategyPublisherService extends AbstractGraphVersionPublisherS
           count++;
 
           ProgressService.put(type.getOid(), new Progress(count, ( count + state.stack.size() ), version.getOid()));
+          updateProgress(( count + state.stack.size() ), count, ImportStage.IMPORT);
         }
 
         ProgressService.put(type.getOid(), new Progress(1L, 1L, version.getOid()));
+        updateProgress(1L, 1L, ImportStage.COMPLETE);
       }
       finally
       {
