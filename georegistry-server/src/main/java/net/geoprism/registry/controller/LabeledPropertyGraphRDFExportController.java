@@ -20,8 +20,6 @@ package net.geoprism.registry.controller;
 
 import java.io.InputStream;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -33,7 +31,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessService.GeometryExportType;
+import jakarta.servlet.http.HttpServletRequest;
+import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessServiceIF.GeometryExportType;
 import net.geoprism.registry.service.request.LabeledPropertyGraphRDFExportService;
 
 @RestController

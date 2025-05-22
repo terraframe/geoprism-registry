@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service.business;
 
@@ -27,11 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
-import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.riot.system.StreamRDFWriter;
@@ -55,12 +53,12 @@ import org.springframework.stereotype.Service;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.metadata.MdVertex;
 
 import net.geoprism.configuration.GeoprismProperties;
+import net.geoprism.graph.BusinessEdgeTypeSnapshot;
+import net.geoprism.graph.BusinessTypeSnapshot;
 import net.geoprism.graph.GeoObjectTypeSnapshot;
-import net.geoprism.graph.GeoObjectTypeSnapshotQuery;
 import net.geoprism.graph.LabeledPropertyGraphType;
 import net.geoprism.graph.LabeledPropertyGraphTypeEntry;
 import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
@@ -69,8 +67,9 @@ import net.geoprism.registry.cache.ClassificationCache;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
-import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessService.CachedGraphTypeSnapshot;
-import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessService.GeometryExportType;
+import net.geoprism.registry.service.business.GraphPublisherService.CachedBusinessSnapshot;
+import net.geoprism.registry.service.business.GraphPublisherService.CachedGOTSnapshot;
+import net.geoprism.registry.service.business.GraphPublisherService.CachedSnapshot;
 
 @Service
 @Primary
@@ -115,8 +114,10 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
   protected StreamRDF                                      writer;
 
   protected List<CachedGraphTypeSnapshot>                  graphTypes;
+  
+  protected List<BusinessEdgeTypeSnapshot>                 businessEdges;
 
-  protected Map<String, GeoObjectTypeSnapshot>             gotSnaps;
+  protected Map<String, CachedSnapshot>                    snapshotCache;
 
   protected long                                           total;
 
@@ -157,16 +158,30 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
 
       do
       {
-        count = this.exportVersion(version, skip);
+        count = this.exportGeoObjectTypes(version, skip);
 
         skip += BLOCK_SIZE;
       } while (count > 0);
+      
+      // Export all business types
+      this.snapshotCache.values().stream().map(c -> c.toBusiness()).filter(c -> c != null).forEach(cached -> {        
+        this.exportBusinessType(version, cached.type);
+      });
 
-      for (CachedGraphTypeSnapshot graphType : graphTypes)
-      {
-        this.exportEdgeType(version, graphType);
-      }
-
+      
+      this.graphTypes.stream().forEach(graphType -> {
+        String dbClassName = graphType.graphMdEdge.getDbClassName();
+        
+        this.exportEdgeType(version, graphType.graphType.getCode(), dbClassName);        
+      });
+      
+      this.businessEdges.stream().forEach(snapshot -> {
+        String dbClassName = snapshot.getGraphMdEdge().getDbClassName();
+        
+        this.exportEdgeType(version, snapshot.getCode(), dbClassName);        
+      });
+      
+      
       logger.info("Finished rdf exporting: " + ( ( System.currentTimeMillis() - startTime ) / 1000 ) + " sec");
     }
     finally
@@ -180,7 +195,7 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
     }
   }
 
-  private void exportEdgeType(LabeledPropertyGraphTypeVersion version, CachedGraphTypeSnapshot graphType)
+  protected void exportEdgeType(LabeledPropertyGraphTypeVersion version, String typeCode, String dbClassName)
   {
     long skip = 0;
     long count = 0;
@@ -190,34 +205,73 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
       count = 0;
 
       StringBuilder sb = new StringBuilder("SELECT in.@class AS in_class, in.code AS in_code, out.@class AS out_class, out.code AS out_code");
-      sb.append(" FROM " + graphType.graphMdEdge.getDbClassName());
+      sb.append(" FROM " + dbClassName);
       sb.append(" ORDER BY out SKIP " + skip + " LIMIT " + BLOCK_SIZE);
 
       List<Map<String, Object>> records = new GraphQuery<Map<String, Object>>(sb.toString()).getResults();
 
       for (Map<String, Object> record : records)
       {
-        final GeoObjectTypeSnapshot inType = this.gotSnaps.get(record.get("in_class"));
+        CachedSnapshot inType = this.snapshotCache.get(record.get("in_class"));
         final String inCode = record.get("in_code").toString();
         final String inTypeCode = inType.getCode();
         final String inOrgCode = inType.getOrgCode();
 
-        final GeoObjectTypeSnapshot outType = this.gotSnaps.get(record.get("out_class"));
+        CachedSnapshot outType = this.snapshotCache.get(record.get("out_class"));
         final String outCode = record.get("out_code").toString();
         final String outTypeCode = outType.getCode();
         final String outOrgCode = outType.getOrgCode();
 
-        writer.quad(Quad.create(NodeFactory.createURI(quadGraphName), buildGeoObjectUri(outCode, outTypeCode, outOrgCode, false), NodeFactory.createURI(buildGraphTypeUri(outOrgCode, graphType)), buildGeoObjectUri(inCode, inTypeCode, inOrgCode, false)));
+        writer.quad(Quad.create(NodeFactory.createURI(quadGraphName),
+            buildObjectUri(outCode, outTypeCode, outOrgCode, false), 
+            NodeFactory.createURI(buildGraphTypeUri(outOrgCode, typeCode)), 
+            buildObjectUri(inCode, inTypeCode, inOrgCode, false)));
 
         count++;
       }
 
       skip += BLOCK_SIZE;
     } while (count > 0);
-
   }
+  
+  protected void exportBusinessType(LabeledPropertyGraphTypeVersion version, BusinessTypeSnapshot snapshot)
+  {
+    long skip = 0;
+    long count = 0;
+    
+    do
+    {
+      count = 0;
+      
+      StringBuilder statement = new StringBuilder("SELECT *, @class as clazz");
 
-  protected long exportVersion(LabeledPropertyGraphTypeVersion version, Long skip)
+      snapshotCache.values().stream().map(c -> c.toType()).filter(c -> c != null).map(c -> c.type).forEach(got -> {
+        if (!got.isRoot())
+        {
+          got.getAttributeTypes().stream().filter(t -> t instanceof AttributeClassificationType).forEach(attribute -> {
+            statement.append(", " + attribute.getName() + ".displayLabel.defaultLocale as " + attribute.getName() + "_l");
+          });
+        }
+      });
+
+      statement.append(" FROM " + snapshot.getGraphMdVertex().getDbClassName());
+      statement.append(" ORDER BY out SKIP " + skip + " LIMIT " + BLOCK_SIZE);
+      
+      List<Map<String, Object>> records = new GraphQuery<Map<String, Object>>(statement.toString()).getResults();
+      
+      for (Map<String, Object> record : records)
+      {
+        exportBusinessObject(version, record);
+        
+        count++;
+      }
+      
+      skip += BLOCK_SIZE;
+    } while (count > 0);
+    
+  }
+  
+  protected long exportGeoObjectTypes(LabeledPropertyGraphTypeVersion version, Long skip)
   {
     GeoObjectTypeSnapshot rootType = this.versionService.getRootType(version);
     MdVertex mdVertex = rootType.getGraphMdVertex();
@@ -239,15 +293,14 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
 
       StringBuilder sb = new StringBuilder("SELECT *, @class as clazz");
 
-      for (GeoObjectTypeSnapshot got : gotSnaps.values())
-      {
+      snapshotCache.values().stream().map(c -> c.toType()).filter(c -> c != null).map(c -> c.type).forEach(got -> {
         if (!got.isRoot())
         {
           got.getAttributeTypes().stream().filter(t -> t instanceof AttributeClassificationType).forEach(attribute -> {
             sb.append(", " + attribute.getName() + ".displayLabel.defaultLocale as " + attribute.getName() + "_l");
           });
         }
-      }
+      });
 
       sb.append(" FROM " + mdVertex.getDbClassName());
       sb.append(" ORDER BY oid SKIP " + skip + " LIMIT " + BLOCK_SIZE);
@@ -273,101 +326,14 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
   protected void exportGeoObject(LabeledPropertyGraphTypeVersion version, Map<String, Object> valueMap)
   {
     final String code = valueMap.get("code").toString();
-    final GeoObjectTypeSnapshot type = this.gotSnaps.get(valueMap.get("clazz"));
+    final GeoObjectTypeSnapshot type = this.snapshotCache.get(valueMap.get("clazz")).toType().type;
     final String orgCode = type.getOrgCode();
 
     // Write type information
-    writer.quad(Quad.create(NodeFactory.createURI(quadGraphName), buildGeoObjectUri(code, type.getCode(), orgCode, false), org.apache.jena.vocabulary.RDF.type.asNode(), NodeFactory.createURI(prefixes.get(LPGVS) + type.getCode())));
+    writer.quad(Quad.create(NodeFactory.createURI(quadGraphName), buildObjectUri(code, type.getCode(), orgCode, false), org.apache.jena.vocabulary.RDF.type.asNode(), NodeFactory.createURI(prefixes.get(LPGVS) + type.getCode())));
 
     type.getAttributeTypes().forEach(attribute -> {
-      if (valueMap.containsKey(attribute.getName()))
-      {
-        if (attribute instanceof AttributeIntegerType)
-        {
-          Object value = valueMap.get(attribute.getName());
-
-          if (value != null)
-          {
-            writer.quad(Quad.create(NodeFactory.createURI(quadGraphName), buildGeoObjectUri(code, type.getCode(), orgCode, false), NodeFactory.createURI(buildAttributeUri(type, orgCode, attribute)), NodeFactory.createLiteralByValue(value, XSDDatatype.XSDlong)));
-          }
-        }
-        else if (attribute instanceof AttributeFloatType)
-        {
-          Object value = valueMap.get(attribute.getName());
-
-          if (value != null)
-          {
-            writer.quad(Quad.create(NodeFactory.createURI(quadGraphName), buildGeoObjectUri(code, type.getCode(), orgCode, false), NodeFactory.createURI(buildAttributeUri(type, orgCode, attribute)), NodeFactory.createLiteralByValue(value, XSDDatatype.XSDdouble)));
-          }
-        }
-        else if (attribute instanceof AttributeDateType)
-        {
-          Object value = valueMap.get(attribute.getName());
-
-          if (value != null)
-          {
-            writer.quad(Quad.create(NodeFactory.createURI(quadGraphName), buildGeoObjectUri(code, type.getCode(), orgCode, false), NodeFactory.createURI(buildAttributeUri(type, orgCode, attribute)), NodeFactory.createLiteralByValue(value, XSDDatatype.XSDdateTime)));
-          }
-        }
-        else if (attribute instanceof AttributeBooleanType)
-        {
-          Object value = valueMap.get(attribute.getName());
-
-          if (value != null)
-          {
-            writer.quad(Quad.create(NodeFactory.createURI(quadGraphName), buildGeoObjectUri(code, type.getCode(), orgCode, false), NodeFactory.createURI(buildAttributeUri(type, orgCode, attribute)), NodeFactory.createLiteralByValue(value, XSDDatatype.XSDboolean)));
-          }
-        }
-        else
-        {
-
-          String literal = null;
-
-          if (attribute instanceof AttributeLocalType)
-          {
-            @SuppressWarnings("unchecked") Map<String, String> value = (Map<String, String>) valueMap.get(attribute.getName());
-
-            literal = value.get(MdAttributeLocalInfo.DEFAULT_LOCALE);
-          }
-          else if (attribute instanceof AttributeClassificationType)
-          {
-            String value = (String) valueMap.get(attribute.getName() + "_l");
-
-            if (value != null)
-            {
-              String classificationTypeCode = ( (AttributeClassificationType) attribute ).getClassificationType();
-              Classification classification = classiCache.getClassification(classificationTypeCode, value.toString().trim());
-
-              if (classification == null)
-              {
-                classification = this.classificationService.get((AttributeClassificationType) attribute, value);
-
-                if (classification != null)
-                {
-                  literal = classification.getDisplayLabel().getValue();
-                  classiCache.putClassification(classificationTypeCode, value.toString().trim(), classification);
-                }
-              }
-              else
-              {
-                literal = classification.getDisplayLabel().getValue();
-              }
-            }
-          }
-          else
-          {
-            Object value = valueMap.get(attribute.getName());
-
-            literal = value == null ? null : value.toString();
-          }
-
-          if (literal != null)
-          {
-            writer.quad(Quad.create(NodeFactory.createURI(quadGraphName), buildGeoObjectUri(code, type.getCode(), orgCode, false), NodeFactory.createURI(buildAttributeUri(type, orgCode, attribute)), NodeFactory.createLiteral(literal)));
-          }
-        }
-      }
-
+      exportObjectValue(valueMap, code, type.getCode(), orgCode, attribute);      
     });
 
     boolean includeGeoms = !GeometryExportType.NO_GEOMETRIES.equals(geomExportType);
@@ -389,7 +355,7 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
         }
 
         // This GeoObject has a Geometry
-        writer.quad(Quad.create(NodeFactory.createURI(quadGraphName), buildGeoObjectUri(code, type.getCode(), orgCode, false), NodeFactory.createURI(prefixes.get(GEO) + "hasGeometry"), NodeFactory.createURI(prefixes.get(LPGV) + type.getCode() + "-" + code + "Geometry")));
+        writer.quad(Quad.create(NodeFactory.createURI(quadGraphName), buildObjectUri(code, type.getCode(), orgCode, false), NodeFactory.createURI(prefixes.get(GEO) + "hasGeometry"), NodeFactory.createURI(prefixes.get(LPGV) + type.getCode() + "-" + code + "Geometry")));
 
         String srs_uri = "http://www.opengis.net/def/crs/OGC/1.3/CRS84";
         if (geom.getSRID() > 0)
@@ -418,6 +384,135 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
     }
   }
 
+  protected void exportBusinessObject(LabeledPropertyGraphTypeVersion version, Map<String, Object> valueMap)
+  {
+    final String code = valueMap.get("code").toString();
+    final BusinessTypeSnapshot type = this.snapshotCache.get(valueMap.get("clazz")).toBusiness().type;
+    final String orgCode = type.getOrgCode();
+    
+    // Write type information
+    writer.quad(Quad.create(
+        NodeFactory.createURI(quadGraphName), 
+        buildObjectUri(code, type.getCode(), orgCode, false), 
+        org.apache.jena.vocabulary.RDF.type.asNode(), 
+        NodeFactory.createURI(prefixes.get(LPGVS) + type.getCode())));
+    
+    type.getAttributeTypes().forEach(attribute -> {
+      exportObjectValue(valueMap, code, type.getCode(), orgCode, attribute);      
+    });    
+  }
+
+  protected void exportObjectValue(Map<String, Object> valueMap, final String code, final String typeCode, final String orgCode, AttributeType attribute)
+  {
+    if (valueMap.containsKey(attribute.getName()))
+    {
+      if (attribute instanceof AttributeIntegerType)
+      {
+        Object value = valueMap.get(attribute.getName());
+        
+        if (value != null)
+        {
+          writer.quad(Quad.create(
+              NodeFactory.createURI(quadGraphName), 
+              buildObjectUri(code, typeCode, orgCode, false), 
+              NodeFactory.createURI(buildAttributeUri(typeCode, orgCode, attribute)), 
+              NodeFactory.createLiteralByValue(value, XSDDatatype.XSDlong)));
+        }
+      }
+      else if (attribute instanceof AttributeFloatType)
+      {
+        Object value = valueMap.get(attribute.getName());
+        
+        if (value != null)
+        {
+          writer.quad(Quad.create(
+              NodeFactory.createURI(quadGraphName), 
+              buildObjectUri(code, typeCode, orgCode, false), 
+              NodeFactory.createURI(buildAttributeUri(typeCode, orgCode, attribute)), 
+              NodeFactory.createLiteralByValue(value, XSDDatatype.XSDdouble)));
+        }
+      }
+      else if (attribute instanceof AttributeDateType)
+      {
+        Object value = valueMap.get(attribute.getName());
+        
+        if (value != null)
+        {
+          writer.quad(Quad.create(
+              NodeFactory.createURI(quadGraphName), 
+              buildObjectUri(code, typeCode, orgCode, false), 
+              NodeFactory.createURI(buildAttributeUri(typeCode, orgCode, attribute)), 
+              NodeFactory.createLiteralByValue(value, XSDDatatype.XSDdateTime)));
+        }
+      }
+      else if (attribute instanceof AttributeBooleanType)
+      {
+        Object value = valueMap.get(attribute.getName());
+        
+        if (value != null)
+        {
+          writer.quad(Quad.create(
+              NodeFactory.createURI(quadGraphName), 
+              buildObjectUri(code, typeCode, orgCode, false), 
+              NodeFactory.createURI(buildAttributeUri(typeCode, orgCode, attribute)), 
+              NodeFactory.createLiteralByValue(value, XSDDatatype.XSDboolean)));
+        }
+      }
+      else
+      {
+        
+        String literal = null;
+        
+        if (attribute instanceof AttributeLocalType)
+        {
+          @SuppressWarnings("unchecked") Map<String, String> value = (Map<String, String>) valueMap.get(attribute.getName());
+          
+          literal = value.get(MdAttributeLocalInfo.DEFAULT_LOCALE);
+        }
+        else if (attribute instanceof AttributeClassificationType)
+        {
+          String value = (String) valueMap.get(attribute.getName() + "_l");
+          
+          if (value != null)
+          {
+            String classificationTypeCode = ( (AttributeClassificationType) attribute ).getClassificationType();
+            Classification classification = classiCache.getClassification(classificationTypeCode, value.toString().trim());
+            
+            if (classification == null)
+            {
+              classification = this.classificationService.get((AttributeClassificationType) attribute, value);
+              
+              if (classification != null)
+              {
+                literal = classification.getDisplayLabel().getValue();
+                classiCache.putClassification(classificationTypeCode, value.toString().trim(), classification);
+              }
+            }
+            else
+            {
+              literal = classification.getDisplayLabel().getValue();
+            }
+          }
+        }
+        else
+        {
+          Object value = valueMap.get(attribute.getName());
+          
+          literal = value == null ? null : value.toString();
+        }
+        
+        if (literal != null)
+        {
+          writer.quad(
+              Quad.create(NodeFactory.createURI(quadGraphName), 
+                  buildObjectUri(code, typeCode, orgCode, false), 
+                  NodeFactory.createURI(buildAttributeUri(typeCode, orgCode, attribute)), 
+                  NodeFactory.createLiteral(literal)));
+        }
+      }
+    }
+  }
+  
   protected void definePrefixes()
   {
     // IMPORTANT : As a little bit of a quirk of Jena, you are NOT allowed to
@@ -485,22 +580,38 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
     writer.quad(Quad.create(NodeFactory.createURI(prefixes.get(LPG)), NodeFactory.createURI(prefixes.get(LPGS) + "GeoObject"), org.apache.jena.vocabulary.RDFS.subClassOf.asNode(), NodeFactory.createURI(prefixes.get(GEO) + "feature")));
 
     // Our LPG has the following GeoObjects
-    for (GeoObjectTypeSnapshot got : gotSnaps.values())
-    {
+    snapshotCache.values().stream().map(c -> c.toType()).filter(c -> c != null).map(c -> c.type).forEach(got -> {
       if (!got.isRoot())
       {
-        writer.quad(Quad.create(NodeFactory.createURI(prefixes.get(LPG)), NodeFactory.createURI(prefixes.get(LPGVS) + got.getCode()), NodeFactory.createURI(prefixes.get(RDFS) + "subClassOf"), NodeFactory.createURI(prefixes.get(LPGS) + "GeoObject")));
+        writer.quad(Quad.create(
+            NodeFactory.createURI(prefixes.get(LPG)), 
+            NodeFactory.createURI(prefixes.get(LPGVS) + got.getCode()), 
+            NodeFactory.createURI(prefixes.get(RDFS) + "subClassOf"), 
+            NodeFactory.createURI(prefixes.get(LPGS) + "GeoObject")));
       }
-    }
+    });
+    
+    // Our LPG has the following Business Types
+    snapshotCache.values().stream().map(c -> c.toBusiness()).filter(c -> c != null).map(c -> c.type).forEach(snapshot -> {
+        writer.quad(Quad.create(
+            NodeFactory.createURI(prefixes.get(LPG)), 
+            NodeFactory.createURI(prefixes.get(LPGVS) + snapshot.getCode()), 
+            NodeFactory.createURI(prefixes.get(RDFS) + "subClassOf"), 
+            NodeFactory.createURI(prefixes.get(LPGS) + "BusinessObject")));
+    });
 
     // Our LPG has the following GraphTypes
     for (CachedGraphTypeSnapshot graphType : graphTypes)
     {
-      writer.quad(Quad.create(NodeFactory.createURI(prefixes.get(LPG)), NodeFactory.createURI(prefixes.get(LPGVS) + graphType.graphType.getCode()), NodeFactory.createURI(prefixes.get(RDFS) + "subClassOf"), NodeFactory.createURI(prefixes.get(LPGS) + "GraphType")));
+      writer.quad(Quad.create(
+          NodeFactory.createURI(prefixes.get(LPG)), 
+          NodeFactory.createURI(prefixes.get(LPGVS) + graphType.graphType.getCode()), 
+          NodeFactory.createURI(prefixes.get(RDFS) + "subClassOf"), 
+          NodeFactory.createURI(prefixes.get(LPGS) + "GraphType")));
     }
   }
 
-  protected String buildAttributeUri(final GeoObjectTypeSnapshot type, final String orgCode, AttributeType attribute)
+  protected String buildAttributeUri(final String typeCode, final String orgCode, AttributeType attribute)
   {
     if (attribute.getIsDefault())
     {
@@ -508,19 +619,24 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
       {
         return prefixes.get(RDFS) + "label";
       }
-
+      
       return prefixes.get(LPGS) + "GeoObject-" + attribute.getName();
     }
-
-    return prefixes.get(LPGVS) + type.getCode() + "-" + attribute.getName();
+    
+    return prefixes.get(LPGVS) + typeCode + "-" + attribute.getName();
   }
-
-  protected String buildGraphTypeUri(final String orgCode, CachedGraphTypeSnapshot graphType)
+  
+  protected String buildAttributeUri(final GeoObjectTypeSnapshot type, final String orgCode, AttributeType attribute)
   {
-    return prefixes.get(LPGVS) + graphType.graphType.getCode();
+    return this.buildAttributeUri(type.getCode(), orgCode, attribute);
   }
 
-  protected Node buildGeoObjectUri(String code, final String typeCode, final String orgCode, boolean includeType)
+  protected String buildGraphTypeUri(final String orgCode, String typeCode)
+  {
+    return prefixes.get(LPGVS) + typeCode;
+  }
+
+  protected Node buildObjectUri(String code, final String typeCode, final String orgCode, boolean includeType)
   {
     try
     {
@@ -541,17 +657,19 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
 
   protected void cacheMetadata(LabeledPropertyGraphTypeVersion version)
   {
-    gotSnaps = new HashMap<String, GeoObjectTypeSnapshot>();
+    snapshotCache = new HashMap<String, CachedSnapshot>();
 
-    GeoObjectTypeSnapshotQuery query = new GeoObjectTypeSnapshotQuery(new QueryFactory());
-    query.WHERE(query.getVersion().EQ(version));
+    this.versionService.getTypes(version).forEach(snapshot -> {
+      snapshotCache.put(snapshot.getGraphMdVertex().getDbClassName(), new CachedGOTSnapshot(snapshot));
+    });
 
-    for (GeoObjectTypeSnapshot snapshot : query.getIterator().getAll())
-    {
-      gotSnaps.put(snapshot.getGraphMdVertex().getDbClassName(), snapshot);
-    }
-
+    this.versionService.getBusinessTypes(version).forEach(snapshot -> {
+      snapshotCache.put(snapshot.getGraphMdVertex().getDbClassName(), new CachedBusinessSnapshot(snapshot));
+    });
+    
     graphTypes = versionService.getGraphSnapshots(version).stream().map(s -> new CachedGraphTypeSnapshot(s)).collect(Collectors.toList());
+
+    businessEdges = versionService.getBusinessEdgeTypes(version);
   }
 
   protected long queryTotal(LabeledPropertyGraphTypeVersion version)

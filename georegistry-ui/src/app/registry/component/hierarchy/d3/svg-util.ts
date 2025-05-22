@@ -20,6 +20,7 @@
 import { select } from "d3";
 
 export function calculateTextWidth(text: string, fontSize: number, svgSelector: string = "#svg"): number {
+
     let svg = select(svgSelector);
 
     let textCalcGroup = svg.append("g").classed("g-text-calc", true);

@@ -38,8 +38,8 @@ import org.springframework.stereotype.Service;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
-import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessService.GeometryExportType;
 import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessServiceIF;
+import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessServiceIF.GeometryExportType;
 
 @Service
 public class LabeledPropertyGraphRDFExportService

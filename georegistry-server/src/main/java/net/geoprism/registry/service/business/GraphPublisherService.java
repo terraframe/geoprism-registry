@@ -79,17 +79,21 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
     public CachedBusinessSnapshot toBusiness();
 
     public MdVertex getGraphMdVertex();
+
+    public String getCode();
+
+    public String getOrgCode();
   }
 
   public static class CachedGOTSnapshot implements CachedSnapshot
   {
-    public GeoObjectTypeSnapshot got;
+    public GeoObjectTypeSnapshot type;
 
     public MdVertex              graphMdVertex;
 
     public CachedGOTSnapshot(GeoObjectTypeSnapshot got)
     {
-      this.got = got;
+      this.type = got;
       this.graphMdVertex = got.getGraphMdVertex();
     }
 
@@ -108,6 +112,18 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
     public CachedBusinessSnapshot toBusiness()
     {
       return null;
+    }
+
+    @Override
+    public String getCode()
+    {
+      return this.type.getCode();
+    }
+
+    @Override
+    public String getOrgCode()
+    {
+      return this.type.getOrgCode();
     }
   }
 
@@ -138,6 +154,18 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
     public MdVertex getGraphMdVertex()
     {
       return graphMdVertex;
+    }
+
+    @Override
+    public String getCode()
+    {
+      return this.type.getCode();
+    }
+
+    @Override
+    public String getOrgCode()
+    {
+      return this.type.getOrgCode();
     }
   }
 
@@ -244,7 +272,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
           throw new InvalidMasterListException();
         }
 
-        List<CachedGOTSnapshot> publishedTypes = snapshotCache.values().stream().map(gs -> gs.toType()).filter(gs -> gs != null && !gs.got.isRoot()).collect(Collectors.toList());
+        List<CachedGOTSnapshot> publishedTypes = snapshotCache.values().stream().map(gs -> gs.toType()).filter(gs -> gs != null && !gs.type.isRoot()).collect(Collectors.toList());
 
         List<BusinessTypeSnapshot> bSnapshots = this.versionService.getBusinessTypes(version);
         List<BusinessEdgeTypeSnapshot> bEdgeSnapshots = this.versionService.getBusinessEdgeTypes(version);
@@ -402,7 +430,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
   protected void publish(TraversalState state, CachedGOTSnapshot gotSnapshot, LabeledPropertyGraphTypeVersion version)
   {
     Date forDate = version.getForDate();
-    final ServerGeoObjectType type = ServerGeoObjectType.get(gotSnapshot.got.getCode());
+    final ServerGeoObjectType type = ServerGeoObjectType.get(gotSnapshot.type.getCode());
     final String dbClass = type.getDBClassName();
 
     long skip = 0;

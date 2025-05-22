@@ -724,6 +724,7 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
     snapshot.setVersion(version);
     snapshot.setGraphMdVertex(graphMdVertex);
     snapshot.setCode(type.getCode());
+    snapshot.setOrgCode(type.getOrganization().getCode());
     RegistryLocalizedValueConverter.populate(snapshot.getDisplayLabel(), type.getLabel());
     snapshot.apply();
 
