@@ -84,18 +84,28 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
     public String getCode();
 
     public String getOrgCode();
+
+    public String getSourceDBClassName();
   }
 
   public static class CachedGOTSnapshot implements CachedSnapshot
   {
+    public ServerGeoObjectType   source;
+
     public GeoObjectTypeSnapshot type;
 
     public MdVertex              graphMdVertex;
 
-    public CachedGOTSnapshot(GeoObjectTypeSnapshot got)
+    public CachedGOTSnapshot(ServerGeoObjectType source, GeoObjectTypeSnapshot got)
     {
+      this.source = source;
       this.type = got;
       this.graphMdVertex = got.getGraphMdVertex();
+    }
+
+    public String getSourceDBClassName()
+    {
+      return this.source.getDBClassName();
     }
 
     public MdVertex getGraphMdVertex()
@@ -130,12 +140,15 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
 
   public static class CachedBusinessSnapshot implements CachedSnapshot
   {
+    public BusinessType         source;
+
     public BusinessTypeSnapshot type;
 
     public MdVertex             graphMdVertex;
 
-    public CachedBusinessSnapshot(BusinessTypeSnapshot type)
+    public CachedBusinessSnapshot(BusinessType source, BusinessTypeSnapshot type)
     {
+      this.source = source;
       this.type = type;
       this.graphMdVertex = type.getGraphMdVertex();
     }
@@ -167,6 +180,12 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
     public String getOrgCode()
     {
       return this.type.getOrgCode();
+    }
+
+    @Override
+    public String getSourceDBClassName()
+    {
+      return this.source.getMdVertex().getDbClassName();
     }
   }
 
@@ -221,8 +240,8 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
   private GraphTypeSnapshotBusinessServiceIF               graphSnapshotService;
 
   @Autowired
-  private LabeledPropertyGraphTypeVersionBusinessServiceIF               versionService;
-  
+  private LabeledPropertyGraphTypeVersionBusinessServiceIF versionService;
+
   /*
    * 
    * ALL OF THE FOLLOWING PROPERTIES NEED TO BE REFACTORED. LOCAL PROPERTIES DO
@@ -236,11 +255,9 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
   private ClassificationCache                              classiCache;
 
   private long                                             BLOCK_SIZE;
-  
-  protected long count = 0;
 
+  protected long                                           count                = 0;
 
-  
   public void publish(LPGPublishProgressMonitorIF monitor, LabeledPropertyGraphTypeVersion version)
   {
     publish(monitor, version, true);
@@ -284,12 +301,12 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
         ProgressService.put(lpgt.getOid(), new Progress(0L, totalWork, version.getOid()));
 
         beginWork(totalWork, ImportStage.IMPORT);
-        
+
         // Publish all the GeoObjectTypes
         for (CachedGOTSnapshot gotSnap : publishedTypes)
         {
           publish(state, gotSnap, version);
-          
+
           ProgressService.put(lpgt.getOid(), new Progress(count, totalWork, version.getOid()));
           recordProgress(count, ImportStage.IMPORT);
         }
@@ -342,32 +359,34 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
 
     logger.info("Finished publishing: " + ( ( System.currentTimeMillis() - startTime ) / 1000 ) + " sec");
   }
-  
+
   protected long countTotalRecords(LabeledPropertyGraphTypeVersion version, Collection<CachedSnapshot> publishedTypes, List<GraphTypeReference> gtrs, List<BusinessEdgeTypeSnapshot> bEdgeSnapshots)
   {
     long total = 0;
-    
+
     for (CachedSnapshot snapshot : publishedTypes)
     {
-      final String dbClass = snapshot.getGraphMdVertex().getDbClassName();
-      total += new GraphQuery<Long>("SELECT COUNT(*) FROM " + dbClass).getSingleResult();
+      final String dbClass = snapshot.getSourceDBClassName();
+      String statement = "SELECT COUNT( *) FROM " + dbClass;
+
+      total += new GraphQuery<Long>(statement).getSingleResult();
     }
-    
+
     for (GraphTypeReference gtr : gtrs)
     {
       var graphType = GraphType.resolve(gtr);
       final String dbClass = graphType.getMdEdgeDAO().getDBClassName();
-      
+
       total += new GraphQuery<Long>("SELECT COUNT(*) FROM " + dbClass).getSingleResult();
     }
-    
+
     for (BusinessEdgeTypeSnapshot snapshot : bEdgeSnapshots)
     {
       final String dbClass = snapshot.getGraphMdEdge().getDbClassName();
-      
+
       total += new GraphQuery<Long>("SELECT COUNT(*) FROM " + dbClass).getSingleResult();
     }
-    
+
     return total;
   }
 
@@ -408,7 +427,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
 
           createEdge(outRid, inRid, snapshotMdEdge);
         }
-        
+
         count++;
       }
 
@@ -448,7 +467,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
         JsonObject dto = this.bObjectService.toJSON(new BusinessObject(vertex, type));
 
         super.publishBusiness(state, MdVertexDAO.get(snapshot.getGraphMdVertexOid()), dto, classiCache);
-        
+
         count++;
       }
 
@@ -528,7 +547,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
 
           createEdge(inRid, outRid, snapshotMdEdge);
         }
-        
+
         count++;
       }
 
@@ -564,7 +583,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
         ServerGeoObjectType type = ServerGeoObjectType.get(snapshot.getCode());
         String key = type.getMdVertex().getDBClassName().toLowerCase();
 
-        snapshotCache.put(key, new CachedGOTSnapshot(snapshot));
+        snapshotCache.put(key, new CachedGOTSnapshot(type, snapshot));
       }
     });
 
@@ -572,7 +591,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
       BusinessType type = this.bTypeService.getByCode(snapshot.getCode());
       String key = type.getMdVertex().getDbClassName().toLowerCase();
 
-      snapshotCache.put(key, new CachedBusinessSnapshot(snapshot));
+      snapshotCache.put(key, new CachedBusinessSnapshot(type, snapshot));
     });
   }
 

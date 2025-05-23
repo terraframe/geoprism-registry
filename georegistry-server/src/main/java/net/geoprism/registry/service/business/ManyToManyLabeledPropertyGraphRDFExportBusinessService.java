@@ -660,11 +660,11 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
     snapshotCache = new HashMap<String, CachedSnapshot>();
 
     this.versionService.getTypes(version).forEach(snapshot -> {
-      snapshotCache.put(snapshot.getGraphMdVertex().getDbClassName(), new CachedGOTSnapshot(snapshot));
+      snapshotCache.put(snapshot.getGraphMdVertex().getDbClassName(), new CachedGOTSnapshot(null, snapshot));
     });
 
     this.versionService.getBusinessTypes(version).forEach(snapshot -> {
-      snapshotCache.put(snapshot.getGraphMdVertex().getDbClassName(), new CachedBusinessSnapshot(snapshot));
+      snapshotCache.put(snapshot.getGraphMdVertex().getDbClassName(), new CachedBusinessSnapshot(null, snapshot));
     });
     
     graphTypes = versionService.getGraphSnapshots(version).stream().map(s -> new CachedGraphTypeSnapshot(s)).collect(Collectors.toList());
