@@ -18,13 +18,12 @@
  */
 package net.geoprism.registry.service.business;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
@@ -60,9 +59,9 @@ import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.InvalidMasterListException;
 import net.geoprism.registry.cache.ClassificationCache;
-import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.etl.ImportStage;
 import net.geoprism.registry.lpg.LPGPublishProgressMonitorIF;
+import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -173,10 +172,9 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
 
   private static class TraversalState extends State
   {
-    protected Set<String>         publishedGOs = new HashSet<String>();
-
     protected Map<String, String> cache;
 
+    @SuppressWarnings("serial")
     public TraversalState(LabeledPropertyGraphSynchronization synchronization, LabeledPropertyGraphTypeVersion version)
     {
       super(synchronization, version);
@@ -200,9 +198,6 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
   public static final long                                 BLOCK_SIZE_NO_GEOMS  = 4000;
 
   private static final Logger                              logger               = LoggerFactory.getLogger(GraphPublisherService.class);
-
-  @Autowired
-  private GeoObjectTypeBusinessServiceIF                   typeService;
 
   @Autowired
   private GeoObjectBusinessServiceIF                       objectService;
@@ -241,6 +236,9 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
   private ClassificationCache                              classiCache;
 
   private long                                             BLOCK_SIZE;
+  
+  protected long count = 0;
+
 
   
   public void publish(LPGPublishProgressMonitorIF monitor, LabeledPropertyGraphTypeVersion version)
@@ -263,7 +261,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
 
     version.lock();
 
-    long count = 0;
+    count = 0;
 
     try
     {
@@ -281,7 +279,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
         List<BusinessEdgeTypeSnapshot> bEdgeSnapshots = this.versionService.getBusinessEdgeTypes(version);
         List<GraphTypeReference> gtrs = lpgt.getGraphTypeReferences();
 
-        long totalWork = gtrs.size() + publishedTypes.size() + bSnapshots.size();
+        long totalWork = countTotalRecords(version, snapshotCache.values(), gtrs, bEdgeSnapshots);
 
         ProgressService.put(lpgt.getOid(), new Progress(0L, totalWork, version.getOid()));
 
@@ -318,7 +316,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
           recordProgress(count, ImportStage.IMPORT);
         }
 
-        // Publish the business objects
+        // Publish the business edges
         for (BusinessEdgeTypeSnapshot snapshot : bEdgeSnapshots)
         {
           BusinessEdgeType type = this.bEdgeTypeService.getByCode(snapshot.getCode());
@@ -345,7 +343,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
     logger.info("Finished publishing: " + ( ( System.currentTimeMillis() - startTime ) / 1000 ) + " sec");
   }
   
-  protected long countTotalRecords(LabeledPropertyGraphTypeVersion version, List<CachedSnapshot> publishedTypes, List<GraphTypeReference> gtrs)
+  protected long countTotalRecords(LabeledPropertyGraphTypeVersion version, Collection<CachedSnapshot> publishedTypes, List<GraphTypeReference> gtrs, List<BusinessEdgeTypeSnapshot> bEdgeSnapshots)
   {
     long total = 0;
     
@@ -363,10 +361,9 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
       total += new GraphQuery<Long>("SELECT COUNT(*) FROM " + dbClass).getSingleResult();
     }
     
-    for (GraphTypeReference gtr : gtrs)
+    for (BusinessEdgeTypeSnapshot snapshot : bEdgeSnapshots)
     {
-      var graphType = GraphType.resolve(gtr);
-      final String dbClass = graphType.getMdEdgeDAO().getDBClassName();
+      final String dbClass = snapshot.getGraphMdEdge().getDbClassName();
       
       total += new GraphQuery<Long>("SELECT COUNT(*) FROM " + dbClass).getSingleResult();
     }
@@ -374,7 +371,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
     return total;
   }
 
-  private void publish(TraversalState state, BusinessEdgeType type, BusinessEdgeTypeSnapshot snapshot, LabeledPropertyGraphTypeVersion version)
+  protected void publish(TraversalState state, BusinessEdgeType type, BusinessEdgeTypeSnapshot snapshot, LabeledPropertyGraphTypeVersion version)
   {
     final String dbClass = type.getMdEdgeDAO().getDBClassName();
     final MdEdge snapshotMdEdge = snapshot.getGraphMdEdge();
@@ -411,6 +408,8 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
 
           createEdge(outRid, inRid, snapshotMdEdge);
         }
+        
+        count++;
       }
 
       skip += BLOCK_SIZE;
@@ -422,7 +421,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
 
   }
 
-  private void publish(TraversalState state, BusinessType type, BusinessTypeSnapshot snapshot, LabeledPropertyGraphTypeVersion version)
+  protected void publish(TraversalState state, BusinessType type, BusinessTypeSnapshot snapshot, LabeledPropertyGraphTypeVersion version)
   {
     final String dbClass = type.getMdVertex().getDbClassName();
 
@@ -449,6 +448,8 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
         JsonObject dto = this.bObjectService.toJSON(new BusinessObject(vertex, type));
 
         super.publishBusiness(state, MdVertexDAO.get(snapshot.getGraphMdVertexOid()), dto, classiCache);
+        
+        count++;
       }
 
       skip += BLOCK_SIZE;
@@ -484,7 +485,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
       {
         var go = this.objectService.toGeoObject(result, forDate, false, classiCache);
         super.publish(state, gotSnapshot.graphMdVertex, go, classiCache);
-//        count++;
+        count++;
       }
 
       skip += BLOCK_SIZE;
@@ -528,7 +529,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
           createEdge(inRid, outRid, snapshotMdEdge);
         }
         
-//        count++;
+        count++;
       }
 
       skip += BLOCK_SIZE;
