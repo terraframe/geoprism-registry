@@ -94,6 +94,7 @@ import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.etl.DuplicateJobException;
+import net.geoprism.registry.lpg.LPGPublishProgressMonitorIF;
 import net.geoprism.registry.lpg.StrategyConfiguration;
 import net.geoprism.registry.lpg.TreeStrategyConfiguration;
 import net.geoprism.registry.model.Classification;
@@ -177,18 +178,18 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
   }
 
   @Override
-  public void publishNoAuth(LabeledPropertyGraphTypeVersion version)
+  public void publishNoAuth(LPGPublishProgressMonitorIF monitor, LabeledPropertyGraphTypeVersion version)
   {
     LabeledPropertyGraphType type = version.getGraphType();
     StrategyConfiguration configuration = type.toStrategyConfiguration();
 
     if (configuration instanceof TreeStrategyConfiguration)
     {
-      this.treePublisherService.publish((TreeStrategyConfiguration) configuration, version);
+      this.treePublisherService.publish(monitor, (TreeStrategyConfiguration) configuration, version);
     }
     else if (type.getStrategyType().equals(LabeledPropertyGraphType.GRAPH))
     {
-      this.graphPublisherService.publish(version);
+      this.graphPublisherService.publish(monitor, version);
     }
     else
     {

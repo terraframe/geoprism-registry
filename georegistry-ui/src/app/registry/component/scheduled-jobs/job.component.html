@@ -71,7 +71,7 @@
         </div>
       </div>
       <div class="col-md-5 order-md-1">
-        <div style="display:block; margin: 10px;text-align: right;">
+        <div *ngIf="job.configuration && job.configuration.objectType !== 'LPG'" style="display:block; margin: 10px;text-align: right;">
           <button type="submit" (click)="onConfiguration()" class="btn btn-primary" role="button">
             Configuration
           </button>

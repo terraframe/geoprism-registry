@@ -554,16 +554,6 @@ public class RelationshipVisualizationService
         }
       });
 
-      // this.bTypeService.getAll().forEach(edgeType -> {
-      // JsonObject jo = new JsonObject();
-      // jo.addProperty("oid", edgeType.getOid());
-      // jo.addProperty("code", edgeType.getCode());
-      // jo.add("label", edgeType.getLabel().toJSON());
-      // jo.addProperty("layout", "HORIZONTAL");
-      // views.add(jo);
-      // });
-      //
-
     }
 
     return views;
