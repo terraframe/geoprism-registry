@@ -67,7 +67,7 @@ public class RDFExportController extends RunwaySpringController
     return new ResponseEntity<InputStreamResource>(new InputStreamResource(is), httpHeaders, HttpStatus.OK);
   }
   
-  @GetMapping(API_PATH + "/repo-export")
+  @GetMapping(API_PATH + "/repo-export-start")
   public ResponseEntity<String> export(HttpServletRequest request, @RequestParam(name = "geomExportType", required = false) String sGeomExportType, @RequestParam(required = true) String[] sGraphTypeRefs, @RequestParam(required = true) String[] gotCodes)
   {
     GeometryExportType geomExportType = GeometryExportType.NO_GEOMETRIES;
@@ -76,8 +76,20 @@ public class RDFExportController extends RunwaySpringController
     
     var graphTypeRefs = Arrays.asList(sGraphTypeRefs).stream().map(s -> new GraphTypeReference(s.split(RepoRDFExportJob.ARRAY_STORAGE_CONCAT_TOKEN)[0], s.split(RepoRDFExportJob.ARRAY_STORAGE_CONCAT_TOKEN)[1])).toArray(GraphTypeReference[]::new);
     
-    String progressId = repoRdfExportService.export(getSessionId(), graphTypeRefs, gotCodes, geomExportType);
+    String historyId = repoRdfExportService.export(getSessionId(), graphTypeRefs, gotCodes, geomExportType);
     
-    return new ResponseEntity<String>(progressId, HttpStatus.OK);
+    return new ResponseEntity<String>(historyId, HttpStatus.OK);
+  }
+  
+  @GetMapping(API_PATH + "/repo-export-download")
+  public ResponseEntity<InputStreamResource> export(HttpServletRequest request, @RequestParam(name = "historyId", required = false) String historyId)
+  {
+    InputStream is = repoRdfExportService.exportDownload(getSessionId(), historyId);
+    
+    HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.set("Content-Type", "application/zip");
+    httpHeaders.set("Content-Disposition", "attachment; filename=\"rdfexport.zip\"");
+    
+    return new ResponseEntity<InputStreamResource>(new InputStreamResource(is), httpHeaders, HttpStatus.OK);
   }
 }

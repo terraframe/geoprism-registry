@@ -112,13 +112,14 @@ public class RepoRDFExportBusinessService
     protected ImportHistory monitor;
   }
   
-  public void export(String progressId, List<GraphType> graphTypes, List<ServerGeoObjectType> gots, GeometryExportType geomExportType, OutputStream os)
+  public void export(ImportHistory history, List<GraphType> graphTypes, List<ServerGeoObjectType> gots, GeometryExportType geomExportType, OutputStream os)
   {
     State state = new State();
     state.geomExportType = geomExportType;
     state.graphTypes = graphTypes;
     state.gots = gots;
-    state.progressId = progressId;
+    state.progressId = history.getOid();
+    state.monitor = history;
 
     long startTime = System.currentTimeMillis();
 
@@ -157,7 +158,7 @@ public class RepoRDFExportBusinessService
         state.writer.finish();
       }
 
-      ProgressService.remove(progressId);
+      ProgressService.remove(state.progressId);
     }
   }
 
@@ -407,19 +408,19 @@ public class RepoRDFExportBusinessService
   protected void writeMetadata(State state)
   {
     // GeoObject definition
-    state.writer.quad(Quad.create(NodeFactory.createURI(state.graphNamespace), NodeFactory.createURI(state.graphMetadataNamespace + "GeoObject"), org.apache.jena.vocabulary.RDF.type.asNode(), org.apache.jena.vocabulary.RDFS.Class.asNode()));
-    state.writer.quad(Quad.create(NodeFactory.createURI(state.graphNamespace), NodeFactory.createURI(state.graphMetadataNamespace + "GeoObject"), org.apache.jena.vocabulary.RDFS.subClassOf.asNode(), NodeFactory.createURI(state.prefixes.get(GEO) + "feature")));
+    state.writer.quad(Quad.create(NodeFactory.createURI(state.graphMetadataNamespace), NodeFactory.createURI(state.graphMetadataNamespace + "GeoObject"), org.apache.jena.vocabulary.RDF.type.asNode(), org.apache.jena.vocabulary.RDFS.Class.asNode()));
+    state.writer.quad(Quad.create(NodeFactory.createURI(state.graphMetadataNamespace), NodeFactory.createURI(state.graphMetadataNamespace + "GeoObject"), org.apache.jena.vocabulary.RDFS.subClassOf.asNode(), NodeFactory.createURI(state.prefixes.get(GEO) + "feature")));
 
     // Our graph has the following GeoObjects
     for (ServerGeoObjectType got : state.gots)
     {
-      state.writer.quad(Quad.create(NodeFactory.createURI(state.graphNamespace), NodeFactory.createURI(state.graphMetadataNamespace + got.getCode()), NodeFactory.createURI(state.prefixes.get(RDFS) + "subClassOf"), NodeFactory.createURI(state.graphMetadataNamespace + "GeoObject")));
+      state.writer.quad(Quad.create(NodeFactory.createURI(state.graphMetadataNamespace), NodeFactory.createURI(state.graphMetadataNamespace + got.getCode()), NodeFactory.createURI(state.prefixes.get(RDFS) + "subClassOf"), NodeFactory.createURI(state.graphMetadataNamespace + "GeoObject")));
     }
 
     // Our graph has the following GraphTypes
     for (GraphType graphType : state.graphTypes)
     {
-      state.writer.quad(Quad.create(NodeFactory.createURI(state.graphNamespace), NodeFactory.createURI(state.graphMetadataNamespace + graphType.getCode()), NodeFactory.createURI(state.prefixes.get(RDFS) + "subClassOf"), NodeFactory.createURI(state.graphMetadataNamespace + "GraphType")));
+      state.writer.quad(Quad.create(NodeFactory.createURI(state.graphMetadataNamespace), NodeFactory.createURI(state.graphMetadataNamespace + graphType.getCode()), NodeFactory.createURI(state.prefixes.get(RDFS) + "subClassOf"), NodeFactory.createURI(state.graphMetadataNamespace + "GraphType")));
     }
   }
 
@@ -457,6 +458,8 @@ public class RepoRDFExportBusinessService
 
   protected void queryTotal(State state)
   {
+    state.total = 0;
+    
     for (GraphType gt : state.graphTypes)
     {
       final String dbClassName = gt.getMdEdgeDAO().getDBClassName();
@@ -487,6 +490,7 @@ public class RepoRDFExportBusinessService
       state.monitor.appLock();
       state.monitor.setWorkTotal(state.total);
       state.monitor.setWorkProgress(state.count);
+      state.monitor.setImportedRecords(state.count);
       state.monitor.clearStage();
       state.monitor.addStage(stage);
       state.monitor.apply();

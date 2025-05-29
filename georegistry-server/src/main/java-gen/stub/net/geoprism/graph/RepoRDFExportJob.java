@@ -1,6 +1,5 @@
 package net.geoprism.graph;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -12,9 +11,8 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.commons.io.FileUtils;
-
 import com.google.gson.JsonObject;
+import com.runwaysdk.resource.CloseableFile;
 import com.runwaysdk.system.VaultFile;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutionContext;
@@ -92,10 +90,10 @@ public class RepoRDFExportJob extends RepoRDFExportJobBase
     }
     
     history.appLock();
-    JsonObject jo = new JsonObject();
-    jo.addProperty(ImportConfiguration.FILE_NAME, "Export RDF from Repo (" + codeDigest + ")");
-    jo.addProperty(ImportConfiguration.OBJECT_TYPE, "RDF");
-    history.setConfigJson(jo.toString());
+    JsonObject config = new JsonObject();
+    config.addProperty(ImportConfiguration.FILE_NAME, "Export RDF from Repo (" + codeDigest + ")");
+    config.addProperty(ImportConfiguration.OBJECT_TYPE, "RDF-REPO");
+    history.setConfigJson(config.toString());
     history.apply();
     
     var progressId = history.getOid();
@@ -105,22 +103,26 @@ public class RepoRDFExportJob extends RepoRDFExportJobBase
     
     var exporter = ServiceFactory.getBean(RepoRDFExportBusinessService.class);
     
-    File tmp = Files.createTempFile(progressId, ".ttl").toFile();
-    
-    try (OutputStream os = new FileOutputStream(tmp)) {
-      try (ZipOutputStream zos = new ZipOutputStream(os)) {
-        ZipEntry entry = new ZipEntry(progressId + ".ttl");
-        zos.putNextEntry(entry);
-        
-        exporter.export(progressId, graphTypes, gots, geomExportType, zos);
-        os.flush();
-        
-        try (FileInputStream is = new FileInputStream(tmp)) {
-          VaultFile.createAndApply(progressId + ".zip", is);
+    try (var tmp = new CloseableFile(Files.createTempFile(progressId, ".ttl").toFile())) {
+      try (OutputStream os = new FileOutputStream(tmp)) {
+        try (ZipOutputStream zos = new ZipOutputStream(os)) {
+          ZipEntry entry = new ZipEntry(progressId + ".ttl");
+          zos.putNextEntry(entry);
+          
+          exporter.export(history, graphTypes, gots, geomExportType, zos);
         }
       }
-    } finally {
-      FileUtils.deleteQuietly(tmp);
+      
+      try (FileInputStream is = new FileInputStream(tmp)) {
+        var vf = VaultFile.createAndApply(progressId + ".zip", is);
+        
+        history.appLock();
+        history.clearStage();
+        history.addStage(ImportStage.IMPORT_RESOLVE);
+        history.setImportFile(vf);
+        history.apply();
+        executionContext.setStatus(AllJobStatus.FEEDBACK);
+      }
     }
   }
   

@@ -105,7 +105,7 @@ public class ImportHistory extends ImportHistoryBase
   public void enforceExecutePermissions()
   {
     JsonObject jo = JsonParser.parseString(this.getConfigJson()).getAsJsonObject();
-    if (jo.has(ImportConfiguration.OBJECT_TYPE) && !jo.get(ImportConfiguration.OBJECT_TYPE).getAsString().equals("LPG"))
+    if (jo.has(ImportConfiguration.OBJECT_TYPE) && !jo.get(ImportConfiguration.OBJECT_TYPE).getAsString().equals("LPG") && !jo.get(ImportConfiguration.OBJECT_TYPE).getAsString().contains("RDF"))
       getConfig().enforceExecutePermissions();
   }
 }

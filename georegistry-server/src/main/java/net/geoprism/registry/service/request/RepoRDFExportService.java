@@ -18,14 +18,18 @@
  */
 package net.geoprism.registry.service.request;
 
+import java.io.InputStream;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.runwaysdk.session.Request;
+import com.runwaysdk.session.RequestType;
 
 import net.geoprism.graph.GraphTypeReference;
 import net.geoprism.graph.RepoRDFExportJob;
+import net.geoprism.registry.etl.ImportHistory;
 import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessServiceIF.GeometryExportType;
 
 @Service
@@ -33,11 +37,19 @@ public class RepoRDFExportService
 {
   private static final Logger logger = LoggerFactory.getLogger(RepoRDFExportService.class);
   
-  @Request
+  @Request(RequestType.SESSION)
   public String export(String sessionId, GraphTypeReference[] graphTypeRefs, String[] gotCodes, GeometryExportType geomExportType)
   {
     var hist = RepoRDFExportJob.runNewJob(graphTypeRefs, gotCodes, geomExportType);
     
     return hist.getOid();
+  }
+  
+  @Request(RequestType.SESSION)
+  public InputStream exportDownload(String sessionId, String historyId)
+  {
+    var hist = ImportHistory.get(historyId);
+    
+    return hist.getImportFile().openNewStream();
   }
 }
