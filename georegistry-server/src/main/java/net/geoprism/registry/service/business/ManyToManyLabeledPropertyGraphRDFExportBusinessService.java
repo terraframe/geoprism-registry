@@ -296,7 +296,7 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
       snapshotCache.values().stream().map(c -> c.toType()).filter(c -> c != null).map(c -> c.type).forEach(got -> {
         if (!got.isRoot())
         {
-          got.getAttributeTypes().stream().filter(t -> t instanceof AttributeClassificationType).forEach(attribute -> {
+          got.getAttributeTypes().stream().filter(t -> t instanceof AttributeLocalType).forEach(attribute -> {
             sb.append(", " + attribute.getName() + ".displayLabel.defaultLocale as " + attribute.getName() + "_l");
           });
         }

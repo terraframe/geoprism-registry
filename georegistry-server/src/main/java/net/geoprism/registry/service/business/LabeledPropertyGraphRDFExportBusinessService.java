@@ -198,7 +198,7 @@ public class LabeledPropertyGraphRDFExportBusinessService implements LabeledProp
       {
         if (!got.isRoot())
         {
-          got.getAttributeTypes().stream().filter(t -> t instanceof AttributeClassificationType).forEach(attribute -> {
+          got.getAttributeTypes().stream().filter(t -> t instanceof AttributeLocalType).forEach(attribute -> {
             sb.append(", " + attribute.getName() + ".displayLabel.defaultLocale as " + attribute.getName() + "_l");
           });
         }
