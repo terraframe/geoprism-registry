@@ -112,6 +112,25 @@ export class RegistryService implements AttributeTypeService {
             .toPromise();
     }
 
+    rdfExportStart(sGraphTypeRefs: string[], gotCodes: string[], geomExportType: string | null = null): Promise<string> {
+        let params: HttpParams = new HttpParams();
+
+        if (geomExportType)
+            params = params.set("geomExportType", geomExportType);
+
+        sGraphTypeRefs.forEach(val => {
+            params = params.append("sGraphTypeRefs", val);
+        });
+
+        gotCodes.forEach(val => {
+            params = params.append("gotCodes", val);
+        });
+
+        return this.http
+            .get(environment.apiUrl + "/api/rdf/repo-export-start", { params: params, responseType: 'text' as 'text' })
+            .toPromise();
+    }
+
     doesGeoObjectExistAtRange(startDate: string, endDate: string, typeCode: string, code: string): Promise<{ exists: boolean, invalid: boolean }> {
         let params: HttpParams = new HttpParams();
 

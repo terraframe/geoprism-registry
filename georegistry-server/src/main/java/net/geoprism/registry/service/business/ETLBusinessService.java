@@ -648,7 +648,7 @@ public class ETLBusinessService
   public void resolveImport(String historyId)
   {
     ImportHistory hist = ImportHistory.get(historyId);
-    hist.getConfig().enforceExecutePermissions();
+    hist.enforceExecutePermissions();
 
     if (hist.getStage().get(0).equals(ImportStage.IMPORT_RESOLVE))
     {
@@ -670,9 +670,11 @@ public class ETLBusinessService
     OIterator<? extends ImportError> it = ieq.getIterator();
     try
     {
-      ImportError err = it.next();
-
-      err.delete();
+    	if (it.hasNext()) {
+	      ImportError err = it.next();
+	
+	      err.delete();
+    	}
     }
     finally
     {
@@ -688,7 +690,9 @@ public class ETLBusinessService
     hist.apply();
 
     VaultFile file = hist.getImportFile();
-    file.delete();
+    
+    if (file != null)
+    	file.delete();
   }
 
 }

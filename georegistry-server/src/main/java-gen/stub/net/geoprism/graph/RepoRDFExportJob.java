@@ -13,6 +13,8 @@ import java.util.zip.ZipOutputStream;
 
 import com.google.gson.JsonObject;
 import com.runwaysdk.resource.CloseableFile;
+import com.runwaysdk.session.Session;
+import com.runwaysdk.system.SingleActor;
 import com.runwaysdk.system.VaultFile;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutionContext;
@@ -29,6 +31,13 @@ import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;
+
+
+/*
+https://localhost:4200/api/rdf/repo-export-start?sGraphTypeRefs=HierarchyType___SPLIT___ADM_H&gotCodes=State&gotCodes=Country
+
+https://localhost:4200/api/rdf/repo-export-download?historyId=512be306-e18c-4a84-93cf-74dcf700058c
+ */
 
 public class RepoRDFExportJob extends RepoRDFExportJobBase
 {
@@ -48,6 +57,7 @@ public class RepoRDFExportJob extends RepoRDFExportJobBase
     job.setGraphTypeRefs(graphTypes);
     job.setGotCodes(String.join(ARRAY_STORAGE_CONCAT_TOKEN, gotCodes));
     job.setGeometryExportType(geomExportType.name());
+    job.setRunAsUserId(Session.getCurrentSession().getUser().getOid());
     job.apply();
     
     return (ImportHistory) job.start();

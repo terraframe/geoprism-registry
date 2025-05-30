@@ -71,14 +71,18 @@
         </div>
       </div>
       <div class="col-md-5 order-md-1">
-        <div *ngIf="job.configuration && job.configuration.objectType !== 'LPG'" style="display:block; margin: 10px;text-align: right;">
+        <div *ngIf="job.configuration && job.configuration.objectType !== 'LPG' && job.configuration.objectType.indexOf('RDF') === -1" style="display:block; margin: 10px;text-align: right;">
           <button type="submit" (click)="onConfiguration()" class="btn btn-primary" role="button">
             Configuration
           </button>
         </div>
+        <div *ngIf="job.configuration && job.configuration.objectType.indexOf('RDF') !== -1">
+          <button type="submit" (click)="downloadRdfExport()" class="btn btn-primary" role="button">
+            Download RDF Export
+          </button>
+        </div>
 
-
-        <div *ngIf="page.resultSet.length == 0 && job && job.stage === 'VALIDATION_RESOLVE'"
+        <div *ngIf="page && page.resultSet.length == 0 && job && job.stage === 'VALIDATION_RESOLVE'"
           style="display:block; margin: 10px;text-align: right;">
           <span style="display:block; margin-bottom:10px;">
             <localize key="scheduledjobs.validation.problems.complete.msg"></localize>
@@ -88,7 +92,7 @@
           </button>
         </div>
 
-        <div *ngIf="page.resultSet.length == 0 && job && job.stage === 'IMPORT_RESOLVE'"
+        <div *ngIf="page && page.resultSet.length == 0 && job && job.stage === 'IMPORT_RESOLVE'"
           style="display:block; margin:10px;text-align: right;">
           <span style="display:block; margin-bottom:10px;">
             <localize key="scheduledjobs.import.problems.complete.msg"></localize>

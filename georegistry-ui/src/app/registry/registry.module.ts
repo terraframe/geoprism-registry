@@ -35,6 +35,7 @@ import { DndModule } from "ngx-drag-drop";
 import { DragDropModule } from "@angular/cdk/drag-drop";
 import { NgxSpinnerModule } from "ngx-spinner";
 
+import { RDFExportModalComponent } from "./component/hierarchy/modals/rdf-export-modal.component";
 import { ImportTypesModalComponent } from "./component/hierarchy/modals/import-types-modal.component";
 import { LocalizedInputComponent } from "./component/form-fields/localized-input/localized-input.component";
 import { LocalizedTextComponent } from "./component/form-fields/localized-text/localized-text.component";
@@ -198,6 +199,7 @@ import { ExportTypesModalComponent } from "./component/hierarchy/modals/export-t
         HierarchyComponent,
         RelationshipVisualizerComponent,
         RequestTableComponent,
+        RDFExportModalComponent,
         ImportTypesModalComponent,
         ExportTypesModalComponent,
         FhirExportSynchronizationConfigComponent,

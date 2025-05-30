@@ -71,15 +71,25 @@
                                         <div class="button-holder" style="float: right;">
                                             <a [routerLink]="'/registry/job/' + job.historyId" routerLinkActive="active">
                                                 <button class="btn btn-primary" role="button">
-                                                    <localize *ngIf="job.stage === 'IMPORT_RESOLVE' || job.stage === 'VALIDATION_RESOLVE'" key="scheduledjobs.fix.problems.button"></localize>
-                                                    <localize *ngIf="job.stage != 'IMPORT_RESOLVE' && job.stage != 'VALIDATION_RESOLVE'" key="scheduledjobs.detail.button"></localize>
+                                                    <ng-container *ngIf="job.configuration == null || job.configuration.objectType.indexOf('RDF') === -1">
+                                                      <localize *ngIf="job.stage === 'IMPORT_RESOLVE' || job.stage === 'VALIDATION_RESOLVE'" key="scheduledjobs.fix.problems.button"></localize>
+                                                      <localize *ngIf="job.stage != 'IMPORT_RESOLVE' && job.stage != 'VALIDATION_RESOLVE'" key="scheduledjobs.detail.button"></localize>
+                                                    </ng-container>
+                                                    <ng-container *ngIf="job.configuration != null && job.configuration.objectType.indexOf('RDF') !== -1">
+                                                      Download RDF Export
+                                                    </ng-container>
                                                 </button>
                                             </a>
                                             <button *ngIf="job.stage === 'VALIDATION_RESOLVE'" type="button" (click)="onCancelScheduledJob(job.historyId, job)" class="btn btn-danger" role="button">
                                                 <localize key="etl.import.cancel.openModal"></localize>
                                             </button>
                                             <button *ngIf="job.stage === 'IMPORT_RESOLVE'" type="submit" (click)="onResolveScheduledJob(job.historyId, job)" class="btn btn-danger" role="button">
-												                      <localize key="scheduledjobs.complete.import.button"></localize>
+												                      <ng-container *ngIf="job.configuration == null || job.configuration.objectType.indexOf('RDF') === -1">
+                                                <localize key="scheduledjobs.complete.import.button"></localize>
+                                              </ng-container>
+                                              <ng-container *ngIf="job.configuration != null && job.configuration.objectType.indexOf('RDF') !== -1">
+                                                Archive Export
+                                              </ng-container>
 												                    </button>
                                         </div>
                                     </td> 

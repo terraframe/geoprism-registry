@@ -148,6 +148,9 @@ public class RepoRDFExportBusinessService
       {
         this.exportGraphType(state, graphType);
       }
+      
+      state.count = state.total;
+      this.updateProgress(state);
 
       logger.info("Finished rdf exporting: " + ( ( System.currentTimeMillis() - startTime ) / 1000 ) + " sec");
     }
