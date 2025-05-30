@@ -1,0 +1,63 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.sidebar.exportRdf">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.sidebar.exportRdf" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Export RDF" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="rdf.mainGraph">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="rdf.mainGraph" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Main Graph IRI" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="export.rdf.withGeometries">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="export.rdf.withGeometries" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="With Geometries" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="export.rdf.withSimplifiedGeometries">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="export.rdf.withSimplifiedGeometries" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="With Simplified Geometries" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="export.rdf.withoutGeometries">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="export.rdf.withoutGeometries" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Without Geometries" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="rdf.geometryExportType">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="rdf.geometryExportType" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Geometry Export Type" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <create>
+    <!-- 
+      <mdBusiness name="net.geoprism.graph.RepoRDFExportJob" extends="com.runwaysdk.system.scheduler.ExecutableJob" exported="false">
+        <attributes>
+          <text name="graphTypeCodes"/>
+          <text name="gotCodes"/>
+          <text name="geometryExportType"/>
+        </attributes>
+      </mdBusiness>
+      -->
+    </create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>
