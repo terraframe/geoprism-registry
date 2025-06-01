@@ -1,6 +1,6 @@
 package net.geoprism.graph;
 
-@com.runwaysdk.business.ClassSignature(hash = 2057092577)
+@com.runwaysdk.business.ClassSignature(hash = -1314754396)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -37,6 +37,40 @@ public  class RepoRDFExportJobQuery extends com.runwaysdk.system.scheduler.Execu
   public String getClassType()
   {
     return net.geoprism.graph.RepoRDFExportJob.CLASS;
+  }
+  public com.runwaysdk.query.SelectableChar getBusinessEdgeCodes()
+  {
+    return getBusinessEdgeCodes(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getBusinessEdgeCodes(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.graph.RepoRDFExportJob.BUSINESSEDGECODES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getBusinessEdgeCodes(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.graph.RepoRDFExportJob.BUSINESSEDGECODES, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getBusinessTypeCodes()
+  {
+    return getBusinessTypeCodes(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getBusinessTypeCodes(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.graph.RepoRDFExportJob.BUSINESSTYPECODES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getBusinessTypeCodes(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.graph.RepoRDFExportJob.BUSINESSTYPECODES, alias, displayLabel);
+
   }
   public com.runwaysdk.query.SelectableChar getGeometryExportType()
   {
@@ -121,6 +155,12 @@ public  class RepoRDFExportJobQuery extends com.runwaysdk.system.scheduler.Execu
   public interface RepoRDFExportJobQueryReferenceIF extends com.runwaysdk.system.scheduler.ExecutableJobQuery.ExecutableJobQueryReferenceIF
   {
 
+    public com.runwaysdk.query.SelectableChar getBusinessEdgeCodes();
+    public com.runwaysdk.query.SelectableChar getBusinessEdgeCodes(String alias);
+    public com.runwaysdk.query.SelectableChar getBusinessEdgeCodes(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getBusinessTypeCodes();
+    public com.runwaysdk.query.SelectableChar getBusinessTypeCodes(String alias);
+    public com.runwaysdk.query.SelectableChar getBusinessTypeCodes(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getGeometryExportType();
     public com.runwaysdk.query.SelectableChar getGeometryExportType(String alias);
     public com.runwaysdk.query.SelectableChar getGeometryExportType(String alias, String displayLabel);
@@ -165,6 +205,40 @@ public  class RepoRDFExportJobQuery extends com.runwaysdk.system.scheduler.Execu
       return this.NE(repoRDFExportJob.getOid());
     }
 
+  public com.runwaysdk.query.SelectableChar getBusinessEdgeCodes()
+  {
+    return getBusinessEdgeCodes(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getBusinessEdgeCodes(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.graph.RepoRDFExportJob.BUSINESSEDGECODES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getBusinessEdgeCodes(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.graph.RepoRDFExportJob.BUSINESSEDGECODES, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getBusinessTypeCodes()
+  {
+    return getBusinessTypeCodes(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getBusinessTypeCodes(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.graph.RepoRDFExportJob.BUSINESSTYPECODES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getBusinessTypeCodes(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.graph.RepoRDFExportJob.BUSINESSTYPECODES, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getGeometryExportType()
   {
     return getGeometryExportType(null);
@@ -225,6 +299,12 @@ public  class RepoRDFExportJobQuery extends com.runwaysdk.system.scheduler.Execu
   public interface RepoRDFExportJobQueryMultiReferenceIF extends com.runwaysdk.system.scheduler.ExecutableJobQuery.ExecutableJobQueryMultiReferenceIF
   {
 
+    public com.runwaysdk.query.SelectableChar getBusinessEdgeCodes();
+    public com.runwaysdk.query.SelectableChar getBusinessEdgeCodes(String alias);
+    public com.runwaysdk.query.SelectableChar getBusinessEdgeCodes(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getBusinessTypeCodes();
+    public com.runwaysdk.query.SelectableChar getBusinessTypeCodes(String alias);
+    public com.runwaysdk.query.SelectableChar getBusinessTypeCodes(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getGeometryExportType();
     public com.runwaysdk.query.SelectableChar getGeometryExportType(String alias);
     public com.runwaysdk.query.SelectableChar getGeometryExportType(String alias, String displayLabel);
@@ -317,6 +397,40 @@ public  class RepoRDFExportJobQuery extends com.runwaysdk.system.scheduler.Execu
       }
 
       return this.containsExactly(itemIdArray);
+  }
+  public com.runwaysdk.query.SelectableChar getBusinessEdgeCodes()
+  {
+    return getBusinessEdgeCodes(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getBusinessEdgeCodes(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.graph.RepoRDFExportJob.BUSINESSEDGECODES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getBusinessEdgeCodes(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.graph.RepoRDFExportJob.BUSINESSEDGECODES, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getBusinessTypeCodes()
+  {
+    return getBusinessTypeCodes(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getBusinessTypeCodes(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.graph.RepoRDFExportJob.BUSINESSTYPECODES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getBusinessTypeCodes(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.graph.RepoRDFExportJob.BUSINESSTYPECODES, alias, displayLabel);
+
   }
   public com.runwaysdk.query.SelectableChar getGeometryExportType()
   {

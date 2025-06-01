@@ -20,7 +20,7 @@ package net.geoprism.registry.controller;
 
 import java.util.List;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import org.hibernate.validator.constraints.NotEmpty;
 import org.json.JSONObject;

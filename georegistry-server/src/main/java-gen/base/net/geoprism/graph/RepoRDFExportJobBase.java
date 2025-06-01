@@ -1,6 +1,6 @@
 package net.geoprism.graph;
 
-@com.runwaysdk.business.ClassSignature(hash = -2016062166)
+@com.runwaysdk.business.ClassSignature(hash = -1653228499)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -11,15 +11,73 @@ package net.geoprism.graph;
 public abstract class RepoRDFExportJobBase extends com.runwaysdk.system.scheduler.ExecutableJob
 {
   public final static String CLASS = "net.geoprism.graph.RepoRDFExportJob";
+  public final static java.lang.String BUSINESSEDGECODES = "businessEdgeCodes";
+  public final static java.lang.String BUSINESSTYPECODES = "businessTypeCodes";
   public final static java.lang.String GEOMETRYEXPORTTYPE = "geometryExportType";
   public final static java.lang.String GOTCODES = "gotCodes";
   public final static java.lang.String GRAPHTYPECODES = "graphTypeCodes";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = -2016062166;
+  private static final long serialVersionUID = -1653228499;
   
   public RepoRDFExportJobBase()
   {
     super();
+  }
+  
+  public String getBusinessEdgeCodes()
+  {
+    return getValue(BUSINESSEDGECODES);
+  }
+  
+  public void validateBusinessEdgeCodes()
+  {
+    this.validateAttribute(BUSINESSEDGECODES);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getBusinessEdgeCodesMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.graph.RepoRDFExportJob.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(BUSINESSEDGECODES);
+  }
+  
+  public void setBusinessEdgeCodes(String value)
+  {
+    if(value == null)
+    {
+      setValue(BUSINESSEDGECODES, "");
+    }
+    else
+    {
+      setValue(BUSINESSEDGECODES, value);
+    }
+  }
+  
+  public String getBusinessTypeCodes()
+  {
+    return getValue(BUSINESSTYPECODES);
+  }
+  
+  public void validateBusinessTypeCodes()
+  {
+    this.validateAttribute(BUSINESSTYPECODES);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getBusinessTypeCodesMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.graph.RepoRDFExportJob.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(BUSINESSTYPECODES);
+  }
+  
+  public void setBusinessTypeCodes(String value)
+  {
+    if(value == null)
+    {
+      setValue(BUSINESSTYPECODES, "");
+    }
+    else
+    {
+      setValue(BUSINESSTYPECODES, value);
+    }
   }
   
   public String getGeometryExportType()

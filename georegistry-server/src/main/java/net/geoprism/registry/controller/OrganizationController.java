@@ -21,7 +21,7 @@ package net.geoprism.registry.controller;
 import java.io.IOException;
 import java.text.ParseException;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;

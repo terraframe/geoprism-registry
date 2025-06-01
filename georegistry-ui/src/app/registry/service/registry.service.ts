@@ -36,6 +36,7 @@ import { EventService } from "@shared/service";
 import { environment } from 'src/environments/environment';
 import { LocaleView } from "@core/model/core";
 import { firstValueFrom } from "rxjs";
+import { RDFExport } from "@registry/model/rdf-export";
 
 export interface AttributeTypeService {
     addAttributeType(geoObjTypeId: string, attribute: AttributeType): Promise<AttributeType>;
@@ -57,9 +58,8 @@ export class RegistryService implements AttributeTypeService {
         if (publicOnly) {
             params = params.set("publicOnly", publicOnly);
         }
-        if (includeGraphTypes)
-        {
-          params = params.set("includeGraphTypes", includeGraphTypes);
+        if (includeGraphTypes) {
+            params = params.set("includeGraphTypes", includeGraphTypes);
         }
 
         return firstValueFrom(
@@ -112,24 +112,21 @@ export class RegistryService implements AttributeTypeService {
             .toPromise();
     }
 
-    rdfExportStart(sGraphTypeRefs: string[], gotCodes: string[], geomExportType: string | null = null): Promise<string> {
-        let params: HttpParams = new HttpParams();
+    rdfExportStart(config: RDFExport): Promise<{ historyId: string }> {
 
-        if (geomExportType)
-            params = params.set("geomExportType", geomExportType);
-
-        sGraphTypeRefs.forEach(val => {
-            params = params.append("sGraphTypeRefs", val);
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
         });
 
-        gotCodes.forEach(val => {
-            params = params.append("gotCodes", val);
-        });
+        this.eventService.start();
 
-        return this.http
-            .get(environment.apiUrl + "/api/rdf/repo-export-start", { params: params, responseType: 'text' as 'text' })
-            .toPromise();
+        return firstValueFrom(this.http
+            .post<{ historyId: string }>(environment.apiUrl + "/api/rdf/repo-export-start", JSON.stringify(config), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            })));
     }
+
 
     doesGeoObjectExistAtRange(startDate: string, endDate: string, typeCode: string, code: string): Promise<{ exists: boolean, invalid: boolean }> {
         let params: HttpParams = new HttpParams();

@@ -1,11 +1,11 @@
 package net.geoprism.graph;
 
-@com.runwaysdk.business.ClassSignature(hash = 713455274)
+@com.runwaysdk.business.ClassSignature(hash = 1584020909)
 public abstract class RepoRDFExportJobDTOBase extends com.runwaysdk.system.scheduler.ExecutableJobDTO
 {
   public final static String CLASS = "net.geoprism.graph.RepoRDFExportJob";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = 713455274;
+  private static final long serialVersionUID = 1584020909;
   
   protected RepoRDFExportJobDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -28,9 +28,85 @@ public abstract class RepoRDFExportJobDTOBase extends com.runwaysdk.system.sched
     return CLASS;
   }
   
+  public static java.lang.String BUSINESSEDGECODES = "businessEdgeCodes";
+  public static java.lang.String BUSINESSTYPECODES = "businessTypeCodes";
   public static java.lang.String GEOMETRYEXPORTTYPE = "geometryExportType";
   public static java.lang.String GOTCODES = "gotCodes";
   public static java.lang.String GRAPHTYPECODES = "graphTypeCodes";
+  public String getBusinessEdgeCodes()
+  {
+    return getValue(BUSINESSEDGECODES);
+  }
+  
+  public void setBusinessEdgeCodes(String value)
+  {
+    if(value == null)
+    {
+      setValue(BUSINESSEDGECODES, "");
+    }
+    else
+    {
+      setValue(BUSINESSEDGECODES, value);
+    }
+  }
+  
+  public boolean isBusinessEdgeCodesWritable()
+  {
+    return isWritable(BUSINESSEDGECODES);
+  }
+  
+  public boolean isBusinessEdgeCodesReadable()
+  {
+    return isReadable(BUSINESSEDGECODES);
+  }
+  
+  public boolean isBusinessEdgeCodesModified()
+  {
+    return isModified(BUSINESSEDGECODES);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getBusinessEdgeCodesMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(BUSINESSEDGECODES).getAttributeMdDTO();
+  }
+  
+  public String getBusinessTypeCodes()
+  {
+    return getValue(BUSINESSTYPECODES);
+  }
+  
+  public void setBusinessTypeCodes(String value)
+  {
+    if(value == null)
+    {
+      setValue(BUSINESSTYPECODES, "");
+    }
+    else
+    {
+      setValue(BUSINESSTYPECODES, value);
+    }
+  }
+  
+  public boolean isBusinessTypeCodesWritable()
+  {
+    return isWritable(BUSINESSTYPECODES);
+  }
+  
+  public boolean isBusinessTypeCodesReadable()
+  {
+    return isReadable(BUSINESSTYPECODES);
+  }
+  
+  public boolean isBusinessTypeCodesModified()
+  {
+    return isModified(BUSINESSTYPECODES);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getBusinessTypeCodesMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(BUSINESSTYPECODES).getAttributeMdDTO();
+  }
+  
   public String getGeometryExportType()
   {
     return getValue(GEOMETRYEXPORTTYPE);

@@ -43,6 +43,7 @@ import { CurationJobComponent } from "./component/curation/curation-job.componen
 import { BusinessTableComponent } from "./component/business-table/business-table.component";
 import { ClassificationTypeManagerComponent } from "./component/classification-type/classification-type-manager.component";
 import { LabeledPropertyGraphTypeManagerComponent } from "./component/labeled-property-graph-type/labeled-property-graph-type-manager.component";
+import { RDFExportComponent } from "./component/data-export/rdf-export.component";
 
 const routes: Routes = [
     {
@@ -154,7 +155,13 @@ const routes: Routes = [
         path: "labeled-property-graph-type",
         component: LabeledPropertyGraphTypeManagerComponent,
         canActivate: [AuthGuard, LabeledPropertyGraphGuard]
+    },
+    {
+        path: "export",
+        component: RDFExportComponent,
+        canActivate: [AuthGuard]
     }
+
 ];
 
 @NgModule({

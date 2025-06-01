@@ -45,19 +45,21 @@
       </object>
     </createOrUpdate>
     <create>
-    <!-- 
       <mdBusiness name="net.geoprism.graph.RepoRDFExportJob" extends="com.runwaysdk.system.scheduler.ExecutableJob" exported="false">
         <attributes>
-          <text name="graphTypeCodes"/>
-          <text name="gotCodes"/>
           <text name="geometryExportType"/>
+          <text name="gotCodes"/>
+          <text name="businessTypeCodes"/>
+          <text name="graphTypeCodes"/>
+          <text name="businessEdgeCodes"/>
         </attributes>
       </mdBusiness>
-      -->
     </create>
     <update></update>
   </doIt>
   <undoIt>
-    <delete></delete>
+    <delete>
+      <object key="net.geoprism.graph.RepoRDFExportJob" type="com.runwaysdk.system.metadata.MdBusiness"/>
+    </delete>
   </undoIt>
 </version>

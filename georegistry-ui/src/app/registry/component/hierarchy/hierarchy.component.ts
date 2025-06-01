@@ -45,7 +45,6 @@ import { ImportTypesModalComponent } from "./modals/import-types-modal.component
 import Utils from "@registry/utility/Utils";
 import { ExportTypesModalComponent } from "./modals/export-types-modal.component";
 import { environment } from "src/environments/environment";
-import { RDFExportModalComponent } from "./modals/rdf-export-modal.component";
 
 export const TREE_SCALE_FACTOR_X: number = 1.8;
 export const TREE_SCALE_FACTOR_Y: number = 1.8;
@@ -1380,27 +1379,6 @@ export class HierarchyComponent implements OnInit {
             }
         });
     }
-
-    public exportRDF(): void {
-        this.bsModalRef = this.modalService.show(RDFExportModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
-        });
-
-        this.bsModalRef.content.init((type) => {
-            console.log(type);
-            // this.types.push({ oid: type.oid, label: type.displayLabel.localizedValue });
-
-            // this.router.navigate([], {
-            //     relativeTo: this.route,
-            //     queryParams: { oid: type.oid },
-            //     queryParamsHandling: "merge",
-            //     replaceUrl: true
-            // });
-        }, null);
-    }
-
 
     public error(err: HttpErrorResponse): void {
         this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);

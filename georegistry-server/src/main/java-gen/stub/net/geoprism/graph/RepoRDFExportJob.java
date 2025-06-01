@@ -11,10 +11,13 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.resource.CloseableFile;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.SingleActor;
 import com.runwaysdk.system.VaultFile;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutionContext;
@@ -23,66 +26,36 @@ import com.runwaysdk.system.scheduler.JobHistory;
 import net.geoprism.registry.etl.ImportHistory;
 import net.geoprism.registry.etl.ImportStage;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
-import net.geoprism.registry.model.GraphType;
-import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessServiceIF.GeometryExportType;
 import net.geoprism.registry.service.business.RepoRDFExportBusinessService;
 import net.geoprism.registry.service.business.ServiceFactory;
+import net.geoprism.registry.view.RDFExport;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;
 
-
-/*
-https://localhost:4200/api/rdf/repo-export-start?sGraphTypeRefs=HierarchyType___SPLIT___ADM_H&gotCodes=State&gotCodes=Country
-
-https://localhost:4200/api/rdf/repo-export-download?historyId=512be306-e18c-4a84-93cf-74dcf700058c
- */
-
 public class RepoRDFExportJob extends RepoRDFExportJobBase
 {
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = 755269485;
-  
+  private static final long  serialVersionUID           = 755269485;
+
   public static final String ARRAY_STORAGE_CONCAT_TOKEN = "___SPLIT___";
-  
+
   public RepoRDFExportJob()
   {
     super();
   }
-  
-  public static ImportHistory runNewJob(GraphTypeReference[] graphTypes, String[] gotCodes, GeometryExportType geomExportType) {
-    
-    var job = new RepoRDFExportJob();
-    job.setGraphTypeRefs(graphTypes);
-    job.setGotCodes(String.join(ARRAY_STORAGE_CONCAT_TOKEN, gotCodes));
-    job.setGeometryExportType(geomExportType.name());
-    job.setRunAsUserId(Session.getCurrentSession().getUser().getOid());
-    job.apply();
-    
-    return (ImportHistory) job.start();
-  }
-  
-  public void setGraphTypeRefs(GraphTypeReference[] graphTypes) {
-    List<String> codePairs = new ArrayList<String>();
-    
-    for (var ref : graphTypes) {
-      codePairs.add(ref.typeCode);
-      codePairs.add(ref.code);
-    }
-    
-    this.setGraphTypeCodes(String.join(ARRAY_STORAGE_CONCAT_TOKEN, codePairs));
-  }
-  
+
   public List<GraphTypeReference> getGraphTypeRefs()
   {
     List<String> codePairs = Arrays.asList(getGraphTypeCodes().split(ARRAY_STORAGE_CONCAT_TOKEN));
-    
+
     List<GraphTypeReference> result = new ArrayList<GraphTypeReference>();
-    for (int i = 0; i < codePairs.size(); i=i+2) {
-      result.add(new GraphTypeReference(codePairs.get(i), codePairs.get(i+1)));
+    for (int i = 0; i < codePairs.size(); i = i + 2)
+    {
+      result.add(new GraphTypeReference(codePairs.get(i), codePairs.get(i + 1)));
     }
-    
+
     return result;
   }
 
@@ -90,42 +63,38 @@ public class RepoRDFExportJob extends RepoRDFExportJobBase
   public void execute(ExecutionContext executionContext) throws Throwable
   {
     ImportHistory history = (ImportHistory) executionContext.getJobHistoryRecord().getChild();
-    
-    var codes = new ArrayList<String>(Arrays.asList(getGotCodes().split(ARRAY_STORAGE_CONCAT_TOKEN)));
-    codes.addAll(getGraphTypeRefs().stream().map(ref -> ref.code).toList());
-    var it = codes.iterator();
-    String codeDigest = it.next();
-    while (codeDigest.length() < 100 && it.hasNext()) {
-      codeDigest += ", " + it.next();
-    }
-    
-    history.appLock();
+
+    RDFExport exportConfig = this.getExportConfig();
+
     JsonObject config = new JsonObject();
-    config.addProperty(ImportConfiguration.FILE_NAME, "Export RDF from Repo (" + codeDigest + ")");
+    config.addProperty(ImportConfiguration.FILE_NAME, "Export RDF from Repo (" + exportConfig.toDigest() + ")");
     config.addProperty(ImportConfiguration.OBJECT_TYPE, "RDF-REPO");
+
+    history.appLock();
     history.setConfigJson(config.toString());
     history.apply();
-    
-    var progressId = history.getOid();
-    var gots = Arrays.asList(getGotCodes().split(ARRAY_STORAGE_CONCAT_TOKEN)).stream().map(c -> ServerGeoObjectType.get(c)).toList();
-    var graphTypes = getGraphTypeRefs().stream().map(ref -> GraphType.resolve(ref)).toList();
-    var geomExportType = GeometryExportType.valueOf(getGeometryExportType());
-    
-    var exporter = ServiceFactory.getBean(RepoRDFExportBusinessService.class);
-    
-    try (var tmp = new CloseableFile(Files.createTempFile(progressId, ".ttl").toFile())) {
-      try (OutputStream os = new FileOutputStream(tmp)) {
-        try (ZipOutputStream zos = new ZipOutputStream(os)) {
+
+    String progressId = history.getOid();
+
+    RepoRDFExportBusinessService service = ServiceFactory.getBean(RepoRDFExportBusinessService.class);
+
+    try (var tmp = new CloseableFile(Files.createTempFile(progressId, ".ttl").toFile()))
+    {
+      try (OutputStream os = new FileOutputStream(tmp))
+      {
+        try (ZipOutputStream zos = new ZipOutputStream(os))
+        {
           ZipEntry entry = new ZipEntry(progressId + ".ttl");
           zos.putNextEntry(entry);
-          
-          exporter.export(history, graphTypes, gots, geomExportType, zos);
+
+          service.export(history, exportConfig, zos);
         }
       }
-      
-      try (FileInputStream is = new FileInputStream(tmp)) {
+
+      try (FileInputStream is = new FileInputStream(tmp))
+      {
         var vf = VaultFile.createAndApply(progressId + ".zip", is);
-        
+
         history.appLock();
         history.clearStage();
         history.addStage(ImportStage.IMPORT_RESOLVE);
@@ -135,7 +104,7 @@ public class RepoRDFExportJob extends RepoRDFExportJobBase
       }
     }
   }
-  
+
   @Override
   public JobHistory createNewHistory()
   {
@@ -152,5 +121,42 @@ public class RepoRDFExportJob extends RepoRDFExportJobBase
 
     return history;
   }
-  
+
+  public RDFExport getExportConfig() throws JsonMappingException, JsonProcessingException
+  {
+    ObjectMapper mapper = new ObjectMapper();
+
+    RDFExport config = new RDFExport();
+    config.setGeomExportType(GeometryExportType.valueOf(getGeometryExportType()));
+    config.setTypeCodes(mapper.readerForListOf(String.class).readValue(getGotCodes()));
+    config.setBusinessTypeCodes(mapper.readerForListOf(String.class).readValue(getBusinessTypeCodes()));
+    config.setGraphTypes(mapper.readerForListOf(GraphTypeReference.class).readValue(getGraphTypeCodes()));
+    config.setBusinessEdgeCodes(mapper.readerForListOf(String.class).readValue(getBusinessEdgeCodes()));
+
+    return config;
+  }
+
+  public static ImportHistory runNewJob(RDFExport config)
+  {
+    ObjectMapper mapper = new ObjectMapper();
+
+    try
+    {
+      RepoRDFExportJob job = new RepoRDFExportJob();
+      job.setGeometryExportType(config.getGeomExportType().name());
+      job.setGotCodes(mapper.writeValueAsString(config.getTypeCodes()));
+      job.setGraphTypeCodes(mapper.writeValueAsString(config.getGraphTypes()));
+      job.setBusinessTypeCodes(mapper.writeValueAsString(config.getBusinessTypeCodes()));
+      job.setBusinessEdgeCodes(mapper.writeValueAsString(config.getBusinessEdgeCodes()));
+      job.setRunAsUserId(Session.getCurrentSession().getUser().getOid());
+      job.apply();
+
+      return (ImportHistory) job.start();
+    }
+    catch (JsonProcessingException e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
+  }
+
 }
