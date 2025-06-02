@@ -1,6 +1,6 @@
 package net.geoprism.graph;
 
-@com.runwaysdk.business.ClassSignature(hash = 996419490)
+@com.runwaysdk.business.ClassSignature(hash = -1864147693)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -123,6 +123,23 @@ public  class RepoRDFExportJobQuery extends com.runwaysdk.system.scheduler.Execu
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.graph.RepoRDFExportJob.GRAPHTYPECODES, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getNamespace()
+  {
+    return getNamespace(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getNamespace(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.graph.RepoRDFExportJob.NAMESPACE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getNamespace(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.graph.RepoRDFExportJob.NAMESPACE, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableMoment getValidFor()
   {
     return getValidFor(null);
@@ -187,6 +204,9 @@ public  class RepoRDFExportJobQuery extends com.runwaysdk.system.scheduler.Execu
     public com.runwaysdk.query.SelectableChar getGraphTypeCodes();
     public com.runwaysdk.query.SelectableChar getGraphTypeCodes(String alias);
     public com.runwaysdk.query.SelectableChar getGraphTypeCodes(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getNamespace();
+    public com.runwaysdk.query.SelectableChar getNamespace(String alias);
+    public com.runwaysdk.query.SelectableChar getNamespace(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableMoment getValidFor();
     public com.runwaysdk.query.SelectableMoment getValidFor(String alias);
     public com.runwaysdk.query.SelectableMoment getValidFor(String alias, String displayLabel);
@@ -310,6 +330,23 @@ public  class RepoRDFExportJobQuery extends com.runwaysdk.system.scheduler.Execu
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.graph.RepoRDFExportJob.GRAPHTYPECODES, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getNamespace()
+  {
+    return getNamespace(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getNamespace(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.graph.RepoRDFExportJob.NAMESPACE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getNamespace(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.graph.RepoRDFExportJob.NAMESPACE, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableMoment getValidFor()
   {
     return getValidFor(null);
@@ -351,6 +388,9 @@ public  class RepoRDFExportJobQuery extends com.runwaysdk.system.scheduler.Execu
     public com.runwaysdk.query.SelectableChar getGraphTypeCodes();
     public com.runwaysdk.query.SelectableChar getGraphTypeCodes(String alias);
     public com.runwaysdk.query.SelectableChar getGraphTypeCodes(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getNamespace();
+    public com.runwaysdk.query.SelectableChar getNamespace(String alias);
+    public com.runwaysdk.query.SelectableChar getNamespace(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableMoment getValidFor();
     public com.runwaysdk.query.SelectableMoment getValidFor(String alias);
     public com.runwaysdk.query.SelectableMoment getValidFor(String alias, String displayLabel);
@@ -521,6 +561,23 @@ public  class RepoRDFExportJobQuery extends com.runwaysdk.system.scheduler.Execu
   public com.runwaysdk.query.SelectableChar getGraphTypeCodes(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.graph.RepoRDFExportJob.GRAPHTYPECODES, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getNamespace()
+  {
+    return getNamespace(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getNamespace(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.graph.RepoRDFExportJob.NAMESPACE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getNamespace(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.graph.RepoRDFExportJob.NAMESPACE, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableMoment getValidFor()

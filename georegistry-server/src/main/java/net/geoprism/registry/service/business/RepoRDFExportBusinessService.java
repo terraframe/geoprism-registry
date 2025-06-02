@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.riot.RDFFormat;
@@ -208,6 +209,19 @@ public class RepoRDFExportBusinessService
     state.progressId = history.getOid();
     state.monitor = history;
 
+    if (!StringUtils.isBlank(state.config.getNamespace()))
+    {
+      String root = state.config.getNamespace();
+
+      if (!root.endsWith("/"))
+      {
+        root = root + "/";
+      }
+
+      state.graphNamespace = root + "registry#";
+      state.graphMetadataNamespace = root + "metadata#";
+    }
+
     state.gots.forEach(type -> {
       CachedType cachedType = new CachedGeoObjectType(type);
 
@@ -288,8 +302,7 @@ public class RepoRDFExportBusinessService
       VertexGeoObjectQuery query = new VertexGeoObjectQuery(got, state.config.getValidFor());
       query.setLimit((int) BLOCK_SIZE);
       query.setSkip(skip);
-      // query.setIncludeGeometries(state.geomExportType !=
-      // GeometryExportType.NO_GEOMETRIES);
+      query.setIncludeGeometries(!state.config.getGeomExportType().equals(GeometryExportType.NO_GEOMETRIES));
 
       List<ServerGeoObjectIF> results = query.getResults();
 
@@ -620,8 +633,8 @@ public class RepoRDFExportBusinessService
         CachedType outType = state.typeCache.get(record.get("out_class"));
 
         // Its possible that the in type or out type is not included in the
-        // graph export
-        // As such we need to not include those edges in the graph export
+        // graph export. As such we need to not include those edges in the graph
+        // export
         if (inType != null && outType != null)
         {
           final String inCode = record.get("in_code").toString();

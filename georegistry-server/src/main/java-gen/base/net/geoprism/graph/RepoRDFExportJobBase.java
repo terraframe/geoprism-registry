@@ -1,6 +1,6 @@
 package net.geoprism.graph;
 
-@com.runwaysdk.business.ClassSignature(hash = -27093653)
+@com.runwaysdk.business.ClassSignature(hash = 1713716778)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -16,9 +16,10 @@ public abstract class RepoRDFExportJobBase extends com.runwaysdk.system.schedule
   public final static java.lang.String GEOMETRYEXPORTTYPE = "geometryExportType";
   public final static java.lang.String GOTCODES = "gotCodes";
   public final static java.lang.String GRAPHTYPECODES = "graphTypeCodes";
+  public final static java.lang.String NAMESPACE = "namespace";
   public final static java.lang.String VALIDFOR = "validFor";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = -27093653;
+  private static final long serialVersionUID = 1713716778;
   
   public RepoRDFExportJobBase()
   {
@@ -162,6 +163,34 @@ public abstract class RepoRDFExportJobBase extends com.runwaysdk.system.schedule
     else
     {
       setValue(GRAPHTYPECODES, value);
+    }
+  }
+  
+  public String getNamespace()
+  {
+    return getValue(NAMESPACE);
+  }
+  
+  public void validateNamespace()
+  {
+    this.validateAttribute(NAMESPACE);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getNamespaceMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.graph.RepoRDFExportJob.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(NAMESPACE);
+  }
+  
+  public void setNamespace(String value)
+  {
+    if(value == null)
+    {
+      setValue(NAMESPACE, "");
+    }
+    else
+    {
+      setValue(NAMESPACE, value);
     }
   }
   

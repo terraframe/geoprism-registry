@@ -32,6 +32,8 @@ import { LabeledPropertyGraphType, LabeledPropertyGraphTypeEntry, LabeledPropert
 import { LabeledPropertyGraphTypeService } from "@registry/service/labeled-property-graph-type.service";
 import { LabeledPropertyGraphTypePublishModalComponent } from "./publish-modal.component";
 import { Progress } from "@shared/model/progress";
+import { RegistryService } from "@registry/service";
+import { Router } from "@angular/router";
 
 
 @Component({
@@ -57,9 +59,11 @@ export class LabeledPropertyGraphTypeComponent implements OnInit, OnDestroy {
     // eslint-disable-next-line no-useless-constructor
     constructor(
         private service: LabeledPropertyGraphTypeService,
+        private registryService: RegistryService,
         private modalService: BsModalService,
         private localizeService: LocalizationService,
         private pService: ProgressService,
+        private router: Router,
         private dateService: DateService) { }
 
     ngOnInit(): void {
@@ -142,7 +146,12 @@ export class LabeledPropertyGraphTypeComponent implements OnInit, OnDestroy {
     }
     
     onExportRDF(entry, version, geometryExportType: string): void {
-        window.location.href = environment.apiUrl + "/api/rdf/export?geomExportType=" + geometryExportType + "&versionId=" + version.oid;
+
+        this.registryService.rdfExport(geometryExportType, version.oid).then(() => {
+            this.router.navigate(["/registry/scheduled-jobs"]);
+        }).catch((err: HttpErrorResponse) => {
+            this.error.emit(err);
+        });
     }
 
     onDelete(entry: LabeledPropertyGraphTypeEntry, version: LabeledPropertyGraphTypeVersion): void {
@@ -177,4 +186,5 @@ export class LabeledPropertyGraphTypeComponent implements OnInit, OnDestroy {
         this.pService.progress(progress);
     }
 
+    
 }

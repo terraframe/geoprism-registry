@@ -27,15 +27,17 @@ import org.springframework.stereotype.Service;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
+import net.geoprism.graph.RDFExportJob;
 import net.geoprism.graph.RepoRDFExportJob;
 import net.geoprism.registry.etl.ImportHistory;
+import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessServiceIF.GeometryExportType;
 import net.geoprism.registry.view.ImportHistoryView;
 import net.geoprism.registry.view.RDFExport;
 
 @Service
-public class RepoRDFExportService
+public class RDFExportService
 {
-  private static final Logger logger = LoggerFactory.getLogger(RepoRDFExportService.class);
+  private static final Logger logger = LoggerFactory.getLogger(RDFExportService.class);
 
   @Request(RequestType.SESSION)
   public InputStream exportDownload(String sessionId, String historyId)
@@ -50,6 +52,14 @@ public class RepoRDFExportService
   {
     ImportHistory hist = RepoRDFExportJob.runNewJob(config);
 
+    return new ImportHistoryView(hist.getOid());
+  }
+
+  @Request(RequestType.SESSION)
+  public ImportHistoryView export(String sessionId, String versionId, GeometryExportType geomExportType)
+  {
+    ImportHistory hist = RDFExportJob.runNewJob(versionId, geomExportType);
+    
     return new ImportHistoryView(hist.getOid());
   }
 }

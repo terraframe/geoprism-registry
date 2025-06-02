@@ -54,7 +54,7 @@ export class RDFExportComponent implements OnInit {
             graphType: "single",
             displayLabel: this.lService.create(),
             description: this.lService.create(),
-            code: "graph_" + Math.floor(Math.random() * 999999),
+            code: null,
             hierarchy: '',
             strategyType: "",
             strategyConfiguration: {
@@ -83,10 +83,11 @@ export class RDFExportComponent implements OnInit {
             graphTypes,
             businessTypeCodes,
             businessEdgeCodes,
-            validFor: type.validOn
+            validFor: type.validOn,
+            namespace: type.code
         };
 
-        this.service.rdfExportStart(config).then(() => {
+        this.service.rdfRepoExport(config).then(() => {
             this.router.navigate(["/registry/scheduled-jobs"]);
         }).catch((err: HttpErrorResponse) => {
             this.error(err);

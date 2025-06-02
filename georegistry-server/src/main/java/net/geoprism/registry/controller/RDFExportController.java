@@ -19,9 +19,7 @@
 package net.geoprism.registry.controller;
 
 import java.io.InputStream;
-import java.util.Arrays;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -35,11 +33,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.servlet.http.HttpServletRequest;
-import net.geoprism.graph.GraphTypeReference;
-import net.geoprism.graph.RepoRDFExportJob;
 import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessServiceIF.GeometryExportType;
-import net.geoprism.registry.service.request.LabeledPropertyGraphRDFExportService;
-import net.geoprism.registry.service.request.RepoRDFExportService;
+import net.geoprism.registry.service.request.RDFExportService;
 import net.geoprism.registry.view.ImportHistoryView;
 import net.geoprism.registry.view.RDFExport;
 
@@ -47,44 +42,59 @@ import net.geoprism.registry.view.RDFExport;
 @Validated
 public class RDFExportController extends RunwaySpringController
 {
-  public static final String                   API_PATH = "rdf";
-
-  @Autowired
-  private LabeledPropertyGraphRDFExportService rdfExportService;
-
-  @Autowired
-  private RepoRDFExportService                 repoRdfExportService;
-
-  @GetMapping(API_PATH + "/export")
-  public ResponseEntity<InputStreamResource> export(HttpServletRequest request, @RequestParam(name = "geomExportType", required = false) String sGeomExportType, @RequestParam(required = true) String versionId)
+  public static class ExportParams
   {
     GeometryExportType geomExportType = GeometryExportType.NO_GEOMETRIES;
-    if (StringUtils.isBlank(sGeomExportType))
-      geomExportType = GeometryExportType.NO_GEOMETRIES;
-    else
-      geomExportType = GeometryExportType.valueOf(sGeomExportType);
 
-    InputStream is = rdfExportService.export(getSessionId(), versionId, geomExportType);
+    String             versionId;
 
-    HttpHeaders httpHeaders = new HttpHeaders();
-    httpHeaders.set("Content-Type", "application/zip");
-    httpHeaders.set("Content-Disposition", "attachment; filename=\"rdfexport.zip\"");
+    public GeometryExportType getGeomExportType()
+    {
+      return geomExportType;
+    }
 
-    return new ResponseEntity<InputStreamResource>(new InputStreamResource(is), httpHeaders, HttpStatus.OK);
+    public void setGeomExportType(GeometryExportType geomExportType)
+    {
+      this.geomExportType = geomExportType;
+    }
+
+    public String getVersionId()
+    {
+      return versionId;
+    }
+
+    public void setVersionId(String versionId)
+    {
+      this.versionId = versionId;
+    }
+
+  }
+
+  public static final String API_PATH = "rdf";
+
+  @Autowired
+  private RDFExportService   service;
+
+  @PostMapping(API_PATH + "/export")
+  public ResponseEntity<ImportHistoryView> export(@RequestBody ExportParams params)
+  {
+    ImportHistoryView history = service.export(getSessionId(), params.getVersionId(), params.getGeomExportType());
+
+    return new ResponseEntity<ImportHistoryView>(history, HttpStatus.OK);
   }
 
   @PostMapping(API_PATH + "/repo-export-start")
-  public ResponseEntity<ImportHistoryView> export(@RequestBody RDFExport export)
+  public ResponseEntity<ImportHistoryView> repoExport(@RequestBody RDFExport export)
   {
-    ImportHistoryView history = repoRdfExportService.export(getSessionId(), export);
+    ImportHistoryView history = service.export(getSessionId(), export);
 
     return new ResponseEntity<ImportHistoryView>(history, HttpStatus.OK);
   }
 
   @GetMapping(API_PATH + "/repo-export-download")
-  public ResponseEntity<InputStreamResource> export(HttpServletRequest request, @RequestParam(name = "historyId", required = false) String historyId)
+  public ResponseEntity<InputStreamResource> download(HttpServletRequest request, @RequestParam(name = "historyId", required = false) String historyId)
   {
-    InputStream is = repoRdfExportService.exportDownload(getSessionId(), historyId);
+    InputStream is = service.exportDownload(getSessionId(), historyId);
 
     HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.set("Content-Type", "application/zip");

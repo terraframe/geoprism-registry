@@ -112,7 +112,7 @@ export class RegistryService implements AttributeTypeService {
             .toPromise();
     }
 
-    rdfExportStart(config: RDFExport): Promise<{ historyId: string }> {
+    rdfRepoExport(config: RDFExport): Promise<{ historyId: string }> {
 
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
@@ -126,6 +126,27 @@ export class RegistryService implements AttributeTypeService {
                 this.eventService.complete();
             })));
     }
+
+    rdfExport(geomExportType: string, versionId: string): Promise<{ historyId: string }> {
+
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
+
+        const config = {
+            geomExportType,
+            versionId
+        }
+
+        this.eventService.start();
+
+        return firstValueFrom(this.http
+            .post<{ historyId: string }>(environment.apiUrl + "/api/rdf/export", JSON.stringify(config), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            })));
+    }
+
 
 
     doesGeoObjectExistAtRange(startDate: string, endDate: string, typeCode: string, code: string): Promise<{ exists: boolean, invalid: boolean }> {

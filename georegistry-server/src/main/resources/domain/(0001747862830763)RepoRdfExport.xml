@@ -43,15 +43,31 @@
           <attribute name="defaultLocale" value="Geometry Export Type" />
         </attributeStruct>
       </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="header.export">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="header.export" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Data Export" />
+        </attributeStruct>
+      </object>
     </createOrUpdate>
     <create>
-      <mdBusiness name="net.geoprism.graph.RepoRDFExportJob" extends="com.runwaysdk.system.scheduler.ExecutableJob" exported="false">
+      <mdBusiness name="net.geoprism.graph.RepoRDFExportJob" extends="com.runwaysdk.system.scheduler.ExecutableJob" exported="false" publish="false">
         <attributes>
+          <date name="validFor" label="Valid For"/>
+          <text name="namespace"/>
           <text name="geometryExportType"/>
           <text name="gotCodes"/>
           <text name="businessTypeCodes"/>
           <text name="graphTypeCodes"/>
           <text name="businessEdgeCodes"/>
+        </attributes>
+      </mdBusiness>
+      <mdBusiness name="net.geoprism.graph.RDFExportJob" extends="com.runwaysdk.system.scheduler.ExecutableJob" exported="false" publish="false">
+        <attributes>
+          <text name="namespace"/>
+          <text name="geometryExportType"/>        
+          <reference name="version" type="net.geoprism.graph.LabeledPropertyGraphTypeVersion" label="Graph Type Version"/>
         </attributes>
       </mdBusiness>
     </create>
@@ -60,6 +76,7 @@
   <undoIt>
     <delete>
       <object key="net.geoprism.graph.RepoRDFExportJob" type="com.runwaysdk.system.metadata.MdBusiness"/>
+      <object key="net.geoprism.graph.RDFExportJob" type="com.runwaysdk.system.metadata.MdBusiness"/>
     </delete>
   </undoIt>
 </version>
