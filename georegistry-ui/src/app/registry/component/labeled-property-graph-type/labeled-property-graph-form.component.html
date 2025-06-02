@@ -222,6 +222,22 @@
             </ng-container>
         </ng-container>
 
+        <ng-container *ngIf="isExport">
+            <div class="row-holder" *ngIf="type.graphType === 'single'">
+                <div class="label-holder">
+                    <label for="validOn">
+                        <localize key="list.type.valid.on"></localize>
+                    </label>
+                </div>
+                <div class="holder">
+                    <date-field [(value)]="type.validOn" [classNames]="'form-control'" label="" [inputName]="'validOn'"
+                        [allowFutureDates]="false" name="typeValidOn" [required]="true" [disable]="readonly || !isNew"
+                        (valueChange)="handleDateChange()"></date-field>
+                </div>
+            </div>
+
+        </ng-container>
+
         <div class="row-holder">
             <div class="label-holder">
                 <label>
@@ -477,7 +493,7 @@
             <div class="label-holder"></div>
             <div>
                 <div class="button-holder">
-                    <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
+                    <button *ngIf="!isExport"  type="button" (click)="onCancel()" class="btn btn-default" role="button">
                         <localize [key]="readonly ? 'io.back' : 'io.cancel'"></localize>
                     </button>
                     <button *ngIf="!readonly" type="submit" (click)="onSubmit()" class="btn btn-primary" role="button"

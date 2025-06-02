@@ -82,7 +82,8 @@ export class RDFExportComponent implements OnInit {
             typeCodes,
             graphTypes,
             businessTypeCodes,
-            businessEdgeCodes
+            businessEdgeCodes,
+            validFor: type.validOn
         };
 
         this.service.rdfExportStart(config).then(() => {

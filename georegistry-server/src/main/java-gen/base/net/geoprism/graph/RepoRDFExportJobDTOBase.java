@@ -1,11 +1,11 @@
 package net.geoprism.graph;
 
-@com.runwaysdk.business.ClassSignature(hash = 1584020909)
+@com.runwaysdk.business.ClassSignature(hash = -2049476885)
 public abstract class RepoRDFExportJobDTOBase extends com.runwaysdk.system.scheduler.ExecutableJobDTO
 {
   public final static String CLASS = "net.geoprism.graph.RepoRDFExportJob";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = 1584020909;
+  private static final long serialVersionUID = -2049476885;
   
   protected RepoRDFExportJobDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -33,6 +33,7 @@ public abstract class RepoRDFExportJobDTOBase extends com.runwaysdk.system.sched
   public static java.lang.String GEOMETRYEXPORTTYPE = "geometryExportType";
   public static java.lang.String GOTCODES = "gotCodes";
   public static java.lang.String GRAPHTYPECODES = "graphTypeCodes";
+  public static java.lang.String VALIDFOR = "validFor";
   public String getBusinessEdgeCodes()
   {
     return getValue(BUSINESSEDGECODES);
@@ -216,6 +217,43 @@ public abstract class RepoRDFExportJobDTOBase extends com.runwaysdk.system.sched
   public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getGraphTypeCodesMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(GRAPHTYPECODES).getAttributeMdDTO();
+  }
+  
+  public java.util.Date getValidFor()
+  {
+    return com.runwaysdk.constants.MdAttributeDateUtil.getTypeSafeValue(getValue(VALIDFOR));
+  }
+  
+  public void setValidFor(java.util.Date value)
+  {
+    if(value == null)
+    {
+      setValue(VALIDFOR, "");
+    }
+    else
+    {
+      setValue(VALIDFOR, new java.text.SimpleDateFormat(com.runwaysdk.constants.Constants.DATE_FORMAT).format(value));
+    }
+  }
+  
+  public boolean isValidForWritable()
+  {
+    return isWritable(VALIDFOR);
+  }
+  
+  public boolean isValidForReadable()
+  {
+    return isReadable(VALIDFOR);
+  }
+  
+  public boolean isValidForModified()
+  {
+    return isModified(VALIDFOR);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeDateMdDTO getValidForMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeDateMdDTO) getAttributeDTO(VALIDFOR).getAttributeMdDTO();
   }
   
   public static net.geoprism.graph.RepoRDFExportJobDTO get(com.runwaysdk.constants.ClientRequestIF clientRequest, String oid)

@@ -1,6 +1,6 @@
 package net.geoprism.graph;
 
-@com.runwaysdk.business.ClassSignature(hash = -1653228499)
+@com.runwaysdk.business.ClassSignature(hash = -27093653)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -16,8 +16,9 @@ public abstract class RepoRDFExportJobBase extends com.runwaysdk.system.schedule
   public final static java.lang.String GEOMETRYEXPORTTYPE = "geometryExportType";
   public final static java.lang.String GOTCODES = "gotCodes";
   public final static java.lang.String GRAPHTYPECODES = "graphTypeCodes";
+  public final static java.lang.String VALIDFOR = "validFor";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = -1653228499;
+  private static final long serialVersionUID = -27093653;
   
   public RepoRDFExportJobBase()
   {
@@ -161,6 +162,34 @@ public abstract class RepoRDFExportJobBase extends com.runwaysdk.system.schedule
     else
     {
       setValue(GRAPHTYPECODES, value);
+    }
+  }
+  
+  public java.util.Date getValidFor()
+  {
+    return com.runwaysdk.constants.MdAttributeDateUtil.getTypeSafeValue(getValue(VALIDFOR));
+  }
+  
+  public void validateValidFor()
+  {
+    this.validateAttribute(VALIDFOR);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeDateDAOIF getValidForMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.graph.RepoRDFExportJob.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeDateDAOIF)mdClassIF.definesAttribute(VALIDFOR);
+  }
+  
+  public void setValidFor(java.util.Date value)
+  {
+    if(value == null)
+    {
+      setValue(VALIDFOR, "");
+    }
+    else
+    {
+      setValue(VALIDFOR, new java.text.SimpleDateFormat(com.runwaysdk.constants.Constants.DATE_FORMAT).format(value));
     }
   }
   

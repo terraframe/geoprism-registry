@@ -1,6 +1,6 @@
 package net.geoprism.graph;
 
-@com.runwaysdk.business.ClassSignature(hash = -687933066)
+@com.runwaysdk.business.ClassSignature(hash = 327378164)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -11,7 +11,7 @@ package net.geoprism.graph;
 public class RepoRDFExportJobQueryDTO extends com.runwaysdk.system.scheduler.ExecutableJobQueryDTO
 {
 @SuppressWarnings("unused")
-private static final long serialVersionUID = -687933066;
+private static final long serialVersionUID = 327378164;
 
   protected RepoRDFExportJobQueryDTO(String type)
   {

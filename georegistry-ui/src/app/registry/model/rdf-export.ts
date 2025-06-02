@@ -4,4 +4,5 @@ export class RDFExport {
     typeCodes: string[];
     businessTypeCodes: string[];
     businessEdgeCodes: string[];
+    validFor: string
 }

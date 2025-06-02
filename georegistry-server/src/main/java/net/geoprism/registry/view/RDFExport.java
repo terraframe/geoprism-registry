@@ -1,8 +1,12 @@
 package net.geoprism.registry.view;
 
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import net.geoprism.graph.GraphTypeReference;
 import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessServiceIF.GeometryExportType;
@@ -10,6 +14,10 @@ import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusin
 public class RDFExport
 {
   private String                   namespace         = "";
+
+  @JsonSerialize(using = DateSerializer.class)
+  @JsonDeserialize(using = DateDeserializer.class)
+  private Date                     validFor          = new Date();
 
   private GeometryExportType       geomExportType    = GeometryExportType.NO_GEOMETRIES;
 
@@ -29,6 +37,16 @@ public class RDFExport
   public void setNamespace(String namespace)
   {
     this.namespace = namespace;
+  }
+
+  public Date getValidFor()
+  {
+    return validFor;
+  }
+
+  public void setValidFor(Date validFor)
+  {
+    this.validFor = validFor;
   }
 
   public GeometryExportType getGeomExportType()

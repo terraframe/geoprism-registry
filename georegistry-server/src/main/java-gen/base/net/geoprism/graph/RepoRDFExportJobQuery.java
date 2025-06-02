@@ -1,6 +1,6 @@
 package net.geoprism.graph;
 
-@com.runwaysdk.business.ClassSignature(hash = -1314754396)
+@com.runwaysdk.business.ClassSignature(hash = 996419490)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -123,6 +123,23 @@ public  class RepoRDFExportJobQuery extends com.runwaysdk.system.scheduler.Execu
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.graph.RepoRDFExportJob.GRAPHTYPECODES, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableMoment getValidFor()
+  {
+    return getValidFor(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableMoment getValidFor(String alias)
+  {
+    return (com.runwaysdk.query.SelectableMoment)this.getComponentQuery().get(net.geoprism.graph.RepoRDFExportJob.VALIDFOR, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableMoment getValidFor(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableMoment)this.getComponentQuery().get(net.geoprism.graph.RepoRDFExportJob.VALIDFOR, alias, displayLabel);
+
+  }
   /**  
    * Returns an iterator of Business objects that match the query criteria specified
    * on this query object. 
@@ -170,6 +187,9 @@ public  class RepoRDFExportJobQuery extends com.runwaysdk.system.scheduler.Execu
     public com.runwaysdk.query.SelectableChar getGraphTypeCodes();
     public com.runwaysdk.query.SelectableChar getGraphTypeCodes(String alias);
     public com.runwaysdk.query.SelectableChar getGraphTypeCodes(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableMoment getValidFor();
+    public com.runwaysdk.query.SelectableMoment getValidFor(String alias);
+    public com.runwaysdk.query.SelectableMoment getValidFor(String alias, String displayLabel);
 
     public com.runwaysdk.query.BasicCondition EQ(net.geoprism.graph.RepoRDFExportJob repoRDFExportJob);
 
@@ -290,6 +310,23 @@ public  class RepoRDFExportJobQuery extends com.runwaysdk.system.scheduler.Execu
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.graph.RepoRDFExportJob.GRAPHTYPECODES, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableMoment getValidFor()
+  {
+    return getValidFor(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableMoment getValidFor(String alias)
+  {
+    return (com.runwaysdk.query.SelectableMoment)this.get(net.geoprism.graph.RepoRDFExportJob.VALIDFOR, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableMoment getValidFor(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableMoment)this.get(net.geoprism.graph.RepoRDFExportJob.VALIDFOR, alias, displayLabel);
+
+  }
   }
 
 /**
@@ -314,6 +351,9 @@ public  class RepoRDFExportJobQuery extends com.runwaysdk.system.scheduler.Execu
     public com.runwaysdk.query.SelectableChar getGraphTypeCodes();
     public com.runwaysdk.query.SelectableChar getGraphTypeCodes(String alias);
     public com.runwaysdk.query.SelectableChar getGraphTypeCodes(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableMoment getValidFor();
+    public com.runwaysdk.query.SelectableMoment getValidFor(String alias);
+    public com.runwaysdk.query.SelectableMoment getValidFor(String alias, String displayLabel);
 
     public com.runwaysdk.query.Condition containsAny(net.geoprism.graph.RepoRDFExportJob ... repoRDFExportJob);
     public com.runwaysdk.query.Condition notContainsAny(net.geoprism.graph.RepoRDFExportJob ... repoRDFExportJob);
@@ -481,6 +521,23 @@ public  class RepoRDFExportJobQuery extends com.runwaysdk.system.scheduler.Execu
   public com.runwaysdk.query.SelectableChar getGraphTypeCodes(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.graph.RepoRDFExportJob.GRAPHTYPECODES, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableMoment getValidFor()
+  {
+    return getValidFor(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableMoment getValidFor(String alias)
+  {
+    return (com.runwaysdk.query.SelectableMoment)this.get(net.geoprism.graph.RepoRDFExportJob.VALIDFOR, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableMoment getValidFor(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableMoment)this.get(net.geoprism.graph.RepoRDFExportJob.VALIDFOR, alias, displayLabel);
 
   }
   }

@@ -19,6 +19,7 @@
 package net.geoprism.registry.service.business;
 
 import java.io.OutputStream;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -284,7 +285,7 @@ public class RepoRDFExportBusinessService
     {
       logger.info("Exporting " + got.getCode() + " block " + skip + " through " + ( skip + BLOCK_SIZE ));
 
-      VertexGeoObjectQuery query = new VertexGeoObjectQuery(got, null);
+      VertexGeoObjectQuery query = new VertexGeoObjectQuery(got, state.config.getValidFor());
       query.setLimit((int) BLOCK_SIZE);
       query.setSkip(skip);
       // query.setIncludeGeometries(state.geomExportType !=
@@ -313,7 +314,7 @@ public class RepoRDFExportBusinessService
 
   protected void exportGraphType(State state, GraphType graphType)
   {
-    this.exportEdgeType(state, graphType.getMdEdgeDAO().getDBClassName(), graphType.getCode());
+    this.exportEdgeType(state, graphType.getMdEdgeDAO().getDBClassName(), graphType.getCode(), state.config.getValidFor());
   }
 
   protected void exportGeoObject(State state, ServerGeoObjectType type, ServerGeoObjectIF serverGo)
@@ -581,11 +582,11 @@ public class RepoRDFExportBusinessService
     final String dbClass = type.getMdEdgeDAO().getDBClassName();
     String edgeTypeCode = type.getCode();
 
-    exportEdgeType(state, dbClass, edgeTypeCode);
+    exportEdgeType(state, dbClass, edgeTypeCode, null);
 
   }
 
-  protected void exportEdgeType(State state, final String dbClass, String edgeTypeCode)
+  protected void exportEdgeType(State state, final String dbClass, String edgeTypeCode, Date validFor)
   {
     long skip = 0;
     boolean hasMoreData = true;
@@ -596,16 +597,30 @@ public class RepoRDFExportBusinessService
 
       StringBuilder sb = new StringBuilder("SELECT in.@class AS in_class, in.code AS in_code, out.@class AS out_class, out.code AS out_code");
       sb.append(" FROM " + dbClass);
+
+      if (validFor != null)
+      {
+        sb.append(" WHERE :date BETWEEN startDate AND endDate");
+      }
+
       sb.append(" ORDER BY out SKIP " + skip + " LIMIT " + BLOCK_SIZE);
 
-      List<Map<String, Object>> records = new GraphQuery<Map<String, Object>>(sb.toString()).getResults();
+      GraphQuery<Map<String, Object>> query = new GraphQuery<Map<String, Object>>(sb.toString());
+
+      if (validFor != null)
+      {
+        query.setParameter("date", validFor);
+      }
+
+      List<Map<String, Object>> records = query.getResults();
 
       for (Map<String, Object> record : records)
       {
         CachedType inType = state.typeCache.get(record.get("in_class"));
         CachedType outType = state.typeCache.get(record.get("out_class"));
 
-        // Its possible that the in type or out type is not included in the graph export
+        // Its possible that the in type or out type is not included in the
+        // graph export
         // As such we need to not include those edges in the graph export
         if (inType != null && outType != null)
         {

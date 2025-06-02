@@ -132,6 +132,7 @@ public class RepoRDFExportJob extends RepoRDFExportJobBase
     config.setBusinessTypeCodes(mapper.readerForListOf(String.class).readValue(getBusinessTypeCodes()));
     config.setGraphTypes(mapper.readerForListOf(GraphTypeReference.class).readValue(getGraphTypeCodes()));
     config.setBusinessEdgeCodes(mapper.readerForListOf(String.class).readValue(getBusinessEdgeCodes()));
+    config.setValidFor(this.getValidFor());
 
     return config;
   }
@@ -144,6 +145,7 @@ public class RepoRDFExportJob extends RepoRDFExportJobBase
     {
       RepoRDFExportJob job = new RepoRDFExportJob();
       job.setGeometryExportType(config.getGeomExportType().name());
+      job.setValidFor(config.getValidFor());
       job.setGotCodes(mapper.writeValueAsString(config.getTypeCodes()));
       job.setGraphTypeCodes(mapper.writeValueAsString(config.getGraphTypes()));
       job.setBusinessTypeCodes(mapper.writeValueAsString(config.getBusinessTypeCodes()));

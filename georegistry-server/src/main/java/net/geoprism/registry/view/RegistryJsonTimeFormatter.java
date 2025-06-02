@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry;
+package net.geoprism.registry.view;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -27,6 +27,8 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+
+import net.geoprism.registry.GeoRegistryUtil;
 
 public class RegistryJsonTimeFormatter extends TypeAdapter<Date>
 {

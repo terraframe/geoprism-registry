@@ -48,7 +48,6 @@ import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.localization.LocalizationFacade;
 
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.RegistryJsonTimeFormatter;
 import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
 import net.geoprism.registry.action.InvalidChangeRequestException;
 import net.geoprism.registry.conversion.TermConverter;
@@ -57,6 +56,7 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
+import net.geoprism.registry.view.RegistryJsonTimeFormatter;
 
 public class UpdateValueOverTimeView
 {
