@@ -16,6 +16,7 @@ import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutionContext;
 import com.runwaysdk.system.scheduler.JobHistory;
 
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.etl.ImportHistory;
 import net.geoprism.registry.etl.ImportStage;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
@@ -35,17 +36,18 @@ public class RDFExportJob extends RDFExportJobBase
   {
     super();
   }
-  
+
   @Override
   public void execute(ExecutionContext executionContext) throws Throwable
   {
     ImportHistory history = (ImportHistory) executionContext.getJobHistoryRecord().getChild();
-    
+
     LabeledPropertyGraphTypeVersion version = this.getVersion();
+    LabeledPropertyGraphType type = version.getGraphType();
     GeometryExportType geomType = GeometryExportType.valueOf(this.getGeometryExportType());
-    
+
     JsonObject config = new JsonObject();
-    config.addProperty(ImportConfiguration.FILE_NAME, "Export RDF from LPG");
+    config.addProperty(ImportConfiguration.FILE_NAME, "Export RDF from LPG [" + type.getDisplayLabel().getValue() + "] for [" + GeoRegistryUtil.formatDate(version.getForDate(), false) + "]");
     config.addProperty(ImportConfiguration.OBJECT_TYPE, "RDF-LPG");
 
     history.appLock();
@@ -83,7 +85,6 @@ public class RDFExportJob extends RDFExportJobBase
     }
   }
 
-  
   @Override
   public JobHistory createNewHistory()
   {
@@ -100,7 +101,6 @@ public class RDFExportJob extends RDFExportJobBase
 
     return history;
   }
-
 
   public static ImportHistory runNewJob(String versionId, GeometryExportType geomExportType)
   {
