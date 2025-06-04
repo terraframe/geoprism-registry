@@ -19,17 +19,27 @@
 package net.geoprism.registry.service.request;
 
 import java.io.InputStream;
+import java.util.Calendar;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.OR;
+import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
+import com.runwaysdk.system.scheduler.AllJobStatus;
 
 import net.geoprism.graph.RDFExportJob;
 import net.geoprism.graph.RepoRDFExportJob;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.etl.ImportHistory;
+import net.geoprism.registry.etl.ImportHistoryQuery;
+import net.geoprism.registry.service.business.ETLBusinessService;
 import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessServiceIF.GeometryExportType;
 import net.geoprism.registry.view.ImportHistoryView;
 import net.geoprism.registry.view.RDFExport;
@@ -38,6 +48,9 @@ import net.geoprism.registry.view.RDFExport;
 public class RDFExportService
 {
   private static final Logger logger = LoggerFactory.getLogger(RDFExportService.class);
+
+  @Autowired
+  private ETLBusinessService  jobService;
 
   @Request(RequestType.SESSION)
   public InputStream exportDownload(String sessionId, String historyId)
@@ -59,7 +72,35 @@ public class RDFExportService
   public ImportHistoryView export(String sessionId, String versionId, GeometryExportType geomExportType)
   {
     ImportHistory hist = RDFExportJob.runNewJob(versionId, geomExportType);
-    
+
     return new ImportHistoryView(hist.getOid());
   }
+
+  // This will run at 2:00 AM every day
+  @Scheduled(cron = "0 0 2 * * ?")
+  public void scheduleCleanupJobs()
+  {
+    this.archiveExpiredJobs();
+  }
+
+  @Request
+  public void archiveExpiredJobs()
+  {
+    Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
+    calendar.add(Calendar.DAY_OF_YEAR, -15);
+
+    ImportHistoryQuery query = new ImportHistoryQuery(new QueryFactory());
+    query.WHERE(query.getStatus().containsAny(AllJobStatus.FEEDBACK));
+    query.AND(query.getCreateDate().LE(calendar.getTime()));
+    query.AND(OR.get(query.getConfigJson().LIKEi("%RDF-LPG%"), query.getConfigJson().LIKEi("%RDF-REPO%")));
+
+    try (OIterator<? extends ImportHistory> it = query.getIterator())
+    {
+      while (it.hasNext())
+      {
+        jobService.resolveImport(it.next().getOid());
+      }
+    }
+  }
+
 }

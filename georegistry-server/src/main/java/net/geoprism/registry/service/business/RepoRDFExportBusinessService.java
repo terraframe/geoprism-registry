@@ -41,13 +41,17 @@ import org.locationtech.jts.simplify.TopologyPreservingSimplifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
+import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.metadata.MdVertex;
 
 import net.geoprism.configuration.GeoprismProperties;
+import net.geoprism.graph.RepoRDFExportJob;
+import net.geoprism.graph.RepoRDFExportJobQuery;
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.cache.ClassificationCache;
@@ -875,4 +879,5 @@ public class RepoRDFExportBusinessService
       ProgressService.put(state.progressId, new Progress(state.count, state.total, state.progressId));
     }
   }
+
 }
