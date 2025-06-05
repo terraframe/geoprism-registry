@@ -95,7 +95,7 @@
       
     </createOrUpdate>
     <create>
-      <mdBusiness name="net.geoprism.graph.RepoRDFExportJob" extends="com.runwaysdk.system.scheduler.ExecutableJob" exported="false" publish="false">
+      <mdBusiness name="net.geoprism.graph.RepoRDFExportJob" extends="com.runwaysdk.system.scheduler.ExecutableJob" exported="false">
         <attributes>
           <date name="validFor" label="Valid For"/>
           <text name="namespace"/>
@@ -106,7 +106,7 @@
           <text name="businessEdgeCodes"/>
         </attributes>
       </mdBusiness>
-      <mdBusiness name="net.geoprism.graph.RDFExportJob" extends="com.runwaysdk.system.scheduler.ExecutableJob" exported="false" publish="false">
+      <mdBusiness name="net.geoprism.graph.RDFExportJob" extends="com.runwaysdk.system.scheduler.ExecutableJob" exported="false">
         <attributes>
           <text name="namespace"/>
           <text name="geometryExportType"/>        
@@ -114,7 +114,54 @@
         </attributes>
       </mdBusiness>
     </create>
-    <update></update>
+    <permissions>
+      <role roleName="cgr.RegistryAdministrator">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.graph.RepoRDFExportJob">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.graph.RDFExportJob">
+            <operation name="READ" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryMaintainer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.graph.RepoRDFExportJob">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.graph.RDFExportJob">
+            <operation name="READ" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      
+      <role roleName="cgr.RegistryContributor">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.graph.RepoRDFExportJob">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.graph.RDFExportJob">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      
+      <role roleName="cgr.APIConsumer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.graph.RepoRDFExportJob">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.graph.RDFExportJob">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>      
+    </permissions>    
   </doIt>
   <undoIt>
     <delete>
