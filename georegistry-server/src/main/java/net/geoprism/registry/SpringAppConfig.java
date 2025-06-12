@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -46,21 +46,24 @@ import net.geoprism.spring.web.JsonExceptionHandler;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = { "net.geoprism.spring", "net.geoprism.graph", "net.geoprism.registry.controller", "net.geoprism.registry.service", "net.geoprism.registry.permission", "net.geoprism.registry.spring", "net.geoprism.email", "net.geoprism.rbac", "net.geoprism.classifier", "net.geoprism.account" })
+@ComponentScan(   
+    basePackages = { "net.geoprism.spring", "net.geoprism.graph", "net.geoprism.registry.controller", "net.geoprism.registry.service", "net.geoprism.registry.permission", "net.geoprism.registry.spring", "net.geoprism.email", "net.geoprism.rbac", "net.geoprism.classifier", "net.geoprism.account" },
+    basePackageClasses = {AxonConfig.class}
+)
 public class SpringAppConfig extends WebMvcConfigurationSupport
 {
 
   @Bean(name = "multipartResolver")
   public MultipartResolver multipartResolver()
   {
-    StandardServletMultipartResolver multipartResolver = new StandardServletMultipartResolver();
-    return multipartResolver;
+    return new StandardServletMultipartResolver();
   }
-  
+
   @Bean
-  public MultipartConfigElement multipartConfigElement() {
-      // Unlimited file size (-1 for maxFileSize and maxRequestSize)
-      return new MultipartConfigElement("", -1, -1, 0);
+  public MultipartConfigElement multipartConfigElement()
+  {
+    // Unlimited file size (-1 for maxFileSize and maxRequestSize)
+    return new MultipartConfigElement("", -1, -1, 0);
   }
 
   @Bean
@@ -135,5 +138,4 @@ public class SpringAppConfig extends WebMvcConfigurationSupport
   {
     return new EncodingFilter();
   }
-
 }

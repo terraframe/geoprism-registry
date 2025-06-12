@@ -18,6 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.web.WebAppConfiguration;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -67,6 +68,7 @@ import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.conversion.TermConverter;
+import net.geoprism.registry.lpg.LPGPublishProgressMonitorNoOp;
 import net.geoprism.registry.lpg.TreeStrategyConfiguration;
 import net.geoprism.registry.lpg.adapter.RegistryConnectorFactory;
 import net.geoprism.registry.model.BusinessObject;
@@ -100,7 +102,7 @@ import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.TestHierarchyTypeInfo;
 import net.geoprism.registry.test.USATestData;
 
-@ContextConfiguration(classes = { TestConfig.class })
+@ContextConfiguration(classes = { TestConfig.class }) @WebAppConfiguration
 @RunWith(SpringInstanceTestClassRunner.class)
 public class LabeledPropertyGraphTest extends USADatasetTest implements InstanceTestClassListener
 {
@@ -450,7 +452,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
       Assert.assertEquals(1, versions.size());
 
       LabeledPropertyGraphTypeVersion version = versions.get(0);
-      this.versionService.publish(version);
+      this.versionService.publish(new LPGPublishProgressMonitorNoOp(), version);
 
       GeoObjectTypeSnapshot graphVertex = this.objectService.get(version, USATestData.COUNTRY.getCode());
       MdVertex mdVertex = graphVertex.getGraphMdVertex();
@@ -517,7 +519,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
 
       LabeledPropertyGraphTypeVersion version = versions.get(0);
 
-      this.versionService.publish(version);
+      this.versionService.publish(new LPGPublishProgressMonitorNoOp(), version);
 
       GeoObjectTypeSnapshot graphVertex = this.objectService.get(version, USATestData.COUNTRY.getCode());
       MdVertex mdVertex = graphVertex.getGraphMdVertex();
@@ -644,7 +646,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
       Assert.assertEquals(1, versions.size());
 
       LabeledPropertyGraphTypeVersion version = versions.get(0);
-      this.versionService.publish(version);
+      this.versionService.publish(new LPGPublishProgressMonitorNoOp(), version);
 
       JsonObject export = this.exporterService.export(version);
 

@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.web.WebAppConfiguration;
 
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -51,6 +52,7 @@ import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestRegistryClient;
 
 @ContextConfiguration(classes = { TestConfig.class })
+@WebAppConfiguration
 @RunWith(SpringInstanceTestClassRunner.class)
 public class AttributeTypeServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {

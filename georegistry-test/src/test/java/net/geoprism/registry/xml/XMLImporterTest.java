@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.web.WebAppConfiguration;
 
 import com.runwaysdk.resource.StreamResource;
 import com.runwaysdk.session.Request;
@@ -48,7 +49,7 @@ import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.OrganizationBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 
-@ContextConfiguration(classes = { TestConfig.class })
+@ContextConfiguration(classes = { TestConfig.class }) @WebAppConfiguration
 @RunWith(SpringInstanceTestClassRunner.class)
 public class XMLImporterTest implements InstanceTestClassListener
 {

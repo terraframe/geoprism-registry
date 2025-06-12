@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.web.WebAppConfiguration;
 
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.BusinessFacade;
@@ -23,7 +24,7 @@ import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
 
-@ContextConfiguration(classes = { TestConfig.class })
+@ContextConfiguration(classes = { TestConfig.class }) @WebAppConfiguration
 @RunWith(SpringInstanceTestClassRunner.class)
 public class UndirectedGraphTypeTest
 {

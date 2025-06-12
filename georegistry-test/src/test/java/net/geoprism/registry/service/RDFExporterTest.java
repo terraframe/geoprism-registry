@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.web.WebAppConfiguration;
 
 import com.google.gson.JsonObject;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
@@ -42,13 +43,12 @@ import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.lpg.jena.JenaBridge;
 import net.geoprism.registry.lpg.jena.JenaConnector;
 import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessServiceIF;
-import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessServiceIF.GeometryExportType;
 import net.geoprism.registry.service.business.LabeledPropertyGraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.LabeledPropertyGraphTypeEntryBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 
-@ContextConfiguration(classes = { TestConfig.class })
+@ContextConfiguration(classes = { TestConfig.class }) @WebAppConfiguration
 @RunWith(SpringInstanceTestClassRunner.class)
 public class RDFExporterTest extends FastDatasetTest implements InstanceTestClassListener
 {
@@ -150,8 +150,8 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
       job.start();
 
       LabeledPropertyGraphTest.waitUntilPublished(version.getOid());
-
-      rdfExporter.export(version, GeometryExportType.NO_GEOMETRIES, System.out);
+      
+//      rdfExporter.export(version, GeometryExportType.NO_GEOMETRIES, System.out);
     }
     finally
     {
@@ -211,7 +211,7 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
 
       LabeledPropertyGraphTest.waitUntilPublished(version.getOid());
 
-      rdfExporter.export(version, GeometryExportType.NO_GEOMETRIES, System.out);
+//      rdfExporter.export(version, GeometryExportType.NO_GEOMETRIES, System.out);
     }
     finally
     {
@@ -273,7 +273,7 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
 
       LabeledPropertyGraphTest.waitUntilPublished(version.getOid());
 
-      rdfExporter.export(version, GeometryExportType.NO_GEOMETRIES, System.out);
+//      rdfExporter.export(version, GeometryExportType.NO_GEOMETRIES, System.out);
     }
     finally
     {

@@ -34,6 +34,7 @@
 
 	<properties>
 		<hapifhir_version>8.0.0</hapifhir_version>
+    <axon.version>4.11.2</axon.version>		
 	</properties>
 
 	<dependencies>
@@ -222,7 +223,15 @@
       <groupId>com.opencsv</groupId>
       <artifactId>opencsv</artifactId>
       <version>5.9</version>
-    </dependency>		
+    </dependency>	
+    
+    <!--AXON Dependencies-->
+    <dependency>
+      <groupId>org.axonframework</groupId>
+      <artifactId>axon-spring</artifactId>
+      <version>${axon.version}</version>
+    </dependency>	
+    	
 	</dependencies>
 
 	<!-- These profiles allow for Maven execution of Runway-SDK's Java Tools,
