@@ -16,6 +16,7 @@ import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Assert;
@@ -242,7 +243,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
 
   @Test
   @Request
-  public void testNewAndUpdate() throws InterruptedException
+  public void testNewAndUpdate() throws InterruptedException, JSONException
   {
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet2.xlsx");
 
@@ -298,7 +299,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
 
   @Test
   @Request
-  public void testUpdateOnly() throws InterruptedException
+  public void testUpdateOnly() throws InterruptedException, JSONException
   {
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet2.xlsx");
 
@@ -351,10 +352,11 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
    * errors.
    * 
    * @throws InterruptedException
+   * @throws JSONException 
    */
   @Test
   @Request
-  public void testUpdateErrorCount() throws InterruptedException
+  public void testUpdateErrorCount() throws InterruptedException, JSONException
   {
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet3.xlsx");
 
@@ -397,7 +399,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
 
   @Test
   @Request
-  public void testCreateOnly() throws InterruptedException
+  public void testCreateOnly() throws InterruptedException, JSONException
   {
     // USATestData.CO_D_ONE.delete();
 
@@ -455,7 +457,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
 
   @Test
   @Request
-  public void testErrorSerializeParents() throws InterruptedException
+  public void testErrorSerializeParents() throws InterruptedException, JSONException
   {
     TestGeoObjectInfo state00 = testData.newTestGeoObjectInfo("00", USATestData.STATE);
     state00.setCode("00");
@@ -551,7 +553,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
 
   @Test
   @Request
-  public void testGetImportDetails() throws InterruptedException
+  public void testGetImportDetails() throws InterruptedException, JSONException
   {
     TestGeoObjectInfo one = testData.newTestGeoObjectInfo("0001", USATestData.DISTRICT);
     one.setCode("0001");
@@ -598,7 +600,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     Assert.assertEquals(1, results.length());
   }
 
-  private GeoObjectImportConfiguration getTestConfiguration(InputStream istream, ExcelService service, AttributeTermType attributeTerm, ImportStrategy strategy)
+  private GeoObjectImportConfiguration getTestConfiguration(InputStream istream, ExcelService service, AttributeTermType attributeTerm, ImportStrategy strategy) throws JSONException
   {
     JSONObject result = service.getExcelConfiguration(testData.clientRequest.getSessionId(), USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, "test-spreadsheet.xlsx", istream, strategy, false);
     JSONObject type = result.getJSONObject(GeoObjectImportConfiguration.TYPE);

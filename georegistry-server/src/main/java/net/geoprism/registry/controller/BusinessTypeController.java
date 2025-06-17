@@ -18,11 +18,7 @@
  */
 package net.geoprism.registry.controller;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-
 import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +33,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import net.geoprism.registry.service.request.BusinessEdgeTypeServiceIF;
 import net.geoprism.registry.service.request.BusinessTypeService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
@@ -47,10 +46,10 @@ public class BusinessTypeController extends RunwaySpringController
 {
   public static class RemoveAttributeBody
   {
-    @NotEmpty
+    @NotBlank
     String typeCode;
 
-    @NotEmpty
+    @NotBlank
     String attributeName;
 
     public String getTypeCode()
@@ -77,7 +76,7 @@ public class BusinessTypeController extends RunwaySpringController
 
   public static class AttributeTypeBody
   {
-    @NotEmpty
+    @NotBlank
     String     typeCode;
 
     @NotNull
@@ -107,7 +106,7 @@ public class BusinessTypeController extends RunwaySpringController
 
   public static class OidBody
   {
-    @NotEmpty
+    @NotBlank
     private String oid;
 
     public String getOid()
@@ -153,7 +152,7 @@ public class BusinessTypeController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get")
-  public ResponseEntity<String> get(@NotEmpty @RequestParam String oid)
+  public ResponseEntity<String> get(@NotBlank @RequestParam String oid)
   {
     JsonObject response = service.get(this.getSessionId(), oid);
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
@@ -217,7 +216,7 @@ public class BusinessTypeController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/data")
-  public ResponseEntity<String> data(@NotEmpty @RequestParam String typeCode, @RequestParam(required = false) String criteria)
+  public ResponseEntity<String> data(@NotBlank @RequestParam String typeCode, @RequestParam(required = false) String criteria)
   {
     JsonObject page = this.service.data(this.getSessionId(), typeCode, criteria);
 
@@ -225,7 +224,7 @@ public class BusinessTypeController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get-edge-types")
-  public ResponseEntity<String> getEdgeTypes(@NotEmpty @RequestParam String typeCode)
+  public ResponseEntity<String> getEdgeTypes(@NotBlank @RequestParam String typeCode)
   {
     JsonArray edgeTypes = this.service.getEdgeTypes(this.getSessionId(), typeCode);
 

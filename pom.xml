@@ -25,6 +25,7 @@
   </modules>
 
   <properties>
+    <spring.boot.version>3.5.0</spring.boot.version>
     <geoprism.version>2.0.1-SNAPSHOT</geoprism.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>17</maven.compiler.source>

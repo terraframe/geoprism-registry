@@ -6,6 +6,7 @@ package net.geoprism.registry;
 import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Assert;
@@ -124,7 +125,7 @@ public class GeoObjectQueryTest extends USADatasetTest implements InstanceTestCl
 
   @Test
   @Request
-  public void testTreeSynonymRestrictionBySynonym()
+  public void testTreeSynonymRestrictionBySynonym() throws JSONException
   {
     String label = "TEST";
 

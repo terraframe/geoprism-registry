@@ -31,7 +31,9 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.dataaccess.TreeNode;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
-import org.hibernate.validator.constraints.NotEmpty;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -278,8 +280,14 @@ public class GeoObjectController extends RunwaySpringController
    * @returns @throws
    **/
   @GetMapping(API_PATH + "/suggestions")
-  public ResponseEntity<String> getGeoObjectSuggestions(@RequestParam(required = false) String text, @NotEmpty
-  @RequestParam String type, @RequestParam(required = false) String parent, @RequestParam(required = false) String parentTypeCode, @RequestParam(required = false) String hierarchy, @RequestParam(required = false) Date startDate, @RequestParam(required = false) Date endDate)
+  public ResponseEntity<String> getGeoObjectSuggestions( //
+      @RequestParam(required = false) String text, //
+      @NotBlank @RequestParam String type, //
+      @RequestParam(required = false) String parent, // 
+      @RequestParam(required = false) String parentTypeCode, //
+      @RequestParam(required = false) String hierarchy, //
+      @RequestParam(required = false) Date startDate, //
+      @RequestParam(required = false) Date endDate)
   {
     JsonArray response = this.service.getGeoObjectSuggestions(this.getSessionId(), text, type, parent, parentTypeCode, hierarchy, startDate, endDate);
 

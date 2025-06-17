@@ -18,10 +18,6 @@
  */
 package net.geoprism.registry.controller;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +32,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import net.geoprism.registry.controller.UndirectedGraphTypeController.TypeBody;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import net.geoprism.registry.service.request.DirectedAcyclicGraphTypeService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
 
@@ -46,7 +44,7 @@ public class DirectedAcyclicGraphTypeController extends RunwaySpringController
 {
   public static final class CodeBody
   {
-    @NotEmpty
+    @NotBlank
     private String code;
 
     public String getCode()
@@ -116,8 +114,7 @@ public class DirectedAcyclicGraphTypeController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get")
-  public ResponseEntity<String> get(@NotEmpty
-  @RequestParam String code)
+  public ResponseEntity<String> get(@NotBlank @RequestParam String code)
   {
     JsonObject response = this.service.get(this.getSessionId(), code);
 

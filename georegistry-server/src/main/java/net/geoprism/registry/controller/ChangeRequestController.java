@@ -21,10 +21,6 @@ package net.geoprism.registry.controller;
 import java.io.IOException;
 import java.io.InputStream;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-
-import org.hibernate.validator.constraints.NotEmpty;
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -45,6 +41,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonObject;
 import com.runwaysdk.resource.ApplicationResource;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import net.geoprism.registry.service.request.ChangeRequestService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
 
@@ -89,7 +88,7 @@ public class ChangeRequestController extends RunwaySpringController
 
   public static class ChangeRequestBody
   {
-    @NotEmpty
+    @NotBlank
     private String requestId;
 
     public String getRequestId()
@@ -105,7 +104,7 @@ public class ChangeRequestController extends RunwaySpringController
 
   public static class DocumentFileBody extends ChangeRequestBody
   {
-    @NotEmpty
+    @NotBlank
     private String fileId;
 
     public String getFileId()
@@ -137,10 +136,10 @@ public class ChangeRequestController extends RunwaySpringController
 
   public static class ActionStatusBody
   {
-    @NotEmpty
+    @NotBlank
     private String actionOid;
 
-    @NotEmpty
+    @NotBlank
     private String status;
 
     public String getActionOid()
@@ -193,7 +192,7 @@ public class ChangeRequestController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/list-documents-cr")
-  public ResponseEntity<String> listDocumentsCR(@NotEmpty
+  public ResponseEntity<String> listDocumentsCR(@NotBlank
   @RequestParam String requestId)
   {
     String json = service.listDocumentsCR(this.getSessionId(), requestId);
@@ -202,9 +201,9 @@ public class ChangeRequestController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/download-file-cr")
-  public ResponseEntity<InputStreamResource> downloadDocumentCR(@NotEmpty
+  public ResponseEntity<InputStreamResource> downloadDocumentCR(@NotBlank
   @RequestParam String requestId,
-      @NotEmpty
+      @NotBlank
       @RequestParam String fileId)
   {
     ApplicationResource res = service.downloadDocumentCR(this.getSessionId(), requestId, fileId);

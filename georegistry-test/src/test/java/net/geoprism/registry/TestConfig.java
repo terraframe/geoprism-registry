@@ -16,10 +16,18 @@ import net.geoprism.registry.test.MockHttpServletRequest;
 import net.geoprism.registry.test.MockHttpServletResponse;
 
 @Configuration
-@ComponentScan(
-    basePackages = { "net.geoprism.registry.service", "net.geoprism.registry.controller", "net.geoprism.spring", "net.geoprism.registry.spring", "net.geoprism.registry.test", "net.geoprism.email", "net.geoprism.rbac", "net.geoprism.classifier", "net.geoprism.account" },
-    basePackageClasses = {AxonConfig.class}
-)
+@ComponentScan(basePackages = { //
+    "net.geoprism.registry.service", //
+    "net.geoprism.registry.controller", //
+    "net.geoprism.spring", //
+    "net.geoprism.registry.spring", //
+    "net.geoprism.registry.test", //
+    "net.geoprism.email", //
+    "net.geoprism.rbac", //
+    "net.geoprism.classifier", //
+    "net.geoprism.account", //
+    "net.geoprism.registry.axon" //
+})
 public class TestConfig
 {
 

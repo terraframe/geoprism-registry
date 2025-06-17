@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service.business;
 
@@ -22,6 +22,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
+import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.commongeoregistry.adapter.constants.CGRAdapterProperties;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,53 +36,57 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.CGRPermissionException;
-import net.geoprism.registry.ListType;
-import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
+import net.geoprism.registry.axon.command.CreateGeoObjectCommand;
+import net.geoprism.registry.axon.command.UpdateGeoObjectCommand;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.permission.RolePermissionService;
 import net.geoprism.registry.service.request.LocaleSerializer;
-import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 import net.geoprism.registry.view.action.AbstractUpdateAttributeView;
 import net.geoprism.registry.view.action.UpdateAttributeViewJsonAdapters;
 
 @Service
 public class GeoObjectEditorBusinessService
 {
-  @Autowired
-  private RolePermissionService      permissions;
+  private final CommandGateway             commandGateway;
+
+  private final RolePermissionService      permissions;
+
+  private final GeoObjectBusinessServiceIF service;
 
   @Autowired
-  private GeoObjectBusinessServiceIF service;
+  public GeoObjectEditorBusinessService(CommandGateway commandGateway, RolePermissionService permissions, GeoObjectBusinessServiceIF service)
+  {
+    this.commandGateway = commandGateway;
+    this.permissions = permissions;
+    this.service = service;
+  }
 
-  @Transaction
+  // @Transaction
   public JsonObject updateGeoObject(String geoObjectCode, String geoObjectTypeCode, String actions, String masterListId, String notes)
   {
     LocaleSerializer serializer = new LocaleSerializer(Session.getCurrentLocale());
 
     final ServerGeoObjectType type = ServerGeoObjectType.get(geoObjectTypeCode);
     final String orgCode = type.getOrganization().getCode();
-    final VertexServerGeoObject go = (VertexServerGeoObject) this.service.getGeoObjectByCode(geoObjectCode, geoObjectTypeCode);
+    VertexServerGeoObject go = (VertexServerGeoObject) this.service.getGeoObjectByCode(geoObjectCode, type);
 
     final JsonArray jaActions = JsonParser.parseString(actions).getAsJsonArray();
 
     if (permissions.isSRA() || permissions.isRA(orgCode) || permissions.isRM(orgCode, type))
     {
-      this.executeActions(type, go, jaActions);
+      this.executeActions(type, go, jaActions, masterListId);
 
-      if (masterListId != null)
-      {
-        ListTypeVersion.get(masterListId).updateRecord(go);
-      }
+      // Get the update object
+      go = (VertexServerGeoObject) this.service.getGeoObjectByCode(geoObjectCode, type);
 
       JsonObject resp = new JsonObject();
-
       resp.addProperty("isChangeRequest", false);
       resp.add("geoObject", this.service.toGeoObjectOverTime(go).toJSON(serializer));
 
@@ -208,7 +213,7 @@ public class GeoObjectEditorBusinessService
     return request;
   }
 
-  public void executeActions(final ServerGeoObjectType type, final VertexServerGeoObject go, final JsonArray jaActions)
+  public void executeActions(final ServerGeoObjectType type, final VertexServerGeoObject go, final JsonArray jaActions, final String listId)
   {
     for (int i = 0; i < jaActions.size(); ++i)
     {
@@ -222,10 +227,12 @@ public class GeoObjectEditorBusinessService
       view.execute(go);
     }
 
-    this.service.apply(go, false);
+    GeoObjectOverTime dto = this.service.toGeoObjectOverTime(go);
+
+    this.commandGateway.sendAndWait(new UpdateGeoObjectCommand(dto.getUid(), false, dto, null));
   }
 
-  @Transaction
+   @Transaction
   public JsonObject createGeoObject(String sPtn, String sTimeGo, String masterListId, String notes)
   {
     LocaleSerializer serializer = new LocaleSerializer(Session.getCurrentLocale());
@@ -238,25 +245,13 @@ public class GeoObjectEditorBusinessService
 
     if (permissions.isSRA() || permissions.isRA(orgCode) || permissions.isRM(orgCode, serverGOT))
     {
-      ServerGeoObjectIF serverGO = this.service.apply(timeGO, true, false);
-      final ServerGeoObjectType type = serverGO.getType();
+      this.commandGateway.sendAndWait(new CreateGeoObjectCommand(timeGO.getUid(), false, sTimeGo, sPtn));
 
-      if (sPtn != null)
-      {
-        ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(type, sPtn);
-
-        this.service.setParents(serverGO, ptnOt);
-      }
-
-      // Update all of the working lists which have this record
-      ListType.getForType(type).forEach(listType -> {
-        listType.getWorkingVersions().forEach(version -> version.publishOrUpdateRecord(serverGO));
-      });
+      ServerGeoObjectIF sGO = this.service.getGeoObjectByCode(timeGO.getCode(), timeGO.getType().getCode());
 
       JsonObject resp = new JsonObject();
-
       resp.addProperty("isChangeRequest", false);
-      resp.add("geoObject", this.service.toGeoObjectOverTime(serverGO).toJSON(serializer));
+      resp.add("geoObject", this.service.toGeoObjectOverTime(sGO).toJSON(serializer));
 
       return resp;
     }

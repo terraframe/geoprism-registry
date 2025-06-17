@@ -1882,7 +1882,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
         record.addProperty("code", geoObject.getCode());
         record.addProperty("typeCode", geoObject.getType().getCode());
         record.addProperty("uid", uid);
-        record.add("displayLabel", geoObject.getDisplayLabel().toJSON());
+        record.add("displayLabel", geoObject.getDisplayLabel() != null ? geoObject.getDisplayLabel().toJSON() : new LocalizedValue("").toJSON());
 
         return record;
       }

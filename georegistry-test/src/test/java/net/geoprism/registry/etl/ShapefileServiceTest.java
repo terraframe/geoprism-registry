@@ -34,6 +34,7 @@ import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.sort.SortedFeatureReader;
 import org.geotools.factory.CommonFactoryFinder;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Assert;
@@ -211,7 +212,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
   @Test
   @Request
-  public void testGetAttributeInformation()
+  public void testGetAttributeInformation() throws JSONException
   {
     PostalCodeFactory.remove(USATestData.STATE.getServerObject());
 
@@ -269,7 +270,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
   @Test
   @Request
-  public void testGetAttributeInformationPostalCode()
+  public void testGetAttributeInformationPostalCode() throws JSONException
   {
     InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
@@ -838,7 +839,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
   @Test
   @Request
-  public void testQueueImports() throws InterruptedException
+  public void testQueueImports() throws InterruptedException, JSONException
   {
     InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
@@ -1199,12 +1200,12 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
     Assert.assertEquals("Alabama", object.getLocalizedDisplayLabel());
   }
 
-  private GeoObjectImportConfiguration getTestConfiguration(InputStream istream, AttributeTermType testTerm, ImportStrategy strategy)
+  private GeoObjectImportConfiguration getTestConfiguration(InputStream istream, AttributeTermType testTerm, ImportStrategy strategy) throws JSONException
   {
     return getTestConfiguration(istream, testTerm, strategy, USATestData.STATE);
   }
 
-  private GeoObjectImportConfiguration getTestConfiguration(InputStream istream, AttributeTermType testTerm, ImportStrategy strategy, TestGeoObjectTypeInfo info)
+  private GeoObjectImportConfiguration getTestConfiguration(InputStream istream, AttributeTermType testTerm, ImportStrategy strategy, TestGeoObjectTypeInfo info) throws JSONException
   {
     JSONObject result = this.shapefileService.getShapefileConfiguration(testData.clientRequest.getSessionId(), info.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, "cb_2017_us_state_500k.zip", istream, strategy, false);
     JSONObject type = result.getJSONObject(GeoObjectImportConfiguration.TYPE);

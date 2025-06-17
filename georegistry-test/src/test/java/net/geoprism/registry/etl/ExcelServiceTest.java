@@ -28,6 +28,7 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Assert;
@@ -208,7 +209,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
   @Test
   @Request
-  public void testGetAttributeInformation()
+  public void testGetAttributeInformation() throws JSONException
   {
     PostalCodeFactory.remove(USATestData.DISTRICT.getServerObject());
 
@@ -243,7 +244,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
   @Test
   @Request
-  public void testGetAttributeInformationPostalCode()
+  public void testGetAttributeInformationPostalCode() throws JSONException
   {
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
 
@@ -839,7 +840,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
   @Test
   @Request
-  public void testImportExcelWithClassification() throws InterruptedException
+  public void testImportExcelWithClassification() throws InterruptedException, JSONException
   {
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
 
@@ -914,10 +915,11 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
    * In the case when the server fails mid import, when the server reboots it's
    * supposed to restart any jobs that were running. When we restart the job, we
    * want to make sure that it picks up from where it left off.
+   * @throws JSONException 
    */
   @Test
   @Request
-  public void testResumeImport() throws InterruptedException
+  public void testResumeImport() throws InterruptedException, JSONException
   {
     DataImportJob job = new DataImportJob();
     job.setRunAsUserId(testData.clientRequest.getSessionUser().getOid());
@@ -992,7 +994,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
     Assert.assertEquals(0, json.getJSONArray("resultSet").length());
   }
 
-  private JSONObject getTestConfiguration(InputStream istream, AttributeType attributeTerm, ImportStrategy strategy)
+  private JSONObject getTestConfiguration(InputStream istream, AttributeType attributeTerm, ImportStrategy strategy) throws JSONException
   {
     JSONObject result = this.excelService.getExcelConfiguration(testData.clientRequest.getSessionId(), USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, "test-spreadsheet.xlsx", istream, strategy, false);
     JSONObject type = result.getJSONObject(GeoObjectImportConfiguration.TYPE);

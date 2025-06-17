@@ -3,8 +3,19 @@
 
 
 -->
-<!-- Copyright (c) 2019 TerraFrame, Inc. All rights reserved. This file is part of Geoprism Registry(tm). Geoprism Registry(tm) is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. Geoprism Registry(tm) is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details. You should have received a copy of the GNU Lesser General Public License along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>. -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<!-- Copyright (c) 2019 TerraFrame, Inc. All rights reserved. This file is part
+of Geoprism Registry(tm). Geoprism Registry(tm) is free software: you can
+redistribute it and/or modify it under the terms of the GNU Lesser General
+Public License as published by the Free Software Foundation, either version 3 of
+the License, or (at your option) any later version. Geoprism Registry(tm) is
+distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE. See the GNU Lesser General Public License for more details. You should
+have received a copy of the GNU Lesser General Public License along with
+Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>. -->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -26,23 +37,25 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <version>${spring.boot.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>jakarta.servlet</groupId>
       <artifactId>jakarta.servlet-api</artifactId>
       <version>6.1.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-test</artifactId>
-      <version>6.1.14</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>net.geoprism</groupId>
       <artifactId>georegistry-server</artifactId>
       <version>${project.version}</version>
       <exclusions>
-        <exclusion> <!-- The oda jar includes runway properties files which cause issues. We probably want to remove these properties files from the oda jar but I don't know what else it will break. -->
+        <exclusion> <!-- The oda jar includes runway properties files which cause
+          issues. We probably want to remove these properties files from the oda
+          jar but I don't know what else it will break. -->
           <groupId>net.geoprism</groupId>
           <artifactId>oda.driver</artifactId>
         </exclusion>
@@ -94,7 +107,8 @@
               <container>
                 <containerId>tomcat</containerId>
                 <zipUrlInstaller>
-                  <url>https://archive.apache.org/dist/tomcat/tomcat-11/v11.0.0/bin/apache-tomcat-11.0.0.zip</url>
+                  <url>
+                    https://archive.apache.org/dist/tomcat/tomcat-11/v11.0.0/bin/apache-tomcat-11.0.0.zip</url>
                   <downloadDir>${project.build.directory}/downloads</downloadDir>
                   <extractDir>${project.build.directory}/extracts</extractDir>
                 </zipUrlInstaller>
@@ -106,7 +120,8 @@
                   <cargo.protocol>https</cargo.protocol>
                   <cargo.tomcat.connector.clientAuth>false</cargo.tomcat.connector.clientAuth>
                   <cargo.tomcat.connector.sslProtocol>TLS</cargo.tomcat.connector.sslProtocol>
-                  <cargo.tomcat.connector.keystoreFile>/${project.basedir}/src/test/resources/keystore.ks</cargo.tomcat.connector.keystoreFile>
+                  <cargo.tomcat.connector.keystoreFile>
+                    /${project.basedir}/src/test/resources/keystore.ks</cargo.tomcat.connector.keystoreFile>
                   <cargo.tomcat.connector.keystorePass>2v8hVW2rPFncN6m</cargo.tomcat.connector.keystorePass>
                   <cargo.tomcat.connector.keyAlias>tomcat</cargo.tomcat.connector.keyAlias>
                   <cargo.tomcat.httpSecure>true</cargo.tomcat.httpSecure>
@@ -151,7 +166,20 @@
             </executions>
           </plugin>
 
-          <!-- <plugin> <groupId>com.github.eirslett</groupId> <artifactId>frontend-maven-plugin</artifactId> <version>0.0.14</version> <configuration> <installDirectory>node</installDirectory> <workingDirectory>target/georegistry-test-${project.version}</workingDirectory> </configuration> <executions> <execution> <id>install node and npm</id> <goals> <goal>install-node-and-npm</goal> </goals> <phase>pre-integration-test</phase> <configuration> <nodeVersion>v0.10.18</nodeVersion> <npmVersion>1.3.8</npmVersion> </configuration> </execution> <execution> <id>npm install</id> <goals> <goal>npm</goal> </goals> <phase>pre-integration-test</phase> </execution> <execution> <id>javascript tests</id> <goals> <goal>karma</goal> </goals> <phase>integration-test</phase> <configuration> <karmaConfPath>karma.conf.ci.js</karmaConfPath> 
+          <!-- <plugin> <groupId>com.github.eirslett</groupId>
+          <artifactId>frontend-maven-plugin</artifactId>
+          <version>0.0.14</version> <configuration>
+          <installDirectory>node</installDirectory>
+          <workingDirectory>target/georegistry-test-${project.version}</workingDirectory>
+          </configuration> <executions> <execution> <id>install node and
+          npm</id> <goals> <goal>install-node-and-npm</goal> </goals>
+          <phase>pre-integration-test</phase> <configuration>
+          <nodeVersion>v0.10.18</nodeVersion> <npmVersion>1.3.8</npmVersion>
+          </configuration> </execution> <execution> <id>npm install</id> <goals>
+          <goal>npm</goal> </goals> <phase>pre-integration-test</phase>
+          </execution> <execution> <id>javascript tests</id> <goals>
+          <goal>karma</goal> </goals> <phase>integration-test</phase>
+          <configuration> <karmaConfPath>karma.conf.ci.js</karmaConfPath> 
             </configuration> </execution> </executions> </plugin> -->
         </plugins>
       </build>
@@ -242,7 +270,8 @@
                   <cargo.protocol>https</cargo.protocol>
                   <cargo.tomcat.connector.clientAuth>false</cargo.tomcat.connector.clientAuth>
                   <cargo.tomcat.connector.sslProtocol>TLS</cargo.tomcat.connector.sslProtocol>
-                  <cargo.tomcat.connector.keystoreFile>/${project.basedir}/src/test/resources/keystore.ks</cargo.tomcat.connector.keystoreFile>
+                  <cargo.tomcat.connector.keystoreFile>
+                    /${project.basedir}/src/test/resources/keystore.ks</cargo.tomcat.connector.keystoreFile>
                   <cargo.tomcat.connector.keystorePass>2v8hVW2rPFncN6m</cargo.tomcat.connector.keystorePass>
                   <cargo.tomcat.connector.keyAlias>tomcat</cargo.tomcat.connector.keyAlias>
                   <cargo.tomcat.httpSecure>true</cargo.tomcat.httpSecure>

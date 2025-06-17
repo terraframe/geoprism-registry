@@ -13,15 +13,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.locationtech.jts.geom.Geometry;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import com.runwaysdk.session.Request;
 
 import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.Application;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
-import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.model.Classification;
@@ -35,8 +35,14 @@ import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.TermBusinessServiceIF;
 import net.geoprism.registry.test.USATestData;
 
-@ContextConfiguration(classes = { TestConfig.class })
-@WebAppConfiguration
+
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.MOCK,
+    classes = Application.class)
+  @AutoConfigureMockMvc
+
+//@ContextConfiguration(classes = { TestConfig.class })
+//@WebAppConfiguration
 @RunWith(SpringInstanceTestClassRunner.class)
 public class BasicGeoObjectServiceTest implements InstanceTestClassListener
 {

@@ -23,13 +23,14 @@ import java.util.Comparator;
 import java.util.List;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.RegistryUrls;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.hibernate.validator.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -373,8 +374,7 @@ public class GeoObjectTypeController extends RunwaySpringController
    *          JSON of the {@link GeoObjectType} to be updated.
    */
   @PostMapping(RegistryUrls.GEO_OBJECT_TYPE_UPDATE)
-  public ResponseEntity<String> updateGeoObjectType(@Valid
-  @RequestBody GeoObjectTypeBody body)
+  public ResponseEntity<String> updateGeoObjectType(@Valid @RequestBody GeoObjectTypeBody body)
   {
     GeoObjectType geoObjectType = this.service.updateGeoObjectType(this.getSessionId(), body.gtJSON.toString());
 
@@ -390,8 +390,7 @@ public class GeoObjectTypeController extends RunwaySpringController
    *          code of the {@link GeoObjectType} to delete.
    */
   @PostMapping(RegistryUrls.GEO_OBJECT_TYPE_DELETE)
-  public ResponseEntity<Void> deleteGeoObjectType(@Valid
-  @RequestBody CodeBody body)
+  public ResponseEntity<Void> deleteGeoObjectType(@Valid @RequestBody CodeBody body)
   {
     this.service.deleteGeoObjectType(this.getSessionId(), body.getCode());
 
@@ -399,10 +398,11 @@ public class GeoObjectTypeController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get-ancestors")
-  public ResponseEntity<String> getTypeAncestors(@NotEmpty
-  @RequestParam String code,
-      @NotEmpty
-      @RequestParam String hierarchyCode, @RequestParam(required = false, defaultValue = "false") Boolean includeInheritedTypes, @RequestParam(required = false, defaultValue = "false") Boolean includeChild)
+  public ResponseEntity<String> getTypeAncestors(
+      @NotBlank @RequestParam String code,
+      @NotBlank @RequestParam String hierarchyCode, 
+      @RequestParam(required = false, defaultValue = "false") Boolean includeInheritedTypes, 
+      @RequestParam(required = false, defaultValue = "false") Boolean includeChild)
   {
     JsonArray response = new JsonArray();
 
@@ -421,10 +421,7 @@ public class GeoObjectTypeController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get-hierarchies")
-  public ResponseEntity<String> getHierarchiesForType(@NotEmpty
-  @RequestParam String code,
-      @NotEmpty
-      @RequestParam Boolean includeTypes)
+  public ResponseEntity<String> getHierarchiesForType(@NotBlank @RequestParam String code, @RequestParam Boolean includeTypes)
   {
     JsonArray response = hierService.getHierarchiesForType(this.getSessionId(), code, includeTypes);
 
@@ -432,8 +429,7 @@ public class GeoObjectTypeController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get-subtype-hierarchies")
-  public ResponseEntity<String> getHierarchiesForSubtypes(@NotEmpty
-  @RequestParam String code)
+  public ResponseEntity<String> getHierarchiesForSubtypes(@NotBlank @RequestParam String code)
   {
     JsonArray response = hierService.getHierarchiesForSubtypes(this.getSessionId(), code);
 

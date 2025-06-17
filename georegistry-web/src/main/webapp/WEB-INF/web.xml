@@ -32,7 +32,8 @@
     <extension>xsd</extension>
     <mime-type>text/xml</mime-type>
   </mime-mapping>
-  
+
+<!-- 
   <listener>
     <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
   </listener>
@@ -44,6 +45,7 @@
     <param-name>contextClass</param-name>
     <param-value>org.springframework.web.context.support.AnnotationConfigWebApplicationContext</param-value>
   </context-param>
+ -->  
   
   <filter>
     <filter-name>RegistryCorsFilter</filter-name>
@@ -55,6 +57,7 @@
   </filter-mapping>
   
   <!-- Spring Servlet Dispatcher -->
+<!-- 
   <servlet>
     <servlet-name>SpringDispatcher</servlet-name>
     <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
@@ -70,7 +73,7 @@
     </init-param>
     <init-param>
       <param-name>contextConfigLocation</param-name>
-      <param-value>net.geoprism.registry.SpringAppConfig</param-value>
+      <param-value>net.geoprism.registry.Application</param-value>
     </init-param>
   </servlet>
   <servlet-mapping>
@@ -107,6 +110,7 @@
     <url-pattern>*</url-pattern>
   </filter-mapping>
   
+ -->  
   <listener>
     <listener-class>net.geoprism.PatchingContextListener</listener-class>
   </listener>

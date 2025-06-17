@@ -16,41 +16,42 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry;
-
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+package net.geoprism.registry.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.format.datetime.DateFormatter;
-import org.springframework.format.datetime.DateFormatterRegistrar;
-import org.springframework.format.datetime.standard.DateTimeFormatterRegistrar;
-import org.springframework.format.support.DefaultFormattingConversionService;
-import org.springframework.format.support.FormattingConversionService;
+import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.view.BeanNameViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 
-import jakarta.servlet.Filter;
 import jakarta.servlet.MultipartConfigElement;
 import net.geoprism.EncodingFilter;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.service.SessionFilter;
 import net.geoprism.spring.web.JsonExceptionHandler;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(   
-    basePackages = { "net.geoprism.spring", "net.geoprism.graph", "net.geoprism.registry.controller", "net.geoprism.registry.service", "net.geoprism.registry.permission", "net.geoprism.registry.spring", "net.geoprism.email", "net.geoprism.rbac", "net.geoprism.classifier", "net.geoprism.account" },
-    basePackageClasses = {AxonConfig.class}
-)
-public class SpringAppConfig extends WebMvcConfigurationSupport
+@ComponentScan(basePackages = { //
+    "net.geoprism.spring", //
+    "net.geoprism.graph", //
+    "net.geoprism.registry.config", //
+    "net.geoprism.registry.controller", //
+    "net.geoprism.registry.service", //
+    "net.geoprism.registry.permission", //
+    "net.geoprism.registry.spring", //
+    "net.geoprism.email", //
+    "net.geoprism.rbac", //
+    "net.geoprism.classifier", //
+    "net.geoprism.account", //
+    "net.geoprism.registry.axon" //
+})
+public class SpringAppConfig implements WebMvcConfigurer, AsyncConfigurer
+
 {
 
   @Bean(name = "multipartResolver")
@@ -64,30 +65,6 @@ public class SpringAppConfig extends WebMvcConfigurationSupport
   {
     // Unlimited file size (-1 for maxFileSize and maxRequestSize)
     return new MultipartConfigElement("", -1, -1, 0);
-  }
-
-  @Bean
-  @Override
-  public FormattingConversionService mvcConversionService()
-  {
-    DefaultFormattingConversionService conversionService = new DefaultFormattingConversionService(false);
-
-    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(GeoObjectImportConfiguration.DATE_FORMAT);
-    dateTimeFormatter.withZone(ZoneId.of(GeoRegistryUtil.SYSTEM_TIMEZONE.getID()));
-
-    DateTimeFormatterRegistrar dateTimeRegistrar = new DateTimeFormatterRegistrar();
-    dateTimeRegistrar.setDateFormatter(dateTimeFormatter);
-    dateTimeRegistrar.setDateTimeFormatter(dateTimeFormatter);
-    dateTimeRegistrar.registerFormatters(conversionService);
-
-    DateFormatter dateFormatter = new DateFormatter(GeoObjectImportConfiguration.DATE_FORMAT);
-    dateFormatter.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
-
-    DateFormatterRegistrar dateRegistrar = new DateFormatterRegistrar();
-    dateRegistrar.setFormatter(dateFormatter);
-    dateRegistrar.registerFormatters(conversionService);
-
-    return conversionService;
   }
 
   // @Override
@@ -121,11 +98,12 @@ public class SpringAppConfig extends WebMvcConfigurationSupport
     return new JstlView("../index.html");
   }
 
-  @Bean
-  Filter sessionFilter()
-  {
-    return new SessionFilter();
-  }
+  // @Bean
+  // @Primary
+  // Filter sessionFilter()
+  // {
+  // return new SessionFilter();
+  // }
 
   @Bean
   JsonExceptionHandler exceptionHandler()

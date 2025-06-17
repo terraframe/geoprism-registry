@@ -13,6 +13,7 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
@@ -488,7 +489,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
     }
   }
 
-  private JSONObject getTestConfiguration(InputStream istream, ImportStrategy strategy)
+  private JSONObject getTestConfiguration(InputStream istream, ImportStrategy strategy) throws JSONException
   {
     JSONObject result = this.excelService.getBusinessTypeConfiguration(Session.getCurrentSession().getOid(), type.getCode(), TestDataSet.DEFAULT_END_TIME_DATE, "business-spreadsheet.xlsx", istream, strategy, false);
     JSONObject type = result.getJSONObject(BusinessObjectImportConfiguration.TYPE);
