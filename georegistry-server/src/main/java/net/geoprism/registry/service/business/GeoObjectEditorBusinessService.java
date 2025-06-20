@@ -21,6 +21,8 @@ package net.geoprism.registry.service.business;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.commongeoregistry.adapter.constants.CGRAdapterProperties;
@@ -43,6 +45,8 @@ import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
 import net.geoprism.registry.axon.command.CreateGeoObjectCommand;
 import net.geoprism.registry.axon.command.UpdateGeoObjectCommand;
+import net.geoprism.registry.axon.event.ApplyGeoObjectEvent;
+import net.geoprism.registry.axon.event.GeoObjectEvent;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
@@ -215,6 +219,8 @@ public class GeoObjectEditorBusinessService
 
   public void executeActions(final ServerGeoObjectType type, final VertexServerGeoObject go, final JsonArray jaActions, final String listId)
   {
+    List<GeoObjectEvent> list = new LinkedList<GeoObjectEvent>();
+
     for (int i = 0; i < jaActions.size(); ++i)
     {
       JsonObject action = jaActions.get(i).getAsJsonObject();
@@ -224,15 +230,17 @@ public class GeoObjectEditorBusinessService
 
       AbstractUpdateAttributeView view = UpdateAttributeViewJsonAdapters.deserialize(attributeDiff.toString(), attributeName, type);
 
-      view.execute(go);
+      list.addAll(view.build(go));
     }
 
     GeoObjectOverTime dto = this.service.toGeoObjectOverTime(go);
+    
+    list.add(new ApplyGeoObjectEvent(dto.getUid(), false, false, dto.toJSON().toString(), null));
 
-    this.commandGateway.sendAndWait(new UpdateGeoObjectCommand(dto.getUid(), false, dto, null));
+    this.commandGateway.sendAndWait(new UpdateGeoObjectCommand(dto.getUid(), list));
   }
 
-   @Transaction
+  @Transaction
   public JsonObject createGeoObject(String sPtn, String sTimeGo, String masterListId, String notes)
   {
     LocaleSerializer serializer = new LocaleSerializer(Session.getCurrentLocale());

@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.RegistryAdapter;
@@ -409,7 +410,7 @@ public class TestGeoObjectInfo extends TestCachedObject<ServerGeoObjectIF>
 
     GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
 
-    service.addChild(this.getServerObject(), child.getServerObject(), hierarchy.getServerObject(), date, TestDataSet.DEFAULT_END_TIME_DATE);
+    service.addChild(this.getServerObject(), child.getServerObject(), hierarchy.getServerObject(), date, TestDataSet.DEFAULT_END_TIME_DATE, UUID.randomUUID().toString());
   }
 
   private void addParent(TestGeoObjectInfo parent)

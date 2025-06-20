@@ -1,6 +1,6 @@
 package net.geoprism.registry.axon.event;
 
-public class ApplyGeoObjectEvent
+public class ApplyGeoObjectEvent implements GeoObjectEvent
 {
   private String  uid;
 

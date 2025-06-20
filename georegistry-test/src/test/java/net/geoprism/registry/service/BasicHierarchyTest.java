@@ -3,6 +3,8 @@
  */
 package net.geoprism.registry.service;
 
+import java.util.UUID;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -81,7 +83,7 @@ public class BasicHierarchyTest implements InstanceTestClassListener
 
       try
       {
-        this.service.addChild(parent, child, hierarchyType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+        this.service.addChild(parent, child, hierarchyType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, UUID.randomUUID().toString());
 
         ServerChildTreeNode objects = this.service.getChildGeoObjects(parent, hierarchyType, null, false, USATestData.DEFAULT_OVER_TIME_DATE);
 

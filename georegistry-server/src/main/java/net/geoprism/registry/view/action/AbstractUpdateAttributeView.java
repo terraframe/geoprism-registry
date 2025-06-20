@@ -4,27 +4,32 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.view.action;
 
+import java.util.List;
+
+import net.geoprism.registry.axon.event.GeoObjectEvent;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
 abstract public class AbstractUpdateAttributeView
 {
   private String attributeName;
-  
-  abstract public void execute(VertexServerGeoObject go);
+
+  public abstract void execute(VertexServerGeoObject go);
+
+  public abstract List<GeoObjectEvent> build(VertexServerGeoObject go);
 
   public String getAttributeName()
   {
@@ -35,4 +40,5 @@ abstract public class AbstractUpdateAttributeView
   {
     this.attributeName = attributeName;
   }
+
 }

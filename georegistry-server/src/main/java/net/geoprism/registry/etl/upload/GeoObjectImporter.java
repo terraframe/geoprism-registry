@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -303,7 +304,7 @@ public class GeoObjectImporter implements ObjectImporterIF
             types[i] = location.getType().getCode();
           }
 
-          ServerParentTreeNode tnParent = new ServerParentTreeNode(parent, hierarchy, GeoObjectImporter.this.configuration.getStartDate(), GeoObjectImporter.this.configuration.getEndDate(), null);
+          ServerParentTreeNode tnParent = new ServerParentTreeNode(parent, hierarchy, GeoObjectImporter.this.configuration.getStartDate(), GeoObjectImporter.this.configuration.getEndDate(), null, null);
 
           ServerParentTreeNodeOverTime grandParentsOverTime = service.getParentsOverTime(parent, null, true, true);
 
@@ -818,14 +819,14 @@ public class GeoObjectImporter implements ObjectImporterIF
       {
         if (!isNew)
         {
-          this.service.addChild(parent, serverGo, this.configuration.getHierarchy(), this.configuration.getStartDate(), this.configuration.getEndDate());
+          this.service.addChild(parent, serverGo, this.configuration.getHierarchy(), this.configuration.getStartDate(), this.configuration.getEndDate(), UUID.randomUUID().toString());
         }
         else
         {
           // If we're a new object, we can speed things up quite a bit here by
           // just directly applying the edge object since the addChild method
           // does a lot of unnecessary validation.
-          this.service.addParentRaw(serverGo, ( (VertexServerGeoObject) parent ).getVertex(), this.configuration.getHierarchy().getObjectEdge(), this.configuration.getStartDate(), this.configuration.getEndDate());
+          this.service.addParentRaw(serverGo, ( (VertexServerGeoObject) parent ).getVertex(), this.configuration.getHierarchy().getObjectEdge(), this.configuration.getStartDate(), this.configuration.getEndDate(), UUID.randomUUID().toString());
         }
       }
       else if (isNew)

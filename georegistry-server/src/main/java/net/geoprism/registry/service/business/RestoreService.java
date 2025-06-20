@@ -260,6 +260,7 @@ public class RestoreService implements RestoreServiceIF
               String childTypeCode = jObject.get("childType").getAsString();
               Date startDate = GeoRegistryUtil.parseDate(jObject.get("startDate").getAsString());
               Date endDate = GeoRegistryUtil.parseDate(jObject.get("endDate").getAsString());
+              String uid = jObject.get("uid").getAsString();
 
               ServerGeoObjectType parentType = ServerGeoObjectType.get(parentTypeCode);
               ServerGeoObjectType childType = ServerGeoObjectType.get(childTypeCode);
@@ -280,7 +281,7 @@ public class RestoreService implements RestoreServiceIF
                 return object;
               });
 
-              this.gObjectService.addChild(parent, child, hierarchy, startDate, endDate);
+              this.gObjectService.addChild(parent, child, hierarchy, startDate, endDate, uid);
             }
 
             reader.endArray();

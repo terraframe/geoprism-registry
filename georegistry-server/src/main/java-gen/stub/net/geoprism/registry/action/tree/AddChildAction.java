@@ -58,7 +58,9 @@ public class AddChildAction extends AddChildActionBase
 
     ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanAddChild(ht.getOrganization().getCode(), parent.getType(), child.getType());
 
-    service.addChild(parent, child, ht);
+//    service.addChild(parent, child, ht);
+    
+    throw new UnsupportedOperationException();
   }
 
   @Override

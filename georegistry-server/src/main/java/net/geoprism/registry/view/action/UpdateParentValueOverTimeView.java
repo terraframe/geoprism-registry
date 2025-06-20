@@ -4,25 +4,27 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.view.action;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.SortedSet;
+import java.util.UUID;
 
-import net.geoprism.registry.graph.GeoVertex;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 
 import com.runwaysdk.business.graph.EdgeObject;
@@ -30,7 +32,12 @@ import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 
 import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
 import net.geoprism.registry.action.InvalidChangeRequestException;
+import net.geoprism.registry.axon.event.CreateParentEvent;
+import net.geoprism.registry.axon.event.GeoObjectEvent;
+import net.geoprism.registry.axon.event.RemoveParentEvent;
+import net.geoprism.registry.axon.event.UpdateParentEvent;
 import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
+import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexComponent;
@@ -55,26 +62,18 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
 
       if (this.action.equals(UpdateActionType.DELETE))
       {
-        EdgeObject edge = this.getEdgeByOid(looseVotc, this.oid);
-
-        if (edge == null)
-        {
-          ExecuteOutOfDateChangeRequestException ex = new ExecuteOutOfDateChangeRequestException();
-          throw ex;
-        }
+        EdgeObject edge = this.getEdgeByOid(looseVotc, this.oid).orElseThrow(() -> {
+          throw new ExecuteOutOfDateChangeRequestException();
+        });
 
         edge.delete();
         looseVotc.remove(edge);
       }
       else if (this.action.equals(UpdateActionType.UPDATE))
       {
-        EdgeObject edge = this.getEdgeByOid(looseVotc, this.oid);
-
-        if (edge == null)
-        {
-          ExecuteOutOfDateChangeRequestException ex = new ExecuteOutOfDateChangeRequestException();
-          throw ex;
-        }
+        EdgeObject edge = this.getEdgeByOid(looseVotc, this.oid).orElseThrow(() -> {
+          throw new ExecuteOutOfDateChangeRequestException();
+        });
 
         final VertexServerGeoObject newParent = this.getNewValueAsGO();
         final String parentCode = newParent == null ? null : newParent.getCode();
@@ -167,33 +166,19 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
     }
   }
 
-  protected EdgeObject getEdgeByOid(SortedSet<EdgeObject> looseVotc, String oid)
+  protected Optional<EdgeObject> getEdgeByOid(Collection<EdgeObject> edges, String oid)
   {
-    for (EdgeObject vot : looseVotc)
-    {
-      if (vot.getOid().equals(oid))
-      {
-        return vot;
-      }
-    }
-
-    return null;
+    return edges.stream().filter(edge -> edge.getOid().equals(oid)).findFirst();
   }
 
-  protected EdgeObject getEdgeByDate(SortedSet<EdgeObject> looseVotc, Date startDate, Date endDate)
+  protected Optional<EdgeObject> getEdgeByDate(Collection<EdgeObject> edges, Date startDate, Date endDate)
   {
-    for (EdgeObject edge : looseVotc)
-    {
+    return edges.stream().filter(edge -> {
       Date edgeStartDate = edge.getObjectValue(GeoVertex.START_DATE);
       Date edgeEndDate = edge.getObjectValue(GeoVertex.END_DATE);
 
-      if (edgeStartDate.equals(startDate) && edgeEndDate.equals(endDate))
-      {
-        return edge;
-      }
-    }
-
-    return null;
+      return edgeStartDate.equals(startDate) && edgeEndDate.equals(endDate);
+    }).findFirst();
   }
 
   public VertexServerGeoObject getNewValueAsGO()
@@ -212,4 +197,69 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
 
     return null;
   }
+
+  @Override
+  public boolean isEdge()
+  {
+    return true;
+  }
+
+  public Optional<GeoObjectEvent> buildParent(UpdateChangeOverTimeAttributeView cotView, VertexServerGeoObject go, Collection<EdgeObject> collection)
+  {
+    if (cotView instanceof UpdateParentView)
+    {
+      UpdateParentView parentView = (UpdateParentView) cotView;
+      final ServerHierarchyType hierarchyType = ServerHierarchyType.get(parentView.getHierarchyCode());
+
+      if (this.action.equals(UpdateActionType.DELETE))
+      {
+        return this.getEdgeByOid(collection, this.oid).map(edge -> {
+          return new RemoveParentEvent(go.getUid(), go.getType().getCode(), edge.getObjectValue(DefaultAttribute.UID.getName()), hierarchyType.getCode());
+        });
+      }
+      else if (this.action.equals(UpdateActionType.UPDATE))
+      {
+        return this.getEdgeByOid(collection, this.oid).map(edge -> {
+          String edgeUid = edge.getObjectValue(DefaultAttribute.UID.getName());
+
+          String parentTypeCode = null;
+          String parentCode = null;
+
+          if (this.newValue != null && !this.newValue.isJsonNull())
+          {
+            String[] newValueSplit = ( this.getNewValue().getAsString() ).split(VALUE_SPLIT_TOKEN);
+            parentTypeCode = newValueSplit[0];
+            parentCode = newValueSplit[1];
+          }
+
+          return new UpdateParentEvent(go.getUid(), go.getType().getCode(), edgeUid, hierarchyType.getCode(), this.newStartDate, this.newEndDate, parentCode, parentTypeCode);
+        });
+      }
+      else if (this.action.equals(UpdateActionType.CREATE))
+      {
+        final VertexServerGeoObject newParent = this.getNewValueAsGO();
+
+        if (newParent == null || this.newStartDate == null || this.newEndDate == null)
+        {
+          throw new InvalidChangeRequestException();
+        }
+
+        EdgeObject edge = go.getEdge(newParent, hierarchyType, this.newStartDate, this.newEndDate);
+
+        if (edge != null)
+        {
+          throw new ExecuteOutOfDateChangeRequestException();
+        }
+
+        return Optional.of(new CreateParentEvent(go.getUid(), go.getType().getCode(), UUID.randomUUID().toString(), hierarchyType.getCode(), this.newStartDate, this.newEndDate, newParent.getCode(), newParent.getType().getCode()));
+      }
+      else
+      {
+        throw new UnsupportedOperationException("Unsupported action type [" + this.action + "].");
+      }
+    }
+
+    return Optional.empty();
+  }
+
 }
