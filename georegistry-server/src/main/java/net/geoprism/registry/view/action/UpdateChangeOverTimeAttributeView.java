@@ -35,31 +35,33 @@ public class UpdateChangeOverTimeAttributeView extends AbstractUpdateAttributeVi
 
   protected UpdateValueOverTimeView[] valuesOverTime;
 
-  @Override
-  public void execute(VertexServerGeoObject go)
-  {
-    String attributeName = this.getAttributeName();
-
-    // This list is intentionally NOT a ValueOverTimeCollection. The reason for
-    // this is because we
-    // DON'T want any of the reordering or splitting logic to happen until AFTER
-    // we have applied
-    // all of the actions. The logic we want to avoid is
-    // ValueOverTimeCollection.calculateStartDates
-    List<ValueOverTime> looseVotc = new ArrayList<ValueOverTime>(go.getValuesOverTime(attributeName));
-
-    for (UpdateValueOverTimeView vot : this.valuesOverTime)
-    {
-      vot.execute(this, go, looseVotc);
-    }
-
-    ValueOverTimeCollection newVotc = new ValueOverTimeCollection();
-    newVotc.addAll(looseVotc);
-
-    this.validateValuesOverTime(newVotc);
-
-    go.setValuesOverTime(attributeName, newVotc);
-  }
+  // @Override
+  // public void execute(VertexServerGeoObject go)
+  // {
+  // String attributeName = this.getAttributeName();
+  //
+  // // This list is intentionally NOT a ValueOverTimeCollection. The reason for
+  // // this is because we
+  // // DON'T want any of the reordering or splitting logic to happen until
+  // AFTER
+  // // we have applied
+  // // all of the actions. The logic we want to avoid is
+  // // ValueOverTimeCollection.calculateStartDates
+  // List<ValueOverTime> looseVotc = new
+  // ArrayList<ValueOverTime>(go.getValuesOverTime(attributeName));
+  //
+  // for (UpdateValueOverTimeView vot : this.valuesOverTime)
+  // {
+  // vot.execute(this, go, looseVotc);
+  // }
+  //
+  // ValueOverTimeCollection newVotc = new ValueOverTimeCollection();
+  // newVotc.addAll(looseVotc);
+  //
+  // this.validateValuesOverTime(newVotc);
+  //
+  // go.setValuesOverTime(attributeName, newVotc);
+  // }
 
   public void validateValuesOverTime(ValueOverTimeCollection votc)
   {
@@ -113,9 +115,9 @@ public class UpdateChangeOverTimeAttributeView extends AbstractUpdateAttributeVi
   }
 
   @Override
-  public List<GeoObjectEvent> build(VertexServerGeoObject go)
+  public ActionEventBuilder build(ActionEventBuilder builder)
   {
-    LinkedList<GeoObjectEvent> commands = new LinkedList<GeoObjectEvent>();
+    VertexServerGeoObject go = builder.getOrThrow();
 
     String attributeName = this.getAttributeName();
 
@@ -129,14 +131,7 @@ public class UpdateChangeOverTimeAttributeView extends AbstractUpdateAttributeVi
 
     for (UpdateValueOverTimeView vot : this.valuesOverTime)
     {
-      if (vot.isEdge())
-      {
-        vot.build(this, go, looseVotc).ifPresent(commands::add);
-      }
-      else
-      {
-        vot.execute(this, go, looseVotc);
-      }
+      vot.build(builder, this, looseVotc);
     }
 
     ValueOverTimeCollection newVotc = new ValueOverTimeCollection();
@@ -145,8 +140,8 @@ public class UpdateChangeOverTimeAttributeView extends AbstractUpdateAttributeVi
     this.validateValuesOverTime(newVotc);
 
     go.setValuesOverTime(attributeName, newVotc);
-    
-    return commands;
+
+    return builder;
   }
 
 }

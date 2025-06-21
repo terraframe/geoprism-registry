@@ -35,15 +35,15 @@ import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.action.ActionJsonAdapters;
-import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.permission.ChangeRequestPermissionService;
 import net.geoprism.registry.service.permission.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.service.permission.GPRGeoObjectPermissionService;
 import net.geoprism.registry.service.permission.GeoObjectPermissionServiceIF;
-import net.geoprism.registry.service.business.ServiceFactory;
-import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
+import net.geoprism.registry.view.action.ActionEventBuilder;
 
 public class CreateGeoObjectAction extends CreateGeoObjectActionBase
 {
@@ -55,23 +55,27 @@ public class CreateGeoObjectAction extends CreateGeoObjectActionBase
   {
     super();
   }
-
+  
   @Override
-  public void execute()
+  public void execute(ActionEventBuilder builder)
   {
     GeoObjectBusinessServiceIF objectService = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
 
     String sJson = this.getGeoObjectJson();
 
     GeoObjectOverTime geoObject = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), sJson);
+    
+    VertexServerGeoObject object = (VertexServerGeoObject) objectService.fromDTO(geoObject, true);
+    
+    builder.setObject(object, true, this.getParentJson());    
 
-    objectService.apply(geoObject, true, false);
-
-    ServerGeoObjectIF child = objectService.getGeoObjectByCode(geoObject.getCode(), geoObject.getType().getCode());
-
-    ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(child.getType(), this.getParentJson());
-
-    objectService.setParents(child, ptnOt);
+//    objectService.apply(geoObject, true, false);
+//
+//    ServerGeoObjectIF child = objectService.getGeoObjectByCode(geoObject.getCode(), geoObject.getType().getCode());
+//
+//    ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(child.getType(), this.getParentJson());
+//
+//    objectService.setParents(child, ptnOt);
   }
 
   @Override

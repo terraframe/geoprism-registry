@@ -20,10 +20,10 @@ package net.geoprism.registry.view.action;
 
 import java.util.Date;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.SortedSet;
 
 import com.runwaysdk.business.graph.EdgeObject;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 
 import net.geoprism.registry.action.InvalidChangeRequestException;
@@ -46,21 +46,22 @@ public class UpdateParentView extends UpdateChangeOverTimeAttributeView
     this.hierarchyCode = hierarchyCode;
   }
 
-  @Override
-  public void execute(VertexServerGeoObject go)
-  {
-    final ServerHierarchyType hierarchyType = ServerHierarchyType.get(this.getHierarchyCode());
-    SortedSet<EdgeObject> looseVotc = go.getEdges(hierarchyType);
-
-    for (UpdateValueOverTimeView vot : this.valuesOverTime)
-    {
-      ( (UpdateParentValueOverTimeView) vot ).executeParent(this, go, looseVotc);
-    }
-
-    // The edge work has already been applied at this point. We just need to
-    // validate what's in the DB
-    this.validateValuesOverTime(looseVotc);
-  }
+  // @Override
+  // public void execute(VertexServerGeoObject go)
+  // {
+  // final ServerHierarchyType hierarchyType =
+  // ServerHierarchyType.get(this.getHierarchyCode());
+  // SortedSet<EdgeObject> looseVotc = go.getEdges(hierarchyType);
+  //
+  // for (UpdateValueOverTimeView vot : this.valuesOverTime)
+  // {
+  // ( (UpdateParentValueOverTimeView) vot ).executeParent(this, go, looseVotc);
+  // }
+  //
+  // // The edge work has already been applied at this point. We just need to
+  // // validate what's in the DB
+  // this.validateValuesOverTime(looseVotc);
+  // }
 
   public void validateValuesOverTime(SortedSet<EdgeObject> votc)
   {
@@ -117,18 +118,18 @@ public class UpdateParentView extends UpdateChangeOverTimeAttributeView
   }
 
   @Override
-  public List<GeoObjectEvent> build(VertexServerGeoObject go)
+  public ActionEventBuilder build(ActionEventBuilder builder)
   {
-    LinkedList<GeoObjectEvent> Events = new LinkedList<GeoObjectEvent>();
+    VertexServerGeoObject go = builder.getOrThrow();
 
     final ServerHierarchyType hierarchyType = ServerHierarchyType.get(this.getHierarchyCode());
     SortedSet<EdgeObject> looseVotc = go.getEdges(hierarchyType);
 
     for (UpdateValueOverTimeView vot : this.valuesOverTime)
     {
-      ( (UpdateParentValueOverTimeView) vot ).buildParent(this, go, looseVotc).ifPresent(Events::add);
+      ( (UpdateParentValueOverTimeView) vot ).buildParent(builder, this, looseVotc);
     }
 
-    return Events;
+    return builder;
   }
 }

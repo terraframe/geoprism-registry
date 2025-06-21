@@ -8,19 +8,19 @@ import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import net.geoprism.registry.axon.event.GeoObjectEvent;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
-public class UpdateGeoObjectCommand
+public class CompositeGeoObjectCommand
 {
   @TargetAggregateIdentifier
   private String               uid;
 
   private List<GeoObjectEvent> events;
 
-  public UpdateGeoObjectCommand()
+  public CompositeGeoObjectCommand()
   {
     super();
   }
 
-  public UpdateGeoObjectCommand(String uid, List<GeoObjectEvent> events)
+  public CompositeGeoObjectCommand(String uid, List<GeoObjectEvent> events)
   {
     this.uid = uid;
     this.events = events;

@@ -18,18 +18,11 @@
  */
 package net.geoprism.registry.view.action;
 
-import java.util.List;
-
-import net.geoprism.registry.axon.event.GeoObjectEvent;
-import net.geoprism.registry.model.graph.VertexServerGeoObject;
-
 abstract public class AbstractUpdateAttributeView
 {
   private String attributeName;
 
-  public abstract void execute(VertexServerGeoObject go);
-
-  public abstract List<GeoObjectEvent> build(VertexServerGeoObject go);
+  public abstract ActionEventBuilder build(ActionEventBuilder builder);
 
   public String getAttributeName()
   {

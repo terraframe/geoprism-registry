@@ -41,6 +41,7 @@ import net.geoprism.registry.service.permission.ChangeRequestPermissionService.C
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime.ServerParentTreeNodeOverTimeDeserializer;
+import net.geoprism.registry.view.action.ActionEventBuilder;
 
 public class SetParentAction extends SetParentActionBase
 {
@@ -66,17 +67,20 @@ public class SetParentAction extends SetParentActionBase
       return null;
     }
   }
-
+  
   @Override
-  public void execute()
+  public void execute(ActionEventBuilder builder)
   {
-    GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
-
-    ServerGeoObjectIF child = service.getGeoObjectByCode(this.getChildCode(), this.getChildTypeCode());
-
-    ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(child.getType(), this.getJson());
-
-    service.setParents(child, ptnOt);
+    builder.getObject().ifPresent(obj -> builder.setParentJson(this.getJson()));
+    
+//
+//    GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
+//    
+//    service.getGeoObjectByCode(this.getChildCode(), this.getChildTypeCode());
+//    
+//    ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(child.getType(), this.getJson());
+//
+//    service.setParents(child, ptnOt);
   }
 
   @Override

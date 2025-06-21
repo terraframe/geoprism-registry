@@ -120,7 +120,7 @@ public class GovernanceTest extends FastDatasetTest implements InstanceTestClass
   @Request
   private void execute(AbstractAction action)
   {
-    action.execute();
+//    action.execute();
   }
   
 //

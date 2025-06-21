@@ -20,151 +20,157 @@ package net.geoprism.registry.view.action;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
-import java.util.SortedSet;
 import java.util.UUID;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 
 import com.runwaysdk.business.graph.EdgeObject;
-import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 
 import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
 import net.geoprism.registry.action.InvalidChangeRequestException;
 import net.geoprism.registry.axon.event.CreateParentEvent;
-import net.geoprism.registry.axon.event.GeoObjectEvent;
 import net.geoprism.registry.axon.event.RemoveParentEvent;
 import net.geoprism.registry.axon.event.UpdateParentEvent;
 import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
 public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
 {
   public static final String VALUE_SPLIT_TOKEN = "_~VST~_";
 
-  @Override
-  public void execute(UpdateChangeOverTimeAttributeView cotView, VertexServerGeoObject go, List<ValueOverTime> looseVotc)
-  {
-    throw new UnsupportedOperationException();
-  }
+//  @Override
+//  public void execute(UpdateChangeOverTimeAttributeView cotView, VertexServerGeoObject go, List<ValueOverTime> looseVotc)
+//  {
+//    throw new UnsupportedOperationException();
+//  }
 
-  public void executeParent(UpdateChangeOverTimeAttributeView cotView, VertexServerGeoObject go, SortedSet<EdgeObject> looseVotc)
-  {
-    if (cotView instanceof UpdateParentView)
-    {
-      UpdateParentView parentView = (UpdateParentView) cotView;
-      final ServerHierarchyType hierarchyType = ServerHierarchyType.get(parentView.getHierarchyCode());
-
-      if (this.action.equals(UpdateActionType.DELETE))
-      {
-        EdgeObject edge = this.getEdgeByOid(looseVotc, this.oid).orElseThrow(() -> {
-          throw new ExecuteOutOfDateChangeRequestException();
-        });
-
-        edge.delete();
-        looseVotc.remove(edge);
-      }
-      else if (this.action.equals(UpdateActionType.UPDATE))
-      {
-        EdgeObject edge = this.getEdgeByOid(looseVotc, this.oid).orElseThrow(() -> {
-          throw new ExecuteOutOfDateChangeRequestException();
-        });
-
-        final VertexServerGeoObject newParent = this.getNewValueAsGO();
-        final String parentCode = newParent == null ? null : newParent.getCode();
-
-        String currentCode = edge.getParent().getObjectValue(DefaultAttribute.CODE.getName());
-
-        // Parent values can only be changed by deleting the current edge and
-        // creating a new one unfortunately
-        if (this.newValue != null && ( !currentCode.equals(parentCode) ))
-        {
-          Date _newStartDate = this.newStartDate;
-          Date _newEndDate = this.newEndDate;
-
-          if (_newStartDate == null)
-          {
-            _newStartDate = edge.getObjectValue(GeoVertex.START_DATE);
-          }
-
-          if (_newEndDate == null)
-          {
-            _newEndDate = edge.getObjectValue(GeoVertex.END_DATE);
-          }
-
-          edge.delete();
-          looseVotc.remove(edge);
-
-          if (newParent != null)
-          {
-            // We unfortunately can't use this method because we have to bypass
-            // the votc reordering and validation
-            // go.addParent(newParent, hierarchyType, _newStartDate,
-            // _newEndDate);
-
-            EdgeObject newEdge = go.getVertex().addParent( ( (VertexComponent) newParent ).getVertex(), hierarchyType.getObjectEdge());
-            newEdge.setValue(GeoVertex.START_DATE, _newStartDate);
-            newEdge.setValue(GeoVertex.END_DATE, _newEndDate);
-            newEdge.apply();
-
-            looseVotc.add(newEdge);
-          }
-
-          return;
-        }
-
-        if (newStartDate != null)
-        {
-          edge.setValue(GeoVertex.START_DATE, newStartDate);
-        }
-
-        if (newEndDate != null)
-        {
-          edge.setValue(GeoVertex.END_DATE, newEndDate);
-        }
-
-        edge.apply();
-      }
-      else if (this.action.equals(UpdateActionType.CREATE))
-      {
-        final VertexServerGeoObject newParent = this.getNewValueAsGO();
-
-        if (newParent == null || this.newStartDate == null || this.newEndDate == null)
-        {
-          throw new InvalidChangeRequestException();
-        }
-
-        EdgeObject edge = go.getEdge(newParent, hierarchyType, this.newStartDate, this.newEndDate);
-
-        if (edge != null)
-        {
-          ExecuteOutOfDateChangeRequestException ex = new ExecuteOutOfDateChangeRequestException();
-          throw ex;
-        }
-
-        // We unfortunately can't use this method because we have to bypass the
-        // votc reordering and validation
-        // go.addParent(newParent, hierarchyType, this.newStartDate,
-        // this.newEndDate);
-
-        EdgeObject newEdge = go.getVertex().addParent( ( (VertexComponent) newParent ).getVertex(), hierarchyType.getObjectEdge());
-        newEdge.setValue(GeoVertex.START_DATE, this.newStartDate);
-        newEdge.setValue(GeoVertex.END_DATE, this.newEndDate);
-        newEdge.apply();
-
-        looseVotc.add(newEdge);
-      }
-      else
-      {
-        throw new UnsupportedOperationException("Unsupported action type [" + this.action + "].");
-      }
-    }
-  }
+  // public void executeParent(UpdateChangeOverTimeAttributeView cotView,
+  // VertexServerGeoObject go, SortedSet<EdgeObject> looseVotc)
+  // {
+  // if (cotView instanceof UpdateParentView)
+  // {
+  // UpdateParentView parentView = (UpdateParentView) cotView;
+  // final ServerHierarchyType hierarchyType =
+  // ServerHierarchyType.get(parentView.getHierarchyCode());
+  //
+  // if (this.action.equals(UpdateActionType.DELETE))
+  // {
+  // EdgeObject edge = this.getEdgeByOid(looseVotc, this.oid).orElseThrow(() ->
+  // {
+  // throw new ExecuteOutOfDateChangeRequestException();
+  // });
+  //
+  // edge.delete();
+  // looseVotc.remove(edge);
+  // }
+  // else if (this.action.equals(UpdateActionType.UPDATE))
+  // {
+  // EdgeObject edge = this.getEdgeByOid(looseVotc, this.oid).orElseThrow(() ->
+  // {
+  // throw new ExecuteOutOfDateChangeRequestException();
+  // });
+  //
+  // final VertexServerGeoObject newParent = this.getNewValueAsGO();
+  // final String parentCode = newParent == null ? null : newParent.getCode();
+  //
+  // String currentCode =
+  // edge.getParent().getObjectValue(DefaultAttribute.CODE.getName());
+  //
+  // // Parent values can only be changed by deleting the current edge and
+  // // creating a new one unfortunately
+  // if (this.newValue != null && ( !currentCode.equals(parentCode) ))
+  // {
+  // Date _newStartDate = this.newStartDate;
+  // Date _newEndDate = this.newEndDate;
+  //
+  // if (_newStartDate == null)
+  // {
+  // _newStartDate = edge.getObjectValue(GeoVertex.START_DATE);
+  // }
+  //
+  // if (_newEndDate == null)
+  // {
+  // _newEndDate = edge.getObjectValue(GeoVertex.END_DATE);
+  // }
+  //
+  // edge.delete();
+  // looseVotc.remove(edge);
+  //
+  // if (newParent != null)
+  // {
+  // // We unfortunately can't use this method because we have to bypass
+  // // the votc reordering and validation
+  // // go.addParent(newParent, hierarchyType, _newStartDate,
+  // // _newEndDate);
+  //
+  // EdgeObject newEdge = go.getVertex().addParent( ( (VertexComponent)
+  // newParent ).getVertex(), hierarchyType.getObjectEdge());
+  // newEdge.setValue(GeoVertex.START_DATE, _newStartDate);
+  // newEdge.setValue(GeoVertex.END_DATE, _newEndDate);
+  // newEdge.apply();
+  //
+  // looseVotc.add(newEdge);
+  // }
+  //
+  // return;
+  // }
+  //
+  // if (newStartDate != null)
+  // {
+  // edge.setValue(GeoVertex.START_DATE, newStartDate);
+  // }
+  //
+  // if (newEndDate != null)
+  // {
+  // edge.setValue(GeoVertex.END_DATE, newEndDate);
+  // }
+  //
+  // edge.apply();
+  // }
+  // else if (this.action.equals(UpdateActionType.CREATE))
+  // {
+  // final VertexServerGeoObject newParent = this.getNewValueAsGO();
+  //
+  // if (newParent == null || this.newStartDate == null || this.newEndDate ==
+  // null)
+  // {
+  // throw new InvalidChangeRequestException();
+  // }
+  //
+  // EdgeObject edge = go.getEdge(newParent, hierarchyType, this.newStartDate,
+  // this.newEndDate);
+  //
+  // if (edge != null)
+  // {
+  // ExecuteOutOfDateChangeRequestException ex = new
+  // ExecuteOutOfDateChangeRequestException();
+  // throw ex;
+  // }
+  //
+  // // We unfortunately can't use this method because we have to bypass the
+  // // votc reordering and validation
+  // // go.addParent(newParent, hierarchyType, this.newStartDate,
+  // // this.newEndDate);
+  //
+  // EdgeObject newEdge = go.getVertex().addParent( ( (VertexComponent)
+  // newParent ).getVertex(), hierarchyType.getObjectEdge());
+  // newEdge.setValue(GeoVertex.START_DATE, this.newStartDate);
+  // newEdge.setValue(GeoVertex.END_DATE, this.newEndDate);
+  // newEdge.apply();
+  //
+  // looseVotc.add(newEdge);
+  // }
+  // else
+  // {
+  // throw new UnsupportedOperationException("Unsupported action type [" +
+  // this.action + "].");
+  // }
+  // }
+  // }
 
   protected Optional<EdgeObject> getEdgeByOid(Collection<EdgeObject> edges, String oid)
   {
@@ -204,22 +210,23 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
     return true;
   }
 
-  public Optional<GeoObjectEvent> buildParent(UpdateChangeOverTimeAttributeView cotView, VertexServerGeoObject go, Collection<EdgeObject> collection)
+  public void buildParent(ActionEventBuilder builder, UpdateChangeOverTimeAttributeView cotView, Collection<EdgeObject> collection)
   {
     if (cotView instanceof UpdateParentView)
     {
+      VertexServerGeoObject go = builder.getOrThrow();
       UpdateParentView parentView = (UpdateParentView) cotView;
       final ServerHierarchyType hierarchyType = ServerHierarchyType.get(parentView.getHierarchyCode());
 
       if (this.action.equals(UpdateActionType.DELETE))
       {
-        return this.getEdgeByOid(collection, this.oid).map(edge -> {
+        builder.addEvent(this.getEdgeByOid(collection, this.oid).map(edge -> {
           return new RemoveParentEvent(go.getUid(), go.getType().getCode(), edge.getObjectValue(DefaultAttribute.UID.getName()), hierarchyType.getCode());
-        });
+        }));
       }
       else if (this.action.equals(UpdateActionType.UPDATE))
       {
-        return this.getEdgeByOid(collection, this.oid).map(edge -> {
+        builder.addEvent(this.getEdgeByOid(collection, this.oid).map(edge -> {
           String edgeUid = edge.getObjectValue(DefaultAttribute.UID.getName());
 
           String parentTypeCode = null;
@@ -233,7 +240,7 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
           }
 
           return new UpdateParentEvent(go.getUid(), go.getType().getCode(), edgeUid, hierarchyType.getCode(), this.newStartDate, this.newEndDate, parentCode, parentTypeCode);
-        });
+        }));
       }
       else if (this.action.equals(UpdateActionType.CREATE))
       {
@@ -250,16 +257,14 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
         {
           throw new ExecuteOutOfDateChangeRequestException();
         }
-
-        return Optional.of(new CreateParentEvent(go.getUid(), go.getType().getCode(), UUID.randomUUID().toString(), hierarchyType.getCode(), this.newStartDate, this.newEndDate, newParent.getCode(), newParent.getType().getCode()));
+        
+        builder.addEvent(new CreateParentEvent(go.getUid(), go.getType().getCode(), UUID.randomUUID().toString(), hierarchyType.getCode(), this.newStartDate, this.newEndDate, newParent.getCode(), newParent.getType().getCode()));
       }
       else
       {
         throw new UnsupportedOperationException("Unsupported action type [" + this.action + "].");
       }
     }
-
-    return Optional.empty();
   }
 
 }

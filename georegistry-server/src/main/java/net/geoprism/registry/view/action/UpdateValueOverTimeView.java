@@ -20,7 +20,6 @@ package net.geoprism.registry.view.action;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
@@ -52,7 +51,6 @@ import com.runwaysdk.localization.LocalizationFacade;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
 import net.geoprism.registry.action.InvalidChangeRequestException;
-import net.geoprism.registry.axon.event.GeoObjectEvent;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -87,102 +85,97 @@ public class UpdateValueOverTimeView
   @JsonAdapter(RegistryJsonTimeFormatter.class)
   protected Date             oldEndDate;
 
-  /*
-   * You should NOT be directly setting values on the VOTC contained within the
-   * GeoObject here. Use the looseVotc instead. For reasons why, {{@see
-   * UpdateChangeOverTimeAttributeView.execute}}
-   */
-  public void execute(UpdateChangeOverTimeAttributeView cotView, VertexServerGeoObject go, List<ValueOverTime> looseVotc)
+  // /*
+  // * You should NOT be directly setting values on the VOTC contained within
+  // the
+  // * GeoObject here. Use the looseVotc instead. For reasons why, {{@see
+  // * UpdateChangeOverTimeAttributeView.execute}}
+  // */
+  // public void execute(UpdateChangeOverTimeAttributeView cotView,
+  // VertexServerGeoObject go, List<ValueOverTime> looseVotc)
+  // {
+  // if (this.action.equals(UpdateActionType.DELETE))
+  // {
+  // ValueOverTime vot = this.getValueByOid(looseVotc, this.getOid());
+  //
+  // if (vot == null)
+  // {
+  // ExecuteOutOfDateChangeRequestException ex = new
+  // ExecuteOutOfDateChangeRequestException();
+  // throw ex;
+  // }
+  //
+  // looseVotc.remove(vot);
+  // }
+  // else if (this.action.equals(UpdateActionType.UPDATE))
+  // {
+  // ValueOverTime vot = this.getValueByOid(looseVotc, this.getOid());
+  //
+  // if (vot == null)
+  // {
+  // ExecuteOutOfDateChangeRequestException ex = new
+  // ExecuteOutOfDateChangeRequestException();
+  // throw ex;
+  // }
+  //
+  // if (this.newValue == null && this.newStartDate == null && this.newEndDate
+  // == null)
+  // {
+  // throw new InvalidChangeRequestException();
+  // }
+  //
+  // if (newStartDate != null)
+  // {
+  // vot.setStartDate(newStartDate);
+  // }
+  //
+  // if (newEndDate != null)
+  // {
+  // vot.setEndDate(newEndDate);
+  // }
+  //
+  // this.persistValue(vot, cotView, go, looseVotc);
+  // }
+  // else if (this.action.equals(UpdateActionType.CREATE))
+  // {
+  // ValueOverTime vot = this.getValueByDate(looseVotc, this.newStartDate,
+  // this.newEndDate);
+  //
+  // if (vot != null)
+  // {
+  // ExecuteOutOfDateChangeRequestException ex = new
+  // ExecuteOutOfDateChangeRequestException();
+  // throw ex;
+  // }
+  //
+  // if (this.newValue == null || this.newStartDate == null || this.newEndDate
+  // == null)
+  // {
+  // throw new InvalidChangeRequestException();
+  // }
+  //
+  // this.persistValue(null, cotView, go, looseVotc);
+  // }
+  // else
+  // {
+  // throw new UnsupportedOperationException("Unsupported action type [" +
+  // this.action + "].");
+  // }
+  // }
+
+  protected Optional<ValueOverTime> getValueByOid(Collection<ValueOverTime> collection, String oid)
   {
-    if (this.action.equals(UpdateActionType.DELETE))
-    {
-      ValueOverTime vot = this.getValueByOid(looseVotc, this.getOid());
-
-      if (vot == null)
-      {
-        ExecuteOutOfDateChangeRequestException ex = new ExecuteOutOfDateChangeRequestException();
-        throw ex;
-      }
-
-      looseVotc.remove(vot);
-    }
-    else if (this.action.equals(UpdateActionType.UPDATE))
-    {
-      ValueOverTime vot = this.getValueByOid(looseVotc, this.getOid());
-
-      if (vot == null)
-      {
-        ExecuteOutOfDateChangeRequestException ex = new ExecuteOutOfDateChangeRequestException();
-        throw ex;
-      }
-
-      if (this.newValue == null && this.newStartDate == null && this.newEndDate == null)
-      {
-        throw new InvalidChangeRequestException();
-      }
-
-      if (newStartDate != null)
-      {
-        vot.setStartDate(newStartDate);
-      }
-
-      if (newEndDate != null)
-      {
-        vot.setEndDate(newEndDate);
-      }
-
-      this.persistValue(vot, cotView, go, looseVotc);
-    }
-    else if (this.action.equals(UpdateActionType.CREATE))
-    {
-      ValueOverTime vot = this.getValueByDate(looseVotc, this.newStartDate, this.newEndDate);
-
-      if (vot != null)
-      {
-        ExecuteOutOfDateChangeRequestException ex = new ExecuteOutOfDateChangeRequestException();
-        throw ex;
-      }
-
-      if (this.newValue == null || this.newStartDate == null || this.newEndDate == null)
-      {
-        throw new InvalidChangeRequestException();
-      }
-
-      this.persistValue(null, cotView, go, looseVotc);
-    }
-    else
-    {
-      throw new UnsupportedOperationException("Unsupported action type [" + this.action + "].");
-    }
+    return collection.stream().filter(vot -> vot.getOid().equals(oid)).findFirst();
   }
 
-  protected ValueOverTime getValueByOid(List<ValueOverTime> looseVotc, String oid)
+  protected Optional<ValueOverTime> getValueByDate(Collection<ValueOverTime> collection, Date startDate, Date endDate)
   {
-    for (ValueOverTime vot : looseVotc)
-    {
-      if (vot.getOid().equals(oid))
-      {
-        return vot;
-      }
-    }
-
-    return null;
+    return collection.stream().filter(vt -> {
+      return vt.getStartDate().equals(startDate) && vt.getEndDate().equals(endDate);
+    }).findFirst();
   }
 
-  protected ValueOverTime getValueByDate(List<ValueOverTime> looseVotc, Date startDate, Date endDate)
-  {
-    for (ValueOverTime vt : looseVotc)
-    {
-      if (vt.getStartDate().equals(startDate) && vt.getEndDate().equals(endDate))
-      {
-        return vt;
-      }
-    }
-
-    return null;
-  }
-
-  private void persistValue(ValueOverTime vot, UpdateChangeOverTimeAttributeView cotView, VertexServerGeoObject go, List<ValueOverTime> looseVotc)
+  private void persistValue(ValueOverTime vot, UpdateChangeOverTimeAttributeView cotView, VertexServerGeoObject go, Collection<ValueOverTime> looseVotc)
   {
     if (this.newValue == null)
     {
@@ -473,8 +466,55 @@ public class UpdateValueOverTimeView
     return false;
   }
 
-  public Optional<GeoObjectEvent> build(UpdateChangeOverTimeAttributeView cotView, VertexServerGeoObject go, Collection<ValueOverTime> collection)
+  public ActionEventBuilder build(ActionEventBuilder builder, UpdateChangeOverTimeAttributeView cotView, Collection<ValueOverTime> collection)
   {
-    return Optional.empty();
+    VertexServerGeoObject go = builder.getOrThrow(true);
+    
+    if (this.action.equals(UpdateActionType.DELETE))
+    {
+      ValueOverTime vot = this.getValueByOid(collection, this.getOid()).orElseThrow(() -> new ExecuteOutOfDateChangeRequestException());
+
+      collection.remove(vot);
+    }
+    else if (this.action.equals(UpdateActionType.UPDATE))
+    {
+      ValueOverTime vot = this.getValueByOid(collection, this.getOid()).orElseThrow(() -> new ExecuteOutOfDateChangeRequestException());
+
+      if (this.newValue == null && this.newStartDate == null && this.newEndDate == null)
+      {
+        throw new InvalidChangeRequestException();
+      }
+
+      if (newStartDate != null)
+      {
+        vot.setStartDate(newStartDate);
+      }
+
+      if (newEndDate != null)
+      {
+        vot.setEndDate(newEndDate);
+      }
+
+      this.persistValue(vot, cotView, go, collection);
+    }
+    else if (this.action.equals(UpdateActionType.CREATE))
+    {
+      this.getValueByDate(collection, this.newStartDate, this.newEndDate).ifPresent(vot -> {
+        throw new ExecuteOutOfDateChangeRequestException();
+      });
+
+      if (this.newValue == null || this.newStartDate == null || this.newEndDate == null)
+      {
+        throw new InvalidChangeRequestException();
+      }
+
+      this.persistValue(null, cotView, go, collection);
+    }
+    else
+    {
+      throw new UnsupportedOperationException("Unsupported action type [" + this.action + "].");
+    }
+
+    return builder;
   }
 }

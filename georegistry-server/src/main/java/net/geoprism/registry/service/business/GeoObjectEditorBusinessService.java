@@ -44,7 +44,7 @@ import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
 import net.geoprism.registry.axon.command.CreateGeoObjectCommand;
-import net.geoprism.registry.axon.command.UpdateGeoObjectCommand;
+import net.geoprism.registry.axon.command.CompositeGeoObjectCommand;
 import net.geoprism.registry.axon.event.ApplyGeoObjectEvent;
 import net.geoprism.registry.axon.event.GeoObjectEvent;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -53,6 +53,7 @@ import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.permission.RolePermissionService;
 import net.geoprism.registry.service.request.LocaleSerializer;
 import net.geoprism.registry.view.action.AbstractUpdateAttributeView;
+import net.geoprism.registry.view.action.ActionEventBuilder;
 import net.geoprism.registry.view.action.UpdateAttributeViewJsonAdapters;
 
 @Service
@@ -219,8 +220,9 @@ public class GeoObjectEditorBusinessService
 
   public void executeActions(final ServerGeoObjectType type, final VertexServerGeoObject go, final JsonArray jaActions, final String listId)
   {
-    List<GeoObjectEvent> list = new LinkedList<GeoObjectEvent>();
-
+    ActionEventBuilder builder = new ActionEventBuilder();
+    builder.setObject(go);
+    
     for (int i = 0; i < jaActions.size(); ++i)
     {
       JsonObject action = jaActions.get(i).getAsJsonObject();
@@ -230,14 +232,10 @@ public class GeoObjectEditorBusinessService
 
       AbstractUpdateAttributeView view = UpdateAttributeViewJsonAdapters.deserialize(attributeDiff.toString(), attributeName, type);
 
-      list.addAll(view.build(go));
+      view.build(builder);
     }
 
-    GeoObjectOverTime dto = this.service.toGeoObjectOverTime(go);
-    
-    list.add(new ApplyGeoObjectEvent(dto.getUid(), false, false, dto.toJSON().toString(), null));
-
-    this.commandGateway.sendAndWait(new UpdateGeoObjectCommand(dto.getUid(), list));
+    this.commandGateway.sendAndWait(builder.build(this.service));
   }
 
   @Transaction

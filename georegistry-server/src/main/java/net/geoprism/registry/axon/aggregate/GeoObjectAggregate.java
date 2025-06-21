@@ -7,7 +7,7 @@ import org.axonframework.modelling.command.AggregateLifecycle;
 import org.axonframework.spring.stereotype.Aggregate;
 
 import net.geoprism.registry.axon.command.CreateGeoObjectCommand;
-import net.geoprism.registry.axon.command.UpdateGeoObjectCommand;
+import net.geoprism.registry.axon.command.CompositeGeoObjectCommand;
 import net.geoprism.registry.axon.event.ApplyGeoObjectEvent;
 import net.geoprism.registry.axon.event.CreateParentEvent;
 import net.geoprism.registry.axon.event.RemoveParentEvent;
@@ -54,7 +54,7 @@ public class GeoObjectAggregate
   }
 
   @CommandHandler
-  public void on(UpdateGeoObjectCommand command)
+  public void on(CompositeGeoObjectCommand command)
   {
     RunwayTransactionWrapper.run(() -> command.getEvents().stream().forEach(AggregateLifecycle::apply));
   }
