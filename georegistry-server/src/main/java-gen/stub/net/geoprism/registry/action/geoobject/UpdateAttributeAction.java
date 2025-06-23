@@ -23,9 +23,9 @@ import com.google.gson.JsonObject;
 
 import net.geoprism.registry.action.ActionJsonAdapters;
 import net.geoprism.registry.action.ChangeRequest;
+import net.geoprism.registry.axon.event.GeoObjectEventBuilder;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.view.action.AbstractUpdateAttributeView;
-import net.geoprism.registry.view.action.ActionEventBuilder;
 import net.geoprism.registry.view.action.UpdateAttributeViewJsonAdapters;
 
 public class UpdateAttributeAction extends UpdateAttributeActionBase
@@ -38,7 +38,7 @@ public class UpdateAttributeAction extends UpdateAttributeActionBase
   }
 
   @Override
-  public void execute(ActionEventBuilder builder)
+  public void execute(GeoObjectEventBuilder builder)
   {
     ChangeRequest cr = this.getAllRequest().next();
 

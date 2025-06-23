@@ -21,11 +21,13 @@ public abstract class ApplyGeoObjectCommand
   // private ServerParentTreeNodeOverTime parents;
   private String  parents;
 
+  private Boolean refreshWorking;
+
   public ApplyGeoObjectCommand()
   {
   }
 
-  public ApplyGeoObjectCommand(String uid, Boolean isNew, Boolean isImport, String object, String parents)
+  public ApplyGeoObjectCommand(String uid, Boolean isNew, Boolean isImport, String object, String parents, Boolean refreshWorking)
   {
     super();
     this.uid = uid;
@@ -33,9 +35,10 @@ public abstract class ApplyGeoObjectCommand
     this.isImport = isImport;
     this.object = object;
     this.parents = parents;
+    this.refreshWorking = refreshWorking;
   }
 
-  public ApplyGeoObjectCommand(String uid, Boolean isNew, Boolean isImport, GeoObjectOverTime object, ServerParentTreeNodeOverTime parents)
+  public ApplyGeoObjectCommand(String uid, Boolean isNew, Boolean isImport, GeoObjectOverTime object, ServerParentTreeNodeOverTime parents, Boolean refreshWorking)
   {
     super();
     this.uid = uid;
@@ -101,5 +104,15 @@ public abstract class ApplyGeoObjectCommand
   public void setParents(String parents)
   {
     this.parents = parents;
+  }
+
+  public Boolean getRefreshWorking()
+  {
+    return refreshWorking;
+  }
+
+  public void setRefreshWorking(Boolean refreshWorking)
+  {
+    this.refreshWorking = refreshWorking;
   }
 }

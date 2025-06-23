@@ -6,12 +6,10 @@ import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateLifecycle;
 import org.axonframework.spring.stereotype.Aggregate;
 
-import net.geoprism.registry.axon.command.CreateGeoObjectCommand;
+import net.geoprism.registry.axon.command.CompositeCreateGeoObjectCommand;
 import net.geoprism.registry.axon.command.CompositeGeoObjectCommand;
+import net.geoprism.registry.axon.command.CreateGeoObjectCommand;
 import net.geoprism.registry.axon.event.ApplyGeoObjectEvent;
-import net.geoprism.registry.axon.event.CreateParentEvent;
-import net.geoprism.registry.axon.event.RemoveParentEvent;
-import net.geoprism.registry.axon.event.UpdateParentEvent;
 
 @Aggregate
 public class GeoObjectAggregate
@@ -51,6 +49,12 @@ public class GeoObjectAggregate
   public GeoObjectAggregate(CreateGeoObjectCommand command)
   {
     RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new ApplyGeoObjectEvent(command.getUid(), command.getIsNew(), command.getIsImport(), command.getObject(), command.getParents())));
+  }
+
+  @CommandHandler
+  public GeoObjectAggregate(CompositeCreateGeoObjectCommand command)    
+  {
+    RunwayTransactionWrapper.run(() -> command.getEvents().stream().forEach(AggregateLifecycle::apply));
   }
 
   @CommandHandler

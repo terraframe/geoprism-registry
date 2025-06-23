@@ -20,14 +20,13 @@ package net.geoprism.registry.view.action;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 
 import net.geoprism.registry.action.InvalidChangeRequestException;
-import net.geoprism.registry.axon.event.GeoObjectEvent;
+import net.geoprism.registry.axon.event.GeoObjectEventBuilder;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
 public class UpdateChangeOverTimeAttributeView extends AbstractUpdateAttributeView
@@ -115,7 +114,7 @@ public class UpdateChangeOverTimeAttributeView extends AbstractUpdateAttributeVi
   }
 
   @Override
-  public ActionEventBuilder build(ActionEventBuilder builder)
+  public GeoObjectEventBuilder build(GeoObjectEventBuilder builder)
   {
     VertexServerGeoObject go = builder.getOrThrow();
 

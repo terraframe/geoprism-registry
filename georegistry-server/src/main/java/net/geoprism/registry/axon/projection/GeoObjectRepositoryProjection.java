@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.runwaysdk.business.graph.EdgeObject;
+import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 
 import net.geoprism.registry.ListType;
@@ -17,14 +18,16 @@ import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
 import net.geoprism.registry.axon.event.ApplyGeoObjectEvent;
 import net.geoprism.registry.axon.event.CreateParentEvent;
 import net.geoprism.registry.axon.event.RemoveParentEvent;
+import net.geoprism.registry.axon.event.SetExternalIdEvent;
 import net.geoprism.registry.axon.event.UpdateParentEvent;
+import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
@@ -36,7 +39,7 @@ public class GeoObjectRepositoryProjection
   private HierarchyTypeBusinessServiceIF hService;
 
   @Autowired
-  private GeoObjectBusinessServiceIF     service;
+  private GPRGeoObjectBusinessServiceIF  service;
 
   @EventHandler
   @Transaction
@@ -55,10 +58,10 @@ public class GeoObjectRepositoryProjection
       this.service.setParents(object, ptnOt);
     }
 
-    // Update all of the working lists which have this record
-    ListType.getForType(type).forEach(listType -> {
-      listType.getWorkingVersions().forEach(version -> version.publishOrUpdateRecord(object));
-    });
+    if (event.getRefreshWorking())
+    {
+      updateWorkingLists(object, type);
+    }
   }
 
   @EventHandler
@@ -76,6 +79,11 @@ public class GeoObjectRepositoryProjection
     }
 
     edge.delete();
+
+    if (event.getRefreshWorking())
+    {
+      updateWorkingLists(object);
+    }
   }
 
   @EventHandler
@@ -143,6 +151,11 @@ public class GeoObjectRepositoryProjection
 
       edge.apply();
     }
+
+    if (event.getRefreshWorking())
+    {
+      updateWorkingLists(object);
+    }
   }
 
   @EventHandler
@@ -153,10 +166,51 @@ public class GeoObjectRepositoryProjection
     ServerHierarchyType hierarchy = this.hService.get(event.getEdgeType());
     VertexServerGeoObject newParent = (VertexServerGeoObject) this.service.getGeoObjectByCode(event.getParentCode(), event.getParentType());
 
-    EdgeObject newEdge = object.getVertex().addParent( ( (VertexComponent) newParent ).getVertex(), hierarchy.getObjectEdge());
-    newEdge.setValue(GeoVertex.START_DATE, event.getStateDate());
-    newEdge.setValue(GeoVertex.END_DATE, event.getEndDate());
-    newEdge.setValue(DefaultAttribute.UID.getName(), event.getEdgeUid());
-    newEdge.apply();
+    if (event.getValidate())
+    {
+      this.service.addParent(object, newParent, hierarchy, event.getStateDate(), event.getEndDate(), event.getEdgeUid());
+    }
+    else
+    {
+      MdEdgeDAOIF mdEdge = hierarchy.getMdEdgeDAO();
+
+      this.service.addParentRaw(object, newParent.getVertex(), mdEdge, event.getStateDate(), event.getEndDate(), event.getEdgeUid());
+    }
+
+    if (event.getRefreshWorking())
+    {
+      updateWorkingLists(object);
+    }
   }
+
+  @EventHandler
+  @Transaction
+  public void setExternalId(SetExternalIdEvent event) throws Exception
+  {
+    ServerGeoObjectIF object = this.service.getGeoObject(event.getUid(), event.getType());
+    String systemId = event.getSystemId();
+
+    ExternalSystem system = ExternalSystem.getByExternalSystemId(systemId);
+
+    this.service.createExternalId(object, system, event.getExternalId(), event.getStrategy());
+
+    if (event.getRefreshWorking())
+    {
+      updateWorkingLists(object);
+    }
+  }
+
+  protected void updateWorkingLists(ServerGeoObjectIF object)
+  {
+    this.updateWorkingLists(object, object.getType());
+  }
+
+  protected void updateWorkingLists(ServerGeoObjectIF object, final ServerGeoObjectType type)
+  {
+    // Update all of the working lists which have this record
+    ListType.getForType(type).forEach(listType -> {
+      listType.getWorkingVersions().forEach(version -> version.publishOrUpdateRecord(object));
+    });
+  }
+
 }

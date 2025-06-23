@@ -36,6 +36,7 @@ import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.action.ActionJsonAdapters;
+import net.geoprism.registry.axon.event.GeoObjectEventBuilder;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
@@ -44,7 +45,6 @@ import net.geoprism.registry.service.permission.ChangeRequestPermissionService;
 import net.geoprism.registry.service.permission.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.service.permission.GPRGeoObjectPermissionService;
 import net.geoprism.registry.service.permission.GeoObjectPermissionServiceIF;
-import net.geoprism.registry.view.action.ActionEventBuilder;
 
 public class UpdateGeoObjectAction extends UpdateGeoObjectActionBase
 {
@@ -58,7 +58,7 @@ public class UpdateGeoObjectAction extends UpdateGeoObjectActionBase
   }
 
   @Override
-  public void execute(ActionEventBuilder builder)
+  public void execute(GeoObjectEventBuilder builder)
   {
     if (builder.getObject().isPresent())
     {
@@ -73,7 +73,7 @@ public class UpdateGeoObjectAction extends UpdateGeoObjectActionBase
     
     VertexServerGeoObject object = (VertexServerGeoObject) service.fromDTO(goTime, false);
     
-    builder.setObject(object, false, null);
+    builder.setObject(object, false);
   }
 
   @Override

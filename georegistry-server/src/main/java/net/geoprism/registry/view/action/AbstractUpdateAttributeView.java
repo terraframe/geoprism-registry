@@ -18,11 +18,13 @@
  */
 package net.geoprism.registry.view.action;
 
+import net.geoprism.registry.axon.event.GeoObjectEventBuilder;
+
 abstract public class AbstractUpdateAttributeView
 {
   private String attributeName;
 
-  public abstract ActionEventBuilder build(ActionEventBuilder builder);
+  public abstract GeoObjectEventBuilder build(GeoObjectEventBuilder builder);
 
   public String getAttributeName()
   {

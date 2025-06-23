@@ -12,14 +12,14 @@ public class CreateGeoObjectCommand extends ApplyGeoObjectCommand
     super();
   }
 
-  public CreateGeoObjectCommand(String uid, Boolean isImport, GeoObjectOverTime object, ServerParentTreeNodeOverTime parents)
+  public CreateGeoObjectCommand(String uid, Boolean isImport, GeoObjectOverTime object, ServerParentTreeNodeOverTime parents, Boolean refreshWorking)
   {
-    super(uid, true, isImport, object, parents);
+    super(uid, true, isImport, object, parents, refreshWorking);
   }
 
-  public CreateGeoObjectCommand(String uid, Boolean isImport, String object, String parents)
+  public CreateGeoObjectCommand(String uid, Boolean isImport, String object, String parents, Boolean refreshWorking)
   {
-    super(uid, true, isImport, object, parents);
+    super(uid, true, isImport, object, parents, refreshWorking);
   }
 
 }

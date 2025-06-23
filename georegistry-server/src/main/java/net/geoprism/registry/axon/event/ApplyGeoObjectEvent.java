@@ -1,6 +1,6 @@
 package net.geoprism.registry.axon.event;
 
-public class ApplyGeoObjectEvent implements GeoObjectEvent
+public class ApplyGeoObjectEvent extends AbstractGeoObjectEvent implements GeoObjectEvent
 {
   private String  uid;
 
@@ -19,6 +19,7 @@ public class ApplyGeoObjectEvent implements GeoObjectEvent
   public ApplyGeoObjectEvent(String uid, Boolean isNew, Boolean isImport, String object, String parents)
   {
     super();
+    
     this.uid = uid;
     this.isNew = isNew;
     this.isImport = isImport;

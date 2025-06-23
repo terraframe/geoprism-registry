@@ -51,6 +51,7 @@ import com.runwaysdk.localization.LocalizationFacade;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
 import net.geoprism.registry.action.InvalidChangeRequestException;
+import net.geoprism.registry.axon.event.GeoObjectEventBuilder;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -466,7 +467,7 @@ public class UpdateValueOverTimeView
     return false;
   }
 
-  public ActionEventBuilder build(ActionEventBuilder builder, UpdateChangeOverTimeAttributeView cotView, Collection<ValueOverTime> collection)
+  public GeoObjectEventBuilder build(GeoObjectEventBuilder builder, UpdateChangeOverTimeAttributeView cotView, Collection<ValueOverTime> collection)
   {
     VertexServerGeoObject go = builder.getOrThrow(true);
     

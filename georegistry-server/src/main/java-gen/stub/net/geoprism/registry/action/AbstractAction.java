@@ -19,7 +19,6 @@
 package net.geoprism.registry.action;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
@@ -27,14 +26,12 @@ import org.json.JSONObject;
 
 import com.google.gson.JsonObject;
 
-import net.geoprism.registry.axon.event.GeoObjectEvent;
-import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.axon.event.GeoObjectEventBuilder;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.permission.ChangeRequestPermissionService;
 import net.geoprism.registry.service.permission.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.service.request.RegistryService;
 import net.geoprism.registry.service.request.RegistryServiceIF;
-import net.geoprism.registry.view.action.ActionEventBuilder;
 
 public abstract class AbstractAction extends AbstractActionBase
 {
@@ -50,7 +47,7 @@ public abstract class AbstractAction extends AbstractActionBase
     this.registry = ServiceFactory.getBean(RegistryServiceIF.class);
   }
 
-  abstract public void execute(ActionEventBuilder builder);
+  abstract public void execute(GeoObjectEventBuilder builder);
 
   public AllGovernanceStatus getGovernanceStatus()
   {

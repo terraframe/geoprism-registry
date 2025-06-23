@@ -33,15 +33,14 @@ import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.action.ActionJsonAdapters;
 import net.geoprism.registry.action.tree.RemoveChildAction;
+import net.geoprism.registry.axon.event.GeoObjectEventBuilder;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.permission.ChangeRequestPermissionService;
 import net.geoprism.registry.service.permission.ChangeRequestPermissionService.ChangeRequestPermissionAction;
-import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime.ServerParentTreeNodeOverTimeDeserializer;
-import net.geoprism.registry.view.action.ActionEventBuilder;
 
 public class SetParentAction extends SetParentActionBase
 {
@@ -69,7 +68,7 @@ public class SetParentAction extends SetParentActionBase
   }
   
   @Override
-  public void execute(ActionEventBuilder builder)
+  public void execute(GeoObjectEventBuilder builder)
   {
     builder.getObject().ifPresent(obj -> builder.setParentJson(this.getJson()));
     

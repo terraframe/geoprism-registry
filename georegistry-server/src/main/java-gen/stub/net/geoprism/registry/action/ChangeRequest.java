@@ -56,6 +56,7 @@ import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.email.SendEmailCommand;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
+import net.geoprism.registry.axon.event.GeoObjectEventBuilder;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -68,7 +69,6 @@ import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.request.EmailServiceIF;
 import net.geoprism.registry.view.JsonSerializable;
-import net.geoprism.registry.view.action.ActionEventBuilder;
 
 public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
 {
@@ -373,12 +373,13 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
 
     if (this.getApprovalStatus().contains(AllGovernanceStatus.PENDING))
     {
-      ActionEventBuilder builder = new ActionEventBuilder();
-      
+      GeoObjectEventBuilder builder = new GeoObjectEventBuilder();
+      builder.setRefreshWorking(true);
+
       ServerGeoObjectType type = ServerGeoObjectType.get(this.getGeoObjectTypeCode());
       List<AbstractAction> actions = this.getOrderedActions();
       Set<AllGovernanceStatus> statuses = new TreeSet<AllGovernanceStatus>();
-      
+
       actions.stream().filter(action -> {
         return action instanceof CreateGeoObjectAction && action.getApprovalStatus().contains(AllGovernanceStatus.PENDING);
       }).findFirst().ifPresentOrElse(action -> {
@@ -386,16 +387,16 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
         action.clearApprovalStatus();
         action.addApprovalStatus(AllGovernanceStatus.ACCEPTED);
         action.apply();
-        
+
         action.execute(builder);
 
-//        events.addAll(action.execute(null));
+        // events.addAll(action.execute(null));
 
-        statuses.add(AllGovernanceStatus.ACCEPTED);                
+        statuses.add(AllGovernanceStatus.ACCEPTED);
       }, () -> {
         VertexServerGeoObject object = new VertexGeoObjectStrategy(type).getGeoObjectByCode(this.getGeoObjectCode());
-        
-        builder.setObject(object, false, null);        
+
+        builder.setObject(object, false);
       });
 
       for (AbstractAction action : actions)

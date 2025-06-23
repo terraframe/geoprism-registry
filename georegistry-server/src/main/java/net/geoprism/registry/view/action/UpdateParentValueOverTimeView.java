@@ -30,6 +30,7 @@ import com.runwaysdk.business.graph.EdgeObject;
 import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
 import net.geoprism.registry.action.InvalidChangeRequestException;
 import net.geoprism.registry.axon.event.CreateParentEvent;
+import net.geoprism.registry.axon.event.GeoObjectEventBuilder;
 import net.geoprism.registry.axon.event.RemoveParentEvent;
 import net.geoprism.registry.axon.event.UpdateParentEvent;
 import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
@@ -210,7 +211,7 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
     return true;
   }
 
-  public void buildParent(ActionEventBuilder builder, UpdateChangeOverTimeAttributeView cotView, Collection<EdgeObject> collection)
+  public void buildParent(GeoObjectEventBuilder builder, UpdateChangeOverTimeAttributeView cotView, Collection<EdgeObject> collection)
   {
     if (cotView instanceof UpdateParentView)
     {
@@ -258,7 +259,7 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
           throw new ExecuteOutOfDateChangeRequestException();
         }
         
-        builder.addEvent(new CreateParentEvent(go.getUid(), go.getType().getCode(), UUID.randomUUID().toString(), hierarchyType.getCode(), this.newStartDate, this.newEndDate, newParent.getCode(), newParent.getType().getCode()));
+        builder.addEvent(new CreateParentEvent(go.getUid(), go.getType().getCode(), UUID.randomUUID().toString(), hierarchyType.getCode(), this.newStartDate, this.newEndDate, newParent.getCode(), newParent.getType().getCode(), true));
       }
       else
       {

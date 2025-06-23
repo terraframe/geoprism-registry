@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -34,6 +34,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
+import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -76,6 +77,7 @@ import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.GeometrySizeException;
 import net.geoprism.registry.GeoregistryProperties;
+import net.geoprism.registry.axon.event.GeoObjectEventBuilder;
 import net.geoprism.registry.etl.InvalidExternalIdException;
 import net.geoprism.registry.etl.ParentReferenceProblem;
 import net.geoprism.registry.etl.RowValidationProblem;
@@ -106,7 +108,6 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
-import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.query.ServerCodeRestriction;
 import net.geoprism.registry.query.ServerExternalIdRestriction;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
@@ -223,7 +224,7 @@ public class GeoObjectImporter implements ObjectImporterIF
 
   protected Map<String, ServerGeoObjectIF> parentCache;
 
-  protected ClassifierVertexCache                classifierCache            = new ClassifierVertexCache();
+  protected ClassifierVertexCache          classifierCache            = new ClassifierVertexCache();
 
   protected static final String            parentConcatToken          = "&";
 
@@ -241,11 +242,14 @@ public class GeoObjectImporter implements ObjectImporterIF
 
   protected GPRGeoObjectBusinessServiceIF  service;
 
+  protected CommandGateway                 commandGateway;
+
   public GeoObjectImporter(GeoObjectImportConfiguration configuration, ImportProgressListenerIF progressListener)
   {
     this.configuration = configuration;
     this.progressListener = progressListener;
     this.service = ServiceFactory.getBean(GPRGeoObjectBusinessServiceIF.class);
+    this.commandGateway = ServiceFactory.getBean(CommandGateway.class);
 
     final int MAX_ENTRIES = 10000; // The size of our parentCache
     this.parentCache = Collections.synchronizedMap(new LinkedHashMap<String, ServerGeoObjectIF>(MAX_ENTRIES + 1, .75F, true)
@@ -608,6 +612,7 @@ public class GeoObjectImporter implements ObjectImporterIF
   @Transaction
   public boolean importRowInTrans(FeatureRow row, RowData data)
   {
+
     boolean imported = false;
 
     // Refresh the session because it might expire on long imports
@@ -802,7 +807,11 @@ public class GeoObjectImporter implements ObjectImporterIF
       data.setNew(isNew);
       data.setParentBuilder(parentBuilder);
 
-      this.service.apply(serverGo, true);
+      GeoObjectEventBuilder builder = new GeoObjectEventBuilder(this.classifierCache);
+      builder.setObject(serverGo, isNew, true);
+      builder.setAttributeUpdate(true);      
+
+      // this.service.apply(serverGo, true);
 
       imported = true;
 
@@ -812,22 +821,12 @@ public class GeoObjectImporter implements ObjectImporterIF
 
         Object value = function.getValue(row);
 
-        this.service.createExternalId(serverGo, this.configuration.getExternalSystem(), String.valueOf(value), this.configuration.getImportStrategy());
+        builder.createExternalId(this.configuration.getExternalSystem(), String.valueOf(value), this.configuration.getImportStrategy());
       }
 
       if (parent != null)
       {
-        if (!isNew)
-        {
-          this.service.addChild(parent, serverGo, this.configuration.getHierarchy(), this.configuration.getStartDate(), this.configuration.getEndDate(), UUID.randomUUID().toString());
-        }
-        else
-        {
-          // If we're a new object, we can speed things up quite a bit here by
-          // just directly applying the edge object since the addChild method
-          // does a lot of unnecessary validation.
-          this.service.addParentRaw(serverGo, ( (VertexServerGeoObject) parent ).getVertex(), this.configuration.getHierarchy().getObjectEdge(), this.configuration.getStartDate(), this.configuration.getEndDate(), UUID.randomUUID().toString());
-        }
+        builder.addParent(parent, this.configuration.getHierarchy(), this.configuration.getStartDate(), this.configuration.getEndDate(), UUID.randomUUID().toString(), !isNew);
       }
       else if (isNew)
       {
@@ -837,6 +836,9 @@ public class GeoObjectImporter implements ObjectImporterIF
         // child.addLink(root,
         // this.configuration.getHierarchy().getEntityType());
       }
+
+      // Execute the commands
+      this.commandGateway.sendAndWait(builder.build(this.service));
 
       // We must ensure that any problems created during the transaction are
       // logged now instead of when the request returns. As such, if any
@@ -1334,27 +1336,28 @@ public class GeoObjectImporter implements ObjectImporterIF
           }
 
           // TODO : Was this merged correctly? I don't know...
-//<<<<<<< HEAD
+          // <<<<<<< HEAD
           entity.setValue(attributeName, classifier.getOid(), startDate, endDate, !validationResult);
-//=======
-//          if (Boolean.TRUE.equals(validationResult))
-//          {
-//            attrClass.setValidate(false);
-//
-//            try
-//            {
-//              attrClass.setValue(classifier, startDate, endDate);
-//            }
-//            finally
-//            {
-//              attrClass.setValidate(true);
-//            }
-//          }
-//          else
-//          {
-//            throw new ClassificationValidationException("Value must be a child of the attribute root");
-//          }
-//>>>>>>> refs/remotes/origin/master
+          // =======
+          // if (Boolean.TRUE.equals(validationResult))
+          // {
+          // attrClass.setValidate(false);
+          //
+          // try
+          // {
+          // attrClass.setValue(classifier, startDate, endDate);
+          // }
+          // finally
+          // {
+          // attrClass.setValidate(true);
+          // }
+          // }
+          // else
+          // {
+          // throw new ClassificationValidationException("Value must be a child
+          // of the attribute root");
+          // }
+          // >>>>>>> refs/remotes/origin/master
         }
       }
       catch (UnknownTermException e)

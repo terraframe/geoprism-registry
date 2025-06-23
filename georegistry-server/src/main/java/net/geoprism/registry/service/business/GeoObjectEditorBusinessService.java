@@ -21,8 +21,6 @@ package net.geoprism.registry.service.business;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.commongeoregistry.adapter.constants.CGRAdapterProperties;
@@ -44,16 +42,13 @@ import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
 import net.geoprism.registry.axon.command.CreateGeoObjectCommand;
-import net.geoprism.registry.axon.command.CompositeGeoObjectCommand;
-import net.geoprism.registry.axon.event.ApplyGeoObjectEvent;
-import net.geoprism.registry.axon.event.GeoObjectEvent;
+import net.geoprism.registry.axon.event.GeoObjectEventBuilder;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.permission.RolePermissionService;
 import net.geoprism.registry.service.request.LocaleSerializer;
 import net.geoprism.registry.view.action.AbstractUpdateAttributeView;
-import net.geoprism.registry.view.action.ActionEventBuilder;
 import net.geoprism.registry.view.action.UpdateAttributeViewJsonAdapters;
 
 @Service
@@ -220,7 +215,8 @@ public class GeoObjectEditorBusinessService
 
   public void executeActions(final ServerGeoObjectType type, final VertexServerGeoObject go, final JsonArray jaActions, final String listId)
   {
-    ActionEventBuilder builder = new ActionEventBuilder();
+    GeoObjectEventBuilder builder = new GeoObjectEventBuilder();
+    builder.setRefreshWorking(true);
     builder.setObject(go);
     
     for (int i = 0; i < jaActions.size(); ++i)
@@ -251,7 +247,7 @@ public class GeoObjectEditorBusinessService
 
     if (permissions.isSRA() || permissions.isRA(orgCode) || permissions.isRM(orgCode, serverGOT))
     {
-      this.commandGateway.sendAndWait(new CreateGeoObjectCommand(timeGO.getUid(), false, sTimeGo, sPtn));
+      this.commandGateway.sendAndWait(new CreateGeoObjectCommand(timeGO.getUid(), false, sTimeGo, sPtn, true));
 
       ServerGeoObjectIF sGO = this.service.getGeoObjectByCode(timeGO.getCode(), timeGO.getType().getCode());
 
