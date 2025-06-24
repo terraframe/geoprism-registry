@@ -2,7 +2,7 @@ package net.geoprism.registry.axon.event;
 
 import java.util.Date;
 
-public class UpdateParentEvent extends AbstractGeoObjectEvent implements GeoObjectEvent
+public class GeoObjectUpdateParentEvent extends AbstractGeoObjectEvent implements GeoObjectEvent
 {
   private String uid;
 
@@ -20,11 +20,11 @@ public class UpdateParentEvent extends AbstractGeoObjectEvent implements GeoObje
 
   private String parentCode;
 
-  public UpdateParentEvent()
+  public GeoObjectUpdateParentEvent()
   {
   }
 
-  public UpdateParentEvent(String uid, String type, String edgeUid, String edgeType, Date stateDate, Date endDate, String parentCode, String parentType)
+  public GeoObjectUpdateParentEvent(String uid, String type, String edgeUid, String edgeType, Date stateDate, Date endDate, String parentCode, String parentType)
   {
     super();
     this.uid = uid;

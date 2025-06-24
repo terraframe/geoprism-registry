@@ -9,8 +9,8 @@ import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
-import net.geoprism.registry.axon.command.CompositeCreateGeoObjectCommand;
-import net.geoprism.registry.axon.command.CompositeGeoObjectCommand;
+import net.geoprism.registry.axon.command.GeoObjectCompositeCreateCommand;
+import net.geoprism.registry.axon.command.GeoObjectCompositeCommand;
 import net.geoprism.registry.etl.upload.ClassifierVertexCache;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.ExternalSystem;
@@ -192,12 +192,12 @@ public class GeoObjectEventBuilder
 
   public void createExternalId(ExternalSystem system, String externalId, ImportStrategy importStrategy)
   {
-    this.events.add(new SetExternalIdEvent(this.getUid(), this.getType(), system.getId(), externalId, importStrategy));
+    this.events.add(new GeoObjectSetExternalIdEvent(this.getUid(), this.getType(), system.getId(), externalId, importStrategy));
   }
 
   public void addParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchy, Date startDate, Date endDate, String edgeUuid, Boolean validate)
   {
-    this.events.add(new CreateParentEvent(this.getUid(), this.getType(), edgeUuid, hierarchy.getCode(), startDate, endDate, parent.getCode(), parent.getType().getCode(), validate));
+    this.events.add(new GeoObjectCreateParentEvent(this.getUid(), this.getType(), edgeUuid, hierarchy.getCode(), startDate, endDate, parent.getCode(), parent.getType().getCode(), validate));
   }
 
   public Object build(GeoObjectBusinessServiceIF service)
@@ -208,7 +208,7 @@ public class GeoObjectEventBuilder
     {
       GeoObjectOverTime dto = service.toGeoObjectOverTime(object, false, this.classifierCache);
 
-      list.add(new ApplyGeoObjectEvent(dto.getUid(), this.isNew, this.isImport, dto.toJSON().toString(), this.parentJson));
+      list.add(new GeoObjectApplyEvent(dto.getUid(), this.isNew, this.isImport, dto.toJSON().toString(), this.parentJson));
     }
 
     list.addAll(events);
@@ -220,10 +220,10 @@ public class GeoObjectEventBuilder
 
     if (this.isNew)
     {
-      return new CompositeCreateGeoObjectCommand(getUid(), list);
+      return new GeoObjectCompositeCreateCommand(getUid(), list);
     }
 
-    return new CompositeGeoObjectCommand(getUid(), list);
+    return new GeoObjectCompositeCommand(getUid(), list);
   }
 
 }

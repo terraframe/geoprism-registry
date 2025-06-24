@@ -29,10 +29,10 @@ import com.runwaysdk.business.graph.EdgeObject;
 
 import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
 import net.geoprism.registry.action.InvalidChangeRequestException;
-import net.geoprism.registry.axon.event.CreateParentEvent;
+import net.geoprism.registry.axon.event.GeoObjectCreateParentEvent;
 import net.geoprism.registry.axon.event.GeoObjectEventBuilder;
-import net.geoprism.registry.axon.event.RemoveParentEvent;
-import net.geoprism.registry.axon.event.UpdateParentEvent;
+import net.geoprism.registry.axon.event.GeoObjectRemoveParentEvent;
+import net.geoprism.registry.axon.event.GeoObjectUpdateParentEvent;
 import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -222,7 +222,7 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
       if (this.action.equals(UpdateActionType.DELETE))
       {
         builder.addEvent(this.getEdgeByOid(collection, this.oid).map(edge -> {
-          return new RemoveParentEvent(go.getUid(), go.getType().getCode(), edge.getObjectValue(DefaultAttribute.UID.getName()), hierarchyType.getCode());
+          return new GeoObjectRemoveParentEvent(go.getUid(), go.getType().getCode(), edge.getObjectValue(DefaultAttribute.UID.getName()), hierarchyType.getCode());
         }));
       }
       else if (this.action.equals(UpdateActionType.UPDATE))
@@ -240,7 +240,7 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
             parentCode = newValueSplit[1];
           }
 
-          return new UpdateParentEvent(go.getUid(), go.getType().getCode(), edgeUid, hierarchyType.getCode(), this.newStartDate, this.newEndDate, parentCode, parentTypeCode);
+          return new GeoObjectUpdateParentEvent(go.getUid(), go.getType().getCode(), edgeUid, hierarchyType.getCode(), this.newStartDate, this.newEndDate, parentCode, parentTypeCode);
         }));
       }
       else if (this.action.equals(UpdateActionType.CREATE))
@@ -259,7 +259,7 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
           throw new ExecuteOutOfDateChangeRequestException();
         }
         
-        builder.addEvent(new CreateParentEvent(go.getUid(), go.getType().getCode(), UUID.randomUUID().toString(), hierarchyType.getCode(), this.newStartDate, this.newEndDate, newParent.getCode(), newParent.getType().getCode(), true));
+        builder.addEvent(new GeoObjectCreateParentEvent(go.getUid(), go.getType().getCode(), UUID.randomUUID().toString(), hierarchyType.getCode(), this.newStartDate, this.newEndDate, newParent.getCode(), newParent.getType().getCode(), true));
       }
       else
       {

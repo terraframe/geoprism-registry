@@ -2,7 +2,7 @@ package net.geoprism.registry.axon.event;
 
 import java.util.Date;
 
-public class CreateParentEvent extends AbstractGeoObjectEvent implements GeoObjectEvent
+public class GeoObjectCreateParentEvent extends AbstractGeoObjectEvent implements GeoObjectEvent
 {
   private String  uid;
 
@@ -22,11 +22,11 @@ public class CreateParentEvent extends AbstractGeoObjectEvent implements GeoObje
 
   private Boolean validate;
 
-  public CreateParentEvent()
+  public GeoObjectCreateParentEvent()
   {
   }
 
-  public CreateParentEvent(String uid, String type, String edgeUid, String edgeType, Date stateDate, Date endDate, String parentCode, String parentType, Boolean validate)
+  public GeoObjectCreateParentEvent(String uid, String type, String edgeUid, String edgeType, Date stateDate, Date endDate, String parentCode, String parentType, Boolean validate)
   {
     super();
 

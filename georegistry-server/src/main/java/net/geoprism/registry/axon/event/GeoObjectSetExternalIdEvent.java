@@ -2,7 +2,7 @@ package net.geoprism.registry.axon.event;
 
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 
-public class SetExternalIdEvent extends AbstractGeoObjectEvent implements GeoObjectEvent
+public class GeoObjectSetExternalIdEvent extends AbstractGeoObjectEvent implements GeoObjectEvent
 {
   private String         uid;
 
@@ -14,11 +14,11 @@ public class SetExternalIdEvent extends AbstractGeoObjectEvent implements GeoObj
 
   private ImportStrategy strategy;
 
-  public SetExternalIdEvent()
+  public GeoObjectSetExternalIdEvent()
   {
   }
 
-  public SetExternalIdEvent(String uid, String type, String systemId, String externalId, ImportStrategy strategy)
+  public GeoObjectSetExternalIdEvent(String uid, String type, String systemId, String externalId, ImportStrategy strategy)
   {
     super();
 

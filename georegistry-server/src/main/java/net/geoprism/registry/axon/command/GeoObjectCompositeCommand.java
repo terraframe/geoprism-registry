@@ -6,19 +6,19 @@ import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
 import net.geoprism.registry.axon.event.GeoObjectEvent;
 
-public class CompositeCreateGeoObjectCommand
+public class GeoObjectCompositeCommand
 {
   @TargetAggregateIdentifier
   private String               uid;
 
   private List<GeoObjectEvent> events;
 
-  public CompositeCreateGeoObjectCommand()
+  public GeoObjectCompositeCommand()
   {
     super();
   }
 
-  public CompositeCreateGeoObjectCommand(String uid, List<GeoObjectEvent> events)
+  public GeoObjectCompositeCommand(String uid, List<GeoObjectEvent> events)
   {
     this.uid = uid;
     this.events = events;

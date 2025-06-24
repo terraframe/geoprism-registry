@@ -1,6 +1,6 @@
 package net.geoprism.registry.axon.event;
 
-public class RemoveParentEvent extends AbstractGeoObjectEvent implements GeoObjectEvent
+public class GeoObjectRemoveParentEvent extends AbstractGeoObjectEvent implements GeoObjectEvent
 {
   private String type;
 
@@ -10,11 +10,11 @@ public class RemoveParentEvent extends AbstractGeoObjectEvent implements GeoObje
 
   private String edgeUid;
 
-  public RemoveParentEvent()
+  public GeoObjectRemoveParentEvent()
   {
   }
 
-  public RemoveParentEvent(String uid, String type, String edgeUid, String edgeType)
+  public GeoObjectRemoveParentEvent(String uid, String type, String edgeUid, String edgeType)
   {
     super();
     

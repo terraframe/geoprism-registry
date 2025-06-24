@@ -6,10 +6,10 @@ import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateLifecycle;
 import org.axonframework.spring.stereotype.Aggregate;
 
-import net.geoprism.registry.axon.command.CompositeCreateGeoObjectCommand;
-import net.geoprism.registry.axon.command.CompositeGeoObjectCommand;
-import net.geoprism.registry.axon.command.CreateGeoObjectCommand;
-import net.geoprism.registry.axon.event.ApplyGeoObjectEvent;
+import net.geoprism.registry.axon.command.GeoObjectCompositeCreateCommand;
+import net.geoprism.registry.axon.command.GeoObjectCompositeCommand;
+import net.geoprism.registry.axon.command.GeoObjectCreateCommand;
+import net.geoprism.registry.axon.event.GeoObjectApplyEvent;
 
 @Aggregate
 public class GeoObjectAggregate
@@ -46,25 +46,25 @@ public class GeoObjectAggregate
   }
 
   @CommandHandler
-  public GeoObjectAggregate(CreateGeoObjectCommand command)
+  public GeoObjectAggregate(GeoObjectCreateCommand command)
   {
-    RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new ApplyGeoObjectEvent(command.getUid(), command.getIsNew(), command.getIsImport(), command.getObject(), command.getParents())));
+    RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new GeoObjectApplyEvent(command.getUid(), command.getIsNew(), command.getIsImport(), command.getObject(), command.getParents())));
   }
 
   @CommandHandler
-  public GeoObjectAggregate(CompositeCreateGeoObjectCommand command)    
+  public GeoObjectAggregate(GeoObjectCompositeCreateCommand command)    
   {
     RunwayTransactionWrapper.run(() -> command.getEvents().stream().forEach(AggregateLifecycle::apply));
   }
 
   @CommandHandler
-  public void on(CompositeGeoObjectCommand command)
+  public void on(GeoObjectCompositeCommand command)
   {
     RunwayTransactionWrapper.run(() -> command.getEvents().stream().forEach(AggregateLifecycle::apply));
   }
 
   @EventSourcingHandler
-  public void on(ApplyGeoObjectEvent event)
+  public void on(GeoObjectApplyEvent event)
   {
     this.uid = event.getUid();
     this.object = event.getObject();

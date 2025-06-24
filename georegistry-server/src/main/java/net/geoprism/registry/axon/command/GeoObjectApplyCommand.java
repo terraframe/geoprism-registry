@@ -5,7 +5,7 @@ import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
-public abstract class ApplyGeoObjectCommand
+public abstract class GeoObjectApplyCommand
 {
 
   @TargetAggregateIdentifier
@@ -23,11 +23,11 @@ public abstract class ApplyGeoObjectCommand
 
   private Boolean refreshWorking;
 
-  public ApplyGeoObjectCommand()
+  public GeoObjectApplyCommand()
   {
   }
 
-  public ApplyGeoObjectCommand(String uid, Boolean isNew, Boolean isImport, String object, String parents, Boolean refreshWorking)
+  public GeoObjectApplyCommand(String uid, Boolean isNew, Boolean isImport, String object, String parents, Boolean refreshWorking)
   {
     super();
     this.uid = uid;
@@ -38,7 +38,7 @@ public abstract class ApplyGeoObjectCommand
     this.refreshWorking = refreshWorking;
   }
 
-  public ApplyGeoObjectCommand(String uid, Boolean isNew, Boolean isImport, GeoObjectOverTime object, ServerParentTreeNodeOverTime parents, Boolean refreshWorking)
+  public GeoObjectApplyCommand(String uid, Boolean isNew, Boolean isImport, GeoObjectOverTime object, ServerParentTreeNodeOverTime parents, Boolean refreshWorking)
   {
     super();
     this.uid = uid;

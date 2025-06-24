@@ -32,6 +32,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
+import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -70,6 +71,7 @@ import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.GeoregistryProperties;
+import net.geoprism.registry.axon.event.BusinessObjectEventBuilder;
 import net.geoprism.registry.etl.ParentReferenceProblem;
 import net.geoprism.registry.etl.RowValidationProblem;
 import net.geoprism.registry.etl.TermReferenceProblem;
@@ -201,6 +203,8 @@ public class BusinessObjectImporter implements ObjectImporterIF
   private BusinessObjectBusinessServiceIF     bObjectService;
 
   private GeoObjectBusinessServiceIF          objectService;
+
+  private CommandGateway                      commandGateway;
 
   public BusinessObjectImporter(BusinessObjectImportConfiguration configuration, ImportProgressListenerIF progressListener)
   {
@@ -619,12 +623,16 @@ public class BusinessObjectImporter implements ObjectImporterIF
       data.setNew(isNew);
       data.setParentBuilder(builder);
 
-      this.bObjectService.apply(businessObject);
+      BusinessObjectEventBuilder eventBuilder = new BusinessObjectEventBuilder();
+      eventBuilder.setObject(businessObject, isNew);
+      eventBuilder.setAttributeUpdate(true);
 
       if (this.configuration.getDirection() != null && this.configuration.getEdgeType() != null)
       {
-        this.bObjectService.addGeoObject(businessObject, this.configuration.getEdgeType(), geoObject, this.configuration.getDirection());
+        eventBuilder.addGeoObject(this.configuration.getEdgeType(), geoObject, this.configuration.getDirection());
       }
+
+      this.commandGateway.sendAndWait(eventBuilder.build(this.bObjectService));
 
       imported = true;
 

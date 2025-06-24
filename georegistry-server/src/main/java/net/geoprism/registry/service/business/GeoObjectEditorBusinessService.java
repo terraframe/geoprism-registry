@@ -41,7 +41,7 @@ import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
-import net.geoprism.registry.axon.command.CreateGeoObjectCommand;
+import net.geoprism.registry.axon.command.GeoObjectCreateCommand;
 import net.geoprism.registry.axon.event.GeoObjectEventBuilder;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -247,7 +247,7 @@ public class GeoObjectEditorBusinessService
 
     if (permissions.isSRA() || permissions.isRA(orgCode) || permissions.isRM(orgCode, serverGOT))
     {
-      this.commandGateway.sendAndWait(new CreateGeoObjectCommand(timeGO.getUid(), false, sTimeGo, sPtn, true));
+      this.commandGateway.sendAndWait(new GeoObjectCreateCommand(timeGO.getUid(), false, sTimeGo, sPtn, true));
 
       ServerGeoObjectIF sGO = this.service.getGeoObjectByCode(timeGO.getCode(), timeGO.getType().getCode());
 

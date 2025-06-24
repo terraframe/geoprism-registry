@@ -15,11 +15,11 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
-import net.geoprism.registry.axon.event.ApplyGeoObjectEvent;
-import net.geoprism.registry.axon.event.CreateParentEvent;
-import net.geoprism.registry.axon.event.RemoveParentEvent;
-import net.geoprism.registry.axon.event.SetExternalIdEvent;
-import net.geoprism.registry.axon.event.UpdateParentEvent;
+import net.geoprism.registry.axon.event.GeoObjectApplyEvent;
+import net.geoprism.registry.axon.event.GeoObjectCreateParentEvent;
+import net.geoprism.registry.axon.event.GeoObjectRemoveParentEvent;
+import net.geoprism.registry.axon.event.GeoObjectSetExternalIdEvent;
+import net.geoprism.registry.axon.event.GeoObjectUpdateParentEvent;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -43,7 +43,7 @@ public class GeoObjectRepositoryProjection
 
   @EventHandler
   @Transaction
-  public void applyGeoObject(ApplyGeoObjectEvent event) throws Exception
+  public void applyGeoObject(GeoObjectApplyEvent event) throws Exception
   {
     GeoObjectOverTime dto = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), event.getObject());
 
@@ -66,7 +66,7 @@ public class GeoObjectRepositoryProjection
 
   @EventHandler
   @Transaction
-  public void removeParent(RemoveParentEvent event) throws Exception
+  public void removeParent(GeoObjectRemoveParentEvent event) throws Exception
   {
     ServerHierarchyType hierarchyType = this.hService.get(event.getEdgeType());
 
@@ -88,7 +88,7 @@ public class GeoObjectRepositoryProjection
 
   @EventHandler
   @Transaction
-  public void updateParent(UpdateParentEvent event) throws Exception
+  public void updateParent(GeoObjectUpdateParentEvent event) throws Exception
   {
     ServerGeoObjectIF object = this.service.getGeoObject(event.getUid(), event.getType());
     ServerHierarchyType hierarchy = this.hService.get(event.getEdgeType());
@@ -160,7 +160,7 @@ public class GeoObjectRepositoryProjection
 
   @EventHandler
   @Transaction
-  public void createParent(CreateParentEvent event) throws Exception
+  public void createParent(GeoObjectCreateParentEvent event) throws Exception
   {
     ServerGeoObjectIF object = this.service.getGeoObject(event.getUid(), event.getType());
     ServerHierarchyType hierarchy = this.hService.get(event.getEdgeType());
@@ -185,7 +185,7 @@ public class GeoObjectRepositoryProjection
 
   @EventHandler
   @Transaction
-  public void setExternalId(SetExternalIdEvent event) throws Exception
+  public void setExternalId(GeoObjectSetExternalIdEvent event) throws Exception
   {
     ServerGeoObjectIF object = this.service.getGeoObject(event.getUid(), event.getType());
     String systemId = event.getSystemId();
