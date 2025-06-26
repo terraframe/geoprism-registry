@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.action.geoobject;
 
@@ -35,7 +35,7 @@ import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.action.ActionJsonAdapters;
-import net.geoprism.registry.axon.event.GeoObjectEventBuilder;
+import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
@@ -44,6 +44,7 @@ import net.geoprism.registry.service.permission.ChangeRequestPermissionService;
 import net.geoprism.registry.service.permission.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.service.permission.GPRGeoObjectPermissionService;
 import net.geoprism.registry.service.permission.GeoObjectPermissionServiceIF;
+import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class CreateGeoObjectAction extends CreateGeoObjectActionBase
 {
@@ -55,27 +56,32 @@ public class CreateGeoObjectAction extends CreateGeoObjectActionBase
   {
     super();
   }
-  
+
   @Override
-  public void execute(GeoObjectEventBuilder builder)
+  public void execute(ServerGeoObjectEventBuilder builder)
   {
     GeoObjectBusinessServiceIF objectService = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
 
     String sJson = this.getGeoObjectJson();
 
     GeoObjectOverTime geoObject = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), sJson);
-    
-    VertexServerGeoObject object = (VertexServerGeoObject) objectService.fromDTO(geoObject, true);
-    
-    builder.setObject(object, true, this.getParentJson());    
 
-//    objectService.apply(geoObject, true, false);
-//
-//    ServerGeoObjectIF child = objectService.getGeoObjectByCode(geoObject.getCode(), geoObject.getType().getCode());
-//
-//    ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(child.getType(), this.getParentJson());
-//
-//    objectService.setParents(child, ptnOt);
+    VertexServerGeoObject object = (VertexServerGeoObject) objectService.fromDTO(geoObject, true);
+
+    builder.setObject(object, true);
+    builder.setParents(ServerParentTreeNodeOverTime.fromJSON(object.getType(), sJson));
+
+    // objectService.apply(geoObject, true, false);
+    //
+    // ServerGeoObjectIF child =
+    // objectService.getGeoObjectByCode(geoObject.getCode(),
+    // geoObject.getType().getCode());
+    //
+    // ServerParentTreeNodeOverTime ptnOt =
+    // ServerParentTreeNodeOverTime.fromJSON(child.getType(),
+    // this.getParentJson());
+    //
+    // objectService.setParents(child, ptnOt);
   }
 
   @Override

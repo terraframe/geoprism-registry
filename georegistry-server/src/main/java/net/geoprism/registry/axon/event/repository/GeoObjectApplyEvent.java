@@ -1,4 +1,8 @@
-package net.geoprism.registry.axon.event;
+package net.geoprism.registry.axon.event.repository;
+
+import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class GeoObjectApplyEvent extends AbstractGeoObjectEvent implements GeoObjectEvent
 {
@@ -10,21 +14,21 @@ public class GeoObjectApplyEvent extends AbstractGeoObjectEvent implements GeoOb
 
   private String  object;
 
-  private String  parents;
+  private String  type;
 
   public GeoObjectApplyEvent()
   {
   }
 
-  public GeoObjectApplyEvent(String uid, Boolean isNew, Boolean isImport, String object, String parents)
+  public GeoObjectApplyEvent(String uid, String type, Boolean isNew, Boolean isImport, String object)
   {
     super();
-    
+
     this.uid = uid;
     this.isNew = isNew;
     this.isImport = isImport;
     this.object = object;
-    this.parents = parents;
+    this.type = type;
   }
 
   public String getUid()
@@ -67,13 +71,33 @@ public class GeoObjectApplyEvent extends AbstractGeoObjectEvent implements GeoOb
     this.object = object;
   }
 
-  public String getParents()
+  public String getType()
   {
-    return parents;
+    return type;
   }
 
-  public void setParents(String parents)
+  public void setType(String type)
   {
-    this.parents = parents;
+    this.type = type;
+  }
+
+  @Override
+  @JsonIgnore
+  public String getAggregate()
+  {
+    return this.uid + "_O_";
+  }
+
+  @Override
+  @JsonIgnore
+  public EventType getEventType()
+  {
+    return EventType.OBJECT;
+  }
+  
+  @Override
+  public Boolean isValidFor(Date date)
+  {
+    return true;
   }
 }

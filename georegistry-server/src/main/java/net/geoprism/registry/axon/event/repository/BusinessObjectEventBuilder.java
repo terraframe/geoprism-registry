@@ -1,4 +1,4 @@
-package net.geoprism.registry.axon.event;
+package net.geoprism.registry.axon.event.repository;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -8,8 +8,8 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
 import net.geoprism.registry.BusinessEdgeType;
-import net.geoprism.registry.axon.command.BusinessObjectCompositeCommand;
-import net.geoprism.registry.axon.command.BusinessObjectCompositeCreateCommand;
+import net.geoprism.registry.axon.command.repository.BusinessObjectCompositeCommand;
+import net.geoprism.registry.axon.command.repository.BusinessObjectCompositeCreateCommand;
 import net.geoprism.registry.etl.upload.ClassifierVertexCache;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.EdgeDirection;

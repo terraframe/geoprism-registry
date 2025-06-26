@@ -9,8 +9,8 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
-import net.geoprism.registry.axon.event.BusinessObjectAddGeoObjectEvent;
-import net.geoprism.registry.axon.event.BusinessObjectApplyEvent;
+import net.geoprism.registry.axon.event.repository.BusinessObjectAddGeoObjectEvent;
+import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEvent;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
@@ -35,7 +35,7 @@ public class BusinessObjectRepositoryProjection
 
   @EventHandler
   @Transaction
-  public void applyBusinessObject(BusinessObjectApplyEvent event) throws Exception
+  public void apply(BusinessObjectApplyEvent event) throws Exception
   {
     BusinessType type = this.typeService.getByCode(event.getType());
 
@@ -47,7 +47,7 @@ public class BusinessObjectRepositoryProjection
 
   @EventHandler
   @Transaction
-  public void applyBusinessObject(BusinessObjectAddGeoObjectEvent event) throws Exception
+  public void addGeoObject(BusinessObjectAddGeoObjectEvent event) throws Exception
   {
     BusinessType type = this.typeService.getByCode(event.getType());
     BusinessObject object = this.service.getByCode(type, event.getCode());

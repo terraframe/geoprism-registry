@@ -1,10 +1,10 @@
-package net.geoprism.registry.axon.command;
+package net.geoprism.registry.axon.command.repository;
 
 import java.util.List;
 
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
-import net.geoprism.registry.axon.event.GeoObjectEvent;
+import net.geoprism.registry.axon.event.repository.GeoObjectEvent;
 
 public class GeoObjectCompositeCommand
 {

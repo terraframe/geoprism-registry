@@ -41,13 +41,14 @@ import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
-import net.geoprism.registry.axon.command.GeoObjectCreateCommand;
-import net.geoprism.registry.axon.event.GeoObjectEventBuilder;
+import net.geoprism.registry.axon.event.repository.GeoObjectEventBuilder;
+import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.permission.RolePermissionService;
 import net.geoprism.registry.service.request.LocaleSerializer;
+import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 import net.geoprism.registry.view.action.AbstractUpdateAttributeView;
 import net.geoprism.registry.view.action.UpdateAttributeViewJsonAdapters;
 
@@ -215,10 +216,10 @@ public class GeoObjectEditorBusinessService
 
   public void executeActions(final ServerGeoObjectType type, final VertexServerGeoObject go, final JsonArray jaActions, final String listId)
   {
-    GeoObjectEventBuilder builder = new GeoObjectEventBuilder();
+    ServerGeoObjectEventBuilder builder = new ServerGeoObjectEventBuilder(this.service);
     builder.setRefreshWorking(true);
     builder.setObject(go);
-    
+
     for (int i = 0; i < jaActions.size(); ++i)
     {
       JsonObject action = jaActions.get(i).getAsJsonObject();
@@ -231,7 +232,7 @@ public class GeoObjectEditorBusinessService
       view.build(builder);
     }
 
-    this.commandGateway.sendAndWait(builder.build(this.service));
+    this.commandGateway.sendAndWait(builder.build());
   }
 
   @Transaction
@@ -247,7 +248,12 @@ public class GeoObjectEditorBusinessService
 
     if (permissions.isSRA() || permissions.isRA(orgCode) || permissions.isRM(orgCode, serverGOT))
     {
-      this.commandGateway.sendAndWait(new GeoObjectCreateCommand(timeGO.getUid(), false, sTimeGo, sPtn, true));
+      GeoObjectEventBuilder builder = new GeoObjectEventBuilder(this.service);
+      builder.setRefreshWorking(true);
+      builder.setObject(timeGO, true);
+      builder.setParents(ServerParentTreeNodeOverTime.fromJSON(serverGOT, sPtn));
+
+      this.commandGateway.sendAndWait(builder.build());
 
       ServerGeoObjectIF sGO = this.service.getGeoObjectByCode(timeGO.getCode(), timeGO.getType().getCode());
 

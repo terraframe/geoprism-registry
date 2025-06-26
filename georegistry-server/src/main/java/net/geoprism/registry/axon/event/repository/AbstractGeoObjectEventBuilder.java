@@ -1,49 +1,43 @@
-package net.geoprism.registry.axon.event;
+package net.geoprism.registry.axon.event.repository;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
-
+import com.google.gson.JsonObject;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
-import net.geoprism.registry.axon.command.GeoObjectCompositeCreateCommand;
-import net.geoprism.registry.axon.command.GeoObjectCompositeCommand;
-import net.geoprism.registry.etl.upload.ClassifierVertexCache;
+import net.geoprism.registry.axon.command.repository.GeoObjectCompositeCommand;
+import net.geoprism.registry.axon.command.repository.GeoObjectCompositeCreateCommand;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
-public class GeoObjectEventBuilder
+public abstract class AbstractGeoObjectEventBuilder<K>
 {
-  private boolean               attributeUpdate;
+  private boolean                      attributeUpdate;
 
-  private ServerGeoObjectIF     object;
+  private K                            object;
 
-  private String                parentJson;
+  private Boolean                      isNew;
 
-  private Boolean               isNew;
+  private Boolean                      isImport;
 
-  private Boolean               isImport;
+  private List<GeoObjectEvent>         events;
 
-  private List<GeoObjectEvent>  events;
+  private Boolean                      refreshWorking;
 
-  private ClassifierVertexCache classifierCache;
+  protected GeoObjectBusinessServiceIF service;
 
-  private Boolean               refreshWorking;
-
-  public GeoObjectEventBuilder()
+  public AbstractGeoObjectEventBuilder(GeoObjectBusinessServiceIF service)
   {
-    this(null);
-  }
-
-  public GeoObjectEventBuilder(ClassifierVertexCache classifierCache)
-  {
-    this.classifierCache = classifierCache;
+    this.service = service;
     this.attributeUpdate = false;
     this.isNew = false;
     this.isImport = false;
@@ -51,12 +45,12 @@ public class GeoObjectEventBuilder
     this.refreshWorking = false;
   }
 
-  public Optional<ServerGeoObjectIF> getObject()
+  public Optional<K> getObject()
   {
     return this.getObject(false);
   }
 
-  public Optional<ServerGeoObjectIF> getObject(boolean hasAttributeUpdate)
+  public Optional<K> getObject(boolean hasAttributeUpdate)
   {
     this.attributeUpdate = this.attributeUpdate || hasAttributeUpdate;
 
@@ -64,20 +58,20 @@ public class GeoObjectEventBuilder
   }
 
   @SuppressWarnings("unchecked")
-  public <T extends ServerGeoObjectIF> T getOrThrow()
+  public <T extends K> T getOrThrow()
   {
     return (T) this.getOrThrow(false);
   }
 
   @SuppressWarnings("unchecked")
-  public <T extends ServerGeoObjectIF> T getOrThrow(boolean hasAttributeUpdate)
+  public <T extends K> T getOrThrow(boolean hasAttributeUpdate)
   {
     return (T) this.getObject(hasAttributeUpdate).orElseThrow(() -> {
       throw new ProgrammingErrorException("Geo Object is request to perform action");
     });
   }
 
-  public void setObject(ServerGeoObjectIF object)
+  public void setObject(K object)
   {
     if (this.object != null)
     {
@@ -87,22 +81,14 @@ public class GeoObjectEventBuilder
     this.object = object;
   }
 
-  public void setObject(ServerGeoObjectIF object, Boolean isNew)
+  public void setObject(K object, Boolean isNew)
   {
     this.setObject(object);
 
     this.isNew = isNew;
   }
 
-  public void setObject(ServerGeoObjectIF object, Boolean isNew, String parentJson)
-  {
-    this.setObject(object);
-
-    this.isNew = isNew;
-    this.parentJson = parentJson;
-  }
-
-  public void setObject(ServerGeoObjectIF object, Boolean isNew, Boolean isImport)
+  public void setObject(K object, Boolean isNew, Boolean isImport)
   {
     this.setObject(object);
 
@@ -130,25 +116,13 @@ public class GeoObjectEventBuilder
     event.ifPresent(events::add);
   }
 
-  public String getUid()
-  {
-    return this.getOrThrow().getUid();
-  }
+  public abstract String getUid();
 
-  public String getType()
-  {
-    return this.getOrThrow().getType().getCode();
-  }
+  public abstract String getType();
 
-  public String getParentJson()
-  {
-    return parentJson;
-  }
+  protected abstract JsonObject toJSON();
 
-  public void setParentJson(String parentJson)
-  {
-    this.parentJson = parentJson;
-  }
+  protected abstract void removeAllEdges(ServerHierarchyType hierarchyType);
 
   public Boolean getIsNew()
   {
@@ -200,15 +174,35 @@ public class GeoObjectEventBuilder
     this.events.add(new GeoObjectCreateParentEvent(this.getUid(), this.getType(), edgeUuid, hierarchy.getCode(), startDate, endDate, parent.getCode(), parent.getType().getCode(), validate));
   }
 
-  public Object build(GeoObjectBusinessServiceIF service)
+  public void setParents(ServerParentTreeNodeOverTime parentsOverTime)
+  {
+    final Collection<ServerHierarchyType> hierarchyTypes = parentsOverTime.getHierarchies();
+
+    for (ServerHierarchyType hierarchyType : hierarchyTypes)
+    {
+      final List<ServerParentTreeNode> entries = parentsOverTime.getEntries(hierarchyType);
+
+      if (!this.getIsNew())
+      {
+        this.removeAllEdges(hierarchyType);
+      }
+
+      for (ServerParentTreeNode entry : entries)
+      {
+        ServerGeoObjectIF parent = entry.getGeoObject();
+
+        this.addParent(parent, hierarchyType, entry.getStartDate(), entry.getEndDate(), entry.getUid(), false);
+      }
+    }
+  }
+
+  public Object build()
   {
     LinkedList<GeoObjectEvent> list = new LinkedList<>();
 
     if (this.attributeUpdate || this.isNew)
     {
-      GeoObjectOverTime dto = service.toGeoObjectOverTime(object, false, this.classifierCache);
-
-      list.add(new GeoObjectApplyEvent(dto.getUid(), this.isNew, this.isImport, dto.toJSON().toString(), this.parentJson));
+      list.add(new GeoObjectApplyEvent(this.getUid(), this.getType(), this.isNew, this.isImport, this.toJSON().toString()));
     }
 
     list.addAll(events);

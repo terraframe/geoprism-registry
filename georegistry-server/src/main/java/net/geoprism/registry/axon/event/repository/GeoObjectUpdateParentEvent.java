@@ -1,8 +1,10 @@
-package net.geoprism.registry.axon.event;
+package net.geoprism.registry.axon.event.repository;
 
 import java.util.Date;
 
-public class GeoObjectUpdateParentEvent extends AbstractGeoObjectEvent implements GeoObjectEvent
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+public class GeoObjectUpdateParentEvent extends AbstractHierarchyEvent implements GeoObjectEvent
 {
   private String uid;
 
@@ -12,7 +14,7 @@ public class GeoObjectUpdateParentEvent extends AbstractGeoObjectEvent implement
 
   private String edgeType;
 
-  private Date   stateDate;
+  private Date   startDate;
 
   private Date   endDate;
 
@@ -24,14 +26,14 @@ public class GeoObjectUpdateParentEvent extends AbstractGeoObjectEvent implement
   {
   }
 
-  public GeoObjectUpdateParentEvent(String uid, String type, String edgeUid, String edgeType, Date stateDate, Date endDate, String parentCode, String parentType)
+  public GeoObjectUpdateParentEvent(String uid, String type, String edgeUid, String edgeType, Date startDate, Date endDate, String parentCode, String parentType)
   {
     super();
     this.uid = uid;
     this.type = type;
     this.edgeUid = edgeUid;
     this.edgeType = edgeType;
-    this.stateDate = stateDate;
+    this.startDate = startDate;
     this.endDate = endDate;
     this.parentType = parentType;
     this.parentCode = parentCode;
@@ -77,14 +79,14 @@ public class GeoObjectUpdateParentEvent extends AbstractGeoObjectEvent implement
     this.edgeType = edgeType;
   }
 
-  public Date getStateDate()
+  public Date getStartDate()
   {
-    return stateDate;
+    return startDate;
   }
 
-  public void setStateDate(Date stateDate)
+  public void setStartDate(Date startDate)
   {
-    this.stateDate = stateDate;
+    this.startDate = startDate;
   }
 
   public Date getEndDate()
@@ -117,4 +119,17 @@ public class GeoObjectUpdateParentEvent extends AbstractGeoObjectEvent implement
     this.parentCode = parentCode;
   }
 
+  @Override
+  @JsonIgnore
+  public String getAggregate()
+  {
+    return this.uid + "_H_" + this.edgeType;
+  }
+
+  @Override
+  @JsonIgnore
+  public EventType getEventType()
+  {
+    return EventType.HIERARCHY;
+  }
 }

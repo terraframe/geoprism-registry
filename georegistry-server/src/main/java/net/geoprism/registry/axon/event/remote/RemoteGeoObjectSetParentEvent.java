@@ -1,44 +1,40 @@
-package net.geoprism.registry.axon.event;
+package net.geoprism.registry.axon.event.remote;
 
 import java.util.Date;
 
-public class GeoObjectCreateParentEvent extends AbstractGeoObjectEvent implements GeoObjectEvent
+public class RemoteGeoObjectSetParentEvent
 {
-  private String  uid;
+  private String uid;
 
-  private String  type;
+  private String type;
 
-  private String  edgeUid;
+  private String edgeUid;
 
-  private String  edgeType;
+  private String edgeType;
 
-  private Date    stateDate;
+  private Date   startDate;
 
-  private Date    endDate;
+  private Date   endDate;
 
-  private String  parentType;
+  private String parentType;
 
-  private String  parentCode;
+  private String parentCode;
 
-  private Boolean validate;
-
-  public GeoObjectCreateParentEvent()
+  public RemoteGeoObjectSetParentEvent()
   {
   }
 
-  public GeoObjectCreateParentEvent(String uid, String type, String edgeUid, String edgeType, Date stateDate, Date endDate, String parentCode, String parentType, Boolean validate)
+  public RemoteGeoObjectSetParentEvent(String uid, String type, String edgeUid, String edgeType, Date startDate, Date endDate, String parentCode, String parentType)
   {
     super();
-
     this.uid = uid;
     this.type = type;
     this.edgeUid = edgeUid;
     this.edgeType = edgeType;
-    this.stateDate = stateDate;
+    this.startDate = startDate;
     this.endDate = endDate;
     this.parentType = parentType;
     this.parentCode = parentCode;
-    this.validate = validate;
   }
 
   public String getUid()
@@ -81,14 +77,14 @@ public class GeoObjectCreateParentEvent extends AbstractGeoObjectEvent implement
     this.edgeType = edgeType;
   }
 
-  public Date getStateDate()
+  public Date getStartDate()
   {
-    return stateDate;
+    return startDate;
   }
 
-  public void setStateDate(Date stateDate)
+  public void setStartDate(Date startDate)
   {
-    this.stateDate = stateDate;
+    this.startDate = startDate;
   }
 
   public Date getEndDate()
@@ -119,15 +115,5 @@ public class GeoObjectCreateParentEvent extends AbstractGeoObjectEvent implement
   public void setParentCode(String parentCode)
   {
     this.parentCode = parentCode;
-  }
-
-  public Boolean getValidate()
-  {
-    return validate;
-  }
-
-  public void setValidate(Boolean validate)
-  {
-    this.validate = validate;
   }
 }

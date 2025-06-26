@@ -29,7 +29,7 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
-import net.geoprism.registry.axon.event.GeoObjectEventBuilder;
+import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
@@ -43,7 +43,7 @@ public class UpdateStandardAttributeView extends AbstractUpdateAttributeView
   protected JsonElement newValue;
   
   @Override
-  public GeoObjectEventBuilder build(GeoObjectEventBuilder builder)
+  public ServerGeoObjectEventBuilder build(ServerGeoObjectEventBuilder builder)
   {
     VertexServerGeoObject go = builder.getOrThrow(true);
     

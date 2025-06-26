@@ -29,10 +29,10 @@ import com.runwaysdk.business.graph.EdgeObject;
 
 import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
 import net.geoprism.registry.action.InvalidChangeRequestException;
-import net.geoprism.registry.axon.event.GeoObjectCreateParentEvent;
-import net.geoprism.registry.axon.event.GeoObjectEventBuilder;
-import net.geoprism.registry.axon.event.GeoObjectRemoveParentEvent;
-import net.geoprism.registry.axon.event.GeoObjectUpdateParentEvent;
+import net.geoprism.registry.axon.event.repository.GeoObjectCreateParentEvent;
+import net.geoprism.registry.axon.event.repository.GeoObjectRemoveParentEvent;
+import net.geoprism.registry.axon.event.repository.GeoObjectUpdateParentEvent;
+import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -43,11 +43,12 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
 {
   public static final String VALUE_SPLIT_TOKEN = "_~VST~_";
 
-//  @Override
-//  public void execute(UpdateChangeOverTimeAttributeView cotView, VertexServerGeoObject go, List<ValueOverTime> looseVotc)
-//  {
-//    throw new UnsupportedOperationException();
-//  }
+  // @Override
+  // public void execute(UpdateChangeOverTimeAttributeView cotView,
+  // VertexServerGeoObject go, List<ValueOverTime> looseVotc)
+  // {
+  // throw new UnsupportedOperationException();
+  // }
 
   // public void executeParent(UpdateChangeOverTimeAttributeView cotView,
   // VertexServerGeoObject go, SortedSet<EdgeObject> looseVotc)
@@ -211,7 +212,7 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
     return true;
   }
 
-  public void buildParent(GeoObjectEventBuilder builder, UpdateChangeOverTimeAttributeView cotView, Collection<EdgeObject> collection)
+  public void buildParent(ServerGeoObjectEventBuilder builder, UpdateChangeOverTimeAttributeView cotView, Collection<EdgeObject> collection)
   {
     if (cotView instanceof UpdateParentView)
     {
@@ -222,7 +223,11 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
       if (this.action.equals(UpdateActionType.DELETE))
       {
         builder.addEvent(this.getEdgeByOid(collection, this.oid).map(edge -> {
-          return new GeoObjectRemoveParentEvent(go.getUid(), go.getType().getCode(), edge.getObjectValue(DefaultAttribute.UID.getName()), hierarchyType.getCode());
+          Date startDate = edge.getObjectValue(GeoVertex.START_DATE);
+          Date endDate = edge.getObjectValue(GeoVertex.END_DATE);
+          String uid = edge.getObjectValue(DefaultAttribute.UID.getName());
+
+          return new GeoObjectRemoveParentEvent(go.getUid(), go.getType().getCode(), uid, hierarchyType.getCode(), startDate, endDate);
         }));
       }
       else if (this.action.equals(UpdateActionType.UPDATE))
@@ -258,7 +263,7 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
         {
           throw new ExecuteOutOfDateChangeRequestException();
         }
-        
+
         builder.addEvent(new GeoObjectCreateParentEvent(go.getUid(), go.getType().getCode(), UUID.randomUUID().toString(), hierarchyType.getCode(), this.newStartDate, this.newEndDate, newParent.getCode(), newParent.getType().getCode(), true));
       }
       else

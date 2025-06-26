@@ -28,9 +28,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
 
 @AutoConfiguration
-public class AxonConfig // implements BeanClassLoaderAware
+public class AxonConfig 
 {
-  // private ClassLoader beanClassLoader;
 
   @Autowired
   public void configureProcessingGroupErrorHandling(EventProcessingConfigurer processingConfigurer)

@@ -2,14 +2,19 @@ package net.geoprism.registry.axon.aggregate;
 
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
+import org.axonframework.modelling.command.AggregateCreationPolicy;
 import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateLifecycle;
+import org.axonframework.modelling.command.CreationPolicy;
 import org.axonframework.spring.stereotype.Aggregate;
 
-import net.geoprism.registry.axon.command.GeoObjectCompositeCreateCommand;
-import net.geoprism.registry.axon.command.GeoObjectCompositeCommand;
-import net.geoprism.registry.axon.command.GeoObjectCreateCommand;
-import net.geoprism.registry.axon.event.GeoObjectApplyEvent;
+import net.geoprism.registry.axon.command.remote.RemoteGeoObjectCommand;
+import net.geoprism.registry.axon.command.remote.RemoteGeoObjectSetParentCommand;
+import net.geoprism.registry.axon.command.repository.GeoObjectCompositeCommand;
+import net.geoprism.registry.axon.command.repository.GeoObjectCompositeCreateCommand;
+import net.geoprism.registry.axon.event.remote.RemoteGeoObjectEvent;
+import net.geoprism.registry.axon.event.remote.RemoteGeoObjectSetParentEvent;
+import net.geoprism.registry.axon.event.repository.GeoObjectApplyEvent;
 
 @Aggregate
 public class GeoObjectAggregate
@@ -46,13 +51,7 @@ public class GeoObjectAggregate
   }
 
   @CommandHandler
-  public GeoObjectAggregate(GeoObjectCreateCommand command)
-  {
-    RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new GeoObjectApplyEvent(command.getUid(), command.getIsNew(), command.getIsImport(), command.getObject(), command.getParents())));
-  }
-
-  @CommandHandler
-  public GeoObjectAggregate(GeoObjectCompositeCreateCommand command)    
+  public GeoObjectAggregate(GeoObjectCompositeCreateCommand command)
   {
     RunwayTransactionWrapper.run(() -> command.getEvents().stream().forEach(AggregateLifecycle::apply));
   }
@@ -63,11 +62,32 @@ public class GeoObjectAggregate
     RunwayTransactionWrapper.run(() -> command.getEvents().stream().forEach(AggregateLifecycle::apply));
   }
 
+  @CommandHandler
+  @CreationPolicy(AggregateCreationPolicy.CREATE_IF_MISSING)
+  public void on(RemoteGeoObjectCommand command)
+  {
+    RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new RemoteGeoObjectEvent(command.getUid(), command.getIsNew(), command.getObject(), command.getType(), command.getStartDate(), command.getEndDate())));
+  }
+
+  @CommandHandler
+  @CreationPolicy(AggregateCreationPolicy.CREATE_IF_MISSING)
+  public void on(RemoteGeoObjectSetParentCommand command)
+  {
+    RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new RemoteGeoObjectSetParentEvent(command.getUid(), command.getType(), command.getEdgeUid(), command.getEdgeType(), command.getStartDate(), command.getEndDate(), command.getParentCode(), command.getParentType())));
+  }
+
   @EventSourcingHandler
   public void on(GeoObjectApplyEvent event)
   {
     this.uid = event.getUid();
     this.object = event.getObject();
+  }
+
+  @EventSourcingHandler
+  public void on(RemoteGeoObjectEvent event)
+  {
+    this.uid = event.getUid();
+    // this.object = event.getObject();
   }
 
 }

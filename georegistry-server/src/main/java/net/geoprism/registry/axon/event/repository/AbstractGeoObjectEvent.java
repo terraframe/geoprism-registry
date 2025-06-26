@@ -1,4 +1,4 @@
-package net.geoprism.registry.axon.event;
+package net.geoprism.registry.axon.event.repository;
 
 public abstract class AbstractGeoObjectEvent implements GeoObjectEvent
 {

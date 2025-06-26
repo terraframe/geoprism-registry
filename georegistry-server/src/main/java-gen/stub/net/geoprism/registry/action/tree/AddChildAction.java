@@ -33,7 +33,7 @@ import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.action.ActionJsonAdapters;
-import net.geoprism.registry.axon.event.GeoObjectEventBuilder;
+import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -50,7 +50,7 @@ public class AddChildAction extends AddChildActionBase
 
   
   @Override
-  public void execute(GeoObjectEventBuilder builder)
+  public void execute(ServerGeoObjectEventBuilder builder)
   {
     GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
     

@@ -56,7 +56,7 @@ import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.email.SendEmailCommand;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
-import net.geoprism.registry.axon.event.GeoObjectEventBuilder;
+import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -373,7 +373,7 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
 
     if (this.getApprovalStatus().contains(AllGovernanceStatus.PENDING))
     {
-      GeoObjectEventBuilder builder = new GeoObjectEventBuilder();
+      ServerGeoObjectEventBuilder builder = new ServerGeoObjectEventBuilder(ServiceFactory.getBean(GeoObjectBusinessServiceIF.class));
       builder.setRefreshWorking(true);
 
       ServerGeoObjectType type = ServerGeoObjectType.get(this.getGeoObjectTypeCode());
@@ -437,7 +437,7 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
 
       // Apply the events
       CommandGateway gateway = ServiceFactory.getBean(CommandGateway.class);
-      gateway.sendAndWait(builder.build(ServiceFactory.getBean(GeoObjectBusinessServiceIF.class)));
+      gateway.sendAndWait(builder.build());
 
       // Email the contributor
       try

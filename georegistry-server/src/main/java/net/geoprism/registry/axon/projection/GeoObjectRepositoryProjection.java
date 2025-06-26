@@ -2,7 +2,6 @@ package net.geoprism.registry.axon.projection;
 
 import java.util.Date;
 
-import org.apache.commons.lang3.StringUtils;
 import org.axonframework.eventhandling.EventHandler;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
@@ -15,11 +14,13 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
-import net.geoprism.registry.axon.event.GeoObjectApplyEvent;
-import net.geoprism.registry.axon.event.GeoObjectCreateParentEvent;
-import net.geoprism.registry.axon.event.GeoObjectRemoveParentEvent;
-import net.geoprism.registry.axon.event.GeoObjectSetExternalIdEvent;
-import net.geoprism.registry.axon.event.GeoObjectUpdateParentEvent;
+import net.geoprism.registry.axon.event.remote.RemoteGeoObjectEvent;
+import net.geoprism.registry.axon.event.remote.RemoteGeoObjectSetParentEvent;
+import net.geoprism.registry.axon.event.repository.GeoObjectApplyEvent;
+import net.geoprism.registry.axon.event.repository.GeoObjectCreateParentEvent;
+import net.geoprism.registry.axon.event.repository.GeoObjectRemoveParentEvent;
+import net.geoprism.registry.axon.event.repository.GeoObjectSetExternalIdEvent;
+import net.geoprism.registry.axon.event.repository.GeoObjectUpdateParentEvent;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -30,7 +31,6 @@ import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
-import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 @Service
 public class GeoObjectRepositoryProjection
@@ -51,12 +51,13 @@ public class GeoObjectRepositoryProjection
 
     final ServerGeoObjectType type = object.getType();
 
-    if (!StringUtils.isBlank(event.getParents()))
-    {
-      ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(type, event.getParents());
-
-      this.service.setParents(object, ptnOt);
-    }
+    // if (!StringUtils.isBlank(event.getParents()))
+    // {
+    // ServerParentTreeNodeOverTime ptnOt =
+    // ServerParentTreeNodeOverTime.fromJSON(type, event.getParents());
+    //
+    // this.service.setParents(object, ptnOt);
+    // }
 
     if (event.getRefreshWorking())
     {
@@ -108,7 +109,7 @@ public class GeoObjectRepositoryProjection
       // creating a new one unfortunately
       if (!edge.getParent().getOid().equals(newParent.getRunwayId()))
       {
-        Date _newStartDate = event.getStateDate();
+        Date _newStartDate = event.getStartDate();
         Date _newEndDate = event.getEndDate();
 
         if (_newStartDate == null)
@@ -133,15 +134,13 @@ public class GeoObjectRepositoryProjection
         newEdge.setValue(GeoVertex.END_DATE, _newEndDate);
         newEdge.setValue(DefaultAttribute.UID.getName(), event.getEdgeUid());
         newEdge.apply();
-
-        return;
       }
     }
     else
     {
-      if (event.getStateDate() != null)
+      if (event.getStartDate() != null)
       {
-        edge.setValue(GeoVertex.START_DATE, event.getStateDate());
+        edge.setValue(GeoVertex.START_DATE, event.getStartDate());
       }
 
       if (event.getEndDate() != null)
@@ -168,13 +167,13 @@ public class GeoObjectRepositoryProjection
 
     if (event.getValidate())
     {
-      this.service.addParent(object, newParent, hierarchy, event.getStateDate(), event.getEndDate(), event.getEdgeUid());
+      this.service.addParent(object, newParent, hierarchy, event.getStartDate(), event.getEndDate(), event.getEdgeUid());
     }
     else
     {
       MdEdgeDAOIF mdEdge = hierarchy.getMdEdgeDAO();
 
-      this.service.addParentRaw(object, newParent.getVertex(), mdEdge, event.getStateDate(), event.getEndDate(), event.getEdgeUid());
+      this.service.addParentRaw(object, newParent.getVertex(), mdEdge, event.getStartDate(), event.getEndDate(), event.getEdgeUid());
     }
 
     if (event.getRefreshWorking())
@@ -211,6 +210,20 @@ public class GeoObjectRepositoryProjection
     ListType.getForType(type).forEach(listType -> {
       listType.getWorkingVersions().forEach(version -> version.publishOrUpdateRecord(object));
     });
+  }
+
+  @EventHandler
+  @Transaction
+  public void handleRemoteGeoObject(RemoteGeoObjectEvent event) throws Exception
+  {
+    System.out.println("Handling remote geo object: [" + event.getType() + "][" + event.getUid() + "] - [" + event.getIsNew() + "]");
+  }
+
+  @EventHandler
+  @Transaction
+  public void handleRemoteParent(RemoteGeoObjectSetParentEvent event) throws Exception
+  {
+    System.out.println("Handling remote set parent: [" + event.getType() + "][" + event.getUid() + "] - [" + event.getParentCode() + "]");
   }
 
 }

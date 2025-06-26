@@ -1,4 +1,4 @@
-package net.geoprism.registry.axon.event;
+package net.geoprism.registry.axon.event.repository;
 
 import net.geoprism.registry.model.EdgeDirection;
 

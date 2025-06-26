@@ -1,4 +1,8 @@
-package net.geoprism.registry.axon.event;
+package net.geoprism.registry.axon.event.repository;
+
+import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 
@@ -79,4 +83,23 @@ public class GeoObjectSetExternalIdEvent extends AbstractGeoObjectEvent implemen
     this.strategy = strategy;
   }
 
+  @Override
+  @JsonIgnore
+  public String getAggregate()
+  {
+    return this.uid + "_S_" + this.systemId;
+  }
+
+  @Override
+  @JsonIgnore
+  public EventType getEventType()
+  {
+    return EventType.OBJECT;
+  }
+  
+  @Override
+  public Boolean isValidFor(Date date)
+  {
+    return true;
+  }
 }

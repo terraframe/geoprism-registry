@@ -6,9 +6,9 @@ import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateLifecycle;
 import org.axonframework.spring.stereotype.Aggregate;
 
-import net.geoprism.registry.axon.command.BusinessObjectCompositeCommand;
-import net.geoprism.registry.axon.command.BusinessObjectCompositeCreateCommand;
-import net.geoprism.registry.axon.event.BusinessObjectApplyEvent;
+import net.geoprism.registry.axon.command.repository.BusinessObjectCompositeCommand;
+import net.geoprism.registry.axon.command.repository.BusinessObjectCompositeCreateCommand;
+import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEvent;
 
 @Aggregate
 public class BusinessObjectAggregate

@@ -71,7 +71,7 @@ import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.GeoregistryProperties;
-import net.geoprism.registry.axon.event.BusinessObjectEventBuilder;
+import net.geoprism.registry.axon.event.repository.BusinessObjectEventBuilder;
 import net.geoprism.registry.etl.ParentReferenceProblem;
 import net.geoprism.registry.etl.RowValidationProblem;
 import net.geoprism.registry.etl.TermReferenceProblem;

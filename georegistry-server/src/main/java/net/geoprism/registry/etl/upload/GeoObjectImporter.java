@@ -77,7 +77,7 @@ import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.GeometrySizeException;
 import net.geoprism.registry.GeoregistryProperties;
-import net.geoprism.registry.axon.event.GeoObjectEventBuilder;
+import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.etl.InvalidExternalIdException;
 import net.geoprism.registry.etl.ParentReferenceProblem;
 import net.geoprism.registry.etl.RowValidationProblem;
@@ -807,9 +807,9 @@ public class GeoObjectImporter implements ObjectImporterIF
       data.setNew(isNew);
       data.setParentBuilder(parentBuilder);
 
-      GeoObjectEventBuilder builder = new GeoObjectEventBuilder(this.classifierCache);
+      ServerGeoObjectEventBuilder builder = new ServerGeoObjectEventBuilder(this.service, this.classifierCache);
       builder.setObject(serverGo, isNew, true);
-      builder.setAttributeUpdate(true);      
+      builder.setAttributeUpdate(true);
 
       // this.service.apply(serverGo, true);
 
@@ -838,7 +838,7 @@ public class GeoObjectImporter implements ObjectImporterIF
       }
 
       // Execute the commands
-      this.commandGateway.sendAndWait(builder.build(this.service));
+      this.commandGateway.sendAndWait(builder.build());
 
       // We must ensure that any problems created during the transaction are
       // logged now instead of when the request returns. As such, if any

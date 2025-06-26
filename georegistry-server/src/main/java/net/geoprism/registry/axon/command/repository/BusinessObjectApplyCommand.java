@@ -1,4 +1,4 @@
-package net.geoprism.registry.axon.command;
+package net.geoprism.registry.axon.command.repository;
 
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
