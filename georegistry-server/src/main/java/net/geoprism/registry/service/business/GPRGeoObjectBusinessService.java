@@ -103,15 +103,15 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
       throw new RuntimeException(e);
     }
   }
-
+  
   @Override
-  public void apply(ServerGeoObjectIF sgo, boolean isImport)
+  public void apply(ServerGeoObjectIF sgo, boolean isImport, boolean validateOrigin)
   {
     final boolean isNew = sgo.getVertex().isNew() || sgo.getVertex().getObjectValue(GeoVertex.CREATEDATE) == null;
 
     try
     {
-      super.apply(sgo, isImport);
+      super.apply(sgo, isImport, validateOrigin);
     }
     catch (CreatePermissionException ex)
     {

@@ -47,7 +47,7 @@ public class GeoObjectRepositoryProjection
   {
     GeoObjectOverTime dto = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), event.getObject());
 
-    ServerGeoObjectIF object = this.service.apply(dto, event.getIsNew(), event.getIsImport());
+    ServerGeoObjectIF object = this.service.apply(dto, event.getIsNew(), event.getIsImport(), true);
 
     final ServerGeoObjectType type = object.getType();
 
@@ -167,13 +167,13 @@ public class GeoObjectRepositoryProjection
 
     if (event.getValidate())
     {
-      this.service.addParent(object, newParent, hierarchy, event.getStartDate(), event.getEndDate(), event.getEdgeUid());
+      this.service.addParent(object, newParent, hierarchy, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), true);
     }
     else
     {
       MdEdgeDAOIF mdEdge = hierarchy.getMdEdgeDAO();
 
-      this.service.addParentRaw(object, newParent.getVertex(), mdEdge, event.getStartDate(), event.getEndDate(), event.getEdgeUid());
+      this.service.addParentRaw(object, newParent.getVertex(), mdEdge, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), true);
     }
 
     if (event.getRefreshWorking())

@@ -55,7 +55,7 @@ public class BusinessObjectRepositoryProjection
 
     BusinessEdgeType edgeType = this.edgeService.getByCode(event.getEdgeType());
 
-    this.service.addGeoObject(object, edgeType, geoObject, event.getDirection());
+    this.service.addGeoObject(object, edgeType, geoObject, event.getDirection(), true);
   }
 
 }

@@ -542,12 +542,12 @@ public class ETLBusinessService
       }
       else
       {
-        ServerGeoObjectIF serverGO = this.objectService.apply(go, isNew, true);
+        ServerGeoObjectIF serverGO = this.objectService.apply(go, isNew, true, true);
         final ServerGeoObjectType type = serverGO.getType();
 
         ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(type, parentTreeNode);
 
-        this.objectService.setParents(serverGO, ptnOt);
+        this.objectService.setParents(serverGO, ptnOt, true);
       }
 
       err.appLock();

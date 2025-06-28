@@ -213,7 +213,7 @@ public class RestoreService implements RestoreServiceIF
 
               GeoObjectOverTime object = GeoObjectOverTime.fromJSON(adapter, jObject.toString());
 
-              this.gObjectService.apply(object, true, true);
+              this.gObjectService.apply(object, true, true, false);
             }
 
             reader.endArray();
@@ -281,7 +281,7 @@ public class RestoreService implements RestoreServiceIF
                 return object;
               });
 
-              this.gObjectService.addChild(parent, child, hierarchy, startDate, endDate, uid);
+              this.gObjectService.addChild(parent, child, hierarchy, startDate, endDate, uid, false);
             }
 
             reader.endArray();

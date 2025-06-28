@@ -127,7 +127,7 @@ public abstract class AbstractFhirResourceProcessor implements FhirResourceProce
 
       geoObject.setGeometry(geometry, lastUpdated, ValueOverTime.INFINITY_END_DATE);
       
-      this.service.apply(geoObject, true);
+      this.service.apply(geoObject, true, true);
     }
   }
 
