@@ -22,8 +22,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -44,7 +44,7 @@ import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
-import net.geoprism.registry.TestConfig;
+import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.localization.LocaleView;
 import net.geoprism.registry.service.request.GPRLocalizationService;
@@ -54,7 +54,9 @@ import net.geoprism.registry.task.Task.TaskTypeIF;
 import net.geoprism.registry.test.TestUserInfo;
 
 @Ignore
-@ContextConfiguration(classes = { TestConfig.class }) @WebAppConfiguration
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
+@AutoConfigureMockMvc
+
 @RunWith(SpringInstanceTestClassRunner.class)
 public class TaskTest implements InstanceTestClassListener
 {

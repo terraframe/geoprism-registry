@@ -12,16 +12,17 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.SpringInstanceTestClassRunner;
-import net.geoprism.registry.TestConfig;
+import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.service.business.BackupAndRestoreBusinessServiceIF;
 
-@ContextConfiguration(classes = { TestConfig.class }) @WebAppConfiguration
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
+@AutoConfigureMockMvc
 @RunWith(SpringInstanceTestClassRunner.class)
 @Ignore
 public class DemoBackupAndRestoreTest

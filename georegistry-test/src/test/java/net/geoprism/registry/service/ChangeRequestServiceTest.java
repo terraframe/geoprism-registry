@@ -20,14 +20,15 @@ import org.junit.runner.RunWith;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.geojson.GeoJsonWriter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.constants.ClientRequestIF;
+import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -41,7 +42,6 @@ import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
-import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
@@ -50,6 +50,7 @@ import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectActionBase;
 import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
 import net.geoprism.registry.action.geoobject.UpdateAttributeActionBase;
+import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
@@ -66,7 +67,8 @@ import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 import net.geoprism.registry.view.action.UpdateAttributeViewJsonAdapters;
 import net.geoprism.registry.view.action.UpdateParentValueOverTimeView;
 
-@ContextConfiguration(classes = { TestConfig.class }) @WebAppConfiguration
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
+@AutoConfigureMockMvc
 @RunWith(SpringInstanceTestClassRunner.class)
 public class ChangeRequestServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
@@ -113,6 +115,7 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
   TestRegistryAdapter                   adapter;
 
   @Before
+  @Request
   public void setUp()
   {
     testData.setUpInstanceData();
@@ -120,6 +123,9 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
     BELIZE.apply();
 
     this.setUpTestInstanceData();
+    
+    // Clear out the event table
+    Database.deleteWhere("domainevententry", "true");
   }
 
   @Request

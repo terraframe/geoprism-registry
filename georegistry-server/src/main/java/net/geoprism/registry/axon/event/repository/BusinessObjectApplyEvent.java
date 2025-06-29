@@ -2,31 +2,34 @@ package net.geoprism.registry.axon.event.repository;
 
 public class BusinessObjectApplyEvent implements BusinessObjectEvent
 {
-  private String key;
+  private String  key;
 
-  private String type;
+  private String  code;
 
-  private String code;
+  private String  type;
 
-  private String object;
+  private String  object;
+
+  private Boolean isNew;
 
   public BusinessObjectApplyEvent()
   {
   }
 
-  public BusinessObjectApplyEvent(String type, String code, String object)
+  public BusinessObjectApplyEvent(String code, String type, String object, Boolean isNew)
   {
-    this(code + "#" + type, type, code, object);
+    this(code + "#" + type, code, type, object, isNew);
   }
 
-  public BusinessObjectApplyEvent(String key, String type, String code, String object)
+  public BusinessObjectApplyEvent(String key, String code, String type, String object, Boolean isNew)
   {
     super();
 
     this.key = key;
-    this.type = type;
     this.code = code;
+    this.type = type;
     this.object = object;
+    this.isNew = isNew;
   }
 
   public String getKey()
@@ -67,6 +70,16 @@ public class BusinessObjectApplyEvent implements BusinessObjectEvent
   public void setObject(String object)
   {
     this.object = object;
+  }
+
+  public Boolean getIsNew()
+  {
+    return isNew;
+  }
+
+  public void setIsNew(Boolean isNew)
+  {
+    this.isNew = isNew;
   }
 
 }

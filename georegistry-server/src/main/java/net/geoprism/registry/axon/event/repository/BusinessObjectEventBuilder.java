@@ -18,21 +18,27 @@ import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 
 public class BusinessObjectEventBuilder
 {
-  private boolean                   attributeUpdate;
+  private boolean                         attributeUpdate;
 
-  private BusinessObject            object;
+  private BusinessObject                  object;
 
-  private Boolean                   isNew;
+  private Boolean                         isNew;
 
-  private List<BusinessObjectEvent> events;
+  private List<BusinessObjectEvent>       events;
 
-  public BusinessObjectEventBuilder()
+  private BusinessObjectBusinessServiceIF service;
+
+  private ClassifierVertexCache           classifierCache;
+
+  public BusinessObjectEventBuilder(BusinessObjectBusinessServiceIF service)
   {
-    this(null);
+    this(service, null);
   }
 
-  public BusinessObjectEventBuilder(ClassifierVertexCache classifierCache)
+  public BusinessObjectEventBuilder(BusinessObjectBusinessServiceIF service, ClassifierVertexCache classifierCache)
   {
+    this.service = service;
+    this.classifierCache = classifierCache;
     this.attributeUpdate = false;
     this.isNew = false;
     this.events = new LinkedList<>();
@@ -135,7 +141,7 @@ public class BusinessObjectEventBuilder
     this.events.add(new BusinessObjectAddGeoObjectEvent(object.getCode(), object.getType().getCode(), edgeType.getCode(), geoObject.getType().getCode(), geoObject.getCode(), direction));
   }
 
-  public Object build(BusinessObjectBusinessServiceIF service)
+  public Object build()
   {
     BusinessObject object = this.getOrThrow();
 
@@ -145,7 +151,7 @@ public class BusinessObjectEventBuilder
     {
       JsonObject dto = service.toJSON(object);
 
-      list.add(new BusinessObjectApplyEvent(object.getCode(), object.getType().getCode(), dto.toString()));
+      list.add(new BusinessObjectApplyEvent(object.getCode(), object.getType().getCode(), dto.toString(), isNew));
     }
 
     list.addAll(events);

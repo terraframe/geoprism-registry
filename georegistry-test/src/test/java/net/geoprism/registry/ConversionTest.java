@@ -22,17 +22,19 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 
+import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.service.request.RegistryComponentService;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.USATestData;
 
-@ContextConfiguration(classes = { TestConfig.class }) @WebAppConfiguration
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
+@AutoConfigureMockMvc
 @RunWith(SpringInstanceTestClassRunner.class)
 public class ConversionTest extends USADatasetTest implements InstanceTestClassListener
 {

@@ -12,8 +12,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import com.google.gson.JsonObject;
 import com.runwaysdk.session.Request;
@@ -23,7 +23,7 @@ import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
-import net.geoprism.registry.TestConfig;
+import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -34,7 +34,9 @@ import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
 
-@ContextConfiguration(classes = { TestConfig.class }) @WebAppConfiguration
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
+@AutoConfigureMockMvc
+
 @RunWith(SpringInstanceTestClassRunner.class)
 public class BusinessObjectTest extends FastDatasetTest implements InstanceTestClassListener
 {
@@ -218,7 +220,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
     try
     {
-      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT);
+      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT, false);
 
       List<VertexServerGeoObject> results = this.bObjectService.getGeoObjects(object, bGeoEdgeType, EdgeDirection.PARENT);
 
@@ -247,8 +249,8 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
     try
     {
-      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT);
-      this.bObjectService.removeGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT);
+      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT, false);
+      this.bObjectService.removeGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT, false);
 
       Assert.assertEquals(0, this.bObjectService.getGeoObjects(object, bGeoEdgeType, EdgeDirection.PARENT).size());
     }
@@ -271,10 +273,10 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
     try
     {
-      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT);
-      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT);
-      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT);
-      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT);
+      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT, false);
+      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT, false);
+      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT, false);
+      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT, false);
 
       List<VertexServerGeoObject> results = this.bObjectService.getGeoObjects(object, bGeoEdgeType, EdgeDirection.PARENT);
 
@@ -303,7 +305,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
     try
     {
-      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT);
+      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT, false);
 
       List<BusinessObject> results = this.objectService.getBusinessObjects((VertexServerGeoObject) serverObject, bGeoEdgeType, EdgeDirection.CHILD);
 
@@ -332,7 +334,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
     try
     {
-      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT);
+      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT, false);
 
       List<BusinessObject> results = this.objectService.getBusinessObjects((VertexServerGeoObject) serverObject, bGeoEdgeType, EdgeDirection.CHILD);
 

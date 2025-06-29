@@ -22,7 +22,7 @@ import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.classification.ClassificationTypeTest;
-import net.geoprism.registry.config.Application;
+import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
@@ -35,14 +35,8 @@ import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.TermBusinessServiceIF;
 import net.geoprism.registry.test.USATestData;
 
-
-@SpringBootTest(
-    webEnvironment = SpringBootTest.WebEnvironment.MOCK,
-    classes = Application.class)
-  @AutoConfigureMockMvc
-
-//@ContextConfiguration(classes = { TestConfig.class })
-//@WebAppConfiguration
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
+@AutoConfigureMockMvc
 @RunWith(SpringInstanceTestClassRunner.class)
 public class BasicGeoObjectServiceTest implements InstanceTestClassListener
 {
@@ -113,7 +107,10 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
   @Request
   public void afterClassSetup() throws Exception
   {
-    this.typeService.deleteGeoObjectType(type.getCode());
+    if (type != null)
+    {
+      this.typeService.deleteGeoObjectType(type.getCode());
+    }
 
     if (root != null)
     {
@@ -146,7 +143,7 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
       object.setValue(attributeClassification.getName(), root.getVertex(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       object.setValue(attributeTerm.getName(), classifier.getOid(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
 
-      this.service.apply(object, false);
+      this.service.apply(object, false, false);
 
       ServerGeoObjectIF test = this.service.getGeoObject(object.getUid(), type.getCode());
 

@@ -2,8 +2,10 @@ package net.geoprism.registry.axon.aggregate;
 
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
+import org.axonframework.modelling.command.AggregateCreationPolicy;
 import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateLifecycle;
+import org.axonframework.modelling.command.CreationPolicy;
 import org.axonframework.spring.stereotype.Aggregate;
 
 import net.geoprism.registry.axon.command.repository.BusinessObjectCompositeCommand;
@@ -64,6 +66,10 @@ public class BusinessObjectAggregate
     this.object = object;
   }
 
+  public BusinessObjectAggregate()
+  {
+  }
+
   @CommandHandler
   public BusinessObjectAggregate(BusinessObjectCompositeCreateCommand command)
   {
@@ -71,6 +77,7 @@ public class BusinessObjectAggregate
   }
 
   @CommandHandler
+  @CreationPolicy(AggregateCreationPolicy.CREATE_IF_MISSING)
   public void on(BusinessObjectCompositeCommand command)
   {
     RunwayTransactionWrapper.run(() -> command.getEvents().stream().forEach(AggregateLifecycle::apply));

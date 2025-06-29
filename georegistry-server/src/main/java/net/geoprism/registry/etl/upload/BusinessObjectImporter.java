@@ -210,6 +210,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
   {
     this.bObjectService = ServiceFactory.getBean(BusinessObjectBusinessServiceIF.class);
     this.objectService = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
+    this.commandGateway = ServiceFactory.getBean(CommandGateway.class);
 
     this.configuration = configuration;
     this.progressListener = progressListener;
@@ -623,7 +624,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
       data.setNew(isNew);
       data.setParentBuilder(builder);
 
-      BusinessObjectEventBuilder eventBuilder = new BusinessObjectEventBuilder();
+      BusinessObjectEventBuilder eventBuilder = new BusinessObjectEventBuilder(this.bObjectService);
       eventBuilder.setObject(businessObject, isNew);
       eventBuilder.setAttributeUpdate(true);
 
@@ -632,7 +633,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
         eventBuilder.addGeoObject(this.configuration.getEdgeType(), geoObject, this.configuration.getDirection());
       }
 
-      this.commandGateway.sendAndWait(eventBuilder.build(this.bObjectService));
+      this.commandGateway.sendAndWait(eventBuilder.build());
 
       imported = true;
 

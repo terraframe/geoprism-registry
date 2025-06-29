@@ -16,29 +16,32 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
-import net.geoprism.registry.TestConfig;
+import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 
-@ContextConfiguration(classes = { TestConfig.class }) @WebAppConfiguration
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
+@AutoConfigureMockMvc
+
 @RunWith(SpringInstanceTestClassRunner.class)
 public class BusinessTypeTest extends FastDatasetTest implements InstanceTestClassListener
 {
   @Autowired
   private BusinessTypeBusinessServiceIF typeService;
-  
+
   @Test
   @Request
   public void testCreate()
@@ -60,6 +63,7 @@ public class BusinessTypeTest extends FastDatasetTest implements InstanceTestCla
       Assert.assertEquals(orgCode, type.getOrganization().getCode());
       Assert.assertEquals(label, type.getDisplayLabel().getValue());
       Assert.assertNotNull(type.getMdVertex());
+      Assert.assertEquals(type.getOrigin(), GeoprismProperties.getOrigin());
     }
     finally
     {

@@ -31,8 +31,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -61,7 +61,7 @@ import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.SynchronizationConfig;
-import net.geoprism.registry.TestConfig;
+import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.dhis2.DHIS2FeatureService;
 import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
 import net.geoprism.registry.dhis2.DHIS2SynchronizationManager;
@@ -102,7 +102,9 @@ import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestRegistryClient;
 import net.geoprism.registry.test.TestUserInfo;
 
-@ContextConfiguration(classes = { TestConfig.class }) @WebAppConfiguration
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
+@AutoConfigureMockMvc
+
 @RunWith(SpringInstanceTestClassRunner.class)
 public class DHIS2ServiceTest implements InstanceTestClassListener
 {
@@ -195,7 +197,7 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
     lv.setValue(LocalizedValue.DEFAULT_LOCALE, null);
     serverGo.setDisplayLabel(lv, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
-    this.objectService.apply(serverGo, false);
+    this.objectService.apply(serverGo, false, false);
 
     Assert.assertTrue(StringUtils.isEmpty(GO_NO_DEFAULT_LOCALE.getServerObject().getDisplayLabel().getValue(LocalizedValue.DEFAULT_LOCALE)));
 
@@ -502,7 +504,7 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
     // exist. So we'll just say the child doesn't exist at this date.
     ServerGeoObjectIF sgo = AllAttributesDataset.GO_CHAR.getServerObject();
     sgo.setExists(false, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_OVER_TIME_DATE);
-    this.objectService.apply(sgo, false);
+    this.objectService.apply(sgo, false, false);
 
     exportCustomAttribute(AllAttributesDataset.GOT_CHAR, AllAttributesDataset.GO_CHAR, testData.AT_GO_CHAR, null, TestDataSet.DEFAULT_OVER_TIME_DATE, true, null);
   }

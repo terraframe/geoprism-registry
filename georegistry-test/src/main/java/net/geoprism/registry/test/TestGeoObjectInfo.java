@@ -410,7 +410,7 @@ public class TestGeoObjectInfo extends TestCachedObject<ServerGeoObjectIF>
 
     GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
 
-    service.addChild(this.getServerObject(), child.getServerObject(), hierarchy.getServerObject(), date, TestDataSet.DEFAULT_END_TIME_DATE, UUID.randomUUID().toString());
+    service.addChild(this.getServerObject(), child.getServerObject(), hierarchy.getServerObject(), date, TestDataSet.DEFAULT_END_TIME_DATE, UUID.randomUUID().toString(), false);
   }
 
   private void addParent(TestGeoObjectInfo parent)
@@ -469,10 +469,10 @@ public class TestGeoObjectInfo extends TestCachedObject<ServerGeoObjectIF>
 
     if (date == null)
     {
-      return service.apply(this.newGeoObject(adapter), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, this.isNew, false);
+      return service.apply(this.newGeoObject(adapter), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, this.isNew, false, false);
     }
 
-    return service.apply(this.newGeoObjectOverTime(adapter), this.isNew, false);
+    return service.apply(this.newGeoObjectOverTime(adapter), this.isNew, false, false);
   }
 
   /**

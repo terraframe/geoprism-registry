@@ -22,16 +22,16 @@ public class BusinessObjectAddGeoObjectEvent implements BusinessObjectEvent
   {
   }
 
-  public BusinessObjectAddGeoObjectEvent(String type, String code, String edgeType, String geoObjectType, String geoObjectCode, EdgeDirection direction)
+  public BusinessObjectAddGeoObjectEvent(String code, String type, String edgeType, String geoObjectType, String geoObjectCode, EdgeDirection direction)
   {
-    this(code + "#" + type, type, code, edgeType, geoObjectType, geoObjectCode, direction);
+    this(code + "#" + type, code, type, edgeType, geoObjectType, geoObjectCode, direction);
   }
 
-  public BusinessObjectAddGeoObjectEvent(String key, String type, String code, String edgeType, String geoObjectType, String geoObjectCode, EdgeDirection direction)
+  public BusinessObjectAddGeoObjectEvent(String key, String code, String type, String edgeType, String geoObjectType, String geoObjectCode, EdgeDirection direction)
   {
     super();
-    this.type = type;
     this.code = code;
+    this.type = type;
     this.edgeType = edgeType;
     this.geoObjectType = geoObjectType;
     this.geoObjectCode = geoObjectCode;

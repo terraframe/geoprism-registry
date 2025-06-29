@@ -17,8 +17,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -64,9 +64,9 @@ import net.geoprism.registry.LabeledPropertyGraphTypeBuilder;
 import net.geoprism.registry.LocalRegistryConnectorBuilder;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
-import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.classification.ClassificationTypeTest;
+import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.lpg.LPGPublishProgressMonitorNoOp;
 import net.geoprism.registry.lpg.TreeStrategyConfiguration;
@@ -102,7 +102,8 @@ import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.TestHierarchyTypeInfo;
 import net.geoprism.registry.test.USATestData;
 
-@ContextConfiguration(classes = { TestConfig.class }) @WebAppConfiguration
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
+@AutoConfigureMockMvc
 @RunWith(SpringInstanceTestClassRunner.class)
 public class LabeledPropertyGraphTest extends USADatasetTest implements InstanceTestClassListener
 {
@@ -287,7 +288,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
     this.bObjectService.apply(cObject);
 
     this.bObjectService.addChild(pObject, bEdgeType, cObject);
-    this.bObjectService.addGeoObject(pObject, bGeoEdgeType, USATestData.COLORADO.getServerObject(), EdgeDirection.PARENT);
+    this.bObjectService.addGeoObject(pObject, bGeoEdgeType, USATestData.COLORADO.getServerObject(), EdgeDirection.PARENT, false);
   }
 
   @After

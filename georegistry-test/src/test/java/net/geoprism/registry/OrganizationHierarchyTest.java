@@ -13,8 +13,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -22,12 +22,14 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.model.GraphNode;
 import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.business.OrganizationBusinessServiceIF;
 import net.geoprism.registry.view.Page;
 
-@ContextConfiguration(classes = { TestConfig.class }) @WebAppConfiguration
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
+@AutoConfigureMockMvc
 @RunWith(SpringInstanceTestClassRunner.class)
 public class OrganizationHierarchyTest
 {

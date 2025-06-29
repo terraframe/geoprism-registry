@@ -16,16 +16,18 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import com.google.gson.JsonObject;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.scheduler.AllJobStatus;
@@ -37,7 +39,7 @@ import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
-import net.geoprism.registry.TestConfig;
+import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.etl.DataImportJob;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ImportHistory;
@@ -66,7 +68,8 @@ import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
 
-@ContextConfiguration(classes = { TestConfig.class }) @WebAppConfiguration
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
+@AutoConfigureMockMvc
 @RunWith(SpringInstanceTestClassRunner.class)
 public class BusinessObjectImporterTest extends FastDatasetTest implements InstanceTestClassListener
 {
@@ -98,6 +101,14 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
     testData.setUpInstanceData();
 
     setUpClassInRequest();
+  }
+
+  @Before
+  @Request
+  public void before()
+  {
+    // Clear out the event table
+    Database.deleteWhere("domainevententry", "true");
   }
 
   @Request
@@ -139,7 +150,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
     {
       this.bEdgeService.delete(bGeoEdgeType);
     }
-    
+
     if (type != null)
     {
       this.bTypeService.delete(type);

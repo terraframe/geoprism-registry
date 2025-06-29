@@ -57,6 +57,7 @@ public class GeoObjectAggregate
   }
 
   @CommandHandler
+  @CreationPolicy(AggregateCreationPolicy.CREATE_IF_MISSING)
   public void on(GeoObjectCompositeCommand command)
   {
     RunwayTransactionWrapper.run(() -> command.getEvents().stream().forEach(AggregateLifecycle::apply));

@@ -4,6 +4,7 @@ import org.axonframework.eventhandling.EventHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 
@@ -39,10 +40,13 @@ public class BusinessObjectRepositoryProjection
   {
     BusinessType type = this.typeService.getByCode(event.getType());
 
-    BusinessObject object = this.service.parse(type, JsonParser.parseString(event.getObject()).getAsJsonObject());
+    JsonObject json = JsonParser.parseString(event.getObject()).getAsJsonObject();
+
+    BusinessObject object = event.getIsNew() ? this.service.newInstance(type) : this.service.getByCode(type, event.getCode());
+
+    this.service.populate(object, json);
 
     this.service.apply(object);
-
   }
 
   @EventHandler

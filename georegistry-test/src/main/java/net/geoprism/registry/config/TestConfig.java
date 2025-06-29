@@ -1,7 +1,7 @@
 /**
  *
  */
-package net.geoprism.registry;
+package net.geoprism.registry.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
