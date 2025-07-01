@@ -3,9 +3,14 @@
  */
 package net.geoprism.registry.axon;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Date;
 
+import org.axonframework.eventhandling.GapAwareTrackingToken;
+import org.axonframework.eventhandling.TrackingToken;
+import org.axonframework.eventsourcing.eventstore.EventStore;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,6 +38,9 @@ public class PublishEventServiceTest implements InstanceTestClassListener
   @Autowired
   private PublishEventService service;
 
+  @Autowired
+  private EventStore          store;
+
   @Override
   public void beforeClassSetup() throws Exception
   {
@@ -52,9 +60,8 @@ public class PublishEventServiceTest implements InstanceTestClassListener
   public void after()
   {
     Arrays.asList(RemoteGeoObjectEvent.class, RemoteGeoObjectSetParentEvent.class).forEach(cl -> {
-      Database.deleteWhere("domainevententry", "payloadtype = '" + cl.getName() + "'");
+      Database.deleteWhere(PublishEventService.DOMAIN_EVENT_ENTRY_TABLE, "payloadtype = '" + cl.getName() + "'");
     });
-
   }
 
   @Test
@@ -73,6 +80,12 @@ public class PublishEventServiceTest implements InstanceTestClassListener
         // TODO Auto-generated catch block
         e.printStackTrace();
       }
+
+      /*
+       * WITH T AS ( SELECT *, ROW_NUMBER() OVER(PARTITION BY ID ORDER BY Date
+       * DESC) AS rn FROM yourTable ) SELECT * FROM T WHERE rn = 1
+       */
+
     });
   }
 }

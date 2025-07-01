@@ -1,14 +1,24 @@
 package net.geoprism.registry.service.business;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.common.stream.BlockingStream;
+import org.axonframework.eventhandling.DomainEventMessage;
+import org.axonframework.eventhandling.GapAwareTrackingToken;
 import org.axonframework.eventhandling.TrackedEventMessage;
 import org.axonframework.eventhandling.TrackingToken;
+import org.axonframework.eventsourcing.eventstore.DomainEventStream;
 import org.axonframework.eventsourcing.eventstore.EventStore;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.runwaysdk.dataaccess.database.Database;
 
 import net.geoprism.registry.axon.command.remote.RemoteCommand;
 import net.geoprism.registry.axon.command.remote.RemoteGeoObjectCommand;
@@ -27,6 +37,8 @@ import net.geoprism.registry.view.EventPublishingConfiguration;
 @Service
 public class PublishEventService
 {
+  public static final String         DOMAIN_EVENT_ENTRY_TABLE = "domainevententry";
+
   @Autowired
   private EventStore                 store;
 
@@ -36,13 +48,13 @@ public class PublishEventService
   @Autowired
   private GeoObjectBusinessServiceIF service;
 
-  public void publish(EventPublishingConfiguration configuration, TrackingToken token) throws InterruptedException
+  public void publish(EventPublishingConfiguration configuration, GapAwareTrackingToken start) throws InterruptedException
   {
-    TrackingToken end = this.store.createTailToken();
+    GapAwareTrackingToken end = (GapAwareTrackingToken) this.store.createHeadToken();
 
-    processEventType(token, end, EventType.OBJECT, configuration);
+    processEventType(start, end, EventType.OBJECT, configuration);
 
-    processEventType(token, end, EventType.HIERARCHY, configuration);
+    processEventType(start, end, EventType.HIERARCHY, configuration);
   }
 
   private RemoteCommand build(EventPublishingConfiguration configuration, GeoObjectEvent event, ClassificationCache cache)
@@ -96,33 +108,87 @@ public class PublishEventService
     throw new UnsupportedOperationException("Events of type [" + event.getClass().getName() + "] do no support being published");
   }
 
-  protected void processEventType(TrackingToken start, TrackingToken end, EventType eventType, EventPublishingConfiguration configuration) throws InterruptedException
+  public List<String> getAggregateIds(GapAwareTrackingToken start, GapAwareTrackingToken end)
   {
-    ClassificationCache cache = new ClassificationCache();
-    InMemoryGeoObjectEventMerger merger = new InMemoryGeoObjectEventMerger();
+    LinkedList<String> aggregateIds = new LinkedList<>();
 
-    try (BlockingStream<TrackedEventMessage<?>> stream = this.store.openStream(start))
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT DISTINCT aggregateidentifier");
+    statement.append(" FROM " + PublishEventService.DOMAIN_EVENT_ENTRY_TABLE);
+    statement.append(" WHERE globalindex < " + end.getIndex());
+
+    if (start != null)
     {
-      while (stream.hasNextAvailable())
+      statement.append(" AND globalindex >= " + start.getIndex());
+    }
+
+    try (ResultSet resultSet = Database.query(statement.toString()))
+    {
+      while (resultSet.next())
       {
-        TrackedEventMessage<?> message = stream.nextAvailable();
-        Object payload = message.getPayload();
+        String aggregateId = resultSet.getString(1);
 
-        if (payload instanceof GeoObjectEvent)
+        aggregateIds.add(aggregateId);
+      }
+
+    }
+    catch (SQLException e)
+    {
+      throw new RuntimeException(e);
+    }
+
+    return aggregateIds;
+  }
+
+  protected void processEventType(GapAwareTrackingToken start, GapAwareTrackingToken end, EventType eventType, EventPublishingConfiguration configuration) throws InterruptedException
+  {
+    long firstSequenceNumber = start != null ? start.getIndex() : 0;
+
+    ClassificationCache cache = new ClassificationCache();
+
+    List<String> aggregateIds = this.getAggregateIds(start, end);
+
+    for (String aggregateId : aggregateIds)
+    {
+      InMemoryGeoObjectEventMerger merger = new InMemoryGeoObjectEventMerger();
+      DomainEventStream stream = this.store.readEvents(aggregateId, firstSequenceNumber);
+
+      while (stream.hasNext())
+      {
+        DomainEventMessage<?> message = stream.next();
+
+        if (message.getSequenceNumber() < end.getIndex())
         {
-          GeoObjectEvent event = (GeoObjectEvent) payload;
+          Object payload = message.getPayload();
 
-          if (eventType.equals(event.getEventType()) && event.isValidFor(configuration.getDate()))
+          if (payload instanceof GeoObjectEvent)
           {
-            merger.add(event);
+            GeoObjectEvent event = (GeoObjectEvent) payload;
+
+            if (eventType.equals(event.getEventType()) && event.isValidFor(configuration.getDate()))
+            {
+              merger.add(event);
+            }
           }
         }
       }
-    }
 
-    merger.merge().stream().map(event -> this.build(configuration, event, cache)).forEach(command -> {
-      this.gateway.sendAndWait(command);
-    });
+      /*
+       * try (BlockingStream<TrackedEventMessage<?>> stream =
+       * this.store.readEvents(aggregateId)) { while (stream.hasNextAvailable())
+       * { TrackedEventMessage<?> message = stream.nextAvailable(); Object
+       * payload = message.getPayload();
+       * 
+       * if (payload instanceof GeoObjectEvent) { GeoObjectEvent event =
+       * (GeoObjectEvent) payload;
+       * 
+       * if (eventType.equals(event.getEventType()) &&
+       * event.isValidFor(configuration.getDate())) { merger.add(event); } } } }
+       */
+      merger.merge().stream().map(event -> this.build(configuration, event, cache)).forEach(command -> {
+        this.gateway.sendAndWait(command);
+      });
+    }
 
   }
 

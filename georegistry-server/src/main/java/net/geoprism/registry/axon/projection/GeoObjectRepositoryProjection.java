@@ -2,6 +2,7 @@ package net.geoprism.registry.axon.projection;
 
 import java.util.Date;
 
+import org.apache.commons.lang.StringUtils;
 import org.axonframework.eventhandling.EventHandler;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -198,24 +199,11 @@ public class GeoObjectRepositoryProjection
     ExternalSystem system = ExternalSystem.getByExternalSystemId(systemId);
 
     this.service.createExternalId(object, system, event.getExternalId(), event.getStrategy());
-
-    if (event.getRefreshWorking())
-    {
-      updateWorkingLists(object);
-    }
   }
 
   protected void updateWorkingLists(ServerGeoObjectIF object)
   {
     this.updateWorkingLists(object, object.getType());
-  }
-
-  protected void updateWorkingLists(ServerGeoObjectIF object, final ServerGeoObjectType type)
-  {
-    // Update all of the working lists which have this record
-    ListType.getForType(type).forEach(listType -> {
-      listType.getWorkingVersions().forEach(version -> version.publishOrUpdateRecord(object));
-    });
   }
 
   @EventHandler
@@ -252,7 +240,6 @@ public class GeoObjectRepositoryProjection
     if (!GeoprismProperties.getOrigin().equals(hierarchyType.getOrigin()))
     {
       ServerGeoObjectIF object = this.service.getGeoObject(event.getUid(), event.getType());
-      ServerGeoObjectIF parent = this.service.getGeoObjectByCode(event.getParentCode(), event.getParentType());
 
       String edgeUid = event.getEdgeUid();
 
@@ -263,12 +250,25 @@ public class GeoObjectRepositoryProjection
         edge.delete();
       }
 
-      this.service.addParent(object, parent, hierarchyType, event.getStartDate(), event.getEndDate(), edgeUid, false);
+      if (!StringUtils.isBlank(event.getParentCode()) && !StringUtils.isBlank(event.getParentType()))
+      {
+        ServerGeoObjectIF parent = this.service.getGeoObjectByCode(event.getParentCode(), event.getParentType());
+
+        this.service.addParent(object, parent, hierarchyType, event.getStartDate(), event.getEndDate(), edgeUid, false);
+      }
     }
     else
     {
       System.out.println("Skipping remote set parent: [" + event.getType() + "][" + event.getUid() + "]");
     }
+  }
+
+  protected void updateWorkingLists(ServerGeoObjectIF object, final ServerGeoObjectType type)
+  {
+    // Update all of the working lists which have this record
+    ListType.getForType(type).forEach(listType -> {
+      listType.getWorkingVersions().forEach(version -> version.publishOrUpdateRecord(object));
+    });
   }
 
 }
