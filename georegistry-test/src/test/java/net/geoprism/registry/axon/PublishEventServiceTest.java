@@ -3,17 +3,24 @@
  */
 package net.geoprism.registry.axon;
 
+import java.util.Arrays;
 import java.util.Date;
 
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.runwaysdk.dataaccess.database.Database;
+import com.runwaysdk.session.Request;
+
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.axon.aggregate.RunwayTransactionWrapper;
+import net.geoprism.registry.axon.event.remote.RemoteGeoObjectEvent;
+import net.geoprism.registry.axon.event.remote.RemoteGeoObjectSetParentEvent;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.service.business.PublishEventService;
 import net.geoprism.registry.view.EventPublishingConfiguration;
@@ -37,6 +44,16 @@ public class PublishEventServiceTest implements InstanceTestClassListener
   public void afterClassSetup() throws Exception
   {
     // TODO Auto-generated method stub
+
+  }
+
+  @After
+  @Request
+  public void after()
+  {
+    Arrays.asList(RemoteGeoObjectEvent.class, RemoteGeoObjectSetParentEvent.class).forEach(cl -> {
+      Database.deleteWhere("domainevententry", "payloadtype = '" + cl.getName() + "'");
+    });
 
   }
 

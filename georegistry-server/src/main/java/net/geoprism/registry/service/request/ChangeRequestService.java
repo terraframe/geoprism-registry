@@ -452,7 +452,7 @@ public class ChangeRequestService
     if (!this.permissions.getPermissions(action.getAllRequest().next()).containsAll(Arrays.asList(ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS)))
     {
       throw new CGRPermissionException();
-    }
+    } 
 
     action.appLock();
     action.clearApprovalStatus();

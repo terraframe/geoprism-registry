@@ -15,6 +15,8 @@ import net.geoprism.registry.axon.command.repository.GeoObjectCompositeCreateCom
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectSetParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEvent;
+import net.geoprism.registry.axon.event.repository.GeoObjectCreateParentEvent;
+import net.geoprism.registry.axon.event.repository.GeoObjectUpdateParentEvent;
 
 @Aggregate
 public class GeoObjectAggregate
@@ -91,4 +93,16 @@ public class GeoObjectAggregate
     // this.object = event.getObject();
   }
 
+  @EventSourcingHandler
+  public void on(GeoObjectUpdateParentEvent event)
+  {
+    this.uid = event.getUid();
+  }
+
+  @EventSourcingHandler
+  public void on(GeoObjectCreateParentEvent event)
+  {
+    this.uid = event.getUid();
+  }
+  
 }

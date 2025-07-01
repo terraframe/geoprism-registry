@@ -436,8 +436,10 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
       this.apply();
 
       // Apply the events
+      Object command = builder.build();
+      
       CommandGateway gateway = ServiceFactory.getBean(CommandGateway.class);
-      gateway.sendAndWait(builder.build());
+      gateway.sendAndWait(command);
 
       // Email the contributor
       try

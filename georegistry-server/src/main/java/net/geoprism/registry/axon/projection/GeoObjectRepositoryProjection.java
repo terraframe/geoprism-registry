@@ -4,6 +4,7 @@ import java.util.Date;
 
 import org.axonframework.eventhandling.EventHandler;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 
+import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectEvent;
@@ -29,6 +31,7 @@ import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
+import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 
@@ -37,6 +40,9 @@ public class GeoObjectRepositoryProjection
 {
   @Autowired
   private HierarchyTypeBusinessServiceIF hService;
+
+  @Autowired
+  private GeoObjectTypeBusinessServiceIF typeService;
 
   @Autowired
   private GPRGeoObjectBusinessServiceIF  service;
@@ -216,14 +222,53 @@ public class GeoObjectRepositoryProjection
   @Transaction
   public void handleRemoteGeoObject(RemoteGeoObjectEvent event) throws Exception
   {
-    System.out.println("Handling remote geo object: [" + event.getType() + "][" + event.getUid() + "] - [" + event.getIsNew() + "]");
+    ServerGeoObjectType type = ServerGeoObjectType.get(event.getType());
+
+    if (!GeoprismProperties.getOrigin().equals(type.getOrigin()))
+    {
+      GeoObject dto = GeoObject.fromJSON(ServiceFactory.getAdapter(), event.getObject());
+      ServerGeoObjectIF object = this.service.getGeoObjectByCode(dto.getCode(), dto.getType().getCode(), false);
+
+      if (object != null)
+      {
+        object = this.service.newInstance(type);
+      }
+
+      this.service.populate(object, dto, event.getStartDate(), event.getEndDate());
+      this.service.apply(object, false, false);
+    }
+    else
+    {
+      System.out.println("Skipping remote geo object: [" + event.getType() + "][" + event.getUid() + "] - [" + event.getIsNew() + "]");
+    }
   }
 
   @EventHandler
   @Transaction
   public void handleRemoteParent(RemoteGeoObjectSetParentEvent event) throws Exception
   {
-    System.out.println("Handling remote set parent: [" + event.getType() + "][" + event.getUid() + "] - [" + event.getParentCode() + "]");
+    ServerHierarchyType hierarchyType = this.hService.get(event.getEdgeType());
+
+    if (!GeoprismProperties.getOrigin().equals(hierarchyType.getOrigin()))
+    {
+      ServerGeoObjectIF object = this.service.getGeoObject(event.getUid(), event.getType());
+      ServerGeoObjectIF parent = this.service.getGeoObjectByCode(event.getParentCode(), event.getParentType());
+
+      String edgeUid = event.getEdgeUid();
+
+      EdgeObject edge = object.getEdge(hierarchyType, edgeUid);
+
+      if (edge != null)
+      {
+        edge.delete();
+      }
+
+      this.service.addParent(object, parent, hierarchyType, event.getStartDate(), event.getEndDate(), edgeUid, false);
+    }
+    else
+    {
+      System.out.println("Skipping remote set parent: [" + event.getType() + "][" + event.getUid() + "]");
+    }
   }
 
 }

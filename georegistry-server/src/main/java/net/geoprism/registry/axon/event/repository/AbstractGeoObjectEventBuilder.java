@@ -196,7 +196,8 @@ public abstract class AbstractGeoObjectEventBuilder<K>
     }
   }
 
-  public Object build()
+  @SuppressWarnings("unchecked")
+  public <T> T build()
   {
     LinkedList<GeoObjectEvent> list = new LinkedList<>();
 
@@ -214,10 +215,10 @@ public abstract class AbstractGeoObjectEventBuilder<K>
 
     if (this.isNew)
     {
-      return new GeoObjectCompositeCreateCommand(getUid(), list);
+      return (T) new GeoObjectCompositeCreateCommand(getUid(), list);
     }
 
-    return new GeoObjectCompositeCommand(getUid(), list);
+    return (T) new GeoObjectCompositeCommand(getUid(), list);
   }
 
 }
