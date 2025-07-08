@@ -84,6 +84,7 @@ import net.geoprism.graph.HierarchyTypeSnapshot;
 import net.geoprism.graph.LabeledPropertyGraphType;
 import net.geoprism.graph.LabeledPropertyGraphTypeEntry;
 import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
+import net.geoprism.graph.ObjectTypeSnapshot;
 import net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJob;
 import net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJobQuery;
 import net.geoprism.graph.UndirectedGraphTypeSnapshot;
@@ -118,7 +119,7 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
 
     private ServerGeoObjectType   type;
 
-    public StackItem(ServerGeoObjectType type, GeoObjectTypeSnapshot parent)
+    public StackItem(ServerGeoObjectType type, GeoObjectTypeSnapshot parent)    
     {
       this.type = type;
       this.parent = parent;
@@ -131,9 +132,6 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
 
   @Autowired
   private HierarchyTypeSnapshotBusinessServiceIF hSnapshotService;
-
-  @Autowired
-  private GraphTypeSnapshotBusinessServiceIF     graphSnapshotService;
 
   @Autowired
   private HierarchyTypeBusinessServiceIF         hierarchyService;
@@ -356,36 +354,39 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
     if (gtr.typeCode.equals(GraphTypeSnapshot.DIRECTED_ACYCLIC_GRAPH_TYPE))
     {
       DirectedAcyclicGraphTypeSnapshot htsnapshot = new DirectedAcyclicGraphTypeSnapshot();
-      htsnapshot.setVersion(version);
       htsnapshot.setGraphMdEdge(mdEdge);
       htsnapshot.setCode(gtr.code);
       LocalizedValueConverter.populate(htsnapshot.getDisplayLabel(), graphType.getLabel());
       LocalizedValueConverter.populate(htsnapshot.getDescription(), graphType.getDescriptionLV());
       htsnapshot.apply();
+      
+      htsnapshot.addVersion(version).apply();
 
       snapshot = htsnapshot;
     }
     else if (gtr.typeCode.equals(GraphTypeSnapshot.UNDIRECTED_GRAPH_TYPE))
     {
       UndirectedGraphTypeSnapshot htsnapshot = new UndirectedGraphTypeSnapshot();
-      htsnapshot.setVersion(version);
       htsnapshot.setGraphMdEdge(mdEdge);
       htsnapshot.setCode(gtr.code);
       LocalizedValueConverter.populate(htsnapshot.getDisplayLabel(), graphType.getLabel());
       LocalizedValueConverter.populate(htsnapshot.getDescription(), graphType.getDescriptionLV());
       htsnapshot.apply();
 
+      htsnapshot.addVersion(version).apply();
+
       snapshot = htsnapshot;
     }
     else if (gtr.typeCode.equals(GraphTypeSnapshot.HIERARCHY_TYPE))
     {
       HierarchyTypeSnapshot htsnapshot = new HierarchyTypeSnapshot();
-      htsnapshot.setVersion(version);
       htsnapshot.setGraphMdEdge(mdEdge);
       htsnapshot.setCode(gtr.code);
       LocalizedValueConverter.populate(htsnapshot.getDisplayLabel(), graphType.getLabel());
       LocalizedValueConverter.populate(htsnapshot.getDescription(), graphType.getDescriptionLV());
       htsnapshot.apply();
+      
+      htsnapshot.addVersion(version).apply();
 
       snapshot = htsnapshot;
     }
@@ -404,15 +405,15 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
 
     String viewName = getEdgeName(edgeType.getMdEdgeDAO());
 
-    String parentOid = parent.isGeoObjectType() ? root.getGraphMdVertexOid() : this.bTypeSnapshotService.get(version, parent.getCode()).getGraphMdVertexOid();
-    String childOid = child.isGeoObjectType() ? root.getGraphMdVertexOid() : this.bTypeSnapshotService.get(version, child.getCode()).getGraphMdVertexOid();
+    ObjectTypeSnapshot pSnapshot = parent.isGeoObjectType() ? root : this.bTypeSnapshotService.get(version, parent.getCode());
+    ObjectTypeSnapshot cSnapshot = child.isGeoObjectType() ? root : this.bTypeSnapshotService.get(version, child.getCode());
 
     MdEdgeDAO mdEdgeDAO = MdEdgeDAO.newInstance();
     mdEdgeDAO.setValue(MdEdgeInfo.PACKAGE, RegistryConstants.UNIVERSAL_GRAPH_PACKAGE);
     mdEdgeDAO.setValue(MdEdgeInfo.NAME, viewName);
     mdEdgeDAO.setValue(MdEdgeInfo.DB_CLASS_NAME, viewName);
-    mdEdgeDAO.setValue(MdEdgeInfo.PARENT_MD_VERTEX, parentOid);
-    mdEdgeDAO.setValue(MdEdgeInfo.CHILD_MD_VERTEX, childOid);
+    mdEdgeDAO.setValue(MdEdgeInfo.PARENT_MD_VERTEX, pSnapshot.getGraphMdVertexOid());
+    mdEdgeDAO.setValue(MdEdgeInfo.CHILD_MD_VERTEX, cSnapshot.getGraphMdVertexOid());
     RegistryLocalizedValueConverter.populate(mdEdgeDAO, MdEdgeInfo.DISPLAY_LABEL, edgeType.getLabel());
     mdEdgeDAO.setValue(MdEdgeInfo.ENABLE_CHANGE_OVER_TIME, MdAttributeBooleanInfo.FALSE);
     mdEdgeDAO.apply();
@@ -422,16 +423,17 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
     this.assignPermissions(mdEdge);
 
     BusinessEdgeTypeSnapshot snapshot = new BusinessEdgeTypeSnapshot();
-    snapshot.setVersion(version);
     snapshot.setGraphMdEdge(mdEdge);
     snapshot.setCode(edgeType.getCode());
     snapshot.setIsChildGeoObject(child.isGeoObjectType());
     snapshot.setIsParentGeoObject(parent.isGeoObjectType());
-    snapshot.setParentTypeId(parentOid);
+    snapshot.setParentType(pSnapshot);
     snapshot.setIsParentGeoObject(parent.isGeoObjectType());
-    snapshot.setChildTypeId(childOid);
+    snapshot.setChildType(cSnapshot);
     LocalizedValueConverter.populate(snapshot.getDisplayLabel(), edgeType.getLabel());
     snapshot.apply();
+    
+    snapshot.addVersion(version).apply();
 
     return snapshot;
   }
@@ -470,12 +472,13 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
     this.assignPermissions(mdEdge);
 
     HierarchyTypeSnapshot snapshot = new HierarchyTypeSnapshot();
-    snapshot.setVersion(version);
     snapshot.setGraphMdEdge(mdEdge);
     snapshot.setCode(type.getCode());
     RegistryLocalizedValueConverter.populate(snapshot.getDisplayLabel(), type.getLabel());
     RegistryLocalizedValueConverter.populate(snapshot.getDescription(), type.getDescription());
     snapshot.apply();
+
+    snapshot.addVersion(version).apply();
 
     return snapshot;
   }
@@ -602,7 +605,6 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
     MdVertex graphMdVertex = (MdVertex) BusinessFacade.get(mdVertexDAO);
 
     GeoObjectTypeSnapshot snapshot = new GeoObjectTypeSnapshot();
-    snapshot.setVersion(version);
     snapshot.setGraphMdVertex(graphMdVertex);
     snapshot.setCode(type.getCode());
     snapshot.setOrgCode(type.getOrganizationCode());
@@ -614,6 +616,8 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
     RegistryLocalizedValueConverter.populate(snapshot.getDisplayLabel(), type.getLabel());
     RegistryLocalizedValueConverter.populate(snapshot.getDescription(), type.getDescription());
     snapshot.apply();
+
+    snapshot.addVersion(version).apply();
 
     assignPermissions(mdVertexDAO);
 
@@ -722,12 +726,13 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
     MdVertex graphMdVertex = (MdVertex) BusinessFacade.get(mdVertexDAO);
 
     BusinessTypeSnapshot snapshot = new BusinessTypeSnapshot();
-    snapshot.setVersion(version);
     snapshot.setGraphMdVertex(graphMdVertex);
     snapshot.setCode(type.getCode());
     snapshot.setOrgCode(type.getOrganization().getCode());
     RegistryLocalizedValueConverter.populate(snapshot.getDisplayLabel(), type.getLabel());
     snapshot.apply();
+    
+    snapshot.addVersion(version).apply();
 
     assignPermissions(mdVertexDAO);
 

@@ -3,13 +3,9 @@
  */
 package net.geoprism.registry.axon;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Date;
 
-import org.axonframework.eventhandling.GapAwareTrackingToken;
-import org.axonframework.eventhandling.TrackingToken;
 import org.axonframework.eventsourcing.eventstore.EventStore;
 import org.junit.After;
 import org.junit.Test;
@@ -22,6 +18,7 @@ import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.Publish;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.axon.aggregate.RunwayTransactionWrapper;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectEvent;
@@ -73,7 +70,8 @@ public class PublishEventServiceTest implements InstanceTestClassListener
 
       try
       {
-        service.publish(new EventPublishingConfiguration(date, date, date), null);
+        Publish publish = service.publish(new EventPublishingConfiguration(date, date, date));
+        publish.delete();
       }
       catch (InterruptedException e)
       {

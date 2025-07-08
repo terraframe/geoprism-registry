@@ -4,6 +4,8 @@ import java.util.Date;
 
 public class RemoteGeoObjectEvent
 {
+  private String  commitId;
+
   private String  uid;
 
   private Boolean isNew;
@@ -16,20 +18,31 @@ public class RemoteGeoObjectEvent
   private Date    startDate;
 
   private Date    endDate;
-  
+
   public RemoteGeoObjectEvent()
   {
   }
 
-  public RemoteGeoObjectEvent(String uid, Boolean isNew, String object, String type, Date startDate, Date endDate)
+  public RemoteGeoObjectEvent(String commitId, String uid, Boolean isNew, String object, String type, Date startDate, Date endDate)
   {
     super();
+    this.commitId = commitId;
     this.uid = uid;
     this.isNew = isNew;
     this.object = object;
     this.type = type;
     this.startDate = startDate;
     this.endDate = endDate;
+  }
+
+  public String getCommitId()
+  {
+    return commitId;
+  }
+
+  public void setCommitId(String commitId)
+  {
+    this.commitId = commitId;
   }
 
   public String getUid()

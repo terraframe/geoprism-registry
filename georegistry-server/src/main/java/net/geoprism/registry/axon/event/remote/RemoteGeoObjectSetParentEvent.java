@@ -4,6 +4,8 @@ import java.util.Date;
 
 public class RemoteGeoObjectSetParentEvent
 {
+  private String commitId;
+
   private String uid;
 
   private String type;
@@ -24,9 +26,10 @@ public class RemoteGeoObjectSetParentEvent
   {
   }
 
-  public RemoteGeoObjectSetParentEvent(String uid, String type, String edgeUid, String edgeType, Date startDate, Date endDate, String parentCode, String parentType)
+  public RemoteGeoObjectSetParentEvent(String commitId, String uid, String type, String edgeUid, String edgeType, Date startDate, Date endDate, String parentCode, String parentType)
   {
     super();
+    this.commitId = commitId;
     this.uid = uid;
     this.type = type;
     this.edgeUid = edgeUid;
@@ -35,6 +38,16 @@ public class RemoteGeoObjectSetParentEvent
     this.endDate = endDate;
     this.parentType = parentType;
     this.parentCode = parentCode;
+  }
+
+  public String getCommitId()
+  {
+    return commitId;
+  }
+
+  public void setCommitId(String commitId)
+  {
+    this.commitId = commitId;
   }
 
   public String getUid()

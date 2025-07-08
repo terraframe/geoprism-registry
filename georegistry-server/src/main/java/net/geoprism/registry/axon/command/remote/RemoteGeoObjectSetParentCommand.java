@@ -7,6 +7,8 @@ import org.axonframework.modelling.command.TargetAggregateIdentifier;
 public class RemoteGeoObjectSetParentCommand implements RemoteCommand
 {
   @TargetAggregateIdentifier
+  private String commitId;
+
   private String uid;
 
   private String type;
@@ -27,9 +29,10 @@ public class RemoteGeoObjectSetParentCommand implements RemoteCommand
   {
   }
 
-  public RemoteGeoObjectSetParentCommand(String uid, String type, String edgeUid, String edgeType, Date startDate, Date endDate, String parentCode, String parentType)
+  public RemoteGeoObjectSetParentCommand(String commitId, String uid, String type, String edgeUid, String edgeType, Date startDate, Date endDate, String parentCode, String parentType)
   {
     super();
+    this.commitId = commitId;
     this.uid = uid;
     this.type = type;
     this.edgeUid = edgeUid;
@@ -38,6 +41,16 @@ public class RemoteGeoObjectSetParentCommand implements RemoteCommand
     this.endDate = endDate;
     this.parentType = parentType;
     this.parentCode = parentCode;
+  }
+
+  public String getCommitId()
+  {
+    return commitId;
+  }
+
+  public void setCommitId(String commitId)
+  {
+    this.commitId = commitId;
   }
 
   public String getUid()

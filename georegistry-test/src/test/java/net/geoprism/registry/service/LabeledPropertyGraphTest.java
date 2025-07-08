@@ -763,6 +763,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
 
       Assert.assertEquals(2, bEdges.size());
 
+      this.entryService.delete(entry);
     }
     finally
     {

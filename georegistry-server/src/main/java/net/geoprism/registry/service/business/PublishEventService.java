@@ -4,13 +4,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
-import org.axonframework.common.stream.BlockingStream;
 import org.axonframework.eventhandling.DomainEventMessage;
 import org.axonframework.eventhandling.GapAwareTrackingToken;
-import org.axonframework.eventhandling.TrackedEventMessage;
-import org.axonframework.eventhandling.TrackingToken;
 import org.axonframework.eventsourcing.eventstore.DomainEventStream;
 import org.axonframework.eventsourcing.eventstore.EventStore;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -18,8 +16,12 @@ import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.database.Database;
+import com.runwaysdk.dataaccess.transaction.Transaction;
 
+import net.geoprism.registry.Commit;
+import net.geoprism.registry.Publish;
 import net.geoprism.registry.axon.command.remote.RemoteCommand;
 import net.geoprism.registry.axon.command.remote.RemoteGeoObjectCommand;
 import net.geoprism.registry.axon.command.remote.RemoteGeoObjectSetParentCommand;
@@ -48,16 +50,49 @@ public class PublishEventService
   @Autowired
   private GeoObjectBusinessServiceIF service;
 
-  public void publish(EventPublishingConfiguration configuration, GapAwareTrackingToken start) throws InterruptedException
+  @Transaction
+  public Publish publish(EventPublishingConfiguration configuration) throws InterruptedException
+  {
+
+    Publish publish = new Publish();
+    publish.setUid(UUID.randomUUID().toString());
+    publish.setTypeCodes(configuration.toJson().toString());
+    publish.setForDate(configuration.getDate());
+    publish.setStartDate(configuration.getStartDate());
+    publish.setEndDate(configuration.getEndDate());
+    publish.apply();
+
+    Commit previous = publish.getMostRecentCommit();
+
+    Long lastSequenceNumber = previous != null ? previous.getLastSequenceNumber() : 0;
+    Integer versionNumber = previous != null ? previous.getVersionNumber() : 1;
+
+    GapAwareTrackingToken start = new GapAwareTrackingToken(lastSequenceNumber, new LinkedList<>());
+
+    publish(publish, start, versionNumber);
+
+    return publish;
+  }
+
+  protected Commit publish(Publish publish, GapAwareTrackingToken start, Integer versionNumber)
   {
     GapAwareTrackingToken end = (GapAwareTrackingToken) this.store.createHeadToken();
 
-    processEventType(start, end, EventType.OBJECT, configuration);
+    Commit commit = new Commit();
+    commit.setUid(UUID.randomUUID().toString());
+    commit.setPublish(publish);
+    commit.setLastSequenceNumber(end.getIndex());
+    commit.setVersionNumber(versionNumber);
+    commit.apply();
 
-    processEventType(start, end, EventType.HIERARCHY, configuration);
+    processEventType(start, end, EventType.OBJECT, publish, commit);
+
+    processEventType(start, end, EventType.HIERARCHY, publish, commit);
+
+    return commit;
   }
 
-  private RemoteCommand build(EventPublishingConfiguration configuration, GeoObjectEvent event, ClassificationCache cache)
+  private RemoteCommand build(Publish publish, Commit commit, GeoObjectEvent event, ClassificationCache cache)
   {
     if (event instanceof GeoObjectApplyEvent)
     {
@@ -69,9 +104,9 @@ public class PublishEventService
       GeoObjectOverTime dtoOvertTime = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), oJson);
       ServerGeoObjectIF geoObject = this.service.fromDTO(dtoOvertTime, isNew);
 
-      GeoObject dto = this.service.toGeoObject(geoObject, configuration.getDate(), false, cache);
+      GeoObject dto = this.service.toGeoObject(geoObject, publish.getForDate(), false, cache);
 
-      return new RemoteGeoObjectCommand(uid, isNew, dto.toJSON().toString(), type, configuration.getStartDate(), configuration.getEndDate());
+      return new RemoteGeoObjectCommand(commit.getUid(), uid, isNew, dto.toJSON().toString(), type, publish.getStartDate(), publish.getEndDate());
     }
     else if (event instanceof GeoObjectCreateParentEvent)
     {
@@ -82,7 +117,7 @@ public class PublishEventService
       String parentType = ( (GeoObjectCreateParentEvent) event ).getParentType();
       String parentCode = ( (GeoObjectCreateParentEvent) event ).getParentCode();
 
-      return new RemoteGeoObjectSetParentCommand(uid, type, edgeUid, edgeType, configuration.getStartDate(), configuration.getEndDate(), parentCode, parentType);
+      return new RemoteGeoObjectSetParentCommand(commit.getUid(), uid, type, edgeUid, edgeType, publish.getStartDate(), publish.getEndDate(), parentCode, parentType);
     }
     else if (event instanceof GeoObjectUpdateParentEvent)
     {
@@ -93,7 +128,7 @@ public class PublishEventService
       String parentType = ( (GeoObjectUpdateParentEvent) event ).getParentType();
       String parentCode = ( (GeoObjectUpdateParentEvent) event ).getParentCode();
 
-      return new RemoteGeoObjectSetParentCommand(uid, type, edgeUid, edgeType, configuration.getStartDate(), configuration.getEndDate(), parentCode, parentType);
+      return new RemoteGeoObjectSetParentCommand(commit.getUid(), uid, type, edgeUid, edgeType, publish.getStartDate(), publish.getEndDate(), parentCode, parentType);
     }
     else if (event instanceof GeoObjectRemoveParentEvent)
     {
@@ -102,7 +137,7 @@ public class PublishEventService
       String edgeUid = ( (GeoObjectRemoveParentEvent) event ).getEdgeUid();
       String edgeType = ( (GeoObjectRemoveParentEvent) event ).getEdgeType();
 
-      return new RemoteGeoObjectSetParentCommand(uid, type, edgeUid, edgeType, configuration.getStartDate(), configuration.getEndDate(), null, null);
+      return new RemoteGeoObjectSetParentCommand(commit.getUid(), uid, type, edgeUid, edgeType, publish.getStartDate(), publish.getEndDate(), null, null);
     }
 
     throw new UnsupportedOperationException("Events of type [" + event.getClass().getName() + "] do no support being published");
@@ -126,21 +161,18 @@ public class PublishEventService
     {
       while (resultSet.next())
       {
-        String aggregateId = resultSet.getString(1);
-
-        aggregateIds.add(aggregateId);
+        aggregateIds.add(resultSet.getString(1));
       }
-
     }
     catch (SQLException e)
     {
-      throw new RuntimeException(e);
+      throw new ProgrammingErrorException(e);
     }
 
     return aggregateIds;
   }
 
-  protected void processEventType(GapAwareTrackingToken start, GapAwareTrackingToken end, EventType eventType, EventPublishingConfiguration configuration) throws InterruptedException
+  protected void processEventType(GapAwareTrackingToken start, GapAwareTrackingToken end, EventType eventType, Publish publish, Commit commit)
   {
     long firstSequenceNumber = start != null ? start.getIndex() : 0;
 
@@ -165,7 +197,7 @@ public class PublishEventService
           {
             GeoObjectEvent event = (GeoObjectEvent) payload;
 
-            if (eventType.equals(event.getEventType()) && event.isValidFor(configuration.getDate()))
+            if (eventType.equals(event.getEventType()) && event.isValidFor(publish.getForDate()))
             {
               merger.add(event);
             }
@@ -185,7 +217,7 @@ public class PublishEventService
        * if (eventType.equals(event.getEventType()) &&
        * event.isValidFor(configuration.getDate())) { merger.add(event); } } } }
        */
-      merger.merge().stream().map(event -> this.build(configuration, event, cache)).forEach(command -> {
+      merger.merge().stream().map(event -> this.build(publish, commit, event, cache)).forEach(command -> {
         this.gateway.sendAndWait(command);
       });
     }
