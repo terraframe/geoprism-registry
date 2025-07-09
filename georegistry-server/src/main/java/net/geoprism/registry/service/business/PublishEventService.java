@@ -4,7 +4,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.eventhandling.DomainEventMessage;
@@ -50,46 +49,45 @@ public class PublishEventService
   @Autowired
   private GeoObjectBusinessServiceIF service;
 
+  @Autowired
+  private PublishBusinessServiceIF   publishService;
+
+  @Autowired
+  private CommitBusinessServiceIF    commitService;
+
   @Transaction
   public Publish publish(EventPublishingConfiguration configuration) throws InterruptedException
   {
+    Publish publish = this.publishService.create(configuration);
 
-    Publish publish = new Publish();
-    publish.setUid(UUID.randomUUID().toString());
-    publish.setTypeCodes(configuration.toJson().toString());
-    publish.setForDate(configuration.getDate());
-    publish.setStartDate(configuration.getStartDate());
-    publish.setEndDate(configuration.getEndDate());
-    publish.apply();
-
-    Commit previous = publish.getMostRecentCommit();
+    Commit previous = this.publishService.getMostRecentCommit(publish);
 
     Long lastSequenceNumber = previous != null ? previous.getLastSequenceNumber() : 0;
     Integer versionNumber = previous != null ? previous.getVersionNumber() : 1;
 
     GapAwareTrackingToken start = new GapAwareTrackingToken(lastSequenceNumber, new LinkedList<>());
 
-    publish(publish, start, versionNumber);
+    publish(publish, configuration, start, versionNumber);
 
     return publish;
   }
 
-  protected Commit publish(Publish publish, GapAwareTrackingToken start, Integer versionNumber)
+  protected Commit publish(Publish publish, EventPublishingConfiguration configuration, GapAwareTrackingToken start, Integer versionNumber)
   {
     GapAwareTrackingToken end = (GapAwareTrackingToken) this.store.createHeadToken();
 
-    Commit commit = new Commit();
-    commit.setUid(UUID.randomUUID().toString());
-    commit.setPublish(publish);
-    commit.setLastSequenceNumber(end.getIndex());
-    commit.setVersionNumber(versionNumber);
-    commit.apply();
+    if (end != null && start.getIndex() < end.getIndex())
+    {
+      Commit commit = this.commitService.create(publish, configuration, versionNumber, end.getIndex());
 
-    processEventType(start, end, EventType.OBJECT, publish, commit);
+      processEventType(start, end, EventType.OBJECT, publish, commit);
 
-    processEventType(start, end, EventType.HIERARCHY, publish, commit);
+      processEventType(start, end, EventType.HIERARCHY, publish, commit);
 
-    return commit;
+      return commit;
+    }
+
+    throw new ProgrammingErrorException("Unable to publish events because no events exist");
   }
 
   private RemoteCommand build(Publish publish, Commit commit, GeoObjectEvent event, ClassificationCache cache)

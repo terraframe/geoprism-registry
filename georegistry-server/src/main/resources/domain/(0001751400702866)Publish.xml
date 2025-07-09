@@ -1,0 +1,65 @@
+<version
+  xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdBusiness
+        name="net.geoprism.registry.Publish"
+        exported="false">
+        <attributes>
+          <uuid
+            name="uid"
+            label="UID" />
+          <json
+            name="typeCodes"
+            label="Type Codes" />
+          <date
+            name="forDate"
+            label="For Date" />
+          <date
+            name="startDate"
+            label="Start Date" />
+          <date
+            name="endDate"
+            label="End Date" />
+        </attributes>
+      </mdBusiness>
+      <mdBusiness
+        name="net.geoprism.registry.Commit"
+        exported="false">
+        <attributes>
+          <uuid
+            name="uid"
+            label="UID" />
+          <reference
+            name="publish"
+            label="Publish"
+            required="true"
+            type="net.geoprism.registry.Publish" />
+          <long
+            name="lastSequenceNumber"
+            label="Last Sequence Number" />
+          <integer
+            name="versionNumber"
+            label="Version Number" />
+        </attributes>
+      </mdBusiness>
+      
+      <mdRelationship name="net.geoprism.registry.CommitHasSnapshot" label="Commit Has Snapshot" table="commit_has_snapshot" generateController="false" exported="false" publish="true">
+        <parent cardinality="*" name="net.geoprism.registry.Commit" method="Commit" />
+        <child cardinality="*" name="net.geoprism.graph.MetadataSnapshot"  method="Snapshot" />
+      </mdRelationship>
+      
+    </create>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object
+        key="net.geoprism.registry.Publish"
+        type="com.runwaysdk.system.metadata.MdBusiness" />
+      <object
+        key="net.geoprism.registry.Commit"
+        type="com.runwaysdk.system.metadata.MdBusiness" />
+    </delete>
+  </undoIt>
+</version>

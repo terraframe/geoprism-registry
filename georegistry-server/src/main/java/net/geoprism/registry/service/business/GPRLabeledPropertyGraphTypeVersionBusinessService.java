@@ -20,91 +20,36 @@ package net.geoprism.registry.service.business;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Stack;
-import java.util.stream.Collectors;
 
-import org.commongeoregistry.adapter.Term;
-import org.commongeoregistry.adapter.constants.DefaultAttribute;
-import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
-import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
-import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
-import org.commongeoregistry.adapter.metadata.AttributeDateType;
-import org.commongeoregistry.adapter.metadata.AttributeFloatType;
-import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
-import org.commongeoregistry.adapter.metadata.AttributeLocalType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
-import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
-import com.runwaysdk.ComponentIF;
-import com.runwaysdk.business.BusinessFacade;
-import com.runwaysdk.business.rbac.Operation;
-import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
-import com.runwaysdk.business.rbac.UserDAO;
-import com.runwaysdk.constants.MdAttributeBooleanInfo;
-import com.runwaysdk.constants.MdAttributeCharacterInfo;
-import com.runwaysdk.constants.MdAttributeConcreteInfo;
-import com.runwaysdk.constants.MdAttributeDoubleInfo;
-import com.runwaysdk.constants.UserInfo;
-import com.runwaysdk.constants.graph.MdEdgeInfo;
-import com.runwaysdk.constants.graph.MdVertexInfo;
-import com.runwaysdk.dataaccess.MdEdgeDAOIF;
-import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
-import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.metadata.MdAttributeBoolean;
-import com.runwaysdk.system.metadata.MdAttributeCharacter;
-import com.runwaysdk.system.metadata.MdAttributeClassification;
-import com.runwaysdk.system.metadata.MdAttributeConcrete;
-import com.runwaysdk.system.metadata.MdAttributeDateTime;
-import com.runwaysdk.system.metadata.MdAttributeDouble;
-import com.runwaysdk.system.metadata.MdAttributeLocalCharacterEmbedded;
-import com.runwaysdk.system.metadata.MdAttributeLong;
-import com.runwaysdk.system.metadata.MdEdge;
-import com.runwaysdk.system.metadata.MdVertex;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutableJob;
 import com.runwaysdk.system.scheduler.JobHistoryQuery;
 
-import net.geoprism.graph.BusinessEdgeTypeSnapshot;
-import net.geoprism.graph.BusinessTypeSnapshot;
-import net.geoprism.graph.DirectedAcyclicGraphTypeSnapshot;
 import net.geoprism.graph.GeoObjectTypeSnapshot;
 import net.geoprism.graph.GraphTypeReference;
-import net.geoprism.graph.GraphTypeSnapshot;
-import net.geoprism.graph.HierarchyTypeSnapshot;
 import net.geoprism.graph.LabeledPropertyGraphType;
 import net.geoprism.graph.LabeledPropertyGraphTypeEntry;
 import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
-import net.geoprism.graph.ObjectTypeSnapshot;
 import net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJob;
 import net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJobQuery;
-import net.geoprism.graph.UndirectedGraphTypeSnapshot;
-import net.geoprism.rbac.RoleConstants;
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
-import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
-import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.etl.DuplicateJobException;
 import net.geoprism.registry.lpg.LPGPublishProgressMonitorIF;
 import net.geoprism.registry.lpg.StrategyConfiguration;
 import net.geoprism.registry.lpg.TreeStrategyConfiguration;
-import net.geoprism.registry.model.Classification;
-import net.geoprism.registry.model.ClassificationType;
-import net.geoprism.registry.model.GeoObjectMetadata;
-import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.model.graph.EdgeVertexType;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;
@@ -119,7 +64,7 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
 
     private ServerGeoObjectType   type;
 
-    public StackItem(ServerGeoObjectType type, GeoObjectTypeSnapshot parent)    
+    public StackItem(ServerGeoObjectType type, GeoObjectTypeSnapshot parent)
     {
       this.type = type;
       this.parent = parent;
@@ -128,37 +73,25 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
   }
 
   @Autowired
-  private GeoObjectTypeSnapshotBusinessServiceIF oSnapshotService;
+  private HierarchyTypeBusinessServiceIF    hierarchyService;
 
   @Autowired
-  private HierarchyTypeSnapshotBusinessServiceIF hSnapshotService;
+  private GeoObjectTypeBusinessServiceIF    typeService;
 
   @Autowired
-  private HierarchyTypeBusinessServiceIF         hierarchyService;
+  private BusinessTypeBusinessServiceIF     bTypeService;
 
   @Autowired
-  private GeoObjectTypeBusinessServiceIF         typeService;
+  private BusinessEdgeTypeBusinessServiceIF bEdgeService;
 
   @Autowired
-  private BusinessTypeBusinessServiceIF          bTypeService;
+  private TreeStrategyPublisherService      treePublisherService;
 
   @Autowired
-  private BusinessTypeSnapshotBusinessServiceIF  bTypeSnapshotService;
+  private GraphPublisherService             graphPublisherService;
 
   @Autowired
-  private BusinessEdgeTypeBusinessServiceIF      bEdgeService;
-
-  @Autowired
-  private ClassificationTypeBusinessServiceIF    cTypeService;
-
-  @Autowired
-  private ClassificationBusinessServiceIF        cService;
-
-  @Autowired
-  private TreeStrategyPublisherService           treePublisherService;
-
-  @Autowired
-  private GraphPublisherService                  graphPublisherService;
+  private SnapshotBusinessService           snapshotService;
 
   @Override
   @Transaction
@@ -246,7 +179,7 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
   {
     LabeledPropertyGraphTypeVersion version = super.create(listEntry, working, versionNumber);
 
-    GeoObjectTypeSnapshot root = this.oSnapshotService.createRoot(version);
+    GeoObjectTypeSnapshot root = this.snapshotService.createRoot(version);
 
     LabeledPropertyGraphType lpgt = version.getGraphType();
     List<GraphTypeReference> gtrs = lpgt.getGraphTypeReferences();
@@ -260,7 +193,7 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
     {
       BusinessType businessType = this.bTypeService.getByCode(businessTypeCode);
 
-      this.create(version, businessType);
+      this.snapshotService.create(version, businessType);
     }
 
     if (goTypeCodes.size() > 0)
@@ -268,13 +201,13 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
       // Publish snapshots for all graph types
       for (GraphTypeReference gtr : gtrs)
       {
-        createGraphTypeSnapshot(version, gtr, root);
+        this.snapshotService.createGraphTypeSnapshot(version, gtr, root);
       }
 
       // Publish snapshots for all geo-object types
       for (String goTypeCode : goTypeCodes)
       {
-        GeoObjectTypeSnapshot snapshot = this.create(version, ServerGeoObjectType.get(goTypeCode), root);
+        GeoObjectTypeSnapshot snapshot = this.snapshotService.create(version, ServerGeoObjectType.get(goTypeCode), root);
         root.addChildSnapshot(snapshot).apply();
       }
     }
@@ -282,7 +215,7 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
     {
       ServerHierarchyType hierarchy = ServerHierarchyType.get(lpgt.getHierarchy());
 
-      this.create(version, hierarchy, root);
+      this.snapshotService.create(version, hierarchy, root);
 
       Stack<StackItem> stack = new Stack<StackItem>();
 
@@ -293,12 +226,12 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
         StackItem item = stack.pop();
         ServerGeoObjectType type = item.type;
 
-        GeoObjectTypeSnapshot parent = this.create(version, type, root);
+        GeoObjectTypeSnapshot parent = this.snapshotService.create(version, type, root);
 
         if (type.getIsAbstract())
         {
           this.typeService.getSubtypes(type).forEach(subtype -> {
-            this.create(version, subtype, parent);
+            this.snapshotService.create(version, subtype, parent);
           });
         }
 
@@ -323,447 +256,9 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
     {
       BusinessEdgeType edgeType = this.bEdgeService.getByCode(businessEdgeCode);
 
-      this.create(version, edgeType, root);
+      this.snapshotService.create(version, edgeType, root);
     }
 
     return version;
   }
-
-  private GraphTypeSnapshot createGraphTypeSnapshot(LabeledPropertyGraphTypeVersion version, GraphTypeReference gtr, GeoObjectTypeSnapshot root)
-  {
-    GraphType graphType = GraphType.resolve(gtr);
-
-    String viewName = getEdgeName(graphType);
-
-    MdEdgeDAO mdEdgeDAO = MdEdgeDAO.newInstance();
-    mdEdgeDAO.setValue(MdEdgeInfo.PACKAGE, RegistryConstants.UNIVERSAL_GRAPH_PACKAGE);
-    mdEdgeDAO.setValue(MdEdgeInfo.NAME, viewName);
-    mdEdgeDAO.setValue(MdEdgeInfo.DB_CLASS_NAME, viewName);
-    mdEdgeDAO.setValue(MdEdgeInfo.PARENT_MD_VERTEX, root.getGraphMdVertexOid());
-    mdEdgeDAO.setValue(MdEdgeInfo.CHILD_MD_VERTEX, root.getGraphMdVertexOid());
-    RegistryLocalizedValueConverter.populate(mdEdgeDAO, MdEdgeInfo.DISPLAY_LABEL, graphType.getLabel());
-    RegistryLocalizedValueConverter.populate(mdEdgeDAO, MdEdgeInfo.DESCRIPTION, graphType.getDescriptionLV());
-    mdEdgeDAO.setValue(MdEdgeInfo.ENABLE_CHANGE_OVER_TIME, MdAttributeBooleanInfo.FALSE);
-    mdEdgeDAO.apply();
-
-    MdEdge mdEdge = (MdEdge) BusinessFacade.get(mdEdgeDAO);
-
-    this.assignPermissions(mdEdge);
-
-    GraphTypeSnapshot snapshot;
-    if (gtr.typeCode.equals(GraphTypeSnapshot.DIRECTED_ACYCLIC_GRAPH_TYPE))
-    {
-      DirectedAcyclicGraphTypeSnapshot htsnapshot = new DirectedAcyclicGraphTypeSnapshot();
-      htsnapshot.setGraphMdEdge(mdEdge);
-      htsnapshot.setCode(gtr.code);
-      LocalizedValueConverter.populate(htsnapshot.getDisplayLabel(), graphType.getLabel());
-      LocalizedValueConverter.populate(htsnapshot.getDescription(), graphType.getDescriptionLV());
-      htsnapshot.apply();
-      
-      htsnapshot.addVersion(version).apply();
-
-      snapshot = htsnapshot;
-    }
-    else if (gtr.typeCode.equals(GraphTypeSnapshot.UNDIRECTED_GRAPH_TYPE))
-    {
-      UndirectedGraphTypeSnapshot htsnapshot = new UndirectedGraphTypeSnapshot();
-      htsnapshot.setGraphMdEdge(mdEdge);
-      htsnapshot.setCode(gtr.code);
-      LocalizedValueConverter.populate(htsnapshot.getDisplayLabel(), graphType.getLabel());
-      LocalizedValueConverter.populate(htsnapshot.getDescription(), graphType.getDescriptionLV());
-      htsnapshot.apply();
-
-      htsnapshot.addVersion(version).apply();
-
-      snapshot = htsnapshot;
-    }
-    else if (gtr.typeCode.equals(GraphTypeSnapshot.HIERARCHY_TYPE))
-    {
-      HierarchyTypeSnapshot htsnapshot = new HierarchyTypeSnapshot();
-      htsnapshot.setGraphMdEdge(mdEdge);
-      htsnapshot.setCode(gtr.code);
-      LocalizedValueConverter.populate(htsnapshot.getDisplayLabel(), graphType.getLabel());
-      LocalizedValueConverter.populate(htsnapshot.getDescription(), graphType.getDescriptionLV());
-      htsnapshot.apply();
-      
-      htsnapshot.addVersion(version).apply();
-
-      snapshot = htsnapshot;
-    }
-    else
-    {
-      throw new UnsupportedOperationException();
-    }
-
-    return snapshot;
-  }
-
-  private BusinessEdgeTypeSnapshot create(LabeledPropertyGraphTypeVersion version, BusinessEdgeType edgeType, GeoObjectTypeSnapshot root)
-  {
-    EdgeVertexType parent = this.bEdgeService.getParent(edgeType);
-    EdgeVertexType child = this.bEdgeService.getChild(edgeType);
-
-    String viewName = getEdgeName(edgeType.getMdEdgeDAO());
-
-    ObjectTypeSnapshot pSnapshot = parent.isGeoObjectType() ? root : this.bTypeSnapshotService.get(version, parent.getCode());
-    ObjectTypeSnapshot cSnapshot = child.isGeoObjectType() ? root : this.bTypeSnapshotService.get(version, child.getCode());
-
-    MdEdgeDAO mdEdgeDAO = MdEdgeDAO.newInstance();
-    mdEdgeDAO.setValue(MdEdgeInfo.PACKAGE, RegistryConstants.UNIVERSAL_GRAPH_PACKAGE);
-    mdEdgeDAO.setValue(MdEdgeInfo.NAME, viewName);
-    mdEdgeDAO.setValue(MdEdgeInfo.DB_CLASS_NAME, viewName);
-    mdEdgeDAO.setValue(MdEdgeInfo.PARENT_MD_VERTEX, pSnapshot.getGraphMdVertexOid());
-    mdEdgeDAO.setValue(MdEdgeInfo.CHILD_MD_VERTEX, cSnapshot.getGraphMdVertexOid());
-    RegistryLocalizedValueConverter.populate(mdEdgeDAO, MdEdgeInfo.DISPLAY_LABEL, edgeType.getLabel());
-    mdEdgeDAO.setValue(MdEdgeInfo.ENABLE_CHANGE_OVER_TIME, MdAttributeBooleanInfo.FALSE);
-    mdEdgeDAO.apply();
-
-    MdEdge mdEdge = (MdEdge) BusinessFacade.get(mdEdgeDAO);
-
-    this.assignPermissions(mdEdge);
-
-    BusinessEdgeTypeSnapshot snapshot = new BusinessEdgeTypeSnapshot();
-    snapshot.setGraphMdEdge(mdEdge);
-    snapshot.setCode(edgeType.getCode());
-    snapshot.setIsChildGeoObject(child.isGeoObjectType());
-    snapshot.setIsParentGeoObject(parent.isGeoObjectType());
-    snapshot.setParentType(pSnapshot);
-    snapshot.setIsParentGeoObject(parent.isGeoObjectType());
-    snapshot.setChildType(cSnapshot);
-    LocalizedValueConverter.populate(snapshot.getDisplayLabel(), edgeType.getLabel());
-    snapshot.apply();
-    
-    snapshot.addVersion(version).apply();
-
-    return snapshot;
-  }
-
-  private String getEdgeName(GraphType type)
-  {
-    MdEdgeDAOIF mdEdge = type.getMdEdgeDAO();
-
-    return getEdgeName(mdEdge);
-  }
-
-  private String getEdgeName(MdEdgeDAOIF mdEdge)
-  {
-    String className = mdEdge.getDBClassName();
-
-    return this.hSnapshotService.getTableName(className);
-  }
-
-  public HierarchyTypeSnapshot create(LabeledPropertyGraphTypeVersion version, ServerHierarchyType type, GeoObjectTypeSnapshot root)
-  {
-    String viewName = getEdgeName(type);
-
-    MdEdgeDAO mdEdgeDAO = MdEdgeDAO.newInstance();
-    mdEdgeDAO.setValue(MdEdgeInfo.PACKAGE, RegistryConstants.UNIVERSAL_GRAPH_PACKAGE);
-    mdEdgeDAO.setValue(MdEdgeInfo.NAME, viewName);
-    mdEdgeDAO.setValue(MdEdgeInfo.DB_CLASS_NAME, viewName);
-    mdEdgeDAO.setValue(MdEdgeInfo.PARENT_MD_VERTEX, root.getGraphMdVertexOid());
-    mdEdgeDAO.setValue(MdEdgeInfo.CHILD_MD_VERTEX, root.getGraphMdVertexOid());
-    RegistryLocalizedValueConverter.populate(mdEdgeDAO, MdEdgeInfo.DISPLAY_LABEL, type.getLabel());
-    RegistryLocalizedValueConverter.populate(mdEdgeDAO, MdEdgeInfo.DESCRIPTION, type.getDescription());
-    mdEdgeDAO.setValue(MdEdgeInfo.ENABLE_CHANGE_OVER_TIME, MdAttributeBooleanInfo.FALSE);
-    mdEdgeDAO.apply();
-
-    MdEdge mdEdge = (MdEdge) BusinessFacade.get(mdEdgeDAO);
-
-    this.assignPermissions(mdEdge);
-
-    HierarchyTypeSnapshot snapshot = new HierarchyTypeSnapshot();
-    snapshot.setGraphMdEdge(mdEdge);
-    snapshot.setCode(type.getCode());
-    RegistryLocalizedValueConverter.populate(snapshot.getDisplayLabel(), type.getLabel());
-    RegistryLocalizedValueConverter.populate(snapshot.getDescription(), type.getDescription());
-    snapshot.apply();
-
-    snapshot.addVersion(version).apply();
-
-    return snapshot;
-  }
-
-  @Transaction
-  public GeoObjectTypeSnapshot create(LabeledPropertyGraphTypeVersion version, ServerGeoObjectType type, GeoObjectTypeSnapshot parent)
-  {
-    String viewName = this.oSnapshotService.getTableName(type.getMdVertex().getDBClassName());
-
-    // Create the MdTable
-    MdVertexDAO mdVertexDAO = MdVertexDAO.newInstance();
-    mdVertexDAO.setValue(MdVertexInfo.NAME, viewName);
-    mdVertexDAO.setValue(MdVertexInfo.PACKAGE, RegistryConstants.TABLE_PACKAGE);
-    mdVertexDAO.setValue(MdVertexInfo.ABSTRACT, type.getIsAbstract());
-    RegistryLocalizedValueConverter.populate(mdVertexDAO, MdVertexInfo.DISPLAY_LABEL, type.getLabel());
-    RegistryLocalizedValueConverter.populate(mdVertexDAO, MdVertexInfo.DESCRIPTION, type.getDescription());
-    mdVertexDAO.setValue(MdVertexInfo.DB_CLASS_NAME, viewName);
-    mdVertexDAO.setValue(MdVertexInfo.GENERATE_SOURCE, MdAttributeBooleanInfo.FALSE);
-    mdVertexDAO.setValue(MdVertexInfo.ENABLE_CHANGE_OVER_TIME, MdAttributeBooleanInfo.FALSE);
-    mdVertexDAO.setValue(MdVertexInfo.SUPER_MD_VERTEX, parent.getGraphMdVertexOid());
-    mdVertexDAO.apply();
-
-    if (!type.getIsAbstract())
-    {
-      this.oSnapshotService.createGeometryAttribute(type.getGeometryType(), mdVertexDAO);
-    }
-
-    List<String> existingAttributes = mdVertexDAO.getAllDefinedMdAttributes().stream().map(attribute -> attribute.definesAttribute()).collect(Collectors.toList());
-
-    GeoObjectType dto = type.toDTO();
-    Map<String, net.geoprism.registry.graph.AttributeType> attributes = type.getAttributeMap();
-
-    attributes.forEach((attributeName, attribute) -> {
-      if (! ( attribute instanceof net.geoprism.registry.graph.AttributeGeometryType ) && ! ( attribute instanceof net.geoprism.registry.graph.AttributeTermType ) && !existingAttributes.contains(attributeName))
-      {
-        AttributeType attributeType = dto.getAttribute(attributeName).get();
-
-        MdAttributeConcrete mdAttribute = null;
-
-        if (attributeType.getType().equals(AttributeCharacterType.TYPE))
-        {
-          mdAttribute = new MdAttributeCharacter();
-          MdAttributeCharacter mdAttributeCharacter = (MdAttributeCharacter) mdAttribute;
-          mdAttributeCharacter.setDatabaseSize(MdAttributeCharacterInfo.MAX_CHARACTER_SIZE);
-        }
-        else if (attributeType.getType().equals(AttributeDateType.TYPE))
-        {
-          mdAttribute = new MdAttributeDateTime();
-        }
-        else if (attributeType.getType().equals(AttributeIntegerType.TYPE))
-        {
-          mdAttribute = new MdAttributeLong();
-        }
-        else if (attributeType.getType().equals(AttributeFloatType.TYPE))
-        {
-          AttributeFloatType attributeFloatType = (AttributeFloatType) attributeType;
-
-          mdAttribute = new MdAttributeDouble();
-          mdAttribute.setValue(MdAttributeDoubleInfo.LENGTH, Integer.toString(attributeFloatType.getPrecision()));
-          mdAttribute.setValue(MdAttributeDoubleInfo.DECIMAL, Integer.toString(attributeFloatType.getScale()));
-        }
-        // else if (attributeType.getType().equals(AttributeTermType.TYPE))
-        // {
-        // mdAttribute = new MdAttributeTerm();
-        // MdAttributeTerm mdAttributeTerm = (MdAttributeTerm) mdAttribute;
-        //
-        // MdBusiness classifierMdBusiness =
-        // MdBusiness.getMdBusiness(Classifier.CLASS);
-        // mdAttributeTerm.setMdBusiness(classifierMdBusiness);
-        // }
-        else if (attributeType.getType().equals(AttributeClassificationType.TYPE))
-        {
-          AttributeClassificationType attributeClassificationType = (AttributeClassificationType) attributeType;
-          String classificationTypeCode = attributeClassificationType.getClassificationType();
-
-          ClassificationType classificationType = this.cTypeService.getByCode(classificationTypeCode);
-
-          mdAttribute = new MdAttributeClassification();
-          MdAttributeClassification mdAttributeTerm = (MdAttributeClassification) mdAttribute;
-          mdAttributeTerm.setReferenceMdClassification(classificationType.getMdClassificationObject());
-
-          Term root = attributeClassificationType.getRootTerm();
-
-          if (root != null)
-          {
-            Classification classification = this.cService.get(classificationType, root.getCode());
-
-            if (classification == null)
-            {
-              net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
-              ex.setTypeLabel(classificationType.getDisplayLabel().getValue());
-              ex.setDataIdentifier(root.getCode());
-              ex.setAttributeLabel(GeoObjectMetadata.get().getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
-
-              throw ex;
-            }
-
-            mdAttributeTerm.setValue(MdAttributeClassification.ROOT, classification.getOid());
-          }
-        }
-        else if (attributeType.getType().equals(AttributeBooleanType.TYPE))
-        {
-          mdAttribute = new MdAttributeBoolean();
-        }
-        else if (attributeType.getType().equals(AttributeLocalType.TYPE))
-        {
-          mdAttribute = new MdAttributeLocalCharacterEmbedded();
-        }
-        else
-        {
-          throw new UnsupportedOperationException();
-        }
-
-        mdAttribute.setAttributeName(attributeType.getName());
-
-        RegistryLocalizedValueConverter.populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
-        RegistryLocalizedValueConverter.populate(mdAttribute.getDescription(), attributeType.getDescription());
-
-        mdAttribute.setValue(MdAttributeConcreteInfo.DEFINING_MD_CLASS, mdVertexDAO.getOid());
-        mdAttribute.apply();
-      }
-    });
-
-    MdVertex graphMdVertex = (MdVertex) BusinessFacade.get(mdVertexDAO);
-
-    GeoObjectTypeSnapshot snapshot = new GeoObjectTypeSnapshot();
-    snapshot.setGraphMdVertex(graphMdVertex);
-    snapshot.setCode(type.getCode());
-    snapshot.setOrgCode(type.getOrganizationCode());
-    snapshot.setGeometryType(type.getGeometryType().name());
-    snapshot.setIsAbstract(type.getIsAbstract());
-    snapshot.setIsRoot(false);
-    snapshot.setIsPrivate(type.getIsPrivate());
-    snapshot.setParent(parent);
-    RegistryLocalizedValueConverter.populate(snapshot.getDisplayLabel(), type.getLabel());
-    RegistryLocalizedValueConverter.populate(snapshot.getDescription(), type.getDescription());
-    snapshot.apply();
-
-    snapshot.addVersion(version).apply();
-
-    assignPermissions(mdVertexDAO);
-
-    return snapshot;
-  }
-
-  @Transaction
-  public BusinessTypeSnapshot create(LabeledPropertyGraphTypeVersion version, BusinessType type)
-  {
-    String viewName = this.oSnapshotService.getTableName(type.getMdVertex().getDbClassName());
-
-    // Create the MdTable
-    MdVertexDAO mdVertexDAO = MdVertexDAO.newInstance();
-    mdVertexDAO.setValue(MdVertexInfo.NAME, viewName);
-    mdVertexDAO.setValue(MdVertexInfo.PACKAGE, RegistryConstants.TABLE_PACKAGE);
-    RegistryLocalizedValueConverter.populate(mdVertexDAO, MdVertexInfo.DISPLAY_LABEL, type.getLabel());
-    mdVertexDAO.setValue(MdVertexInfo.DB_CLASS_NAME, viewName);
-    mdVertexDAO.setValue(MdVertexInfo.GENERATE_SOURCE, MdAttributeBooleanInfo.FALSE);
-    mdVertexDAO.setValue(MdVertexInfo.ENABLE_CHANGE_OVER_TIME, MdAttributeBooleanInfo.FALSE);
-    mdVertexDAO.apply();
-
-    List<String> existingAttributes = mdVertexDAO.getAllDefinedMdAttributes().stream().map(attribute -> attribute.definesAttribute()).collect(Collectors.toList());
-
-    Map<String, AttributeType> attributes = type.getAttributeMap();
-
-    attributes.forEach((attributeName, attributeType) -> {
-      if (! ( attributeType instanceof AttributeTermType ) && !existingAttributes.contains(attributeName))
-      {
-        MdAttributeConcrete mdAttribute = null;
-
-        if (attributeType.getType().equals(AttributeCharacterType.TYPE))
-        {
-          mdAttribute = new MdAttributeCharacter();
-          MdAttributeCharacter mdAttributeCharacter = (MdAttributeCharacter) mdAttribute;
-          mdAttributeCharacter.setDatabaseSize(MdAttributeCharacterInfo.MAX_CHARACTER_SIZE);
-        }
-        else if (attributeType.getType().equals(AttributeDateType.TYPE))
-        {
-          mdAttribute = new MdAttributeDateTime();
-        }
-        else if (attributeType.getType().equals(AttributeIntegerType.TYPE))
-        {
-          mdAttribute = new MdAttributeLong();
-        }
-        else if (attributeType.getType().equals(AttributeFloatType.TYPE))
-        {
-          AttributeFloatType attributeFloatType = (AttributeFloatType) attributeType;
-
-          mdAttribute = new MdAttributeDouble();
-          mdAttribute.setValue(MdAttributeDoubleInfo.LENGTH, Integer.toString(attributeFloatType.getPrecision()));
-          mdAttribute.setValue(MdAttributeDoubleInfo.DECIMAL, Integer.toString(attributeFloatType.getScale()));
-        }
-        else if (attributeType.getType().equals(AttributeClassificationType.TYPE))
-        {
-          AttributeClassificationType attributeClassificationType = (AttributeClassificationType) attributeType;
-          String classificationTypeCode = attributeClassificationType.getClassificationType();
-
-          ClassificationType classificationType = this.cTypeService.getByCode(classificationTypeCode);
-
-          mdAttribute = new MdAttributeClassification();
-          MdAttributeClassification mdAttributeTerm = (MdAttributeClassification) mdAttribute;
-          mdAttributeTerm.setReferenceMdClassification(classificationType.getMdClassificationObject());
-
-          Term root = attributeClassificationType.getRootTerm();
-
-          if (root != null)
-          {
-            Classification classification = this.cService.get(classificationType, root.getCode());
-
-            if (classification == null)
-            {
-              net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
-              ex.setTypeLabel(classificationType.getDisplayLabel().getValue());
-              ex.setDataIdentifier(root.getCode());
-              ex.setAttributeLabel(GeoObjectMetadata.get().getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
-
-              throw ex;
-            }
-
-            mdAttributeTerm.setValue(MdAttributeClassification.ROOT, classification.getOid());
-          }
-        }
-        else if (attributeType.getType().equals(AttributeBooleanType.TYPE))
-        {
-          mdAttribute = new MdAttributeBoolean();
-        }
-        else if (attributeType.getType().equals(AttributeLocalType.TYPE))
-        {
-          mdAttribute = new MdAttributeLocalCharacterEmbedded();
-        }
-        else
-        {
-          throw new UnsupportedOperationException();
-        }
-
-        mdAttribute.setAttributeName(attributeType.getName());
-
-        RegistryLocalizedValueConverter.populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
-        RegistryLocalizedValueConverter.populate(mdAttribute.getDescription(), attributeType.getDescription());
-
-        mdAttribute.setValue(MdAttributeConcreteInfo.DEFINING_MD_CLASS, mdVertexDAO.getOid());
-        mdAttribute.apply();
-      }
-    });
-
-    MdVertex graphMdVertex = (MdVertex) BusinessFacade.get(mdVertexDAO);
-
-    BusinessTypeSnapshot snapshot = new BusinessTypeSnapshot();
-    snapshot.setGraphMdVertex(graphMdVertex);
-    snapshot.setCode(type.getCode());
-    snapshot.setOrgCode(type.getOrganization().getCode());
-    RegistryLocalizedValueConverter.populate(snapshot.getDisplayLabel(), type.getLabel());
-    snapshot.apply();
-    
-    snapshot.addVersion(version).apply();
-
-    assignPermissions(mdVertexDAO);
-
-    return snapshot;
-  }
-
-  public void assignPermissions(ComponentIF component)
-  {
-    RoleDAO adminRole = RoleDAO.findRole(RoleConstants.ADMIN).getBusinessDAO();
-    adminRole.grantPermission(Operation.CREATE, component.getOid());
-    adminRole.grantPermission(Operation.DELETE, component.getOid());
-    adminRole.grantPermission(Operation.WRITE, component.getOid());
-    adminRole.grantPermission(Operation.WRITE_ALL, component.getOid());
-
-    RoleDAO maintainer = RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE).getBusinessDAO();
-    maintainer.grantPermission(Operation.CREATE, component.getOid());
-    maintainer.grantPermission(Operation.DELETE, component.getOid());
-    maintainer.grantPermission(Operation.WRITE, component.getOid());
-    maintainer.grantPermission(Operation.WRITE_ALL, component.getOid());
-
-    RoleDAO consumer = RoleDAO.findRole(RegistryConstants.API_CONSUMER_ROLE).getBusinessDAO();
-    consumer.grantPermission(Operation.READ, component.getOid());
-    consumer.grantPermission(Operation.READ_ALL, component.getOid());
-
-    RoleDAO contributor = RoleDAO.findRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE).getBusinessDAO();
-    contributor.grantPermission(Operation.READ, component.getOid());
-    contributor.grantPermission(Operation.READ_ALL, component.getOid());
-
-    UserDAO publicRole = UserDAO.findUser(UserInfo.PUBLIC_USER_NAME).getBusinessDAO();
-    publicRole.grantPermission(Operation.READ, component.getOid());
-    publicRole.grantPermission(Operation.READ_ALL, component.getOid());
-  }
-
 }

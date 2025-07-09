@@ -6,7 +6,6 @@ package net.geoprism.registry.axon;
 import java.util.Arrays;
 import java.util.Date;
 
-import org.axonframework.eventsourcing.eventstore.EventStore;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +23,7 @@ import net.geoprism.registry.axon.aggregate.RunwayTransactionWrapper;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectSetParentEvent;
 import net.geoprism.registry.config.TestApplication;
+import net.geoprism.registry.service.business.PublishBusinessServiceIF;
 import net.geoprism.registry.service.business.PublishEventService;
 import net.geoprism.registry.view.EventPublishingConfiguration;
 
@@ -33,10 +33,10 @@ import net.geoprism.registry.view.EventPublishingConfiguration;
 public class PublishEventServiceTest implements InstanceTestClassListener
 {
   @Autowired
-  private PublishEventService service;
+  private PublishEventService      service;
 
   @Autowired
-  private EventStore          store;
+  private PublishBusinessServiceIF pService;
 
   @Override
   public void beforeClassSetup() throws Exception
@@ -71,7 +71,8 @@ public class PublishEventServiceTest implements InstanceTestClassListener
       try
       {
         Publish publish = service.publish(new EventPublishingConfiguration(date, date, date));
-        publish.delete();
+
+        pService.delete(publish);
       }
       catch (InterruptedException e)
       {

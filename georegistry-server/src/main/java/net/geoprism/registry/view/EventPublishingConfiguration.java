@@ -7,20 +7,26 @@ import java.util.List;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import net.geoprism.registry.BusinessEdgeType;
+import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 
 public class EventPublishingConfiguration
 {
-  private Date                     date;
+  private Date                      date;
 
-  private Date                     startDate;
+  private Date                      startDate;
 
-  private Date                     endDate;
+  private Date                      endDate;
 
-  public List<ServerGeoObjectType> types;
+  private List<ServerGeoObjectType> geoObjectTypes;
 
-  public List<ServerHierarchyType> hierarchyTypes;
+  private List<ServerHierarchyType> hierarchyTypes;
+
+  private List<BusinessType>        businessTypes;
+
+  private List<BusinessEdgeType>    businessEdgeTypes;
 
   public EventPublishingConfiguration(Date date, Date startDate, Date endDate)
   {
@@ -28,8 +34,10 @@ public class EventPublishingConfiguration
     this.startDate = startDate;
     this.endDate = endDate;
 
-    this.types = new LinkedList<>();
+    this.geoObjectTypes = new LinkedList<>();
     this.hierarchyTypes = new LinkedList<>();
+    this.businessTypes = new LinkedList<>();
+    this.businessEdgeTypes = new LinkedList<>();
   }
 
   public Date getDate()
@@ -72,21 +80,41 @@ public class EventPublishingConfiguration
     this.hierarchyTypes.add(hierarchyTypes);
   }
 
-  public List<ServerGeoObjectType> getTypes()
+  public List<ServerGeoObjectType> getGeoObjectTypes()
   {
-    return types;
+    return geoObjectTypes;
   }
 
-  public void setType(ServerGeoObjectType type)
+  public void addGeoObjectType(ServerGeoObjectType type)
   {
-    this.types.add(type);
+    this.geoObjectTypes.add(type);
+  }
+
+  public List<BusinessType> getBusinessTypes()
+  {
+    return this.businessTypes;
+  }
+
+  public void addBusinessType(BusinessType type)
+  {
+    this.businessTypes.add(type);
+  }
+
+  public List<BusinessEdgeType> getBusinessEdgeTypes()
+  {
+    return businessEdgeTypes;
+  }
+
+  public void addBusinessEdgeTypes(BusinessEdgeType type)
+  {
+    this.businessEdgeTypes.add(type);
   }
 
   public JsonArray toJson()
   {
     JsonArray array = new JsonArray();
 
-    this.types.forEach(type -> {
+    this.geoObjectTypes.forEach(type -> {
       JsonObject object = new JsonObject();
       object.addProperty("type", "GeoObjectType");
       object.addProperty("code", type.getCode());
