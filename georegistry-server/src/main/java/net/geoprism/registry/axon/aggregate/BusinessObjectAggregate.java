@@ -8,8 +8,12 @@ import org.axonframework.modelling.command.AggregateLifecycle;
 import org.axonframework.modelling.command.CreationPolicy;
 import org.axonframework.spring.stereotype.Aggregate;
 
+import net.geoprism.registry.axon.command.remote.RemoteBusinessObjectAddGeoObjectCommand;
+import net.geoprism.registry.axon.command.remote.RemoteBusinessObjectCommand;
 import net.geoprism.registry.axon.command.repository.BusinessObjectCompositeCommand;
 import net.geoprism.registry.axon.command.repository.BusinessObjectCompositeCreateCommand;
+import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectAddGeoObjectEvent;
+import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEvent;
 
 @Aggregate
@@ -83,6 +87,19 @@ public class BusinessObjectAggregate
     RunwayTransactionWrapper.run(() -> command.getEvents().stream().forEach(AggregateLifecycle::apply));
   }
 
+  @CommandHandler
+  @CreationPolicy(AggregateCreationPolicy.CREATE_IF_MISSING)
+  public void on(RemoteBusinessObjectCommand command)
+  {
+    RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new RemoteBusinessObjectEvent(command.getCommitId(), command.getKey(), command.getCode(), command.getType(), command.getObject())));
+  }
+
+  @CommandHandler
+  public void on(RemoteBusinessObjectAddGeoObjectCommand command)
+  {
+    RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new RemoteBusinessObjectAddGeoObjectCommand(command.getCommitId(), command.getKey(), command.getCode(), command.getType(), command.getEdgeType(), command.getGeoObjectType(), command.getGeoObjectCode(), command.getDirection())));
+  }
+
   @EventSourcingHandler
   public void on(BusinessObjectApplyEvent event)
   {
@@ -90,6 +107,23 @@ public class BusinessObjectAggregate
     this.code = event.getCode();
     this.type = event.getType();
     this.object = event.getObject();
+  }
+
+  @EventSourcingHandler
+  public void on(RemoteBusinessObjectEvent event)
+  {
+    this.key = event.getKey();
+    this.code = event.getCode();
+    this.type = event.getType();
+    this.object = event.getObject();
+  }
+
+  @EventSourcingHandler
+  public void on(RemoteBusinessObjectAddGeoObjectEvent event)
+  {
+    this.key = event.getKey();
+    this.code = event.getCode();
+    this.type = event.getType();
   }
 
 }

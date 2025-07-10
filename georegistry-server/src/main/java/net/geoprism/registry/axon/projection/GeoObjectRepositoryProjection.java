@@ -32,7 +32,6 @@ import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
-import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 
@@ -41,9 +40,6 @@ public class GeoObjectRepositoryProjection
 {
   @Autowired
   private HierarchyTypeBusinessServiceIF hService;
-
-  @Autowired
-  private GeoObjectTypeBusinessServiceIF typeService;
 
   @Autowired
   private GPRGeoObjectBusinessServiceIF  service;
@@ -57,14 +53,6 @@ public class GeoObjectRepositoryProjection
     ServerGeoObjectIF object = this.service.apply(dto, event.getIsNew(), event.getIsImport(), true);
 
     final ServerGeoObjectType type = object.getType();
-
-    // if (!StringUtils.isBlank(event.getParents()))
-    // {
-    // ServerParentTreeNodeOverTime ptnOt =
-    // ServerParentTreeNodeOverTime.fromJSON(type, event.getParents());
-    //
-    // this.service.setParents(object, ptnOt);
-    // }
 
     if (event.getRefreshWorking())
     {

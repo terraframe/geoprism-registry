@@ -1,7 +1,9 @@
-package net.geoprism.registry.axon.event.repository;
+package net.geoprism.registry.axon.event.remote;
 
-public class BusinessObjectApplyEvent implements BusinessObjectEvent
+public class RemoteBusinessObjectEvent implements RemoteEvent
 {
+  private String  commitId;
+
   private String  key;
 
   private String  code;
@@ -10,26 +12,34 @@ public class BusinessObjectApplyEvent implements BusinessObjectEvent
 
   private String  object;
 
-  private Boolean isNew;
-
-  public BusinessObjectApplyEvent()
+  public RemoteBusinessObjectEvent()
   {
   }
 
-  public BusinessObjectApplyEvent(String code, String type, String object, Boolean isNew)
+  public RemoteBusinessObjectEvent(String commitId, String code, String type, String object)
   {
-    this(code + "#" + type, code, type, object, isNew);
+    this(commitId, code + "#" + type, code, type, object);
   }
 
-  public BusinessObjectApplyEvent(String key, String code, String type, String object, Boolean isNew)
+  public RemoteBusinessObjectEvent(String commitId, String key, String code, String type, String object)
   {
     super();
 
     this.key = key;
+    this.commitId = commitId;
     this.code = code;
     this.type = type;
     this.object = object;
-    this.isNew = isNew;
+  }
+
+  public String getCommitId()
+  {
+    return commitId;
+  }
+
+  public void setCommitId(String commitId)
+  {
+    this.commitId = commitId;
   }
 
   public String getKey()
@@ -71,21 +81,4 @@ public class BusinessObjectApplyEvent implements BusinessObjectEvent
   {
     this.object = object;
   }
-
-  public Boolean getIsNew()
-  {
-    return isNew;
-  }
-
-  public void setIsNew(Boolean isNew)
-  {
-    this.isNew = isNew;
-  }
-
-  @Override
-  public String getAggregate()
-  {
-    return this.key;
-  }
-
 }

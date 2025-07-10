@@ -6,36 +6,45 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.axonframework.eventhandling.TrackingToken;
+import net.geoprism.registry.Commit;
 
-public class InMemoryGeoObjectEventMerger
+public class InMemoryEventMerger
 {
-  private Map<String, LinkedList<GeoObjectEvent>> groupedEvents = new HashMap<>();
+  private Map<String, LinkedList<GeoObjectEvent>>      geoObjectEvents      = new HashMap<>();
 
-  private TrackingToken                           previous;
+  private Map<String, LinkedList<BusinessObjectEvent>> businessObjectEvents = new HashMap<>();
 
-  public InMemoryGeoObjectEventMerger()
+  private Commit                                       previous;
+
+  public InMemoryEventMerger()
   {
     this(null);
   }
 
-  public InMemoryGeoObjectEventMerger(TrackingToken previous)
+  public InMemoryEventMerger(Commit previous)
   {
     this.previous = previous;
   }
 
   public void add(GeoObjectEvent e)
   {
-    this.groupedEvents.computeIfAbsent(e.getAggregate(), s -> new LinkedList<GeoObjectEvent>());
+    this.geoObjectEvents.computeIfAbsent(e.getAggregate(), s -> new LinkedList<GeoObjectEvent>());
 
-    this.groupedEvents.get(e.getAggregate()).add(e);
+    this.geoObjectEvents.get(e.getAggregate()).add(e);
   }
 
+  public void add(BusinessObjectEvent e)
+  {
+    this.businessObjectEvents.computeIfAbsent(e.getAggregate(), s -> new LinkedList<BusinessObjectEvent>());
+    
+    this.businessObjectEvents.get(e.getAggregate()).add(e);
+  }
+  
   public List<GeoObjectEvent> merge()
   {
     List<GeoObjectEvent> list = new LinkedList<>();
 
-    this.groupedEvents.forEach((key, events) -> {
+    this.geoObjectEvents.forEach((key, events) -> {
       this.merge(events).ifPresent(list::add);
     });
 

@@ -30,7 +30,7 @@ import net.geoprism.registry.axon.event.repository.GeoObjectCreateParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectRemoveParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectUpdateParentEvent;
-import net.geoprism.registry.axon.event.repository.InMemoryGeoObjectEventMerger;
+import net.geoprism.registry.axon.event.repository.InMemoryEventMerger;
 import net.geoprism.registry.cache.ClassificationCache;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.view.EventPublishingConfiguration;
@@ -180,7 +180,7 @@ public class PublishEventService
 
     for (String aggregateId : aggregateIds)
     {
-      InMemoryGeoObjectEventMerger merger = new InMemoryGeoObjectEventMerger();
+      InMemoryEventMerger merger = new InMemoryEventMerger();
       DomainEventStream stream = this.store.readEvents(aggregateId, firstSequenceNumber);
 
       while (stream.hasNext())

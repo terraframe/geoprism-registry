@@ -1,9 +1,11 @@
-package net.geoprism.registry.axon.event.repository;
+package net.geoprism.registry.axon.event.remote;
 
 import net.geoprism.registry.model.EdgeDirection;
 
-public class BusinessObjectAddGeoObjectEvent implements BusinessObjectEvent
+public class RemoteBusinessObjectAddGeoObjectEvent implements RemoteEvent
 {
+  private String        commitId;
+
   private String        key;
 
   private String        type;
@@ -18,18 +20,15 @@ public class BusinessObjectAddGeoObjectEvent implements BusinessObjectEvent
 
   private EdgeDirection direction;
 
-  public BusinessObjectAddGeoObjectEvent()
+  public RemoteBusinessObjectAddGeoObjectEvent(String commitId, String code, String type, String edgeType, String geoObjectType, String geoObjectCode, EdgeDirection direction)
   {
+    this(commitId, code + "#" + type, code, type, edgeType, geoObjectType, geoObjectCode, direction);
   }
 
-  public BusinessObjectAddGeoObjectEvent(String code, String type, String edgeType, String geoObjectType, String geoObjectCode, EdgeDirection direction)
-  {
-    this(code + "#" + type, code, type, edgeType, geoObjectType, geoObjectCode, direction);
-  }
-
-  public BusinessObjectAddGeoObjectEvent(String key, String code, String type, String edgeType, String geoObjectType, String geoObjectCode, EdgeDirection direction)
+  public RemoteBusinessObjectAddGeoObjectEvent(String commitId, String key, String code, String type, String edgeType, String geoObjectType, String geoObjectCode, EdgeDirection direction)
   {
     super();
+    this.commitId = commitId;
     this.key = key;
     this.code = code;
     this.type = type;
@@ -37,6 +36,16 @@ public class BusinessObjectAddGeoObjectEvent implements BusinessObjectEvent
     this.geoObjectType = geoObjectType;
     this.geoObjectCode = geoObjectCode;
     this.direction = direction;
+  }
+
+  public String getCommitId()
+  {
+    return commitId;
+  }
+
+  public void setCommitId(String commitId)
+  {
+    this.commitId = commitId;
   }
 
   public String getKey()
@@ -107,12 +116,6 @@ public class BusinessObjectAddGeoObjectEvent implements BusinessObjectEvent
   public void setDirection(EdgeDirection direction)
   {
     this.direction = direction;
-  }
-  
-  @Override
-  public String getAggregate()
-  {
-    return this.key + "#" + this.edgeType + "#" + this.geoObjectCode + "#" + this.geoObjectType;
   }
 
 }
