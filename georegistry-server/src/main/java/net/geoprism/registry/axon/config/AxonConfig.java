@@ -16,7 +16,6 @@ import org.axonframework.eventhandling.tokenstore.jdbc.PostgresTokenTableFactory
 import org.axonframework.eventsourcing.eventstore.EventStorageEngine;
 import org.axonframework.eventsourcing.eventstore.jdbc.JdbcEventStorageEngine;
 import org.axonframework.eventsourcing.eventstore.jdbc.JdbcSQLErrorCodesResolver;
-import org.axonframework.eventsourcing.eventstore.jdbc.PostgresEventTableFactory;
 import org.axonframework.modelling.saga.repository.SagaStore;
 import org.axonframework.modelling.saga.repository.jdbc.JdbcSagaStore;
 import org.axonframework.serialization.Serializer;
@@ -28,16 +27,15 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
 
 @AutoConfiguration
-public class AxonConfig 
+public class AxonConfig
 {
-
   @Autowired
   public void configureProcessingGroupErrorHandling(EventProcessingConfigurer processingConfigurer)
   {
     processingConfigurer.usingSubscribingEventProcessors();
-    processingConfigurer.registerDefaultErrorHandler(conf -> PropagatingErrorHandler.instance());    
+    processingConfigurer.registerDefaultErrorHandler(conf -> PropagatingErrorHandler.instance());
   }
-  
+
   @Bean
   public ListenerInvocationErrorHandler listenerInvocationErrorHandler()
   {
@@ -47,14 +45,14 @@ public class AxonConfig
   @Bean
   public ConnectionProvider connectionProvider()
   {
-//    return new RunwayRequestConnectionProvider();
+    // return new RunwayRequestConnectionProvider();
     return new UnitOfWorkAwareConnectionProviderWrapper(new RunwayRequestConnectionProvider());
   }
 
   @Bean
   public TransactionManager transactionManager()
   {
-//    return new RunwayTransactionManager();
+    // return new RunwayTransactionManager();
     return NoTransactionManager.INSTANCE;
   }
 
@@ -88,9 +86,9 @@ public class AxonConfig
         .connectionProvider(connectionProvider) //
         .serializer(serializer) //
         .build();
-    
+
     store.createSchema(PostgresTokenTableFactory.INSTANCE);
-    
+
     return store;
   }
 
@@ -102,9 +100,9 @@ public class AxonConfig
         .connectionProvider(connectionProvider) //
         .serializer(serializer) //
         .build();
-    
+
     store.createSchema();
-    
+
     return store;
   }
 
@@ -134,10 +132,11 @@ public class AxonConfig
         .persistenceExceptionResolver(persistenceExceptionResolver) //
         .eventSerializer(serializer) //
         .transactionManager(transactionManager) //
+        .appendEvents(CustomJdbcEventStorageEngineStatements::appendEvents )
         .build();
     // If the schema has not been constructed yet, the createSchema method can
     // be used:
-    storageEngine.createSchema(PostgresEventTableFactory.INSTANCE);
+    storageEngine.createSchema(CustomPostgresEventTableFactory.INSTANCE);
 
     return storageEngine;
   }

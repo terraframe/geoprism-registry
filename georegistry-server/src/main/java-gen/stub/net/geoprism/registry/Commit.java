@@ -26,7 +26,9 @@ public class Commit extends CommitBase implements SnapshotContainer<CommitHasSna
   {
     StringBuilder statement = new StringBuilder();
     statement.append("DELETE FROM " + PublishEventService.DOMAIN_EVENT_ENTRY_TABLE);
-    statement.append(" WHERE aggregateId LIKE '" + this.getUid() + "#%'");
+    statement.append(" WHERE commit_id = '" + this.getUid() + "'");
+    
+    System.out.println(statement);
 
     Database.executeStatement(statement.toString());
 

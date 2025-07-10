@@ -6,10 +6,11 @@ import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
 public class RemoteGeoObjectSetParentCommand implements RemoteCommand
 {
-  @TargetAggregateIdentifier
-  private String commitId;
 
+  @TargetAggregateIdentifier
   private String uid;
+
+  private String commitId;
 
   private String type;
 

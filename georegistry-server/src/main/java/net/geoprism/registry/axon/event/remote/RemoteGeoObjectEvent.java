@@ -2,7 +2,7 @@ package net.geoprism.registry.axon.event.remote;
 
 import java.util.Date;
 
-public class RemoteGeoObjectEvent
+public class RemoteGeoObjectEvent implements RemoteEvent
 {
   private String  commitId;
 

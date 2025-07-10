@@ -7,11 +7,9 @@ import org.axonframework.modelling.command.TargetAggregateIdentifier;
 public class RemoteGeoObjectCommand implements RemoteCommand
 {
   @TargetAggregateIdentifier
-  private String  key;
+  private String  uid;
 
   private String  commitId;
-
-  private String  uid;
 
   private Boolean isNew;
 
@@ -27,7 +25,6 @@ public class RemoteGeoObjectCommand implements RemoteCommand
   public RemoteGeoObjectCommand(String commitId, String uid, Boolean isNew, String object, String type, Date startDate, Date endDate)
   {
     super();
-    this.key = commitId + "#" + uid;
     this.commitId = commitId;
     this.uid = uid;
     this.isNew = isNew;
@@ -35,16 +32,6 @@ public class RemoteGeoObjectCommand implements RemoteCommand
     this.type = type;
     this.startDate = startDate;
     this.endDate = endDate;
-  }
-
-  public String getKey()
-  {
-    return key;
-  }
-
-  public void setKey(String key)
-  {
-    this.key = key;
   }
 
   public String getCommitId()
