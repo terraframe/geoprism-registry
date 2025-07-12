@@ -1,5 +1,6 @@
 package net.geoprism.registry.axon.event.remote;
 
+import net.geoprism.registry.axon.command.remote.RemoteBusinessObjectAddGeoObjectCommand;
 import net.geoprism.registry.model.EdgeDirection;
 
 public class RemoteBusinessObjectAddGeoObjectEvent implements RemoteEvent
@@ -116,6 +117,12 @@ public class RemoteBusinessObjectAddGeoObjectEvent implements RemoteEvent
   public void setDirection(EdgeDirection direction)
   {
     this.direction = direction;
+  }
+
+  @Override
+  public Object toCommand()
+  {
+    return new RemoteBusinessObjectAddGeoObjectCommand(commitId, code, type, edgeType, geoObjectType, geoObjectCode, direction);
   }
 
 }

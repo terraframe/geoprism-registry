@@ -1,12 +1,11 @@
 package net.geoprism.registry.service.business;
 
-import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
-import net.geoprism.registry.Commit;
 import net.geoprism.registry.Publish;
-import net.geoprism.registry.view.EventPublishingConfiguration;
+import net.geoprism.registry.view.PublishDTO;
 
 @Component
 public interface PublishBusinessServiceIF
@@ -14,12 +13,10 @@ public interface PublishBusinessServiceIF
 
   void delete(Publish publish);
 
-  List<Commit> getCommits(Publish publish);
-
   Publish get(String oid);
 
-  Publish create(EventPublishingConfiguration configuration);
+  Publish create(PublishDTO configuration);
 
-  Commit getMostRecentCommit(Publish publish);
+  Optional<Publish> getByUid(String uid);
 
 }

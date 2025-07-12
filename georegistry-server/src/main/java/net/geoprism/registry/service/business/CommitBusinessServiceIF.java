@@ -1,6 +1,7 @@
 package net.geoprism.registry.service.business;
 
 import java.util.List;
+import java.util.Optional;
 
 import net.geoprism.graph.BusinessEdgeTypeSnapshot;
 import net.geoprism.graph.BusinessTypeSnapshot;
@@ -8,7 +9,7 @@ import net.geoprism.graph.GeoObjectTypeSnapshot;
 import net.geoprism.graph.GraphTypeSnapshot;
 import net.geoprism.registry.Commit;
 import net.geoprism.registry.Publish;
-import net.geoprism.registry.view.EventPublishingConfiguration;
+import net.geoprism.registry.view.CommitDTO;
 
 public interface CommitBusinessServiceIF
 {
@@ -39,8 +40,16 @@ public interface CommitBusinessServiceIF
 
   List<? extends Commit> getAll();
 
+  List<Commit> getCommits(Publish publish);
+
+  Commit getMostRecentCommit(Publish publish);
+
+  Optional<Commit> getCommit(Publish publish, Integer versionNumber);
+
   Commit get(String oid);
 
-  Commit create(Publish publish, EventPublishingConfiguration configuration, int versionNumber, long lastSequenceNumber);
+  Commit create(Publish publish, int versionNumber, long lastSequenceNumber);
+
+  Commit create(Publish publish, CommitDTO dto);
 
 }

@@ -2,6 +2,8 @@ package net.geoprism.registry.axon.event.remote;
 
 import java.util.Date;
 
+import net.geoprism.registry.axon.command.remote.RemoteGeoObjectSetParentCommand;
+
 public class RemoteGeoObjectSetParentEvent implements RemoteEvent
 {
   private String commitId;
@@ -128,5 +130,11 @@ public class RemoteGeoObjectSetParentEvent implements RemoteEvent
   public void setParentCode(String parentCode)
   {
     this.parentCode = parentCode;
+  }
+  
+  @Override
+  public Object toCommand()
+  {
+    return new RemoteGeoObjectSetParentCommand(commitId, uid, type, edgeUid, edgeType, startDate, endDate, parentCode, parentType);
   }
 }

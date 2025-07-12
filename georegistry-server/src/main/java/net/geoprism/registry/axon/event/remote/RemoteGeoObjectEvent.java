@@ -2,6 +2,8 @@ package net.geoprism.registry.axon.event.remote;
 
 import java.util.Date;
 
+import net.geoprism.registry.axon.command.remote.RemoteGeoObjectCommand;
+
 public class RemoteGeoObjectEvent implements RemoteEvent
 {
   private String  commitId;
@@ -105,4 +107,9 @@ public class RemoteGeoObjectEvent implements RemoteEvent
     this.endDate = endDate;
   }
 
+  @Override
+  public Object toCommand()
+  {
+    return new RemoteGeoObjectCommand(commitId, uid, isNew, object, type, startDate, endDate);
+  }
 }

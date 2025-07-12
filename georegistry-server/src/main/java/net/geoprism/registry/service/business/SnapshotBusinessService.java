@@ -4,8 +4,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.constants.GeometryType;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
@@ -16,6 +19,7 @@ import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,11 +52,22 @@ import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdEdge;
 import com.runwaysdk.system.metadata.MdVertex;
 
+import net.geoprism.graph.AttributeBooleanTypeSnapshot;
+import net.geoprism.graph.AttributeCharacterTypeSnapshot;
+import net.geoprism.graph.AttributeClassificationTypeSnapshot;
+import net.geoprism.graph.AttributeDateTypeSnapshot;
+import net.geoprism.graph.AttributeDoubleTypeSnapshot;
+import net.geoprism.graph.AttributeGeometryTypeSnapshot;
+import net.geoprism.graph.AttributeLocalTypeSnapshot;
+import net.geoprism.graph.AttributeLongTypeSnapshot;
+import net.geoprism.graph.AttributeTermTypeSnapshot;
+import net.geoprism.graph.AttributeTypeSnapshot;
 import net.geoprism.graph.BusinessEdgeTypeSnapshot;
 import net.geoprism.graph.BusinessTypeSnapshot;
 import net.geoprism.graph.BusinessTypeSnapshotQuery;
 import net.geoprism.graph.DirectedAcyclicGraphTypeSnapshot;
 import net.geoprism.graph.GeoObjectTypeSnapshot;
+import net.geoprism.graph.GeoObjectTypeSnapshotQuery;
 import net.geoprism.graph.GraphTypeReference;
 import net.geoprism.graph.GraphTypeSnapshot;
 import net.geoprism.graph.HierarchyTypeSnapshot;
@@ -65,7 +80,9 @@ import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.Commit;
 import net.geoprism.registry.CommitHasSnapshotQuery;
+import net.geoprism.registry.DirectedAcyclicGraphType;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.model.Classification;
@@ -76,29 +93,48 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.SnapshotContainer;
 import net.geoprism.registry.model.graph.EdgeVertexType;
+import net.geoprism.registry.view.BusinessEdgeTypeSnapshotDTO;
+import net.geoprism.registry.view.BusinessTypeSnapshotDTO;
+import net.geoprism.registry.view.GeoObjectTypeSnapshotDTO;
+import net.geoprism.registry.view.HierarchyTypeSnapshotDTO;
 
 @Service
 public class SnapshotBusinessService
 {
   @Autowired
-  private GeoObjectTypeSnapshotBusinessServiceIF oSnapshotService;
+  private GeoObjectTypeSnapshotBusinessServiceIF    oSnapshotService;
 
   @Autowired
-  private HierarchyTypeSnapshotBusinessServiceIF hSnapshotService;
+  private HierarchyTypeSnapshotBusinessServiceIF    hSnapshotService;
 
   @Autowired
-  private BusinessTypeSnapshotBusinessServiceIF  bTypeSnapshotService;
+  private BusinessTypeSnapshotBusinessServiceIF     bTypeSnapshotService;
 
   @Autowired
-  private BusinessEdgeTypeBusinessServiceIF      bEdgeService;
+  private BusinessEdgeTypeBusinessServiceIF         bEdgeService;
 
   @Autowired
-  private ClassificationTypeBusinessServiceIF    cTypeService;
+  private ClassificationTypeBusinessServiceIF       cTypeService;
 
   @Autowired
-  private ClassificationBusinessServiceIF        cService;
+  private ClassificationBusinessServiceIF           cService;
 
-  protected GraphTypeSnapshot createGraphTypeSnapshot(SnapshotContainer<?> version, GraphTypeReference gtr, GeoObjectTypeSnapshot root)
+  @Autowired
+  private DirectedAcyclicGraphTypeBusinessServiceIF dagTypeService;
+
+  @Autowired
+  private UndirectedGraphTypeBusinessServiceIF      undirectedTypeService;
+
+  @Autowired
+  private HierarchyTypeBusinessServiceIF            hTypeService;
+
+  @Autowired
+  private GeoObjectTypeBusinessServiceIF            gTypeService;
+
+  @Autowired
+  private BusinessTypeBusinessServiceIF             bTypeService;
+
+  public GraphTypeSnapshot createSnapshot(SnapshotContainer<?> version, GraphTypeReference gtr, GeoObjectTypeSnapshot root)
   {
     MdEdge mdEdge = null;
 
@@ -150,14 +186,7 @@ public class SnapshotBusinessService
     }
     else if (gtr.typeCode.equals(GraphTypeSnapshot.HIERARCHY_TYPE))
     {
-      HierarchyTypeSnapshot htsnapshot = new HierarchyTypeSnapshot();
-      htsnapshot.setGraphMdEdge(mdEdge);
-      htsnapshot.setCode(gtr.code);
-      LocalizedValueConverter.populate(htsnapshot.getDisplayLabel(), graphType.getLabel());
-      LocalizedValueConverter.populate(htsnapshot.getDescription(), graphType.getDescriptionLV());
-      htsnapshot.apply();
-
-      snapshot = htsnapshot;
+      snapshot = this.createSnapshot(version, (ServerHierarchyType) graphType, root);
     }
     else
     {
@@ -169,7 +198,7 @@ public class SnapshotBusinessService
     return (GraphTypeSnapshot) snapshot;
   }
 
-  protected BusinessEdgeTypeSnapshot create(SnapshotContainer<?> version, BusinessEdgeType edgeType, GeoObjectTypeSnapshot root)
+  public BusinessEdgeTypeSnapshot createSnapshot(SnapshotContainer<?> version, BusinessEdgeType edgeType, GeoObjectTypeSnapshot root)
   {
     EdgeVertexType parent = this.bEdgeService.getParent(edgeType);
     EdgeVertexType child = this.bEdgeService.getChild(edgeType);
@@ -201,6 +230,7 @@ public class SnapshotBusinessService
     BusinessEdgeTypeSnapshot snapshot = new BusinessEdgeTypeSnapshot();
     snapshot.setGraphMdEdge(mdEdge);
     snapshot.setCode(edgeType.getCode());
+    snapshot.setOrgCode(edgeType.getOrganization().getCode());
     snapshot.setIsChildGeoObject(child.isGeoObjectType());
     snapshot.setIsParentGeoObject(parent.isGeoObjectType());
     snapshot.setParentType(pSnapshot);
@@ -214,49 +244,28 @@ public class SnapshotBusinessService
     return snapshot;
   }
 
-  protected BusinessTypeSnapshot getBusinessType(SnapshotContainer<?> version, String code)
+  public BusinessEdgeTypeSnapshot createSnapshot(SnapshotContainer<?> version, BusinessEdgeTypeSnapshotDTO dto, GeoObjectTypeSnapshot root)
   {
-    if (version instanceof LabeledPropertyGraphTypeVersion)
-    {
-      return this.bTypeSnapshotService.get((LabeledPropertyGraphTypeVersion) version, code);
-    }
-
-    QueryFactory factory = new QueryFactory();
-
-    CommitHasSnapshotQuery vQuery = new CommitHasSnapshotQuery(factory);
-    vQuery.WHERE(vQuery.getParent().EQ((Commit) version));
-
-    BusinessTypeSnapshotQuery query = new BusinessTypeSnapshotQuery(factory);
-    query.WHERE(query.EQ(vQuery.getChild()));
-    query.AND(query.getCode().EQ(code));
-
-    try (OIterator<? extends BusinessTypeSnapshot> it = query.getIterator())
-    {
-      if (it.hasNext())
-      {
-        return it.next();
-      }
-    }
-
-    return null;
-
+    ObjectTypeSnapshot pSnapshot = dto.getIsParentGeoObject() ? root : this.getBusinessType(version, dto.getParentTypeCode());
+    ObjectTypeSnapshot cSnapshot = dto.getIsChildGeoObject() ? root : this.getBusinessType(version, dto.getChildTypeCode());
+    
+    BusinessEdgeTypeSnapshot snapshot = new BusinessEdgeTypeSnapshot();
+    snapshot.setCode(dto.getCode());
+    snapshot.setOrgCode(dto.getOrgCode());
+    snapshot.setIsChildGeoObject(dto.getIsChildGeoObject());
+    snapshot.setIsParentGeoObject(dto.getIsParentGeoObject());
+    snapshot.setParentType(pSnapshot);
+    snapshot.setChildType(cSnapshot);
+    LocalizedValueConverter.populate(snapshot.getDisplayLabel(), dto.getDisplayLabel());
+    LocalizedValueConverter.populate(snapshot.getDescription(), dto.getDescription());
+    snapshot.apply();
+    
+    version.addSnapshot(snapshot).apply();
+    
+    return snapshot;
   }
-
-  protected String getEdgeName(GraphType type)
-  {
-    MdEdgeDAOIF mdEdge = type.getMdEdgeDAO();
-
-    return getEdgeName(mdEdge);
-  }
-
-  protected String getEdgeName(MdEdgeDAOIF mdEdge)
-  {
-    String className = mdEdge.getDBClassName();
-
-    return this.hSnapshotService.getTableName(className);
-  }
-
-  protected HierarchyTypeSnapshot create(SnapshotContainer<?> version, ServerHierarchyType type, GeoObjectTypeSnapshot root)
+  
+  public HierarchyTypeSnapshot createSnapshot(SnapshotContainer<?> version, ServerHierarchyType type, GeoObjectTypeSnapshot root)
   {
     MdEdge mdEdge = null;
 
@@ -283,6 +292,7 @@ public class SnapshotBusinessService
     HierarchyTypeSnapshot snapshot = new HierarchyTypeSnapshot();
     snapshot.setGraphMdEdge(mdEdge);
     snapshot.setCode(type.getCode());
+    snapshot.setOrgCode(type.getOrganization().getCode());
     RegistryLocalizedValueConverter.populate(snapshot.getDisplayLabel(), type.getLabel());
     RegistryLocalizedValueConverter.populate(snapshot.getDescription(), type.getDescription());
     snapshot.apply();
@@ -292,8 +302,28 @@ public class SnapshotBusinessService
     return snapshot;
   }
 
+  public HierarchyTypeSnapshot createSnapshot(SnapshotContainer<?> version, HierarchyTypeSnapshotDTO dto)
+  {
+    HierarchyTypeSnapshot snapshot = new HierarchyTypeSnapshot();
+    snapshot.setCode(dto.getCode());
+    snapshot.setOrgCode(dto.getOrgCode());
+    snapshot.setProgress(dto.getProgress());
+    snapshot.setAcknowledgement(dto.getAcknowledgement());
+    snapshot.setDisclaimer(dto.getDisclaimer());
+    snapshot.setAccessConstraints(dto.getAccessContraints());
+    snapshot.setUseConstraints(dto.getUseContraints());
+    snapshot.setSuperHierarchy(dto.getSuperHierarchy());
+    RegistryLocalizedValueConverter.populate(snapshot.getDisplayLabel(), dto.getDisplayLabel());
+    RegistryLocalizedValueConverter.populate(snapshot.getDescription(), dto.getDescription());
+    snapshot.apply();
+    
+    version.addSnapshot(snapshot).apply();
+    
+    return snapshot;
+  }
+  
   @Transaction
-  protected GeoObjectTypeSnapshot create(SnapshotContainer<?> version, ServerGeoObjectType type, GeoObjectTypeSnapshot parent)
+  public GeoObjectTypeSnapshot createSnapshot(SnapshotContainer<?> version, ServerGeoObjectType type, GeoObjectTypeSnapshot parent)
   {
     MdVertex graphMdVertex = null;
 
@@ -439,7 +469,29 @@ public class SnapshotBusinessService
   }
 
   @Transaction
-  protected BusinessTypeSnapshot create(SnapshotContainer<?> version, BusinessType type)
+  public GeoObjectTypeSnapshot createSnapshot(SnapshotContainer<?> version, GeoObjectTypeSnapshotDTO dto, GeoObjectTypeSnapshot root)
+  {
+    GeoObjectTypeSnapshot parent = StringUtils.isBlank(dto.getParentTypeCode()) ? root : this.getGeoObjectType(version, dto.getParentTypeCode());
+
+    GeoObjectTypeSnapshot snapshot = new GeoObjectTypeSnapshot();
+    snapshot.setCode(dto.getCode());
+    snapshot.setOrgCode(dto.getOrgCode());
+    snapshot.setGeometryType(dto.getGeometryType());
+    snapshot.setIsAbstract(dto.getIsAbstract());
+    snapshot.setIsRoot(dto.getIsRoot());
+    snapshot.setIsPrivate(dto.getIsPrivate());
+    snapshot.setParent(parent);
+    RegistryLocalizedValueConverter.populate(snapshot.getDisplayLabel(), dto.getDisplayLabel());
+    RegistryLocalizedValueConverter.populate(snapshot.getDescription(), dto.getDescription());
+    snapshot.apply();
+
+    version.addSnapshot(snapshot).apply();
+
+    return snapshot;
+  }
+
+  @Transaction
+  public BusinessTypeSnapshot createSnapshot(SnapshotContainer<?> version, BusinessType type)
   {
     MdVertex graphMdVertex = null;
 
@@ -462,7 +514,7 @@ public class SnapshotBusinessService
       Map<String, AttributeType> attributes = type.getAttributeMap();
 
       attributes.forEach((attributeName, attributeType) -> {
-        
+
         if (! ( attributeType instanceof AttributeTermType ) && !existingAttributes.contains(attributeName))
         {
           MdAttributeConcrete mdAttribute = null;
@@ -559,12 +611,221 @@ public class SnapshotBusinessService
     return snapshot;
   }
 
+  @Transaction
+  public BusinessTypeSnapshot createSnapshot(SnapshotContainer<?> version, BusinessTypeSnapshotDTO dto)
+  {
+    BusinessTypeSnapshot snapshot = new BusinessTypeSnapshot();
+    snapshot.setCode(dto.getCode());
+    snapshot.setOrgCode(dto.getOrgCode());
+    RegistryLocalizedValueConverter.populate(snapshot.getDisplayLabel(), dto.getDisplayLabel());
+    snapshot.apply();
+
+    version.addSnapshot(snapshot).apply();
+
+    return snapshot;
+  }
+
+  public GraphType createType(GraphTypeSnapshot snapshot)
+  {
+    if (snapshot instanceof DirectedAcyclicGraphTypeSnapshot)
+    {
+      DirectedAcyclicGraphTypeSnapshot concrete = (DirectedAcyclicGraphTypeSnapshot) snapshot;
+
+      DirectedAcyclicGraphType type = DirectedAcyclicGraphType.getByCode(concrete.getCode());
+
+      if (type == null)
+      {
+        LocalizedValue label = LocalizedValueConverter.convertNoAutoCoalesce(concrete.getDisplayLabel());
+        LocalizedValue description = LocalizedValueConverter.convertNoAutoCoalesce(concrete.getDescription());
+
+        type = this.dagTypeService.create(concrete.getCode(), label, description);
+      }
+
+      return type;
+    }
+    else if (snapshot instanceof UndirectedGraphTypeSnapshot)
+    {
+      UndirectedGraphTypeSnapshot concrete = (UndirectedGraphTypeSnapshot) snapshot;
+
+      UndirectedGraphType type = UndirectedGraphType.getByCode(concrete.getCode());
+
+      if (type == null)
+      {
+        LocalizedValue label = LocalizedValueConverter.convertNoAutoCoalesce(concrete.getDisplayLabel());
+        LocalizedValue description = LocalizedValueConverter.convertNoAutoCoalesce(concrete.getDescription());
+
+        type = this.undirectedTypeService.create(concrete.getCode(), label, description);
+      }
+
+      return type;
+    }
+    else if (snapshot instanceof HierarchyTypeSnapshot)
+    {
+      return this.createType((HierarchyTypeSnapshot) snapshot);
+    }
+    else
+    {
+      throw new UnsupportedOperationException();
+    }
+  }
+
+  public BusinessEdgeType createType(BusinessEdgeTypeSnapshot snapshot)
+  {
+    LocalizedValue label = LocalizedValueConverter.convertNoAutoCoalesce(snapshot.getDisplayLabel());
+    LocalizedValue description = LocalizedValueConverter.convertNoAutoCoalesce(snapshot.getDescription());
+
+    BusinessEdgeType type = this.bEdgeService.getByCode(snapshot.getCode());
+
+    // If doesn't exist then create it, otherwise update the definition
+    if (type == null)
+    {
+      return this.bEdgeService.create(snapshot.getOrgCode(), snapshot.getCode(), label, description, snapshot.getParentType().getCode(), snapshot.getChildType().getCode());
+    }
+
+    this.bEdgeService.update(type, label, description);
+
+    return type;
+  }
+
+  public ServerHierarchyType createType(HierarchyTypeSnapshot snapshot)
+  {
+    LocalizedValue label = LocalizedValueConverter.convertNoAutoCoalesce(snapshot.getDisplayLabel());
+    LocalizedValue description = LocalizedValueConverter.convertNoAutoCoalesce(snapshot.getDescription());
+
+    HierarchyType dto = new HierarchyType(snapshot.getCode(), label, description, snapshot.getOrgCode());
+
+    ServerHierarchyType hierarchyType = this.hTypeService.createHierarchyType(dto);
+
+    // TODO: Update hierarchy
+
+    return hierarchyType;
+  }
+
+  @Transaction
+  public ServerGeoObjectType createType(GeoObjectTypeSnapshot snapshot)
+  {
+    ServerGeoObjectType type = ServerGeoObjectType.get(snapshot.getCode());
+    LocalizedValue label = LocalizedValueConverter.convertNoAutoCoalesce(snapshot.getDisplayLabel());
+    LocalizedValue description = LocalizedValueConverter.convertNoAutoCoalesce(snapshot.getDescription());
+
+    GeoObjectType dto = new GeoObjectType(snapshot.getCode(), GeometryType.valueOf(snapshot.getGeometryType()), label, description, snapshot.getIsGeometryEditable(), snapshot.getOrgCode(), ServiceFactory.getAdapter());
+    dto.setIsAbstract(snapshot.getIsAbstract());
+    dto.setIsPrivate(snapshot.getIsPrivate());
+    // dto.setSuperTypeCode(snapshot.);
+
+    if (type == null)
+    {
+      type = this.gTypeService.create(dto);
+    }
+    else
+    {
+      this.gTypeService.updateGeoObjectType(dto.toJSON().toString());
+    }
+
+    Map<String, net.geoprism.registry.graph.AttributeType> attributeMap = type.getAttributeMap();
+
+    List<AttributeTypeSnapshot> attributeTypeSnapshots = this.oSnapshotService.getAttributeTypes(snapshot);
+
+    final ServerGeoObjectType geoObjectType = type;
+
+    attributeTypeSnapshots.stream().filter(aSnapshot -> !aSnapshot.getIsDefault() && !attributeMap.containsKey(aSnapshot.getCode())).forEach(attribute -> {
+
+      if (! ( attribute instanceof AttributeGeometryTypeSnapshot ) && ! ( attribute instanceof AttributeTermTypeSnapshot ))
+      {
+        AttributeType attributeType = createType(attribute);
+
+        this.gTypeService.createAttributeType(geoObjectType, attributeType);
+      }
+    });
+
+    return type;
+  }
+
+  @Transaction
+  public BusinessType createType(BusinessTypeSnapshot snapshot)
+  {
+    final BusinessType type = this.bTypeService.apply(snapshot.toJSON());
+
+    Map<String, AttributeType> attributeMap = type.getAttributeMap();
+
+    List<AttributeTypeSnapshot> attributeTypeSnapshots = this.bTypeSnapshotService.getAttributeTypes(snapshot);
+
+    attributeTypeSnapshots.stream().filter(aSnapshot -> !aSnapshot.getIsDefault() && !attributeMap.containsKey(aSnapshot.getCode())).forEach(attribute -> {
+
+      if (! ( attribute instanceof AttributeGeometryTypeSnapshot ) && ! ( attribute instanceof AttributeTermTypeSnapshot ))
+      {
+        AttributeType attributeType = createType(attribute);
+
+        this.bTypeService.createAttributeType(type, attributeType);
+      }
+    });
+
+    return type;
+  }
+
+  public AttributeType createType(AttributeTypeSnapshot attribute)
+  {
+    AttributeType attributeType = null;
+
+    LocalizedValue attributeLabel = LocalizedValueConverter.convertNoAutoCoalesce(attribute.getLabel());
+    LocalizedValue attributeDescription = LocalizedValueConverter.convertNoAutoCoalesce(attribute.getDescription());
+
+    if (attribute instanceof AttributeCharacterTypeSnapshot)
+    {
+      attributeType = new AttributeCharacterType(attribute.getCode(), attributeLabel, attributeDescription, attribute.getIsDefault(), attribute.getIsRequired(), attribute.getIsUnique());
+      attributeType.setIsChangeOverTime(attribute.getIsChangeOverTime());
+    }
+    else if (attribute instanceof AttributeDateTypeSnapshot)
+    {
+      attributeType = new AttributeDateType(attribute.getCode(), attributeLabel, attributeDescription, attribute.getIsDefault(), attribute.getIsRequired(), attribute.getIsUnique());
+      attributeType.setIsChangeOverTime(attribute.getIsChangeOverTime());
+    }
+    else if (attribute instanceof AttributeLongTypeSnapshot)
+    {
+      attributeType = new AttributeIntegerType(attribute.getCode(), attributeLabel, attributeDescription, attribute.getIsDefault(), attribute.getIsRequired(), attribute.getIsUnique());
+      attributeType.setIsChangeOverTime(attribute.getIsChangeOverTime());
+    }
+    else if (attribute instanceof AttributeDoubleTypeSnapshot)
+    {
+      AttributeFloatType attributeFloatType = new AttributeFloatType(attribute.getCode(), attributeLabel, attributeDescription, attribute.getIsDefault(), attribute.getIsRequired(), attribute.getIsUnique());
+      attributeFloatType.setIsChangeOverTime(attribute.getIsChangeOverTime());
+      attributeFloatType.setPrecision( ( (AttributeDoubleTypeSnapshot) attribute ).getPrecision());
+      attributeFloatType.setScale( ( (AttributeDoubleTypeSnapshot) attribute ).getScale());
+
+      attributeType = attributeFloatType;
+    }
+    else if (attribute instanceof AttributeClassificationTypeSnapshot)
+    {
+      AttributeClassificationType attributeClassificationType = new AttributeClassificationType(attribute.getCode(), attributeLabel, attributeDescription, attribute.getIsDefault(), attribute.getIsRequired(), attribute.getIsUnique());
+      attributeClassificationType.setIsChangeOverTime(attribute.getIsChangeOverTime());
+      attributeClassificationType.setClassificationType( ( (AttributeClassificationTypeSnapshot) attribute ).getClassificationType());
+      attributeClassificationType.setRootTerm(new Term( ( (AttributeClassificationTypeSnapshot) attribute ).getRootTerm(), attributeLabel, attributeDescription));
+
+      attributeType = attributeClassificationType;
+    }
+    else if (attribute instanceof AttributeBooleanTypeSnapshot)
+    {
+      attributeType = new AttributeBooleanType(attribute.getCode(), attributeLabel, attributeDescription, attribute.getIsDefault(), attribute.getIsRequired(), attribute.getIsUnique());
+      attributeType.setIsChangeOverTime(attribute.getIsChangeOverTime());
+    }
+    else if (attribute instanceof AttributeLocalTypeSnapshot)
+    {
+      attributeType = new AttributeLocalType(attribute.getCode(), attributeLabel, attributeDescription, attribute.getIsDefault(), attribute.getIsRequired(), attribute.getIsUnique());
+      attributeType.setIsChangeOverTime(attribute.getIsChangeOverTime());
+    }
+    else
+    {
+      throw new UnsupportedOperationException();
+    }
+    return attributeType;
+  }
+
   public GeoObjectTypeSnapshot createRoot(SnapshotContainer<?> version)
   {
     return this.oSnapshotService.createRoot(version);
   }
 
-  public void assignPermissions(ComponentIF component)
+  protected void assignPermissions(ComponentIF component)
   {
     RoleDAO adminRole = RoleDAO.findRole(RoleConstants.ADMIN).getBusinessDAO();
     adminRole.grantPermission(Operation.CREATE, component.getOid());
@@ -589,6 +850,74 @@ public class SnapshotBusinessService
     UserDAO publicRole = UserDAO.findUser(UserInfo.PUBLIC_USER_NAME).getBusinessDAO();
     publicRole.grantPermission(Operation.READ, component.getOid());
     publicRole.grantPermission(Operation.READ_ALL, component.getOid());
+  }
+
+  public BusinessTypeSnapshot getBusinessType(SnapshotContainer<?> version, String code)
+  {
+    if (version instanceof LabeledPropertyGraphTypeVersion)
+    {
+      return this.bTypeSnapshotService.get((LabeledPropertyGraphTypeVersion) version, code);
+    }
+
+    QueryFactory factory = new QueryFactory();
+
+    CommitHasSnapshotQuery vQuery = new CommitHasSnapshotQuery(factory);
+    vQuery.WHERE(vQuery.getParent().EQ((Commit) version));
+
+    BusinessTypeSnapshotQuery query = new BusinessTypeSnapshotQuery(factory);
+    query.WHERE(query.EQ(vQuery.getChild()));
+    query.AND(query.getCode().EQ(code));
+
+    try (OIterator<? extends BusinessTypeSnapshot> it = query.getIterator())
+    {
+      if (it.hasNext())
+      {
+        return it.next();
+      }
+    }
+
+    return null;
+  }
+
+  public GeoObjectTypeSnapshot getGeoObjectType(SnapshotContainer<?> version, String code)
+  {
+    if (version instanceof LabeledPropertyGraphTypeVersion)
+    {
+      return this.oSnapshotService.get((LabeledPropertyGraphTypeVersion) version, code);
+    }
+
+    QueryFactory factory = new QueryFactory();
+
+    CommitHasSnapshotQuery vQuery = new CommitHasSnapshotQuery(factory);
+    vQuery.WHERE(vQuery.getParent().EQ((Commit) version));
+
+    GeoObjectTypeSnapshotQuery query = new GeoObjectTypeSnapshotQuery(factory);
+    query.WHERE(query.EQ(vQuery.getChild()));
+    query.AND(query.getCode().EQ(code));
+
+    try (OIterator<? extends GeoObjectTypeSnapshot> it = query.getIterator())
+    {
+      if (it.hasNext())
+      {
+        return it.next();
+      }
+    }
+
+    return null;
+  }
+
+  private String getEdgeName(GraphType type)
+  {
+    MdEdgeDAOIF mdEdge = type.getMdEdgeDAO();
+
+    return getEdgeName(mdEdge);
+  }
+
+  private String getEdgeName(MdEdgeDAOIF mdEdge)
+  {
+    String className = mdEdge.getDBClassName();
+
+    return this.hSnapshotService.getTableName(className);
   }
 
 }

@@ -6,7 +6,6 @@ package net.geoprism.registry.axon;
 import java.util.Arrays;
 import java.util.Date;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.Commit;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.Publish;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
@@ -26,7 +26,7 @@ import net.geoprism.registry.axon.event.remote.RemoteGeoObjectSetParentEvent;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.service.business.PublishBusinessServiceIF;
 import net.geoprism.registry.service.business.PublishEventService;
-import net.geoprism.registry.view.EventPublishingConfiguration;
+import net.geoprism.registry.view.PublishDTO;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
@@ -58,7 +58,7 @@ public class PublishEventServiceTest implements InstanceTestClassListener
   public void after()
   {
     Arrays.asList(RemoteGeoObjectEvent.class, RemoteGeoObjectSetParentEvent.class).forEach(cl -> {
-      Database.deleteWhere(PublishEventService.DOMAIN_EVENT_ENTRY_TABLE, "payloadtype = '" + cl.getName() + "'");
+      Database.deleteWhere(Commit.DOMAIN_EVENT_ENTRY_TABLE, "payloadtype = '" + cl.getName() + "'");
     });
   }
 
@@ -71,7 +71,7 @@ public class PublishEventServiceTest implements InstanceTestClassListener
 
       try
       {
-        Publish publish = service.publish(new EventPublishingConfiguration(date, date, date));
+        Publish publish = service.publish(new PublishDTO(date, date, date));
 
         pService.delete(publish);
       }

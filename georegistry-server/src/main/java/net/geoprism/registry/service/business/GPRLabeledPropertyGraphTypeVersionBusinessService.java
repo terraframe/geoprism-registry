@@ -193,7 +193,7 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
     {
       BusinessType businessType = this.bTypeService.getByCode(businessTypeCode);
 
-      this.snapshotService.create(version, businessType);
+      this.snapshotService.createSnapshot(version, businessType);
     }
 
     if (goTypeCodes.size() > 0)
@@ -201,13 +201,13 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
       // Publish snapshots for all graph types
       for (GraphTypeReference gtr : gtrs)
       {
-        this.snapshotService.createGraphTypeSnapshot(version, gtr, root);
+        this.snapshotService.createSnapshot(version, gtr, root);
       }
 
       // Publish snapshots for all geo-object types
       for (String goTypeCode : goTypeCodes)
       {
-        GeoObjectTypeSnapshot snapshot = this.snapshotService.create(version, ServerGeoObjectType.get(goTypeCode), root);
+        GeoObjectTypeSnapshot snapshot = this.snapshotService.createSnapshot(version, ServerGeoObjectType.get(goTypeCode), root);
         root.addChildSnapshot(snapshot).apply();
       }
     }
@@ -215,7 +215,7 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
     {
       ServerHierarchyType hierarchy = ServerHierarchyType.get(lpgt.getHierarchy());
 
-      this.snapshotService.create(version, hierarchy, root);
+      this.snapshotService.createSnapshot(version, hierarchy, root);
 
       Stack<StackItem> stack = new Stack<StackItem>();
 
@@ -226,12 +226,12 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
         StackItem item = stack.pop();
         ServerGeoObjectType type = item.type;
 
-        GeoObjectTypeSnapshot parent = this.snapshotService.create(version, type, root);
+        GeoObjectTypeSnapshot parent = this.snapshotService.createSnapshot(version, type, root);
 
         if (type.getIsAbstract())
         {
           this.typeService.getSubtypes(type).forEach(subtype -> {
-            this.snapshotService.create(version, subtype, parent);
+            this.snapshotService.createSnapshot(version, subtype, parent);
           });
         }
 
@@ -256,7 +256,7 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
     {
       BusinessEdgeType edgeType = this.bEdgeService.getByCode(businessEdgeCode);
 
-      this.snapshotService.create(version, edgeType, root);
+      this.snapshotService.createSnapshot(version, edgeType, root);
     }
 
     return version;

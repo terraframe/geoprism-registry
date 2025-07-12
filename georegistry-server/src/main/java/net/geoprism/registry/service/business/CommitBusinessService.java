@@ -19,7 +19,9 @@
 package net.geoprism.registry.service.business;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -49,22 +51,36 @@ import net.geoprism.registry.Commit;
 import net.geoprism.registry.CommitHasSnapshotQuery;
 import net.geoprism.registry.CommitQuery;
 import net.geoprism.registry.Publish;
-import net.geoprism.registry.view.EventPublishingConfiguration;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.view.CommitDTO;
+import net.geoprism.registry.view.PublishDTO;
 
 @Service
 public class CommitBusinessService implements CommitBusinessServiceIF
 {
   @Autowired
-  private GeoObjectTypeSnapshotBusinessServiceIF    objectService;
+  private GeoObjectTypeBusinessServiceIF            gService;
 
   @Autowired
-  private BusinessTypeSnapshotBusinessServiceIF     businessService;
+  private BusinessTypeBusinessServiceIF             bService;
 
   @Autowired
-  private BusinessEdgeTypeSnapshotBusinessServiceIF bEdgeTypeService;
+  private BusinessEdgeTypeBusinessServiceIF         bEdgeService;
 
   @Autowired
-  private GraphTypeSnapshotBusinessServiceIF        graphService;
+  private GraphTypeBusinessServiceIF                graphService;
+
+  @Autowired
+  private GeoObjectTypeSnapshotBusinessServiceIF    gSnapshotService;
+
+  @Autowired
+  private BusinessTypeSnapshotBusinessServiceIF     bSnapshotService;
+
+  @Autowired
+  private BusinessEdgeTypeSnapshotBusinessServiceIF bEdgeSnapshotService;
+
+  @Autowired
+  private GraphTypeSnapshotBusinessServiceIF        graphSnapshotService;
 
   @Autowired
   private SnapshotBusinessService                   snapshotService;
@@ -73,23 +89,23 @@ public class CommitBusinessService implements CommitBusinessServiceIF
   @Transaction
   public void delete(Commit commit)
   {
-    this.getGraphSnapshots(commit).forEach(e -> this.graphService.delete(e));
+    this.getGraphSnapshots(commit).forEach(e -> this.graphSnapshotService.delete(e));
 
     // Delete all business edge types
-    this.getBusinessEdgeTypes(commit).stream().forEach(v -> this.bEdgeTypeService.delete(v));
+    this.getBusinessEdgeTypes(commit).stream().forEach(v -> this.bEdgeSnapshotService.delete(v));
 
     // Delete all business types
-    this.getBusinessTypes(commit).stream().forEach(v -> this.businessService.delete(v));
+    this.getBusinessTypes(commit).stream().forEach(v -> this.bSnapshotService.delete(v));
 
     // Delete the non-root snapshots first
-    this.getTypes(commit).stream().filter(v -> !v.getIsAbstract()).forEach(v -> this.objectService.delete(v));
+    this.getTypes(commit).stream().filter(v -> !v.getIsAbstract()).forEach(v -> this.gSnapshotService.delete(v));
 
     // Delete the abstract snapshots after all the sub snapshots have been
     // deleted
-    this.getTypes(commit).stream().filter(v -> !v.getIsRoot()).forEach(v -> this.objectService.delete(v));
+    this.getTypes(commit).stream().filter(v -> !v.getIsRoot()).forEach(v -> this.gSnapshotService.delete(v));
 
     // Delete the root snapshots after all the sub snapshots have been deleted
-    this.getTypes(commit).stream().filter(v -> v.isRoot()).forEach(v -> this.objectService.delete(v));
+    this.getTypes(commit).stream().filter(v -> v.isRoot()).forEach(v -> this.gSnapshotService.delete(v));
 
     commit.delete();
   }
@@ -290,20 +306,17 @@ public class CommitBusinessService implements CommitBusinessServiceIF
 
   @Override
   @Transaction
-  public Commit create(Publish publish, EventPublishingConfiguration configuration, int versionNumber, long lastSequenceNumber)
+  public Commit create(Publish publish, int versionNumber, long lastSequenceNumber)
   {
-    Commit commit = new Commit();
-    commit.setUid(UUID.randomUUID().toString());
-    commit.setPublish(publish);
-    commit.setLastSequenceNumber(lastSequenceNumber);
-    commit.setVersionNumber(versionNumber);
-    commit.apply();
+    PublishDTO configuration = publish.toDTO();
+
+    Commit commit = create(publish, new CommitDTO(UUID.randomUUID().toString(), publish.getUid(), versionNumber, lastSequenceNumber));
 
     GeoObjectTypeSnapshot root = this.snapshotService.createRoot(commit);
 
     // Publish snapshots for all business types participating in the graph
-    configuration.getBusinessTypes().forEach(businessType -> {
-      this.snapshotService.create(commit, businessType);
+    configuration.getBusinessTypes().forEach(code -> {
+      this.snapshotService.createSnapshot(commit, this.bService.getByCode(code));
     });
 
     // TODO: Publish snapshots for all graph types
@@ -313,17 +326,31 @@ public class CommitBusinessService implements CommitBusinessServiceIF
     // }
 
     // Publish snapshots for all geo-object types
-    configuration.getGeoObjectTypes().forEach(type -> {
-      GeoObjectTypeSnapshot snapshot = this.snapshotService.create(commit, type, root);
+    configuration.getGeoObjectTypes().forEach(code -> {
+      GeoObjectTypeSnapshot snapshot = this.snapshotService.createSnapshot(commit, ServerGeoObjectType.get(code), root);
 
       root.addChildSnapshot(snapshot).apply();
     });
 
     // Publish snapshots for all business edge types participating in the
     // graph
-    configuration.getBusinessEdgeTypes().forEach(edgeType -> {
-      this.snapshotService.create(commit, edgeType, root);
+    configuration.getBusinessEdgeTypes().forEach(code -> {
+      this.snapshotService.createSnapshot(commit, this.bEdgeService.getByCode(code), root);
     });
+
+    return commit;
+  }
+
+  @Override
+  @Transaction
+  public Commit create(Publish publish, CommitDTO dto)
+  {
+    Commit commit = new Commit();
+    commit.setUid(dto.getUid());
+    commit.setPublish(publish);
+    commit.setLastSequenceNumber(dto.getLastSequenceNumber());
+    commit.setVersionNumber(dto.getVersionNumber());
+    commit.apply();
 
     return commit;
   }
@@ -344,4 +371,54 @@ public class CommitBusinessService implements CommitBusinessServiceIF
   {
     return Commit.get(oid);
   }
+
+  @Override
+  public List<Commit> getCommits(Publish publish)
+  {
+    CommitQuery query = new CommitQuery(new QueryFactory());
+    query.WHERE(query.getPublish().EQ(publish));
+    query.ORDER_BY_DESC(query.getVersionNumber());
+
+    try (OIterator<? extends Commit> it = query.getIterator())
+    {
+      return new LinkedList<Commit>(it.getAll());
+    }
+  }
+
+  @Override
+  public Commit getMostRecentCommit(Publish publish)
+  {
+    CommitQuery query = new CommitQuery(new QueryFactory());
+    query.WHERE(query.getPublish().EQ(publish));
+    query.ORDER_BY_DESC(query.getVersionNumber());
+
+    try (OIterator<? extends Commit> iterator = query.getIterator())
+    {
+      if (iterator.hasNext())
+      {
+        return iterator.next();
+      }
+    }
+
+    return null;
+  }
+
+  @Override
+  public Optional<Commit> getCommit(Publish publish, Integer versionNumber)
+  {
+    CommitQuery query = new CommitQuery(new QueryFactory());
+    query.WHERE(query.getPublish().EQ(publish));
+    query.AND(query.getVersionNumber().EQ(versionNumber));
+
+    try (OIterator<? extends Commit> iterator = query.getIterator())
+    {
+      if (iterator.hasNext())
+      {
+        return Optional.of(iterator.next());
+      }
+    }
+
+    return Optional.empty();
+  }
+
 }

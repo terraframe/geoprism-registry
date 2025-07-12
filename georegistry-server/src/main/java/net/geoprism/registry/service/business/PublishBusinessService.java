@@ -18,9 +18,7 @@
  */
 package net.geoprism.registry.service.business;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,26 +31,21 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
 
-import net.geoprism.registry.Commit;
-import net.geoprism.registry.CommitQuery;
 import net.geoprism.registry.Publish;
-import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.view.EventPublishingConfiguration;
+import net.geoprism.registry.PublishQuery;
+import net.geoprism.registry.view.PublishDTO;
 
 @Service
 public class PublishBusinessService implements PublishBusinessServiceIF
 {
   @Autowired
-  private CommitBusinessServiceIF        commitService;
-
-  @Autowired
-  private HierarchyTypeBusinessServiceIF hTypeService;
+  private CommitBusinessServiceIF commitService;
 
   @Override
   @Transaction
   public void delete(Publish publish)
   {
-    this.getCommits(publish).forEach(commit -> {
+    this.commitService.getCommits(publish).forEach(commit -> {
       if (Session.getCurrentSession() != null)
       {
         this.commitService.remove(commit);
@@ -67,43 +60,13 @@ public class PublishBusinessService implements PublishBusinessServiceIF
     publish.delete();
   }
 
-  @Override
-  public List<Commit> getCommits(Publish publish)
-  {
-    CommitQuery query = new CommitQuery(new QueryFactory());
-    query.WHERE(query.getPublish().EQ(publish));
-    query.ORDER_BY_DESC(query.getVersionNumber());
-
-    try (OIterator<? extends Commit> it = query.getIterator())
-    {
-      return new LinkedList<Commit>(it.getAll());
-    }
-  }
-
-  @Override
-  public Commit getMostRecentCommit(Publish publish)
-  {
-    CommitQuery query = new CommitQuery(new QueryFactory());
-    query.WHERE(query.getPublish().EQ(publish));
-    query.ORDER_BY_DESC(query.getVersionNumber());
-
-    try (OIterator<? extends Commit> iterator = query.getIterator())
-    {
-      if (iterator.hasNext())
-      {
-        return iterator.next();
-      }
-    }
-
-    return null;
-  }
 
   @Override
   @Transaction
-  public Publish create(EventPublishingConfiguration configuration)
+  public Publish create(PublishDTO configuration)
   {
     Publish publish = new Publish();
-    publish.setUid(UUID.randomUUID().toString());
+    publish.setUid(configuration.getUid());
     publish.setTypeCodes(configuration.toJson().toString());
     publish.setForDate(configuration.getDate());
     publish.setStartDate(configuration.getStartDate());
@@ -119,30 +82,22 @@ public class PublishBusinessService implements PublishBusinessServiceIF
     return Publish.get(oid);
   }
 
-  public EventPublishingConfiguration toConfiguration(Publish publish)
+  @Override
+  public Optional<Publish> getByUid(String uid)
   {
-    EventPublishingConfiguration configuration = new EventPublishingConfiguration(publish.getForDate(), publish.getStartDate(), publish.getEndDate());
+    PublishQuery query = new PublishQuery(new QueryFactory());
+    query.WHERE(query.getUid().EQ(uid));
 
-    JsonArray array = JsonParser.parseString(publish.getTypeCodes()).getAsJsonArray();
-
-    array.forEach(element -> {
-      JsonObject object = element.getAsJsonObject();
-
-      String type = object.get("type").getAsString();
-      String code = object.get("code").getAsString();
-
-      if (type.equals("GeoObjectType"))
+    try (OIterator<? extends Publish> iterator = query.getIterator())
+    {
+      if (iterator.hasNext())
       {
-        configuration.addGeoObjectType(ServerGeoObjectType.get(code));
+        return Optional.of(iterator.next());
       }
-      else if (type.equals("HierarchyType"))
-      {
-        configuration.addHierarchyType(this.hTypeService.get(code));
-      }
+    }
 
-    });
-
-    return configuration;
+    return Optional.empty();
   }
+
 
 }
