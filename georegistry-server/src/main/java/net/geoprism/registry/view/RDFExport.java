@@ -10,6 +10,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import net.geoprism.graph.GraphTypeReference;
 import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessServiceIF.GeometryExportType;
+import net.geoprism.registry.spring.DateDeserializer;
+import net.geoprism.registry.spring.DateSerializer;
 
 public class RDFExport
 {

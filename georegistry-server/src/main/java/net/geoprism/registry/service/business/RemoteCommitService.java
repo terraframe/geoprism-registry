@@ -22,19 +22,31 @@ import net.geoprism.registry.view.PublishDTO;
 public class RemoteCommitService
 {
   @Autowired
-  private RemoteClientBuilderServiceIF service;
+  private RemoteClientBuilderServiceIF              service;
 
   @Autowired
-  private PublishBusinessServiceIF     publishService;
+  private PublishBusinessServiceIF                  publishService;
 
   @Autowired
-  private CommitBusinessServiceIF      commitService;
+  private CommitBusinessServiceIF                   commitService;
 
   @Autowired
-  private SnapshotBusinessService      snapshotService;
+  private GeoObjectTypeSnapshotBusinessServiceIF    gTypeService;
 
   @Autowired
-  private CommandGateway               gateway;
+  private BusinessEdgeTypeSnapshotBusinessServiceIF bEdgeTypeService;
+
+  @Autowired
+  private BusinessTypeSnapshotBusinessServiceIF     bTypeService;
+
+  @Autowired
+  private HierarchyTypeSnapshotBusinessServiceIF    hTypeService;
+
+  @Autowired
+  private SnapshotBusinessService                   snapshotService;
+
+  @Autowired
+  private CommandGateway                            gateway;
 
   public void pull(String source, String publishId, Integer versionNumber)
   {
@@ -64,13 +76,13 @@ public class RemoteCommitService
       GeoObjectTypeSnapshot root = this.snapshotService.createRoot(commit);
 
       client.getBusinessTypes(commit.getUid()).forEach(dto -> {
-        BusinessTypeSnapshot snapshot = this.snapshotService.createSnapshot(commit, dto);
+        BusinessTypeSnapshot snapshot = this.bTypeService.create(commit, dto);
 
         this.snapshotService.createType(snapshot);
       });
 
       client.getGeoObjectTypes(commit.getUid()).forEach(dto -> {
-        GeoObjectTypeSnapshot snapshot = this.snapshotService.createSnapshot(commit, dto, root);
+        GeoObjectTypeSnapshot snapshot = this.gTypeService.create(commit, dto);
 
         root.addChildSnapshot(snapshot).apply();
 
@@ -78,13 +90,13 @@ public class RemoteCommitService
       });
 
       client.getHierarchyTypes(commit.getUid()).forEach(dto -> {
-        HierarchyTypeSnapshot snapshot = this.snapshotService.createSnapshot(commit, dto);
+        HierarchyTypeSnapshot snapshot = this.hTypeService.create(commit, dto, root);
 
         this.snapshotService.createType(snapshot);
       });
 
       client.getBusinessEdgeTypes(commit.getUid()).forEach(dto -> {
-        BusinessEdgeTypeSnapshot snapshot = this.snapshotService.createSnapshot(commit, dto, root);
+        BusinessEdgeTypeSnapshot snapshot = this.bEdgeTypeService.create(commit, dto);
 
         this.snapshotService.createType(snapshot);
       });

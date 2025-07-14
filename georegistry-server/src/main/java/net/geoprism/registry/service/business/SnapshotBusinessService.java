@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
@@ -93,10 +92,6 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.SnapshotContainer;
 import net.geoprism.registry.model.graph.EdgeVertexType;
-import net.geoprism.registry.view.BusinessEdgeTypeSnapshotDTO;
-import net.geoprism.registry.view.BusinessTypeSnapshotDTO;
-import net.geoprism.registry.view.GeoObjectTypeSnapshotDTO;
-import net.geoprism.registry.view.HierarchyTypeSnapshotDTO;
 
 @Service
 public class SnapshotBusinessService
@@ -244,27 +239,6 @@ public class SnapshotBusinessService
     return snapshot;
   }
 
-  public BusinessEdgeTypeSnapshot createSnapshot(SnapshotContainer<?> version, BusinessEdgeTypeSnapshotDTO dto, GeoObjectTypeSnapshot root)
-  {
-    ObjectTypeSnapshot pSnapshot = dto.getIsParentGeoObject() ? root : this.getBusinessType(version, dto.getParentTypeCode());
-    ObjectTypeSnapshot cSnapshot = dto.getIsChildGeoObject() ? root : this.getBusinessType(version, dto.getChildTypeCode());
-    
-    BusinessEdgeTypeSnapshot snapshot = new BusinessEdgeTypeSnapshot();
-    snapshot.setCode(dto.getCode());
-    snapshot.setOrgCode(dto.getOrgCode());
-    snapshot.setIsChildGeoObject(dto.getIsChildGeoObject());
-    snapshot.setIsParentGeoObject(dto.getIsParentGeoObject());
-    snapshot.setParentType(pSnapshot);
-    snapshot.setChildType(cSnapshot);
-    LocalizedValueConverter.populate(snapshot.getDisplayLabel(), dto.getDisplayLabel());
-    LocalizedValueConverter.populate(snapshot.getDescription(), dto.getDescription());
-    snapshot.apply();
-    
-    version.addSnapshot(snapshot).apply();
-    
-    return snapshot;
-  }
-  
   public HierarchyTypeSnapshot createSnapshot(SnapshotContainer<?> version, ServerHierarchyType type, GeoObjectTypeSnapshot root)
   {
     MdEdge mdEdge = null;
@@ -302,26 +276,6 @@ public class SnapshotBusinessService
     return snapshot;
   }
 
-  public HierarchyTypeSnapshot createSnapshot(SnapshotContainer<?> version, HierarchyTypeSnapshotDTO dto)
-  {
-    HierarchyTypeSnapshot snapshot = new HierarchyTypeSnapshot();
-    snapshot.setCode(dto.getCode());
-    snapshot.setOrgCode(dto.getOrgCode());
-    snapshot.setProgress(dto.getProgress());
-    snapshot.setAcknowledgement(dto.getAcknowledgement());
-    snapshot.setDisclaimer(dto.getDisclaimer());
-    snapshot.setAccessConstraints(dto.getAccessContraints());
-    snapshot.setUseConstraints(dto.getUseContraints());
-    snapshot.setSuperHierarchy(dto.getSuperHierarchy());
-    RegistryLocalizedValueConverter.populate(snapshot.getDisplayLabel(), dto.getDisplayLabel());
-    RegistryLocalizedValueConverter.populate(snapshot.getDescription(), dto.getDescription());
-    snapshot.apply();
-    
-    version.addSnapshot(snapshot).apply();
-    
-    return snapshot;
-  }
-  
   @Transaction
   public GeoObjectTypeSnapshot createSnapshot(SnapshotContainer<?> version, ServerGeoObjectType type, GeoObjectTypeSnapshot parent)
   {
@@ -469,28 +423,6 @@ public class SnapshotBusinessService
   }
 
   @Transaction
-  public GeoObjectTypeSnapshot createSnapshot(SnapshotContainer<?> version, GeoObjectTypeSnapshotDTO dto, GeoObjectTypeSnapshot root)
-  {
-    GeoObjectTypeSnapshot parent = StringUtils.isBlank(dto.getParentTypeCode()) ? root : this.getGeoObjectType(version, dto.getParentTypeCode());
-
-    GeoObjectTypeSnapshot snapshot = new GeoObjectTypeSnapshot();
-    snapshot.setCode(dto.getCode());
-    snapshot.setOrgCode(dto.getOrgCode());
-    snapshot.setGeometryType(dto.getGeometryType());
-    snapshot.setIsAbstract(dto.getIsAbstract());
-    snapshot.setIsRoot(dto.getIsRoot());
-    snapshot.setIsPrivate(dto.getIsPrivate());
-    snapshot.setParent(parent);
-    RegistryLocalizedValueConverter.populate(snapshot.getDisplayLabel(), dto.getDisplayLabel());
-    RegistryLocalizedValueConverter.populate(snapshot.getDescription(), dto.getDescription());
-    snapshot.apply();
-
-    version.addSnapshot(snapshot).apply();
-
-    return snapshot;
-  }
-
-  @Transaction
   public BusinessTypeSnapshot createSnapshot(SnapshotContainer<?> version, BusinessType type)
   {
     MdVertex graphMdVertex = null;
@@ -604,20 +536,6 @@ public class SnapshotBusinessService
     snapshot.setCode(type.getCode());
     snapshot.setOrgCode(type.getOrganization().getCode());
     RegistryLocalizedValueConverter.populate(snapshot.getDisplayLabel(), type.getLabel());
-    snapshot.apply();
-
-    version.addSnapshot(snapshot).apply();
-
-    return snapshot;
-  }
-
-  @Transaction
-  public BusinessTypeSnapshot createSnapshot(SnapshotContainer<?> version, BusinessTypeSnapshotDTO dto)
-  {
-    BusinessTypeSnapshot snapshot = new BusinessTypeSnapshot();
-    snapshot.setCode(dto.getCode());
-    snapshot.setOrgCode(dto.getOrgCode());
-    RegistryLocalizedValueConverter.populate(snapshot.getDisplayLabel(), dto.getDisplayLabel());
     snapshot.apply();
 
     version.addSnapshot(snapshot).apply();
