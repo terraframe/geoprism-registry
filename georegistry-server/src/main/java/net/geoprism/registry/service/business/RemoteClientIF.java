@@ -3,7 +3,7 @@ package net.geoprism.registry.service.business;
 import java.util.List;
 import java.util.Optional;
 
-import com.google.gson.JsonObject;
+import com.google.gson.JsonArray;
 
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
 import net.geoprism.registry.view.CommitDTO;
@@ -17,13 +17,13 @@ public interface RemoteClientIF extends AutoCloseable
 
   public abstract Optional<CommitDTO> getCommit(String uid, Integer versionNumber);
 
-  public abstract List<JsonObject> getBusinessTypes(String commitId);
+  public abstract JsonArray getBusinessTypes(String commitId);
 
-  public abstract List<JsonObject> getGeoObjectTypes(String commitId);
+  public abstract JsonArray getGeoObjectTypes(String commitId);
 
-  public abstract List<JsonObject> getBusinessEdgeTypes(String uid);
+  public abstract JsonArray getBusinessEdgeTypes(String uid);
 
-  public abstract List<JsonObject> getHierarchyTypes(String uid);
+  public abstract JsonArray getHierarchyTypes(String uid);
 
-  public abstract List<RemoteEvent> getRemoteEvents(String uid, int chunk);
+  public abstract List<RemoteEvent> getRemoteEvents(String uid, Integer chunk);
 }
