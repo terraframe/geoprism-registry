@@ -10,10 +10,12 @@ import org.axonframework.eventhandling.DomainEventMessage;
 import org.axonframework.eventhandling.EventMessage;
 import org.axonframework.eventhandling.GenericDomainEventMessage;
 import org.axonframework.eventsourcing.eventstore.jdbc.EventSchema;
+import org.axonframework.eventsourcing.eventstore.jdbc.JdbcEventStorageEngine;
 import org.axonframework.eventsourcing.eventstore.jdbc.statements.TimestampWriter;
 import org.axonframework.serialization.SerializedObject;
 import org.axonframework.serialization.Serializer;
 
+import net.geoprism.registry.Commit;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
 
 public abstract class CustomJdbcEventStorageEngineStatements
@@ -86,4 +88,86 @@ public abstract class CustomJdbcEventStorageEngineStatements
     return statement;
   }
 
+  /**
+   * Set the PreparedStatement to be used on
+   * {@link JdbcEventStorageEngine#fetchDomainEvents(String, long, int)}
+   * <p/>
+   * {@code "SELECT [trackedEventFields] FROM [domainEventTable] WHERE [aggregateIdentifierColumn] = ?1 AND
+   * [sequenceNumberColumn] >= ?2 AND [sequenceNumberColumn] < ?3 ORDER BY [sequenceNumberColumn] ASC" }
+   * <p/>
+   * <b>NOTE:</b> "?1" is the identifier, "?2" is the firstSequenceNumber and
+   * "?3" is based on batchSize parameters from
+   * {@link JdbcEventStorageEngine#fetchDomainEvents(String, long, int)} and
+   * they should <b>always</b> be present for the PreparedStatement to work.
+   *
+   * @param connection
+   *          The connection to the database.
+   * @param schema
+   *          The EventSchema to be used
+   * @param firstSequenceNumber
+   *          The expected sequence number of the first returned entry.
+   * @param batchSize
+   *          The number of items to include in the batch.
+   * @param identifier
+   *          The identifier of the aggregate.
+   * @return The newly created {@link PreparedStatement}.
+   * @throws SQLException
+   *           when an exception occurs while creating the prepared statement.
+   */
+  public static PreparedStatement readEventDataForCommit(Connection connection, EventSchema schema, //
+      Commit commit, long firstSequenceNumber, //
+      int batchSize) throws SQLException
+  {
+    StringBuilder sql = new StringBuilder();
+    sql.append("SELECT " + schema.trackedEventFields() + " FROM " + schema.domainEventTable());
+    sql.append(" WHERE " + "commit_id" + " = ?");
+    sql.append(" AND " + schema.globalIndexColumn() + " >= ?");
+    sql.append(" AND " + schema.globalIndexColumn() + " < ?");
+    sql.append(" ORDER BY " + schema.sequenceNumberColumn() + " ASC");
+
+    PreparedStatement statement = connection.prepareStatement(sql.toString());
+    statement.setString(1, commit.getUid());
+    statement.setLong(2, firstSequenceNumber);
+    statement.setLong(3, firstSequenceNumber + batchSize);
+
+    return statement;
+  }
+
+  /**
+   * Set the PreparedStatement to be used on
+   * {@link JdbcEventStorageEngine#lastSequenceNumberFor(String)}. Defaults to:
+   * <p/>
+   * {@code "SELECT max([sequenceNumberColumn]) FROM [domainEventTable] WHERE [aggregateIdentifierColumn] = ?" }
+   * <p/>
+   * <b>NOTE:</b> "?" is the aggregateIdentifier parameter from
+   * {@link JdbcEventStorageEngine#lastSequenceNumberFor(String)} and should
+   * <b>always</b> be present for the PreparedStatement to work.
+   *
+   * @param connection
+   *          The connection to the database.
+   * @param schema
+   *          The EventSchema to be used
+   * @param aggregateIdentifier
+   *          The identifier of the aggregate.
+   * @return The newly created {@link PreparedStatement}.
+   * @throws SQLException
+   *           when an exception occurs while creating the prepared statement.
+   */
+  public static PreparedStatement lastSequenceNumberFor(Connection connection, EventSchema schema, Commit commit) throws SQLException
+  {
+    final String sql = "SELECT max(" + schema.globalIndexColumn() + ") FROM " + schema.domainEventTable() + " WHERE " + "commit_id" + " = ?";
+
+    PreparedStatement statement = connection.prepareStatement(sql);
+    statement.setString(1, commit.getUid());
+    return statement;
+  }
+
+  public static PreparedStatement firstSequenceNumberFor(Connection connection, EventSchema schema, Commit commit) throws SQLException
+  {
+    final String sql = "SELECT min(" + schema.globalIndexColumn() + ") FROM " + schema.domainEventTable() + " WHERE " + "commit_id" + " = ?";
+
+    PreparedStatement statement = connection.prepareStatement(sql);
+    statement.setString(1, commit.getUid());
+    return statement;
+  }
 }

@@ -1,6 +1,7 @@
 package net.geoprism.registry.axon.event.repository;
 
 import net.geoprism.registry.model.EdgeDirection;
+import net.geoprism.registry.view.PublishDTO;
 
 public class BusinessObjectAddGeoObjectEvent implements BusinessObjectEvent
 {
@@ -113,6 +114,18 @@ public class BusinessObjectAddGeoObjectEvent implements BusinessObjectEvent
   public String getAggregate()
   {
     return this.key + "#" + this.edgeType + "#" + this.geoObjectCode + "#" + this.geoObjectType;
+  }
+  
+  @Override
+  public EventType getEventType()
+  {
+    return EventType.HIERARCHY;
+  }
+
+  @Override
+  public Boolean isValidFor(PublishDTO dto)
+  {
+    return dto.getBusinessEdgeTypes().contains(this.getEdgeType());
   }
 
 }

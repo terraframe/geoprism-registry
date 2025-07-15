@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service.business;
 
@@ -29,8 +29,8 @@ import com.runwaysdk.constants.UserInfo;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 
-import net.geoprism.graph.HierarchyTypeSnapshot;
-import net.geoprism.graph.HierarchyTypeSnapshotQuery;
+import net.geoprism.graph.BusinessTypeSnapshot;
+import net.geoprism.graph.BusinessTypeSnapshotQuery;
 import net.geoprism.rbac.RoleConstants;
 import net.geoprism.registry.Commit;
 import net.geoprism.registry.CommitHasSnapshotQuery;
@@ -39,10 +39,10 @@ import net.geoprism.registry.model.SnapshotContainer;
 
 @Service
 @Primary
-public class GPRHierarchyTypeSnapshotBusinessService extends HierarchyTypeSnapshotBusinessService implements HierarchyTypeSnapshotBusinessServiceIF
+public class GPRBusinessTypeSnapshotBusinessService extends BusinessTypeSnapshotBusinessService implements BusinessTypeSnapshotBusinessServiceIF
 {
   @Override
-  public HierarchyTypeSnapshot get(SnapshotContainer<?> version, String code)
+  public BusinessTypeSnapshot get(SnapshotContainer<?> version, String code)
   {
     if (version instanceof Commit)
     {
@@ -51,11 +51,11 @@ public class GPRHierarchyTypeSnapshotBusinessService extends HierarchyTypeSnapsh
       CommitHasSnapshotQuery vQuery = new CommitHasSnapshotQuery(factory);
       vQuery.WHERE(vQuery.getParent().EQ((Commit) version));
 
-      HierarchyTypeSnapshotQuery query = new HierarchyTypeSnapshotQuery(factory);
+      BusinessTypeSnapshotQuery query = new BusinessTypeSnapshotQuery(factory);
       query.LEFT_JOIN_EQ(vQuery.getChild());
       query.AND(query.getCode().EQ(code));
 
-      try (OIterator<? extends HierarchyTypeSnapshot> it = query.getIterator())
+      try (OIterator<? extends BusinessTypeSnapshot> it = query.getIterator())
       {
         if (it.hasNext())
         {

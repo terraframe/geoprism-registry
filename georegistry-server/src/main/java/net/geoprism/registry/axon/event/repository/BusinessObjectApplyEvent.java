@@ -1,5 +1,9 @@
 package net.geoprism.registry.axon.event.repository;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import net.geoprism.registry.view.PublishDTO;
+
 public class BusinessObjectApplyEvent implements BusinessObjectEvent
 {
   private String  key;
@@ -88,4 +92,16 @@ public class BusinessObjectApplyEvent implements BusinessObjectEvent
     return this.key;
   }
 
+  @Override
+  @JsonIgnore
+  public EventType getEventType()
+  {
+    return EventType.OBJECT;
+  }
+
+  @Override
+  public Boolean isValidFor(PublishDTO dto)
+  {
+    return dto.getBusinessTypes().contains(this.getType());
+  }
 }

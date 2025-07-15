@@ -1,10 +1,9 @@
 package net.geoprism.registry.axon.event.repository;
 
-import java.util.Date;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.view.PublishDTO;
 
 public class GeoObjectSetExternalIdEvent extends AbstractGeoObjectEvent implements GeoObjectEvent
 {
@@ -96,10 +95,10 @@ public class GeoObjectSetExternalIdEvent extends AbstractGeoObjectEvent implemen
   {
     return EventType.OBJECT;
   }
-  
+
   @Override
-  public Boolean isValidFor(Date date)
+  public Boolean isValidFor(PublishDTO dto)
   {
-    return true;
+    return dto.getHierarchyTypes().contains(this.getType());
   }
 }

@@ -1,39 +1,31 @@
 package net.geoprism.registry;
 
-import com.runwaysdk.dataaccess.database.Database;
-
 import net.geoprism.registry.model.SnapshotContainer;
+import net.geoprism.registry.view.CommitDTO;
 
 public class Commit extends CommitBase implements SnapshotContainer<CommitHasSnapshot>
 {
-  public static final String         DOMAIN_EVENT_ENTRY_TABLE = "domainevententry";
-
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = 372845489;
+  private static final long  serialVersionUID         = 372845489;
 
   public Commit()
   {
     super();
   }
-  
+
   @Override
   public boolean createTablesWithSnapshot()
   {
     return false;
   }
 
-  @Override
-  public void delete()
+  public CommitDTO toDTO(Publish publish)
   {
-    StringBuilder statement = new StringBuilder();
-    statement.append("DELETE FROM " + DOMAIN_EVENT_ENTRY_TABLE);
-    statement.append(" WHERE commit_id = '" + this.getUid() + "'");
-    
-    System.out.println(statement);
-
-    Database.executeStatement(statement.toString());
-
-    super.delete();
+    return new CommitDTO(this.getUid(), publish.getUid(), this.getVersionNumber(), getLastSequenceNumber());
   }
 
+  public CommitDTO toDTO()
+  {
+    return this.toDTO(this.getPublish());
+  }
 }

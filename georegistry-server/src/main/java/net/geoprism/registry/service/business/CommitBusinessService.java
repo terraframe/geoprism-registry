@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.axonframework.eventsourcing.eventstore.DomainEventStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +43,7 @@ import net.geoprism.graph.DirectedAcyclicGraphTypeSnapshot;
 import net.geoprism.graph.DirectedAcyclicGraphTypeSnapshotQuery;
 import net.geoprism.graph.GeoObjectTypeSnapshot;
 import net.geoprism.graph.GeoObjectTypeSnapshotQuery;
+import net.geoprism.graph.GraphTypeReference;
 import net.geoprism.graph.GraphTypeSnapshot;
 import net.geoprism.graph.HierarchyTypeSnapshot;
 import net.geoprism.graph.HierarchyTypeSnapshotQuery;
@@ -51,24 +53,23 @@ import net.geoprism.registry.Commit;
 import net.geoprism.registry.CommitHasSnapshotQuery;
 import net.geoprism.registry.CommitQuery;
 import net.geoprism.registry.Publish;
+import net.geoprism.registry.axon.config.RegistryEventStore;
+import net.geoprism.registry.axon.event.remote.RemoteEvent;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.view.CommitDTO;
 import net.geoprism.registry.view.PublishDTO;
 
 @Service
 public class CommitBusinessService implements CommitBusinessServiceIF
 {
-  @Autowired
-  private GeoObjectTypeBusinessServiceIF            gService;
+  public static final int                           BATCH_SIZE = 1000;
 
   @Autowired
   private BusinessTypeBusinessServiceIF             bService;
 
   @Autowired
   private BusinessEdgeTypeBusinessServiceIF         bEdgeService;
-
-  @Autowired
-  private GraphTypeBusinessServiceIF                graphService;
 
   @Autowired
   private GeoObjectTypeSnapshotBusinessServiceIF    gSnapshotService;
@@ -84,6 +85,9 @@ public class CommitBusinessService implements CommitBusinessServiceIF
 
   @Autowired
   private SnapshotBusinessService                   snapshotService;
+
+  @Autowired
+  private RegistryEventStore                        store;
 
   @Override
   @Transaction
@@ -106,6 +110,8 @@ public class CommitBusinessService implements CommitBusinessServiceIF
 
     // Delete the root snapshots after all the sub snapshots have been deleted
     this.getTypes(commit).stream().filter(v -> v.isRoot()).forEach(v -> this.gSnapshotService.delete(v));
+
+    this.store.delete(commit);
 
     commit.delete();
   }
@@ -319,12 +325,6 @@ public class CommitBusinessService implements CommitBusinessServiceIF
       this.snapshotService.createSnapshot(commit, this.bService.getByCode(code));
     });
 
-    // TODO: Publish snapshots for all graph types
-    // for (GraphTypeReference gtr : gtrs)
-    // {
-    // createGraphTypeSnapshot(version, gtr, root);
-    // }
-
     // Publish snapshots for all geo-object types
     configuration.getGeoObjectTypes().forEach(code -> {
       GeoObjectTypeSnapshot snapshot = this.snapshotService.createSnapshot(commit, ServerGeoObjectType.get(code), root);
@@ -332,8 +332,18 @@ public class CommitBusinessService implements CommitBusinessServiceIF
       root.addChildSnapshot(snapshot).apply();
     });
 
-    // Publish snapshots for all business edge types participating in the
-    // graph
+    configuration.getHierarchyTypes().forEach(code -> {
+      this.snapshotService.createSnapshot(commit, ServerHierarchyType.get(code), root);
+    });
+
+    configuration.getDagTypes().forEach(code -> {
+      this.snapshotService.createSnapshot(commit, new GraphTypeReference(GraphTypeSnapshot.DIRECTED_ACYCLIC_GRAPH_TYPE, code), root);
+    });
+
+    configuration.getUndirectedTypes().forEach(code -> {
+      this.snapshotService.createSnapshot(commit, new GraphTypeReference(GraphTypeSnapshot.UNDIRECTED_GRAPH_TYPE, code), root);
+    });
+
     configuration.getBusinessEdgeTypes().forEach(code -> {
       this.snapshotService.createSnapshot(commit, this.bEdgeService.getByCode(code), root);
     });
@@ -367,9 +377,29 @@ public class CommitBusinessService implements CommitBusinessServiceIF
   }
 
   @Override
-  public Commit get(String oid)
+  public Optional<Commit> getCommit(String uid)
   {
-    return Commit.get(oid);
+    CommitQuery query = new CommitQuery(new QueryFactory());
+    query.WHERE(query.getUid().EQ(uid));
+    query.ORDER_BY_DESC(query.getVersionNumber());
+
+    try (OIterator<? extends Commit> it = query.getIterator())
+    {
+      if (it.hasNext())
+      {
+        return Optional.ofNullable(it.next());
+      }
+    }
+
+    return null;
+  }
+
+  @Override
+  public Commit getOrThrow(String uid)
+  {
+    return this.getCommit(uid).orElseThrow(() -> {
+      throw new ProgrammingErrorException("Unable to find commit with uid of [" + uid + "]");
+    });
   }
 
   @Override
@@ -419,6 +449,24 @@ public class CommitBusinessService implements CommitBusinessServiceIF
     }
 
     return Optional.empty();
+  }
+
+  @Override
+  public List<RemoteEvent> getRemoteEvents(Commit commit, Integer chunk)
+  {
+    Long startSequenceNumber = this.store.firstIndexFor(commit).map(seq -> seq + ( chunk * BATCH_SIZE )).orElseThrow(() -> {
+      throw new ProgrammingErrorException("Commit [" + commit.getUid() + "] does not have any events");
+    });
+
+    Long endSequenceNumber = this.store.lastIndexFor(commit).orElseThrow(() -> {
+      throw new ProgrammingErrorException("Commit [" + commit.getUid() + "] does not have any events");
+    });
+
+    DomainEventStream stream = this.store.readEvents(commit, startSequenceNumber, endSequenceNumber, BATCH_SIZE);
+
+    return stream.asStream() //
+        .filter(m -> RemoteEvent.class.isAssignableFrom(m.getPayloadType())) //
+        .map(m -> (RemoteEvent) m.getPayload()).toList();
   }
 
 }

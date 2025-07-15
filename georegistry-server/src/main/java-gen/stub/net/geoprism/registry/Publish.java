@@ -1,5 +1,8 @@
 package net.geoprism.registry;
 
+import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.commongeoregistry.adapter.metadata.HierarchyType;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -28,13 +31,29 @@ public class Publish extends PublishBase
       String type = object.get("type").getAsString();
       String code = object.get("code").getAsString();
 
-      if (type.equals("GeoObjectType"))
+      if (type.equals(GeoObjectType.class.getSimpleName()))
       {
         configuration.addGeoObjectType(code);
       }
-      else if (type.equals("HierarchyType"))
+      else if (type.equals(HierarchyType.class.getSimpleName()))
       {
         configuration.addHierarchyType(code);
+      }
+      else if (type.equals(BusinessEdgeType.class.getSimpleName()))
+      {
+        configuration.addBusinessEdgeType(code);
+      }
+      else if (type.equals(BusinessType.class.getSimpleName()))
+      {
+        configuration.addBusinessType(code);
+      }
+      else if (type.equals(DirectedAcyclicGraphType.class.getSimpleName()))
+      {
+        configuration.addDagType(code);
+      }
+      else if (type.equals(UndirectedGraphType.class.getSimpleName()))
+      {
+        configuration.addUndirectedType(code);
       }
 
     });

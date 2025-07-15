@@ -9,6 +9,7 @@ import net.geoprism.graph.GeoObjectTypeSnapshot;
 import net.geoprism.graph.GraphTypeSnapshot;
 import net.geoprism.registry.Commit;
 import net.geoprism.registry.Publish;
+import net.geoprism.registry.axon.event.remote.RemoteEvent;
 import net.geoprism.registry.view.CommitDTO;
 
 public interface CommitBusinessServiceIF
@@ -46,10 +47,14 @@ public interface CommitBusinessServiceIF
 
   Optional<Commit> getCommit(Publish publish, Integer versionNumber);
 
-  Commit get(String oid);
+  Optional<Commit> getCommit(String uid);
+
+  Commit getOrThrow(String uid);
 
   Commit create(Publish publish, int versionNumber, long lastSequenceNumber);
 
   Commit create(Publish publish, CommitDTO dto);
+
+  List<RemoteEvent> getRemoteEvents(Commit commit, Integer chunk);
 
 }

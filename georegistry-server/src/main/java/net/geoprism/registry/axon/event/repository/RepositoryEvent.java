@@ -1,12 +1,12 @@
 package net.geoprism.registry.axon.event.repository;
 
-import java.util.Date;
+import net.geoprism.registry.view.PublishDTO;
 
 public interface RepositoryEvent
 {
   public EventType getEventType();
 
-  public Boolean isValidFor(Date date);
+  public Boolean isValidFor(PublishDTO dto);
 
   public String getAggregate();
 

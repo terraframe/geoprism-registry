@@ -1,12 +1,21 @@
 package net.geoprism.registry.view;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
+import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.commongeoregistry.adapter.metadata.HierarchyType;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+
+import net.geoprism.registry.BusinessEdgeType;
+import net.geoprism.registry.BusinessType;
+import net.geoprism.registry.DirectedAcyclicGraphType;
+import net.geoprism.registry.UndirectedGraphType;
 
 public class PublishDTO
 {
@@ -21,6 +30,10 @@ public class PublishDTO
   private List<String> geoObjectTypes;
 
   private List<String> hierarchyTypes;
+
+  private List<String> dagTypes;
+
+  private List<String> undirectedTypes;
 
   private List<String> businessTypes;
 
@@ -39,6 +52,8 @@ public class PublishDTO
 
     this.geoObjectTypes = new LinkedList<>();
     this.hierarchyTypes = new LinkedList<>();
+    this.dagTypes = new LinkedList<>();
+    this.undirectedTypes = new LinkedList<>();
     this.businessTypes = new LinkedList<>();
     this.businessEdgeTypes = new LinkedList<>();
   }
@@ -93,9 +108,11 @@ public class PublishDTO
     this.geoObjectTypes = geoObjectTypes;
   }
 
-  public void addGeoObjectType(String geoObjectType)
+  public void addGeoObjectType(String... geoObjectTypes)
   {
-    this.geoObjectTypes.add(geoObjectType);
+    Arrays.stream(geoObjectTypes).forEach(geoObjectType -> {
+      this.geoObjectTypes.add(geoObjectType);
+    });
   }
 
   public List<String> getHierarchyTypes()
@@ -108,9 +125,45 @@ public class PublishDTO
     this.hierarchyTypes = hierarchyTypes;
   }
 
-  public void addHierarchyType(String hierarchyType)
+  public void addHierarchyType(String... hierarchyTypes)
   {
-    this.hierarchyTypes.add(hierarchyType);
+    Arrays.stream(hierarchyTypes).forEach(type -> {
+      this.hierarchyTypes.add(type);
+    });
+  }
+
+  public List<String> getDagTypes()
+  {
+    return dagTypes;
+  }
+
+  public void setDagTypes(List<String> dagTypes)
+  {
+    this.dagTypes = dagTypes;
+  }
+
+  public void addDagType(String... dagTypes)
+  {
+    Arrays.stream(dagTypes).forEach(type -> {
+      this.dagTypes.add(type);
+    });
+  }
+
+  public List<String> getUndirectedTypes()
+  {
+    return this.undirectedTypes;
+  }
+
+  public void setUndirectedTypes(List<String> undirectedTypes)
+  {
+    this.undirectedTypes = undirectedTypes;
+  }
+
+  public void addUndirectedType(String... undirectedTypes)
+  {
+    Arrays.stream(undirectedTypes).forEach(type -> {
+      this.undirectedTypes.add(type);
+    });
   }
 
   public List<String> getBusinessTypes()
@@ -123,9 +176,11 @@ public class PublishDTO
     this.businessTypes = businessTypes;
   }
 
-  public void addBusinessType(String businessType)
+  public void addBusinessType(String... businessType)
   {
-    this.businessTypes.add(businessType);
+    Arrays.stream(businessType).forEach(type -> {
+      this.businessTypes.add(type);
+    });
   }
 
   public List<String> getBusinessEdgeTypes()
@@ -138,9 +193,11 @@ public class PublishDTO
     this.businessEdgeTypes = businessEdgeTypes;
   }
 
-  public void addBusinessEdgeType(String businessEdgeType)
+  public void addBusinessEdgeType(String... businessEdgeTypes)
   {
-    this.businessEdgeTypes.add(businessEdgeType);
+    Arrays.stream(businessEdgeTypes).forEach(type -> {
+      this.businessEdgeTypes.add(type);
+    });
   }
 
   public JsonArray toJson()
@@ -149,26 +206,50 @@ public class PublishDTO
 
     this.geoObjectTypes.forEach(code -> {
       JsonObject object = new JsonObject();
-      object.addProperty("type", "GeoObjectType");
+      object.addProperty("type", GeoObjectType.class.getSimpleName());
       object.addProperty("code", code);
+
+      array.add(object);
     });
 
     this.hierarchyTypes.forEach(code -> {
       JsonObject object = new JsonObject();
-      object.addProperty("type", "HierarchyType");
+      object.addProperty("type", HierarchyType.class.getSimpleName());
       object.addProperty("code", code);
+
+      array.add(object);
     });
 
+    this.dagTypes.forEach(code -> {
+      JsonObject object = new JsonObject();
+      object.addProperty("type", DirectedAcyclicGraphType.class.getSimpleName());
+      object.addProperty("code", code);
+      
+      array.add(object);
+    });
+    
+    this.undirectedTypes.forEach(code -> {
+      JsonObject object = new JsonObject();
+      object.addProperty("type", UndirectedGraphType.class.getSimpleName());
+      object.addProperty("code", code);
+      
+      array.add(object);
+    });
+    
     this.businessTypes.forEach(code -> {
       JsonObject object = new JsonObject();
-      object.addProperty("type", "BusinessType");
+      object.addProperty("type", BusinessType.class.getSimpleName());
       object.addProperty("code", code);
+
+      array.add(object);
     });
 
     this.businessEdgeTypes.forEach(code -> {
       JsonObject object = new JsonObject();
-      object.addProperty("type", "BusinessEdgeType");
+      object.addProperty("type", BusinessEdgeType.class.getSimpleName());
       object.addProperty("code", code);
+
+      array.add(object);
     });
 
     return array;

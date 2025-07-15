@@ -2,15 +2,26 @@ package net.geoprism.registry.axon.event.repository;
 
 import java.util.Date;
 
+import net.geoprism.registry.view.PublishDTO;
+
 public abstract class AbstractHierarchyEvent extends AbstractGeoObjectEvent implements GeoObjectEvent
 {
   public abstract Date getStartDate();
 
   public abstract Date getEndDate();
 
+  public abstract String getEdgeType();
+
   @Override
-  public Boolean isValidFor(Date date)
+  public Boolean isValidFor(PublishDTO dto)
   {
-    return ( date.after(this.getStartDate()) && date.before(this.getEndDate()) ) || date.equals(this.getStartDate()) || date.equals(this.getEndDate());
+    Date date = dto.getDate();
+
+    if (dto.getHierarchyTypes().contains(this.getEdgeType()))
+    {
+      return ( date.after(this.getStartDate()) && date.before(this.getEndDate()) ) || date.equals(this.getStartDate()) || date.equals(this.getEndDate());
+    }
+    
+    return false;
   }
 }

@@ -22,6 +22,7 @@ public class CommitDTO
     this.uid = uid;
     this.publishId = publishId;
     this.versionNumber = versionNumber;
+    this.lastSequenceNumber = lastSequenceNumber;
   }
 
   public String getUid()

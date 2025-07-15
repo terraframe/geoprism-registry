@@ -8,19 +8,23 @@ import org.axonframework.common.jdbc.UnitOfWorkAwareConnectionProviderWrapper;
 import org.axonframework.common.transaction.NoTransactionManager;
 import org.axonframework.common.transaction.TransactionManager;
 import org.axonframework.config.EventProcessingConfigurer;
+import org.axonframework.eventhandling.EventBusSpanFactory;
 import org.axonframework.eventhandling.ListenerInvocationErrorHandler;
 import org.axonframework.eventhandling.PropagatingErrorHandler;
 import org.axonframework.eventhandling.tokenstore.TokenStore;
 import org.axonframework.eventhandling.tokenstore.jdbc.JdbcTokenStore;
 import org.axonframework.eventhandling.tokenstore.jdbc.PostgresTokenTableFactory;
+import org.axonframework.eventsourcing.eventstore.EmbeddedEventStore;
 import org.axonframework.eventsourcing.eventstore.EventStorageEngine;
 import org.axonframework.eventsourcing.eventstore.jdbc.JdbcEventStorageEngine;
+import org.axonframework.eventsourcing.eventstore.jdbc.JdbcEventStorageEngine.Builder;
 import org.axonframework.eventsourcing.eventstore.jdbc.JdbcSQLErrorCodesResolver;
 import org.axonframework.modelling.saga.repository.SagaStore;
 import org.axonframework.modelling.saga.repository.jdbc.JdbcSagaStore;
 import org.axonframework.serialization.Serializer;
 import org.axonframework.serialization.json.JacksonSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
@@ -126,19 +130,34 @@ public class AxonConfig
       ConnectionProvider connectionProvider)
   {
 
-    JdbcEventStorageEngine storageEngine = JdbcEventStorageEngine.builder()//
+    Builder builder = JdbcEventStorageEngine.builder()//
         .connectionProvider(connectionProvider) //
         .snapshotSerializer(serializer) //
         .persistenceExceptionResolver(persistenceExceptionResolver) //
         .eventSerializer(serializer) //
         .transactionManager(transactionManager) //
-        .appendEvents(CustomJdbcEventStorageEngineStatements::appendEvents )
-        .build();
+        .appendEvents(CustomJdbcEventStorageEngineStatements::appendEvents);
+
+    RegistryEventStorageEngine storageEngine = new RegistryEventStorageEngine(builder, transactionManager);
+
     // If the schema has not been constructed yet, the createSchema method can
     // be used:
     storageEngine.createSchema(CustomPostgresEventTableFactory.INSTANCE);
 
     return storageEngine;
+  }
+
+  @Qualifier("eventStore")
+  @Bean(name = "eventBus")
+  public RegistryEventStore eventStore(EventStorageEngine storageEngine, EventBusSpanFactory eventBusSpanFactory)
+  {
+    org.axonframework.eventsourcing.eventstore.EmbeddedEventStore.Builder builder = EmbeddedEventStore.builder() //
+        .storageEngine(storageEngine) //
+        // .messageMonitor(configuration.messageMonitor(EventStore.class,
+        // "eventStore")) //
+        .spanFactory(eventBusSpanFactory);
+    
+    return new RegistryEventStore(builder);
   }
 
   // @Bean

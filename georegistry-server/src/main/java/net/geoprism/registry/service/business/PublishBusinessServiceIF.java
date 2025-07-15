@@ -1,5 +1,6 @@
 package net.geoprism.registry.service.business;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
@@ -18,5 +19,9 @@ public interface PublishBusinessServiceIF
   Publish create(PublishDTO configuration);
 
   Optional<Publish> getByUid(String uid);
+
+  Publish getByUidOrThrow(String uid);
+
+  List<Publish> getAll();
 
 }

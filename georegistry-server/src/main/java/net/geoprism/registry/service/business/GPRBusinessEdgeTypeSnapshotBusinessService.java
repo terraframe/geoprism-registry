@@ -29,8 +29,8 @@ import com.runwaysdk.constants.UserInfo;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 
-import net.geoprism.graph.HierarchyTypeSnapshot;
-import net.geoprism.graph.HierarchyTypeSnapshotQuery;
+import net.geoprism.graph.BusinessEdgeTypeSnapshot;
+import net.geoprism.graph.BusinessEdgeTypeSnapshotQuery;
 import net.geoprism.rbac.RoleConstants;
 import net.geoprism.registry.Commit;
 import net.geoprism.registry.CommitHasSnapshotQuery;
@@ -39,10 +39,10 @@ import net.geoprism.registry.model.SnapshotContainer;
 
 @Service
 @Primary
-public class GPRHierarchyTypeSnapshotBusinessService extends HierarchyTypeSnapshotBusinessService implements HierarchyTypeSnapshotBusinessServiceIF
+public class GPRBusinessEdgeTypeSnapshotBusinessService extends BusinessEdgeTypeSnapshotBusinessService implements BusinessEdgeTypeSnapshotBusinessServiceIF
 {
   @Override
-  public HierarchyTypeSnapshot get(SnapshotContainer<?> version, String code)
+  public BusinessEdgeTypeSnapshot get(SnapshotContainer<?> version, String code)
   {
     if (version instanceof Commit)
     {
@@ -51,11 +51,11 @@ public class GPRHierarchyTypeSnapshotBusinessService extends HierarchyTypeSnapsh
       CommitHasSnapshotQuery vQuery = new CommitHasSnapshotQuery(factory);
       vQuery.WHERE(vQuery.getParent().EQ((Commit) version));
 
-      HierarchyTypeSnapshotQuery query = new HierarchyTypeSnapshotQuery(factory);
+      BusinessEdgeTypeSnapshotQuery query = new BusinessEdgeTypeSnapshotQuery(factory);
       query.LEFT_JOIN_EQ(vQuery.getChild());
       query.AND(query.getCode().EQ(code));
 
-      try (OIterator<? extends HierarchyTypeSnapshot> it = query.getIterator())
+      try (OIterator<? extends BusinessEdgeTypeSnapshot> it = query.getIterator())
       {
         if (it.hasNext())
         {
