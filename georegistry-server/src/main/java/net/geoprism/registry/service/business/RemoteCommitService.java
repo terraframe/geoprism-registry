@@ -11,8 +11,10 @@ import com.runwaysdk.session.Request;
 
 import net.geoprism.graph.BusinessEdgeTypeSnapshot;
 import net.geoprism.graph.BusinessTypeSnapshot;
+import net.geoprism.graph.DirectedAcyclicGraphTypeSnapshot;
 import net.geoprism.graph.GeoObjectTypeSnapshot;
 import net.geoprism.graph.HierarchyTypeSnapshot;
+import net.geoprism.graph.UndirectedGraphTypeSnapshot;
 import net.geoprism.registry.Commit;
 import net.geoprism.registry.Publish;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
@@ -41,7 +43,7 @@ public class RemoteCommitService
   private BusinessTypeSnapshotBusinessServiceIF     bTypeService;
 
   @Autowired
-  private HierarchyTypeSnapshotBusinessServiceIF    hTypeService;
+  private GraphTypeSnapshotBusinessServiceIF        graphTypeService;
 
   @Autowired
   private SnapshotBusinessService                   snapshotService;
@@ -83,7 +85,7 @@ public class RemoteCommitService
         this.snapshotService.createType(snapshot);
       });
 
-      client.getGeoObjectTypes(commit.getUid()).forEach(element  -> {
+      client.getGeoObjectTypes(commit.getUid()).forEach(element -> {
         GeoObjectTypeSnapshot snapshot = this.gTypeService.create(commit, element.getAsJsonObject());
 
         root.addChildSnapshot(snapshot).apply();
@@ -91,13 +93,25 @@ public class RemoteCommitService
         this.snapshotService.createType(snapshot);
       });
 
-      client.getHierarchyTypes(commit.getUid()).forEach(element  -> {
-        HierarchyTypeSnapshot snapshot = this.hTypeService.create(commit, element.getAsJsonObject(), root);
+      client.getHierarchyTypes(commit.getUid()).forEach(element -> {
+        HierarchyTypeSnapshot snapshot = (HierarchyTypeSnapshot) this.graphTypeService.create(commit, element.getAsJsonObject(), root);
 
         this.snapshotService.createType(snapshot);
       });
 
-      client.getBusinessEdgeTypes(commit.getUid()).forEach(element  -> {
+      client.getDirectedAcyclicGraphTypes(commit.getUid()).forEach(element -> {
+        DirectedAcyclicGraphTypeSnapshot snapshot = (DirectedAcyclicGraphTypeSnapshot) this.graphTypeService.create(commit, element.getAsJsonObject(), root);
+
+        this.snapshotService.createType(snapshot);
+      });
+
+      client.getDirectedAcyclicGraphTypes(commit.getUid()).forEach(element -> {
+        UndirectedGraphTypeSnapshot snapshot = (UndirectedGraphTypeSnapshot) this.graphTypeService.create(commit, element.getAsJsonObject(), root);
+
+        this.snapshotService.createType(snapshot);
+      });
+
+      client.getBusinessEdgeTypes(commit.getUid()).forEach(element -> {
         BusinessEdgeTypeSnapshot snapshot = this.bEdgeTypeService.create(commit, element.getAsJsonObject());
 
         this.snapshotService.createType(snapshot);

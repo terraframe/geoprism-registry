@@ -88,7 +88,7 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
     @Override
     public JsonArray getBusinessTypes(String uid)
     {
-      RegistryResponse response = this.apiGet(PUBLISH_API_PATH + "/business-types", new BasicNameValuePair("uid", uid));
+      RegistryResponse response = this.apiGet(COMMIT_API_PATH + "/business-types", new BasicNameValuePair("uid", uid));
 
       if (response.isSuccess())
       {
@@ -101,7 +101,7 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
     @Override
     public JsonArray getGeoObjectTypes(String uid)
     {
-      RegistryResponse response = this.apiGet(PUBLISH_API_PATH + "/geo-object-types", new BasicNameValuePair("uid", uid));
+      RegistryResponse response = this.apiGet(COMMIT_API_PATH + "/geo-object-types", new BasicNameValuePair("uid", uid));
 
       if (response.isSuccess())
       {
@@ -114,7 +114,7 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
     @Override
     public JsonArray getBusinessEdgeTypes(String uid)
     {
-      RegistryResponse response = this.apiGet(PUBLISH_API_PATH + "/business-edge-types", new BasicNameValuePair("uid", uid));
+      RegistryResponse response = this.apiGet(COMMIT_API_PATH + "/business-edge-types", new BasicNameValuePair("uid", uid));
 
       if (response.isSuccess())
       {
@@ -127,7 +127,7 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
     @Override
     public JsonArray getHierarchyTypes(String uid)
     {
-      RegistryResponse response = this.apiGet(PUBLISH_API_PATH + "/hierarchy-types", new BasicNameValuePair("uid", uid));
+      RegistryResponse response = this.apiGet(COMMIT_API_PATH + "/hierarchy-types", new BasicNameValuePair("uid", uid));
 
       if (response.isSuccess())
       {
@@ -138,9 +138,35 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
     }
 
     @Override
+    public JsonArray getDirectedAcyclicGraphTypes(String uid)
+    {
+      RegistryResponse response = this.apiGet(COMMIT_API_PATH + "/directed-acyclic-graph-types", new BasicNameValuePair("uid", uid));
+      
+      if (response.isSuccess())
+      {
+        return response.getJsonArray();
+      }
+      
+      throw new RemoteConnectionException(response.getMessage());
+    }
+    
+    @Override
+    public JsonArray getUndirectedGraphTypes(String uid)
+    {
+      RegistryResponse response = this.apiGet(COMMIT_API_PATH + "/undirected-graph-types", new BasicNameValuePair("uid", uid));
+      
+      if (response.isSuccess())
+      {
+        return response.getJsonArray();
+      }
+      
+      throw new RemoteConnectionException(response.getMessage());
+    }
+    
+    @Override
     public List<RemoteEvent> getRemoteEvents(String uid, Integer chunk)
     {
-      RegistryResponse response = this.apiGet(PUBLISH_API_PATH + "/events", new BasicNameValuePair("uid", uid), new BasicNameValuePair("chunk", chunk.toString()));
+      RegistryResponse response = this.apiGet(COMMIT_API_PATH + "/events", new BasicNameValuePair("uid", uid), new BasicNameValuePair("chunk", chunk.toString()));
 
       if (response.isSuccess())
       {

@@ -121,12 +121,6 @@ public class PublishEventServiceTest implements InstanceTestClassListener
         // TODO Auto-generated catch block
         e.printStackTrace();
       }
-
-      /*
-       * WITH T AS ( SELECT *, ROW_NUMBER() OVER(PARTITION BY ID ORDER BY Date
-       * DESC) AS rn FROM yourTable ) SELECT * FROM T WHERE rn = 1
-       */
-
     });
   }
 }

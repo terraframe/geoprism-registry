@@ -83,12 +83,32 @@ public class CommitService
 
     return this.service.getHiearchyTypes(commit).stream().map(type -> type.toJSON(rootType)).collect(JsonCollectors.toJsonArray());
   }
+
+  @Request(RequestType.SESSION)
+  public JsonArray getDirectedAcyclicGraphTypes(String sessionId, String uid)
+  {
+    Commit commit = this.service.getOrThrow(uid);
+
+    GeoObjectTypeSnapshot rootType = this.service.getRootType(commit);
+
+    return this.service.getDirectedAcyclicGraphTypes(commit).stream().map(type -> type.toJSON(rootType)).collect(JsonCollectors.toJsonArray());
+  }
   
+  @Request(RequestType.SESSION)
+  public JsonArray getUndirectedGraphTypes(String sessionId, String uid)
+  {
+    Commit commit = this.service.getOrThrow(uid);
+    
+    GeoObjectTypeSnapshot rootType = this.service.getRootType(commit);
+    
+    return this.service.getUndirectedGraphTypes(commit).stream().map(type -> type.toJSON(rootType)).collect(JsonCollectors.toJsonArray());
+  }
+
   @Request(RequestType.SESSION)
   public List<RemoteEvent> getRemoteEvents(String sessionId, String uid, Integer chunk)
   {
     Commit commit = this.service.getOrThrow(uid);
-    
+
     return this.service.getRemoteEvents(commit, chunk);
   }
 

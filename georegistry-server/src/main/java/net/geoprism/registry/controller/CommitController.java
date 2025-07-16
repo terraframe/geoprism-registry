@@ -28,6 +28,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.gson.JsonArray;
+
+import net.geoprism.registry.axon.event.remote.RemoteEvent;
 import net.geoprism.registry.service.request.CommitService;
 import net.geoprism.registry.view.CommitDTO;
 
@@ -38,7 +41,7 @@ public class CommitController extends RunwaySpringController
   public static final String API_PATH = "commit";
 
   @Autowired
-  private CommitService     service;
+  private CommitService      service;
 
   @GetMapping(API_PATH + "/get")
   public ResponseEntity<CommitDTO> get(@RequestParam(name = "publishId") String publishId, @RequestParam(name = "versionNumber") Integer versionNumber)
@@ -52,8 +55,63 @@ public class CommitController extends RunwaySpringController
   public ResponseEntity<List<CommitDTO>> get(@RequestParam(name = "publishId") String publishId)
   {
     List<CommitDTO> dtos = this.service.getAll(this.getSessionId(), publishId);
-    
+
     return new ResponseEntity<List<CommitDTO>>(dtos, HttpStatus.OK);
   }
-  
+
+  @GetMapping(API_PATH + "/business-types")
+  public ResponseEntity<String> getBusinessTypes(@RequestParam(name = "uid") String uid)
+  {
+    JsonArray response = this.service.getBusinessTypes(this.getSessionId(), uid);
+
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+  }
+
+  @GetMapping(API_PATH + "/geo-object-types")
+  public ResponseEntity<String> getGeoObjectTypes(@RequestParam(name = "uid") String uid)
+  {
+    JsonArray response = this.service.getGeoObjectTypes(this.getSessionId(), uid);
+
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+  }
+
+  @GetMapping(API_PATH + "/business-edge-types")
+  public ResponseEntity<String> getBusinessEdgeTypes(@RequestParam(name = "uid") String uid)
+  {
+    JsonArray response = this.service.getBusinessEdgeTypes(this.getSessionId(), uid);
+
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+  }
+
+  @GetMapping(API_PATH + "/hierarchy-types")
+  public ResponseEntity<String> getHierarchyTypes(@RequestParam(name = "uid") String uid)
+  {
+    JsonArray response = this.service.getHierarchyTypes(this.getSessionId(), uid);
+
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+  }
+
+  @GetMapping(API_PATH + "/directed-acyclic-graph-types")
+  public ResponseEntity<String> getDirectedAcyclicGraphTypes(@RequestParam(name = "uid") String uid)
+  {
+    JsonArray response = this.service.getDirectedAcyclicGraphTypes(this.getSessionId(), uid);
+
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+  }
+
+  @GetMapping(API_PATH + "/undirected-graph-types")
+  public ResponseEntity<String> getUndirectedGraphTypes(@RequestParam(name = "uid") String uid)
+  {
+    JsonArray response = this.service.getUndirectedGraphTypes(this.getSessionId(), uid);
+
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+  }
+
+  @GetMapping(API_PATH + "/events")
+  public ResponseEntity<List<RemoteEvent>> getEvents(@RequestParam(name = "uid") String uid, @RequestParam(name = "chunk") Integer chunk)
+  {
+    List<RemoteEvent> events = this.service.getRemoteEvents(this.getSessionId(), uid, chunk);
+
+    return new ResponseEntity<List<RemoteEvent>>(events, HttpStatus.OK);
+  }
 }

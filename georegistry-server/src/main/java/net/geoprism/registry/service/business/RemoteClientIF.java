@@ -11,19 +11,24 @@ import net.geoprism.registry.view.PublishDTO;
 
 public interface RemoteClientIF extends AutoCloseable
 {
-  public abstract void close();
+  public void close();
 
-  public abstract Optional<PublishDTO> getPublish(String publishId);
+  public Optional<PublishDTO> getPublish(String publishId);
 
-  public abstract Optional<CommitDTO> getCommit(String uid, Integer versionNumber);
+  public Optional<CommitDTO> getCommit(String uid, Integer versionNumber);
 
-  public abstract JsonArray getBusinessTypes(String commitId);
+  public JsonArray getBusinessTypes(String commitId);
 
-  public abstract JsonArray getGeoObjectTypes(String commitId);
+  public JsonArray getGeoObjectTypes(String commitId);
 
-  public abstract JsonArray getBusinessEdgeTypes(String uid);
+  public JsonArray getBusinessEdgeTypes(String uid);
 
-  public abstract JsonArray getHierarchyTypes(String uid);
+  public JsonArray getHierarchyTypes(String uid);
 
-  public abstract List<RemoteEvent> getRemoteEvents(String uid, Integer chunk);
+  public JsonArray getDirectedAcyclicGraphTypes(String uid);
+
+  public JsonArray getUndirectedGraphTypes(String uid);
+
+  public List<RemoteEvent> getRemoteEvents(String uid, Integer chunk);
+
 }
