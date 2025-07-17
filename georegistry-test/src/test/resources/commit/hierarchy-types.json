@@ -1,0 +1,47 @@
+[
+  {
+    "code": "ADM_H_2",
+    "orgCode": "MOHA",
+    "typeCode": "HierarchyType",
+    "origin": "REMOTE",    
+    "displayLabel": {
+      "localizedValue": "Administrative structure hierarchy 2",
+      "localeValues": [
+        {
+          "locale": "defaultLocale",
+          "value": "Administrative structure hierarchy 2"
+        }
+      ]
+    },
+    "description": {
+      "localizedValue": "Administrative structure of the Tolkien Region",
+      "localeValues": [
+        {
+          "locale": "defaultLocale",
+          "value": "Administrative structure of the Tolkien Region"
+        }
+      ]
+    },
+    "nodes": [
+      {
+        "code": "REG_2",
+        "nodes": [
+          {
+            "code": "PRO_2",
+            "nodes": [
+              {
+                "code": "CTY_2",
+                "nodes": [
+                  {
+                    "code": "SHR_2",
+                    "nodes": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

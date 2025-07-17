@@ -114,7 +114,7 @@ public class AxonConfig
   @Primary
   public Serializer defaultSerializer()
   {
-    return JacksonSerializer.defaultSerializer();
+    return JacksonSerializer.builder().lenientDeserialization().build();
   }
 
   @Bean
@@ -156,7 +156,7 @@ public class AxonConfig
         // .messageMonitor(configuration.messageMonitor(EventStore.class,
         // "eventStore")) //
         .spanFactory(eventBusSpanFactory);
-    
+
     return new RegistryEventStore(builder);
   }
 

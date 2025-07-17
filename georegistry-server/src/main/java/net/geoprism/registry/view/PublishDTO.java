@@ -9,6 +9,8 @@ import java.util.UUID;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -16,15 +18,23 @@ import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.DirectedAcyclicGraphType;
 import net.geoprism.registry.UndirectedGraphType;
+import net.geoprism.registry.spring.DateDeserializer;
+import net.geoprism.registry.spring.DateSerializer;
 
 public class PublishDTO
 {
   private String       uid;
 
+  @JsonSerialize(using = DateSerializer.class)
+  @JsonDeserialize(using = DateDeserializer.class)
   private Date         date;
 
+  @JsonSerialize(using = DateSerializer.class)
+  @JsonDeserialize(using = DateDeserializer.class)
   private Date         startDate;
 
+  @JsonSerialize(using = DateSerializer.class)
+  @JsonDeserialize(using = DateDeserializer.class)
   private Date         endDate;
 
   private List<String> geoObjectTypes;
@@ -46,6 +56,8 @@ public class PublishDTO
 
   public PublishDTO(Date date, Date startDate, Date endDate)
   {
+    this();
+
     this.date = date;
     this.startDate = startDate;
     this.endDate = endDate;
@@ -224,18 +236,18 @@ public class PublishDTO
       JsonObject object = new JsonObject();
       object.addProperty("type", DirectedAcyclicGraphType.class.getSimpleName());
       object.addProperty("code", code);
-      
+
       array.add(object);
     });
-    
+
     this.undirectedTypes.forEach(code -> {
       JsonObject object = new JsonObject();
       object.addProperty("type", UndirectedGraphType.class.getSimpleName());
       object.addProperty("code", code);
-      
+
       array.add(object);
     });
-    
+
     this.businessTypes.forEach(code -> {
       JsonObject object = new JsonObject();
       object.addProperty("type", BusinessType.class.getSimpleName());

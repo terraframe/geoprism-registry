@@ -1,8 +1,11 @@
 /**
  *
  */
-package net.geoprism.registry.axon;
+package net.geoprism.registry.service;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -15,15 +18,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.graph.GeoObjectTypeSnapshot;
+import net.geoprism.graph.HierarchyTypeSnapshot;
 import net.geoprism.registry.Commit;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.Publish;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.axon.aggregate.RunwayTransactionWrapper;
 import net.geoprism.registry.axon.config.RegistryEventStore;
+import net.geoprism.registry.axon.event.remote.RemoteEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectSetParentEvent;
 import net.geoprism.registry.config.TestApplication;
@@ -80,6 +91,11 @@ public class PublishEventServiceTest implements InstanceTestClassListener
   @Test
   public void test() throws InterruptedException
   {
+    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.enable(SerializationFeature.INDENT_OUTPUT);
+
     RunwayTransactionWrapper.run(() -> {
       // TrackingToken token = new GapAwareTrackingToken(0, null);
       Date date = new Date();
@@ -94,22 +110,59 @@ public class PublishEventServiceTest implements InstanceTestClassListener
 
         try
         {
+          mapper.writeValue(new File("publish.json"), dto);
+
           List<Commit> commits = this.cService.getCommits(publish);
 
           Assert.assertEquals(1, commits.size());
 
           Commit commit = commits.get(0);
 
+          mapper.writeValue(new File("commit.json"), commit.toDTO(publish));
+
+          GeoObjectTypeSnapshot root = this.gSnapshotService.getRoot(commit);
+
+          Assert.assertNotNull(root);
+
+          JsonArray geoObjectTypes = new JsonArray();
+
           dto.getGeoObjectTypes().forEach(code -> {
-            Assert.assertNotNull(this.gSnapshotService.get(commit, code));
+            GeoObjectTypeSnapshot snapshot = this.gSnapshotService.get(commit, code);
+
+            Assert.assertNotNull(snapshot);
+
+            geoObjectTypes.add(snapshot.toJSON());
           });
+
+          Assert.assertTrue(geoObjectTypes.size() > 0);
+
+          gson.toJson(geoObjectTypes, System.out);
+
+          JsonArray hierarchyTypes = new JsonArray();
 
           dto.getHierarchyTypes().forEach(code -> {
-            Assert.assertNotNull(this.hSnapshotService.get(commit, code));
+            HierarchyTypeSnapshot type = this.hSnapshotService.get(commit, code);
+
+            Assert.assertNotNull(type);
+
+            hierarchyTypes.add(type.toJSON(root));
           });
 
-          Assert.assertEquals(253, this.cService.getRemoteEvents(commit, 0).size());
+          gson.toJson(hierarchyTypes, System.out);
 
+          List<RemoteEvent> events = this.cService.getRemoteEvents(commit, 0);
+
+          Assert.assertEquals(253, events.size());
+
+          // serializer.typeFactory.constructCollectionLikeType(List::class.java,
+          // SomeClass::class.java)
+
+          mapper.writerFor(mapper.getTypeFactory().constructCollectionLikeType(List.class, RemoteEvent.class)).writeValue(new File("events.json"), events);
+
+        }
+        catch (IOException e)
+        {
+          e.printStackTrace();
         }
         finally
         {

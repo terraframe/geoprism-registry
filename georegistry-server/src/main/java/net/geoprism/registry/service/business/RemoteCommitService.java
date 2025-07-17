@@ -52,7 +52,7 @@ public class RemoteCommitService
   private CommandGateway                            gateway;
 
   @Request
-  public void pull(String source, String publishId, Integer versionNumber)
+  public Commit pull(String source, String publishId, Integer versionNumber)
   {
     // TODO: Should this be in a transaction??
     try (RemoteClientIF client = service.open(source))
@@ -88,27 +88,25 @@ public class RemoteCommitService
       client.getGeoObjectTypes(commit.getUid()).forEach(element -> {
         GeoObjectTypeSnapshot snapshot = this.gTypeService.create(commit, element.getAsJsonObject());
 
-        root.addChildSnapshot(snapshot).apply();
-
         this.snapshotService.createType(snapshot);
       });
 
       client.getHierarchyTypes(commit.getUid()).forEach(element -> {
         HierarchyTypeSnapshot snapshot = (HierarchyTypeSnapshot) this.graphTypeService.create(commit, element.getAsJsonObject(), root);
 
-        this.snapshotService.createType(snapshot);
+        this.snapshotService.createType(snapshot, root);
       });
 
       client.getDirectedAcyclicGraphTypes(commit.getUid()).forEach(element -> {
         DirectedAcyclicGraphTypeSnapshot snapshot = (DirectedAcyclicGraphTypeSnapshot) this.graphTypeService.create(commit, element.getAsJsonObject(), root);
 
-        this.snapshotService.createType(snapshot);
+        this.snapshotService.createType(snapshot, root);
       });
 
       client.getDirectedAcyclicGraphTypes(commit.getUid()).forEach(element -> {
         UndirectedGraphTypeSnapshot snapshot = (UndirectedGraphTypeSnapshot) this.graphTypeService.create(commit, element.getAsJsonObject(), root);
 
-        this.snapshotService.createType(snapshot);
+        this.snapshotService.createType(snapshot, root);
       });
 
       client.getBusinessEdgeTypes(commit.getUid()).forEach(element -> {
@@ -127,6 +125,7 @@ public class RemoteCommitService
         chunk++;
       }
 
+      return commit;
     }
   }
 }

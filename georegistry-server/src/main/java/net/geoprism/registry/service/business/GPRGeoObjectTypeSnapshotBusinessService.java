@@ -42,6 +42,34 @@ import net.geoprism.registry.model.SnapshotContainer;
 public class GPRGeoObjectTypeSnapshotBusinessService extends GeoObjectTypeSnapshotBusinessService implements GeoObjectTypeSnapshotBusinessServiceIF
 {
   @Override
+  public GeoObjectTypeSnapshot getRoot(SnapshotContainer<?> version)
+  {
+    if (version instanceof Commit)
+    {
+      QueryFactory factory = new QueryFactory();
+
+      CommitHasSnapshotQuery vQuery = new CommitHasSnapshotQuery(factory);
+      vQuery.WHERE(vQuery.getParent().EQ((Commit) version));
+
+      GeoObjectTypeSnapshotQuery query = new GeoObjectTypeSnapshotQuery(factory);
+      query.LEFT_JOIN_EQ(vQuery.getChild());
+      query.AND(query.getIsRoot().EQ(true));
+
+      try (OIterator<? extends GeoObjectTypeSnapshot> it = query.getIterator())
+      {
+        if (it.hasNext())
+        {
+          return it.next();
+        }
+      }
+
+      return null;
+    }
+
+    return super.getRoot(version);
+  }
+
+  @Override
   public GeoObjectTypeSnapshot get(SnapshotContainer<?> version, String code)
   {
     if (version instanceof Commit)

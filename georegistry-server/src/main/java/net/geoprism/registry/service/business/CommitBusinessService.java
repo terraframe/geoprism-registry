@@ -327,9 +327,7 @@ public class CommitBusinessService implements CommitBusinessServiceIF
 
     // Publish snapshots for all geo-object types
     configuration.getGeoObjectTypes().forEach(code -> {
-      GeoObjectTypeSnapshot snapshot = this.snapshotService.createSnapshot(commit, ServerGeoObjectType.get(code), root);
-
-      root.addChildSnapshot(snapshot).apply();
+      this.snapshotService.createSnapshot(commit, ServerGeoObjectType.get(code), root);
     });
 
     configuration.getHierarchyTypes().forEach(code -> {

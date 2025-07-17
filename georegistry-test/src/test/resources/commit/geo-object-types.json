@@ -1,0 +1,118 @@
+[
+  {
+    "code": "REG_2",
+    "orgCode": "MOHA",
+    "origin": "REMOTE",
+    "displayLabel": {
+      "localizedValue": "Region (MOHA) 2",
+      "localeValues": [
+        {
+          "locale": "defaultLocale",
+          "value": "Region (MOHA) 2"
+        }
+      ]
+    },
+    "description": {
+      "localizedValue": "1st subnational level administrative units",
+      "localeValues": [
+        {
+          "locale": "defaultLocale",
+          "value": "1st subnational level administrative units"
+        }
+      ]
+    },
+    "geometryType": "MULTIPOLYGON",
+    "isAbstract": false,
+    "isRoot": false,
+    "isPrivate": false,
+    "attributes": [],
+    "parent": "__ROOT__"
+  },
+  {
+    "code": "PRO_2",
+    "orgCode": "MOHA",
+    "origin": "REMOTE",
+    "displayLabel": {
+      "localizedValue": "Province (MOHA) 2",
+      "localeValues": [
+        {
+          "locale": "defaultLocale",
+          "value": "Province (MOHA) 2"
+        }
+      ]
+    },
+    "description": {
+      "localizedValue": "2nd subnational level administrative units",
+      "localeValues": [
+        {
+          "locale": "defaultLocale",
+          "value": "2nd subnational level administrative units"
+        }
+      ]
+    },
+    "geometryType": "MULTIPOLYGON",
+    "isAbstract": false,
+    "isRoot": false,
+    "isPrivate": false,
+    "attributes": [],
+    "parent": "__ROOT__"
+  },
+  {
+    "code": "CTY_2",
+    "orgCode": "MOHA",
+    "origin": "REMOTE",
+    "displayLabel": {
+      "localizedValue": "County (MOHA) 2",
+      "localeValues": [
+        {
+          "locale": "defaultLocale",
+          "value": "County (MOHA) 2"
+        }
+      ]
+    },
+    "description": {
+      "localizedValue": "3rd subnational level administrative units",
+      "localeValues": [
+        {
+          "locale": "defaultLocale",
+          "value": "3rd subnational level administrative units"
+        }
+      ]
+    },
+    "geometryType": "MULTIPOLYGON",
+    "isAbstract": false,
+    "isRoot": false,
+    "isPrivate": false,
+    "attributes": [],
+    "parent": "__ROOT__"
+  },
+  {
+    "code": "SHR_2",
+    "orgCode": "MOHA",
+    "origin": "REMOTE",
+    "displayLabel": {
+      "localizedValue": "Shire (MOHA) 2",
+      "localeValues": [
+        {
+          "locale": "defaultLocale",
+          "value": "Shire (MOHA) 2"
+        }
+      ]
+    },
+    "description": {
+      "localizedValue": "4th subnational level administrative units",
+      "localeValues": [
+        {
+          "locale": "defaultLocale",
+          "value": "4th subnational level administrative units"
+        }
+      ]
+    },
+    "geometryType": "MULTIPOLYGON",
+    "isAbstract": false,
+    "isRoot": false,
+    "isPrivate": false,
+    "attributes": [],
+    "parent": "__ROOT__"
+  }
+]

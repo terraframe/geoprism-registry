@@ -20,7 +20,9 @@ public class DateSerializer extends JsonSerializer<Date>
       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
       sdf.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
-      gen.writeRawValue(sdf.format(value));
+      String rawValue = sdf.format(value);
+      
+      gen.writeString(rawValue);
     }
   }
 

@@ -42,6 +42,7 @@ import net.geoprism.graph.LabeledPropertyGraphTypeEntry;
 import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
 import net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJob;
 import net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJobQuery;
+import net.geoprism.graph.SnapshotHierarchy;
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.etl.DuplicateJobException;
@@ -198,17 +199,16 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
 
     if (goTypeCodes.size() > 0)
     {
+      // Publish snapshots for all geo-object types
+      for (String goTypeCode : goTypeCodes)
+      {
+        this.snapshotService.createSnapshot(version, ServerGeoObjectType.get(goTypeCode), root);
+      }
+
       // Publish snapshots for all graph types
       for (GraphTypeReference gtr : gtrs)
       {
         this.snapshotService.createSnapshot(version, gtr, root);
-      }
-
-      // Publish snapshots for all geo-object types
-      for (String goTypeCode : goTypeCodes)
-      {
-        GeoObjectTypeSnapshot snapshot = this.snapshotService.createSnapshot(version, ServerGeoObjectType.get(goTypeCode), root);
-        root.addChildSnapshot(snapshot).apply();
       }
     }
     else if (lpgt.getStrategyType().equals(LabeledPropertyGraphType.TREE))
@@ -237,7 +237,9 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
 
         if (item.parent != null)
         {
-          item.parent.addChildSnapshot(parent).apply();
+          SnapshotHierarchy relationship = item.parent.addChildSnapshot(parent);
+          relationship.setHierarchyTypeCode(hierarchy.getCode());
+          relationship.apply();
         }
 
         this.hierarchyService.getChildren(hierarchy, type).forEach(child -> {

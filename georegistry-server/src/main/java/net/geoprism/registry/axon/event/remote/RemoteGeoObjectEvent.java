@@ -2,7 +2,12 @@ package net.geoprism.registry.axon.event.remote;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import net.geoprism.registry.axon.command.remote.RemoteGeoObjectCommand;
+import net.geoprism.registry.spring.DateDeserializer;
+import net.geoprism.registry.spring.DateSerializer;
 
 public class RemoteGeoObjectEvent implements RemoteEvent
 {
@@ -17,8 +22,12 @@ public class RemoteGeoObjectEvent implements RemoteEvent
 
   private String  type;
 
+  @JsonSerialize(using = DateSerializer.class)
+  @JsonDeserialize(using = DateDeserializer.class)
   private Date    startDate;
 
+  @JsonSerialize(using = DateSerializer.class)
+  @JsonDeserialize(using = DateDeserializer.class)
   private Date    endDate;
 
   public RemoteGeoObjectEvent()
