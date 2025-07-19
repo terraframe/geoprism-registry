@@ -3,6 +3,7 @@ package net.geoprism.registry.service.business;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,17 +38,22 @@ public class MockRemoteClientBuilderService implements RemoteClientBuilderServic
       @Override
       public List<RemoteEvent> getRemoteEvents(String uid, Integer chunk)
       {
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectReader reader = mapper.readerFor(mapper.getTypeFactory().constructCollectionLikeType(List.class, RemoteEvent.class));
+        if (chunk == 0)
+        {
+          ObjectMapper mapper = new ObjectMapper();
+          ObjectReader reader = mapper.readerFor(mapper.getTypeFactory().constructCollectionLikeType(List.class, RemoteEvent.class));
 
-        try
-        {
-          return reader.readValue(this.getClass().getResourceAsStream("/commit/events.json"));
+          try
+          {
+            return reader.readValue(this.getClass().getResourceAsStream("/commit/events.json"));
+          }
+          catch (IOException e)
+          {
+            throw new RuntimeException(e);
+          }
         }
-        catch (IOException e)
-        {
-          throw new RuntimeException(e);
-        }
+
+        return new LinkedList<>();
       }
 
       @Override

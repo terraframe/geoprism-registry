@@ -582,7 +582,7 @@ public class SnapshotBusinessService
         LocalizedValue label = LocalizedValueConverter.convertNoAutoCoalesce(concrete.getDisplayLabel());
         LocalizedValue description = LocalizedValueConverter.convertNoAutoCoalesce(concrete.getDescription());
 
-        type = this.dagTypeService.create(concrete.getCode(), label, description);
+        type = this.dagTypeService.create(concrete.getCode(), label, description, concrete.getOrigin());
       }
 
       return type;
@@ -598,7 +598,7 @@ public class SnapshotBusinessService
         LocalizedValue label = LocalizedValueConverter.convertNoAutoCoalesce(concrete.getDisplayLabel());
         LocalizedValue description = LocalizedValueConverter.convertNoAutoCoalesce(concrete.getDescription());
 
-        type = this.undirectedTypeService.create(concrete.getCode(), label, description);
+        type = this.undirectedTypeService.create(concrete.getCode(), label, description, concrete.getOrigin());
       }
 
       return type;
@@ -623,7 +623,7 @@ public class SnapshotBusinessService
     // If doesn't exist then create it, otherwise update the definition
     if (type == null)
     {
-      return this.bEdgeService.create(snapshot.getOrgCode(), snapshot.getCode(), label, description, snapshot.getParentType().getCode(), snapshot.getChildType().getCode());
+      return this.bEdgeService.create(snapshot.getOrgCode(), snapshot.getCode(), label, description, snapshot.getParentType().getCode(), snapshot.getChildType().getCode(), snapshot.getOrigin());
     }
 
     this.bEdgeService.update(type, label, description);
@@ -639,12 +639,24 @@ public class SnapshotBusinessService
     HierarchyType dto = new HierarchyType(snapshot.getCode(), label, description, snapshot.getOrgCode());
     dto.setOrigin(snapshot.getOrigin());
 
-    ServerHierarchyType hierarchyType = this.hTypeService.createHierarchyType(dto);
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(dto.getCode(), true);
 
-    // TODO : Determine if a node already exists
-    this.hSnapshotService.getChildren(snapshot, root).forEach(childSnapshot -> {
-      createHierarchyRelationship(hierarchyType, null, snapshot, childSnapshot);
-    });
+    if (hierarchyType == null)
+    {
+      hierarchyType = this.hTypeService.createHierarchyType(dto);
+
+      final ServerHierarchyType sHierarchyType = hierarchyType;
+
+      this.hSnapshotService.getChildren(snapshot, root).forEach(childSnapshot -> {
+        createHierarchyRelationship(sHierarchyType, null, snapshot, childSnapshot);
+      });
+    }
+    else
+    {
+      this.hTypeService.update(hierarchyType, dto);
+
+      // TODO : Merge hierarchy??
+    }
 
     return hierarchyType;
   }
@@ -680,7 +692,7 @@ public class SnapshotBusinessService
     }
     else
     {
-       type = this.gTypeService.updateGeoObjectType(type, dto);
+      type = this.gTypeService.updateGeoObjectType(type, dto);
     }
 
     Map<String, net.geoprism.registry.graph.AttributeType> attributeMap = type.getAttributeMap();
