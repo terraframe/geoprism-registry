@@ -40,6 +40,7 @@ import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
+import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdAttributeBoolean;
 import com.runwaysdk.system.metadata.MdAttributeCharacter;
 import com.runwaysdk.system.metadata.MdAttributeClassification;
@@ -83,6 +84,7 @@ import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
+import net.geoprism.registry.graph.GeoObjectTypeAlreadyInHierarchyException;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.GeoObjectMetadata;
@@ -639,24 +641,23 @@ public class SnapshotBusinessService
     HierarchyType dto = new HierarchyType(snapshot.getCode(), label, description, snapshot.getOrgCode());
     dto.setOrigin(snapshot.getOrigin());
 
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(dto.getCode(), true);
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(dto.getCode(), false);
 
     if (hierarchyType == null)
     {
       hierarchyType = this.hTypeService.createHierarchyType(dto);
-
-      final ServerHierarchyType sHierarchyType = hierarchyType;
-
-      this.hSnapshotService.getChildren(snapshot, root).forEach(childSnapshot -> {
-        createHierarchyRelationship(sHierarchyType, null, snapshot, childSnapshot);
-      });
     }
     else
     {
       this.hTypeService.update(hierarchyType, dto);
-
-      // TODO : Merge hierarchy??
     }
+    
+    final ServerHierarchyType sHierarchyType = hierarchyType;
+
+    this.hSnapshotService.getChildren(snapshot, root).forEach(childSnapshot -> {
+      createHierarchyRelationship(sHierarchyType, ServerGeoObjectType.get(Universal.ROOT), snapshot, childSnapshot);
+    });
+
 
     return hierarchyType;
   }
@@ -665,7 +666,14 @@ public class SnapshotBusinessService
   {
     ServerGeoObjectType child = ServerGeoObjectType.get(childSnapshot.getCode());
 
-    this.hTypeService.addToHierarchy(hierarchyType, parent, child);
+    try
+    {
+      this.hTypeService.addToHierarchy(hierarchyType, parent, child);
+    }
+    catch (GeoObjectTypeAlreadyInHierarchyException e)
+    {
+      // Ignore
+    }
 
     this.hSnapshotService.getChildren(hierarchy, childSnapshot).forEach(node -> {
       this.createHierarchyRelationship(hierarchyType, child, hierarchy, node);
@@ -681,7 +689,7 @@ public class SnapshotBusinessService
     GeoObjectType dto = new GeoObjectType(snapshot.getCode(), GeometryType.valueOf(snapshot.getGeometryType()), label, description, snapshot.getIsGeometryEditable(), snapshot.getOrgCode(), ServiceFactory.getAdapter());
     dto.setIsAbstract(snapshot.getIsAbstract());
     dto.setIsPrivate(snapshot.getIsPrivate());
-    dto.setOrigin(snapshot.getOid());
+    dto.setOrigin(snapshot.getOrigin());
     // dto.setSuperTypeCode(snapshot.);
 
     ServerGeoObjectType type = ServerGeoObjectType.get(snapshot.getCode(), true);

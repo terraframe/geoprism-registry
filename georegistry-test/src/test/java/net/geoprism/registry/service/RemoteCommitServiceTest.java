@@ -3,6 +3,8 @@
  */
 package net.geoprism.registry.service;
 
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,9 +19,12 @@ import net.geoprism.registry.Commit;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.config.TestApplication;
+import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.business.CommitBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeSnapshotBusinessServiceIF;
+import net.geoprism.registry.service.business.OrganizationBusinessService;
+import net.geoprism.registry.service.business.OrganizationBusinessServiceIF;
 import net.geoprism.registry.service.business.PublishBusinessServiceIF;
 import net.geoprism.registry.service.business.RemoteClientBuilderServiceIF;
 import net.geoprism.registry.service.business.RemoteClientIF;
@@ -49,12 +54,22 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
   private PublishBusinessServiceIF               publishService;
 
   @Autowired
+  private OrganizationBusinessServiceIF          organizationService;
+
+  @Autowired
   private RemoteCommitService                    service;
 
   @Override
   @Request
   public void beforeClassSetup() throws Exception
   {
+    ServerOrganization org = ServerOrganization.getByCode("MOHA", false);
+
+    if (org == null)
+    {
+      this.organizationService.create(new OrganizationDTO("MOHA", new LocalizedValue("MOHA"), new LocalizedValue("MOHA")));
+    }
+
     // Delete the existing commit
     try (RemoteClientIF client = builder.open(""))
     {

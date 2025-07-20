@@ -203,15 +203,20 @@ public class GeoObjectRepositoryProjection
     if (!GeoprismProperties.getOrigin().equals(type.getOrigin()))
     {
       GeoObject dto = GeoObject.fromJSON(ServiceFactory.getAdapter(), event.getObject());
+      dto.setUid(event.getUid());
+      
       ServerGeoObjectIF object = this.service.getGeoObjectByCode(dto.getCode(), dto.getType().getCode(), false);
 
-      if (object != null)
+      if (object == null)
       {
         object = this.service.newInstance(type);
       }
 
       this.service.populate(object, dto, event.getStartDate(), event.getEndDate());
       this.service.apply(object, false, false);
+      
+      System.out.println("Event: " + event.getUid() + ", DTO: " + dto.getUid() + ", Object: " + object.getUid());
+      
     }
     else
     {
