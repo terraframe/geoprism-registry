@@ -1,8 +1,8 @@
 {
   "uid" : "de6d19e2-0d43-4f84-8052-22908348d9c3",
   "date" : "2025-07-17",
-  "startDate" : "2025-07-17",
-  "endDate" : "2025-07-17",
+  "startDate" : "2024-01-01",
+  "endDate" : "2028-001-01",
   "geoObjectTypes" : [ "REG_2", "PRO_2", "CTY_2", "SHR_2" ],
   "hierarchyTypes" : [ "ADM_H_2" ],
   "dagTypes" : [ ],
