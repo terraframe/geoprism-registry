@@ -116,7 +116,7 @@ public abstract class AbstractGeoObjectEventBuilder<K>
     event.ifPresent(events::add);
   }
 
-  public abstract String getUid();
+  public abstract String getCode();
 
   public abstract String getType();
 
@@ -166,12 +166,12 @@ public abstract class AbstractGeoObjectEventBuilder<K>
 
   public void createExternalId(ExternalSystem system, String externalId, ImportStrategy importStrategy)
   {
-    this.events.add(new GeoObjectSetExternalIdEvent(this.getUid(), this.getType(), system.getId(), externalId, importStrategy));
+    this.events.add(new GeoObjectSetExternalIdEvent(this.getCode(), this.getType(), system.getId(), externalId, importStrategy));
   }
 
   public void addParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchy, Date startDate, Date endDate, String edgeUuid, Boolean validate)
   {
-    this.events.add(new GeoObjectCreateParentEvent(this.getUid(), this.getType(), edgeUuid, hierarchy.getCode(), startDate, endDate, parent.getCode(), parent.getType().getCode(), validate));
+    this.events.add(new GeoObjectCreateParentEvent(this.getCode(), this.getType(), edgeUuid, hierarchy.getCode(), startDate, endDate, parent.getCode(), parent.getType().getCode(), validate));
   }
 
   public void setParents(ServerParentTreeNodeOverTime parentsOverTime)
@@ -203,7 +203,7 @@ public abstract class AbstractGeoObjectEventBuilder<K>
 
     if (this.attributeUpdate || this.isNew)
     {
-      list.add(new GeoObjectApplyEvent(this.getUid(), this.getType(), this.isNew, this.isImport, this.toJSON().toString()));
+      list.add(new GeoObjectApplyEvent(this.getCode(), this.getType(), this.isNew, this.isImport, this.toJSON().toString()));
     }
 
     list.addAll(events);
@@ -215,10 +215,10 @@ public abstract class AbstractGeoObjectEventBuilder<K>
 
     if (this.isNew)
     {
-      return (T) new GeoObjectCompositeCreateCommand(getUid(), list);
+      return (T) new GeoObjectCompositeCreateCommand(getCode(), getType(), list);
     }
 
-    return (T) new GeoObjectCompositeCommand(getUid(), list);
+    return (T) new GeoObjectCompositeCommand(getCode(), getType(), list);
   }
 
 }

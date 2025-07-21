@@ -32,9 +32,9 @@ public class ServerGeoObjectEventBuilder extends AbstractGeoObjectEventBuilder<S
   }
 
   @Override
-  public String getUid()
+  public String getCode()
   {
-    return this.getOrThrow().getUid();
+    return this.getOrThrow().getCode();
   }
 
   @Override
@@ -66,7 +66,7 @@ public class ServerGeoObjectEventBuilder extends AbstractGeoObjectEventBuilder<S
       Date endDate = edge.getObjectValue(GeoVertex.END_DATE);
       String uid = edge.getObjectValue(DefaultAttribute.UID.getName());
 
-      this.addEvent(new GeoObjectRemoveParentEvent(getUid(), getType(), uid, hierarchyType.getCode(), startDate, endDate));
+      this.addEvent(new GeoObjectRemoveParentEvent(getCode(), getType(), uid, hierarchyType.getCode(), startDate, endDate));
     }
   }
 

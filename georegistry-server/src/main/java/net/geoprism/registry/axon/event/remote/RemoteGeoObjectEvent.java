@@ -13,14 +13,14 @@ public class RemoteGeoObjectEvent implements RemoteEvent
 {
   private String  commitId;
 
-  private String  uid;
+  private String  code;
+
+  private String  type;
 
   private Boolean isNew;
 
   // Serialized GeoObject
   private String  object;
-
-  private String  type;
 
   @JsonSerialize(using = DateSerializer.class)
   @JsonDeserialize(using = DateDeserializer.class)
@@ -34,11 +34,11 @@ public class RemoteGeoObjectEvent implements RemoteEvent
   {
   }
 
-  public RemoteGeoObjectEvent(String commitId, String uid, Boolean isNew, String object, String type, Date startDate, Date endDate)
+  public RemoteGeoObjectEvent(String commitId, String code, Boolean isNew, String object, String type, Date startDate, Date endDate)
   {
     super();
     this.commitId = commitId;
-    this.uid = uid;
+    this.code = code;
     this.isNew = isNew;
     this.object = object;
     this.type = type;
@@ -55,15 +55,15 @@ public class RemoteGeoObjectEvent implements RemoteEvent
   {
     this.commitId = commitId;
   }
-
-  public String getUid()
+  
+  public String getCode()
   {
-    return uid;
+    return code;
   }
-
-  public void setUid(String uid)
+  
+  public void setCode(String code)
   {
-    this.uid = uid;
+    this.code = code;
   }
 
   public Boolean getIsNew()
@@ -119,6 +119,6 @@ public class RemoteGeoObjectEvent implements RemoteEvent
   @Override
   public Object toCommand()
   {
-    return new RemoteGeoObjectCommand(commitId, uid, isNew, object, type, startDate, endDate);
+    return new RemoteGeoObjectCommand(commitId, code, isNew, object, type, startDate, endDate);
   }
 }

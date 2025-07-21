@@ -7,7 +7,7 @@ import net.geoprism.registry.view.PublishDTO;
 
 public class GeoObjectSetExternalIdEvent extends AbstractGeoObjectEvent implements GeoObjectEvent
 {
-  private String         uid;
+  private String         code;
 
   private String         type;
 
@@ -21,25 +21,25 @@ public class GeoObjectSetExternalIdEvent extends AbstractGeoObjectEvent implemen
   {
   }
 
-  public GeoObjectSetExternalIdEvent(String uid, String type, String systemId, String externalId, ImportStrategy strategy)
+  public GeoObjectSetExternalIdEvent(String code, String type, String systemId, String externalId, ImportStrategy strategy)
   {
     super();
 
-    this.uid = uid;
+    this.code = code;
     this.type = type;
     this.systemId = systemId;
     this.externalId = externalId;
     this.strategy = strategy;
   }
 
-  public String getUid()
+  public String getCode()
   {
-    return uid;
+    return code;
   }
 
-  public void setUid(String uid)
+  public void setCode(String code)
   {
-    this.uid = uid;
+    this.code = code;
   }
 
   public String getType()
@@ -86,7 +86,7 @@ public class GeoObjectSetExternalIdEvent extends AbstractGeoObjectEvent implemen
   @JsonIgnore
   public String getAggregate()
   {
-    return this.uid + "_S_" + this.systemId;
+    return this.code + "#" + this.type + "_S_" + this.systemId;
   }
 
   @Override

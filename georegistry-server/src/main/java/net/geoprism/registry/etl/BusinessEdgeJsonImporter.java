@@ -20,6 +20,7 @@ package net.geoprism.registry.etl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 
 import org.apache.commons.io.IOUtils;
 import org.axonframework.commandhandling.gateway.CommandGateway;
@@ -34,11 +35,10 @@ import com.runwaysdk.resource.ApplicationResource;
 
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
+import net.geoprism.registry.axon.command.repository.BusinessObjectCompositeCommand;
 import net.geoprism.registry.axon.event.repository.BusinessObjectCreateEdgeEvent;
-import net.geoprism.registry.axon.event.repository.BusinessObjectEventBuilder;
 import net.geoprism.registry.axon.projection.BusinessObjectRepositoryProjection;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
-import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 
 public class BusinessEdgeJsonImporter
@@ -51,8 +51,6 @@ public class BusinessEdgeJsonImporter
 
   private BusinessEdgeTypeBusinessServiceIF  edgeTypeService;
 
-  private BusinessObjectBusinessServiceIF    objectService;
-
   private CommandGateway                     gateway;
 
   private BusinessObjectRepositoryProjection projection;
@@ -63,7 +61,6 @@ public class BusinessEdgeJsonImporter
     this.validate = validate;
 
     this.edgeTypeService = ServiceFactory.getBean(BusinessEdgeTypeBusinessServiceIF.class);
-    this.objectService = ServiceFactory.getBean(BusinessObjectBusinessServiceIF.class);
     this.gateway = ServiceFactory.getBean(CommandGateway.class);
     this.projection = ServiceFactory.getBean(BusinessObjectRepositoryProjection.class);
   }
@@ -97,10 +94,9 @@ public class BusinessEdgeJsonImporter
           String sourceCode = joEdge.get("source").getAsString();
           String targetCode = joEdge.get("target").getAsString();
 
-          BusinessObjectEventBuilder builder = new BusinessObjectEventBuilder(objectService);
-          builder.addEvent(new BusinessObjectCreateEdgeEvent(sourceCode, sourceType.getCode(), edgeType.getCode(), targetCode, targetType.getCode(), validate));
-
-          this.gateway.sendAndWait(builder.build());
+          BusinessObjectCreateEdgeEvent event = new BusinessObjectCreateEdgeEvent(sourceCode, sourceType.getCode(), edgeType.getCode(), targetCode, targetType.getCode(), validate);
+          
+          this.gateway.sendAndWait(new BusinessObjectCompositeCommand(sourceCode, sourceType.getCode(), Arrays.asList(event)));
 
           if (j % 50 == 0)
           {

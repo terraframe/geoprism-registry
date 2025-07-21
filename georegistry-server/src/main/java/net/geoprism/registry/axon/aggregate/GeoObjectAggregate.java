@@ -15,6 +15,7 @@ import net.geoprism.registry.axon.command.repository.GeoObjectCompositeCreateCom
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectSetParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEvent;
+import net.geoprism.registry.axon.event.repository.GeoObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectCreateParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectUpdateParentEvent;
 
@@ -22,20 +23,44 @@ import net.geoprism.registry.axon.event.repository.GeoObjectUpdateParentEvent;
 public class GeoObjectAggregate
 {
   @AggregateIdentifier
-  private String uid;
+  private String key;
+
+  private String code;
+
+  private String type;
 
   // @JsonDeserialize(using = StringDeserializer.class)
   // @JsonSerialize(using = StringSerializer.class)
   private String object;
 
-  public String getUid()
+  public String getKey()
   {
-    return uid;
+    return key;
   }
 
-  public void setUid(String uid)
+  public void setKey(String key)
   {
-    this.uid = uid;
+    this.key = key;
+  }
+
+  public String getCode()
+  {
+    return code;
+  }
+
+  public void setCode(String code)
+  {
+    this.code = code;
+  }
+
+  public String getType()
+  {
+    return type;
+  }
+
+  public void setType(String type)
+  {
+    this.type = type;
   }
 
   public String getObject()
@@ -64,50 +89,67 @@ public class GeoObjectAggregate
   {
     RunwayTransactionWrapper.run(() -> command.getEvents().stream().forEach(AggregateLifecycle::apply));
   }
-  
-  
+
   @CommandHandler
   @CreationPolicy(AggregateCreationPolicy.CREATE_IF_MISSING)
   public void on(RemoteGeoObjectCommand command)
   {
-    RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new RemoteGeoObjectEvent(command.getCommitId(), command.getUid(), command.getIsNew(), command.getObject(), command.getType(), command.getStartDate(), command.getEndDate())));
+    RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new RemoteGeoObjectEvent(command.getCommitId(), command.getCode(), command.getIsNew(), command.getObject(), command.getType(), command.getStartDate(), command.getEndDate())));
   }
 
   @CommandHandler
   public void on(RemoteGeoObjectSetParentCommand command)
   {
-    RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new RemoteGeoObjectSetParentEvent(command.getCommitId(), command.getUid(), command.getType(), command.getEdgeUid(), command.getEdgeType(), command.getStartDate(), command.getEndDate(), command.getParentCode(), command.getParentType())));
+    RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new RemoteGeoObjectSetParentEvent(command.getCommitId(), command.getCode(), command.getType(), command.getEdgeUid(), command.getEdgeType(), command.getStartDate(), command.getEndDate(), command.getParentCode(), command.getParentType())));
   }
 
   @EventSourcingHandler
   public void on(GeoObjectApplyEvent event)
   {
-    this.uid = event.getUid();
+    this.key = event.getCode() + "#" + event.getType();
+    this.code = event.getCode();
+    this.type = event.getType();
     this.object = event.getObject();
   }
 
   @EventSourcingHandler
   public void on(GeoObjectUpdateParentEvent event)
   {
-    this.uid = event.getUid();
+    this.key = event.getCode() + "#" + event.getType();
+    this.code = event.getCode();
+    this.type = event.getType();
   }
 
   @EventSourcingHandler
   public void on(GeoObjectCreateParentEvent event)
   {
-    this.uid = event.getUid();
+    this.key = event.getCode() + "#" + event.getType();
+    this.code = event.getCode();
+    this.type = event.getType();
   }
 
   @EventSourcingHandler
+  public void on(GeoObjectCreateEdgeEvent event)
+  {
+    this.key = event.getSourceCode() + "#" + event.getSourceType();
+    this.code = event.getSourceCode();
+    this.type = event.getSourceType();
+  }
+  
+  @EventSourcingHandler
   public void on(RemoteGeoObjectEvent event)
   {
-    this.uid = event.getUid();
+    this.key = event.getCode() + "#" + event.getType();
+    this.code = event.getCode();
+    this.type = event.getType();
     this.object = event.getObject();
   }
 
   @EventSourcingHandler
   public void on(RemoteGeoObjectSetParentEvent event)
   {
-    this.uid = event.getUid();
-  }  
+    this.key = event.getCode() + "#" + event.getType();
+    this.code = event.getCode();
+    this.type = event.getType();
+  }
 }

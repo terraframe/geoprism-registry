@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class GeoObjectCreateParentEvent extends AbstractHierarchyEvent implements GeoObjectEvent
 {
-  private String  uid;
+  private String  code;
 
   private String  type;
 
@@ -28,11 +28,11 @@ public class GeoObjectCreateParentEvent extends AbstractHierarchyEvent implement
   {
   }
 
-  public GeoObjectCreateParentEvent(String uid, String type, String edgeUid, String edgeType, Date stateDate, Date endDate, String parentCode, String parentType, Boolean validate)
+  public GeoObjectCreateParentEvent(String code, String type, String edgeUid, String edgeType, Date stateDate, Date endDate, String parentCode, String parentType, Boolean validate)
   {
     super();
 
-    this.uid = uid;
+    this.code = code;
     this.type = type;
     this.edgeUid = edgeUid;
     this.edgeType = edgeType;
@@ -42,15 +42,15 @@ public class GeoObjectCreateParentEvent extends AbstractHierarchyEvent implement
     this.parentCode = parentCode;
     this.validate = validate;
   }
-
-  public String getUid()
+  
+  public String getCode()
   {
-    return uid;
+    return code;
   }
-
-  public void setUid(String uid)
+  
+  public void setCode(String code)
   {
-    this.uid = uid;
+    this.code = code;
   }
 
   public String getType()
@@ -137,7 +137,7 @@ public class GeoObjectCreateParentEvent extends AbstractHierarchyEvent implement
   @JsonIgnore
   public String getAggregate()
   {
-    return this.uid + "_H_" + this.edgeType;
+    return this.code + "#" + this.type + "_H_" + this.edgeType;
   }
 
   @Override

@@ -6,39 +6,40 @@ import net.geoprism.registry.view.PublishDTO;
 
 public class GeoObjectApplyEvent extends AbstractGeoObjectEvent implements GeoObjectEvent
 {
-  private String  uid;
+  private String  code;
 
+  private String  type;
+  
   private Boolean isNew;
 
   private Boolean isImport;
 
   private String  object;
 
-  private String  type;
 
   public GeoObjectApplyEvent()
   {
   }
 
-  public GeoObjectApplyEvent(String uid, String type, Boolean isNew, Boolean isImport, String object)
+  public GeoObjectApplyEvent(String code, String type, Boolean isNew, Boolean isImport, String object)
   {
     super();
 
-    this.uid = uid;
+    this.code = code;
+    this.type = type;
     this.isNew = isNew;
     this.isImport = isImport;
     this.object = object;
-    this.type = type;
   }
-
-  public String getUid()
+  
+  public String getCode()
   {
-    return uid;
+    return code;
   }
-
-  public void setUid(String uid)
+  
+  public void setCode(String code)
   {
-    this.uid = uid;
+    this.code = code;
   }
 
   public Boolean getIsNew()
@@ -85,7 +86,7 @@ public class GeoObjectApplyEvent extends AbstractGeoObjectEvent implements GeoOb
   @JsonIgnore
   public String getAggregate()
   {
-    return this.uid + "_O_";
+    return this.code + "#" + this.type + "_O_";
   }
 
   @Override

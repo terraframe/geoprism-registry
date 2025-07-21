@@ -1,14 +1,14 @@
 [
   {
-    "code": "REG_2",
+    "code": "REG",
     "orgCode": "MOHA",
     "origin": "REMOTE",
     "displayLabel": {
-      "localizedValue": "Region (MOHA) 2",
+      "localizedValue": "Region (MOHA)",
       "localeValues": [
         {
           "locale": "defaultLocale",
-          "value": "Region (MOHA) 2"
+          "value": "Region (MOHA)"
         }
       ]
     },
@@ -29,15 +29,15 @@
     "parent": "__ROOT__"
   },
   {
-    "code": "PRO_2",
+    "code": "PRO",
     "orgCode": "MOHA",
     "origin": "REMOTE",
     "displayLabel": {
-      "localizedValue": "Province (MOHA) 2",
+      "localizedValue": "Province (MOHA)",
       "localeValues": [
         {
           "locale": "defaultLocale",
-          "value": "Province (MOHA) 2"
+          "value": "Province (MOHA)"
         }
       ]
     },
@@ -58,15 +58,15 @@
     "parent": "__ROOT__"
   },
   {
-    "code": "CTY_2",
+    "code": "CTY",
     "orgCode": "MOHA",
     "origin": "REMOTE",
     "displayLabel": {
-      "localizedValue": "County (MOHA) 2",
+      "localizedValue": "County (MOHA)",
       "localeValues": [
         {
           "locale": "defaultLocale",
-          "value": "County (MOHA) 2"
+          "value": "County (MOHA)"
         }
       ]
     },
@@ -87,15 +87,15 @@
     "parent": "__ROOT__"
   },
   {
-    "code": "SHR_2",
+    "code": "SHR",
     "orgCode": "MOHA",
     "origin": "REMOTE",
     "displayLabel": {
-      "localizedValue": "Shire (MOHA) 2",
+      "localizedValue": "Shire (MOHA)",
       "localeValues": [
         {
           "locale": "defaultLocale",
-          "value": "Shire (MOHA) 2"
+          "value": "Shire (MOHA)"
         }
       ]
     },

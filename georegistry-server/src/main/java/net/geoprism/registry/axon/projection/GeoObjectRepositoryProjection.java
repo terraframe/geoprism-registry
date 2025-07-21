@@ -1,6 +1,9 @@
 package net.geoprism.registry.axon.projection;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.lang.StringUtils;
 import org.axonframework.eventhandling.EventHandler;
@@ -11,27 +14,39 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.runwaysdk.business.graph.EdgeObject;
+import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
+import com.runwaysdk.dataaccess.graph.GraphDBService;
+import com.runwaysdk.dataaccess.graph.GraphRequest;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.util.IDGenerator;
 
 import net.geoprism.configuration.GeoprismProperties;
+import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.ListType;
+import net.geoprism.registry.OriginException;
 import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectSetParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEvent;
+import net.geoprism.registry.axon.event.repository.GeoObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectCreateParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectRemoveParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectSetExternalIdEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectUpdateParentEvent;
+import net.geoprism.registry.cache.Cache;
+import net.geoprism.registry.cache.GeoObjectCache;
+import net.geoprism.registry.cache.LRUCache;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
+import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
+import net.geoprism.registry.service.business.GraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 
@@ -42,7 +57,20 @@ public class GeoObjectRepositoryProjection
   private HierarchyTypeBusinessServiceIF hService;
 
   @Autowired
+  private GraphTypeBusinessServiceIF     graphTypeService;
+
+  @Autowired
   private GPRGeoObjectBusinessServiceIF  service;
+
+  private GeoObjectCache                 goCache;
+
+  private Cache<String, Object>          goRidCache;
+
+  public GeoObjectRepositoryProjection()
+  {
+    this.goCache = new GeoObjectCache();
+    this.goRidCache = new LRUCache<String, Object>(1000);
+  }
 
   @EventHandler
   @Transaction
@@ -66,7 +94,7 @@ public class GeoObjectRepositoryProjection
   {
     ServerHierarchyType hierarchyType = this.hService.get(event.getEdgeType());
 
-    ServerGeoObjectIF object = this.service.getGeoObject(event.getUid(), event.getType());
+    ServerGeoObjectIF object = this.service.getGeoObjectByCode(event.getCode(), event.getType());
     EdgeObject edge = object.getEdge(hierarchyType, event.getEdgeUid());
 
     if (edge == null)
@@ -86,7 +114,7 @@ public class GeoObjectRepositoryProjection
   @Transaction
   public void updateParent(GeoObjectUpdateParentEvent event) throws Exception
   {
-    ServerGeoObjectIF object = this.service.getGeoObject(event.getUid(), event.getType());
+    ServerGeoObjectIF object = this.service.getGeoObject(event.getCode(), event.getType());
     ServerHierarchyType hierarchy = this.hService.get(event.getEdgeType());
 
     EdgeObject edge = object.getEdge(hierarchy, event.getEdgeUid());
@@ -156,7 +184,7 @@ public class GeoObjectRepositoryProjection
   @Transaction
   public void createParent(GeoObjectCreateParentEvent event) throws Exception
   {
-    ServerGeoObjectIF object = this.service.getGeoObject(event.getUid(), event.getType());
+    ServerGeoObjectIF object = this.service.getGeoObjectByCode(event.getCode(), event.getType());
     ServerHierarchyType hierarchy = this.hService.get(event.getEdgeType());
     VertexServerGeoObject newParent = (VertexServerGeoObject) this.service.getGeoObjectByCode(event.getParentCode(), event.getParentType());
 
@@ -181,7 +209,7 @@ public class GeoObjectRepositoryProjection
   @Transaction
   public void setExternalId(GeoObjectSetExternalIdEvent event) throws Exception
   {
-    ServerGeoObjectIF object = this.service.getGeoObject(event.getUid(), event.getType());
+    ServerGeoObjectIF object = this.service.getGeoObjectByCode(event.getCode(), event.getType());
     String systemId = event.getSystemId();
 
     ExternalSystem system = ExternalSystem.getByExternalSystemId(systemId);
@@ -203,9 +231,8 @@ public class GeoObjectRepositoryProjection
     if (!GeoprismProperties.getOrigin().equals(type.getOrigin()))
     {
       GeoObject dto = GeoObject.fromJSON(ServiceFactory.getAdapter(), event.getObject());
-      dto.setUid(event.getUid());
-      
-      ServerGeoObjectIF object = this.service.getGeoObjectByCode(dto.getCode(), dto.getType().getCode(), false);
+
+      ServerGeoObjectIF object = this.service.getGeoObjectByCode(event.getCode(), event.getType(), false);
 
       if (object == null)
       {
@@ -214,13 +241,32 @@ public class GeoObjectRepositoryProjection
 
       this.service.populate(object, dto, event.getStartDate(), event.getEndDate());
       this.service.apply(object, false, false);
-      
-      System.out.println("Event: " + event.getUid() + ", DTO: " + dto.getUid() + ", Object: " + object.getUid());
-      
     }
     else
     {
-      System.out.println("Skipping remote geo object: [" + event.getType() + "][" + event.getUid() + "] - [" + event.getIsNew() + "]");
+      System.out.println("Skipping remote geo object: [" + event.getType() + "][" + event.getCode() + "] - [" + event.getIsNew() + "]");
+    }
+  }
+
+  @EventHandler
+  @Transaction
+  public void createEdge(GeoObjectCreateEdgeEvent event) throws Exception
+  {
+    GraphType graphType = this.graphTypeService.getTypes(event.getEdgeType()).get(0);
+
+    if (event.getValidate())
+    {
+      ServerGeoObjectIF source = goCache.getOrFetchByCode(event.getSourceCode(), event.getSourceType());
+      ServerGeoObjectIF target = goCache.getOrFetchByCode(event.getTargetCode(), event.getTargetType());
+
+      source.addGraphChild(target, graphType, event.getStartDate(), event.getEndDate(), event.getValidate());
+    }
+    else
+    {
+      Object childRid = getOrFetchRid(event.getSourceCode(), event.getSourceType());
+      Object parentRid = getOrFetchRid(event.getTargetCode(), event.getTargetType());
+
+      this.newEdge(childRid, parentRid, graphType, event.getStartDate(), event.getEndDate());
     }
   }
 
@@ -232,7 +278,7 @@ public class GeoObjectRepositoryProjection
 
     if (!GeoprismProperties.getOrigin().equals(hierarchyType.getOrigin()))
     {
-      ServerGeoObjectIF object = this.service.getGeoObject(event.getUid(), event.getType());
+      ServerGeoObjectIF object = this.service.getGeoObjectByCode(event.getCode(), event.getType());
 
       String edgeUid = event.getEdgeUid();
 
@@ -252,7 +298,7 @@ public class GeoObjectRepositoryProjection
     }
     else
     {
-      System.out.println("Skipping remote set parent: [" + event.getType() + "][" + event.getUid() + "]");
+      System.out.println("Skipping remote set parent: [" + event.getType() + "][" + event.getCode() + "]");
     }
   }
 
@@ -262,6 +308,60 @@ public class GeoObjectRepositoryProjection
     ListType.getForType(type).forEach(listType -> {
       listType.getWorkingVersions().forEach(version -> version.publishOrUpdateRecord(object));
     });
+  }
+
+  private Object getOrFetchRid(String code, String typeCode)
+  {
+    String typeDbClassName = ServerGeoObjectType.get(typeCode).getDBClassName();
+
+    Optional<Object> optional = this.goRidCache.get(typeCode + "$#!" + code);
+
+    return optional.orElseGet(() -> {
+      GraphQuery<Object> query = new GraphQuery<Object>("select @rid from " + typeDbClassName + " where code=:code;");
+      query.setParameter("code", code);
+
+      Object rid = query.getSingleResult();
+
+      if (rid == null)
+      {
+        throw new DataNotFoundException("Could not find Geo-Object with code " + code + " on table " + typeDbClassName);
+      }
+
+      this.goRidCache.put(typeCode + "$#!" + code, rid);
+
+      return rid;
+    });
+  }
+
+  public void newEdge(Object childRid, Object parentRid, GraphType type, Date startDate, Date endDate)
+  {
+    if (!type.getOrigin().equals(GeoprismProperties.getOrigin()))
+    {
+      throw new OriginException();
+    }
+
+    String clazz = type.getMdEdgeDAO().getDBClassName();
+
+    String statement = "CREATE EDGE " + clazz + " FROM :childRid TO :parentRid";
+    statement += " SET startDate=:startDate, endDate=:endDate, oid=:oid";
+
+    GraphDBService service = GraphDBService.getInstance();
+    GraphRequest request = service.getGraphDBRequest();
+
+    Map<String, Object> parameters = new HashMap<String, Object>();
+    parameters.put("oid", IDGenerator.nextID());
+    parameters.put("childRid", childRid);
+    parameters.put("parentRid", parentRid);
+    parameters.put("startDate", startDate);
+    parameters.put("endDate", endDate);
+
+    service.command(request, statement, parameters);
+  }
+
+  public void clearCache()
+  {
+    this.goCache.clear();
+    this.goRidCache.clear();
   }
 
 }

@@ -99,45 +99,45 @@ public class PublishEventService
       String oJson = ( (GeoObjectApplyEvent) event ).getObject();
       String type = ( (GeoObjectApplyEvent) event ).getType();
       Boolean isNew = ( (GeoObjectApplyEvent) event ).getIsNew();
-      String uid = ( (GeoObjectApplyEvent) event ).getUid();
+      String code = ( (GeoObjectApplyEvent) event ).getCode();
 
       GeoObjectOverTime dtoOvertTime = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), oJson);
       ServerGeoObjectIF geoObject = this.service.fromDTO(dtoOvertTime, isNew);
 
       GeoObject dto = this.service.toGeoObject(geoObject, publish.getForDate(), false, cache);
 
-      return new RemoteGeoObjectCommand(commit.getUid(), uid, isNew, dto.toJSON().toString(), type, publish.getStartDate(), publish.getEndDate());
+      return new RemoteGeoObjectCommand(commit.getUid(), code, isNew, dto.toJSON().toString(), type, publish.getStartDate(), publish.getEndDate());
     }
     else if (event instanceof GeoObjectCreateParentEvent)
     {
-      String uid = ( (GeoObjectCreateParentEvent) event ).getUid();
+      String code = ( (GeoObjectCreateParentEvent) event ).getCode();
       String type = ( (GeoObjectCreateParentEvent) event ).getType();
       String edgeUid = ( (GeoObjectCreateParentEvent) event ).getEdgeUid();
       String edgeType = ( (GeoObjectCreateParentEvent) event ).getEdgeType();
       String parentType = ( (GeoObjectCreateParentEvent) event ).getParentType();
       String parentCode = ( (GeoObjectCreateParentEvent) event ).getParentCode();
 
-      return new RemoteGeoObjectSetParentCommand(commit.getUid(), uid, type, edgeUid, edgeType, publish.getStartDate(), publish.getEndDate(), parentCode, parentType);
+      return new RemoteGeoObjectSetParentCommand(commit.getUid(), code, type, edgeUid, edgeType, publish.getStartDate(), publish.getEndDate(), parentCode, parentType);
     }
     else if (event instanceof GeoObjectUpdateParentEvent)
     {
-      String uid = ( (GeoObjectUpdateParentEvent) event ).getUid();
+      String code = ( (GeoObjectUpdateParentEvent) event ).getCode();
       String type = ( (GeoObjectUpdateParentEvent) event ).getType();
       String edgeUid = ( (GeoObjectUpdateParentEvent) event ).getEdgeUid();
       String edgeType = ( (GeoObjectUpdateParentEvent) event ).getEdgeType();
       String parentType = ( (GeoObjectUpdateParentEvent) event ).getParentType();
       String parentCode = ( (GeoObjectUpdateParentEvent) event ).getParentCode();
 
-      return new RemoteGeoObjectSetParentCommand(commit.getUid(), uid, type, edgeUid, edgeType, publish.getStartDate(), publish.getEndDate(), parentCode, parentType);
+      return new RemoteGeoObjectSetParentCommand(commit.getUid(), code, type, edgeUid, edgeType, publish.getStartDate(), publish.getEndDate(), parentCode, parentType);
     }
     else if (event instanceof GeoObjectRemoveParentEvent)
     {
-      String uid = ( (GeoObjectRemoveParentEvent) event ).getUid();
+      String code = ( (GeoObjectRemoveParentEvent) event ).getCode();
       String type = ( (GeoObjectRemoveParentEvent) event ).getType();
       String edgeUid = ( (GeoObjectRemoveParentEvent) event ).getEdgeUid();
       String edgeType = ( (GeoObjectRemoveParentEvent) event ).getEdgeType();
 
-      return new RemoteGeoObjectSetParentCommand(commit.getUid(), uid, type, edgeUid, edgeType, publish.getStartDate(), publish.getEndDate(), null, null);
+      return new RemoteGeoObjectSetParentCommand(commit.getUid(), code, type, edgeUid, edgeType, publish.getStartDate(), publish.getEndDate(), null, null);
     }
     else if (event instanceof BusinessObjectApplyEvent)
     {

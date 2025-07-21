@@ -8,7 +8,9 @@ public class RemoteGeoObjectSetParentCommand implements RemoteCommand
 {
 
   @TargetAggregateIdentifier
-  private String uid;
+  private String key;
+
+  private String code;
 
   private String commitId;
 
@@ -30,11 +32,12 @@ public class RemoteGeoObjectSetParentCommand implements RemoteCommand
   {
   }
 
-  public RemoteGeoObjectSetParentCommand(String commitId, String uid, String type, String edgeUid, String edgeType, Date startDate, Date endDate, String parentCode, String parentType)
+  public RemoteGeoObjectSetParentCommand(String commitId, String code, String type, String edgeUid, String edgeType, Date startDate, Date endDate, String parentCode, String parentType)
   {
     super();
+    this.key = code + "#" + type;
     this.commitId = commitId;
-    this.uid = uid;
+    this.code = code;
     this.type = type;
     this.edgeUid = edgeUid;
     this.edgeType = edgeType;
@@ -53,15 +56,25 @@ public class RemoteGeoObjectSetParentCommand implements RemoteCommand
   {
     this.commitId = commitId;
   }
-
-  public String getUid()
+  
+  public String getCode()
   {
-    return uid;
+    return code;
   }
-
-  public void setUid(String uid)
+  
+  public void setCode(String code)
   {
-    this.uid = uid;
+    this.code = code;
+  }
+  
+  public String getKey()
+  {
+    return key;
+  }
+  
+  public void setKey(String key)
+  {
+    this.key = key;
   }
 
   public String getType()

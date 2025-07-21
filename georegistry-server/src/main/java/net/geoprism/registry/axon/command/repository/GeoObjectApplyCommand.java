@@ -7,7 +7,11 @@ public abstract class GeoObjectApplyCommand
 {
 
   @TargetAggregateIdentifier
-  private String  uid;
+  private String  key;
+
+  private String  code;
+
+  private String  type;
 
   private Boolean isNew;
 
@@ -22,20 +26,24 @@ public abstract class GeoObjectApplyCommand
   {
   }
 
-  public GeoObjectApplyCommand(String uid, Boolean isNew, Boolean isImport, String object, Boolean refreshWorking)
+  public GeoObjectApplyCommand(String code, String type, Boolean isNew, Boolean isImport, String object, Boolean refreshWorking)
   {
     super();
-    this.uid = uid;
+    this.key = code + "#" + type;
+    this.code = code;
+    this.type = type;
     this.isNew = isNew;
     this.isImport = isImport;
     this.object = object;
     this.refreshWorking = refreshWorking;
   }
 
-  public GeoObjectApplyCommand(String uid, Boolean isNew, Boolean isImport, GeoObjectOverTime object, Boolean refreshWorking)
+  public GeoObjectApplyCommand(String code, String type, Boolean isNew, Boolean isImport, GeoObjectOverTime object, Boolean refreshWorking)
   {
     super();
-    this.uid = uid;
+    this.key = code + "#" + type;
+    this.code = code;
+    this.type = type;
     this.isNew = isNew;
     this.isImport = isImport;
 
@@ -45,14 +53,34 @@ public abstract class GeoObjectApplyCommand
     }
   }
 
-  public String getUid()
+  public String getKey()
   {
-    return uid;
+    return key;
   }
 
-  public void setUid(String uid)
+  public void setKey(String key)
   {
-    this.uid = uid;
+    this.key = key;
+  }
+
+  public String getCode()
+  {
+    return code;
+  }
+
+  public void setCode(String code)
+  {
+    this.code = code;
+  }
+
+  public String getType()
+  {
+    return type;
+  }
+
+  public void setType(String type)
+  {
+    this.type = type;
   }
 
   public Boolean getIsNew()

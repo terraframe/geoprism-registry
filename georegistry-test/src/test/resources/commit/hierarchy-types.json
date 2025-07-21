@@ -1,15 +1,15 @@
 [
   {
-    "code": "ADM_H_2",
+    "code": "ADM_H",
     "orgCode": "MOHA",
+    "origin": "REMOTE",
     "typeCode": "HierarchyType",
-    "origin": "REMOTE",    
     "displayLabel": {
-      "localizedValue": "Administrative structure hierarchy 2",
+      "localizedValue": "Administrative structure hierarchy",
       "localeValues": [
         {
           "locale": "defaultLocale",
-          "value": "Administrative structure hierarchy 2"
+          "value": "Administrative structure hierarchy"
         }
       ]
     },
@@ -24,16 +24,16 @@
     },
     "nodes": [
       {
-        "code": "REG_2",
+        "code": "REG",
         "nodes": [
           {
-            "code": "PRO_2",
+            "code": "PRO",
             "nodes": [
               {
-                "code": "CTY_2",
+                "code": "CTY",
                 "nodes": [
                   {
-                    "code": "SHR_2",
+                    "code": "SHR",
                     "nodes": []
                   }
                 ]

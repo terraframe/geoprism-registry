@@ -13,7 +13,7 @@ public class RemoteGeoObjectSetParentEvent implements RemoteEvent
 {
   private String commitId;
 
-  private String uid;
+  private String code;
 
   private String type;
 
@@ -37,11 +37,11 @@ public class RemoteGeoObjectSetParentEvent implements RemoteEvent
   {
   }
 
-  public RemoteGeoObjectSetParentEvent(String commitId, String uid, String type, String edgeUid, String edgeType, Date startDate, Date endDate, String parentCode, String parentType)
+  public RemoteGeoObjectSetParentEvent(String commitId, String code, String type, String edgeUid, String edgeType, Date startDate, Date endDate, String parentCode, String parentType)
   {
     super();
     this.commitId = commitId;
-    this.uid = uid;
+    this.code = code;
     this.type = type;
     this.edgeUid = edgeUid;
     this.edgeType = edgeType;
@@ -60,15 +60,15 @@ public class RemoteGeoObjectSetParentEvent implements RemoteEvent
   {
     this.commitId = commitId;
   }
-
-  public String getUid()
+  
+  public String getCode()
   {
-    return uid;
+    return code;
   }
-
-  public void setUid(String uid)
+  
+  public void setCode(String code)
   {
-    this.uid = uid;
+    this.code = code;
   }
 
   public String getType()
@@ -144,6 +144,6 @@ public class RemoteGeoObjectSetParentEvent implements RemoteEvent
   @Override
   public Object toCommand()
   {
-    return new RemoteGeoObjectSetParentCommand(commitId, uid, type, edgeUid, edgeType, startDate, endDate, parentCode, parentType);
+    return new RemoteGeoObjectSetParentCommand(commitId, code, type, edgeUid, edgeType, startDate, endDate, parentCode, parentType);
   }
 }

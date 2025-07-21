@@ -87,7 +87,7 @@ public class BusinessObjectRepositoryProjection
 
   @EventHandler
   @Transaction
-  public void addParent(BusinessObjectCreateEdgeEvent event) throws Exception
+  public void createEdge(BusinessObjectCreateEdgeEvent event) throws Exception
   {
     BusinessEdgeType edgeType = this.edgeService.getByCode(event.getEdgeType());
 

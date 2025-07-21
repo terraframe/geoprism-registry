@@ -16,9 +16,9 @@ public class GeoObjectEventBuilder extends AbstractGeoObjectEventBuilder<GeoObje
   }
 
   @Override
-  public String getUid()
+  public String getCode()
   {
-    return this.getOrThrow().getUid();
+    return this.getOrThrow().getCode();
   }
 
   @Override
