@@ -15,6 +15,7 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,6 +40,7 @@ import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.etl.DataImportJob;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
@@ -92,6 +94,9 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
 
   @Autowired
   private ExcelService                      excelService;
+
+  @Autowired
+  private RegistryEventStore                store;
 
   @Override
   public void beforeClassSetup() throws Exception
@@ -155,6 +160,13 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
     {
       this.bTypeService.delete(type);
     }
+  }
+
+  @After
+  @Request
+  public void tearDown()
+  {
+    this.store.truncate();
   }
 
   @Test

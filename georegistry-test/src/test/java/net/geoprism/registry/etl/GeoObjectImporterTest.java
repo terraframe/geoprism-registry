@@ -46,6 +46,7 @@ import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.USADatasetTest;
+import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ImportError.ErrorResolution;
@@ -83,8 +84,10 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
   private ETLService                 etlService;
 
   @Autowired
-  private ExcelService                 service;
+  private ExcelService               service;
 
+  @Autowired
+  private RegistryEventStore         store;
 
   @Override
   public void beforeClassSetup() throws Exception
@@ -117,10 +120,11 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     FileUtils.deleteDirectory(new File(VaultProperties.getPath("vault.default"), "files"));
 
     clearData();
+    
   }
 
   @Request
-  private static void clearData()
+  private void clearData()
   {
     SchedulerTestUtils.clearImportData();
 
@@ -130,6 +134,8 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
       one.setCode("000" + i);
       one.delete();
     }
+
+    this.store.truncate();
   }
 
   private ImportHistory importExcelFile(String sessionId, String config) throws InterruptedException
@@ -338,7 +344,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     Double cd1_lon = Double.valueOf(1.222);
 
     GeometryFactory cd1_factory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 4326);
-    MultiPoint cd1_expected = new MultiPoint(new Point[] {  cd1_factory.createPoint(new Coordinate(cd1_lon, cd1_lat)) }, cd1_factory);
+    MultiPoint cd1_expected = new MultiPoint(new Point[] { cd1_factory.createPoint(new Coordinate(cd1_lon, cd1_lat)) }, cd1_factory);
 
     Geometry cd1_geometry = coloradoDistOne.getGeometry(TestDataSet.DEFAULT_OVER_TIME_DATE);
     Assert.assertEquals(cd1_expected, cd1_geometry);
@@ -353,7 +359,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
    * errors.
    * 
    * @throws InterruptedException
-   * @throws JSONException 
+   * @throws JSONException
    */
   @Test
   @Request
@@ -443,10 +449,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     ServerGeoObjectIF coloradoDistOne = this.objectService.getGeoObjectByCode(USATestData.CO_D_ONE.getCode(), USATestData.DISTRICT.getCode());
 
     GeometryFactory cd1_factory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 4326);
-    MultiPoint cd1_expected = new MultiPoint(new Point[] {
-        cd1_factory.createPoint(new Coordinate(Double.valueOf(110), Double.valueOf(80))),
-        cd1_factory.createPoint(new Coordinate(Double.valueOf(120), Double.valueOf(70)))
-    }, cd1_factory);
+    MultiPoint cd1_expected = new MultiPoint(new Point[] { cd1_factory.createPoint(new Coordinate(Double.valueOf(110), Double.valueOf(80))), cd1_factory.createPoint(new Coordinate(Double.valueOf(120), Double.valueOf(70))) }, cd1_factory);
 
     Geometry cd1_geometry = coloradoDistOne.getGeometry();
     Assert.assertEquals(cd1_expected, cd1_geometry);

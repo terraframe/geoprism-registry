@@ -10,7 +10,6 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
 import net.geoprism.registry.axon.command.repository.GeoObjectCompositeCommand;
-import net.geoprism.registry.axon.command.repository.GeoObjectCompositeCreateCommand;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -213,10 +212,10 @@ public abstract class AbstractGeoObjectEventBuilder<K>
       list.getLast().setRefreshWorking(true);
     }
 
-    if (this.isNew)
-    {
-      return (T) new GeoObjectCompositeCreateCommand(getCode(), getType(), list);
-    }
+//    if (this.isNew)
+//    {
+//      return (T) new GeoObjectCompositeCreateCommand(getCode(), getType(), list);
+//    }
 
     return (T) new GeoObjectCompositeCommand(getCode(), getType(), list);
   }

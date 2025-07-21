@@ -29,6 +29,15 @@ public class RegistryEventStore extends EmbeddedEventStore implements EventStore
   {
     super(builder);
   }
+  
+  public void truncate()
+  {
+    StringBuilder statement = new StringBuilder();
+    statement.append("TRUNCATE " + DOMAIN_EVENT_ENTRY_TABLE);
+
+    Database.executeStatement(statement.toString());
+  }
+
 
   public void delete(Commit commit)
   {
@@ -129,5 +138,6 @@ public class RegistryEventStore extends EmbeddedEventStore implements EventStore
         }) //
         .map(m -> (DomainEventMessage<?>) m); //
   }
+
 
 }

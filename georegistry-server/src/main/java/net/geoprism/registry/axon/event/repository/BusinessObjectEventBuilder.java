@@ -156,10 +156,10 @@ public class BusinessObjectEventBuilder
 
     list.addAll(events);
 
-    if (this.isNew)
-    {
-      return new BusinessObjectCompositeCreateCommand(object.getCode(), object.getType().getCode(), list);
-    }
+//    if (this.isNew)
+//    {
+//      return new BusinessObjectCompositeCreateCommand(object.getCode(), object.getType().getCode(), list);
+//    }
 
     return new BusinessObjectCompositeCommand(object.getCode(), object.getType().getCode(), list);
   }
