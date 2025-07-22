@@ -2,6 +2,7 @@ package net.geoprism.registry.axon.config;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -29,7 +30,19 @@ public class RegistryEventStore extends EmbeddedEventStore implements EventStore
   {
     super(builder);
   }
-  
+
+  public void delete(Class<?>... payloadTypes)
+  {
+    Arrays.asList(payloadTypes).forEach(cl -> {
+      Database.deleteWhere(RegistryEventStore.DOMAIN_EVENT_ENTRY_TABLE, "payloadtype = '" + cl.getName() + "'");
+    });
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("TRUNCATE " + DOMAIN_EVENT_ENTRY_TABLE);
+
+    Database.executeStatement(statement.toString());
+  }
+
   public void truncate()
   {
     StringBuilder statement = new StringBuilder();
@@ -37,7 +50,6 @@ public class RegistryEventStore extends EmbeddedEventStore implements EventStore
 
     Database.executeStatement(statement.toString());
   }
-
 
   public void delete(Commit commit)
   {
@@ -82,12 +94,12 @@ public class RegistryEventStore extends EmbeddedEventStore implements EventStore
     Optional<Long> highestStaged = stagedDomainEventMessages(commit) //
         .map(DomainEventMessage::getSequenceNumber)//
         .max(Long::compareTo);//
-    
+
     if (highestStaged.isPresent())
     {
       return highestStaged;
     }
-    
+
     return storageEngine().lastSequenceNumberFor(commit);
   }
 
@@ -96,15 +108,15 @@ public class RegistryEventStore extends EmbeddedEventStore implements EventStore
     Optional<Long> lowestStaged = stagedDomainEventMessages(commit) //
         .map(DomainEventMessage::getSequenceNumber)//
         .min(Long::compareTo);//
-    
+
     if (lowestStaged.isPresent())
     {
       return lowestStaged;
     }
-    
+
     return storageEngine().firstSequenceNumberFor(commit);
   }
-  
+
   @Override
   protected RegistryEventStorageEngine storageEngine()
   {
@@ -138,6 +150,5 @@ public class RegistryEventStore extends EmbeddedEventStore implements EventStore
         }) //
         .map(m -> (DomainEventMessage<?>) m); //
   }
-
 
 }
