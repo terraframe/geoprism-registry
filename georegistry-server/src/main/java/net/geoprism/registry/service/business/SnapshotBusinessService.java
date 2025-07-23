@@ -319,18 +319,14 @@ public class SnapshotBusinessService
 
       List<String> existingAttributes = mdVertexDAO.getAllDefinedMdAttributes().stream().map(attribute -> attribute.definesAttribute()).collect(Collectors.toList());
 
-      GeoObjectType dto = type.toDTO();
-      Map<String, net.geoprism.registry.graph.AttributeType> attributes = type.getAttributeMap();
-
-      attributes.forEach((attributeName, attribute) -> {
-
-        if (! ( attribute instanceof net.geoprism.registry.graph.AttributeGeometryType ) && ! ( attribute instanceof net.geoprism.registry.graph.AttributeTermType ) && !existingAttributes.contains(attributeName))
-        {
-          AttributeType attributeType = dto.getAttribute(attributeName).get();
-
-          this.oSnapshotService.createMdAttributeFromAttributeType(mdVertex, attributeType);
-        }
-      });
+      type.getAttributeMap().values().stream() //
+          .map(a -> a.toDTO()) //
+          .filter(a -> ! ( a instanceof AttributeGeometryType )) //
+          .filter(a -> ! ( a instanceof AttributeTermType )) //
+          .filter(a -> !existingAttributes.contains(a.getName())) //
+          .forEach(attributeType -> {
+            this.oSnapshotService.createMdAttributeFromAttributeType(mdVertex, attributeType);
+          });
 
       graphMdVertex = mdVertex;
 
@@ -393,10 +389,9 @@ public class SnapshotBusinessService
       List<String> existingAttributes = mdVertexDAO.getAllDefinedMdAttributes().stream().map(attribute -> attribute.definesAttribute()).collect(Collectors.toList());
 
       type.getAttributeMap().values().stream() //
-          .filter(a -> !a.getIsDefault()) //
           .filter(a -> ! ( a instanceof AttributeGeometryType )) //
           .filter(a -> ! ( a instanceof AttributeTermType )) //
-          .filter(a -> !!existingAttributes.contains(a.getName())) //
+          .filter(a -> !existingAttributes.contains(a.getName())) //
           .forEach(attributeType -> {
             this.bTypeSnapshotService.createMdAttributeFromAttributeType(mdVertex, attributeType);
           });
