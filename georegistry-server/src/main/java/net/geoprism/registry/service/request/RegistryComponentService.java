@@ -283,8 +283,8 @@ public class RegistryComponentService
     return registryService.configuration(sessionId, contextPath);
   }
 
-  public List<CGRApplication> getApplications(String sessionId)
+  public List<CGRApplication> getApplications(String sessionId, String context)
   {
-    return registryService.getApplications(sessionId);
+    return registryService.getApplications(sessionId, context);
   }
 }

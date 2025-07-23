@@ -24,11 +24,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
-import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.view.BeanNameViewResolver;
-import org.springframework.web.servlet.view.JstlView;
 
 import jakarta.servlet.MultipartConfigElement;
 import net.geoprism.EncodingFilter;
@@ -86,17 +84,17 @@ public class SpringAppConfig implements WebMvcConfigurer, AsyncConfigurer
   // ");
   // }
 
-  @Bean
-  public BeanNameViewResolver beanNameViewResolver()
-  {
-    return new BeanNameViewResolver();
-  }
-
-  @Bean
-  public View index()
-  {
-    return new JstlView("../index.html");
-  }
+//  @Bean
+//  public BeanNameViewResolver beanNameViewResolver()
+//  {
+//    return new BeanNameViewResolver();
+//  }
+//
+//  @Bean
+//  public View index()
+//  {
+//    return new JstlView("/static/index.html");
+//  }
 
   // @Bean
   // @Primary

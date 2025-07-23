@@ -42,6 +42,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.controller.BusinessTypeController.OidBody;
 import net.geoprism.registry.dhis2.DHIS2PluginZipManager;
 import net.geoprism.registry.service.request.ExternalSystemService;
@@ -51,7 +52,7 @@ import net.geoprism.registry.spring.JsonObjectDeserializer;
 @Validated
 public class ExternalSystemController extends RunwaySpringController
 {
-  public static final String API_PATH = "external-system";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "external-system";
 
   public static final class SystemBody
   {

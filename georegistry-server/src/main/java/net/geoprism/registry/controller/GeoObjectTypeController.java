@@ -46,6 +46,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.controller.DirectedAcyclicGraphTypeController.CodeBody;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.service.request.HierarchyTypeServiceIF;
@@ -194,7 +195,7 @@ public class GeoObjectTypeController extends RunwaySpringController
 
   }
 
-  public static final String API_PATH = "geoobjecttype";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "geoobjecttype";
 
   @Autowired
   private RegistryComponentService    service;
@@ -202,7 +203,7 @@ public class GeoObjectTypeController extends RunwaySpringController
   @Autowired
   private HierarchyTypeServiceIF      hierService;
 
-  @PostMapping(RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE)
+  @PostMapping(RegistryConstants.CONTROLLER_ROOT + RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE)
   public ResponseEntity<String> createAttributeType(@Valid @RequestBody AttributeBody body)
   {
     AttributeType attrType = this.service.createAttributeType(this.getSessionId(), body.geoObjTypeCode, body.attributeType.toString());
@@ -211,7 +212,7 @@ public class GeoObjectTypeController extends RunwaySpringController
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @PostMapping(RegistryUrls.GEO_OBJECT_TYPE_UPDATE_ATTRIBUTE)
+  @PostMapping(RegistryConstants.CONTROLLER_ROOT + RegistryUrls.GEO_OBJECT_TYPE_UPDATE_ATTRIBUTE)
   public ResponseEntity<String> updateAttributeType(@Valid
   @RequestBody AttributeBody body)
   {
@@ -221,7 +222,7 @@ public class GeoObjectTypeController extends RunwaySpringController
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @PostMapping(RegistryUrls.GEO_OBJECT_TYPE_DELETE_ATTRIBUTE)
+  @PostMapping(RegistryConstants.CONTROLLER_ROOT + RegistryUrls.GEO_OBJECT_TYPE_DELETE_ATTRIBUTE)
   public ResponseEntity<Void> deleteAttributeType(@Valid
   @RequestBody AttributeNameBody body)
   {
@@ -230,7 +231,7 @@ public class GeoObjectTypeController extends RunwaySpringController
     return new ResponseEntity<Void>(HttpStatus.OK);
   }
 
-  @PostMapping(RegistryUrls.GEO_OBJECT_TYPE_ADD_TERM)
+  @PostMapping(RegistryConstants.CONTROLLER_ROOT + RegistryUrls.GEO_OBJECT_TYPE_ADD_TERM)
   public ResponseEntity<String> createTerm(@Valid @RequestBody TermBody body)
   {
     Term term = this.service.createTerm(this.getSessionId(), body.parentTermCode, body.termJSON.toString());
@@ -239,7 +240,7 @@ public class GeoObjectTypeController extends RunwaySpringController
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @PostMapping(RegistryUrls.GEO_OBJECT_TYPE_UPDATE_TERM)
+  @PostMapping(RegistryConstants.CONTROLLER_ROOT + RegistryUrls.GEO_OBJECT_TYPE_UPDATE_TERM)
   public ResponseEntity<String> updateTerm(@Valid
   @RequestBody TermBody body)
   {
@@ -249,7 +250,7 @@ public class GeoObjectTypeController extends RunwaySpringController
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @PostMapping(RegistryUrls.GEO_OBJECT_TYPE_DELETE_TERM)
+  @PostMapping(RegistryConstants.CONTROLLER_ROOT + RegistryUrls.GEO_OBJECT_TYPE_DELETE_TERM)
   public ResponseEntity<Void> deleteTerm(@Valid @RequestBody DeleteTermBody body)
   {
     this.service.deleteTerm(this.getSessionId(), body.parentTermCode, body.termCode);
@@ -272,7 +273,7 @@ public class GeoObjectTypeController extends RunwaySpringController
    *
    * @returns @throws
    **/
-  @GetMapping(RegistryUrls.GEO_OBJECT_TYPE_GET_ALL)
+  @GetMapping(RegistryConstants.CONTROLLER_ROOT + RegistryUrls.GEO_OBJECT_TYPE_GET_ALL)
   public ResponseEntity<String> getGeoObjectTypes(
       @RequestParam(required = false) String types,
       @RequestParam(required = false) String context)
@@ -356,7 +357,7 @@ public class GeoObjectTypeController extends RunwaySpringController
    * @param gtJSON
    *          JSON of the {@link GeoObjectType} to be created.
    */
-  @PostMapping(RegistryUrls.GEO_OBJECT_TYPE_CREATE)
+  @PostMapping(RegistryConstants.CONTROLLER_ROOT + RegistryUrls.GEO_OBJECT_TYPE_CREATE)
   public ResponseEntity<String> createGeoObjectType(@Valid
   @RequestBody GeoObjectTypeBody body)
   {
@@ -373,7 +374,7 @@ public class GeoObjectTypeController extends RunwaySpringController
    * @param gtJSON
    *          JSON of the {@link GeoObjectType} to be updated.
    */
-  @PostMapping(RegistryUrls.GEO_OBJECT_TYPE_UPDATE)
+  @PostMapping(RegistryConstants.CONTROLLER_ROOT + RegistryUrls.GEO_OBJECT_TYPE_UPDATE)
   public ResponseEntity<String> updateGeoObjectType(@Valid @RequestBody GeoObjectTypeBody body)
   {
     GeoObjectType geoObjectType = this.service.updateGeoObjectType(this.getSessionId(), body.gtJSON.toString());
@@ -389,7 +390,7 @@ public class GeoObjectTypeController extends RunwaySpringController
    * @param code
    *          code of the {@link GeoObjectType} to delete.
    */
-  @PostMapping(RegistryUrls.GEO_OBJECT_TYPE_DELETE)
+  @PostMapping(RegistryConstants.CONTROLLER_ROOT + RegistryUrls.GEO_OBJECT_TYPE_DELETE)
   public ResponseEntity<Void> deleteGeoObjectType(@Valid @RequestBody CodeBody body)
   {
     this.service.deleteGeoObjectType(this.getSessionId(), body.getCode());

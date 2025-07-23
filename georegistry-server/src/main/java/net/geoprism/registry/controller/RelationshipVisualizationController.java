@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.JsonElement;
 
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.RelationshipVisualizationService;
 import net.geoprism.registry.visualization.VertexView;
 
@@ -38,7 +39,7 @@ import net.geoprism.registry.visualization.VertexView;
 @Validated
 public class RelationshipVisualizationController extends RunwaySpringController
 {
-  public static final String API_PATH = "relationship-visualization";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "relationship-visualization";
 
   @Autowired
   private RelationshipVisualizationService service;

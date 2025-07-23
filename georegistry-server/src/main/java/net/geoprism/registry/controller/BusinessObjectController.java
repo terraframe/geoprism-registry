@@ -30,13 +30,14 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import jakarta.validation.constraints.NotBlank;
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.BusinessObjectService;
 
 @RestController
 @Validated
 public class BusinessObjectController extends RunwaySpringController
 {
-  public static final String API_PATH = "business-object";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "business-object";
 
   @Autowired
   private BusinessObjectService service;

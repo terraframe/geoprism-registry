@@ -47,6 +47,7 @@ import com.google.gson.JsonObject;
 
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeVersion;
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.controller.BusinessTypeController.OidBody;
 import net.geoprism.registry.etl.ListTypeJob;
 import net.geoprism.registry.service.request.ListTypeService;
@@ -103,7 +104,7 @@ public class ListTypeController extends RunwaySpringController
     }
   }
   
-  public static final String API_PATH = "list-type";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "list-type";
 
   @Autowired
   private ListTypeService service;

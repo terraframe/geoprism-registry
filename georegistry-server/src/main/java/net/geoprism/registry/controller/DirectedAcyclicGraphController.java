@@ -37,6 +37,7 @@ import com.runwaysdk.mvc.RequestParamter;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.DirectedAcyclicGraphService;
 import net.geoprism.registry.spring.NullableDateDeserializer;
 
@@ -140,7 +141,7 @@ public class DirectedAcyclicGraphController extends RunwaySpringController
     }
   }
 
-  public static final String API_PATH = "dag";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "dag";
 
   @Autowired
   private DirectedAcyclicGraphService service;

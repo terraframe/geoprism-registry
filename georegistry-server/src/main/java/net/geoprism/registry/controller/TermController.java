@@ -38,6 +38,7 @@ import com.runwaysdk.mvc.Endpoint;
 import com.runwaysdk.mvc.ErrorSerialization;
 
 import net.geoprism.ontology.ClassifierDTO;
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.GPRClassifierService;
 
 @RestController
@@ -92,7 +93,7 @@ public class TermController extends RunwaySpringController
   @Autowired
   protected GPRClassifierService classifierService;
 
-  public static final String     API_PATH = "term";
+  public static final String     API_PATH = RegistryConstants.CONTROLLER_ROOT + "term";
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseEntity<String> createClassifierSynonym(@Valid @RequestBody ClassifierSynonymBody body)

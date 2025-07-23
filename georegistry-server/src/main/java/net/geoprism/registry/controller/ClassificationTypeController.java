@@ -35,6 +35,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonObject;
 import com.runwaysdk.mvc.RequestParamter;
 
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.controller.BusinessTypeController.OidBody;
 import net.geoprism.registry.service.request.ClassificationTypeService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
@@ -60,7 +61,7 @@ public class ClassificationTypeController extends RunwaySpringController
     }
   } 
   
-  public static final String API_PATH = "classification-type";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "classification-type";
 
   @Autowired
   private ClassificationTypeService service;

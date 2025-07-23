@@ -50,6 +50,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.GeoObjectServiceIF;
 import net.geoprism.registry.service.request.HierarchyTypeServiceIF;
 import net.geoprism.registry.service.request.RegistryComponentService;
@@ -60,7 +61,7 @@ import net.geoprism.registry.spring.NullableDateDeserializer;
 @Validated
 public class GeoObjectController extends RunwaySpringController
 {
-  public static final String API_PATH = "geoobject";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "geoobject";
 
   public static class RelationshipBody
   {
