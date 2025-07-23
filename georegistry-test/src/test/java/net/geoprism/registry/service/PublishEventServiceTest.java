@@ -6,6 +6,7 @@ package net.geoprism.registry.service;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -28,10 +29,12 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 
 import net.geoprism.graph.GeoObjectTypeSnapshot;
+import net.geoprism.graph.GraphTypeSnapshot;
 import net.geoprism.graph.HierarchyTypeSnapshot;
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.Commit;
+import net.geoprism.registry.DirectedAcyclicGraphType;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.Publish;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
@@ -40,6 +43,7 @@ import net.geoprism.registry.axon.aggregate.RunwayTransactionWrapper;
 import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectEventBuilder;
+import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.EdgeDirection;
@@ -49,7 +53,8 @@ import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.CommitBusinessServiceIF;
-import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.GraphRepoServiceIF;
 import net.geoprism.registry.service.business.GraphTypeSnapshotBusinessServiceIF;
@@ -83,21 +88,11 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
   @Autowired
   private HierarchyTypeSnapshotBusinessServiceIF    hSnapshotService;
 
-  private static BusinessType                       btype;
-
-  private static BusinessEdgeType                   bEdgeType;
-
-  private static BusinessEdgeType                   bGeoEdgeType;
-
-  private BusinessObject                            pObject;
-
-  private BusinessObject                            cObject;
+  @Autowired
+  private DirectedAcyclicGraphTypeBusinessServiceIF dagService;
 
   @Autowired
   private GraphTypeSnapshotBusinessServiceIF        graphSnapshotService;
-
-  @Autowired
-  private GeoObjectTypeBusinessServiceIF            oTypeService;
 
   @Autowired
   private GraphRepoServiceIF                        repoService;
@@ -118,7 +113,22 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
   private BusinessObjectBusinessServiceIF           bObjectService;
 
   @Autowired
+  private GeoObjectBusinessServiceIF                gObjectService;
+
+  @Autowired
   private CommandGateway                            gateway;
+
+  private static BusinessType                       btype;
+
+  private static BusinessEdgeType                   bEdgeType;
+
+  private static BusinessEdgeType                   bGeoEdgeType;
+
+  private static BusinessObject                     pObject;
+
+  private static BusinessObject                     cObject;
+
+  private static DirectedAcyclicGraphType           dagType;
 
   @Override
   public void beforeClassSetup() throws Exception
@@ -147,6 +157,8 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
 
     bGeoEdgeType = this.bEdgeService.createGeoEdge(USATestData.ORG_PPP.getCode(), "TEST_GEO_EDGE", new LocalizedValue("TEST_GEO_EDGE"), new LocalizedValue("TEST_GEO_EDGE"), btype.getCode(), EdgeDirection.PARENT);
 
+    dagType = this.dagService.create("TEST_DAG", new LocalizedValue("TEST_DAG"), new LocalizedValue("TEST_DAG"));
+
     this.repoService.refreshMetadataCache();
   }
 
@@ -169,6 +181,11 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
       this.bTypeService.delete(btype);
     }
 
+    if (dagType != null)
+    {
+      this.dagService.delete(dagType);
+    }
+
     super.afterClassSetup();
   }
 
@@ -185,6 +202,21 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
     pObject = createBusinessObject("P_CODE");
     cObject = createBusinessObject("C_CODE");
 
+    addBusinessEdge();
+    addDirectedAcyclicEdge();
+  }
+
+  protected void addDirectedAcyclicEdge()
+  {
+    ServerGeoObjectEventBuilder builder = new ServerGeoObjectEventBuilder(this.gObjectService);
+    builder.setObject(USATestData.COLORADO.getServerObject());
+    builder.addEdge(USATestData.CANADA.getServerObject(), dagType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, UUID.randomUUID().toString(), false);
+
+    this.gateway.sendAndWait(builder.build());
+  }
+
+  protected void addBusinessEdge()
+  {
     BusinessObjectEventBuilder builder = new BusinessObjectEventBuilder(bObjectService);
     builder.setObject(cObject);
     builder.addParent(pObject, bEdgeType, false);
@@ -253,6 +285,7 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
         dto.addHierarchyType(testData.getManagedHierarchyTypes().stream().map(t -> t.getCode()).toArray(s -> new String[s]));
         dto.addBusinessType(btype.getCode());
         dto.addBusinessEdgeType(bEdgeType.getCode(), bGeoEdgeType.getCode());
+        dto.addDagType(dagType.getCode());
 
         Publish publish = service.publish(dto);
 
@@ -304,13 +337,17 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
             Assert.assertNotNull(this.bEdgeSnapshotService.get(commit, code));
           });
 
+          dto.getDagTypes().forEach(code -> {
+            Assert.assertNotNull(this.graphSnapshotService.get(commit, GraphTypeSnapshot.DIRECTED_ACYCLIC_GRAPH_TYPE, code));
+          });
+
           gson.toJson(hierarchyTypes, System.out);
 
           List<RemoteEvent> events = this.cService.getRemoteEvents(commit, 0);
 
           mapper.writerFor(mapper.getTypeFactory().constructCollectionLikeType(List.class, RemoteEvent.class)).writeValue(new File("events.json"), events);
 
-          Assert.assertEquals(45, events.size());
+          Assert.assertEquals(46, events.size());
         }
         catch (IOException e)
         {

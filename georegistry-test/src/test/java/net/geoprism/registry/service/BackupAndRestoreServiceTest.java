@@ -181,8 +181,8 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
 
     ServerGeoObjectIF child = USATestData.CANADA.getServerObject();
 
-    child.addGraphParent(USATestData.USA.getServerObject(), dagType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, true);
-    child.addGraphParent(USATestData.MEXICO.getServerObject(), ugType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, true);
+    child.addGraphParent(USATestData.USA.getServerObject(), dagType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, UUID.randomUUID().toString(), true);
+    child.addGraphParent(USATestData.MEXICO.getServerObject(), ugType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, UUID.randomUUID().toString(), true);
 
     boParent = this.bObjectService.newInstance(bType);
     boParent.setCode("BoParent");

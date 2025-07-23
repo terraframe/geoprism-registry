@@ -12,6 +12,7 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import net.geoprism.registry.axon.command.repository.GeoObjectCompositeCommand;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.ExternalSystem;
+import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
@@ -173,6 +174,13 @@ public abstract class AbstractGeoObjectEventBuilder<K>
     this.events.add(new GeoObjectCreateParentEvent(this.getCode(), this.getType(), edgeUuid, hierarchy.getCode(), startDate, endDate, parent.getCode(), parent.getType().getCode(), validate));
   }
 
+  public void addEdge(ServerGeoObjectIF target, GraphType graphType, Date startDate, Date endDate, String edgeUuid, Boolean validate)
+  {
+    String typeCode = GraphType.getTypeCode(graphType);
+    
+    this.events.add(new GeoObjectCreateEdgeEvent(this.getCode(), this.getType(), typeCode, graphType.getCode(), target.getCode(), target.getType().getCode(), startDate, endDate, validate));
+  }
+  
   public void setParents(ServerParentTreeNodeOverTime parentsOverTime)
   {
     final Collection<ServerHierarchyType> hierarchyTypes = parentsOverTime.getHierarchies();

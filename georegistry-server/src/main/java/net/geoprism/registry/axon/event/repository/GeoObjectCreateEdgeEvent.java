@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import net.geoprism.graph.GraphTypeSnapshot;
 import net.geoprism.registry.view.PublishDTO;
 
 public class GeoObjectCreateEdgeEvent extends AbstractGeoObjectEvent implements GeoObjectEvent
@@ -16,6 +17,8 @@ public class GeoObjectCreateEdgeEvent extends AbstractGeoObjectEvent implements 
   private String  edgeUid;
 
   private String  edgeType;
+
+  private String  edgeTypeCode;
 
   private String  targetType;
 
@@ -31,15 +34,16 @@ public class GeoObjectCreateEdgeEvent extends AbstractGeoObjectEvent implements 
   {
   }
 
-  public GeoObjectCreateEdgeEvent(String sourceCode, String sourceType, String edgeType, String targetType, String targetCode, Date startDate, Date endDate, Boolean validate)
+  public GeoObjectCreateEdgeEvent(String sourceCode, String sourceType, String edgeType, String edgeTypeCode, String targetCode, String targetType, Date startDate, Date endDate, Boolean validate)
   {
     super();
     this.edgeUid = UUID.randomUUID().toString();
     this.sourceCode = sourceCode;
     this.sourceType = sourceType;
     this.edgeType = edgeType;
-    this.targetType = targetType;
+    this.edgeTypeCode = edgeTypeCode;
     this.targetCode = targetCode;
+    this.targetType = targetType;
     this.startDate = startDate;
     this.endDate = endDate;
     this.validate = validate;
@@ -83,6 +87,16 @@ public class GeoObjectCreateEdgeEvent extends AbstractGeoObjectEvent implements 
   public void setEdgeType(String edgeType)
   {
     this.edgeType = edgeType;
+  }
+
+  public String getEdgeTypeCode()
+  {
+    return edgeTypeCode;
+  }
+
+  public void setEdgeTypeCode(String edgeTypeCode)
+  {
+    this.edgeTypeCode = edgeTypeCode;
   }
 
   public String getTargetType()
@@ -146,8 +160,9 @@ public class GeoObjectCreateEdgeEvent extends AbstractGeoObjectEvent implements 
   public Boolean isValidFor(PublishDTO dto)
   {
     Date date = dto.getDate();
-    
-    if (dto.getDagTypes().contains(this.getEdgeType()) || dto.getUndirectedTypes().contains(this.getEdgeType()))
+
+    if ( ( this.getEdgeType().equals(GraphTypeSnapshot.DIRECTED_ACYCLIC_GRAPH_TYPE) && dto.getDagTypes().contains(this.getEdgeTypeCode()) ) //
+        || ( this.getEdgeType().equals(GraphTypeSnapshot.UNDIRECTED_GRAPH_TYPE) && dto.getUndirectedTypes().contains(this.getEdgeTypeCode()) ))
     {
       return ( date.after(this.getStartDate()) && date.before(this.getEndDate()) ) || date.equals(this.getStartDate()) || date.equals(this.getEndDate());
     }

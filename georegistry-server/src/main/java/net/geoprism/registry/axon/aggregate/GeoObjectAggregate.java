@@ -9,9 +9,11 @@ import org.axonframework.modelling.command.CreationPolicy;
 import org.axonframework.spring.stereotype.Aggregate;
 
 import net.geoprism.registry.axon.command.remote.RemoteGeoObjectCommand;
+import net.geoprism.registry.axon.command.remote.RemoteGeoObjectCreateEdgeCommand;
 import net.geoprism.registry.axon.command.remote.RemoteGeoObjectSetParentCommand;
 import net.geoprism.registry.axon.command.repository.GeoObjectCompositeCommand;
 import net.geoprism.registry.axon.command.repository.GeoObjectCompositeCreateCommand;
+import net.geoprism.registry.axon.event.remote.RemoteGeoObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectSetParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEvent;
@@ -103,6 +105,12 @@ public class GeoObjectAggregate
     RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new RemoteGeoObjectSetParentEvent(command.getCommitId(), command.getCode(), command.getType(), command.getEdgeUid(), command.getEdgeType(), command.getStartDate(), command.getEndDate(), command.getParentCode(), command.getParentType())));
   }
 
+  @CommandHandler
+  public void on(RemoteGeoObjectCreateEdgeCommand command)
+  {
+    RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new RemoteGeoObjectCreateEdgeEvent(command.getCommitId(), command.getSourceCode(), command.getSourceType(), command.getEdgeUid(), command.getEdgeType(), command.getEdgeTypeCode(), command.getStartDate(), command.getEndDate(), command.getTargetCode(), command.getTargetType())));
+  }
+
   @EventSourcingHandler
   public void on(GeoObjectApplyEvent event)
   {
@@ -135,7 +143,7 @@ public class GeoObjectAggregate
     this.code = event.getSourceCode();
     this.type = event.getSourceType();
   }
-  
+
   @EventSourcingHandler
   public void on(RemoteGeoObjectEvent event)
   {
@@ -151,5 +159,13 @@ public class GeoObjectAggregate
     this.key = event.getCode() + "#" + event.getType();
     this.code = event.getCode();
     this.type = event.getType();
+  }
+
+  @EventSourcingHandler
+  public void on(RemoteGeoObjectCreateEdgeEvent event)
+  {
+    this.key = event.getSourceCode() + "#" + event.getSourceType();
+    this.code = event.getSourceCode();
+    this.type = event.getSourceType();
   }
 }

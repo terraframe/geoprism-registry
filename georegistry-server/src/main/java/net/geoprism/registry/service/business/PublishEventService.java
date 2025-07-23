@@ -1,5 +1,6 @@
 package net.geoprism.registry.service.business;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,6 +23,7 @@ import net.geoprism.registry.axon.command.remote.RemoteBusinessObjectCommand;
 import net.geoprism.registry.axon.command.remote.RemoteBusinessObjectCreateEdgeCommand;
 import net.geoprism.registry.axon.command.remote.RemoteCommand;
 import net.geoprism.registry.axon.command.remote.RemoteGeoObjectCommand;
+import net.geoprism.registry.axon.command.remote.RemoteGeoObjectCreateEdgeCommand;
 import net.geoprism.registry.axon.command.remote.RemoteGeoObjectSetParentCommand;
 import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.axon.event.repository.BusinessObjectAddGeoObjectEvent;
@@ -29,6 +31,7 @@ import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.event.repository.EventType;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEvent;
+import net.geoprism.registry.axon.event.repository.GeoObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectCreateParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectRemoveParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectUpdateParentEvent;
@@ -140,6 +143,20 @@ public class PublishEventService
       String edgeType = ( (GeoObjectRemoveParentEvent) event ).getEdgeType();
 
       return new RemoteGeoObjectSetParentCommand(commit.getUid(), code, type, edgeUid, edgeType, publish.getStartDate(), publish.getEndDate(), null, null);
+    }
+    else if (event instanceof GeoObjectCreateEdgeEvent)
+    {
+      String sourceCode = ( (GeoObjectCreateEdgeEvent) event ).getSourceCode();
+      String sourceType = ( (GeoObjectCreateEdgeEvent) event ).getSourceType();
+      String edgeUid = ( (GeoObjectCreateEdgeEvent) event ).getEdgeUid();
+      String edgeType = ( (GeoObjectCreateEdgeEvent) event ).getEdgeType();
+      String edgeTypeCode = ( (GeoObjectCreateEdgeEvent) event ).getEdgeTypeCode();
+      String targetCode = ( (GeoObjectCreateEdgeEvent) event ).getTargetCode();
+      String targetType = ( (GeoObjectCreateEdgeEvent) event ).getTargetType();
+      Date startDate = ( (GeoObjectCreateEdgeEvent) event ).getStartDate();
+      Date endDate = ( (GeoObjectCreateEdgeEvent) event ).getEndDate();
+
+      return new RemoteGeoObjectCreateEdgeCommand(commit.getUid(), sourceCode, sourceType, edgeUid, edgeType, edgeTypeCode, startDate, endDate, targetCode, targetType);
     }
     else if (event instanceof BusinessObjectApplyEvent)
     {
