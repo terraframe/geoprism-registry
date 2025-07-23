@@ -406,8 +406,8 @@ public class RegistryService implements RegistryServiceIF
 
   @Override
   @Request(RequestType.SESSION)
-  public List<CGRApplication> getApplications(String sessionId)
+  public List<CGRApplication> getApplications(String sessionId, String context)
   {
-    return CGRApplication.getApplications();
+    return CGRApplication.getApplications(context);
   }
 }

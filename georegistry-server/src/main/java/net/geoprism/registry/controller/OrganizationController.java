@@ -42,6 +42,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.controller.DirectedAcyclicGraphTypeController.CodeBody;
 import net.geoprism.registry.model.OrganizationView;
 import net.geoprism.registry.service.request.GPROrganizationService;
@@ -90,7 +91,7 @@ public class OrganizationController extends RunwaySpringController
     }
   }
 
-  public static final String       API_PATH = "organization";
+  public static final String       API_PATH = RegistryConstants.CONTROLLER_ROOT + "organization";
 
   @Autowired
   private GPROrganizationService   service;

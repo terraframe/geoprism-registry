@@ -37,6 +37,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.service.request.ShapefileService;
 import net.geoprism.registry.spring.NullableDateDeserializer;
@@ -126,7 +127,7 @@ public class ShapefileController extends RunwaySpringController
 
   }
 
-  public static final String API_PATH = "shapefile";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "shapefile";
 
   @Autowired
   private ShapefileService   service;

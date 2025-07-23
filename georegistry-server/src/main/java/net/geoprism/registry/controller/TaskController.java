@@ -33,13 +33,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.JsonObject;
 
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.TaskService;
 
 @RestController
 @Validated
 public class TaskController extends RunwaySpringController
 {
-  public static final String API_PATH = "tasks";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "tasks";
   
   public static class IdBody 
   {

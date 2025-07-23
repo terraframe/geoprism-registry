@@ -78,5 +78,5 @@ public interface RegistryConstants
 
   public static final String ADMIN_USER_NAME                  = "admin";
   
-  public static final String CONTROLLER_ROOT                  = "";
+  public static final String CONTROLLER_ROOT                  = "api/";
 }

@@ -45,6 +45,7 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.resource.StreamResource;
 import com.runwaysdk.system.scheduler.JobHistory;
 
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.ETLService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
 import net.geoprism.registry.spring.NullableDateDeserializer;
@@ -53,7 +54,7 @@ import net.geoprism.registry.spring.NullableDateDeserializer;
 @Validated
 public class ETLController extends RunwaySpringController
 {
-  public static final String API_PATH = "etl";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "etl";
   
   public static class HistoryIdBody 
   {

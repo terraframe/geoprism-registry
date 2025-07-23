@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.servlet.http.HttpServletRequest;
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessServiceIF.GeometryExportType;
 import net.geoprism.registry.service.request.RDFExportService;
 import net.geoprism.registry.view.ImportHistoryView;
@@ -70,7 +71,7 @@ public class RDFExportController extends RunwaySpringController
 
   }
 
-  public static final String API_PATH = "rdf";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "rdf";
 
   @Autowired
   private RDFExportService   service;

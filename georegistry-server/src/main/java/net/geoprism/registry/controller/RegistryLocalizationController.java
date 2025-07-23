@@ -39,6 +39,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.model.localization.LocaleView;
 import net.geoprism.registry.service.request.GPRLocalizationService;
 import net.geoprism.registry.service.request.RegistryComponentService;
@@ -48,7 +49,7 @@ import net.geoprism.registry.spring.JsonObjectDeserializer;
 @Validated
 public class RegistryLocalizationController extends RunwaySpringController
 {
-  public static final String API_PATH = "localization";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "localization";
 
   public static class LocaleBody
   {

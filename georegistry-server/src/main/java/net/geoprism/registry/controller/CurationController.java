@@ -32,6 +32,7 @@ import com.google.gson.JsonObject;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.controller.ETLController.ConfigBody;
 import net.geoprism.registry.service.request.CurationService;
 
@@ -39,7 +40,7 @@ import net.geoprism.registry.service.request.CurationService;
 @Validated
 public class CurationController extends RunwaySpringController
 {
-  public static final String API_PATH = "curation";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "curation";
 
   public static class VersionIdBody
   {

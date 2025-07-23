@@ -41,6 +41,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.controller.DirectedAcyclicGraphTypeController.CodeBody;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.service.request.GPRHierarchyTypeService;
@@ -210,7 +211,7 @@ public class HierarchyTypeController extends RunwaySpringController
     }
   }
 
-  public static final String       API_PATH = "hierarchytype";
+  public static final String       API_PATH = RegistryConstants.CONTROLLER_ROOT + "hierarchytype";
 
   @Autowired
   private RegistryComponentService  registryService;
@@ -356,7 +357,7 @@ public class HierarchyTypeController extends RunwaySpringController
    *          A serialized json array of HierarchyType codes that will be
    *          retrieved.
    */
-  @GetMapping(RegistryUrls.HIERARCHY_TYPE_GET_ALL)
+  @GetMapping(RegistryConstants.CONTROLLER_ROOT + RegistryUrls.HIERARCHY_TYPE_GET_ALL)
   public ResponseEntity<String> getHierarchyTypes(@RequestParam(required = false) String types, @NotEmpty @RequestParam String context)
   {
     String[] aTypes = null;
@@ -392,7 +393,7 @@ public class HierarchyTypeController extends RunwaySpringController
    * @param htJSON
    *          JSON of the {@link HierarchyType} to be created.
    */
-  @PostMapping(RegistryUrls.HIERARCHY_TYPE_CREATE)
+  @PostMapping(RegistryConstants.CONTROLLER_ROOT + RegistryUrls.HIERARCHY_TYPE_CREATE)
   public ResponseEntity<String> createHierarchyType(@Valid @RequestBody HierarchyTypeBody body)
   {
     HierarchyType hierarchyType = this.hierarchyService.createHierarchyType(this.getSessionId(), body.hierarchyType.toString());
@@ -409,7 +410,7 @@ public class HierarchyTypeController extends RunwaySpringController
    * @param gtJSON
    *          JSON of the {@link HierarchyType} to be updated.
    */
-  @PostMapping(RegistryUrls.HIERARCHY_TYPE_UPDATE)
+  @PostMapping(RegistryConstants.CONTROLLER_ROOT + RegistryUrls.HIERARCHY_TYPE_UPDATE)
   public ResponseEntity<String> updateHierarchyType(@Valid @RequestBody HierarchyTypeBody body)
   {
     HierarchyType hierarchyType = this.hierarchyService.updateHierarchyType(this.getSessionId(), body.hierarchyType.toString());
@@ -427,7 +428,7 @@ public class HierarchyTypeController extends RunwaySpringController
    *          code of the {@link HierarchyType} to delete.
    * @return
    */
-  @PostMapping(RegistryUrls.HIERARCHY_TYPE_DELETE)
+  @PostMapping(RegistryConstants.CONTROLLER_ROOT + RegistryUrls.HIERARCHY_TYPE_DELETE)
   public ResponseEntity<Void> deleteHierarchyType(@Valid @RequestBody CodeBody body)
   {
     this.hierarchyService.deleteHierarchyType(this.getSessionId(), body.getCode());

@@ -27,13 +27,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.RegistryComponentService;
 
 @RestController
 @Validated
 public class OauthController extends RunwaySpringController
 {
-  public static final String API_PATH = "oauth";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "oauth";
 
   @Autowired
   private RegistryComponentService    service;

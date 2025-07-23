@@ -40,7 +40,7 @@ public interface RegistryServiceIF
 
   JsonObject initHierarchyManager(String sessionId, Boolean publicOnly, Boolean includeGraphTypes);
 
-  List<CGRApplication> getApplications(String sessionId);
+  List<CGRApplication> getApplications(String sessionId, String context);
 
   JsonObject configuration(String sessionId, String contextPath);
 

@@ -41,6 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonObject;
 
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.TransitionEventService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
 
@@ -81,7 +82,7 @@ public class TransitionEventController extends RunwaySpringController
     }
   }
   
-  public static final String API_PATH = "transition-event";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "transition-event";
 
   @Autowired
   private TransitionEventService service;

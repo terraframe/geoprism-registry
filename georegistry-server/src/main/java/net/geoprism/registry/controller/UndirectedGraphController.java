@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonObject;
 
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.UndirectedGraphService;
 import net.geoprism.registry.spring.NullableDateDeserializer;
 
@@ -140,7 +141,7 @@ public class UndirectedGraphController extends RunwaySpringController
     }
   }
 
-  public static final String API_PATH = "undirected";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "undirected";
 
   @Autowired
   private UndirectedGraphService service;

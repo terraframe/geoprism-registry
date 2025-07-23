@@ -44,6 +44,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import net.geoprism.GeoprismUserDTO;
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.controller.BusinessTypeController.OidBody;
 import net.geoprism.registry.service.request.AccountService;
 import net.geoprism.registry.spring.JsonArrayDeserializer;
@@ -162,7 +163,7 @@ public class RegistryAccountController extends RunwaySpringController
 
   }
 
-  public static final String API_PATH = "registryaccount";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "registryaccount";
 
   @Autowired
   private AccountService     accountService;

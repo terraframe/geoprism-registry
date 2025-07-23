@@ -226,7 +226,7 @@ public class GenericRestController extends RunwaySpringController
   {
     Set<String> roleNames = this.getAssignedRoleNames();
 
-    List<CGRApplication> allApplications = this.service.getApplications(this.getSessionId());
+    List<CGRApplication> allApplications = this.service.getApplications(this.getSessionId(), this.getRequest().getContextPath());
 
     JSONArray response = new JSONArray();
 

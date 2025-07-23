@@ -44,6 +44,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.runwaysdk.Pair;
 
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.controller.BusinessTypeController.OidBody;
 import net.geoprism.registry.service.request.AssetService;
 
@@ -82,7 +83,7 @@ public class AssetController extends RunwaySpringController
   @Autowired
   private AssetService service;
 
-  @PostMapping("asset/apply")
+  @PostMapping(RegistryConstants.CONTROLLER_ROOT + "asset/apply")
   public ResponseEntity<Void> apply(@Valid
   @ModelAttribute AssetBody body) throws IOException
   {
@@ -98,7 +99,7 @@ public class AssetController extends RunwaySpringController
     return new ResponseEntity<Void>(HttpStatus.OK);
   }
 
-  @GetMapping("asset/get-all")
+  @GetMapping(RegistryConstants.CONTROLLER_ROOT + "asset/get-all")
   public ResponseEntity<String> getAll() throws JSONException
   {
     JSONObject banner = new JSONObject();
@@ -121,7 +122,7 @@ public class AssetController extends RunwaySpringController
     return new ResponseEntity<String>(object.toString(), HttpStatus.OK);
   }
 
-  @GetMapping("asset/view")
+  @GetMapping(RegistryConstants.CONTROLLER_ROOT + "asset/view")
   public ResponseEntity<InputStreamResource> view(@RequestParam(required = false) String oid) throws IOException
   {
     Pair<String, InputStream> file;
@@ -148,7 +149,7 @@ public class AssetController extends RunwaySpringController
     return new ResponseEntity<InputStreamResource>(HttpStatus.NOT_FOUND);
   }
 
-  @PostMapping("asset/remove")
+  @PostMapping(RegistryConstants.CONTROLLER_ROOT + "asset/remove")
   public ResponseEntity<Void> remove(@RequestBody OidBody body) throws IOException
   {
     if (body.getOid() != null && body.getOid().equals("banner"))

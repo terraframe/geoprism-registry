@@ -103,7 +103,7 @@ public class AssetService
 
       if (instance == null || StringUtils.isEmpty(instance.getMiniLogoVaultId()))
       {
-        File file = new File(DeployProperties.getDeployPath() + "/assets/splash_logo_icon.png");
+        File file = new File(DeployProperties.getDeployPath() + "/WEB-INF/classes/static/assets/splash_logo_icon.png");
 
         return new Pair<String, InputStream>(file.getName(), new FileInputStream(file));
       }
@@ -118,7 +118,7 @@ public class AssetService
       {
         logger.error("Unable to retrieve logo file", e);
 
-        File file = new File(DeployProperties.getDeployPath() + "/assets/splash_logo_icon.png");
+        File file = new File(DeployProperties.getDeployPath() + "/WEB-INF/classes/static/assets/splash_logo_icon.png");
 
         return new Pair<String, InputStream>(file.getName(), new FileInputStream(file));
       }

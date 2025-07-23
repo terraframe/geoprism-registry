@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.PublishService;
 import net.geoprism.registry.view.PublishDTO;
 
@@ -38,7 +39,7 @@ import net.geoprism.registry.view.PublishDTO;
 @Validated
 public class PublishController extends RunwaySpringController
 {
-  public static final String API_PATH = "publish";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "publish";
 
   @Autowired
   private PublishService     service;
