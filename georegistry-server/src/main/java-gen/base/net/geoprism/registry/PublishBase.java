@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1061530653)
+@com.runwaysdk.business.ClassSignature(hash = 1657940272)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -29,7 +29,7 @@ public abstract class PublishBase extends com.runwaysdk.business.Business
   public final static java.lang.String TYPECODES = "typeCodes";
   public final static java.lang.String UID = "uid";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = -1061530653;
+  private static final long serialVersionUID = 1657940272;
   
   public PublishBase()
   {
@@ -82,7 +82,7 @@ public abstract class PublishBase extends com.runwaysdk.business.Business
   
   public java.util.Date getEndDate()
   {
-    return com.runwaysdk.constants.MdAttributeDateUtil.getTypeSafeValue(getValue(ENDDATE));
+    return com.runwaysdk.constants.MdAttributeDateTimeUtil.getTypeSafeValue(getValue(ENDDATE));
   }
   
   public void validateEndDate()
@@ -90,10 +90,10 @@ public abstract class PublishBase extends com.runwaysdk.business.Business
     this.validateAttribute(ENDDATE);
   }
   
-  public static com.runwaysdk.dataaccess.MdAttributeDateDAOIF getEndDateMd()
+  public static com.runwaysdk.dataaccess.MdAttributeDateTimeDAOIF getEndDateMd()
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.Publish.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeDateDAOIF)mdClassIF.definesAttribute(ENDDATE);
+    return (com.runwaysdk.dataaccess.MdAttributeDateTimeDAOIF)mdClassIF.definesAttribute(ENDDATE);
   }
   
   public void setEndDate(java.util.Date value)
@@ -104,7 +104,7 @@ public abstract class PublishBase extends com.runwaysdk.business.Business
     }
     else
     {
-      setValue(ENDDATE, new java.text.SimpleDateFormat(com.runwaysdk.constants.Constants.DATE_FORMAT).format(value));
+      setValue(ENDDATE, new java.text.SimpleDateFormat(com.runwaysdk.constants.Constants.DATETIME_FORMAT).format(value));
     }
   }
   
@@ -162,7 +162,7 @@ public abstract class PublishBase extends com.runwaysdk.business.Business
   
   public java.util.Date getForDate()
   {
-    return com.runwaysdk.constants.MdAttributeDateUtil.getTypeSafeValue(getValue(FORDATE));
+    return com.runwaysdk.constants.MdAttributeDateTimeUtil.getTypeSafeValue(getValue(FORDATE));
   }
   
   public void validateForDate()
@@ -170,10 +170,10 @@ public abstract class PublishBase extends com.runwaysdk.business.Business
     this.validateAttribute(FORDATE);
   }
   
-  public static com.runwaysdk.dataaccess.MdAttributeDateDAOIF getForDateMd()
+  public static com.runwaysdk.dataaccess.MdAttributeDateTimeDAOIF getForDateMd()
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.Publish.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeDateDAOIF)mdClassIF.definesAttribute(FORDATE);
+    return (com.runwaysdk.dataaccess.MdAttributeDateTimeDAOIF)mdClassIF.definesAttribute(FORDATE);
   }
   
   public void setForDate(java.util.Date value)
@@ -184,7 +184,7 @@ public abstract class PublishBase extends com.runwaysdk.business.Business
     }
     else
     {
-      setValue(FORDATE, new java.text.SimpleDateFormat(com.runwaysdk.constants.Constants.DATE_FORMAT).format(value));
+      setValue(FORDATE, new java.text.SimpleDateFormat(com.runwaysdk.constants.Constants.DATETIME_FORMAT).format(value));
     }
   }
   
@@ -390,7 +390,7 @@ public abstract class PublishBase extends com.runwaysdk.business.Business
   
   public java.util.Date getStartDate()
   {
-    return com.runwaysdk.constants.MdAttributeDateUtil.getTypeSafeValue(getValue(STARTDATE));
+    return com.runwaysdk.constants.MdAttributeDateTimeUtil.getTypeSafeValue(getValue(STARTDATE));
   }
   
   public void validateStartDate()
@@ -398,10 +398,10 @@ public abstract class PublishBase extends com.runwaysdk.business.Business
     this.validateAttribute(STARTDATE);
   }
   
-  public static com.runwaysdk.dataaccess.MdAttributeDateDAOIF getStartDateMd()
+  public static com.runwaysdk.dataaccess.MdAttributeDateTimeDAOIF getStartDateMd()
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.Publish.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeDateDAOIF)mdClassIF.definesAttribute(STARTDATE);
+    return (com.runwaysdk.dataaccess.MdAttributeDateTimeDAOIF)mdClassIF.definesAttribute(STARTDATE);
   }
   
   public void setStartDate(java.util.Date value)
@@ -412,7 +412,7 @@ public abstract class PublishBase extends com.runwaysdk.business.Business
     }
     else
     {
-      setValue(STARTDATE, new java.text.SimpleDateFormat(com.runwaysdk.constants.Constants.DATE_FORMAT).format(value));
+      setValue(STARTDATE, new java.text.SimpleDateFormat(com.runwaysdk.constants.Constants.DATETIME_FORMAT).format(value));
     }
   }
   

@@ -4,6 +4,7 @@
 package net.geoprism.registry.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
@@ -287,8 +288,8 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
 
     this.bObjectService.apply(cObject);
 
-    this.bObjectService.addChild(pObject, bEdgeType, cObject);
-    this.bObjectService.addGeoObject(pObject, bGeoEdgeType, USATestData.COLORADO.getServerObject(), EdgeDirection.PARENT, false);
+    this.bObjectService.addChild(pObject, bEdgeType, cObject, UUID.randomUUID().toString());
+    this.bObjectService.addGeoObject(pObject, bGeoEdgeType, USATestData.COLORADO.getServerObject(), EdgeDirection.PARENT, UUID.randomUUID().toString(), false);
   }
 
   @After

@@ -13,13 +13,13 @@
           <json
             name="typeCodes"
             label="Type Codes" />
-          <date
+          <dateTime
             name="forDate"
             label="For Date" />
-          <date
+          <dateTime
             name="startDate"
             label="Start Date" />
-          <date
+          <dateTime
             name="endDate"
             label="End Date" />
         </attributes>

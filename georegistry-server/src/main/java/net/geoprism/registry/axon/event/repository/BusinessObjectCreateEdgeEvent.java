@@ -26,15 +26,15 @@ public class BusinessObjectCreateEdgeEvent implements BusinessObjectEvent
   {
   }
 
-  public BusinessObjectCreateEdgeEvent(String sourceCode, String sourceType, String edgeType, String targetType, String targetCode, Boolean validate)
+  public BusinessObjectCreateEdgeEvent(String sourceCode, String sourceType, String edgeType, String targetCode, String targetType, Boolean validate)
   {
     super();
     this.edgeUid = UUID.randomUUID().toString();
     this.sourceCode = sourceCode;
     this.sourceType = sourceType;
     this.edgeType = edgeType;
-    this.targetType = targetType;
     this.targetCode = targetCode;
+    this.targetType = targetType;
     this.validate = validate;
   }
 

@@ -1,5 +1,7 @@
 package net.geoprism.registry.axon.event.repository;
 
+import java.util.UUID;
+
 import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.view.PublishDTO;
 
@@ -10,6 +12,8 @@ public class BusinessObjectAddGeoObjectEvent implements BusinessObjectEvent
   private String        type;
 
   private String        code;
+
+  private String        edgeUid;
 
   private String        edgeType;
 
@@ -35,6 +39,7 @@ public class BusinessObjectAddGeoObjectEvent implements BusinessObjectEvent
     this.code = code;
     this.type = type;
     this.edgeType = edgeType;
+    this.edgeUid = UUID.randomUUID().toString();
     this.geoObjectType = geoObjectType;
     this.geoObjectCode = geoObjectCode;
     this.direction = direction;
@@ -109,13 +114,23 @@ public class BusinessObjectAddGeoObjectEvent implements BusinessObjectEvent
   {
     this.direction = direction;
   }
-  
+
+  public String getEdgeUid()
+  {
+    return edgeUid;
+  }
+
+  public void setEdgeUid(String edgeUid)
+  {
+    this.edgeUid = edgeUid;
+  }
+
   @Override
   public String getAggregate()
   {
     return this.key + "#" + this.edgeType + "#" + this.geoObjectCode + "#" + this.geoObjectType;
   }
-  
+
   @Override
   public EventType getEventType()
   {

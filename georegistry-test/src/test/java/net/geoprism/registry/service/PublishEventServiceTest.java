@@ -5,9 +5,9 @@ package net.geoprism.registry.service;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 
+import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.After;
 import org.junit.Assert;
@@ -39,6 +39,7 @@ import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.axon.aggregate.RunwayTransactionWrapper;
 import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
+import net.geoprism.registry.axon.event.repository.BusinessObjectEventBuilder;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.EdgeDirection;
@@ -116,6 +117,9 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
   @Autowired
   private BusinessObjectBusinessServiceIF           bObjectService;
 
+  @Autowired
+  private CommandGateway                            gateway;
+
   @Override
   public void beforeClassSetup() throws Exception
   {
@@ -178,18 +182,28 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
 
     testData.logIn(USATestData.USER_NPS_RA);
 
-    pObject = this.bObjectService.newInstance(btype);
-    pObject.setCode("P_CODE");
+    pObject = createBusinessObject("P_CODE");
+    cObject = createBusinessObject("C_CODE");
 
-    this.bObjectService.apply(pObject);
+    BusinessObjectEventBuilder builder = new BusinessObjectEventBuilder(bObjectService);
+    builder.setObject(cObject);
+    builder.addParent(pObject, bEdgeType, false);
+    builder.addGeoObject(bGeoEdgeType, USATestData.COLORADO.getServerObject(), EdgeDirection.PARENT);
 
-    cObject = this.bObjectService.newInstance(btype);
-    cObject.setCode("C_CODE");
+    this.gateway.sendAndWait(builder.build());
+  }
 
-    this.bObjectService.apply(cObject);
+  protected BusinessObject createBusinessObject(String code)
+  {
+    BusinessObject object = this.bObjectService.newInstance(btype);
+    object.setCode(code);
 
-    this.bObjectService.addChild(pObject, bEdgeType, cObject);
-    this.bObjectService.addGeoObject(pObject, bGeoEdgeType, USATestData.COLORADO.getServerObject(), EdgeDirection.PARENT, false);
+    BusinessObjectEventBuilder builder = new BusinessObjectEventBuilder(bObjectService);
+    builder.setObject(object, true);
+
+    this.gateway.sendAndWait(builder.build());
+
+    return this.bObjectService.getByCode(btype, builder.getCode());
   }
 
   @After
@@ -231,13 +245,14 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
 
     RunwayTransactionWrapper.run(() -> {
       // TrackingToken token = new GapAwareTrackingToken(0, null);
-      Date date = new Date();
 
       try
       {
-        PublishDTO dto = new PublishDTO(date, date, date);
+        PublishDTO dto = new PublishDTO(USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
         dto.addGeoObjectType(testData.getManagedGeoObjectTypes().stream().map(t -> t.getCode()).toArray(s -> new String[s]));
         dto.addHierarchyType(testData.getManagedHierarchyTypes().stream().map(t -> t.getCode()).toArray(s -> new String[s]));
+        dto.addBusinessType(btype.getCode());
+        dto.addBusinessEdgeType(bEdgeType.getCode(), bGeoEdgeType.getCode());
 
         Publish publish = service.publish(dto);
 
@@ -281,17 +296,21 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
             hierarchyTypes.add(type.toJSON(root));
           });
 
+          dto.getBusinessTypes().forEach(code -> {
+            Assert.assertNotNull(this.bTypeSnapshotService.get(commit, code));
+          });
+
+          dto.getBusinessEdgeTypes().forEach(code -> {
+            Assert.assertNotNull(this.bEdgeSnapshotService.get(commit, code));
+          });
+
           gson.toJson(hierarchyTypes, System.out);
 
           List<RemoteEvent> events = this.cService.getRemoteEvents(commit, 0);
 
-          Assert.assertEquals(21, events.size());
-
-          // serializer.typeFactory.constructCollectionLikeType(List::class.java,
-          // SomeClass::class.java)
-
           mapper.writerFor(mapper.getTypeFactory().constructCollectionLikeType(List.class, RemoteEvent.class)).writeValue(new File("events.json"), events);
 
+          Assert.assertEquals(45, events.size());
         }
         catch (IOException e)
         {

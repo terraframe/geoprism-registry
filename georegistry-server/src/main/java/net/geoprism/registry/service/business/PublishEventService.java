@@ -19,12 +19,14 @@ import net.geoprism.registry.Commit;
 import net.geoprism.registry.Publish;
 import net.geoprism.registry.axon.command.remote.RemoteBusinessObjectAddGeoObjectCommand;
 import net.geoprism.registry.axon.command.remote.RemoteBusinessObjectCommand;
+import net.geoprism.registry.axon.command.remote.RemoteBusinessObjectCreateEdgeCommand;
 import net.geoprism.registry.axon.command.remote.RemoteCommand;
 import net.geoprism.registry.axon.command.remote.RemoteGeoObjectCommand;
 import net.geoprism.registry.axon.command.remote.RemoteGeoObjectSetParentCommand;
 import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.axon.event.repository.BusinessObjectAddGeoObjectEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEvent;
+import net.geoprism.registry.axon.event.repository.BusinessObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.event.repository.EventType;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectCreateParentEvent;
@@ -159,14 +161,23 @@ public class PublishEventService
       return new RemoteBusinessObjectAddGeoObjectCommand(commit.getUid(), code, type, edgeType, geoObjectType, geoObjectCode, direction);
 
     }
+    else if (event instanceof BusinessObjectCreateEdgeEvent)
+    {
+      String sourceCode = ( (BusinessObjectCreateEdgeEvent) event ).getSourceCode();
+      String sourceType = ( (BusinessObjectCreateEdgeEvent) event ).getSourceType();
+      String edgeUid = ( (BusinessObjectCreateEdgeEvent) event ).getEdgeUid();
+      String edgeType = ( (BusinessObjectCreateEdgeEvent) event ).getEdgeType();
+      String targetCode = ( (BusinessObjectCreateEdgeEvent) event ).getTargetCode();
+      String targetType = ( (BusinessObjectCreateEdgeEvent) event ).getTargetType();
 
-    throw new UnsupportedOperationException("Events of type [" + event.getClass().getName() + "] do no support being published");
+      return new RemoteBusinessObjectCreateEdgeCommand(commit.getUid(), sourceCode, sourceType, edgeUid, edgeType, targetCode, targetType);
+    }
+
+    throw new UnsupportedOperationException("Events of type [" + event.getClass().getName() + "] do not support being published");
   }
 
   protected void processEventType(GapAwareTrackingToken start, GapAwareTrackingToken end, EventType eventType, Publish publish, Commit commit, PublishDTO dto)
   {
-    long firstSequenceNumber = start != null ? start.getIndex() : 0;
-
     ClassificationCache cache = new ClassificationCache();
 
     List<String> aggregateIds = this.store.getAggregateIds(start, end);
@@ -174,7 +185,7 @@ public class PublishEventService
     for (String aggregateId : aggregateIds)
     {
       InMemoryEventMerger merger = new InMemoryEventMerger();
-      DomainEventStream stream = this.store.readEvents(aggregateId, firstSequenceNumber);
+      DomainEventStream stream = this.store.readEvents(aggregateId);
 
       while (stream.hasNext())
       {

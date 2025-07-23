@@ -20,6 +20,10 @@ public class RemoteBusinessObjectAddGeoObjectEvent implements RemoteEvent
   private String        geoObjectCode;
 
   private EdgeDirection direction;
+  
+  public RemoteBusinessObjectAddGeoObjectEvent()
+  {
+  }
 
   public RemoteBusinessObjectAddGeoObjectEvent(String commitId, String code, String type, String edgeType, String geoObjectType, String geoObjectCode, EdgeDirection direction)
   {
