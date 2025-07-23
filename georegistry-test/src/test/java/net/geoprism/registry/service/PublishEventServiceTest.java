@@ -39,6 +39,7 @@ import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.Publish;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.USADatasetTest;
+import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.axon.aggregate.RunwayTransactionWrapper;
 import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
@@ -61,6 +62,7 @@ import net.geoprism.registry.service.business.GraphTypeSnapshotBusinessServiceIF
 import net.geoprism.registry.service.business.HierarchyTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.PublishBusinessServiceIF;
 import net.geoprism.registry.service.business.PublishEventService;
+import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.PublishDTO;
@@ -90,6 +92,9 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
 
   @Autowired
   private DirectedAcyclicGraphTypeBusinessServiceIF dagService;
+
+  @Autowired
+  private UndirectedGraphTypeBusinessServiceIF      undirectedService;
 
   @Autowired
   private GraphTypeSnapshotBusinessServiceIF        graphSnapshotService;
@@ -130,6 +135,8 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
 
   private static DirectedAcyclicGraphType           dagType;
 
+  private static UndirectedGraphType                undirectedType;
+
   @Override
   public void beforeClassSetup() throws Exception
   {
@@ -159,6 +166,8 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
 
     dagType = this.dagService.create("TEST_DAG", new LocalizedValue("TEST_DAG"), new LocalizedValue("TEST_DAG"));
 
+    undirectedType = this.undirectedService.create("TEST_UN", new LocalizedValue("TEST_UN"), new LocalizedValue("TEST_UN"));
+
     this.repoService.refreshMetadataCache();
   }
 
@@ -186,6 +195,11 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
       this.dagService.delete(dagType);
     }
 
+    if (undirectedType != null)
+    {
+      this.undirectedService.delete(undirectedType);
+    }
+    
     super.afterClassSetup();
   }
 
@@ -204,8 +218,18 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
 
     addBusinessEdge();
     addDirectedAcyclicEdge();
+    addUndirectedEdge();
   }
 
+  protected void addUndirectedEdge()
+  {
+    ServerGeoObjectEventBuilder builder = new ServerGeoObjectEventBuilder(this.gObjectService);
+    builder.setObject(USATestData.COLORADO.getServerObject());
+    builder.addEdge(USATestData.CANADA.getServerObject(), undirectedType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, UUID.randomUUID().toString(), false);
+    
+    this.gateway.sendAndWait(builder.build());
+  }
+  
   protected void addDirectedAcyclicEdge()
   {
     ServerGeoObjectEventBuilder builder = new ServerGeoObjectEventBuilder(this.gObjectService);
@@ -286,6 +310,7 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
         dto.addBusinessType(btype.getCode());
         dto.addBusinessEdgeType(bEdgeType.getCode(), bGeoEdgeType.getCode());
         dto.addDagType(dagType.getCode());
+        dto.addUndirectedType(undirectedType.getCode());
 
         Publish publish = service.publish(dto);
 
@@ -347,7 +372,7 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
 
           mapper.writerFor(mapper.getTypeFactory().constructCollectionLikeType(List.class, RemoteEvent.class)).writeValue(new File("events.json"), events);
 
-          Assert.assertEquals(46, events.size());
+          Assert.assertEquals(47, events.size());
         }
         catch (IOException e)
         {
