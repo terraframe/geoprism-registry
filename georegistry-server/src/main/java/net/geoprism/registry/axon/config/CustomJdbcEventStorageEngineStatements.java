@@ -123,7 +123,7 @@ public abstract class CustomJdbcEventStorageEngineStatements
     sql.append(" WHERE " + "commit_id" + " = ?");
     sql.append(" AND " + schema.globalIndexColumn() + " >= ?");
     sql.append(" AND " + schema.globalIndexColumn() + " < ?");
-    sql.append(" ORDER BY " + schema.sequenceNumberColumn() + " ASC");
+    sql.append(" ORDER BY " + schema.globalIndexColumn() + " ASC");
 
     PreparedStatement statement = connection.prepareStatement(sql.toString());
     statement.setString(1, commit.getUid());

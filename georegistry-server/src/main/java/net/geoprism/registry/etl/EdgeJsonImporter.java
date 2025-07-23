@@ -101,7 +101,7 @@ public class EdgeJsonImporter
           Date endDate = joEdge.has("endDate") ? GeoRegistryUtil.parseDate(joEdge.get("endDate").getAsString()) : this.endDate;
 
           // UID
-          GeoObjectCreateEdgeEvent event = new GeoObjectCreateEdgeEvent(sourceCode, sourceTypeCode, graphType.getCode(), targetCode, targetTypeCode, startDate, endDate, validate);
+          GeoObjectCreateEdgeEvent event = new GeoObjectCreateEdgeEvent(sourceCode, sourceTypeCode,  graphTypeClass, graphType.getCode(), targetCode, targetTypeCode, startDate, endDate, validate);
           
           this.gateway.sendAndWait(new GeoObjectCompositeCommand(sourceCode, sourceTypeCode, Arrays.asList(event)));
 

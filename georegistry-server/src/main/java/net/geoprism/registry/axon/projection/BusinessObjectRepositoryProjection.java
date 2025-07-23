@@ -19,6 +19,7 @@ import com.runwaysdk.util.IDGenerator;
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.DataNotFoundException;
+import net.geoprism.registry.axon.command.remote.RemoteBusinessObjectCreateEdgeCommand;
 import net.geoprism.registry.axon.event.repository.BusinessObjectAddGeoObjectEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectCreateEdgeEvent;
@@ -82,7 +83,19 @@ public class BusinessObjectRepositoryProjection
 
     BusinessEdgeType edgeType = this.edgeService.getByCode(event.getEdgeType());
 
-    this.service.addGeoObject(object, edgeType, geoObject, event.getDirection(), true);
+    this.service.addGeoObject(object, edgeType, geoObject, event.getDirection(), event.getEdgeUid(), true);
+  }
+
+  @EventHandler
+  @Transaction
+  public void createEdge(RemoteBusinessObjectCreateEdgeCommand event) throws Exception
+  {
+    BusinessEdgeType edgeType = this.edgeService.getByCode(event.getEdgeType());
+
+    Object parentRid = getOrFetchRid(event.getSourceCode(), event.getSourceType());
+    Object childRid = getOrFetchRid(event.getTargetCode(), event.getTargetType());
+
+    this.newEdge(childRid, parentRid, event.getEdgeUid(), edgeType);
   }
 
   @EventHandler
@@ -96,14 +109,14 @@ public class BusinessObjectRepositoryProjection
       BusinessObject source = goCache.getOrFetchByCode(event.getSourceCode(), event.getSourceType());
       BusinessObject target = goCache.getOrFetchByCode(event.getTargetCode(), event.getTargetType());
 
-      this.service.addChild(source, edgeType, target);
+      this.service.addChild(source, edgeType, target, event.getEdgeUid());
     }
     else
     {
       Object parentRid = getOrFetchRid(event.getSourceCode(), event.getSourceType());
       Object childRid = getOrFetchRid(event.getTargetCode(), event.getTargetType());
 
-      this.newEdge(childRid, parentRid, edgeType);
+      this.newEdge(childRid, parentRid, event.getEdgeUid(), edgeType);
     }
   }
 
@@ -132,18 +145,19 @@ public class BusinessObjectRepositoryProjection
     });
   }
 
-  private void newEdge(Object childRid, Object parentRid, BusinessEdgeType type)
+  private void newEdge(Object childRid, Object parentRid, String uid, BusinessEdgeType type)
   {
     String clazz = type.getMdEdgeDAO().getDBClassName();
 
     String statement = "CREATE EDGE " + clazz + " FROM :parentRid TO :childRid";
-    statement += " SET oid=:oid";
+    statement += " SET oid=:oid, uid=:uid";
 
     GraphDBService service = GraphDBService.getInstance();
     GraphRequest request = service.getGraphDBRequest();
 
     Map<String, Object> parameters = new HashMap<String, Object>();
     parameters.put("oid", IDGenerator.nextID());
+    parameters.put("uid", uid);
     parameters.put("parentRid", parentRid);
     parameters.put("childRid", childRid);
 

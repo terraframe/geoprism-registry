@@ -10,9 +10,11 @@ import org.axonframework.spring.stereotype.Aggregate;
 
 import net.geoprism.registry.axon.command.remote.RemoteBusinessObjectAddGeoObjectCommand;
 import net.geoprism.registry.axon.command.remote.RemoteBusinessObjectCommand;
+import net.geoprism.registry.axon.command.remote.RemoteBusinessObjectCreateEdgeCommand;
 import net.geoprism.registry.axon.command.repository.BusinessObjectCompositeCommand;
 import net.geoprism.registry.axon.command.repository.BusinessObjectCompositeCreateCommand;
 import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectAddGeoObjectEvent;
+import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEvent;
 
@@ -97,7 +99,13 @@ public class BusinessObjectAggregate
   @CommandHandler
   public void on(RemoteBusinessObjectAddGeoObjectCommand command)
   {
-    RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new RemoteBusinessObjectAddGeoObjectCommand(command.getCommitId(), command.getKey(), command.getCode(), command.getType(), command.getEdgeType(), command.getGeoObjectType(), command.getGeoObjectCode(), command.getDirection())));
+    RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new RemoteBusinessObjectAddGeoObjectEvent(command.getCommitId(), command.getKey(), command.getCode(), command.getType(), command.getEdgeType(), command.getGeoObjectType(), command.getGeoObjectCode(), command.getDirection())));
+  }
+
+  @CommandHandler
+  public void on(RemoteBusinessObjectCreateEdgeCommand command)
+  {
+    RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new RemoteBusinessObjectCreateEdgeEvent(command.getCommitId(), command.getSourceCode(), command.getSourceType(), command.getEdgeUid(), command.getEdgeType(), command.getTargetCode(), command.getTargetType())));
   }
 
   @EventSourcingHandler
@@ -124,6 +132,14 @@ public class BusinessObjectAggregate
     this.key = event.getKey();
     this.code = event.getCode();
     this.type = event.getType();
+  }
+
+  @EventSourcingHandler
+  public void on(RemoteBusinessObjectCreateEdgeEvent event)
+  {
+    this.key = event.getKey();
+    this.code = event.getSourceCode();
+    this.type = event.getSourceType();
   }
 
 }

@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -180,8 +181,8 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
 
     ServerGeoObjectIF child = USATestData.CANADA.getServerObject();
 
-    child.addGraphParent(USATestData.USA.getServerObject(), dagType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, true);
-    child.addGraphParent(USATestData.MEXICO.getServerObject(), ugType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, true);
+    child.addGraphParent(USATestData.USA.getServerObject(), dagType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, UUID.randomUUID().toString(), true);
+    child.addGraphParent(USATestData.MEXICO.getServerObject(), ugType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, UUID.randomUUID().toString(), true);
 
     boParent = this.bObjectService.newInstance(bType);
     boParent.setCode("BoParent");
@@ -191,9 +192,9 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
     boChild.setCode("BoChild");
     this.bObjectService.apply(boChild);
 
-    this.bObjectService.addChild(boParent, bEdgeType, boChild);
+    this.bObjectService.addChild(boParent, bEdgeType, boChild, UUID.randomUUID().toString());
 
-    this.bObjectService.addGeoObject(boChild, bGeoEdgeType, USATestData.COLORADO.getServerObject(), EdgeDirection.PARENT, false);
+    this.bObjectService.addGeoObject(boChild, bGeoEdgeType, USATestData.COLORADO.getServerObject(), EdgeDirection.PARENT, UUID.randomUUID().toString(), false);
 
     TransitionEvent event = new TransitionEvent();
 

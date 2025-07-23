@@ -9,7 +9,6 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.axon.command.repository.BusinessObjectCompositeCommand;
-import net.geoprism.registry.axon.command.repository.BusinessObjectCompositeCreateCommand;
 import net.geoprism.registry.etl.upload.ClassifierVertexCache;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.EdgeDirection;
@@ -66,7 +65,7 @@ public class BusinessObjectEventBuilder
   public <T extends BusinessObject> T getOrThrow(boolean hasAttributeUpdate)
   {
     return (T) this.getObject(hasAttributeUpdate).orElseThrow(() -> {
-      throw new ProgrammingErrorException("Geo Object is request to perform action");
+      throw new ProgrammingErrorException("Business object is required to perform action");
     });
   }
 
@@ -127,11 +126,11 @@ public class BusinessObjectEventBuilder
     this.attributeUpdate = attributeUpdate;
   }
 
-  public void addParent(BusinessObject parent, BusinessEdgeType edgeType, String edgeUuid, Boolean validate)
+  public void addParent(BusinessObject parent, BusinessEdgeType edgeType, Boolean validate)
   {
-    // this.events.add(new BusinessObjectCreateParentEvent(this.getUid(),
-    // this.getType(), edgeUuid, hierarchy.getCode(), startDate, endDate,
-    // parent.getCode(), parent.getType().getCode(), validate));
+    BusinessObject object = this.getOrThrow();
+
+    this.events.add(new BusinessObjectCreateEdgeEvent(parent.getCode(), parent.getType().getCode(), edgeType.getCode(), object.getCode(), object.getType().getCode(), validate));
   }
 
   public void addGeoObject(BusinessEdgeType edgeType, ServerGeoObjectIF geoObject, EdgeDirection direction)
@@ -147,7 +146,7 @@ public class BusinessObjectEventBuilder
 
     LinkedList<BusinessObjectEvent> list = new LinkedList<>();
 
-    if (this.attributeUpdate)
+    if (this.attributeUpdate || isNew)
     {
       JsonObject dto = service.toJSON(object);
 
@@ -156,10 +155,11 @@ public class BusinessObjectEventBuilder
 
     list.addAll(events);
 
-//    if (this.isNew)
-//    {
-//      return new BusinessObjectCompositeCreateCommand(object.getCode(), object.getType().getCode(), list);
-//    }
+    // if (this.isNew)
+    // {
+    // return new BusinessObjectCompositeCreateCommand(object.getCode(),
+    // object.getType().getCode(), list);
+    // }
 
     return new BusinessObjectCompositeCommand(object.getCode(), object.getType().getCode(), list);
   }

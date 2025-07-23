@@ -26,6 +26,7 @@ import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.OriginException;
 import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
+import net.geoprism.registry.axon.event.remote.RemoteGeoObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectSetParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEvent;
@@ -252,21 +253,21 @@ public class GeoObjectRepositoryProjection
   @Transaction
   public void createEdge(GeoObjectCreateEdgeEvent event) throws Exception
   {
-    GraphType graphType = this.graphTypeService.getTypes(event.getEdgeType()).get(0);
+    final GraphType graphType = GraphType.getByCode(event.getEdgeType(), event.getEdgeTypeCode());
 
     if (event.getValidate())
     {
       ServerGeoObjectIF source = goCache.getOrFetchByCode(event.getSourceCode(), event.getSourceType());
       ServerGeoObjectIF target = goCache.getOrFetchByCode(event.getTargetCode(), event.getTargetType());
 
-      source.addGraphChild(target, graphType, event.getStartDate(), event.getEndDate(), event.getValidate());
+      source.addGraphChild(target, graphType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), event.getValidate());
     }
     else
     {
       Object childRid = getOrFetchRid(event.getSourceCode(), event.getSourceType());
       Object parentRid = getOrFetchRid(event.getTargetCode(), event.getTargetType());
 
-      this.newEdge(childRid, parentRid, graphType, event.getStartDate(), event.getEndDate());
+      this.newEdge(childRid, parentRid, graphType, event.getStartDate(), event.getEndDate(), event.getEdgeUid());
     }
   }
 
@@ -302,6 +303,18 @@ public class GeoObjectRepositoryProjection
     }
   }
 
+  @EventHandler
+  @Transaction
+  public void createRemoteCreateEdge(RemoteGeoObjectCreateEdgeEvent event) throws Exception
+  {
+    final GraphType graphType = GraphType.getByCode(event.getEdgeType(), event.getEdgeTypeCode());
+
+    Object childRid = getOrFetchRid(event.getSourceCode(), event.getSourceType());
+    Object parentRid = getOrFetchRid(event.getTargetCode(), event.getTargetType());
+
+    this.newEdge(childRid, parentRid, graphType, event.getStartDate(), event.getEndDate(), event.getEdgeUid());
+  }
+
   protected void updateWorkingLists(ServerGeoObjectIF object, final ServerGeoObjectType type)
   {
     // Update all of the working lists which have this record
@@ -333,7 +346,7 @@ public class GeoObjectRepositoryProjection
     });
   }
 
-  public void newEdge(Object childRid, Object parentRid, GraphType type, Date startDate, Date endDate)
+  public void newEdge(Object childRid, Object parentRid, GraphType type, Date startDate, Date endDate, String uid)
   {
     if (!type.getOrigin().equals(GeoprismProperties.getOrigin()))
     {
@@ -343,7 +356,7 @@ public class GeoObjectRepositoryProjection
     String clazz = type.getMdEdgeDAO().getDBClassName();
 
     String statement = "CREATE EDGE " + clazz + " FROM :childRid TO :parentRid";
-    statement += " SET startDate=:startDate, endDate=:endDate, oid=:oid";
+    statement += " SET startDate=:startDate, endDate=:endDate, oid=:oid, uid=:uid";
 
     GraphDBService service = GraphDBService.getInstance();
     GraphRequest request = service.getGraphDBRequest();
@@ -354,6 +367,7 @@ public class GeoObjectRepositoryProjection
     parameters.put("parentRid", parentRid);
     parameters.put("startDate", startDate);
     parameters.put("endDate", endDate);
+    parameters.put("uid", uid);
 
     service.command(request, statement, parameters);
   }
