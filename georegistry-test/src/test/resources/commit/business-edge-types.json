@@ -1,0 +1,56 @@
+[
+  {
+    "code": "TEST_B_EDGE",
+    "orgCode": "USATestDataPPP",
+    "origin": "TESTABC",
+    "displayLabel": {
+      "localizedValue": "TEST_B_EDGE",
+      "localeValues": [
+        {
+          "locale": "defaultLocale",
+          "value": "TEST_B_EDGE"
+        }
+      ]
+    },
+    "description": {
+      "localizedValue": "",
+      "localeValues": [
+        {
+          "locale": "defaultLocale",
+          "value": ""
+        }
+      ]
+    },
+    "isParentGeoObject": false,
+    "isChildGeoObject": false,
+    "parentType": "TEST_BUSINESS",
+    "childType": "TEST_BUSINESS"
+  },
+  {
+    "code": "TEST_GEO_EDGE",
+    "orgCode": "USATestDataPPP",
+    "origin": "TESTABC",
+    "displayLabel": {
+      "localizedValue": "TEST_GEO_EDGE",
+      "localeValues": [
+        {
+          "locale": "defaultLocale",
+          "value": "TEST_GEO_EDGE"
+        }
+      ]
+    },
+    "description": {
+      "localizedValue": "",
+      "localeValues": [
+        {
+          "locale": "defaultLocale",
+          "value": ""
+        }
+      ]
+    },
+    "isParentGeoObject": true,
+    "isChildGeoObject": false,
+    "parentType": "GEOOBJECT",
+    "childType": "TEST_BUSINESS"
+  }
+]

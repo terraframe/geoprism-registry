@@ -256,7 +256,7 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
     // graph
     for (String businessEdgeCode : businessEdgeCodesList)
     {
-      BusinessEdgeType edgeType = this.bEdgeService.getByCode(businessEdgeCode);
+      BusinessEdgeType edgeType = this.bEdgeService.getByCodeOrThrow(businessEdgeCode);
 
       this.snapshotService.createSnapshot(version, edgeType, root);
     }

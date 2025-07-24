@@ -13,8 +13,10 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import net.geoprism.graph.GeoObjectTypeSnapshot;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
 import net.geoprism.registry.view.CommitDTO;
 import net.geoprism.registry.view.PublishDTO;
@@ -28,12 +30,6 @@ public class MockRemoteClientBuilderService implements RemoteClientBuilderServic
   {
     return new RemoteClientIF()
     {
-
-      @Override
-      public JsonArray getUndirectedGraphTypes(String uid)
-      {
-        return new JsonArray();
-      }
 
       @Override
       public List<RemoteEvent> getRemoteEvents(String uid, Integer chunk)
@@ -74,20 +70,79 @@ public class MockRemoteClientBuilderService implements RemoteClientBuilderServic
       @Override
       public JsonArray getHierarchyTypes(String uid)
       {
-        return JsonParser.parseReader(new InputStreamReader(this.getClass().getResourceAsStream("/commit/hierarchy-types.json"))).getAsJsonArray();
+        try (InputStream stream = this.getClass().getResourceAsStream("/commit/hierarchy-types.json"))
+        {
+          return readAndConvert(stream);
+        }
+        catch (IOException e)
+        {
+          throw new RuntimeException(e);
+        }
       }
 
       @Override
       public JsonArray getGeoObjectTypes(String commitId)
       {
-        InputStream stream = this.getClass().getResourceAsStream("/commit/geo-object-types.json");
-        return JsonParser.parseReader(new InputStreamReader(stream)).getAsJsonArray();
+        try (InputStream stream = this.getClass().getResourceAsStream("/commit/geo-object-types.json"))
+        {
+          return readAndConvert(stream);
+        }
+        catch (IOException e)
+        {
+          throw new RuntimeException(e);
+        }
       }
 
       @Override
       public JsonArray getDirectedAcyclicGraphTypes(String uid)
       {
-        return new JsonArray();
+        try (InputStream stream = this.getClass().getResourceAsStream("/commit/dag-types.json"))
+        {
+          return readAndConvert(stream);
+        }
+        catch (IOException e)
+        {
+          throw new RuntimeException(e);
+        }
+      }
+
+      @Override
+      public JsonArray getUndirectedGraphTypes(String uid)
+      {
+        try (InputStream stream = this.getClass().getResourceAsStream("/commit/undirected-graph-types.json"))
+        {
+          return readAndConvert(stream);
+        }
+        catch (IOException e)
+        {
+          throw new RuntimeException(e);
+        }
+      }
+
+      @Override
+      public JsonArray getBusinessTypes(String commitId)
+      {
+        try (InputStream stream = this.getClass().getResourceAsStream("/commit/business-types.json"))
+        {
+          return readAndConvert(stream);
+        }
+        catch (IOException e)
+        {
+          throw new RuntimeException(e);
+        }
+      }
+
+      @Override
+      public JsonArray getBusinessEdgeTypes(String uid)
+      {
+        try (InputStream stream = this.getClass().getResourceAsStream("/commit/business-edge-types.json"))
+        {
+          return readAndConvert(stream);
+        }
+        catch (IOException e)
+        {
+          throw new RuntimeException(e);
+        }
       }
 
       @Override
@@ -106,21 +161,25 @@ public class MockRemoteClientBuilderService implements RemoteClientBuilderServic
       }
 
       @Override
-      public JsonArray getBusinessTypes(String commitId)
-      {
-        return new JsonArray();
-      }
-
-      @Override
-      public JsonArray getBusinessEdgeTypes(String uid)
-      {
-        return new JsonArray();
-      }
-
-      @Override
       public void close()
       {
       }
+
+      protected JsonArray readAndConvert(InputStream stream) throws IOException
+      {
+        try (InputStreamReader reader = new InputStreamReader(stream))
+        {
+          JsonArray array = JsonParser.parseReader(reader).getAsJsonArray();
+
+          array.forEach(element -> {
+            JsonObject object = element.getAsJsonObject();
+            object.addProperty(GeoObjectTypeSnapshot.ORIGIN, "REMOTE");
+          });
+
+          return array;
+        }
+      }
+
     };
   }
 

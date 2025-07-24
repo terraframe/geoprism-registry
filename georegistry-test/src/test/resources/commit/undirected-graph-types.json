@@ -1,0 +1,25 @@
+[
+  {
+    "code": "TEST_UN",
+    "origin": "TESTABC",
+    "typeCode": "UndirectedGraphType",
+    "displayLabel": {
+      "localizedValue": "TEST_UN",
+      "localeValues": [
+        {
+          "locale": "defaultLocale",
+          "value": "TEST_UN"
+        }
+      ]
+    },
+    "description": {
+      "localizedValue": "TEST_UN",
+      "localeValues": [
+        {
+          "locale": "defaultLocale",
+          "value": "TEST_UN"
+        }
+      ]
+    }
+  }
+]

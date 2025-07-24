@@ -16,10 +16,13 @@ import com.runwaysdk.dataaccess.graph.GraphRequest;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.util.IDGenerator;
 
+import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.DataNotFoundException;
+import net.geoprism.registry.OriginException;
 import net.geoprism.registry.axon.command.remote.RemoteBusinessObjectCreateEdgeCommand;
+import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectAddGeoObjectEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectCreateEdgeEvent;
@@ -81,28 +84,16 @@ public class BusinessObjectRepositoryProjection
     BusinessObject object = this.service.getByCode(type, event.getCode());
     ServerGeoObjectIF geoObject = this.gObjectService.getGeoObjectByCode(event.getGeoObjectCode(), event.getGeoObjectType());
 
-    BusinessEdgeType edgeType = this.edgeService.getByCode(event.getEdgeType());
+    BusinessEdgeType edgeType = this.edgeService.getByCodeOrThrow(event.getEdgeType());
 
     this.service.addGeoObject(object, edgeType, geoObject, event.getDirection(), event.getEdgeUid(), true);
   }
 
   @EventHandler
   @Transaction
-  public void createEdge(RemoteBusinessObjectCreateEdgeCommand event) throws Exception
-  {
-    BusinessEdgeType edgeType = this.edgeService.getByCode(event.getEdgeType());
-
-    Object parentRid = getOrFetchRid(event.getSourceCode(), event.getSourceType());
-    Object childRid = getOrFetchRid(event.getTargetCode(), event.getTargetType());
-
-    this.newEdge(childRid, parentRid, event.getEdgeUid(), edgeType);
-  }
-
-  @EventHandler
-  @Transaction
   public void createEdge(BusinessObjectCreateEdgeEvent event) throws Exception
   {
-    BusinessEdgeType edgeType = this.edgeService.getByCode(event.getEdgeType());
+    BusinessEdgeType edgeType = this.edgeService.getByCodeOrThrow(event.getEdgeType());
 
     if (event.getValidate())
     {
@@ -116,7 +107,53 @@ public class BusinessObjectRepositoryProjection
       Object parentRid = getOrFetchRid(event.getSourceCode(), event.getSourceType());
       Object childRid = getOrFetchRid(event.getTargetCode(), event.getTargetType());
 
-      this.newEdge(childRid, parentRid, event.getEdgeUid(), edgeType);
+      this.newEdge(childRid, parentRid, event.getEdgeUid(), edgeType, true);
+    }
+  }
+
+  @EventHandler
+  @Transaction
+  public void handleRemoteBusinessObject(RemoteBusinessObjectEvent event) throws Exception
+  {
+    BusinessType type = this.typeService.getByCode(event.getType());
+
+    if (!GeoprismProperties.getOrigin().equals(type.getOrigin()))
+    {
+      JsonObject json = JsonParser.parseString(event.getObject()).getAsJsonObject();
+
+      BusinessObject object = this.service.getByCode(type, event.getCode());
+
+      if (object == null)
+      {
+        object = this.service.newInstance(type);
+      }
+
+      this.service.populate(object, json);
+
+      this.service.apply(object, false);
+    }
+    else
+    {
+      System.out.println("Skipping remote business object: [" + event.getType() + "][" + event.getCode() + "]");
+    }
+  }
+
+  @EventHandler
+  @Transaction
+  public void createEdge(RemoteBusinessObjectCreateEdgeCommand event) throws Exception
+  {
+    BusinessEdgeType edgeType = this.edgeService.getByCodeOrThrow(event.getEdgeType());
+
+    if (!GeoprismProperties.getOrigin().equals(edgeType.getOrigin()))
+    {
+      Object parentRid = getOrFetchRid(event.getSourceCode(), event.getSourceType());
+      Object childRid = getOrFetchRid(event.getTargetCode(), event.getTargetType());
+
+      this.newEdge(childRid, parentRid, event.getEdgeUid(), edgeType, false);
+    }
+    else
+    {
+      System.out.println("Skipping remote create edge: [" + event.getEdgeType() + "][" + event.getSourceType() + "][" + event.getSourceCode() + "]");
     }
   }
 
@@ -145,8 +182,13 @@ public class BusinessObjectRepositoryProjection
     });
   }
 
-  private void newEdge(Object childRid, Object parentRid, String uid, BusinessEdgeType type)
+  private void newEdge(Object childRid, Object parentRid, String uid, BusinessEdgeType type, boolean validateOrigin)
   {
+    if (validateOrigin && !type.getOrigin().equals(GeoprismProperties.getOrigin()))
+    {
+      throw new OriginException();
+    }
+
     String clazz = type.getMdEdgeDAO().getDBClassName();
 
     String statement = "CREATE EDGE " + clazz + " FROM :parentRid TO :childRid";

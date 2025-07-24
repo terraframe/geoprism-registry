@@ -160,7 +160,7 @@ public class CommitBusinessService implements CommitBusinessServiceIF
 
     try (OIterator<? extends GeoObjectTypeSnapshot> it = query.getIterator())
     {
-      return it.getAll().stream().map(b -> (GeoObjectTypeSnapshot) b).collect(Collectors.toList());
+      return it.getAll().stream().map(b -> (GeoObjectTypeSnapshot) b).sorted((a, b) -> a.getIsAbstract().compareTo(b.getIsAbstract())).collect(Collectors.toList());
     }
   }
 
@@ -325,9 +325,14 @@ public class CommitBusinessService implements CommitBusinessServiceIF
       this.snapshotService.createSnapshot(commit, this.bService.getByCode(code));
     });
 
-    // Publish snapshots for all geo-object types
-    configuration.getGeoObjectTypes().forEach(code -> {
-      this.snapshotService.createSnapshot(commit, ServerGeoObjectType.get(code), root);
+    // Publish snapshots for all abstract geo object types
+    configuration.getGeoObjectTypes().stream().map(code -> ServerGeoObjectType.get(code)).filter(t -> t.getIsAbstract()).forEach(type -> {
+      this.snapshotService.createSnapshot(commit, type, root);
+    });
+
+    // Publish snapshots for all child geo object types
+    configuration.getGeoObjectTypes().stream().map(code -> ServerGeoObjectType.get(code)).filter(t -> !t.getIsAbstract()).forEach(type -> {
+      this.snapshotService.createSnapshot(commit, type, root);
     });
 
     configuration.getHierarchyTypes().forEach(code -> {
@@ -343,7 +348,7 @@ public class CommitBusinessService implements CommitBusinessServiceIF
     });
 
     configuration.getBusinessEdgeTypes().forEach(code -> {
-      this.snapshotService.createSnapshot(commit, this.bEdgeService.getByCode(code), root);
+      this.snapshotService.createSnapshot(commit, this.bEdgeService.getByCodeOrThrow(code), root);
     });
 
     return commit;

@@ -151,7 +151,7 @@ public class BusinessEdgeTypeTest extends FastDatasetTest implements InstanceTes
 
     try
     {
-      BusinessEdgeType result = this.bEdgeService.getByCode(type.getCode());
+      BusinessEdgeType result = this.bEdgeService.getByCodeOrThrow(type.getCode());
 
       Assert.assertNotNull(result);
       Assert.assertEquals(type.getCode(), result.getCode());

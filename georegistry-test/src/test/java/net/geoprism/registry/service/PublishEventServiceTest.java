@@ -4,6 +4,7 @@
 package net.geoprism.registry.service;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
@@ -28,9 +29,13 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 
+import net.geoprism.graph.BusinessEdgeTypeSnapshot;
+import net.geoprism.graph.BusinessTypeSnapshot;
+import net.geoprism.graph.DirectedAcyclicGraphTypeSnapshot;
 import net.geoprism.graph.GeoObjectTypeSnapshot;
 import net.geoprism.graph.GraphTypeSnapshot;
 import net.geoprism.graph.HierarchyTypeSnapshot;
+import net.geoprism.graph.UndirectedGraphTypeSnapshot;
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.Commit;
@@ -199,7 +204,7 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
     {
       this.undirectedService.delete(undirectedType);
     }
-    
+
     super.afterClassSetup();
   }
 
@@ -226,10 +231,10 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
     ServerGeoObjectEventBuilder builder = new ServerGeoObjectEventBuilder(this.gObjectService);
     builder.setObject(USATestData.COLORADO.getServerObject());
     builder.addEdge(USATestData.CANADA.getServerObject(), undirectedType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, UUID.randomUUID().toString(), false);
-    
+
     this.gateway.sendAndWait(builder.build());
   }
-  
+
   protected void addDirectedAcyclicEdge()
   {
     ServerGeoObjectEventBuilder builder = new ServerGeoObjectEventBuilder(this.gObjectService);
@@ -292,14 +297,17 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
   }
 
   @Test
+  @Request
   public void test() throws InterruptedException
   {
+    String directory = "src/test/resources/commit";
+
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     ObjectMapper mapper = new ObjectMapper();
     mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
-    RunwayTransactionWrapper.run(() -> {
+//    RunwayTransactionWrapper.run(() -> {
       // TrackingToken token = new GapAwareTrackingToken(0, null);
 
       try
@@ -316,7 +324,7 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
 
         try
         {
-          mapper.writeValue(new File("publish.json"), dto);
+          mapper.writeValue(new File(directory, "publish.json"), dto);
 
           List<Commit> commits = this.cService.getCommits(publish);
 
@@ -324,7 +332,7 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
 
           Commit commit = commits.get(0);
 
-          mapper.writeValue(new File("commit.json"), commit.toDTO(publish));
+          mapper.writeValue(new File(directory, "commit.json"), commit.toDTO(publish));
 
           GeoObjectTypeSnapshot root = this.gSnapshotService.getRoot(commit);
 
@@ -342,7 +350,10 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
 
           Assert.assertTrue(geoObjectTypes.size() > 0);
 
-          gson.toJson(geoObjectTypes, System.out);
+          try (FileWriter writer = new FileWriter(new File(directory, "geo-object-types.json")))
+          {
+            gson.toJson(geoObjectTypes, writer);
+          }
 
           JsonArray hierarchyTypes = new JsonArray();
 
@@ -351,22 +362,73 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
 
             Assert.assertNotNull(type);
 
-            hierarchyTypes.add(type.toJSON(root));
+            hierarchyTypes.add(this.hSnapshotService.toJSON(type, root));
           });
+
+          try (FileWriter writer = new FileWriter(new File(directory, "hierarchy-types.json")))
+          {
+            gson.toJson(hierarchyTypes, writer);
+          }
+
+          JsonArray businessTypes = new JsonArray();
 
           dto.getBusinessTypes().forEach(code -> {
-            Assert.assertNotNull(this.bTypeSnapshotService.get(commit, code));
+            BusinessTypeSnapshot type = this.bTypeSnapshotService.get(commit, code);
+
+            Assert.assertNotNull(type);
+
+            businessTypes.add(type.toJSON());
           });
+
+          try (FileWriter writer = new FileWriter(new File(directory, "business-types.json")))
+          {
+            gson.toJson(businessTypes, writer);
+          }
+
+          JsonArray businessEdgeTypes = new JsonArray();
 
           dto.getBusinessEdgeTypes().forEach(code -> {
-            Assert.assertNotNull(this.bEdgeSnapshotService.get(commit, code));
+            BusinessEdgeTypeSnapshot type = this.bEdgeSnapshotService.get(commit, code);
+
+            Assert.assertNotNull(type);
+
+            businessEdgeTypes.add(this.bEdgeSnapshotService.toJSON(type));
           });
+
+          try (FileWriter writer = new FileWriter(new File(directory, "business-edge-types.json")))
+          {
+            gson.toJson(businessEdgeTypes, writer);
+          }
+
+          JsonArray dagTypes = new JsonArray();
 
           dto.getDagTypes().forEach(code -> {
-            Assert.assertNotNull(this.graphSnapshotService.get(commit, GraphTypeSnapshot.DIRECTED_ACYCLIC_GRAPH_TYPE, code));
+            DirectedAcyclicGraphTypeSnapshot type = (DirectedAcyclicGraphTypeSnapshot) this.graphSnapshotService.get(commit, GraphTypeSnapshot.DIRECTED_ACYCLIC_GRAPH_TYPE, code);
+
+            Assert.assertNotNull(type);
+
+            dagTypes.add(type.toJSON());
           });
 
-          gson.toJson(hierarchyTypes, System.out);
+          try (FileWriter writer = new FileWriter(new File(directory, "dag-types.json")))
+          {
+            gson.toJson(dagTypes, writer);
+          }
+
+          JsonArray undirectedGraphTypes = new JsonArray();
+
+          dto.getUndirectedTypes().forEach(code -> {
+            UndirectedGraphTypeSnapshot type = (UndirectedGraphTypeSnapshot) this.graphSnapshotService.get(commit, GraphTypeSnapshot.UNDIRECTED_GRAPH_TYPE, code);
+
+            Assert.assertNotNull(type);
+
+            undirectedGraphTypes.add(type.toJSON());
+          });
+
+          try (FileWriter writer = new FileWriter(new File(directory, "undirected-graph-types.json")))
+          {
+            gson.toJson(undirectedGraphTypes, writer);
+          }
 
           List<RemoteEvent> events = this.cService.getRemoteEvents(commit, 0);
 
@@ -376,7 +438,7 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
         }
         catch (IOException e)
         {
-          e.printStackTrace();
+          throw new RuntimeException(e);
         }
         finally
         {
@@ -385,9 +447,8 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
       }
       catch (InterruptedException e)
       {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        throw new RuntimeException(e);
       }
-    });
+//    });
   }
 }

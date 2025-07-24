@@ -66,7 +66,7 @@ public class DirectedAcyclicGraphTypeService
   {
     String code = object.get(DirectedAcyclicGraphType.CODE).getAsString();
 
-    DirectedAcyclicGraphType type = DirectedAcyclicGraphType.getByCode(code);
+    DirectedAcyclicGraphType type = DirectedAcyclicGraphType.getByCode(code).get();
 
     this.service.update(type, object);
 
@@ -76,7 +76,7 @@ public class DirectedAcyclicGraphTypeService
   @Request(RequestType.SESSION)
   public JsonObject get(String sessionId, String code)
   {
-    DirectedAcyclicGraphType type = DirectedAcyclicGraphType.getByCode(code);
+    DirectedAcyclicGraphType type = DirectedAcyclicGraphType.getByCode(code).get();
 
     return type.toJSON();
   }
@@ -84,7 +84,7 @@ public class DirectedAcyclicGraphTypeService
   @Request(RequestType.SESSION)
   public void remove(String sessionId, String code)
   {
-    DirectedAcyclicGraphType type = DirectedAcyclicGraphType.getByCode(code);
+    DirectedAcyclicGraphType type = DirectedAcyclicGraphType.getByCode(code).get();
     type.delete();
   }
 }

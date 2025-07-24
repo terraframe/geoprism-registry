@@ -82,7 +82,7 @@ public class BusinessGeoobjectEdgeJsonImporter
 
     if (StringUtils.isBlank(defaultEdgeTypeCode))
     {
-      this.defaultEdgeType = this.edgeService.getByCode(defaultEdgeTypeCode);
+      this.defaultEdgeType = this.edgeService.getByCodeOrThrow(defaultEdgeTypeCode);
     }
   }
 
@@ -103,7 +103,7 @@ public class BusinessGeoobjectEdgeJsonImporter
         String targetCode = joEdge.get("target").getAsString();
         String targetTypeCode = joEdge.get("targetType").getAsString();
 
-        BusinessEdgeType edgeType = joEdge.has("edgeType") ? this.edgeService.getByCode(joEdge.get("edgeType").getAsString()) : defaultEdgeType;
+        BusinessEdgeType edgeType = joEdge.has("edgeType") ? this.edgeService.getByCodeOrThrow(joEdge.get("edgeType").getAsString()) : defaultEdgeType;
 
         BusinessType targetType = this.typeService.getByCode(targetTypeCode);
 

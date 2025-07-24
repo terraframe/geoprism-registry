@@ -261,10 +261,10 @@ public class XMLImporterTest implements InstanceTestClassListener
         Assert.assertEquals("Test Text", businessAttribute.getLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
         Assert.assertEquals("Test Text Description", businessAttribute.getDescription().getValue(LocalizedValue.DEFAULT_LOCALE));
 
-        BusinessEdgeType businessEdge = bizEdgeService.getByCode(results.get(6).getCode());
+        BusinessEdgeType businessEdge = bizEdgeService.getByCodeOrThrow(results.get(6).getCode());
         Assert.assertEquals("BUS_EDGE", businessEdge.getCode());
 
-        BusinessEdgeType businessGeoEdge = bizEdgeService.getByCode(results.get(7).getCode());
+        BusinessEdgeType businessGeoEdge = bizEdgeService.getByCodeOrThrow(results.get(7).getCode());
         Assert.assertEquals("BUS_GEO_EDGE", businessGeoEdge.getCode());
         
         XMLExporter exporter = new XMLExporter(serverOrg);

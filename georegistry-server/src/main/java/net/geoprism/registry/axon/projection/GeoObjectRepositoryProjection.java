@@ -218,9 +218,26 @@ public class GeoObjectRepositoryProjection
     this.service.createExternalId(object, system, event.getExternalId(), event.getStrategy());
   }
 
-  protected void updateWorkingLists(ServerGeoObjectIF object)
+  @EventHandler
+  @Transaction
+  public void createEdge(GeoObjectCreateEdgeEvent event) throws Exception
   {
-    this.updateWorkingLists(object, object.getType());
+    final GraphType graphType = GraphType.getByCode(event.getEdgeType(), event.getEdgeTypeCode());
+
+    if (event.getValidate())
+    {
+      ServerGeoObjectIF source = goCache.getOrFetchByCode(event.getSourceCode(), event.getSourceType());
+      ServerGeoObjectIF target = goCache.getOrFetchByCode(event.getTargetCode(), event.getTargetType());
+
+      source.addGraphChild(target, graphType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), event.getValidate());
+    }
+    else
+    {
+      Object childRid = getOrFetchRid(event.getSourceCode(), event.getSourceType());
+      Object parentRid = getOrFetchRid(event.getTargetCode(), event.getTargetType());
+
+      this.newEdge(childRid, parentRid, graphType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), true);
+    }
   }
 
   @EventHandler
@@ -246,28 +263,6 @@ public class GeoObjectRepositoryProjection
     else
     {
       System.out.println("Skipping remote geo object: [" + event.getType() + "][" + event.getCode() + "] - [" + event.getIsNew() + "]");
-    }
-  }
-
-  @EventHandler
-  @Transaction
-  public void createEdge(GeoObjectCreateEdgeEvent event) throws Exception
-  {
-    final GraphType graphType = GraphType.getByCode(event.getEdgeType(), event.getEdgeTypeCode());
-
-    if (event.getValidate())
-    {
-      ServerGeoObjectIF source = goCache.getOrFetchByCode(event.getSourceCode(), event.getSourceType());
-      ServerGeoObjectIF target = goCache.getOrFetchByCode(event.getTargetCode(), event.getTargetType());
-
-      source.addGraphChild(target, graphType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), event.getValidate());
-    }
-    else
-    {
-      Object childRid = getOrFetchRid(event.getSourceCode(), event.getSourceType());
-      Object parentRid = getOrFetchRid(event.getTargetCode(), event.getTargetType());
-
-      this.newEdge(childRid, parentRid, graphType, event.getStartDate(), event.getEndDate(), event.getEdgeUid());
     }
   }
 
@@ -299,7 +294,7 @@ public class GeoObjectRepositoryProjection
     }
     else
     {
-      System.out.println("Skipping remote set parent: [" + event.getType() + "][" + event.getCode() + "]");
+      System.out.println("Skipping remote set parent: [" + event.getEdgeType() + "][" + event.getType() + "][" + event.getCode() + "]");
     }
   }
 
@@ -309,10 +304,22 @@ public class GeoObjectRepositoryProjection
   {
     final GraphType graphType = GraphType.getByCode(event.getEdgeType(), event.getEdgeTypeCode());
 
-    Object childRid = getOrFetchRid(event.getSourceCode(), event.getSourceType());
-    Object parentRid = getOrFetchRid(event.getTargetCode(), event.getTargetType());
+    if (!GeoprismProperties.getOrigin().equals(graphType.getOrigin()))
+    {
+      Object childRid = getOrFetchRid(event.getSourceCode(), event.getSourceType());
+      Object parentRid = getOrFetchRid(event.getTargetCode(), event.getTargetType());
 
-    this.newEdge(childRid, parentRid, graphType, event.getStartDate(), event.getEndDate(), event.getEdgeUid());
+      this.newEdge(childRid, parentRid, graphType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), false);
+    }
+    else
+    {
+      System.out.println("Skipping remote create edge: [" + event.getEdgeType() + "][" + event.getSourceType() + "][" + event.getSourceCode() + "]");
+    }
+  }
+
+  protected void updateWorkingLists(ServerGeoObjectIF object)
+  {
+    this.updateWorkingLists(object, object.getType());
   }
 
   protected void updateWorkingLists(ServerGeoObjectIF object, final ServerGeoObjectType type)
@@ -346,9 +353,9 @@ public class GeoObjectRepositoryProjection
     });
   }
 
-  public void newEdge(Object childRid, Object parentRid, GraphType type, Date startDate, Date endDate, String uid)
+  public void newEdge(Object childRid, Object parentRid, GraphType type, Date startDate, Date endDate, String uid, Boolean validateOrigin)
   {
-    if (!type.getOrigin().equals(GeoprismProperties.getOrigin()))
+    if (validateOrigin && !type.getOrigin().equals(GeoprismProperties.getOrigin()))
     {
       throw new OriginException();
     }

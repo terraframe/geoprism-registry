@@ -336,7 +336,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
         // Publish the business edges
         for (BusinessEdgeTypeSnapshot snapshot : bEdgeSnapshots)
         {
-          BusinessEdgeType type = this.bEdgeTypeService.getByCode(snapshot.getCode());
+          BusinessEdgeType type = this.bEdgeTypeService.getByCodeOrThrow(snapshot.getCode());
 
           publish(state, type, snapshot, version);
 

@@ -97,7 +97,7 @@ public class DirectedAcyclicGraphTypeTest
 
     try
     {
-      DirectedAcyclicGraphType result = DirectedAcyclicGraphType.getByCode(type.getCode());
+      DirectedAcyclicGraphType result = DirectedAcyclicGraphType.getByCode(type.getCode()).get();
 
       Assert.assertNotNull(result);
       Assert.assertEquals(type.getCode(), result.getCode());

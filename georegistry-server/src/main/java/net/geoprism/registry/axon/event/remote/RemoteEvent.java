@@ -7,8 +7,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonSubTypes({ //
     @JsonSubTypes.Type(value = RemoteGeoObjectEvent.class), //
     @JsonSubTypes.Type(value = RemoteGeoObjectSetParentEvent.class), //
+    @JsonSubTypes.Type(value = RemoteGeoObjectCreateEdgeEvent.class), //
     @JsonSubTypes.Type(value = RemoteBusinessObjectEvent.class), //
     @JsonSubTypes.Type(value = RemoteBusinessObjectAddGeoObjectEvent.class), //
+    @JsonSubTypes.Type(value = RemoteBusinessObjectCreateEdgeEvent.class), //
 })
 public interface RemoteEvent
 {

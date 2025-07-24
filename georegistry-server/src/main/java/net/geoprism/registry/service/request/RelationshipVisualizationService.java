@@ -167,7 +167,7 @@ public class RelationshipVisualizationService
 
         if (canReadBusinessData(type))
         {
-          BusinessEdgeType edgeType = this.bEdgeService.getByCode(graphTypeCode);
+          BusinessEdgeType edgeType = this.bEdgeService.getByCodeOrThrow(graphTypeCode);
 
           EdgeVertexType childType = this.bEdgeService.getChild(edgeType);
 
@@ -239,7 +239,7 @@ public class RelationshipVisualizationService
 
         if (relationshipType != null && relationshipType.equals("BusinessEdgeType"))
         {
-          BusinessEdgeType edgeType = this.bEdgeService.getByCode(graphTypeCode);
+          BusinessEdgeType edgeType = this.bEdgeService.getByCodeOrThrow(graphTypeCode);
 
           EdgeVertexType parentType = this.bEdgeService.getParent(edgeType);
 
@@ -304,7 +304,7 @@ public class RelationshipVisualizationService
         verticies.put(selected.getCode(), this.fromBusinessObject(selected, "SELECTED"));
         addRelatedType(relatedTypes, type);
 
-        BusinessEdgeType edgeType = this.bEdgeService.getByCode(graphTypeCode);
+        BusinessEdgeType edgeType = this.bEdgeService.getByCodeOrThrow(graphTypeCode);
 
         EdgeVertexType parentType = this.bEdgeService.getParent(edgeType);
         EdgeVertexType childType = this.bEdgeService.getChild(edgeType);

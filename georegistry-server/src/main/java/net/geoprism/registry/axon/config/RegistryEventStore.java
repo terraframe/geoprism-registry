@@ -60,6 +60,27 @@ public class RegistryEventStore extends EmbeddedEventStore implements EventStore
     Database.executeStatement(statement.toString());
   }
 
+  public Long size()
+  {
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT COUNT(*)");
+    statement.append(" FROM " + DOMAIN_EVENT_ENTRY_TABLE);
+
+    try (ResultSet resultSet = Database.query(statement.toString()))
+    {
+      if (resultSet.next())
+      {
+        return resultSet.getLong(1);
+      }
+
+      return 0L;
+    }
+    catch (SQLException e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
+  }
+
   public List<String> getAggregateIds(GapAwareTrackingToken start, GapAwareTrackingToken end)
   {
     LinkedList<String> aggregateIds = new LinkedList<>();

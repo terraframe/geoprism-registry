@@ -344,7 +344,7 @@ public class BusinessObjectImportConfiguration extends ImportConfiguration
 
     if (config.has(BusinessObjectImportConfiguration.EDGE_TYPE))
     {
-      this.setEdgeType(this.edgeService.getByCode(config.getString(BusinessObjectImportConfiguration.EDGE_TYPE)));
+      this.setEdgeType(this.edgeService.getByCodeOrThrow(config.getString(BusinessObjectImportConfiguration.EDGE_TYPE)));
     }
 
     try

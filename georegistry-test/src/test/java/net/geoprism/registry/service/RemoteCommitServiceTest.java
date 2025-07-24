@@ -3,8 +3,9 @@
  */
 package net.geoprism.registry.service;
 
-import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.commongeoregistry.adapter.metadata.OrganizationDTO;
+import java.util.Arrays;
+
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,18 +15,30 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.runwaysdk.session.Request;
 
+import net.geoprism.graph.GraphTypeSnapshot;
+import net.geoprism.registry.BusinessType;
+import net.geoprism.registry.Commit;
+import net.geoprism.registry.DirectedAcyclicGraphType;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.UndirectedGraphType;
+import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.config.TestApplication;
-import net.geoprism.registry.model.ServerOrganization;
+import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.BusinessEdgeTypeSnapshotBusinessServiceIF;
+import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.BusinessTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.CommitBusinessServiceIF;
+import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeSnapshotBusinessServiceIF;
+import net.geoprism.registry.service.business.GraphTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeSnapshotBusinessServiceIF;
-import net.geoprism.registry.service.business.OrganizationBusinessServiceIF;
 import net.geoprism.registry.service.business.PublishBusinessServiceIF;
 import net.geoprism.registry.service.business.RemoteClientBuilderServiceIF;
 import net.geoprism.registry.service.business.RemoteClientIF;
 import net.geoprism.registry.service.business.RemoteCommitService;
+import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
+import net.geoprism.registry.test.USATestData;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
@@ -33,39 +46,60 @@ import net.geoprism.registry.service.business.RemoteCommitService;
 public class RemoteCommitServiceTest implements InstanceTestClassListener
 {
   @Autowired
-  private RemoteClientBuilderServiceIF           builder;
+  private RemoteClientBuilderServiceIF              builder;
 
   @Autowired
-  private PublishBusinessServiceIF               pService;
+  private CommitBusinessServiceIF                   commitService;
 
   @Autowired
-  private CommitBusinessServiceIF                commitService;
+  private GeoObjectTypeSnapshotBusinessServiceIF    gSnapshotService;
 
   @Autowired
-  private GeoObjectTypeSnapshotBusinessServiceIF gSnapshotService;
+  private HierarchyTypeSnapshotBusinessServiceIF    hSnapshotService;
 
   @Autowired
-  private HierarchyTypeSnapshotBusinessServiceIF hSnapshotService;
+  private BusinessTypeSnapshotBusinessServiceIF     bTypeSnapshotService;
 
   @Autowired
-  private PublishBusinessServiceIF               publishService;
+  private BusinessEdgeTypeSnapshotBusinessServiceIF bEdgeSnapshotService;
 
   @Autowired
-  private OrganizationBusinessServiceIF          organizationService;
+  private GraphTypeSnapshotBusinessServiceIF        graphTypeSnapshotBusinessService;
 
   @Autowired
-  private RemoteCommitService                    service;
+  private PublishBusinessServiceIF                  publishService;
+
+  @Autowired
+  private BusinessEdgeTypeBusinessServiceIF         bEdgeService;
+
+  @Autowired
+  private BusinessTypeBusinessServiceIF             bTypeService;
+
+  @Autowired
+  private DirectedAcyclicGraphTypeBusinessServiceIF dagTypeService;
+
+  @Autowired
+  private UndirectedGraphTypeBusinessServiceIF      undirectedTypeService;
+
+  @Autowired
+  private RemoteCommitService                       service;
+
+  @Autowired
+  private RegistryEventStore                        store;
+
+  protected static USATestData                      testData;
 
   @Override
   @Request
   public void beforeClassSetup() throws Exception
   {
-    ServerOrganization org = ServerOrganization.getByCode("MOHA", false);
+    this.store.truncate();
+    
+    testData = USATestData.newTestData();
 
-    if (org == null)
-    {
-      this.organizationService.create(new OrganizationDTO("MOHA", new LocalizedValue("MOHA"), new LocalizedValue("MOHA")));
-    }
+    testData.getManagedOrganizations().forEach(org -> {
+      org.apply();
+    });
 
     // Delete the existing commit
     try (RemoteClientIF client = builder.open(""))
@@ -82,10 +116,32 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
   }
 
   @Override
+  @Request
   public void afterClassSetup() throws Exception
   {
-    // TODO Auto-generated method stub
 
+    Arrays.asList("TEST_DAG").forEach(code -> {
+      DirectedAcyclicGraphType.getByCode(code).ifPresent(this.dagTypeService::delete);
+    });
+
+    Arrays.asList("TEST_UN").forEach(code -> {
+      UndirectedGraphType.getByCode(code).ifPresent(this.undirectedTypeService::delete);
+    });
+
+    Arrays.asList("TEST_B_EDGE", "TEST_GEO_EDGE").forEach(code -> {
+      this.bEdgeService.getByCode(code).ifPresent(this.bEdgeService::delete);
+    });
+
+    Arrays.asList("TEST_BUSINESS").forEach(code -> {
+      BusinessType type = this.bTypeService.getByCode(code);
+
+      if (type != null)
+      {
+        this.bTypeService.delete(type);
+      }
+    });
+
+    testData.tearDownMetadata();
   }
 
   @Before
@@ -95,16 +151,49 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
   }
 
   @Test
-  public void testPlaceholder()
-  {
-  }
-  
-  @Test
   @Request
   public void testPull() throws InterruptedException
   {
-//    Commit commit = this.service.pull("test", "mock", 1);
-//
-//    Assert.assertNotNull(commit);
+    Assert.assertEquals(Long.valueOf(0), this.store.size());
+
+    Commit commit = this.service.pull("test", "mock", 1);
+
+    try
+    {
+      Assert.assertNotNull(commit);
+
+      Assert.assertNotNull(this.gSnapshotService.getRoot(commit));
+
+      testData.getManagedGeoObjectTypes().stream().map(t -> t.getCode()).forEach(code -> {
+        Assert.assertNotNull(this.gSnapshotService.get(commit, code));
+      });
+
+      testData.getManagedHierarchyTypes().stream().map(t -> t.getCode()).forEach(code -> {
+        Assert.assertNotNull(this.hSnapshotService.get(commit, code));
+      });
+
+      Arrays.asList("TEST_BUSINESS").forEach(code -> {
+        Assert.assertNotNull(this.bTypeSnapshotService.get(commit, code));
+      });
+
+      Arrays.asList("TEST_B_EDGE", "TEST_GEO_EDGE").forEach(code -> {
+        Assert.assertNotNull(this.bEdgeSnapshotService.get(commit, code));
+      });
+
+      Arrays.asList("TEST_DAG").forEach(code -> {
+        Assert.assertNotNull(this.graphTypeSnapshotBusinessService.get(commit, GraphTypeSnapshot.DIRECTED_ACYCLIC_GRAPH_TYPE, code));
+      });
+
+      Arrays.asList("TEST_UN").forEach(code -> {
+        Assert.assertNotNull(this.graphTypeSnapshotBusinessService.get(commit, GraphTypeSnapshot.UNDIRECTED_GRAPH_TYPE, code));
+      });
+
+      Assert.assertEquals(Long.valueOf(47), this.store.size());
+
+    }
+    finally
+    {
+      this.commitService.delete(commit);
+    }
   }
 }

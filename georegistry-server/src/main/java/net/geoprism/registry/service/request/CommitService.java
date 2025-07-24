@@ -10,13 +10,17 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
+import net.geoprism.graph.DirectedAcyclicGraphTypeSnapshot;
 import net.geoprism.graph.GeoObjectTypeSnapshot;
+import net.geoprism.graph.HierarchyTypeSnapshot;
+import net.geoprism.graph.UndirectedGraphTypeSnapshot;
 import net.geoprism.registry.Commit;
 import net.geoprism.registry.JsonCollectors;
 import net.geoprism.registry.Publish;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
 import net.geoprism.registry.service.business.BusinessEdgeTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.CommitBusinessServiceIF;
+import net.geoprism.registry.service.business.HierarchyTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.PublishBusinessServiceIF;
 import net.geoprism.registry.view.CommitDTO;
 
@@ -31,6 +35,9 @@ public class CommitService
 
   @Autowired
   private BusinessEdgeTypeSnapshotBusinessServiceIF edgeTypeService;
+
+  @Autowired
+  private HierarchyTypeSnapshotBusinessServiceIF    hierarchyTypeService;
 
   @Request(RequestType.SESSION)
   public CommitDTO get(String sessionId, String publishId, Integer versionNumber)
@@ -81,7 +88,10 @@ public class CommitService
 
     GeoObjectTypeSnapshot rootType = this.service.getRootType(commit);
 
-    return this.service.getHiearchyTypes(commit).stream().map(type -> type.toJSON(rootType)).collect(JsonCollectors.toJsonArray());
+    return this.service.getHiearchyTypes(commit).stream() //
+        .map(type -> (HierarchyTypeSnapshot) type) //
+        .map(type -> this.hierarchyTypeService.toJSON(type, rootType)) //
+        .collect(JsonCollectors.toJsonArray());
   }
 
   @Request(RequestType.SESSION)
@@ -89,19 +99,21 @@ public class CommitService
   {
     Commit commit = this.service.getOrThrow(uid);
 
-    GeoObjectTypeSnapshot rootType = this.service.getRootType(commit);
-
-    return this.service.getDirectedAcyclicGraphTypes(commit).stream().map(type -> type.toJSON(rootType)).collect(JsonCollectors.toJsonArray());
+    return this.service.getDirectedAcyclicGraphTypes(commit).stream() //
+        .map(type -> (DirectedAcyclicGraphTypeSnapshot) type) //
+        .map(type -> type.toJSON()) //
+        .collect(JsonCollectors.toJsonArray());
   }
-  
+
   @Request(RequestType.SESSION)
   public JsonArray getUndirectedGraphTypes(String sessionId, String uid)
   {
     Commit commit = this.service.getOrThrow(uid);
-    
-    GeoObjectTypeSnapshot rootType = this.service.getRootType(commit);
-    
-    return this.service.getUndirectedGraphTypes(commit).stream().map(type -> type.toJSON(rootType)).collect(JsonCollectors.toJsonArray());
+
+    return this.service.getUndirectedGraphTypes(commit).stream() //
+        .map(type -> (UndirectedGraphTypeSnapshot) type) //
+        .map(type -> type.toJSON()) //
+        .collect(JsonCollectors.toJsonArray());
   }
 
   @Request(RequestType.SESSION)

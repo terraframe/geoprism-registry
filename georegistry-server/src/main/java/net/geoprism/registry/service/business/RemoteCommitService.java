@@ -51,6 +51,9 @@ public class RemoteCommitService
   @Autowired
   private CommandGateway                            gateway;
 
+  @Autowired
+  private GraphRepoServiceIF                        metadataService;
+
   @Request
   public Commit pull(String source, String publishId, Integer versionNumber)
   {
@@ -103,7 +106,7 @@ public class RemoteCommitService
         this.snapshotService.createType(snapshot, root);
       });
 
-      client.getDirectedAcyclicGraphTypes(commit.getUid()).forEach(element -> {
+      client.getUndirectedGraphTypes(commit.getUid()).forEach(element -> {
         UndirectedGraphTypeSnapshot snapshot = (UndirectedGraphTypeSnapshot) this.graphTypeService.create(commit, element.getAsJsonObject(), root);
 
         this.snapshotService.createType(snapshot, root);
@@ -114,6 +117,8 @@ public class RemoteCommitService
 
         this.snapshotService.createType(snapshot);
       });
+      
+      this.metadataService.refreshMetadataCache();
 
       int chunk = 0;
       List<RemoteEvent> remoteEvents = null;

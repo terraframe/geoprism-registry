@@ -118,7 +118,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     
     if (bGeoEdgeType != null)
     {
-      this.bEdgeService.delete(this.bEdgeService.getByCode(bGeoEdgeType.getCode()));
+      this.bEdgeService.delete(this.bEdgeService.getByCodeOrThrow(bGeoEdgeType.getCode()));
     }
     
 

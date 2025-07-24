@@ -1,12 +1,12 @@
 {
-  "uid" : "de6d19e2-0d43-4f84-8052-22908348d9c3",
-  "date" : "2025-07-17",
-  "startDate" : "2024-01-01",
-  "endDate" : "2028-001-01",
-  "geoObjectTypes" : [ "REG_2", "PRO_2", "CTY_2", "SHR_2" ],
-  "hierarchyTypes" : [ "ADM_H_2" ],
-  "dagTypes" : [ ],
-  "undirectedTypes" : [ ],
-  "businessTypes" : [ ],
-  "businessEdgeTypes" : [ ]
+  "uid" : "35c0e5ce-b265-4e90-918a-aacfa13baf3e",
+  "date" : "2020-04-04",
+  "startDate" : "2020-04-04",
+  "endDate" : "2021-04-04",
+  "geoObjectTypes" : [ "USATestDataCountry", "USATestDataState", "USATestDataDistrict", "USATestDataCounty", "USATestDataArea", "USATestDataSchoolZone", "USATestDataHealthFacility", "USATestDataHealthPost", "USATestDataHealthStop", "USATestDataMexico_State_GOT", "USATestDataMexico_City_GOT" ],
+  "hierarchyTypes" : [ "USATestDataAdminCode", "USATestDataSchoolCode", "USATestDataReportsToCode" ],
+  "dagTypes" : [ "TEST_DAG" ],
+  "undirectedTypes" : [ "TEST_UN" ],
+  "businessTypes" : [ "TEST_BUSINESS" ],
+  "businessEdgeTypes" : [ "TEST_B_EDGE", "TEST_GEO_EDGE" ]
 }

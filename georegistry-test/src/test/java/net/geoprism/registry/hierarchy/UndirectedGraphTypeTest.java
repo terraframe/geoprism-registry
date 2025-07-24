@@ -97,7 +97,7 @@ public class UndirectedGraphTypeTest
 
     try
     {
-      UndirectedGraphType result = UndirectedGraphType.getByCode(type.getCode());
+      UndirectedGraphType result = UndirectedGraphType.getByCode(type.getCode()).get();
 
       Assert.assertNotNull(result);
       Assert.assertEquals(type.getCode(), result.getCode());

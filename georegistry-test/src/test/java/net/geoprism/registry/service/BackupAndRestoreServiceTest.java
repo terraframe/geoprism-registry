@@ -140,22 +140,22 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
 
       if (dagType != null)
       {
-        this.dagTypeService.delete(DirectedAcyclicGraphType.getByCode(dagType.getCode()));
+        DirectedAcyclicGraphType.getByCode(dagType.getCode()).ifPresent(this.dagTypeService::delete);
       }
 
       if (ugType != null)
       {
-        this.ugTypeService.delete(UndirectedGraphType.getByCode(ugType.getCode()));
+        UndirectedGraphType.getByCode(ugType.getCode()).ifPresent(this.ugTypeService::delete);
       }
 
       if (bEdgeType != null)
       {
-        this.bEdgeService.delete(this.bEdgeService.getByCode(bEdgeType.getCode()));
+        this.bEdgeService.delete(this.bEdgeService.getByCodeOrThrow(bEdgeType.getCode()));
       }
 
       if (bGeoEdgeType != null)
       {
-        this.bEdgeService.delete(this.bEdgeService.getByCode(bGeoEdgeType.getCode()));
+        this.bEdgeService.delete(this.bEdgeService.getByCodeOrThrow(bGeoEdgeType.getCode()));
       }
       
       if (bType != null)
@@ -261,9 +261,9 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
           this.backupService.restoreFromBackup(new FileInputStream(file));
 
           // Reload all of the cached test objects
-          dagType = DirectedAcyclicGraphType.getByCode(dagType.getCode());
-          ugType = UndirectedGraphType.getByCode(ugType.getCode());
-          bEdgeType = this.bEdgeService.getByCode(bEdgeType.getCode());
+          dagType = DirectedAcyclicGraphType.getByCode(dagType.getCode()).get();
+          ugType = UndirectedGraphType.getByCode(ugType.getCode()).get();
+          bEdgeType = this.bEdgeService.getByCodeOrThrow(bEdgeType.getCode());
           bType = this.bTypeService.getByCode(bType.getCode());
 
           testData.clearCachedData();

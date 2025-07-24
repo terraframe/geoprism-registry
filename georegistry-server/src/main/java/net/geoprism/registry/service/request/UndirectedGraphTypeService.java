@@ -63,7 +63,7 @@ public class UndirectedGraphTypeService
   {
     String code = object.get(UndirectedGraphType.CODE).getAsString();
 
-    UndirectedGraphType type = UndirectedGraphType.getByCode(code);
+    UndirectedGraphType type = UndirectedGraphType.getByCode(code).get();
 
     this.service.update(type, object);
 
@@ -73,7 +73,7 @@ public class UndirectedGraphTypeService
   @Request(RequestType.SESSION)
   public JsonObject get(String sessionId, String code)
   {
-    UndirectedGraphType type = UndirectedGraphType.getByCode(code);
+    UndirectedGraphType type = UndirectedGraphType.getByCode(code).get();
 
     return type.toJSON();
   }
@@ -81,7 +81,7 @@ public class UndirectedGraphTypeService
   @Request(RequestType.SESSION)
   public void remove(String sessionId, String code)
   {
-    UndirectedGraphType type = UndirectedGraphType.getByCode(code);
+    UndirectedGraphType type = UndirectedGraphType.getByCode(code).get();
     type.delete();
   }
 }
