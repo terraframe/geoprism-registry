@@ -69,6 +69,7 @@ import net.geoprism.registry.service.request.ExcelService;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
+import net.geoprism.registry.view.BusinessGeoEdgeTypeView;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
@@ -132,7 +133,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
 
     attributeType = this.bTypeService.createAttributeType(type, new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test True"), false, false, false));
 
-    bGeoEdgeType = this.bEdgeService.createGeoEdge(FastTestDataset.ORG_CGOV.getCode(), "GEO_EDGE", new LocalizedValue("Geo Edge"), new LocalizedValue("Geo Edge"), type.getCode(), EdgeDirection.PARENT);
+    bGeoEdgeType = this.bEdgeService.createGeoEdge(BusinessGeoEdgeTypeView.build(FastTestDataset.ORG_CGOV.getCode(), "GEO_EDGE", new LocalizedValue("Geo Edge"), new LocalizedValue("Geo Edge"), type.getCode(), EdgeDirection.PARENT));
   }
 
   @Override

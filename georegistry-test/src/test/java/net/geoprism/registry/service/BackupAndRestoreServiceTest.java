@@ -54,6 +54,8 @@ import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
+import net.geoprism.registry.view.BusinessEdgeTypeView;
+import net.geoprism.registry.view.BusinessGeoEdgeTypeView;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
@@ -112,8 +114,8 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
   {
     super.beforeClassSetup();
 
-    dagType = this.dagTypeService.create("TEST_DAG", new LocalizedValue("TEST_DAG"), new LocalizedValue("TEST_DAG"));
-    ugType = this.ugTypeService.create("TEST_UG", new LocalizedValue("TEST_UG"), new LocalizedValue("TEST_UG"));
+    dagType = this.dagTypeService.create("TEST_DAG", new LocalizedValue("TEST_DAG"), new LocalizedValue("TEST_DAG"), 0L);
+    ugType = this.ugTypeService.create("TEST_UG", new LocalizedValue("TEST_UG"), new LocalizedValue("TEST_UG"), 0L);
 
     JsonObject object = new JsonObject();
     object.addProperty(BusinessType.CODE, "TEST_BO");
@@ -126,9 +128,9 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
     LocalizedValue label = new LocalizedValue("Test Edge");
     LocalizedValue description = new LocalizedValue("Test Edge Description");
 
-    bEdgeType = this.bEdgeService.create(USATestData.ORG_NPS.getCode(), code, label, description, bType.getCode(), bType.getCode());
-    
-    bGeoEdgeType = this.bEdgeService.createGeoEdge(USATestData.ORG_NPS.getCode(), "GEO_EDGE", new LocalizedValue("Geo Edge"), new LocalizedValue("Geo Edge"), bType.getCode(), EdgeDirection.PARENT);
+    bEdgeType = this.bEdgeService.create(BusinessEdgeTypeView.build(USATestData.ORG_NPS.getCode(), code, label, description, bType.getCode(), bType.getCode()));
+
+    bGeoEdgeType = this.bEdgeService.createGeoEdge(BusinessGeoEdgeTypeView.build(USATestData.ORG_NPS.getCode(), "GEO_EDGE", new LocalizedValue("Geo Edge"), new LocalizedValue("Geo Edge"), bType.getCode(), EdgeDirection.PARENT));
   }
 
   @Override
@@ -157,7 +159,7 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
       {
         this.bEdgeService.delete(this.bEdgeService.getByCodeOrThrow(bGeoEdgeType.getCode()));
       }
-      
+
       if (bType != null)
       {
         this.bTypeService.delete(this.bTypeService.getByCode(bType.getCode()));

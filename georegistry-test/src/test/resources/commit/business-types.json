@@ -2,7 +2,8 @@
   {
     "code": "TEST_BUSINESS",
     "orgCode": "USATestDataPPP",
-    "origin": "TESTABC",
+    "origin": "REMOTE",
+    "sequence": 0,
     "labelAttribute": "",
     "displayLabel": {
       "localizedValue": "Test Business",

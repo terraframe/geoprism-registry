@@ -48,7 +48,7 @@ public class DirectedAcyclicGraphTest extends FastDatasetTest implements Instanc
   {
     super.beforeClassSetup();
 
-    type = this.service.create("TEST_DAG", new LocalizedValue("TEST_DAG"), new LocalizedValue("TEST_DAG"));
+    type = this.service.create("TEST_DAG", new LocalizedValue("TEST_DAG"), new LocalizedValue("TEST_DAG"), 0L);
   }
 
   @Override

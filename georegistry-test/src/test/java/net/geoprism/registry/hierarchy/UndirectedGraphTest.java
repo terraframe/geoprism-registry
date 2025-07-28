@@ -46,7 +46,7 @@ public class UndirectedGraphTest extends FastDatasetTest implements InstanceTest
   {
     super.beforeClassSetup();
 
-    type = this.service.create("TEST_DAG", new LocalizedValue("TEST_DAG"), new LocalizedValue("TEST_DAG"));
+    type = this.service.create("TEST_DAG", new LocalizedValue("TEST_DAG"), new LocalizedValue("TEST_DAG"), 0L);
   }
   
   @Override

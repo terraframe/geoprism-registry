@@ -40,7 +40,7 @@ public class UndirectedGraphTypeTest
     LocalizedValue label = new LocalizedValue("Test Label");
     LocalizedValue description = new LocalizedValue("Test Description");
 
-    UndirectedGraphType type = this.service.create(code, label, description);
+    UndirectedGraphType type = this.service.create(code, label, description, 0L);
 
     try
     {
@@ -69,7 +69,7 @@ public class UndirectedGraphTypeTest
   @Request
   public void testUpdate()
   {
-    UndirectedGraphType type = this.service.create("TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"));
+    UndirectedGraphType type = this.service.create("TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"), 0L);
 
     try
     {
@@ -93,7 +93,7 @@ public class UndirectedGraphTypeTest
   @Request
   public void testGetByCode()
   {
-    UndirectedGraphType type = this.service.create("TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"));
+    UndirectedGraphType type = this.service.create("TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"), 0L);
 
     try
     {
@@ -113,7 +113,7 @@ public class UndirectedGraphTypeTest
   @Request
   public void testGetByMdEdge()
   {
-    UndirectedGraphType type = this.service.create("TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"));
+    UndirectedGraphType type = this.service.create("TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"), 0L);
 
     try
     {
@@ -133,7 +133,7 @@ public class UndirectedGraphTypeTest
   @Request
   public void testGetByAll()
   {
-    UndirectedGraphType type = this.service.create("TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"));
+    UndirectedGraphType type = this.service.create("TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"), 0L);
 
     try
     {

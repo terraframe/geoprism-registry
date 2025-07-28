@@ -2,7 +2,8 @@
   {
     "code": "USATestDataAdminCode",
     "orgCode": "USATestDataNPS",
-    "origin": "TESTABC",
+    "origin": "REMOTE",
+    "sequence": 0,
     "typeCode": "HierarchyType",
     "displayLabel": {
       "localizedValue": "USATestDataAdmin Display Label",
@@ -65,7 +66,8 @@
   {
     "code": "USATestDataSchoolCode",
     "orgCode": "USATestDataNPS",
-    "origin": "TESTABC",
+    "origin": "REMOTE",
+    "sequence": 0,
     "typeCode": "HierarchyType",
     "displayLabel": {
       "localizedValue": "USATestDataSchool Display Label",
@@ -100,7 +102,8 @@
   {
     "code": "USATestDataReportsToCode",
     "orgCode": "USATestDataNPS",
-    "origin": "TESTABC",
+    "origin": "REMOTE",
+    "sequence": 0,
     "typeCode": "HierarchyType",
     "displayLabel": {
       "localizedValue": "USATestDataReportsTo Display Label",

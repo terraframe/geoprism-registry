@@ -26,6 +26,7 @@ import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
+import net.geoprism.registry.view.BusinessEdgeTypeView;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
@@ -99,7 +100,7 @@ public class BusinessEdgeTypeTest extends FastDatasetTest implements InstanceTes
     LocalizedValue label = new LocalizedValue("Test Label");
     LocalizedValue description = new LocalizedValue("Test Description");
 
-    BusinessEdgeType type = this.bEdgeService.create(FastTestDataset.ORG_CGOV.getCode(), code, label, description, parentType.getCode(), childType.getCode());
+    BusinessEdgeType type = this.bEdgeService.create(BusinessEdgeTypeView.build(FastTestDataset.ORG_CGOV.getCode(), code, label, description, parentType.getCode(), childType.getCode()));
 
     try
     {
@@ -208,7 +209,7 @@ public class BusinessEdgeTypeTest extends FastDatasetTest implements InstanceTes
 
   public BusinessEdgeType createTestRelationship()
   {
-    return this.bEdgeService.create(FastTestDataset.ORG_CGOV.getCode(), "TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"), parentType.getCode(), childType.getCode());
+    return this.bEdgeService.create(BusinessEdgeTypeView.build(FastTestDataset.ORG_CGOV.getCode(), "TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"), parentType.getCode(), childType.getCode()));
   }
 
 }

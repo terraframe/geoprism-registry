@@ -40,7 +40,7 @@ public class DirectedAcyclicGraphTypeTest
     LocalizedValue label = new LocalizedValue("Test Label");
     LocalizedValue description = new LocalizedValue("Test Description");
 
-    DirectedAcyclicGraphType type = this.service.create(code, label, description);
+    DirectedAcyclicGraphType type = this.service.create(code, label, description, 0L);
 
     try
     {
@@ -69,7 +69,7 @@ public class DirectedAcyclicGraphTypeTest
   @Request
   public void testUpdate()
   {
-    DirectedAcyclicGraphType type = this.service.create("TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"));
+    DirectedAcyclicGraphType type = this.service.create("TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"), 0L);
 
     try
     {
@@ -93,7 +93,7 @@ public class DirectedAcyclicGraphTypeTest
   @Request
   public void testGetByCode()
   {
-    DirectedAcyclicGraphType type = this.service.create("TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"));
+    DirectedAcyclicGraphType type = this.service.create("TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"), 0L);
 
     try
     {
@@ -113,7 +113,7 @@ public class DirectedAcyclicGraphTypeTest
   @Request
   public void testGetByMdEdge()
   {
-    DirectedAcyclicGraphType type = this.service.create("TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"));
+    DirectedAcyclicGraphType type = this.service.create("TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"), 0L);
 
     try
     {
@@ -133,7 +133,7 @@ public class DirectedAcyclicGraphTypeTest
   @Request
   public void testGetByAll()
   {
-    DirectedAcyclicGraphType type = this.service.create("TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"));
+    DirectedAcyclicGraphType type = this.service.create("TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"), 0L);
 
     try
     {

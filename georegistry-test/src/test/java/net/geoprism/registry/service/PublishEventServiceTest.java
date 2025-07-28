@@ -45,7 +45,6 @@ import net.geoprism.registry.Publish;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.UndirectedGraphType;
-import net.geoprism.registry.axon.aggregate.RunwayTransactionWrapper;
 import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectEventBuilder;
@@ -70,6 +69,8 @@ import net.geoprism.registry.service.business.PublishEventService;
 import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
+import net.geoprism.registry.view.BusinessEdgeTypeView;
+import net.geoprism.registry.view.BusinessGeoEdgeTypeView;
 import net.geoprism.registry.view.PublishDTO;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
@@ -165,13 +166,13 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
 
     btype = this.bTypeService.apply(object);
 
-    bEdgeType = this.bEdgeService.create(USATestData.ORG_PPP.getCode(), "TEST_B_EDGE", new LocalizedValue("TEST_B_EDGE"), new LocalizedValue("TEST_B_EDGE"), btype.getCode(), btype.getCode());
+    bEdgeType = this.bEdgeService.create(BusinessEdgeTypeView.build(USATestData.ORG_PPP.getCode(), "TEST_B_EDGE", new LocalizedValue("TEST_B_EDGE"), new LocalizedValue("TEST_B_EDGE"), btype.getCode(), btype.getCode()));
 
-    bGeoEdgeType = this.bEdgeService.createGeoEdge(USATestData.ORG_PPP.getCode(), "TEST_GEO_EDGE", new LocalizedValue("TEST_GEO_EDGE"), new LocalizedValue("TEST_GEO_EDGE"), btype.getCode(), EdgeDirection.PARENT);
+    bGeoEdgeType = this.bEdgeService.createGeoEdge(BusinessGeoEdgeTypeView.build(USATestData.ORG_PPP.getCode(), "TEST_GEO_EDGE", new LocalizedValue("TEST_GEO_EDGE"), new LocalizedValue("TEST_GEO_EDGE"), btype.getCode(), EdgeDirection.PARENT));
 
-    dagType = this.dagService.create("TEST_DAG", new LocalizedValue("TEST_DAG"), new LocalizedValue("TEST_DAG"));
+    dagType = this.dagService.create("TEST_DAG", new LocalizedValue("TEST_DAG"), new LocalizedValue("TEST_DAG"), 0L);
 
-    undirectedType = this.undirectedService.create("TEST_UN", new LocalizedValue("TEST_UN"), new LocalizedValue("TEST_UN"));
+    undirectedType = this.undirectedService.create("TEST_UN", new LocalizedValue("TEST_UN"), new LocalizedValue("TEST_UN"), 0L);
 
     this.repoService.refreshMetadataCache();
   }
@@ -361,7 +362,11 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
             HierarchyTypeSnapshot type = this.hSnapshotService.get(commit, code);
 
             Assert.assertNotNull(type);
+            
+            List<GeoObjectTypeSnapshot> children = this.hSnapshotService.getChildren(type, root);
 
+            Assert.assertTrue(children.size() > 0);
+            
             hierarchyTypes.add(this.hSnapshotService.toJSON(type, root));
           });
 

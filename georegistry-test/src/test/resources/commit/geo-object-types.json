@@ -3,6 +3,7 @@
     "code": "USATestDataCountry",
     "orgCode": "USATestDataNPS",
     "origin": "TESTABC",
+    "sequence": 0,
     "displayLabel": {
       "localizedValue": "USATestDataCountry",
       "localeValues": [
@@ -163,6 +164,7 @@
     "code": "USATestDataState",
     "orgCode": "USATestDataNPS",
     "origin": "TESTABC",
+    "sequence": 0,
     "displayLabel": {
       "localizedValue": "USATestDataState",
       "localeValues": [
@@ -323,6 +325,7 @@
     "code": "USATestDataDistrict",
     "orgCode": "USATestDataNPS",
     "origin": "TESTABC",
+    "sequence": 0,
     "displayLabel": {
       "localizedValue": "USATestDataDistrict",
       "localeValues": [
@@ -483,6 +486,7 @@
     "code": "USATestDataCounty",
     "orgCode": "USATestDataNPS",
     "origin": "TESTABC",
+    "sequence": 0,
     "displayLabel": {
       "localizedValue": "USATestDataCounty",
       "localeValues": [
@@ -643,6 +647,7 @@
     "code": "USATestDataArea",
     "orgCode": "USATestDataNPS",
     "origin": "TESTABC",
+    "sequence": 0,
     "displayLabel": {
       "localizedValue": "USATestDataArea",
       "localeValues": [
@@ -803,6 +808,7 @@
     "code": "USATestDataSchoolZone",
     "orgCode": "USATestDataNPS",
     "origin": "TESTABC",
+    "sequence": 0,
     "displayLabel": {
       "localizedValue": "USATestDataSchoolZone",
       "localeValues": [
@@ -963,6 +969,7 @@
     "code": "USATestDataHealthFacility",
     "orgCode": "USATestDataNPS",
     "origin": "TESTABC",
+    "sequence": 0,
     "displayLabel": {
       "localizedValue": "USATestDataHealthFacility",
       "localeValues": [
@@ -1097,6 +1104,7 @@
     "code": "USATestDataHealthPost",
     "orgCode": "USATestDataNPS",
     "origin": "TESTABC",
+    "sequence": 0,
     "displayLabel": {
       "localizedValue": "USATestDataHealthPost",
       "localeValues": [
@@ -1257,6 +1265,7 @@
     "code": "USATestDataHealthStop",
     "orgCode": "USATestDataNPS",
     "origin": "TESTABC",
+    "sequence": 0,
     "displayLabel": {
       "localizedValue": "USATestDataHealthStop",
       "localeValues": [
@@ -1417,6 +1426,7 @@
     "code": "USATestDataMexico_State_GOT",
     "orgCode": "USATestDataNPS",
     "origin": "TESTABC",
+    "sequence": 0,
     "displayLabel": {
       "localizedValue": "USATestDataMexico_State_GOT",
       "localeValues": [
@@ -1577,6 +1587,7 @@
     "code": "USATestDataMexico_City_GOT",
     "orgCode": "USATestDataNPS",
     "origin": "TESTABC",
+    "sequence": 0,
     "displayLabel": {
       "localizedValue": "USATestDataMexico_City_GOT",
       "localeValues": [
