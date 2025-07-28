@@ -116,9 +116,13 @@ public class BasicGeoObjectTypeServiceTest implements InstanceTestClassListener
 
     try
     {
+      Assert.assertEquals(Long.valueOf(0), type.getSequenceNumber());
+      
       AttributeCharacterType attributeDto = new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test Character"), false, false, false);
 
       attributeDto = (AttributeCharacterType) service.createAttributeType(type, attributeDto);
+      
+      Assert.assertEquals(Long.valueOf(1), type.getSequenceNumber());
 
       Assert.assertNotNull(attributeDto);
 

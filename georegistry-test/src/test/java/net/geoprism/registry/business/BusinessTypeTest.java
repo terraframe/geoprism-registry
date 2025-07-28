@@ -64,6 +64,7 @@ public class BusinessTypeTest extends FastDatasetTest implements InstanceTestCla
       Assert.assertEquals(label, type.getDisplayLabel().getValue());
       Assert.assertNotNull(type.getMdVertex());
       Assert.assertEquals(type.getOrigin(), GeoprismProperties.getOrigin());
+      Assert.assertEquals(Long.valueOf(0), type.getSequence());
     }
     finally
     {
@@ -492,6 +493,8 @@ public class BusinessTypeTest extends FastDatasetTest implements InstanceTestCla
       AttributeCharacterType expected = new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test True"), false, false, false);
 
       this.typeService.createAttributeType(type, expected);
+      
+      Assert.assertEquals(Long.valueOf(1), type.getSequence());
 
       Map<String, AttributeType> attributeMap = type.getAttributeMap();
 
@@ -502,6 +505,8 @@ public class BusinessTypeTest extends FastDatasetTest implements InstanceTestCla
       attributeMap = type.getAttributeMap();
 
       Assert.assertFalse(attributeMap.containsKey(expected.getName()));
+      Assert.assertEquals(Long.valueOf(2), type.getSequence());
+
     }
     finally
     {
