@@ -4,7 +4,7 @@
 package net.geoprism.registry.service;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.Optional;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -16,9 +16,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.runwaysdk.session.Request;
 
+import net.geoprism.graph.BusinessEdgeTypeSnapshot;
+import net.geoprism.graph.BusinessTypeSnapshot;
 import net.geoprism.graph.GeoObjectTypeSnapshot;
 import net.geoprism.graph.GraphTypeSnapshot;
 import net.geoprism.graph.HierarchyTypeSnapshot;
+import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.Commit;
 import net.geoprism.registry.DirectedAcyclicGraphType;
@@ -172,51 +175,88 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
       Assert.assertNotNull(root);
 
       testData.getManagedGeoObjectTypes().stream().map(t -> t.getCode()).forEach(code -> {
-        Assert.assertNotNull(this.gSnapshotService.get(commit, code));
+        GeoObjectTypeSnapshot snapshot = this.gSnapshotService.get(commit, code);
         
+        Assert.assertNotNull(snapshot);
+        Assert.assertEquals(Long.valueOf(20), snapshot.getSequence());
+
         // Assert the actual type was created
-        Assert.assertNotNull(ServerGeoObjectType.get(code, true));
+        ServerGeoObjectType type = ServerGeoObjectType.get(code, true);
+        
+        Assert.assertNotNull(type);
+        Assert.assertEquals(Long.valueOf(20), type.getSequence());
       });
 
       testData.getManagedHierarchyTypes().stream().map(t -> t.getCode()).forEach(code -> {
-        HierarchyTypeSnapshot type = this.hSnapshotService.get(commit, code);
+        HierarchyTypeSnapshot snapshot = this.hSnapshotService.get(commit, code);
 
-        Assert.assertNotNull(type);
+        Assert.assertNotNull(snapshot);
+        Assert.assertEquals(Long.valueOf(20), snapshot.getSequence());
+        Assert.assertTrue(this.hSnapshotService.getChildren(snapshot, root).size() > 0);
 
-        List<GeoObjectTypeSnapshot> children = this.hSnapshotService.getChildren(type, root);
-
-        Assert.assertTrue(children.size() > 0);
-        
         // Assert the actual type was created
-        Assert.assertNotNull(ServerHierarchyType.get(code, true));        
+        ServerHierarchyType type = ServerHierarchyType.get(code, true);
+        
+        Assert.assertNotNull(type);
+        Assert.assertEquals(Long.valueOf(20), type.getSequence());
       });
 
       Arrays.asList("TEST_BUSINESS").forEach(code -> {
-        Assert.assertNotNull(this.bTypeSnapshotService.get(commit, code));
+        BusinessTypeSnapshot snapshot = this.bTypeSnapshotService.get(commit, code);
         
+        Assert.assertNotNull(snapshot);
+        Assert.assertEquals(Long.valueOf(20), snapshot.getSequence());
+
         // Assert the actual type was created
-        Assert.assertNotNull(this.bTypeService.getByCode(code));
+        BusinessType type = this.bTypeService.getByCode(code);
+        
+        Assert.assertNotNull(type);
+        Assert.assertEquals(Long.valueOf(20), type.getSequence());
       });
 
       Arrays.asList("TEST_B_EDGE", "TEST_GEO_EDGE").forEach(code -> {
-        Assert.assertNotNull(this.bEdgeSnapshotService.get(commit, code));
-        
+        BusinessEdgeTypeSnapshot snapshot = this.bEdgeSnapshotService.get(commit, code);
+
+        Assert.assertNotNull(snapshot);
+        Assert.assertEquals(Long.valueOf(20), snapshot.getSequence());
+
         // Assert the actual type was created
-        Assert.assertTrue(this.bEdgeService.getByCode(code).isPresent());
+        Optional<BusinessEdgeType> optional = this.bEdgeService.getByCode(code);
+
+        Assert.assertTrue(optional.isPresent());
+
+        BusinessEdgeType type = optional.get();
+        Assert.assertEquals(Long.valueOf(20), type.getSequence());
       });
 
       Arrays.asList("TEST_DAG").forEach(code -> {
-        Assert.assertNotNull(this.graphTypeSnapshotBusinessService.get(commit, GraphTypeSnapshot.DIRECTED_ACYCLIC_GRAPH_TYPE, code));
-        
+        GraphTypeSnapshot snapshot = this.graphTypeSnapshotBusinessService.get(commit, GraphTypeSnapshot.DIRECTED_ACYCLIC_GRAPH_TYPE, code);
+
+        Assert.assertNotNull(snapshot);
+        Assert.assertEquals(Long.valueOf(20), snapshot.getSequence());
+
         // Assert the actual type was created
-        Assert.assertTrue(DirectedAcyclicGraphType.getByCode(code).isPresent());
+        Optional<DirectedAcyclicGraphType> optional = DirectedAcyclicGraphType.getByCode(code);
+
+        Assert.assertTrue(optional.isPresent());
+
+        DirectedAcyclicGraphType type = optional.get();
+        Assert.assertEquals(Long.valueOf(20), type.getSequence());
       });
 
       Arrays.asList("TEST_UN").forEach(code -> {
-        Assert.assertNotNull(this.graphTypeSnapshotBusinessService.get(commit, GraphTypeSnapshot.UNDIRECTED_GRAPH_TYPE, code));
-                
+        GraphTypeSnapshot snapshot = this.graphTypeSnapshotBusinessService.get(commit, GraphTypeSnapshot.UNDIRECTED_GRAPH_TYPE, code);
+
+        Assert.assertNotNull(snapshot);
+        Assert.assertEquals(Long.valueOf(20), snapshot.getSequence());
+
         // Assert the actual type was created
-        Assert.assertTrue(UndirectedGraphType.getByCode(code).isPresent());
+        Optional<UndirectedGraphType> optional = UndirectedGraphType.getByCode(code);
+
+        Assert.assertTrue(optional.isPresent());
+
+        UndirectedGraphType type = optional.get();
+        Assert.assertEquals(Long.valueOf(20), type.getSequence());
       });
 
       Assert.assertEquals(Long.valueOf(47), this.store.size());

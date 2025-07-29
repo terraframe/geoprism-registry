@@ -52,6 +52,8 @@ import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.EdgeDirection;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessEdgeTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
@@ -345,6 +347,10 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
             GeoObjectTypeSnapshot snapshot = this.gSnapshotService.get(commit, code);
 
             Assert.assertNotNull(snapshot);
+            
+            ServerGeoObjectType type = ServerGeoObjectType.get(code);
+            
+            Assert.assertEquals(type.getSequence(), snapshot.getSequence());
 
             geoObjectTypes.add(snapshot.toJSON());
           });
@@ -359,15 +365,19 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
           JsonArray hierarchyTypes = new JsonArray();
 
           dto.getHierarchyTypes().forEach(code -> {
-            HierarchyTypeSnapshot type = this.hSnapshotService.get(commit, code);
+            HierarchyTypeSnapshot snapshot = this.hSnapshotService.get(commit, code);
 
-            Assert.assertNotNull(type);
+            Assert.assertNotNull(snapshot);
+                        
+            ServerHierarchyType type = ServerHierarchyType.get(code);
+
+            Assert.assertEquals(type.getObject().getSequence(), snapshot.getSequence());
             
-            List<GeoObjectTypeSnapshot> children = this.hSnapshotService.getChildren(type, root);
+            List<GeoObjectTypeSnapshot> children = this.hSnapshotService.getChildren(snapshot, root);
 
             Assert.assertTrue(children.size() > 0);
             
-            hierarchyTypes.add(this.hSnapshotService.toJSON(type, root));
+            hierarchyTypes.add(this.hSnapshotService.toJSON(snapshot, root));
           });
 
           try (FileWriter writer = new FileWriter(new File(directory, "hierarchy-types.json")))
@@ -378,11 +388,14 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
           JsonArray businessTypes = new JsonArray();
 
           dto.getBusinessTypes().forEach(code -> {
-            BusinessTypeSnapshot type = this.bTypeSnapshotService.get(commit, code);
+            BusinessTypeSnapshot snapshot = this.bTypeSnapshotService.get(commit, code);
+            
+            Assert.assertNotNull(snapshot);
+            
+            BusinessType type = this.bTypeService.getByCode(code);
+            Assert.assertEquals(type.getSequence(), snapshot.getSequence());
 
-            Assert.assertNotNull(type);
-
-            businessTypes.add(type.toJSON());
+            businessTypes.add(snapshot.toJSON());
           });
 
           try (FileWriter writer = new FileWriter(new File(directory, "business-types.json")))
@@ -393,11 +406,14 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
           JsonArray businessEdgeTypes = new JsonArray();
 
           dto.getBusinessEdgeTypes().forEach(code -> {
-            BusinessEdgeTypeSnapshot type = this.bEdgeSnapshotService.get(commit, code);
+            BusinessEdgeTypeSnapshot snapshot = this.bEdgeSnapshotService.get(commit, code);
 
-            Assert.assertNotNull(type);
+            Assert.assertNotNull(snapshot);
+            
+            BusinessEdgeType type = this.bEdgeService.getByCode(code).get();
+            Assert.assertEquals(type.getSequence(), snapshot.getSequence());
 
-            businessEdgeTypes.add(this.bEdgeSnapshotService.toJSON(type));
+            businessEdgeTypes.add(this.bEdgeSnapshotService.toJSON(snapshot));
           });
 
           try (FileWriter writer = new FileWriter(new File(directory, "business-edge-types.json")))
@@ -408,11 +424,14 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
           JsonArray dagTypes = new JsonArray();
 
           dto.getDagTypes().forEach(code -> {
-            DirectedAcyclicGraphTypeSnapshot type = (DirectedAcyclicGraphTypeSnapshot) this.graphSnapshotService.get(commit, GraphTypeSnapshot.DIRECTED_ACYCLIC_GRAPH_TYPE, code);
+            DirectedAcyclicGraphTypeSnapshot snapshot = (DirectedAcyclicGraphTypeSnapshot) this.graphSnapshotService.get(commit, GraphTypeSnapshot.DIRECTED_ACYCLIC_GRAPH_TYPE, code);
 
-            Assert.assertNotNull(type);
+            Assert.assertNotNull(snapshot);
+            
+            DirectedAcyclicGraphType type = DirectedAcyclicGraphType.getByCode(code).get();
+            Assert.assertEquals(type.getSequence(), snapshot.getSequence());
 
-            dagTypes.add(type.toJSON());
+            dagTypes.add(snapshot.toJSON());
           });
 
           try (FileWriter writer = new FileWriter(new File(directory, "dag-types.json")))
@@ -423,11 +442,14 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
           JsonArray undirectedGraphTypes = new JsonArray();
 
           dto.getUndirectedTypes().forEach(code -> {
-            UndirectedGraphTypeSnapshot type = (UndirectedGraphTypeSnapshot) this.graphSnapshotService.get(commit, GraphTypeSnapshot.UNDIRECTED_GRAPH_TYPE, code);
+            UndirectedGraphTypeSnapshot snapshot = (UndirectedGraphTypeSnapshot) this.graphSnapshotService.get(commit, GraphTypeSnapshot.UNDIRECTED_GRAPH_TYPE, code);
 
-            Assert.assertNotNull(type);
+            Assert.assertNotNull(snapshot);
 
-            undirectedGraphTypes.add(type.toJSON());
+            UndirectedGraphType type = UndirectedGraphType.getByCode(code).get();
+            Assert.assertEquals(type.getSequence(), snapshot.getSequence());
+
+            undirectedGraphTypes.add(snapshot.toJSON());
           });
 
           try (FileWriter writer = new FileWriter(new File(directory, "undirected-graph-types.json")))

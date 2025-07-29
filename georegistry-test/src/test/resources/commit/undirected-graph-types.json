@@ -1,8 +1,8 @@
 [
   {
     "code": "TEST_UN",
-    "origin": "REMOTE",
-    "sequence": 36346,
+    "origin": "TESTABC",
+    "sequence": 0,
     "typeCode": "UndirectedGraphType",
     "displayLabel": {
       "localizedValue": "TEST_UN",

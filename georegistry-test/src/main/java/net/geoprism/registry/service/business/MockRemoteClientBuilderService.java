@@ -174,6 +174,7 @@ public class MockRemoteClientBuilderService implements RemoteClientBuilderServic
           array.forEach(element -> {
             JsonObject object = element.getAsJsonObject();
             object.addProperty(GeoObjectTypeSnapshot.ORIGIN, "REMOTE");
+            object.addProperty(GeoObjectTypeSnapshot.SEQUENCE, 20);
           });
 
           return array;

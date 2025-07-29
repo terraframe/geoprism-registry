@@ -2,8 +2,8 @@
   {
     "code": "TEST_B_EDGE",
     "orgCode": "USATestDataPPP",
-    "origin": "REMOTE",
-    "sequence": 36230,
+    "origin": "TESTABC",
+    "sequence": 0,
     "displayLabel": {
       "localizedValue": "TEST_B_EDGE",
       "localeValues": [
@@ -30,8 +30,8 @@
   {
     "code": "TEST_GEO_EDGE",
     "orgCode": "USATestDataPPP",
-    "origin": "REMOTE",
-    "sequence": 37123,
+    "origin": "TESTABC",
+    "sequence": 0,
     "displayLabel": {
       "localizedValue": "TEST_GEO_EDGE",
       "localeValues": [

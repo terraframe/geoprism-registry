@@ -1,8 +1,8 @@
 [
   {
     "code": "TEST_DAG",
-    "origin": "REMOTE",
-    "sequence": 36306,
+    "origin": "TESTABC",
+    "sequence": 0,
     "typeCode": "DirectedAcyclicGraphType",
     "displayLabel": {
       "localizedValue": "TEST_DAG",

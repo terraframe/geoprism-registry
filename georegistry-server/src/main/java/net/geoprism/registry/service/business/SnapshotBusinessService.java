@@ -154,7 +154,7 @@ public class SnapshotBusinessService
       htsnapshot.setGraphMdEdge(mdEdge);
       htsnapshot.setCode(gtr.code);
       htsnapshot.setOrigin(graphType.getOrigin());
-      htsnapshot.setSequence(graphType.getSeq());
+      htsnapshot.setSequence(graphType.getSequence());
       LocalizedValueConverter.populate(htsnapshot.getDisplayLabel(), graphType.getLabel());
       LocalizedValueConverter.populate(htsnapshot.getDescription(), graphType.getDescriptionLV());
       htsnapshot.apply();
@@ -167,7 +167,7 @@ public class SnapshotBusinessService
       htsnapshot.setGraphMdEdge(mdEdge);
       htsnapshot.setCode(gtr.code);
       htsnapshot.setOrigin(graphType.getOrigin());
-      htsnapshot.setSequence(graphType.getSeq());
+      htsnapshot.setSequence(graphType.getSequence());
       LocalizedValueConverter.populate(htsnapshot.getDisplayLabel(), graphType.getLabel());
       LocalizedValueConverter.populate(htsnapshot.getDescription(), graphType.getDescriptionLV());
       htsnapshot.apply();
@@ -222,7 +222,7 @@ public class SnapshotBusinessService
     snapshot.setCode(edgeType.getCode());
     snapshot.setOrgCode(edgeType.getOrganization().getCode());
     snapshot.setOrigin(edgeType.getOrigin());
-    snapshot.setSequence(edgeType.getSeq());
+    snapshot.setSequence(edgeType.getSequence());
     snapshot.setIsChildGeoObject(child.isGeoObjectType());
     snapshot.setIsChildGeoObject(child.isGeoObjectType());
     snapshot.setIsParentGeoObject(parent.isGeoObjectType());
@@ -266,7 +266,7 @@ public class SnapshotBusinessService
     snapshot.setCode(type.getCode());
     snapshot.setOrgCode(type.getOrganization().getCode());
     snapshot.setOrigin(type.getOrigin());
-    snapshot.setSequence(type.getSeq());
+    snapshot.setSequence(type.getSequence());
     RegistryLocalizedValueConverter.populate(snapshot.getDisplayLabel(), type.getLabel());
     RegistryLocalizedValueConverter.populate(snapshot.getDescription(), type.getDescription());
     snapshot.apply();
@@ -349,7 +349,7 @@ public class SnapshotBusinessService
     snapshot.setCode(type.getCode());
     snapshot.setOrgCode(type.getOrganizationCode());
     snapshot.setOrigin(type.getOrigin());
-    snapshot.setSequence(type.getSequenceNumber());
+    snapshot.setSequence(type.getSequence());
     snapshot.setGeometryType(type.getGeometryType().name());
     snapshot.setIsAbstract(type.getIsAbstract());
     snapshot.setIsRoot(false);
@@ -418,7 +418,7 @@ public class SnapshotBusinessService
     snapshot.setCode(type.getCode());
     snapshot.setOrgCode(type.getOrganization().getCode());
     snapshot.setOrigin(type.getOrigin());
-    snapshot.setSequence(type.getSeq());
+    snapshot.setSequence(type.getSequence());
     RegistryLocalizedValueConverter.populate(snapshot.getDisplayLabel(), type.getLabel());
     snapshot.apply();
 
@@ -478,7 +478,7 @@ public class SnapshotBusinessService
     LocalizedValue description = LocalizedValueConverter.convertNoAutoCoalesce(snapshot.getDescription());
 
     BusinessEdgeType type = this.bEdgeService.getByCode(snapshot.getCode()).map(t -> {
-      if (t.getSeq() < snapshot.getSequence())
+      if (t.getSequence() < snapshot.getSequence())
       {
         this.bEdgeService.update(t, label, description);
       }
@@ -531,6 +531,7 @@ public class SnapshotBusinessService
 
     HierarchyType dto = new HierarchyType(snapshot.getCode(), label, description, snapshot.getOrgCode());
     dto.setOrigin(snapshot.getOrigin());
+    dto.setSequenceNumber(snapshot.getSequence());
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(dto.getCode(), false);
 
@@ -538,7 +539,7 @@ public class SnapshotBusinessService
     {
       hierarchyType = this.hTypeService.createHierarchyType(dto);
     }
-    else if (hierarchyType.getSeq() < snapshot.getSequence())
+    else if (hierarchyType.getSequence() < snapshot.getSequence())
     {
       this.hTypeService.update(hierarchyType, dto);
     }
@@ -581,6 +582,7 @@ public class SnapshotBusinessService
     dto.setIsAbstract(snapshot.getIsAbstract());
     dto.setIsPrivate(snapshot.getIsPrivate());
     dto.setOrigin(snapshot.getOrigin());
+    dto.setSequenceNumber(snapshot.getSequence());
 
     if (parentType != null && !parentType.getCode().equals(GeoObjectTypeSnapshot.ROOT))
     {
@@ -593,7 +595,7 @@ public class SnapshotBusinessService
     {
       type = this.gTypeService.create(dto);
     }
-    else if (type.getSequenceNumber() < snapshot.getSequence())
+    else if (type.getSequence() < snapshot.getSequence())
     {
       type = this.gTypeService.updateGeoObjectType(type, dto);
     }
@@ -626,7 +628,7 @@ public class SnapshotBusinessService
 
     BusinessType existing = this.bTypeService.getByCode(snapshot.getCode());
 
-    if (existing == null || existing.getSeq() < snapshot.getSequence())
+    if (existing == null || existing.getSequence() < snapshot.getSequence())
     {
       if (existing != null)
       {
