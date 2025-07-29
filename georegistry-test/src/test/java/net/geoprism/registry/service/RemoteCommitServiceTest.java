@@ -41,6 +41,7 @@ import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessSe
 import net.geoprism.registry.service.business.GeoObjectTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.GraphTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeSnapshotBusinessServiceIF;
+import net.geoprism.registry.service.business.MockRemoteClientBuilderService;
 import net.geoprism.registry.service.business.PublishBusinessServiceIF;
 import net.geoprism.registry.service.business.RemoteClientBuilderServiceIF;
 import net.geoprism.registry.service.business.RemoteClientIF;
@@ -98,8 +99,19 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
   protected static USATestData                      testData;
 
   @Override
-  @Request
   public void beforeClassSetup() throws Exception
+  {
+
+  }
+
+  @Override
+  public void afterClassSetup() throws Exception
+  {
+  }
+
+  @Before
+  @Request
+  public void before()
   {
     this.store.truncate();
 
@@ -110,22 +122,19 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
     });
 
     // Delete the existing commit
-    try (RemoteClientIF client = builder.open(""))
+    try (RemoteClientIF client = builder.open(MockRemoteClientBuilderService.SORUCE))
     {
       client.getPublish("").ifPresent(dto -> {
         this.publishService.getByUid(dto.getUid()).ifPresent(publish -> {
-          // Ensure that the commit has not already been pulled
-          this.commitService.getCommit(publish, 1).ifPresent(commit -> {
-            this.commitService.delete(commit);
-          });
+          this.publishService.delete(publish);
         });
       });
     }
   }
 
-  @Override
+  @Before
   @Request
-  public void afterClassSetup() throws Exception
+  public void after()
   {
 
     Arrays.asList("TEST_DAG").forEach(code -> {
@@ -149,13 +158,10 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
       }
     });
 
-    testData.tearDownMetadata();
-  }
-
-  @Before
-  @Request
-  public void after()
-  {
+    if (testData != null)
+    {
+      testData.tearDownMetadata();
+    }
   }
 
   @Test
@@ -164,7 +170,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
   {
     Assert.assertEquals(Long.valueOf(0), this.store.size());
 
-    Commit commit = this.service.pull("test", "mock", 1);
+    Commit commit = this.service.pull(MockRemoteClientBuilderService.SORUCE, "mock", 1);
 
     try
     {
@@ -176,13 +182,13 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
 
       testData.getManagedGeoObjectTypes().stream().map(t -> t.getCode()).forEach(code -> {
         GeoObjectTypeSnapshot snapshot = this.gSnapshotService.get(commit, code);
-        
+
         Assert.assertNotNull(snapshot);
         Assert.assertEquals(Long.valueOf(20), snapshot.getSequence());
 
         // Assert the actual type was created
         ServerGeoObjectType type = ServerGeoObjectType.get(code, true);
-        
+
         Assert.assertNotNull(type);
         Assert.assertEquals(Long.valueOf(20), type.getSequence());
       });
@@ -196,20 +202,20 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
 
         // Assert the actual type was created
         ServerHierarchyType type = ServerHierarchyType.get(code, true);
-        
+
         Assert.assertNotNull(type);
         Assert.assertEquals(Long.valueOf(20), type.getSequence());
       });
 
       Arrays.asList("TEST_BUSINESS").forEach(code -> {
         BusinessTypeSnapshot snapshot = this.bTypeSnapshotService.get(commit, code);
-        
+
         Assert.assertNotNull(snapshot);
         Assert.assertEquals(Long.valueOf(20), snapshot.getSequence());
 
         // Assert the actual type was created
         BusinessType type = this.bTypeService.getByCode(code);
-        
+
         Assert.assertNotNull(type);
         Assert.assertEquals(Long.valueOf(20), type.getSequence());
       });
@@ -260,11 +266,98 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
       });
 
       Assert.assertEquals(Long.valueOf(47), this.store.size());
-
     }
     finally
     {
       this.commitService.delete(commit);
+    }
+  }
+
+  @Test
+  @Request
+  public void testSkipMetadata() throws InterruptedException
+  {
+    Assert.assertEquals(Long.valueOf(0), this.store.size());
+
+    Commit original = this.service.pull(MockRemoteClientBuilderService.SORUCE, "mock", 1);
+
+    try
+    {
+      Assert.assertNotNull(original);
+
+      Commit outOfDate = this.service.pull(MockRemoteClientBuilderService.SKIP_METADATA, "mock", 2);
+
+      try
+      {
+
+        GeoObjectTypeSnapshot root = this.gSnapshotService.getRoot(original);
+
+        Assert.assertNotNull(root);
+
+        testData.getManagedGeoObjectTypes().stream().map(t -> t.getCode()).forEach(code -> {
+          ServerGeoObjectType type = ServerGeoObjectType.get(code, true);
+
+          Assert.assertNotNull(type);
+          Assert.assertEquals(Long.valueOf(20), type.getSequence());
+          Assert.assertNotEquals(MockRemoteClientBuilderService.SKIP_METADATA, type.getLabel().getValue());
+        });
+
+        testData.getManagedHierarchyTypes().stream().map(t -> t.getCode()).forEach(code -> {
+          ServerHierarchyType type = ServerHierarchyType.get(code, true);
+
+          Assert.assertNotNull(type);
+          Assert.assertEquals(Long.valueOf(20), type.getSequence());
+          Assert.assertNotEquals(MockRemoteClientBuilderService.SKIP_METADATA, type.getLabel().getValue());
+        });
+
+        Arrays.asList("TEST_BUSINESS").forEach(code -> {
+          BusinessType type = this.bTypeService.getByCode(code);
+
+          Assert.assertNotNull(type);
+          Assert.assertEquals(Long.valueOf(20), type.getSequence());
+          Assert.assertNotEquals(MockRemoteClientBuilderService.SKIP_METADATA, type.getLabel().getValue());
+        });
+
+        Arrays.asList("TEST_B_EDGE", "TEST_GEO_EDGE").forEach(code -> {
+          Optional<BusinessEdgeType> optional = this.bEdgeService.getByCode(code);
+
+          Assert.assertTrue(optional.isPresent());
+
+          BusinessEdgeType type = optional.get();
+          Assert.assertEquals(Long.valueOf(20), type.getSequence());
+          Assert.assertNotEquals(MockRemoteClientBuilderService.SKIP_METADATA, type.getLabel().getValue());
+        });
+
+        Arrays.asList("TEST_DAG").forEach(code -> {
+          Optional<DirectedAcyclicGraphType> optional = DirectedAcyclicGraphType.getByCode(code);
+
+          Assert.assertTrue(optional.isPresent());
+
+          DirectedAcyclicGraphType type = optional.get();
+          Assert.assertEquals(Long.valueOf(20), type.getSequence());
+          Assert.assertNotEquals(MockRemoteClientBuilderService.SKIP_METADATA, type.getLabel().getValue());
+        });
+
+        Arrays.asList("TEST_UN").forEach(code -> {
+          Optional<UndirectedGraphType> optional = UndirectedGraphType.getByCode(code);
+
+          Assert.assertTrue(optional.isPresent());
+
+          UndirectedGraphType type = optional.get();
+          Assert.assertEquals(Long.valueOf(20), type.getSequence());
+          Assert.assertNotEquals(MockRemoteClientBuilderService.SKIP_METADATA, type.getLabel().getValue());
+        });
+
+        Assert.assertEquals(Long.valueOf(94), this.store.size());
+      }
+      finally
+      {
+        this.commitService.delete(outOfDate);
+      }
+    }
+    finally
+    {
+      this.commitService.delete(original);
     }
   }
 }

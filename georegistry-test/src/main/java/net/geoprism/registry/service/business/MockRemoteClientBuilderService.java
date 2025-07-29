@@ -6,7 +6,9 @@ import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
@@ -25,12 +27,17 @@ import net.geoprism.registry.view.PublishDTO;
 @Primary
 public class MockRemoteClientBuilderService implements RemoteClientBuilderServiceIF
 {
+  public static String ORIGIN        = "REMOTE";
+
+  public static String SORUCE        = "DEFAULT";
+
+  public static String SKIP_METADATA = "SECOND_PULL";
+
   @Override
-  public RemoteClientIF open(String source)
+  public RemoteClientIF open(final String source)
   {
     return new RemoteClientIF()
     {
-
       @Override
       public List<RemoteEvent> getRemoteEvents(String uid, Integer chunk)
       {
@@ -152,7 +159,15 @@ public class MockRemoteClientBuilderService implements RemoteClientBuilderServic
 
         try
         {
-          return Optional.ofNullable(mapper.readValue(this.getClass().getResourceAsStream("/commit/commit.json"), CommitDTO.class));
+          CommitDTO commit = mapper.readValue(this.getClass().getResourceAsStream("/commit/commit.json"), CommitDTO.class);
+          commit.setVersionNumber(versionNumber);
+
+          if (!source.equals(SORUCE))
+          {
+            commit.setUid(UUID.randomUUID().toString());
+          }
+
+          return Optional.ofNullable(commit);
         }
         catch (IOException e)
         {
@@ -173,8 +188,17 @@ public class MockRemoteClientBuilderService implements RemoteClientBuilderServic
 
           array.forEach(element -> {
             JsonObject object = element.getAsJsonObject();
-            object.addProperty(GeoObjectTypeSnapshot.ORIGIN, "REMOTE");
+            object.addProperty(GeoObjectTypeSnapshot.ORIGIN, ORIGIN);
             object.addProperty(GeoObjectTypeSnapshot.SEQUENCE, 20);
+
+            if (source.equals(SKIP_METADATA))
+            {
+              LocalizedValue value = new LocalizedValue(source);
+              value.setValue(LocalizedValue.DEFAULT_LOCALE, source);
+
+              object.addProperty(GeoObjectTypeSnapshot.SEQUENCE, 10);
+              object.add(GeoObjectTypeSnapshot.DISPLAYLABEL, value.toJSON());
+            }
           });
 
           return array;
