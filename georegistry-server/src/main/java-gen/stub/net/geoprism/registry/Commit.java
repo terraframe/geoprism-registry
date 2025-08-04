@@ -21,7 +21,7 @@ public class Commit extends CommitBase implements SnapshotContainer<CommitHasSna
 
   public CommitDTO toDTO(Publish publish)
   {
-    return new CommitDTO(this.getUid(), publish.getUid(), this.getVersionNumber(), getLastSequenceNumber());
+    return new CommitDTO(this.getUid(), publish.getUid(), this.getVersionNumber(), getLastOriginGlobalIndex());
   }
 
   public CommitDTO toDTO()

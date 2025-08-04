@@ -52,7 +52,7 @@ public class GPRBusinessEdgeTypeSnapshotBusinessService extends BusinessEdgeType
       vQuery.WHERE(vQuery.getParent().EQ((Commit) version));
 
       BusinessEdgeTypeSnapshotQuery query = new BusinessEdgeTypeSnapshotQuery(factory);
-      query.LEFT_JOIN_EQ(vQuery.getChild());
+      query.WHERE(query.EQ(vQuery.getChild()));
       query.AND(query.getCode().EQ(code));
 
       try (OIterator<? extends BusinessEdgeTypeSnapshot> it = query.getIterator())

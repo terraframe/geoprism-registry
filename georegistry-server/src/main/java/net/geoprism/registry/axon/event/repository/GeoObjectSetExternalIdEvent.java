@@ -99,6 +99,6 @@ public class GeoObjectSetExternalIdEvent extends AbstractGeoObjectEvent implemen
   @Override
   public Boolean isValidFor(PublishDTO dto)
   {
-    return dto.getHierarchyTypes().contains(this.getType());
+    return dto.getHierarchyTypes().anyMatch(this.getType()::equals);
   }
 }

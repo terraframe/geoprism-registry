@@ -43,18 +43,18 @@ public interface CommitBusinessServiceIF
 
   List<Commit> getCommits(Publish publish);
 
-  Commit getMostRecentCommit(Publish publish);
-
-  Optional<Commit> getCommit(Publish publish, Integer versionNumber);
+  Optional<Commit> getLatest(Publish publish);
 
   Optional<Commit> getCommit(String uid);
 
   Commit getOrThrow(String uid);
 
-  Commit create(Publish publish, int versionNumber, long lastSequenceNumber);
+  Commit create(Publish publish, int versionNumber, long lastOriginGlobalIndex);
 
   Commit create(Publish publish, CommitDTO dto);
 
   List<RemoteEvent> getRemoteEvents(Commit commit, Integer chunk);
+
+  List<Commit> getDependencies(Commit commit);
 
 }

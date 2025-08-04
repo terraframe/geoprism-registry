@@ -13,9 +13,13 @@ public interface RemoteClientIF extends AutoCloseable
 {
   public void close();
 
+  public List<PublishDTO> getAll();
+
   public Optional<PublishDTO> getPublish(String publishId);
 
-  public Optional<CommitDTO> getCommit(String uid, Integer versionNumber);
+  public Optional<CommitDTO> getLatest(String publishId);
+
+  public List<CommitDTO> getDependencies(String commitId);
 
   public JsonArray getBusinessTypes(String commitId);
 

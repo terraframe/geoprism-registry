@@ -3,6 +3,7 @@ package net.geoprism.registry.service.business;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.eventhandling.DomainEventMessage;
@@ -65,14 +66,27 @@ public class PublishEventService
   {
     Publish publish = this.publishService.create(configuration);
 
-    Commit previous = this.commitService.getMostRecentCommit(publish);
+    Optional<Commit> previous = this.commitService.getLatest(publish);
 
-    Long lastSequenceNumber = previous != null ? previous.getLastSequenceNumber() : 0;
-    Integer versionNumber = previous != null ? previous.getVersionNumber() : 1;
+    Long lastGlobalIndex = previous.map(p -> p.getLastOriginGlobalIndex()).orElse(Long.valueOf(0));
+    Integer versionNumber = previous.map(p -> p.getVersionNumber()).orElse(Integer.valueOf(1));
 
-    GapAwareTrackingToken start = new GapAwareTrackingToken(lastSequenceNumber, new LinkedList<>());
+    GapAwareTrackingToken start = new GapAwareTrackingToken(lastGlobalIndex, new LinkedList<>());
 
-    publish(publish, start, versionNumber);
+    Commit commit = publish(publish, start, versionNumber);
+
+    // Determine all of the dependent commits
+    previous.ifPresent(p -> commit.addDependency(p).apply());
+
+    List<Publish> dependencies = this.publishService.getRemoteFor(configuration);
+
+    for (Publish dependency : dependencies)
+    {
+      // We only need to add the latest commit as a dependency because the
+      // latest commit will have a dependency on its previous version if one
+      // exists
+      this.commitService.getLatest(dependency).ifPresent(latest -> commit.addDependency(latest).apply());
+    }
 
     return publish;
   }
@@ -106,10 +120,11 @@ public class PublishEventService
       Boolean isNew = ( (GeoObjectApplyEvent) event ).getIsNew();
       String code = ( (GeoObjectApplyEvent) event ).getCode();
 
-      GeoObjectOverTime dtoOvertTime = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), oJson);
-      ServerGeoObjectIF geoObject = this.service.fromDTO(dtoOvertTime, isNew);
+      ServerGeoObjectIF object = this.service.getGeoObjectByCode(code, type);
 
-      GeoObject dto = this.service.toGeoObject(geoObject, publish.getForDate(), false, cache);
+      this.service.populate(object, GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), oJson));
+
+      GeoObject dto = this.service.toGeoObject(object, publish.getForDate(), false, cache);
 
       return new RemoteGeoObjectCommand(commit.getUid(), code, isNew, dto.toJSON().toString(), type, publish.getStartDate(), publish.getEndDate());
     }

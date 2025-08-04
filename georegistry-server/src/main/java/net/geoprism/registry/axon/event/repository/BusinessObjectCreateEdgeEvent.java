@@ -118,7 +118,7 @@ public class BusinessObjectCreateEdgeEvent implements BusinessObjectEvent
   @Override
   public Boolean isValidFor(PublishDTO dto)
   {
-    return dto.getBusinessEdgeTypes().contains(this.getEdgeType());
+    return dto.getBusinessEdgeTypes().anyMatch(this.getEdgeType()::equals);
   }
 
   @Override

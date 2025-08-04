@@ -40,12 +40,12 @@ public class CommitService
   private HierarchyTypeSnapshotBusinessServiceIF    hierarchyTypeService;
 
   @Request(RequestType.SESSION)
-  public CommitDTO get(String sessionId, String publishId, Integer versionNumber)
+  public CommitDTO getLatest(String sessionId, String publishId)
   {
     Publish publish = this.publishService.getByUidOrThrow(publishId);
 
-    return this.service.getCommit(publish, versionNumber).orElseThrow(() -> {
-      throw new ProgrammingErrorException("Unable to find a commit version [" + versionNumber + "]");
+    return this.service.getLatest(publish).orElseThrow(() -> {
+      throw new ProgrammingErrorException("Publish data does not have any commits");
     }).toDTO(publish);
   }
 
@@ -122,6 +122,16 @@ public class CommitService
     Commit commit = this.service.getOrThrow(uid);
 
     return this.service.getRemoteEvents(commit, chunk);
+  }
+
+  @Request(RequestType.SESSION)
+  public List<CommitDTO> getDependencies(String sessionId, String uid)
+  {
+    Commit commit = this.service.getOrThrow(uid);
+
+    return this.service.getDependencies(commit).stream() //
+        .map(type -> type.toDTO()) //
+        .toList();
   }
 
 }

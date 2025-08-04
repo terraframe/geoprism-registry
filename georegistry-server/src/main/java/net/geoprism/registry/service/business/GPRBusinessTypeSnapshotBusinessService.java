@@ -52,7 +52,7 @@ public class GPRBusinessTypeSnapshotBusinessService extends BusinessTypeSnapshot
       vQuery.WHERE(vQuery.getParent().EQ((Commit) version));
 
       BusinessTypeSnapshotQuery query = new BusinessTypeSnapshotQuery(factory);
-      query.LEFT_JOIN_EQ(vQuery.getChild());
+      query.WHERE(query.EQ(vQuery.getChild()));
       query.AND(query.getCode().EQ(code));
 
       try (OIterator<? extends BusinessTypeSnapshot> it = query.getIterator())

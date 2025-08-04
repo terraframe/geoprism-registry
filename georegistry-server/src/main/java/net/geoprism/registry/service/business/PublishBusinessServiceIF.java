@@ -24,4 +24,6 @@ public interface PublishBusinessServiceIF
 
   List<Publish> getAll();
 
+  List<Publish> getRemoteFor(PublishDTO configuration);
+
 }

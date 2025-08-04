@@ -44,20 +44,28 @@ public class CommitController extends RunwaySpringController
   @Autowired
   private CommitService      service;
 
-  @GetMapping(API_PATH + "/get")
-  public ResponseEntity<CommitDTO> get(@RequestParam(name = "publishId") String publishId, @RequestParam(name = "versionNumber") Integer versionNumber)
-  {
-    CommitDTO dto = this.service.get(this.getSessionId(), publishId, versionNumber);
-
-    return new ResponseEntity<CommitDTO>(dto, HttpStatus.OK);
-  }
-
   @GetMapping(API_PATH + "/get-all")
-  public ResponseEntity<List<CommitDTO>> get(@RequestParam(name = "publishId") String publishId)
+  public ResponseEntity<List<CommitDTO>> getAll(@RequestParam(name = "publishId") String publishId)
   {
     List<CommitDTO> dtos = this.service.getAll(this.getSessionId(), publishId);
 
     return new ResponseEntity<List<CommitDTO>>(dtos, HttpStatus.OK);
+  }
+
+  @GetMapping(API_PATH + "/get-latest")
+  public ResponseEntity<CommitDTO> getLatest(@RequestParam(name = "publishId") String publishId)
+  {
+    CommitDTO dto = this.service.getLatest(this.getSessionId(), publishId);
+
+    return new ResponseEntity<CommitDTO>(dto, HttpStatus.OK);
+  }
+
+  @GetMapping(API_PATH + "/get-dependencies")
+  public ResponseEntity<List<CommitDTO>> getDependencies(@RequestParam(name = "uid") String uid)
+  {
+    List<CommitDTO> dependencies = this.service.getDependencies(this.getSessionId(), uid);
+
+    return ResponseEntity.ok(dependencies);
   }
 
   @GetMapping(API_PATH + "/business-types")

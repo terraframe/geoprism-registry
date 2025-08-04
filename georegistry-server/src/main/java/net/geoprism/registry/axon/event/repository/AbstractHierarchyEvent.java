@@ -17,11 +17,11 @@ public abstract class AbstractHierarchyEvent extends AbstractGeoObjectEvent impl
   {
     Date date = dto.getDate();
 
-    if (dto.getHierarchyTypes().contains(this.getEdgeType()))
+    if (dto.getHierarchyTypes().anyMatch(this.getEdgeType()::equals))
     {
       return ( date.after(this.getStartDate()) && date.before(this.getEndDate()) ) || date.equals(this.getStartDate()) || date.equals(this.getEndDate());
     }
-    
+
     return false;
   }
 }

@@ -5,23 +5,33 @@
     <create>
       <mdBusiness
         name="net.geoprism.registry.Publish"
+        table="publish"        
         exported="false">
         <attributes>
           <uuid
             name="uid"
-            label="UID" />
+            label="UID"
+            required="true" />
           <json
             name="typeCodes"
-            label="Type Codes" />
+            label="Type Codes"
+            required="true" />
           <dateTime
             name="forDate"
-            label="For Date" />
+            label="For Date"
+            required="true" />
           <dateTime
             name="startDate"
-            label="Start Date" />
+            label="Start Date"
+            required="true" />
           <dateTime
             name="endDate"
-            label="End Date" />
+            label="End Date"
+            required="true" />
+          <text
+            name="origin"
+            label="Origin"
+            required="true" />
         </attributes>
       </mdBusiness>
       <mdBusiness
@@ -30,30 +40,68 @@
         <attributes>
           <uuid
             name="uid"
-            label="UID" />
+            label="UID"
+            required="true" />
           <reference
             name="publish"
             label="Publish"
             required="true"
             type="net.geoprism.registry.Publish" />
           <long
-            name="lastSequenceNumber"
-            label="Last Sequence Number" />
+            name="lastOriginGlobalIndex"
+            label="Last Origin Global Index"
+            required="true" />
           <integer
             name="versionNumber"
-            label="Version Number" />
+            label="Version Number"
+            required="true" />
         </attributes>
       </mdBusiness>
-      
-      <mdRelationship name="net.geoprism.registry.CommitHasSnapshot" label="Commit Has Snapshot" table="commit_has_snapshot" generateController="false" exported="false" publish="true">
-        <parent cardinality="*" name="net.geoprism.registry.Commit" method="Commit" />
-        <child cardinality="*" name="net.geoprism.graph.MetadataSnapshot"  method="Snapshot" />
+
+      <mdRelationship
+        name="net.geoprism.registry.CommitHasSnapshot"
+        label="Commit Has Snapshot"
+        table="commit_has_snapshot"
+        generateController="false"
+        exported="false"
+        publish="true">
+        <parent
+          cardinality="*"
+          name="net.geoprism.registry.Commit"
+          method="Commit" />
+        <child
+          cardinality="*"
+          name="net.geoprism.graph.MetadataSnapshot"
+          method="Snapshot" />
       </mdRelationship>
-      
+
+      <mdRelationship
+        name="net.geoprism.registry.CommitHasDependency"
+        label="Commit Has Dependency"
+        table="commit_has_dependency"
+        generateController="false"
+        exported="false"
+        publish="true">
+        <parent
+          cardinality="*"
+          name="net.geoprism.registry.Commit"
+          method="Dependency" />
+        <child
+          cardinality="*"
+          name="net.geoprism.registry.Commit"
+          method="Dependent" />
+      </mdRelationship>
+
     </create>
   </doIt>
   <undoIt>
     <delete>
+      <object
+        key="net.geoprism.registry.CommitHasDependency"
+        type="com.runwaysdk.system.metadata.MdRelationship" />
+      <object
+        key="net.geoprism.registry.CommitHasSnapshot"
+        type="com.runwaysdk.system.metadata.MdRelationship" />
       <object
         key="net.geoprism.registry.Publish"
         type="com.runwaysdk.system.metadata.MdBusiness" />

@@ -50,6 +50,7 @@ import net.geoprism.graph.HierarchyTypeSnapshotQuery;
 import net.geoprism.graph.UndirectedGraphTypeSnapshot;
 import net.geoprism.graph.UndirectedGraphTypeSnapshotQuery;
 import net.geoprism.registry.Commit;
+import net.geoprism.registry.CommitHasDependencyQuery;
 import net.geoprism.registry.CommitHasSnapshotQuery;
 import net.geoprism.registry.CommitQuery;
 import net.geoprism.registry.Publish;
@@ -133,7 +134,7 @@ public class CommitBusinessService implements CommitBusinessServiceIF
     vQuery.WHERE(vQuery.getParent().EQ(commit));
 
     GeoObjectTypeSnapshotQuery query = new GeoObjectTypeSnapshotQuery(factory);
-    query.LEFT_JOIN_EQ(vQuery.getChild());
+    query.WHERE(query.EQ(vQuery.getChild()));
     query.AND(query.getIsRoot().EQ(true));
 
     try (OIterator<? extends GeoObjectTypeSnapshot> it = query.getIterator())
@@ -156,7 +157,7 @@ public class CommitBusinessService implements CommitBusinessServiceIF
     vQuery.WHERE(vQuery.getParent().EQ(commit));
 
     GeoObjectTypeSnapshotQuery query = new GeoObjectTypeSnapshotQuery(factory);
-    query.LEFT_JOIN_EQ(vQuery.getChild());
+    query.WHERE(query.EQ(vQuery.getChild()));
 
     try (OIterator<? extends GeoObjectTypeSnapshot> it = query.getIterator())
     {
@@ -173,7 +174,7 @@ public class CommitBusinessService implements CommitBusinessServiceIF
     vQuery.WHERE(vQuery.getParent().EQ(commit));
 
     BusinessTypeSnapshotQuery query = new BusinessTypeSnapshotQuery(factory);
-    query.LEFT_JOIN_EQ(vQuery.getChild());
+    query.WHERE(query.EQ(vQuery.getChild()));
 
     try (OIterator<? extends BusinessTypeSnapshot> it = query.getIterator())
     {
@@ -190,7 +191,7 @@ public class CommitBusinessService implements CommitBusinessServiceIF
     vQuery.WHERE(vQuery.getParent().EQ(commit));
 
     BusinessEdgeTypeSnapshotQuery query = new BusinessEdgeTypeSnapshotQuery(factory);
-    query.LEFT_JOIN_EQ(vQuery.getChild());
+    query.WHERE(query.EQ(vQuery.getChild()));
 
     try (OIterator<? extends BusinessEdgeTypeSnapshot> it = query.getIterator())
     {
@@ -208,7 +209,7 @@ public class CommitBusinessService implements CommitBusinessServiceIF
     vQuery.WHERE(vQuery.getParent().EQ(commit));
 
     HierarchyTypeSnapshotQuery query = new HierarchyTypeSnapshotQuery(factory);
-    query.LEFT_JOIN_EQ(vQuery.getChild());
+    query.WHERE(query.EQ(vQuery.getChild()));
 
     try (OIterator<? extends HierarchyTypeSnapshot> it = query.getIterator())
     {
@@ -226,7 +227,7 @@ public class CommitBusinessService implements CommitBusinessServiceIF
     vQuery.WHERE(vQuery.getParent().EQ(commit));
 
     DirectedAcyclicGraphTypeSnapshotQuery query = new DirectedAcyclicGraphTypeSnapshotQuery(factory);
-    query.LEFT_JOIN_EQ(vQuery.getChild());
+    query.WHERE(query.EQ(vQuery.getChild()));
 
     try (OIterator<? extends DirectedAcyclicGraphTypeSnapshot> it = query.getIterator())
     {
@@ -244,7 +245,7 @@ public class CommitBusinessService implements CommitBusinessServiceIF
     vQuery.WHERE(vQuery.getParent().EQ(commit));
 
     UndirectedGraphTypeSnapshotQuery query = new UndirectedGraphTypeSnapshotQuery(factory);
-    query.LEFT_JOIN_EQ(vQuery.getChild());
+    query.WHERE(query.EQ(vQuery.getChild()));
 
     try (OIterator<? extends UndirectedGraphTypeSnapshot> it = query.getIterator())
     {
@@ -273,7 +274,7 @@ public class CommitBusinessService implements CommitBusinessServiceIF
     vQuery.WHERE(vQuery.getParent().EQ(commit));
 
     GeoObjectTypeSnapshotQuery query = new GeoObjectTypeSnapshotQuery(factory);
-    query.LEFT_JOIN_EQ(vQuery.getChild());
+    query.WHERE(query.EQ(vQuery.getChild()));
     query.AND(query.getCode().EQ(typeCode));
 
     try (OIterator<? extends GeoObjectTypeSnapshot> it = query.getIterator())
@@ -296,7 +297,7 @@ public class CommitBusinessService implements CommitBusinessServiceIF
     vQuery.WHERE(vQuery.getParent().EQ(commit));
 
     HierarchyTypeSnapshotQuery query = new HierarchyTypeSnapshotQuery(factory);
-    query.LEFT_JOIN_EQ(vQuery.getChild());
+    query.WHERE(query.EQ(vQuery.getChild()));
     query.AND(query.getCode().EQ(typeCode));
 
     try (OIterator<? extends HierarchyTypeSnapshot> it = query.getIterator())
@@ -312,11 +313,11 @@ public class CommitBusinessService implements CommitBusinessServiceIF
 
   @Override
   @Transaction
-  public Commit create(Publish publish, int versionNumber, long lastSequenceNumber)
+  public Commit create(Publish publish, int versionNumber, long lastOriginalIndex)
   {
     PublishDTO configuration = publish.toDTO();
 
-    Commit commit = create(publish, new CommitDTO(UUID.randomUUID().toString(), publish.getUid(), versionNumber, lastSequenceNumber));
+    Commit commit = create(publish, new CommitDTO(UUID.randomUUID().toString(), publish.getUid(), versionNumber, lastOriginalIndex));
 
     GeoObjectTypeSnapshot root = this.snapshotService.createRoot(commit);
 
@@ -326,12 +327,12 @@ public class CommitBusinessService implements CommitBusinessServiceIF
     });
 
     // Publish snapshots for all abstract geo object types
-    configuration.getGeoObjectTypes().stream().map(code -> ServerGeoObjectType.get(code)).filter(t -> t.getIsAbstract()).forEach(type -> {
+    configuration.getGeoObjectTypes().map(code -> ServerGeoObjectType.get(code)).filter(t -> t.getIsAbstract()).forEach(type -> {
       this.snapshotService.createSnapshot(commit, type, root);
     });
 
     // Publish snapshots for all child geo object types
-    configuration.getGeoObjectTypes().stream().map(code -> ServerGeoObjectType.get(code)).filter(t -> !t.getIsAbstract()).forEach(type -> {
+    configuration.getGeoObjectTypes().map(code -> ServerGeoObjectType.get(code)).filter(t -> !t.getIsAbstract()).forEach(type -> {
       this.snapshotService.createSnapshot(commit, type, root);
     });
 
@@ -361,7 +362,7 @@ public class CommitBusinessService implements CommitBusinessServiceIF
     Commit commit = new Commit();
     commit.setUid(dto.getUid());
     commit.setPublish(publish);
-    commit.setLastSequenceNumber(dto.getLastSequenceNumber());
+    commit.setLastOriginGlobalIndex(dto.getLastOriginGlobalIndex());
     commit.setVersionNumber(dto.getVersionNumber());
     commit.apply();
 
@@ -394,7 +395,7 @@ public class CommitBusinessService implements CommitBusinessServiceIF
       }
     }
 
-    return null;
+    return Optional.empty();
   }
 
   @Override
@@ -419,29 +420,11 @@ public class CommitBusinessService implements CommitBusinessServiceIF
   }
 
   @Override
-  public Commit getMostRecentCommit(Publish publish)
+  public Optional<Commit> getLatest(Publish publish)
   {
     CommitQuery query = new CommitQuery(new QueryFactory());
     query.WHERE(query.getPublish().EQ(publish));
     query.ORDER_BY_DESC(query.getVersionNumber());
-
-    try (OIterator<? extends Commit> iterator = query.getIterator())
-    {
-      if (iterator.hasNext())
-      {
-        return iterator.next();
-      }
-    }
-
-    return null;
-  }
-
-  @Override
-  public Optional<Commit> getCommit(Publish publish, Integer versionNumber)
-  {
-    CommitQuery query = new CommitQuery(new QueryFactory());
-    query.WHERE(query.getPublish().EQ(publish));
-    query.AND(query.getVersionNumber().EQ(versionNumber));
 
     try (OIterator<? extends Commit> iterator = query.getIterator())
     {
@@ -452,6 +435,23 @@ public class CommitBusinessService implements CommitBusinessServiceIF
     }
 
     return Optional.empty();
+  }
+
+  @Override
+  public List<Commit> getDependencies(Commit commit)
+  {
+    QueryFactory factory = new QueryFactory();
+
+    CommitHasDependencyQuery vQuery = new CommitHasDependencyQuery(factory);
+    vQuery.WHERE(vQuery.getChild().EQ(commit));
+
+    CommitQuery query = new CommitQuery(factory);
+    query.WHERE(query.getOid().EQ(vQuery.getParent().oid()));
+
+    try (OIterator<? extends Commit> iterator = query.getIterator())
+    {
+      return new LinkedList<>(iterator.getAll());
+    }
   }
 
   @Override

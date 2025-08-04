@@ -32,6 +32,7 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
 
+import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.registry.Publish;
 import net.geoprism.registry.PublishQuery;
 import net.geoprism.registry.view.PublishDTO;
@@ -65,14 +66,15 @@ public class PublishBusinessService implements PublishBusinessServiceIF
   @Transaction
   public Publish create(PublishDTO configuration)
   {
-    JsonArray json = configuration.toJson();
+    JsonArray typeJson = configuration.toTypeJson();
 
     Publish publish = new Publish();
     publish.setUid(configuration.getUid());
-    publish.setTypeCodes(json.toString());
+    publish.setTypeCodes(typeJson.toString());
     publish.setForDate(configuration.getDate());
     publish.setStartDate(configuration.getStartDate());
     publish.setEndDate(configuration.getEndDate());
+    publish.setOrigin(configuration.getOrigin());
     publish.apply();
 
     return publish;
@@ -118,6 +120,20 @@ public class PublishBusinessService implements PublishBusinessServiceIF
     return this.getByUid(uid).orElseThrow(() -> {
       throw new ProgrammingErrorException("Unable to find a publish with the uid [" + uid + "]");
     });
+  }
+
+  @Override
+  public List<Publish> getRemoteFor(PublishDTO configuration)
+  {
+    PublishQuery query = new PublishQuery(new QueryFactory());
+    query.WHERE(query.getStartDate().LE(configuration.getDate()));
+    query.AND(query.getEndDate().GE(configuration.getEndDate()));
+    query.AND(query.getOrigin().NE(GeoprismProperties.getOrigin()));
+
+    try (OIterator<? extends Publish> iterator = query.getIterator())
+    {
+      return iterator.getAll().stream().map(p -> (Publish) p).filter(p -> p.hasSameTypes(configuration)).toList();
+    }
   }
 
 }

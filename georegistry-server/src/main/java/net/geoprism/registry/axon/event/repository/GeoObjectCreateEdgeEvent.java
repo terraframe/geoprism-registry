@@ -161,8 +161,8 @@ public class GeoObjectCreateEdgeEvent extends AbstractGeoObjectEvent implements 
   {
     Date date = dto.getDate();
 
-    if ( ( this.getEdgeType().equals(GraphTypeSnapshot.DIRECTED_ACYCLIC_GRAPH_TYPE) && dto.getDagTypes().contains(this.getEdgeTypeCode()) ) //
-        || ( this.getEdgeType().equals(GraphTypeSnapshot.UNDIRECTED_GRAPH_TYPE) && dto.getUndirectedTypes().contains(this.getEdgeTypeCode()) ))
+    if ( ( this.getEdgeType().equals(GraphTypeSnapshot.DIRECTED_ACYCLIC_GRAPH_TYPE) && dto.getDagTypes().anyMatch(this.getEdgeTypeCode()::equals) ) //
+        || ( this.getEdgeType().equals(GraphTypeSnapshot.UNDIRECTED_GRAPH_TYPE) && dto.getUndirectedTypes().anyMatch(this.getEdgeTypeCode()::equals) ))
     {
       return ( date.after(this.getStartDate()) && date.before(this.getEndDate()) ) || date.equals(this.getStartDate()) || date.equals(this.getEndDate());
     }

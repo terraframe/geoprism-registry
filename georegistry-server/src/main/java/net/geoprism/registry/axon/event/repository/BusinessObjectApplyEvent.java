@@ -102,6 +102,6 @@ public class BusinessObjectApplyEvent implements BusinessObjectEvent
   @Override
   public Boolean isValidFor(PublishDTO dto)
   {
-    return dto.getBusinessTypes().contains(this.getType());
+    return dto.getBusinessTypes().anyMatch(this.getType()::equals);
   }
 }

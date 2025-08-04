@@ -10,19 +10,19 @@ public class CommitDTO
 
   private Integer versionNumber;
 
-  private Long    lastSequenceNumber;
+  private Long    lastOriginGlobalIndex;
 
   public CommitDTO()
   {
     this.uid = UUID.randomUUID().toString();
   }
 
-  public CommitDTO(String uid, String publishId, Integer versionNumber, Long lastSequenceNumber)
+  public CommitDTO(String uid, String publishId, Integer versionNumber, Long lastOriginGlobalIndex)
   {
     this.uid = uid;
     this.publishId = publishId;
     this.versionNumber = versionNumber;
-    this.lastSequenceNumber = lastSequenceNumber;
+    this.lastOriginGlobalIndex = lastOriginGlobalIndex;
   }
 
   public String getUid()
@@ -55,13 +55,13 @@ public class CommitDTO
     this.versionNumber = versionNumber;
   }
 
-  public Long getLastSequenceNumber()
+  public Long getLastOriginGlobalIndex()
   {
-    return lastSequenceNumber;
+    return lastOriginGlobalIndex;
   }
 
-  public void setLastSequenceNumber(Long lastSequenceNumber)
+  public void setLastOriginGlobalIndex(Long lastOriginGlobalIndex)
   {
-    this.lastSequenceNumber = lastSequenceNumber;
+    this.lastOriginGlobalIndex = lastOriginGlobalIndex;
   }
 }

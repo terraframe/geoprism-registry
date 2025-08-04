@@ -42,6 +42,30 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
     }
 
     @Override
+    public List<PublishDTO> getAll()
+    {
+      RegistryResponse response = this.apiGet(PUBLISH_API_PATH + "/get-all");
+
+      if (response.isSuccess())
+      {
+        ObjectMapper mapper = new ObjectMapper();
+
+        try
+        {
+          ObjectReader reader = mapper.readerForListOf(PublishDTO.class);
+
+          return reader.readValue(response.getResponse());
+        }
+        catch (JsonProcessingException e)
+        {
+          throw new RemoteConnectionException(e);
+        }
+      }
+
+      throw new RemoteConnectionException(response.getMessage());
+    }
+
+    @Override
     public Optional<PublishDTO> getPublish(String publishId)
     {
       RegistryResponse response = this.apiGet(PUBLISH_API_PATH + "/get", new BasicNameValuePair("uid", publishId));
@@ -56,7 +80,7 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
         }
         catch (JsonProcessingException e)
         {
-          throw new ProgrammingErrorException(e);
+          throw new RemoteConnectionException(e);
         }
       }
 
@@ -64,9 +88,9 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
     }
 
     @Override
-    public Optional<CommitDTO> getCommit(String publishId, Integer versionNumber)
+    public Optional<CommitDTO> getLatest(String publishId)
     {
-      RegistryResponse response = this.apiGet(PUBLISH_API_PATH + "/get", new BasicNameValuePair("publishId", publishId), new BasicNameValuePair("versionNumber", versionNumber.toString()));
+      RegistryResponse response = this.apiGet(COMMIT_API_PATH + "/get-latest", new BasicNameValuePair("publishId", publishId));
 
       if (response.isSuccess())
       {
@@ -78,11 +102,35 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
         }
         catch (JsonProcessingException e)
         {
-          throw new ProgrammingErrorException(e);
+          throw new RemoteConnectionException(e);
         }
       }
 
       return Optional.empty();
+    }
+
+    @Override
+    public List<CommitDTO> getDependencies(String uid)
+    {
+      RegistryResponse response = this.apiGet(COMMIT_API_PATH + "/get-dependencies", new BasicNameValuePair("uid", uid));
+
+      if (response.isSuccess())
+      {
+        ObjectMapper mapper = new ObjectMapper();
+
+        try
+        {
+          ObjectReader reader = mapper.readerForListOf(CommitDTO.class);
+
+          return reader.readValue(response.getResponse());
+        }
+        catch (JsonProcessingException e)
+        {
+          throw new RemoteConnectionException(e);
+        }
+      }
+
+      throw new RemoteConnectionException(response.getMessage());
     }
 
     @Override
@@ -141,28 +189,28 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
     public JsonArray getDirectedAcyclicGraphTypes(String uid)
     {
       RegistryResponse response = this.apiGet(COMMIT_API_PATH + "/directed-acyclic-graph-types", new BasicNameValuePair("uid", uid));
-      
+
       if (response.isSuccess())
       {
         return response.getJsonArray();
       }
-      
+
       throw new RemoteConnectionException(response.getMessage());
     }
-    
+
     @Override
     public JsonArray getUndirectedGraphTypes(String uid)
     {
       RegistryResponse response = this.apiGet(COMMIT_API_PATH + "/undirected-graph-types", new BasicNameValuePair("uid", uid));
-      
+
       if (response.isSuccess())
       {
         return response.getJsonArray();
       }
-      
+
       throw new RemoteConnectionException(response.getMessage());
     }
-    
+
     @Override
     public List<RemoteEvent> getRemoteEvents(String uid, Integer chunk)
     {
@@ -175,7 +223,7 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
         try
         {
           ObjectReader reader = mapper.readerForListOf(RemoteEvent.class);
-          
+
           return reader.readValue(response.getMessage());
         }
         catch (JsonProcessingException e)

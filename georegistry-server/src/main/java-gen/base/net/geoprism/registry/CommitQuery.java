@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 760643830)
+@com.runwaysdk.business.ClassSignature(hash = 1519852441)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -118,21 +118,21 @@ public  class CommitQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.Commit.KEYNAME, alias, displayLabel);
 
   }
-  public com.runwaysdk.query.SelectableLong getLastSequenceNumber()
+  public com.runwaysdk.query.SelectableLong getLastOriginGlobalIndex()
   {
-    return getLastSequenceNumber(null);
+    return getLastOriginGlobalIndex(null);
 
   }
  
-  public com.runwaysdk.query.SelectableLong getLastSequenceNumber(String alias)
+  public com.runwaysdk.query.SelectableLong getLastOriginGlobalIndex(String alias)
   {
-    return (com.runwaysdk.query.SelectableLong)this.getComponentQuery().get(net.geoprism.registry.Commit.LASTSEQUENCENUMBER, alias, null);
+    return (com.runwaysdk.query.SelectableLong)this.getComponentQuery().get(net.geoprism.registry.Commit.LASTORIGINGLOBALINDEX, alias, null);
 
   }
  
-  public com.runwaysdk.query.SelectableLong getLastSequenceNumber(String alias, String displayLabel)
+  public com.runwaysdk.query.SelectableLong getLastOriginGlobalIndex(String alias, String displayLabel)
   {
-    return (com.runwaysdk.query.SelectableLong)this.getComponentQuery().get(net.geoprism.registry.Commit.LASTSEQUENCENUMBER, alias, displayLabel);
+    return (com.runwaysdk.query.SelectableLong)this.getComponentQuery().get(net.geoprism.registry.Commit.LASTORIGINGLOBALINDEX, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableMoment getLastUpdateDate()
@@ -406,6 +406,238 @@ public  class CommitQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   }
 
 
+  public com.runwaysdk.query.Condition dependency()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasDependency.CLASS);
+
+    return this.getBusinessQuery().isChildIn(relationshipQuery);
+  }
+
+
+  public com.runwaysdk.query.Condition SUBSELECT_dependency()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasDependency.CLASS);
+
+    return this.getBusinessQuery().isChildIn_SUBSELECT(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition dependency(net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery)
+  {
+    return this.getBusinessQuery().isChildIn(commitHasDependencyQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_dependency(net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery)
+  {
+    return this.getBusinessQuery().isChildIn_SUBSELECT(commitHasDependencyQuery);
+  }
+
+  public com.runwaysdk.query.Condition dependency(net.geoprism.registry.CommitQuery commitQuery)
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasDependency.CLASS);
+    relationshipQuery.AND(relationshipQuery.hasParent(commitQuery));
+
+    return this.getBusinessQuery().isChildIn(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_dependency(net.geoprism.registry.CommitQuery commitQuery)
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasDependency.CLASS);
+    relationshipQuery.AND(relationshipQuery.hasParent(commitQuery));
+
+    return this.getBusinessQuery().isChildIn_SUBSELECT(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition dependency(net.geoprism.registry.CommitQuery commitQuery, net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery)
+  {
+    commitHasDependencyQuery.AND(commitHasDependencyQuery.hasParent(commitQuery));
+    return this.getBusinessQuery().isChildIn(commitHasDependencyQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_dependency(net.geoprism.registry.CommitQuery commitQuery, net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery)
+  {
+    commitHasDependencyQuery.AND(commitHasDependencyQuery.hasParent(commitQuery));
+    return this.getBusinessQuery().isChildIn_SUBSELECT(commitHasDependencyQuery);
+  }
+
+
+  public com.runwaysdk.query.Condition NOT_IN_dependency()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasDependency.CLASS);
+
+    return this.getBusinessQuery().isNotChildIn(relationshipQuery);
+  }
+
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_dependency()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasDependency.CLASS);
+
+    return this.getBusinessQuery().isNotChildIn_SUBSELECT(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition NOT_IN_dependency(net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery)
+  {
+    return this.getBusinessQuery().isNotChildIn(commitHasDependencyQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_dependency(net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery)
+  {
+    return this.getBusinessQuery().isNotChildIn_SUBSELECT(commitHasDependencyQuery);
+  }
+
+  public com.runwaysdk.query.Condition NOT_IN_dependency(net.geoprism.registry.CommitQuery commitQuery)
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasDependency.CLASS);
+    relationshipQuery.AND(relationshipQuery.hasParent(commitQuery));
+
+    return this.getBusinessQuery().isNotChildIn(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_dependency(net.geoprism.registry.CommitQuery commitQuery)
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasDependency.CLASS);
+    relationshipQuery.AND(relationshipQuery.hasParent(commitQuery));
+
+    return this.getBusinessQuery().isNotChildIn_SUBSELECT(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition NOT_IN_dependency(net.geoprism.registry.CommitQuery commitQuery, net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery)
+  {
+    commitHasDependencyQuery.AND(commitHasDependencyQuery.hasParent(commitQuery));
+    return this.getBusinessQuery().isNotChildIn(commitHasDependencyQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_dependency(net.geoprism.registry.CommitQuery commitQuery, net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery)
+  {
+    commitHasDependencyQuery.AND(commitHasDependencyQuery.hasParent(commitQuery));
+    return this.getBusinessQuery().isNotChildIn_SUBSELECT(commitHasDependencyQuery);
+  }
+
+
+  public com.runwaysdk.query.Condition dependent()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasDependency.CLASS);
+
+    return this.getBusinessQuery().isParentIn(relationshipQuery);
+  }
+
+
+  public com.runwaysdk.query.Condition SUBSELECT_dependent()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasDependency.CLASS);
+
+    return this.getBusinessQuery().isParentIn_SUBSELECT(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition dependent(net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery)
+  {
+    return this.getBusinessQuery().isParentIn(commitHasDependencyQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_dependent(net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery)
+  {
+    return this.getBusinessQuery().isParentIn_SUBSELECT(commitHasDependencyQuery);
+  }
+
+  public com.runwaysdk.query.Condition dependent(net.geoprism.registry.CommitQuery commitQuery)
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasDependency.CLASS);
+    relationshipQuery.AND(relationshipQuery.hasChild(commitQuery));
+
+    return this.getBusinessQuery().isParentIn(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_dependent(net.geoprism.registry.CommitQuery commitQuery)
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasDependency.CLASS);
+    relationshipQuery.AND(relationshipQuery.hasChild(commitQuery));
+
+    return this.getBusinessQuery().isParentIn_SUBSELECT(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition dependent(net.geoprism.registry.CommitQuery commitQuery, net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery)
+  {
+    commitHasDependencyQuery.AND(commitHasDependencyQuery.hasChild(commitQuery));
+    return this.getBusinessQuery().isParentIn(commitHasDependencyQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_dependent(net.geoprism.registry.CommitQuery commitQuery, net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery)
+  {
+    commitHasDependencyQuery.AND(commitHasDependencyQuery.hasChild(commitQuery));
+    return this.getBusinessQuery().isParentIn_SUBSELECT(commitHasDependencyQuery);
+  }
+
+
+  public com.runwaysdk.query.Condition NOT_IN_dependent()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasDependency.CLASS);
+
+    return this.getBusinessQuery().isNotParentIn(relationshipQuery);
+  }
+
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_dependent()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasDependency.CLASS);
+
+    return this.getBusinessQuery().isNotParentIn_SUBSELECT(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition NOT_IN_dependent(net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery)
+  {
+    return this.getBusinessQuery().isNotParentIn(commitHasDependencyQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_dependent(net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery)
+  {
+    return this.getBusinessQuery().isNotParentIn_SUBSELECT(commitHasDependencyQuery);
+  }
+
+  public com.runwaysdk.query.Condition NOT_IN_dependent(net.geoprism.registry.CommitQuery commitQuery)
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasDependency.CLASS);
+    relationshipQuery.AND(relationshipQuery.hasChild(commitQuery));
+
+    return this.getBusinessQuery().isNotParentIn(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_dependent(net.geoprism.registry.CommitQuery commitQuery)
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasDependency.CLASS);
+    relationshipQuery.AND(relationshipQuery.hasChild(commitQuery));
+
+    return this.getBusinessQuery().isNotParentIn_SUBSELECT(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition NOT_IN_dependent(net.geoprism.registry.CommitQuery commitQuery, net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery)
+  {
+    commitHasDependencyQuery.AND(commitHasDependencyQuery.hasChild(commitQuery));
+    return this.getBusinessQuery().isNotParentIn(commitHasDependencyQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_dependent(net.geoprism.registry.CommitQuery commitQuery, net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery)
+  {
+    commitHasDependencyQuery.AND(commitHasDependencyQuery.hasChild(commitQuery));
+    return this.getBusinessQuery().isNotParentIn_SUBSELECT(commitHasDependencyQuery);
+  }
+
+
   public com.runwaysdk.query.Condition snapshot()
   {
     com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
@@ -541,9 +773,9 @@ public  class CommitQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     public com.runwaysdk.query.SelectableChar getKeyName();
     public com.runwaysdk.query.SelectableChar getKeyName(String alias);
     public com.runwaysdk.query.SelectableChar getKeyName(String alias, String displayLabel);
-    public com.runwaysdk.query.SelectableLong getLastSequenceNumber();
-    public com.runwaysdk.query.SelectableLong getLastSequenceNumber(String alias);
-    public com.runwaysdk.query.SelectableLong getLastSequenceNumber(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableLong getLastOriginGlobalIndex();
+    public com.runwaysdk.query.SelectableLong getLastOriginGlobalIndex(String alias);
+    public com.runwaysdk.query.SelectableLong getLastOriginGlobalIndex(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableMoment getLastUpdateDate();
     public com.runwaysdk.query.SelectableMoment getLastUpdateDate(String alias);
     public com.runwaysdk.query.SelectableMoment getLastUpdateDate(String alias, String displayLabel);
@@ -583,6 +815,20 @@ public  class CommitQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     public com.runwaysdk.query.BasicCondition NE(net.geoprism.registry.Commit commit);
 
 
+  public com.runwaysdk.query.Condition dependent();
+
+  public com.runwaysdk.query.Condition dependent(net.geoprism.registry.CommitQuery commitQuery);
+
+  public com.runwaysdk.query.Condition dependent(net.geoprism.registry.CommitQuery commitQuery, net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery);
+
+
+  public com.runwaysdk.query.Condition SUBSELECT_dependent();
+
+  public com.runwaysdk.query.Condition SUBSELECT_dependent(net.geoprism.registry.CommitQuery commitQuery);
+
+  public com.runwaysdk.query.Condition SUBSELECT_dependent(net.geoprism.registry.CommitQuery commitQuery, net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery);
+
+
   public com.runwaysdk.query.Condition snapshot();
 
   public com.runwaysdk.query.Condition snapshot(net.geoprism.graph.MetadataSnapshotQuery metadataSnapshotQuery);
@@ -597,6 +843,20 @@ public  class CommitQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   public com.runwaysdk.query.Condition SUBSELECT_snapshot(net.geoprism.graph.MetadataSnapshotQuery metadataSnapshotQuery, net.geoprism.registry.CommitHasSnapshotQuery commitHasSnapshotQuery);
 
 
+  public com.runwaysdk.query.Condition NOT_IN_dependent();
+
+  public com.runwaysdk.query.Condition NOT_IN_dependent(net.geoprism.registry.CommitQuery commitQuery);
+
+  public com.runwaysdk.query.Condition NOT_IN_dependent(net.geoprism.registry.CommitQuery commitQuery, net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery);
+
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_dependent();
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_dependent(net.geoprism.registry.CommitQuery commitQuery);
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_dependent(net.geoprism.registry.CommitQuery commitQuery, net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery);
+
+
   public com.runwaysdk.query.Condition NOT_IN_snapshot();
 
   public com.runwaysdk.query.Condition NOT_IN_snapshot(net.geoprism.graph.MetadataSnapshotQuery metadataSnapshotQuery);
@@ -609,6 +869,30 @@ public  class CommitQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_snapshot(net.geoprism.graph.MetadataSnapshotQuery metadataSnapshotQuery);
 
   public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_snapshot(net.geoprism.graph.MetadataSnapshotQuery metadataSnapshotQuery, net.geoprism.registry.CommitHasSnapshotQuery commitHasSnapshotQuery);
+
+
+  public com.runwaysdk.query.Condition dependency();
+  public com.runwaysdk.query.Condition dependency(net.geoprism.registry.CommitQuery commitQuery);
+
+  public com.runwaysdk.query.Condition dependency(net.geoprism.registry.CommitQuery commitQuery, net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery);
+
+
+  public com.runwaysdk.query.Condition SUBSELECT_dependency();
+  public com.runwaysdk.query.Condition SUBSELECT_dependency(net.geoprism.registry.CommitQuery commitQuery);
+
+  public com.runwaysdk.query.Condition SUBSELECT_dependency(net.geoprism.registry.CommitQuery commitQuery, net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery);
+
+
+  public com.runwaysdk.query.Condition NOT_IN_dependency();
+  public com.runwaysdk.query.Condition NOT_IN_dependency(net.geoprism.registry.CommitQuery commitQuery);
+
+  public com.runwaysdk.query.Condition NOT_IN_dependency(net.geoprism.registry.CommitQuery commitQuery, net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery);
+
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_dependency();
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_dependency(net.geoprism.registry.CommitQuery commitQuery);
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_dependency(net.geoprism.registry.CommitQuery commitQuery, net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery);
 
   }
 
@@ -708,21 +992,21 @@ public  class CommitQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.Commit.KEYNAME, alias, displayLabel);
 
   }
-  public com.runwaysdk.query.SelectableLong getLastSequenceNumber()
+  public com.runwaysdk.query.SelectableLong getLastOriginGlobalIndex()
   {
-    return getLastSequenceNumber(null);
+    return getLastOriginGlobalIndex(null);
 
   }
  
-  public com.runwaysdk.query.SelectableLong getLastSequenceNumber(String alias)
+  public com.runwaysdk.query.SelectableLong getLastOriginGlobalIndex(String alias)
   {
-    return (com.runwaysdk.query.SelectableLong)this.get(net.geoprism.registry.Commit.LASTSEQUENCENUMBER, alias, null);
+    return (com.runwaysdk.query.SelectableLong)this.get(net.geoprism.registry.Commit.LASTORIGINGLOBALINDEX, alias, null);
 
   }
  
-  public com.runwaysdk.query.SelectableLong getLastSequenceNumber(String alias, String displayLabel)
+  public com.runwaysdk.query.SelectableLong getLastOriginGlobalIndex(String alias, String displayLabel)
   {
-    return (com.runwaysdk.query.SelectableLong)this.get(net.geoprism.registry.Commit.LASTSEQUENCENUMBER, alias, displayLabel);
+    return (com.runwaysdk.query.SelectableLong)this.get(net.geoprism.registry.Commit.LASTORIGINGLOBALINDEX, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableMoment getLastUpdateDate()
@@ -913,6 +1197,64 @@ public  class CommitQuery extends com.runwaysdk.query.GeneratedBusinessQuery
 
   }
 
+  public com.runwaysdk.query.Condition dependent()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasDependency.CLASS);
+
+    return this.isParentIn(relationshipQuery);
+  }
+
+
+  public com.runwaysdk.query.Condition SUBSELECT_dependent()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasDependency.CLASS);
+
+    return this.isParentIn_SUBSELECT(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition dependent(net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery)
+  {
+    return this.isParentIn(commitHasDependencyQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_dependent(net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery)
+  {
+    return this.isParentIn_SUBSELECT(commitHasDependencyQuery);
+  }
+
+  public com.runwaysdk.query.Condition dependent(net.geoprism.registry.CommitQuery commitQuery)
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasDependency.CLASS);
+    relationshipQuery.AND(relationshipQuery.hasChild(commitQuery));
+
+    return this.isParentIn(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_dependent(net.geoprism.registry.CommitQuery commitQuery)
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasDependency.CLASS);
+    relationshipQuery.AND(relationshipQuery.hasChild(commitQuery));
+
+    return this.isParentIn_SUBSELECT(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition dependent(net.geoprism.registry.CommitQuery commitQuery, net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery)
+  {
+    commitHasDependencyQuery.AND(commitHasDependencyQuery.hasChild(commitQuery));
+    return this.isParentIn(commitHasDependencyQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_dependent(net.geoprism.registry.CommitQuery commitQuery, net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery)
+  {
+    commitHasDependencyQuery.AND(commitHasDependencyQuery.hasChild(commitQuery));
+    return this.isParentIn_SUBSELECT(commitHasDependencyQuery);
+  }
+
+
   public com.runwaysdk.query.Condition snapshot()
   {
     com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
@@ -968,6 +1310,64 @@ public  class CommitQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   {
     commitHasSnapshotQuery.AND(commitHasSnapshotQuery.hasChild(metadataSnapshotQuery));
     return this.isParentIn_SUBSELECT(commitHasSnapshotQuery);
+  }
+
+
+  public com.runwaysdk.query.Condition NOT_IN_dependent()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasDependency.CLASS);
+
+    return this.isNotParentIn(relationshipQuery);
+  }
+
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_dependent()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasDependency.CLASS);
+
+    return this.isNotParentIn_SUBSELECT(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition NOT_IN_dependent(net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery)
+  {
+    return this.isNotParentIn(commitHasDependencyQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_dependent(net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery)
+  {
+    return this.isNotParentIn_SUBSELECT(commitHasDependencyQuery);
+  }
+
+  public com.runwaysdk.query.Condition NOT_IN_dependent(net.geoprism.registry.CommitQuery commitQuery)
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasDependency.CLASS);
+    relationshipQuery.AND(relationshipQuery.hasChild(commitQuery));
+
+    return this.isNotParentIn(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_dependent(net.geoprism.registry.CommitQuery commitQuery)
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasDependency.CLASS);
+    relationshipQuery.AND(relationshipQuery.hasChild(commitQuery));
+
+    return this.isNotParentIn_SUBSELECT(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition NOT_IN_dependent(net.geoprism.registry.CommitQuery commitQuery, net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery)
+  {
+    commitHasDependencyQuery.AND(commitHasDependencyQuery.hasChild(commitQuery));
+    return this.isNotParentIn(commitHasDependencyQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_dependent(net.geoprism.registry.CommitQuery commitQuery, net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery)
+  {
+    commitHasDependencyQuery.AND(commitHasDependencyQuery.hasChild(commitQuery));
+    return this.isNotParentIn_SUBSELECT(commitHasDependencyQuery);
   }
 
 
@@ -1028,6 +1428,122 @@ public  class CommitQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     return this.isNotParentIn_SUBSELECT(commitHasSnapshotQuery);
   }
 
+
+  public com.runwaysdk.query.Condition dependency()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasDependency.CLASS);
+
+    return this.isChildIn(relationshipQuery);
+  }
+
+
+  public com.runwaysdk.query.Condition SUBSELECT_dependency()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasDependency.CLASS);
+
+    return this.isChildIn_SUBSELECT(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition dependency(net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery)
+  {
+    return this.isChildIn(commitHasDependencyQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_dependency(net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery)
+  {
+    return this.isChildIn_SUBSELECT(commitHasDependencyQuery);
+  }
+
+  public com.runwaysdk.query.Condition dependency(net.geoprism.registry.CommitQuery commitQuery)
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasDependency.CLASS);
+    relationshipQuery.AND(relationshipQuery.hasParent(commitQuery));
+
+    return this.isChildIn(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_dependency(net.geoprism.registry.CommitQuery commitQuery)
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasDependency.CLASS);
+    relationshipQuery.AND(relationshipQuery.hasParent(commitQuery));
+
+    return this.isChildIn_SUBSELECT(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition dependency(net.geoprism.registry.CommitQuery commitQuery, net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery)
+  {
+    commitHasDependencyQuery.AND(commitHasDependencyQuery.hasParent(commitQuery));
+    return this.isChildIn(commitHasDependencyQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_dependency(net.geoprism.registry.CommitQuery commitQuery, net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery)
+  {
+    commitHasDependencyQuery.AND(commitHasDependencyQuery.hasParent(commitQuery));
+    return this.isChildIn_SUBSELECT(commitHasDependencyQuery);
+  }
+
+
+  public com.runwaysdk.query.Condition NOT_IN_dependency()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasDependency.CLASS);
+
+    return this.isNotChildIn(relationshipQuery);
+  }
+
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_dependency()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasDependency.CLASS);
+
+    return this.isNotChildIn_SUBSELECT(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition NOT_IN_dependency(net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery)
+  {
+    return this.isNotChildIn(commitHasDependencyQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_dependency(net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery)
+  {
+    return this.isNotChildIn_SUBSELECT(commitHasDependencyQuery);
+  }
+
+  public com.runwaysdk.query.Condition NOT_IN_dependency(net.geoprism.registry.CommitQuery commitQuery)
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasDependency.CLASS);
+    relationshipQuery.AND(relationshipQuery.hasParent(commitQuery));
+
+    return this.isNotChildIn(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_dependency(net.geoprism.registry.CommitQuery commitQuery)
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasDependency.CLASS);
+    relationshipQuery.AND(relationshipQuery.hasParent(commitQuery));
+
+    return this.isNotChildIn_SUBSELECT(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition NOT_IN_dependency(net.geoprism.registry.CommitQuery commitQuery, net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery)
+  {
+    commitHasDependencyQuery.AND(commitHasDependencyQuery.hasParent(commitQuery));
+    return this.isNotChildIn(commitHasDependencyQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_dependency(net.geoprism.registry.CommitQuery commitQuery, net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery)
+  {
+    commitHasDependencyQuery.AND(commitHasDependencyQuery.hasParent(commitQuery));
+    return this.isNotChildIn_SUBSELECT(commitHasDependencyQuery);
+  }
+
   protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
   {
     String name = mdAttributeIF.definesAttribute();
@@ -1084,9 +1600,9 @@ public  class CommitQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     public com.runwaysdk.query.SelectableChar getKeyName();
     public com.runwaysdk.query.SelectableChar getKeyName(String alias);
     public com.runwaysdk.query.SelectableChar getKeyName(String alias, String displayLabel);
-    public com.runwaysdk.query.SelectableLong getLastSequenceNumber();
-    public com.runwaysdk.query.SelectableLong getLastSequenceNumber(String alias);
-    public com.runwaysdk.query.SelectableLong getLastSequenceNumber(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableLong getLastOriginGlobalIndex();
+    public com.runwaysdk.query.SelectableLong getLastOriginGlobalIndex(String alias);
+    public com.runwaysdk.query.SelectableLong getLastOriginGlobalIndex(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableMoment getLastUpdateDate();
     public com.runwaysdk.query.SelectableMoment getLastUpdateDate(String alias);
     public com.runwaysdk.query.SelectableMoment getLastUpdateDate(String alias, String displayLabel);
@@ -1272,21 +1788,21 @@ public  class CommitQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.Commit.KEYNAME, alias, displayLabel);
 
   }
-  public com.runwaysdk.query.SelectableLong getLastSequenceNumber()
+  public com.runwaysdk.query.SelectableLong getLastOriginGlobalIndex()
   {
-    return getLastSequenceNumber(null);
+    return getLastOriginGlobalIndex(null);
 
   }
  
-  public com.runwaysdk.query.SelectableLong getLastSequenceNumber(String alias)
+  public com.runwaysdk.query.SelectableLong getLastOriginGlobalIndex(String alias)
   {
-    return (com.runwaysdk.query.SelectableLong)this.get(net.geoprism.registry.Commit.LASTSEQUENCENUMBER, alias, null);
+    return (com.runwaysdk.query.SelectableLong)this.get(net.geoprism.registry.Commit.LASTORIGINGLOBALINDEX, alias, null);
 
   }
  
-  public com.runwaysdk.query.SelectableLong getLastSequenceNumber(String alias, String displayLabel)
+  public com.runwaysdk.query.SelectableLong getLastOriginGlobalIndex(String alias, String displayLabel)
   {
-    return (com.runwaysdk.query.SelectableLong)this.get(net.geoprism.registry.Commit.LASTSEQUENCENUMBER, alias, displayLabel);
+    return (com.runwaysdk.query.SelectableLong)this.get(net.geoprism.registry.Commit.LASTORIGINGLOBALINDEX, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableMoment getLastUpdateDate()

@@ -4,54 +4,88 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.commongeoregistry.adapter.metadata.HierarchyType;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import net.geoprism.registry.BusinessEdgeType;
-import net.geoprism.registry.BusinessType;
-import net.geoprism.registry.DirectedAcyclicGraphType;
-import net.geoprism.registry.UndirectedGraphType;
+import net.geoprism.configuration.GeoprismProperties;
+import net.geoprism.registry.JsonCollectors;
 import net.geoprism.registry.spring.DateDeserializer;
 import net.geoprism.registry.spring.DateSerializer;
 
 public class PublishDTO
 {
-  private String       uid;
+  public static enum Type {
+    GEO_OBJECT, HIERARCHY, DAG, UNDIRECTED, BUSINESS, BUSINESS_EDGE
+  }
+
+  public static class TypeCode
+  {
+    private String code;
+
+    private Type   type;
+
+    public String getCode()
+    {
+      return code;
+    }
+
+    public void setCode(String code)
+    {
+      this.code = code;
+    }
+
+    public Type getType()
+    {
+      return type;
+    }
+
+    public void setType(Type type)
+    {
+      this.type = type;
+    }
+
+    public static TypeCode build(String code, Type type)
+    {
+      TypeCode typeCode = new TypeCode();
+      typeCode.setCode(code);
+      typeCode.setType(type);
+
+      return typeCode;
+    }
+  }
+
+  private String         uid;
 
   @JsonSerialize(using = DateSerializer.class)
   @JsonDeserialize(using = DateDeserializer.class)
-  private Date         date;
+  private Date           date;
 
   @JsonSerialize(using = DateSerializer.class)
   @JsonDeserialize(using = DateDeserializer.class)
-  private Date         startDate;
+  private Date           startDate;
 
   @JsonSerialize(using = DateSerializer.class)
   @JsonDeserialize(using = DateDeserializer.class)
-  private Date         endDate;
+  private Date           endDate;
 
-  private List<String> geoObjectTypes;
+  private String         origin;
 
-  private List<String> hierarchyTypes;
+  private List<TypeCode> types;
 
-  private List<String> dagTypes;
-
-  private List<String> undirectedTypes;
-
-  private List<String> businessTypes;
-
-  private List<String> businessEdgeTypes;
+  private List<TypeCode> exclusions;
 
   public PublishDTO()
   {
     this.uid = UUID.randomUUID().toString();
+    this.origin = GeoprismProperties.getOrigin();
   }
 
   public PublishDTO(Date date, Date startDate, Date endDate)
@@ -62,12 +96,8 @@ public class PublishDTO
     this.startDate = startDate;
     this.endDate = endDate;
 
-    this.geoObjectTypes = new LinkedList<>();
-    this.hierarchyTypes = new LinkedList<>();
-    this.dagTypes = new LinkedList<>();
-    this.undirectedTypes = new LinkedList<>();
-    this.businessTypes = new LinkedList<>();
-    this.businessEdgeTypes = new LinkedList<>();
+    this.types = new LinkedList<>();
+    this.exclusions = new LinkedList<>();
   }
 
   public String getUid()
@@ -78,6 +108,16 @@ public class PublishDTO
   public void setUid(String uid)
   {
     this.uid = uid;
+  }
+
+  public String getOrigin()
+  {
+    return origin;
+  }
+
+  public void setOrigin(String origin)
+  {
+    this.origin = origin;
   }
 
   public Date getDate()
@@ -110,161 +150,139 @@ public class PublishDTO
     this.endDate = endDate;
   }
 
-  public List<String> getGeoObjectTypes()
+  public List<TypeCode> getTypes()
   {
-    return geoObjectTypes;
+    return types;
   }
 
-  public void setGeoObjectTypes(List<String> geoObjectTypes)
+  public void setTypes(List<TypeCode> types)
   {
-    this.geoObjectTypes = geoObjectTypes;
+    this.types = types;
+  }
+
+  public List<TypeCode> getExclusions()
+  {
+    return exclusions;
+  }
+
+  public void setExclusions(List<TypeCode> exclusions)
+  {
+    this.exclusions = exclusions;
+  }
+
+  public Stream<String> asStream(Type type)
+  {
+    return this.types.stream().filter(t -> t.getType().equals(type)).map(t -> t.getCode());
+  }
+
+  public void addType(Type type, String... codes)
+  {
+    Arrays.stream(codes).map(code -> TypeCode.build(code, type)).forEach(this.types::add);
+  }
+
+  @JsonIgnore
+  public Stream<String> getGeoObjectTypes()
+  {
+    return this.asStream(Type.GEO_OBJECT);
   }
 
   public void addGeoObjectType(String... geoObjectTypes)
   {
-    Arrays.stream(geoObjectTypes).forEach(geoObjectType -> {
-      this.geoObjectTypes.add(geoObjectType);
-    });
+    this.addType(Type.GEO_OBJECT, geoObjectTypes);
   }
 
-  public List<String> getHierarchyTypes()
+  @JsonIgnore
+  public Stream<String> getHierarchyTypes()
   {
-    return hierarchyTypes;
-  }
-
-  public void setHierarchyTypes(List<String> hierarchyTypes)
-  {
-    this.hierarchyTypes = hierarchyTypes;
+    return this.asStream(Type.HIERARCHY);
   }
 
   public void addHierarchyType(String... hierarchyTypes)
   {
-    Arrays.stream(hierarchyTypes).forEach(type -> {
-      this.hierarchyTypes.add(type);
-    });
+    this.addType(Type.HIERARCHY, hierarchyTypes);
   }
 
-  public List<String> getDagTypes()
+  @JsonIgnore
+  public Stream<String> getDagTypes()
   {
-    return dagTypes;
-  }
-
-  public void setDagTypes(List<String> dagTypes)
-  {
-    this.dagTypes = dagTypes;
+    return this.asStream(Type.DAG);
   }
 
   public void addDagType(String... dagTypes)
   {
-    Arrays.stream(dagTypes).forEach(type -> {
-      this.dagTypes.add(type);
-    });
+    this.addType(Type.DAG, dagTypes);
   }
 
-  public List<String> getUndirectedTypes()
+  @JsonIgnore
+  public Stream<String> getUndirectedTypes()
   {
-    return this.undirectedTypes;
-  }
-
-  public void setUndirectedTypes(List<String> undirectedTypes)
-  {
-    this.undirectedTypes = undirectedTypes;
+    return this.asStream(Type.UNDIRECTED);
   }
 
   public void addUndirectedType(String... undirectedTypes)
   {
-    Arrays.stream(undirectedTypes).forEach(type -> {
-      this.undirectedTypes.add(type);
-    });
+    this.addType(Type.UNDIRECTED, undirectedTypes);
   }
 
-  public List<String> getBusinessTypes()
+  @JsonIgnore
+  public Stream<String> getBusinessTypes()
   {
-    return businessTypes;
+    return this.asStream(Type.BUSINESS);
   }
 
-  public void setBusinessTypes(List<String> businessTypes)
+  public void addBusinessType(String... businessTypes)
   {
-    this.businessTypes = businessTypes;
+    this.addType(Type.BUSINESS, businessTypes);
   }
 
-  public void addBusinessType(String... businessType)
+  @JsonIgnore
+  public Stream<String> getBusinessEdgeTypes()
   {
-    Arrays.stream(businessType).forEach(type -> {
-      this.businessTypes.add(type);
-    });
-  }
-
-  public List<String> getBusinessEdgeTypes()
-  {
-    return businessEdgeTypes;
-  }
-
-  public void setBusinessEdgeTypes(List<String> businessEdgeTypes)
-  {
-    this.businessEdgeTypes = businessEdgeTypes;
+    return this.asStream(Type.BUSINESS_EDGE);
   }
 
   public void addBusinessEdgeType(String... businessEdgeTypes)
   {
-    Arrays.stream(businessEdgeTypes).forEach(type -> {
-      this.businessEdgeTypes.add(type);
-    });
+    this.addType(Type.BUSINESS_EDGE, businessEdgeTypes);
   }
 
-  public JsonArray toJson()
+  public JsonArray toTypeJson()
   {
-    JsonArray array = new JsonArray();
+    return this.types.stream() //
+        .sorted((a, b) -> a.getType().compareTo(b.getType())) //
+        .map(typeCode -> {
+          JsonObject object = new JsonObject();
+          object.addProperty("type", typeCode.getType().name());
+          object.addProperty("code", typeCode.getCode());
 
-    this.geoObjectTypes.forEach(code -> {
-      JsonObject object = new JsonObject();
-      object.addProperty("type", GeoObjectType.class.getSimpleName());
-      object.addProperty("code", code);
+          return object;
+        }).collect(JsonCollectors.toJsonArray());
 
-      array.add(object);
-    });
+  }
 
-    this.hierarchyTypes.forEach(code -> {
-      JsonObject object = new JsonObject();
-      object.addProperty("type", HierarchyType.class.getSimpleName());
-      object.addProperty("code", code);
+  public boolean hasSameTypes(PublishDTO configuration)
+  {
+    boolean overlaps = false;
+    overlaps = overlaps || overlaps(configuration.getBusinessEdgeTypes(), this.getBusinessEdgeTypes());
+    overlaps = overlaps || overlaps(configuration.getBusinessTypes(), this.getBusinessTypes());
+    overlaps = overlaps || overlaps(configuration.getDagTypes(), this.getDagTypes());
+    overlaps = overlaps || overlaps(configuration.getGeoObjectTypes(), this.getGeoObjectTypes());
+    overlaps = overlaps || overlaps(configuration.getHierarchyTypes(), this.getHierarchyTypes());
+    overlaps = overlaps || overlaps(configuration.getUndirectedTypes(), this.getUndirectedTypes());
 
-      array.add(object);
-    });
+    return overlaps;
+  }
 
-    this.dagTypes.forEach(code -> {
-      JsonObject object = new JsonObject();
-      object.addProperty("type", DirectedAcyclicGraphType.class.getSimpleName());
-      object.addProperty("code", code);
+  protected boolean overlaps(Stream<String> list, Stream<String> otherList)
+  {
+    List<String> list2 = otherList.toList();
 
-      array.add(object);
-    });
+    Set<String> result = list //
+        .distinct() //
+        .filter(list2::contains) //
+        .collect(Collectors.toSet());
 
-    this.undirectedTypes.forEach(code -> {
-      JsonObject object = new JsonObject();
-      object.addProperty("type", UndirectedGraphType.class.getSimpleName());
-      object.addProperty("code", code);
-
-      array.add(object);
-    });
-
-    this.businessTypes.forEach(code -> {
-      JsonObject object = new JsonObject();
-      object.addProperty("type", BusinessType.class.getSimpleName());
-      object.addProperty("code", code);
-
-      array.add(object);
-    });
-
-    this.businessEdgeTypes.forEach(code -> {
-      JsonObject object = new JsonObject();
-      object.addProperty("type", BusinessEdgeType.class.getSimpleName());
-      object.addProperty("code", code);
-
-      array.add(object);
-    });
-
-    return array;
+    return result.size() > 0;
   }
 
 }

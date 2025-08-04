@@ -99,6 +99,6 @@ public class GeoObjectApplyEvent extends AbstractGeoObjectEvent implements GeoOb
   @Override
   public Boolean isValidFor(PublishDTO dto)
   {
-    return dto.getGeoObjectTypes().contains(this.getType());
+    return dto.getGeoObjectTypes().anyMatch(this.getType()::equals);
   }
 }

@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.PublishService;
+import net.geoprism.registry.view.CommitDTO;
 import net.geoprism.registry.view.PublishDTO;
 
 @RestController

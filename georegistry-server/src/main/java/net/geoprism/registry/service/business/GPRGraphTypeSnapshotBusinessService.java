@@ -34,7 +34,7 @@ public class GPRGraphTypeSnapshotBusinessService extends GraphTypeSnapshotBusine
         vQuery.WHERE(vQuery.getParent().EQ((Commit) version));
 
         DirectedAcyclicGraphTypeSnapshotQuery query = new DirectedAcyclicGraphTypeSnapshotQuery(factory);
-        query.LEFT_JOIN_EQ(vQuery.getChild());
+        query.WHERE(query.EQ(vQuery.getChild()));
         query.AND(query.getCode().EQ(code));
 
         try (OIterator<? extends GraphTypeSnapshot> it = query.getIterator())
@@ -57,7 +57,7 @@ public class GPRGraphTypeSnapshotBusinessService extends GraphTypeSnapshotBusine
         vQuery.WHERE(vQuery.getParent().EQ((Commit) version));
 
         UndirectedGraphTypeSnapshotQuery query = new UndirectedGraphTypeSnapshotQuery(factory);
-        query.LEFT_JOIN_EQ(vQuery.getChild());
+        query.WHERE(query.EQ(vQuery.getChild()));
         query.AND(query.getCode().EQ(code));
 
         try (OIterator<? extends GraphTypeSnapshot> it = query.getIterator())

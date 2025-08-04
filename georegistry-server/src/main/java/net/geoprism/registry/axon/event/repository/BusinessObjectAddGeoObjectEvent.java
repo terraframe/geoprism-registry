@@ -140,7 +140,7 @@ public class BusinessObjectAddGeoObjectEvent implements BusinessObjectEvent
   @Override
   public Boolean isValidFor(PublishDTO dto)
   {
-    return dto.getBusinessEdgeTypes().contains(this.getEdgeType());
+    return dto.getBusinessEdgeTypes().anyMatch(this.getEdgeType()::equals);
   }
 
 }

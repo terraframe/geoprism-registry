@@ -1,6 +1,7 @@
 package net.geoprism.registry.service.business;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,82 +56,107 @@ public class RemoteCommitService
   private GraphRepoServiceIF                        metadataService;
 
   @Request
-  public Commit pull(String source, String publishId, Integer versionNumber)
+  public Commit pull(String source, String publishId)
   {
-    // TODO: Should this be in a transaction??
     try (RemoteClientIF client = service.open(source))
     {
-      PublishDTO remotePublish = client.getPublish(publishId).orElseThrow(() -> {
-        throw new ProgrammingErrorException("The remote server has not publish data with the uid of [" + publishId + "]");
-      });
 
-      Publish publish = this.publishService.getByUid(remotePublish.getUid()).orElseGet(() -> {
-        return this.publishService.create(remotePublish);
-      });
-
-      // Ensure that the commit has not already been pulled
-      this.commitService.getCommit(publish, versionNumber).ifPresent(commit -> {
-        throw new ProgrammingErrorException("The commit [" + commit.getUid() + "] has already been pulled");
-      });
-
-      CommitDTO remoteCommit = client.getCommit(publish.getUid(), versionNumber).orElseThrow(() -> {
+      CommitDTO remoteCommit = client.getLatest(publishId).orElseThrow(() -> {
         throw new ProgrammingErrorException("The remote server does not have the commit");
       });
 
-      Commit commit = this.commitService.create(publish, remoteCommit);
-
-      // Copy the metadata for the remote types
-      GeoObjectTypeSnapshot root = this.snapshotService.createRoot(commit);
-
-      client.getBusinessTypes(commit.getUid()).forEach(element -> {
-        BusinessTypeSnapshot snapshot = this.bTypeService.create(commit, element.getAsJsonObject());
-
-        this.snapshotService.createType(snapshot);
-      });
-
-      client.getGeoObjectTypes(commit.getUid()).forEach(element -> {
-        GeoObjectTypeSnapshot snapshot = this.gTypeService.create(commit, element.getAsJsonObject());
-
-        this.snapshotService.createType(snapshot);
-      });
-
-      client.getHierarchyTypes(commit.getUid()).forEach(element -> {
-        HierarchyTypeSnapshot snapshot = (HierarchyTypeSnapshot) this.graphTypeService.create(commit, element.getAsJsonObject(), root);
-
-        this.snapshotService.createType(snapshot, root);
-      });
-
-      client.getDirectedAcyclicGraphTypes(commit.getUid()).forEach(element -> {
-        DirectedAcyclicGraphTypeSnapshot snapshot = (DirectedAcyclicGraphTypeSnapshot) this.graphTypeService.create(commit, element.getAsJsonObject(), root);
-
-        this.snapshotService.createType(snapshot, root);
-      });
-
-      client.getUndirectedGraphTypes(commit.getUid()).forEach(element -> {
-        UndirectedGraphTypeSnapshot snapshot = (UndirectedGraphTypeSnapshot) this.graphTypeService.create(commit, element.getAsJsonObject(), root);
-
-        this.snapshotService.createType(snapshot, root);
-      });
-
-      client.getBusinessEdgeTypes(commit.getUid()).forEach(element -> {
-        BusinessEdgeTypeSnapshot snapshot = this.bEdgeTypeService.create(commit, element.getAsJsonObject());
-
-        this.snapshotService.createType(snapshot);
-      });
-      
-      this.metadataService.refreshMetadataCache();
-
-      int chunk = 0;
-      List<RemoteEvent> remoteEvents = null;
-
-      while ( ( remoteEvents = client.getRemoteEvents(commit.getUid(), chunk) ).size() > 0)
-      {
-        remoteEvents.forEach(event -> this.gateway.sendAndWait(event.toCommand()));
-
-        chunk++;
-      }
-
-      return commit;
+      return pull(client, remoteCommit);
     }
+  }
+
+  // TODO: Should this be in a transaction??
+  @Request
+  public Commit pull(RemoteClientIF client, CommitDTO remoteCommit)
+  {
+    Publish publish = getOrCreate(client, remoteCommit.getPublishId());
+
+    // Determine if the commit has already been pulled
+    Optional<Commit> optional = this.commitService.getCommit(remoteCommit.getUid());
+
+    if (optional.isPresent())
+    {
+      System.out.println("Skipping commit [" + remoteCommit.getUid() + "] it has already been pulled");
+
+      return optional.get();
+    }
+
+    // First pull all of the commits which this commit is dependent upon
+    List<Commit> dependencies = client.getDependencies(remoteCommit.getUid()) //
+        .stream() //
+        .map(commit -> this.pull(client, commit)) //
+        .toList();
+
+    Commit commit = this.commitService.create(publish, remoteCommit);
+
+    dependencies.forEach(dependency -> commit.addDependency(dependency).apply());
+
+    // Copy the metadata for the remote types
+    GeoObjectTypeSnapshot root = this.snapshotService.createRoot(commit);
+
+    client.getBusinessTypes(commit.getUid()).forEach(element -> {
+      BusinessTypeSnapshot snapshot = this.bTypeService.create(commit, element.getAsJsonObject());
+
+      this.snapshotService.createType(snapshot);
+    });
+
+    client.getGeoObjectTypes(commit.getUid()).forEach(element -> {
+      GeoObjectTypeSnapshot snapshot = this.gTypeService.create(commit, element.getAsJsonObject());
+
+      this.snapshotService.createType(snapshot);
+    });
+
+    client.getHierarchyTypes(commit.getUid()).forEach(element -> {
+      HierarchyTypeSnapshot snapshot = (HierarchyTypeSnapshot) this.graphTypeService.create(commit, element.getAsJsonObject(), root);
+
+      this.snapshotService.createType(snapshot, root);
+    });
+
+    client.getDirectedAcyclicGraphTypes(commit.getUid()).forEach(element -> {
+      DirectedAcyclicGraphTypeSnapshot snapshot = (DirectedAcyclicGraphTypeSnapshot) this.graphTypeService.create(commit, element.getAsJsonObject(), root);
+
+      this.snapshotService.createType(snapshot, root);
+    });
+
+    client.getUndirectedGraphTypes(commit.getUid()).forEach(element -> {
+      UndirectedGraphTypeSnapshot snapshot = (UndirectedGraphTypeSnapshot) this.graphTypeService.create(commit, element.getAsJsonObject(), root);
+
+      this.snapshotService.createType(snapshot, root);
+    });
+
+    client.getBusinessEdgeTypes(commit.getUid()).forEach(element -> {
+      BusinessEdgeTypeSnapshot snapshot = this.bEdgeTypeService.create(commit, element.getAsJsonObject());
+
+      this.snapshotService.createType(snapshot);
+    });
+
+    this.metadataService.refreshMetadataCache();
+
+    int chunk = 0;
+    List<RemoteEvent> remoteEvents = null;
+
+    while ( ( remoteEvents = client.getRemoteEvents(commit.getUid(), chunk) ).size() > 0)
+    {
+      remoteEvents.forEach(event -> this.gateway.sendAndWait(event.toCommand()));
+
+      chunk++;
+    }
+
+    return commit;
+  }
+
+  protected Publish getOrCreate(RemoteClientIF client, final String publishId)
+  {
+    return this.publishService.getByUid(publishId).orElseGet(() -> {
+      PublishDTO remotePublish = client.getPublish(publishId).orElseThrow(() -> {
+        throw new ProgrammingErrorException("The remote server has no publish data with the uid of [" + publishId + "]");
+      });
+
+      return this.publishService.create(remotePublish);
+    });
   }
 }

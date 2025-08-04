@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 210215871)
+@com.runwaysdk.business.ClassSignature(hash = 1478306544)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -15,7 +15,7 @@ public abstract class CommitBase extends com.runwaysdk.business.Business
   public final static java.lang.String CREATEDBY = "createdBy";
   public final static java.lang.String ENTITYDOMAIN = "entityDomain";
   public final static java.lang.String KEYNAME = "keyName";
-  public final static java.lang.String LASTSEQUENCENUMBER = "lastSequenceNumber";
+  public final static java.lang.String LASTORIGINGLOBALINDEX = "lastOriginGlobalIndex";
   public final static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
   public final static java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
   public final static java.lang.String LOCKEDBY = "lockedBy";
@@ -28,7 +28,7 @@ public abstract class CommitBase extends com.runwaysdk.business.Business
   public final static java.lang.String UID = "uid";
   public final static java.lang.String VERSIONNUMBER = "versionNumber";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = 210215871;
+  private static final long serialVersionUID = 1478306544;
   
   public CommitBase()
   {
@@ -159,31 +159,31 @@ public abstract class CommitBase extends com.runwaysdk.business.Business
     }
   }
   
-  public Long getLastSequenceNumber()
+  public Long getLastOriginGlobalIndex()
   {
-    return com.runwaysdk.constants.MdAttributeLongUtil.getTypeSafeValue(getValue(LASTSEQUENCENUMBER));
+    return com.runwaysdk.constants.MdAttributeLongUtil.getTypeSafeValue(getValue(LASTORIGINGLOBALINDEX));
   }
   
-  public void validateLastSequenceNumber()
+  public void validateLastOriginGlobalIndex()
   {
-    this.validateAttribute(LASTSEQUENCENUMBER);
+    this.validateAttribute(LASTORIGINGLOBALINDEX);
   }
   
-  public static com.runwaysdk.dataaccess.MdAttributeLongDAOIF getLastSequenceNumberMd()
+  public static com.runwaysdk.dataaccess.MdAttributeLongDAOIF getLastOriginGlobalIndexMd()
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.Commit.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeLongDAOIF)mdClassIF.definesAttribute(LASTSEQUENCENUMBER);
+    return (com.runwaysdk.dataaccess.MdAttributeLongDAOIF)mdClassIF.definesAttribute(LASTORIGINGLOBALINDEX);
   }
   
-  public void setLastSequenceNumber(Long value)
+  public void setLastOriginGlobalIndex(Long value)
   {
     if(value == null)
     {
-      setValue(LASTSEQUENCENUMBER, "");
+      setValue(LASTORIGINGLOBALINDEX, "");
     }
     else
     {
-      setValue(LASTSEQUENCENUMBER, java.lang.Long.toString(value));
+      setValue(LASTORIGINGLOBALINDEX, java.lang.Long.toString(value));
     }
   }
   
@@ -495,6 +495,34 @@ public abstract class CommitBase extends com.runwaysdk.business.Business
     return query;
   }
   
+  public net.geoprism.registry.CommitHasDependency addDependent(net.geoprism.registry.Commit commit)
+  {
+    return (net.geoprism.registry.CommitHasDependency) addChild(commit, net.geoprism.registry.CommitHasDependency.CLASS);
+  }
+  
+  public void removeDependent(net.geoprism.registry.Commit commit)
+  {
+    removeAllChildren(commit, net.geoprism.registry.CommitHasDependency.CLASS);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.Commit> getAllDependent()
+  {
+    return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.Commit>) getChildren(net.geoprism.registry.CommitHasDependency.CLASS);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.CommitHasDependency> getAllDependentRel()
+  {
+    return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.CommitHasDependency>) getChildRelationships(net.geoprism.registry.CommitHasDependency.CLASS);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.CommitHasDependency> getDependentRel(net.geoprism.registry.Commit commit)
+  {
+    return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.CommitHasDependency>) getRelationshipsWithChild(commit, net.geoprism.registry.CommitHasDependency.CLASS);
+  }
+  
   public net.geoprism.registry.CommitHasSnapshot addSnapshot(net.geoprism.graph.MetadataSnapshot metadataSnapshot)
   {
     return (net.geoprism.registry.CommitHasSnapshot) addChild(metadataSnapshot, net.geoprism.registry.CommitHasSnapshot.CLASS);
@@ -521,6 +549,34 @@ public abstract class CommitBase extends com.runwaysdk.business.Business
   public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.CommitHasSnapshot> getSnapshotRel(net.geoprism.graph.MetadataSnapshot metadataSnapshot)
   {
     return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.CommitHasSnapshot>) getRelationshipsWithChild(metadataSnapshot, net.geoprism.registry.CommitHasSnapshot.CLASS);
+  }
+  
+  public net.geoprism.registry.CommitHasDependency addDependency(net.geoprism.registry.Commit commit)
+  {
+    return (net.geoprism.registry.CommitHasDependency) addParent(commit, net.geoprism.registry.CommitHasDependency.CLASS);
+  }
+  
+  public void removeDependency(net.geoprism.registry.Commit commit)
+  {
+    removeAllParents(commit, net.geoprism.registry.CommitHasDependency.CLASS);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.Commit> getAllDependency()
+  {
+    return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.Commit>) getParents(net.geoprism.registry.CommitHasDependency.CLASS);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.CommitHasDependency> getAllDependencyRel()
+  {
+    return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.CommitHasDependency>) getParentRelationships(net.geoprism.registry.CommitHasDependency.CLASS);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.CommitHasDependency> getDependencyRel(net.geoprism.registry.Commit commit)
+  {
+    return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.CommitHasDependency>) getRelationshipsWithParent(commit, net.geoprism.registry.CommitHasDependency.CLASS);
   }
   
   public static Commit get(String oid)

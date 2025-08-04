@@ -100,12 +100,6 @@ public class SnapshotBusinessService
   private BusinessEdgeTypeBusinessServiceIF         bEdgeService;
 
   @Autowired
-  private ClassificationTypeBusinessServiceIF       cTypeService;
-
-  @Autowired
-  private ClassificationBusinessServiceIF           cService;
-
-  @Autowired
   private DirectedAcyclicGraphTypeBusinessServiceIF dagTypeService;
 
   @Autowired
