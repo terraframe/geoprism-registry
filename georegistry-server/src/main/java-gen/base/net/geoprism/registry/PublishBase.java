@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 965712600)
+@com.runwaysdk.business.ClassSignature(hash = -1866702700)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -15,6 +15,7 @@ public abstract class PublishBase extends com.runwaysdk.business.Business
   public final static java.lang.String CREATEDBY = "createdBy";
   public final static java.lang.String ENDDATE = "endDate";
   public final static java.lang.String ENTITYDOMAIN = "entityDomain";
+  public final static java.lang.String EXCLUSIONS = "exclusions";
   public final static java.lang.String FORDATE = "forDate";
   public final static java.lang.String KEYNAME = "keyName";
   public final static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
@@ -30,7 +31,7 @@ public abstract class PublishBase extends com.runwaysdk.business.Business
   public final static java.lang.String TYPECODES = "typeCodes";
   public final static java.lang.String UID = "uid";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = 965712600;
+  private static final long serialVersionUID = -1866702700;
   
   public PublishBase()
   {
@@ -158,6 +159,34 @@ public abstract class PublishBase extends com.runwaysdk.business.Business
     else
     {
       setValue(ENTITYDOMAIN, oid);
+    }
+  }
+  
+  public String getExclusions()
+  {
+    return getValue(EXCLUSIONS);
+  }
+  
+  public void validateExclusions()
+  {
+    this.validateAttribute(EXCLUSIONS);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeJsonDAOIF getExclusionsMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.Publish.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeJsonDAOIF)mdClassIF.definesAttribute(EXCLUSIONS);
+  }
+  
+  public void setExclusions(String value)
+  {
+    if(value == null)
+    {
+      setValue(EXCLUSIONS, "");
+    }
+    else
+    {
+      setValue(EXCLUSIONS, value);
     }
   }
   

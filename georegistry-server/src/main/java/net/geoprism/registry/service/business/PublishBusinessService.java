@@ -25,7 +25,6 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.google.gson.JsonArray;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
@@ -66,11 +65,10 @@ public class PublishBusinessService implements PublishBusinessServiceIF
   @Transaction
   public Publish create(PublishDTO configuration)
   {
-    JsonArray typeJson = configuration.toTypeJson();
-
     Publish publish = new Publish();
     publish.setUid(configuration.getUid());
-    publish.setTypeCodes(typeJson.toString());
+    publish.setTypeCodes(configuration.toTypeJson().toString());
+    publish.setExclusions(configuration.toExclusionJson().toString());
     publish.setForDate(configuration.getDate());
     publish.setStartDate(configuration.getStartDate());
     publish.setEndDate(configuration.getEndDate());

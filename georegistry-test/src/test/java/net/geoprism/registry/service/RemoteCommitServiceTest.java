@@ -4,6 +4,7 @@
 package net.geoprism.registry.service;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,15 +52,14 @@ import net.geoprism.registry.service.business.RemoteClientIF;
 import net.geoprism.registry.service.business.RemoteCommitService;
 import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
 import net.geoprism.registry.test.USATestData;
+import net.geoprism.registry.view.TypeAndCode;
+import net.geoprism.registry.view.TypeAndCode.Type;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
 @RunWith(SpringInstanceTestClassRunner.class)
 public class RemoteCommitServiceTest implements InstanceTestClassListener
 {
-  @Autowired
-  private RemoteClientBuilderServiceIF              builder;
-
   @Autowired
   private CommitBusinessServiceIF                   commitService;
 
@@ -163,7 +163,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
   {
     Assert.assertEquals(Long.valueOf(0), this.store.size());
 
-    Commit commit = this.service.pull(MockRemoteClientBuilderService.SOURCE, "mock");
+    Commit commit = this.service.pull(MockRemoteClientBuilderService.SOURCE, "mock", new LinkedList<>());
 
     try
     {
@@ -272,13 +272,13 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
   {
     Assert.assertEquals(Long.valueOf(0), this.store.size());
 
-    Commit original = this.service.pull(MockRemoteClientBuilderService.SOURCE, "mock");
+    Commit original = this.service.pull(MockRemoteClientBuilderService.SOURCE, "mock", new LinkedList<>());
 
     try
     {
       Assert.assertNotNull(original);
 
-      this.service.pull(MockRemoteClientBuilderService.STALE_SOURCE, "mock");
+      this.service.pull(MockRemoteClientBuilderService.STALE_SOURCE, "mock", new LinkedList<>());
 
       GeoObjectTypeSnapshot root = this.gSnapshotService.getRoot(original);
 
@@ -352,7 +352,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
   {
     Assert.assertEquals(Long.valueOf(0), this.store.size());
 
-    Commit commit = this.service.pull(MockRemoteClientBuilderService.DEPENDENCY, MockDependentRemoteClient.DEPENDENT);
+    Commit commit = this.service.pull(MockRemoteClientBuilderService.DEPENDENCY, MockDependentRemoteClient.DEPENDENT, new LinkedList<>());
 
     try
     {
@@ -398,6 +398,27 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
         dependencies.stream().map(m -> m.getPublish()).distinct().forEach(this.publishService::delete);
       }
 
+    }
+    finally
+    {
+      this.publishService.delete(commit.getPublish());
+    }
+  }
+
+  @Test
+  @Request
+  public void testExclusions() throws InterruptedException
+  {
+    Assert.assertEquals(Long.valueOf(0), this.store.size());
+
+    List<TypeAndCode> exclusions = Arrays.asList(TypeAndCode.build("TEST_UN", Type.UNDIRECTED));
+
+    Commit commit = this.service.pull(MockRemoteClientBuilderService.SOURCE, "mock", exclusions);
+
+    try
+    {
+      // Ensure that events for excluded types are not executed
+      Assert.assertEquals(Long.valueOf(46), this.store.size());
     }
     finally
     {

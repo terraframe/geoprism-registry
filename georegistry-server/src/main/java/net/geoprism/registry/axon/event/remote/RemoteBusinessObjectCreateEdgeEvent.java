@@ -3,6 +3,9 @@ package net.geoprism.registry.axon.event.remote;
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
 import net.geoprism.registry.axon.command.remote.RemoteBusinessObjectCreateEdgeCommand;
+import net.geoprism.registry.view.PublishDTO;
+import net.geoprism.registry.view.TypeAndCode;
+import net.geoprism.registry.view.TypeAndCode.Type;
 
 public class RemoteBusinessObjectCreateEdgeEvent implements RemoteEvent
 {
@@ -129,6 +132,12 @@ public class RemoteBusinessObjectCreateEdgeEvent implements RemoteEvent
   public Object toCommand()
   {
     return new RemoteBusinessObjectCreateEdgeCommand(commitId, sourceCode, sourceType, edgeUid, edgeType, targetCode, targetType);
+  }
+
+  @Override
+  public boolean isValid(PublishDTO dto)
+  {
+    return !dto.getExclusions().contains(TypeAndCode.build(edgeType, Type.BUSINESS_EDGE));
   }
 
 }

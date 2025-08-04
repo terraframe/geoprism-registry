@@ -8,6 +8,9 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import net.geoprism.registry.axon.command.remote.RemoteGeoObjectCommand;
 import net.geoprism.registry.spring.DateDeserializer;
 import net.geoprism.registry.spring.DateSerializer;
+import net.geoprism.registry.view.PublishDTO;
+import net.geoprism.registry.view.TypeAndCode;
+import net.geoprism.registry.view.TypeAndCode.Type;
 
 public class RemoteGeoObjectEvent implements RemoteEvent
 {
@@ -55,12 +58,12 @@ public class RemoteGeoObjectEvent implements RemoteEvent
   {
     this.commitId = commitId;
   }
-  
+
   public String getCode()
   {
     return code;
   }
-  
+
   public void setCode(String code)
   {
     this.code = code;
@@ -120,5 +123,11 @@ public class RemoteGeoObjectEvent implements RemoteEvent
   public Object toCommand()
   {
     return new RemoteGeoObjectCommand(commitId, code, isNew, object, type, startDate, endDate);
+  }
+
+  @Override
+  public boolean isValid(PublishDTO dto)
+  {
+    return !dto.getExclusions().contains(TypeAndCode.build(type, Type.GEO_OBJECT));
   }
 }

@@ -1,6 +1,9 @@
 package net.geoprism.registry.axon.event.remote;
 
 import net.geoprism.registry.axon.command.remote.RemoteBusinessObjectCommand;
+import net.geoprism.registry.view.PublishDTO;
+import net.geoprism.registry.view.TypeAndCode;
+import net.geoprism.registry.view.TypeAndCode.Type;
 
 public class RemoteBusinessObjectEvent implements RemoteEvent
 {
@@ -88,5 +91,11 @@ public class RemoteBusinessObjectEvent implements RemoteEvent
   public Object toCommand()
   {
     return new RemoteBusinessObjectCommand(commitId, code, type, object);        
+  }
+  
+  @Override
+  public boolean isValid(PublishDTO dto)
+  {
+    return !dto.getExclusions().contains(TypeAndCode.build(type, Type.BUSINESS));
   }
 }

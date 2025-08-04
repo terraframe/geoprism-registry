@@ -8,6 +8,9 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import net.geoprism.registry.axon.command.remote.RemoteGeoObjectSetParentCommand;
 import net.geoprism.registry.spring.DateDeserializer;
 import net.geoprism.registry.spring.DateSerializer;
+import net.geoprism.registry.view.PublishDTO;
+import net.geoprism.registry.view.TypeAndCode;
+import net.geoprism.registry.view.TypeAndCode.Type;
 
 public class RemoteGeoObjectSetParentEvent implements RemoteEvent
 {
@@ -146,4 +149,11 @@ public class RemoteGeoObjectSetParentEvent implements RemoteEvent
   {
     return new RemoteGeoObjectSetParentCommand(commitId, code, type, edgeUid, edgeType, startDate, endDate, parentCode, parentType);
   }
+  
+  @Override
+  public boolean isValid(PublishDTO dto)
+  {
+    return !dto.getExclusions().contains(TypeAndCode.build(edgeType, Type.HIERARCHY));
+  }
+
 }

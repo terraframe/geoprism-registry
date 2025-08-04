@@ -16,6 +16,10 @@
             name="typeCodes"
             label="Type Codes"
             required="true" />
+          <json
+            name="exclusions"
+            label="exclusions"
+            required="false" />
           <dateTime
             name="forDate"
             label="For Date"

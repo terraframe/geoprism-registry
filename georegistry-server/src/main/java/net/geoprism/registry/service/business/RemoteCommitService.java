@@ -1,5 +1,6 @@
 package net.geoprism.registry.service.business;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +22,7 @@ import net.geoprism.registry.Publish;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
 import net.geoprism.registry.view.CommitDTO;
 import net.geoprism.registry.view.PublishDTO;
+import net.geoprism.registry.view.TypeAndCode;
 
 @Service
 public class RemoteCommitService
@@ -56,7 +58,7 @@ public class RemoteCommitService
   private GraphRepoServiceIF                        metadataService;
 
   @Request
-  public Commit pull(String source, String publishId)
+  public Commit pull(String source, String publishId, List<TypeAndCode> exclusions)
   {
     try (RemoteClientIF client = service.open(source))
     {
@@ -65,15 +67,15 @@ public class RemoteCommitService
         throw new ProgrammingErrorException("The remote server does not have the commit");
       });
 
-      return pull(client, remoteCommit);
+      return pull(client, remoteCommit, exclusions);
     }
   }
 
   // TODO: Should this be in a transaction??
   @Request
-  public Commit pull(RemoteClientIF client, CommitDTO remoteCommit)
+  public Commit pull(RemoteClientIF client, CommitDTO remoteCommit, List<TypeAndCode> exclusions)
   {
-    Publish publish = getOrCreate(client, remoteCommit.getPublishId());
+    Publish publish = getOrCreate(client, remoteCommit.getPublishId(), exclusions);
 
     // Determine if the commit has already been pulled
     Optional<Commit> optional = this.commitService.getCommit(remoteCommit.getUid());
@@ -88,7 +90,7 @@ public class RemoteCommitService
     // First pull all of the commits which this commit is dependent upon
     List<Commit> dependencies = client.getDependencies(remoteCommit.getUid()) //
         .stream() //
-        .map(commit -> this.pull(client, commit)) //
+        .map(commit -> this.pull(client, commit, new LinkedList<>())) //
         .toList();
 
     Commit commit = this.commitService.create(publish, remoteCommit);
@@ -138,10 +140,12 @@ public class RemoteCommitService
 
     int chunk = 0;
     List<RemoteEvent> remoteEvents = null;
+    
+    PublishDTO dto = publish.toDTO();
 
     while ( ( remoteEvents = client.getRemoteEvents(commit.getUid(), chunk) ).size() > 0)
     {
-      remoteEvents.forEach(event -> this.gateway.sendAndWait(event.toCommand()));
+      remoteEvents.stream().filter(event -> event.isValid(dto)).forEach(event -> this.gateway.sendAndWait(event.toCommand()));
 
       chunk++;
     }
@@ -149,14 +153,15 @@ public class RemoteCommitService
     return commit;
   }
 
-  protected Publish getOrCreate(RemoteClientIF client, final String publishId)
+  protected Publish getOrCreate(RemoteClientIF client, final String publishId, List<TypeAndCode> exclusions)
   {
     return this.publishService.getByUid(publishId).orElseGet(() -> {
-      PublishDTO remotePublish = client.getPublish(publishId).orElseThrow(() -> {
+      PublishDTO dto = client.getPublish(publishId).orElseThrow(() -> {
         throw new ProgrammingErrorException("The remote server has no publish data with the uid of [" + publishId + "]");
       });
+      dto.setExclusions(exclusions);
 
-      return this.publishService.create(remotePublish);
+      return this.publishService.create(dto);
     });
   }
 }

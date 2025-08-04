@@ -47,7 +47,6 @@ import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
-import net.geoprism.registry.service.business.GraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 
@@ -56,9 +55,6 @@ public class GeoObjectRepositoryProjection
 {
   @Autowired
   private HierarchyTypeBusinessServiceIF hService;
-
-  @Autowired
-  private GraphTypeBusinessServiceIF     graphTypeService;
 
   @Autowired
   private GPRGeoObjectBusinessServiceIF  service;

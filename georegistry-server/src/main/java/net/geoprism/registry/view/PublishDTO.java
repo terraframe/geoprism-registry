@@ -19,68 +19,29 @@ import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.registry.JsonCollectors;
 import net.geoprism.registry.spring.DateDeserializer;
 import net.geoprism.registry.spring.DateSerializer;
+import net.geoprism.registry.view.TypeAndCode.Type;
 
 public class PublishDTO
 {
-  public static enum Type {
-    GEO_OBJECT, HIERARCHY, DAG, UNDIRECTED, BUSINESS, BUSINESS_EDGE
-  }
-
-  public static class TypeCode
-  {
-    private String code;
-
-    private Type   type;
-
-    public String getCode()
-    {
-      return code;
-    }
-
-    public void setCode(String code)
-    {
-      this.code = code;
-    }
-
-    public Type getType()
-    {
-      return type;
-    }
-
-    public void setType(Type type)
-    {
-      this.type = type;
-    }
-
-    public static TypeCode build(String code, Type type)
-    {
-      TypeCode typeCode = new TypeCode();
-      typeCode.setCode(code);
-      typeCode.setType(type);
-
-      return typeCode;
-    }
-  }
-
-  private String         uid;
+  private String            uid;
 
   @JsonSerialize(using = DateSerializer.class)
   @JsonDeserialize(using = DateDeserializer.class)
-  private Date           date;
+  private Date              date;
 
   @JsonSerialize(using = DateSerializer.class)
   @JsonDeserialize(using = DateDeserializer.class)
-  private Date           startDate;
+  private Date              startDate;
 
   @JsonSerialize(using = DateSerializer.class)
   @JsonDeserialize(using = DateDeserializer.class)
-  private Date           endDate;
+  private Date              endDate;
 
-  private String         origin;
+  private String            origin;
 
-  private List<TypeCode> types;
+  private List<TypeAndCode> types;
 
-  private List<TypeCode> exclusions;
+  private List<TypeAndCode> exclusions;
 
   public PublishDTO()
   {
@@ -150,34 +111,42 @@ public class PublishDTO
     this.endDate = endDate;
   }
 
-  public List<TypeCode> getTypes()
+  public List<TypeAndCode> getTypes()
   {
     return types;
   }
 
-  public void setTypes(List<TypeCode> types)
+  public void setTypes(List<TypeAndCode> types)
   {
     this.types = types;
   }
 
-  public List<TypeCode> getExclusions()
+  public List<TypeAndCode> getExclusions()
   {
     return exclusions;
   }
 
-  public void setExclusions(List<TypeCode> exclusions)
+  public void setExclusions(List<TypeAndCode> exclusions)
   {
     this.exclusions = exclusions;
   }
 
+  public void addExclusions(Type type, String... codes)
+  {
+    Arrays.stream(codes).map(code -> TypeAndCode.build(code, type)).forEach(this.exclusions::add);
+  }
+
   public Stream<String> asStream(Type type)
   {
-    return this.types.stream().filter(t -> t.getType().equals(type)).map(t -> t.getCode());
+    return this.types.stream() //
+        .filter(t -> t.getType().equals(type)) //
+        .filter(t -> !this.exclusions.contains(t)) //
+        .map(t -> t.getCode());
   }
 
   public void addType(Type type, String... codes)
   {
-    Arrays.stream(codes).map(code -> TypeCode.build(code, type)).forEach(this.types::add);
+    Arrays.stream(codes).map(code -> TypeAndCode.build(code, type)).forEach(this.types::add);
   }
 
   @JsonIgnore
@@ -248,7 +217,17 @@ public class PublishDTO
 
   public JsonArray toTypeJson()
   {
-    return this.types.stream() //
+    return toJson(this.types);
+  }
+
+  public JsonArray toExclusionJson()
+  {
+    return toJson(this.exclusions);
+  }
+
+  protected JsonArray toJson(List<TypeAndCode> list)
+  {
+    return list.stream() //
         .sorted((a, b) -> a.getType().compareTo(b.getType())) //
         .map(typeCode -> {
           JsonObject object = new JsonObject();
@@ -257,7 +236,6 @@ public class PublishDTO
 
           return object;
         }).collect(JsonCollectors.toJsonArray());
-
   }
 
   public boolean hasSameTypes(PublishDTO configuration)

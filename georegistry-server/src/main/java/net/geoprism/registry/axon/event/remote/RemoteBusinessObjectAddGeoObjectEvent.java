@@ -2,6 +2,9 @@ package net.geoprism.registry.axon.event.remote;
 
 import net.geoprism.registry.axon.command.remote.RemoteBusinessObjectAddGeoObjectCommand;
 import net.geoprism.registry.model.EdgeDirection;
+import net.geoprism.registry.view.PublishDTO;
+import net.geoprism.registry.view.TypeAndCode;
+import net.geoprism.registry.view.TypeAndCode.Type;
 
 public class RemoteBusinessObjectAddGeoObjectEvent implements RemoteEvent
 {
@@ -20,7 +23,7 @@ public class RemoteBusinessObjectAddGeoObjectEvent implements RemoteEvent
   private String        geoObjectCode;
 
   private EdgeDirection direction;
-  
+
   public RemoteBusinessObjectAddGeoObjectEvent()
   {
   }
@@ -127,6 +130,12 @@ public class RemoteBusinessObjectAddGeoObjectEvent implements RemoteEvent
   public Object toCommand()
   {
     return new RemoteBusinessObjectAddGeoObjectCommand(commitId, code, type, edgeType, geoObjectType, geoObjectCode, direction);
+  }
+
+  @Override
+  public boolean isValid(PublishDTO dto)
+  {
+    return !dto.getExclusions().contains(TypeAndCode.build(edgeType, Type.BUSINESS_EDGE));
   }
 
 }

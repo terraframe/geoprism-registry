@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -47639537)
+@com.runwaysdk.business.ClassSignature(hash = 1078330827)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -116,6 +116,23 @@ public  class PublishQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.Publish.ENTITYDOMAIN);
 
     return (com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.Publish.ENTITYDOMAIN, mdAttributeIF, this, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getExclusions()
+  {
+    return getExclusions(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getExclusions(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.Publish.EXCLUSIONS, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getExclusions(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.Publish.EXCLUSIONS, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableMoment getForDate()
@@ -449,6 +466,9 @@ public  class PublishQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain();
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias);
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getExclusions();
+    public com.runwaysdk.query.SelectableChar getExclusions(String alias);
+    public com.runwaysdk.query.SelectableChar getExclusions(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableMoment getForDate();
     public com.runwaysdk.query.SelectableMoment getForDate(String alias);
     public com.runwaysdk.query.SelectableMoment getForDate(String alias, String displayLabel);
@@ -592,6 +612,23 @@ public  class PublishQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias, String displayLabel)
   {
     return (com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF)this.get(net.geoprism.registry.Publish.ENTITYDOMAIN,  alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getExclusions()
+  {
+    return getExclusions(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getExclusions(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.Publish.EXCLUSIONS, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getExclusions(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.Publish.EXCLUSIONS, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableMoment getForDate()
@@ -884,6 +921,9 @@ public  class PublishQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain();
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias);
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getExclusions();
+    public com.runwaysdk.query.SelectableChar getExclusions(String alias);
+    public com.runwaysdk.query.SelectableChar getExclusions(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableMoment getForDate();
     public com.runwaysdk.query.SelectableMoment getForDate(String alias);
     public com.runwaysdk.query.SelectableMoment getForDate(String alias, String displayLabel);
@@ -1076,6 +1116,23 @@ public  class PublishQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias, String displayLabel)
   {
     return (com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF)this.get(net.geoprism.registry.Publish.ENTITYDOMAIN,  alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getExclusions()
+  {
+    return getExclusions(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getExclusions(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.Publish.EXCLUSIONS, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getExclusions(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.Publish.EXCLUSIONS, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableMoment getForDate()
