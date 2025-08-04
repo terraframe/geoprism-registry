@@ -7,13 +7,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
 
-import org.axonframework.commandhandling.gateway.CommandGateway;
-import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +20,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.runwaysdk.session.Request;
-import com.runwaysdk.system.scheduler.SchedulerManager;
 
 import net.geoprism.graph.BusinessEdgeTypeSnapshot;
 import net.geoprism.graph.BusinessTypeSnapshot;
@@ -40,51 +33,34 @@ import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.Commit;
 import net.geoprism.registry.DirectedAcyclicGraphType;
+import net.geoprism.registry.EventDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.Publish;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
-import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.UndirectedGraphType;
-import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
-import net.geoprism.registry.axon.event.repository.BusinessObjectEventBuilder;
-import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.config.TestApplication;
-import net.geoprism.registry.model.BusinessObject;
-import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessEdgeTypeSnapshotBusinessServiceIF;
-import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.CommitBusinessServiceIF;
-import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessServiceIF;
-import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeSnapshotBusinessServiceIF;
-import net.geoprism.registry.service.business.GraphRepoServiceIF;
 import net.geoprism.registry.service.business.GraphTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.PublishBusinessServiceIF;
 import net.geoprism.registry.service.business.PublishEventService;
-import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
-import net.geoprism.registry.test.TestDataSet;
-import net.geoprism.registry.test.USATestData;
-import net.geoprism.registry.view.BusinessEdgeTypeView;
-import net.geoprism.registry.view.BusinessGeoEdgeTypeView;
 import net.geoprism.registry.view.PublishDTO;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
 @RunWith(SpringInstanceTestClassRunner.class)
-public class PublishEventServiceTest extends USADatasetTest implements InstanceTestClassListener
+public class PublishEventServiceTest extends EventDatasetTest implements InstanceTestClassListener
 {
   @Autowired
   private PublishEventService                       service;
-
-  @Autowired
-  private RegistryEventStore                        store;
 
   @Autowired
   private PublishBusinessServiceIF                  pService;
@@ -99,16 +75,7 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
   private HierarchyTypeSnapshotBusinessServiceIF    hSnapshotService;
 
   @Autowired
-  private DirectedAcyclicGraphTypeBusinessServiceIF dagService;
-
-  @Autowired
-  private UndirectedGraphTypeBusinessServiceIF      undirectedService;
-
-  @Autowired
   private GraphTypeSnapshotBusinessServiceIF        graphSnapshotService;
-
-  @Autowired
-  private GraphRepoServiceIF                        repoService;
 
   @Autowired
   private BusinessTypeBusinessServiceIF             bTypeService;
@@ -122,182 +89,7 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
   @Autowired
   private BusinessEdgeTypeSnapshotBusinessServiceIF bEdgeSnapshotService;
 
-  @Autowired
-  private BusinessObjectBusinessServiceIF           bObjectService;
-
-  @Autowired
-  private GeoObjectBusinessServiceIF                gObjectService;
-
-  @Autowired
-  private CommandGateway                            gateway;
-
-  private static BusinessType                       btype;
-
-  private static BusinessEdgeType                   bEdgeType;
-
-  private static BusinessEdgeType                   bGeoEdgeType;
-
-  private static BusinessObject                     pObject;
-
-  private static BusinessObject                     cObject;
-
-  private static DirectedAcyclicGraphType           dagType;
-
-  private static UndirectedGraphType                undirectedType;
-
-  @Override
-  public void beforeClassSetup() throws Exception
-  {
-    super.beforeClassSetup();
-
-    setUpInReq();
-
-    if (!SchedulerManager.initialized())
-    {
-      SchedulerManager.start();
-    }
-  }
-
-  @Request
-  private void setUpInReq()
-  {
-    JsonObject object = new JsonObject();
-    object.addProperty(BusinessType.CODE, "TEST_BUSINESS");
-    object.addProperty(BusinessType.ORGANIZATION, USATestData.ORG_PPP.getCode());
-    object.add(BusinessType.DISPLAYLABEL, new LocalizedValue("Test Business").toJSON());
-
-    btype = this.bTypeService.apply(object);
-
-    bEdgeType = this.bEdgeService.create(BusinessEdgeTypeView.build(USATestData.ORG_PPP.getCode(), "TEST_B_EDGE", new LocalizedValue("TEST_B_EDGE"), new LocalizedValue("TEST_B_EDGE"), btype.getCode(), btype.getCode()));
-
-    bGeoEdgeType = this.bEdgeService.createGeoEdge(BusinessGeoEdgeTypeView.build(USATestData.ORG_PPP.getCode(), "TEST_GEO_EDGE", new LocalizedValue("TEST_GEO_EDGE"), new LocalizedValue("TEST_GEO_EDGE"), btype.getCode(), EdgeDirection.PARENT));
-
-    dagType = this.dagService.create("TEST_DAG", new LocalizedValue("TEST_DAG"), new LocalizedValue("TEST_DAG"), 0L);
-
-    undirectedType = this.undirectedService.create("TEST_UN", new LocalizedValue("TEST_UN"), new LocalizedValue("TEST_UN"), 0L);
-
-    this.repoService.refreshMetadataCache();
-  }
-
-  @Override
-  @Request
-  public void afterClassSetup() throws Exception
-  {
-    if (bGeoEdgeType != null)
-    {
-      this.bEdgeService.delete(bGeoEdgeType);
-    }
-
-    if (bEdgeType != null)
-    {
-      this.bEdgeService.delete(bEdgeType);
-    }
-
-    if (btype != null)
-    {
-      this.bTypeService.delete(btype);
-    }
-
-    if (dagType != null)
-    {
-      this.dagService.delete(dagType);
-    }
-
-    if (undirectedType != null)
-    {
-      this.undirectedService.delete(undirectedType);
-    }
-
-    super.afterClassSetup();
-  }
-
-  @Before
-  @Request
-  public void setUp()
-  {
-    cleanUpExtra();
-
-    testData.setUpInstanceData();
-
-    testData.logIn(USATestData.USER_NPS_RA);
-
-    pObject = createBusinessObject("P_CODE");
-    cObject = createBusinessObject("C_CODE");
-
-    addBusinessEdge();
-    addDirectedAcyclicEdge();
-    addUndirectedEdge();
-  }
-
-  protected void addUndirectedEdge()
-  {
-    ServerGeoObjectEventBuilder builder = new ServerGeoObjectEventBuilder(this.gObjectService);
-    builder.setObject(USATestData.COLORADO.getServerObject());
-    builder.addEdge(USATestData.CANADA.getServerObject(), undirectedType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, UUID.randomUUID().toString(), false);
-
-    this.gateway.sendAndWait(builder.build());
-  }
-
-  protected void addDirectedAcyclicEdge()
-  {
-    ServerGeoObjectEventBuilder builder = new ServerGeoObjectEventBuilder(this.gObjectService);
-    builder.setObject(USATestData.COLORADO.getServerObject());
-    builder.addEdge(USATestData.CANADA.getServerObject(), dagType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, UUID.randomUUID().toString(), false);
-
-    this.gateway.sendAndWait(builder.build());
-  }
-
-  protected void addBusinessEdge()
-  {
-    BusinessObjectEventBuilder builder = new BusinessObjectEventBuilder(bObjectService);
-    builder.setObject(cObject);
-    builder.addParent(pObject, bEdgeType, false);
-    builder.addGeoObject(bGeoEdgeType, USATestData.COLORADO.getServerObject(), EdgeDirection.PARENT);
-
-    this.gateway.sendAndWait(builder.build());
-  }
-
-  protected BusinessObject createBusinessObject(String code)
-  {
-    BusinessObject object = this.bObjectService.newInstance(btype);
-    object.setCode(code);
-
-    BusinessObjectEventBuilder builder = new BusinessObjectEventBuilder(bObjectService);
-    builder.setObject(object, true);
-
-    this.gateway.sendAndWait(builder.build());
-
-    return this.bObjectService.getByCode(btype, builder.getCode());
-  }
-
-  @After
-  @Request
-  public void tearDown()
-  {
-    if (cObject != null)
-    {
-      this.bObjectService.delete(cObject);
-    }
-
-    if (pObject != null)
-    {
-      this.bObjectService.delete(pObject);
-    }
-
-    testData.logOut();
-
-    cleanUpExtra();
-
-    testData.tearDownInstanceData();
-  }
-
-  @Request
-  public void cleanUpExtra()
-  {
-    TestDataSet.deleteAllListData();
-
-    this.store.truncate();
-  }
+  private static boolean                            WRITE_FILES = true;
 
   @Test
   @Request
@@ -310,172 +102,169 @@ public class PublishEventServiceTest extends USADatasetTest implements InstanceT
     ObjectMapper mapper = new ObjectMapper();
     mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
-//    RunwayTransactionWrapper.run(() -> {
-      // TrackingToken token = new GapAwareTrackingToken(0, null);
+    // RunwayTransactionWrapper.run(() -> {
+    // TrackingToken token = new GapAwareTrackingToken(0, null);
+
+    try
+    {
+      PublishDTO dto = getPublishDTO();
+
+      Publish publish = service.publish(dto);
 
       try
       {
-        PublishDTO dto = new PublishDTO(USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
-        dto.addGeoObjectType(testData.getManagedGeoObjectTypes().stream().map(t -> t.getCode()).toArray(s -> new String[s]));
-        dto.addHierarchyType(testData.getManagedHierarchyTypes().stream().map(t -> t.getCode()).toArray(s -> new String[s]));
-        dto.addBusinessType(btype.getCode());
-        dto.addBusinessEdgeType(bEdgeType.getCode(), bGeoEdgeType.getCode());
-        dto.addDagType(dagType.getCode());
-        dto.addUndirectedType(undirectedType.getCode());
+        List<Commit> commits = this.cService.getCommits(publish);
 
-        Publish publish = service.publish(dto);
+        Assert.assertEquals(1, commits.size());
 
-        try
+        Commit commit = commits.get(0);
+
+        GeoObjectTypeSnapshot root = this.gSnapshotService.getRoot(commit);
+
+        Assert.assertNotNull(root);
+
+        JsonArray geoObjectTypes = new JsonArray();
+
+        dto.getGeoObjectTypes().forEach(code -> {
+          GeoObjectTypeSnapshot snapshot = this.gSnapshotService.get(commit, code);
+
+          Assert.assertNotNull(snapshot);
+
+          ServerGeoObjectType type = ServerGeoObjectType.get(code);
+
+          Assert.assertEquals(type.getSequence(), snapshot.getSequence());
+
+          geoObjectTypes.add(snapshot.toJSON());
+        });
+
+        Assert.assertTrue(geoObjectTypes.size() > 0);
+
+        JsonArray hierarchyTypes = new JsonArray();
+
+        dto.getHierarchyTypes().forEach(code -> {
+          HierarchyTypeSnapshot snapshot = this.hSnapshotService.get(commit, code);
+
+          Assert.assertNotNull(snapshot);
+
+          ServerHierarchyType type = ServerHierarchyType.get(code);
+
+          Assert.assertEquals(type.getObject().getSequence(), snapshot.getSequence());
+
+          List<GeoObjectTypeSnapshot> children = this.hSnapshotService.getChildren(snapshot, root);
+
+          Assert.assertTrue(children.size() > 0);
+
+          hierarchyTypes.add(this.hSnapshotService.toJSON(snapshot, root));
+        });
+
+        JsonArray businessTypes = new JsonArray();
+
+        dto.getBusinessTypes().forEach(code -> {
+          BusinessTypeSnapshot snapshot = this.bTypeSnapshotService.get(commit, code);
+
+          Assert.assertNotNull(snapshot);
+
+          BusinessType type = this.bTypeService.getByCode(code);
+          Assert.assertEquals(type.getSequence(), snapshot.getSequence());
+
+          businessTypes.add(snapshot.toJSON());
+        });
+
+        JsonArray businessEdgeTypes = new JsonArray();
+
+        dto.getBusinessEdgeTypes().forEach(code -> {
+          BusinessEdgeTypeSnapshot snapshot = this.bEdgeSnapshotService.get(commit, code);
+
+          Assert.assertNotNull(snapshot);
+
+          BusinessEdgeType type = this.bEdgeService.getByCode(code).get();
+          Assert.assertEquals(type.getSequence(), snapshot.getSequence());
+
+          businessEdgeTypes.add(this.bEdgeSnapshotService.toJSON(snapshot));
+        });
+
+        JsonArray dagTypes = new JsonArray();
+
+        dto.getDagTypes().forEach(code -> {
+          DirectedAcyclicGraphTypeSnapshot snapshot = (DirectedAcyclicGraphTypeSnapshot) this.graphSnapshotService.get(commit, GraphTypeSnapshot.DIRECTED_ACYCLIC_GRAPH_TYPE, code);
+
+          Assert.assertNotNull(snapshot);
+
+          DirectedAcyclicGraphType type = DirectedAcyclicGraphType.getByCode(code).get();
+          Assert.assertEquals(type.getSequence(), snapshot.getSequence());
+
+          dagTypes.add(snapshot.toJSON());
+        });
+
+        JsonArray undirectedGraphTypes = new JsonArray();
+
+        dto.getUndirectedTypes().forEach(code -> {
+          UndirectedGraphTypeSnapshot snapshot = (UndirectedGraphTypeSnapshot) this.graphSnapshotService.get(commit, GraphTypeSnapshot.UNDIRECTED_GRAPH_TYPE, code);
+
+          Assert.assertNotNull(snapshot);
+
+          UndirectedGraphType type = UndirectedGraphType.getByCode(code).get();
+          Assert.assertEquals(type.getSequence(), snapshot.getSequence());
+
+          undirectedGraphTypes.add(snapshot.toJSON());
+        });
+
+        try (FileWriter writer = new FileWriter(new File(directory, "undirected-graph-types.json")))
+        {
+          gson.toJson(undirectedGraphTypes, writer);
+        }
+
+        List<RemoteEvent> events = this.cService.getRemoteEvents(commit, 0);
+
+        Assert.assertEquals(47, events.size());
+
+        if (WRITE_FILES)
         {
           mapper.writeValue(new File(directory, "publish.json"), dto);
-
-          List<Commit> commits = this.cService.getCommits(publish);
-
-          Assert.assertEquals(1, commits.size());
-
-          Commit commit = commits.get(0);
-
           mapper.writeValue(new File(directory, "commit.json"), commit.toDTO(publish));
-
-          GeoObjectTypeSnapshot root = this.gSnapshotService.getRoot(commit);
-
-          Assert.assertNotNull(root);
-
-          JsonArray geoObjectTypes = new JsonArray();
-
-          dto.getGeoObjectTypes().forEach(code -> {
-            GeoObjectTypeSnapshot snapshot = this.gSnapshotService.get(commit, code);
-
-            Assert.assertNotNull(snapshot);
-            
-            ServerGeoObjectType type = ServerGeoObjectType.get(code);
-            
-            Assert.assertEquals(type.getSequence(), snapshot.getSequence());
-
-            geoObjectTypes.add(snapshot.toJSON());
-          });
-
-          Assert.assertTrue(geoObjectTypes.size() > 0);
 
           try (FileWriter writer = new FileWriter(new File(directory, "geo-object-types.json")))
           {
             gson.toJson(geoObjectTypes, writer);
           }
 
-          JsonArray hierarchyTypes = new JsonArray();
-
-          dto.getHierarchyTypes().forEach(code -> {
-            HierarchyTypeSnapshot snapshot = this.hSnapshotService.get(commit, code);
-
-            Assert.assertNotNull(snapshot);
-                        
-            ServerHierarchyType type = ServerHierarchyType.get(code);
-
-            Assert.assertEquals(type.getObject().getSequence(), snapshot.getSequence());
-            
-            List<GeoObjectTypeSnapshot> children = this.hSnapshotService.getChildren(snapshot, root);
-
-            Assert.assertTrue(children.size() > 0);
-            
-            hierarchyTypes.add(this.hSnapshotService.toJSON(snapshot, root));
-          });
-
           try (FileWriter writer = new FileWriter(new File(directory, "hierarchy-types.json")))
           {
             gson.toJson(hierarchyTypes, writer);
           }
-
-          JsonArray businessTypes = new JsonArray();
-
-          dto.getBusinessTypes().forEach(code -> {
-            BusinessTypeSnapshot snapshot = this.bTypeSnapshotService.get(commit, code);
-            
-            Assert.assertNotNull(snapshot);
-            
-            BusinessType type = this.bTypeService.getByCode(code);
-            Assert.assertEquals(type.getSequence(), snapshot.getSequence());
-
-            businessTypes.add(snapshot.toJSON());
-          });
 
           try (FileWriter writer = new FileWriter(new File(directory, "business-types.json")))
           {
             gson.toJson(businessTypes, writer);
           }
 
-          JsonArray businessEdgeTypes = new JsonArray();
-
-          dto.getBusinessEdgeTypes().forEach(code -> {
-            BusinessEdgeTypeSnapshot snapshot = this.bEdgeSnapshotService.get(commit, code);
-
-            Assert.assertNotNull(snapshot);
-            
-            BusinessEdgeType type = this.bEdgeService.getByCode(code).get();
-            Assert.assertEquals(type.getSequence(), snapshot.getSequence());
-
-            businessEdgeTypes.add(this.bEdgeSnapshotService.toJSON(snapshot));
-          });
-
           try (FileWriter writer = new FileWriter(new File(directory, "business-edge-types.json")))
           {
             gson.toJson(businessEdgeTypes, writer);
           }
-
-          JsonArray dagTypes = new JsonArray();
-
-          dto.getDagTypes().forEach(code -> {
-            DirectedAcyclicGraphTypeSnapshot snapshot = (DirectedAcyclicGraphTypeSnapshot) this.graphSnapshotService.get(commit, GraphTypeSnapshot.DIRECTED_ACYCLIC_GRAPH_TYPE, code);
-
-            Assert.assertNotNull(snapshot);
-            
-            DirectedAcyclicGraphType type = DirectedAcyclicGraphType.getByCode(code).get();
-            Assert.assertEquals(type.getSequence(), snapshot.getSequence());
-
-            dagTypes.add(snapshot.toJSON());
-          });
 
           try (FileWriter writer = new FileWriter(new File(directory, "dag-types.json")))
           {
             gson.toJson(dagTypes, writer);
           }
 
-          JsonArray undirectedGraphTypes = new JsonArray();
-
-          dto.getUndirectedTypes().forEach(code -> {
-            UndirectedGraphTypeSnapshot snapshot = (UndirectedGraphTypeSnapshot) this.graphSnapshotService.get(commit, GraphTypeSnapshot.UNDIRECTED_GRAPH_TYPE, code);
-
-            Assert.assertNotNull(snapshot);
-
-            UndirectedGraphType type = UndirectedGraphType.getByCode(code).get();
-            Assert.assertEquals(type.getSequence(), snapshot.getSequence());
-
-            undirectedGraphTypes.add(snapshot.toJSON());
-          });
-
-          try (FileWriter writer = new FileWriter(new File(directory, "undirected-graph-types.json")))
-          {
-            gson.toJson(undirectedGraphTypes, writer);
-          }
-
-          List<RemoteEvent> events = this.cService.getRemoteEvents(commit, 0);
-
-          mapper.writerFor(mapper.getTypeFactory().constructCollectionLikeType(List.class, RemoteEvent.class)).writeValue(new File("events.json"), events);
-
-          Assert.assertEquals(47, events.size());
-        }
-        catch (IOException e)
-        {
-          throw new RuntimeException(e);
-        }
-        finally
-        {
-          pService.delete(publish);
+          mapper.writerFor(mapper.getTypeFactory().constructCollectionLikeType(List.class, RemoteEvent.class)).writeValue(new File(directory, "events.json"), events);
         }
       }
-      catch (InterruptedException e)
+      catch (IOException e)
       {
         throw new RuntimeException(e);
       }
-//    });
+      finally
+      {
+        pService.delete(publish);
+      }
+    }
+    catch (InterruptedException e)
+    {
+      throw new RuntimeException(e);
+    }
+    // });
   }
+
 }
