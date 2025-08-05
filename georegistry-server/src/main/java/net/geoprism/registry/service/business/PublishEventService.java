@@ -66,10 +66,18 @@ public class PublishEventService
   {
     Publish publish = this.publishService.create(configuration);
 
+    createNewCommit(publish);
+
+    return publish;
+  }
+
+  @Transaction
+  public Commit createNewCommit(Publish publish)
+  {
     Optional<Commit> previous = this.commitService.getLatest(publish);
 
     Long lastGlobalIndex = previous.map(p -> p.getLastOriginGlobalIndex()).orElse(Long.valueOf(0));
-    Integer versionNumber = previous.map(p -> p.getVersionNumber()).orElse(Integer.valueOf(1));
+    Integer versionNumber = previous.map(p -> p.getVersionNumber() + 1).orElse(Integer.valueOf(1));
 
     GapAwareTrackingToken start = new GapAwareTrackingToken(lastGlobalIndex, new LinkedList<>());
 
@@ -78,7 +86,7 @@ public class PublishEventService
     // Determine all of the dependent commits
     previous.ifPresent(p -> commit.addDependency(p).apply());
 
-    List<Publish> dependencies = this.publishService.getRemoteFor(configuration);
+    List<Publish> dependencies = this.publishService.getRemoteFor(publish.toDTO());
 
     for (Publish dependency : dependencies)
     {
@@ -88,7 +96,7 @@ public class PublishEventService
       this.commitService.getLatest(dependency).ifPresent(latest -> commit.addDependency(latest).apply());
     }
 
-    return publish;
+    return commit;
   }
 
   protected Commit publish(Publish publish, GapAwareTrackingToken start, Integer versionNumber)
@@ -217,24 +225,21 @@ public class PublishEventService
     for (String aggregateId : aggregateIds)
     {
       InMemoryEventMerger merger = new InMemoryEventMerger();
-      DomainEventStream stream = this.store.readEvents(aggregateId);
+      DomainEventStream stream = this.store.readEvents(aggregateId, start, end);
 
       while (stream.hasNext())
       {
         DomainEventMessage<?> message = stream.next();
 
-        if (message.getSequenceNumber() < end.getIndex())
+        Object payload = message.getPayload();
+
+        if (payload instanceof RepositoryEvent)
         {
-          Object payload = message.getPayload();
+          RepositoryEvent event = (RepositoryEvent) payload;
 
-          if (payload instanceof RepositoryEvent)
+          if (eventType.equals(event.getEventType()) && event.isValidFor(dto))
           {
-            RepositoryEvent event = (RepositoryEvent) payload;
-
-            if (eventType.equals(event.getEventType()) && event.isValidFor(dto))
-            {
-              merger.add(event);
-            }
+            merger.add(event);
           }
         }
       }

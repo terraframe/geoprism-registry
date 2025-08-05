@@ -9,7 +9,7 @@ import org.axonframework.eventsourcing.eventstore.jdbc.EventSchema;
 import net.geoprism.registry.Commit;
 
 @FunctionalInterface
-public interface SequenceNumberForCommitStatementBuilder {
+public interface IndexOfCommitStatementBuilder {
 
     /**
      * Creates a statement to be used at {@link JdbcEventStorageEngine#lastIndexFor(String)}

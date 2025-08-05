@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,7 +40,9 @@ import net.geoprism.registry.Publish;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
+import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.config.TestApplication;
+import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
@@ -52,6 +55,7 @@ import net.geoprism.registry.service.business.GraphTypeSnapshotBusinessServiceIF
 import net.geoprism.registry.service.business.HierarchyTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.PublishBusinessServiceIF;
 import net.geoprism.registry.service.business.PublishEventService;
+import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.PublishDTO;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
@@ -265,6 +269,62 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
       throw new RuntimeException(e);
     }
     // });
+  }
+
+  @Test
+  @Request
+  public void testNewCommit() throws InterruptedException
+  {
+    try
+    {
+      PublishDTO dto = getPublishDTO();
+
+      Publish publish = service.publish(dto);
+
+      try
+      {
+        List<Commit> commits = this.cService.getCommits(publish);
+
+        Assert.assertEquals(1, commits.size());
+
+        Commit commit = commits.get(0);
+
+        Assert.assertEquals(47, this.cService.getRemoteEvents(commit, 0).size());
+        Assert.assertEquals(Long.valueOf(94), this.store.size());
+
+        // Update a geo object
+        ServerGeoObjectIF object = USATestData.COLORADO.getServerObject();
+        object.setDisplayLabel(new LocalizedValue("ABCD"), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+
+        ServerGeoObjectEventBuilder builder = new ServerGeoObjectEventBuilder(gObjectService);
+        builder.setObject(object, false, false);
+        builder.setAttributeUpdate(true);
+
+        gateway.sendAndWait(builder.build());
+
+        Assert.assertEquals(Long.valueOf(95), this.store.size());
+
+        // Create a new commit with the new change
+        Commit commit2 = this.service.createNewCommit(publish);
+
+        Assert.assertEquals(2, this.cService.getCommits(publish).size());
+
+        Assert.assertEquals(1, this.cService.getRemoteEvents(commit2, 0).size());
+        
+        List<Commit> dependencies = this.cService.getDependencies(commit2);
+        
+        Assert.assertEquals(1, dependencies.size());
+        Assert.assertEquals(commit.getUid(), dependencies.get(0).getUid());
+      }
+      finally
+      {
+        pService.delete(publish);
+      }
+    }
+    catch (InterruptedException e)
+    {
+      throw new RuntimeException(e);
+    }
   }
 
 }

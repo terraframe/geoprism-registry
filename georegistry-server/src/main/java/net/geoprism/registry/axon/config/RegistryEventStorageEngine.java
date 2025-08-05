@@ -7,6 +7,7 @@ import static org.axonframework.eventsourcing.EventStreamUtils.upcastAndDeserial
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
@@ -76,13 +77,15 @@ public class RegistryEventStorageEngine extends JdbcEventStorageEngine
     }
   }
 
-  private final TransactionManager                            transactionManager;
+  private final TransactionManager                        transactionManager;
 
-  private final ReadEventDataForCommitStatementBuilder        readEventDataForCommit;
+  private final ReadEventDataForCommitStatementBuilder    readEventDataForCommit;
 
-  private final SequenceNumberForCommitStatementBuilder       lastSequenceNumberForCommit;
+  private final ReadEventDataForAggregateStatementBuilder readEventDataForAggregate;
 
-  private final SequenceNumberForCommitStatementBuilder       firstSequenceNumberForCommit;
+  private final IndexOfCommitStatementBuilder   lastSequenceNumberForCommit;
+
+  private final IndexOfCommitStatementBuilder   firstSequenceNumberForCommit;
 
   protected RegistryEventStorageEngine(Builder builder, TransactionManager transactionManager)
   {
@@ -90,37 +93,38 @@ public class RegistryEventStorageEngine extends JdbcEventStorageEngine
 
     this.transactionManager = transactionManager;
     this.readEventDataForCommit = CustomJdbcEventStorageEngineStatements::readEventDataForCommit;
-    this.lastSequenceNumberForCommit = CustomJdbcEventStorageEngineStatements::lastSequenceNumberFor;
-    this.firstSequenceNumberForCommit = CustomJdbcEventStorageEngineStatements::firstSequenceNumberFor;
+    this.readEventDataForAggregate = CustomJdbcEventStorageEngineStatements::readEventDataForAggregate;
+    this.lastSequenceNumberForCommit = CustomJdbcEventStorageEngineStatements::lastIndexOf;
+    this.firstSequenceNumberForCommit = CustomJdbcEventStorageEngineStatements::firstIndexOf;
   }
 
-  protected PreparedStatement readEventData(Connection connection, Commit commit, long firstSequenceNumber, Long lastSequenceNumber, int batchSize) throws SQLException
+  protected PreparedStatement readEventData(Connection connection, Commit commit, long firstIndex, Long lastIndex, int batchSize) throws SQLException
   {
-    return readEventDataForCommit.build(connection, schema(), commit, firstSequenceNumber, batchSize);
+    return readEventDataForCommit.build(connection, schema(), commit, firstIndex, batchSize);
   }
 
-  protected Stream<? extends DomainEventData<?>> readEventData(Commit commit, long firstIndex, Long lastIndex, int batchSize)
+  protected Stream<? extends IndexDomainEventData<?>> readEventData(Commit commit, long firstIndex, Long lastIndex, int batchSize)
   {
 
-    EventStreamSpliterator<? extends DomainEventData<?>> spliterator = new EventStreamSpliterator<>( //
+    EventStreamSpliterator<? extends IndexDomainEventData<?>> spliterator = new EventStreamSpliterator<>( //
         lastItem -> fetchDomainEvents(commit, //
-            lastItem == null ? firstIndex : lastItem.getSequenceNumber() + 1, //
+            lastItem == null ? firstIndex : lastItem.getGlobalIndex(), //
             lastIndex, //
             batchSize),
         (list) -> {
-          return list.size() < batchSize || list.get(list.size() - 1).getSequenceNumber() == lastIndex;          
+          return list.size() < batchSize || list.get(list.size() - 1).getGlobalIndex() == lastIndex;
         }); //
-    
+
     return StreamSupport.stream(spliterator, false);
   }
 
-  public List<? extends DomainEventData<?>> fetchDomainEvents(Commit commit, long firstIndex, Long lastIndex, int batchSize)
+  public List<? extends IndexDomainEventData<?>> fetchDomainEvents(Commit commit, long firstIndex, Long lastIndex, int batchSize)
   {
     return transactionManager.fetchInTransaction( //
         () -> executeQuery( //
             getConnection(), //
             connection -> readEventData(connection, commit, firstIndex, lastIndex, batchSize), //
-            JdbcUtils.listResults(this::getDomainEventData), //
+            JdbcUtils.listResults(this::getIndexDomainEventData), //
             e -> new EventStoreException(format("Failed to read events for commit [%s]", commit), e) //
         ));
   }
@@ -131,11 +135,11 @@ public class RegistryEventStorageEngine extends JdbcEventStorageEngine
     return upcastAndDeserializeDomainEvents(input, getEventSerializer(), upcasterChain);
   }
 
-  public Optional<Long> lastSequenceNumberFor(@Nonnull Commit commit)
+  public Optional<Long> lastIndexOf(@Nonnull Commit commit)
   {
     return Optional.ofNullable(transactionManager.fetchInTransaction(//
         () -> executeQuery(getConnection(), //
-            connection -> lastSequenceNumberFor(connection, commit), //
+            connection -> lastIndexOf(connection, commit), //
             resultSet -> nextAndExtract(resultSet, 1, Long.class), //
             e -> new EventStoreException( //
                 format("Failed to read events for commit [%s]", commit.getUid()), e//
@@ -143,26 +147,86 @@ public class RegistryEventStorageEngine extends JdbcEventStorageEngine
         )));
   }
 
-  protected PreparedStatement lastSequenceNumberFor(Connection connection, Commit commit) throws SQLException
+  protected PreparedStatement lastIndexOf(Connection connection, Commit commit) throws SQLException
   {
     return lastSequenceNumberForCommit.build(connection, schema(), commit);
   }
-  
-  public Optional<Long> firstSequenceNumberFor(@Nonnull Commit commit)
+
+  public Optional<Long> firstIndexOf(@Nonnull Commit commit)
   {
     return Optional.ofNullable(transactionManager.fetchInTransaction(//
         () -> executeQuery(getConnection(), //
-            connection -> firstSequenceNumberFor(connection, commit), //
+            connection -> firstIndexOf(connection, commit), //
             resultSet -> nextAndExtract(resultSet, 1, Long.class), //
             e -> new EventStoreException( //
                 format("Failed to read events for commit [%s]", commit.getUid()), e//
-                )//
-            )));
+            )//
+        )));
   }
-  
-  protected PreparedStatement firstSequenceNumberFor(Connection connection, Commit commit) throws SQLException
+
+  protected PreparedStatement firstIndexOf(Connection connection, Commit commit) throws SQLException
   {
     return firstSequenceNumberForCommit.build(connection, schema(), commit);
+  }
+
+  /**
+   * Extracts the next domain event entry from the given {@code resultSet}.
+   *
+   * @param resultSet
+   *          The results of a query for domain events of an aggregate.
+   *
+   * @return The next domain event.
+   * @throws SQLException
+   *           when an exception occurs while creating the event data.
+   */
+  protected IndexDomainEventData<?> getIndexDomainEventData(ResultSet resultSet) throws SQLException
+  {
+    return new IndexGenericDomainEventEntry<>( //
+        resultSet.getLong(schema().globalIndexColumn()), //
+        resultSet.getString(schema().typeColumn()), //
+        resultSet.getString(schema().aggregateIdentifierColumn()), //
+        resultSet.getLong(schema().sequenceNumberColumn()), //
+        resultSet.getString(schema().eventIdentifierColumn()), //
+        readTimeStamp(resultSet, schema().timestampColumn()), //
+        resultSet.getString(schema().payloadTypeColumn()), //
+        resultSet.getString(schema().payloadRevisionColumn()), //
+        readPayload(resultSet, schema().payloadColumn()), //
+        readPayload(resultSet, schema().metaDataColumn()));
+  }
+
+  protected PreparedStatement readEventData(Connection connection, String aggregateIdentifier, long firstIndex, Long lastIndex) throws SQLException
+  {
+    return readEventDataForAggregate.build(connection, schema(), aggregateIdentifier, firstIndex, lastIndex);
+  }
+
+  protected Stream<? extends IndexDomainEventData<?>> readEventData(String aggregateIdentifier, long firstIndex, Long lastIndex)
+  {
+
+    EventStreamSpliterator<? extends IndexDomainEventData<?>> spliterator = new EventStreamSpliterator<>( //
+        lastItem -> fetchDomainEvents(aggregateIdentifier, //
+            lastItem == null ? firstIndex : lastItem.getGlobalIndex() + 1, //
+            lastIndex),
+        (list) -> true); //
+
+    return StreamSupport.stream(spliterator, false);
+  }
+
+  public List<? extends IndexDomainEventData<?>> fetchDomainEvents(String aggregateIdentifier, long firstIndex, Long lastIndex)
+  {
+    return transactionManager.fetchInTransaction( //
+        () -> executeQuery( //
+            getConnection(), //
+            connection -> readEventData(connection, aggregateIdentifier, firstIndex, lastIndex), //
+            JdbcUtils.listResults(this::getIndexDomainEventData), //
+            e -> new EventStoreException(format("Failed to read events for aggregateIdentifier [%s]", aggregateIdentifier), e) //
+        ));
+  }
+  
+
+  public DomainEventStream readEvents(String aggregateIdentifier, long firstIndex, Long lastIndex)
+  {
+    Stream<? extends DomainEventData<?>> input = readEventData(aggregateIdentifier, firstIndex, lastIndex);
+    return upcastAndDeserializeDomainEvents(input, getEventSerializer(), upcasterChain);
   }
 
 }

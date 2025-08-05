@@ -23,8 +23,6 @@ import java.sql.SQLException;
 import org.axonframework.eventsourcing.eventstore.jdbc.EventSchema;
 import org.axonframework.eventsourcing.eventstore.jdbc.JdbcEventStorageEngine;
 
-import net.geoprism.registry.Commit;
-
 /**
  * Contract which defines how to build a PreparedStatement for use on {@link JdbcEventStorageEngine#fetchDomainEvents(String,
  * long, int)}
@@ -33,7 +31,7 @@ import net.geoprism.registry.Commit;
  * @since 4.3
  */
 @FunctionalInterface
-public interface ReadEventDataForCommitStatementBuilder {
+public interface ReadEventDataForAggregateStatementBuilder {
 
     /**
      * Creates a statement to read domain event entries for an aggregate with given identifier starting with the first
@@ -47,5 +45,5 @@ public interface ReadEventDataForCommitStatementBuilder {
      * @return The newly created {@link PreparedStatement}.
      * @throws SQLException when an exception occurs while creating the prepared statement.
      */
-    PreparedStatement build(Connection connection, EventSchema schema, Commit commit, long firstIndex, int batchSize) throws SQLException;
+    PreparedStatement build(Connection connection, EventSchema schema, String aggregateIdentifier, long firstIndex, Long lastIndex) throws SQLException;
 }
