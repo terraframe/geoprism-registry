@@ -457,15 +457,15 @@ public class CommitBusinessService implements CommitBusinessServiceIF
   @Override
   public List<RemoteEvent> getRemoteEvents(Commit commit, Integer chunk)
   {
-    Long startSequenceNumber = this.store.firstIndexFor(commit).map(seq -> seq + ( chunk * BATCH_SIZE )).orElseThrow(() -> {
+    Long startIndex = this.store.firstIndexFor(commit).map(seq -> seq + ( chunk * BATCH_SIZE )).orElseThrow(() -> {
       throw new ProgrammingErrorException("Commit [" + commit.getUid() + "] does not have any events");
     });
 
-    Long endSequenceNumber = this.store.lastIndexFor(commit).orElseThrow(() -> {
+    Long lastIndex = this.store.lastIndexFor(commit).orElseThrow(() -> {
       throw new ProgrammingErrorException("Commit [" + commit.getUid() + "] does not have any events");
     });
 
-    DomainEventStream stream = this.store.readEvents(commit, startSequenceNumber, endSequenceNumber, BATCH_SIZE);
+    DomainEventStream stream = this.store.readEvents(commit, startIndex, lastIndex, BATCH_SIZE);
 
     return stream.asStream() //
         .filter(m -> RemoteEvent.class.isAssignableFrom(m.getPayloadType())) //

@@ -133,6 +133,34 @@ public abstract class CustomJdbcEventStorageEngineStatements
     return statement;
   }
 
+  public static PreparedStatement readEventDataForAggregate(Connection connection, EventSchema schema, //
+      String aggregateIdentifier, long firstIndex, //
+      Long lastIndex) throws SQLException
+  {
+    StringBuilder sql = new StringBuilder();
+    sql.append("SELECT " + schema.trackedEventFields() + " FROM " + schema.domainEventTable());
+    sql.append(" WHERE " + schema.aggregateIdentifierColumn() + " = ?");
+    sql.append(" AND " + schema.globalIndexColumn() + " > ?");
+
+    if (lastIndex != null)
+    {
+      sql.append(" AND " + schema.globalIndexColumn() + " <= ?");
+    }
+
+    sql.append(" ORDER BY " + schema.globalIndexColumn() + " ASC");
+
+    PreparedStatement statement = connection.prepareStatement(sql.toString());
+    statement.setString(1, aggregateIdentifier);
+    statement.setLong(2, firstIndex);
+
+    if (lastIndex != null)
+    {
+      statement.setLong(3, lastIndex);
+    }
+
+    return statement;
+  }
+
   /**
    * Set the PreparedStatement to be used on
    * {@link JdbcEventStorageEngine#lastSequenceNumberFor(String)}. Defaults to:
@@ -153,7 +181,7 @@ public abstract class CustomJdbcEventStorageEngineStatements
    * @throws SQLException
    *           when an exception occurs while creating the prepared statement.
    */
-  public static PreparedStatement lastSequenceNumberFor(Connection connection, EventSchema schema, Commit commit) throws SQLException
+  public static PreparedStatement lastIndexOf(Connection connection, EventSchema schema, Commit commit) throws SQLException
   {
     final String sql = "SELECT max(" + schema.globalIndexColumn() + ") FROM " + schema.domainEventTable() + " WHERE " + "commit_id" + " = ?";
 
@@ -162,7 +190,7 @@ public abstract class CustomJdbcEventStorageEngineStatements
     return statement;
   }
 
-  public static PreparedStatement firstSequenceNumberFor(Connection connection, EventSchema schema, Commit commit) throws SQLException
+  public static PreparedStatement firstIndexOf(Connection connection, EventSchema schema, Commit commit) throws SQLException
   {
     final String sql = "SELECT min(" + schema.globalIndexColumn() + ") FROM " + schema.domainEventTable() + " WHERE " + "commit_id" + " = ?";
 

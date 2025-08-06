@@ -6,11 +6,9 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
-import org.axonframework.eventhandling.DomainEventMessage;
 import org.axonframework.eventhandling.GapAwareTrackingToken;
 import org.axonframework.eventsourcing.eventstore.DomainEventStream;
 import org.axonframework.eventsourcing.eventstore.EmbeddedEventStore;
@@ -20,7 +18,6 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.database.Database;
 
 import net.geoprism.registry.Commit;
-import net.geoprism.registry.axon.event.remote.RemoteEvent;
 
 public class RegistryEventStore extends EmbeddedEventStore implements EventStore
 {
@@ -88,11 +85,12 @@ public class RegistryEventStore extends EmbeddedEventStore implements EventStore
     StringBuilder statement = new StringBuilder();
     statement.append("SELECT DISTINCT aggregateidentifier");
     statement.append(" FROM " + DOMAIN_EVENT_ENTRY_TABLE);
-    statement.append(" WHERE globalindex < " + end.getIndex());
+    statement.append(" WHERE commit_id IS NULL");
+    statement.append(" AND globalindex <= " + end.getIndex() );
 
     if (start != null)
     {
-      statement.append(" AND globalindex >= " + start.getIndex());
+      statement.append(" AND globalindex > " + start.getIndex());
     }
 
     try (ResultSet resultSet = Database.query(statement.toString()))
@@ -112,30 +110,12 @@ public class RegistryEventStore extends EmbeddedEventStore implements EventStore
 
   public Optional<Long> lastIndexFor(Commit commit)
   {
-    Optional<Long> highestStaged = stagedDomainEventMessages(commit) //
-        .map(DomainEventMessage::getSequenceNumber)//
-        .max(Long::compareTo);//
-
-    if (highestStaged.isPresent())
-    {
-      return highestStaged;
-    }
-
-    return storageEngine().lastSequenceNumberFor(commit);
+    return storageEngine().lastIndexOf(commit);
   }
 
   public Optional<Long> firstIndexFor(Commit commit)
   {
-    Optional<Long> lowestStaged = stagedDomainEventMessages(commit) //
-        .map(DomainEventMessage::getSequenceNumber)//
-        .min(Long::compareTo);//
-
-    if (lowestStaged.isPresent())
-    {
-      return lowestStaged;
-    }
-
-    return storageEngine().firstSequenceNumberFor(commit);
+    return storageEngine().firstIndexOf(commit);
   }
 
   @Override
@@ -144,32 +124,14 @@ public class RegistryEventStore extends EmbeddedEventStore implements EventStore
     return (RegistryEventStorageEngine) super.storageEngine();
   }
 
-  public DomainEventStream readEvents(@Nonnull Commit commit, long firstSequenceNumber, Long lastSequenceNumber, int batchSize)
+  public DomainEventStream readEvents(@Nonnull Commit commit, long firstIndex, Long lastIndex, int batchSize)
   {
-    return DomainEventStream.concat(//
-        storageEngine().readEvents(commit, firstSequenceNumber, lastSequenceNumber, batchSize), //
-        DomainEventStream.of(stagedDomainEventMessages(commit).filter(m -> m.getSequenceNumber() >= firstSequenceNumber)));
+    return storageEngine().readEvents(commit, firstIndex, lastIndex, batchSize);
   }
 
-  /**
-   * Returns a Stream of all DomainEventMessages that have been staged for
-   * publication by an Aggregate with given {@code aggregateIdentifier}.
-   *
-   * @param aggregateIdentifier
-   *          The identifier of the aggregate to get staged events for
-   * @return a Stream of DomainEventMessage of the identified aggregate
-   */
-  protected Stream<? extends DomainEventMessage<?>> stagedDomainEventMessages(Commit commit)
+  public DomainEventStream readEvents(String aggregateIdentifier, GapAwareTrackingToken start, GapAwareTrackingToken end)
   {
-    return queuedMessages().stream() //
-        .filter(m -> {
-          if (RemoteEvent.class.isAssignableFrom(m.getPayloadType()))
-          {
-            return ( (RemoteEvent) m.getPayload() ).getCommitId().equals(commit.getUid());
-          }
-          return false;
-        }) //
-        .map(m -> (DomainEventMessage<?>) m); //
+    return storageEngine().readEvents(aggregateIdentifier, start.getIndex(), end.getIndex());
   }
 
 }
