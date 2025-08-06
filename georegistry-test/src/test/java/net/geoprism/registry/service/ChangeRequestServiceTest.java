@@ -376,8 +376,7 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
   @Test
   public void testImplementDecisions()
   {
-//    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_ADMIN, FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM };
-    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_ADMIN };
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_ADMIN, FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM };
 
     for (TestUserInfo user : allowedUsers)
     {
