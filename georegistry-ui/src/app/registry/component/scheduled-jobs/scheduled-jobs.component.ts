@@ -85,7 +85,7 @@ export class ScheduledJobsComponent implements OnInit {
     ngOnInit(): void {
         this.onActiveJobsPageChange(1);
 
-        this.pollingData = interval(1000).subscribe(() => {
+        this.pollingData = interval(5000).subscribe(() => {
             this.activeTimeCounter++;
             this.completeTimeCounter++;
 
@@ -116,7 +116,10 @@ export class ScheduledJobsComponent implements OnInit {
 
     formatJobStatus(job: ScheduledJobOverview) {
         if (job.status === "FEEDBACK") {
-            return this.localizeService.decode("etl.JobStatus.FEEDBACK");
+            if (this.isBasicJob(job)) {
+                return this.localizeService.decode("etl.JobStatus.FEEDBACK");
+            }
+            return this.localizeService.decode("etl.JobStatus.READY");
         } else if (job.status === "RUNNING" || job.status === "NEW") {
             return this.localizeService.decode("etl.JobStatus.RUNNING");
         } else if (job.status === "QUEUED") {
@@ -132,31 +135,59 @@ export class ScheduledJobsComponent implements OnInit {
         }
     }
 
+    isBasicJob(job: ScheduledJobOverview): boolean {
+        return (job.configuration == null || job.configuration.objectType.indexOf('RDF') === -1);
+    }
+
     formatStepConfig(page: PageResult<any>): void {
         page.resultSet.forEach(job => {
-            let stepConfig = {
-                steps: [
-                    { label: this.localizeService.decode("scheduler.step.fileImport"), status: "COMPLETE" },
 
-                    {
-                        label: this.localizeService.decode("scheduler.step.staging"),
-                        status: job.stage === "NEW" ? this.getJobStatus(job) : this.getCompletedStatus(job.stage, "NEW")
-                    },
+            if (this.isBasicJob(job)) {
+                let stepConfig = {
+                    steps: [
+                        { label: this.localizeService.decode("scheduler.step.fileImport"), status: "COMPLETE" },
+                        {
+                            label: this.localizeService.decode("scheduler.step.staging"),
+                            status: job.stage === "NEW" ? this.getJobStatus(job) : this.getCompletedStatus(job.stage, "NEW")
+                        },
+                        {
+                            label: this.localizeService.decode("scheduler.step.validation"),
+                            status: job.stage === "VALIDATE" || job.stage === "VALIDATION_RESOLVE" ? this.getJobStatus(job) : this.getCompletedStatus(job.stage, "VALIDATE")
+                        },
+                        {
+                            label: this.localizeService.decode("scheduler.step.databaseImport"),
+                            status: job.stage === "IMPORT" || job.stage === "IMPORT_RESOLVE" || job.stage === "RESUME_IMPORT" ? this.getJobStatus(job) : ""
+                        }
+                    ]
+                };
 
-                    {
-                        label: this.localizeService.decode("scheduler.step.validation"),
-                        status: job.stage === "VALIDATE" || job.stage === "VALIDATION_RESOLVE" ? this.getJobStatus(job) : this.getCompletedStatus(job.stage, "VALIDATE")
-                    },
+                job = job as ScheduledJobOverview;
+                job.stepConfig = stepConfig;
+            }
+            else {
+                // RDF Export
 
-                    {
-                        label: this.localizeService.decode("scheduler.step.databaseImport"),
-                        status: job.stage === "IMPORT" || job.stage === "IMPORT_RESOLVE" || job.stage === "RESUME_IMPORT" ? this.getJobStatus(job) : ""
-                    }
-                ]
-            };
+                let stepConfig = {
+                    steps: [
+                        {
+                            label: this.localizeService.decode("etl.JobStatus.QUEUED"),
+                            status: "COMPLETE"
+                        },
+                        {
+                            label: this.localizeService.decode("etl.JobStatus.GENERATING"),
+                            status: job.stage === "NEW" ? this.getJobStatus(job) : this.getCompletedStatus(job.stage, "NEW")
+                        },
+                        {
+                            label: this.localizeService.decode("etl.JobStatus.GENERATING"),
+                            status: job.stage === "IMPORT" || job.stage === "IMPORT_RESOLVE" || job.stage === "RESUME_IMPORT" ? "WORKING" : ""
+                        }
+                    ]
+                };
 
-            job = job as ScheduledJobOverview;
-            job.stepConfig = stepConfig;
+                job = job as ScheduledJobOverview;
+                job.stepConfig = stepConfig;
+            }
+
         });
     }
 

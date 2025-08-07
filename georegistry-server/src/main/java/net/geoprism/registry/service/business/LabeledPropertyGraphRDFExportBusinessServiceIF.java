@@ -20,12 +20,33 @@ package net.geoprism.registry.service.business;
 
 import java.io.OutputStream;
 
+import com.runwaysdk.system.metadata.MdEdge;
+
+import net.geoprism.graph.GraphTypeSnapshot;
 import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
-import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessService.GeometryExportType;
+import net.geoprism.registry.etl.ImportHistory;
 
 public interface LabeledPropertyGraphRDFExportBusinessServiceIF
 {
-  public void export(LabeledPropertyGraphTypeVersion version, GeometryExportType geomExportType, OutputStream os);
+  public static class CachedGraphTypeSnapshot
+  {
+    public GraphTypeSnapshot graphType;
+
+    public MdEdge            graphMdEdge;
+
+    public CachedGraphTypeSnapshot(GraphTypeSnapshot graphType)
+    {
+      this.graphType = graphType;
+      this.graphMdEdge = this.graphType.getGraphMdEdge();
+    }
+  }
+
+  public static enum GeometryExportType {
+    WRITE_GEOMETRIES, WRITE_SIMPLIFIED_GEOMETRIES, NO_GEOMETRIES
+  }
+
+
+  public void export(ImportHistory history, LabeledPropertyGraphTypeVersion version, GeometryExportType geomExportType, OutputStream os);
   
   
 }

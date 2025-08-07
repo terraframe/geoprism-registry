@@ -22,12 +22,12 @@ import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
 import { HttpErrorResponse } from "@angular/common/http";
 
-import { ErrorHandler, ErrorModalComponent } from "@shared/component";
+import { ErrorHandler } from "@shared/component";
 
 import { IOService } from "@registry/service";
 import { AuthService } from "@shared/service";
 
-import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
+import { environment } from 'src/environments/environment';
 
 @Component({
 

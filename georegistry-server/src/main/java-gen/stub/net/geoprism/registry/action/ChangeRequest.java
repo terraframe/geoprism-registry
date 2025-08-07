@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.action;
 
@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
+import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTimeJsonAdapters;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -53,10 +54,11 @@ import com.runwaysdk.system.VaultFile;
 import net.geoprism.GeoprismUser;
 import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.email.SendEmailCommand;
-import net.geoprism.registry.ListType;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
+import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
+import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
@@ -64,8 +66,8 @@ import net.geoprism.registry.service.business.EmailBusinessServiceIF;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GPRGeoObjectTypeBusinessService;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
-import net.geoprism.registry.service.request.EmailServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
+import net.geoprism.registry.service.request.EmailServiceIF;
 import net.geoprism.registry.view.JsonSerializable;
 
 public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
@@ -284,7 +286,7 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
 
             String link = GeoprismProperties.getRemoteServerUrl() + "cgr/manage#/registry/change-requests/" + this.getOid();
             body = body.replaceAll("\\{link\\}", link);
-            
+
             EmailBusinessServiceIF service = ServiceFactory.getBean(EmailBusinessServiceIF.class);
 
             // Aspects will weave in here and this will happen at the end of the
@@ -368,11 +370,34 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
   @Transaction
   public void execute(String maintainerNotes, String additionalNotes)
   {
+
     if (this.getApprovalStatus().contains(AllGovernanceStatus.PENDING))
     {
-      List<AbstractAction> actions = this.getOrderedActions();
+      ServerGeoObjectEventBuilder builder = new ServerGeoObjectEventBuilder(ServiceFactory.getBean(GeoObjectBusinessServiceIF.class));
+      builder.setRefreshWorking(true);
 
+      ServerGeoObjectType type = ServerGeoObjectType.get(this.getGeoObjectTypeCode());
+      List<AbstractAction> actions = this.getOrderedActions();
       Set<AllGovernanceStatus> statuses = new TreeSet<AllGovernanceStatus>();
+
+      actions.stream().filter(action -> {
+        return action instanceof CreateGeoObjectAction && action.getApprovalStatus().contains(AllGovernanceStatus.PENDING);
+      }).findFirst().ifPresentOrElse(action -> {
+        action.appLock();
+        action.clearApprovalStatus();
+        action.addApprovalStatus(AllGovernanceStatus.ACCEPTED);
+        action.apply();
+
+        action.execute(builder);
+
+        // events.addAll(action.execute(null));
+
+        statuses.add(AllGovernanceStatus.ACCEPTED);
+      }, () -> {
+        VertexServerGeoObject object = new VertexGeoObjectStrategy(type).getGeoObjectByCode(this.getGeoObjectCode());
+
+        builder.setObject(object, false);
+      });
 
       for (AbstractAction action : actions)
       {
@@ -382,18 +407,11 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
         }
         else if (action instanceof CreateGeoObjectAction && action.getApprovalStatus().contains(AllGovernanceStatus.PENDING))
         {
-          action.appLock();
-          action.clearApprovalStatus();
-          action.addApprovalStatus(AllGovernanceStatus.ACCEPTED);
-          action.apply();
-
-          action.execute();
-
-          statuses.add(AllGovernanceStatus.ACCEPTED);
+          // Skip
         }
         else if (action.getApprovalStatus().contains(AllGovernanceStatus.ACCEPTED))
         {
-          action.execute();
+          action.execute(builder);
 
           statuses.add(AllGovernanceStatus.ACCEPTED);
         }
@@ -417,24 +435,11 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
       this.addApprovalStatus(status);
       this.apply();
 
-      // Update all of the working lists which have this record
-      ServerGeoObjectType type = this.getGeoObjectType();
-
-      GPRGeoObjectBusinessServiceIF objectService = ServiceFactory.getBean(GPRGeoObjectBusinessServiceIF.class);
-
-      if (type != null)
-      {
-        String code = this.getGeoObjectCode();
-
-        final ServerGeoObjectIF go = objectService.getGeoObjectByCode(code, type, false);
-
-        if (go != null)
-        {
-          ListType.getForType(type).forEach(listType -> {
-            listType.getWorkingVersions().forEach(version -> version.publishOrUpdateRecord(go));
-          });
-        }
-      }
+      // Apply the events
+      Object command = builder.build();
+      
+      CommandGateway gateway = ServiceFactory.getBean(CommandGateway.class);
+      gateway.sendAndWait(command);
 
       // Email the contributor
       try
@@ -459,7 +464,7 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
 
             String link = GeoprismProperties.getRemoteServerUrl() + "cgr/manage#/registry/change-requests/" + this.getOid();
             body = body.replaceAll("\\{link\\}", link);
-            
+
             EmailServiceIF service = ServiceFactory.getBean(EmailServiceIF.class);
 
             service.sendEmail(Session.getCurrentSession().getOid(), subject, body, new String[] { email });

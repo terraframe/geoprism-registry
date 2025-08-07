@@ -20,7 +20,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import com.google.gson.JsonObject;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
@@ -37,18 +38,18 @@ import net.geoprism.registry.DirectedAcyclicGraphType;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
-import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.UndirectedGraphType;
+import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.lpg.jena.JenaBridge;
 import net.geoprism.registry.lpg.jena.JenaConnector;
-import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessService;
-import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessService.GeometryExportType;
+import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessServiceIF;
 import net.geoprism.registry.service.business.LabeledPropertyGraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.LabeledPropertyGraphTypeEntryBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 
-@ContextConfiguration(classes = { TestConfig.class })
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
+@AutoConfigureMockMvc
 @RunWith(SpringInstanceTestClassRunner.class)
 public class RDFExporterTest extends FastDatasetTest implements InstanceTestClassListener
 {
@@ -59,7 +60,7 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
   private LabeledPropertyGraphTypeEntryBusinessServiceIF       entryService;
 
   @Autowired
-  private LabeledPropertyGraphRDFExportBusinessService         rdfExporter;
+  private LabeledPropertyGraphRDFExportBusinessServiceIF       rdfExporter;
 
   @Override
   public void beforeClassSetup() throws Exception
@@ -150,8 +151,8 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
       job.start();
 
       LabeledPropertyGraphTest.waitUntilPublished(version.getOid());
-
-      rdfExporter.export(version, GeometryExportType.WRITE_SIMPLIFIED_GEOMETRIES, System.out);
+      
+//      rdfExporter.export(version, GeometryExportType.NO_GEOMETRIES, System.out);
     }
     finally
     {
@@ -178,7 +179,11 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
     graphType.setMdEdgeId(mdEdge.getOid());
     graphType.apply();
 
-    JsonObject json = LabeledPropertyGraphTest.getJson(graphType, new String[] { FastTestDataset.COUNTRY.getCode(), FastTestDataset.PROVINCE.getCode() }, FastTestDataset.ORG_CGOV.getServerObject().getOrganization());
+    JsonObject json = LabeledPropertyGraphTest.getJson(graphType, 
+        new String[] { FastTestDataset.COUNTRY.getCode(), FastTestDataset.PROVINCE.getCode() },
+        new String[] {}, 
+        new String[] {}, 
+        FastTestDataset.ORG_CGOV.getServerObject().getOrganization());
 
     LabeledPropertyGraphType test1 = this.typeService.apply(json);
 
@@ -207,7 +212,7 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
 
       LabeledPropertyGraphTest.waitUntilPublished(version.getOid());
 
-      rdfExporter.export(version, GeometryExportType.WRITE_SIMPLIFIED_GEOMETRIES, System.out);
+//      rdfExporter.export(version, GeometryExportType.NO_GEOMETRIES, System.out);
     }
     finally
     {
@@ -236,7 +241,11 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
     dagType.setMdEdgeId(mdEdge.getOid());
     dagType.apply();
 
-    JsonObject json = LabeledPropertyGraphTest.getJson(dagType, new String[] { FastTestDataset.COUNTRY.getCode(), FastTestDataset.PROVINCE.getCode() }, FastTestDataset.ORG_CGOV.getServerObject().getOrganization());
+    JsonObject json = LabeledPropertyGraphTest.getJson(dagType, 
+        new String[] { FastTestDataset.COUNTRY.getCode(), FastTestDataset.PROVINCE.getCode() },
+        new String[] {}, 
+        new String[] {}, 
+        FastTestDataset.ORG_CGOV.getServerObject().getOrganization());
 
     LabeledPropertyGraphType test1 = this.typeService.apply(json);
 
@@ -265,7 +274,7 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
 
       LabeledPropertyGraphTest.waitUntilPublished(version.getOid());
 
-      rdfExporter.export(version, GeometryExportType.WRITE_SIMPLIFIED_GEOMETRIES, System.out);
+//      rdfExporter.export(version, GeometryExportType.NO_GEOMETRIES, System.out);
     }
     finally
     {

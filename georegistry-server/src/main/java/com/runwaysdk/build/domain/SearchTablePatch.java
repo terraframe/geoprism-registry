@@ -4,23 +4,29 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package com.runwaysdk.build.domain;
 
 import java.util.List;
 
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
 
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
@@ -35,19 +41,35 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.SearchService;
 
-public class SearchTablePatch
+@SpringBootApplication
+@ComponentScan(basePackages = { //
+    "net.geoprism.spring.core", //
+    "net.geoprism.registry.axon", //
+    "net.geoprism.registry.service.business", //
+    "net.geoprism.registry.service.permission" //
+})
+public class SearchTablePatch implements CommandLineRunner
 {
+  @Autowired
+  SearchService service;
 
-  @Transaction
-  private void doIt(SearchService service)
+  public SearchTablePatch setService(SearchService service)
   {
-    service.createSearchTable();
+    this.service = service;
 
-    createRecords(service);
+    return this;
   }
 
   @Transaction
-  public void createRecords(SearchService service)
+  private void doIt()
+  {
+    service.createSearchTable();
+
+    createRecords();
+  }
+
+  @Transaction
+  public void createRecords()
   {
     try
     {
@@ -89,15 +111,20 @@ public class SearchTablePatch
     }
   }
 
+  @Override
+  public void run(String... args) throws Exception
+  {
+    this.doIt();
+  }
+
   public static void main(String[] args)
   {
-    try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext("net.geoprism.spring.core", "net.geoprism.registry.service.business", "net.geoprism.registry.service.permission"))
+    SpringApplicationBuilder builder = new SpringApplicationBuilder(SearchTablePatch.class).web(WebApplicationType.NONE);
+
+    try (ConfigurableApplicationContext context = builder.run(args))
     {
-      SearchService service = context.getBean(SearchService.class);
 
-      new SearchTablePatch().doIt(service);
     }
-
   }
 
 }

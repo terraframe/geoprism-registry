@@ -14,15 +14,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.locationtech.jts.geom.Geometry;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import com.runwaysdk.session.Request;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
-import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.classification.ClassificationTypeTest;
+import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.graph.Source;
 import net.geoprism.registry.model.Classification;
@@ -37,7 +38,8 @@ import net.geoprism.registry.service.business.SourceBusinessServiceIF;
 import net.geoprism.registry.service.business.TermBusinessServiceIF;
 import net.geoprism.registry.test.USATestData;
 
-@ContextConfiguration(classes = { TestConfig.class })
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
+@AutoConfigureMockMvc
 @RunWith(SpringInstanceTestClassRunner.class)
 public class BasicGeoObjectServiceTest implements InstanceTestClassListener
 {
@@ -115,7 +117,10 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
   @Request
   public void afterClassSetup() throws Exception
   {
-    this.typeService.deleteGeoObjectType(type.getCode());
+    if (type != null)
+    {
+      this.typeService.deleteGeoObjectType(type.getCode());
+    }
 
     if (root != null)
     {
@@ -154,7 +159,7 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
       object.setValue(attributeTerm.getName(), classifier.getOid(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       object.setValue(DefaultAttribute.SOURCE.getName(), source, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
 
-      this.service.apply(object, false);
+      this.service.apply(object, false, false);
 
       ServerGeoObjectIF test = this.service.getGeoObject(object.getUid(), type.getCode());
 

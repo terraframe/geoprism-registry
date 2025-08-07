@@ -30,6 +30,6 @@ public class DirectedAcyclicGraphService extends GraphService
   @Override
   public GraphType getGraphType(String code)
   {
-    return DirectedAcyclicGraphType.getByCode(code);
+    return DirectedAcyclicGraphType.getByCode(code).get();
   }
 }

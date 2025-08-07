@@ -35,6 +35,8 @@
         <xs:element name="dag" type="graph" />
         <xs:element name="undirected-graph" type="graph" />
         <xs:element name="business-edge" type="business-edge" />
+        <xs:element name="business-geoobject-edge" type="business-geoobject-edge" />
+        
       </xs:choice>
     </xs:sequence>
     <xs:attribute name="code" type="xs:string" use="required" />
@@ -62,6 +64,14 @@
     <xs:attribute name="parentTypeCode" type="xs:string" use="optional" />
     <xs:attribute name="childTypeCode" type="xs:string" use="optional" />
   </xs:complexType>
+  <xs:complexType name="business-geoobject-edge">
+    <xs:attribute name="code" type="xs:string" use="required" />
+    <xs:attribute name="label" type="xs:string" use="required" />
+    <xs:attribute name="description" type="xs:string" use="optional" />
+    <xs:attribute name="typeCode" type="xs:string" use="optional" />
+    <xs:attribute name="direction" type="xs:string" use="optional" />    
+  </xs:complexType>
+  
   <xs:complexType name="graph">
     <xs:attribute name="code" type="xs:string" use="required" />
     <xs:attribute name="label" type="xs:string" use="required" />

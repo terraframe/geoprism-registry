@@ -8,9 +8,9 @@ import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Locale;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class MockHttpServletResponse implements HttpServletResponse
 {
@@ -149,20 +149,6 @@ public class MockHttpServletResponse implements HttpServletResponse
   }
 
   @Override
-  public String encodeUrl(String url)
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public String encodeRedirectUrl(String url)
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
   public void sendError(int sc, String msg) throws IOException
   {
     // TODO Auto-generated method stub
@@ -233,13 +219,6 @@ public class MockHttpServletResponse implements HttpServletResponse
   }
 
   @Override
-  public void setStatus(int sc, String sm)
-  {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
   public int getStatus()
   {
     // TODO Auto-generated method stub
@@ -265,6 +244,20 @@ public class MockHttpServletResponse implements HttpServletResponse
   {
     // TODO Auto-generated method stub
     return null;
+  }
+
+  @Override
+  public void setContentLengthLong(long len)
+  {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void sendRedirect(String location, int sc, boolean clearBuffer) throws IOException
+  {
+    // TODO Auto-generated method stub
+    
   }
 
 }

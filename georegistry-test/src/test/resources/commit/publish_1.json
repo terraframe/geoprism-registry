@@ -1,0 +1,52 @@
+{
+  "uid" : "c38a9fbd-46bc-4b00-8552-1cdf3c2bb2bc",
+  "date" : "2020-04-04",
+  "startDate" : "2020-04-04",
+  "endDate" : "2021-04-04",
+  "origin" : "TESTABC",
+  "types" : [ {
+    "code" : "USATestDataCountry",
+    "type" : "GEO_OBJECT"
+  }, {
+    "code" : "USATestDataState",
+    "type" : "GEO_OBJECT"
+  }, {
+    "code" : "USATestDataDistrict",
+    "type" : "GEO_OBJECT"
+  }, {
+    "code" : "USATestDataCounty",
+    "type" : "GEO_OBJECT"
+  }, {
+    "code" : "USATestDataArea",
+    "type" : "GEO_OBJECT"
+  }, {
+    "code" : "USATestDataSchoolZone",
+    "type" : "GEO_OBJECT"
+  }, {
+    "code" : "USATestDataHealthFacility",
+    "type" : "GEO_OBJECT"
+  }, {
+    "code" : "USATestDataHealthPost",
+    "type" : "GEO_OBJECT"
+  }, {
+    "code" : "USATestDataHealthStop",
+    "type" : "GEO_OBJECT"
+  }, {
+    "code" : "USATestDataMexico_State_GOT",
+    "type" : "GEO_OBJECT"
+  }, {
+    "code" : "USATestDataMexico_City_GOT",
+    "type" : "GEO_OBJECT"
+  }, {
+    "code" : "USATestDataAdminCode",
+    "type" : "HIERARCHY"
+  }, {
+    "code" : "USATestDataSchoolCode",
+    "type" : "HIERARCHY"
+  }, {
+    "code" : "USATestDataReportsToCode",
+    "type" : "HIERARCHY"
+  }],
+  "exclusions" : [ ]
+
+}

@@ -19,7 +19,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import com.runwaysdk.resource.StreamResource;
 import com.runwaysdk.session.Request;
@@ -28,8 +29,8 @@ import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
-import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.classification.ClassificationTypeTest;
+import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.AttributeClassificationType;
 import net.geoprism.registry.graph.AttributeTermType;
 import net.geoprism.registry.graph.AttributeType;
@@ -48,7 +49,9 @@ import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.OrganizationBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 
-@ContextConfiguration(classes = { TestConfig.class })
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
+@AutoConfigureMockMvc
+
 @RunWith(SpringInstanceTestClassRunner.class)
 public class XMLImporterTest implements InstanceTestClassListener
 {
@@ -137,7 +140,7 @@ public class XMLImporterTest implements InstanceTestClassListener
       {
         graphRepo.refreshMetadataCache();
 
-        Assert.assertEquals(7, results.size());
+        Assert.assertEquals(8, results.size());
 
         ServerGeoObjectType type = ServerGeoObjectType.get(results.get(0).getCode());
 
@@ -258,9 +261,12 @@ public class XMLImporterTest implements InstanceTestClassListener
         Assert.assertEquals("Test Text", businessAttribute.getLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
         Assert.assertEquals("Test Text Description", businessAttribute.getDescription().getValue(LocalizedValue.DEFAULT_LOCALE));
 
-        BusinessEdgeType businessEdge = bizEdgeService.getByCode(results.get(6).getCode());
+        BusinessEdgeType businessEdge = bizEdgeService.getByCodeOrThrow(results.get(6).getCode());
         Assert.assertEquals("BUS_EDGE", businessEdge.getCode());
 
+        BusinessEdgeType businessGeoEdge = bizEdgeService.getByCodeOrThrow(results.get(7).getCode());
+        Assert.assertEquals("BUS_GEO_EDGE", businessGeoEdge.getCode());
+        
         XMLExporter exporter = new XMLExporter(serverOrg);
         exporter.build();
 

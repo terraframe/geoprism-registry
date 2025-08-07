@@ -26,6 +26,7 @@ import org.json.JSONObject;
 
 import com.google.gson.JsonObject;
 
+import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.permission.ChangeRequestPermissionService;
 import net.geoprism.registry.service.permission.ChangeRequestPermissionService.ChangeRequestPermissionAction;
@@ -44,10 +45,9 @@ public abstract class AbstractAction extends AbstractActionBase
     super();
 
     this.registry = ServiceFactory.getBean(RegistryServiceIF.class);
-;
   }
 
-  abstract public void execute();
+  abstract public void execute(ServerGeoObjectEventBuilder builder);
 
   public AllGovernanceStatus getGovernanceStatus()
   {

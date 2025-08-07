@@ -20,11 +20,11 @@ package net.geoprism.registry.controller;
 
 import java.text.ParseException;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.validator.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +47,7 @@ import com.google.gson.JsonObject;
 
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeVersion;
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.controller.BusinessTypeController.OidBody;
 import net.geoprism.registry.etl.ListTypeJob;
 import net.geoprism.registry.service.request.ListTypeService;
@@ -103,7 +104,7 @@ public class ListTypeController extends RunwaySpringController
     }
   }
   
-  public static final String API_PATH = "list-type";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "list-type";
 
   @Autowired
   private ListTypeService service;

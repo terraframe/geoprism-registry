@@ -63,7 +63,6 @@ import { ModalStepIndicatorService } from "./service/modal-step-indicator.servic
 import { SessionService } from "./service/session.service";
 
 import { LocalizePipe } from "./pipe/localize.pipe";
-import { PhonePipe } from "./pipe/phone.pipe";
 
 import { MustMatchDirective } from "./directive/must-match.directive";
 
@@ -120,7 +119,6 @@ import { LocalizationService } from "./service";
         CgrHeaderComponent,
         ProfileComponent,
         LocalizePipe,
-        PhonePipe,
         GenericTableComponent,
         DateFieldComponent,
         DateTextComponent
@@ -143,7 +141,6 @@ import { LocalizationService } from "./service";
         CgrHeaderComponent,
         ProfileComponent,
         LocalizePipe,
-        PhonePipe,
         CommonModule,
         FormsModule,
         ReactiveFormsModule,

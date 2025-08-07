@@ -21,10 +21,10 @@ package net.geoprism.registry.controller;
 import java.io.IOException;
 import java.util.Date;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -41,6 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonObject;
 
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.TransitionEventService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
 
@@ -81,7 +82,7 @@ public class TransitionEventController extends RunwaySpringController
     }
   }
   
-  public static final String API_PATH = "transition-event";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "transition-event";
 
   @Autowired
   private TransitionEventService service;

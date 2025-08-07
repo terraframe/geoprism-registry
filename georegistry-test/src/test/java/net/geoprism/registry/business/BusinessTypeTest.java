@@ -16,22 +16,26 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
-import net.geoprism.registry.TestConfig;
+import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 
-@ContextConfiguration(classes = { TestConfig.class })
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
+@AutoConfigureMockMvc
+
 @RunWith(SpringInstanceTestClassRunner.class)
 public class BusinessTypeTest extends FastDatasetTest implements InstanceTestClassListener
 {
@@ -59,7 +63,8 @@ public class BusinessTypeTest extends FastDatasetTest implements InstanceTestCla
       Assert.assertEquals(orgCode, type.getOrganization().getCode());
       Assert.assertEquals(label, type.getDisplayLabel().getValue());
       Assert.assertNotNull(type.getMdVertex());
-      Assert.assertNotNull(type.getMdEdge());
+      Assert.assertEquals(type.getOrigin(), GeoprismProperties.getOrigin());
+      Assert.assertEquals(Long.valueOf(0), type.getSequence());
     }
     finally
     {
@@ -488,6 +493,8 @@ public class BusinessTypeTest extends FastDatasetTest implements InstanceTestCla
       AttributeCharacterType expected = new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test True"), false, false, false);
 
       this.typeService.createAttributeType(type, expected);
+      
+      Assert.assertEquals(Long.valueOf(1), type.getSequence());
 
       Map<String, AttributeType> attributeMap = type.getAttributeMap();
 
@@ -498,6 +505,8 @@ public class BusinessTypeTest extends FastDatasetTest implements InstanceTestCla
       attributeMap = type.getAttributeMap();
 
       Assert.assertFalse(attributeMap.containsKey(expected.getName()));
+      Assert.assertEquals(Long.valueOf(2), type.getSequence());
+
     }
     finally
     {

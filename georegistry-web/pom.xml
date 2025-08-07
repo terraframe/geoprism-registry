@@ -51,18 +51,30 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>javax.servlet.jsp</groupId>
-			<artifactId>jsp-api</artifactId>
-			<version>2.1</version>
-			<scope>provided</scope> <!-- This dependency is NOT transitive because scope=provided -->
+		    <groupId>jakarta.servlet.jsp.jstl</groupId>
+		    <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+		    <version>3.0.2</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/javax.servlet/jstl -->
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>jstl</artifactId>
-			<version>1.2</version>
+		    <groupId>org.glassfish.web</groupId>
+		    <artifactId>jakarta.servlet.jsp.jstl</artifactId>
+		    <version>3.0.1</version>
 		</dependency>
 	</dependencies>
+	<repositories>
+	  <repository>
+	    <id>terraframe-public</id>
+	    <url>https://dl.cloudsmith.io/public/terraframe/public/maven/</url>
+	    <releases>
+	      <enabled>true</enabled>
+	      <updatePolicy>always</updatePolicy>
+	    </releases>
+	    <snapshots>
+	      <enabled>true</enabled>
+	      <updatePolicy>always</updatePolicy>
+	    </snapshots>
+	  </repository>
+	</repositories>
 	<profiles>		
 		<profile>
 			<id>cargo-run-georegistry</id>
@@ -75,15 +87,15 @@
 				<plugins>
 					<plugin>
 						<groupId>org.codehaus.cargo</groupId>
-						<artifactId>cargo-maven2-plugin</artifactId>
-						<version>1.7.11</version>
+						<artifactId>cargo-maven3-plugin</artifactId>
+						<version>1.10.15</version>
 						<configuration>
 							<container>
-								<containerId>tomcat9x</containerId>
+								<containerId>tomcat11x</containerId>
 								<artifactInstaller>
 									<groupId>org.apache.tomcat</groupId>
 									<artifactId>tomcat</artifactId>
-									<version>9.0.97</version>
+									<version>11.0.7</version>
 								</artifactInstaller>
 								<timeout>4800000</timeout>
 							</container>
@@ -175,7 +187,7 @@
 							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>${basedir}/target/georegistry</outputDirectory>
+							<outputDirectory>${project.build.directory}/classes/static/</outputDirectory>
 							<resources>
 								<resource>
 									<directory>${project.basedir}/../georegistry-ui/dist</directory>
@@ -188,7 +200,7 @@
 			</plugin>
 			<!-- Weave Aspects -->
 			<plugin>
-				<groupId>dev.aspectj</groupId>
+				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>aspectj-maven-plugin</artifactId>
 				<version>${aspectj.plugin.version}</version>
 				<dependencies>
@@ -219,6 +231,7 @@
 					<fork>true</fork>
 					<meminitial>512m</meminitial>
 					<maxmem>1024m</maxmem>
+					<parameters>true</parameters>
 				</configuration>
 			</plugin>
 		</plugins>

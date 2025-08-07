@@ -28,6 +28,7 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Assert;
@@ -41,7 +42,8 @@ import org.locationtech.jts.geom.MultiPoint;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
@@ -60,9 +62,9 @@ import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
-import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.classification.ClassificationTypeTest;
+import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ObjectImporterFactory.ObjectImportType;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
@@ -97,7 +99,8 @@ import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
 
-@ContextConfiguration(classes = { TestConfig.class })
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
+@AutoConfigureMockMvc
 @RunWith(SpringInstanceTestClassRunner.class)
 public class ExcelServiceTest extends USADatasetTest implements InstanceTestClassListener
 {
@@ -207,7 +210,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
   @Test
   @Request
-  public void testGetAttributeInformation()
+  public void testGetAttributeInformation() throws JSONException
   {
     PostalCodeFactory.remove(USATestData.DISTRICT.getServerObject());
 
@@ -242,7 +245,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
   @Test
   @Request
-  public void testGetAttributeInformationPostalCode()
+  public void testGetAttributeInformationPostalCode() throws JSONException
   {
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
 
@@ -578,7 +581,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
       geoObj.setValue(testDate.getName(), calendar.getTime(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       geoObj.setValue(testBoolean.getName(), true, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
 
-      this.objectService.apply(geoObj, false);
+      this.objectService.apply(geoObj, false, false);
 
       geoObj = this.objectService.getGeoObjectByCode(geoObj.getCode(), geoObj.getType().getCode());
 
@@ -614,7 +617,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
     geoObj.setDisplayLabel(new LocalizedValue("Test Label"));
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
-    this.objectService.apply(geoObj, true);
+    this.objectService.apply(geoObj, true, false);
     geoObj = this.objectService.getGeoObjectByCode(geoObj.getCode(), geoObj.getType().getCode());
 
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
@@ -685,7 +688,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
     geoObj.setDisplayLabel(new LocalizedValue("Test Label"));
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
-    this.objectService.apply(geoObj, true);
+    this.objectService.apply(geoObj, true, false);
     geoObj = this.objectService.getGeoObjectByCode(geoObj.getCode(), geoObj.getType().getCode());
 
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
@@ -838,7 +841,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
   @Test
   @Request
-  public void testImportExcelWithClassification() throws InterruptedException
+  public void testImportExcelWithClassification() throws InterruptedException, JSONException
   {
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
 
@@ -913,10 +916,11 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
    * In the case when the server fails mid import, when the server reboots it's
    * supposed to restart any jobs that were running. When we restart the job, we
    * want to make sure that it picks up from where it left off.
+   * @throws JSONException 
    */
   @Test
   @Request
-  public void testResumeImport() throws InterruptedException
+  public void testResumeImport() throws InterruptedException, JSONException
   {
     DataImportJob job = new DataImportJob();
     job.setRunAsUserId(testData.clientRequest.getSessionUser().getOid());
@@ -991,7 +995,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
     Assert.assertEquals(0, json.getJSONArray("resultSet").length());
   }
 
-  private JSONObject getTestConfiguration(InputStream istream, AttributeType attributeTerm, ImportStrategy strategy)
+  private JSONObject getTestConfiguration(InputStream istream, AttributeType attributeTerm, ImportStrategy strategy) throws JSONException
   {
     JSONObject result = this.excelService.getExcelConfiguration(testData.clientRequest.getSessionId(), USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, "test-spreadsheet.xlsx", istream, strategy, false);
     JSONObject type = result.getJSONObject(GeoObjectImportConfiguration.TYPE);

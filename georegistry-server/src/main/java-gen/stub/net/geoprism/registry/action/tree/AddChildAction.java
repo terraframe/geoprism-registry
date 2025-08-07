@@ -33,13 +33,14 @@ import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.action.ActionJsonAdapters;
+import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.permission.ChangeRequestPermissionService;
 import net.geoprism.registry.service.permission.ChangeRequestPermissionService.ChangeRequestPermissionAction;
-import net.geoprism.registry.service.business.ServiceFactory;
 
 public class AddChildAction extends AddChildActionBase
 {
@@ -47,8 +48,9 @@ public class AddChildAction extends AddChildActionBase
   
   private static final Logger logger = LoggerFactory.getLogger(AddChildAction.class);
 
+  
   @Override
-  public void execute()
+  public void execute(ServerGeoObjectEventBuilder builder)
   {
     GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
     
@@ -57,8 +59,10 @@ public class AddChildAction extends AddChildActionBase
     ServerHierarchyType ht = ServerHierarchyType.get(this.getHierarchyTypeCode());
 
     ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanAddChild(ht.getOrganization().getCode(), parent.getType(), child.getType());
-
-    service.addChild(parent, child, ht);
+    
+//    service.addChild(parent, child, ht);
+    
+    throw new UnsupportedOperationException();
   }
 
   @Override

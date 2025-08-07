@@ -1,0 +1,26 @@
+[
+  {
+    "code": "TEST_DAG",
+    "origin": "TESTABC",
+    "sequence": 0,
+    "typeCode": "DirectedAcyclicGraphType",
+    "displayLabel": {
+      "localizedValue": "TEST_DAG",
+      "localeValues": [
+        {
+          "locale": "defaultLocale",
+          "value": "TEST_DAG"
+        }
+      ]
+    },
+    "description": {
+      "localizedValue": "TEST_DAG",
+      "localeValues": [
+        {
+          "locale": "defaultLocale",
+          "value": "TEST_DAG"
+        }
+      ]
+    }
+  }
+]

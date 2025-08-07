@@ -18,10 +18,10 @@
  */
 package net.geoprism.registry.controller;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -39,6 +39,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.controller.BusinessTypeController.OidBody;
 import net.geoprism.registry.dhis2.DHIS2FeatureService;
 import net.geoprism.registry.etl.fhir.FhirFactory;
@@ -49,7 +50,7 @@ import net.geoprism.registry.spring.JsonObjectDeserializer;
 @Validated
 public class SynchronizationConfigController extends RunwaySpringController
 {
-  public static final String API_PATH = "synchronization-config";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "synchronization-config";
   
   public static class ConfigBody 
   {

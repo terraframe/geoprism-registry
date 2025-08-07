@@ -18,9 +18,9 @@
  */
 package net.geoprism.registry.controller;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.controller.BusinessTypeController.OidBody;
 import net.geoprism.registry.service.request.GeoSynonymService;
 
@@ -37,7 +38,7 @@ import net.geoprism.registry.service.request.GeoSynonymService;
 @Validated
 public class GeoSynonymController extends RunwaySpringController
 {
-  public static final String API_PATH = "geo-synonym";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "geo-synonym";
   
   public static final class SynonymBody
   {

@@ -11,7 +11,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -29,11 +30,13 @@ import com.runwaysdk.session.Request;
 import net.geoprism.account.OauthServer;
 import net.geoprism.account.OauthServerQuery;
 import net.geoprism.dhis2.dhis2adapter.HTTPConnector;
+import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.test.USATestData;
 
-@ContextConfiguration(classes = { TestConfig.class })
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
+@AutoConfigureMockMvc
 @RunWith(SpringInstanceTestClassRunner.class)
 public class JsonSerializationTest extends USADatasetTest implements InstanceTestClassListener
 {
@@ -246,10 +249,11 @@ public class JsonSerializationTest extends USADatasetTest implements InstanceTes
   @Request
   public void testRevealSerialize() throws IOException
   {
-//    ServerGeoObjectType got = USATestData.DISTRICT.getServerObject();
-//    ServerHierarchyType ht = USATestData.HIER_ADMIN.getServerObject();
-//
-//    GeoObjectJsonExporter exporter = new GeoObjectJsonExporter(got, ht, null, true, GeoObjectExportFormat.JSON_REVEAL, system, -1, -1);
-//    System.out.println(exporter.export().toString());
+    // ServerGeoObjectType got = USATestData.DISTRICT.getServerObject();
+    // ServerHierarchyType ht = USATestData.HIER_ADMIN.getServerObject();
+    //
+    // GeoObjectJsonExporter exporter = new GeoObjectJsonExporter(got, ht, null,
+    // true, GeoObjectExportFormat.JSON_REVEAL, system, -1, -1);
+    // System.out.println(exporter.export().toString());
   }
 }

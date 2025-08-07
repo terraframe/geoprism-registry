@@ -173,6 +173,8 @@ import { SourceManagerComponent } from "./component/source/source-manager.compon
 import { ManageSourceModalComponent } from "./component/source/modals/manage-source-modal.component";
 import { SourceService } from "./service/source.service";
 import { SourceFieldComponent } from "./component/form-fields/source-field/source-field.component";
+import { RDFExportComponent } from "./component/data-export/rdf-export.component";
+import { LabeledPropertyGraphTypeFormComponent } from "./component/labeled-property-graph-type/labeled-property-graph-form.component";
 
 @NgModule({
     imports: [
@@ -202,6 +204,7 @@ import { SourceFieldComponent } from "./component/form-fields/source-field/sourc
         HierarchyComponent,
         RelationshipVisualizerComponent,
         RequestTableComponent,
+        RDFExportComponent,
         ImportTypesModalComponent,
         ExportTypesModalComponent,
         FhirExportSynchronizationConfigComponent,
@@ -308,6 +311,7 @@ import { SourceFieldComponent } from "./component/form-fields/source-field/sourc
         // Labeled Property Graph Type
         LabeledPropertyGraphTypeManagerComponent,
         LabeledPropertyGraphTypeComponent,
+        LabeledPropertyGraphTypeFormComponent,
         LabeledPropertyGraphTypePublishModalComponent,
         // Source
         SourceManagerComponent,

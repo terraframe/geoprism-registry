@@ -18,9 +18,6 @@
  */
 package net.geoprism.registry.controller;
 
-import javax.validation.Valid;
-
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +30,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.JsonObject;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.controller.ETLController.ConfigBody;
 import net.geoprism.registry.service.request.CurationService;
 
@@ -40,11 +40,11 @@ import net.geoprism.registry.service.request.CurationService;
 @Validated
 public class CurationController extends RunwaySpringController
 {
-  public static final String API_PATH = "curation";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "curation";
 
   public static class VersionIdBody
   {
-    @NotEmpty
+    @NotBlank
     private String listTypeVersionId;
 
     public String getListTypeVersionId()
@@ -60,10 +60,10 @@ public class CurationController extends RunwaySpringController
 
   public static class CurationResolutionBody
   {
-    @NotEmpty
+    @NotBlank
     String problemId;
 
-    @NotEmpty
+    @NotBlank
     String resolution;
 
     public String getProblemId()

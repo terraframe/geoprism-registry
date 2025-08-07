@@ -41,18 +41,9 @@
           <mdBusinessPermission type="net.geoprism.graph.LabeledPropertyGraphTypeVersion">
             <operation name="ALL" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.graph.GeoObjectTypeSnapshot">
-            <operation name="ALL" />
-          </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.graph.HierarchyTypeSnapshot">
-            <operation name="ALL" />
-          </mdBusinessPermission>
           <mdBusinessPermission type="net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJob">
             <operation name="ALL" />
           </mdBusinessPermission>                            
-          <mdRelationshipPermission type="net.geoprism.graph.SnapshotHierarchy">
-            <operation name="ALL" />
-          </mdRelationshipPermission>
           <mdBusinessPermission type="net.geoprism.graph.LabeledPropertyGraphSynchronization">
             <operation name="ALL" />
           </mdBusinessPermission>                                      
@@ -72,18 +63,6 @@
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.graph.GeoObjectTypeSnapshot">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-          </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.graph.HierarchyTypeSnapshot">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-          </mdBusinessPermission>
-          <mdRelationshipPermission type="net.geoprism.graph.SnapshotHierarchy">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-          </mdRelationshipPermission>                  
           <mdBusinessPermission type="net.geoprism.graph.LabeledPropertyGraphSynchronization">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
@@ -105,18 +84,6 @@
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.graph.GeoObjectTypeSnapshot">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-          </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.graph.HierarchyTypeSnapshot">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-          </mdBusinessPermission>
-          <mdRelationshipPermission type="net.geoprism.graph.SnapshotHierarchy">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-          </mdRelationshipPermission>  
           <mdBusinessPermission type="net.geoprism.graph.LabeledPropertyGraphSynchronization">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />

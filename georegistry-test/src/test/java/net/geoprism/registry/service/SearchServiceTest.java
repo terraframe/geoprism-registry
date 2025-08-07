@@ -12,7 +12,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import com.google.gson.JsonObject;
 import com.runwaysdk.build.domain.SearchTablePatch;
@@ -21,14 +22,14 @@ import com.runwaysdk.session.Request;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
-import net.geoprism.registry.TestConfig;
+import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.service.business.SearchService;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestGeoObjectInfo;
-import net.geoprism.registry.test.TestSourceInfo;
 
-@ContextConfiguration(classes = { TestConfig.class })
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
+@AutoConfigureMockMvc
 @RunWith(SpringInstanceTestClassRunner.class)
 public class SearchServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
@@ -82,7 +83,7 @@ public class SearchServiceTest extends FastDatasetTest implements InstanceTestCl
     service.deleteSearchTable();
     service.createSearchTable();
 
-    new SearchTablePatch().createRecords(service);
+    new SearchTablePatch().setService(service).createRecords();
 
     Date date = FastTestDataset.DEFAULT_OVER_TIME_DATE;
 
@@ -107,7 +108,7 @@ public class SearchServiceTest extends FastDatasetTest implements InstanceTestCl
     service.deleteSearchTable();
     service.createSearchTable();
 
-    new SearchTablePatch().createRecords(service);
+    new SearchTablePatch().setService(service).createRecords();
 
     Date date = FastTestDataset.DEFAULT_OVER_TIME_DATE;
 
@@ -132,7 +133,7 @@ public class SearchServiceTest extends FastDatasetTest implements InstanceTestCl
     service.deleteSearchTable();
     service.createSearchTable();
 
-    new SearchTablePatch().createRecords(service);
+    new SearchTablePatch().setService(service).createRecords();
 
     Date date = FastTestDataset.DEFAULT_OVER_TIME_DATE;
 
@@ -189,7 +190,7 @@ public class SearchServiceTest extends FastDatasetTest implements InstanceTestCl
     service.deleteSearchTable();
     service.createSearchTable();
 
-    new SearchTablePatch().createRecords(service);
+    new SearchTablePatch().setService(service).createRecords();
 
     Date date = FastTestDataset.DEFAULT_OVER_TIME_DATE;
 
@@ -216,7 +217,7 @@ public class SearchServiceTest extends FastDatasetTest implements InstanceTestCl
     service.deleteSearchTable();
     service.createSearchTable();
 
-    new SearchTablePatch().createRecords(service);
+    new SearchTablePatch().setService(service).createRecords();
 
     Date date = FastTestDataset.DEFAULT_OVER_TIME_DATE;
 
@@ -229,12 +230,11 @@ public class SearchServiceTest extends FastDatasetTest implements InstanceTestCl
   @Request
   public void testSearchLabels()
   {
-
     service.clear();
     service.deleteSearchTable();
     service.createSearchTable();
 
-    new SearchTablePatch().createRecords(service);
+    new SearchTablePatch().setService(service).createRecords();
 
     Date date = FastTestDataset.DEFAULT_OVER_TIME_DATE;
 

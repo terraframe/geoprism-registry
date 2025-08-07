@@ -20,7 +20,8 @@ import org.junit.runner.RunWith;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -32,7 +33,7 @@ import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
-import net.geoprism.registry.TestConfig;
+import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.roles.CreateGeoObjectPermissionException;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
@@ -43,7 +44,8 @@ import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.TestRegistryClient;
 import net.geoprism.registry.test.TestUserInfo;
 
-@ContextConfiguration(classes = { TestConfig.class })
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
+@AutoConfigureMockMvc
 @RunWith(SpringInstanceTestClassRunner.class)
 public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
@@ -157,7 +159,7 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
 
     serverGo.setCode("\t" + serverGo.getCode() + " ");
 
-    goService.apply(serverGo, false);
+    goService.apply(serverGo, false, false);
 
     Assert.assertEquals(TEST_GO.getCode(), TEST_GO.getServerObject().getCode());
   }

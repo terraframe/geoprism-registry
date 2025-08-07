@@ -6,16 +6,19 @@ package net.geoprism.registry;
 import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.GeoVertexSynonym;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -24,7 +27,8 @@ import net.geoprism.registry.query.ServerSynonymRestriction;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.test.USATestData;
 
-@ContextConfiguration(classes = { TestConfig.class })
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
+@AutoConfigureMockMvc
 @RunWith(SpringInstanceTestClassRunner.class)
 public class GeoObjectQueryTest extends USADatasetTest implements InstanceTestClassListener
 {
@@ -123,7 +127,7 @@ public class GeoObjectQueryTest extends USADatasetTest implements InstanceTestCl
 
   @Test
   @Request
-  public void testTreeSynonymRestrictionBySynonym()
+  public void testTreeSynonymRestrictionBySynonym() throws JSONException
   {
     String label = "TEST";
 

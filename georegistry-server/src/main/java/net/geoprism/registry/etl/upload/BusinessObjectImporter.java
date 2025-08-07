@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -32,6 +32,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
+import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -70,6 +71,7 @@ import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.GeoregistryProperties;
+import net.geoprism.registry.axon.event.repository.BusinessObjectEventBuilder;
 import net.geoprism.registry.etl.ParentReferenceProblem;
 import net.geoprism.registry.etl.RowValidationProblem;
 import net.geoprism.registry.etl.TermReferenceProblem;
@@ -202,10 +204,13 @@ public class BusinessObjectImporter implements ObjectImporterIF
 
   private GeoObjectBusinessServiceIF          objectService;
 
+  private CommandGateway                      commandGateway;
+
   public BusinessObjectImporter(BusinessObjectImportConfiguration configuration, ImportProgressListenerIF progressListener)
   {
     this.bObjectService = ServiceFactory.getBean(BusinessObjectBusinessServiceIF.class);
     this.objectService = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
+    this.commandGateway = ServiceFactory.getBean(CommandGateway.class);
 
     this.configuration = configuration;
     this.progressListener = progressListener;
@@ -278,7 +283,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
             types[i] = location.getType().getCode();
           }
 
-          ServerParentTreeNode tnParent = new ServerParentTreeNode(geoObject, hierarchy, BusinessObjectImporter.this.getConfiguration().getDate(), BusinessObjectImporter.this.getConfiguration().getDate(), null);
+          ServerParentTreeNode tnParent = new ServerParentTreeNode(geoObject, hierarchy, BusinessObjectImporter.this.getConfiguration().getDate(), BusinessObjectImporter.this.getConfiguration().getDate(), null, null);
 
           ServerParentTreeNodeOverTime grandParentsOverTime = objectService.getParentsOverTime(geoObject, null, true, true);
 
@@ -619,9 +624,16 @@ public class BusinessObjectImporter implements ObjectImporterIF
       data.setNew(isNew);
       data.setParentBuilder(builder);
 
-      this.bObjectService.apply(businessObject);
+      BusinessObjectEventBuilder eventBuilder = new BusinessObjectEventBuilder(this.bObjectService);
+      eventBuilder.setObject(businessObject, isNew);
+      eventBuilder.setAttributeUpdate(true);
 
-      this.bObjectService.addGeoObject(businessObject, geoObject);
+      if (this.configuration.getDirection() != null && this.configuration.getEdgeType() != null)
+      {
+        eventBuilder.addGeoObject(this.configuration.getEdgeType(), geoObject, this.configuration.getDirection());
+      }
+
+      this.commandGateway.sendAndWait(eventBuilder.build());
 
       imported = true;
 

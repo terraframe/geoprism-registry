@@ -15,143 +15,188 @@
     GNU Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses />.
+    License along with Geoprism Registry(tm).  If not, see
+<http://www.gnu.org/licenses />.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>net.geoprism</groupId>
-		<artifactId>georegistry</artifactId>
-		<version>1.6.3-SNAPSHOT</version>
-	</parent>
-	<artifactId>georegistry-server</artifactId>
-	<packaging>jar</packaging>
+  <parent>
+    <groupId>net.geoprism</groupId>
+    <artifactId>georegistry</artifactId>
+    <version>1.6.3-SNAPSHOT</version>
+  </parent>
+  <artifactId>georegistry-server</artifactId>
+  <packaging>jar</packaging>
 
-	<name>GeoRegistry Server</name>
-	<description>The back-end database server for the georegistry project</description>
+  <name>GeoRegistry Server</name>
+  <description>The back-end database server for the georegistry project</description>
 
-	<properties>
-		<hapifhir_version>8.0.0</hapifhir_version>
-	</properties>
+  <properties>
+    <hapifhir_version>8.0.0</hapifhir_version>
+    <axon.version>4.11.2</axon.version>
+  </properties>
 
-	<dependencies>
-		<!-- Spring! -->
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.axonframework</groupId>
+        <artifactId>axon-bom</artifactId>
+        <version>${axon.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+
+  <dependencies>
+    <!-- Spring! -->
+
+    <!--
+    https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+      <version>${spring.boot.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-tomcat</artifactId>
+      <version>${spring.boot.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <!--   
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
-			<version>5.3.39</version>
+			<version>6.1.20</version>
 		</dependency>
-		<!-- https://mvitory.com/artifact/org.hibernate/hibernate-validator -->
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-validator</artifactId>
-			<version>5.4.3.Final</version>
-		</dependency>
+		-->
+    <!-- https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator -->
+    <dependency>
+      <groupId>org.hibernate.validator</groupId>
+      <artifactId>hibernate-validator</artifactId>
+      <version>8.0.2.Final</version>
+    </dependency>
 
-		<!-- The OrientDB Server is using the locationtech jts. Orientdb-Spatial is using vividsolutions jts.
-             There is a very specific scenario that can happen, when creating a new index during patching,
-             which can cause the orientdb-spatial jar to fetch a transaction from the OrientDB server. When
-             it does that, it attempts to deserialize a locationtech class, which we need to have on the
-             classpath (because we're using the vividsolutions jts, not locationtech). Adding this jar here
+    <!-- The OrientDB Server is using the locationtech jts. Orientdb-Spatial is
+    using vividsolutions jts.
+             There is a very specific scenario that can happen, when creating a new index
+    during patching,
+             which can cause the orientdb-spatial jar to fetch a transaction from the
+    OrientDB server. When
+             it does that, it attempts to deserialize a locationtech class, which we need to
+    have on the
+             classpath (because we're using the vividsolutions jts, not locationtech).
+    Adding this jar here
              is a very dumb hack, but it seems to work so here we are.
          -->
-		<dependency>
-			<groupId>org.locationtech.jts.io</groupId>
-			<artifactId>jts-io-common</artifactId>
-			<version>1.17.1</version>
-		</dependency>
-		<dependency>
-			<groupId>com.wdtinc</groupId>
-			<artifactId>mapbox-vector-tile</artifactId>
-			<version>3.1.2-TF</version>
-		</dependency>
-		<dependency>
-			<groupId>net.geoprism</groupId>
-			<artifactId>dhis2adapter</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+    <dependency>
+      <groupId>org.locationtech.jts.io</groupId>
+      <artifactId>jts-io-common</artifactId>
+      <version>1.17.1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.wdtinc</groupId>
+      <artifactId>mapbox-vector-tile</artifactId>
+      <version>3.1.2-TF</version>
+    </dependency>
+    <dependency>
+      <groupId>net.geoprism</groupId>
+      <artifactId>dhis2adapter</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
-		<dependency>
-			<groupId>net.geoprism</groupId>
-			<artifactId>geoprism-classifier</artifactId>
-			<version>${geoprism.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.geoprism</groupId>
-			<artifactId>geoprism-external-profile</artifactId>
-			<version>${geoprism.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.geoprism</groupId>
-			<artifactId>geoprism-labeled-property-graph</artifactId>
-			<version>${geoprism.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.geoprism</groupId>
-			<artifactId>geoprism-forgot-password</artifactId>
-			<version>${geoprism.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.geoprism</groupId>
-			<artifactId>geoprism-user-invite</artifactId>
-			<version>${geoprism.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.geoprism</groupId>
-			<artifactId>geoprism-graphrepo</artifactId>
-			<version>${geoprism.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.geoprism</groupId>
-			<artifactId>geoprism-logos</artifactId>
-			<version>${geoprism.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.geoprism</groupId>
-			<artifactId>geoprism-email</artifactId>
-			<version>${geoprism.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.geoprism</groupId>
-			<artifactId>geoprism-excel</artifactId>
-			<version>${geoprism.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.geoprism</groupId>
-			<artifactId>georegistry-adapter</artifactId>
-			<version>${geoprism.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
-			<version>3.0.1</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet.jsp</groupId>
-			<artifactId>javax.servlet.jsp-api</artifactId>
-			<version>2.2.1</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-			<version>2.6</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
-   <dependency>
+    <dependency>
+      <groupId>net.geoprism</groupId>
+      <artifactId>geoprism-classifier</artifactId>
+      <version>${geoprism.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.geoprism</groupId>
+      <artifactId>geoprism-external-profile</artifactId>
+      <version>${geoprism.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.geoprism</groupId>
+      <artifactId>geoprism-labeled-property-graph</artifactId>
+      <version>${geoprism.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.geoprism</groupId>
+      <artifactId>geoprism-forgot-password</artifactId>
+      <version>${geoprism.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.geoprism</groupId>
+      <artifactId>geoprism-user-invite</artifactId>
+      <version>${geoprism.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.geoprism</groupId>
+      <artifactId>geoprism-graphrepo</artifactId>
+      <version>${geoprism.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.geoprism</groupId>
+      <artifactId>geoprism-logos</artifactId>
+      <version>${geoprism.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.geoprism</groupId>
+      <artifactId>geoprism-email</artifactId>
+      <version>${geoprism.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.geoprism</groupId>
+      <artifactId>geoprism-excel</artifactId>
+      <version>${geoprism.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.geoprism</groupId>
+      <artifactId>georegistry-adapter</artifactId>
+      <version>${geoprism.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <version>6.1.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.servlet.jsp</groupId>
+      <artifactId>jakarta.servlet.jsp-api</artifactId>
+      <version>4.0.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.6</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+    <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>2.19.0</version>
     </dependency>
-		<dependency>
-			<groupId>javax.websocket</groupId>
-			<artifactId>javax.websocket-api</artifactId>
-			<version>1.1</version>
-		</dependency>
-		<dependency>
+    <dependency>
+      <groupId>jakarta.websocket</groupId>
+      <artifactId>jakarta.websocket-api</artifactId>
+      <version>2.2.0</version>
+    </dependency>
+    <!--
+    https://mvnrepository.com/artifact/jakarta.websocket/jakarta.websocket-client-api -->
+    <dependency>
+      <groupId>jakarta.websocket</groupId>
+      <artifactId>jakarta.websocket-client-api</artifactId>
+      <version>2.2.0</version>
+    </dependency>
+    <!-- 
+    
+    <dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-api</artifactId>
 			<version>2.17.1</version>
@@ -161,362 +206,410 @@
 			<artifactId>log4j-core</artifactId>
 			<version>2.17.1</version>
 		</dependency>
+  
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-slf4j-impl</artifactId>
 			<version>2.17.1</version>
 		</dependency>
-		<dependency>
-			<groupId>ca.uhn.hapi.fhir</groupId>
-			<artifactId>hapi-fhir-base</artifactId>
-			<version>${hapifhir_version}</version>
-		</dependency>
+-->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>2.0.17</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents.client5</groupId>
+      <artifactId>httpclient5</artifactId>
+      <version>5.4.1</version>
+    </dependency>
 
-		<!-- Include the client -->
-		<dependency>
-			<groupId>ca.uhn.hapi.fhir</groupId>
-			<artifactId>hapi-fhir-client</artifactId>
-			<version>${hapifhir_version}</version>
-		</dependency>
 
-		<!-- At least one "structures" JAR must also be included -->
-		<dependency>
-			<groupId>ca.uhn.hapi.fhir</groupId>
-			<artifactId>hapi-fhir-structures-r4</artifactId>
-			<version>${hapifhir_version}</version>
-		</dependency>
-		<dependency>
-			<groupId>ca.uhn.hapi.fhir</groupId>
-			<artifactId>hapi-fhir-validation</artifactId>
-			<version>${hapifhir_version}</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/com.github.ben-manes.caffeine/caffeine -->
-		<dependency>
-			<groupId>com.github.ben-manes.caffeine</groupId>
-			<artifactId>caffeine</artifactId>
-			<version>2.9.2</version>
-		</dependency>
+    <dependency>
+      <groupId>ca.uhn.hapi.fhir</groupId>
+      <artifactId>hapi-fhir-base</artifactId>
+      <version>${hapifhir_version}</version>
+    </dependency>
 
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-annotations</artifactId>
-			<version>2.17.1</version>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-			<version>2.17.1</version>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-core</artifactId>
-			<version>2.17.1</version>
-		</dependency>
+    <!-- Include the client -->
+    <dependency>
+      <groupId>ca.uhn.hapi.fhir</groupId>
+      <artifactId>hapi-fhir-client</artifactId>
+      <version>${hapifhir_version}</version>
+    </dependency>
+
+    <!-- At least one "structures" JAR must also be included -->
+    <dependency>
+      <groupId>ca.uhn.hapi.fhir</groupId>
+      <artifactId>hapi-fhir-structures-r4</artifactId>
+      <version>${hapifhir_version}</version>
+    </dependency>
+    <dependency>
+      <groupId>ca.uhn.hapi.fhir</groupId>
+      <artifactId>hapi-fhir-validation</artifactId>
+      <version>${hapifhir_version}</version>
+    </dependency>
+    <!--
+    https://mvnrepository.com/artifact/com.github.ben-manes.caffeine/caffeine -->
+    <dependency>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>caffeine</artifactId>
+      <version>2.9.2</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+      <version>2.18.1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.18.1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>2.18.1</version>
+    </dependency>
     <dependency>
       <groupId>com.opencsv</groupId>
       <artifactId>opencsv</artifactId>
       <version>5.9</version>
-    </dependency>		
-	</dependencies>
+    </dependency>
 
-	<!-- These profiles allow for Maven execution of Runway-SDK's Java Tools,
+    <!--AXON Dependencies-->
+    <!-- 
+  
+    <dependency>
+      <groupId>org.axonframework</groupId>
+      <artifactId>axon-spring</artifactId>
+      <version>${axon.version}</version>
+    </dependency>	
+-->
+    <dependency>
+      <groupId>org.axonframework</groupId>
+      <artifactId>axon-spring-boot-starter</artifactId>
+      <version>${axon.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.axonframework</groupId>
+          <artifactId>axon-server-connector</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.axonframework</groupId>
+      <artifactId>axon-test</artifactId>
+      <version>${axon.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
+
+  <!-- These profiles allow for Maven execution of Runway-SDK's Java Tools,
 		like rebuilding the database and importing schemas. -->
-	<profiles>
-		<profile>
-			<id>new-schema</id>
-			<activation>
-				<property>
-					<name>new-schema</name>
-				</property>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>exec-maven-plugin</artifactId>
-						<version>1.2.1</version>
-						<executions>
-							<execution>
-								<id>new-schema</id>
-								<phase>validate</phase>
-								<goals>
-									<goal>java</goal>
-								</goals>
-								<configuration>
-									<executable>java</executable>
-									<mainClass>com.runwaysdk.dataaccess.io.CreateDomainModel</mainClass>
-									<arguments>
-										<argument>${project.basedir}/src/main/working</argument>
-									</arguments>
-									<systemProperties>
-										<systemProperty>
-											<key>envcfg</key>
-											<value>${project.basedir}/../envcfg</value>
-										</systemProperty>
-									</systemProperties>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<profile>
-			<id>unimport-working</id>
-			<activation>
-				<property>
-					<name>unimport-working</name>
-				</property>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>exec-maven-plugin</artifactId>
-						<version>1.2.1</version>
-						<executions>
-							<execution>
-								<id>unimport-working</id>
-								<phase>validate</phase>
-								<goals>
-									<goal>java</goal>
-								</goals>
-								<configuration>
-									<executable>java</executable>
-									<mainClass>com.runwaysdk.dataaccess.io.UndoAll</mainClass>
-									<arguments>
-										<argument>${project.basedir}/src/main/working</argument>
-										<argument />
-										<argument>false</argument>
-									</arguments>
-									<systemProperties>
-										<systemProperty>
-											<key>envcfg</key>
-											<value>${project.basedir}/../envcfg</value>
-										</systemProperty>
-										<systemProperty>
-											<key>project.basedir</key>
-											<value>${project.basedir}</value>
-										</systemProperty>
-									</systemProperties>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<profile>
-			<id>import-working</id>
-			<activation>
-				<property>
-					<name>import-working</name>
-				</property>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>exec-maven-plugin</artifactId>
-						<version>1.2.1</version>
-						<executions>
-							<execution>
-								<id>import-working</id>
-								<phase>validate</phase>
-								<goals>
-									<goal>java</goal>
-								</goals>
-								<configuration>
-									<executable>java</executable>
-									<mainClass>net.geoprism.ImportSchema</mainClass>
-									<arguments>
-										<argument>${project.basedir}/src/main/working</argument>
-										<argument />
-										<argument>false</argument>
-									</arguments>
-									<systemProperties>
-										<systemProperty>
-											<key>envcfg</key>
-											<value>${project.basedir}/../envcfg</value>
-										</systemProperty>
-										<systemProperty>
-											<key>project.basedir</key>
-											<value>${project.basedir}</value>
-										</systemProperty>
-										<!-- <systemProperty> <key>jsp.dir</key> <value>georegistry-web/src/main/webapp/WEB-INF</value>
+  <profiles>
+    <profile>
+      <id>new-schema</id>
+      <activation>
+        <property>
+          <name>new-schema</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>1.2.1</version>
+            <executions>
+              <execution>
+                <id>new-schema</id>
+                <phase>validate</phase>
+                <goals>
+                  <goal>java</goal>
+                </goals>
+                <configuration>
+                  <executable>java</executable>
+                  <mainClass>com.runwaysdk.dataaccess.io.CreateDomainModel</mainClass>
+                  <arguments>
+                    <argument>${project.basedir}/src/main/working</argument>
+                  </arguments>
+                  <systemProperties>
+                    <systemProperty>
+                      <key>envcfg</key>
+                      <value>${project.basedir}/../envcfg</value>
+                    </systemProperty>
+                  </systemProperties>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>unimport-working</id>
+      <activation>
+        <property>
+          <name>unimport-working</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>1.2.1</version>
+            <executions>
+              <execution>
+                <id>unimport-working</id>
+                <phase>validate</phase>
+                <goals>
+                  <goal>java</goal>
+                </goals>
+                <configuration>
+                  <executable>java</executable>
+                  <mainClass>com.runwaysdk.dataaccess.io.UndoAll</mainClass>
+                  <arguments>
+                    <argument>${project.basedir}/src/main/working</argument>
+                    <argument />
+                    <argument>false</argument>
+                  </arguments>
+                  <systemProperties>
+                    <systemProperty>
+                      <key>envcfg</key>
+                      <value>${project.basedir}/../envcfg</value>
+                    </systemProperty>
+                    <systemProperty>
+                      <key>project.basedir</key>
+                      <value>${project.basedir}</value>
+                    </systemProperty>
+                  </systemProperties>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>import-working</id>
+      <activation>
+        <property>
+          <name>import-working</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>1.2.1</version>
+            <executions>
+              <execution>
+                <id>import-working</id>
+                <phase>validate</phase>
+                <goals>
+                  <goal>java</goal>
+                </goals>
+                <configuration>
+                  <executable>java</executable>
+                  <mainClass>net.geoprism.ImportSchema</mainClass>
+                  <arguments>
+                    <argument>${project.basedir}/src/main/working</argument>
+                    <argument />
+                    <argument>false</argument>
+                  </arguments>
+                  <systemProperties>
+                    <systemProperty>
+                      <key>envcfg</key>
+                      <value>${project.basedir}/../envcfg</value>
+                    </systemProperty>
+                    <systemProperty>
+                      <key>project.basedir</key>
+                      <value>${project.basedir}</value>
+                    </systemProperty>
+                    <!-- <systemProperty> <key>jsp.dir</key>
+                    <value>georegistry-web/src/main/webapp/WEB-INF</value>
 											</systemProperty> -->
-									</systemProperties>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<profile>
-			<id>database</id>
-			<activation>
-				<property>
-					<name>database</name>
-				</property>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>exec-maven-plugin</artifactId>
-						<version>1.2.1</version>
-						<executions>
-							<execution>
-								<id>database</id>
-								<phase>validate</phase>
-								<goals>
-									<goal>java</goal>
-								</goals>
-								<configuration>
-									<executable>java</executable>
-									<arguments>
-										<argument>-Xdebug</argument>
-										<argument>-Xrunjdwp:server=y,transport=dt_socket,address=8000,suspend=y</argument>
-									</arguments>
-									<mainClass>net.geoprism.build.GeoprismDatabaseBuilder</mainClass>
-									<arguments>
-										<argument>--metadataDir=${project.basedir}/target/classes/metadata</argument>
-										<argument>--rootUser=${db.rootUser}</argument>
-										<argument>--rootPass=${db.rootPass}</argument>
-										<argument>--templateDb=${db.rootDb}</argument>
-										<argument>--clean=${db.clean}</argument>
-										<argument>--patch=${db.patch}</argument>
-									</arguments>
-									<systemProperties>
-										<systemProperty>
-											<key>endpoint.cache</key>
-											<value>${project.basedir}/cache</value>
-										</systemProperty>
-										<systemProperty>
-											<key>envcfg</key>
-											<value>${project.basedir}/../envcfg</value>
-										</systemProperty>
-									</systemProperties>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
+                  </systemProperties>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>database</id>
+      <activation>
+        <property>
+          <name>database</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>1.2.1</version>
+            <executions>
+              <execution>
+                <id>database</id>
+                <phase>validate</phase>
+                <goals>
+                  <goal>java</goal>
+                </goals>
+                <configuration>
+                  <executable>java</executable>
+                  <arguments>
+                    <argument>-Xdebug</argument>
+                    <argument>
+                      -Xrunjdwp:server=y,transport=dt_socket,address=8000,suspend=y</argument>
+                  </arguments>
+                  <mainClass>net.geoprism.build.GeoprismDatabaseBuilder</mainClass>
+                  <arguments>
+                    <argument>
+                      --metadataDir=${project.basedir}/target/classes/metadata</argument>
+                    <argument>--rootUser=${db.rootUser}</argument>
+                    <argument>--rootPass=${db.rootPass}</argument>
+                    <argument>--templateDb=${db.rootDb}</argument>
+                    <argument>--clean=${db.clean}</argument>
+                    <argument>--patch=${db.patch}</argument>
+                  </arguments>
+                  <systemProperties>
+                    <systemProperty>
+                      <key>endpoint.cache</key>
+                      <value>${project.basedir}/cache</value>
+                    </systemProperty>
+                    <systemProperty>
+                      <key>envcfg</key>
+                      <value>${project.basedir}/../envcfg</value>
+                    </systemProperty>
+                  </systemProperties>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
-	<build>
-		<!-- This tells maven to resolve variables in our properties files. -->
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-				<filtering>true</filtering>
-				<excludes>
-					<exclude>**/*.xlsx</exclude>
-					<exclude>**/*.zip</exclude>
-				</excludes>
-			</resource>
-			<resource>
-				<directory>src/main/resources</directory>
-				<filtering>false</filtering>
-				<includes>
-					<include>**/*.xlsx</include>
-					<include>**/*.zip</include>
-				</includes>
-			</resource>
-		</resources>
+  <build>
+    <!-- This tells maven to resolve variables in our properties files. -->
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+        <excludes>
+          <exclude>**/*.xlsx</exclude>
+          <exclude>**/*.zip</exclude>
+        </excludes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>false</filtering>
+        <includes>
+          <include>**/*.xlsx</include>
+          <include>**/*.zip</include>
+        </includes>
+      </resource>
+    </resources>
 
-		<plugins>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>3.3.0</version>
-				<executions>
-					<execution>
-						<id>regex-property</id>
-						<phase>validate</phase>
-						<goals>
-							<goal>regex-property</goal>
-						</goals>
-						<configuration>
-							<name>geoprism.build.version</name>
-							<value>${project.version}</value>
-							<regex>-SNAPSHOT</regex>
-							<replacement>+(${maven.build.timestamp})</replacement>
-							<failIfNoMatch>false</failIfNoMatch>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.3.0</version>
+        <executions>
+          <execution>
+            <id>regex-property</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>regex-property</goal>
+            </goals>
+            <configuration>
+              <name>geoprism.build.version</name>
+              <value>${project.version}</value>
+              <regex>-SNAPSHOT</regex>
+              <replacement>+(${maven.build.timestamp})</replacement>
+              <failIfNoMatch>false</failIfNoMatch>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
 
-			<!-- Weave Aspects -->
-			<plugin>
-				<groupId>dev.aspectj</groupId>
-				<artifactId>aspectj-maven-plugin</artifactId>
-				<version>${aspectj.plugin.version}</version>
-				<dependencies>
-					<dependency>
-						<groupId>org.aspectj</groupId>
-						<artifactId>aspectjtools</artifactId>
-						<version>${aspectj.version}</version>
-					</dependency>
-				</dependencies>
-				<executions>
-					<execution>
-						<goals>
-							<goal>compile</goal>
-							<goal>test-compile</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<aspectLibraries>
-						<aspectLibrary>
-							<groupId>com.runwaysdk</groupId>
-							<artifactId>runwaysdk-server</artifactId>
-						</aspectLibrary>
-					</aspectLibraries>
-					<source>${maven.compiler.source}</source>
-					<target>${maven.compiler.target}</target>
-					<complianceLevel>${maven.compiler.target}</complianceLevel>
-					<fork>true</fork>
-					<meminitial>512m</meminitial>
-					<maxmem>1024m</maxmem>
-				</configuration>
-			</plugin>
-		</plugins>
-		<pluginManagement>
-			<plugins>
-				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
-				<plugin>
-					<groupId>org.eclipse.m2e</groupId>
-					<artifactId>lifecycle-mapping</artifactId>
-					<version>1.0.0</version>
-					<configuration>
-						<lifecycleMappingMetadata>
-							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>org.codehaus.mojo</groupId>
-										<artifactId>
-											build-helper-maven-plugin
-										</artifactId>
-										<versionRange>[1.9.1,)</versionRange>
-										<goals>
-											<goal>regex-property</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore />
-									</action>
-								</pluginExecution>
-							</pluginExecutions>
-						</lifecycleMappingMetadata>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-	</build>
+      <!-- Weave Aspects -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>aspectj-maven-plugin</artifactId>
+        <version>${aspectj.plugin.version}</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjtools</artifactId>
+            <version>${aspectj.version}</version>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <goals>
+              <goal>compile</goal>
+              <goal>test-compile</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <aspectLibraries>
+            <aspectLibrary>
+              <groupId>com.runwaysdk</groupId>
+              <artifactId>runwaysdk-server</artifactId>
+            </aspectLibrary>
+          </aspectLibraries>
+          <source>${maven.compiler.source}</source>
+          <target>${maven.compiler.target}</target>
+          <complianceLevel>${maven.compiler.target}</complianceLevel>
+          <fork>true</fork>
+          <meminitial>512m</meminitial>
+          <maxmem>1024m</maxmem>
+          <parameters>true</parameters>
+        </configuration>
+      </plugin>
+    </plugins>
+    <pluginManagement>
+      <plugins>
+        <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+        <plugin>
+          <groupId>org.eclipse.m2e</groupId>
+          <artifactId>lifecycle-mapping</artifactId>
+          <version>1.0.0</version>
+          <configuration>
+            <lifecycleMappingMetadata>
+              <pluginExecutions>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>
+                      build-helper-maven-plugin
+                    </artifactId>
+                    <versionRange>[1.9.1,)</versionRange>
+                    <goals>
+                      <goal>regex-property</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <ignore />
+                  </action>
+                </pluginExecution>
+              </pluginExecutions>
+            </lifecycleMappingMetadata>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
 </project>

@@ -5,7 +5,7 @@ package net.geoprism.registry;
 
 import net.geoprism.registry.test.USATestData;
 
-public class USADatasetTest implements InstanceTestClassListener
+public abstract class USADatasetTest implements InstanceTestClassListener
 {
   protected static USATestData testData;
 

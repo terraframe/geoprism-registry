@@ -1,0 +1,138 @@
+[
+  {
+    "code": "USATestDataAdminCode",
+    "orgCode": "USATestDataNPS",
+    "origin": "TESTABC",
+    "sequence": 8,
+    "typeCode": "HierarchyType",
+    "displayLabel": {
+      "localizedValue": "USATestDataAdmin Display Label",
+      "localeValues": [
+        {
+          "locale": "defaultLocale",
+          "value": "USATestDataAdmin Display Label"
+        }
+      ]
+    },
+    "description": {
+      "localizedValue": "USATestDataAdmin Display Label",
+      "localeValues": [
+        {
+          "locale": "defaultLocale",
+          "value": "USATestDataAdmin Display Label"
+        }
+      ]
+    },
+    "nodes": [
+      {
+        "code": "USATestDataCountry",
+        "nodes": [
+          {
+            "code": "USATestDataState",
+            "nodes": [
+              {
+                "code": "USATestDataDistrict",
+                "nodes": [
+                  {
+                    "code": "USATestDataHealthFacility",
+                    "nodes": []
+                  }
+                ]
+              },
+              {
+                "code": "USATestDataCounty",
+                "nodes": [
+                  {
+                    "code": "USATestDataArea",
+                    "nodes": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "code": "USATestDataMexico_State_GOT",
+            "nodes": [
+              {
+                "code": "USATestDataMexico_City_GOT",
+                "nodes": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "code": "USATestDataSchoolCode",
+    "orgCode": "USATestDataNPS",
+    "origin": "TESTABC",
+    "sequence": 2,
+    "typeCode": "HierarchyType",
+    "displayLabel": {
+      "localizedValue": "USATestDataSchool Display Label",
+      "localeValues": [
+        {
+          "locale": "defaultLocale",
+          "value": "USATestDataSchool Display Label"
+        }
+      ]
+    },
+    "description": {
+      "localizedValue": "USATestDataSchool Display Label",
+      "localeValues": [
+        {
+          "locale": "defaultLocale",
+          "value": "USATestDataSchool Display Label"
+        }
+      ]
+    },
+    "nodes": [
+      {
+        "code": "USATestDataDistrict",
+        "nodes": [
+          {
+            "code": "USATestDataSchoolZone",
+            "nodes": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "code": "USATestDataReportsToCode",
+    "orgCode": "USATestDataNPS",
+    "origin": "TESTABC",
+    "sequence": 2,
+    "typeCode": "HierarchyType",
+    "displayLabel": {
+      "localizedValue": "USATestDataReportsTo Display Label",
+      "localeValues": [
+        {
+          "locale": "defaultLocale",
+          "value": "USATestDataReportsTo Display Label"
+        }
+      ]
+    },
+    "description": {
+      "localizedValue": "USATestDataReportsTo Display Label",
+      "localeValues": [
+        {
+          "locale": "defaultLocale",
+          "value": "USATestDataReportsTo Display Label"
+        }
+      ]
+    },
+    "nodes": [
+      {
+        "code": "USATestDataHealthPost",
+        "nodes": [
+          {
+            "code": "USATestDataHealthStop",
+            "nodes": []
+          }
+        ]
+      }
+    ]
+  }
+]

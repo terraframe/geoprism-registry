@@ -37,6 +37,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.LocationService;
 import net.geoprism.registry.service.request.RegistryComponentService;
 
@@ -50,7 +51,7 @@ import net.geoprism.registry.service.request.RegistryComponentService;
 @Validated
 public class RegistryLocationController extends RunwaySpringController
 {
-  public static final String API_PATH = "registrylocation";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "registrylocation";
 
   @Autowired
   private LocationService    service;

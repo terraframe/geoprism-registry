@@ -21,7 +21,7 @@ package net.geoprism.registry.controller;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -36,13 +36,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.BackupAndRestoreServiceIF;
 
 @RestController
 @Validated
 public class AdminController extends RunwaySpringController
 {
-  public static final String          API_PATH = "admin";
+  public static final String          API_PATH = RegistryConstants.CONTROLLER_ROOT + "admin";
 
   @Autowired
   protected BackupAndRestoreServiceIF service;

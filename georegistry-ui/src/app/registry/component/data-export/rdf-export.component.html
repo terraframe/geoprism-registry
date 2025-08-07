@@ -1,0 +1,100 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<div class="new-admin-design-main">
+    <cgr-header></cgr-header>
+    <loading-bar></loading-bar>
+
+    <div id="app-container" class="container-fluid">
+
+        <ng-container *ngIf="type != null">
+            <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+            <div class="text-center">
+                <h2>
+                    <localize key="type.publish.configuration.header"></localize>
+                </h2>
+                <hr>
+            </div>
+
+            <!-- <div class="col-md-12 order-md-1"> -->
+            <div class="modal-form" autocomplete="off">
+
+                <fieldset>
+                    <div class="row-holder">
+                        <div class="label-holder">
+                            <label>
+                                <localize key="rdf.mainGraph"></localize>
+                            </label>
+                        </div>
+                        <div class="holder">
+                            <input [(ngModel)]="type.code" name="code" type="text" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="row-holder" style="overflow:visible;">
+                        <div class="label-holder">
+                            <label>
+                                <localize key="rdf.geometryExportType"></localize>
+                            </label>
+                        </div>
+                        <div class="holder">
+                            <div class="btn-group" dropdown>
+                                <button id="button-basic" dropdownToggle type="button"
+                                    class="btn btn-primary dropdown-toggle" aria-controls="dropdown-basic">
+                                    <span *ngIf="exportGeometryType == null">
+                                        <localize key="export.rdf.geometryExportType"></localize> <span
+                                            class="caret"></span>
+                                    </span>
+                                    <span *ngIf="exportGeometryType != null">
+                                        <localize *ngIf="exportGeometryType === 'WRITE_GEOMETRIES'"
+                                            key="export.rdf.withGeometries"></localize>
+                                        <localize *ngIf="exportGeometryType === 'WRITE_SIMPLIFIED_GEOMETRIES'"
+                                            key="export.rdf.withSimplifiedGeometries"></localize>
+                                        <localize *ngIf="exportGeometryType === 'NO_GEOMETRIES'"
+                                            key="export.rdf.withoutGeometries"></localize>
+                                    </span>
+                                </button>
+                                <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu" role="menu"
+                                    aria-labelledby="button-basic">
+                                    <li role="menuitem"><a class="dropdown-item"
+                                            (click)="exportGeometryType = 'WRITE_GEOMETRIES'">
+                                            <localize key="export.rdf.withGeometries"></localize>
+                                        </a></li>
+                                    <li role="menuitem"><a class="dropdown-item"
+                                            (click)="exportGeometryType = 'WRITE_SIMPLIFIED_GEOMETRIES'">
+                                            <localize key="export.rdf.withSimplifiedGeometries"></localize>
+                                        </a></li>
+                                    <li role="menuitem"><a class="dropdown-item"
+                                            (click)="exportGeometryType = 'NO_GEOMETRIES'">
+                                            <localize key="export.rdf.withoutGeometries"></localize>
+                                        </a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <labeled-property-graph-type-form [type]="type" [isExport]="true" (complete)="onSubmit($event)"
+                (cancel)="onCancel()">
+            </labeled-property-graph-type-form>
+        </ng-container>
+    </div>
+</div>

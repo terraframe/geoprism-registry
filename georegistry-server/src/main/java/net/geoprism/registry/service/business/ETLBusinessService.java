@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service.business;
 
@@ -348,7 +348,7 @@ public class ETLBusinessService
     try (OIterator<? extends ImportHistory> it = ihq.getIterator())
     {
       List<JsonWrapper> results = it.getAll().stream().map(hist -> {
-        DataImportJob job = (DataImportJob) hist.getAllJob().getAll().get(0);
+        var job = hist.getAllJob().getAll().get(0);
         GeoprismUser user = ( job.getRunAsUser() == null ) ? null : GeoprismUser.get(job.getRunAsUser().getOid());
 
         return new JsonWrapper(serializeHistory(hist, user, job));
@@ -372,7 +372,7 @@ public class ETLBusinessService
     try (OIterator<? extends ImportHistory> it = ihq.getIterator())
     {
       List<JsonWrapper> results = it.getAll().stream().map(hist -> {
-        DataImportJob job = (DataImportJob) hist.getAllJob().getAll().get(0);
+        var job = hist.getAllJob().getAll().get(0);
         GeoprismUser user = ( job.getRunAsUser() == null ) ? null : GeoprismUser.get(job.getRunAsUser().getOid());
 
         return new JsonWrapper(serializeHistory(hist, user, job));
@@ -404,9 +404,12 @@ public class ETLBusinessService
 
       jo.addProperty("stage", iHist.getStage().get(0).name());
 
-      JsonObject config = JsonParser.parseString(iHist.getConfigJson()).getAsJsonObject();
-      jo.addProperty("fileName", config.get(ImportConfiguration.FILE_NAME).getAsString());
-      jo.add("configuration", JsonParser.parseString(config.toString()));
+      if (StringUtils.isNotBlank(iHist.getConfigJson()) && iHist.getConfigJson().startsWith("{"))
+      {
+        JsonObject config = JsonParser.parseString(iHist.getConfigJson()).getAsJsonObject();
+        jo.addProperty("fileName", config.get(ImportConfiguration.FILE_NAME).getAsString());
+        jo.add("configuration", JsonParser.parseString(config.toString()));
+      }
     }
     else if (hist instanceof ExportHistory)
     {
@@ -479,9 +482,9 @@ public class ETLBusinessService
   public JsonObject getImportDetails(String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
   {
     ImportHistory hist = ImportHistory.get(historyId);
-    DataImportJob job = (DataImportJob) hist.getAllJob().getAll().get(0);
+    var job = hist.getAllJob().getAll().get(0);
     GeoprismUser user = ( job.getRunAsUser() == null ) ? null : GeoprismUser.get(job.getRunAsUser().getOid());
-    hist.getConfig().enforceExecutePermissions();
+    hist.enforceExecutePermissions();
 
     JsonObject jo = this.serializeHistory(hist, user, job);
 
@@ -500,7 +503,7 @@ public class ETLBusinessService
   public JsonObject getExportDetails(String historyId, int pageSize, int pageNumber)
   {
     ExportHistory hist = ExportHistory.get(historyId);
-    DataExportJob job = (DataExportJob) hist.getAllJob().getAll().get(0);
+    var job = hist.getAllJob().getAll().get(0);
     GeoprismUser user = ( job.getRunAsUser() == null ) ? null : GeoprismUser.get(job.getRunAsUser().getOid());
 
     JsonObject jo = this.serializeHistory(hist, user, job);
@@ -539,12 +542,12 @@ public class ETLBusinessService
       }
       else
       {
-        ServerGeoObjectIF serverGO = this.objectService.apply(go, isNew, true);
+        ServerGeoObjectIF serverGO = this.objectService.apply(go, isNew, true, true);
         final ServerGeoObjectType type = serverGO.getType();
 
         ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(type, parentTreeNode);
 
-        this.objectService.setParents(serverGO, ptnOt);
+        this.objectService.setParents(serverGO, ptnOt, true);
       }
 
       err.appLock();
@@ -645,7 +648,7 @@ public class ETLBusinessService
   public void resolveImport(String historyId)
   {
     ImportHistory hist = ImportHistory.get(historyId);
-    hist.getConfig().enforceExecutePermissions();
+    hist.enforceExecutePermissions();
 
     if (hist.getStage().get(0).equals(ImportStage.IMPORT_RESOLVE))
     {
@@ -667,9 +670,12 @@ public class ETLBusinessService
     OIterator<? extends ImportError> it = ieq.getIterator();
     try
     {
-      ImportError err = it.next();
+      if (it.hasNext())
+      {
+        ImportError err = it.next();
 
-      err.delete();
+        err.delete();
+      }
     }
     finally
     {
@@ -685,7 +691,11 @@ public class ETLBusinessService
     hist.apply();
 
     VaultFile file = hist.getImportFile();
-    file.delete();
+
+    if (file != null)
+    {
+      file.delete();
+    }
   }
 
 }

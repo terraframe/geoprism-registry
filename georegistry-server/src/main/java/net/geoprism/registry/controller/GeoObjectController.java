@@ -23,15 +23,17 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 import org.commongeoregistry.adapter.constants.RegistryUrls;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.dataaccess.TreeNode;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
-import org.hibernate.validator.constraints.NotEmpty;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +50,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.GeoObjectServiceIF;
 import net.geoprism.registry.service.request.HierarchyTypeServiceIF;
 import net.geoprism.registry.service.request.RegistryComponentService;
@@ -58,7 +61,7 @@ import net.geoprism.registry.spring.NullableDateDeserializer;
 @Validated
 public class GeoObjectController extends RunwaySpringController
 {
-  public static final String API_PATH = "geoobject";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "geoobject";
 
   public static class RelationshipBody
   {
@@ -278,8 +281,14 @@ public class GeoObjectController extends RunwaySpringController
    * @returns @throws
    **/
   @GetMapping(API_PATH + "/suggestions")
-  public ResponseEntity<String> getGeoObjectSuggestions(@RequestParam(required = false) String text, @NotEmpty
-  @RequestParam String type, @RequestParam(required = false) String parent, @RequestParam(required = false) String parentTypeCode, @RequestParam(required = false) String hierarchy, @RequestParam(required = false) Date startDate, @RequestParam(required = false) Date endDate)
+  public ResponseEntity<String> getGeoObjectSuggestions( //
+      @RequestParam(required = false) String text, //
+      @NotBlank @RequestParam String type, //
+      @RequestParam(required = false) String parent, // 
+      @RequestParam(required = false) String parentTypeCode, //
+      @RequestParam(required = false) String hierarchy, //
+      @RequestParam(required = false) Date startDate, //
+      @RequestParam(required = false) Date endDate)
   {
     JsonArray response = this.service.getGeoObjectSuggestions(this.getSessionId(), text, type, parent, parentTypeCode, hierarchy, startDate, endDate);
 
@@ -346,14 +355,13 @@ public class GeoObjectController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/business-objects")
-  public ResponseEntity<String> getBusinessObjects(@NotEmpty
-  @RequestParam String typeCode,
-      @NotEmpty
-      @RequestParam String code,
-      @NotEmpty
-      @RequestParam String businessTypeCode)
+  public ResponseEntity<String> getBusinessObjects(
+      @NotEmpty @RequestParam String typeCode,
+      @NotEmpty @RequestParam String code,
+      @NotEmpty @RequestParam String edgeTypeCode,
+      @NotEmpty @RequestParam String direction)
   {
-    JsonArray objects = this.objectService.getBusinessObjects(this.getSessionId(), typeCode, code, businessTypeCode);
+    JsonArray objects = this.objectService.getBusinessObjects(this.getSessionId(), typeCode, code, edgeTypeCode, direction);
 
     return new ResponseEntity<String>(objects.toString(), HttpStatus.OK);
   }

@@ -20,14 +20,14 @@ package net.geoprism.registry.controller;
 
 import java.util.Date;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 import org.commongeoregistry.adapter.constants.RegistryUrls;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
-import org.hibernate.validator.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonObject;
 
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.controller.GeoObjectController.TypeCodeBody;
 import net.geoprism.registry.service.request.RegistryComponentService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
@@ -66,12 +67,12 @@ public class GeoObjectOverTimeController extends RunwaySpringController
     }
   }
   
-  public static final String API_PATH = "geoobject-time";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "geoobject-time";
   
   @Autowired
   private RegistryComponentService service;  
   
-  @GetMapping(RegistryUrls.GEO_OBJECT_TIME_GET)  
+  @GetMapping(RegistryConstants.CONTROLLER_ROOT + RegistryUrls.GEO_OBJECT_TIME_GET)  
   public ResponseEntity<String> getGeoObjectOverTime(
       @NotEmpty @RequestParam String id,
       @NotEmpty @RequestParam String typeCode) 
@@ -85,7 +86,7 @@ public class GeoObjectOverTimeController extends RunwaySpringController
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @GetMapping(RegistryUrls.GEO_OBJECT_TIME_GET_CODE)    
+  @GetMapping(RegistryConstants.CONTROLLER_ROOT + RegistryUrls.GEO_OBJECT_TIME_GET_CODE)    
   public ResponseEntity<String> getGeoObjectOverTimeByCode(
       @NotEmpty @RequestParam String code, 
       @NotEmpty @RequestParam String typeCode) 
@@ -119,7 +120,7 @@ public class GeoObjectOverTimeController extends RunwaySpringController
     return new ResponseEntity<String>(bounds, HttpStatus.OK);
   }
 
-  @PostMapping(RegistryUrls.GEO_OBJECT_TIME_CREATE)    
+  @PostMapping(RegistryConstants.CONTROLLER_ROOT + RegistryUrls.GEO_OBJECT_TIME_CREATE)    
   public ResponseEntity<String> createGeoObjectOverTime(@Valid @RequestBody GeoObjectOverTimeBody body)
   {
     GeoObjectOverTime geoObject = this.service.createGeoObjectOverTime(this.getSessionId(), body.geoObject.toString());
@@ -129,7 +130,7 @@ public class GeoObjectOverTimeController extends RunwaySpringController
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @PostMapping(RegistryUrls.GEO_OBJECT_TIME_UPDATE)      
+  @PostMapping(RegistryConstants.CONTROLLER_ROOT + RegistryUrls.GEO_OBJECT_TIME_UPDATE)      
   public ResponseEntity<String> updateGeoObjectOverTime(@Valid @RequestBody GeoObjectOverTimeBody body)
   {
     GeoObjectOverTime goTime = this.service.updateGeoObjectOverTime(this.getSessionId(), body.geoObject.toString());

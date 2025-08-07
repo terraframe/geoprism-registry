@@ -19,12 +19,12 @@
 package net.geoprism.registry.controller;
 
 import javax.annotation.Nullable;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
-import org.hibernate.validator.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,6 +44,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import net.geoprism.GeoprismUserDTO;
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.controller.BusinessTypeController.OidBody;
 import net.geoprism.registry.service.request.AccountService;
 import net.geoprism.registry.spring.JsonArrayDeserializer;
@@ -162,7 +163,7 @@ public class RegistryAccountController extends RunwaySpringController
 
   }
 
-  public static final String API_PATH = "registryaccount";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "registryaccount";
 
   @Autowired
   private AccountService     accountService;

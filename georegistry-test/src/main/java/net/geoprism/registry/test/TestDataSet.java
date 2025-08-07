@@ -80,6 +80,7 @@ import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.AbstractActionQuery;
 import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.ChangeRequestQuery;
+import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.conversion.RegistryRoleConverter;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.graph.ExternalSystem;
@@ -489,6 +490,8 @@ abstract public class TestDataSet
     deleteAllChangeRequests();
 
     managedGeoObjectInfosExtras = new ArrayList<TestGeoObjectInfo>();
+    
+    ServiceFactory.getBean(RegistryEventStore.class).truncate();
   }
 
   @Request

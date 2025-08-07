@@ -18,10 +18,10 @@
  */
 package net.geoprism.registry.controller;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +36,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.UndirectedGraphTypeService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
 
@@ -76,7 +77,7 @@ public class UndirectedGraphTypeController extends RunwaySpringController
     }
   }
 
-  public static final String API_PATH = "undirected-graph-type";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "undirected-graph-type";
 
   @Autowired
   private UndirectedGraphTypeService service;

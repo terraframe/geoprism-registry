@@ -20,10 +20,6 @@ package net.geoprism.registry.controller;
 
 import java.util.Date;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +34,10 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonObject;
 import com.runwaysdk.mvc.RequestParamter;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.DirectedAcyclicGraphService;
 import net.geoprism.registry.spring.NullableDateDeserializer;
 
@@ -47,19 +47,19 @@ public class DirectedAcyclicGraphController extends RunwaySpringController
 {
   public static final class DagRequestBody
   {
-    @NotEmpty
+    @NotBlank
     String parentCode;
 
-    @NotEmpty
+    @NotBlank
     String parentTypeCode;
 
-    @NotEmpty
+    @NotBlank
     String childCode;
 
-    @NotEmpty
+    @NotBlank
     String childTypeCode;
 
-    @NotEmpty
+    @NotBlank
     String directedGraphCode;
 
     @NotNull
@@ -141,7 +141,7 @@ public class DirectedAcyclicGraphController extends RunwaySpringController
     }
   }
 
-  public static final String API_PATH = "dag";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "dag";
 
   @Autowired
   private DirectedAcyclicGraphService service;

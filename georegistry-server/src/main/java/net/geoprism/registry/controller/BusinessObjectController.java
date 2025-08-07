@@ -18,7 +18,6 @@
  */
 package net.geoprism.registry.controller;
 
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,21 +29,23 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import jakarta.validation.constraints.NotBlank;
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.BusinessObjectService;
 
 @RestController
 @Validated
 public class BusinessObjectController extends RunwaySpringController
 {
-  public static final String API_PATH = "business-object";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "business-object";
 
   @Autowired
   private BusinessObjectService service;
 
   @GetMapping(API_PATH + "/get")
   public ResponseEntity<String> get( 
-      @NotEmpty @RequestParam String businessTypeCode,
-      @NotEmpty @RequestParam String code)
+      @NotBlank @RequestParam String businessTypeCode,
+      @NotBlank @RequestParam String code)
   {
     JsonObject response = service.get(this.getSessionId(), businessTypeCode, code);
     
@@ -53,8 +54,8 @@ public class BusinessObjectController extends RunwaySpringController
 
   @GetMapping(API_PATH + "/get-type-and-object")
   public ResponseEntity<String> getTypeAndObject( 
-      @NotEmpty @RequestParam String businessTypeCode,
-      @NotEmpty @RequestParam String code)
+      @NotBlank @RequestParam String businessTypeCode,
+      @NotBlank @RequestParam String code)
   {
     JsonObject response = service.getTypeAndObject(this.getSessionId(), businessTypeCode, code);
     
@@ -63,9 +64,9 @@ public class BusinessObjectController extends RunwaySpringController
   
   @GetMapping(API_PATH + "/get-parents")
   public ResponseEntity<String> getParents( 
-      @NotEmpty @RequestParam String businessTypeCode,
-      @NotEmpty @RequestParam String code,
-      @NotEmpty @RequestParam String businessEdgeTypeCode)
+      @NotBlank @RequestParam String businessTypeCode,
+      @NotBlank @RequestParam String code,
+      @NotBlank @RequestParam String businessEdgeTypeCode)
   {
     JsonArray parents = this.service.getParents(this.getSessionId(), businessTypeCode, code, businessEdgeTypeCode);
     
@@ -74,9 +75,9 @@ public class BusinessObjectController extends RunwaySpringController
   
   @GetMapping(API_PATH + "/get-children")
   public ResponseEntity<String> getChildren( 
-      @NotEmpty @RequestParam String businessTypeCode,
-      @NotEmpty @RequestParam String code,
-      @NotEmpty @RequestParam String businessEdgeTypeCode)
+      @NotBlank @RequestParam String businessTypeCode,
+      @NotBlank @RequestParam String code,
+      @NotBlank @RequestParam String businessEdgeTypeCode)
   {
     JsonArray parents = this.service.getChildren(this.getSessionId(), businessTypeCode, code, businessEdgeTypeCode);
     
@@ -85,11 +86,14 @@ public class BusinessObjectController extends RunwaySpringController
   
   @GetMapping(API_PATH + "/get-geo-objects")
   public ResponseEntity<String> getGeoObjects( 
-      @NotEmpty @RequestParam String businessTypeCode,
-      @NotEmpty @RequestParam String code,
-      @NotEmpty @RequestParam String date)
+      @NotBlank @RequestParam String businessTypeCode,
+      @NotBlank @RequestParam String code,
+      @NotBlank @RequestParam String date,
+      @NotBlank @RequestParam String edgeTypeCode,
+      @NotBlank @RequestParam String direction
+)
   {
-    JsonArray geoObjects = this.service.getGeoObjects(this.getSessionId(), businessTypeCode, code, date);
+    JsonArray geoObjects = this.service.getGeoObjects(this.getSessionId(), businessTypeCode, code, date, edgeTypeCode, direction);
     
     return new ResponseEntity<String>(geoObjects.toString(), HttpStatus.OK);
   }

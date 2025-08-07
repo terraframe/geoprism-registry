@@ -62,6 +62,11 @@
     <business-edge code="BUS_EDGE" label="Business Edge" description="Business Edge" parentTypeCode="BUSINESS_POP"
                    childTypeCode="BUSINESS_CHILD">
     </business-edge>
+
+    <business-geoobject-edge code="BUS_GEO_EDGE" label="Business Geo Edge" description="Business Geo Edge" typeCode="BUSINESS_POP"
+                   direction="PARENT">
+    </business-geoobject-edge>
+    
   </organization>
 
 </CGR>

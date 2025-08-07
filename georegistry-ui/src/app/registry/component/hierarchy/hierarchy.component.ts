@@ -1380,7 +1380,6 @@ export class HierarchyComponent implements OnInit {
         });
     }
 
-
     public error(err: HttpErrorResponse): void {
         this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
     }

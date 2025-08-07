@@ -18,15 +18,18 @@
  */
 package net.geoprism.graph;
 
+import java.util.Date;
+
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.runwaysdk.session.Session;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutionContext;
 import com.runwaysdk.system.scheduler.JobHistory;
 import com.runwaysdk.system.scheduler.QuartzRunwayJob;
 import com.runwaysdk.system.scheduler.QueueingQuartzJob;
 
+import net.geoprism.registry.etl.ImportHistory;
+import net.geoprism.registry.etl.ImportStage;
+import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.service.business.LabeledPropertyGraphTypeVersionBusinessServiceIF;
 import net.geoprism.registry.view.JsonSerializable;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
@@ -67,35 +70,67 @@ public class PublishLabeledPropertyGraphTypeVersionJob extends PublishLabeledPro
   @Override
   public void execute(ExecutionContext executionContext) throws Throwable
   {
+    var history = (ImportHistory) executionContext.getJobHistoryRecord().getChild();
+    var monitor = new LPGPublishImportHistoryProgressMonitor(history);
+    
+    history.appLock();
+    JsonObject jo = new JsonObject();
+    jo.addProperty(ImportConfiguration.FILE_NAME, "Publish LPG " + this.getVersion().getGraphType().getDisplayLabel().getValue() + " (Version " + this.getVersion().getVersionNumber() + ")");
+    jo.addProperty(ImportConfiguration.OBJECT_TYPE, "LPG");
+    history.setConfigJson(jo.toString());
+    history.apply();
+    
     LabeledPropertyGraphTypeVersionBusinessServiceIF service = LabeledPropertyGraphTypeVersionBusinessServiceIF.getInstance();
 
     if (this.getRunAsUser() == null)
     {
-      service.publishNoAuth(getVersion());
+      service.publishNoAuth(monitor, getVersion());
     }
     else
     {
-      service.publish(getVersion());
+      service.publish(monitor, getVersion());
     }
   }
-
-  public JsonObject toJSON(JobHistory history)
+  
+  /*
+   * It was decided to use the ImportHistory here primarily because of the complicated 'getActiveImports' query in ETLBusinessService, which shows
+   * jobs on the 'ScheduledJobs' page. Since this query brings in all sorts of complex "Organization" related criteria, it was decided
+   * to use ImportHistory in order to not rock the boat, even though semantically this is not an import.
+   */
+  @Override
+  public JobHistory createNewHistory()
   {
-    JsonObject jo = new JsonObject();
+    ImportHistory history = new ImportHistory();
+    history.setStartTime(new Date());
+    history.addStatus(AllJobStatus.NEW);
+    history.addStage(ImportStage.NEW);
+    history.setWorkProgress(0L);
+    history.setCompletedRowsJson("");
+    history.setImportedRecords(0L);
+    history.apply();
 
-    jo.addProperty("status", history.getStatus().get(0).name());
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE, null));
 
-    if (history.getStatus().get(0).equals(AllJobStatus.FAILURE) && history.getErrorJson().length() > 0)
-    {
-      JsonObject exception = new JsonObject();
-
-      exception.add("type", JsonParser.parseString(history.getErrorJson()).getAsJsonObject().get("type"));
-      exception.addProperty("message", history.getLocalizedError(Session.getCurrentLocale()));
-
-      jo.add("exception", exception);
-    }
-
-    return jo;
+    return history;
   }
+
+//  public JsonObject toJSON(JobHistory history)
+//  {
+//    JsonObject jo = new JsonObject();
+//
+//    jo.addProperty("status", history.getStatus().get(0).name());
+//
+//    if (history.getStatus().get(0).equals(AllJobStatus.FAILURE) && history.getErrorJson().length() > 0)
+//    {
+//      JsonObject exception = new JsonObject();
+//
+//      exception.add("type", JsonParser.parseString(history.getErrorJson()).getAsJsonObject().get("type"));
+//      exception.addProperty("message", history.getLocalizedError(Session.getCurrentLocale()));
+//
+//      jo.add("exception", exception);
+//    }
+//
+//    return jo;
+//  }
 
 }

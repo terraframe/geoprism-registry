@@ -7,8 +7,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
+import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
@@ -27,6 +29,8 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.axon.event.repository.GeoObjectEventBuilder;
+import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
@@ -392,28 +396,18 @@ public class TestGeoObjectInfo extends TestCachedObject<ServerGeoObjectIF>
     }
     child.addParent(this);
 
-    // if (child.getGeoObjectType().getIsLeaf())
-    // {
-    // ServerHierarchyType hierarchyType =
-    // ServerHierarchyType.get(LocatedIn.class.getSimpleName());
-    // String refAttrName =
-    // hierarchyType.getParentReferenceAttributeName(this.getGeoObjectType().getUniversal());
-    //
-    // Business business = child.getBusiness();
-    // business.lock();
-    // business.setValue(refAttrName, geoEntity.getOid());
-    // business.apply();
-    //
-    // return null;
-    // }
-    // else
-    // {
-    // return child.getGeoEntity().addLink(geoEntity, relationshipType);
-    // }
-
     GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
+//
+//    service.addChild(this.getServerObject(), child.getServerObject(), hierarchy.getServerObject(), date, TestDataSet.DEFAULT_END_TIME_DATE, UUID.randomUUID().toString(), false);
+    
+    
+    ServerGeoObjectEventBuilder builder = new ServerGeoObjectEventBuilder(service);
+    builder.setObject(child.getServerObject());
+    builder.addParent(this.getServerObject(), hierarchy.getServerObject(), date, TestDataSet.DEFAULT_END_TIME_DATE, UUID.randomUUID().toString(), false);
+    builder.setIsNew(this.isNew);
+    builder.build();
 
-    service.addChild(this.getServerObject(), child.getServerObject(), hierarchy.getServerObject(), date, TestDataSet.DEFAULT_END_TIME_DATE);
+    ServiceFactory.getBean(CommandGateway.class).sendAndWait(builder.build());
   }
 
   private void addParent(TestGeoObjectInfo parent)
@@ -469,13 +463,23 @@ public class TestGeoObjectInfo extends TestCachedObject<ServerGeoObjectIF>
   {
     GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
     TestRegistryAdapter adapter = ServiceFactory.getBean(TestRegistryAdapter.class);
+    
+    GeoObjectEventBuilder builder = new GeoObjectEventBuilder(service);
+    builder.setObject(this.newGeoObjectOverTime(adapter));
+    builder.setIsImport(false);
+    builder.setIsNew(this.isNew);
+    builder.build();
 
-    if (date == null)
-    {
-      return service.apply(this.newGeoObject(adapter), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, this.isNew, false);
-    }
+    ServiceFactory.getBean(CommandGateway.class).sendAndWait(builder.build());
+    
+    return service.getGeoObjectByCode(builder.getCode(), builder.getType());
+    
+//    if (date == null)
+//    {
+//      return service.apply(this.newGeoObject(adapter), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, this.isNew, false, false);
+//    }
 
-    return service.apply(this.newGeoObjectOverTime(adapter), this.isNew, false);
+//    return service.apply(, this.isNew, false, false);
   }
 
   /**

@@ -19,15 +19,16 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
-import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.classification.ClassificationTypeTest;
+import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.AttributeType;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
@@ -37,7 +38,9 @@ import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceI
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.test.USATestData;
 
-@ContextConfiguration(classes = { TestConfig.class })
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
+@AutoConfigureMockMvc
+
 @RunWith(SpringInstanceTestClassRunner.class)
 public class BasicGeoObjectTypeServiceTest implements InstanceTestClassListener
 {
@@ -119,9 +122,13 @@ public class BasicGeoObjectTypeServiceTest implements InstanceTestClassListener
 
     try
     {
+      Assert.assertEquals(Long.valueOf(0), type.getSequence());
+      
       AttributeCharacterType attributeDto = new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test Character"), false, false, false);
 
       attributeDto = (AttributeCharacterType) service.createAttributeType(type, attributeDto);
+      
+      Assert.assertEquals(Long.valueOf(1), type.getSequence());
 
       Assert.assertNotNull(attributeDto);
 

@@ -26,14 +26,50 @@ import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.business.rbac.UserDAO;
 import com.runwaysdk.constants.UserInfo;
+import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.QueryFactory;
 
+import net.geoprism.graph.HierarchyTypeSnapshot;
+import net.geoprism.graph.HierarchyTypeSnapshotQuery;
 import net.geoprism.rbac.RoleConstants;
+import net.geoprism.registry.Commit;
+import net.geoprism.registry.CommitHasSnapshotQuery;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.model.SnapshotContainer;
 
 @Service
 @Primary
 public class GPRHierarchyTypeSnapshotBusinessService extends HierarchyTypeSnapshotBusinessService implements HierarchyTypeSnapshotBusinessServiceIF
 {
+  @Override
+  public HierarchyTypeSnapshot get(SnapshotContainer<?> version, String code)
+  {
+    if (version instanceof Commit)
+    {
+      QueryFactory factory = new QueryFactory();
+
+      CommitHasSnapshotQuery vQuery = new CommitHasSnapshotQuery(factory);
+      vQuery.WHERE(vQuery.getParent().EQ((Commit) version));
+
+      HierarchyTypeSnapshotQuery query = new HierarchyTypeSnapshotQuery(factory);
+      query.WHERE(query.EQ(vQuery.getChild()));
+      query.AND(query.getCode().EQ(code));
+
+      try (OIterator<? extends HierarchyTypeSnapshot> it = query.getIterator())
+      {
+        if (it.hasNext())
+        {
+          return it.next();
+        }
+      }
+
+      return null;
+
+    }
+
+    return super.get(version, code);
+  }
+
   @Override
   protected void assignPermissions(ComponentIF component)
   {

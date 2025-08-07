@@ -195,7 +195,7 @@ public class XMLExporter
       this.exportBusinessType(element, type);
     });
 
-    this.businessEdgeTypes.stream().map(code -> this.bEdgeService.getByCode(code)).forEach(type -> {
+    this.businessEdgeTypes.stream().map(code -> this.bEdgeService.getByCodeOrThrow(code)).forEach(type -> {
       this.exportBusinessEdgeType(element, type);
     });
 

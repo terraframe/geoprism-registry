@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -15,10 +16,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import com.google.gson.JsonObject;
 import com.runwaysdk.session.Request;
@@ -27,15 +28,16 @@ import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.DirectedAcyclicGraphType;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
-import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.UndirectedGraphType;
+import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.graph.transition.Transition;
 import net.geoprism.registry.graph.transition.Transition.TransitionImpact;
 import net.geoprism.registry.graph.transition.Transition.TransitionType;
 import net.geoprism.registry.graph.transition.TransitionEvent;
 import net.geoprism.registry.model.BusinessObject;
+import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerParentGraphNode;
 import net.geoprism.registry.model.ServerParentTreeNode;
@@ -52,8 +54,11 @@ import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
+import net.geoprism.registry.view.BusinessEdgeTypeView;
+import net.geoprism.registry.view.BusinessGeoEdgeTypeView;
 
-@ContextConfiguration(classes = { TestConfig.class })
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
+@AutoConfigureMockMvc
 @RunWith(SpringInstanceTestClassRunner.class)
 @Ignore
 public class BackupAndRestoreServiceTest extends USADatasetTest
@@ -65,6 +70,8 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
   private static BusinessType                       bType;
 
   private static BusinessEdgeType                   bEdgeType;
+
+  private static BusinessEdgeType                   bGeoEdgeType;
 
   private static BusinessObject                     boParent;
 
@@ -107,8 +114,8 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
   {
     super.beforeClassSetup();
 
-    dagType = this.dagTypeService.create("TEST_DAG", new LocalizedValue("TEST_DAG"), new LocalizedValue("TEST_DAG"));
-    ugType = this.ugTypeService.create("TEST_UG", new LocalizedValue("TEST_UG"), new LocalizedValue("TEST_UG"));
+    dagType = this.dagTypeService.create("TEST_DAG", new LocalizedValue("TEST_DAG"), new LocalizedValue("TEST_DAG"), 0L);
+    ugType = this.ugTypeService.create("TEST_UG", new LocalizedValue("TEST_UG"), new LocalizedValue("TEST_UG"), 0L);
 
     JsonObject object = new JsonObject();
     object.addProperty(BusinessType.CODE, "TEST_BO");
@@ -121,7 +128,9 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
     LocalizedValue label = new LocalizedValue("Test Edge");
     LocalizedValue description = new LocalizedValue("Test Edge Description");
 
-    bEdgeType = this.bEdgeService.create(USATestData.ORG_NPS.getCode(), code, label, description, bType.getCode(), bType.getCode());
+    bEdgeType = this.bEdgeService.create(BusinessEdgeTypeView.build(USATestData.ORG_NPS.getCode(), code, label, description, bType.getCode(), bType.getCode()));
+
+    bGeoEdgeType = this.bEdgeService.createGeoEdge(BusinessGeoEdgeTypeView.build(USATestData.ORG_NPS.getCode(), "GEO_EDGE", new LocalizedValue("Geo Edge"), new LocalizedValue("Geo Edge"), bType.getCode(), EdgeDirection.PARENT));
   }
 
   @Override
@@ -133,17 +142,22 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
 
       if (dagType != null)
       {
-        this.dagTypeService.delete(DirectedAcyclicGraphType.getByCode(dagType.getCode()));
+        DirectedAcyclicGraphType.getByCode(dagType.getCode()).ifPresent(this.dagTypeService::delete);
       }
 
       if (ugType != null)
       {
-        this.ugTypeService.delete(UndirectedGraphType.getByCode(ugType.getCode()));
+        UndirectedGraphType.getByCode(ugType.getCode()).ifPresent(this.ugTypeService::delete);
       }
 
       if (bEdgeType != null)
       {
-        this.bEdgeService.delete(this.bEdgeService.getByCode(bEdgeType.getCode()));
+        this.bEdgeService.delete(this.bEdgeService.getByCodeOrThrow(bEdgeType.getCode()));
+      }
+
+      if (bGeoEdgeType != null)
+      {
+        this.bEdgeService.delete(this.bEdgeService.getByCodeOrThrow(bGeoEdgeType.getCode()));
       }
 
       if (bType != null)
@@ -169,8 +183,8 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
 
     ServerGeoObjectIF child = USATestData.CANADA.getServerObject();
 
-    child.addGraphParent(USATestData.USA.getServerObject(), dagType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, true);
-    child.addGraphParent(USATestData.MEXICO.getServerObject(), ugType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, true);
+    child.addGraphParent(USATestData.USA.getServerObject(), dagType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, UUID.randomUUID().toString(), true);
+    child.addGraphParent(USATestData.MEXICO.getServerObject(), ugType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, UUID.randomUUID().toString(), true);
 
     boParent = this.bObjectService.newInstance(bType);
     boParent.setCode("BoParent");
@@ -180,9 +194,9 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
     boChild.setCode("BoChild");
     this.bObjectService.apply(boChild);
 
-    this.bObjectService.addChild(boParent, bEdgeType, boChild);
+    this.bObjectService.addChild(boParent, bEdgeType, boChild, UUID.randomUUID().toString());
 
-    this.bObjectService.addGeoObject(boChild, USATestData.COLORADO.getServerObject());
+    this.bObjectService.addGeoObject(boChild, bGeoEdgeType, USATestData.COLORADO.getServerObject(), EdgeDirection.PARENT, UUID.randomUUID().toString(), false);
 
     TransitionEvent event = new TransitionEvent();
 
@@ -249,9 +263,9 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
           this.backupService.restoreFromBackup(new FileInputStream(file));
 
           // Reload all of the cached test objects
-          dagType = DirectedAcyclicGraphType.getByCode(dagType.getCode());
-          ugType = UndirectedGraphType.getByCode(ugType.getCode());
-          bEdgeType = this.bEdgeService.getByCode(bEdgeType.getCode());
+          dagType = DirectedAcyclicGraphType.getByCode(dagType.getCode()).get();
+          ugType = UndirectedGraphType.getByCode(ugType.getCode()).get();
+          bEdgeType = this.bEdgeService.getByCodeOrThrow(bEdgeType.getCode());
           bType = this.bTypeService.getByCode(bType.getCode());
 
           testData.clearCachedData();
@@ -300,7 +314,7 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
           Assert.assertEquals(boChild.getCode(), children.get(0).getCode());
 
           // Validate Business-GeoObject edges
-          List<VertexServerGeoObject> geoObjects = this.bObjectService.getGeoObjects(boChild);
+          List<VertexServerGeoObject> geoObjects = this.bObjectService.getGeoObjects(boChild, bGeoEdgeType, EdgeDirection.PARENT);
 
           Assert.assertEquals(1, geoObjects.size());
 

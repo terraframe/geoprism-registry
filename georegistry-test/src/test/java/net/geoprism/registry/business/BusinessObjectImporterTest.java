@@ -13,28 +13,35 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import com.google.gson.JsonObject;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutionContext;
 
 import net.geoprism.data.importer.BasicColumnFunction;
+import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
-import net.geoprism.registry.TestConfig;
+import net.geoprism.registry.axon.config.RegistryEventStore;
+import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.etl.DataImportJob;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ImportHistory;
@@ -51,34 +58,46 @@ import net.geoprism.registry.io.Location;
 import net.geoprism.registry.io.ParentCodeException;
 import net.geoprism.registry.io.ParentMatchStrategy;
 import net.geoprism.registry.model.BusinessObject;
+import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.request.ExcelService;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
+import net.geoprism.registry.view.BusinessGeoEdgeTypeView;
 
-@ContextConfiguration(classes = { TestConfig.class })
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
+@AutoConfigureMockMvc
 @RunWith(SpringInstanceTestClassRunner.class)
 public class BusinessObjectImporterTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  private static BusinessType             type;
+  private static BusinessType               type;
 
-  private static AttributeType            attributeType;
+  private static AttributeType              attributeType;
 
-  private static String                   TEST_CODE = "testCode";
+  private static String                     TEST_CODE = "testCode";
 
-  @Autowired
-  private BusinessTypeBusinessServiceIF   bTypeService;
-
-  @Autowired
-  private BusinessObjectBusinessServiceIF bObjectService;
+  private static BusinessEdgeType           bGeoEdgeType;
 
   @Autowired
-  private ExcelService                    excelService;
+  private BusinessTypeBusinessServiceIF     bTypeService;
+
+  @Autowired
+  private BusinessObjectBusinessServiceIF   bObjectService;
+
+  @Autowired
+  private BusinessEdgeTypeBusinessServiceIF bEdgeService;
+
+  @Autowired
+  private ExcelService                      excelService;
+
+  @Autowired
+  private RegistryEventStore                store;
 
   @Override
   public void beforeClassSetup() throws Exception
@@ -88,6 +107,14 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
     testData.setUpInstanceData();
 
     setUpClassInRequest();
+  }
+
+  @Before
+  @Request
+  public void before()
+  {
+    // Clear out the event table
+    Database.deleteWhere("domainevententry", "true");
   }
 
   @Request
@@ -105,6 +132,8 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
     type = this.bTypeService.apply(object);
 
     attributeType = this.bTypeService.createAttributeType(type, new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test True"), false, false, false));
+
+    bGeoEdgeType = this.bEdgeService.createGeoEdge(BusinessGeoEdgeTypeView.build(FastTestDataset.ORG_CGOV.getCode(), "GEO_EDGE", new LocalizedValue("Geo Edge"), new LocalizedValue("Geo Edge"), type.getCode(), EdgeDirection.PARENT));
   }
 
   @Override
@@ -123,14 +152,26 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
   @Request
   private void cleanUpClassInRequest()
   {
+    if (bGeoEdgeType != null)
+    {
+      this.bEdgeService.delete(bGeoEdgeType);
+    }
+
     if (type != null)
     {
       this.bTypeService.delete(type);
     }
   }
 
+  @After
+  @Request
+  public void tearDown()
+  {
+    this.store.truncate();
+  }
+
   @Test
-  public void testImportValueNewOnly() 
+  public void testImportValueNewOnly()
   {
     TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
       String value = "Test Text";
@@ -170,7 +211,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
   }
 
   @Test
-  public void testImportValueUpdateAndNew() 
+  public void testImportValueUpdateAndNew()
   {
     TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
 
@@ -211,7 +252,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
   }
 
   @Test
-  public void testUpdateValue() 
+  public void testUpdateValue()
   {
     TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
 
@@ -258,7 +299,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
   }
 
   @Test
-  public void testImportValueExistingNewOnly() 
+  public void testImportValueExistingNewOnly()
   {
     TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
 
@@ -309,7 +350,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
   }
 
   @Test
-  public void testSetGeoObject() 
+  public void testSetGeoObject()
   {
     TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
 
@@ -334,6 +375,8 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
       configuration.setFunction(attributeType.getName(), new BasicColumnFunction(rowAttribute));
       configuration.setFunction(BusinessObject.CODE, new BasicColumnFunction(BusinessObject.CODE));
       configuration.addLocation(new Location(got, hierarchy, new BasicColumnFunction(geoAttribute), ParentMatchStrategy.CODE));
+      configuration.setEdgeType(bGeoEdgeType);
+      configuration.setDirection(EdgeDirection.PARENT);
 
       try (BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener()))
       {
@@ -346,7 +389,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
       {
         Assert.assertNotNull(result);
 
-        List<VertexServerGeoObject> results = this.bObjectService.getGeoObjects(result);
+        List<VertexServerGeoObject> results = this.bObjectService.getGeoObjects(result, bGeoEdgeType, EdgeDirection.PARENT);
 
         Assert.assertEquals(1, results.size());
 
@@ -367,7 +410,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
   }
 
   @Test
-  public void testUnknownGeoObject() 
+  public void testUnknownGeoObject()
   {
     TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
 
@@ -470,7 +513,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
     }
   }
 
-  private JSONObject getTestConfiguration(InputStream istream, ImportStrategy strategy)
+  private JSONObject getTestConfiguration(InputStream istream, ImportStrategy strategy) throws JSONException
   {
     JSONObject result = this.excelService.getBusinessTypeConfiguration(Session.getCurrentSession().getOid(), type.getCode(), TestDataSet.DEFAULT_END_TIME_DATE, "business-spreadsheet.xlsx", istream, strategy, false);
     JSONObject type = result.getJSONObject(BusinessObjectImportConfiguration.TYPE);

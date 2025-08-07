@@ -18,11 +18,8 @@
  */
 package net.geoprism.registry.action.tree;
 
-import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.commongeoregistry.adapter.action.tree.RemoveChildActionDTO;
-import org.commongeoregistry.adapter.metadata.HierarchyType;
-import org.commongeoregistry.adapter.metadata.MetadataCache;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +30,7 @@ import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.action.ActionJsonAdapters;
+import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -44,9 +42,9 @@ public class RemoveChildAction extends RemoveChildActionBase
   private static final long serialVersionUID = -165581118;
   
   private static final Logger logger = LoggerFactory.getLogger(RemoveChildAction.class);
-
+  
   @Override
-  public void execute()
+  public void execute(ServerGeoObjectEventBuilder builder)
   {
     GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
 
@@ -55,8 +53,10 @@ public class RemoveChildAction extends RemoveChildActionBase
     ServerHierarchyType ht = ServerHierarchyType.get(this.getHierarchyTypeCode());
 
     ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanRemoveChild(ht.getOrganization().getCode(), parent.getType(), child.getType());
-
-    service.removeChild(parent, child, this.getHierarchyTypeCode(), null, null);
+    
+//    service.removeChild(parent, child, this.getHierarchyTypeCode(), null, null);
+    
+    throw new UnsupportedOperationException();
   }
 
   @Override

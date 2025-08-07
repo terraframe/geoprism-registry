@@ -18,8 +18,8 @@
  */
 package net.geoprism.registry.controller;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,6 +35,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonObject;
 import com.runwaysdk.mvc.RequestParamter;
 
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.controller.BusinessTypeController.OidBody;
 import net.geoprism.registry.service.request.ClassificationTypeService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
@@ -60,7 +61,7 @@ public class ClassificationTypeController extends RunwaySpringController
     }
   } 
   
-  public static final String API_PATH = "classification-type";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "classification-type";
 
   @Autowired
   private ClassificationTypeService service;

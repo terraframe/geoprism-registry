@@ -10,21 +10,22 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.BusinessFacade;
-import com.runwaysdk.dataaccess.graph.EdgeObjectDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.metadata.MdEdge;
 
 import net.geoprism.registry.DirectedAcyclicGraphType;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
-import net.geoprism.registry.TestConfig;
+import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessServiceIF;
 
-@ContextConfiguration(classes = { TestConfig.class })
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
+@AutoConfigureMockMvc
 @RunWith(SpringInstanceTestClassRunner.class)
 public class DirectedAcyclicGraphTypeTest
 {
@@ -39,7 +40,7 @@ public class DirectedAcyclicGraphTypeTest
     LocalizedValue label = new LocalizedValue("Test Label");
     LocalizedValue description = new LocalizedValue("Test Description");
 
-    DirectedAcyclicGraphType type = this.service.create(code, label, description);
+    DirectedAcyclicGraphType type = this.service.create(code, label, description, 0L);
 
     try
     {
@@ -68,7 +69,7 @@ public class DirectedAcyclicGraphTypeTest
   @Request
   public void testUpdate()
   {
-    DirectedAcyclicGraphType type = this.service.create("TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"));
+    DirectedAcyclicGraphType type = this.service.create("TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"), 0L);
 
     try
     {
@@ -92,11 +93,11 @@ public class DirectedAcyclicGraphTypeTest
   @Request
   public void testGetByCode()
   {
-    DirectedAcyclicGraphType type = this.service.create("TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"));
+    DirectedAcyclicGraphType type = this.service.create("TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"), 0L);
 
     try
     {
-      DirectedAcyclicGraphType result = DirectedAcyclicGraphType.getByCode(type.getCode());
+      DirectedAcyclicGraphType result = DirectedAcyclicGraphType.getByCode(type.getCode()).get();
 
       Assert.assertNotNull(result);
       Assert.assertEquals(type.getCode(), result.getCode());
@@ -112,7 +113,7 @@ public class DirectedAcyclicGraphTypeTest
   @Request
   public void testGetByMdEdge()
   {
-    DirectedAcyclicGraphType type = this.service.create("TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"));
+    DirectedAcyclicGraphType type = this.service.create("TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"), 0L);
 
     try
     {
@@ -132,7 +133,7 @@ public class DirectedAcyclicGraphTypeTest
   @Request
   public void testGetByAll()
   {
-    DirectedAcyclicGraphType type = this.service.create("TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"));
+    DirectedAcyclicGraphType type = this.service.create("TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"), 0L);
 
     try
     {

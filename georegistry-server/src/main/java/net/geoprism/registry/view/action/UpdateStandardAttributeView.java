@@ -29,6 +29,7 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
+import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
@@ -42,8 +43,10 @@ public class UpdateStandardAttributeView extends AbstractUpdateAttributeView
   protected JsonElement newValue;
   
   @Override
-  public void execute(VertexServerGeoObject go)
+  public ServerGeoObjectEventBuilder build(ServerGeoObjectEventBuilder builder)
   {
+    VertexServerGeoObject go = builder.getOrThrow(true);
+    
     ServerGeoObjectType type = go.getType();
     AttributeType attr = type.toDTO().getAttribute(this.getAttributeName()).get();
     
@@ -59,7 +62,8 @@ public class UpdateStandardAttributeView extends AbstractUpdateAttributeView
         ja.forEach(ele -> ids.add(AlternateId.fromJSON(ele)));
         
         ServiceFactory.getBean(GPRGeoObjectBusinessServiceIF.class).setAlternateIds(go, ids);
-        return;
+        
+        return builder;
       }
       else if (attr instanceof AttributeBooleanType)
       {
@@ -72,6 +76,7 @@ public class UpdateStandardAttributeView extends AbstractUpdateAttributeView
       
       go.setValue(this.getAttributeName(), converted);
     }
+    
+    return builder;
   }
-
 }

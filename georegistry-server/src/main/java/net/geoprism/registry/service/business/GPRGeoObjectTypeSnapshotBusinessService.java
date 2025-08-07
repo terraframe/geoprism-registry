@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service.business;
 
@@ -26,14 +26,78 @@ import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.business.rbac.UserDAO;
 import com.runwaysdk.constants.UserInfo;
+import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.QueryFactory;
 
+import net.geoprism.graph.GeoObjectTypeSnapshot;
+import net.geoprism.graph.GeoObjectTypeSnapshotQuery;
 import net.geoprism.rbac.RoleConstants;
+import net.geoprism.registry.Commit;
+import net.geoprism.registry.CommitHasSnapshotQuery;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.model.SnapshotContainer;
 
 @Service
 @Primary
 public class GPRGeoObjectTypeSnapshotBusinessService extends GeoObjectTypeSnapshotBusinessService implements GeoObjectTypeSnapshotBusinessServiceIF
 {
+  @Override
+  public GeoObjectTypeSnapshot getRoot(SnapshotContainer<?> version)
+  {
+    if (version instanceof Commit)
+    {
+      QueryFactory factory = new QueryFactory();
+
+      CommitHasSnapshotQuery vQuery = new CommitHasSnapshotQuery(factory);
+      vQuery.WHERE(vQuery.getParent().EQ((Commit) version));
+
+      GeoObjectTypeSnapshotQuery query = new GeoObjectTypeSnapshotQuery(factory);
+      query.WHERE(query.EQ(vQuery.getChild()));
+      query.AND(query.getIsRoot().EQ(true));
+
+      try (OIterator<? extends GeoObjectTypeSnapshot> it = query.getIterator())
+      {
+        if (it.hasNext())
+        {
+          return it.next();
+        }
+      }
+
+      return null;
+    }
+
+    return super.getRoot(version);
+  }
+
+  @Override
+  public GeoObjectTypeSnapshot get(SnapshotContainer<?> version, String code)
+  {
+    if (version instanceof Commit)
+    {
+      QueryFactory factory = new QueryFactory();
+
+      CommitHasSnapshotQuery vQuery = new CommitHasSnapshotQuery(factory);
+      vQuery.WHERE(vQuery.getParent().EQ((Commit) version));
+
+      GeoObjectTypeSnapshotQuery query = new GeoObjectTypeSnapshotQuery(factory);
+      query.WHERE(query.EQ(vQuery.getChild()));
+      query.AND(query.getCode().EQ(code));
+
+      try (OIterator<? extends GeoObjectTypeSnapshot> it = query.getIterator())
+      {
+        if (it.hasNext())
+        {
+          return it.next();
+        }
+      }
+
+      return null;
+
+    }
+
+    return super.get(version, code);
+  }
+
   @Override
   protected void assignPermissions(ComponentIF component)
   {

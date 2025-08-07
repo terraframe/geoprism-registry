@@ -4,28 +4,27 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 
 import org.apache.commons.io.IOUtils;
+import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,36 +32,30 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-import com.runwaysdk.business.graph.GraphQuery;
-import com.runwaysdk.dataaccess.graph.GraphDBService;
-import com.runwaysdk.dataaccess.graph.GraphRequest;
 import com.runwaysdk.resource.ApplicationResource;
-import com.runwaysdk.util.IDGenerator;
 
-import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.cache.Cache;
-import net.geoprism.registry.cache.GeoObjectCache;
-import net.geoprism.registry.cache.LRUCache;
+import net.geoprism.registry.axon.command.repository.GeoObjectCompositeCommand;
+import net.geoprism.registry.axon.event.repository.GeoObjectCreateEdgeEvent;
+import net.geoprism.registry.axon.projection.GeoObjectRepositoryProjection;
 import net.geoprism.registry.model.GraphType;
-import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.service.business.ServiceFactory;
 
 public class EdgeJsonImporter
 {
-  private static final Logger     logger     = LoggerFactory.getLogger(EdgeJsonImporter.class);
+  private static final Logger           logger = LoggerFactory.getLogger(EdgeJsonImporter.class);
 
-  protected GeoObjectCache        goCache    = new GeoObjectCache();
+  private ApplicationResource           resource;
 
-  protected Cache<String, Object> goRidCache = new LRUCache<String, Object>(1000);
+  private Date                          startDate;
 
-  private ApplicationResource     resource;
+  private Date                          endDate;
 
-  private Date                    startDate;
+  private boolean                       validate;
 
-  private Date                    endDate;
+  private CommandGateway                gateway;
 
-  private boolean                 validate;
+  private GeoObjectRepositoryProjection projection;
 
   public EdgeJsonImporter(ApplicationResource resource, Date startDate, Date endDate, boolean validate)
   {
@@ -70,6 +63,9 @@ public class EdgeJsonImporter
     this.startDate = startDate;
     this.endDate = endDate;
     this.validate = validate;
+
+    this.gateway = ServiceFactory.getBean(CommandGateway.class);
+    this.projection = ServiceFactory.getBean(GeoObjectRepositoryProjection.class);
   }
 
   public void importData() throws JsonSyntaxException, IOException
@@ -101,24 +97,13 @@ public class EdgeJsonImporter
           String sourceTypeCode = joEdge.get("sourceType").getAsString();
           String targetCode = joEdge.get("target").getAsString();
           String targetTypeCode = joEdge.get("targetType").getAsString();
-
           Date startDate = joEdge.has("startDate") ? GeoRegistryUtil.parseDate(joEdge.get("startDate").getAsString()) : this.startDate;
           Date endDate = joEdge.has("endDate") ? GeoRegistryUtil.parseDate(joEdge.get("endDate").getAsString()) : this.endDate;
 
-          if (validate)
-          {
-            ServerGeoObjectIF source = goCache.getOrFetchByCode(sourceCode, sourceTypeCode);
-            ServerGeoObjectIF target = goCache.getOrFetchByCode(targetCode, targetTypeCode);
-
-            source.addGraphChild(target, graphType, startDate, endDate, this.validate);
-          }
-          else
-          {
-            Object childRid = getOrFetchRid(sourceCode, sourceTypeCode);
-            Object parentRid = getOrFetchRid(targetCode, targetTypeCode);
-
-            this.newEdge(childRid, parentRid, graphType, startDate, endDate);
-          }
+          // UID
+          GeoObjectCreateEdgeEvent event = new GeoObjectCreateEdgeEvent(sourceCode, sourceTypeCode,  graphTypeClass, graphType.getCode(), targetCode, targetTypeCode, startDate, endDate, validate);
+          
+          this.gateway.sendAndWait(new GeoObjectCompositeCommand(sourceCode, sourceTypeCode, Arrays.asList(event)));
 
           if (j % 500 == 0)
           {
@@ -127,50 +112,11 @@ public class EdgeJsonImporter
         }
       }
     }
+    finally
+    {
+      this.projection.clearCache();
+    }
 
-  }
-
-  private Object getOrFetchRid(String code, String typeCode)
-  {
-    String typeDbClassName = ServerGeoObjectType.get(typeCode).getDBClassName();
-
-    Optional<Object> optional = this.goRidCache.get(typeCode + "$#!" + code);
-
-    return optional.orElseGet(() -> {
-      GraphQuery<Object> query = new GraphQuery<Object>("select @rid from " + typeDbClassName + " where code=:code;");
-      query.setParameter("code", code);
-
-      Object rid = query.getSingleResult();
-
-      if (rid == null)
-      {
-        throw new DataNotFoundException("Could not find Geo-Object with code " + code + " on table " + typeDbClassName);
-      }
-
-      this.goRidCache.put(typeCode + "$#!" + code, rid);
-
-      return rid;
-    });
-  }
-
-  public void newEdge(Object childRid, Object parentRid, GraphType type, Date startDate, Date endDate)
-  {
-    String clazz = type.getMdEdgeDAO().getDBClassName();
-
-    String statement = "CREATE EDGE " + clazz + " FROM :childRid TO :parentRid";
-    statement += " SET startDate=:startDate, endDate=:endDate, oid=:oid";
-
-    GraphDBService service = GraphDBService.getInstance();
-    GraphRequest request = service.getGraphDBRequest();
-
-    Map<String, Object> parameters = new HashMap<String, Object>();
-    parameters.put("oid", IDGenerator.nextID());
-    parameters.put("childRid", childRid);
-    parameters.put("parentRid", parentRid);
-    parameters.put("startDate", startDate);
-    parameters.put("endDate", endDate);
-
-    service.command(request, statement, parameters);
   }
 
 }

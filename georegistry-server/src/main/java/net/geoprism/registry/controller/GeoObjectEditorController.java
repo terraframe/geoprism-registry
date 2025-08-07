@@ -18,10 +18,10 @@
  */
 package net.geoprism.registry.controller;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,6 +35,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.GeoObjectEditorServiceIF;
 import net.geoprism.registry.spring.JsonArrayDeserializer;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
@@ -43,7 +44,7 @@ import net.geoprism.registry.spring.JsonObjectDeserializer;
 @Validated
 public class GeoObjectEditorController extends RunwaySpringController
 {
-  public static final String API_PATH = "geoobject-editor";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "geoobject-editor";
 
   public static final class CreateGeoObjectBody
   {

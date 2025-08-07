@@ -27,12 +27,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
+import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -75,6 +77,7 @@ import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.GeometrySizeException;
 import net.geoprism.registry.GeoregistryProperties;
+import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.etl.InvalidExternalIdException;
 import net.geoprism.registry.etl.ParentReferenceProblem;
 import net.geoprism.registry.etl.RowValidationProblem;
@@ -105,7 +108,6 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
-import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.query.ServerCodeRestriction;
 import net.geoprism.registry.query.ServerExternalIdRestriction;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
@@ -240,11 +242,14 @@ public class GeoObjectImporter implements ObjectImporterIF
 
   protected GPRGeoObjectBusinessServiceIF  service;
 
+  protected CommandGateway                 commandGateway;
+
   public GeoObjectImporter(GeoObjectImportConfiguration configuration, ImportProgressListenerIF progressListener)
   {
     this.configuration = configuration;
     this.progressListener = progressListener;
     this.service = ServiceFactory.getBean(GPRGeoObjectBusinessServiceIF.class);
+    this.commandGateway = ServiceFactory.getBean(CommandGateway.class);
 
     final int MAX_ENTRIES = 10000; // The size of our parentCache
     this.parentCache = Collections.synchronizedMap(new LinkedHashMap<String, ServerGeoObjectIF>(MAX_ENTRIES + 1, .75F, true)
@@ -303,7 +308,7 @@ public class GeoObjectImporter implements ObjectImporterIF
             types[i] = location.getType().getCode();
           }
 
-          ServerParentTreeNode tnParent = new ServerParentTreeNode(parent, hierarchy, GeoObjectImporter.this.configuration.getStartDate(), GeoObjectImporter.this.configuration.getEndDate(), null);
+          ServerParentTreeNode tnParent = new ServerParentTreeNode(parent, hierarchy, GeoObjectImporter.this.configuration.getStartDate(), GeoObjectImporter.this.configuration.getEndDate(), null, null);
 
           ServerParentTreeNodeOverTime grandParentsOverTime = service.getParentsOverTime(parent, null, true, true);
 
@@ -607,6 +612,7 @@ public class GeoObjectImporter implements ObjectImporterIF
   @Transaction
   public boolean importRowInTrans(FeatureRow row, RowData data)
   {
+
     boolean imported = false;
 
     // Refresh the session because it might expire on long imports
@@ -806,7 +812,11 @@ public class GeoObjectImporter implements ObjectImporterIF
       data.setNew(isNew);
       data.setParentBuilder(parentBuilder);
 
-      this.service.apply(serverGo, true);
+      ServerGeoObjectEventBuilder builder = new ServerGeoObjectEventBuilder(this.service, this.classifierCache);
+      builder.setObject(serverGo, isNew, true);
+      builder.setAttributeUpdate(true);
+
+      // this.service.apply(serverGo, true);
 
       imported = true;
 
@@ -816,22 +826,12 @@ public class GeoObjectImporter implements ObjectImporterIF
 
         Object value = function.getValue(row);
 
-        this.service.createExternalId(serverGo, this.configuration.getExternalSystem(), String.valueOf(value), this.configuration.getImportStrategy());
+        builder.createExternalId(this.configuration.getExternalSystem(), String.valueOf(value), this.configuration.getImportStrategy());
       }
 
       if (parent != null)
       {
-        if (!isNew)
-        {
-          this.service.addChild(parent, serverGo, this.configuration.getHierarchy(), this.configuration.getStartDate(), this.configuration.getEndDate());
-        }
-        else
-        {
-          // If we're a new object, we can speed things up quite a bit here by
-          // just directly applying the edge object since the addChild method
-          // does a lot of unnecessary validation.
-          this.service.addParentRaw(serverGo, ( (VertexServerGeoObject) parent ).getVertex(), this.configuration.getHierarchy().getObjectEdge(), this.configuration.getStartDate(), this.configuration.getEndDate());
-        }
+        builder.addParent(parent, this.configuration.getHierarchy(), this.configuration.getStartDate(), this.configuration.getEndDate(), UUID.randomUUID().toString(), !isNew);
       }
       else if (isNew)
       {
@@ -841,6 +841,9 @@ public class GeoObjectImporter implements ObjectImporterIF
         // child.addLink(root,
         // this.configuration.getHierarchy().getEntityType());
       }
+
+      // Execute the commands
+      this.commandGateway.sendAndWait(builder.build());
 
       // We must ensure that any problems created during the transaction are
       // logged now instead of when the request returns. As such, if any

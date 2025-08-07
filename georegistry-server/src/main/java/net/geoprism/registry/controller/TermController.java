@@ -20,9 +20,9 @@ package net.geoprism.registry.controller;
 
 import java.util.List;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -38,6 +38,7 @@ import com.runwaysdk.mvc.Endpoint;
 import com.runwaysdk.mvc.ErrorSerialization;
 
 import net.geoprism.ontology.ClassifierDTO;
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.GPRClassifierService;
 
 @RestController
@@ -92,7 +93,7 @@ public class TermController extends RunwaySpringController
   @Autowired
   protected GPRClassifierService classifierService;
 
-  public static final String     API_PATH = "term";
+  public static final String     API_PATH = RegistryConstants.CONTROLLER_ROOT + "term";
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseEntity<String> createClassifierSynonym(@Valid @RequestBody ClassifierSynonymBody body)

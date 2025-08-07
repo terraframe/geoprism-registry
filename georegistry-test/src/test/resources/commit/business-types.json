@@ -1,0 +1,46 @@
+[
+  {
+    "code": "TEST_BUSINESS",
+    "orgCode": "USATestDataPPP",
+    "origin": "TESTABC",
+    "sequence": 0,
+    "labelAttribute": "",
+    "displayLabel": {
+      "localizedValue": "Test Business",
+      "localeValues": [
+        {
+          "locale": "defaultLocale",
+          "value": "Test Business"
+        }
+      ]
+    },
+    "attributes": [
+      {
+        "code": "code",
+        "type": "character",
+        "label": {
+          "localizedValue": "Code",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Code"
+            }
+          ]
+        },
+        "description": {
+          "localizedValue": "Human readable unique identified",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Human readable unique identified"
+            }
+          ]
+        },
+        "isDefault": true,
+        "required": true,
+        "unique": true,
+        "isChangeOverTime": false
+      }
+    ]
+  }
+]

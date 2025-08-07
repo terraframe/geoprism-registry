@@ -32,7 +32,8 @@
     <extension>xsd</extension>
     <mime-type>text/xml</mime-type>
   </mime-mapping>
-  
+
+<!-- 
   <listener>
     <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
   </listener>
@@ -44,6 +45,16 @@
     <param-name>contextClass</param-name>
     <param-value>org.springframework.web.context.support.AnnotationConfigWebApplicationContext</param-value>
   </context-param>
+ -->  
+ 
+ <filter>
+    <filter-name>StaticResourceResolver</filter-name>
+    <filter-class>net.geoprism.registry.controller.StaticResourceResolver</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>StaticResourceResolver</filter-name>
+    <url-pattern>*</url-pattern>
+  </filter-mapping>
   
   <filter>
     <filter-name>RegistryCorsFilter</filter-name>
@@ -55,17 +66,23 @@
   </filter-mapping>
   
   <!-- Spring Servlet Dispatcher -->
+<!-- 
   <servlet>
     <servlet-name>SpringDispatcher</servlet-name>
     <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
     <load-on-startup>1</load-on-startup>
+    <multipart-config>
+        <max-file-size>10485760</max-file-size>
+        <max-request-size>20971520</max-request-size>
+        <file-size-threshold>5242880</file-size-threshold>
+    </multipart-config>    
     <init-param>
       <param-name>contextClass</param-name>
       <param-value>org.springframework.web.context.support.AnnotationConfigWebApplicationContext</param-value>
     </init-param>
     <init-param>
       <param-name>contextConfigLocation</param-name>
-      <param-value>net.geoprism.registry.SpringAppConfig</param-value>
+      <param-value>net.geoprism.registry.Application</param-value>
     </init-param>
   </servlet>
   <servlet-mapping>
@@ -102,6 +119,7 @@
     <url-pattern>*</url-pattern>
   </filter-mapping>
   
+ -->  
   <listener>
     <listener-class>net.geoprism.PatchingContextListener</listener-class>
   </listener>

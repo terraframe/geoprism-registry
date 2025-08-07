@@ -46,6 +46,7 @@
                 <li *ngIf="shouldShowMenuItem('HIERARCHIES')" role="menuitem"><a class="dropdown-item" routerLink="/registry/hierarchies" routerLinkActive="active"><localize key="hierarchies.menu"></localize></a></li> 
                 <li *ngIf="shouldShowMenuItem('LISTS')" role="menuitem"><a class="dropdown-item" routerLink="/registry/master-lists" routerLinkActive="active"><localize key="masterlist.menu"></localize> </a></li>
                 <li *ngIf="shouldShowMenuItem('IMPORT')" role="menuitem"><a class="dropdown-item" routerLink="/registry/data" routerLinkActive="active"><localize key="header.data.option"></localize> </a></li>
+                <li *ngIf="shouldShowMenuItem('EXPORT')" role="menuitem"><a class="dropdown-item" routerLink="/registry/export" routerLinkActive="active"><localize key="header.export"></localize> </a></li>
                 <li *ngIf="shouldShowMenuItem('SCHEDULED-JOBS')" role="menuitem"><a class="dropdown-item" routerLink="/registry/scheduled-jobs" routerLinkActive="active"><localize key="scheduledjobs.menu"></localize> </a></li>
                 <li *ngIf="shouldShowMenuItem('NAVIGATOR')" role="menuitem"><a class="dropdown-item" routerLink="/registry/location-manager" [queryParams]="{pageContext:'EXPLORER'}"><localize key=navigator.menu></localize> </a></li>
                 <li *ngIf="shouldShowMenuItem('CHANGE-REQUESTS')" role="menuitem"><a class="dropdown-item" routerLink="/registry/change-requests" routerLinkActive="active"><localize key="header.changerequest.option"></localize> </a></li>

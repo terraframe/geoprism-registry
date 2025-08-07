@@ -18,10 +18,6 @@
  */
 package net.geoprism.registry.controller;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +32,10 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.ClassificationService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
 
@@ -45,10 +45,10 @@ public class ClassificationController extends RunwaySpringController
 {
   public static class ClassificationBody
   {
-    @NotEmpty
+    @NotBlank
     String classificationCode;
 
-    @NotEmpty
+    @NotBlank
     String code;
 
     public String getClassificationCode()
@@ -74,13 +74,13 @@ public class ClassificationController extends RunwaySpringController
 
   public static class MoveClassificationBody
   {
-    @NotEmpty
+    @NotBlank
     String classificationCode;
 
-    @NotEmpty
+    @NotBlank
     String code;
 
-    @NotEmpty
+    @NotBlank
     String parentCode;
 
     public String getClassificationCode()
@@ -116,7 +116,7 @@ public class ClassificationController extends RunwaySpringController
 
   public static class ApplyBody
   {
-    @NotEmpty
+    @NotBlank
     private String     classificationCode;
 
     @NotNull
@@ -169,7 +169,7 @@ public class ClassificationController extends RunwaySpringController
     }
   }
 
-  public static final String API_PATH = "classification";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "classification";
 
   @Autowired
   private ClassificationService service;
@@ -193,9 +193,9 @@ public class ClassificationController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get")
-  public ResponseEntity<String> get(@NotEmpty
+  public ResponseEntity<String> get(@NotBlank
   @RequestParam String classificationCode,
-      @NotEmpty
+      @NotBlank
       @RequestParam String code)
   {
     JsonObject response = this.service.get(this.getSessionId(), classificationCode, code);
@@ -213,7 +213,7 @@ public class ClassificationController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get-children")
-  public ResponseEntity<String> getChildren(@NotEmpty
+  public ResponseEntity<String> getChildren(@NotBlank
   @RequestParam String classificationCode, @RequestParam(required = false) String code, @RequestParam(required = false) Integer pageSize, @RequestParam(required = false) Integer pageNumber)
   {
     JsonObject page = this.service.getChildren(this.getSessionId(), classificationCode, code, pageSize, pageNumber);
@@ -222,9 +222,9 @@ public class ClassificationController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get-ancestor-tree")
-  public ResponseEntity<String> getAncestorTree(@NotEmpty
+  public ResponseEntity<String> getAncestorTree(@NotBlank
   @RequestParam String classificationCode, @RequestParam(required = false) String rootCode,
-      @NotEmpty
+      @NotBlank
       @RequestParam String code, @RequestParam(required = false) Integer pageSize)
   {
     JsonObject page = this.service.getAncestorTree(this.getSessionId(), classificationCode, rootCode, code, pageSize);
@@ -233,7 +233,7 @@ public class ClassificationController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/search")
-  public ResponseEntity<String> search(@NotEmpty
+  public ResponseEntity<String> search(@NotBlank
   @RequestParam String classificationCode, @RequestParam(required = false) String rootCode, @RequestParam(required = false) String text)
   {
     JsonArray results = this.service.search(this.getSessionId(), classificationCode, rootCode, text);

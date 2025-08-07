@@ -36,6 +36,7 @@ import { EventService } from "@shared/service";
 import { environment } from 'src/environments/environment';
 import { LocaleView } from "@core/model/core";
 import { firstValueFrom } from "rxjs";
+import { RDFExport } from "@registry/model/rdf-export";
 
 export interface AttributeTypeService {
     addAttributeType(geoObjTypeId: string, attribute: AttributeType): Promise<AttributeType>;
@@ -57,9 +58,8 @@ export class RegistryService implements AttributeTypeService {
         if (publicOnly) {
             params = params.set("publicOnly", publicOnly);
         }
-        if (includeGraphTypes)
-        {
-          params = params.set("includeGraphTypes", includeGraphTypes);
+        if (includeGraphTypes) {
+            params = params.set("includeGraphTypes", includeGraphTypes);
         }
 
         return firstValueFrom(
@@ -111,6 +111,43 @@ export class RegistryService implements AttributeTypeService {
             .get<ChildTreeNode>(environment.apiUrl + "/api/geoobject/getchildren", { params: params })
             .toPromise();
     }
+
+    rdfRepoExport(config: RDFExport): Promise<{ historyId: string }> {
+
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
+
+        this.eventService.start();
+
+        return firstValueFrom(this.http
+            .post<{ historyId: string }>(environment.apiUrl + "/api/rdf/repo-export-start", JSON.stringify(config), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            })));
+    }
+
+    rdfExport(geomExportType: string, versionId: string): Promise<{ historyId: string }> {
+
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
+
+        const config = {
+            geomExportType,
+            versionId
+        }
+
+        this.eventService.start();
+
+        return firstValueFrom(this.http
+            .post<{ historyId: string }>(environment.apiUrl + "/api/rdf/export", JSON.stringify(config), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            })));
+    }
+
+
 
     doesGeoObjectExistAtRange(startDate: string, endDate: string, typeCode: string, code: string): Promise<{ exists: boolean, invalid: boolean }> {
         let params: HttpParams = new HttpParams();

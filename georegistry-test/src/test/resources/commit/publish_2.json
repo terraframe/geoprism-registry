@@ -1,0 +1,25 @@
+{
+  "uid" : "c38a9fbd-46bc-4b00-8552-1cdf3c2bb3bc",
+  "date" : "2020-04-04",
+  "startDate" : "2020-04-04",
+  "endDate" : "2021-04-04",
+  "origin" : "TESTABC",
+  "types" : [ {
+    "code" : "TEST_BUSINESS",
+    "type" : "BUSINESS"
+  }, {
+    "code" : "TEST_B_EDGE",
+    "type" : "BUSINESS_EDGE"
+  }, {
+    "code" : "TEST_GEO_EDGE",
+    "type" : "BUSINESS_EDGE"
+  }, {
+    "code" : "TEST_DAG",
+    "type" : "DAG"
+  }, {
+    "code" : "TEST_UN",
+    "type" : "UNDIRECTED"
+  } ],
+  "exclusions" : [ ]
+
+}

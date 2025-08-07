@@ -18,6 +18,8 @@
  */
 package net.geoprism.registry.etl;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 
@@ -98,5 +100,12 @@ public class ImportHistory extends ImportHistoryBase
   public ServerGeoObjectType getServerGeoObjectType()
   {
     return ServerGeoObjectType.get(this.getGeoObjectTypeCode());
+  }
+
+  public void enforceExecutePermissions()
+  {
+    JsonObject jo = JsonParser.parseString(this.getConfigJson()).getAsJsonObject();
+    if (jo.has(ImportConfiguration.OBJECT_TYPE) && !jo.get(ImportConfiguration.OBJECT_TYPE).getAsString().equals("LPG") && !jo.get(ImportConfiguration.OBJECT_TYPE).getAsString().contains("RDF"))
+      getConfig().enforceExecutePermissions();
   }
 }

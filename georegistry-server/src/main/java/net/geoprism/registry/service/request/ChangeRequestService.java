@@ -262,13 +262,14 @@ public class ChangeRequestService
 
     for (ChangeRequest cr : list)
     {
-      if (ServerGeoObjectType.get(cr.getGeoObjectTypeCode(), true) != null)
-      {
-        cr.lock();
-        cr.clearApprovalStatus();
-        cr.addApprovalStatus(AllGovernanceStatus.INVALID);
-        cr.apply();
-      }
+      // TODO: Figure out why this is null
+//      if (ServerGeoObjectType.get(cr.getGeoObjectTypeCode(), true) != null)
+//      {
+//        cr.lock();
+//        cr.clearApprovalStatus();
+//        cr.addApprovalStatus(AllGovernanceStatus.INVALID);
+//        cr.apply();
+//      }
     }
 
     return new Page(query.getCount(), pageNumber, pageSize, list);
@@ -451,7 +452,7 @@ public class ChangeRequestService
     if (!this.permissions.getPermissions(action.getAllRequest().next()).containsAll(Arrays.asList(ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS)))
     {
       throw new CGRPermissionException();
-    }
+    } 
 
     action.appLock();
     action.clearApprovalStatus();

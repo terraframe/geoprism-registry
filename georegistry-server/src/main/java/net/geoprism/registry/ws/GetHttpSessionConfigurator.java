@@ -18,13 +18,14 @@
  */
 package net.geoprism.registry.ws;
 
-import javax.servlet.http.HttpSession;
-import javax.websocket.HandshakeResponse;
-import javax.websocket.server.HandshakeRequest;
-import javax.websocket.server.ServerEndpointConfig;
+import jakarta.servlet.http.HttpSession;
+import jakarta.websocket.HandshakeResponse;
+import jakarta.websocket.server.HandshakeRequest;
+import jakarta.websocket.server.ServerEndpointConfig;
 
 public class GetHttpSessionConfigurator extends ServerEndpointConfig.Configurator
 {
+  
   @Override
   public void modifyHandshake(ServerEndpointConfig config, HandshakeRequest request, HandshakeResponse response)
   {

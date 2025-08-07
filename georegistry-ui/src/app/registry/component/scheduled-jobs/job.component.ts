@@ -308,10 +308,12 @@ export class JobComponent implements OnInit, OnDestroy {
     }
 
     onConfiguration(): void {
-        console.log(this.job.configuration);
-
         this.bsModalRef = this.modalService.show(ConfigurationModalComponent, { backdrop: true, ignoreBackdropClick: true });
         this.bsModalRef.content.init(this.job.configuration);
+    }
+
+    downloadRdfExport(): void {
+        window.location.href = environment.apiUrl + "/api/rdf/repo-export-download?historyId=" + this.historyId;
     }
 
     error(err: any): void {
