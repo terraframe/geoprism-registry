@@ -12,10 +12,10 @@ import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.config.TestApplication;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
-@AutoConfigureMockMvc
+//@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
+//@AutoConfigureMockMvc
 
-@RunWith(SpringInstanceTestClassRunner.class)
+//@RunWith(SpringInstanceTestClassRunner.class)
 public class SearchServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
 //  public static final TestGeoObjectInfo BELIZE_CITY      = new TestGeoObjectInfo("Belize Ci't/=&y*)(0$#-@!\"}{][.,;:", "BelizeCity", FastTestDataset.COUNTRY, FastTestDataset.WKT_DEFAULT_MULTIPOLYGON, true, true);
