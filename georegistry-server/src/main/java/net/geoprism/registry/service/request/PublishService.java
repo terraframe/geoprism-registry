@@ -27,7 +27,10 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
+import net.geoprism.registry.Publish;
 import net.geoprism.registry.service.business.PublishBusinessServiceIF;
+import net.geoprism.registry.service.business.PublishEventService;
+import net.geoprism.registry.view.CommitDTO;
 import net.geoprism.registry.view.PublishDTO;
 
 @Service
@@ -36,18 +39,34 @@ public class PublishService
   @Autowired
   private PublishBusinessServiceIF service;
 
+  @Autowired
+  private PublishEventService      eventService;
+
   @Request(RequestType.SESSION)
   public PublishDTO create(String sessionId, PublishDTO dto)
   {
-    return this.service.create(dto).toDTO();
+    try
+    {
+      return this.eventService.publish(dto).toDTO();
+    }
+    catch (InterruptedException e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
+  }
+
+  @Request(RequestType.SESSION)
+  public CommitDTO createNewVersion(String sessionId, String uid)
+  {
+    Publish publish = this.service.getByUidOrThrow(uid);
+
+    return this.eventService.createNewCommit(publish).toDTO();
   }
 
   @Request(RequestType.SESSION)
   public PublishDTO get(String sessionId, String uid)
   {
-    return this.service.getByUid(uid).orElseThrow(() -> {
-      throw new ProgrammingErrorException("Unable to find a publish with the uid [" + uid + "]");
-    }).toDTO();
+    return this.service.getByUidOrThrow(uid).toDTO();
   }
 
   @Request(RequestType.SESSION)

@@ -221,7 +221,7 @@ public class PublishEventService
     ClassificationCache cache = new ClassificationCache();
 
     List<String> aggregateIds = this.store.getAggregateIds(start, end);
-
+    
     for (String aggregateId : aggregateIds)
     {
       InMemoryEventMerger merger = new InMemoryEventMerger();
