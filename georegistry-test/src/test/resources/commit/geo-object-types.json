@@ -156,6 +156,32 @@
         "required": false,
         "unique": false,
         "isChangeOverTime": true
+      },
+      {
+        "code": "source",
+        "type": "source",
+        "label": {
+          "localizedValue": "Source",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Source"
+            }
+          ]
+        },
+        "description": {
+          "localizedValue": "Source of the data",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Source of the data"
+            }
+          ]
+        },
+        "isDefault": true,
+        "required": false,
+        "unique": false,
+        "isChangeOverTime": true
       }
     ],
     "parent": "__ROOT__"
@@ -310,6 +336,32 @@
             {
               "locale": "defaultLocale",
               "value": "Does this GeoObject exist"
+            }
+          ]
+        },
+        "isDefault": true,
+        "required": false,
+        "unique": false,
+        "isChangeOverTime": true
+      },
+      {
+        "code": "source",
+        "type": "source",
+        "label": {
+          "localizedValue": "Source",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Source"
+            }
+          ]
+        },
+        "description": {
+          "localizedValue": "Source of the data",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Source of the data"
             }
           ]
         },
@@ -478,6 +530,32 @@
         "required": false,
         "unique": false,
         "isChangeOverTime": true
+      },
+      {
+        "code": "source",
+        "type": "source",
+        "label": {
+          "localizedValue": "Source",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Source"
+            }
+          ]
+        },
+        "description": {
+          "localizedValue": "Source of the data",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Source of the data"
+            }
+          ]
+        },
+        "isDefault": true,
+        "required": false,
+        "unique": false,
+        "isChangeOverTime": true
       }
     ],
     "parent": "__ROOT__"
@@ -632,6 +710,32 @@
             {
               "locale": "defaultLocale",
               "value": "Does this GeoObject exist"
+            }
+          ]
+        },
+        "isDefault": true,
+        "required": false,
+        "unique": false,
+        "isChangeOverTime": true
+      },
+      {
+        "code": "source",
+        "type": "source",
+        "label": {
+          "localizedValue": "Source",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Source"
+            }
+          ]
+        },
+        "description": {
+          "localizedValue": "Source of the data",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Source of the data"
             }
           ]
         },
@@ -800,6 +904,32 @@
         "required": false,
         "unique": false,
         "isChangeOverTime": true
+      },
+      {
+        "code": "source",
+        "type": "source",
+        "label": {
+          "localizedValue": "Source",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Source"
+            }
+          ]
+        },
+        "description": {
+          "localizedValue": "Source of the data",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Source of the data"
+            }
+          ]
+        },
+        "isDefault": true,
+        "required": false,
+        "unique": false,
+        "isChangeOverTime": true
       }
     ],
     "parent": "__ROOT__"
@@ -961,6 +1091,32 @@
         "required": false,
         "unique": false,
         "isChangeOverTime": true
+      },
+      {
+        "code": "source",
+        "type": "source",
+        "label": {
+          "localizedValue": "Source",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Source"
+            }
+          ]
+        },
+        "description": {
+          "localizedValue": "Source of the data",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Source of the data"
+            }
+          ]
+        },
+        "isDefault": true,
+        "required": false,
+        "unique": false,
+        "isChangeOverTime": true
       }
     ],
     "parent": "__ROOT__"
@@ -1089,6 +1245,32 @@
             {
               "locale": "defaultLocale",
               "value": "Does this GeoObject exist"
+            }
+          ]
+        },
+        "isDefault": true,
+        "required": false,
+        "unique": false,
+        "isChangeOverTime": true
+      },
+      {
+        "code": "source",
+        "type": "source",
+        "label": {
+          "localizedValue": "Source",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Source"
+            }
+          ]
+        },
+        "description": {
+          "localizedValue": "Source of the data",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Source of the data"
             }
           ]
         },
@@ -1257,6 +1439,32 @@
         "required": false,
         "unique": false,
         "isChangeOverTime": true
+      },
+      {
+        "code": "source",
+        "type": "source",
+        "label": {
+          "localizedValue": "Source",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Source"
+            }
+          ]
+        },
+        "description": {
+          "localizedValue": "Source of the data",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Source of the data"
+            }
+          ]
+        },
+        "isDefault": true,
+        "required": false,
+        "unique": false,
+        "isChangeOverTime": true
       }
     ],
     "parent": "USATestDataHealthFacility"
@@ -1411,6 +1619,32 @@
             {
               "locale": "defaultLocale",
               "value": "Does this GeoObject exist"
+            }
+          ]
+        },
+        "isDefault": true,
+        "required": false,
+        "unique": false,
+        "isChangeOverTime": true
+      },
+      {
+        "code": "source",
+        "type": "source",
+        "label": {
+          "localizedValue": "Source",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Source"
+            }
+          ]
+        },
+        "description": {
+          "localizedValue": "Source of the data",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Source of the data"
             }
           ]
         },
@@ -1579,6 +1813,32 @@
         "required": false,
         "unique": false,
         "isChangeOverTime": true
+      },
+      {
+        "code": "source",
+        "type": "source",
+        "label": {
+          "localizedValue": "Source",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Source"
+            }
+          ]
+        },
+        "description": {
+          "localizedValue": "Source of the data",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Source of the data"
+            }
+          ]
+        },
+        "isDefault": true,
+        "required": false,
+        "unique": false,
+        "isChangeOverTime": true
       }
     ],
     "parent": "__ROOT__"
@@ -1733,6 +1993,32 @@
             {
               "locale": "defaultLocale",
               "value": "Does this GeoObject exist"
+            }
+          ]
+        },
+        "isDefault": true,
+        "required": false,
+        "unique": false,
+        "isChangeOverTime": true
+      },
+      {
+        "code": "source",
+        "type": "source",
+        "label": {
+          "localizedValue": "Source",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Source"
+            }
+          ]
+        },
+        "description": {
+          "localizedValue": "Source of the data",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Source of the data"
             }
           ]
         },

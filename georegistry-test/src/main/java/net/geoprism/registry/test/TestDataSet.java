@@ -360,7 +360,7 @@ abstract public class TestDataSet
     GraphRepoServiceIF service = ServiceFactory.getBean(GraphRepoServiceIF.class);
 
     tearDownInstanceData();
-
+    
     setUpTestInTrans();
 
     service.refreshMetadataCache();

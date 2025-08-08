@@ -20,9 +20,6 @@ package net.geoprism.registry.controller;
 
 import java.util.List;
 
-import javax.validation.Valid;
-
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +30,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import net.geoprism.registry.model.SourceDTO;
 import net.geoprism.registry.service.request.SourceServiceIF;
 

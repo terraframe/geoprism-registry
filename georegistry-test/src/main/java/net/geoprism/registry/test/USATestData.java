@@ -14,7 +14,7 @@ public class USATestData extends TestDataSet
 {
   public static final String                TEST_DATA_KEY    = "USATestData";
 
-  public static final TestSourceInfo        SOURCE           = new TestSourceInfo("FastSource");
+  public static final TestSourceInfo        SOURCE           = new TestSourceInfo("UsaSource");
 
   public static final TestOrganizationInfo  ORG_NPS          = new TestOrganizationInfo(TEST_DATA_KEY + "NPS");
 

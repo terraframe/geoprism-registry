@@ -45,6 +45,11 @@ public class TestSourceInfo
 
   public Source getSource()
   {
+    if (this.source == null)
+    {
+      Source.getByCode(code).ifPresent(s -> this.source = s);
+    }
+
     return source;
   }
 
