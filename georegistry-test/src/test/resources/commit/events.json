@@ -1,212 +1,212 @@
 [ {
   "@type" : "RemoteGeoObjectEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataColoradoDistrictOne",
   "type" : "USATestDataDistrict",
   "isNew" : true,
-  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPoint\",\"coordinates\":[[110,80],[120,70]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataColoradoDistrictOne\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataColoradoDistrictOne\"}]},\"uid\":\"bab4b060-48e9-4c8e-8f36-21fd7fbae5bd\",\"code\":\"USATestDataColoradoDistrictOne\",\"invalid\":false,\"exists\":true,\"source\":\"UsaSource\",\"type\":\"USATestDataDistrict\"}}",
+  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPoint\",\"coordinates\":[[110,80],[120,70]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataColoradoDistrictOne\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataColoradoDistrictOne\"}]},\"uid\":\"86616279-721b-4967-ad96-24f5539f8c80\",\"code\":\"USATestDataColoradoDistrictOne\",\"invalid\":false,\"exists\":true,\"type\":\"USATestDataDistrict\",\"dataSource\":\"UsaSource\"}}",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04"
 }, {
   "@type" : "RemoteGeoObjectEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataWashingtonDistrictTwo",
   "type" : "USATestDataDistrict",
   "isNew" : true,
-  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPoint\",\"coordinates\":[[110,80],[120,70]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataWashingtonDistrictTwo\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataWashingtonDistrictTwo\"}]},\"uid\":\"2b74cae9-1a74-41ce-86ce-3ccfcea219b7\",\"code\":\"USATestDataWashingtonDistrictTwo\",\"invalid\":false,\"exists\":true,\"source\":\"UsaSource\",\"type\":\"USATestDataDistrict\"}}",
+  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPoint\",\"coordinates\":[[110,80],[120,70]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataWashingtonDistrictTwo\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataWashingtonDistrictTwo\"}]},\"uid\":\"52b10868-b93d-4962-a36c-d46c22b66193\",\"code\":\"USATestDataWashingtonDistrictTwo\",\"invalid\":false,\"exists\":true,\"type\":\"USATestDataDistrict\",\"dataSource\":\"UsaSource\"}}",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04"
 }, {
   "@type" : "RemoteGeoObjectEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataWashingtonDistrictOne",
   "type" : "USATestDataDistrict",
   "isNew" : true,
-  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPoint\",\"coordinates\":[[110,80],[120,70]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataWashingtonDistrictOne\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataWashingtonDistrictOne\"}]},\"uid\":\"112fa25b-023a-4eed-85c1-b451f4adfbb7\",\"code\":\"USATestDataWashingtonDistrictOne\",\"invalid\":false,\"exists\":true,\"source\":\"UsaSource\",\"type\":\"USATestDataDistrict\"}}",
+  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPoint\",\"coordinates\":[[110,80],[120,70]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataWashingtonDistrictOne\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataWashingtonDistrictOne\"}]},\"uid\":\"442a2831-069e-482a-af60-cc30e527f9e8\",\"code\":\"USATestDataWashingtonDistrictOne\",\"invalid\":false,\"exists\":true,\"type\":\"USATestDataDistrict\",\"dataSource\":\"UsaSource\"}}",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04"
 }, {
   "@type" : "RemoteGeoObjectEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataColoradoAreaOne",
   "type" : "USATestDataArea",
   "isNew" : true,
-  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[1,1],[5,1],[5,5],[1,5],[1,1]],[[2,2],[3,2],[3,3],[2,3],[2,2]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataColoradoAreaOne\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataColoradoAreaOne\"}]},\"uid\":\"e8490ebb-37bd-4807-8682-9b8fd4b8e4e0\",\"code\":\"USATestDataColoradoAreaOne\",\"invalid\":false,\"exists\":true,\"source\":\"UsaSource\",\"type\":\"USATestDataArea\"}}",
+  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[1,1],[5,1],[5,5],[1,5],[1,1]],[[2,2],[3,2],[3,3],[2,3],[2,2]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataColoradoAreaOne\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataColoradoAreaOne\"}]},\"uid\":\"0ee9831e-451d-48c2-a1e9-09d3de302c30\",\"code\":\"USATestDataColoradoAreaOne\",\"invalid\":false,\"exists\":true,\"type\":\"USATestDataArea\",\"dataSource\":\"UsaSource\"}}",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04"
 }, {
   "@type" : "RemoteGeoObjectEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataUSA",
   "type" : "USATestDataCountry",
   "isNew" : true,
-  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[1,1],[5,1],[5,5],[1,5],[1,1]],[[2,2],[3,2],[3,3],[2,3],[2,2]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataUSA\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataUSA\"}]},\"uid\":\"ba9b5dbf-37bf-42bc-b97b-756f1f369521\",\"code\":\"USATestDataUSA\",\"invalid\":false,\"exists\":true,\"source\":\"UsaSource\",\"type\":\"USATestDataCountry\"}}",
+  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[1,1],[5,1],[5,5],[1,5],[1,1]],[[2,2],[3,2],[3,3],[2,3],[2,2]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataUSA\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataUSA\"}]},\"uid\":\"ebf9405c-02f9-4db9-808c-2bc5ef2574ce\",\"code\":\"USATestDataUSA\",\"invalid\":false,\"exists\":true,\"type\":\"USATestDataCountry\",\"dataSource\":\"UsaSource\"}}",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04"
 }, {
   "@type" : "RemoteGeoObjectEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataHpOne",
   "type" : "USATestDataHealthPost",
   "isNew" : true,
-  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[1,1],[5,1],[5,5],[1,5],[1,1]],[[2,2],[3,2],[3,3],[2,3],[2,2]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataHpOne\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataHpOne\"}]},\"uid\":\"a34befa9-4bbf-420b-98b8-4a3fc68c919c\",\"code\":\"USATestDataHpOne\",\"invalid\":false,\"exists\":true,\"source\":\"UsaSource\",\"type\":\"USATestDataHealthPost\"}}",
+  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[1,1],[5,1],[5,5],[1,5],[1,1]],[[2,2],[3,2],[3,3],[2,3],[2,2]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataHpOne\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataHpOne\"}]},\"uid\":\"a6e641e6-27f9-4220-b8cc-b137010514c1\",\"code\":\"USATestDataHpOne\",\"invalid\":false,\"exists\":true,\"type\":\"USATestDataHealthPost\",\"dataSource\":\"UsaSource\"}}",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04"
 }, {
   "@type" : "RemoteGeoObjectEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataCANADA",
   "type" : "USATestDataCountry",
   "isNew" : true,
-  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[1,1],[5,1],[5,5],[1,5],[1,1]],[[2,2],[3,2],[3,3],[2,3],[2,2]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataCANADA\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataCANADA\"}]},\"uid\":\"244629b2-e30d-4303-92f8-a02abd4c86d4\",\"code\":\"USATestDataCANADA\",\"invalid\":false,\"exists\":true,\"source\":\"UsaSource\",\"type\":\"USATestDataCountry\"}}",
+  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[1,1],[5,1],[5,5],[1,5],[1,1]],[[2,2],[3,2],[3,3],[2,3],[2,2]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataCANADA\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataCANADA\"}]},\"uid\":\"dc11d832-ae00-42d1-8aeb-7989f9aea9a0\",\"code\":\"USATestDataCANADA\",\"invalid\":false,\"exists\":true,\"type\":\"USATestDataCountry\",\"dataSource\":\"UsaSource\"}}",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04"
 }, {
   "@type" : "RemoteBusinessObjectEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "key" : "P_CODE#TEST_BUSINESS",
   "code" : "P_CODE",
   "type" : "TEST_BUSINESS",
-  "object" : "{\"code\":\"P_CODE\",\"label\":\"P_CODE\",\"data\":{\"oid\":\"123d25c1-8006-4da9-be02-36ba7e5bf860\"}}"
+  "object" : "{\"code\":\"P_CODE\",\"label\":\"P_CODE\",\"data\":{\"oid\":\"5da5bbbd-1145-4978-ba04-abd27039b5c7\"}}"
 }, {
   "@type" : "RemoteGeoObjectEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataHpTwo",
   "type" : "USATestDataHealthPost",
   "isNew" : true,
-  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[1,1],[5,1],[5,5],[1,5],[1,1]],[[2,2],[3,2],[3,3],[2,3],[2,2]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataHpTwo\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataHpTwo\"}]},\"uid\":\"fb082326-0a13-4d9a-bce2-389d8baef0a2\",\"code\":\"USATestDataHpTwo\",\"invalid\":false,\"exists\":true,\"source\":\"UsaSource\",\"type\":\"USATestDataHealthPost\"}}",
+  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[1,1],[5,1],[5,5],[1,5],[1,1]],[[2,2],[3,2],[3,3],[2,3],[2,2]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataHpTwo\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataHpTwo\"}]},\"uid\":\"1fd664e1-54a3-4bc4-971c-1c13956c8691\",\"code\":\"USATestDataHpTwo\",\"invalid\":false,\"exists\":true,\"type\":\"USATestDataHealthPost\",\"dataSource\":\"UsaSource\"}}",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04"
 }, {
   "@type" : "RemoteGeoObjectEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataColoradoDistrictTwo",
   "type" : "USATestDataDistrict",
   "isNew" : true,
-  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPoint\",\"coordinates\":[[110,80],[120,70]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataColoradoDistrictTwo\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataColoradoDistrictTwo\"}]},\"uid\":\"534c3120-c282-4332-aadb-15b54ce6e279\",\"code\":\"USATestDataColoradoDistrictTwo\",\"invalid\":false,\"exists\":true,\"source\":\"UsaSource\",\"type\":\"USATestDataDistrict\"}}",
+  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPoint\",\"coordinates\":[[110,80],[120,70]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataColoradoDistrictTwo\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataColoradoDistrictTwo\"}]},\"uid\":\"7d979c6e-aa7d-4b74-8466-bb9aa0560e2b\",\"code\":\"USATestDataColoradoDistrictTwo\",\"invalid\":false,\"exists\":true,\"type\":\"USATestDataDistrict\",\"dataSource\":\"UsaSource\"}}",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04"
 }, {
   "@type" : "RemoteGeoObjectEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataColorado",
   "type" : "USATestDataState",
   "isNew" : true,
-  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[1,1],[5,1],[5,5],[1,5],[1,1]],[[2,2],[3,2],[3,3],[2,3],[2,2]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataColorado\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataColorado\"}]},\"uid\":\"9f7b5269-d1b0-4254-a830-2c28837a7a30\",\"code\":\"USATestDataColorado\",\"invalid\":false,\"exists\":true,\"source\":\"UsaSource\",\"type\":\"USATestDataState\"}}",
+  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[1,1],[5,1],[5,5],[1,5],[1,1]],[[2,2],[3,2],[3,3],[2,3],[2,2]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataColorado\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataColorado\"}]},\"uid\":\"cc3e9061-d53e-4efc-8b51-db9df5471720\",\"code\":\"USATestDataColorado\",\"invalid\":false,\"exists\":true,\"type\":\"USATestDataState\",\"dataSource\":\"UsaSource\"}}",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04"
 }, {
   "@type" : "RemoteGeoObjectEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataMexicoCityOne",
   "type" : "USATestDataMexico_City_GOT",
   "isNew" : true,
-  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[1,1],[5,1],[5,5],[1,5],[1,1]],[[2,2],[3,2],[3,3],[2,3],[2,2]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataMexicoCityOne\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataMexicoCityOne\"}]},\"uid\":\"054803e2-acdd-48e0-99eb-54ce8b397401\",\"code\":\"USATestDataMexicoCityOne\",\"invalid\":false,\"exists\":true,\"source\":\"UsaSource\",\"type\":\"USATestDataMexico_City_GOT\"}}",
+  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[1,1],[5,1],[5,5],[1,5],[1,1]],[[2,2],[3,2],[3,3],[2,3],[2,2]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataMexicoCityOne\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataMexicoCityOne\"}]},\"uid\":\"07d1dc3b-bffe-45fd-b7fa-b80752ac74da\",\"code\":\"USATestDataMexicoCityOne\",\"invalid\":false,\"exists\":true,\"type\":\"USATestDataMexico_City_GOT\",\"dataSource\":\"UsaSource\"}}",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04"
 }, {
   "@type" : "RemoteBusinessObjectEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "key" : "C_CODE#TEST_BUSINESS",
   "code" : "C_CODE",
   "type" : "TEST_BUSINESS",
-  "object" : "{\"code\":\"C_CODE\",\"label\":\"C_CODE\",\"data\":{\"oid\":\"938908b0-b2cb-4ee3-9b03-835994732387\"}}"
+  "object" : "{\"code\":\"C_CODE\",\"label\":\"C_CODE\",\"data\":{\"oid\":\"3f967241-5a77-4d9a-8cb6-1bcc2fbc4339\"}}"
 }, {
   "@type" : "RemoteGeoObjectEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataSchoolZoneOne",
   "type" : "USATestDataSchoolZone",
   "isNew" : true,
-  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[1,1],[5,1],[5,5],[1,5],[1,1]],[[2,2],[3,2],[3,3],[2,3],[2,2]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataSchoolZoneOne\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataSchoolZoneOne\"}]},\"uid\":\"aac4df96-eb4f-4998-b662-708b26368476\",\"code\":\"USATestDataSchoolZoneOne\",\"invalid\":false,\"exists\":true,\"source\":\"UsaSource\",\"type\":\"USATestDataSchoolZone\"}}",
+  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[1,1],[5,1],[5,5],[1,5],[1,1]],[[2,2],[3,2],[3,3],[2,3],[2,2]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataSchoolZoneOne\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataSchoolZoneOne\"}]},\"uid\":\"14a0fce0-f996-43c4-a79d-5e13061d85da\",\"code\":\"USATestDataSchoolZoneOne\",\"invalid\":false,\"exists\":true,\"type\":\"USATestDataSchoolZone\",\"dataSource\":\"UsaSource\"}}",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04"
 }, {
   "@type" : "RemoteGeoObjectEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataMexico",
   "type" : "USATestDataCountry",
   "isNew" : true,
-  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[1,1],[5,1],[5,5],[1,5],[1,1]],[[2,2],[3,2],[3,3],[2,3],[2,2]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataMexico\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataMexico\"}]},\"uid\":\"02096a80-c004-49cb-809f-c71b33700923\",\"code\":\"USATestDataMexico\",\"invalid\":false,\"exists\":true,\"source\":\"UsaSource\",\"type\":\"USATestDataCountry\"}}",
+  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[1,1],[5,1],[5,5],[1,5],[1,1]],[[2,2],[3,2],[3,3],[2,3],[2,2]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataMexico\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataMexico\"}]},\"uid\":\"1e02ae93-d404-41e7-bb59-864cd217c566\",\"code\":\"USATestDataMexico\",\"invalid\":false,\"exists\":true,\"type\":\"USATestDataCountry\",\"dataSource\":\"UsaSource\"}}",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04"
 }, {
   "@type" : "RemoteGeoObjectEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataMexicoCityTwo",
   "type" : "USATestDataMexico_City_GOT",
   "isNew" : true,
-  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[1,1],[5,1],[5,5],[1,5],[1,1]],[[2,2],[3,2],[3,3],[2,3],[2,2]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataMexicoCityTwo\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataMexicoCityTwo\"}]},\"uid\":\"c58857ef-d936-4947-b15c-9dff1d037e55\",\"code\":\"USATestDataMexicoCityTwo\",\"invalid\":false,\"exists\":true,\"source\":\"UsaSource\",\"type\":\"USATestDataMexico_City_GOT\"}}",
+  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[1,1],[5,1],[5,5],[1,5],[1,1]],[[2,2],[3,2],[3,3],[2,3],[2,2]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataMexicoCityTwo\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataMexicoCityTwo\"}]},\"uid\":\"6f446279-0e8a-4bc2-9c2c-ba7ab40df0ff\",\"code\":\"USATestDataMexicoCityTwo\",\"invalid\":false,\"exists\":true,\"type\":\"USATestDataMexico_City_GOT\",\"dataSource\":\"UsaSource\"}}",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04"
 }, {
   "@type" : "RemoteGeoObjectEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataWashington",
   "type" : "USATestDataState",
   "isNew" : true,
-  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[1,1],[10,1],[10,10],[1,10],[1,1]],[[2,2],[3,2],[3,3],[2,3],[2,2]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataWashington\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataWashington\"}]},\"uid\":\"354173e2-68dd-49c7-b8e2-b1fb406d9dfd\",\"code\":\"USATestDataWashington\",\"invalid\":false,\"exists\":true,\"source\":\"UsaSource\",\"type\":\"USATestDataState\"}}",
+  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[1,1],[10,1],[10,10],[1,10],[1,1]],[[2,2],[3,2],[3,3],[2,3],[2,2]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataWashington\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataWashington\"}]},\"uid\":\"38d9ae44-4ffa-4259-92fe-dc30cde002fa\",\"code\":\"USATestDataWashington\",\"invalid\":false,\"exists\":true,\"type\":\"USATestDataState\",\"dataSource\":\"UsaSource\"}}",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04"
 }, {
   "@type" : "RemoteGeoObjectEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataColoradoDistrictThree",
   "type" : "USATestDataDistrict",
   "isNew" : true,
-  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPoint\",\"coordinates\":[[110,80],[120,70]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataColoradoDistrictThree\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataColoradoDistrictThree\"}]},\"uid\":\"b745c66f-5bf7-49c6-9556-ec4c43bbed12\",\"code\":\"USATestDataColoradoDistrictThree\",\"invalid\":false,\"exists\":false,\"source\":\"UsaSource\",\"type\":\"USATestDataDistrict\"}}",
+  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPoint\",\"coordinates\":[[110,80],[120,70]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataColoradoDistrictThree\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataColoradoDistrictThree\"}]},\"uid\":\"770c1fd0-6157-463e-80cf-c82a6966c117\",\"code\":\"USATestDataColoradoDistrictThree\",\"invalid\":false,\"exists\":false,\"type\":\"USATestDataDistrict\",\"dataSource\":\"UsaSource\"}}",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04"
 }, {
   "@type" : "RemoteGeoObjectEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataColoradoCountyOne",
   "type" : "USATestDataCounty",
   "isNew" : true,
-  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[1,1],[5,1],[5,5],[1,5],[1,1]],[[2,2],[3,2],[3,3],[2,3],[2,2]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataColoradoCountyOne\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataColoradoCountyOne\"}]},\"uid\":\"a4bd2630-b679-414c-bed3-e7e4cee95317\",\"code\":\"USATestDataColoradoCountyOne\",\"invalid\":false,\"exists\":true,\"source\":\"UsaSource\",\"type\":\"USATestDataCounty\"}}",
+  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[1,1],[5,1],[5,5],[1,5],[1,1]],[[2,2],[3,2],[3,3],[2,3],[2,2]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataColoradoCountyOne\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataColoradoCountyOne\"}]},\"uid\":\"96e513e4-0d23-4a30-9850-417e4b9d6488\",\"code\":\"USATestDataColoradoCountyOne\",\"invalid\":false,\"exists\":true,\"type\":\"USATestDataCounty\",\"dataSource\":\"UsaSource\"}}",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04"
 }, {
   "@type" : "RemoteGeoObjectEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataHsTwo",
   "type" : "USATestDataHealthStop",
   "isNew" : true,
-  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[1,1],[5,1],[5,5],[1,5],[1,1]],[[2,2],[3,2],[3,3],[2,3],[2,2]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataHsTwo\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataHsTwo\"}]},\"uid\":\"99548f44-cd5d-4737-b22e-b5aa09b8a1d2\",\"code\":\"USATestDataHsTwo\",\"invalid\":false,\"exists\":true,\"source\":\"UsaSource\",\"type\":\"USATestDataHealthStop\"}}",
+  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[1,1],[5,1],[5,5],[1,5],[1,1]],[[2,2],[3,2],[3,3],[2,3],[2,2]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataHsTwo\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataHsTwo\"}]},\"uid\":\"d9d4c89b-cc49-42b4-aa2d-aa3814e27846\",\"code\":\"USATestDataHsTwo\",\"invalid\":false,\"exists\":true,\"type\":\"USATestDataHealthStop\",\"dataSource\":\"UsaSource\"}}",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04"
 }, {
   "@type" : "RemoteGeoObjectEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataMexicoStateTwo",
   "type" : "USATestDataMexico_State_GOT",
   "isNew" : true,
-  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[1,1],[5,1],[5,5],[1,5],[1,1]],[[2,2],[3,2],[3,3],[2,3],[2,2]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataMexicoStateTwo\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataMexicoStateTwo\"}]},\"uid\":\"4de657ce-827a-4961-b947-196231c5c323\",\"code\":\"USATestDataMexicoStateTwo\",\"invalid\":false,\"exists\":true,\"source\":\"UsaSource\",\"type\":\"USATestDataMexico_State_GOT\"}}",
+  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[1,1],[5,1],[5,5],[1,5],[1,1]],[[2,2],[3,2],[3,3],[2,3],[2,2]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataMexicoStateTwo\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataMexicoStateTwo\"}]},\"uid\":\"320b75e8-4349-496e-bddc-1ca00c14bd28\",\"code\":\"USATestDataMexicoStateTwo\",\"invalid\":false,\"exists\":true,\"type\":\"USATestDataMexico_State_GOT\",\"dataSource\":\"UsaSource\"}}",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04"
 }, {
   "@type" : "RemoteGeoObjectEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataMexicoStateOne",
   "type" : "USATestDataMexico_State_GOT",
   "isNew" : true,
-  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[1,1],[5,1],[5,5],[1,5],[1,1]],[[2,2],[3,2],[3,3],[2,3],[2,2]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataMexicoStateOne\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataMexicoStateOne\"}]},\"uid\":\"dfce7ee7-efd9-44d4-bd3e-31a70414d1f8\",\"code\":\"USATestDataMexicoStateOne\",\"invalid\":false,\"exists\":true,\"source\":\"UsaSource\",\"type\":\"USATestDataMexico_State_GOT\"}}",
+  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[1,1],[5,1],[5,5],[1,5],[1,1]],[[2,2],[3,2],[3,3],[2,3],[2,2]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataMexicoStateOne\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataMexicoStateOne\"}]},\"uid\":\"7de6d389-acc1-4fb2-b76f-6590f8719cc6\",\"code\":\"USATestDataMexicoStateOne\",\"invalid\":false,\"exists\":true,\"type\":\"USATestDataMexico_State_GOT\",\"dataSource\":\"UsaSource\"}}",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04"
 }, {
   "@type" : "RemoteGeoObjectEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataHsOne",
   "type" : "USATestDataHealthStop",
   "isNew" : true,
-  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[1,1],[5,1],[5,5],[1,5],[1,1]],[[2,2],[3,2],[3,3],[2,3],[2,2]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataHsOne\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataHsOne\"}]},\"uid\":\"2ac48edb-9ab0-4bbe-8ad2-acfacc78aacc\",\"code\":\"USATestDataHsOne\",\"invalid\":false,\"exists\":true,\"source\":\"UsaSource\",\"type\":\"USATestDataHealthStop\"}}",
+  "object" : "{\"type\":\"Feature\",\"geometry\":{\"type\":\"MultiPolygon\",\"coordinates\":[[[[1,1],[5,1],[5,5],[1,5],[1,1]],[[2,2],[3,2],[3,3],[2,3],[2,2]]]],\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"EPSG:4326\"}}},\"properties\":{\"displayLabel\":{\"localizedValue\":\"USATestDataHsOne\",\"localeValues\":[{\"locale\":\"defaultLocale\",\"value\":\"USATestDataHsOne\"}]},\"uid\":\"73795df1-b838-45a7-8a2e-15c803bed5ad\",\"code\":\"USATestDataHsOne\",\"invalid\":false,\"exists\":true,\"type\":\"USATestDataHealthStop\",\"dataSource\":\"UsaSource\"}}",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04"
 }, {
   "@type" : "RemoteGeoObjectSetParentEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataColoradoDistrictOne",
   "type" : "USATestDataDistrict",
-  "edgeUid" : "0fa8341d-454d-4898-aa39-a3ff59abba18",
+  "edgeUid" : "77648f7d-af1e-4aff-af91-c02bba2ab1d8",
   "edgeType" : "USATestDataAdminCode",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04",
@@ -214,10 +214,10 @@
   "parentCode" : "USATestDataColorado"
 }, {
   "@type" : "RemoteGeoObjectSetParentEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataWashingtonDistrictTwo",
   "type" : "USATestDataDistrict",
-  "edgeUid" : "07469b0f-c7f8-4dbf-b539-183381886c09",
+  "edgeUid" : "426ab6a1-f403-4161-af4f-6b545f78abc8",
   "edgeType" : "USATestDataAdminCode",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04",
@@ -225,10 +225,10 @@
   "parentCode" : "USATestDataWashington"
 }, {
   "@type" : "RemoteGeoObjectSetParentEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataWashingtonDistrictOne",
   "type" : "USATestDataDistrict",
-  "edgeUid" : "daa8c778-23d0-4878-8ad1-9ab6c7be8eb9",
+  "edgeUid" : "2675fc88-96e9-4379-8276-b6b0dc1b6d0e",
   "edgeType" : "USATestDataAdminCode",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04",
@@ -236,10 +236,10 @@
   "parentCode" : "USATestDataWashington"
 }, {
   "@type" : "RemoteGeoObjectSetParentEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataColoradoAreaOne",
   "type" : "USATestDataArea",
-  "edgeUid" : "0be3bafc-c551-4dca-bc1c-0e90895aeb0c",
+  "edgeUid" : "2065a815-7a5c-4dde-9ebb-361cdf4e2e28",
   "edgeType" : "USATestDataAdminCode",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04",
@@ -247,10 +247,10 @@
   "parentCode" : "USATestDataColoradoCountyOne"
 }, {
   "@type" : "RemoteGeoObjectSetParentEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataHpOne",
   "type" : "USATestDataHealthPost",
-  "edgeUid" : "45acd6ee-ea56-4f4f-9491-8bdcefff7b5b",
+  "edgeUid" : "9593b762-2f85-4c31-baac-7269af8be88d",
   "edgeType" : "USATestDataAdminCode",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04",
@@ -258,10 +258,10 @@
   "parentCode" : "USATestDataColoradoDistrictOne"
 }, {
   "@type" : "RemoteGeoObjectSetParentEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataHpTwo",
   "type" : "USATestDataHealthPost",
-  "edgeUid" : "1bffb126-7d8d-4d19-aff1-59f323574cd5",
+  "edgeUid" : "878bc06c-ac92-4b65-b565-821df3bb1d18",
   "edgeType" : "USATestDataAdminCode",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04",
@@ -269,10 +269,10 @@
   "parentCode" : "USATestDataColoradoDistrictOne"
 }, {
   "@type" : "RemoteGeoObjectSetParentEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataColoradoDistrictTwo",
   "type" : "USATestDataDistrict",
-  "edgeUid" : "de59d800-9408-4513-873e-87b111a1416e",
+  "edgeUid" : "626c3341-55dc-4f35-b15c-61e7f9afe0fe",
   "edgeType" : "USATestDataAdminCode",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04",
@@ -281,23 +281,10 @@
 }, {
   "@type" : "RemoteGeoObjectCreateEdgeEvent",
   "key" : "USATestDataColorado#USATestDataState",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "sourceCode" : "USATestDataColorado",
   "sourceType" : "USATestDataState",
-  "edgeUid" : "1ae6127a-aa29-4205-92dc-c864c88415eb",
-  "edgeType" : "UndirectedGraphType",
-  "edgeTypeCode" : "TEST_UN",
-  "startDate" : "2020-04-04",
-  "endDate" : "2021-04-04",
-  "targetType" : "USATestDataCountry",
-  "targetCode" : "USATestDataCANADA"
-}, {
-  "@type" : "RemoteGeoObjectCreateEdgeEvent",
-  "key" : "USATestDataColorado#USATestDataState",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
-  "sourceCode" : "USATestDataColorado",
-  "sourceType" : "USATestDataState",
-  "edgeUid" : "115509e4-24b0-4015-adf2-0bb5d18af859",
+  "edgeUid" : "f9e0750a-0351-464b-b67e-8404a77fef47",
   "edgeType" : "DirectedAcyclicGraphType",
   "edgeTypeCode" : "TEST_DAG",
   "startDate" : "2020-04-04",
@@ -305,11 +292,24 @@
   "targetType" : "USATestDataCountry",
   "targetCode" : "USATestDataCANADA"
 }, {
+  "@type" : "RemoteGeoObjectCreateEdgeEvent",
+  "key" : "USATestDataColorado#USATestDataState",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
+  "sourceCode" : "USATestDataColorado",
+  "sourceType" : "USATestDataState",
+  "edgeUid" : "aee180b8-d9b9-4fa6-a805-487f96903c2b",
+  "edgeType" : "UndirectedGraphType",
+  "edgeTypeCode" : "TEST_UN",
+  "startDate" : "2020-04-04",
+  "endDate" : "2021-04-04",
+  "targetType" : "USATestDataCountry",
+  "targetCode" : "USATestDataCANADA"
+}, {
   "@type" : "RemoteGeoObjectSetParentEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataColorado",
   "type" : "USATestDataState",
-  "edgeUid" : "723de5ce-f7c5-46f5-9957-f36b588c2138",
+  "edgeUid" : "a349ba32-7f1f-434b-9a37-6f1ac135f4db",
   "edgeType" : "USATestDataAdminCode",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04",
@@ -317,28 +317,18 @@
   "parentCode" : "USATestDataUSA"
 }, {
   "@type" : "RemoteGeoObjectSetParentEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataMexicoCityOne",
   "type" : "USATestDataMexico_City_GOT",
-  "edgeUid" : "48978491-c81f-4dfa-9c98-14cc5081ce17",
+  "edgeUid" : "e819e128-5691-40dd-a5e7-98eb20c281fb",
   "edgeType" : "USATestDataAdminCode",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04",
   "parentType" : "USATestDataMexico_State_GOT",
   "parentCode" : "USATestDataMexicoStateTwo"
 }, {
-  "@type" : "RemoteBusinessObjectCreateEdgeEvent",
-  "key" : "P_CODE#TEST_BUSINESS",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
-  "sourceCode" : "P_CODE",
-  "sourceType" : "TEST_BUSINESS",
-  "edgeUid" : "876c4ca7-225e-48f1-b8fc-1be831da1eb3",
-  "edgeType" : "TEST_B_EDGE",
-  "targetType" : "TEST_BUSINESS",
-  "targetCode" : "C_CODE"
-}, {
   "@type" : "RemoteBusinessObjectAddGeoObjectEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "key" : "C_CODE#TEST_BUSINESS",
   "type" : "TEST_BUSINESS",
   "code" : "C_CODE",
@@ -347,11 +337,21 @@
   "geoObjectCode" : "USATestDataColorado",
   "direction" : "PARENT"
 }, {
+  "@type" : "RemoteBusinessObjectCreateEdgeEvent",
+  "key" : "P_CODE#TEST_BUSINESS",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
+  "sourceCode" : "P_CODE",
+  "sourceType" : "TEST_BUSINESS",
+  "edgeUid" : "c61c583f-e47f-40cf-9be5-d724694c163e",
+  "edgeType" : "TEST_B_EDGE",
+  "targetType" : "TEST_BUSINESS",
+  "targetCode" : "C_CODE"
+}, {
   "@type" : "RemoteGeoObjectSetParentEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataSchoolZoneOne",
   "type" : "USATestDataSchoolZone",
-  "edgeUid" : "6d16e11c-140c-48e8-abb2-a57891d78d04",
+  "edgeUid" : "ec4a2868-eb3e-4735-8361-0a9bd0b559f6",
   "edgeType" : "USATestDataSchoolCode",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04",
@@ -359,10 +359,10 @@
   "parentCode" : "USATestDataColoradoDistrictOne"
 }, {
   "@type" : "RemoteGeoObjectSetParentEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataMexicoCityTwo",
   "type" : "USATestDataMexico_City_GOT",
-  "edgeUid" : "0ebf9b91-6289-4cc1-825a-193deb749eef",
+  "edgeUid" : "39e51097-1718-4f01-aab7-147fe04256b9",
   "edgeType" : "USATestDataAdminCode",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04",
@@ -370,10 +370,10 @@
   "parentCode" : "USATestDataMexicoStateTwo"
 }, {
   "@type" : "RemoteGeoObjectSetParentEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataWashington",
   "type" : "USATestDataState",
-  "edgeUid" : "cf62310a-cf8e-425f-b013-bfb79f910ad4",
+  "edgeUid" : "d270a742-a329-407b-9497-50f7ae117f1a",
   "edgeType" : "USATestDataAdminCode",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04",
@@ -381,10 +381,10 @@
   "parentCode" : "USATestDataUSA"
 }, {
   "@type" : "RemoteGeoObjectSetParentEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataColoradoDistrictThree",
   "type" : "USATestDataDistrict",
-  "edgeUid" : "a7c9c4a2-3141-4280-a6de-c29df20f669c",
+  "edgeUid" : "efd751ab-1f0b-46fa-bd0c-179a4e5b7470",
   "edgeType" : "USATestDataAdminCode",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04",
@@ -392,10 +392,10 @@
   "parentCode" : "USATestDataColorado"
 }, {
   "@type" : "RemoteGeoObjectSetParentEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataColoradoCountyOne",
   "type" : "USATestDataCounty",
-  "edgeUid" : "2bd228bf-27d9-477a-9883-a6bc68d33c40",
+  "edgeUid" : "3fb79a8a-fd5b-43cc-a850-cfb00cdf6109",
   "edgeType" : "USATestDataAdminCode",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04",
@@ -403,10 +403,10 @@
   "parentCode" : "USATestDataColorado"
 }, {
   "@type" : "RemoteGeoObjectSetParentEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataHsTwo",
   "type" : "USATestDataHealthStop",
-  "edgeUid" : "f529545f-496b-49d8-8566-e296b8f44a51",
+  "edgeUid" : "844a4996-a6fc-4900-9671-61eab8d8c09d",
   "edgeType" : "USATestDataAdminCode",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04",
@@ -414,10 +414,10 @@
   "parentCode" : "USATestDataColoradoDistrictOne"
 }, {
   "@type" : "RemoteGeoObjectSetParentEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataHsTwo",
   "type" : "USATestDataHealthStop",
-  "edgeUid" : "6d9a5d5e-f548-40ae-b7c2-465c4a02baf0",
+  "edgeUid" : "d24b2981-54cd-43ef-9156-86cf6344eb60",
   "edgeType" : "USATestDataReportsToCode",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04",
@@ -425,10 +425,10 @@
   "parentCode" : "USATestDataHpTwo"
 }, {
   "@type" : "RemoteGeoObjectSetParentEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataMexicoStateTwo",
   "type" : "USATestDataMexico_State_GOT",
-  "edgeUid" : "9d03671f-e0c6-4f7c-8bb9-49af109ba54d",
+  "edgeUid" : "7150198d-7278-423c-acb2-b8130d11423c",
   "edgeType" : "USATestDataAdminCode",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04",
@@ -436,10 +436,10 @@
   "parentCode" : "USATestDataMexico"
 }, {
   "@type" : "RemoteGeoObjectSetParentEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataMexicoStateOne",
   "type" : "USATestDataMexico_State_GOT",
-  "edgeUid" : "732e6832-007c-4b1e-bd75-b48f94e87bd3",
+  "edgeUid" : "f641171c-e8d8-43d5-ac0b-d4bf6ce324dc",
   "edgeType" : "USATestDataAdminCode",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04",
@@ -447,10 +447,10 @@
   "parentCode" : "USATestDataMexico"
 }, {
   "@type" : "RemoteGeoObjectSetParentEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataHsOne",
   "type" : "USATestDataHealthStop",
-  "edgeUid" : "c6e91b3f-9c65-455b-bce6-87a851bb4a72",
+  "edgeUid" : "1c63a0ab-10f0-4e78-9fb8-a15cb512dda9",
   "edgeType" : "USATestDataAdminCode",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04",
@@ -458,10 +458,10 @@
   "parentCode" : "USATestDataColoradoDistrictOne"
 }, {
   "@type" : "RemoteGeoObjectSetParentEvent",
-  "commitId" : "9cc681db-978f-4b49-915b-3a3e4a333cf1",
+  "commitId" : "f0037b4f-3196-4dfe-b250-5264b0be9b0c",
   "code" : "USATestDataHsOne",
   "type" : "USATestDataHealthStop",
-  "edgeUid" : "12810ab9-3f4c-496d-8121-7cde0a80ed10",
+  "edgeUid" : "9b78a0dc-ad2a-4d9c-8702-57e13a477c9e",
   "edgeType" : "USATestDataReportsToCode",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04",

@@ -95,7 +95,7 @@ public class ShapefileBusinessService
 
         if (source != null)
         {
-          object.put(GeoObjectImportConfiguration.SOURCE, source);
+          object.put(GeoObjectImportConfiguration.DATA_SOURCE, source);
         }
         
         if (startDate != null)

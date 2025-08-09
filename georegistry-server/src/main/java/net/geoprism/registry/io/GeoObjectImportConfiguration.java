@@ -68,7 +68,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
 {
   public static final String                          PARENT_EXCLUSION       = "##PARENT##";
 
-  public static final String                          SOURCE                 = "source";
+  public static final String                          DATA_SOURCE            = "dataSource";
 
   public static final String                          START_DATE             = "startDate";
 
@@ -116,7 +116,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
 
   private String                                      revealGeometryColumn;
 
-  private Source                                      source;
+  private Source                                      dataSource;
 
   private ServerGeoObjectType                         type;
 
@@ -197,14 +197,14 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     this.endDate = endDate;
   }
 
-  public Source getSource()
+  public Source getDataSource()
   {
-    return source;
+    return dataSource;
   }
 
-  public void setSource(Source source)
+  public void setDataSource(Source dataSource)
   {
-    this.source = source;
+    this.dataSource = dataSource;
   }
 
   public GeoObject getRoot()
@@ -364,9 +364,9 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     config.put(GeoObjectImportConfiguration.LOCATIONS, locations);
     config.put(GeoObjectImportConfiguration.POSTAL_CODE, this.isPostalCode());
 
-    if (this.getSource() != null)
+    if (this.getDataSource() != null)
     {
-      config.put(GeoObjectImportConfiguration.SOURCE, source.getCode());
+      config.put(GeoObjectImportConfiguration.DATA_SOURCE, dataSource.getCode());
     }
 
     if (this.getStartDate() != null)
@@ -433,10 +433,10 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
       this.setRevealGeometryColumn(config.getString(REVEAL_GEOMETRY_COLUMN));
     }
 
-    if (config.has(SOURCE))
+    if (config.has(DATA_SOURCE))
     {
-      this.sourceService.getByCode(config.getString(SOURCE)).ifPresent(source -> {
-        this.setSource(source);
+      this.sourceService.getByCode(config.getString(DATA_SOURCE)).ifPresent(source -> {
+        this.setDataSource(source);
       });
     }
 

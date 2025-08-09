@@ -65,7 +65,7 @@ public class ShapefileController extends RunwaySpringController
     @NotNull(message = "Import blank cells requires a value")
     private Boolean       copyBlank;
 
-    private String        source;
+    private String        dataSource;
 
     public String getType()
     {
@@ -126,15 +126,15 @@ public class ShapefileController extends RunwaySpringController
     {
       this.copyBlank = copyBlank;
     }
-
-    public String getSource()
+    
+    public String getDataSource()
     {
-      return source;
+      return dataSource;
     }
-
-    public void setSource(String source)
+    
+    public void setDataSource(String dataSource)
     {
-      this.source = source;
+      this.dataSource = dataSource;
     }
 
   }
@@ -155,7 +155,7 @@ public class ShapefileController extends RunwaySpringController
 
       ImportStrategy strategy = ImportStrategy.valueOf(input.strategy);
 
-      JSONObject configuration = service.getShapefileConfiguration(sessionId, input.type, input.startDate, input.endDate, input.source, fileName, stream, strategy, input.copyBlank);
+      JSONObject configuration = service.getShapefileConfiguration(sessionId, input.type, input.startDate, input.endDate, input.dataSource, fileName, stream, strategy, input.copyBlank);
 
       return new ResponseEntity<String>(configuration.toString(), HttpStatus.OK);
     }

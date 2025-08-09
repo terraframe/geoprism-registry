@@ -45,7 +45,7 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
-import org.commongeoregistry.adapter.metadata.AttributeSourceType;
+import org.commongeoregistry.adapter.metadata.AttributeDataSourceType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.locationtech.jts.geom.Point;
@@ -195,7 +195,7 @@ public class GeoObjectExcelExporter
           {
             cell.setCellValue(GeoObjectUtil.convertToTermString((AttributeClassificationType) attribute, value));
           }
-          else if (attribute instanceof AttributeSourceType)
+          else if (attribute instanceof AttributeDataSourceType)
           {
             Source source = Source.get((String) value);
 

@@ -104,7 +104,7 @@ public class BasicGeoObjectTypeServiceTest implements InstanceTestClassListener
 
       Set<String> attributeNames = attributes.keySet();
 
-      Assert.assertTrue(attributeNames.contains(DefaultAttribute.SOURCE.getName()));
+      Assert.assertTrue(attributeNames.contains(DefaultAttribute.DATA_SOURCE.getName()));
     }
     finally
     {

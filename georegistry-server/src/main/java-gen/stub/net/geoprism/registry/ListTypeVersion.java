@@ -54,7 +54,7 @@ import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeListType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
-import org.commongeoregistry.adapter.metadata.AttributeSourceType;
+import org.commongeoregistry.adapter.metadata.AttributeDataSourceType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.json.JSONException;
@@ -422,7 +422,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       {
         mdAttribute = new MdAttributeBoolean();
       }
-      else if (attributeType.getType().equals(AttributeSourceType.TYPE))
+      else if (attributeType.getType().equals(AttributeDataSourceType.TYPE))
       {
         mdAttribute = new MdAttributeText();
       }
@@ -1073,7 +1073,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
               this.setValue(business, name + locale.toString(), label.getValue(locale));
             }
           }
-          else if (attribute instanceof AttributeSourceType)
+          else if (attribute instanceof AttributeDataSourceType)
           {
             Source classification = Source.get((String) value);
 

@@ -65,7 +65,7 @@ public class ImportAttributeSerializer extends LocaleSerializer implements Custo
     this.filter.add(DefaultAttribute.CREATE_DATE.getName());
     this.filter.add(DefaultAttribute.SEQUENCE.getName());
     this.filter.add(DefaultAttribute.TYPE.getName());
-    this.filter.add(DefaultAttribute.SOURCE.getName());
+    this.filter.add(DefaultAttribute.DATA_SOURCE.getName());
 
     for (AttributeType attr : type.getAttributeMap().values())
     {

@@ -576,7 +576,7 @@ public class TestGeoObjectInfo extends TestCachedObject<ServerGeoObjectIF>
     geoObj.getDisplayLabel().setValue(this.getDisplayLabel());
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, this.getDisplayLabel());
     geoObj.setExists(this.exists);
-    geoObj.setValue(DefaultAttribute.SOURCE.getName(), this.source.getSource().getOid());
+    geoObj.setValue(DefaultAttribute.DATA_SOURCE.getName(), this.source.getDataSource().getOid());
 
     if (registryId != null)
     {
@@ -610,7 +610,7 @@ public class TestGeoObjectInfo extends TestCachedObject<ServerGeoObjectIF>
     geoObj.setDisplayLabel(label, date, TestDataSet.DEFAULT_END_TIME_DATE);
 
     geoObj.setExists(this.exists, date, TestDataSet.DEFAULT_END_TIME_DATE);
-    geoObj.setValue(DefaultAttribute.SOURCE.getName(), this.source.getSource().getCode(), date, TestDataSet.DEFAULT_END_TIME_DATE);
+    geoObj.setValue(DefaultAttribute.DATA_SOURCE.getName(), this.source.getDataSource().getCode(), date, TestDataSet.DEFAULT_END_TIME_DATE);
 
     if (registryId != null)
     {

@@ -461,7 +461,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     Geometry cd1_geometry = coloradoDistOne.getGeometry();
     Assert.assertEquals(cd1_expected, cd1_geometry);
 
-    Object value = coloradoDistOne.getValue(DefaultAttribute.SOURCE.getName());
+    Object value = coloradoDistOne.getValue(DefaultAttribute.DATA_SOURCE.getName());
 
     Assert.assertNotNull(value);
 
@@ -653,7 +653,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     result.put(ImportConfiguration.OBJECT_TYPE, ObjectImportType.GEO_OBJECT);
 
     GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(result.toString(), true);
-    configuration.setSource(USATestData.SOURCE.getSource());
+    configuration.setDataSource(USATestData.SOURCE.getDataSource());
 
     return configuration;
   }

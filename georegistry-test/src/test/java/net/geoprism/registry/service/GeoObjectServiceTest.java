@@ -144,7 +144,7 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
 
         Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(client.getAdapter(), geoObj.toJSON().toString()).toJSON().toString());
         Assert.assertEquals(true, geoObj.getExists());
-        Assert.assertEquals(FastTestDataset.SOURCE.getCode(), geoObj.getValue(DefaultAttribute.SOURCE.getName()));
+        Assert.assertEquals(FastTestDataset.SOURCE.getCode(), geoObj.getValue(DefaultAttribute.DATA_SOURCE.getName()));
       });
     }
   }

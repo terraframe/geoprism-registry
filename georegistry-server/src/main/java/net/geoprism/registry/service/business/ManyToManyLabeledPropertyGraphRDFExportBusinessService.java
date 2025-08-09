@@ -41,7 +41,7 @@ import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
-import org.commongeoregistry.adapter.metadata.AttributeSourceType;
+import org.commongeoregistry.adapter.metadata.AttributeDataSourceType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.simplify.TopologyPreservingSimplifier;
@@ -337,7 +337,7 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
             sb.append(", " + attribute.getName() + ".displayLabel.defaultLocale as " + attribute.getName() + "_l");
           });
           
-          got.getAttributeTypes().stream().filter(t -> t instanceof AttributeSourceType).forEach(attribute -> {            
+          got.getAttributeTypes().stream().filter(t -> t instanceof AttributeDataSourceType).forEach(attribute -> {            
             sb.append(", " + attribute.getName() + ".code as " + attribute.getName() + "_c");
           });
         }
@@ -525,7 +525,7 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
               NodeFactory.createLiteralByValue(value, XSDDatatype.XSDboolean)));
         }
       }
-      else if (attribute instanceof AttributeSourceType)
+      else if (attribute instanceof AttributeDataSourceType)
       {
         Object value = valueMap.get(attribute.getName() + "_c");
         

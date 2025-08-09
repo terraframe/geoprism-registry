@@ -10,6 +10,7 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
+import org.commongeoregistry.adapter.metadata.AttributeDataSourceType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeGeometryType;
@@ -45,6 +46,7 @@ import com.runwaysdk.system.metadata.MdVertex;
 import net.geoprism.graph.AttributeBooleanTypeSnapshot;
 import net.geoprism.graph.AttributeCharacterTypeSnapshot;
 import net.geoprism.graph.AttributeClassificationTypeSnapshot;
+import net.geoprism.graph.AttributeDataSourceTypeSnapshot;
 import net.geoprism.graph.AttributeDateTypeSnapshot;
 import net.geoprism.graph.AttributeDoubleTypeSnapshot;
 import net.geoprism.graph.AttributeGeometryTypeSnapshot;
@@ -672,6 +674,11 @@ public class SnapshotBusinessService
     else if (attribute instanceof AttributeLongTypeSnapshot)
     {
       attributeType = new AttributeIntegerType(attribute.getCode(), attributeLabel, attributeDescription, attribute.getIsDefault(), attribute.getIsRequired(), attribute.getIsUnique());
+      attributeType.setIsChangeOverTime(attribute.getIsChangeOverTime());
+    }
+    else if (attribute instanceof AttributeDataSourceTypeSnapshot)
+    {
+      attributeType = new AttributeDataSourceType(attribute.getCode(), attributeLabel, attributeDescription, attribute.getIsDefault(), attribute.getIsRequired(), attribute.getIsUnique());
       attributeType.setIsChangeOverTime(attribute.getIsChangeOverTime());
     }
     else if (attribute instanceof AttributeDoubleTypeSnapshot)

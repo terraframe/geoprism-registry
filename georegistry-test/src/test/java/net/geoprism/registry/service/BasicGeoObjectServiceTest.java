@@ -157,7 +157,7 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
       object.setValue(attributeFloat.getName(), testDouble, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       object.setValue(attributeClassification.getName(), root.getVertex(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       object.setValue(attributeTerm.getName(), classifier.getOid(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
-      object.setValue(DefaultAttribute.SOURCE.getName(), source, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+      object.setValue(DefaultAttribute.DATA_SOURCE.getName(), source, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
 
       this.service.apply(object, false, false);
 
@@ -173,7 +173,7 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
       Classifier value = test.getValue(attributeTerm.getName(), USATestData.DEFAULT_OVER_TIME_DATE);
       Assert.assertEquals(term.getCode(), value.getClassifierId());
 
-      Assert.assertEquals(source.getOid(), test.getValue(DefaultAttribute.SOURCE.getName(), USATestData.DEFAULT_OVER_TIME_DATE));
+      Assert.assertEquals(source.getOid(), test.getValue(DefaultAttribute.DATA_SOURCE.getName(), USATestData.DEFAULT_OVER_TIME_DATE));
 
       Geometry geometry = test.getGeometry(USATestData.DEFAULT_OVER_TIME_DATE);
 

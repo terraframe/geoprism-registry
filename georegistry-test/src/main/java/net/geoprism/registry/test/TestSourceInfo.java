@@ -15,12 +15,12 @@ public class TestSourceInfo
 
   private String code;
 
-  private Source source;
+  private Source dataSource;
 
   public TestSourceInfo(String code)
   {
     this.code = code;
-    this.source = null;
+    this.dataSource = null;
   }
 
   public void delete()
@@ -34,23 +34,23 @@ public class TestSourceInfo
   public Source apply()
   {
     return Source.getByCode(code).orElseGet(() -> {
-      this.source = new Source();
-      source.setCode(this.code);
-      source.apply();
+      this.dataSource = new Source();
+      dataSource.setCode(this.code);
+      dataSource.apply();
 
-      return source;
+      return dataSource;
     });
 
   }
 
-  public Source getSource()
+  public Source getDataSource()
   {
-    if (this.source == null)
+    if (this.dataSource == null)
     {
-      Source.getByCode(code).ifPresent(s -> this.source = s);
+      Source.getByCode(code).ifPresent(s -> this.dataSource = s);
     }
 
-    return source;
+    return dataSource;
   }
 
   public String getLabel()

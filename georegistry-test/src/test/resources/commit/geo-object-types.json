@@ -158,14 +158,14 @@
         "isChangeOverTime": true
       },
       {
-        "code": "source",
+        "code": "dataSource",
         "type": "source",
         "label": {
-          "localizedValue": "Source",
+          "localizedValue": "Data Source",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Source"
+              "value": "Data Source"
             }
           ]
         },
@@ -345,14 +345,14 @@
         "isChangeOverTime": true
       },
       {
-        "code": "source",
+        "code": "dataSource",
         "type": "source",
         "label": {
-          "localizedValue": "Source",
+          "localizedValue": "Data Source",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Source"
+              "value": "Data Source"
             }
           ]
         },
@@ -532,14 +532,14 @@
         "isChangeOverTime": true
       },
       {
-        "code": "source",
+        "code": "dataSource",
         "type": "source",
         "label": {
-          "localizedValue": "Source",
+          "localizedValue": "Data Source",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Source"
+              "value": "Data Source"
             }
           ]
         },
@@ -719,14 +719,14 @@
         "isChangeOverTime": true
       },
       {
-        "code": "source",
+        "code": "dataSource",
         "type": "source",
         "label": {
-          "localizedValue": "Source",
+          "localizedValue": "Data Source",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Source"
+              "value": "Data Source"
             }
           ]
         },
@@ -906,14 +906,14 @@
         "isChangeOverTime": true
       },
       {
-        "code": "source",
+        "code": "dataSource",
         "type": "source",
         "label": {
-          "localizedValue": "Source",
+          "localizedValue": "Data Source",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Source"
+              "value": "Data Source"
             }
           ]
         },
@@ -1093,14 +1093,14 @@
         "isChangeOverTime": true
       },
       {
-        "code": "source",
+        "code": "dataSource",
         "type": "source",
         "label": {
-          "localizedValue": "Source",
+          "localizedValue": "Data Source",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Source"
+              "value": "Data Source"
             }
           ]
         },
@@ -1254,14 +1254,14 @@
         "isChangeOverTime": true
       },
       {
-        "code": "source",
+        "code": "dataSource",
         "type": "source",
         "label": {
-          "localizedValue": "Source",
+          "localizedValue": "Data Source",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Source"
+              "value": "Data Source"
             }
           ]
         },
@@ -1441,14 +1441,14 @@
         "isChangeOverTime": true
       },
       {
-        "code": "source",
+        "code": "dataSource",
         "type": "source",
         "label": {
-          "localizedValue": "Source",
+          "localizedValue": "Data Source",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Source"
+              "value": "Data Source"
             }
           ]
         },
@@ -1628,14 +1628,14 @@
         "isChangeOverTime": true
       },
       {
-        "code": "source",
+        "code": "dataSource",
         "type": "source",
         "label": {
-          "localizedValue": "Source",
+          "localizedValue": "Data Source",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Source"
+              "value": "Data Source"
             }
           ]
         },
@@ -1815,14 +1815,14 @@
         "isChangeOverTime": true
       },
       {
-        "code": "source",
+        "code": "dataSource",
         "type": "source",
         "label": {
-          "localizedValue": "Source",
+          "localizedValue": "Data Source",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Source"
+              "value": "Data Source"
             }
           ]
         },
@@ -2002,14 +2002,14 @@
         "isChangeOverTime": true
       },
       {
-        "code": "source",
+        "code": "dataSource",
         "type": "source",
         "label": {
-          "localizedValue": "Source",
+          "localizedValue": "Data Source",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Source"
+              "value": "Data Source"
             }
           ]
         },

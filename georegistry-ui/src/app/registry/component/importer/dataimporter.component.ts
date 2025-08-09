@@ -130,7 +130,7 @@ export class DataImporterComponent implements OnInit {
      */
     sources: Source[];
 
-    source: string;
+    dataSource: string;
 
     // eslint-disable-next-line no-useless-constructor
     constructor(
@@ -243,8 +243,8 @@ export class DataImporterComponent implements OnInit {
             form.append("type", this.typeCode);
             form.append("copyBlank", this.copyBlank);
 
-            if (this.source != null) {
-                form.append("source", this.source);
+            if (this.dataSource != null) {
+                form.append("dataSource", this.dataSource);
             }
 
             if (this.startDate != null) {
