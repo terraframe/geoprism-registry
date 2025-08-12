@@ -1,7 +1,7 @@
 package net.geoprism.graph;
 
-import net.geoprism.registry.etl.ImportHistory;
 import net.geoprism.registry.etl.ImportStage;
+import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.lpg.LPGPublishProgressMonitorIF;
 
 public class LPGPublishImportHistoryProgressMonitor implements LPGPublishProgressMonitorIF
