@@ -4,6 +4,7 @@
 package net.geoprism.registry.service;
 
 import org.commongeoregistry.adapter.Term;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
@@ -24,6 +25,7 @@ import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.conversion.TermConverter;
+import net.geoprism.registry.graph.Source;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -32,6 +34,7 @@ import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
 import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.SourceBusinessServiceIF;
 import net.geoprism.registry.service.business.TermBusinessServiceIF;
 import net.geoprism.registry.test.USATestData;
 
@@ -56,6 +59,8 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
 
   private static Classifier                   classifier;
 
+  private static Source                       source;
+
   @Autowired
   private ClassificationTypeBusinessServiceIF cTypeService;
 
@@ -70,6 +75,9 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
 
   @Autowired
   private GeoObjectBusinessServiceIF          service;
+
+  @Autowired
+  private SourceBusinessServiceIF             sourceService;
 
   @Override
   @Request
@@ -101,6 +109,8 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
     String parent = TermConverter.buildClassifierKeyFromTermCode(root.getCode());
 
     classifier = Classifier.getByKey(Classifier.buildKey(parent, term.getCode()));
+
+    source = this.sourceService.apply(SourceServiceTest.createMock());
   }
 
   @Override
@@ -123,6 +133,11 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
     }
 
     USATestData.ORG_NPS.delete();
+
+    if (source != null)
+    {
+      this.sourceService.delete(source);
+    }
   }
 
   @Test
@@ -142,6 +157,7 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
       object.setValue(attributeFloat.getName(), testDouble, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       object.setValue(attributeClassification.getName(), root.getVertex(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       object.setValue(attributeTerm.getName(), classifier.getOid(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+      object.setValue(DefaultAttribute.DATA_SOURCE.getName(), source, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
 
       this.service.apply(object, false, false);
 
@@ -156,6 +172,8 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
       Assert.assertEquals(root.getOid(), test.getValue(attributeClassification.getName(), USATestData.DEFAULT_OVER_TIME_DATE));
       Classifier value = test.getValue(attributeTerm.getName(), USATestData.DEFAULT_OVER_TIME_DATE);
       Assert.assertEquals(term.getCode(), value.getClassifierId());
+
+      Assert.assertEquals(source.getOid(), test.getValue(DefaultAttribute.DATA_SOURCE.getName(), USATestData.DEFAULT_OVER_TIME_DATE));
 
       Geometry geometry = test.getGeometry(USATestData.DEFAULT_OVER_TIME_DATE);
 

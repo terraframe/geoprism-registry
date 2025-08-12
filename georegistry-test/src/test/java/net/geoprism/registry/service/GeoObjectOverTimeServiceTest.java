@@ -34,7 +34,7 @@ import net.geoprism.registry.test.TestUserInfo;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class GeoObjectOverTimeServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  public static final TestGeoObjectInfo TEST_GO = new TestGeoObjectInfo("GOSERV_TEST_GO", FastTestDataset.COUNTRY);
+  public static final TestGeoObjectInfo TEST_GO = new TestGeoObjectInfo("GOSERV_TEST_GO", FastTestDataset.COUNTRY, FastTestDataset.SOURCE);
 
   @Autowired
   private TestRegistryClient            client;
@@ -173,7 +173,7 @@ public class GeoObjectOverTimeServiceTest extends FastDatasetTest implements Ins
 
     for (TestUserInfo user : allowedUsers)
     {
-      TestGeoObjectInfo go = testData.newTestGeoObjectInfo("UpdateTest", FastTestDataset.COUNTRY);
+      TestGeoObjectInfo go = testData.newTestGeoObjectInfo("UpdateTest", FastTestDataset.COUNTRY, FastTestDataset.SOURCE);
       go.apply();
 
       TestDataSet.runAsUser(user, (request) -> {
@@ -188,7 +188,7 @@ public class GeoObjectOverTimeServiceTest extends FastDatasetTest implements Ins
 
     for (TestUserInfo user : disallowedUsers)
     {
-      TestGeoObjectInfo go = testData.newTestGeoObjectInfo("UpdateTest", FastTestDataset.COUNTRY);
+      TestGeoObjectInfo go = testData.newTestGeoObjectInfo("UpdateTest", FastTestDataset.COUNTRY, FastTestDataset.SOURCE);
       go.apply();
 
       TestDataSet.runAsUser(user, (request) -> {

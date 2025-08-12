@@ -48,6 +48,7 @@ import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
+import org.commongeoregistry.adapter.metadata.AttributeDataSourceType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.geotools.data.DefaultTransaction;
@@ -79,6 +80,7 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Session;
 
+import net.geoprism.registry.graph.Source;
 import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -109,9 +111,12 @@ public class GeoObjectAtTimeShapefileExporter
 
   public GeoObjectAtTimeShapefileExporter(ServerGeoObjectType type, Date date, Collection<Locale> locales)
   {
+    ImportAttributeSerializer serializer = new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, type.toDTO());
+    serializer.getFilter().remove(DefaultAttribute.DATA_SOURCE.getName());
+    
     this.type = type;
     this.date = date;
-    this.attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, type.toDTO()).attributes(this.type.toDTO());
+    this.attributes = serializer.attributes(this.type.toDTO());
     this.columnNames = new HashMap<String, String>();
     this.locales = locales;
   }
@@ -292,6 +297,12 @@ public class GeoObjectAtTimeShapefileExporter
             {
               builder.set(columnName, GeoObjectUtil.convertToTermString((AttributeClassificationType) attribute, value));
             }
+            else if (attribute instanceof AttributeDataSourceType)
+            {
+              Source source = Source.get((String) value);
+
+              builder.set(columnName, source.getCode());
+            }            
             else if (attribute instanceof AttributeLocalType)
             {
               builder.set(columnName, ( (LocalizedValue) value ).getValue());
@@ -405,6 +416,10 @@ public class GeoObjectAtTimeShapefileExporter
     {
       return Boolean.class;
     }
+    else if (attribute instanceof AttributeDataSourceType)
+    {
+      return String.class;
+    }
     else if (attribute instanceof AttributeCharacterType)
     {
       return String.class;
@@ -426,6 +441,10 @@ public class GeoObjectAtTimeShapefileExporter
       return String.class;
     }
     else if (attribute instanceof AttributeClassificationType)
+    {
+      return String.class;
+    }
+    else if (attribute instanceof AttributeDataSourceType)
     {
       return String.class;
     }

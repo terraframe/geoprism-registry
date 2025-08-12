@@ -21,7 +21,6 @@ package net.geoprism.registry.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,7 +49,7 @@ public class PublishController extends RunwaySpringController
   {
     List<PublishDTO> dtos = this.service.getAll(this.getSessionId());
 
-    return new ResponseEntity<List<PublishDTO>>(dtos, HttpStatus.OK);
+    return ResponseEntity.ok(dtos);
   }
 
   @GetMapping(API_PATH + "/get")
@@ -58,13 +57,22 @@ public class PublishController extends RunwaySpringController
   {
     PublishDTO dto = this.service.get(this.getSessionId(), uid);
 
-    return new ResponseEntity<PublishDTO>(dto, HttpStatus.OK);
+    return ResponseEntity.ok(dto);
   }
 
   @PostMapping(API_PATH + "/create")
-  public ResponseEntity<PublishDTO> create(@Valid @RequestBody PublishDTO publish)
+  public ResponseEntity<PublishDTO> create(@Valid @RequestBody PublishDTO dto)
   {
-    return new ResponseEntity<PublishDTO>(publish, HttpStatus.OK);
+    PublishDTO publish = this.service.create(getSessionId(), dto);
+
+    return ResponseEntity.ok(publish);
   }
 
+  @PostMapping(API_PATH + "/create-new-version")
+  public ResponseEntity<CommitDTO> createNewVersion(@RequestParam(name = "uid") String uid)
+  {
+    CommitDTO commit = this.service.createNewVersion(getSessionId(), uid);
+
+    return ResponseEntity.ok(commit);
+  }  
 }

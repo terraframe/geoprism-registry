@@ -165,7 +165,7 @@ public class ListTypeGeoObjectShapefileExporterTest extends FastDatasetTest impl
 
     List<AttributeDescriptor> attributes = featureType.getAttributeDescriptors();
 
-    Assert.assertEquals(6, attributes.size());
+    Assert.assertEquals(7, attributes.size());
   }
 
   @Test

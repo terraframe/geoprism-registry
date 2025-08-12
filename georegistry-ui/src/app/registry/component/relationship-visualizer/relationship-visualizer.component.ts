@@ -34,7 +34,7 @@ import { DagreNodesOnlyLayout } from "./relationship-viz-layout";
 import * as shape from "d3-shape";
 import { NgxSpinnerService } from "ngx-spinner";
 import { OverlayerIdentifier } from "@registry/model/constants";
-import * as ColorGen from "color-generator";
+import uniqolor from 'uniqolor';
 import { RegistryCacheService } from "@registry/service/registry-cache.service";
 import { GeometryService } from "@registry/service";
 import { Router, ActivatedRoute } from "@angular/router";
@@ -408,7 +408,7 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
                 } else if (oldTypeLegend != null && oldTypeLegend[relatedType.code] != null) {
                     color = oldTypeLegend[relatedType.code].color;
                 } else {
-                    color = ColorGen().hexString();
+                    color = uniqolor(relatedType.code).color;
                 }
 
                 this.typeLegend[relatedType.code] = { color: color, label: relatedType.label };

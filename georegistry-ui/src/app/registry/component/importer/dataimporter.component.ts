@@ -32,6 +32,8 @@ import { ShapefileModalComponent } from "./modals/shapefile-modal.component";
 import { ImportStrategy } from "@registry/model/constants";
 import { HierarchyGroupedTypeView, TypeGroupedHierachyView } from "@registry/model/hierarchy";
 import { environment } from "src/environments/environment";
+import { Source } from "@registry/model/source";
+import { SourceService } from "@registry/service/source.service";
 
 
 @Component({
@@ -42,9 +44,9 @@ import { environment } from "src/environments/environment";
 })
 export class DataImporterComponent implements OnInit {
 
-    @ViewChildren("dateFieldComponents") dateFieldComponentsArray:QueryList<DateFieldComponent>;
+    @ViewChildren("dateFieldComponents") dateFieldComponentsArray: QueryList<DateFieldComponent>;
 
-    currentDate : Date = new Date();
+    currentDate: Date = new Date();
 
     showImportConfig: boolean = false;
 
@@ -123,18 +125,31 @@ export class DataImporterComponent implements OnInit {
 
     copyBlank: boolean = true;
 
+    /*
+     * Hierarchies grouped by GeoObjectType
+     */
+    sources: Source[];
+
+    dataSource: string;
+
     // eslint-disable-next-line no-useless-constructor
-    constructor(private service: IOService,
+    constructor(
         private eventService: EventService,
         private modalService: BsModalService,
         private localizationService: LocalizationService,
-        private authService: AuthService,
+        private sourceService: SourceService,
         private sysService: ExternalSystemService,
         private hierarchyService: HierarchyService,
         private changeDetectorRef: ChangeDetectorRef
     ) { }
 
     ngOnInit(): void {
+        this.sourceService.getAll().then(sources =>
+            this.sources = sources
+        ).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
+
         this.sysService.getExternalSystems(1, 100).then(paginatedSystems => {
             this.externalSystems = paginatedSystems.resultSet;
 
@@ -227,6 +242,10 @@ export class DataImporterComponent implements OnInit {
         this.uploader.onBuildItemForm = (fileItem: any, form: any) => {
             form.append("type", this.typeCode);
             form.append("copyBlank", this.copyBlank);
+
+            if (this.dataSource != null) {
+                form.append("dataSource", this.dataSource);
+            }
 
             if (this.startDate != null) {
                 form.append("startDate", this.startDate);
@@ -344,15 +363,15 @@ export class DataImporterComponent implements OnInit {
         this.showImportConfig = false;
     }
 
-//    setInfinity(endDate: any): void {
-//
-//        if(endDate === PRESENT){
-//            this.endDate = null;
-//        }
-//        else{
-//            this.endDate = PRESENT;
-//        }
-//    }
+    //    setInfinity(endDate: any): void {
+    //
+    //        if(endDate === PRESENT){
+    //            this.endDate = null;
+    //        }
+    //        else{
+    //            this.endDate = PRESENT;
+    //        }
+    //    }
 
     checkDates(): any {
         setTimeout(() => {

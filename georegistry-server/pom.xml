@@ -73,9 +73,8 @@
 			<artifactId>spring-webmvc</artifactId>
 			<version>6.1.20</version>
 		</dependency>
--->
-    <!--
-    https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator -->
+		-->
+    <!-- https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator -->
     <dependency>
       <groupId>org.hibernate.validator</groupId>
       <artifactId>hibernate-validator</artifactId>

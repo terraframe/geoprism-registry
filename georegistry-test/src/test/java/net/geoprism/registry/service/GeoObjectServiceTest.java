@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.Set;
 import java.util.UUID;
 
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.geotools.geometry.jts.GeometryBuilder;
@@ -48,9 +49,9 @@ import net.geoprism.registry.test.TestUserInfo;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  public static final TestGeoObjectInfo TEST_GO         = new TestGeoObjectInfo("GOSERV_TEST_GO", FastTestDataset.COUNTRY);
+  public static final TestGeoObjectInfo TEST_GO         = new TestGeoObjectInfo("GOSERV_TEST_GO", FastTestDataset.COUNTRY, FastTestDataset.SOURCE);
 
-  public static final TestGeoObjectInfo TEST_GO_PRIVATE = new TestGeoObjectInfo("GOSERV_TEST_GO_PRIVATE", FastTestDataset.PROVINCE_PRIVATE);
+  public static final TestGeoObjectInfo TEST_GO_PRIVATE = new TestGeoObjectInfo("GOSERV_TEST_GO_PRIVATE", FastTestDataset.PROVINCE_PRIVATE, FastTestDataset.SOURCE);
 
   @Autowired
   private TestRegistryClient            client;
@@ -143,6 +144,7 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
 
         Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(client.getAdapter(), geoObj.toJSON().toString()).toJSON().toString());
         Assert.assertEquals(true, geoObj.getExists());
+        Assert.assertEquals(FastTestDataset.SOURCE.getCode(), geoObj.getValue(DefaultAttribute.DATA_SOURCE.getName()));
       });
     }
   }
@@ -312,7 +314,7 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
 
     for (TestUserInfo user : disallowedUsers)
     {
-      TestGeoObjectInfo go = testData.newTestGeoObjectInfo("UpdateTest", FastTestDataset.PROVINCE_PRIVATE);
+      TestGeoObjectInfo go = testData.newTestGeoObjectInfo("UpdateTest", FastTestDataset.PROVINCE_PRIVATE, FastTestDataset.SOURCE);
       go.apply();
 
       TestDataSet.runAsUser(user, (request) -> {
@@ -354,7 +356,7 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
 
     for (TestUserInfo user : allowedUsers)
     {
-      TestGeoObjectInfo go = testData.newTestGeoObjectInfo("UpdateTest", FastTestDataset.COUNTRY);
+      TestGeoObjectInfo go = testData.newTestGeoObjectInfo("UpdateTest", FastTestDataset.COUNTRY, FastTestDataset.SOURCE);
       go.apply();
 
       TestDataSet.runAsUser(user, (request) -> {
@@ -369,7 +371,7 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
 
     for (TestUserInfo user : disallowedUsers)
     {
-      TestGeoObjectInfo go = testData.newTestGeoObjectInfo("UpdateTest", FastTestDataset.COUNTRY);
+      TestGeoObjectInfo go = testData.newTestGeoObjectInfo("UpdateTest", FastTestDataset.COUNTRY, FastTestDataset.SOURCE);
       go.apply();
 
       TestDataSet.runAsUser(user, (request) -> {
@@ -390,7 +392,7 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
   @Test
   public void testUpdateGeoObjectNoDate()
   {
-    TestGeoObjectInfo go = testData.newTestGeoObjectInfo("UpdateTest", FastTestDataset.COUNTRY);
+    TestGeoObjectInfo go = testData.newTestGeoObjectInfo("UpdateTest", FastTestDataset.COUNTRY, FastTestDataset.SOURCE);
     go.apply();
 
     TestDataSet.runAsUser(FastTestDataset.USER_CGOV_RA, (request) -> {
@@ -408,7 +410,7 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
 
     for (TestUserInfo user : allowedUsers)
     {
-      TestGeoObjectInfo go = testData.newTestGeoObjectInfo("UpdateTest", FastTestDataset.PROVINCE_PRIVATE);
+      TestGeoObjectInfo go = testData.newTestGeoObjectInfo("UpdateTest", FastTestDataset.PROVINCE_PRIVATE, FastTestDataset.SOURCE);
       go.apply();
 
       TestDataSet.runAsUser(user, (request) -> {
@@ -423,7 +425,7 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
 
     for (TestUserInfo user : disallowedUsers)
     {
-      TestGeoObjectInfo go = testData.newTestGeoObjectInfo("UpdateTest", FastTestDataset.PROVINCE_PRIVATE);
+      TestGeoObjectInfo go = testData.newTestGeoObjectInfo("UpdateTest", FastTestDataset.PROVINCE_PRIVATE, FastTestDataset.SOURCE);
       go.apply();
 
       TestDataSet.runAsUser(user, (request) -> {

@@ -67,7 +67,7 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 public class ShapefileBusinessService
 {
   
-  public JSONObject getShapefileConfiguration(String type, Date startDate, Date endDate, String fileName, InputStream fileStream, ImportStrategy strategy, Boolean copyBlank, boolean ignoreProjection)
+  public JSONObject getShapefileConfiguration(String type, Date startDate, Date endDate, String source, String fileName, InputStream fileStream, ImportStrategy strategy, Boolean copyBlank, boolean ignoreProjection)
   {
     // Save the file to the file system
     try
@@ -93,6 +93,11 @@ public class ShapefileBusinessService
         object.put(ImportConfiguration.COPY_BLANK, copyBlank);
         object.put(ImportConfiguration.IGNORE_PROJECTION, ignoreProjection);
 
+        if (source != null)
+        {
+          object.put(GeoObjectImportConfiguration.DATA_SOURCE, source);
+        }
+        
         if (startDate != null)
         {
           object.put(GeoObjectImportConfiguration.START_DATE, format.format(startDate));

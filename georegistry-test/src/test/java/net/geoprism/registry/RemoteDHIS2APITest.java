@@ -119,7 +119,7 @@ public class RemoteDHIS2APITest implements InstanceTestClassListener
     
     public static final TestGeoObjectTypeInfo REMOTE_GOT_PARENT = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "RemoteGotParent", GeometryType.MULTIPOLYGON, AllAttributesDataset.ORG);
     
-    public static final TestGeoObjectInfo     REMOTE_GO_PARENT  = new TestGeoObjectInfo(TEST_DATA_KEY + "RemoteGoParent", REMOTE_GOT_PARENT);
+    public static final TestGeoObjectInfo     REMOTE_GO_PARENT  = new TestGeoObjectInfo(TEST_DATA_KEY + "RemoteGoParent", REMOTE_GOT_PARENT, AllAttributesDataset.SOURCE);
     
     {
       managedGeoObjectTypeInfos.add(REMOTE_GOT_PARENT);

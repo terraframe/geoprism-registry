@@ -43,6 +43,7 @@ import { CurationJobComponent } from "./component/curation/curation-job.componen
 import { BusinessTableComponent } from "./component/business-table/business-table.component";
 import { ClassificationTypeManagerComponent } from "./component/classification-type/classification-type-manager.component";
 import { LabeledPropertyGraphTypeManagerComponent } from "./component/labeled-property-graph-type/labeled-property-graph-type-manager.component";
+import { SourceManagerComponent } from "./component/source/source-manager.component";
 import { RDFExportComponent } from "./component/data-export/rdf-export.component";
 
 const routes: Routes = [
@@ -149,6 +150,11 @@ const routes: Routes = [
     {
         path: "classification-type",
         component: ClassificationTypeManagerComponent,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: "sources",
+        component: SourceManagerComponent,
         canActivate: [AuthGuard]
     },
     {

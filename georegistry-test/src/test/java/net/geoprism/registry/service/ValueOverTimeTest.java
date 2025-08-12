@@ -38,7 +38,7 @@ import net.geoprism.registry.test.TestGeoObjectInfo;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class ValueOverTimeTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  public static final TestGeoObjectInfo TEST_GO = new TestGeoObjectInfo("VOT_TEST_GO", FastTestDataset.COUNTRY);
+  public static final TestGeoObjectInfo TEST_GO = new TestGeoObjectInfo("VOT_TEST_GO", FastTestDataset.COUNTRY, FastTestDataset.SOURCE);
 
   @Autowired private GeoObjectBusinessServiceIF goBiz;
   

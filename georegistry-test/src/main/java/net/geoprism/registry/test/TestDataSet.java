@@ -139,6 +139,8 @@ abstract public class TestDataSet
 
   protected ArrayList<TestUserInfo>          managedUsers                    = new ArrayList<TestUserInfo>();
 
+  protected ArrayList<TestSourceInfo>        managedSources                  = new ArrayList<TestSourceInfo>();
+
   public ClientSession                       clientSession                   = null;
 
   public ClientRequestIF                     clientRequest                   = null;
@@ -212,6 +214,15 @@ abstract public class TestDataSet
     ArrayList<TestUserInfo> all = new ArrayList<TestUserInfo>();
 
     all.addAll(managedUsers);
+
+    return all;
+  }
+
+  public ArrayList<TestSourceInfo> getManagedSources()
+  {
+    ArrayList<TestSourceInfo> all = new ArrayList<TestSourceInfo>();
+
+    all.addAll(managedSources);
 
     return all;
   }
@@ -295,7 +306,7 @@ abstract public class TestDataSet
   {
     GraphRepoServiceIF service = ServiceFactory.getBean(GraphRepoServiceIF.class);
 
-    tearDownMetadata();
+//    tearDownMetadata();
 
     setUpOrgsInTrans();
     setUpMetadataInTrans();
@@ -322,6 +333,11 @@ abstract public class TestDataSet
   @Transaction
   protected void setUpMetadataInTrans()
   {
+    for (TestSourceInfo source : managedSources)
+    {
+      source.apply();
+    }
+
     for (TestHierarchyTypeInfo ht : managedHierarchyTypeInfos)
     {
       ht.apply();
@@ -344,7 +360,7 @@ abstract public class TestDataSet
     GraphRepoServiceIF service = ServiceFactory.getBean(GraphRepoServiceIF.class);
 
     tearDownInstanceData();
-
+    
     setUpTestInTrans();
 
     service.refreshMetadataCache();
@@ -420,6 +436,11 @@ abstract public class TestDataSet
     for (TestGeoObjectTypeInfo got : list)
     {
       got.delete();
+    }
+
+    for (TestSourceInfo source : this.managedSources)
+    {
+      source.delete();
     }
 
     for (TestOrganizationInfo org : this.getManagedOrganizations())
@@ -633,9 +654,9 @@ abstract public class TestDataSet
     // compare.getRootGeoObjectTypes() // TODO
   }
 
-  public TestGeoObjectInfo newTestGeoObjectInfo(String genKey, TestGeoObjectTypeInfo testUni)
+  public TestGeoObjectInfo newTestGeoObjectInfo(String genKey, TestGeoObjectTypeInfo testUni, TestSourceInfo source)
   {
-    TestGeoObjectInfo info = new TestGeoObjectInfo(genKey, testUni);
+    TestGeoObjectInfo info = new TestGeoObjectInfo(genKey, testUni, source);
 
     info.delete();
 
@@ -644,9 +665,9 @@ abstract public class TestDataSet
     return info;
   }
 
-  public TestGeoObjectInfo newTestGeoObjectInfo(String genKey, TestGeoObjectTypeInfo testUni, String wkt)
+  public TestGeoObjectInfo newTestGeoObjectInfo(String genKey, TestGeoObjectTypeInfo testUni, String wkt, TestSourceInfo source)
   {
-    TestGeoObjectInfo info = new TestGeoObjectInfo(genKey, testUni, wkt, true, true);
+    TestGeoObjectInfo info = new TestGeoObjectInfo(genKey, testUni, wkt, true, true, source);
 
     info.delete();
 

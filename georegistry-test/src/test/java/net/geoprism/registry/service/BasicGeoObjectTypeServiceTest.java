@@ -3,8 +3,10 @@
  */
 package net.geoprism.registry.service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -99,6 +101,10 @@ public class BasicGeoObjectTypeServiceTest implements InstanceTestClassListener
       Map<String, AttributeType> attributes = type.getAttributeMap();
 
       Assert.assertTrue(attributes.size() > 0);
+
+      Set<String> attributeNames = attributes.keySet();
+
+      Assert.assertTrue(attributeNames.contains(DefaultAttribute.DATA_SOURCE.getName()));
     }
     finally
     {

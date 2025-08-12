@@ -47,8 +47,8 @@ public class ConversionTest extends USADatasetTest implements InstanceTestClassL
   public void beforeClassSetup() throws Exception
   {
     super.beforeClassSetup();
-    
-    testGo = testData.newTestGeoObjectInfo("ConversionTest", USATestData.STATE);
+
+    testGo = testData.newTestGeoObjectInfo("ConversionTest", USATestData.STATE, USATestData.SOURCE);
   }
 
   @Before

@@ -103,7 +103,7 @@ public class GeoObjectAtTimeShapefileExporterTest extends FastDatasetTest implem
 
     List<AttributeDescriptor> attributes = featureType.getAttributeDescriptors();
 
-    Assert.assertEquals(3, attributes.size());
+    Assert.assertEquals(4, attributes.size());
   }
 
   @Test

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
@@ -64,6 +64,8 @@ public class ShapefileController extends RunwaySpringController
 
     @NotNull(message = "Import blank cells requires a value")
     private Boolean       copyBlank;
+
+    private String        dataSource;
 
     public String getType()
     {
@@ -124,6 +126,16 @@ public class ShapefileController extends RunwaySpringController
     {
       this.copyBlank = copyBlank;
     }
+    
+    public String getDataSource()
+    {
+      return dataSource;
+    }
+    
+    public void setDataSource(String dataSource)
+    {
+      this.dataSource = dataSource;
+    }
 
   }
 
@@ -143,7 +155,7 @@ public class ShapefileController extends RunwaySpringController
 
       ImportStrategy strategy = ImportStrategy.valueOf(input.strategy);
 
-      JSONObject configuration = service.getShapefileConfiguration(sessionId, input.type, input.startDate, input.endDate, fileName, stream, strategy, input.copyBlank);
+      JSONObject configuration = service.getShapefileConfiguration(sessionId, input.type, input.startDate, input.endDate, input.dataSource, fileName, stream, strategy, input.copyBlank);
 
       return new ResponseEntity<String>(configuration.toString(), HttpStatus.OK);
     }

@@ -42,11 +42,23 @@ import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.SearchService;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"net.geoprism.spring.core",  "net.geoprism.registry.axon", "net.geoprism.registry.service.business", "net.geoprism.registry.service.permission"})
+@ComponentScan(basePackages = { //
+    "net.geoprism.spring.core", //
+    "net.geoprism.registry.axon", //
+    "net.geoprism.registry.service.business", //
+    "net.geoprism.registry.service.permission" //
+})
 public class SearchTablePatch implements CommandLineRunner
 {
   @Autowired
   SearchService service;
+
+  public SearchTablePatch setService(SearchService service)
+  {
+    this.service = service;
+
+    return this;
+  }
 
   @Transaction
   private void doIt()

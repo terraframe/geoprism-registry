@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.io;
 
@@ -42,12 +42,12 @@ import net.geoprism.registry.service.request.LocaleSerializer;
 
 public class ImportAttributeSerializer extends LocaleSerializer implements CustomSerializer
 {
-  private Set<String>  filter;
+  private Set<String>   filter;
 
-  private boolean      includeCoordinates;
+  private boolean       includeCoordinates;
 
   private GeoObjectType type;
-  
+
   public ImportAttributeSerializer(Locale locale, boolean includeCoordinates, GeoObjectType type)
   {
     this(locale, includeCoordinates, false, type);
@@ -65,7 +65,8 @@ public class ImportAttributeSerializer extends LocaleSerializer implements Custo
     this.filter.add(DefaultAttribute.CREATE_DATE.getName());
     this.filter.add(DefaultAttribute.SEQUENCE.getName());
     this.filter.add(DefaultAttribute.TYPE.getName());
-    
+    this.filter.add(DefaultAttribute.DATA_SOURCE.getName());
+
     for (AttributeType attr : type.getAttributeMap().values())
     {
       if (attr instanceof AttributeLocalType)
@@ -81,7 +82,7 @@ public class ImportAttributeSerializer extends LocaleSerializer implements Custo
     {
       this.filter.add(DefaultAttribute.UID.getName());
     }
-    
+
     this.filter.add(DefaultAttribute.ALT_IDS.getName());
   }
 
@@ -109,7 +110,7 @@ public class ImportAttributeSerializer extends LocaleSerializer implements Custo
   private void serializeLocalAttribute(AttributeType attr, JsonArray jaAttrs)
   {
     jaAttrs.add(this.serializeLocale(attr, LocalizedValue.DEFAULT_LOCALE, LocalizationFacade.localize(DefaultLocaleView.LABEL)));
-    
+
     for (SupportedLocaleIF locale : LocalizationFacade.getSupportedLocales())
     {
       jaAttrs.add(this.serializeLocale(attr, locale.getLocale().toString(), locale.getDisplayLabel().getValue()));
@@ -121,20 +122,23 @@ public class ImportAttributeSerializer extends LocaleSerializer implements Custo
     JsonObject attribute = displayLabel.toJSON(this);
     attribute.addProperty("locale", key);
     attribute.addProperty(AttributeType.JSON_CODE, displayLabel.getName());
-//    attribute.addProperty(AttributeType.JSON_REQUIRED, key.equals(LocalizedValue.DEFAULT_LOCALE));
+    // attribute.addProperty(AttributeType.JSON_REQUIRED,
+    // key.equals(LocalizedValue.DEFAULT_LOCALE));
 
     JsonObject jaLabel = attribute.get(AttributeType.JSON_LOCALIZED_LABEL).getAsJsonObject();
     String value = jaLabel.get(LocalizedValue.LOCALIZED_VALUE).getAsString();
     value += " (" + label + ")";
     jaLabel.addProperty(LocalizedValue.LOCALIZED_VALUE, value);
-    
+
     return attribute;
   }
 
   @Override
   public Collection<AttributeType> attributes(GeoObjectType type)
   {
-    List<AttributeType> attributes = type.getAttributeMap().values().stream().filter(attributeType -> !this.filter.contains(attributeType.getName())).collect(Collectors.toList());
+    List<AttributeType> attributes = type.getAttributeMap().values().stream() //
+        .filter(attributeType -> !this.filter.contains(attributeType.getName())) //
+        .collect(Collectors.toList());
 
     if (this.includeCoordinates)
     {

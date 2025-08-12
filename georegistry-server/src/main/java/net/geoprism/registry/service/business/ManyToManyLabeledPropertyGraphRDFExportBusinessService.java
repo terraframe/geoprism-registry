@@ -41,6 +41,7 @@ import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
+import org.commongeoregistry.adapter.metadata.AttributeDataSourceType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.simplify.TopologyPreservingSimplifier;
@@ -66,6 +67,7 @@ import net.geoprism.registry.InvalidMasterListException;
 import net.geoprism.registry.cache.ClassificationCache;
 import net.geoprism.registry.etl.ImportHistory;
 import net.geoprism.registry.etl.ImportStage;
+import net.geoprism.registry.graph.Source;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
@@ -107,6 +109,7 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
 
     public ImportHistory                      history;
 
+    protected List<Source>                                   sources;
   }
 
   public static final String                               LPG        = "lpg";
@@ -136,6 +139,9 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
 
   @Autowired
   private ClassificationBusinessServiceIF                  classificationService;
+
+  @Autowired
+  private SourceBusinessServiceIF                          sourceService;
 
   @Override
   public void export(ImportHistory history, LabeledPropertyGraphTypeVersion version, GeometryExportType geomExportType, OutputStream os)
@@ -330,6 +336,10 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
           got.getAttributeTypes().stream().filter(t -> t instanceof AttributeLocalType).forEach(attribute -> {
             sb.append(", " + attribute.getName() + ".displayLabel.defaultLocale as " + attribute.getName() + "_l");
           });
+          
+          got.getAttributeTypes().stream().filter(t -> t instanceof AttributeDataSourceType).forEach(attribute -> {            
+            sb.append(", " + attribute.getName() + ".code as " + attribute.getName() + "_c");
+          });
         }
       });
 
@@ -515,6 +525,22 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
               NodeFactory.createLiteralByValue(value, XSDDatatype.XSDboolean)));
         }
       }
+      else if (attribute instanceof AttributeDataSourceType)
+      {
+        Object value = valueMap.get(attribute.getName() + "_c");
+        
+        if (value != null)
+        {
+          state.writer.quad( //
+              Quad.create( //
+                  NodeFactory.createURI(state.quadGraphName), //
+                  buildObjectUri(state, code, typeCode, orgCode, false), //
+                  NodeFactory.createURI(buildAttributeUri(state, typeCode, orgCode, attribute)), //
+                  NodeFactory.createURI(buildSourceUri(state, (String) value))
+              )
+          );
+        }
+      }      
       else
       {
 
@@ -705,6 +731,12 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
           NodeFactory.createURI(state.prefixes.get(LPGS) + "GraphType")));
     }
   }
+  
+  protected String buildSourceUri(State state, String code)
+  {
+    return state.prefixes.get(LPGVS) + "Source-" + code;
+  }
+
 
   protected String buildAttributeUri(State state, final String typeCode, final String orgCode, AttributeType attribute)
   {

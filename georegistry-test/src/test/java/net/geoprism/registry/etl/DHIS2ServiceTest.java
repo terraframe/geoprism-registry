@@ -108,13 +108,13 @@ import net.geoprism.registry.test.TestUserInfo;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class DHIS2ServiceTest implements InstanceTestClassListener
 {
-  public static final TestGeoObjectInfo  GO_NO_PARENT                      = new TestGeoObjectInfo("BOOL_NO_PARENT", AllAttributesDataset.GOT_BOOL);
+  public static final TestGeoObjectInfo  GO_NO_PARENT                      = new TestGeoObjectInfo("BOOL_NO_PARENT", AllAttributesDataset.GOT_BOOL, AllAttributesDataset.SOURCE);
 
-  public static final TestGeoObjectInfo  GO_NO_PARENT2                     = new TestGeoObjectInfo("BOOL_NO_PARENT2", AllAttributesDataset.GOT_BOOL);
+  public static final TestGeoObjectInfo  GO_NO_PARENT2                     = new TestGeoObjectInfo("BOOL_NO_PARENT2", AllAttributesDataset.GOT_BOOL, AllAttributesDataset.SOURCE);
 
-  public static final TestGeoObjectInfo  GO_NO_PARENT3                     = new TestGeoObjectInfo("BOOL_NO_PARENT3", AllAttributesDataset.GOT_BOOL);
+  public static final TestGeoObjectInfo  GO_NO_PARENT3                     = new TestGeoObjectInfo("BOOL_NO_PARENT3", AllAttributesDataset.GOT_BOOL, AllAttributesDataset.SOURCE);
 
-  public static final TestGeoObjectInfo  GO_NO_DEFAULT_LOCALE              = new TestGeoObjectInfo("NO_DEFAULT_LOCALE", AllAttributesDataset.GOT_BOOL);
+  public static final TestGeoObjectInfo  GO_NO_DEFAULT_LOCALE              = new TestGeoObjectInfo("NO_DEFAULT_LOCALE", AllAttributesDataset.GOT_BOOL, AllAttributesDataset.SOURCE);
 
   public static final String             GO_NO_DEFAULT_LOCALE_CANADA_LABEL = "some canada value eh";
 

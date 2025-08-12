@@ -169,6 +169,10 @@ import { LabeledPropertyGraphTypeService } from "./service/labeled-property-grap
 import { LabeledPropertyGraphTypePublishModalComponent } from "./component/labeled-property-graph-type/publish-modal.component";
 import { ConfigurationModalComponent } from "./component/scheduled-jobs/configuration-modal.component";
 import { ExportTypesModalComponent } from "./component/hierarchy/modals/export-types-modal.component";
+import { SourceManagerComponent } from "./component/source/source-manager.component";
+import { ManageSourceModalComponent } from "./component/source/modals/manage-source-modal.component";
+import { SourceService } from "./service/source.service";
+import { SourceFieldComponent } from "./component/form-fields/source-field/source-field.component";
 import { RDFExportComponent } from "./component/data-export/rdf-export.component";
 import { LabeledPropertyGraphTypeFormComponent } from "./component/labeled-property-graph-type/labeled-property-graph-form.component";
 
@@ -308,7 +312,11 @@ import { LabeledPropertyGraphTypeFormComponent } from "./component/labeled-prope
         LabeledPropertyGraphTypeManagerComponent,
         LabeledPropertyGraphTypeComponent,
         LabeledPropertyGraphTypeFormComponent,
-        LabeledPropertyGraphTypePublishModalComponent
+        LabeledPropertyGraphTypePublishModalComponent,
+        // Source
+        SourceManagerComponent,
+        ManageSourceModalComponent,
+        SourceFieldComponent
     ],
     providers: [
         MapService,
@@ -333,7 +341,8 @@ import { LabeledPropertyGraphTypeFormComponent } from "./component/labeled-prope
         ClassificationTypeService,
         ClassificationService,
         GeometryService,
-        VotService
+        VotService,
+        SourceService
     ],
     entryComponents: [
         ExportTypesModalComponent,
@@ -374,7 +383,8 @@ import { LabeledPropertyGraphTypeFormComponent } from "./component/labeled-prope
         ListModalComponent,
         RecordPopupComponent,
         LabeledPropertyGraphTypePublishModalComponent,
-        ConfigurationModalComponent
+        ConfigurationModalComponent,
+        ManageSourceModalComponent
     ]
 })
 export class RegistryModule { }

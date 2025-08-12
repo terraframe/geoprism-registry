@@ -172,7 +172,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
   {
     SchedulerTestUtils.clearImportData();
 
-    TestGeoObjectInfo parent = new TestGeoObjectInfo("00", USATestData.COUNTRY);
+    TestGeoObjectInfo parent = new TestGeoObjectInfo("00", USATestData.COUNTRY, USATestData.SOURCE);
     parent.delete();
 
     // Clear out the event table
@@ -225,7 +225,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     Assert.assertNotNull(istream);
 
-    JSONObject result = this.shapefileService.getShapefileConfiguration(testData.clientRequest.getSessionId(), USATestData.STATE.getCode(), null, null, "cb_2017_us_state_500k.zip", istream, ImportStrategy.NEW_AND_UPDATE, false);
+    JSONObject result = this.shapefileService.getShapefileConfiguration(testData.clientRequest.getSessionId(), USATestData.STATE.getCode(), null, null, USATestData.SOURCE.getCode(), "cb_2017_us_state_500k.zip", istream, ImportStrategy.NEW_AND_UPDATE, false);
 
     Assert.assertFalse(result.getBoolean(GeoObjectImportConfiguration.HAS_POSTAL_CODE));
 
@@ -292,7 +292,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     Assert.assertNotNull(istream);
 
-    JSONObject result = this.shapefileService.getShapefileConfiguration(testData.clientRequest.getSessionId(), USATestData.STATE.getCode(), null, null, "cb_2017_us_state_500k.zip", istream, ImportStrategy.NEW_AND_UPDATE, false);
+    JSONObject result = this.shapefileService.getShapefileConfiguration(testData.clientRequest.getSessionId(), USATestData.STATE.getCode(), null, null, USATestData.SOURCE.getCode(), "cb_2017_us_state_500k.zip", istream, ImportStrategy.NEW_AND_UPDATE, false);
 
     Assert.assertTrue(result.getBoolean(GeoObjectImportConfiguration.HAS_POSTAL_CODE));
   }
@@ -310,7 +310,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
     /*
      * Build Config
      */
-    JSONObject result = this.shapefileService.getShapefileConfiguration(testData.clientRequest.getSessionId(), USATestData.STATE.getCode(), null, null, "ntd_zam_operational_28082020.zip", istream, ImportStrategy.NEW_AND_UPDATE, false);
+    JSONObject result = this.shapefileService.getShapefileConfiguration(testData.clientRequest.getSessionId(), USATestData.STATE.getCode(), null, null, USATestData.SOURCE.getCode(), "ntd_zam_operational_28082020.zip", istream, ImportStrategy.NEW_AND_UPDATE, false);
     JSONObject type = result.getJSONObject(GeoObjectImportConfiguration.TYPE);
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 
@@ -1081,7 +1081,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
   @Request
   public void testResumeImport() throws Throwable
   {
-    TestGeoObjectInfo parent = new TestGeoObjectInfo("00", USATestData.COUNTRY);
+    TestGeoObjectInfo parent = new TestGeoObjectInfo("00", USATestData.COUNTRY, USATestData.SOURCE);
     parent.apply();
 
     List<String> sortedGeoIds = shapefileSort();
@@ -1211,7 +1211,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
   private GeoObjectImportConfiguration getTestConfiguration(InputStream istream, AttributeTermType testTerm, ImportStrategy strategy, TestGeoObjectTypeInfo info) throws JSONException
   {
-    JSONObject result = this.shapefileService.getShapefileConfiguration(testData.clientRequest.getSessionId(), info.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, "cb_2017_us_state_500k.zip", istream, strategy, false);
+    JSONObject result = this.shapefileService.getShapefileConfiguration(testData.clientRequest.getSessionId(), info.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getCode(), "cb_2017_us_state_500k.zip", istream, strategy, false);
     JSONObject type = result.getJSONObject(GeoObjectImportConfiguration.TYPE);
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 

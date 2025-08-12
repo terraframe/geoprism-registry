@@ -687,6 +687,11 @@ public class GeoObjectImporter implements ObjectImporterIF
         serverGo.setGeometry(geometry, this.configuration.getStartDate(), this.configuration.getEndDate());
       }
 
+      if (this.configuration.getDataSource() != null && serverGo.hasAttribute(DefaultAttribute.DATA_SOURCE.getName()))
+      {
+        serverGo.setValue(DefaultAttribute.DATA_SOURCE.getName(), this.configuration.getDataSource(), this.configuration.getStartDate(), this.configuration.getEndDate());
+      }
+
       if (isNew)
       {
         serverGo.setUid(ServiceFactory.getIdService().getUids(1)[0]);

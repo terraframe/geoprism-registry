@@ -25,6 +25,7 @@ import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.SourceBusinessServiceIF;
 import net.geoprism.registry.test.USATestData;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
@@ -52,11 +53,12 @@ public class BasicHierarchyTest implements InstanceTestClassListener
   public void beforeClassSetup() throws Exception
   {
     USATestData.ORG_NPS.apply();
+    USATestData.SOURCE.apply();
 
     parent = this.gTypeService.create(USATestData.COUNTRY.toDTO());
     child = this.gTypeService.create(USATestData.STATE.toDTO());
     hierarchyType = this.hTypeService.createHierarchyType(USATestData.HIER_ADMIN.toDTO());
-    
+
     this.hTypeService.addToHierarchy(hierarchyType, RootGeoObjectType.INSTANCE, parent);
     this.hTypeService.addToHierarchy(hierarchyType, parent, child);
   }
@@ -69,6 +71,7 @@ public class BasicHierarchyTest implements InstanceTestClassListener
     this.gTypeService.deleteGeoObjectType(child.getCode());
     this.gTypeService.deleteGeoObjectType(parent.getCode());
 
+    USATestData.SOURCE.delete();
     USATestData.ORG_NPS.delete();
   }
 
@@ -94,7 +97,6 @@ public class BasicHierarchyTest implements InstanceTestClassListener
       {
         child.delete();
       }
-
     }
     finally
     {

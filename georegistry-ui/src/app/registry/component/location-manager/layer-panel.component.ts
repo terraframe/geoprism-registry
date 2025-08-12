@@ -22,7 +22,7 @@ import { ActivatedRoute, Params, Router } from "@angular/router";
 
 import { ContextList, ListOrgGroup, ListVersion } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
-import * as ColorGen from "color-generator";
+import uniqolor from 'uniqolor';
 import { Subscription } from "rxjs";
 
 import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
@@ -292,7 +292,7 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
     toggleVersionLayer(version: ListVersion, list: ContextList): void {
         if (!version.layers || version.layers.length == 0) {
             let dataSource = new ListVectorLayerDataSource(this.listService, version.oid);
-            version.layers = [ dataSource.createLayer(list.label, true, ColorGen().hexString()) ];
+            version.layers = [ dataSource.createLayer(list.label, true, uniqolor(version.oid).color) ];
             this.versionMap[version.layers[0].getId()] = version;
             this.geomService.addOrUpdateLayer(version.layers[0]);
         } else {

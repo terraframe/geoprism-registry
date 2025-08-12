@@ -39,9 +39,9 @@ public class ShapefileService
   private ShapefileBusinessService service;
   
   @Request(RequestType.SESSION)
-  public JSONObject getShapefileConfiguration(String sessionId, String type, Date startDate, Date endDate, String fileName, InputStream fileStream, ImportStrategy strategy, Boolean copyBlank)
+  public JSONObject getShapefileConfiguration(String sessionId, String type, Date startDate, Date endDate, String source, String fileName, InputStream fileStream, ImportStrategy strategy, Boolean copyBlank)
   {
-    return this.service.getShapefileConfiguration(type, startDate, endDate, fileName, fileStream, strategy, copyBlank, false);
+    return this.service.getShapefileConfiguration(type, startDate, endDate, source, fileName, fileStream, strategy, copyBlank, false);
   }
 
   @Request(RequestType.SESSION)
