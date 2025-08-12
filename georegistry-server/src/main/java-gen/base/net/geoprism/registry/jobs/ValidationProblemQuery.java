@@ -1,6 +1,6 @@
 package net.geoprism.registry.jobs;
 
-@com.runwaysdk.business.ClassSignature(hash = -809477297)
+@com.runwaysdk.business.ClassSignature(hash = -174671389)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -37,6 +37,23 @@ public  class ValidationProblemQuery extends com.runwaysdk.query.GeneratedBusine
   public String getClassType()
   {
     return net.geoprism.registry.jobs.ValidationProblem.CLASS;
+  }
+  public com.runwaysdk.query.SelectableChar getAffectedRows()
+  {
+    return getAffectedRows(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAffectedRows(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.jobs.ValidationProblem.AFFECTEDROWS, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAffectedRows(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.jobs.ValidationProblem.AFFECTEDROWS, alias, displayLabel);
+
   }
   public com.runwaysdk.query.SelectableMoment getCreateDate()
   {
@@ -101,27 +118,27 @@ public  class ValidationProblemQuery extends com.runwaysdk.query.GeneratedBusine
     return (com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.jobs.ValidationProblem.ENTITYDOMAIN, mdAttributeIF, this, alias, displayLabel);
 
   }
-  public net.geoprism.registry.etl.ImportHistoryQuery.ImportHistoryQueryReferenceIF getHistory()
+  public net.geoprism.registry.jobs.ImportHistoryQuery.ImportHistoryQueryReferenceIF getHistory()
   {
     return getHistory(null);
 
   }
  
-  public net.geoprism.registry.etl.ImportHistoryQuery.ImportHistoryQueryReferenceIF getHistory(String alias)
+  public net.geoprism.registry.jobs.ImportHistoryQuery.ImportHistoryQueryReferenceIF getHistory(String alias)
   {
 
     com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.jobs.ValidationProblem.HISTORY);
 
-    return (net.geoprism.registry.etl.ImportHistoryQuery.ImportHistoryQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.jobs.ValidationProblem.HISTORY, mdAttributeIF, this, alias, null);
+    return (net.geoprism.registry.jobs.ImportHistoryQuery.ImportHistoryQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.jobs.ValidationProblem.HISTORY, mdAttributeIF, this, alias, null);
 
   }
  
-  public net.geoprism.registry.etl.ImportHistoryQuery.ImportHistoryQueryReferenceIF getHistory(String alias, String displayLabel)
+  public net.geoprism.registry.jobs.ImportHistoryQuery.ImportHistoryQueryReferenceIF getHistory(String alias, String displayLabel)
   {
 
     com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.jobs.ValidationProblem.HISTORY);
 
-    return (net.geoprism.registry.etl.ImportHistoryQuery.ImportHistoryQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.jobs.ValidationProblem.HISTORY, mdAttributeIF, this, alias, displayLabel);
+    return (net.geoprism.registry.jobs.ImportHistoryQuery.ImportHistoryQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.jobs.ValidationProblem.HISTORY, mdAttributeIF, this, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getKeyName()
@@ -278,6 +295,23 @@ public  class ValidationProblemQuery extends com.runwaysdk.query.GeneratedBusine
     return (com.runwaysdk.query.SelectableLong)this.getComponentQuery().get(net.geoprism.registry.jobs.ValidationProblem.SEQ, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableInteger getSeverity()
+  {
+    return getSeverity(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableInteger getSeverity(String alias)
+  {
+    return (com.runwaysdk.query.SelectableInteger)this.getComponentQuery().get(net.geoprism.registry.jobs.ValidationProblem.SEVERITY, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableInteger getSeverity(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableInteger)this.getComponentQuery().get(net.geoprism.registry.jobs.ValidationProblem.SEVERITY, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getSiteMaster()
   {
     return getSiteMaster(null);
@@ -326,7 +360,7 @@ public  class ValidationProblemQuery extends com.runwaysdk.query.GeneratedBusine
     }
     else if (name.equals(net.geoprism.registry.jobs.ValidationProblem.HISTORY)) 
     {
-       return new net.geoprism.registry.etl.ImportHistoryQuery.ImportHistoryQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+       return new net.geoprism.registry.jobs.ImportHistoryQuery.ImportHistoryQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else if (name.equals(net.geoprism.registry.jobs.ValidationProblem.LASTUPDATEDBY)) 
     {
@@ -379,6 +413,9 @@ public  class ValidationProblemQuery extends com.runwaysdk.query.GeneratedBusine
   public interface ValidationProblemQueryReferenceIF extends com.runwaysdk.query.SelectableReference
   {
 
+    public com.runwaysdk.query.SelectableChar getAffectedRows();
+    public com.runwaysdk.query.SelectableChar getAffectedRows(String alias);
+    public com.runwaysdk.query.SelectableChar getAffectedRows(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableMoment getCreateDate();
     public com.runwaysdk.query.SelectableMoment getCreateDate(String alias);
     public com.runwaysdk.query.SelectableMoment getCreateDate(String alias, String displayLabel);
@@ -388,9 +425,9 @@ public  class ValidationProblemQuery extends com.runwaysdk.query.GeneratedBusine
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain();
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias);
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias, String displayLabel);
-    public net.geoprism.registry.etl.ImportHistoryQuery.ImportHistoryQueryReferenceIF getHistory();
-    public net.geoprism.registry.etl.ImportHistoryQuery.ImportHistoryQueryReferenceIF getHistory(String alias);
-    public net.geoprism.registry.etl.ImportHistoryQuery.ImportHistoryQueryReferenceIF getHistory(String alias, String displayLabel);
+    public net.geoprism.registry.jobs.ImportHistoryQuery.ImportHistoryQueryReferenceIF getHistory();
+    public net.geoprism.registry.jobs.ImportHistoryQuery.ImportHistoryQueryReferenceIF getHistory(String alias);
+    public net.geoprism.registry.jobs.ImportHistoryQuery.ImportHistoryQueryReferenceIF getHistory(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getKeyName();
     public com.runwaysdk.query.SelectableChar getKeyName(String alias);
     public com.runwaysdk.query.SelectableChar getKeyName(String alias, String displayLabel);
@@ -415,6 +452,9 @@ public  class ValidationProblemQuery extends com.runwaysdk.query.GeneratedBusine
     public com.runwaysdk.query.SelectableLong getSeq();
     public com.runwaysdk.query.SelectableLong getSeq(String alias);
     public com.runwaysdk.query.SelectableLong getSeq(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableInteger getSeverity();
+    public com.runwaysdk.query.SelectableInteger getSeverity(String alias);
+    public com.runwaysdk.query.SelectableInteger getSeverity(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getSiteMaster();
     public com.runwaysdk.query.SelectableChar getSiteMaster(String alias);
     public com.runwaysdk.query.SelectableChar getSiteMaster(String alias, String displayLabel);
@@ -456,6 +496,23 @@ public  class ValidationProblemQuery extends com.runwaysdk.query.GeneratedBusine
       return this.NE(validationProblem.getOid());
     }
 
+  public com.runwaysdk.query.SelectableChar getAffectedRows()
+  {
+    return getAffectedRows(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAffectedRows(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.jobs.ValidationProblem.AFFECTEDROWS, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAffectedRows(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.jobs.ValidationProblem.AFFECTEDROWS, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableMoment getCreateDate()
   {
     return getCreateDate(null);
@@ -507,21 +564,21 @@ public  class ValidationProblemQuery extends com.runwaysdk.query.GeneratedBusine
     return (com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF)this.get(net.geoprism.registry.jobs.ValidationProblem.ENTITYDOMAIN,  alias, displayLabel);
 
   }
-  public net.geoprism.registry.etl.ImportHistoryQuery.ImportHistoryQueryReferenceIF getHistory()
+  public net.geoprism.registry.jobs.ImportHistoryQuery.ImportHistoryQueryReferenceIF getHistory()
   {
     return getHistory(null);
 
   }
  
-  public net.geoprism.registry.etl.ImportHistoryQuery.ImportHistoryQueryReferenceIF getHistory(String alias)
+  public net.geoprism.registry.jobs.ImportHistoryQuery.ImportHistoryQueryReferenceIF getHistory(String alias)
   {
-    return (net.geoprism.registry.etl.ImportHistoryQuery.ImportHistoryQueryReferenceIF)this.get(net.geoprism.registry.jobs.ValidationProblem.HISTORY, alias, null);
+    return (net.geoprism.registry.jobs.ImportHistoryQuery.ImportHistoryQueryReferenceIF)this.get(net.geoprism.registry.jobs.ValidationProblem.HISTORY, alias, null);
 
   }
  
-  public net.geoprism.registry.etl.ImportHistoryQuery.ImportHistoryQueryReferenceIF getHistory(String alias, String displayLabel)
+  public net.geoprism.registry.jobs.ImportHistoryQuery.ImportHistoryQueryReferenceIF getHistory(String alias, String displayLabel)
   {
-    return (net.geoprism.registry.etl.ImportHistoryQuery.ImportHistoryQueryReferenceIF)this.get(net.geoprism.registry.jobs.ValidationProblem.HISTORY,  alias, displayLabel);
+    return (net.geoprism.registry.jobs.ImportHistoryQuery.ImportHistoryQueryReferenceIF)this.get(net.geoprism.registry.jobs.ValidationProblem.HISTORY,  alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getKeyName()
@@ -660,6 +717,23 @@ public  class ValidationProblemQuery extends com.runwaysdk.query.GeneratedBusine
     return (com.runwaysdk.query.SelectableLong)this.get(net.geoprism.registry.jobs.ValidationProblem.SEQ, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableInteger getSeverity()
+  {
+    return getSeverity(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableInteger getSeverity(String alias)
+  {
+    return (com.runwaysdk.query.SelectableInteger)this.get(net.geoprism.registry.jobs.ValidationProblem.SEVERITY, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableInteger getSeverity(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableInteger)this.get(net.geoprism.registry.jobs.ValidationProblem.SEVERITY, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getSiteMaster()
   {
     return getSiteMaster(null);
@@ -708,7 +782,7 @@ public  class ValidationProblemQuery extends com.runwaysdk.query.GeneratedBusine
     }
     else if (name.equals(net.geoprism.registry.jobs.ValidationProblem.HISTORY)) 
     {
-       return new net.geoprism.registry.etl.ImportHistoryQuery.ImportHistoryQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+       return new net.geoprism.registry.jobs.ImportHistoryQuery.ImportHistoryQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else if (name.equals(net.geoprism.registry.jobs.ValidationProblem.LASTUPDATEDBY)) 
     {
@@ -738,6 +812,9 @@ public  class ValidationProblemQuery extends com.runwaysdk.query.GeneratedBusine
   public interface ValidationProblemQueryMultiReferenceIF extends com.runwaysdk.query.SelectableMultiReference
   {
 
+    public com.runwaysdk.query.SelectableChar getAffectedRows();
+    public com.runwaysdk.query.SelectableChar getAffectedRows(String alias);
+    public com.runwaysdk.query.SelectableChar getAffectedRows(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableMoment getCreateDate();
     public com.runwaysdk.query.SelectableMoment getCreateDate(String alias);
     public com.runwaysdk.query.SelectableMoment getCreateDate(String alias, String displayLabel);
@@ -747,9 +824,9 @@ public  class ValidationProblemQuery extends com.runwaysdk.query.GeneratedBusine
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain();
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias);
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias, String displayLabel);
-    public net.geoprism.registry.etl.ImportHistoryQuery.ImportHistoryQueryReferenceIF getHistory();
-    public net.geoprism.registry.etl.ImportHistoryQuery.ImportHistoryQueryReferenceIF getHistory(String alias);
-    public net.geoprism.registry.etl.ImportHistoryQuery.ImportHistoryQueryReferenceIF getHistory(String alias, String displayLabel);
+    public net.geoprism.registry.jobs.ImportHistoryQuery.ImportHistoryQueryReferenceIF getHistory();
+    public net.geoprism.registry.jobs.ImportHistoryQuery.ImportHistoryQueryReferenceIF getHistory(String alias);
+    public net.geoprism.registry.jobs.ImportHistoryQuery.ImportHistoryQueryReferenceIF getHistory(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getKeyName();
     public com.runwaysdk.query.SelectableChar getKeyName(String alias);
     public com.runwaysdk.query.SelectableChar getKeyName(String alias, String displayLabel);
@@ -774,6 +851,9 @@ public  class ValidationProblemQuery extends com.runwaysdk.query.GeneratedBusine
     public com.runwaysdk.query.SelectableLong getSeq();
     public com.runwaysdk.query.SelectableLong getSeq(String alias);
     public com.runwaysdk.query.SelectableLong getSeq(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableInteger getSeverity();
+    public com.runwaysdk.query.SelectableInteger getSeverity(String alias);
+    public com.runwaysdk.query.SelectableInteger getSeverity(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getSiteMaster();
     public com.runwaysdk.query.SelectableChar getSiteMaster(String alias);
     public com.runwaysdk.query.SelectableChar getSiteMaster(String alias, String displayLabel);
@@ -864,6 +944,23 @@ public  class ValidationProblemQuery extends com.runwaysdk.query.GeneratedBusine
 
       return this.containsExactly(itemIdArray);
   }
+  public com.runwaysdk.query.SelectableChar getAffectedRows()
+  {
+    return getAffectedRows(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAffectedRows(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.jobs.ValidationProblem.AFFECTEDROWS, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAffectedRows(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.jobs.ValidationProblem.AFFECTEDROWS, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableMoment getCreateDate()
   {
     return getCreateDate(null);
@@ -915,21 +1012,21 @@ public  class ValidationProblemQuery extends com.runwaysdk.query.GeneratedBusine
     return (com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF)this.get(net.geoprism.registry.jobs.ValidationProblem.ENTITYDOMAIN,  alias, displayLabel);
 
   }
-  public net.geoprism.registry.etl.ImportHistoryQuery.ImportHistoryQueryReferenceIF getHistory()
+  public net.geoprism.registry.jobs.ImportHistoryQuery.ImportHistoryQueryReferenceIF getHistory()
   {
     return getHistory(null);
 
   }
  
-  public net.geoprism.registry.etl.ImportHistoryQuery.ImportHistoryQueryReferenceIF getHistory(String alias)
+  public net.geoprism.registry.jobs.ImportHistoryQuery.ImportHistoryQueryReferenceIF getHistory(String alias)
   {
-    return (net.geoprism.registry.etl.ImportHistoryQuery.ImportHistoryQueryReferenceIF)this.get(net.geoprism.registry.jobs.ValidationProblem.HISTORY, alias, null);
+    return (net.geoprism.registry.jobs.ImportHistoryQuery.ImportHistoryQueryReferenceIF)this.get(net.geoprism.registry.jobs.ValidationProblem.HISTORY, alias, null);
 
   }
  
-  public net.geoprism.registry.etl.ImportHistoryQuery.ImportHistoryQueryReferenceIF getHistory(String alias, String displayLabel)
+  public net.geoprism.registry.jobs.ImportHistoryQuery.ImportHistoryQueryReferenceIF getHistory(String alias, String displayLabel)
   {
-    return (net.geoprism.registry.etl.ImportHistoryQuery.ImportHistoryQueryReferenceIF)this.get(net.geoprism.registry.jobs.ValidationProblem.HISTORY,  alias, displayLabel);
+    return (net.geoprism.registry.jobs.ImportHistoryQuery.ImportHistoryQueryReferenceIF)this.get(net.geoprism.registry.jobs.ValidationProblem.HISTORY,  alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getKeyName()
@@ -1068,6 +1165,23 @@ public  class ValidationProblemQuery extends com.runwaysdk.query.GeneratedBusine
     return (com.runwaysdk.query.SelectableLong)this.get(net.geoprism.registry.jobs.ValidationProblem.SEQ, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableInteger getSeverity()
+  {
+    return getSeverity(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableInteger getSeverity(String alias)
+  {
+    return (com.runwaysdk.query.SelectableInteger)this.get(net.geoprism.registry.jobs.ValidationProblem.SEVERITY, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableInteger getSeverity(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableInteger)this.get(net.geoprism.registry.jobs.ValidationProblem.SEVERITY, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getSiteMaster()
   {
     return getSiteMaster(null);
@@ -1116,7 +1230,7 @@ public  class ValidationProblemQuery extends com.runwaysdk.query.GeneratedBusine
     }
     else if (name.equals(net.geoprism.registry.jobs.ValidationProblem.HISTORY)) 
     {
-       return new net.geoprism.registry.etl.ImportHistoryQuery.ImportHistoryQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+       return new net.geoprism.registry.jobs.ImportHistoryQuery.ImportHistoryQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else if (name.equals(net.geoprism.registry.jobs.ValidationProblem.LASTUPDATEDBY)) 
     {

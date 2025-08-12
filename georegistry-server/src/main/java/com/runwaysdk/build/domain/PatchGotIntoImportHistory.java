@@ -25,10 +25,10 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 
-import net.geoprism.registry.etl.ImportHistory;
-import net.geoprism.registry.etl.ImportHistoryQuery;
+import net.geoprism.registry.jobs.ImportHistoryQuery;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class PatchGotIntoImportHistory

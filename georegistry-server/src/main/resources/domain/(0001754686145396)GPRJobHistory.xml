@@ -1,0 +1,155 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <delete>
+      <object key="net.geoprism.registry.etl.ImportHistory" type="com.runwaysdk.system.metadata.MdBusiness"/>
+      <object key="net.geoprism.registry.etl.ImportError" type="com.runwaysdk.system.metadata.MdBusiness"/>
+      <object key="net.geoprism.registry.etl.ParentReferenceProblem" type="com.runwaysdk.system.metadata.MdBusiness"/>
+      <object key="net.geoprism.registry.etl.RowValidationProblem" type="com.runwaysdk.system.metadata.MdBusiness"/>
+      <object key="net.geoprism.registry.etl.TermReferenceProblem" type="com.runwaysdk.system.metadata.MdBusiness"/>
+      <object key="net.geoprism.registry.etl.ValidationProblem" type="com.runwaysdk.system.metadata.MdBusiness"/>
+    </delete>
+    <create>
+	   	<mdBusiness name="net.geoprism.registry.jobs.GPRJobHistory" extends="com.runwaysdk.system.scheduler.JobHistory" exported="false">
+	        <attributes>
+	          <enumeration name="stage" label="stage" selectMultiple="false" required="true" type="net.geoprism.registry.etl.ImportStage"/>
+	          <text name="configJson" label="configJson" description="A JSON object which configures the job" />
+          	  <text name="completedRowsJson" label="completedRowsJson" description="A JSON array of complete rows." />
+          	  <reference name="organization" required="false" type="net.geoprism.registry.Organization"/>
+          	  <text name="geoObjectTypeCode" required="false"/>
+	        </attributes>
+	    </mdBusiness>
+	    <mdBusiness name="net.geoprism.registry.jobs.ImportHistory" extends="net.geoprism.registry.jobs.GPRJobHistory" exported="false">
+	        <attributes>
+	          <long name="importedRecords" label="Imported Records" rejectNegative="true" />
+	          <reference name="importFile" type="com.runwaysdk.system.VaultFile" label="Import File"/>
+	        </attributes>
+	    </mdBusiness>
+	    
+	    <object key="RESUME" type="net.geoprism.registry.etl.ImportStageMaster">
+          <attribute name="enumName" value="RESUME" />
+          <attributeStruct name="displayLabel">
+            <attribute name="defaultLocale" value="Resume" />
+          </attributeStruct>
+        </object>
+        
+        <object key="RUNNING" type="net.geoprism.registry.etl.ImportStageMaster">
+          <attribute name="enumName" value="RUNNING" />
+          <attributeStruct name="displayLabel">
+            <attribute name="defaultLocale" value="Running" />
+          </attributeStruct>
+        </object>
+        
+        <mdBusiness name="net.geoprism.registry.jobs.ImportError" exported="false" publish="false">
+	        <attributes>
+	          <text name="errorJson" label="errorJson"/>
+	          <text name="objectJson" label="objectJson"/>
+	          <text name="objectType" label="objectType"/>
+	          <text name="resolution" defaultValue="UNRESOLVED" />
+	          <integer name="severity" label="severity" description="Denotes how serious the error is. Used for ordering when displaying to the user."/>
+	          <long name="rowIndex" label="Row Index" description="A zero-indexed row indentifier" rejectNegative="true" />
+	          <reference name="history" type="net.geoprism.registry.jobs.ImportHistory" required="true" label="history"/>
+	        </attributes>
+	      </mdBusiness>
+	      
+	      <mdBusiness name="net.geoprism.registry.jobs.ValidationProblem" isAbstract="true" publish="false" exported="false">
+	        <attributes>
+	          <text name="resolution" defaultValue="UNRESOLVED"/>
+	          <reference name="history" label="history" type="net.geoprism.registry.jobs.ImportHistory" />
+	          <integer name="severity" label="severity" description="Denotes how serious the error is. Used for ordering when displaying to the user."/>
+	          <text name="affectedRows" />
+	        </attributes>
+	      </mdBusiness>
+
+	      <mdBusiness name="net.geoprism.registry.jobs.ParentReferenceProblem" extends="net.geoprism.registry.jobs.ValidationProblem">
+	        <attributes>
+	          <text name="label" label="label" />
+	          <text name="typeCode" label="ServerGeoObjectType" />
+	          <text name="parentCode" label="Parent Code" />
+	          <text name="context" label="context" />
+	        </attributes>
+	      </mdBusiness>
+	      
+	      <mdBusiness name="net.geoprism.registry.jobs.TermReferenceProblem" extends="net.geoprism.registry.jobs.ValidationProblem">
+	        <attributes>
+	          <text name="label" label="label" />
+	          <reference name="mdAttribute" label="mdAttribute" type="com.runwaysdk.system.metadata.MdAttributeTerm" />
+	          <text name="parentCode" label="Parent Code" />
+	          <text name="attributeCode" label="attributeCode" />
+	          <text name="attributeLabel" label="attributeLabel" />
+	          <text name="importType" label="Import Type" />
+              <text name="objectTypeCode" label="Object Type Code" />
+	        </attributes>
+	      </mdBusiness>
+	      
+	      <mdBusiness name="net.geoprism.registry.jobs.RowValidationProblem" extends="net.geoprism.registry.jobs.ValidationProblem">
+	        <attributes>
+	          <text name="exceptionJson" label="exceptionJson" />
+	          <long name="rowNum" label="rowNum" />
+	        </attributes>
+	      </mdBusiness>
+    </create>
+    <permissions>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>      
+          <mdRelationshipPermission type="net.geoprism.registry.jobs.GPRJobHistory">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+          <mdBusinessPermission type="net.geoprism.registry.jobs.ImportError">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="net.geoprism.registry.jobs.ImportHistory">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+          <mdBusinessPermission type="net.geoprism.registry.jobs.ValidationProblem">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.jobs.ParentReferenceProblem">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.jobs.TermReferenceProblem">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.jobs.RowValidationProblem">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryMaintainer">
+        <grant>      
+          <mdRelationshipPermission type="net.geoprism.registry.jobs.ImportHistory">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+          <mdRelationshipPermission type="net.geoprism.registry.jobs.GPRJobHistory">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+          <mdBusinessPermission type="net.geoprism.registry.jobs.ImportError">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.jobs.ValidationProblem">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.jobs.ParentReferenceProblem">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.jobs.TermReferenceProblem">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.jobs.RowValidationProblem">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+    </permissions>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.jobs.GPRJobHistory" type="com.runwaysdk.system.metadata.MdBusiness"/>
+      <object key="net.geoprism.registry.jobs.ImportHistory" type="com.runwaysdk.system.metadata.MdBusiness"/>
+      <object key="net.geoprism.registry.jobs.ParentReferenceProblem" type="com.runwaysdk.system.metadata.MdBusiness"/>
+      <object key="net.geoprism.registry.jobs.RowValidationProblem" type="com.runwaysdk.system.metadata.MdBusiness"/>
+      <object key="net.geoprism.registry.jobs.TermReferenceProblem" type="com.runwaysdk.system.metadata.MdBusiness"/>
+      <object key="net.geoprism.registry.jobs.ValidationProblem" type="com.runwaysdk.system.metadata.MdBusiness"/>
+    </delete>
+  </undoIt>
+</version>

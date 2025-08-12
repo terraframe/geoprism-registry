@@ -19,7 +19,6 @@
 package net.geoprism.registry.dhis2;
 
 import net.geoprism.registry.dhis2.DHIS2FeatureService.DHIS2SyncError;
-import net.geoprism.registry.etl.ValidationProblem;
 
 public interface SynchronizationProgressMonitorIF
 {
