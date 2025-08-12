@@ -39,9 +39,9 @@ import com.runwaysdk.dataaccess.attributes.entity.AttributeReference;
 import com.runwaysdk.session.CloseableReentrantLock;
 import com.runwaysdk.system.scheduler.JobHistory;
 
-import net.geoprism.registry.etl.ImportError;
-import net.geoprism.registry.etl.ImportHistory;
-import net.geoprism.registry.etl.ValidationProblem;
+import net.geoprism.registry.jobs.ImportError;
+import net.geoprism.registry.jobs.ImportHistory;
+import net.geoprism.registry.jobs.ValidationProblem;
 
 public class ImportHistoryProgressScribe implements ImportProgressListenerIF
 {
@@ -342,10 +342,6 @@ public class ImportHistoryProgressScribe implements ImportProgressListenerIF
     error.setObjectType(objectType);
     error.setRowIndex(rowNum);
     error.apply();
-
-    this.history.appLock();
-    this.history.setErrorCount(this.history.getErrorCount() + 1);
-    this.history.apply();
 
     if (! ( ex instanceof SmartException || ex instanceof SmartExceptionDTO ))
     {

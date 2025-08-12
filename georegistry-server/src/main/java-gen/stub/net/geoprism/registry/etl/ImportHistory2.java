@@ -26,11 +26,11 @@ import com.runwaysdk.query.QueryFactory;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
 
-public class ImportHistory extends ImportHistoryBase
+public class ImportHistory2 extends ImportHistoryBase
 {
   private static final long serialVersionUID = 752640606;
 
-  public ImportHistory()
+  public ImportHistory2()
   {
     super();
   }

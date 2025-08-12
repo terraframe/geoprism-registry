@@ -28,7 +28,7 @@ import com.runwaysdk.system.scheduler.JobHistory;
 
 import net.geoprism.registry.view.JsonSerializable;
 
-public class ImportError extends ImportErrorBase implements JsonSerializable
+public class ImportError2 extends ImportErrorBase implements JsonSerializable
 {
   private static final long serialVersionUID = 1410792643;
   
@@ -39,7 +39,7 @@ public class ImportError extends ImportErrorBase implements JsonSerializable
     UNRESOLVED
   }
   
-  public ImportError()
+  public ImportError2()
   {
     super();
   }

@@ -29,7 +29,7 @@ import net.geoprism.registry.io.GeoObjectImportConfiguration;
 public class ObjectImporterFactory
 {
   public static enum ObjectImportType {
-    GEO_OBJECT, BUSINESS_OBJECT
+    GEO_OBJECT, BUSINESS_OBJECT, EDGE_OBJECT
   }
 
   public static ObjectImporterIF getImporter(String type, ImportConfiguration config, ImportProgressListenerIF progress)
@@ -39,6 +39,10 @@ public class ObjectImporterFactory
       return new GeoObjectImporter((GeoObjectImportConfiguration) config, progress);
     }
     else if (type.equals(ObjectImportType.BUSINESS_OBJECT.name()))
+    {
+      return new BusinessObjectImporter((BusinessObjectImportConfiguration) config, progress);
+    }
+    else if (type.equals(ObjectImportType.EDGE_OBJECT.name()))
     {
       return new BusinessObjectImporter((BusinessObjectImportConfiguration) config, progress);
     }

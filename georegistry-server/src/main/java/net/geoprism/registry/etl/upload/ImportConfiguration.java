@@ -26,11 +26,11 @@ import org.json.JSONObject;
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
-import net.geoprism.registry.etl.ImportHistory;
 import net.geoprism.registry.etl.ObjectImporterFactory;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.Location;
+import net.geoprism.registry.jobs.ImportHistory;
 
 public abstract class ImportConfiguration
 {

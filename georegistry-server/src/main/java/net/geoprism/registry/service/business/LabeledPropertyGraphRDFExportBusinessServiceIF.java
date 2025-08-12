@@ -24,7 +24,7 @@ import com.runwaysdk.system.metadata.MdEdge;
 
 import net.geoprism.graph.GraphTypeSnapshot;
 import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
-import net.geoprism.registry.etl.ImportHistory;
+import net.geoprism.registry.jobs.ImportHistory;
 
 public interface LabeledPropertyGraphRDFExportBusinessServiceIF
 {

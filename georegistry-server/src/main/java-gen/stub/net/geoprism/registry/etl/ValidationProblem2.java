@@ -27,7 +27,7 @@ import com.google.gson.JsonObject;
 
 import net.geoprism.registry.view.JsonSerializable;
 
-public abstract class ValidationProblem extends ValidationProblemBase implements Comparable<ValidationProblem>, JsonSerializable
+public abstract class ValidationProblem2 extends ValidationProblemBase implements Comparable<ValidationProblem>, JsonSerializable
 {
   private static final long serialVersionUID = 681333878;
 
@@ -35,7 +35,7 @@ public abstract class ValidationProblem extends ValidationProblemBase implements
     IGNORE, SYNONYM, CREATE, UNRESOLVED
   }
 
-  public ValidationProblem()
+  public ValidationProblem2()
   {
     super();
   }

@@ -23,9 +23,9 @@ import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutionContext;
 import com.runwaysdk.system.scheduler.JobHistory;
 
-import net.geoprism.registry.etl.ImportHistory;
 import net.geoprism.registry.etl.ImportStage;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
+import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessServiceIF.GeometryExportType;
 import net.geoprism.registry.service.business.RepoRDFExportBusinessService;
 import net.geoprism.registry.service.business.ServiceFactory;

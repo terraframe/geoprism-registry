@@ -27,9 +27,9 @@ import com.runwaysdk.system.scheduler.JobHistory;
 import com.runwaysdk.system.scheduler.QuartzRunwayJob;
 import com.runwaysdk.system.scheduler.QueueingQuartzJob;
 
-import net.geoprism.registry.etl.ImportHistory;
 import net.geoprism.registry.etl.ImportStage;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
+import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.service.business.LabeledPropertyGraphTypeVersionBusinessServiceIF;
 import net.geoprism.registry.view.JsonSerializable;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
