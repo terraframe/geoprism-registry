@@ -42,7 +42,7 @@ import net.geoprism.registry.curation.CurationProblem;
 import net.geoprism.registry.curation.CurationProblemQuery;
 import net.geoprism.registry.curation.ListCurationHistory;
 import net.geoprism.registry.curation.ListCurationJob;
-import net.geoprism.registry.etl.ImportError.ErrorResolution;
+import net.geoprism.registry.jobs.ImportError.ErrorResolution;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.permission.RolePermissionService;
 import net.geoprism.registry.view.Page;

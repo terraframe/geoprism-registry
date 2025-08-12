@@ -43,6 +43,8 @@ import net.geoprism.registry.etl.upload.ImportHistoryProgressScribe;
 import net.geoprism.registry.etl.upload.ImportProgressListenerIF;
 import net.geoprism.registry.etl.upload.ObjectImporterIF;
 import net.geoprism.registry.jobs.ImportHistory;
+import net.geoprism.registry.jobs.ValidationProblem;
+import net.geoprism.registry.jobs.ValidationProblemQuery;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;

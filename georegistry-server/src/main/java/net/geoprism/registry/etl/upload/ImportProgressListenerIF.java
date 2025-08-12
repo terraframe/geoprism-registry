@@ -18,7 +18,7 @@
  */
 package net.geoprism.registry.etl.upload;
 
-import net.geoprism.registry.etl.ValidationProblem;
+import net.geoprism.registry.jobs.ValidationProblem;
 
 public interface ImportProgressListenerIF
 {

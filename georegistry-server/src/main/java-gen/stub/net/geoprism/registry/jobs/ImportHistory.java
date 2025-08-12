@@ -5,10 +5,6 @@ import com.google.gson.JsonParser;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 
-import net.geoprism.registry.etl.ImportError;
-import net.geoprism.registry.etl.ImportErrorQuery;
-import net.geoprism.registry.etl.ValidationProblem;
-import net.geoprism.registry.etl.ValidationProblemQuery;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
 

@@ -1,6 +1,6 @@
 package net.geoprism.registry.jobs;
 
-@com.runwaysdk.business.ClassSignature(hash = 452493464)
+@com.runwaysdk.business.ClassSignature(hash = -2034713940)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -11,6 +11,7 @@ package net.geoprism.registry.jobs;
 public abstract class ValidationProblemBase extends com.runwaysdk.business.Business
 {
   public final static String CLASS = "net.geoprism.registry.jobs.ValidationProblem";
+  public final static java.lang.String AFFECTEDROWS = "affectedRows";
   public final static java.lang.String CREATEDATE = "createDate";
   public final static java.lang.String CREATEDBY = "createdBy";
   public final static java.lang.String ENTITYDOMAIN = "entityDomain";
@@ -23,14 +24,43 @@ public abstract class ValidationProblemBase extends com.runwaysdk.business.Busin
   public final static java.lang.String OWNER = "owner";
   public final static java.lang.String RESOLUTION = "resolution";
   public final static java.lang.String SEQ = "seq";
+  public final static java.lang.String SEVERITY = "severity";
   public final static java.lang.String SITEMASTER = "siteMaster";
   public final static java.lang.String TYPE = "type";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = 452493464;
+  private static final long serialVersionUID = -2034713940;
   
   public ValidationProblemBase()
   {
     super();
+  }
+  
+  public String getAffectedRows()
+  {
+    return getValue(AFFECTEDROWS);
+  }
+  
+  public void validateAffectedRows()
+  {
+    this.validateAttribute(AFFECTEDROWS);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getAffectedRowsMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.jobs.ValidationProblem.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(AFFECTEDROWS);
+  }
+  
+  public void setAffectedRows(String value)
+  {
+    if(value == null)
+    {
+      setValue(AFFECTEDROWS, "");
+    }
+    else
+    {
+      setValue(AFFECTEDROWS, value);
+    }
   }
   
   public java.util.Date getCreateDate()
@@ -129,7 +159,7 @@ public abstract class ValidationProblemBase extends com.runwaysdk.business.Busin
     }
   }
   
-  public net.geoprism.registry.etl.ImportHistory getHistory()
+  public net.geoprism.registry.jobs.ImportHistory getHistory()
   {
     if (getValue(HISTORY).trim().equals(""))
     {
@@ -137,7 +167,7 @@ public abstract class ValidationProblemBase extends com.runwaysdk.business.Busin
     }
     else
     {
-      return net.geoprism.registry.etl.ImportHistory.get(getValue(HISTORY));
+      return net.geoprism.registry.jobs.ImportHistory.get(getValue(HISTORY));
     }
   }
   
@@ -157,7 +187,7 @@ public abstract class ValidationProblemBase extends com.runwaysdk.business.Busin
     return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(HISTORY);
   }
   
-  public void setHistory(net.geoprism.registry.etl.ImportHistory value)
+  public void setHistory(net.geoprism.registry.jobs.ImportHistory value)
   {
     if(value == null)
     {
@@ -391,6 +421,34 @@ public abstract class ValidationProblemBase extends com.runwaysdk.business.Busin
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.jobs.ValidationProblem.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeLongDAOIF)mdClassIF.definesAttribute(SEQ);
+  }
+  
+  public Integer getSeverity()
+  {
+    return com.runwaysdk.constants.MdAttributeIntegerUtil.getTypeSafeValue(getValue(SEVERITY));
+  }
+  
+  public void validateSeverity()
+  {
+    this.validateAttribute(SEVERITY);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeIntegerDAOIF getSeverityMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.jobs.ValidationProblem.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeIntegerDAOIF)mdClassIF.definesAttribute(SEVERITY);
+  }
+  
+  public void setSeverity(Integer value)
+  {
+    if(value == null)
+    {
+      setValue(SEVERITY, "");
+    }
+    else
+    {
+      setValue(SEVERITY, java.lang.Integer.toString(value));
+    }
   }
   
   public String getSiteMaster()

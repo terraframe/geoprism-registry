@@ -1,6 +1,6 @@
 package net.geoprism.registry.jobs;
 
-@com.runwaysdk.business.ClassSignature(hash = -1045182234)
+@com.runwaysdk.business.ClassSignature(hash = -1961243527)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -24,12 +24,14 @@ public abstract class ImportErrorBase extends com.runwaysdk.business.Business
   public final static java.lang.String OBJECTTYPE = "objectType";
   public final static java.lang.String OID = "oid";
   public final static java.lang.String OWNER = "owner";
+  public final static java.lang.String RESOLUTION = "resolution";
   public final static java.lang.String ROWINDEX = "rowIndex";
   public final static java.lang.String SEQ = "seq";
+  public final static java.lang.String SEVERITY = "severity";
   public final static java.lang.String SITEMASTER = "siteMaster";
   public final static java.lang.String TYPE = "type";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = -1045182234;
+  private static final long serialVersionUID = -1961243527;
   
   public ImportErrorBase()
   {
@@ -160,7 +162,7 @@ public abstract class ImportErrorBase extends com.runwaysdk.business.Business
     }
   }
   
-  public net.geoprism.registry.etl.ImportHistory getHistory()
+  public net.geoprism.registry.jobs.ImportHistory getHistory()
   {
     if (getValue(HISTORY).trim().equals(""))
     {
@@ -168,7 +170,7 @@ public abstract class ImportErrorBase extends com.runwaysdk.business.Business
     }
     else
     {
-      return net.geoprism.registry.etl.ImportHistory.get(getValue(HISTORY));
+      return net.geoprism.registry.jobs.ImportHistory.get(getValue(HISTORY));
     }
   }
   
@@ -188,7 +190,7 @@ public abstract class ImportErrorBase extends com.runwaysdk.business.Business
     return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(HISTORY);
   }
   
-  public void setHistory(net.geoprism.registry.etl.ImportHistory value)
+  public void setHistory(net.geoprism.registry.jobs.ImportHistory value)
   {
     if(value == null)
     {
@@ -436,6 +438,34 @@ public abstract class ImportErrorBase extends com.runwaysdk.business.Business
     }
   }
   
+  public String getResolution()
+  {
+    return getValue(RESOLUTION);
+  }
+  
+  public void validateResolution()
+  {
+    this.validateAttribute(RESOLUTION);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getResolutionMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.jobs.ImportError.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(RESOLUTION);
+  }
+  
+  public void setResolution(String value)
+  {
+    if(value == null)
+    {
+      setValue(RESOLUTION, "");
+    }
+    else
+    {
+      setValue(RESOLUTION, value);
+    }
+  }
+  
   public Long getRowIndex()
   {
     return com.runwaysdk.constants.MdAttributeLongUtil.getTypeSafeValue(getValue(ROWINDEX));
@@ -478,6 +508,34 @@ public abstract class ImportErrorBase extends com.runwaysdk.business.Business
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.jobs.ImportError.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeLongDAOIF)mdClassIF.definesAttribute(SEQ);
+  }
+  
+  public Integer getSeverity()
+  {
+    return com.runwaysdk.constants.MdAttributeIntegerUtil.getTypeSafeValue(getValue(SEVERITY));
+  }
+  
+  public void validateSeverity()
+  {
+    this.validateAttribute(SEVERITY);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeIntegerDAOIF getSeverityMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.jobs.ImportError.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeIntegerDAOIF)mdClassIF.definesAttribute(SEVERITY);
+  }
+  
+  public void setSeverity(Integer value)
+  {
+    if(value == null)
+    {
+      setValue(SEVERITY, "");
+    }
+    else
+    {
+      setValue(SEVERITY, java.lang.Integer.toString(value));
+    }
   }
   
   public String getSiteMaster()
