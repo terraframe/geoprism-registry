@@ -130,6 +130,8 @@ export class DataImporterComponent implements OnInit {
      */
     sources: Source[];
 
+    source: Source;
+
     dataSource: string;
 
     // eslint-disable-next-line no-useless-constructor

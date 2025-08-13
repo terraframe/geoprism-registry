@@ -85,6 +85,18 @@
 	  <artifactId>jakarta.persistence-api</artifactId>
 	  <version>3.2.0</version>
 	</dependency>
+	<!--
+	Compile-only shim: some Axon 4.11.x jars reference javax.persistence annotations.
+	We add javax.persistence-api:2.2 with scope=provided so javac can resolve them.
+	Runtime remains Jakarta (Spring Boot 3/Hibernate); this jar is NOT packaged.
+	Remove once Axon artifacts are fully Jakarta (no javax.* refs).
+	-->
+	<dependency>
+	  <groupId>javax.persistence</groupId>
+	  <artifactId>javax.persistence-api</artifactId>
+	  <version>2.2</version>
+	  <scope>provided</scope>
+	</dependency>
 
 
     <!-- The OrientDB Server is using the locationtech jts. Orientdb-Spatial is
