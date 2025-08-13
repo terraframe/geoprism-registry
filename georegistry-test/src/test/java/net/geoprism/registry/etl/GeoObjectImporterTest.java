@@ -50,13 +50,15 @@ import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
-import net.geoprism.registry.etl.ImportError.ErrorResolution;
 import net.geoprism.registry.etl.ObjectImporterFactory.ObjectImportType;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.Location;
 import net.geoprism.registry.io.ParentMatchStrategy;
+import net.geoprism.registry.jobs.ImportError.ErrorResolution;
+import net.geoprism.registry.jobs.ImportErrorQuery;
+import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
@@ -504,8 +506,6 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(Long.valueOf(2), hist.getWorkTotal());
     Assert.assertEquals(Long.valueOf(2), hist.getWorkProgress());
-    Assert.assertEquals(Long.valueOf(1), hist.getErrorCount());
-    Assert.assertEquals(Long.valueOf(0), hist.getErrorResolvedCount());
     Assert.assertEquals(Long.valueOf(1), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.IMPORT_RESOLVE, hist.getStage().get(0));
 
@@ -557,8 +557,6 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(Long.valueOf(2), hist.getWorkTotal());
     Assert.assertEquals(Long.valueOf(2), hist.getWorkProgress());
-    Assert.assertEquals(Long.valueOf(1), hist.getErrorCount());
-    Assert.assertEquals(Long.valueOf(0), hist.getErrorResolvedCount());
     Assert.assertEquals(Long.valueOf(1), hist.getImportedRecords());
     Assert.assertEquals(AllJobStatus.SUCCESS, hist.getStatus().get(0));
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));

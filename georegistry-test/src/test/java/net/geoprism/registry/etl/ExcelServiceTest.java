@@ -77,6 +77,7 @@ import net.geoprism.registry.io.Location;
 import net.geoprism.registry.io.LocationBuilder;
 import net.geoprism.registry.io.ParentMatchStrategy;
 import net.geoprism.registry.io.PostalCodeFactory;
+import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.EdgeConstant;
