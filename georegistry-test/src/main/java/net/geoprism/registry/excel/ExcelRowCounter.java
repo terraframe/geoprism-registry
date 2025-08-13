@@ -9,13 +9,13 @@ import com.runwaysdk.resource.FileResource;
 
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.registry.etl.ImportStage;
-import net.geoprism.registry.etl.ValidationProblem;
 import net.geoprism.registry.etl.upload.ExcelImporter;
 import net.geoprism.registry.etl.upload.FormatSpecificImporterIF;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportProgressListenerIF;
 import net.geoprism.registry.etl.upload.ObjectImporterIF;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.jobs.ValidationProblem;
 
 public class ExcelRowCounter
 {

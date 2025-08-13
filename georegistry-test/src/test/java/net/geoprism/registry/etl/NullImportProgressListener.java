@@ -4,6 +4,7 @@
 package net.geoprism.registry.etl;
 
 import net.geoprism.registry.etl.upload.ImportProgressListenerIF;
+import net.geoprism.registry.jobs.ValidationProblem;
 
 public class NullImportProgressListener implements ImportProgressListenerIF
 {

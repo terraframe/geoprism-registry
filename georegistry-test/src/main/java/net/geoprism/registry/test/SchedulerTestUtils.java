@@ -22,11 +22,11 @@ import com.runwaysdk.system.scheduler.JobHistoryRecord;
 import com.runwaysdk.system.scheduler.JobHistoryRecordQuery;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 
-import net.geoprism.registry.etl.ImportError;
-import net.geoprism.registry.etl.ImportErrorQuery;
-import net.geoprism.registry.etl.ImportHistory;
-import net.geoprism.registry.etl.ValidationProblem;
-import net.geoprism.registry.etl.ValidationProblemQuery;
+import net.geoprism.registry.jobs.ImportError;
+import net.geoprism.registry.jobs.ImportErrorQuery;
+import net.geoprism.registry.jobs.ImportHistory;
+import net.geoprism.registry.jobs.ValidationProblem;
+import net.geoprism.registry.jobs.ValidationProblemQuery;
 import net.geoprism.registry.service.request.ETLService;
 
 public class SchedulerTestUtils
