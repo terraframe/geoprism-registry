@@ -44,20 +44,19 @@ import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
-import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeDataSourceType;
+import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.locationtech.jts.geom.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Session;
 
-import net.geoprism.registry.graph.Source;
+import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.io.ImportAttributeSerializer;
@@ -65,6 +64,7 @@ import net.geoprism.registry.model.LocationInfo;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
@@ -85,12 +85,15 @@ public class GeoObjectExcelExporter
 
   private GeoObjectBusinessServiceIF     objectService;
 
+  private DataSourceBusinessServiceIF    sourceService;
+
   private Date                           date;
 
   public GeoObjectExcelExporter(ServerGeoObjectType type, ServerHierarchyType hierarchy, List<ServerGeoObjectIF> objects, Date date)
   {
     this.typeService = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
     this.objectService = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
+    this.sourceService = ServiceFactory.getBean(DataSourceBusinessServiceIF.class);
 
     this.type = type;
     this.hierarchy = hierarchy;
@@ -197,7 +200,7 @@ public class GeoObjectExcelExporter
           }
           else if (attribute instanceof AttributeDataSourceType)
           {
-            Source source = Source.get((String) value);
+            DataSource source = sourceService.get((String) value);
 
             cell.setCellValue(source.getCode());
           }

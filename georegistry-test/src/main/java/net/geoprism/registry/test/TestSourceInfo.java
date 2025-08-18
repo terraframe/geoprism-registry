@@ -8,14 +8,14 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import com.runwaysdk.session.Request;
 
-import net.geoprism.registry.graph.Source;
+import net.geoprism.registry.graph.DataSource;
 
 public class TestSourceInfo
 {
 
   private String code;
 
-  private Source dataSource;
+  private DataSource dataSource;
 
   public TestSourceInfo(String code)
   {
@@ -25,16 +25,16 @@ public class TestSourceInfo
 
   public void delete()
   {
-    Source.getByCode(code).ifPresent(source -> {
+    DataSource.getByCode(code).ifPresent(source -> {
       source.delete();
     });
   }
 
   @Request
-  public Source apply()
+  public DataSource apply()
   {
-    return Source.getByCode(code).orElseGet(() -> {
-      this.dataSource = new Source();
+    return DataSource.getByCode(code).orElseGet(() -> {
+      this.dataSource = new DataSource();
       dataSource.setCode(this.code);
       dataSource.apply();
 
@@ -43,11 +43,11 @@ public class TestSourceInfo
 
   }
 
-  public Source getDataSource()
+  public DataSource getDataSource()
   {
     if (this.dataSource == null)
     {
-      Source.getByCode(code).ifPresent(s -> this.dataSource = s);
+      DataSource.getByCode(code).ifPresent(s -> this.dataSource = s);
     }
 
     return dataSource;

@@ -80,12 +80,14 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Session;
 
-import net.geoprism.registry.graph.Source;
+import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.query.graph.VertexSelectGeoObjectQuery;
+import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.util.SessionPredicate;
 
 public class GeoObjectAtTimeShapefileExporter
@@ -299,7 +301,9 @@ public class GeoObjectAtTimeShapefileExporter
             }
             else if (attribute instanceof AttributeDataSourceType)
             {
-              Source source = Source.get((String) value);
+              DataSourceBusinessServiceIF service = ServiceFactory.getBean(DataSourceBusinessServiceIF.class);
+              
+              DataSource source = service.get((String) value);
 
               builder.set(columnName, source.getCode());
             }            

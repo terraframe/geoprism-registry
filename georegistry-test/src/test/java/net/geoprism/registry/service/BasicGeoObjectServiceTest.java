@@ -25,7 +25,7 @@ import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.conversion.TermConverter;
-import net.geoprism.registry.graph.Source;
+import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -34,7 +34,7 @@ import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
 import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
-import net.geoprism.registry.service.business.SourceBusinessServiceIF;
+import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.TermBusinessServiceIF;
 import net.geoprism.registry.test.USATestData;
 
@@ -59,7 +59,7 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
 
   private static Classifier                   classifier;
 
-  private static Source                       source;
+  private static DataSource                   source;
 
   @Autowired
   private ClassificationTypeBusinessServiceIF cTypeService;
@@ -77,7 +77,7 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
   private GeoObjectBusinessServiceIF          service;
 
   @Autowired
-  private SourceBusinessServiceIF             sourceService;
+  private DataSourceBusinessServiceIF         sourceService;
 
   @Override
   @Request

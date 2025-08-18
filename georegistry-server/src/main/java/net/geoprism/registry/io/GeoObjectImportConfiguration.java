@@ -54,14 +54,14 @@ import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.etl.upload.GeoObjectRecordedErrorException;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
-import net.geoprism.registry.graph.Source;
+import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
+import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
-import net.geoprism.registry.service.business.SourceBusinessServiceIF;
 import net.geoprism.registry.service.permission.RolePermissionService;
 
 public class GeoObjectImportConfiguration extends ImportConfiguration
@@ -116,7 +116,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
 
   private String                                      revealGeometryColumn;
 
-  private Source                                      dataSource;
+  private DataSource                                  dataSource;
 
   private ServerGeoObjectType                         type;
 
@@ -140,14 +140,14 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
 
   private GeoObjectTypeBusinessServiceIF              typeService;
 
-  private SourceBusinessServiceIF                     sourceService;
+  private DataSourceBusinessServiceIF                 sourceService;
 
   private RolePermissionService                       permissions;
 
   public GeoObjectImportConfiguration()
   {
     this.typeService = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
-    this.sourceService = ServiceFactory.getBean(SourceBusinessServiceIF.class);
+    this.sourceService = ServiceFactory.getBean(DataSourceBusinessServiceIF.class);
     this.permissions = ServiceFactory.getBean(RolePermissionService.class);
 
     this.includeCoordinates = false;
@@ -197,12 +197,12 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     this.endDate = endDate;
   }
 
-  public Source getDataSource()
+  public DataSource getDataSource()
   {
     return dataSource;
   }
 
-  public void setDataSource(Source dataSource)
+  public void setDataSource(DataSource dataSource)
   {
     this.dataSource = dataSource;
   }

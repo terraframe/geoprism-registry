@@ -15,9 +15,9 @@ import com.runwaysdk.session.Request;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.config.TestApplication;
-import net.geoprism.registry.graph.Source;
-import net.geoprism.registry.model.SourceDTO;
-import net.geoprism.registry.service.business.SourceBusinessServiceIF;
+import net.geoprism.registry.graph.DataSource;
+import net.geoprism.registry.model.DataSourceDTO;
+import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
@@ -26,7 +26,7 @@ public class SourceServiceTest implements InstanceTestClassListener
 {
 
   @Autowired
-  private SourceBusinessServiceIF service;
+  private DataSourceBusinessServiceIF service;
 
   @Override
   @Request
@@ -44,12 +44,12 @@ public class SourceServiceTest implements InstanceTestClassListener
   @Request
   public void testCreateDeleteSource()
   {
-    Source source = createMock();
+    DataSource source = createMock();
 
-    SourceDTO json = this.service.toDTO(source);
+    DataSourceDTO json = this.service.toDTO(source);
     json.setOid(null);
 
-    Source result = this.service.apply(json);
+    DataSource result = this.service.apply(json);
 
     Assert.assertEquals(source.getCode(), result.getCode());
 
@@ -60,9 +60,9 @@ public class SourceServiceTest implements InstanceTestClassListener
     Assert.assertFalse(this.service.getByCode(source.getCode()).isPresent());
   }
 
-  public static Source createMock()
+  public static DataSource createMock()
   {
-    Source source = new Source();
+    DataSource source = new DataSource();
     source.setCode("ABCD");
 
     return source;

@@ -32,12 +32,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
-import net.geoprism.registry.model.SourceDTO;
+import net.geoprism.registry.model.DataSourceDTO;
 import net.geoprism.registry.service.request.SourceServiceIF;
 
 @RestController
 @Validated
-public class SourceController extends RunwaySpringController
+public class DataSourceController extends RunwaySpringController
 {
   public static class CodeBody
   {
@@ -62,19 +62,19 @@ public class SourceController extends RunwaySpringController
   private SourceServiceIF    service;
 
   @GetMapping(API_PATH + "/get-all")
-  public ResponseEntity<List<SourceDTO>> getAll()
+  public ResponseEntity<List<DataSourceDTO>> getAll()
   {
-    List<SourceDTO> sources = this.service.getAll(this.getSessionId());
+    List<DataSourceDTO> sources = this.service.getAll(this.getSessionId());
 
-    return new ResponseEntity<List<SourceDTO>>(sources, HttpStatus.OK);
+    return new ResponseEntity<List<DataSourceDTO>>(sources, HttpStatus.OK);
   }
 
   @PostMapping(API_PATH + "/apply")
-  public ResponseEntity<SourceDTO> apply(@Valid @RequestBody SourceDTO source)
+  public ResponseEntity<DataSourceDTO> apply(@Valid @RequestBody DataSourceDTO source)
   {
-    SourceDTO response = this.service.apply(this.getSessionId(), source);
+    DataSourceDTO response = this.service.apply(this.getSessionId(), source);
 
-    return new ResponseEntity<SourceDTO>(response, HttpStatus.OK);
+    return new ResponseEntity<DataSourceDTO>(response, HttpStatus.OK);
   }
 
   @PostMapping(API_PATH + "/remove")
@@ -86,19 +86,19 @@ public class SourceController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get")
-  public ResponseEntity<SourceDTO> get(@NotEmpty @RequestParam String code)
+  public ResponseEntity<DataSourceDTO> get(@NotEmpty @RequestParam String code)
   {
-    SourceDTO source = this.service.getByCode(this.getSessionId(), code);
+    DataSourceDTO source = this.service.getByCode(this.getSessionId(), code);
 
-    return new ResponseEntity<SourceDTO>(source, HttpStatus.OK);
+    return new ResponseEntity<DataSourceDTO>(source, HttpStatus.OK);
   }
 
   @GetMapping(API_PATH + "/search")
-  public ResponseEntity<List<SourceDTO>> search(@RequestParam(required = false) String text)
+  public ResponseEntity<List<DataSourceDTO>> search(@RequestParam(required = false) String text)
   {
-    List<SourceDTO> sources = this.service.search(this.getSessionId(), text);
+    List<DataSourceDTO> sources = this.service.search(this.getSessionId(), text);
 
-    return new ResponseEntity<List<SourceDTO>>(sources, HttpStatus.OK);
+    return new ResponseEntity<List<DataSourceDTO>>(sources, HttpStatus.OK);
   }
 
 }

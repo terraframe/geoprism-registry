@@ -139,7 +139,7 @@ import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.curation.ListCurationHistory;
 import net.geoprism.registry.etl.PublishListTypeVersionJob;
 import net.geoprism.registry.etl.PublishListTypeVersionJobQuery;
-import net.geoprism.registry.graph.Source;
+import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.masterlist.ListAttribute;
 import net.geoprism.registry.masterlist.ListAttributeGroup;
@@ -169,6 +169,7 @@ import net.geoprism.registry.query.graph.BasicVertexRestriction;
 import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
 import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.CurationBusinessService;
+import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
@@ -1075,9 +1076,11 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
           }
           else if (attribute instanceof AttributeDataSourceType)
           {
-            Source classification = Source.get((String) value);
-
-            this.setValue(business, name, classification.getCode());
+            DataSourceBusinessServiceIF service = ServiceFactory.getBean(DataSourceBusinessServiceIF.class);
+            
+            DataSource source = service.get((String) value);
+            
+            this.setValue(business, name, source.getCode());
           }
           else if (attribute instanceof AttributeClassificationType)
           {
