@@ -463,7 +463,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     Geometry cd1_geometry = coloradoDistOne.getGeometry();
     Assert.assertEquals(cd1_expected, cd1_geometry);
 
-    Object value = coloradoDistOne.getValue(DefaultAttribute.DATA_SOURCE.getName());
+    Object value = coloradoDistOne.getValue(DefaultAttribute.DATA_SOURCE.getName(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertNotNull(value);
 
