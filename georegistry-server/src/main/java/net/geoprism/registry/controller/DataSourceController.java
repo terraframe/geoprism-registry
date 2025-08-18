@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.model.DataSourceDTO;
 import net.geoprism.registry.service.request.SourceServiceIF;
 
@@ -56,7 +57,7 @@ public class DataSourceController extends RunwaySpringController
 
   }
 
-  public static final String API_PATH = "source";
+  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "source";
 
   @Autowired
   private SourceServiceIF    service;
