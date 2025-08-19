@@ -136,6 +136,12 @@ public abstract class ImportConfiguration
       config.fromJSON(json, false);
       return config;
     }
+    else if (objectType.equals(ObjectImporterFactory.ObjectImportType.EDGE_OBJECT.name()))
+    {
+      EdgeObjectImportConfiguration config = new EdgeObjectImportConfiguration();
+      config.fromJSON(json, false);
+      return config;
+    }
     else
     {
       throw new UnsupportedOperationException();
