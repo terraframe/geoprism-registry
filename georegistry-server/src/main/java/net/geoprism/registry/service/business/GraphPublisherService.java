@@ -58,7 +58,6 @@ import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.InvalidMasterListException;
-import net.geoprism.registry.cache.ClassificationCache;
 import net.geoprism.registry.etl.ImportStage;
 import net.geoprism.registry.lpg.LPGPublishProgressMonitorIF;
 import net.geoprism.registry.model.BusinessObject;
@@ -251,8 +250,6 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
    * SERVICE METHODS.
    */
   private Map<String, CachedSnapshot>                      snapshotCache;
-
-  private ClassificationCache                              classiCache;
 
   private long                                             BLOCK_SIZE;
 
@@ -466,7 +463,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
       {
         JsonObject dto = this.bObjectService.toJSON(new BusinessObject(vertex, type));
 
-        super.publishBusiness(state, MdVertexDAO.get(snapshot.getGraphMdVertexOid()), dto, classiCache);
+        super.publishBusiness(state, MdVertexDAO.get(snapshot.getGraphMdVertexOid()), dto);
 
         count++;
       }
@@ -502,8 +499,8 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
 
       for (ServerGeoObjectIF result : results)
       {
-        var go = this.objectService.toGeoObject(result, forDate, false, classiCache);
-        super.publish(state, gotSnapshot.graphMdVertex, go, classiCache);
+        var go = this.objectService.toGeoObject(result, forDate, false);
+        super.publish(state, gotSnapshot.graphMdVertex, go);
         count++;
       }
 
@@ -574,8 +571,6 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
   private void cacheMetadata(LabeledPropertyGraphTypeVersion version)
   {
     snapshotCache = new HashMap<String, CachedSnapshot>();
-
-    classiCache = new ClassificationCache();
 
     this.versionService.getTypes(version).forEach(snapshot -> {
       if (!snapshot.isRoot())

@@ -90,7 +90,7 @@ public class GeoObjectUtil
     else if (value instanceof String)
     {
       ClassificationBusinessServiceIF service = ServiceFactory.getBean(ClassificationBusinessServiceIF.class);
-      Classification classification = service.get(attributeType, (String) value);
+      Classification classification = service.get(attributeType, (String) value).get();
 
       return convertToTermString(attributeType, classification.getVertex());
     }

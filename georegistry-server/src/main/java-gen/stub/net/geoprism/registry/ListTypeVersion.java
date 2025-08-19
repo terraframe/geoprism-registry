@@ -1089,7 +1089,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
             String classificationTypeCode = ( (AttributeClassificationType) attribute ).getClassificationType();
             ClassificationType classificationType = typeService.getByCode(classificationTypeCode);
-            Classification classification = service.getByOid(classificationType, (String) value);
+            Classification classification = service.getByOid(classificationType, (String) value).get();
 
             LocalizedValue label = classification.getDisplayLabel();
 

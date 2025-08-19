@@ -44,7 +44,6 @@ import net.geoprism.graph.LabeledPropertyGraphSynchronization;
 import net.geoprism.graph.LabeledPropertyGraphType;
 import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
 import net.geoprism.registry.InvalidMasterListException;
-import net.geoprism.registry.cache.ClassificationCache;
 import net.geoprism.registry.etl.ImportStage;
 import net.geoprism.registry.lpg.LPGPublishProgressMonitorIF;
 import net.geoprism.registry.lpg.TreeStrategyConfiguration;
@@ -112,8 +111,6 @@ public class TreeStrategyPublisherService extends AbstractGraphVersionPublisherS
   @Autowired
   private HierarchyTypeSnapshotBusinessServiceIF hSnapshotService;
   
-  private ClassificationCache classiCache = new ClassificationCache();
-
   public void publish(LPGPublishProgressMonitorIF monitor, TreeStrategyConfiguration configuration, LabeledPropertyGraphTypeVersion version)
   {
     super.monitor = monitor;
@@ -203,7 +200,7 @@ public class TreeStrategyPublisherService extends AbstractGraphVersionPublisherS
 
     if (!state.uids.contains(snapshot.node.getUid()))
     {
-      vertex = this.publish(state, mdVertex, this.objectService.toGeoObject(snapshot.node, forDate, false, classiCache), classiCache);
+      vertex = this.publish(state, mdVertex, this.objectService.toGeoObject(snapshot.node, forDate, false));
 
       final VertexObject parent = vertex;
 
