@@ -366,7 +366,7 @@ public class UpdateValueOverTimeView
 
             ClassificationBusinessServiceIF service = ServiceFactory.getBean(ClassificationBusinessServiceIF.class);
 
-            Classification classification = service.get((AttributeClassificationType) attype, code);
+            Classification classification = service.get((AttributeClassificationType) attype, code).get();
 
             convertedValue = new AttributeGraphRef.ID(classification.getOid(), classification.getVertex().getRID());
           }

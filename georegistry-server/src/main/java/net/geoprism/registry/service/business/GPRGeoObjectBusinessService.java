@@ -48,7 +48,6 @@ import com.runwaysdk.session.CreatePermissionException;
 import com.runwaysdk.session.ReadPermissionException;
 import com.runwaysdk.session.WritePermissionException;
 
-import net.geoprism.registry.cache.ClassificationCache;
 import net.geoprism.registry.etl.export.GeoObjectExportFormat;
 import net.geoprism.registry.etl.export.GeoObjectJsonExporter;
 import net.geoprism.registry.etl.export.RevealGeoObjectJsonAdapters;
@@ -317,9 +316,9 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
   }
 
   @Override
-  public GeoObject toGeoObject(ServerGeoObjectIF sgo, Date date, boolean includeExternalIds, ClassificationCache classiCache)
+  public GeoObject toGeoObject(ServerGeoObjectIF sgo, Date date, boolean includeExternalIds)
   {
-    GeoObject geoObj = super.toGeoObject(sgo, date, includeExternalIds, classiCache);
+    GeoObject geoObj = super.toGeoObject(sgo, date, includeExternalIds);
 
     if (includeExternalIds)
     {

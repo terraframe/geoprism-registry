@@ -50,7 +50,6 @@ import com.runwaysdk.system.metadata.MdVertex;
 import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
-import net.geoprism.registry.cache.ClassificationCache;
 import net.geoprism.registry.etl.ImportStage;
 import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.model.BusinessObject;
@@ -164,8 +163,6 @@ public class RepoRDFExportBusinessService
     protected long                      total;
 
     protected long                      count;
-
-    protected ClassificationCache       classiCache            = new ClassificationCache();
 
     protected String                    progressId;
 
@@ -342,7 +339,7 @@ public class RepoRDFExportBusinessService
         org.apache.jena.vocabulary.RDF.type.asNode(), //
         NodeFactory.createURI(state.graphMetadataNamespace + type.getCode())));
 
-    var go = this.objectService.toGeoObject(serverGo, null, false, state.classiCache);
+    var go = this.objectService.toGeoObject(serverGo, null, false);
 
     Map<String, AttributeType> attributes = go.getType().getAttributeMap();
 
@@ -380,21 +377,7 @@ public class RepoRDFExportBusinessService
         {
           String classificationTypeCode = ( (AttributeClassificationType) attribute ).getClassificationType();
 
-          Classification classification = null;
-          if (state.classiCache != null)
-          {
-            classification = state.classiCache.getClassification(classificationTypeCode, value.toString().trim());
-          }
-
-          if (classification == null)
-          {
-            classification = this.classificationService.get((AttributeClassificationType) attribute, value);
-
-            if (classification != null && state.classiCache != null)
-            {
-              state.classiCache.putClassification(classificationTypeCode, value.toString().trim(), classification);
-            }
-          }
+          Classification classification = this.classificationService.get((AttributeClassificationType) attribute, value).get();
 
           literal = classification.getCode();
         }
@@ -536,23 +519,7 @@ public class RepoRDFExportBusinessService
 
         if (value != null)
         {
-          String classificationTypeCode = ( (AttributeClassificationType) attribute ).getClassificationType();
-
-          Classification classification = null;
-          if (state.classiCache != null)
-          {
-            classification = state.classiCache.getClassification(classificationTypeCode, value.toString().trim());
-          }
-
-          if (classification == null)
-          {
-            classification = this.classificationService.get((AttributeClassificationType) attribute, value);
-
-            if (classification != null && state.classiCache != null)
-            {
-              state.classiCache.putClassification(classificationTypeCode, value.toString().trim(), classification);
-            }
-          }
+          Classification classification = this.classificationService.get((AttributeClassificationType) attribute, value).get();
 
           literal = classification.getCode();
         }

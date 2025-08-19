@@ -38,7 +38,6 @@ import net.geoprism.registry.axon.event.repository.GeoObjectRemoveParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectUpdateParentEvent;
 import net.geoprism.registry.axon.event.repository.InMemoryEventMerger;
 import net.geoprism.registry.axon.event.repository.RepositoryEvent;
-import net.geoprism.registry.cache.ClassificationCache;
 import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.view.PublishDTO;
@@ -119,7 +118,7 @@ public class PublishEventService
     throw new ProgrammingErrorException("Unable to publish events because no events exist");
   }
 
-  private RemoteCommand build(Publish publish, Commit commit, RepositoryEvent event, ClassificationCache cache)
+  private RemoteCommand build(Publish publish, Commit commit, RepositoryEvent event)
   {
     if (event instanceof GeoObjectApplyEvent)
     {
@@ -132,7 +131,7 @@ public class PublishEventService
 
       this.service.populate(object, GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), oJson));
 
-      GeoObject dto = this.service.toGeoObject(object, publish.getForDate(), false, cache);
+      GeoObject dto = this.service.toGeoObject(object, publish.getForDate(), false);
 
       return new RemoteGeoObjectCommand(commit.getUid(), code, isNew, dto.toJSON().toString(), type, publish.getStartDate(), publish.getEndDate());
     }
@@ -218,8 +217,6 @@ public class PublishEventService
 
   protected void processEventType(GapAwareTrackingToken start, GapAwareTrackingToken end, EventType eventType, Publish publish, Commit commit, PublishDTO dto)
   {
-    ClassificationCache cache = new ClassificationCache();
-
     List<String> aggregateIds = this.store.getAggregateIds(start, end);
     
     for (String aggregateId : aggregateIds)
@@ -244,7 +241,7 @@ public class PublishEventService
         }
       }
 
-      merger.buildEvents().stream().map(event -> this.build(publish, commit, event, cache)).forEach(command -> {
+      merger.buildEvents().stream().map(event -> this.build(publish, commit, event)).forEach(command -> {
         this.gateway.sendAndWait(command);
       });
     }

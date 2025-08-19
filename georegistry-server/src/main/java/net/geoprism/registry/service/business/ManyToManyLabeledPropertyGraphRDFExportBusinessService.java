@@ -64,7 +64,6 @@ import net.geoprism.graph.LabeledPropertyGraphType;
 import net.geoprism.graph.LabeledPropertyGraphTypeEntry;
 import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
 import net.geoprism.registry.InvalidMasterListException;
-import net.geoprism.registry.cache.ClassificationCache;
 import net.geoprism.registry.etl.ImportStage;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.jobs.ImportHistory;
@@ -81,7 +80,7 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
 {
   private static class State
   {
-    protected Map<String, String>             prefixes    = new HashMap<String, String>();
+    protected Map<String, String>             prefixes = new HashMap<String, String>();
 
     protected LabeledPropertyGraphTypeVersion version;
 
@@ -102,8 +101,6 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
     protected long                            count;
 
     protected String                          quadGraphName;
-
-    protected ClassificationCache             classiCache = new ClassificationCache();
 
     protected GeometryExportType              geomExportType;
 
@@ -556,20 +553,9 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
 
           if (value != null)
           {
-            String classificationTypeCode = ( (AttributeClassificationType) attribute ).getClassificationType();
-            Classification classification = state.classiCache.getClassification(classificationTypeCode, value.toString().trim());
+            Classification classification = this.classificationService.get((AttributeClassificationType) attribute, value).get();
 
-            if (classification == null)
-            {
-              classification = this.classificationService.get((AttributeClassificationType) attribute, value);
-
-              if (classification != null)
-              {
-                literal = classification.getDisplayLabel().getValue();
-                state.classiCache.putClassification(classificationTypeCode, value.toString().trim(), classification);
-              }
-            }
-            else
+            if (classification != null)
             {
               literal = classification.getDisplayLabel().getValue();
             }
