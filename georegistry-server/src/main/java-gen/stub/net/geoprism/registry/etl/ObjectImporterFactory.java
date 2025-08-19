@@ -18,12 +18,14 @@
  */
 package net.geoprism.registry.etl;
 
+import net.geoprism.registry.etl.upload.BusinessObjectImportConfiguration;
+import net.geoprism.registry.etl.upload.BusinessObjectImporter;
+import net.geoprism.registry.etl.upload.EdgeObjectImportConfiguration;
+import net.geoprism.registry.etl.upload.EdgeObjectImporter;
 import net.geoprism.registry.etl.upload.GeoObjectImporter;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportProgressListenerIF;
 import net.geoprism.registry.etl.upload.ObjectImporterIF;
-import net.geoprism.registry.etl.upload.BusinessObjectImportConfiguration;
-import net.geoprism.registry.etl.upload.BusinessObjectImporter;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 
 public class ObjectImporterFactory
@@ -44,7 +46,7 @@ public class ObjectImporterFactory
     }
     else if (type.equals(ObjectImportType.EDGE_OBJECT.name()))
     {
-      return new BusinessObjectImporter((BusinessObjectImportConfiguration) config, progress);
+      return new EdgeObjectImporter((EdgeObjectImportConfiguration) config, progress);
     }
     else
     {

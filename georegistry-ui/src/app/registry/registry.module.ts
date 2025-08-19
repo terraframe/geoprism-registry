@@ -171,6 +171,8 @@ import { ConfigurationModalComponent } from "./component/scheduled-jobs/configur
 import { ExportTypesModalComponent } from "./component/hierarchy/modals/export-types-modal.component";
 import { RDFExportComponent } from "./component/data-export/rdf-export.component";
 import { LabeledPropertyGraphTypeFormComponent } from "./component/labeled-property-graph-type/labeled-property-graph-form.component";
+import { EdgeImporterComponent } from './component/edge-importer/edge-importer.component';
+import { GraphTypeService } from "./service/graph-type.service";
 
 @NgModule({
     imports: [
@@ -308,7 +310,8 @@ import { LabeledPropertyGraphTypeFormComponent } from "./component/labeled-prope
         LabeledPropertyGraphTypeManagerComponent,
         LabeledPropertyGraphTypeComponent,
         LabeledPropertyGraphTypeFormComponent,
-        LabeledPropertyGraphTypePublishModalComponent
+        LabeledPropertyGraphTypePublishModalComponent,
+        EdgeImporterComponent
     ],
     providers: [
         MapService,
@@ -327,6 +330,7 @@ import { LabeledPropertyGraphTypeFormComponent } from "./component/labeled-prope
         SynchronizationConfigService,
         TransitionEventService,
         BusinessTypeService,
+        GraphTypeService,
         BusinessObjectService,
         ListTypeService,
         LabeledPropertyGraphTypeService,

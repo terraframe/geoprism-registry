@@ -44,6 +44,7 @@ import { BusinessTableComponent } from "./component/business-table/business-tabl
 import { ClassificationTypeManagerComponent } from "./component/classification-type/classification-type-manager.component";
 import { LabeledPropertyGraphTypeManagerComponent } from "./component/labeled-property-graph-type/labeled-property-graph-type-manager.component";
 import { RDFExportComponent } from "./component/data-export/rdf-export.component";
+import { EdgeImporterComponent } from "./component/edge-importer/edge-importer.component";
 
 const routes: Routes = [
     {
@@ -144,6 +145,11 @@ const routes: Routes = [
     {
         path: "business-type/:oid",
         component: BusinessTableComponent,
+        canActivate: [AuthGuard, BusinessDataGuard]
+    },
+    {
+        path: "edge-importer",
+        component: EdgeImporterComponent,
         canActivate: [AuthGuard, BusinessDataGuard]
     },
     {

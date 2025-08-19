@@ -156,8 +156,6 @@ public class CambodiaTestDataset extends TestDataSet
     CambodiaTestDataset data = CambodiaTestDataset.newTestData();
     data.setUpMetadata();
     data.setUpInstanceData();
-    
-    
   }
 
   public static CambodiaTestDataset newTestData()
