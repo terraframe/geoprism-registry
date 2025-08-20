@@ -120,11 +120,11 @@
                 <div class="col-md-2"></div>
             </div>
             <div class="form-group row">
-                <label class="col-md-2 text-right" for="source">
+                <label class="col-md-2 text-right" for="dataSource">
                     Data Source
                 </label>
                 <div class="col-md-8">
-                    <select id="source" name="dataSource" class="select-area" [(ngModel)]="source">
+                    <select id="source" name="dataSource" class="select-area" [(ngModel)]="dataSource">
                         <option *ngFor="let s of sources" [value]="s.code">{{s.code}}</option>
                     </select>
                 </div>

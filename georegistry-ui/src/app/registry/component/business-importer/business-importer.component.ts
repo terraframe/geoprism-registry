@@ -33,6 +33,8 @@ import { BusinessType } from "@registry/model/business-type";
 import { BusinessTypeService } from "@registry/service/business-type.service";
 
 import { environment } from 'src/environments/environment';
+import { Source } from "@registry/model/source";
+import { SourceService } from "@registry/service/source.service";
 
 @Component({
 
@@ -117,16 +119,30 @@ export class BusinessImporterComponent implements OnInit {
 
     copyBlank: boolean = true;
 
+    /*
+     * Hierarchies grouped by GeoObjectType
+     */
+    sources: Source[];
+
+    dataSource: string;
+
     // eslint-disable-next-line no-useless-constructor
     constructor(
         private eventService: EventService,
         private modalService: BsModalService,
+        private sourceService: SourceService,
         private localizationService: LocalizationService,
         private hierarchyService: HierarchyService,
         private businessService: BusinessTypeService
     ) { }
 
     ngOnInit(): void {
+        this.sourceService.getAll().then(sources =>
+            this.sources = sources
+        ).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
+
         this.businessService.getAll().then(businessTypes => {
             this.businessTypes = businessTypes;
         });
@@ -206,6 +222,10 @@ export class BusinessImporterComponent implements OnInit {
             form.append("type", this.businessTypeCode);
             form.append("copyBlank", this.copyBlank);
 
+            if (this.dataSource != null) {
+                form.append("dataSource", this.dataSource);
+            }
+            
             if (this.date != null) {
                 form.append("date", this.date);
             }
