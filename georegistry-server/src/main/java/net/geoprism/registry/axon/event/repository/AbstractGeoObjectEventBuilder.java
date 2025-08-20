@@ -11,6 +11,7 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
 import net.geoprism.registry.axon.command.repository.GeoObjectCompositeCommand;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -169,19 +170,21 @@ public abstract class AbstractGeoObjectEventBuilder<K>
     this.events.add(new GeoObjectSetExternalIdEvent(this.getCode(), this.getType(), system.getId(), externalId, importStrategy));
   }
 
-  public void addParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchy, Date startDate, Date endDate, String edgeUuid, Boolean validate)
+  public void addParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchy, Date startDate, Date endDate, String edgeUuid, DataSource dataSource, Boolean validate)
   {
-    this.events.add(new GeoObjectCreateParentEvent(this.getCode(), this.getType(), edgeUuid, hierarchy.getCode(), startDate, endDate, parent.getCode(), parent.getType().getCode(), validate));
+    String code = dataSource != null ? dataSource.getCode() : null;
+
+    this.events.add(new GeoObjectCreateParentEvent(this.getCode(), this.getType(), edgeUuid, hierarchy.getCode(), startDate, endDate, parent.getCode(), parent.getType().getCode(), code, validate));
   }
 
   public void addEdge(ServerGeoObjectIF target, GraphType graphType, Date startDate, Date endDate, String edgeUuid, Boolean validate)
   {
     String typeCode = GraphType.getTypeCode(graphType);
-    
+
     this.events.add(new GeoObjectCreateEdgeEvent(this.getCode(), this.getType(), typeCode, graphType.getCode(), target.getCode(), target.getType().getCode(), startDate, endDate, validate));
   }
-  
-  public void setParents(ServerParentTreeNodeOverTime parentsOverTime)
+
+  public void setParents(ServerParentTreeNodeOverTime parentsOverTime, DataSource dataSource)
   {
     final Collection<ServerHierarchyType> hierarchyTypes = parentsOverTime.getHierarchies();
 
@@ -198,7 +201,7 @@ public abstract class AbstractGeoObjectEventBuilder<K>
       {
         ServerGeoObjectIF parent = entry.getGeoObject();
 
-        this.addParent(parent, hierarchyType, entry.getStartDate(), entry.getEndDate(), entry.getUid(), false);
+        this.addParent(parent, hierarchyType, entry.getStartDate(), entry.getEndDate(), entry.getUid(), dataSource, false);
       }
     }
   }
@@ -220,10 +223,11 @@ public abstract class AbstractGeoObjectEventBuilder<K>
       list.getLast().setRefreshWorking(true);
     }
 
-//    if (this.isNew)
-//    {
-//      return (T) new GeoObjectCompositeCreateCommand(getCode(), getType(), list);
-//    }
+    // if (this.isNew)
+    // {
+    // return (T) new GeoObjectCompositeCreateCommand(getCode(), getType(),
+    // list);
+    // }
 
     return (T) new GeoObjectCompositeCommand(getCode(), getType(), list);
   }

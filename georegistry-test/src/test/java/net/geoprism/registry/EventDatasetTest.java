@@ -187,8 +187,8 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
   {
     BusinessObjectEventBuilder builder = new BusinessObjectEventBuilder(bObjectService);
     builder.setObject(cObject);
-    builder.addParent(pObject, bEdgeType, false);
-    builder.addGeoObject(bGeoEdgeType, USATestData.COLORADO.getServerObject(), EdgeDirection.PARENT);
+    builder.addParent(pObject, bEdgeType, USATestData.SOURCE.getDataSource(), false);
+    builder.addGeoObject(bGeoEdgeType, USATestData.COLORADO.getServerObject(), EdgeDirection.PARENT, USATestData.SOURCE.getDataSource());
 
     this.gateway.sendAndWait(builder.build());
   }

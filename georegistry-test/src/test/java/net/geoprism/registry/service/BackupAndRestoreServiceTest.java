@@ -194,9 +194,9 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
     boChild.setCode("BoChild");
     this.bObjectService.apply(boChild);
 
-    this.bObjectService.addChild(boParent, bEdgeType, boChild, UUID.randomUUID().toString());
+    this.bObjectService.addChild(boParent, bEdgeType, boChild, UUID.randomUUID().toString(), USATestData.SOURCE.getDataSource());
 
-    this.bObjectService.addGeoObject(boChild, bGeoEdgeType, USATestData.COLORADO.getServerObject(), EdgeDirection.PARENT, UUID.randomUUID().toString(), false);
+    this.bObjectService.addGeoObject(boChild, bGeoEdgeType, USATestData.COLORADO.getServerObject(), EdgeDirection.PARENT, UUID.randomUUID().toString(), USATestData.SOURCE.getDataSource(), false);
 
     TransitionEvent event = new TransitionEvent();
 

@@ -283,7 +283,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
             types[i] = location.getType().getCode();
           }
 
-          ServerParentTreeNode tnParent = new ServerParentTreeNode(geoObject, hierarchy, BusinessObjectImporter.this.getConfiguration().getDate(), BusinessObjectImporter.this.getConfiguration().getDate(), null, null);
+          ServerParentTreeNode tnParent = new ServerParentTreeNode(geoObject, hierarchy, BusinessObjectImporter.this.getConfiguration().getDate(), BusinessObjectImporter.this.getConfiguration().getDate(), null, null, BusinessObjectImporter.this.getConfiguration().getDataSource());
 
           ServerParentTreeNodeOverTime grandParentsOverTime = objectService.getParentsOverTime(geoObject, null, true, true);
 
@@ -574,6 +574,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
 
         businessObject = this.bObjectService.newInstance(this.configuration.getType());
         businessObject.setCode(code);
+        businessObject.setValue(DefaultAttribute.DATA_SOURCE.getName(), configuration.getDataSource());
       }
 
       builder.setObject(businessObject);
@@ -630,7 +631,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
 
       if (this.configuration.getDirection() != null && this.configuration.getEdgeType() != null)
       {
-        eventBuilder.addGeoObject(this.configuration.getEdgeType(), geoObject, this.configuration.getDirection());
+        eventBuilder.addGeoObject(this.configuration.getEdgeType(), geoObject, this.configuration.getDirection(), this.configuration.getDataSource());
       }
 
       this.commandGateway.sendAndWait(eventBuilder.build());

@@ -28,11 +28,13 @@ public class RemoteGeoObjectSetParentCommand implements RemoteCommand
 
   private String parentCode;
 
+  private String dataSource;
+
   public RemoteGeoObjectSetParentCommand()
   {
   }
 
-  public RemoteGeoObjectSetParentCommand(String commitId, String code, String type, String edgeUid, String edgeType, Date startDate, Date endDate, String parentCode, String parentType)
+  public RemoteGeoObjectSetParentCommand(String commitId, String code, String type, String edgeUid, String edgeType, Date startDate, Date endDate, String parentCode, String parentType, String dataSource)
   {
     super();
     this.key = code + "#" + type;
@@ -45,6 +47,7 @@ public class RemoteGeoObjectSetParentCommand implements RemoteCommand
     this.endDate = endDate;
     this.parentType = parentType;
     this.parentCode = parentCode;
+    this.dataSource = dataSource;
   }
 
   public String getCommitId()
@@ -56,22 +59,22 @@ public class RemoteGeoObjectSetParentCommand implements RemoteCommand
   {
     this.commitId = commitId;
   }
-  
+
   public String getCode()
   {
     return code;
   }
-  
+
   public void setCode(String code)
   {
     this.code = code;
   }
-  
+
   public String getKey()
   {
     return key;
   }
-  
+
   public void setKey(String key)
   {
     this.key = key;
@@ -145,5 +148,15 @@ public class RemoteGeoObjectSetParentCommand implements RemoteCommand
   public void setParentCode(String parentCode)
   {
     this.parentCode = parentCode;
+  }
+  
+  public String getDataSource()
+  {
+    return dataSource;
+  }
+  
+  public void setDataSource(String dataSource)
+  {
+    this.dataSource = dataSource;
   }
 }

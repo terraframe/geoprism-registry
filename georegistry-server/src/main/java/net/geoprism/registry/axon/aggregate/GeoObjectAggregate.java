@@ -102,7 +102,7 @@ public class GeoObjectAggregate
   @CommandHandler
   public void on(RemoteGeoObjectSetParentCommand command)
   {
-    RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new RemoteGeoObjectSetParentEvent(command.getCommitId(), command.getCode(), command.getType(), command.getEdgeUid(), command.getEdgeType(), command.getStartDate(), command.getEndDate(), command.getParentCode(), command.getParentType())));
+    RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new RemoteGeoObjectSetParentEvent(command.getCommitId(), command.getCode(), command.getType(), command.getEdgeUid(), command.getEdgeType(), command.getStartDate(), command.getEndDate(), command.getParentCode(), command.getParentType(), command.getDataSource())));
   }
 
   @CommandHandler

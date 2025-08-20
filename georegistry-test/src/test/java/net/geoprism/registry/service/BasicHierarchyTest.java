@@ -22,10 +22,10 @@ import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
-import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.test.USATestData;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
@@ -48,10 +48,14 @@ public class BasicHierarchyTest implements InstanceTestClassListener
   @Autowired
   private GeoObjectBusinessServiceIF     service;
 
+  protected USATestData                  testData;
+
   @Override
   @Request
   public void beforeClassSetup() throws Exception
   {
+    testData = USATestData.newTestData();
+
     USATestData.ORG_NPS.apply();
     USATestData.SOURCE.apply();
 
@@ -67,12 +71,7 @@ public class BasicHierarchyTest implements InstanceTestClassListener
   @Request
   public void afterClassSetup() throws Exception
   {
-    this.hTypeService.delete(hierarchyType);
-    this.gTypeService.deleteGeoObjectType(child.getCode());
-    this.gTypeService.deleteGeoObjectType(parent.getCode());
-
-    USATestData.SOURCE.delete();
-    USATestData.ORG_NPS.delete();
+    testData.tearDownMetadata();
   }
 
   @Test
@@ -87,20 +86,65 @@ public class BasicHierarchyTest implements InstanceTestClassListener
 
       try
       {
-        this.service.addChild(parent, child, hierarchyType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, UUID.randomUUID().toString(), false);
+        String uid = UUID.randomUUID().toString();
+
+        this.service.addChild(parent, child, hierarchyType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, uid, USATestData.SOURCE.getDataSource(), false);
 
         ServerChildTreeNode objects = this.service.getChildGeoObjects(parent, hierarchyType, null, false, USATestData.DEFAULT_OVER_TIME_DATE);
 
         Assert.assertEquals(1, objects.getChildren().size());
+
+        ServerChildTreeNode node = objects.getChildren().get(0);
+
+        Assert.assertNotNull(node.getSource());
+        Assert.assertEquals(uid, node.getUid());
+        Assert.assertEquals(child.getCode(), node.getGeoObject().getCode());        
       }
       finally
       {
-        child.delete();
+        USATestData.COLORADO.delete();
       }
     }
     finally
     {
-      parent.delete();
+      USATestData.USA.delete();
+    }
+  }
+  
+  @Test
+  @Request
+  public void testAddParent()
+  {
+    ServerGeoObjectIF parent = USATestData.USA.apply();
+    
+    try
+    {
+      ServerGeoObjectIF child = USATestData.COLORADO.apply();
+      
+      try
+      {
+        String uid = UUID.randomUUID().toString();
+        
+        this.service.addParent(child, parent, hierarchyType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, uid, USATestData.SOURCE.getDataSource(), false);
+        
+        ServerParentTreeNode objects = this.service.getParentGeoObjects(child, hierarchyType, null, false, false, USATestData.DEFAULT_OVER_TIME_DATE);
+        
+        Assert.assertEquals(1, objects.getParents().size());
+        
+        ServerParentTreeNode node = objects.getParents().get(0);
+        
+        Assert.assertNotNull(node.getSource());
+        Assert.assertEquals(uid, node.getUid());
+        Assert.assertEquals(parent.getCode(), node.getGeoObject().getCode());
+      }
+      finally
+      {
+        USATestData.COLORADO.delete();
+      }
+    }
+    finally
+    {
+      USATestData.USA.delete();
     }
   }
 }

@@ -251,7 +251,7 @@ public class GeoObjectEditorBusinessService
       GeoObjectEventBuilder builder = new GeoObjectEventBuilder(this.service);
       builder.setRefreshWorking(true);
       builder.setObject(timeGO, true);
-      builder.setParents(ServerParentTreeNodeOverTime.fromJSON(serverGOT, sPtn));
+      builder.setParents(ServerParentTreeNodeOverTime.fromJSON(serverGOT, sPtn), null);
 
       this.commandGateway.sendAndWait(builder.build());
 

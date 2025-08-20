@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
@@ -377,6 +378,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
       configuration.addLocation(new Location(got, hierarchy, new BasicColumnFunction(geoAttribute), ParentMatchStrategy.CODE));
       configuration.setEdgeType(bGeoEdgeType);
       configuration.setDirection(EdgeDirection.PARENT);
+      configuration.setDataSource(FastTestDataset.SOURCE.getDataSource());
 
       try (BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener()))
       {
@@ -503,6 +505,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
     try
     {
       Assert.assertNotNull(o1);
+      Assert.assertNotNull(o1.getObjectValue(DefaultAttribute.DATA_SOURCE.getName()));
     }
     finally
     {
@@ -534,6 +537,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
     result.put(BusinessObjectImportConfiguration.FORMAT_TYPE, FormatImporterType.EXCEL);
     result.put(BusinessObjectImportConfiguration.OBJECT_TYPE, ObjectImportType.BUSINESS_OBJECT);
     result.put(BusinessObjectImportConfiguration.IMPORT_STRATEGY, strategy);
+    result.put(BusinessObjectImportConfiguration.DATA_SOURCE, FastTestDataset.SOURCE.getCode());
 
     return result;
   }

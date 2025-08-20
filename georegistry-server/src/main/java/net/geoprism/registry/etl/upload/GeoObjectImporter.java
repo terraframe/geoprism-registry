@@ -308,7 +308,7 @@ public class GeoObjectImporter implements ObjectImporterIF
             types[i] = location.getType().getCode();
           }
 
-          ServerParentTreeNode tnParent = new ServerParentTreeNode(parent, hierarchy, GeoObjectImporter.this.configuration.getStartDate(), GeoObjectImporter.this.configuration.getEndDate(), null, null);
+          ServerParentTreeNode tnParent = new ServerParentTreeNode(parent, hierarchy, GeoObjectImporter.this.configuration.getStartDate(), GeoObjectImporter.this.configuration.getEndDate(), null, null, GeoObjectImporter.this.configuration.getDataSource());
 
           ServerParentTreeNodeOverTime grandParentsOverTime = service.getParentsOverTime(parent, null, true, true);
 
@@ -831,7 +831,7 @@ public class GeoObjectImporter implements ObjectImporterIF
 
       if (parent != null)
       {
-        builder.addParent(parent, this.configuration.getHierarchy(), this.configuration.getStartDate(), this.configuration.getEndDate(), UUID.randomUUID().toString(), !isNew);
+        builder.addParent(parent, this.configuration.getHierarchy(), this.configuration.getStartDate(), this.configuration.getEndDate(), UUID.randomUUID().toString(), this.configuration.getDataSource(), !isNew);
       }
       else if (isNew)
       {

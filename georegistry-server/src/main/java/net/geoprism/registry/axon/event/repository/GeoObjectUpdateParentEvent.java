@@ -6,9 +6,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class GeoObjectUpdateParentEvent extends AbstractHierarchyEvent implements GeoObjectEvent
 {
-  private String  code;
+  private String code;
 
-  private String  type;
+  private String type;
 
   private String edgeUid;
 
@@ -22,11 +22,13 @@ public class GeoObjectUpdateParentEvent extends AbstractHierarchyEvent implement
 
   private String parentCode;
 
+  private String dataSource;
+
   public GeoObjectUpdateParentEvent()
   {
   }
 
-  public GeoObjectUpdateParentEvent(String code, String type, String edgeUid, String edgeType, Date startDate, Date endDate, String parentCode, String parentType)
+  public GeoObjectUpdateParentEvent(String code, String type, String edgeUid, String edgeType, Date startDate, Date endDate, String parentCode, String parentType, String dataSource)
   {
     super();
     this.code = code;
@@ -37,13 +39,14 @@ public class GeoObjectUpdateParentEvent extends AbstractHierarchyEvent implement
     this.endDate = endDate;
     this.parentType = parentType;
     this.parentCode = parentCode;
+    this.dataSource = dataSource;
   }
-  
+
   public String getCode()
   {
     return code;
   }
-  
+
   public void setCode(String code)
   {
     this.code = code;
@@ -117,6 +120,16 @@ public class GeoObjectUpdateParentEvent extends AbstractHierarchyEvent implement
   public void setParentCode(String parentCode)
   {
     this.parentCode = parentCode;
+  }
+
+  public String getDataSource()
+  {
+    return dataSource;
+  }
+
+  public void setDataSource(String dataSource)
+  {
+    this.dataSource = dataSource;
   }
 
   @Override

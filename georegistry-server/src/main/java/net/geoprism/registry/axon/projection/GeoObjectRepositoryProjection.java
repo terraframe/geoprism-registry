@@ -38,6 +38,7 @@ import net.geoprism.registry.axon.event.repository.GeoObjectUpdateParentEvent;
 import net.geoprism.registry.cache.Cache;
 import net.geoprism.registry.cache.GeoObjectCache;
 import net.geoprism.registry.cache.LRUCache;
+import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.GraphType;
@@ -46,6 +47,7 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
@@ -58,6 +60,9 @@ public class GeoObjectRepositoryProjection
 
   @Autowired
   private GPRGeoObjectBusinessServiceIF  service;
+
+  @Autowired
+  private DataSourceBusinessServiceIF    sourceService;
 
   private GeoObjectCache                 goCache;
 
@@ -184,16 +189,17 @@ public class GeoObjectRepositoryProjection
     ServerGeoObjectIF object = this.service.getGeoObjectByCode(event.getCode(), event.getType());
     ServerHierarchyType hierarchy = this.hService.get(event.getEdgeType());
     VertexServerGeoObject newParent = (VertexServerGeoObject) this.service.getGeoObjectByCode(event.getParentCode(), event.getParentType());
+    DataSource dataSource = this.sourceService.getByCode(event.getDataSource()).orElse(null);
 
     if (event.getValidate())
     {
-      this.service.addParent(object, newParent, hierarchy, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), true);
+      this.service.addParent(object, newParent, hierarchy, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), dataSource, true);
     }
     else
     {
       MdEdgeDAOIF mdEdge = hierarchy.getMdEdgeDAO();
 
-      this.service.addParentRaw(object, newParent.getVertex(), mdEdge, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), true);
+      this.service.addParentRaw(object, newParent.getVertex(), mdEdge, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), dataSource, true);
     }
 
     if (event.getRefreshWorking())
@@ -284,8 +290,9 @@ public class GeoObjectRepositoryProjection
       if (!StringUtils.isBlank(event.getParentCode()) && !StringUtils.isBlank(event.getParentType()))
       {
         ServerGeoObjectIF parent = this.service.getGeoObjectByCode(event.getParentCode(), event.getParentType());
+        DataSource dataSource = this.sourceService.getByCode(event.getDataSource()).orElse(null);
 
-        this.service.addParent(object, parent, hierarchyType, event.getStartDate(), event.getEndDate(), edgeUid, false);
+        this.service.addParent(object, parent, hierarchyType, event.getStartDate(), event.getEndDate(), edgeUid, dataSource, false);
       }
     }
     else

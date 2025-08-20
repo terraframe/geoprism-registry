@@ -6,6 +6,7 @@ package net.geoprism.registry.business;
 import java.util.List;
 import java.util.UUID;
 
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
@@ -17,6 +18,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.google.gson.JsonObject;
+import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.BusinessEdgeType;
@@ -92,7 +94,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     attribute = this.bTypeService.createAttributeType(type, new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test True"), false, false, false));
 
     relationshipType = this.bEdgeService.create(BusinessEdgeTypeView.build(FastTestDataset.ORG_CGOV.getCode(), "TEST_REL", new LocalizedValue("Test Rel"), new LocalizedValue("Test Rel"), type.getCode(), type.getCode()));
-    
+
     bGeoEdgeType = this.bEdgeService.createGeoEdge(BusinessGeoEdgeTypeView.build(FastTestDataset.ORG_CGOV.getCode(), "GEO_EDGE", new LocalizedValue("Geo Edge"), new LocalizedValue("Geo Edge"), type.getCode(), EdgeDirection.PARENT));
 
   }
@@ -117,12 +119,11 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     {
       this.bEdgeService.delete(relationshipType);
     }
-    
+
     if (bGeoEdgeType != null)
     {
       this.bEdgeService.delete(this.bEdgeService.getByCodeOrThrow(bGeoEdgeType.getCode()));
     }
-    
 
     if (type != null)
     {
@@ -223,7 +224,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
     try
     {
-      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT, UUID.randomUUID().toString(), false);
+      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource(), false);
 
       List<VertexServerGeoObject> results = this.bObjectService.getGeoObjects(object, bGeoEdgeType, EdgeDirection.PARENT);
 
@@ -252,7 +253,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
     try
     {
-      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT, UUID.randomUUID().toString(), false);
+      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource(), false);
       this.bObjectService.removeGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT, false);
 
       Assert.assertEquals(0, this.bObjectService.getGeoObjects(object, bGeoEdgeType, EdgeDirection.PARENT).size());
@@ -276,10 +277,10 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
     try
     {
-      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT, UUID.randomUUID().toString(), false);
-      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT, UUID.randomUUID().toString(), false);
-      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT, UUID.randomUUID().toString(), false);
-      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT, UUID.randomUUID().toString(), false);
+      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource(), false);
+      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource(), false);
+      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource(), false);
+      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource(), false);
 
       List<VertexServerGeoObject> results = this.bObjectService.getGeoObjects(object, bGeoEdgeType, EdgeDirection.PARENT);
 
@@ -308,7 +309,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
     try
     {
-      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT, UUID.randomUUID().toString(), false);
+      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource(), false);
 
       List<BusinessObject> results = this.objectService.getBusinessObjects((VertexServerGeoObject) serverObject, bGeoEdgeType, EdgeDirection.CHILD);
 
@@ -337,7 +338,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
     try
     {
-      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT, UUID.randomUUID().toString(), false);
+      this.bObjectService.addGeoObject(object, bGeoEdgeType, serverObject, EdgeDirection.PARENT, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource(), false);
 
       List<BusinessObject> results = this.objectService.getBusinessObjects((VertexServerGeoObject) serverObject, bGeoEdgeType, EdgeDirection.CHILD);
 
@@ -371,7 +372,12 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
       try
       {
-        this.bObjectService.addParent(child, relationshipType, parent, UUID.randomUUID().toString());
+        String uid = UUID.randomUUID().toString();
+
+        EdgeObject edge = this.bObjectService.addParent(child, relationshipType, parent, uid, FastTestDataset.SOURCE.getDataSource()).get();
+
+        Assert.assertEquals(uid, edge.getObjectValue(DefaultAttribute.UID.getName()));
+        Assert.assertNotNull(edge.getObjectValue(DefaultAttribute.DATA_SOURCE.getName()));
 
         List<BusinessObject> results = this.bObjectService.getParents(child, relationshipType);
 
@@ -411,7 +417,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
       try
       {
-        this.bObjectService.addParent(child, relationshipType, parent, UUID.randomUUID().toString());
+        this.bObjectService.addParent(child, relationshipType, parent, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource());
         this.bObjectService.removeParent(child, relationshipType, parent);
 
         Assert.assertEquals(0, this.bObjectService.getParents(child, relationshipType).size());
@@ -446,11 +452,11 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
       try
       {
-        this.bObjectService.addParent(child, relationshipType, parent, UUID.randomUUID().toString());
-        this.bObjectService.addParent(child, relationshipType, parent, UUID.randomUUID().toString());
-        this.bObjectService.addParent(child, relationshipType, parent, UUID.randomUUID().toString());
-        this.bObjectService.addParent(child, relationshipType, parent, UUID.randomUUID().toString());
-        this.bObjectService.addParent(child, relationshipType, parent, UUID.randomUUID().toString());
+        this.bObjectService.addParent(child, relationshipType, parent, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource());
+        this.bObjectService.addParent(child, relationshipType, parent, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource());
+        this.bObjectService.addParent(child, relationshipType, parent, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource());
+        this.bObjectService.addParent(child, relationshipType, parent, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource());
+        this.bObjectService.addParent(child, relationshipType, parent, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource());
 
         List<BusinessObject> results = this.bObjectService.getParents(child, relationshipType);
 
@@ -468,7 +474,6 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     finally
     {
       this.bObjectService.delete(parent);
-      ;
     }
   }
 
@@ -490,7 +495,12 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
       try
       {
-        this.bObjectService.addChild(parent, relationshipType, child, UUID.randomUUID().toString());
+        String uid = UUID.randomUUID().toString();
+
+        EdgeObject edge = this.bObjectService.addChild(parent, relationshipType, child, uid, FastTestDataset.SOURCE.getDataSource()).get();
+
+        Assert.assertEquals(uid, edge.getObjectValue(DefaultAttribute.UID.getName()));
+        Assert.assertNotNull(edge.getObjectValue(DefaultAttribute.DATA_SOURCE.getName()));
 
         List<BusinessObject> results = this.bObjectService.getChildren(parent, relationshipType);
 
@@ -530,7 +540,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
       try
       {
-        this.bObjectService.addChild(parent, relationshipType, child, UUID.randomUUID().toString());
+        this.bObjectService.addChild(parent, relationshipType, child, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource());
         this.bObjectService.removeChild(parent, relationshipType, child);
 
         Assert.assertEquals(0, this.bObjectService.getChildren(parent, relationshipType).size());
@@ -565,11 +575,11 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
       try
       {
-        this.bObjectService.addChild(parent, relationshipType, child, UUID.randomUUID().toString());
-        this.bObjectService.addChild(parent, relationshipType, child, UUID.randomUUID().toString());
-        this.bObjectService.addChild(parent, relationshipType, child, UUID.randomUUID().toString());
-        this.bObjectService.addChild(parent, relationshipType, child, UUID.randomUUID().toString());
-        this.bObjectService.addChild(parent, relationshipType, child, UUID.randomUUID().toString());
+        this.bObjectService.addChild(parent, relationshipType, child, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource());
+        this.bObjectService.addChild(parent, relationshipType, child, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource());
+        this.bObjectService.addChild(parent, relationshipType, child, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource());
+        this.bObjectService.addChild(parent, relationshipType, child, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource());
+        this.bObjectService.addChild(parent, relationshipType, child, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource());
 
         List<BusinessObject> results = this.bObjectService.getChildren(parent, relationshipType);
 

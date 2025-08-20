@@ -29,10 +29,12 @@ import net.geoprism.registry.axon.event.repository.BusinessObjectCreateEdgeEvent
 import net.geoprism.registry.cache.BusinessObjectCache;
 import net.geoprism.registry.cache.Cache;
 import net.geoprism.registry.cache.LRUCache;
+import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
+import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.GPRBusinessTypeBusinessService;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 
@@ -50,6 +52,9 @@ public class BusinessObjectRepositoryProjection
 
   @Autowired
   private GeoObjectBusinessServiceIF        gObjectService;
+
+  @Autowired
+  private DataSourceBusinessServiceIF       sourceService;
 
   private BusinessObjectCache               goCache    = new BusinessObjectCache();
 
@@ -86,7 +91,9 @@ public class BusinessObjectRepositoryProjection
 
     BusinessEdgeType edgeType = this.edgeService.getByCodeOrThrow(event.getEdgeType());
 
-    this.service.addGeoObject(object, edgeType, geoObject, event.getDirection(), event.getEdgeUid(), true);
+    DataSource source = this.sourceService.getByCode(event.getDataSource()).orElse(null);
+
+    this.service.addGeoObject(object, edgeType, geoObject, event.getDirection(), event.getEdgeUid(), source, true);
   }
 
   @EventHandler
@@ -94,20 +101,21 @@ public class BusinessObjectRepositoryProjection
   public void createEdge(BusinessObjectCreateEdgeEvent event) throws Exception
   {
     BusinessEdgeType edgeType = this.edgeService.getByCodeOrThrow(event.getEdgeType());
+    DataSource dataSource = this.sourceService.getByCode(event.getDataSource()).orElse(null);
 
     if (event.getValidate())
     {
       BusinessObject source = goCache.getOrFetchByCode(event.getSourceCode(), event.getSourceType());
       BusinessObject target = goCache.getOrFetchByCode(event.getTargetCode(), event.getTargetType());
 
-      this.service.addChild(source, edgeType, target, event.getEdgeUid());
+      this.service.addChild(source, edgeType, target, event.getEdgeUid(), dataSource);
     }
     else
     {
       Object parentRid = getOrFetchRid(event.getSourceCode(), event.getSourceType());
       Object childRid = getOrFetchRid(event.getTargetCode(), event.getTargetType());
 
-      this.newEdge(childRid, parentRid, event.getEdgeUid(), edgeType, true);
+      this.newEdge(childRid, parentRid, event.getEdgeUid(), edgeType, dataSource, true);
     }
   }
 
@@ -148,8 +156,9 @@ public class BusinessObjectRepositoryProjection
     {
       Object parentRid = getOrFetchRid(event.getSourceCode(), event.getSourceType());
       Object childRid = getOrFetchRid(event.getTargetCode(), event.getTargetType());
+      DataSource dataSource = this.sourceService.getByCode(event.getDataSource()).orElse(null);
 
-      this.newEdge(childRid, parentRid, event.getEdgeUid(), edgeType, false);
+      this.newEdge(childRid, parentRid, event.getEdgeUid(), edgeType, dataSource, false);
     }
     else
     {
@@ -182,7 +191,7 @@ public class BusinessObjectRepositoryProjection
     });
   }
 
-  private void newEdge(Object childRid, Object parentRid, String uid, BusinessEdgeType type, boolean validateOrigin)
+  private void newEdge(Object childRid, Object parentRid, String uid, BusinessEdgeType type, DataSource dataSource, boolean validateOrigin)
   {
     if (validateOrigin && !type.getOrigin().equals(GeoprismProperties.getOrigin()))
     {
@@ -192,7 +201,7 @@ public class BusinessObjectRepositoryProjection
     String clazz = type.getMdEdgeDAO().getDBClassName();
 
     String statement = "CREATE EDGE " + clazz + " FROM :parentRid TO :childRid";
-    statement += " SET oid=:oid, uid=:uid";
+    statement += " SET oid=:oid, uid=:uid, dataSource=:dataSource";
 
     GraphDBService service = GraphDBService.getInstance();
     GraphRequest request = service.getGraphDBRequest();
@@ -202,6 +211,7 @@ public class BusinessObjectRepositoryProjection
     parameters.put("uid", uid);
     parameters.put("parentRid", parentRid);
     parameters.put("childRid", childRid);
+    parameters.put("dataSource", dataSource.getRID());
 
     service.command(request, statement, parameters);
   }

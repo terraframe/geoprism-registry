@@ -28,6 +28,8 @@ public class TestSourceInfo
     DataSource.getByCode(code).ifPresent(source -> {
       source.delete();
     });
+    
+    this.dataSource = null;
   }
 
   @Request

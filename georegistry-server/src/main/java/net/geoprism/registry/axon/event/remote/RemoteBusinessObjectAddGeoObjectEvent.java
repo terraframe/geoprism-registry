@@ -24,16 +24,18 @@ public class RemoteBusinessObjectAddGeoObjectEvent implements RemoteEvent
 
   private EdgeDirection direction;
 
+  private String        dataSource;
+
   public RemoteBusinessObjectAddGeoObjectEvent()
   {
   }
 
-  public RemoteBusinessObjectAddGeoObjectEvent(String commitId, String code, String type, String edgeType, String geoObjectType, String geoObjectCode, EdgeDirection direction)
+  public RemoteBusinessObjectAddGeoObjectEvent(String commitId, String code, String type, String edgeType, String geoObjectType, String geoObjectCode, EdgeDirection direction, String dataSource)
   {
-    this(commitId, code + "#" + type, code, type, edgeType, geoObjectType, geoObjectCode, direction);
+    this(commitId, code + "#" + type, code, type, edgeType, geoObjectType, geoObjectCode, direction, dataSource);
   }
 
-  public RemoteBusinessObjectAddGeoObjectEvent(String commitId, String key, String code, String type, String edgeType, String geoObjectType, String geoObjectCode, EdgeDirection direction)
+  public RemoteBusinessObjectAddGeoObjectEvent(String commitId, String key, String code, String type, String edgeType, String geoObjectType, String geoObjectCode, EdgeDirection direction, String dataSource)
   {
     super();
     this.commitId = commitId;
@@ -44,6 +46,7 @@ public class RemoteBusinessObjectAddGeoObjectEvent implements RemoteEvent
     this.geoObjectType = geoObjectType;
     this.geoObjectCode = geoObjectCode;
     this.direction = direction;
+    this.dataSource = dataSource;
   }
 
   public String getCommitId()
@@ -125,11 +128,21 @@ public class RemoteBusinessObjectAddGeoObjectEvent implements RemoteEvent
   {
     this.direction = direction;
   }
+  
+  public String getDataSource()
+  {
+    return dataSource;
+  }
+  
+  public void setDataSource(String dataSource)
+  {
+    this.dataSource = dataSource;
+  }
 
   @Override
   public Object toCommand()
   {
-    return new RemoteBusinessObjectAddGeoObjectCommand(commitId, code, type, edgeType, geoObjectType, geoObjectCode, direction);
+    return new RemoteBusinessObjectAddGeoObjectCommand(commitId, code, type, edgeType, geoObjectType, geoObjectCode, direction, dataSource);
   }
 
   @Override
