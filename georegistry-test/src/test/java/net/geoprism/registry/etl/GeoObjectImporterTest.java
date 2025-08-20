@@ -424,6 +424,8 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_ONLY);
     config.setHierarchy(hierarchyType);
 
+    Assert.assertNotNull(config.getDataSource());
+
     ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), config.toJSON().toString());
 
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FEEDBACK);
@@ -649,9 +651,9 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
 
     result.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.EXCEL);
     result.put(ImportConfiguration.OBJECT_TYPE, ObjectImportType.GEO_OBJECT);
+    result.put(GeoObjectImportConfiguration.DATA_SOURCE, USATestData.SOURCE.getCode());
 
     GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(result.toString(), true);
-    configuration.setDataSource(USATestData.SOURCE.getDataSource());
 
     return configuration;
   }

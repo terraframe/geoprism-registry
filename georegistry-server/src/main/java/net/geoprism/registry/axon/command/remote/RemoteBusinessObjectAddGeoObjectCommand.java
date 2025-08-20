@@ -23,12 +23,14 @@ public class RemoteBusinessObjectAddGeoObjectCommand implements RemoteCommand
 
   private EdgeDirection direction;
 
-  public RemoteBusinessObjectAddGeoObjectCommand(String commitId, String code, String type, String edgeType, String geoObjectType, String geoObjectCode, EdgeDirection direction)
+  private String        dataSource;
+
+  public RemoteBusinessObjectAddGeoObjectCommand(String commitId, String code, String type, String edgeType, String geoObjectType, String geoObjectCode, EdgeDirection direction, String dataSource)
   {
-    this(commitId, code + "#" + type, code, type, edgeType, geoObjectType, geoObjectCode, direction);
+    this(commitId, code + "#" + type, code, type, edgeType, geoObjectType, geoObjectCode, direction, dataSource);
   }
 
-  public RemoteBusinessObjectAddGeoObjectCommand(String commitId, String key, String code, String type, String edgeType, String geoObjectType, String geoObjectCode, EdgeDirection direction)
+  public RemoteBusinessObjectAddGeoObjectCommand(String commitId, String key, String code, String type, String edgeType, String geoObjectType, String geoObjectCode, EdgeDirection direction, String dataSource)
   {
     super();
     this.commitId = commitId;
@@ -39,6 +41,7 @@ public class RemoteBusinessObjectAddGeoObjectCommand implements RemoteCommand
     this.geoObjectType = geoObjectType;
     this.geoObjectCode = geoObjectCode;
     this.direction = direction;
+    this.dataSource = dataSource;
   }
 
   public String getCommitId()
@@ -121,4 +124,13 @@ public class RemoteBusinessObjectAddGeoObjectCommand implements RemoteCommand
     this.direction = direction;
   }
 
+  public String getDataSource()
+  {
+    return dataSource;
+  }
+
+  public void setDataSource(String dataSource)
+  {
+    this.dataSource = dataSource;
+  }
 }

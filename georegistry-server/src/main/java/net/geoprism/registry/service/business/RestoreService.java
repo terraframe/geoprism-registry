@@ -281,7 +281,7 @@ public class RestoreService implements RestoreServiceIF
                 return object;
               });
 
-              this.gObjectService.addChild(parent, child, hierarchy, startDate, endDate, uid, false);
+              this.gObjectService.addChild(parent, child, hierarchy, startDate, endDate, uid, null, false);
             }
 
             reader.endArray();
@@ -418,7 +418,7 @@ public class RestoreService implements RestoreServiceIF
       {
         try (FileResource resource = new FileResource(file))
         {
-          BusinessEdgeJsonImporter importer = new BusinessEdgeJsonImporter(resource, false);
+          BusinessEdgeJsonImporter importer = new BusinessEdgeJsonImporter(resource, null, false);
           importer.importData();
         }
       }

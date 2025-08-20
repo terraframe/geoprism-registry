@@ -23,16 +23,18 @@ public class BusinessObjectAddGeoObjectEvent implements BusinessObjectEvent
 
   private EdgeDirection direction;
 
+  private String        dataSource;
+
   public BusinessObjectAddGeoObjectEvent()
   {
   }
 
-  public BusinessObjectAddGeoObjectEvent(String code, String type, String edgeType, String geoObjectType, String geoObjectCode, EdgeDirection direction)
+  public BusinessObjectAddGeoObjectEvent(String code, String type, String edgeType, String geoObjectType, String geoObjectCode, EdgeDirection direction, String dataSource)
   {
-    this(code + "#" + type, code, type, edgeType, geoObjectType, geoObjectCode, direction);
+    this(code + "#" + type, code, type, edgeType, geoObjectType, geoObjectCode, direction, dataSource);
   }
 
-  public BusinessObjectAddGeoObjectEvent(String key, String code, String type, String edgeType, String geoObjectType, String geoObjectCode, EdgeDirection direction)
+  public BusinessObjectAddGeoObjectEvent(String key, String code, String type, String edgeType, String geoObjectType, String geoObjectCode, EdgeDirection direction, String dataSource)
   {
     super();
     this.key = key;
@@ -43,6 +45,7 @@ public class BusinessObjectAddGeoObjectEvent implements BusinessObjectEvent
     this.geoObjectType = geoObjectType;
     this.geoObjectCode = geoObjectCode;
     this.direction = direction;
+    this.dataSource = dataSource;
   }
 
   public String getKey()
@@ -123,6 +126,16 @@ public class BusinessObjectAddGeoObjectEvent implements BusinessObjectEvent
   public void setEdgeUid(String edgeUid)
   {
     this.edgeUid = edgeUid;
+  }
+
+  public String getDataSource()
+  {
+    return dataSource;
+  }
+
+  public void setDataSource(String dataSource)
+  {
+    this.dataSource = dataSource;
   }
 
   @Override

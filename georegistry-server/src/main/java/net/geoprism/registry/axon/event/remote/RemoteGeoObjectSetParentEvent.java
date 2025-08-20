@@ -36,11 +36,13 @@ public class RemoteGeoObjectSetParentEvent implements RemoteEvent
 
   private String parentCode;
 
+  private String dataSource;
+
   public RemoteGeoObjectSetParentEvent()
   {
   }
 
-  public RemoteGeoObjectSetParentEvent(String commitId, String code, String type, String edgeUid, String edgeType, Date startDate, Date endDate, String parentCode, String parentType)
+  public RemoteGeoObjectSetParentEvent(String commitId, String code, String type, String edgeUid, String edgeType, Date startDate, Date endDate, String parentCode, String parentType, String dataSource)
   {
     super();
     this.commitId = commitId;
@@ -52,6 +54,7 @@ public class RemoteGeoObjectSetParentEvent implements RemoteEvent
     this.endDate = endDate;
     this.parentType = parentType;
     this.parentCode = parentCode;
+    this.dataSource = dataSource;
   }
 
   public String getCommitId()
@@ -63,12 +66,12 @@ public class RemoteGeoObjectSetParentEvent implements RemoteEvent
   {
     this.commitId = commitId;
   }
-  
+
   public String getCode()
   {
     return code;
   }
-  
+
   public void setCode(String code)
   {
     this.code = code;
@@ -144,12 +147,22 @@ public class RemoteGeoObjectSetParentEvent implements RemoteEvent
     this.parentCode = parentCode;
   }
   
+  public String getDataSource()
+  {
+    return dataSource;
+  }
+  
+  public void setDataSource(String dataSource)
+  {
+    this.dataSource = dataSource;
+  }
+
   @Override
   public Object toCommand()
   {
-    return new RemoteGeoObjectSetParentCommand(commitId, code, type, edgeUid, edgeType, startDate, endDate, parentCode, parentType);
+    return new RemoteGeoObjectSetParentCommand(commitId, code, type, edgeUid, edgeType, startDate, endDate, parentCode, parentType, dataSource);
   }
-  
+
   @Override
   public boolean isValid(PublishDTO dto)
   {

@@ -38,6 +38,7 @@ import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.axon.command.repository.BusinessObjectCompositeCommand;
 import net.geoprism.registry.axon.event.repository.BusinessObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.projection.BusinessObjectRepositoryProjection;
+import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 
@@ -47,6 +48,8 @@ public class BusinessEdgeJsonImporter
 
   private ApplicationResource                resource;
 
+  private DataSource                         source;
+
   private boolean                            validate;
 
   private BusinessEdgeTypeBusinessServiceIF  edgeTypeService;
@@ -55,9 +58,10 @@ public class BusinessEdgeJsonImporter
 
   private BusinessObjectRepositoryProjection projection;
 
-  public BusinessEdgeJsonImporter(ApplicationResource resource, boolean validate)
+  public BusinessEdgeJsonImporter(ApplicationResource resource, DataSource source, boolean validate)
   {
     this.resource = resource;
+    this.source = source;
     this.validate = validate;
 
     this.edgeTypeService = ServiceFactory.getBean(BusinessEdgeTypeBusinessServiceIF.class);
@@ -94,8 +98,8 @@ public class BusinessEdgeJsonImporter
           String sourceCode = joEdge.get("source").getAsString();
           String targetCode = joEdge.get("target").getAsString();
 
-          BusinessObjectCreateEdgeEvent event = new BusinessObjectCreateEdgeEvent(sourceCode, sourceType.getCode(), edgeType.getCode(), targetCode, targetType.getCode(), validate);
-          
+          BusinessObjectCreateEdgeEvent event = new BusinessObjectCreateEdgeEvent(sourceCode, sourceType.getCode(), edgeType.getCode(), targetCode, targetType.getCode(), source.getCode(), validate);
+
           this.gateway.sendAndWait(new BusinessObjectCompositeCommand(sourceCode, sourceType.getCode(), Arrays.asList(event)));
 
           if (j % 50 == 0)

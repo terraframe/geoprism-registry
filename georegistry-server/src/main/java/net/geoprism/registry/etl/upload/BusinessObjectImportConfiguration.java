@@ -50,7 +50,9 @@ import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Organization;
+import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.io.ConstantShapefileFunction;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.LocalizedValueFunction;
 import net.geoprism.registry.io.Location;
 import net.geoprism.registry.io.ParentMatchStrategy;
@@ -60,6 +62,7 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 
 public class BusinessObjectImportConfiguration extends ImportConfiguration
@@ -67,6 +70,8 @@ public class BusinessObjectImportConfiguration extends ImportConfiguration
   public static final String                               PARENT_EXCLUSION = "##PARENT##";
 
   public static final String                               DATE             = "date";
+
+  public static final String                               DATA_SOURCE      = "dataSource";
 
   public static final String                               TARGET           = "target";
 
@@ -97,6 +102,8 @@ public class BusinessObjectImportConfiguration extends ImportConfiguration
   public static final String                               MATCH_STRATEGY   = "matchStrategy";
 
   private BusinessType                                     type;
+
+  private DataSource                                       dataSource;
 
   private Map<String, Set<String>>                         exclusions;
 
@@ -164,6 +171,16 @@ public class BusinessObjectImportConfiguration extends ImportConfiguration
   public void setDate(Date date)
   {
     this.date = date;
+  }
+
+  public DataSource getDataSource()
+  {
+    return dataSource;
+  }
+
+  public void setDataSource(DataSource dataSource)
+  {
+    this.dataSource = dataSource;
   }
 
   public Map<String, Set<String>> getExclusions()
@@ -305,6 +322,11 @@ public class BusinessObjectImportConfiguration extends ImportConfiguration
       config.put(BusinessObjectImportConfiguration.HIERARCHY, this.getHierarchy().getCode());
     }
 
+    if (this.getDataSource() != null)
+    {
+      config.put(BusinessObjectImportConfiguration.DATA_SOURCE, dataSource.getCode());
+    }
+
     if (this.exclusions.size() > 0)
     {
       JSONArray exclusions = new JSONArray();
@@ -341,6 +363,15 @@ public class BusinessObjectImportConfiguration extends ImportConfiguration
     BusinessType businessType = this.typeService.getByCode(code);
 
     this.setType(businessType);
+
+    if (config.has(DATA_SOURCE))
+    {
+      DataSourceBusinessServiceIF sourceService = ServiceFactory.getBean(DataSourceBusinessServiceIF.class);
+
+      sourceService.getByCode(config.getString(DATA_SOURCE)).ifPresent(source -> {
+        this.setDataSource(source);
+      });
+    }
 
     if (config.has(BusinessObjectImportConfiguration.EDGE_TYPE))
     {

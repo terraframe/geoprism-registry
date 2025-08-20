@@ -26,16 +26,18 @@ public class RemoteBusinessObjectCreateEdgeEvent implements RemoteEvent
 
   private String targetCode;
 
+  private String dataSource;
+
   public RemoteBusinessObjectCreateEdgeEvent()
   {
   }
 
-  public RemoteBusinessObjectCreateEdgeEvent(String commitId, String sourceCode, String sourceType, String edgeUid, String edgeType, String targetCode, String targetType)
+  public RemoteBusinessObjectCreateEdgeEvent(String commitId, String sourceCode, String sourceType, String edgeUid, String edgeType, String targetCode, String targetType, String dataSource)
   {
-    this(commitId, sourceCode + "#" + sourceType, sourceCode, sourceType, edgeUid, edgeType, targetCode, targetType);
+    this(commitId, sourceCode + "#" + sourceType, sourceCode, sourceType, edgeUid, edgeType, targetCode, targetType, dataSource);
   }
 
-  public RemoteBusinessObjectCreateEdgeEvent(String commitId, String key, String sourceCode, String sourceType, String edgeUid, String edgeType, String targetCode, String targetType)
+  public RemoteBusinessObjectCreateEdgeEvent(String commitId, String key, String sourceCode, String sourceType, String edgeUid, String edgeType, String targetCode, String targetType, String dataSource)
   {
     super();
     this.commitId = commitId;
@@ -46,6 +48,7 @@ public class RemoteBusinessObjectCreateEdgeEvent implements RemoteEvent
     this.edgeType = edgeType;
     this.targetCode = targetCode;
     this.targetType = targetType;
+    this.dataSource = dataSource;
   }
 
   public String getKey()
@@ -127,11 +130,21 @@ public class RemoteBusinessObjectCreateEdgeEvent implements RemoteEvent
   {
     this.targetCode = targetCode;
   }
+  
+  public String getDataSource()
+  {
+    return dataSource;
+  }
+  
+  public void setDataSource(String dataSource)
+  {
+    this.dataSource = dataSource;
+  }
 
   @Override
   public Object toCommand()
   {
-    return new RemoteBusinessObjectCreateEdgeCommand(commitId, sourceCode, sourceType, edgeUid, edgeType, targetCode, targetType);
+    return new RemoteBusinessObjectCreateEdgeCommand(commitId, sourceCode, sourceType, edgeUid, edgeType, targetCode, targetType, dataSource);
   }
 
   @Override

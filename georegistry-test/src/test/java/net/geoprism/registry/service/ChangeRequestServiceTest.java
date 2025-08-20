@@ -607,8 +607,8 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
     String[] ret = new String[2];
 
     ServerParentTreeNodeOverTime ptnot = new ServerParentTreeNodeOverTime(FastTestDataset.PROVINCE.getServerObject());
-    ServerParentTreeNode childNode = new ServerParentTreeNode(null, FastTestDataset.HIER_ADMIN.getServerObject(), newStartDate, newEndDate, null, null);
-    childNode.addParent(new ServerParentTreeNode(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.HIER_ADMIN.getServerObject(), newStartDate, newEndDate, null, null));
+    ServerParentTreeNode childNode = new ServerParentTreeNode(null, FastTestDataset.HIER_ADMIN.getServerObject(), newStartDate, newEndDate, null, null, FastTestDataset.SOURCE.getDataSource());
+    childNode.addParent(new ServerParentTreeNode(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.HIER_ADMIN.getServerObject(), newStartDate, newEndDate, null, null, FastTestDataset.SOURCE.getDataSource()));
     ptnot.add(FastTestDataset.HIER_ADMIN.getServerObject(), childNode);
 
     ret[0] = ptnot.toJSON().toString();

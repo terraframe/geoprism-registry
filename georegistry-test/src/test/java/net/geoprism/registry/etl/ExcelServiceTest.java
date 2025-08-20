@@ -17,6 +17,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.WorkbookUtil;
 import org.commongeoregistry.adapter.Term;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
@@ -634,6 +635,8 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
     config.setEndDate(USATestData.DEFAULT_OVER_TIME_DATE);
     config.setHierarchy(hierarchyType);
 
+    Assert.assertNotNull(config.getDataSource());
+
     config.addParent(new Location(USATestData.STATE.getServerObject(), hierarchyType, new BasicColumnFunction("Parent"), ParentMatchStrategy.ALL));
 
     ImportHistory hist = mockImport(config);
@@ -648,12 +651,19 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
     ServerGeoObjectIF object = this.objectService.getGeoObjectByCode("0001", USATestData.DISTRICT.getCode());
 
     Assert.assertEquals("0001", object.getCode());
+    Assert.assertNotNull(object.getValue(DefaultAttribute.DATA_SOURCE.getName(), USATestData.DEFAULT_OVER_TIME_DATE));
 
     ServerParentTreeNode nodes = this.objectService.getParentGeoObjects(object, config.getHierarchy(), new String[] { USATestData.STATE.getCode() }, false, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     List<ServerParentTreeNode> parents = nodes.getParents();
 
     Assert.assertEquals(1, parents.size());
+
+    ServerParentTreeNode parent = parents.get(0);
+
+    Assert.assertNotNull(parent.getSource());
+    Assert.assertNotNull(parent.getUid());
+    Assert.assertNotEquals(parent.getOid(), parent.getUid());
   }
 
   @Test
@@ -917,7 +927,8 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
    * In the case when the server fails mid import, when the server reboots it's
    * supposed to restart any jobs that were running. When we restart the job, we
    * want to make sure that it picks up from where it left off.
-   * @throws JSONException 
+   * 
+   * @throws JSONException
    */
   @Test
   @Request
@@ -1033,6 +1044,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
     result.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.EXCEL);
     result.put(ImportConfiguration.OBJECT_TYPE, ObjectImportType.GEO_OBJECT);
     result.put(ImportConfiguration.IMPORT_STRATEGY, strategy);
+    result.put(GeoObjectImportConfiguration.DATA_SOURCE, USATestData.SOURCE.getCode());
 
     return result;
   }

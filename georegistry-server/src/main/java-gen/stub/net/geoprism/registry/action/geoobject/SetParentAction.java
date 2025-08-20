@@ -73,7 +73,7 @@ public class SetParentAction extends SetParentActionBase
     ServerGeoObjectType type = ServerGeoObjectType.get(this.getChildTypeCode());
     ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(type, this.getJson());
 
-    builder.getObject().ifPresent(obj -> builder.setParents(ptnOt));
+    builder.getObject().ifPresent(obj -> builder.setParents(ptnOt, null));
 
     //
     // GeoObjectBusinessServiceIF service =

@@ -22,13 +22,15 @@ public class GeoObjectCreateParentEvent extends AbstractHierarchyEvent implement
 
   private String  parentCode;
 
+  private String  dataSource;
+
   private Boolean validate;
 
   public GeoObjectCreateParentEvent()
   {
   }
 
-  public GeoObjectCreateParentEvent(String code, String type, String edgeUid, String edgeType, Date stateDate, Date endDate, String parentCode, String parentType, Boolean validate)
+  public GeoObjectCreateParentEvent(String code, String type, String edgeUid, String edgeType, Date stateDate, Date endDate, String parentCode, String parentType, String dataSource, Boolean validate)
   {
     super();
 
@@ -40,14 +42,15 @@ public class GeoObjectCreateParentEvent extends AbstractHierarchyEvent implement
     this.endDate = endDate;
     this.parentType = parentType;
     this.parentCode = parentCode;
+    this.dataSource = dataSource;
     this.validate = validate;
   }
-  
+
   public String getCode()
   {
     return code;
   }
-  
+
   public void setCode(String code)
   {
     this.code = code;
@@ -131,6 +134,16 @@ public class GeoObjectCreateParentEvent extends AbstractHierarchyEvent implement
   public void setValidate(Boolean validate)
   {
     this.validate = validate;
+  }
+
+  public String getDataSource()
+  {
+    return dataSource;
+  }
+
+  public void setDataSource(String dataSource)
+  {
+    this.dataSource = dataSource;
   }
 
   @Override

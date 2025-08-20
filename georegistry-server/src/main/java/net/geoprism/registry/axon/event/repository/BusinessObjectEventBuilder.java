@@ -9,7 +9,7 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.axon.command.repository.BusinessObjectCompositeCommand;
-import net.geoprism.registry.etl.upload.ClassifierVertexCache;
+import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -26,18 +26,10 @@ public class BusinessObjectEventBuilder
   private List<BusinessObjectEvent>       events;
 
   private BusinessObjectBusinessServiceIF service;
-
-  private ClassifierVertexCache           classifierCache;
-
+  
   public BusinessObjectEventBuilder(BusinessObjectBusinessServiceIF service)
   {
-    this(service, null);
-  }
-
-  public BusinessObjectEventBuilder(BusinessObjectBusinessServiceIF service, ClassifierVertexCache classifierCache)
-  {
     this.service = service;
-    this.classifierCache = classifierCache;
     this.attributeUpdate = false;
     this.isNew = false;
     this.events = new LinkedList<>();
@@ -126,18 +118,20 @@ public class BusinessObjectEventBuilder
     this.attributeUpdate = attributeUpdate;
   }
 
-  public void addParent(BusinessObject parent, BusinessEdgeType edgeType, Boolean validate)
+  public void addParent(BusinessObject parent, BusinessEdgeType edgeType, DataSource source, Boolean validate)
   {
     BusinessObject object = this.getOrThrow();
+    String code = source != null ? source.getCode() : null;
 
-    this.events.add(new BusinessObjectCreateEdgeEvent(parent.getCode(), parent.getType().getCode(), edgeType.getCode(), object.getCode(), object.getType().getCode(), validate));
+    this.events.add(new BusinessObjectCreateEdgeEvent(parent.getCode(), parent.getType().getCode(), edgeType.getCode(), object.getCode(), object.getType().getCode(), code, validate));
   }
 
-  public void addGeoObject(BusinessEdgeType edgeType, ServerGeoObjectIF geoObject, EdgeDirection direction)
+  public void addGeoObject(BusinessEdgeType edgeType, ServerGeoObjectIF geoObject, EdgeDirection direction, DataSource source)
   {
     BusinessObject object = this.getOrThrow();
+    String code = source != null ? source.getCode() : null;
 
-    this.events.add(new BusinessObjectAddGeoObjectEvent(object.getCode(), object.getType().getCode(), edgeType.getCode(), geoObject.getType().getCode(), geoObject.getCode(), direction));
+    this.events.add(new BusinessObjectAddGeoObjectEvent(object.getCode(), object.getType().getCode(), edgeType.getCode(), geoObject.getType().getCode(), geoObject.getCode(), direction, code));
   }
 
   public Object build()

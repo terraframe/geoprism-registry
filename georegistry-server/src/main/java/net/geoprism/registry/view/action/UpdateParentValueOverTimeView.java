@@ -245,7 +245,7 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
             parentCode = newValueSplit[1];
           }
 
-          return new GeoObjectUpdateParentEvent(go.getUid(), go.getType().getCode(), edgeUid, hierarchyType.getCode(), this.newStartDate, this.newEndDate, parentCode, parentTypeCode);
+          return new GeoObjectUpdateParentEvent(go.getUid(), go.getType().getCode(), edgeUid, hierarchyType.getCode(), this.newStartDate, this.newEndDate, parentCode, parentTypeCode, null);
         }));
       }
       else if (this.action.equals(UpdateActionType.CREATE))
@@ -264,7 +264,7 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
           throw new ExecuteOutOfDateChangeRequestException();
         }
 
-        builder.addEvent(new GeoObjectCreateParentEvent(go.getUid(), go.getType().getCode(), UUID.randomUUID().toString(), hierarchyType.getCode(), this.newStartDate, this.newEndDate, newParent.getCode(), newParent.getType().getCode(), true));
+        builder.addEvent(new GeoObjectCreateParentEvent(go.getUid(), go.getType().getCode(), UUID.randomUUID().toString(), hierarchyType.getCode(), this.newStartDate, this.newEndDate, newParent.getCode(), newParent.getType().getCode(), null, true));
       }
       else
       {

@@ -21,12 +21,14 @@ public class RemoteBusinessObjectCreateEdgeCommand implements RemoteCommand
 
   private String targetCode;
 
-  public RemoteBusinessObjectCreateEdgeCommand(String commitId, String sourceCode, String sourceType, String edgeUid, String edgeType, String targetCode, String targetType)
+  private String dataSource;
+
+  public RemoteBusinessObjectCreateEdgeCommand(String commitId, String sourceCode, String sourceType, String edgeUid, String edgeType, String targetCode, String targetType, String dataSource)
   {
-    this(commitId, sourceCode + "#" + sourceType, sourceCode, sourceType, edgeUid, edgeType, targetCode, targetType);
+    this(commitId, sourceCode + "#" + sourceType, sourceCode, sourceType, edgeUid, edgeType, targetCode, targetType, dataSource);
   }
 
-  public RemoteBusinessObjectCreateEdgeCommand(String commitId, String key, String sourceCode, String sourceType, String edgeUid, String edgeType, String targetCode, String targetType)
+  public RemoteBusinessObjectCreateEdgeCommand(String commitId, String key, String sourceCode, String sourceType, String edgeUid, String edgeType, String targetCode, String targetType, String dataSource)
   {
     super();
     this.commitId = commitId;
@@ -37,6 +39,7 @@ public class RemoteBusinessObjectCreateEdgeCommand implements RemoteCommand
     this.edgeType = edgeType;
     this.targetCode = targetCode;
     this.targetType = targetType;
+    this.dataSource = dataSource;
   }
 
   public String getKey()
@@ -118,5 +121,14 @@ public class RemoteBusinessObjectCreateEdgeCommand implements RemoteCommand
   {
     this.targetCode = targetCode;
   }
-
+  
+  public String getDataSource()
+  {
+    return dataSource;
+  }
+  
+  public void setDataSource(String dataSource)
+  {
+    this.dataSource = dataSource;
+  }
 }

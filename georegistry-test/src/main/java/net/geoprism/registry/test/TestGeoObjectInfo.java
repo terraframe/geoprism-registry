@@ -403,7 +403,7 @@ public class TestGeoObjectInfo extends TestCachedObject<ServerGeoObjectIF>
     
     ServerGeoObjectEventBuilder builder = new ServerGeoObjectEventBuilder(service);
     builder.setObject(child.getServerObject());
-    builder.addParent(this.getServerObject(), hierarchy.getServerObject(), date, TestDataSet.DEFAULT_END_TIME_DATE, UUID.randomUUID().toString(), false);
+    builder.addParent(this.getServerObject(), hierarchy.getServerObject(), date, TestDataSet.DEFAULT_END_TIME_DATE, UUID.randomUUID().toString(), this.source.getDataSource(), false);
     builder.setIsNew(this.isNew);
     builder.build();
 

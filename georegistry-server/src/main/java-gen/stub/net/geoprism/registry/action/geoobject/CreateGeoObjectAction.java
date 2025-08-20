@@ -69,7 +69,7 @@ public class CreateGeoObjectAction extends CreateGeoObjectActionBase
     VertexServerGeoObject object = (VertexServerGeoObject) objectService.fromDTO(geoObject, true);
 
     builder.setObject(object, true);
-    builder.setParents(ServerParentTreeNodeOverTime.fromJSON(object.getType(), sJson));
+    builder.setParents(ServerParentTreeNodeOverTime.fromJSON(object.getType(), sJson), null);
 
     // objectService.apply(geoObject, true, false);
     //

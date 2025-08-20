@@ -143,8 +143,9 @@ public class PublishEventService
       String edgeType = ( (GeoObjectCreateParentEvent) event ).getEdgeType();
       String parentType = ( (GeoObjectCreateParentEvent) event ).getParentType();
       String parentCode = ( (GeoObjectCreateParentEvent) event ).getParentCode();
+      String dataSource = ( (GeoObjectCreateParentEvent) event ).getDataSource();
 
-      return new RemoteGeoObjectSetParentCommand(commit.getUid(), code, type, edgeUid, edgeType, publish.getStartDate(), publish.getEndDate(), parentCode, parentType);
+      return new RemoteGeoObjectSetParentCommand(commit.getUid(), code, type, edgeUid, edgeType, publish.getStartDate(), publish.getEndDate(), parentCode, parentType, dataSource);
     }
     else if (event instanceof GeoObjectUpdateParentEvent)
     {
@@ -154,8 +155,9 @@ public class PublishEventService
       String edgeType = ( (GeoObjectUpdateParentEvent) event ).getEdgeType();
       String parentType = ( (GeoObjectUpdateParentEvent) event ).getParentType();
       String parentCode = ( (GeoObjectUpdateParentEvent) event ).getParentCode();
+      String dataSource = ( (GeoObjectUpdateParentEvent) event ).getDataSource();
 
-      return new RemoteGeoObjectSetParentCommand(commit.getUid(), code, type, edgeUid, edgeType, publish.getStartDate(), publish.getEndDate(), parentCode, parentType);
+      return new RemoteGeoObjectSetParentCommand(commit.getUid(), code, type, edgeUid, edgeType, publish.getStartDate(), publish.getEndDate(), parentCode, parentType, dataSource);
     }
     else if (event instanceof GeoObjectRemoveParentEvent)
     {
@@ -164,7 +166,7 @@ public class PublishEventService
       String edgeUid = ( (GeoObjectRemoveParentEvent) event ).getEdgeUid();
       String edgeType = ( (GeoObjectRemoveParentEvent) event ).getEdgeType();
 
-      return new RemoteGeoObjectSetParentCommand(commit.getUid(), code, type, edgeUid, edgeType, publish.getStartDate(), publish.getEndDate(), null, null);
+      return new RemoteGeoObjectSetParentCommand(commit.getUid(), code, type, edgeUid, edgeType, publish.getStartDate(), publish.getEndDate(), null, null, null);
     }
     else if (event instanceof GeoObjectCreateEdgeEvent)
     {
@@ -196,8 +198,9 @@ public class PublishEventService
       String geoObjectType = ( (BusinessObjectAddGeoObjectEvent) event ).getGeoObjectType();
       String geoObjectCode = ( (BusinessObjectAddGeoObjectEvent) event ).getGeoObjectCode();
       EdgeDirection direction = ( (BusinessObjectAddGeoObjectEvent) event ).getDirection();
+      String dataSource = ( (BusinessObjectAddGeoObjectEvent) event ).getDataSource();
 
-      return new RemoteBusinessObjectAddGeoObjectCommand(commit.getUid(), code, type, edgeType, geoObjectType, geoObjectCode, direction);
+      return new RemoteBusinessObjectAddGeoObjectCommand(commit.getUid(), code, type, edgeType, geoObjectType, geoObjectCode, direction, dataSource);
 
     }
     else if (event instanceof BusinessObjectCreateEdgeEvent)
@@ -208,8 +211,9 @@ public class PublishEventService
       String edgeType = ( (BusinessObjectCreateEdgeEvent) event ).getEdgeType();
       String targetCode = ( (BusinessObjectCreateEdgeEvent) event ).getTargetCode();
       String targetType = ( (BusinessObjectCreateEdgeEvent) event ).getTargetType();
+      String dataSource = ( (BusinessObjectCreateEdgeEvent) event ).getDataSource();
 
-      return new RemoteBusinessObjectCreateEdgeCommand(commit.getUid(), sourceCode, sourceType, edgeUid, edgeType, targetCode, targetType);
+      return new RemoteBusinessObjectCreateEdgeCommand(commit.getUid(), sourceCode, sourceType, edgeUid, edgeType, targetCode, targetType, dataSource);
     }
 
     throw new UnsupportedOperationException("Events of type [" + event.getClass().getName() + "] do not support being published");

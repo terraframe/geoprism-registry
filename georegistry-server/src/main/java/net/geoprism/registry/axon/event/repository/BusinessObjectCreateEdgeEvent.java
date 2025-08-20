@@ -20,13 +20,15 @@ public class BusinessObjectCreateEdgeEvent implements BusinessObjectEvent
 
   private String  targetCode;
 
+  private String  dataSource;
+
   private Boolean validate;
 
   public BusinessObjectCreateEdgeEvent()
   {
   }
 
-  public BusinessObjectCreateEdgeEvent(String sourceCode, String sourceType, String edgeType, String targetCode, String targetType, Boolean validate)
+  public BusinessObjectCreateEdgeEvent(String sourceCode, String sourceType, String edgeType, String targetCode, String targetType, String dataSource, Boolean validate)
   {
     super();
     this.edgeUid = UUID.randomUUID().toString();
@@ -35,6 +37,7 @@ public class BusinessObjectCreateEdgeEvent implements BusinessObjectEvent
     this.edgeType = edgeType;
     this.targetCode = targetCode;
     this.targetType = targetType;
+    this.dataSource = dataSource;
     this.validate = validate;
   }
 
@@ -96,6 +99,16 @@ public class BusinessObjectCreateEdgeEvent implements BusinessObjectEvent
   public void setTargetCode(String targetCode)
   {
     this.targetCode = targetCode;
+  }
+  
+  public String getDataSource()
+  {
+    return dataSource;
+  }
+  
+  public void setDataSource(String dataSource)
+  {
+    this.dataSource = dataSource;
   }
 
   public Boolean getValidate()

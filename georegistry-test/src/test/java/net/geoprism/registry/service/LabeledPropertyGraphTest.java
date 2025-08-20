@@ -290,8 +290,8 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
 
     this.bObjectService.apply(cObject);
 
-    this.bObjectService.addChild(pObject, bEdgeType, cObject, UUID.randomUUID().toString());
-    this.bObjectService.addGeoObject(pObject, bGeoEdgeType, USATestData.COLORADO.getServerObject(), EdgeDirection.PARENT, UUID.randomUUID().toString(), false);
+    this.bObjectService.addChild(pObject, bEdgeType, cObject, UUID.randomUUID().toString(), USATestData.SOURCE.getDataSource());
+    this.bObjectService.addGeoObject(pObject, bGeoEdgeType, USATestData.COLORADO.getServerObject(), EdgeDirection.PARENT, UUID.randomUUID().toString(), USATestData.SOURCE.getDataSource(), false);
   }
 
   @After
