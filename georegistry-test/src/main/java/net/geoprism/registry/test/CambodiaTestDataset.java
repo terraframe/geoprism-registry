@@ -11,8 +11,12 @@ import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import com.runwaysdk.dataaccess.transaction.Transaction;
+
+import net.geoprism.registry.config.TestApplication;
 
 public class CambodiaTestDataset extends TestDataSet
 {
@@ -155,12 +159,18 @@ public class CambodiaTestDataset extends TestDataSet
     AT_RELIGION.addManagedTerm(T_Other);
   }
 
-  public static void main(String[] args)
-  {
-    CambodiaTestDataset data = CambodiaTestDataset.newTestData();
-    data.setUpMetadata();
-    data.setUpInstanceData();
+  public static void main(String[] args) {
+    System.setProperty("org.springframework.boot.logging.LoggingSystem", "none");
+    
+    try (ConfigurableApplicationContext ctx =
+           new SpringApplicationBuilder(TestApplication.class)  // your @SpringBootApplication class
+             .profiles("test")                              // optional
+             .run(args)) {
 
+      CambodiaTestDataset data = CambodiaTestDataset.newTestData();
+      data.setUpMetadata();
+      data.setUpInstanceData();
+    }
   }
 
   public static CambodiaTestDataset newTestData()

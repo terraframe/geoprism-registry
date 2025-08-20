@@ -24,12 +24,13 @@ import net.geoprism.registry.etl.upload.ExcelImporter;
 import net.geoprism.registry.etl.upload.FormatSpecificImporterIF;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportProgressListenerIF;
+import net.geoprism.registry.etl.upload.JSONImporter;
 import net.geoprism.registry.etl.upload.ShapefileImporter;
 
 public class FormatSpecificImporterFactory
 {
   public static enum FormatImporterType {
-    SHAPEFILE, EXCEL, DHIS2
+    SHAPEFILE, EXCEL, DHIS2, JSON
   }
 
   public static FormatSpecificImporterIF getImporter(String type, ApplicationResource resource, ImportConfiguration config, ImportProgressListenerIF progress)
@@ -41,6 +42,10 @@ public class FormatSpecificImporterFactory
     else if (type.equals(FormatImporterType.EXCEL.name()))
     {
       return new ExcelImporter(resource, config, progress);
+    }
+    else if (type.equals(FormatImporterType.JSON.name()))
+    {
+      return new JSONImporter(resource, config, progress);
     }
     else
     {
