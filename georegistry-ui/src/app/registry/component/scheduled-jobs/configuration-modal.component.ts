@@ -65,13 +65,15 @@ export class ConfigurationModalComponent implements OnInit {
 
         this.strategy = strategies.find(s => s.strategy === this.configuration.importStrategy);
 
-        this.cacheService.getTypeCache().waitOnTypes().then((types: GeoObjectType[]) => {
-            const index = types.findIndex(t => t.code === configuration.type.code);
+        if (configuration.type && configuration.type.code) {
+            this.cacheService.getTypeCache().waitOnTypes().then((types: GeoObjectType[]) => {
+                const index = types.findIndex(t => t.code === configuration.type.code);
 
-            if(index != null) {
-                this.type = types[index];
-            }
-        });
+                if(index != null) {
+                    this.type = types[index];
+                }
+            });
+        }
 
     }
 }

@@ -46,14 +46,14 @@ import { CreateGeoObjTypeModalComponent } from "./component/hierarchy/modals/cre
 import { ManageAttributesModalComponent } from "./component/hierarchy/geoobjecttype-management/manage-attributes-modal.component";
 import { DefineAttributeModalContentComponent } from "./component/hierarchy/geoobjecttype-management/define-attribute-modal-content.component";
 import { EditAttributeModalContentComponent } from "./component/hierarchy/geoobjecttype-management/edit-attribute-modal-content.component";
-import { ShapefileModalComponent } from "./component/importer/modals/shapefile-modal.component";
+import { ImportModalComponent } from "./component/importer/modals/import-modal.component";
 import { AttributesPageComponent } from "./component/importer/modals/attributes-page.component";
+import { EdgePageComponent } from "./component/importer/modals/edge-page.component";
 import { LocationPageComponent } from "./component/importer/modals/location-page.component";
 import { LocationProblemPageComponent } from "./component/importer/modals/location-problem-page.component";
 import { LocationProblemComponent } from "./component/importer/modals/location-problem.component";
 import { TermProblemPageComponent } from "./component/importer/modals/term-problem-page.component";
 import { TermProblemComponent } from "./component/importer/modals/term-problem.component";
-import { SpreadsheetModalComponent } from "./component/importer/modals/spreadsheet-modal.component";
 import { DataPageComponent } from "./component/data-page/data-page.component";
 import { TermOptionWidgetComponent } from "./component/hierarchy/geoobjecttype-management/term-option-widget.component";
 import { AttributeInputComponent } from "./component/hierarchy/geoobjecttype-management/attribute-input.component";
@@ -217,14 +217,14 @@ import { GraphTypeService } from "./service/graph-type.service";
         CreateGeoObjTypeModalComponent,
         ManageAttributesModalComponent,
         DefineAttributeModalContentComponent,
-        ShapefileModalComponent,
+        ImportModalComponent,
         AttributesPageComponent,
+        EdgePageComponent,
         LocationPageComponent,
         LocationProblemPageComponent,
         LocationProblemComponent,
         TermProblemPageComponent,
         TermProblemComponent,
-        SpreadsheetModalComponent,
         GeoObjectTypePipe,
         GeoObjectAttributeCodeValidator,
         EditAttributeModalContentComponent,
@@ -356,8 +356,6 @@ import { GraphTypeService } from "./service/graph-type.service";
         DefineAttributeModalContentComponent,
         EditAttributeModalContentComponent,
         CreateHierarchyTypeModalComponent,
-        ShapefileModalComponent,
-        SpreadsheetModalComponent,
         TermOptionWidgetComponent,
         AttributeInputComponent,
         EditTermOptionInputComponent,

@@ -10,13 +10,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
-import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -24,27 +23,26 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.SmartException;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.session.Session;
 import com.runwaysdk.system.VaultFile;
 
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
+import net.geoprism.registry.etl.JSONFormatException;
 import net.geoprism.registry.etl.ObjectImporterFactory;
+import net.geoprism.registry.etl.upload.EdgeObjectImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.io.ImportAttributeSerializer;
-import net.geoprism.registry.model.ServerGeoObjectType;
 
 @Service
 public class GraphBusinessService
 {
-  public ObjectNode getJsonImportConfiguration(String type, Date startDate, Date endDate, String source, String fileName, InputStream fileStream, ImportStrategy strategy)
+  public ObjectNode getJsonImportConfiguration(String graphTypeClass, String graphTypeCode, Date startDate, Date endDate, String source, String fileName, InputStream fileStream, ImportStrategy strategy)
   {
     // Save the file to the file system
     try
     {
-      ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(type);
+//      ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(type);
 
       VaultFile vf = VaultFile.createAndApply(fileName, fileStream);
 
@@ -57,13 +55,14 @@ public class GraphBusinessService
 //        JsonNode root = mapper.readTree(is);
 
         ObjectNode obj = mapper.createObjectNode();
-        obj.set(GeoObjectImportConfiguration.TYPE, this.getType(geoObjectType));
+        obj.put(EdgeObjectImportConfiguration.GRAPH_TYPE_CLASS, graphTypeClass);
+        obj.put(EdgeObjectImportConfiguration.GRAPH_TYPE_CODE, graphTypeCode);
         obj.set(GeoObjectImportConfiguration.SHEET, this.getSheetInformationJson(is));
         obj.put(ImportConfiguration.VAULT_FILE_ID, vf.getOid());
         obj.put(ImportConfiguration.FILE_NAME, fileName);
         obj.put(ImportConfiguration.IMPORT_STRATEGY, strategy.name());
         obj.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.JSON.name());
-        obj.put(ImportConfiguration.OBJECT_TYPE, ObjectImporterFactory.ObjectImportType.GEO_OBJECT.name());
+        obj.put(ImportConfiguration.OBJECT_TYPE, ObjectImporterFactory.ObjectImportType.EDGE_OBJECT.name());
 
         if (source != null) {
           obj.put(GeoObjectImportConfiguration.DATA_SOURCE, source);
@@ -88,40 +87,28 @@ public class GraphBusinessService
     }
   }
   
-  private ObjectNode getType(ServerGeoObjectType geoObjectType) {
-    try {
-      final boolean includeCoordinates =
-          geoObjectType.getGeometryType().equals(GeometryType.POINT)
-          || geoObjectType.getGeometryType().equals(GeometryType.MULTIPOINT)
-          || geoObjectType.getGeometryType().equals(GeometryType.MIXED);
-
-      final ImportAttributeSerializer serializer =
-          new ImportAttributeSerializer(Session.getCurrentLocale(), includeCoordinates, false, geoObjectType.toDTO());
-
-      // Parse the type JSON using Jackson
-      final ObjectMapper mapper = new ObjectMapper();
-      final String json = geoObjectType.toJSON(serializer).toString(); // assumed JSON text
-      final ObjectNode type = (ObjectNode) mapper.readTree(json);
-
-      // Get the attributes array and add BASE_TYPE to each attribute object
-      final JsonNode attrsNode = type.path(GeoObjectType.JSON_ATTRIBUTES);
-      if (attrsNode.isArray()) {
-        ArrayNode attrs = (ArrayNode) attrsNode;
-        for (JsonNode n : attrs) {
-          if (n.isObject()) {
-            ObjectNode attr = (ObjectNode) n;
-            String attributeType = attr.path(AttributeType.JSON_TYPE).asText("");
-            String baseType = GeoObjectImportConfiguration.getBaseType(attributeType);
-            attr.put(GeoObjectImportConfiguration.BASE_TYPE, baseType);
-          }
-        }
-      }
-
-      return type;
-    } catch (Exception e) {
-      throw new ProgrammingErrorException(e);
-    }
-  }
+  /**
+   * We're creating a fake 'type' here which really only has the code, in order to be compliant with the needs of GeoObjectImportConfiguration
+   * 
+   * @param geoObjectType
+   * @return
+   */
+//  private ObjectNode getType(ServerGeoObjectType geoObjectType) {
+//    try {
+//      final ObjectMapper mapper = new ObjectMapper();
+//
+//      for (var name : new String[] { "source", "sourceType", "target", "targetType",  }) {
+//        ObjectNode attr = (ObjectNode) n;
+//        String attributeType = attr.path(AttributeType.JSON_TYPE).asText("");
+//        String baseType = GeoObjectImportConfiguration.getBaseType(attributeType);
+//        attr.put(GeoObjectImportConfiguration.BASE_TYPE, baseType);
+//      }
+//
+//      return type;
+//    } catch (Exception e) {
+//      throw new ProgrammingErrorException(e);
+//    }
+//  }
   
   
   
@@ -150,7 +137,7 @@ public class GraphBusinessService
       JsonNode root = mapper.readTree(jsonStream);
 
       if (root == null || !root.isArray()) {
-        throw new ProgrammingErrorException("Expected a top-level JSON array of objects.");
+        throw new JSONFormatException("Expected a top-level JSON array of objects.");
       }
 
       // Track best (most-specific) inferred type per key.
@@ -210,6 +197,10 @@ public class GraphBusinessService
       sheet.set("attributes", attributes);
       return sheet;
 
+    } catch (JsonParseException | JsonMappingException e) {
+      var ex = new JSONFormatException("Invalid JSON format", e);
+      ex.setRootCause(e.getMessage());
+      throw ex;
     } catch (RuntimeException e) {
       throw e;
     } catch (Exception e) {

@@ -1,0 +1,277 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="edge.data.import">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="edge.data.import" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Import Edge Data" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="edge.data.type">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="edge.data.type" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Edge Type" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="io.json">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="io.json" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="JSON" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="io.edge.title">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="io.edge.title" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Field Mapping" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="io.edge.description">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="io.edge.description" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Map the keys on your JSON objects to fields in our system." />
+        </attributeStruct>
+      </object>
+      
+      
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="io.edge.sourceStrategy">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="io.edge.sourceStrategy" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Source Strategy" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="io.edge.source">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="io.edge.source" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Source" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="io.edge.sourceTypeStrategy">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="io.edge.sourceTypeStrategy" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Source Type Strategy" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="io.edge.sourceType">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="io.edge.sourceType" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Source Type" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="io.edge.targetStrategy">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="io.edge.targetStrategy" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Target Strategy" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="io.edge.target">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="io.edge.target" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Target" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="io.edge.targetTypeStrategy">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="io.edge.targetTypeStrategy" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Target Type Strategy" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="io.edge.targetType">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="io.edge.targetType" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Target Type" />
+        </attributeStruct>
+      </object>
+      
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="io.edge.codeStrategy">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="io.edge.codeStrategy" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Code" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="io.edge.fixedTypeStrategy">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="io.edge.fixedTypeStrategy" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Fixed Type" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="io.job.configuration">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="io.job.configuration" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Job Configuration" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="io.job.importedFile">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="io.job.importedFile" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Imported File" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <create>
+      <mdException name="net.geoprism.registry.etl.JSONFormatException" label="JSON Format Exception" message="Your supplied JSON does not conform to the required JSON import specification. Your JSON file should contain a JSON array at the top level, with inner JSON Objects. {rootCause}">
+        <attributes>
+          <text name="rootCause"></text>
+        </attributes>
+      </mdException>
+    </create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.etl.JSONFormatException" type="com.runwaysdk.system.metadata.MdException"></object>
+    </delete>
+  </undoIt>
+</version>

@@ -30,11 +30,11 @@ import { ImportConfiguration } from '@registry/model/io';
 import { IOService } from '@registry/service';
 
 @Component({
-    selector: 'spreadsheet-modal',
-    templateUrl: './spreadsheet-modal.component.html',
+    selector: 'import-modal',
+    templateUrl: './import-modal.component.html',
     styleUrls: []
 })
-export class SpreadsheetModalComponent {
+export class ImportModalComponent {
 
     configuration: ImportConfiguration;
     message: string = null;
@@ -50,6 +50,10 @@ export class SpreadsheetModalComponent {
         this.configuration = configuration;
         this.property = property;
         this.includeChild = includeChild;
+
+        if (this.property === 'EDGE') {
+            this.state = 'EDGE';
+        }
     }
 
     onStateChange(event: string): void {
@@ -93,11 +97,16 @@ export class SpreadsheetModalComponent {
         }
         else if (this.state === 'TERM-PROBLEM') {
             this.handleSubmit();
+        } else if (this.state === 'EDGE') {
+            this.handleSubmit();
         }
     }
 
     handleSubmit(): void {
-        this.service.importSpreadsheet(this.configuration).then(config => {
+        this.message = null;
+        delete (this.configuration as any).allTypes;
+
+        this.service.beginImport(this.configuration).then(config => {
 
             if (config.locationProblems != null) {
                 this.state = 'LOCATION-PROBLEM';
@@ -117,6 +126,7 @@ export class SpreadsheetModalComponent {
                 });
                 this.bsModalRef.content.message = this.localizeService.decode("data.import.go.to.scheduled.jobs.confirm.message");
                 this.bsModalRef.content.submitText = this.localizeService.decode("data.import.go.to.scheduled.jobs.button");
+                this.bsModalRef.content.cancelText = this.localizeService.decode( "modal.button.close" );
 
                 (<ConfirmModalComponent>this.bsModalRef.content).onConfirm.subscribe(data => {
                     this.router.navigate(['/registry/scheduled-jobs']);
@@ -130,6 +140,8 @@ export class SpreadsheetModalComponent {
     }
 
     handleCancel(): void {
+        this.message = null;
+
         this.service.cancelImport(this.configuration).then(response => {
             this.bsModalRef.hide()
         }).catch((err: HttpErrorResponse) => {

@@ -26,7 +26,7 @@ import { ErrorHandler } from "@shared/component";
 import { LocalizationService, EventService } from "@shared/service";
 import { HierarchyService } from "@registry/service";
 
-import { SpreadsheetModalComponent } from "@registry/component/importer/modals/spreadsheet-modal.component";
+import { ImportModalComponent } from "@registry/component/importer/modals/import-modal.component";
 import { ImportStrategy } from "@registry/model/constants";
 import { HierarchyGroupedTypeView, TypeGroupedHierachyView } from "@registry/model/hierarchy";
 import { BusinessType } from "@registry/model/business-type";
@@ -246,7 +246,7 @@ export class BusinessImporterComponent implements OnInit {
             configuration.hierarchy = this.hierarchyCode;
             configuration.geoObjectType = { code: this.typeCode };
 
-            this.bsModalRef = this.modalService.show(SpreadsheetModalComponent, { backdrop: true, ignoreBackdropClick: true });
+            this.bsModalRef = this.modalService.show(ImportModalComponent, { backdrop: true, ignoreBackdropClick: true });
             this.bsModalRef.content.init(configuration, "geoObjectType", true);
         };
         this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {

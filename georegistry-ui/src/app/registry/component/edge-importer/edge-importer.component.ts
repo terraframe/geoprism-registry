@@ -17,22 +17,24 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, Input, ViewChild, ElementRef } from "@angular/core";
+import { Component, OnInit, Input, ViewChild, ElementRef, QueryList, ViewChildren, ChangeDetectorRef } from "@angular/core";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import { FileUploader, FileUploaderOptions } from "ng2-file-upload";
 import { HttpErrorResponse } from "@angular/common/http";
 
-import { ErrorHandler } from "@shared/component";
+import { DateFieldComponent, ErrorHandler } from "@shared/component";
 import { LocalizationService, EventService } from "@shared/service";
 import { HierarchyService } from "@registry/service";
 
-import { SpreadsheetModalComponent } from "@registry/component/importer/modals/spreadsheet-modal.component";
+import { ImportModalComponent } from "@registry/component/importer/modals/import-modal.component";
 import { ImportStrategy } from "@registry/model/constants";
 import { HierarchyGroupedTypeView, TypeGroupedHierachyView } from "@registry/model/hierarchy";
 import { GraphTypeService } from "@registry/service/graph-type.service";
 
 import { environment } from 'src/environments/environment';
 import { GraphType } from "@registry/model/registry";
+import { Source } from "@registry/model/source";
+import { SourceService } from "@registry/service/source.service";
 
 @Component({
 
@@ -41,6 +43,8 @@ import { GraphType } from "@registry/model/registry";
     styleUrls: ["./edge-importer.component.css"]
 })
 export class EdgeImporterComponent implements OnInit {
+
+    @ViewChildren("dateFieldComponents") dateFieldComponentsArray: QueryList<DateFieldComponent>;
 
     currentDate: Date = new Date();
 
@@ -54,11 +58,17 @@ export class EdgeImporterComponent implements OnInit {
     graphTypes: GraphType[] = [];
 
     /*
-     * Code of the currently selected GraphType
+     * The currently selected GraphType
      */
-    graphTypeCode: string = null;
+    selectedGraphType: GraphType = null;
 
     allTypes: any[];
+
+    sources: Source[];
+    
+    source: Source;
+
+    dataSource: string;
 
     importStrategy: ImportStrategy;
     importStrategies: any[] = [
@@ -68,14 +78,10 @@ export class EdgeImporterComponent implements OnInit {
     ]
 
     /*
-     * Code of the currently selected GeoObjectType
-     */
-    typeCode: string = null;
-
-    /*
      * Date
      */
-    date: string = null;
+    startDate: string = null;
+    endDate: string = null;
 
     /*
      * Reference to the modal current showing
@@ -93,23 +99,24 @@ export class EdgeImporterComponent implements OnInit {
     @Input()
     format: string = "JSON";
 
-    /*
-     * currently selected external system.
-     */
-    externalSystemId: string;
-
-    copyBlank: boolean = true;
-
     // eslint-disable-next-line no-useless-constructor
     constructor(
         private eventService: EventService,
         private modalService: BsModalService,
         private localizationService: LocalizationService,
+        private sourceService: SourceService,
         private hierarchyService: HierarchyService,
-        private edgeService: GraphTypeService
+        private edgeService: GraphTypeService,
+        private changeDetectorRef: ChangeDetectorRef
     ) { }
 
     ngOnInit(): void {
+        this.sourceService.getAll().then(sources =>
+            this.sources = sources
+        ).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
+
         this.edgeService.get().then(edgeTypes => {
             this.graphTypes = edgeTypes;
         });
@@ -125,7 +132,8 @@ export class EdgeImporterComponent implements OnInit {
                 for (let j = 0; j < len2; ++j) {
                     let type = view.types[j];
 
-                    this.allTypes.push(type);
+                    if (this.allTypes.findIndex(t => t.code == type.code) == -1)
+                        this.allTypes.push(type);
                 }
             }
         }).catch((err: HttpErrorResponse) => {
@@ -143,14 +151,21 @@ export class EdgeImporterComponent implements OnInit {
         this.uploader = new FileUploader(options);
 
         this.uploader.onBuildItemForm = (fileItem: any, form: any) => {
-            form.append("type", this.graphTypeCode);
-            form.append("copyBlank", this.copyBlank);
+            form.append("graphTypeCode", this.selectedGraphType.code);
+            form.append("graphTypeClass", this.selectedGraphType.typeCode);
 
-            if (this.date != null) {
-                form.append("date", this.date);
+            if (this.startDate != null) {
+                form.append("startDate", this.startDate);
+            }
+            if (this.endDate != null) {
+                form.append("endDate", this.endDate);
             }
             if (this.importStrategy) {
                 form.append("strategy", this.importStrategy);
+            }
+
+            if (this.dataSource != null) {
+                form.append("dataSource", this.dataSource);
             }
         };
         this.uploader.onBeforeUploadItem = (fileItem: any) => {
@@ -162,12 +177,10 @@ export class EdgeImporterComponent implements OnInit {
         };
         this.uploader.onSuccessItem = (item: any, response: string, status: number, headers: any) => {
             const configuration = JSON.parse(response);
+            configuration.allTypes = this.allTypes;
 
-            // TODO : Set other things here?
-            configuration.geoObjectType = { code: this.typeCode };
-
-            this.bsModalRef = this.modalService.show(SpreadsheetModalComponent, { backdrop: true, ignoreBackdropClick: true });
-            this.bsModalRef.content.init(configuration, "geoObjectType", true);
+            this.bsModalRef = this.modalService.show(ImportModalComponent, { backdrop: true, ignoreBackdropClick: true });
+            this.bsModalRef.content.init(configuration, "EDGE");
         };
         this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {
             const error = JSON.parse(response);
@@ -185,6 +198,38 @@ export class EdgeImporterComponent implements OnInit {
                 error: {}
             });
         }
+    }
+
+    checkDates(): any {
+        setTimeout(() => {
+            this.isValid = this.checkDateFieldValidity();
+        }, 0);
+    }
+
+    checkDateFieldValidity(): boolean {
+        let dateFields = this.dateFieldComponentsArray.toArray();
+
+        let startDateField: DateFieldComponent;
+        for (let i = 0; i < dateFields.length; i++) {
+            let field = dateFields[i];
+
+            if (field.inputName === "startDate") {
+                // set startDateField so we can use it in the next check
+                startDateField = field;
+            }
+
+            if (!field.valid) {
+                return false;
+            }
+        }
+
+        if (this.startDate > this.endDate) {
+            startDateField.setInvalid(this.localizationService.decode("date.input.startdate.after.enddate.error.message"));
+
+            this.changeDetectorRef.detectChanges();
+        }
+
+        return true;
     }
 
     public error(err: any): void {

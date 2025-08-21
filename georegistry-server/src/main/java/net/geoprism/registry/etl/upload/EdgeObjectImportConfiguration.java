@@ -51,6 +51,7 @@ import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Organization;
+import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.io.ConstantShapefileFunction;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.ImportAttributeSerializer;
@@ -64,13 +65,18 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 
 public class EdgeObjectImportConfiguration extends ImportConfiguration
 {
   public static final String                               PARENT_EXCLUSION = "##PARENT##";
+  
+  public static final String                          DATA_SOURCE            = "dataSource";
 
-  public static final String                               DATE             = "date";
+  public static final String                               START_DATE             = "startDate";
+  
+  public static final String                               END_DATE             = "endDate";
 
   public static final String                               TARGET           = "target";
 
@@ -101,41 +107,167 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
   public static final String                               MATCH_STRATEGY   = "matchStrategy";
   
   public static final String                               VALIDATE         = "validate";
+  
+  
+  public static final String                               EDGE_SOURCE      = "edgeSource";
+  public static final String                               EDGE_SOURCE_STRATEGY = "edgeSourceStrategy";
+  public static final String                               EDGE_SOURCE_TYPE = "edgeSourceType";
+  public static final String                               EDGE_SOURCE_TYPE_STRATEGY = "edgeSourceTypeStrategy";
+  public static final String                               EDGE_TARGET      = "edgeTarget";
+  public static final String                               EDGE_TARGET_STRATEGY = "edgeTargetStrategy";
+  public static final String                               EDGE_TARGET_TYPE = "edgeTargetType";
+  public static final String                               EDGE_TARGET_TYPE_STRATEGY = "edgeTargetTypeStrategy";
+  
+  private String edgeSource;
+  private String edgeSourceStrategy;
+  private String edgeSourceType;
+  private String edgeSourceTypeStrategy;
+  
+  private String edgeTarget;
+  private String edgeTargetStrategy;
+  private String edgeTargetType;
+  private String edgeTargetTypeStrategy;
 
   private Map<String, Set<String>>                         exclusions;
 
   private List<Location>                                   locations;
+  
+  private DataSource                                       dataSource;
 
   private GraphType                                        graphType;
 
-  private Date                                             date;
+  private Date                                             startDate;
+  
+  private Date                                             endDate;
   
   private boolean                                          validate;
   
-  private ServerGeoObjectType                              type;
-
   private LinkedList<EdgeObjectRecordedErrorException>     errors           = new LinkedList<EdgeObjectRecordedErrorException>();
+  
+  private DataSourceBusinessServiceIF                      sourceService;
 
   public EdgeObjectImportConfiguration()
   {
+    this.sourceService = ServiceFactory.getBean(DataSourceBusinessServiceIF.class);
+    
     this.functions = new HashMap<String, ShapefileFunction>();
     this.locations = new LinkedList<Location>();
     this.exclusions = new HashMap<String, Set<String>>();
   }
   
+  public DataSource getDataSource()
+  {
+    return dataSource;
+  }
+
+  public void setDataSource(DataSource dataSource)
+  {
+    this.dataSource = dataSource;
+  }
+
+  public Date getStartDate()
+  {
+    return startDate;
+  }
+
+  public void setStartDate(Date startDate)
+  {
+    this.startDate = startDate;
+  }
+
+  public Date getEndDate()
+  {
+    return endDate;
+  }
+
+  public void setEndDate(Date endDate)
+  {
+    this.endDate = endDate;
+  }
+
+  public String getEdgeSource()
+  {
+    return edgeSource;
+  }
+
+  public void setEdgeSource(String edgeSource)
+  {
+    this.edgeSource = edgeSource;
+  }
+
+  public String getEdgeSourceStrategy()
+  {
+    return edgeSourceStrategy;
+  }
+
+  public void setEdgeSourceStrategy(String edgeSourceStrategy)
+  {
+    this.edgeSourceStrategy = edgeSourceStrategy;
+  }
+
+  public String getEdgeSourceType()
+  {
+    return edgeSourceType;
+  }
+
+  public void setEdgeSourceType(String edgeSourceType)
+  {
+    this.edgeSourceType = edgeSourceType;
+  }
+
+  public String getEdgeSourceTypeStrategy()
+  {
+    return edgeSourceTypeStrategy;
+  }
+
+  public void setEdgeSourceTypeStrategy(String edgeSourceTypeStrategy)
+  {
+    this.edgeSourceTypeStrategy = edgeSourceTypeStrategy;
+  }
+
+  public String getEdgeTarget()
+  {
+    return edgeTarget;
+  }
+
+  public void setEdgeTarget(String edgeTarget)
+  {
+    this.edgeTarget = edgeTarget;
+  }
+
+  public String getEdgeTargetStrategy()
+  {
+    return edgeTargetStrategy;
+  }
+
+  public void setEdgeTargetStrategy(String edgeTargetStrategy)
+  {
+    this.edgeTargetStrategy = edgeTargetStrategy;
+  }
+
+  public String getEdgeTargetType()
+  {
+    return edgeTargetType;
+  }
+
+  public void setEdgeTargetType(String edgeTargetType)
+  {
+    this.edgeTargetType = edgeTargetType;
+  }
+
+  public String getEdgeTargetTypeStrategy()
+  {
+    return edgeTargetTypeStrategy;
+  }
+
+  public void setEdgeTargetTypeStrategy(String edgeTargetTypeStrategy)
+  {
+    this.edgeTargetTypeStrategy = edgeTargetTypeStrategy;
+  }
+
   public boolean isValidate()
   {
     return validate;
-  }
-  
-  public ServerGeoObjectType getType()
-  {
-    return type;
-  }
-
-  public void setType(ServerGeoObjectType type)
-  {
-    this.type = type;
   }
 
   public void setValidate(boolean validate)
@@ -151,16 +283,6 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
   public void setGraphType(GraphType graphType)
   {
     this.graphType = graphType;
-  }
-
-  public Date getDate()
-  {
-    return date;
-  }
-
-  public void setDate(Date date)
-  {
-    this.date = date;
   }
 
   public Map<String, Set<String>> getExclusions()
@@ -234,7 +356,6 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
 
     super.toJSON(config);
 
-    JSONObject type = new JSONObject(this.type.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, this.type.toDTO())).toString());
     SimpleDateFormat format = new SimpleDateFormat(EdgeObjectImportConfiguration.DATE_FORMAT);
     format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
@@ -275,7 +396,6 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
       locations.put(location.toJSON());
     }
 
-    config.put(EdgeObjectImportConfiguration.TYPE, type);
     config.put(EdgeObjectImportConfiguration.LOCATIONS, locations);
 
     if (this.getGraphType() != null)
@@ -284,9 +404,13 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
       config.put(EdgeObjectImportConfiguration.GRAPH_TYPE_CLASS, GraphType.getTypeCode(this.getGraphType()));
     }
 
-    if (this.getDate() != null)
+    if (this.getStartDate() != null)
     {
-      config.put(EdgeObjectImportConfiguration.DATE, format.format(this.getDate()));
+      config.put(EdgeObjectImportConfiguration.START_DATE, format.format(this.getStartDate()));
+    }
+    if (this.getEndDate() != null)
+    {
+      config.put(EdgeObjectImportConfiguration.END_DATE, format.format(this.getEndDate()));
     }
 
     config.put(EdgeObjectImportConfiguration.VALIDATE, this.isValidate());
@@ -307,6 +431,21 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
 
       config.put(EXCLUSIONS, exclusions);
     }
+    
+    if (this.getDataSource() != null)
+    {
+      config.put(GeoObjectImportConfiguration.DATA_SOURCE, dataSource.getCode());
+    }
+    
+    config.put(EDGE_SOURCE, edgeSource);
+    config.put(EDGE_SOURCE_STRATEGY, edgeSourceStrategy);
+    config.put(EDGE_SOURCE_TYPE, edgeSourceType);
+    config.put(EDGE_SOURCE_TYPE_STRATEGY, edgeSourceTypeStrategy);
+
+    config.put(EDGE_TARGET, edgeTarget);
+    config.put(EDGE_TARGET_STRATEGY, edgeTargetStrategy);
+    config.put(EDGE_TARGET_TYPE, edgeTargetType);
+    config.put(EDGE_TARGET_TYPE_STRATEGY, edgeTargetTypeStrategy);
 
     return config;
   }
@@ -320,21 +459,38 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
     format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
     JSONObject config = new JSONObject(json);
-    JSONObject type = config.getJSONObject(TYPE);
-    JSONArray locations = config.has(LOCATIONS) ? config.getJSONArray(LOCATIONS) : new JSONArray();
-    String code = type.getString(GeoObjectType.JSON_CODE);
-    ServerGeoObjectType got = ServerGeoObjectType.get(code);
+//    JSONArray locations = config.has(LOCATIONS) ? config.getJSONArray(LOCATIONS) : new JSONArray();
     
-    this.setType(got);
+    edgeSource = config.optString(EDGE_SOURCE);
+    edgeSourceStrategy = config.optString(EDGE_SOURCE_STRATEGY);
+    edgeSourceType = config.optString(EDGE_SOURCE_TYPE);
+    edgeSourceTypeStrategy = config.optString(EDGE_SOURCE_TYPE_STRATEGY);
+
+    edgeTarget = config.optString(EDGE_TARGET);
+    edgeTargetStrategy = config.optString(EDGE_TARGET_STRATEGY);
+    edgeTargetType = config.optString(EDGE_TARGET_TYPE);
+    edgeTargetTypeStrategy = config.optString(EDGE_TARGET_TYPE_STRATEGY);
+    
     this.setValidate(config.has(VALIDATE) ? config.getBoolean(VALIDATE) : false);
 
     this.setGraphType(GraphType.getByCode(config.getString(EdgeObjectImportConfiguration.GRAPH_TYPE_CLASS), config.getString(EdgeObjectImportConfiguration.GRAPH_TYPE_CODE)));
 
+    if (config.has(DATA_SOURCE))
+    {
+      this.sourceService.getByCode(config.getString(DATA_SOURCE)).ifPresent(source -> {
+        this.setDataSource(source);
+      });
+    }
+    
     try
     {
-      if (config.has(EdgeObjectImportConfiguration.DATE))
+      if (config.has(EdgeObjectImportConfiguration.START_DATE))
       {
-        this.setDate(format.parse(config.getString(EdgeObjectImportConfiguration.DATE)));
+        this.setStartDate(format.parse(config.getString(EdgeObjectImportConfiguration.START_DATE)));
+      }
+      if (config.has(EdgeObjectImportConfiguration.END_DATE))
+      {
+        this.setEndDate(format.parse(config.getString(EdgeObjectImportConfiguration.END_DATE)));
       }
     }
     catch (ParseException e)
@@ -477,9 +633,9 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
   @Override
   public void populate(ImportHistory history)
   {
-    Organization org = type.getOrganization().getOrganization();
-
-    history.setOrganization(org);
-    history.setGeoObjectTypeCode(type.getCode());
+//    Organization org = graphType.getOrganization().getOrganization();
+//
+//    history.setOrganization(org);
+//    history.setGeoObjectTypeCode(type.getCode());
   }
 }
