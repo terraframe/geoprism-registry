@@ -140,17 +140,22 @@ public class RemoteCommitService
 
     int chunk = 0;
     List<RemoteEvent> remoteEvents = null;
-    
+
     PublishDTO dto = publish.toDTO();
 
     while ( ( remoteEvents = client.getRemoteEvents(commit.getUid(), chunk) ).size() > 0)
     {
-      remoteEvents.stream().filter(event -> event.isValid(dto)).forEach(event -> this.gateway.sendAndWait(event.toCommand()));
+      remoteEvents.stream() //
+          .filter(event -> event.isValid(dto))//
+          .forEach(event -> {
+            this.gateway.sendAndWait(event.toCommand());
+          });
 
       chunk++;
     }
 
     return commit;
+
   }
 
   protected Publish getOrCreate(RemoteClientIF client, final String publishId, List<TypeAndCode> exclusions)

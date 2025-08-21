@@ -99,7 +99,7 @@ public class BusinessObjectAggregate
   @CommandHandler
   public void on(RemoteBusinessObjectAddGeoObjectCommand command)
   {
-    RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new RemoteBusinessObjectAddGeoObjectEvent(command.getCommitId(), command.getKey(), command.getCode(), command.getType(), command.getEdgeType(), command.getGeoObjectType(), command.getGeoObjectCode(), command.getDirection(), command.getDataSource())));
+    RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new RemoteBusinessObjectAddGeoObjectEvent(command.getCommitId(), command.getKey(), command.getCode(), command.getType(), command.getEdgeUid(), command.getEdgeType(), command.getGeoObjectType(), command.getGeoObjectCode(), command.getDirection(), command.getDataSource())));
   }
 
   @CommandHandler

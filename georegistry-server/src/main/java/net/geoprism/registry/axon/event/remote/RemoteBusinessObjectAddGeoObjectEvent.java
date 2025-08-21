@@ -18,6 +18,8 @@ public class RemoteBusinessObjectAddGeoObjectEvent implements RemoteEvent
 
   private String        edgeType;
 
+  private String        edgeUid;
+
   private String        geoObjectType;
 
   private String        geoObjectCode;
@@ -30,12 +32,12 @@ public class RemoteBusinessObjectAddGeoObjectEvent implements RemoteEvent
   {
   }
 
-  public RemoteBusinessObjectAddGeoObjectEvent(String commitId, String code, String type, String edgeType, String geoObjectType, String geoObjectCode, EdgeDirection direction, String dataSource)
+  public RemoteBusinessObjectAddGeoObjectEvent(String commitId, String code, String type, String edgeUid, String edgeType, String geoObjectType, String geoObjectCode, EdgeDirection direction, String dataSource)
   {
-    this(commitId, code + "#" + type, code, type, edgeType, geoObjectType, geoObjectCode, direction, dataSource);
+    this(commitId, code + "#" + type, code, type, edgeUid, edgeType, geoObjectType, geoObjectCode, direction, dataSource);
   }
 
-  public RemoteBusinessObjectAddGeoObjectEvent(String commitId, String key, String code, String type, String edgeType, String geoObjectType, String geoObjectCode, EdgeDirection direction, String dataSource)
+  public RemoteBusinessObjectAddGeoObjectEvent(String commitId, String key, String code, String type, String edgeUid, String edgeType, String geoObjectType, String geoObjectCode, EdgeDirection direction, String dataSource)
   {
     super();
     this.commitId = commitId;
@@ -47,6 +49,7 @@ public class RemoteBusinessObjectAddGeoObjectEvent implements RemoteEvent
     this.geoObjectCode = geoObjectCode;
     this.direction = direction;
     this.dataSource = dataSource;
+    this.edgeUid = edgeUid;
   }
 
   public String getCommitId()
@@ -128,21 +131,31 @@ public class RemoteBusinessObjectAddGeoObjectEvent implements RemoteEvent
   {
     this.direction = direction;
   }
-  
+
   public String getDataSource()
   {
     return dataSource;
   }
-  
+
   public void setDataSource(String dataSource)
   {
     this.dataSource = dataSource;
+  }
+  
+  public String getEdgeUid()
+  {
+    return edgeUid;
+  }
+  
+  public void setEdgeUid(String edgeUid)
+  {
+    this.edgeUid = edgeUid;
   }
 
   @Override
   public Object toCommand()
   {
-    return new RemoteBusinessObjectAddGeoObjectCommand(commitId, code, type, edgeType, geoObjectType, geoObjectCode, direction, dataSource);
+    return new RemoteBusinessObjectAddGeoObjectCommand(commitId, code, type, edgeUid, edgeType, geoObjectType, geoObjectCode, direction, dataSource);
   }
 
   @Override

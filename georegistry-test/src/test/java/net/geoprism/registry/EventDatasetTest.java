@@ -3,6 +3,7 @@ package net.geoprism.registry;
 import java.util.UUID;
 
 import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.After;
 import org.junit.Before;
@@ -197,6 +198,7 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
   {
     BusinessObject object = this.bObjectService.newInstance(btype);
     object.setCode(code);
+    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), USATestData.SOURCE.getDataSource());
 
     BusinessObjectEventBuilder builder = new BusinessObjectEventBuilder(bObjectService);
     builder.setObject(object, true);

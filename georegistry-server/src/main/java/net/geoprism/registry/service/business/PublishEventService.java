@@ -194,13 +194,14 @@ public class PublishEventService
     {
       String code = ( (BusinessObjectAddGeoObjectEvent) event ).getCode();
       String type = ( (BusinessObjectAddGeoObjectEvent) event ).getType();
+      String edgeUid = ( (BusinessObjectAddGeoObjectEvent) event ).getEdgeUid();
       String edgeType = ( (BusinessObjectAddGeoObjectEvent) event ).getEdgeType();
       String geoObjectType = ( (BusinessObjectAddGeoObjectEvent) event ).getGeoObjectType();
       String geoObjectCode = ( (BusinessObjectAddGeoObjectEvent) event ).getGeoObjectCode();
       EdgeDirection direction = ( (BusinessObjectAddGeoObjectEvent) event ).getDirection();
       String dataSource = ( (BusinessObjectAddGeoObjectEvent) event ).getDataSource();
 
-      return new RemoteBusinessObjectAddGeoObjectCommand(commit.getUid(), code, type, edgeType, geoObjectType, geoObjectCode, direction, dataSource);
+      return new RemoteBusinessObjectAddGeoObjectCommand(commit.getUid(), code, type, edgeUid, edgeType, geoObjectType, geoObjectCode, direction, dataSource);
 
     }
     else if (event instanceof BusinessObjectCreateEdgeEvent)
@@ -222,7 +223,7 @@ public class PublishEventService
   protected void processEventType(GapAwareTrackingToken start, GapAwareTrackingToken end, EventType eventType, Publish publish, Commit commit, PublishDTO dto)
   {
     List<String> aggregateIds = this.store.getAggregateIds(start, end);
-    
+
     for (String aggregateId : aggregateIds)
     {
       InMemoryEventMerger merger = new InMemoryEventMerger();

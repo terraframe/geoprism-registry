@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -33,22 +34,27 @@ import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.config.TestApplication;
+import net.geoprism.registry.model.BusinessObject;
+import net.geoprism.registry.model.EdgeDirection;
+import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessEdgeTypeSnapshotBusinessServiceIF;
+import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.CommitBusinessServiceIF;
+import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.GraphTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.MockDependentRemoteClient;
 import net.geoprism.registry.service.business.MockRemoteClientBuilderService;
 import net.geoprism.registry.service.business.PublishBusinessServiceIF;
-import net.geoprism.registry.service.business.RemoteClientBuilderServiceIF;
-import net.geoprism.registry.service.business.RemoteClientIF;
 import net.geoprism.registry.service.business.RemoteCommitService;
 import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
 import net.geoprism.registry.test.USATestData;
@@ -94,6 +100,12 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
   private UndirectedGraphTypeBusinessServiceIF      undirectedTypeService;
 
   @Autowired
+  private GeoObjectBusinessServiceIF                gObjectService;
+
+  @Autowired
+  private BusinessObjectBusinessServiceIF           bObjectService;
+
+  @Autowired
   private RemoteCommitService                       service;
 
   @Autowired
@@ -119,10 +131,8 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
     this.store.truncate();
 
     testData = USATestData.newTestData();
-
-    testData.getManagedOrganizations().forEach(org -> {
-      org.apply();
-    });
+    testData.getManagedOrganizations().forEach(org -> org.apply());
+    testData.getManagedSources().forEach(source -> source.apply());
 
     // Delete all existing publishes
     this.publishService.getAll().stream().forEach(this.publishService::delete);
@@ -259,6 +269,37 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
       });
 
       Assert.assertEquals(Long.valueOf(47), this.store.size());
+
+      // Test Object values
+
+      ServerGeoObjectIF object = this.gObjectService.getGeoObjectByCode(USATestData.COLORADO.getCode(), USATestData.STATE.getCode());
+
+      Assert.assertNotNull(object);
+      Assert.assertNotNull(object.getValue(DefaultAttribute.DATA_SOURCE.getName(), USATestData.DEFAULT_OVER_TIME_DATE));
+
+      ServerParentTreeNode nodes = this.gObjectService.getParentGeoObjects(object, USATestData.HIER_ADMIN.getServerObject(), null, false, false, USATestData.DEFAULT_OVER_TIME_DATE);
+
+      List<ServerParentTreeNode> parents = nodes.getParents();
+
+      Assert.assertEquals(1, parents.size());
+
+      ServerParentTreeNode node = parents.get(0);
+
+      Assert.assertEquals(USATestData.SOURCE.getCode(), node.getSource().getCode());
+      Assert.assertNotNull(node.getUid());
+
+      BusinessType bType = this.bTypeService.getByCode("TEST_BUSINESS");
+
+      BusinessObject bObject = this.bObjectService.getByCode(bType, "C_CODE");
+
+      Assert.assertNotNull(bObject);
+      Assert.assertNotNull(bObject.getObjectValue(DefaultAttribute.DATA_SOURCE.getName()));
+
+      BusinessEdgeType bEdgeType = this.bEdgeService.getByCode("TEST_B_EDGE").get();
+      BusinessEdgeType bGeoEdgeType = this.bEdgeService.getByCode("TEST_GEO_EDGE").get();
+
+      Assert.assertEquals(1, this.bObjectService.getParents(bObject, bEdgeType).size());
+      Assert.assertEquals(1, this.bObjectService.getGeoObjects(bObject, bGeoEdgeType, EdgeDirection.PARENT).size());
     }
     finally
     {
