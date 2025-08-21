@@ -15,6 +15,8 @@ public class RemoteBusinessObjectAddGeoObjectCommand implements RemoteCommand
 
   private String        code;
 
+  private String        edgeUid;
+
   private String        edgeType;
 
   private String        geoObjectType;
@@ -25,18 +27,19 @@ public class RemoteBusinessObjectAddGeoObjectCommand implements RemoteCommand
 
   private String        dataSource;
 
-  public RemoteBusinessObjectAddGeoObjectCommand(String commitId, String code, String type, String edgeType, String geoObjectType, String geoObjectCode, EdgeDirection direction, String dataSource)
+  public RemoteBusinessObjectAddGeoObjectCommand(String commitId, String code, String type, String edgeUid, String edgeType, String geoObjectType, String geoObjectCode, EdgeDirection direction, String dataSource)
   {
-    this(commitId, code + "#" + type, code, type, edgeType, geoObjectType, geoObjectCode, direction, dataSource);
+    this(commitId, code + "#" + type, code, type, edgeUid, edgeType, geoObjectType, geoObjectCode, direction, dataSource);
   }
 
-  public RemoteBusinessObjectAddGeoObjectCommand(String commitId, String key, String code, String type, String edgeType, String geoObjectType, String geoObjectCode, EdgeDirection direction, String dataSource)
+  public RemoteBusinessObjectAddGeoObjectCommand(String commitId, String key, String code, String type, String edgeUid, String edgeType, String geoObjectType, String geoObjectCode, EdgeDirection direction, String dataSource)
   {
     super();
     this.commitId = commitId;
     this.key = key;
     this.code = code;
     this.type = type;
+    this.edgeUid = edgeUid;
     this.edgeType = edgeType;
     this.geoObjectType = geoObjectType;
     this.geoObjectCode = geoObjectCode;
@@ -112,6 +115,16 @@ public class RemoteBusinessObjectAddGeoObjectCommand implements RemoteCommand
   public void setGeoObjectCode(String geoObjectCode)
   {
     this.geoObjectCode = geoObjectCode;
+  }
+
+  public String getEdgeUid()
+  {
+    return edgeUid;
+  }
+
+  public void setEdgeUid(String edgeUid)
+  {
+    this.edgeUid = edgeUid;
   }
 
   public EdgeDirection getDirection()

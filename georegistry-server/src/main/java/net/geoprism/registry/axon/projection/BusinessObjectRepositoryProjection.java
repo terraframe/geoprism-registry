@@ -21,7 +21,8 @@ import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.OriginException;
-import net.geoprism.registry.axon.command.remote.RemoteBusinessObjectCreateEdgeCommand;
+import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectAddGeoObjectEvent;
+import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectAddGeoObjectEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEvent;
@@ -145,10 +146,32 @@ public class BusinessObjectRepositoryProjection
       System.out.println("Skipping remote business object: [" + event.getType() + "][" + event.getCode() + "]");
     }
   }
-
+  
   @EventHandler
   @Transaction
-  public void createEdge(RemoteBusinessObjectCreateEdgeCommand event) throws Exception
+  public void addGeoObject(RemoteBusinessObjectAddGeoObjectEvent event) throws Exception
+  {
+    BusinessEdgeType edgeType = this.edgeService.getByCodeOrThrow(event.getEdgeType());
+    
+    if (!GeoprismProperties.getOrigin().equals(edgeType.getOrigin()))
+    {
+      BusinessType type = this.typeService.getByCode(event.getType());
+      BusinessObject object = this.service.getByCode(type, event.getCode());
+      ServerGeoObjectIF geoObject = this.gObjectService.getGeoObjectByCode(event.getGeoObjectCode(), event.getGeoObjectType());
+
+      DataSource source = this.sourceService.getByCode(event.getDataSource()).orElse(null);
+
+      this.service.addGeoObject(object, edgeType, geoObject, event.getDirection(), event.getEdgeUid(), source, false);
+    }
+    else
+    {
+      System.out.println("Skipping remote add geo object: [" + event.getEdgeType() + "][" + event.getType() + "][" + event.getCode() + "]");
+    }
+  }
+  
+  @EventHandler
+  @Transaction
+  public void createEdge(RemoteBusinessObjectCreateEdgeEvent event) throws Exception
   {
     BusinessEdgeType edgeType = this.edgeService.getByCodeOrThrow(event.getEdgeType());
 

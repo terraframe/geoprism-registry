@@ -176,6 +176,8 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     BusinessObject object = this.bObjectService.newInstance(type);
     object.setValue(attribute.getName(), "Test Text");
     object.setCode(TEST_CODE);
+    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.SOURCE.getDataSource());
+
     this.bObjectService.apply(object);
 
     try
@@ -183,6 +185,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
       BusinessObject result = this.bObjectService.get(type, attribute.getName(), object.getObjectValue(attribute.getName()));
 
       Assert.assertEquals((String) object.getObjectValue("oid"), (String) result.getObjectValue("oid"));
+      Assert.assertEquals(FastTestDataset.SOURCE.getDataSource().getOid(), (String) result.getObjectValue(DefaultAttribute.DATA_SOURCE.getName()));
     }
     finally
     {
@@ -220,6 +223,8 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     BusinessObject object = this.bObjectService.newInstance(type);
     object.setValue(attribute.getName(), "Test Text");
     object.setCode(TEST_CODE);
+    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.SOURCE.getDataSource());
+
     this.bObjectService.apply(object);
 
     try
@@ -233,6 +238,34 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
       VertexServerGeoObject result = results.get(0);
 
       Assert.assertEquals(serverObject.getCode(), result.getCode());
+    }
+    finally
+    {
+      this.bObjectService.delete(object);
+    }
+  }
+
+  @Test
+  @Request
+  public void testToJson()
+  {
+    BusinessObject object = this.bObjectService.newInstance(type);
+    object.setValue(attribute.getName(), "Test Text");
+    object.setCode(TEST_CODE);
+    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.SOURCE.getDataSource());
+
+    this.bObjectService.apply(object);
+
+    try
+    {
+      JsonObject json = this.bObjectService.toJSON(object);
+
+      Assert.assertNotNull(json);
+      Assert.assertEquals(TEST_CODE, json.get("code").getAsString());
+
+      JsonObject data = json.get("data").getAsJsonObject();
+
+      Assert.assertEquals(FastTestDataset.SOURCE.getCode(), data.get(DefaultAttribute.DATA_SOURCE.getName()).getAsString());
     }
     finally
     {
