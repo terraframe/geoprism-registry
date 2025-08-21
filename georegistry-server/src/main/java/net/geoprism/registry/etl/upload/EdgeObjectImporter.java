@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -33,15 +34,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 import org.axonframework.commandhandling.gateway.CommandGateway;
-import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
-import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
-import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
-import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
-import org.commongeoregistry.adapter.metadata.AttributeFloatType;
-import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
-import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -50,12 +43,7 @@ import org.slf4j.LoggerFactory;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.runwaysdk.ProblemException;
 import com.runwaysdk.ProblemIF;
-import com.runwaysdk.business.graph.EdgeObject;
-import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.dataaccess.DuplicateDataException;
-import com.runwaysdk.dataaccess.MdAttributeClassificationDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
-import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
@@ -63,16 +51,15 @@ import com.runwaysdk.session.RequestState;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionFacade;
-import com.runwaysdk.system.AbstractClassification;
 
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
-import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.BusinessType;
+import net.geoprism.graph.GraphTypeSnapshot;
 import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.axon.command.repository.GeoObjectCompositeCommand;
+import net.geoprism.registry.axon.event.repository.AbstractGeoObjectEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectCreateEdgeEvent;
-import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
+import net.geoprism.registry.axon.event.repository.GeoObjectCreateParentEvent;
 import net.geoprism.registry.io.AmbiguousParentException;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.IgnoreRowException;
@@ -80,11 +67,8 @@ import net.geoprism.registry.io.Location;
 import net.geoprism.registry.io.ParentCodeException;
 import net.geoprism.registry.io.ParentMatchStrategy;
 import net.geoprism.registry.io.RequiredMappingException;
-import net.geoprism.registry.io.TermValueException;
 import net.geoprism.registry.jobs.ParentReferenceProblem;
 import net.geoprism.registry.jobs.RowValidationProblem;
-import net.geoprism.registry.jobs.TermReferenceProblem;
-import net.geoprism.registry.model.GeoObjectTypeMetadata;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.query.ServerCodeRestriction;
@@ -391,21 +375,28 @@ public class EdgeObjectImporter implements ObjectImporterIF
 
     try
     {
-      String sourceCode = getValue("source", row);
-      String sourceTypeCode = getValue("sourceType", row);
-      String targetCode = getValue("target", row);
-      String targetTypeCode = getValue("targetType", row);
-      Date startDate = this.configuration.getDate();
-      Date endDate = this.configuration.getDate();
-      boolean validate = this.configuration.isValidate();
+      String sourceCode = getValue("edgeSource", row);
+      String sourceTypeCode = getValue("edgeSourceType", row);
+      String targetCode = getValue("edgeTarget", row);
+      String targetTypeCode = getValue("edgeTargetType", row);
+      String dataSource = configuration.getDataSource() == null ? null : this.configuration.getDataSource().getCode();
+      Date startDate = this.configuration.getStartDate();
+      Date endDate = this.configuration.getEndDate();
+//      boolean validate = this.configuration.isValidate();
+      boolean validate = true;
       
       String graphTypeClass = GraphType.getTypeCode(this.configuration.getGraphType());
       String graphTypeCode = this.configuration.getGraphType().getCode();
       
       // TODO : What about updates?
-      // TODO : Allow for different match strategies?
 
-      GeoObjectCreateEdgeEvent event = new GeoObjectCreateEdgeEvent(sourceCode, sourceTypeCode, graphTypeClass, graphTypeCode, targetCode, targetTypeCode, startDate, endDate, validate);
+      AbstractGeoObjectEvent event;
+      if (GraphTypeSnapshot.HIERARCHY_TYPE.equals(graphTypeClass)) {
+        // String code, String type, String edgeUid, String edgeType, Date stateDate, Date endDate, String parentCode, String parentType, String dataSource, Boolean validate
+        event = new GeoObjectCreateParentEvent(sourceCode, sourceTypeCode, UUID.randomUUID().toString(), graphTypeCode, startDate, endDate, targetCode, targetTypeCode, dataSource, validate);
+      } else {
+        event = new GeoObjectCreateEdgeEvent(sourceCode, sourceTypeCode, graphTypeClass, graphTypeCode, targetCode, targetTypeCode, startDate, endDate, validate);
+      }
       
       this.commandGateway.sendAndWait(new GeoObjectCompositeCommand(sourceCode, sourceTypeCode, Arrays.asList(event)));
 
@@ -436,17 +427,38 @@ public class EdgeObjectImporter implements ObjectImporterIF
   }
   
   protected String getValue(String attribute, FeatureRow row) {
-    ShapefileFunction function = this.configuration.getFunction(attribute);
-
-    if (function == null)
-    {
+    String strategy = getStrategy(attribute);
+    
+    String target;
+    if (strategy.toUpperCase().equals("FIXED-TYPE")) {
+      target = this.getConfigValue(attribute);
+    } else if (strategy.toUpperCase().equals("CODE")) {
+      target = this.getConfigValue(attribute);
+    } else {
+      throw new UnsupportedOperationException(attribute);
+    }
+    
+    if (StringUtils.isEmpty(target)) {
       RequiredMappingException ex = new RequiredMappingException();
       ex.setAttributeLabel(attribute);
       throw ex;
     }
-
+    
+    if (strategy.toUpperCase().equals("FIXED-TYPE")) return target;
+    
+//    ShapefileFunction function = this.configuration.getFunction(attribute);
+//
+//    if (function == null)
+//    {
+//      RequiredMappingException ex = new RequiredMappingException();
+//      ex.setAttributeLabel(attribute);
+//      throw ex;
+//    }
+//    Object obj = function.getValue(row);
+    
     String result = null;
-    Object obj = function.getValue(row);
+    
+    Object obj = row.getValue(target);
 
     if (obj != null)
     {
@@ -456,11 +468,39 @@ public class EdgeObjectImporter implements ObjectImporterIF
     if (result == null || result.length() <= 0)
     {
       RequiredMappingException ex = new RequiredMappingException();
-      ex.setAttributeLabel(GeoObjectTypeMetadata.getAttributeDisplayLabel(attribute));
+      ex.setAttributeLabel(target);
       throw ex;
     }
     
     return result;
+  }
+  
+  private String getConfigValue(String attribute) {
+    if (attribute.equals("edgeSource")) {
+      return this.configuration.getEdgeSource();
+    } else if (attribute.equals("edgeSourceType")) {
+      return this.configuration.getEdgeSourceType();
+    } else if (attribute.equals("edgeTarget")) {
+      return this.configuration.getEdgeTarget();
+    } else if (attribute.equals("edgeTargetType")) {
+      return this.configuration.getEdgeTargetType();
+    } else {
+      throw new UnsupportedOperationException(attribute);
+    }
+  }
+  
+  private String getStrategy(String attribute) {
+    if (attribute.equals("edgeSource")) {
+      return this.configuration.getEdgeSourceStrategy();
+    } else if (attribute.equals("edgeSourceType")) {
+      return this.configuration.getEdgeSourceTypeStrategy();
+    } else if (attribute.equals("edgeTarget")) {
+      return this.configuration.getEdgeTargetStrategy();
+    } else if (attribute.equals("edgeTargetType")) {
+      return this.configuration.getEdgeTargetTypeStrategy();
+    } else {
+      throw new UnsupportedOperationException(attribute);
+    }
   }
 
   private void buildRecordException(String goJson, boolean isNew, Throwable t)
@@ -540,7 +580,7 @@ public class EdgeObjectImporter implements ObjectImporterIF
         final ParentMatchStrategy ms = location.getMatchStrategy();
 
         // Search
-        ServerGeoObjectQuery query = this.objectService.createQuery(location.getType(), this.configuration.getDate());
+        ServerGeoObjectQuery query = this.objectService.createQuery(location.getType(), this.configuration.getEndDate());
         query.setLimit(20);
 
         if (ms.equals(ParentMatchStrategy.CODE))
@@ -578,7 +618,7 @@ public class EdgeObjectImporter implements ObjectImporterIF
         }
         else
         {
-          query.setRestriction(new ServerSynonymRestriction(label.toString(), this.configuration.getDate(), parent, location.getHierarchy()));
+          query.setRestriction(new ServerSynonymRestriction(label.toString(), this.configuration.getEndDate(), parent, location.getHierarchy()));
         }
 
         List<ServerGeoObjectIF> results = query.getResults();

@@ -44,14 +44,6 @@ export class BusinessEdgeType {
     childType: string;
 }
 
-
-export class GraphType {
-    code: string;
-    typeCode: string;
-    label: LocalizedValue;
-    description?: LocalizedValue;
-  }
-
 export class BusinessTypeByOrg {
 
     oid: string;

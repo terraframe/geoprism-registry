@@ -31,7 +31,7 @@ export class IOService {
 
     constructor(private http: HttpClient, private eventService: EventService) { }
 
-    importSpreadsheet(configuration: ImportConfiguration): Promise<ImportConfiguration> {
+    beginImport(configuration: ImportConfiguration): Promise<ImportConfiguration> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
         });
@@ -55,21 +55,6 @@ export class IOService {
 
         return this.http
             .post<void>(environment.apiUrl + "/api/etl/cancel-import", JSON.stringify({ config: configuration }), { headers: headers })
-            .pipe(finalize(() => {
-                this.eventService.complete();
-            }))
-            .toPromise();
-    }
-
-    importShapefile(configuration: ImportConfiguration): Promise<ImportConfiguration> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        this.eventService.start();
-
-        return this.http
-            .post<ImportConfiguration>(environment.apiUrl + "/api/etl/import", JSON.stringify({ config: configuration }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

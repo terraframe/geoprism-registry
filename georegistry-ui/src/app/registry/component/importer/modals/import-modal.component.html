@@ -22,6 +22,9 @@
   <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
   <div *ngIf="configuration != null && configuration">
+    <div *ngIf="state === 'EDGE'">
+      <edge-page [configuration]="$any(configuration)" (stateChange)="onStateChange($event)"></edge-page>
+    </div>
     <div *ngIf="state === 'MAP'">
       <attributes-page [configuration]="configuration" (stateChange)="onStateChange($event)"></attributes-page>
     </div>

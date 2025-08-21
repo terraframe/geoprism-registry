@@ -24,15 +24,13 @@
     <div *ngIf="configuration != null && configuration">
       <div class="text-center">
         <h2>
-          <localize *ngIf="configuration.formatType === 'EXCEL'" key="spreadsheet.title"></localize>
-          <localize *ngIf="configuration.formatType === 'SHAPEFILE'" key="shapefile.title"></localize>
+          <localize key="io.job.configuration"></localize>
         </h2>
       </div>
 
-      <div class="form-group row">
+      <div *ngIf="configuration.fileName && configuration.fileName.length > 0" class="form-group row">
         <label class="col-md-2 text-right" for="file">
-          <localize *ngIf="configuration.formatType === 'EXCEL'" key="io.spreadsheet"></localize>
-          <localize *ngIf="configuration.formatType === 'SHAPEFILE'" key="io.shapefile"></localize>
+          <localize key="io.job.importedFile"></localize>
         </label>
         <div class="col-md-8">
           {{configuration.fileName}}
@@ -55,6 +53,7 @@
         <label class="col-md-2 text-right" for="strategy">
           <localize *ngIf="configuration.formatType === 'EXCEL'" key="spreadsheet.import.import.strategy"></localize>
           <localize *ngIf="configuration.formatType === 'SHAPEFILE'" key="shapefile.import.import.strategy"></localize>
+          <localize *ngIf="configuration.formatType === 'JSON'" key="spreadsheet.import.import.strategy"></localize>
         </label>
         <div class="col-md-8">
           {{strategy.label}}
@@ -82,66 +81,69 @@
         <div class="col-md-2"></div>
       </div>
 
-      <hr>
+      <ng-container *ngIf="configuration.type && configuration.type.attributes">
+        <hr>
 
-      <div class="text-center">
-        <h2>
-          <localize key="io.attributes.title"></localize>
-        </h2>
-      </div>
-
-      <ng-container *ngFor="let attribute of configuration.type.attributes">
-        <div class="form-group row" *ngIf="attribute.target != null">
-          <label class="col-md-2 text-right">
-            {{attribute.label.localizedValue}}
-          </label>
-          <div class="col-md-8">
-            {{attribute.target}}
-          </div>
+        <div class="text-center">
+          <h2>
+            <localize key="io.attributes.title"></localize>
+          </h2>
         </div>
+
+        <ng-container *ngFor="let attribute of configuration.type.attributes">
+          <div class="form-group row" *ngIf="attribute.target != null">
+            <label class="col-md-2 text-right">
+              {{attribute.label.localizedValue}}
+            </label>
+            <div class="col-md-8">
+              {{attribute.target}}
+            </div>
+          </div>
+        </ng-container>
       </ng-container>
 
-      <hr>
+      <ng-container *ngIf="configuration.locations && configuration.locations.length > 0">
+        <hr>
 
-      <div class="text-center">
-        <h2>
-          <localize key="io.location.title"></localize>
-        </h2>
-      </div>
+        <div class="text-center">
+          <h2>
+            <localize key="io.location.title"></localize>
+          </h2>
+        </div>
 
-      <ng-container *ngFor="let location of configuration.locations">
+        <ng-container *ngFor="let location of configuration.locations">
 
-        <div class="form-group" *ngIf="location.target != null">
-          <div class="row-holder">
-            <div class="panel panel-default">
-              <div class="panel-heading"><label> {{location.label}} </label></div>
-              <div class="panel-body">
-                <div class="form-group row">
-                  <label class="col-md-2 text-right">
-                    <localize key="io.import.modal.parent.source"></localize>
-                  </label>
-                  <div class="col-md-8">
-                    {{location.target}}
+          <div class="form-group" *ngIf="location.target != null">
+            <div class="row-holder">
+              <div class="panel panel-default">
+                <div class="panel-heading"><label> {{location.label}} </label></div>
+                <div class="panel-body">
+                  <div class="form-group row">
+                    <label class="col-md-2 text-right">
+                      <localize key="io.import.modal.parent.source"></localize>
+                    </label>
+                    <div class="col-md-8">
+                      {{location.target}}
+                    </div>
                   </div>
-                </div>
 
-                <div class="form-group row">
-                  <label class="col-md-2 text-right">
-                    <localize key="io.import.modal.parent.matchStrategy"></localize>
-                  </label>
-                  <div class="col-md-8">
-                    <localize *ngIf="location.matchStrategy === 'ALL'" key="io.modal.all"></localize>
-                    <localize *ngIf="location.matchStrategy === 'CODE'" key="io.modal.code"></localize>
-                    <localize *ngIf="location.matchStrategy === 'EXTERNAL'" key="io.modal.external"></localize>
-                    <localize *ngIf="location.matchStrategy === 'DHIS2_PATH'" key="io.modal.dhis2path"></localize>
+                  <div class="form-group row">
+                    <label class="col-md-2 text-right">
+                      <localize key="io.import.modal.parent.matchStrategy"></localize>
+                    </label>
+                    <div class="col-md-8">
+                      <localize *ngIf="location.matchStrategy === 'ALL'" key="io.modal.all"></localize>
+                      <localize *ngIf="location.matchStrategy === 'CODE'" key="io.modal.code"></localize>
+                      <localize *ngIf="location.matchStrategy === 'EXTERNAL'" key="io.modal.external"></localize>
+                      <localize *ngIf="location.matchStrategy === 'DHIS2_PATH'" key="io.modal.dhis2path"></localize>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </ng-container>
       </ng-container>
-
 
       <div class="row">
         <div class="col-md-12">
