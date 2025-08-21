@@ -44,8 +44,8 @@ public class GraphController extends RunwaySpringController
   
   public static final class GetConfigurationBody
   {
-    @NotEmpty(message = "Import type requires a value")
-    private String        type;
+    @NotEmpty private String graphTypeCode;
+    @NotEmpty private String graphTypeClass;
 
     @JsonDeserialize(using = NullableDateDeserializer.class)
     private Date          startDate;
@@ -61,14 +61,24 @@ public class GraphController extends RunwaySpringController
 
     private String        dataSource;
 
-    public String getType()
+    public String getGraphTypeCode()
     {
-      return type;
+      return graphTypeCode;
     }
 
-    public void setType(String type)
+    public void setGraphTypeCode(String graphTypeCode)
     {
-      this.type = type;
+      this.graphTypeCode = graphTypeCode;
+    }
+
+    public String getGraphTypeClass()
+    {
+      return graphTypeClass;
+    }
+
+    public void setGraphTypeClass(String graphTypeClass)
+    {
+      this.graphTypeClass = graphTypeClass;
     }
 
     public Date getStartDate()
@@ -149,7 +159,7 @@ public class GraphController extends RunwaySpringController
 
       ImportStrategy strategy = ImportStrategy.valueOf(body.getStrategy());
 
-      ObjectNode configuration = myGraphService.getJsonImportConfiguration(sessionId, body.getType(), body.getStartDate(), body.getEndDate(), body.dataSource, fileName, stream, strategy);
+      ObjectNode configuration = myGraphService.getJsonImportConfiguration(sessionId, body.getGraphTypeClass(), body.getGraphTypeCode(), body.getStartDate(), body.getEndDate(), body.dataSource, fileName, stream, strategy);
 
       return new ResponseEntity<String>(configuration.toString(), HttpStatus.OK);
     }

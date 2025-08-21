@@ -99,3 +99,15 @@ export class ImportConfiguration {
     externalIdAttributeTarget: string;
 }
 
+export class EdgeImportConfiguration extends ImportConfiguration {
+    allTypes: any[];
+    edgeSource: string;
+    edgeSourceStrategy: string;
+    edgeSourceType: string;
+    edgeSourceTypeStrategy: string;
+    edgeTarget: string;
+    edgeTargetStrategy: string;
+    edgeTargetType: string;
+    edgeTargetTypeStrategy: string;
+}
+

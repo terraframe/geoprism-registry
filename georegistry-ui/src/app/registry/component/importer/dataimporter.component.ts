@@ -27,8 +27,7 @@ import { LocalizationService, AuthService, EventService, ExternalSystemService }
 import { HierarchyService, IOService } from "@registry/service";
 import { ExternalSystem } from "@shared/model/core";
 
-import { SpreadsheetModalComponent } from "./modals/spreadsheet-modal.component";
-import { ShapefileModalComponent } from "./modals/shapefile-modal.component";
+import { ImportModalComponent } from "./modals/import-modal.component";
 import { ImportStrategy } from "@registry/model/constants";
 import { HierarchyGroupedTypeView, TypeGroupedHierachyView } from "@registry/model/hierarchy";
 import { environment } from "src/environments/environment";
@@ -284,13 +283,9 @@ export class DataImporterComponent implements OnInit {
             configuration.externalSystemId = this.externalSystemId;
             configuration.externalSystem = externalSystem;
 
-            if (this.format === "SHAPEFILE") {
-                this.bsModalRef = this.modalService.show(ShapefileModalComponent, { backdrop: true, ignoreBackdropClick: true });
-                this.bsModalRef.content.configuration = configuration;
-            } else {
-                this.bsModalRef = this.modalService.show(SpreadsheetModalComponent, { backdrop: true, ignoreBackdropClick: true });
-                this.bsModalRef.content.init(configuration);
-            }
+            this.bsModalRef = this.modalService.show(ImportModalComponent, { backdrop: true, ignoreBackdropClick: true });
+            this.bsModalRef.content.init(configuration);
+            this.bsModalRef.content.configuration = configuration;
 
         };
         this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {

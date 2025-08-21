@@ -39,7 +39,6 @@ import { PageResult } from "@shared/model/core";
 import { Subscription } from "rxjs";
 import { WebSockets } from "@shared/component/web-sockets/web-sockets";
 import { environment } from 'src/environments/environment';
-import { ShapefileModalComponent } from "../importer/modals/shapefile-modal.component";
 import { ConfigurationModalComponent } from "./configuration-modal.component";
 
 @Component({
