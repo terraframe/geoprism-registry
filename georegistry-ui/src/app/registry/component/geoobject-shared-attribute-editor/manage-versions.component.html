@@ -120,12 +120,10 @@
                                   </div>
 
                                   <div *ngIf="attributeType.type === 'source'">
-                                    <source-field 
-                                      [classNames]="(viewModel.oldValue && !isNew) ? 'has-changed': ''"
-                                      [name]="'mod-term-' + i + '-' + attributeType.code" 
-                                      [(value)]="viewModel.value"
+                                    <source-field [classNames]="(viewModel.oldValue && !isNew) ? 'has-changed': ''"
+                                      [name]="'mod-term-' + i + '-' + attributeType.code" [(value)]="viewModel.value"
                                       [disabled]="readonly || viewModel.summaryKey === 'DELETE'">
-                                      </source-field>
+                                    </source-field>
                                   </div>
 
                                   <div *ngIf="attributeType.type === 'character'">
@@ -199,6 +197,18 @@
                                             class="input-group-addon addon-alert" style="visibility:hidden;">
                                           </span>
                                         </div>
+                                      </div>
+                                    </ng-container>
+                                    <ng-container>
+                                      <div style="float:left;width:100%;">
+                                        Data Source
+
+                                        <source-field [classNames]="(viewModel.oldValue && !isNew) ? 'has-changed': ''"
+                                          [name]="'mod-term-' + i + '-' + attributeType.code"
+                                          (valueChange)="setDataSource(viewModel.editor, viewModel.value, $event)"
+                                          [value]="viewModel.value.dataSource"
+                                          [disabled]="readonly || viewModel.summaryKey === 'DELETE'">
+                                        </source-field>
                                       </div>
                                     </ng-container>
                                   </div>

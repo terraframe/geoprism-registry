@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 
 import com.runwaysdk.business.graph.EdgeObject;
@@ -174,6 +175,10 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
   // }
   // }
 
+  protected String           oldDataSource;
+
+  protected String           newDataSource;
+
   protected Optional<EdgeObject> getEdgeByOid(Collection<EdgeObject> edges, String oid)
   {
     return edges.stream().filter(edge -> edge.getOid().equals(oid)).findFirst();
@@ -227,7 +232,7 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
           Date endDate = edge.getObjectValue(GeoVertex.END_DATE);
           String uid = edge.getObjectValue(DefaultAttribute.UID.getName());
 
-          return new GeoObjectRemoveParentEvent(go.getUid(), go.getType().getCode(), uid, hierarchyType.getCode(), startDate, endDate);
+          return new GeoObjectRemoveParentEvent(go.getCode(), go.getType().getCode(), uid, hierarchyType.getCode(), startDate, endDate);
         }));
       }
       else if (this.action.equals(UpdateActionType.UPDATE))
@@ -245,7 +250,9 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
             parentCode = newValueSplit[1];
           }
 
-          return new GeoObjectUpdateParentEvent(go.getUid(), go.getType().getCode(), edgeUid, hierarchyType.getCode(), this.newStartDate, this.newEndDate, parentCode, parentTypeCode, null);
+          String source = StringUtils.isBlank(this.newDataSource) ? this.oldDataSource : this.newDataSource;
+
+          return new GeoObjectUpdateParentEvent(go.getCode(), go.getType().getCode(), edgeUid, hierarchyType.getCode(), this.newStartDate, this.newEndDate, parentCode, parentTypeCode, source);
         }));
       }
       else if (this.action.equals(UpdateActionType.CREATE))
@@ -263,8 +270,8 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
         {
           throw new ExecuteOutOfDateChangeRequestException();
         }
-
-        builder.addEvent(new GeoObjectCreateParentEvent(go.getUid(), go.getType().getCode(), UUID.randomUUID().toString(), hierarchyType.getCode(), this.newStartDate, this.newEndDate, newParent.getCode(), newParent.getType().getCode(), null, true));
+        
+        builder.addEvent(new GeoObjectCreateParentEvent(go.getCode(), go.getType().getCode(), UUID.randomUUID().toString(), hierarchyType.getCode(), this.newStartDate, this.newEndDate, newParent.getCode(), newParent.getType().getCode(), this.newDataSource, true));
       }
       else
       {

@@ -109,7 +109,7 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
         return this._isValid;
     }
 
-    validateDisplayLabel() : void {
+    validateDisplayLabel(): void {
         const service = this.changeRequestAttributeEditor.changeRequestEditor.registryService;
         const type = this.changeRequestAttributeEditor.changeRequestEditor.geoObjectType;
         const code = this.changeRequestAttributeEditor.changeRequestEditor.geoObject.attributes.code || '';
@@ -438,7 +438,12 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
     }
 
     removeEmptyDiff(): void {
-        if (this.diff != null && this.diff.newValue === undefined && this.diff.newStartDate === undefined && this.diff.newEndDate === undefined) {
+        if (this.diff != null &&
+            this.diff.newDataSource === undefined &&
+            this.diff.newValue === undefined &&
+            this.diff.newStartDate === undefined &&
+            this.diff.newEndDate === undefined) {
+
             const diffs = (this.action as UpdateAttributeOverTimeAction).attributeDiff.valuesOverTime;
 
             const index = diffs.findIndex(d => d.oid === this.diff.oid);

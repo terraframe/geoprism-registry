@@ -209,7 +209,7 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
     hasLocalizationChanged(viewModel: VersionDiffView, locale: string): boolean {
         return viewModel.editor.oldValue != null && this.getValueAtLocale(viewModel.editor.oldValue, locale) !== this.getValueAtLocale(viewModel.editor.value, locale);
     }
-    
+
     onDateChange(): any {
         setTimeout(() => {
             this.isValid = this.changeRequestAttributeEditor.validate() && this.checkDateFieldValidity();
@@ -254,7 +254,7 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
 
         this.viewModels.push(new VersionDiffView(this, editor));
     }
-    
+
     getValueAtLocale(lv: LocalizedValue, locale: string) {
         return lv == null ? null : new LocalizedValue(lv.localizedValue, lv.localeValues).getValue(locale);
     }
@@ -449,6 +449,14 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
                 editor.setParentValue(type, entry.parents);
             }
         });
+    }
+
+    setDataSource(editor: ValueOverTimeCREditor, entry: any, value: string): void {
+        entry.dataSource = value;
+
+        if (editor instanceof HierarchyCREditor) {
+            editor.setDataSource(value);
+        }
     }
 
     /**

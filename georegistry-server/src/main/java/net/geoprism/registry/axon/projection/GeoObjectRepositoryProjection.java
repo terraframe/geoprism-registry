@@ -158,6 +158,7 @@ public class GeoObjectRepositoryProjection
         newEdge.setValue(GeoVertex.START_DATE, _newStartDate);
         newEdge.setValue(GeoVertex.END_DATE, _newEndDate);
         newEdge.setValue(DefaultAttribute.UID.getName(), event.getEdgeUid());
+        newEdge.setValue(DefaultAttribute.DATA_SOURCE.getName(), this.sourceService.getByCode(event.getDataSource()).orElse(null));
         newEdge.apply();
       }
     }
@@ -171,6 +172,11 @@ public class GeoObjectRepositoryProjection
       if (event.getEndDate() != null)
       {
         edge.setValue(GeoVertex.END_DATE, event.getEndDate());
+      }
+
+      if (!StringUtils.isBlank(event.getDataSource()))
+      {
+        edge.setValue(DefaultAttribute.DATA_SOURCE.getName(), this.sourceService.getByCode(event.getDataSource()).orElse(null));
       }
 
       edge.apply();

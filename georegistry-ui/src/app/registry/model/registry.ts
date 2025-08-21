@@ -410,6 +410,7 @@ export class HierarchyOverTime {
 export class HierarchyOverTimeEntry implements TimeRangeEntry {
     startDate: string;
     endDate: string;
+    dataSource: string;
     oid: string;
     parents: { [k: string]: HierarchyOverTimeEntryParent };
     loading?: any;

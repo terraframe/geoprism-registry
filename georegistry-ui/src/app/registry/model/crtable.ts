@@ -53,6 +53,8 @@ export class ValueOverTimeDiff {
     oldEndDate: string;
     parents?: any;
     oldParents?: any;
+    newDataSource?: string;
+    oldDataSource?: string;
 }
 
 // export class AbstractAction {
@@ -155,7 +157,7 @@ export class ChangeRequest {
     contributorNotes: string;
     maintainerNotes: string;
     additionalNotes: string;
-    
+
     constructor() {
         this.isNew = true;
     }

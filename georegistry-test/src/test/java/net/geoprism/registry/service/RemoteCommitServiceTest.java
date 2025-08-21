@@ -286,6 +286,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
       ServerParentTreeNode node = parents.get(0);
 
       Assert.assertEquals(USATestData.SOURCE.getCode(), node.getSource().getCode());
+      Assert.assertEquals("b226a11b-1049-48c2-981f-a399c0db43c0", node.getUid());
       Assert.assertNotNull(node.getUid());
 
       BusinessType bType = this.bTypeService.getByCode("TEST_BUSINESS");
