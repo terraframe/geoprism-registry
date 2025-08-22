@@ -116,7 +116,7 @@ public class GeoObjectRepositoryProjection
   @Transaction
   public void updateParent(GeoObjectUpdateParentEvent event) throws Exception
   {
-    ServerGeoObjectIF object = this.service.getGeoObject(event.getCode(), event.getType());
+    ServerGeoObjectIF object = this.service.getGeoObjectByCode(event.getCode(), event.getType());
     ServerHierarchyType hierarchy = this.hService.get(event.getEdgeType());
 
     EdgeObject edge = object.getEdge(hierarchy, event.getEdgeUid());
