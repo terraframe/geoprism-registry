@@ -33,8 +33,6 @@ import { GraphTypeService } from "@registry/service/graph-type.service";
 
 import { environment } from 'src/environments/environment';
 import { GraphType } from "@registry/model/registry";
-import { Source } from "@registry/model/source";
-import { SourceService } from "@registry/service/source.service";
 
 @Component({
 
@@ -63,10 +61,6 @@ export class EdgeImporterComponent implements OnInit {
     selectedGraphType: GraphType = null;
 
     allTypes: any[];
-
-    sources: Source[];
-    
-    source: Source;
 
     dataSource: string;
 
@@ -104,18 +98,12 @@ export class EdgeImporterComponent implements OnInit {
         private eventService: EventService,
         private modalService: BsModalService,
         private localizationService: LocalizationService,
-        private sourceService: SourceService,
         private hierarchyService: HierarchyService,
         private edgeService: GraphTypeService,
         private changeDetectorRef: ChangeDetectorRef
     ) { }
 
     ngOnInit(): void {
-        this.sourceService.getAll().then(sources =>
-            this.sources = sources
-        ).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
 
         this.edgeService.get().then(edgeTypes => {
             this.graphTypes = edgeTypes;

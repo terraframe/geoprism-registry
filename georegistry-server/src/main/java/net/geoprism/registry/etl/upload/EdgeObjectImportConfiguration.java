@@ -37,36 +37,17 @@ import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
-import com.runwaysdk.session.Session;
 
-import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
-import net.geoprism.registry.BusinessEdgeType;
-import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.Organization;
-import net.geoprism.registry.graph.DataSource;
-import net.geoprism.registry.io.ConstantShapefileFunction;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.io.ImportAttributeSerializer;
-import net.geoprism.registry.io.LocalizedValueFunction;
 import net.geoprism.registry.io.Location;
-import net.geoprism.registry.io.ParentMatchStrategy;
 import net.geoprism.registry.jobs.ImportHistory;
-import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.GraphType;
-import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
-import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
-import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
-import net.geoprism.registry.service.business.ServiceFactory;
 
 public class EdgeObjectImportConfiguration extends ImportConfiguration
 {
@@ -132,8 +113,6 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
 
   private List<Location>                                   locations;
   
-  private DataSource                                       dataSource;
-
   private GraphType                                        graphType;
 
   private Date                                             startDate;
@@ -144,25 +123,11 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
   
   private LinkedList<EdgeObjectRecordedErrorException>     errors           = new LinkedList<EdgeObjectRecordedErrorException>();
   
-  private DataSourceBusinessServiceIF                      sourceService;
-
   public EdgeObjectImportConfiguration()
   {
-    this.sourceService = ServiceFactory.getBean(DataSourceBusinessServiceIF.class);
-    
     this.functions = new HashMap<String, ShapefileFunction>();
     this.locations = new LinkedList<Location>();
     this.exclusions = new HashMap<String, Set<String>>();
-  }
-  
-  public DataSource getDataSource()
-  {
-    return dataSource;
-  }
-
-  public void setDataSource(DataSource dataSource)
-  {
-    this.dataSource = dataSource;
   }
 
   public Date getStartDate()
@@ -432,11 +397,6 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
       config.put(EXCLUSIONS, exclusions);
     }
     
-    if (this.getDataSource() != null)
-    {
-      config.put(GeoObjectImportConfiguration.DATA_SOURCE, dataSource.getCode());
-    }
-    
     config.put(EDGE_SOURCE, edgeSource);
     config.put(EDGE_SOURCE_STRATEGY, edgeSourceStrategy);
     config.put(EDGE_SOURCE_TYPE, edgeSourceType);
@@ -474,13 +434,6 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
     this.setValidate(config.has(VALIDATE) ? config.getBoolean(VALIDATE) : false);
 
     this.setGraphType(GraphType.getByCode(config.getString(EdgeObjectImportConfiguration.GRAPH_TYPE_CLASS), config.getString(EdgeObjectImportConfiguration.GRAPH_TYPE_CODE)));
-
-    if (config.has(DATA_SOURCE))
-    {
-      this.sourceService.getByCode(config.getString(DATA_SOURCE)).ifPresent(source -> {
-        this.setDataSource(source);
-      });
-    }
     
     try
     {

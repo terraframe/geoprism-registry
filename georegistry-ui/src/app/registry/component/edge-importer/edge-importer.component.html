@@ -41,6 +41,10 @@
                     <h2>
                         <localize key="edge.data.import"></localize>
                     </h2>
+
+                    <label>
+                        Please note: existing data will NOT be overwritten. If existing data exists with the same values, it may cause duplicates.
+                    </label>
                 </div>
 
                 <div class="inner-col-content-wrapper" style="padding-top: 30px;margin-top: 10px;">
@@ -48,17 +52,6 @@
                     <div *ngIf="showImportConfig">
                         <div>
                             <form #form="ngForm" autocomplete="off">
-                                <div class="form-group row">
-                                    <label class="col-md-2 text-right" for="source">
-                                        Data Source
-                                    </label>
-                                    <div class="col-md-8">
-                                        <select id="source" name="dataSource" class="select-area" [(ngModel)]="source">
-                                            <option *ngFor="let s of sources" [value]="s.code">{{s.code}}</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-2"></div>
-                                </div>
 
                                 <div class="form-group row">
                                     <label class="col-md-2 text-right" for="graphTypeCode"> <localize key="edge.data.type"></localize></label>
@@ -89,6 +82,7 @@
                                     <div class="col-md-2"></div>
                                 </div>
                             -->
+                                <!--
                                 <div class="form-group row">
                                     <label class="col-md-2 text-right" for="strategy">
                                         <localize *ngIf="this.format === 'JSON'"
@@ -103,6 +97,7 @@
                                     </div>
                                     <div class="col-md-2"></div>
                                 </div>
+                            -->
                                 <div class="form-group row">
                                     <label class="col-md-2 text-right" for="startDate"><localize key="io.startDate"></localize></label>
                                     <div class="col-md-8">

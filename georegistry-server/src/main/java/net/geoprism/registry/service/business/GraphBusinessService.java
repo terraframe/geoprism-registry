@@ -64,9 +64,9 @@ public class GraphBusinessService
         obj.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.JSON.name());
         obj.put(ImportConfiguration.OBJECT_TYPE, ObjectImporterFactory.ObjectImportType.EDGE_OBJECT.name());
 
-        if (source != null) {
-          obj.put(GeoObjectImportConfiguration.DATA_SOURCE, source);
-        }
+//        if (source != null) {
+//          obj.put(GeoObjectImportConfiguration.DATA_SOURCE, source);
+//        }
         if (startDate != null) {
           obj.put(GeoObjectImportConfiguration.START_DATE, format.format(startDate));
         }

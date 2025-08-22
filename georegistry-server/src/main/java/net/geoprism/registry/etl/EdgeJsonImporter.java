@@ -54,7 +54,7 @@ public class EdgeJsonImporter
 
   protected GeoObjectCache        goCache    = new GeoObjectCache();
 
-  protected Cache<String, Object> goRidCache = new LRUCache<String, Object>(1000);
+  protected Cache<String, Object> goRidCache = new LRUCache<String, Object>(10000);
 
   private ApplicationResource     resource;
 
@@ -114,10 +114,10 @@ public class EdgeJsonImporter
           }
           else
           {
-            Object childRid = getOrFetchRid(sourceCode, sourceTypeCode);
-            Object parentRid = getOrFetchRid(targetCode, targetTypeCode);
+            Object childRid = getOrFetchRid(goRidCache, sourceCode, sourceTypeCode);
+            Object parentRid = getOrFetchRid(goRidCache, targetCode, targetTypeCode);
 
-            this.newEdge(childRid, parentRid, graphType, startDate, endDate);
+            newEdge(childRid, parentRid, graphType, startDate, endDate);
           }
 
           if (j % 500 == 0)
@@ -130,11 +130,11 @@ public class EdgeJsonImporter
 
   }
 
-  private Object getOrFetchRid(String code, String typeCode)
+  public static Object getOrFetchRid(Cache<String, Object> ridCache, String code, String typeCode)
   {
     String typeDbClassName = ServerGeoObjectType.get(typeCode).getDBClassName();
 
-    Optional<Object> optional = this.goRidCache.get(typeCode + "$#!" + code);
+    Optional<Object> optional = ridCache.get(typeCode + "$#!" + code);
 
     return optional.orElseGet(() -> {
       GraphQuery<Object> query = new GraphQuery<Object>("select @rid from " + typeDbClassName + " where code=:code;");
@@ -147,13 +147,13 @@ public class EdgeJsonImporter
         throw new DataNotFoundException("Could not find Geo-Object with code " + code + " on table " + typeDbClassName);
       }
 
-      this.goRidCache.put(typeCode + "$#!" + code, rid);
+      ridCache.put(typeCode + "$#!" + code, rid);
 
       return rid;
     });
   }
 
-  public void newEdge(Object childRid, Object parentRid, GraphType type, Date startDate, Date endDate)
+  public static void newEdge(Object childRid, Object parentRid, GraphType type, Date startDate, Date endDate)
   {
     String clazz = type.getMdEdgeDAO().getDBClassName();
 
