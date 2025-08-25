@@ -43,7 +43,7 @@
                     </h2>
 
                     <label>
-                        Please note: existing data will NOT be overwritten. If existing data exists with the same values, it may cause duplicates.
+                        Please note: existing data will NOT be overwritten. If data exists with the same values, it will cause duplicates.
                     </label>
                 </div>
 
@@ -101,7 +101,7 @@
                                 <div class="form-group row">
                                     <label class="col-md-2 text-right" for="startDate"><localize key="io.startDate"></localize></label>
                                     <div class="col-md-8">
-                                    <date-field #dateFieldComponents [(value)]="startDate" label="" [inputName]="'startDate'" (change)="checkDates()" [allowFutureDates]="true"></date-field>
+                                    <date-field #dateFieldComponents [(value)]="startDate" label="" [inputName]="'startDate'" (change)="checkDates()" [allowFutureDates]="true" [required]="true"></date-field>
                                     </div>
                                     
                                     <div class="col-md-2"></div>

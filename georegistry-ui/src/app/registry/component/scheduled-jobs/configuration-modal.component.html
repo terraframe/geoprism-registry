@@ -49,7 +49,7 @@
         <div class="col-md-2"></div>
       </div>
 
-      <div class="form-group row">
+      <div *ngIf="strategy" class="form-group row">
         <label class="col-md-2 text-right" for="strategy">
           <localize *ngIf="configuration.formatType === 'EXCEL'" key="spreadsheet.import.import.strategy"></localize>
           <localize *ngIf="configuration.formatType === 'SHAPEFILE'" key="shapefile.import.import.strategy"></localize>

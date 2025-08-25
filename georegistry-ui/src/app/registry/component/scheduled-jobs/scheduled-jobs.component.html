@@ -76,6 +76,7 @@
                           <button class="btn btn-primary" role="button">
                             <localize *ngIf="job.stage === 'IMPORT_RESOLVE' || job.stage === 'VALIDATION_RESOLVE'"
                               key="scheduledjobs.fix.problems.button"></localize>
+                            <localize *ngIf="job.stage != 'IMPORT_RESOLVE' && job.stage != 'VALIDATION_RESOLVE'" key="scheduledjobs.detail.button"></localize>
                           </button>
                         </a>
                         <button *ngIf="job.stage === 'VALIDATION_RESOLVE'" type="button"

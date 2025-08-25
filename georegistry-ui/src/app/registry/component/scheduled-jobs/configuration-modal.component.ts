@@ -57,13 +57,15 @@ export class ConfigurationModalComponent implements OnInit {
     init(configuration: any): void {
         this.configuration = configuration;
 
-        const strategies = [
-            { strategy: ImportStrategy.NEW_AND_UPDATE, label: this.localizationService.decode("etl.import.ImportStrategy.NEW_AND_UPDATE") },
-            { strategy: ImportStrategy.NEW_ONLY, label: this.localizationService.decode("etl.import.ImportStrategy.NEW_ONLY") },
-            { strategy: ImportStrategy.UPDATE_ONLY, label: this.localizationService.decode("etl.import.ImportStrategy.UPDATE_ONLY") }
-        ];
+        if (this.configuration.importStrategy && this.configuration.importStrategy.length > 0) {
+            const strategies = [
+                { strategy: ImportStrategy.NEW_AND_UPDATE, label: this.localizationService.decode("etl.import.ImportStrategy.NEW_AND_UPDATE") },
+                { strategy: ImportStrategy.NEW_ONLY, label: this.localizationService.decode("etl.import.ImportStrategy.NEW_ONLY") },
+                { strategy: ImportStrategy.UPDATE_ONLY, label: this.localizationService.decode("etl.import.ImportStrategy.UPDATE_ONLY") }
+            ];
 
-        this.strategy = strategies.find(s => s.strategy === this.configuration.importStrategy);
+            this.strategy = strategies.find(s => s.strategy === this.configuration.importStrategy);
+        }
 
         if (configuration.type && configuration.type.code) {
             this.cacheService.getTypeCache().waitOnTypes().then((types: GeoObjectType[]) => {

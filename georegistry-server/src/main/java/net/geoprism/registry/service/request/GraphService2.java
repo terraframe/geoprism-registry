@@ -19,8 +19,8 @@ public class GraphService2
   @Autowired GraphBusinessService bizService;
   
   @Request(RequestType.SESSION)
-  public ObjectNode getJsonImportConfiguration(String sessionId, String graphTypeClass, String graphTypeCode, Date startDate, Date endDate, String source, String fileName, InputStream fileStream, ImportStrategy strategy)
+  public ObjectNode getJsonImportConfiguration(String sessionId, String graphTypeClass, String graphTypeCode, Date startDate, Date endDate, String source, String fileName, InputStream fileStream)
   {
-    return bizService.getJsonImportConfiguration(graphTypeClass, graphTypeCode, startDate, endDate, source, fileName, fileStream, strategy);
+    return bizService.getJsonImportConfiguration(graphTypeClass, graphTypeCode, startDate, endDate, source, fileName, fileStream);
   }
 }
