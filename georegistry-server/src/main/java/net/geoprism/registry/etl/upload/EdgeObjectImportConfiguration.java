@@ -585,18 +585,4 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
 //    history.setOrganization(org);
 //    history.setGeoObjectTypeCode(type.getCode());
   }
-  
-  @Override
-  public void validate()
-  {
-    if (this.historyId == null || this.historyId.length() == 0)
-    {
-      throw new RuntimeException("History Id is required");
-    }
-
-    if (this.vaultFileId == null || this.vaultFileId.length() == 0)
-    {
-      throw new RuntimeException("Vault File Id is required");
-    }
-  }
 }

@@ -41,10 +41,6 @@
                     <h2>
                         <localize key="edge.data.import"></localize>
                     </h2>
-
-                    <label>
-                        Please note: existing data will NOT be overwritten. If data exists with the same values, it will cause duplicates.
-                    </label>
                 </div>
 
                 <div class="inner-col-content-wrapper" style="padding-top: 30px;margin-top: 10px;">
@@ -82,7 +78,7 @@
                                     <div class="col-md-2"></div>
                                 </div>
                             -->
-                                <!--
+                                
                                 <div class="form-group row">
                                     <label class="col-md-2 text-right" for="strategy">
                                         <localize *ngIf="this.format === 'JSON'"
@@ -96,8 +92,11 @@
                                         </select>
                                     </div>
                                     <div class="col-md-2"></div>
+                                    <label *ngIf="importStrategy === 'NEW_ONLY'">
+                                        Please note: existing data will NOT be overwritten. If data exists with the same values, it will cause duplicates. You will however receieve a performance boost by not checking for existing data.
+                                    </label>
                                 </div>
-                            -->
+                            
                                 <div class="form-group row">
                                     <label class="col-md-2 text-right" for="startDate"><localize key="io.startDate"></localize></label>
                                     <div class="col-md-8">

@@ -55,8 +55,21 @@ public class GraphController extends RunwaySpringController
 
     @NotNull(message = "file requires a value")
     private MultipartFile file;
+    
+    @NotEmpty(message = "Import Strategy requires a value")
+    private String        strategy;
 
     private String        dataSource;
+    
+    public String getStrategy()
+    {
+      return strategy;
+    }
+
+    public void setStrategy(String strategy)
+    {
+      this.strategy = strategy;
+    }
 
     public String getGraphTypeCode()
     {
@@ -143,8 +156,10 @@ public class GraphController extends RunwaySpringController
 
       SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
       format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+      
+      ImportStrategy strategy = ImportStrategy.valueOf(body.getStrategy());
 
-      ObjectNode configuration = myGraphService.getJsonImportConfiguration(sessionId, body.getGraphTypeClass(), body.getGraphTypeCode(), body.getStartDate(), body.getEndDate(), body.dataSource, fileName, stream);
+      ObjectNode configuration = myGraphService.getJsonImportConfiguration(sessionId, body.getGraphTypeClass(), body.getGraphTypeCode(), body.getStartDate(), body.getEndDate(), body.dataSource, fileName, stream, strategy);
 
       return new ResponseEntity<String>(configuration.toString(), HttpStatus.OK);
     }

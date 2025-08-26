@@ -18,15 +18,11 @@
  */
 package net.geoprism.registry.etl.upload;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -34,7 +30,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +37,9 @@ import org.slf4j.LoggerFactory;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.runwaysdk.ProblemException;
 import com.runwaysdk.ProblemIF;
+import com.runwaysdk.business.graph.EdgeObject;
+import com.runwaysdk.business.graph.GraphQuery;
+import com.runwaysdk.constants.MdAttributeDateInfo;
 import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -53,27 +51,18 @@ import com.runwaysdk.session.SessionFacade;
 
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
-import net.geoprism.graph.GraphTypeSnapshot;
+import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.cache.Cache;
 import net.geoprism.registry.cache.GeoObjectCache;
 import net.geoprism.registry.cache.LRUCache;
 import net.geoprism.registry.etl.EdgeJsonImporter;
-import net.geoprism.registry.io.AmbiguousParentException;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.io.IgnoreRowException;
 import net.geoprism.registry.io.Location;
-import net.geoprism.registry.io.ParentCodeException;
-import net.geoprism.registry.io.ParentMatchStrategy;
 import net.geoprism.registry.io.RequiredMappingException;
-import net.geoprism.registry.jobs.ParentReferenceProblem;
 import net.geoprism.registry.jobs.RowValidationProblem;
 import net.geoprism.registry.model.GraphType;
-import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.query.ServerCodeRestriction;
-import net.geoprism.registry.query.ServerExternalIdRestriction;
-import net.geoprism.registry.query.ServerGeoObjectQuery;
-import net.geoprism.registry.query.ServerSynonymRestriction;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 
@@ -393,7 +382,24 @@ public class EdgeObjectImporter implements ObjectImporterIF
       
       Object childRid = EdgeJsonImporter.getOrFetchRid(goRidCache, sourceCode, sourceTypeCode);
       Object parentRid = EdgeJsonImporter.getOrFetchRid(goRidCache, targetCode, targetTypeCode);
-      EdgeJsonImporter.newEdge(childRid, parentRid, configuration.getGraphType(), startDate, endDate);
+      
+      if (ImportStrategy.NEW_AND_UPDATE.equals(this.configuration.getImportStrategy()) && ImportStrategy.UPDATE_ONLY.equals(this.configuration.getImportStrategy())) {
+        // The only existing UNIQUE indexes that exist with edges are by oid. So we have to look this up if we want an 'update' mechanism.
+        EdgeObject edge = findEdge(childRid, parentRid, configuration.getGraphType(), startDate, endDate);
+        
+        if (edge != null) {
+          edge.setValue(MdAttributeDateInfo.START_DATE, startDate);
+          edge.setValue(MdAttributeDateInfo.END_DATE, endDate);
+          edge.apply();
+        } else if (ImportStrategy.UPDATE_ONLY.equals(this.configuration.getImportStrategy())) {
+          throw new DataNotFoundException("Could not find an edge from " + childRid + " to " + parentRid);
+        } else {
+          EdgeJsonImporter.newEdge(childRid, parentRid, configuration.getGraphType(), startDate, endDate);
+        }
+      } else {
+        EdgeJsonImporter.newEdge(childRid, parentRid, configuration.getGraphType(), startDate, endDate);
+      }
+      
 
       imported = true;
 
@@ -419,6 +425,27 @@ public class EdgeObjectImporter implements ObjectImporterIF
     }
 
     return imported;
+  }
+  
+  public static EdgeObject findEdge(Object childRid, Object parentRid, GraphType type, Date startDate, Date endDate)
+  {
+    String clazz = type.getMdEdgeDAO().getDBClassName();
+
+    String statement = "SELECT FROM " + clazz + " WHERE out = :childRid AND in = :parentRid";
+//    statement += " AND startDate=:startDate, endDate=:endDate, oid=:oid";
+
+//    GraphDBService service = GraphDBService.getInstance();
+//    GraphRequest request = service.getGraphDBRequest();
+
+    Map<String, Object> parameters = new HashMap<String, Object>();
+    parameters.put("childRid", childRid);
+    parameters.put("parentRid", parentRid);
+//    parameters.put("startDate", startDate);
+//    parameters.put("endDate", endDate);
+
+    GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement.toString(), parameters);
+
+    return query.getSingleResult();
   }
   
   protected String getValue(String attribute, FeatureRow row) {

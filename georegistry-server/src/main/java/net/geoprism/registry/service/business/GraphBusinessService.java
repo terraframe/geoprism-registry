@@ -37,7 +37,7 @@ import net.geoprism.registry.io.GeoObjectImportConfiguration;
 @Service
 public class GraphBusinessService
 {
-  public ObjectNode getJsonImportConfiguration(String graphTypeClass, String graphTypeCode, Date startDate, Date endDate, String source, String fileName, InputStream fileStream)
+  public ObjectNode getJsonImportConfiguration(String graphTypeClass, String graphTypeCode, Date startDate, Date endDate, String source, String fileName, InputStream fileStream, ImportStrategy strategy)
   {
     // Save the file to the file system
     try
@@ -57,6 +57,7 @@ public class GraphBusinessService
         ObjectNode obj = mapper.createObjectNode();
         obj.put(EdgeObjectImportConfiguration.GRAPH_TYPE_CLASS, graphTypeClass);
         obj.put(EdgeObjectImportConfiguration.GRAPH_TYPE_CODE, graphTypeCode);
+        obj.put(ImportConfiguration.IMPORT_STRATEGY, strategy.name());
         obj.set(GeoObjectImportConfiguration.SHEET, this.getSheetInformationJson(is));
         obj.put(ImportConfiguration.VAULT_FILE_ID, vf.getOid());
         obj.put(ImportConfiguration.FILE_NAME, fileName);
