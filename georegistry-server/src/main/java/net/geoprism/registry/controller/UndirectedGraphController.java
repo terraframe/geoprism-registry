@@ -69,6 +69,8 @@ public class UndirectedGraphController extends RunwaySpringController
     @NotNull
     @JsonDeserialize(using = NullableDateDeserializer.class)
     Date   endDate;
+    
+    String dataSource;
 
     public String getSourceCode()
     {
@@ -139,6 +141,16 @@ public class UndirectedGraphController extends RunwaySpringController
     {
       this.endDate = endDate;
     }
+    
+    public String getDataSource()
+    {
+      return dataSource;
+    }
+    
+    public void setDataSource(String dataSource)
+    {
+      this.dataSource = dataSource;
+    }
   }
 
   public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "undirected";
@@ -157,7 +169,7 @@ public class UndirectedGraphController extends RunwaySpringController
   @PostMapping(API_PATH + "/add-target")
   public ResponseEntity<String> addChild(@Valid @RequestBody GraphRequestBody body)
   {
-    JsonObject response = this.service.addChild(this.getSessionId(), body.sourceCode, body.sourceTypeCode, body.targetCode, body.targetTypeCode, body.undirectedRelationshipCode, body.startDate, body.endDate);
+    JsonObject response = this.service.addChild(this.getSessionId(), body.sourceCode, body.sourceTypeCode, body.targetCode, body.targetTypeCode, body.undirectedRelationshipCode, body.startDate, body.endDate, body.dataSource);
 
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }

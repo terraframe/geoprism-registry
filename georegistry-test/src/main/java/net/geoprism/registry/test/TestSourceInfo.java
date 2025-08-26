@@ -9,11 +9,14 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.graph.DataSource;
+import net.geoprism.registry.model.DataSourceDTO;
+import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
+import net.geoprism.registry.service.business.ServiceFactory;
 
 public class TestSourceInfo
 {
 
-  private String code;
+  private String     code;
 
   private DataSource dataSource;
 
@@ -26,9 +29,11 @@ public class TestSourceInfo
   public void delete()
   {
     DataSource.getByCode(code).ifPresent(source -> {
-      source.delete();
+      DataSourceBusinessServiceIF service = ServiceFactory.getBean(DataSourceBusinessServiceIF.class);
+
+      service.delete(source);
     });
-    
+
     this.dataSource = null;
   }
 
@@ -36,11 +41,14 @@ public class TestSourceInfo
   public DataSource apply()
   {
     return DataSource.getByCode(code).orElseGet(() -> {
-      this.dataSource = new DataSource();
-      dataSource.setCode(this.code);
-      dataSource.apply();
 
-      return dataSource;
+      DataSourceDTO dto = new DataSourceDTO();
+      dto.setCode(code);
+
+      DataSourceBusinessServiceIF service = ServiceFactory.getBean(DataSourceBusinessServiceIF.class);
+      this.dataSource = service.apply(dto);
+
+      return this.dataSource;
     });
 
   }

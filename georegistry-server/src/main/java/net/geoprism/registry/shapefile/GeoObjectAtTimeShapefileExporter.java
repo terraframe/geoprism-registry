@@ -77,6 +77,7 @@ import org.slf4j.LoggerFactory;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.dataaccess.graph.attributes.AttributeGraphRef.ID;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Session;
 
@@ -301,9 +302,8 @@ public class GeoObjectAtTimeShapefileExporter
             }
             else if (attribute instanceof AttributeDataSourceType)
             {
-              DataSourceBusinessServiceIF service = ServiceFactory.getBean(DataSourceBusinessServiceIF.class);
-              
-              DataSource source = service.get((String) value);
+              DataSourceBusinessServiceIF service = ServiceFactory.getBean(DataSourceBusinessServiceIF.class);              
+              DataSource source = service.getByRid(( (ID) value ).getRid().toString()).orElseThrow();
 
               builder.set(columnName, source.getCode());
             }            

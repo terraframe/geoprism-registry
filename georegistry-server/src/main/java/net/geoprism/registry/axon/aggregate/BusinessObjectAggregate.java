@@ -79,33 +79,38 @@ public class BusinessObjectAggregate
   @CommandHandler
   public BusinessObjectAggregate(BusinessObjectCompositeCreateCommand command)
   {
-    RunwayTransactionWrapper.run(() -> command.getEvents().stream().forEach(AggregateLifecycle::apply));
+    command.getEvents().stream().forEach(AggregateLifecycle::apply);
+//    RunwayTransactionWrapper.run(() -> command.getEvents().stream().forEach(AggregateLifecycle::apply));
   }
 
   @CommandHandler
   @CreationPolicy(AggregateCreationPolicy.CREATE_IF_MISSING)
   public void on(BusinessObjectCompositeCommand command)
   {
-    RunwayTransactionWrapper.run(() -> command.getEvents().stream().forEach(AggregateLifecycle::apply));
+    command.getEvents().stream().forEach(AggregateLifecycle::apply);
+//    RunwayTransactionWrapper.run(() -> command.getEvents().stream().forEach(AggregateLifecycle::apply));
   }
 
   @CommandHandler
   @CreationPolicy(AggregateCreationPolicy.CREATE_IF_MISSING)
   public void on(RemoteBusinessObjectCommand command)
   {
-    RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new RemoteBusinessObjectEvent(command.getCommitId(), command.getKey(), command.getCode(), command.getType(), command.getObject())));
+    AggregateLifecycle.apply(new RemoteBusinessObjectEvent(command.getCommitId(), command.getKey(), command.getCode(), command.getType(), command.getObject()));
+//    RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new RemoteBusinessObjectEvent(command.getCommitId(), command.getKey(), command.getCode(), command.getType(), command.getObject())));
   }
 
   @CommandHandler
   public void on(RemoteBusinessObjectAddGeoObjectCommand command)
   {
-    RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new RemoteBusinessObjectAddGeoObjectEvent(command.getCommitId(), command.getKey(), command.getCode(), command.getType(), command.getEdgeUid(), command.getEdgeType(), command.getGeoObjectType(), command.getGeoObjectCode(), command.getDirection(), command.getDataSource())));
+    AggregateLifecycle.apply(new RemoteBusinessObjectAddGeoObjectEvent(command.getCommitId(), command.getKey(), command.getCode(), command.getType(), command.getEdgeUid(), command.getEdgeType(), command.getGeoObjectType(), command.getGeoObjectCode(), command.getDirection(), command.getDataSource()));
+//    RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new RemoteBusinessObjectAddGeoObjectEvent(command.getCommitId(), command.getKey(), command.getCode(), command.getType(), command.getEdgeUid(), command.getEdgeType(), command.getGeoObjectType(), command.getGeoObjectCode(), command.getDirection(), command.getDataSource())));
   }
 
   @CommandHandler
   public void on(RemoteBusinessObjectCreateEdgeCommand command)
   {
-    RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new RemoteBusinessObjectCreateEdgeEvent(command.getCommitId(), command.getSourceCode(), command.getSourceType(), command.getEdgeUid(), command.getEdgeType(), command.getTargetCode(), command.getTargetType(), command.getDataSource())));
+    AggregateLifecycle.apply(new RemoteBusinessObjectCreateEdgeEvent(command.getCommitId(), command.getSourceCode(), command.getSourceType(), command.getEdgeUid(), command.getEdgeType(), command.getTargetCode(), command.getTargetType(), command.getDataSource()));
+//    RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new RemoteBusinessObjectCreateEdgeEvent(command.getCommitId(), command.getSourceCode(), command.getSourceType(), command.getEdgeUid(), command.getEdgeType(), command.getTargetCode(), command.getTargetType(), command.getDataSource())));
   }
 
   @EventSourcingHandler

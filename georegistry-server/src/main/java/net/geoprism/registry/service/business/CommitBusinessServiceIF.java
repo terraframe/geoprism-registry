@@ -8,8 +8,10 @@ import net.geoprism.graph.BusinessTypeSnapshot;
 import net.geoprism.graph.GeoObjectTypeSnapshot;
 import net.geoprism.graph.GraphTypeSnapshot;
 import net.geoprism.registry.Commit;
+import net.geoprism.registry.CommitHasDataSource;
 import net.geoprism.registry.Publish;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
+import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.view.CommitDTO;
 
 public interface CommitBusinessServiceIF
@@ -56,5 +58,9 @@ public interface CommitBusinessServiceIF
   List<RemoteEvent> getRemoteEvents(Commit commit, Integer chunk);
 
   List<Commit> getDependencies(Commit commit);
+
+  List<DataSource> getSources(Commit commit);
+
+  CommitHasDataSource addSource(Commit commit, DataSource source);
 
 }

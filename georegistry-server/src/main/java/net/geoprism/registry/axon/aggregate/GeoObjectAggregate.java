@@ -97,19 +97,22 @@ public class GeoObjectAggregate
   @CreationPolicy(AggregateCreationPolicy.CREATE_IF_MISSING)
   public void on(RemoteGeoObjectCommand command)
   {
-    RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new RemoteGeoObjectEvent(command.getCommitId(), command.getCode(), command.getIsNew(), command.getObject(), command.getType(), command.getStartDate(), command.getEndDate())));
+    AggregateLifecycle.apply(new RemoteGeoObjectEvent(command.getCommitId(), command.getCode(), command.getIsNew(), command.getObject(), command.getType(), command.getStartDate(), command.getEndDate()));
+//    RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new RemoteGeoObjectEvent(command.getCommitId(), command.getCode(), command.getIsNew(), command.getObject(), command.getType(), command.getStartDate(), command.getEndDate())));
   }
 
   @CommandHandler
   public void on(RemoteGeoObjectSetParentCommand command)
   {
-    RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new RemoteGeoObjectSetParentEvent(command.getCommitId(), command.getCode(), command.getType(), command.getEdgeUid(), command.getEdgeType(), command.getStartDate(), command.getEndDate(), command.getParentCode(), command.getParentType(), command.getDataSource())));
+    AggregateLifecycle.apply(new RemoteGeoObjectSetParentEvent(command.getCommitId(), command.getCode(), command.getType(), command.getEdgeUid(), command.getEdgeType(), command.getStartDate(), command.getEndDate(), command.getParentCode(), command.getParentType(), command.getDataSource()));
+//    RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new RemoteGeoObjectSetParentEvent(command.getCommitId(), command.getCode(), command.getType(), command.getEdgeUid(), command.getEdgeType(), command.getStartDate(), command.getEndDate(), command.getParentCode(), command.getParentType(), command.getDataSource())));
   }
 
   @CommandHandler
   public void on(RemoteGeoObjectCreateEdgeCommand command)
   {
-    RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new RemoteGeoObjectCreateEdgeEvent(command.getCommitId(), command.getSourceCode(), command.getSourceType(), command.getEdgeUid(), command.getEdgeType(), command.getEdgeTypeCode(), command.getStartDate(), command.getEndDate(), command.getTargetCode(), command.getTargetType())));
+    AggregateLifecycle.apply(new RemoteGeoObjectCreateEdgeEvent(command.getCommitId(), command.getSourceCode(), command.getSourceType(), command.getEdgeUid(), command.getEdgeType(), command.getEdgeTypeCode(), command.getStartDate(), command.getEndDate(), command.getTargetCode(), command.getTargetType(), command.getDataSource()));
+//    RunwayTransactionWrapper.run(() -> AggregateLifecycle.apply(new RemoteGeoObjectCreateEdgeEvent(command.getCommitId(), command.getSourceCode(), command.getSourceType(), command.getEdgeUid(), command.getEdgeType(), command.getEdgeTypeCode(), command.getStartDate(), command.getEndDate(), command.getTargetCode(), command.getTargetType(), command.getDataSource())));
   }
 
   @EventSourcingHandler

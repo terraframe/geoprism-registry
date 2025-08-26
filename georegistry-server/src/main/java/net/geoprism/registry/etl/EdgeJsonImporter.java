@@ -38,6 +38,7 @@ import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.axon.command.repository.GeoObjectCompositeCommand;
 import net.geoprism.registry.axon.event.repository.GeoObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.projection.GeoObjectRepositoryProjection;
+import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.service.business.ServiceFactory;
 
@@ -51,17 +52,20 @@ public class EdgeJsonImporter
 
   private Date                          endDate;
 
+  private DataSource                    source;
+
   private boolean                       validate;
 
   private CommandGateway                gateway;
 
   private GeoObjectRepositoryProjection projection;
 
-  public EdgeJsonImporter(ApplicationResource resource, Date startDate, Date endDate, boolean validate)
+  public EdgeJsonImporter(ApplicationResource resource, Date startDate, Date endDate, DataSource source, boolean validate)
   {
     this.resource = resource;
     this.startDate = startDate;
     this.endDate = endDate;
+    this.source = source;
     this.validate = validate;
 
     this.gateway = ServiceFactory.getBean(CommandGateway.class);
@@ -101,8 +105,8 @@ public class EdgeJsonImporter
           Date endDate = joEdge.has("endDate") ? GeoRegistryUtil.parseDate(joEdge.get("endDate").getAsString()) : this.endDate;
 
           // UID
-          GeoObjectCreateEdgeEvent event = new GeoObjectCreateEdgeEvent(sourceCode, sourceTypeCode,  graphTypeClass, graphType.getCode(), targetCode, targetTypeCode, startDate, endDate, validate);
-          
+          GeoObjectCreateEdgeEvent event = new GeoObjectCreateEdgeEvent(sourceCode, sourceTypeCode, graphTypeClass, graphType.getCode(), targetCode, targetTypeCode, startDate, endDate, source.getCode(), validate);
+
           this.gateway.sendAndWait(new GeoObjectCompositeCommand(sourceCode, sourceTypeCode, Arrays.asList(event)));
 
           if (j % 500 == 0)

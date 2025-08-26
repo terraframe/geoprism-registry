@@ -4,16 +4,23 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 
+import org.apache.commons.lang.StringUtils;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.eventhandling.DomainEventMessage;
 import org.axonframework.eventhandling.GapAwareTrackingToken;
 import org.axonframework.eventsourcing.eventstore.DomainEventStream;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 
@@ -46,19 +53,22 @@ import net.geoprism.registry.view.PublishDTO;
 public class PublishEventService
 {
   @Autowired
-  private RegistryEventStore         store;
+  private RegistryEventStore          store;
 
   @Autowired
-  private CommandGateway             gateway;
+  private CommandGateway              gateway;
 
   @Autowired
-  private GeoObjectBusinessServiceIF service;
+  private GeoObjectBusinessServiceIF  service;
 
   @Autowired
-  private PublishBusinessServiceIF   publishService;
+  private PublishBusinessServiceIF    publishService;
 
   @Autowired
-  private CommitBusinessServiceIF    commitService;
+  private DataSourceBusinessServiceIF sourceService;
+
+  @Autowired
+  private CommitBusinessServiceIF     commitService;
 
   @Transaction
   public Publish publish(PublishDTO configuration) throws InterruptedException
@@ -108,9 +118,21 @@ public class PublishEventService
     {
       Commit commit = this.commitService.create(publish, versionNumber, end.getIndex());
 
-      processEventType(start, end, EventType.OBJECT, publish, commit, dto);
+      Set<String> sources = new TreeSet<String>();
 
-      processEventType(start, end, EventType.HIERARCHY, publish, commit, dto);
+      processEventType(start, end, EventType.OBJECT, publish, commit, dto, sources);
+
+      processEventType(start, end, EventType.HIERARCHY, publish, commit, dto, sources);
+
+      // Add the sources as a dependency to the commit
+
+      sources.stream() //
+          .map(code -> this.sourceService.getByCode(code)) //
+          .filter(Optional::isPresent) //
+          .map(Optional::get) //
+          .forEach(source -> {
+            this.commitService.addSource(commit, source);
+          });
 
       return commit;
     }
@@ -118,7 +140,7 @@ public class PublishEventService
     throw new ProgrammingErrorException("Unable to publish events because no events exist");
   }
 
-  private RemoteCommand build(Publish publish, Commit commit, RepositoryEvent event)
+  private RemoteCommand build(Publish publish, Commit commit, RepositoryEvent event, Set<String> sources)
   {
     if (event instanceof GeoObjectApplyEvent)
     {
@@ -133,6 +155,13 @@ public class PublishEventService
 
       GeoObject dto = this.service.toGeoObject(object, publish.getForDate(), false);
 
+      String dataSource = (String) dto.getValue(DefaultAttribute.DATA_SOURCE.getName());
+
+      if (!StringUtils.isBlank(dataSource))
+      {
+        sources.add(dataSource);
+      }
+
       return new RemoteGeoObjectCommand(commit.getUid(), code, isNew, dto.toJSON().toString(), type, publish.getStartDate(), publish.getEndDate());
     }
     else if (event instanceof GeoObjectCreateParentEvent)
@@ -145,6 +174,11 @@ public class PublishEventService
       String parentCode = ( (GeoObjectCreateParentEvent) event ).getParentCode();
       String dataSource = ( (GeoObjectCreateParentEvent) event ).getDataSource();
 
+      if (!StringUtils.isBlank(dataSource))
+      {
+        sources.add(dataSource);
+      }
+
       return new RemoteGeoObjectSetParentCommand(commit.getUid(), code, type, edgeUid, edgeType, publish.getStartDate(), publish.getEndDate(), parentCode, parentType, dataSource);
     }
     else if (event instanceof GeoObjectUpdateParentEvent)
@@ -156,6 +190,11 @@ public class PublishEventService
       String parentType = ( (GeoObjectUpdateParentEvent) event ).getParentType();
       String parentCode = ( (GeoObjectUpdateParentEvent) event ).getParentCode();
       String dataSource = ( (GeoObjectUpdateParentEvent) event ).getDataSource();
+
+      if (!StringUtils.isBlank(dataSource))
+      {
+        sources.add(dataSource);
+      }
 
       return new RemoteGeoObjectSetParentCommand(commit.getUid(), code, type, edgeUid, edgeType, publish.getStartDate(), publish.getEndDate(), parentCode, parentType, dataSource);
     }
@@ -179,14 +218,31 @@ public class PublishEventService
       String targetType = ( (GeoObjectCreateEdgeEvent) event ).getTargetType();
       Date startDate = ( (GeoObjectCreateEdgeEvent) event ).getStartDate();
       Date endDate = ( (GeoObjectCreateEdgeEvent) event ).getEndDate();
+      String dataSource = ( (GeoObjectCreateEdgeEvent) event ).getDataSource();
 
-      return new RemoteGeoObjectCreateEdgeCommand(commit.getUid(), sourceCode, sourceType, edgeUid, edgeType, edgeTypeCode, startDate, endDate, targetCode, targetType);
+      if (!StringUtils.isBlank(dataSource))
+      {
+        sources.add(dataSource);
+      }
+
+      return new RemoteGeoObjectCreateEdgeCommand(commit.getUid(), sourceCode, sourceType, edgeUid, edgeType, edgeTypeCode, startDate, endDate, targetCode, targetType, dataSource);
     }
     else if (event instanceof BusinessObjectApplyEvent)
     {
       String oJson = ( (BusinessObjectApplyEvent) event ).getObject();
       String code = ( (BusinessObjectApplyEvent) event ).getCode();
       String type = ( (BusinessObjectApplyEvent) event ).getType();
+
+      // TODO: Use business object service to get the data source??
+      JsonObject object = JsonParser.parseString(oJson).getAsJsonObject();
+      JsonObject data = object.get("data").getAsJsonObject();
+
+      String dataSource = data.has(DefaultAttribute.DATA_SOURCE.getName()) ? data.get(DefaultAttribute.DATA_SOURCE.getName()).getAsString() : null;
+
+      if (!StringUtils.isBlank(dataSource))
+      {
+        sources.add(dataSource);
+      }
 
       return new RemoteBusinessObjectCommand(commit.getUid(), code, type, oJson);
     }
@@ -201,6 +257,11 @@ public class PublishEventService
       EdgeDirection direction = ( (BusinessObjectAddGeoObjectEvent) event ).getDirection();
       String dataSource = ( (BusinessObjectAddGeoObjectEvent) event ).getDataSource();
 
+      if (!StringUtils.isBlank(dataSource))
+      {
+        sources.add(dataSource);
+      }
+
       return new RemoteBusinessObjectAddGeoObjectCommand(commit.getUid(), code, type, edgeUid, edgeType, geoObjectType, geoObjectCode, direction, dataSource);
 
     }
@@ -214,13 +275,18 @@ public class PublishEventService
       String targetType = ( (BusinessObjectCreateEdgeEvent) event ).getTargetType();
       String dataSource = ( (BusinessObjectCreateEdgeEvent) event ).getDataSource();
 
+      if (!StringUtils.isBlank(dataSource))
+      {
+        sources.add(dataSource);
+      }
+
       return new RemoteBusinessObjectCreateEdgeCommand(commit.getUid(), sourceCode, sourceType, edgeUid, edgeType, targetCode, targetType, dataSource);
     }
 
     throw new UnsupportedOperationException("Events of type [" + event.getClass().getName() + "] do not support being published");
   }
 
-  protected void processEventType(GapAwareTrackingToken start, GapAwareTrackingToken end, EventType eventType, Publish publish, Commit commit, PublishDTO dto)
+  protected void processEventType(GapAwareTrackingToken start, GapAwareTrackingToken end, EventType eventType, Publish publish, Commit commit, PublishDTO dto, Set<String> source)
   {
     List<String> aggregateIds = this.store.getAggregateIds(start, end);
 
@@ -246,7 +312,7 @@ public class PublishEventService
         }
       }
 
-      merger.buildEvents().stream().map(event -> this.build(publish, commit, event)).forEach(command -> {
+      merger.buildEvents().stream().map(event -> this.build(publish, commit, event, source)).forEach(command -> {
         this.gateway.sendAndWait(command);
       });
     }

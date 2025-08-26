@@ -42,6 +42,7 @@ import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
 import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.config.TestApplication;
+import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -50,6 +51,7 @@ import net.geoprism.registry.service.business.BusinessEdgeTypeSnapshotBusinessSe
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.CommitBusinessServiceIF;
+import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.GraphTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeSnapshotBusinessServiceIF;
@@ -93,7 +95,10 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
   @Autowired
   private BusinessEdgeTypeSnapshotBusinessServiceIF bEdgeSnapshotService;
 
-  private static boolean                            WRITE_FILES = true;
+  @Autowired
+  private DataSourceBusinessServiceIF               sourceService;
+
+  private static boolean                            WRITE_FILES = false;
 
   @Test
   @Request
@@ -218,6 +223,11 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
           gson.toJson(undirectedGraphTypes, writer);
         }
 
+        List<DataSource> sources = this.cService.getSources(commit);
+
+        Assert.assertEquals(1, sources.size());
+        Assert.assertEquals(USATestData.SOURCE.getCode(), sources.get(0).getCode());
+
         List<RemoteEvent> events = this.cService.getRemoteEvents(commit, 0);
 
         Assert.assertEquals(47, events.size());
@@ -226,6 +236,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
         {
           mapper.writeValue(new File(directory, "publish.json"), dto);
           mapper.writeValue(new File(directory, "commit.json"), commit.toDTO(publish));
+          mapper.writeValue(new File(directory, "sources.json"), sources.stream().map(this.sourceService::toDTO).toArray());
 
           try (FileWriter writer = new FileWriter(new File(directory, "geo-object-types.json")))
           {
@@ -310,9 +321,9 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
         Assert.assertEquals(2, this.cService.getCommits(publish).size());
 
         Assert.assertEquals(1, this.cService.getRemoteEvents(commit2, 0).size());
-        
+
         List<Commit> dependencies = this.cService.getDependencies(commit2);
-        
+
         Assert.assertEquals(1, dependencies.size());
         Assert.assertEquals(commit.getUid(), dependencies.get(0).getUid());
       }

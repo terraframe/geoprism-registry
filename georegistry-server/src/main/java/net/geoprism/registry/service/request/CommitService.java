@@ -18,8 +18,10 @@ import net.geoprism.registry.Commit;
 import net.geoprism.registry.JsonCollectors;
 import net.geoprism.registry.Publish;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
+import net.geoprism.registry.model.DataSourceDTO;
 import net.geoprism.registry.service.business.BusinessEdgeTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.CommitBusinessServiceIF;
+import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.PublishBusinessServiceIF;
 import net.geoprism.registry.view.CommitDTO;
@@ -35,6 +37,9 @@ public class CommitService
 
   @Autowired
   private BusinessEdgeTypeSnapshotBusinessServiceIF edgeTypeService;
+
+  @Autowired
+  private DataSourceBusinessServiceIF               sourceService;
 
   @Autowired
   private HierarchyTypeSnapshotBusinessServiceIF    hierarchyTypeService;
@@ -131,6 +136,21 @@ public class CommitService
 
     return this.service.getDependencies(commit).stream() //
         .map(type -> type.toDTO()) //
+        .toList();
+  }
+
+  @Request(RequestType.SESSION)
+  public List<DataSourceDTO> getSources(String session, String uid)
+  {
+    Commit commit = this.service.getOrThrow(uid);
+
+    return this.service.getSources(commit).stream() //
+        .map(this.sourceService::toDTO) //
+        .map(dto -> {
+          dto.setOid(null);
+          
+          return dto;
+        }) //
         .toList();
   }
 

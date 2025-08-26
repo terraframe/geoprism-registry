@@ -30,11 +30,13 @@ public class GeoObjectCreateEdgeEvent extends AbstractGeoObjectEvent implements 
 
   private Date    endDate;
 
+  private String  dataSource;
+
   public GeoObjectCreateEdgeEvent()
   {
   }
 
-  public GeoObjectCreateEdgeEvent(String sourceCode, String sourceType, String edgeType, String edgeTypeCode, String targetCode, String targetType, Date startDate, Date endDate, Boolean validate)
+  public GeoObjectCreateEdgeEvent(String sourceCode, String sourceType, String edgeType, String edgeTypeCode, String targetCode, String targetType, Date startDate, Date endDate, String dataSource, Boolean validate)
   {
     super();
     this.edgeUid = UUID.randomUUID().toString();
@@ -46,6 +48,7 @@ public class GeoObjectCreateEdgeEvent extends AbstractGeoObjectEvent implements 
     this.targetType = targetType;
     this.startDate = startDate;
     this.endDate = endDate;
+    this.dataSource = dataSource;
     this.validate = validate;
   }
 
@@ -147,6 +150,16 @@ public class GeoObjectCreateEdgeEvent extends AbstractGeoObjectEvent implements 
   public void setEndDate(Date endDate)
   {
     this.endDate = endDate;
+  }
+  
+  public String getDataSource()
+  {
+    return dataSource;
+  }
+  
+  public void setDataSource(String dataSource)
+  {
+    this.dataSource = dataSource;
   }
 
   @Override

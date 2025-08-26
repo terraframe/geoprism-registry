@@ -43,8 +43,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
-import com.orientechnologies.common.io.OIOException;
-import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
@@ -59,19 +57,15 @@ import com.runwaysdk.resource.FileResource;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.ListType;
-import net.geoprism.registry.cache.BusinessObjectCache;
 import net.geoprism.registry.cache.Cache;
-import net.geoprism.registry.cache.GeoObjectCache;
 import net.geoprism.registry.cache.LRUCache;
 import net.geoprism.registry.etl.BusinessEdgeJsonImporter;
 import net.geoprism.registry.etl.EdgeJsonImporter;
 import net.geoprism.registry.graph.transition.TransitionEvent;
 import net.geoprism.registry.model.BusinessObject;
-import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -312,7 +306,7 @@ public class RestoreService implements RestoreServiceIF
       {
         try (FileResource resource = new FileResource(file))
         {
-          EdgeJsonImporter importer = new EdgeJsonImporter(resource, null, null, false);
+          EdgeJsonImporter importer = new EdgeJsonImporter(resource, null, null, null, false);
           importer.importData();
         }
       }

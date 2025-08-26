@@ -395,7 +395,7 @@ public class EdgeObjectImporter implements ObjectImporterIF
         // String code, String type, String edgeUid, String edgeType, Date stateDate, Date endDate, String parentCode, String parentType, String dataSource, Boolean validate
         event = new GeoObjectCreateParentEvent(sourceCode, sourceTypeCode, UUID.randomUUID().toString(), graphTypeCode, startDate, endDate, targetCode, targetTypeCode, dataSource, validate);
       } else {
-        event = new GeoObjectCreateEdgeEvent(sourceCode, sourceTypeCode, graphTypeClass, graphTypeCode, targetCode, targetTypeCode, startDate, endDate, validate);
+        event = new GeoObjectCreateEdgeEvent(sourceCode, sourceTypeCode, graphTypeClass, graphTypeCode, targetCode, targetTypeCode, startDate, endDate, dataSource, validate);
       }
       
       this.commandGateway.sendAndWait(new GeoObjectCompositeCommand(sourceCode, sourceTypeCode, Arrays.asList(event)));

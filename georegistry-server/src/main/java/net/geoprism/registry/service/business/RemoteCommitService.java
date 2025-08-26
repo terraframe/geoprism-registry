@@ -20,6 +20,7 @@ import net.geoprism.graph.UndirectedGraphTypeSnapshot;
 import net.geoprism.registry.Commit;
 import net.geoprism.registry.Publish;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
+import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.view.CommitDTO;
 import net.geoprism.registry.view.PublishDTO;
 import net.geoprism.registry.view.TypeAndCode;
@@ -47,6 +48,9 @@ public class RemoteCommitService
 
   @Autowired
   private GraphTypeSnapshotBusinessServiceIF        graphTypeService;
+
+  @Autowired
+  private DataSourceBusinessServiceIF               sourceService;
 
   @Autowired
   private SnapshotBusinessService                   snapshotService;
@@ -96,6 +100,14 @@ public class RemoteCommitService
     Commit commit = this.commitService.create(publish, remoteCommit);
 
     dependencies.forEach(dependency -> commit.addDependency(dependency).apply());
+
+    client.getDataSources(commit.getUid()).forEach(dto -> {
+      DataSource source = this.sourceService.getByCode(dto.getCode()).orElseGet(() -> {
+        return this.sourceService.apply(dto);
+      });
+      
+      this.commitService.addSource(commit, source);
+    });
 
     // Copy the metadata for the remote types
     GeoObjectTypeSnapshot root = this.snapshotService.createRoot(commit);

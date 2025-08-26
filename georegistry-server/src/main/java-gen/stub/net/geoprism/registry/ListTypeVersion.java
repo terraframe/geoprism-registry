@@ -95,6 +95,7 @@ import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.ValueObject;
 import com.runwaysdk.dataaccess.database.Database;
+import com.runwaysdk.dataaccess.graph.attributes.AttributeGraphRef.ID;
 import com.runwaysdk.dataaccess.metadata.MdAttributeCharacterDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeConcreteDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeFloatDAO;
@@ -1078,18 +1079,17 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
           {
             DataSourceBusinessServiceIF service = ServiceFactory.getBean(DataSourceBusinessServiceIF.class);
             
-            DataSource source = service.get((String) value);
+            DataSource source = service.getByRid(( (ID) value ).getRid().toString()).orElseThrow();
             
             this.setValue(business, name, source.getCode());
           }
           else if (attribute instanceof AttributeClassificationType)
           {
-            ClassificationTypeBusinessServiceIF typeService = ServiceFactory.getBean(ClassificationTypeBusinessServiceIF.class);
-            ClassificationBusinessServiceIF service = ServiceFactory.getBean(ClassificationBusinessServiceIF.class);
+            ID id = (ID) value;
 
-            String classificationTypeCode = ( (AttributeClassificationType) attribute ).getClassificationType();
-            ClassificationType classificationType = typeService.getByCode(classificationTypeCode);
-            Classification classification = service.getByOid(classificationType, (String) value).get();
+            ClassificationBusinessServiceIF service = ServiceFactory.getBean(ClassificationBusinessServiceIF.class);
+            Classification classification = service.getByRid(id.getRid().toString()).orElseThrow();
+
 
             LocalizedValue label = classification.getDisplayLabel();
 

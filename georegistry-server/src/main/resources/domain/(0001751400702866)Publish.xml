@@ -96,6 +96,28 @@
           method="Dependent" />
       </mdRelationship>
 
+      <mdBusiness
+        name="net.geoprism.registry.CommitHasDataSource"
+        label="Commit Has Source"
+        table="commit_has_source"
+        generateController="false"
+        exported="false"
+        publish="true">
+        <attributes>
+          <reference
+            name="commit"
+            label="Commit"
+            required="true"
+            type="net.geoprism.registry.Commit" />
+          <graphReference
+            name="dataSource"
+            label="Data Source"
+            required="true"
+            type="net.geoprism.registry.graph.DataSource" />
+        
+        </attributes>
+      </mdBusiness>
+
     </create>
   </doIt>
   <undoIt>

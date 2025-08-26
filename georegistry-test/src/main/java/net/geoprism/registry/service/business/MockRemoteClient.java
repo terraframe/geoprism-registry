@@ -16,6 +16,7 @@ import com.google.gson.JsonParser;
 
 import net.geoprism.graph.GeoObjectTypeSnapshot;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
+import net.geoprism.registry.model.DataSourceDTO;
 import net.geoprism.registry.view.CommitDTO;
 import net.geoprism.registry.view.PublishDTO;
 
@@ -33,6 +34,22 @@ public class MockRemoteClient implements RemoteClientIF
   public List<CommitDTO> getDependencies(String commitId)
   {
     return new LinkedList<>();
+  }
+  
+  @Override
+  public List<DataSourceDTO> getDataSources(String uid)
+  {
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectReader reader = mapper.readerFor(mapper.getTypeFactory().constructCollectionLikeType(List.class, DataSourceDTO.class));
+
+    try
+    {
+      return reader.readValue(this.getClass().getResourceAsStream("/commit/sources.json"));
+    }
+    catch (IOException e)
+    {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override

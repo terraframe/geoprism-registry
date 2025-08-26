@@ -50,12 +50,15 @@ import net.geoprism.graph.HierarchyTypeSnapshotQuery;
 import net.geoprism.graph.UndirectedGraphTypeSnapshot;
 import net.geoprism.graph.UndirectedGraphTypeSnapshotQuery;
 import net.geoprism.registry.Commit;
+import net.geoprism.registry.CommitHasDataSource;
+import net.geoprism.registry.CommitHasDataSourceQuery;
 import net.geoprism.registry.CommitHasDependencyQuery;
 import net.geoprism.registry.CommitHasSnapshotQuery;
 import net.geoprism.registry.CommitQuery;
 import net.geoprism.registry.Publish;
 import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
+import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.view.CommitDTO;
@@ -88,6 +91,9 @@ public class CommitBusinessService implements CommitBusinessServiceIF
   private SnapshotBusinessService                   snapshotService;
 
   @Autowired
+  private DataSourceBusinessServiceIF               sourceService;
+
+  @Autowired
   private RegistryEventStore                        store;
 
   @Override
@@ -114,7 +120,27 @@ public class CommitBusinessService implements CommitBusinessServiceIF
 
     this.store.delete(commit);
 
+    CommitHasDataSourceQuery query = new CommitHasDataSourceQuery(new QueryFactory());
+    query.WHERE(query.getCommit().EQ(commit));
+
+    try (OIterator<? extends CommitHasDataSource> iterator = query.getIterator())
+    {
+      iterator.getAll().stream().forEach(CommitHasDataSource::delete);
+    }
+
     commit.delete();
+  }
+
+  @Override
+  @Transaction
+  public CommitHasDataSource addSource(Commit commit, DataSource source)
+  {
+    CommitHasDataSource obj = new CommitHasDataSource();
+    obj.setCommit(commit);
+    obj.setValue(CommitHasDataSource.DATASOURCE, source.getOid());
+    obj.apply();
+
+    return obj;
   }
 
   @Override
@@ -263,6 +289,21 @@ public class CommitBusinessService implements CommitBusinessServiceIF
     snapshots.addAll(this.getUndirectedGraphTypes(commit));
 
     return snapshots;
+  }
+
+  @Override
+  public List<DataSource> getSources(Commit commit)
+  {
+    CommitHasDataSourceQuery query = new CommitHasDataSourceQuery(new QueryFactory());
+    query.WHERE(query.getCommit().EQ(commit));
+
+    try (OIterator<? extends CommitHasDataSource> iterator = query.getIterator())
+    {
+      return iterator.getAll().stream() //
+          .map(c -> c.getValue(CommitHasDataSource.DATASOURCE)) //
+          .map(oid -> sourceService.get(oid))//
+          .toList();
+    }
   }
 
   @Override

@@ -34,6 +34,7 @@ import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.config.TestApplication;
+import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -46,7 +47,6 @@ import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.CommitBusinessServiceIF;
-import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeSnapshotBusinessServiceIF;
@@ -132,7 +132,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
 
     testData = USATestData.newTestData();
     testData.getManagedOrganizations().forEach(org -> org.apply());
-    testData.getManagedSources().forEach(source -> source.apply());
+    // testData.getManagedSources().forEach(source -> source.apply());
 
     // Delete all existing publishes
     this.publishService.getAll().stream().forEach(this.publishService::delete);
@@ -182,6 +182,12 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
       GeoObjectTypeSnapshot root = this.gSnapshotService.getRoot(commit);
 
       Assert.assertNotNull(root);
+      
+      List<DataSource> sources = this.commitService.getSources(commit);
+      
+      Assert.assertEquals(1, sources.size());
+      Assert.assertEquals(USATestData.SOURCE.getCode(), sources.get(0).getCode());
+      
 
       testData.getManagedGeoObjectTypes().stream().map(t -> t.getCode()).forEach(code -> {
         GeoObjectTypeSnapshot snapshot = this.gSnapshotService.get(commit, code);
@@ -285,8 +291,8 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
 
       ServerParentTreeNode node = parents.get(0);
 
+      Assert.assertNotNull(node.getSource());
       Assert.assertEquals(USATestData.SOURCE.getCode(), node.getSource().getCode());
-      Assert.assertEquals("b226a11b-1049-48c2-981f-a399c0db43c0", node.getUid());
       Assert.assertNotNull(node.getUid());
 
       BusinessType bType = this.bTypeService.getByCode("TEST_BUSINESS");

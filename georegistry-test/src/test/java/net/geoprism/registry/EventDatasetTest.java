@@ -170,7 +170,7 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
   {
     ServerGeoObjectEventBuilder builder = new ServerGeoObjectEventBuilder(this.gObjectService);
     builder.setObject(USATestData.COLORADO.getServerObject());
-    builder.addEdge(USATestData.CANADA.getServerObject(), undirectedType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, UUID.randomUUID().toString(), false);
+    builder.addEdge(USATestData.CANADA.getServerObject(), undirectedType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, UUID.randomUUID().toString(), USATestData.SOURCE.getDataSource(), false);
 
     this.gateway.sendAndWait(builder.build());
   }
@@ -179,7 +179,7 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
   {
     ServerGeoObjectEventBuilder builder = new ServerGeoObjectEventBuilder(this.gObjectService);
     builder.setObject(USATestData.COLORADO.getServerObject());
-    builder.addEdge(USATestData.CANADA.getServerObject(), dagType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, UUID.randomUUID().toString(), false);
+    builder.addEdge(USATestData.CANADA.getServerObject(), dagType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, UUID.randomUUID().toString(), USATestData.SOURCE.getDataSource(), false);
 
     this.gateway.sendAndWait(builder.build());
   }
@@ -239,7 +239,7 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
     TestDataSet.deleteAllListData();
 
     this.store.truncate();
-    
+
     this.bProjection.clearCache();
     this.gProjection.clearCache();
   }

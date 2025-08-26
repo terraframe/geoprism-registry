@@ -27,15 +27,20 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
+import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGraphNode;
+import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 
 public abstract class GraphService
 {
   @Autowired
-  private GeoObjectBusinessServiceIF service;
+  private GeoObjectBusinessServiceIF  service;
+
+  @Autowired
+  private DataSourceBusinessServiceIF sourceService;
 
   public abstract GraphType getGraphType(String code);
 
@@ -68,17 +73,18 @@ public abstract class GraphService
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject addChild(String sessionId, String parentCode, String parentGeoObjectTypeCode, String childCode, String childGeoObjectTypeCode, String graphTypeCode, Date startDate, Date endDate)
+  public JsonObject addChild(String sessionId, String parentCode, String parentGeoObjectTypeCode, String childCode, String childGeoObjectTypeCode, String graphTypeCode, Date startDate, Date endDate, String sourceCode)
   {
 
     ServerGeoObjectIF parent = service.getGeoObjectByCode(parentCode, parentGeoObjectTypeCode, true);
     ServerGeoObjectIF child = service.getGeoObjectByCode(childCode, childGeoObjectTypeCode, true);
     GraphType graphType = this.getGraphType(graphTypeCode);
+    DataSource source = this.sourceService.getByCode(sourceCode).orElse(null);
 
     // ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanAddChild(ht.getOrganization().getCode(),
     // parent.getType(), child.getType());
 
-    ServerGraphNode node = parent.addGraphChild(child, graphType, startDate, endDate, UUID.randomUUID().toString(), true);
+    ServerGraphNode node = parent.addGraphChild(child, graphType, startDate, endDate, UUID.randomUUID().toString(), source, true);
     return node.toJSON();
   }
 

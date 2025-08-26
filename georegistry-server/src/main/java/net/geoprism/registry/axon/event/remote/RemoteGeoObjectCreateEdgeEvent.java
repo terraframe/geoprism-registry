@@ -12,7 +12,6 @@ import net.geoprism.registry.spring.DateDeserializer;
 import net.geoprism.registry.spring.DateSerializer;
 import net.geoprism.registry.view.PublishDTO;
 import net.geoprism.registry.view.TypeAndCode;
-import net.geoprism.registry.view.TypeAndCode.Type;
 
 public class RemoteGeoObjectCreateEdgeEvent implements RemoteEvent
 {
@@ -43,16 +42,18 @@ public class RemoteGeoObjectCreateEdgeEvent implements RemoteEvent
 
   private String targetCode;
 
+  private String dataSource;
+
   public RemoteGeoObjectCreateEdgeEvent()
   {
   }
 
-  public RemoteGeoObjectCreateEdgeEvent(String commitId, String sourceCode, String sourceType, String edgeUid, String edgeType, String edgeTypeCode, Date startDate, Date endDate, String targetCode, String targetType)
+  public RemoteGeoObjectCreateEdgeEvent(String commitId, String sourceCode, String sourceType, String edgeUid, String edgeType, String edgeTypeCode, Date startDate, Date endDate, String targetCode, String targetType, String dataSource)
   {
-    this(commitId, sourceCode + "#" + sourceType, sourceCode, sourceType, edgeUid, edgeType, edgeTypeCode, startDate, endDate, targetCode, targetType);
+    this(commitId, sourceCode + "#" + sourceType, sourceCode, sourceType, edgeUid, edgeType, edgeTypeCode, startDate, endDate, targetCode, targetType, dataSource);
   }
 
-  public RemoteGeoObjectCreateEdgeEvent(String commitId, String key, String sourceCode, String sourceType, String edgeUid, String edgeType, String edgeTypeCode, Date startDate, Date endDate, String targetCode, String targetType)
+  public RemoteGeoObjectCreateEdgeEvent(String commitId, String key, String sourceCode, String sourceType, String edgeUid, String edgeType, String edgeTypeCode, Date startDate, Date endDate, String targetCode, String targetType, String dataSource)
   {
     super();
     this.commitId = commitId;
@@ -66,6 +67,7 @@ public class RemoteGeoObjectCreateEdgeEvent implements RemoteEvent
     this.endDate = endDate;
     this.targetCode = targetCode;
     this.targetType = targetType;
+    this.dataSource = dataSource;
   }
 
   public String getKey()
@@ -178,10 +180,20 @@ public class RemoteGeoObjectCreateEdgeEvent implements RemoteEvent
     this.endDate = endDate;
   }
 
+  public String getDataSource()
+  {
+    return dataSource;
+  }
+
+  public void setDataSource(String dataSource)
+  {
+    this.dataSource = dataSource;
+  }
+
   @Override
   public Object toCommand()
   {
-    return new RemoteGeoObjectCreateEdgeCommand(commitId, sourceCode, sourceType, edgeUid, edgeType, edgeTypeCode, startDate, endDate, targetCode, targetType);
+    return new RemoteGeoObjectCreateEdgeCommand(commitId, sourceCode, sourceType, edgeUid, edgeType, edgeTypeCode, startDate, endDate, targetCode, targetType, dataSource);
   }
 
   @Override

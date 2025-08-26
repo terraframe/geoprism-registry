@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
@@ -69,6 +69,8 @@ public class DirectedAcyclicGraphController extends RunwaySpringController
     @NotNull
     @JsonDeserialize(using = NullableDateDeserializer.class)
     Date   endDate;
+
+    String dataSource;
 
     public String getParentCode()
     {
@@ -139,9 +141,19 @@ public class DirectedAcyclicGraphController extends RunwaySpringController
     {
       this.endDate = endDate;
     }
+    
+    public String getDataSource()
+    {
+      return dataSource;
+    }
+    
+    public void setDataSource(String dataSource)
+    {
+      this.dataSource = dataSource;
+    }
   }
 
-  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "dag";
+  public static final String          API_PATH = RegistryConstants.CONTROLLER_ROOT + "dag";
 
   @Autowired
   private DirectedAcyclicGraphService service;
@@ -163,17 +175,15 @@ public class DirectedAcyclicGraphController extends RunwaySpringController
   }
 
   @PostMapping(API_PATH + "/add-child")
-  public ResponseEntity<String> addChild(@Valid
-  @RequestBody DagRequestBody body)
+  public ResponseEntity<String> addChild(@Valid @RequestBody DagRequestBody body)
   {
-    JsonObject response = this.service.addChild(this.getSessionId(), body.parentCode, body.parentTypeCode, body.childCode, body.childTypeCode, body.directedGraphCode, body.startDate, body.endDate);
+    JsonObject response = this.service.addChild(this.getSessionId(), body.parentCode, body.parentTypeCode, body.childCode, body.childTypeCode, body.directedGraphCode, body.startDate, body.endDate, body.dataSource);
 
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
   @PostMapping(API_PATH + "/remove-child")
-  public ResponseEntity<Void> removeChild(@Valid
-  @RequestBody DagRequestBody body)
+  public ResponseEntity<Void> removeChild(@Valid @RequestBody DagRequestBody body)
   {
     this.service.removeChild(this.getSessionId(), body.parentCode, body.parentTypeCode, body.childCode, body.childTypeCode, body.directedGraphCode, body.startDate, body.endDate);
 

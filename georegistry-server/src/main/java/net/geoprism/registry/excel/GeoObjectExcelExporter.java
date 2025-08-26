@@ -53,6 +53,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.constants.MdAttributeLocalInfo;
+import com.runwaysdk.dataaccess.graph.attributes.AttributeGraphRef.ID;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Session;
 
@@ -200,7 +201,7 @@ public class GeoObjectExcelExporter
           }
           else if (attribute instanceof AttributeDataSourceType)
           {
-            DataSource source = sourceService.get((String) value);
+            DataSource source = this.sourceService.getByRid(( (ID) value ).getRid().toString()).orElseThrow();
 
             cell.setCellValue(source.getCode());
           }

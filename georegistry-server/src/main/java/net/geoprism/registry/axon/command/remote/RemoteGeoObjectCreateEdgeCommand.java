@@ -29,12 +29,14 @@ public class RemoteGeoObjectCreateEdgeCommand implements RemoteCommand
 
   private Date   endDate;
 
-  public RemoteGeoObjectCreateEdgeCommand(String commitId, String sourceCode, String sourceType, String edgeUid, String edgeType, String edgeTypeCode, Date startDate, Date endDate, String targetCode, String targetType)
+  private String dataSource;
+
+  public RemoteGeoObjectCreateEdgeCommand(String commitId, String sourceCode, String sourceType, String edgeUid, String edgeType, String edgeTypeCode, Date startDate, Date endDate, String targetCode, String targetType, String dataSource)
   {
-    this(commitId, sourceCode + "#" + sourceType, sourceCode, sourceType, edgeUid, edgeType, edgeTypeCode, startDate, endDate, targetCode, targetType);
+    this(commitId, sourceCode + "#" + sourceType, sourceCode, sourceType, edgeUid, edgeType, edgeTypeCode, startDate, endDate, targetCode, targetType, dataSource);
   }
 
-  public RemoteGeoObjectCreateEdgeCommand(String commitId, String key, String sourceCode, String sourceType, String edgeUid, String edgeType, String edgeTypeCode, Date startDate, Date endDate, String targetCode, String targetType)
+  public RemoteGeoObjectCreateEdgeCommand(String commitId, String key, String sourceCode, String sourceType, String edgeUid, String edgeType, String edgeTypeCode, Date startDate, Date endDate, String targetCode, String targetType, String dataSource)
   {
     super();
     this.commitId = commitId;
@@ -48,6 +50,7 @@ public class RemoteGeoObjectCreateEdgeCommand implements RemoteCommand
     this.endDate = endDate;
     this.targetCode = targetCode;
     this.targetType = targetType;
+    this.dataSource = dataSource;
   }
 
   public String getKey()
@@ -158,6 +161,16 @@ public class RemoteGeoObjectCreateEdgeCommand implements RemoteCommand
   public void setEndDate(Date endDate)
   {
     this.endDate = endDate;
+  }
+  
+  public String getDataSource()
+  {
+    return dataSource;
+  }
+  
+  public void setDataSource(String dataSource)
+  {
+    this.dataSource = dataSource;
   }
 
 }
