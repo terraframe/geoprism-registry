@@ -18,7 +18,6 @@ import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
@@ -53,26 +52,39 @@ import net.geoprism.registry.view.PublishDTO;
 public class PublishEventService
 {
   @Autowired
-  private RegistryEventStore          store;
+  private RegistryEventStore             store;
 
   @Autowired
-  private CommandGateway              gateway;
+  private CommandGateway                 gateway;
 
   @Autowired
-  private GeoObjectBusinessServiceIF  service;
+  private GeoObjectBusinessServiceIF     service;
 
   @Autowired
-  private PublishBusinessServiceIF    publishService;
+  private PublishBusinessServiceIF       publishService;
 
   @Autowired
-  private DataSourceBusinessServiceIF sourceService;
+  private DataSourceBusinessServiceIF    sourceService;
 
   @Autowired
-  private CommitBusinessServiceIF     commitService;
+  private CommitBusinessServiceIF        commitService;
+
+  @Autowired
+  private HierarchyTypeBusinessServiceIF hiearchyService;
 
   @Transaction
   public Publish publish(PublishDTO configuration) throws InterruptedException
   {
+    // Add all types in a hierarchy to the exported geo object types
+    List<String> codes = configuration.getHierarchyTypes() //
+        .map(code -> this.hiearchyService.get(code)) //
+        .map(hierarchy -> this.hiearchyService.getAllTypes(hierarchy)) //
+        .flatMap(List::stream) //
+        .map(type -> type.getCode()) //
+        .toList();
+
+    codes.stream().forEach(configuration::addGeoObjectType);
+
     Publish publish = this.publishService.create(configuration);
 
     createNewCommit(publish);

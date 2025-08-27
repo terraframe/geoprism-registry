@@ -146,7 +146,9 @@ public class PublishDTO
 
   public void addType(Type type, String... codes)
   {
-    Arrays.stream(codes).map(code -> TypeAndCode.build(code, type)).forEach(this.types::add);
+    Arrays.stream(codes).map(code -> TypeAndCode.build(code, type)) //
+        .filter(tac -> !this.types.contains(tac)) //
+        .forEach(this.types::add);
   }
 
   @JsonIgnore

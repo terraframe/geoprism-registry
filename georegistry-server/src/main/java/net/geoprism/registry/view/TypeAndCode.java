@@ -2,7 +2,7 @@ package net.geoprism.registry.view;
 
 import net.geoprism.graph.GraphTypeSnapshot;
 
-public class TypeAndCode
+public class TypeAndCode implements Comparable<TypeAndCode>
 {
   public static enum Type {
     GEO_OBJECT, HIERARCHY, DAG, UNDIRECTED, BUSINESS, BUSINESS_EDGE
@@ -41,6 +41,19 @@ public class TypeAndCode
     }
 
     return super.equals(obj);
+  }
+
+  @Override
+  public int compareTo(TypeAndCode arg0)
+  {
+    int compareTo = this.type.compareTo(arg0.type);
+
+    if (compareTo == 0)
+    {
+      return this.code.compareTo(arg0.code);
+    }
+
+    return compareTo;
   }
 
   public static TypeAndCode build(String code, Type type)

@@ -490,7 +490,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
       catch (Exception e)
       {
         // This is expected
-//        e.printStackTrace();
+        // e.printStackTrace();
       }
     });
 
@@ -638,5 +638,4 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
       }
     });
   }
-
 }

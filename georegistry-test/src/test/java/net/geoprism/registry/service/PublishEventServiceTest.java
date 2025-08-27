@@ -284,6 +284,75 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
   @Test
   @Request
+  public void testIncludeAllTypesFromHierarchy() throws InterruptedException
+  {
+    try
+    {
+      PublishDTO dto = new PublishDTO(USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+      dto.addHierarchyType(testData.getManagedHierarchyTypes().stream().map(t -> t.getCode()).toArray(s -> new String[s]));
+
+      Publish publish = service.publish(dto);
+
+      try
+      {
+        List<Commit> commits = this.cService.getCommits(publish);
+
+        Assert.assertEquals(1, commits.size());
+        Assert.assertTrue(dto.getGeoObjectTypes().count() > 0);
+
+        Commit commit = commits.get(0);
+
+        GeoObjectTypeSnapshot root = this.gSnapshotService.getRoot(commit);
+
+        Assert.assertNotNull(root);
+
+        dto.getGeoObjectTypes().forEach(code -> {
+          GeoObjectTypeSnapshot snapshot = this.gSnapshotService.get(commit, code);
+
+          Assert.assertNotNull(snapshot);
+
+          ServerGeoObjectType type = ServerGeoObjectType.get(code);
+
+          Assert.assertEquals(type.getSequence(), snapshot.getSequence());
+        });
+
+        dto.getHierarchyTypes().forEach(code -> {
+          HierarchyTypeSnapshot snapshot = this.hSnapshotService.get(commit, code);
+
+          Assert.assertNotNull(snapshot);
+
+          ServerHierarchyType type = ServerHierarchyType.get(code);
+
+          Assert.assertEquals(type.getObject().getSequence(), snapshot.getSequence());
+
+          List<GeoObjectTypeSnapshot> children = this.hSnapshotService.getChildren(snapshot, root);
+
+          Assert.assertTrue(children.size() > 0);
+        });
+
+        List<DataSource> sources = this.cService.getSources(commit);
+
+        Assert.assertEquals(1, sources.size());
+        Assert.assertEquals(USATestData.SOURCE.getCode(), sources.get(0).getCode());
+
+        List<RemoteEvent> events = this.cService.getRemoteEvents(commit, 0);
+
+        Assert.assertEquals(41, events.size());
+      }
+      finally
+      {
+        pService.delete(publish);
+      }
+    }
+    catch (InterruptedException e)
+    {
+      throw new RuntimeException(e);
+    }
+    // });
+  }
+
+  @Test
+  @Request
   public void testNewCommit() throws InterruptedException
   {
     try

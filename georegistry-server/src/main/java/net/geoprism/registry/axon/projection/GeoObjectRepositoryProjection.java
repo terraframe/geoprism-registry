@@ -10,6 +10,8 @@ import org.axonframework.eventhandling.EventHandler;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -55,6 +57,8 @@ import net.geoprism.registry.service.business.ServiceFactory;
 @Service
 public class GeoObjectRepositoryProjection
 {
+  private static Logger                  logger = LoggerFactory.getLogger(GeoObjectRepositoryProjection.class);
+
   @Autowired
   private HierarchyTypeBusinessServiceIF hService;
 
@@ -258,7 +262,7 @@ public class GeoObjectRepositoryProjection
     if (!GeoprismProperties.getOrigin().equals(type.getOrigin()))
     {
       GeoObject dto = GeoObject.fromJSON(ServiceFactory.getAdapter(), event.getObject());
-      
+
       ServerGeoObjectIF object = this.service.getGeoObjectByCode(event.getCode(), event.getType(), false);
 
       if (object == null)
@@ -271,7 +275,7 @@ public class GeoObjectRepositoryProjection
     }
     else
     {
-      System.out.println("Skipping remote geo object: [" + event.getType() + "][" + event.getCode() + "] - [" + event.getIsNew() + "]");
+      logger.info("Skipping remote geo object: [" + event.getType() + "][" + event.getCode() + "] - [" + event.getIsNew() + "]");
     }
   }
 
@@ -304,7 +308,7 @@ public class GeoObjectRepositoryProjection
     }
     else
     {
-      System.out.println("Skipping remote set parent: [" + event.getEdgeType() + "][" + event.getType() + "][" + event.getCode() + "]");
+      logger.info("Skipping remote set parent: [" + event.getEdgeType() + "][" + event.getType() + "][" + event.getCode() + "]");
     }
   }
 
@@ -328,7 +332,7 @@ public class GeoObjectRepositoryProjection
     }
     else
     {
-      System.out.println("Skipping remote create edge: [" + event.getEdgeType() + "][" + event.getSourceType() + "][" + event.getSourceCode() + "]");
+      logger.info("Skipping remote create edge: [" + event.getEdgeType() + "][" + event.getSourceType() + "][" + event.getSourceCode() + "]");
     }
   }
 
