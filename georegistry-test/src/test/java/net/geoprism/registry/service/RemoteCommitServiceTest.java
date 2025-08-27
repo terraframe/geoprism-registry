@@ -32,6 +32,7 @@ import net.geoprism.registry.DirectedAcyclicGraphType;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.UndirectedGraphType;
+import net.geoprism.registry.axon.aggregate.RunwayRequestWrapper;
 import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.DataSource;
@@ -182,12 +183,11 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
       GeoObjectTypeSnapshot root = this.gSnapshotService.getRoot(commit);
 
       Assert.assertNotNull(root);
-      
+
       List<DataSource> sources = this.commitService.getSources(commit);
-      
+
       Assert.assertEquals(1, sources.size());
       Assert.assertEquals(USATestData.SOURCE.getCode(), sources.get(0).getCode());
-      
 
       testData.getManagedGeoObjectTypes().stream().map(t -> t.getCode()).forEach(code -> {
         GeoObjectTypeSnapshot snapshot = this.gSnapshotService.get(commit, code);
@@ -472,6 +472,171 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
     {
       this.publishService.delete(commit.getPublish());
     }
+  }
+
+  @Test
+  public void testRollback() throws InterruptedException
+  {
+    RunwayRequestWrapper.run(() -> {
+      try
+      {
+        // Pull with failure at the end
+        Commit commit = this.service.pull(MockRemoteClientBuilderService.ERROR, "mock", new LinkedList<>());
+
+        Assert.assertNull(commit);
+
+        Assert.fail();
+      }
+      catch (Exception e)
+      {
+        // This is expected
+//        e.printStackTrace();
+      }
+    });
+
+    RunwayRequestWrapper.run(() -> {
+      // Validate that the failed commit had events
+      Assert.assertNotNull(this.gObjectService.getGeoObjectByCode(USATestData.COLORADO.getCode(), USATestData.STATE.getCode()));
+
+      // Pull again
+      Commit commit = this.service.pull(MockRemoteClientBuilderService.SOURCE, "mock", new LinkedList<>());
+
+      try
+      {
+        Assert.assertNotNull(commit);
+
+        GeoObjectTypeSnapshot root = this.gSnapshotService.getRoot(commit);
+
+        Assert.assertNotNull(root);
+
+        List<DataSource> sources = this.commitService.getSources(commit);
+
+        Assert.assertEquals(1, sources.size());
+        Assert.assertEquals(USATestData.SOURCE.getCode(), sources.get(0).getCode());
+
+        testData.getManagedGeoObjectTypes().stream().map(t -> t.getCode()).forEach(code -> {
+          GeoObjectTypeSnapshot snapshot = this.gSnapshotService.get(commit, code);
+
+          Assert.assertNotNull(snapshot);
+          Assert.assertEquals(Long.valueOf(20), snapshot.getSequence());
+
+          // Assert the actual type was created
+          ServerGeoObjectType type = ServerGeoObjectType.get(code, true);
+
+          Assert.assertNotNull(type);
+          Assert.assertEquals(Long.valueOf(20), type.getSequence());
+        });
+
+        testData.getManagedHierarchyTypes().stream().map(t -> t.getCode()).forEach(code -> {
+          HierarchyTypeSnapshot snapshot = this.hSnapshotService.get(commit, code);
+
+          Assert.assertNotNull(snapshot);
+          Assert.assertEquals(Long.valueOf(20), snapshot.getSequence());
+          Assert.assertTrue(this.hSnapshotService.getChildren(snapshot, root).size() > 0);
+
+          // Assert the actual type was created
+          ServerHierarchyType type = ServerHierarchyType.get(code, true);
+
+          Assert.assertNotNull(type);
+          Assert.assertEquals(Long.valueOf(20), type.getSequence());
+        });
+
+        Arrays.asList("TEST_BUSINESS").forEach(code -> {
+          BusinessTypeSnapshot snapshot = this.bTypeSnapshotService.get(commit, code);
+
+          Assert.assertNotNull(snapshot);
+          Assert.assertEquals(Long.valueOf(20), snapshot.getSequence());
+
+          // Assert the actual type was created
+          BusinessType type = this.bTypeService.getByCode(code);
+
+          Assert.assertNotNull(type);
+          Assert.assertEquals(Long.valueOf(20), type.getSequence());
+        });
+
+        Arrays.asList("TEST_B_EDGE", "TEST_GEO_EDGE").forEach(code -> {
+          BusinessEdgeTypeSnapshot snapshot = this.bEdgeSnapshotService.get(commit, code);
+
+          Assert.assertNotNull(snapshot);
+          Assert.assertEquals(Long.valueOf(20), snapshot.getSequence());
+
+          // Assert the actual type was created
+          Optional<BusinessEdgeType> optional = this.bEdgeService.getByCode(code);
+
+          Assert.assertTrue(optional.isPresent());
+
+          BusinessEdgeType type = optional.get();
+          Assert.assertEquals(Long.valueOf(20), type.getSequence());
+        });
+
+        Arrays.asList("TEST_DAG").forEach(code -> {
+          GraphTypeSnapshot snapshot = this.graphTypeSnapshotBusinessService.get(commit, GraphTypeSnapshot.DIRECTED_ACYCLIC_GRAPH_TYPE, code);
+
+          Assert.assertNotNull(snapshot);
+          Assert.assertEquals(Long.valueOf(20), snapshot.getSequence());
+
+          // Assert the actual type was created
+          Optional<DirectedAcyclicGraphType> optional = DirectedAcyclicGraphType.getByCode(code);
+
+          Assert.assertTrue(optional.isPresent());
+
+          DirectedAcyclicGraphType type = optional.get();
+          Assert.assertEquals(Long.valueOf(20), type.getSequence());
+        });
+
+        Arrays.asList("TEST_UN").forEach(code -> {
+          GraphTypeSnapshot snapshot = this.graphTypeSnapshotBusinessService.get(commit, GraphTypeSnapshot.UNDIRECTED_GRAPH_TYPE, code);
+
+          Assert.assertNotNull(snapshot);
+          Assert.assertEquals(Long.valueOf(20), snapshot.getSequence());
+
+          // Assert the actual type was created
+          Optional<UndirectedGraphType> optional = UndirectedGraphType.getByCode(code);
+
+          Assert.assertTrue(optional.isPresent());
+
+          UndirectedGraphType type = optional.get();
+          Assert.assertEquals(Long.valueOf(20), type.getSequence());
+        });
+
+        Assert.assertEquals(Long.valueOf(47), this.store.size());
+
+        // Test Object values
+        ServerGeoObjectIF object = this.gObjectService.getGeoObjectByCode(USATestData.COLORADO.getCode(), USATestData.STATE.getCode());
+
+        Assert.assertNotNull(object);
+        Assert.assertNotNull(object.getValue(DefaultAttribute.DATA_SOURCE.getName(), USATestData.DEFAULT_OVER_TIME_DATE));
+
+        ServerParentTreeNode nodes = this.gObjectService.getParentGeoObjects(object, USATestData.HIER_ADMIN.getServerObject(), null, false, false, USATestData.DEFAULT_OVER_TIME_DATE);
+
+        List<ServerParentTreeNode> parents = nodes.getParents();
+
+        Assert.assertEquals(1, parents.size());
+
+        ServerParentTreeNode node = parents.get(0);
+
+        Assert.assertNotNull(node.getSource());
+        Assert.assertEquals(USATestData.SOURCE.getCode(), node.getSource().getCode());
+        Assert.assertNotNull(node.getUid());
+
+        BusinessType bType = this.bTypeService.getByCode("TEST_BUSINESS");
+
+        BusinessObject bObject = this.bObjectService.getByCode(bType, "C_CODE");
+
+        Assert.assertNotNull(bObject);
+        Assert.assertNotNull(bObject.getObjectValue(DefaultAttribute.DATA_SOURCE.getName()));
+
+        BusinessEdgeType bEdgeType = this.bEdgeService.getByCode("TEST_B_EDGE").get();
+        BusinessEdgeType bGeoEdgeType = this.bEdgeService.getByCode("TEST_GEO_EDGE").get();
+
+        Assert.assertEquals(1, this.bObjectService.getParents(bObject, bEdgeType).size());
+        Assert.assertEquals(1, this.bObjectService.getGeoObjects(bObject, bGeoEdgeType, EdgeDirection.PARENT).size());
+      }
+      finally
+      {
+        this.publishService.delete(commit.getPublish());
+      }
+    });
   }
 
 }

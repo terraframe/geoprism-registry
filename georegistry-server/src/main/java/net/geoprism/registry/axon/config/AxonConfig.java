@@ -56,7 +56,7 @@ public class AxonConfig
   @Bean
   public TransactionManager transactionManager()
   {
-    // return new RunwayTransactionManager();
+//     return new RunwayTransactionManager();
     return NoTransactionManager.INSTANCE;
   }
 

@@ -99,71 +99,81 @@ public class RemoteCommitService
 
     Commit commit = this.commitService.create(publish, remoteCommit);
 
-    dependencies.forEach(dependency -> commit.addDependency(dependency).apply());
-
-    client.getDataSources(commit.getUid()).forEach(dto -> {
-      DataSource source = this.sourceService.getByCode(dto.getCode()).orElseGet(() -> {
-        return this.sourceService.apply(dto);
-      });
-      
-      this.commitService.addSource(commit, source);
-    });
-
-    // Copy the metadata for the remote types
-    GeoObjectTypeSnapshot root = this.snapshotService.createRoot(commit);
-
-    client.getBusinessTypes(commit.getUid()).forEach(element -> {
-      BusinessTypeSnapshot snapshot = this.bTypeService.create(commit, element.getAsJsonObject());
-
-      this.snapshotService.createType(snapshot);
-    });
-
-    client.getGeoObjectTypes(commit.getUid()).forEach(element -> {
-      GeoObjectTypeSnapshot snapshot = this.gTypeService.create(commit, element.getAsJsonObject());
-
-      this.snapshotService.createType(snapshot);
-    });
-
-    client.getHierarchyTypes(commit.getUid()).forEach(element -> {
-      HierarchyTypeSnapshot snapshot = (HierarchyTypeSnapshot) this.graphTypeService.create(commit, element.getAsJsonObject(), root);
-
-      this.snapshotService.createType(snapshot, root);
-    });
-
-    client.getDirectedAcyclicGraphTypes(commit.getUid()).forEach(element -> {
-      DirectedAcyclicGraphTypeSnapshot snapshot = (DirectedAcyclicGraphTypeSnapshot) this.graphTypeService.create(commit, element.getAsJsonObject(), root);
-
-      this.snapshotService.createType(snapshot, root);
-    });
-
-    client.getUndirectedGraphTypes(commit.getUid()).forEach(element -> {
-      UndirectedGraphTypeSnapshot snapshot = (UndirectedGraphTypeSnapshot) this.graphTypeService.create(commit, element.getAsJsonObject(), root);
-
-      this.snapshotService.createType(snapshot, root);
-    });
-
-    client.getBusinessEdgeTypes(commit.getUid()).forEach(element -> {
-      BusinessEdgeTypeSnapshot snapshot = this.bEdgeTypeService.create(commit, element.getAsJsonObject());
-
-      this.snapshotService.createType(snapshot);
-    });
-
-    this.metadataService.refreshMetadataCache();
-
-    int chunk = 0;
-    List<RemoteEvent> remoteEvents = null;
-
-    PublishDTO dto = publish.toDTO();
-
-    while ( ( remoteEvents = client.getRemoteEvents(commit.getUid(), chunk) ).size() > 0)
+    try
     {
-      remoteEvents.stream() //
-          .filter(event -> event.isValid(dto))//
-          .forEach(event -> {
-            this.gateway.sendAndWait(event.toCommand());
-          });
 
-      chunk++;
+      dependencies.forEach(dependency -> commit.addDependency(dependency).apply());
+
+      client.getDataSources(commit.getUid()).forEach(dto -> {
+        DataSource source = this.sourceService.getByCode(dto.getCode()).orElseGet(() -> {
+          return this.sourceService.apply(dto);
+        });
+
+        this.commitService.addSource(commit, source);
+      });
+
+      // Copy the metadata for the remote types
+      GeoObjectTypeSnapshot root = this.snapshotService.createRoot(commit);
+
+      client.getBusinessTypes(commit.getUid()).forEach(element -> {
+        BusinessTypeSnapshot snapshot = this.bTypeService.create(commit, element.getAsJsonObject());
+
+        this.snapshotService.createType(snapshot);
+      });
+
+      client.getGeoObjectTypes(commit.getUid()).forEach(element -> {
+        GeoObjectTypeSnapshot snapshot = this.gTypeService.create(commit, element.getAsJsonObject());
+
+        this.snapshotService.createType(snapshot);
+      });
+
+      client.getHierarchyTypes(commit.getUid()).forEach(element -> {
+        HierarchyTypeSnapshot snapshot = (HierarchyTypeSnapshot) this.graphTypeService.create(commit, element.getAsJsonObject(), root);
+
+        this.snapshotService.createType(snapshot, root);
+      });
+
+      client.getDirectedAcyclicGraphTypes(commit.getUid()).forEach(element -> {
+        DirectedAcyclicGraphTypeSnapshot snapshot = (DirectedAcyclicGraphTypeSnapshot) this.graphTypeService.create(commit, element.getAsJsonObject(), root);
+
+        this.snapshotService.createType(snapshot, root);
+      });
+
+      client.getUndirectedGraphTypes(commit.getUid()).forEach(element -> {
+        UndirectedGraphTypeSnapshot snapshot = (UndirectedGraphTypeSnapshot) this.graphTypeService.create(commit, element.getAsJsonObject(), root);
+
+        this.snapshotService.createType(snapshot, root);
+      });
+
+      client.getBusinessEdgeTypes(commit.getUid()).forEach(element -> {
+        BusinessEdgeTypeSnapshot snapshot = this.bEdgeTypeService.create(commit, element.getAsJsonObject());
+
+        this.snapshotService.createType(snapshot);
+      });
+
+      this.metadataService.refreshMetadataCache();
+
+      int chunk = 0;
+      List<RemoteEvent> remoteEvents = null;
+
+      PublishDTO dto = publish.toDTO();
+
+      while ( ( remoteEvents = client.getRemoteEvents(commit.getUid(), chunk) ).size() > 0)
+      {
+        remoteEvents.stream() //
+            .filter(event -> event.isValid(dto))//
+            .forEach(event -> {
+              this.gateway.sendAndWait(event.toCommand());
+            });
+
+        chunk++;
+      }
+    }
+    catch (RuntimeException e)
+    {
+      this.commitService.delete(commit);
+      
+      throw e;
     }
 
     return commit;

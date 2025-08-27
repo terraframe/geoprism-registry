@@ -258,7 +258,7 @@ public class GeoObjectRepositoryProjection
     if (!GeoprismProperties.getOrigin().equals(type.getOrigin()))
     {
       GeoObject dto = GeoObject.fromJSON(ServiceFactory.getAdapter(), event.getObject());
-
+      
       ServerGeoObjectIF object = this.service.getGeoObjectByCode(event.getCode(), event.getType(), false);
 
       if (object == null)
@@ -321,8 +321,10 @@ public class GeoObjectRepositoryProjection
       DataSource dataSource = this.sourceService.getByCode(event.getDataSource()).orElse(null);
 
       // Ensure the edge doesn't already exist
-      
-      this.newEdge(childRid, parentRid, graphType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), dataSource, false);
+      if (!this.service.exists(graphType, event.getEdgeUid()))
+      {
+        this.newEdge(childRid, parentRid, graphType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), dataSource, false);
+      }
     }
     else
     {

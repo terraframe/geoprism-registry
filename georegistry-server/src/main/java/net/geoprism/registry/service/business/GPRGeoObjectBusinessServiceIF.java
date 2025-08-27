@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.ExternalSystem;
+import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
@@ -40,5 +41,7 @@ public interface GPRGeoObjectBusinessServiceIF extends GeoObjectBusinessServiceI
   public VertexServerGeoObject getByExternalId(String externalId, ExternalSystem system, ServerGeoObjectType type);
 
   public void createExternalId(ServerGeoObjectIF sgo, ExternalSystem system, String id, ImportStrategy importStrategy);
+
+  public boolean exists(GraphType graphType, String edgeUid);
 
 }

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service.business;
 
@@ -55,6 +55,7 @@ import net.geoprism.registry.etl.upload.ClassifierVertexCache;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
+import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -102,7 +103,7 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
       throw new RuntimeException(e);
     }
   }
-  
+
   @Override
   public void apply(ServerGeoObjectIF sgo, boolean isImport, boolean validateOrigin)
   {
@@ -330,4 +331,20 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
 
     return geoObj;
   }
+  
+  @Override
+  public boolean exists(GraphType graphType, String uid)
+  {
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT COUNT(*) FROM " + graphType.getMdEdgeDAO().getDBClassName());
+    statement.append(" WHERE uid = :uid");
+
+    GraphQuery<Long> query = new GraphQuery<Long>(statement.toString());
+    query.setParameter("uid", uid);
+
+    Long count = query.getSingleResult();
+
+    return count > 0;
+  }
+
 }

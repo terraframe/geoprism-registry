@@ -13,6 +13,8 @@ public class MockRemoteClientBuilderService implements RemoteClientBuilderServic
 
   public static String DEPENDENCY   = "DEPENDENCY";
 
+  public static String ERROR        = "ERROR";
+
   @Override
   public RemoteClientIF open(final String source)
   {
@@ -23,6 +25,10 @@ public class MockRemoteClientBuilderService implements RemoteClientBuilderServic
     else if (source.equals(DEPENDENCY))
     {
       return new MockDependentRemoteClient();
+    }
+    else if (source.equals(ERROR))
+    {
+      return new MockErrorRemoteClient();
     }
 
     return new MockRemoteClient();

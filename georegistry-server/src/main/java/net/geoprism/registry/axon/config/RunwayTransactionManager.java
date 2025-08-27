@@ -1,11 +1,7 @@
 package net.geoprism.registry.axon.config;
 
-import java.util.function.Supplier;
-
 import org.axonframework.common.transaction.Transaction;
 import org.axonframework.common.transaction.TransactionManager;
-
-import com.runwaysdk.session.Request;
 
 public class RunwayTransactionManager implements TransactionManager
 {

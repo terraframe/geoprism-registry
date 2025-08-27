@@ -181,7 +181,10 @@ public class BusinessObjectRepositoryProjection
       Object childRid = getOrFetchRid(event.getTargetCode(), event.getTargetType());
       DataSource dataSource = this.sourceService.getByCode(event.getDataSource()).orElse(null);
 
-      this.newEdge(childRid, parentRid, event.getEdgeUid(), edgeType, dataSource, false);
+      if (!this.service.exists(edgeType, event.getEdgeUid()))
+      {
+        this.newEdge(childRid, parentRid, event.getEdgeUid(), edgeType, dataSource, false);
+      }
     }
     else
     {

@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
+import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,16 +27,22 @@ import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.model.BusinessObject;
+import net.geoprism.registry.model.Classification;
+import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
+import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
+import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.BusinessEdgeTypeView;
 import net.geoprism.registry.view.BusinessGeoEdgeTypeView;
 
@@ -45,27 +52,39 @@ import net.geoprism.registry.view.BusinessGeoEdgeTypeView;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class BusinessObjectTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  private static String                     TEST_CODE = "TEST_OBJ";
+  private static String                       TEST_CODE = "TEST_OBJ";
 
-  private static BusinessType               type;
+  private static BusinessType                 type;
 
-  private static AttributeType              attribute;
+  private static AttributeType                attribute;
 
-  private static BusinessEdgeType           relationshipType;
+  private static AttributeClassificationType  attributeClassification;
 
-  private static BusinessEdgeType           bGeoEdgeType;
+  private static ClassificationType           classificationType;
 
-  @Autowired
-  private BusinessTypeBusinessServiceIF     bTypeService;
+  private static Classification               root;
 
-  @Autowired
-  private BusinessEdgeTypeBusinessServiceIF bEdgeService;
+  private static BusinessEdgeType             relationshipType;
 
-  @Autowired
-  private BusinessObjectBusinessServiceIF   bObjectService;
+  private static BusinessEdgeType             bGeoEdgeType;
 
   @Autowired
-  private GeoObjectBusinessServiceIF        objectService;
+  private ClassificationTypeBusinessServiceIF cTypeService;
+
+  @Autowired
+  private ClassificationBusinessServiceIF     cService;
+
+  @Autowired
+  private BusinessTypeBusinessServiceIF       bTypeService;
+
+  @Autowired
+  private BusinessEdgeTypeBusinessServiceIF   bEdgeService;
+
+  @Autowired
+  private BusinessObjectBusinessServiceIF     bObjectService;
+
+  @Autowired
+  private GeoObjectBusinessServiceIF          objectService;
 
   @Override
   public void beforeClassSetup() throws Exception
@@ -80,6 +99,13 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
   @Request
   private void setUpClassInRequest()
   {
+    classificationType = this.cTypeService.apply(ClassificationTypeTest.createMock());
+
+    root = this.cService.newInstance(classificationType);
+    root.setCode("ROOT_OBJ");
+
+    this.cService.apply(root, null);
+
     String code = "TEST_PROG";
     String orgCode = FastTestDataset.ORG_CGOV.getCode();
     String label = "Test Prog";
@@ -92,6 +118,12 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     type = this.bTypeService.apply(object);
 
     attribute = this.bTypeService.createAttributeType(type, new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test True"), false, false, false));
+
+    attributeClassification = new AttributeClassificationType("testClassification", new LocalizedValue("Test Classification"), new LocalizedValue("Test Classification"), false, false, false);
+    attributeClassification.setClassificationType(classificationType.getCode());
+    attributeClassification.setRootTerm(root.toTerm());
+
+    attributeClassification = (AttributeClassificationType) this.bTypeService.createAttributeType(type, attributeClassification);
 
     relationshipType = this.bEdgeService.create(BusinessEdgeTypeView.build(FastTestDataset.ORG_CGOV.getCode(), "TEST_REL", new LocalizedValue("Test Rel"), new LocalizedValue("Test Rel"), type.getCode(), type.getCode()));
 
@@ -129,6 +161,16 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     {
       this.bTypeService.delete(type);
     }
+
+    if (root != null)
+    {
+      this.cService.delete(root);
+    }
+
+    if (classificationType != null)
+    {
+      this.cTypeService.delete(classificationType);
+    }
   }
 
   @Test
@@ -137,6 +179,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
   {
     BusinessObject object = this.bObjectService.newInstance(type);
     object.setCode(TEST_CODE);
+
     this.bObjectService.apply(object);
 
     try
@@ -155,6 +198,8 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
   {
     BusinessObject object = this.bObjectService.newInstance(type);
     object.setValue(attribute.getName(), "Test Text");
+    object.setValue(attributeClassification.getName(), root.getVertex());
+    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.SOURCE.getDataSource());
     object.setCode(TEST_CODE);
     this.bObjectService.apply(object);
 
@@ -247,18 +292,27 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
   @Test
   @Request
-  public void testToJson()
+  public void testToFromJson()
   {
+    String text = "Test Text";
+
     BusinessObject object = this.bObjectService.newInstance(type);
-    object.setValue(attribute.getName(), "Test Text");
+    object.setValue(attribute.getName(), text);
     object.setCode(TEST_CODE);
+    object.setValue(attributeClassification.getName(), root.getVertex());
     object.setValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.SOURCE.getDataSource());
+
+    JsonObject json = this.bObjectService.toJSON(object);
+
+    object = this.bObjectService.newInstance(type);
+
+    this.bObjectService.populate(object, json);
 
     this.bObjectService.apply(object);
 
     try
     {
-      JsonObject json = this.bObjectService.toJSON(object);
+      json = this.bObjectService.toJSON(object);
 
       Assert.assertNotNull(json);
       Assert.assertEquals(TEST_CODE, json.get("code").getAsString());
@@ -266,6 +320,8 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
       JsonObject data = json.get("data").getAsJsonObject();
 
       Assert.assertEquals(FastTestDataset.SOURCE.getCode(), data.get(DefaultAttribute.DATA_SOURCE.getName()).getAsString());
+      Assert.assertEquals(text, data.get(attribute.getName()).getAsString());
+      Assert.assertEquals(root.getCode(), data.get(attributeClassification.getName()).getAsString());
     }
     finally
     {
