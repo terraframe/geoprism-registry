@@ -209,7 +209,8 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
         state.writer.finish();
       }
 
-      ProgressService.remove(state.history.getOid());
+      if (state.history != null)
+    	  ProgressService.remove(state.history.getOid());
     }
   }
 

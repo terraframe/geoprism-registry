@@ -67,6 +67,7 @@ import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.conversion.TermConverter;
+import net.geoprism.registry.lpg.LPGPublishProgressMonitorNoOp;
 import net.geoprism.registry.lpg.TreeStrategyConfiguration;
 import net.geoprism.registry.lpg.adapter.RegistryConnectorFactory;
 import net.geoprism.registry.model.BusinessObject;
@@ -450,7 +451,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
       Assert.assertEquals(1, versions.size());
 
       LabeledPropertyGraphTypeVersion version = versions.get(0);
-      this.versionService.publish(version);
+      this.versionService.publish(new LPGPublishProgressMonitorNoOp(), version);
 
       GeoObjectTypeSnapshot graphVertex = this.objectService.get(version, USATestData.COUNTRY.getCode());
       MdVertex mdVertex = graphVertex.getGraphMdVertex();
@@ -517,7 +518,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
 
       LabeledPropertyGraphTypeVersion version = versions.get(0);
 
-      this.versionService.publish(version);
+      this.versionService.publish(new LPGPublishProgressMonitorNoOp(), version);
 
       GeoObjectTypeSnapshot graphVertex = this.objectService.get(version, USATestData.COUNTRY.getCode());
       MdVertex mdVertex = graphVertex.getGraphMdVertex();
@@ -644,7 +645,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
       Assert.assertEquals(1, versions.size());
 
       LabeledPropertyGraphTypeVersion version = versions.get(0);
-      this.versionService.publish(version);
+      this.versionService.publish(new LPGPublishProgressMonitorNoOp(), version);
 
       JsonObject export = this.exporterService.export(version);
 

@@ -71,6 +71,10 @@ public class EdgeObjectImporter implements ObjectImporterIF
   private static enum Action {
     VALIDATE, IMPORT
   }
+  
+  public static enum ReferenceStrategy {
+    CODE, FIXED_TYPE
+  }
 
   private class Task implements Runnable
   {
@@ -449,12 +453,12 @@ public class EdgeObjectImporter implements ObjectImporterIF
   }
   
   protected String getValue(String attribute, FeatureRow row) {
-    String strategy = getStrategy(attribute);
+    ReferenceStrategy strategy = getStrategy(attribute);
     
     String target;
-    if (strategy.toUpperCase().equals("FIXED-TYPE")) {
+    if (strategy.equals(ReferenceStrategy.FIXED_TYPE)) {
       target = this.getConfigValue(attribute);
-    } else if (strategy.toUpperCase().equals("CODE")) {
+    } else if (strategy.equals(ReferenceStrategy.CODE)) {
       target = this.getConfigValue(attribute);
     } else {
       throw new UnsupportedOperationException(attribute);
@@ -466,7 +470,7 @@ public class EdgeObjectImporter implements ObjectImporterIF
       throw ex;
     }
     
-    if (strategy.toUpperCase().equals("FIXED-TYPE")) return target;
+    if (strategy.equals(ReferenceStrategy.FIXED_TYPE)) return target;
     
 //    ShapefileFunction function = this.configuration.getFunction(attribute);
 //
@@ -511,7 +515,7 @@ public class EdgeObjectImporter implements ObjectImporterIF
     }
   }
   
-  private String getStrategy(String attribute) {
+  private ReferenceStrategy getStrategy(String attribute) {
     if (attribute.equals("edgeSource")) {
       return this.configuration.getEdgeSourceStrategy();
     } else if (attribute.equals("edgeSourceType")) {
