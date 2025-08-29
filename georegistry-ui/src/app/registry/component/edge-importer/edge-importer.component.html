@@ -90,11 +90,11 @@
                                             <option *ngFor="let strategy of importStrategies"
                                                 value={{strategy.strategy}}>{{strategy.label}}</option>
                                         </select>
+                                        <label *ngIf="importStrategy === 'NEW_ONLY'" style="font-size:0.9em;">
+                                            Please note: existing data will NOT be overwritten. If data exists with the same values, it will cause duplicates. You will however receieve a performance boost by not checking for existing data.
+                                        </label>
                                     </div>
                                     <div class="col-md-2"></div>
-                                    <label *ngIf="importStrategy === 'NEW_ONLY'">
-                                        Please note: existing data will NOT be overwritten. If data exists with the same values, it will cause duplicates. You will however receieve a performance boost by not checking for existing data.
-                                    </label>
                                 </div>
                             
                                 <div class="form-group row">
