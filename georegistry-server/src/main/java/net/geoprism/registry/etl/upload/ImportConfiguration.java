@@ -278,7 +278,8 @@ public abstract class ImportConfiguration
 
     this.vaultFileId = jo.getString(VAULT_FILE_ID);
 
-    this.importStrategy = ImportStrategy.valueOf(jo.getString(IMPORT_STRATEGY));
+    if (jo.has(IMPORT_STRATEGY))
+      this.importStrategy = ImportStrategy.valueOf(jo.getString(IMPORT_STRATEGY));
 
     this.fileName = jo.getString(FILE_NAME);
 
@@ -315,12 +316,14 @@ public abstract class ImportConfiguration
     jo.put(HISTORY_ID, this.historyId);
     jo.put(JOB_ID, this.jobId);
     jo.put(VAULT_FILE_ID, this.vaultFileId);
-    jo.put(IMPORT_STRATEGY, this.importStrategy.name());
     jo.put(FILE_NAME, this.fileName);
     jo.put(EXTERNAL_SYSTEM_ID, this.externalSystemId);
     jo.put(IS_EXTERNAL, this.isExternal);
     jo.put(COPY_BLANK, this.copyBlank);
     jo.put(IGNORE_PROJECTION, this.ignoreProjection);
+    
+    if (this.importStrategy != null)
+      jo.put(IMPORT_STRATEGY, this.importStrategy.name());
 
     if (this.externalIdFunction != null)
     {

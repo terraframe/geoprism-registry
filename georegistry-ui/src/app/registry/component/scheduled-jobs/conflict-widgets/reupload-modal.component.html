@@ -35,10 +35,8 @@
         <localize *ngIf="job.configuration.formatType === 'EXCEL'" key="io.spreadsheet"></localize>
       </label>
       <div class="col-md-9">
-        <input *ngIf="job.configuration.formatType === 'SHAPEFILE'" class="ghost-input" #myFile name="file" type="file"
-          ng2FileSelect [uploader]="uploader" accept=".zip" required />
-        <input *ngIf="job.configuration.formatType === 'EXCEL'" class="ghost-input" #myFile name="file" type="file"
-          ng2FileSelect [uploader]="uploader" accept=".xlsx,.zip" required />
+        <input class="ghost-input" #myFile name="file" type="file"
+          ng2FileSelect [uploader]="uploader" accept="getAcceptableFileFormats()" required />
       </div>
     </div>
 

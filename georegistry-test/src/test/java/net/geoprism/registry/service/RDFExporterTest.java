@@ -152,7 +152,7 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
 
       LabeledPropertyGraphTest.waitUntilPublished(version.getOid());
       
-//      rdfExporter.export(version, GeometryExportType.NO_GEOMETRIES, System.out);
+      rdfExporter.export(null, version, GeometryExportType.NO_GEOMETRIES, System.out);
     }
     finally
     {
@@ -212,7 +212,7 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
 
       LabeledPropertyGraphTest.waitUntilPublished(version.getOid());
 
-//      rdfExporter.export(version, GeometryExportType.NO_GEOMETRIES, System.out);
+      rdfExporter.export(null, version, GeometryExportType.NO_GEOMETRIES, System.out);
     }
     finally
     {
@@ -274,7 +274,7 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
 
       LabeledPropertyGraphTest.waitUntilPublished(version.getOid());
 
-//      rdfExporter.export(version, GeometryExportType.NO_GEOMETRIES, System.out);
+      rdfExporter.export(null, version, GeometryExportType.NO_GEOMETRIES, System.out);
     }
     finally
     {

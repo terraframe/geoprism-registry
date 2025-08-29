@@ -28,14 +28,22 @@ import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.jobs.ValidationProblem;
 import net.geoprism.registry.jobs.ValidationProblemQuery;
 import net.geoprism.registry.service.request.ETLService;
+import net.geoprism.spring.core.ApplicationContextHolder;
 
 public class SchedulerTestUtils
 {
   private static final Logger logger = LoggerFactory.getLogger(SchedulerTestUtils.class);
   
+  // in ms
+  private static final int MAX_WAIT_TIME = 2_000_000;
+  
   public static void waitUntilStatus(String histId, AllJobStatus status) throws InterruptedException
   {
     waitUntilStatus(histId, status, 1);
+  }
+  
+  private static ETLService getETLService() {
+    return ApplicationContextHolder.getBean(ETLService.class);
   }
   
   /**
@@ -63,9 +71,9 @@ public class SchedulerTestUtils
         String extra = "";
         if (hist.getStatus().get(0).equals(AllJobStatus.FEEDBACK))
         {
-          extra = new ETLService().getImportErrors(Session.getCurrentSession().getOid(), hist.getOid(), false, 10, 1).toString();
+          extra = getETLService().getImportErrors(Session.getCurrentSession().getOid(), hist.getOid(), false, 10, 1).toString();
           
-          String validationProblems = new ETLService().getValidationProblems(Session.getCurrentSession().getOid(), hist.getOid(), false, 10, 1).toString();
+          String validationProblems = getETLService().getValidationProblems(Session.getCurrentSession().getOid(), hist.getOid(), false, 10, 1).toString();
 
           extra = extra + " " + validationProblems;
         }
@@ -76,14 +84,14 @@ public class SchedulerTestUtils
       Thread.sleep(10);
 
       waitTime += 10;
-      if (waitTime > 200000)
+      if (waitTime > MAX_WAIT_TIME)
       {
         String extra = "";
         if (hist.getStatus().get(0).equals(AllJobStatus.FEEDBACK))
         {
-          extra = new ETLService().getImportErrors(Session.getCurrentSession().getOid(), hist.getOid(), false, 10, 1).toString();
+          extra = getETLService().getImportErrors(Session.getCurrentSession().getOid(), hist.getOid(), false, 10, 1).toString();
           
-          String validationProblems = new ETLService().getValidationProblems(Session.getCurrentSession().getOid(), hist.getOid(), false, 10, 1).toString();
+          String validationProblems = getETLService().getValidationProblems(Session.getCurrentSession().getOid(), hist.getOid(), false, 10, 1).toString();
 
           extra = extra + " " + validationProblems;
         }

@@ -247,7 +247,7 @@ public class GraphBusinessService
     // BOOLEAN vs NUMERIC → no clear winner; fall back to TEXT (conservative)
     return BaseType.TEXT;
   }
-
+ 
   /** Basic ISO-8601-ish date checks; extend with your accepted formats if needed. */
   private boolean looksLikeIsoDate(String s) {
     // Fast paths for common formats
