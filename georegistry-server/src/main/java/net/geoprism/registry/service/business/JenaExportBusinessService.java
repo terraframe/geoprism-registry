@@ -120,7 +120,7 @@ public class JenaExportBusinessService
 
   public void handleRemoteGeoObject(Commit commit, RemoteGeoObjectEvent event)
   {
-    System.out.println("Jena Projection - Handling remote geo object");
+    logger.trace("Jena Projection - Handling remote geo object");
 
     List<String> statements = new LinkedList<>();
 
@@ -215,7 +215,7 @@ public class JenaExportBusinessService
 
   public void handleRemoteParent(Commit commit, RemoteGeoObjectSetParentEvent event)
   {
-    System.out.println("Jena Projection - Handling remote set parent");
+    logger.trace("Jena Projection - Handling remote set parent");
 
     Model model = ModelFactory.createDefaultModel();
 
@@ -240,7 +240,7 @@ public class JenaExportBusinessService
 
   public void handleRemoteCreateEdge(Commit commit, RemoteGeoObjectCreateEdgeEvent event)
   {
-    System.out.println("Jena Projection - Handling remote create edge");
+    logger.trace("Jena Projection - Handling remote create edge");
 
     Model model = ModelFactory.createDefaultModel();
 
@@ -254,7 +254,7 @@ public class JenaExportBusinessService
 
   public void handleRemoteBusinessObject(Commit commit, RemoteBusinessObjectEvent event)
   {
-    System.out.println("Jena Projection - Handling remote business object");
+    logger.trace("Jena Projection - Handling remote business object");
 
     List<String> statements = new LinkedList<>();
 
@@ -325,7 +325,7 @@ public class JenaExportBusinessService
 
   public void handleRemoteAddGeoObject(Commit commit, RemoteBusinessObjectAddGeoObjectEvent event)
   {
-    System.out.println("Jena Projection - Handling remote add geo object");
+    logger.trace("Jena Projection - Handling remote add geo object");
 
     Model model = ModelFactory.createDefaultModel();
 
@@ -350,7 +350,7 @@ public class JenaExportBusinessService
 
   public void handleRemoteCreateEdge(Commit commit, RemoteBusinessObjectCreateEdgeEvent event)
   {
-    System.out.println("Jena Projection - Handling remote create edge");
+    logger.trace("Jena Projection - Handling remote create edge");
 
     Model model = ModelFactory.createDefaultModel();
 
