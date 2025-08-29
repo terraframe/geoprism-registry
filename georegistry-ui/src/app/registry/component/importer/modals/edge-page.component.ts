@@ -42,23 +42,22 @@ export class EdgePageComponent implements OnInit {
 
     ngOnInit(): void {
         this.configuration.edgeSourceStrategy = 'CODE';
-        this.configuration.edgeSourceTypeStrategy = 'FIXED-TYPE';
+        this.configuration.edgeSourceTypeStrategy = 'FIXED_TYPE';
         this.configuration.edgeTargetStrategy = 'CODE';
-        this.configuration.edgeTargetTypeStrategy = 'FIXED-TYPE';
+        this.configuration.edgeTargetTypeStrategy = 'FIXED_TYPE';
 
         this.allTypes = [
-            ...this.configuration.allTypes.map(t => ({code: t.code, label: t.label}))
+            ...this.configuration.allTypes.map(t => ({code: t.code, label: t.label.localizedValue}))
         ];
         this.textAttrs = [
             ...this.configuration.sheet.attributes['text'].map(a => ({code: a, label: a}))
         ];
 
         this.initialized = true;
-        console.log(this.configuration.allTypes);
     }
 
     getTypeOptions(strategy: string) {
-        if (strategy === 'FIXED-TYPE') {
+        if (strategy === 'FIXED_TYPE') {
             return this.allTypes;
         } else {
             return this.textAttrs;

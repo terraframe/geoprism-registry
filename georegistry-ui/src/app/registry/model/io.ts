@@ -100,7 +100,7 @@ export class ImportConfiguration {
 }
 
 export class EdgeImportConfiguration extends ImportConfiguration {
-    allTypes: any[];
+    allTypes: GeoObjectType[];
     edgeSource: string;
     edgeSourceStrategy: string;
     edgeSourceType: string;
