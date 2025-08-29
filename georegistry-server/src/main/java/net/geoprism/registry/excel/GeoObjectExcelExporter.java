@@ -201,7 +201,7 @@ public class GeoObjectExcelExporter
           }
           else if (attribute instanceof AttributeDataSourceType)
           {
-            DataSource source = this.sourceService.getByRid(( (ID) value ).getRid().toString()).orElseThrow();
+            DataSource source = this.sourceService.get(( (String) value ));
 
             cell.setCellValue(source.getCode());
           }

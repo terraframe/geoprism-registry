@@ -303,7 +303,7 @@ public class GeoObjectAtTimeShapefileExporter
             else if (attribute instanceof AttributeDataSourceType)
             {
               DataSourceBusinessServiceIF service = ServiceFactory.getBean(DataSourceBusinessServiceIF.class);              
-              DataSource source = service.getByRid(( (ID) value ).getRid().toString()).orElseThrow();
+              DataSource source = service.get(( (String) value ));
 
               builder.set(columnName, source.getCode());
             }            

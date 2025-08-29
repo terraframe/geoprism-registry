@@ -1079,17 +1079,18 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
           {
             DataSourceBusinessServiceIF service = ServiceFactory.getBean(DataSourceBusinessServiceIF.class);
             
-            DataSource source = service.getByRid(( (ID) value ).getRid().toString()).orElseThrow();
+            DataSource source = service.get(( (String) value ));
             
             this.setValue(business, name, source.getCode());
           }
           else if (attribute instanceof AttributeClassificationType)
           {
-            ID id = (ID) value;
-
+            ClassificationTypeBusinessServiceIF typeService = ServiceFactory.getBean(ClassificationTypeBusinessServiceIF.class);
             ClassificationBusinessServiceIF service = ServiceFactory.getBean(ClassificationBusinessServiceIF.class);
-            Classification classification = service.getByRid(id.getRid().toString()).orElseThrow();
 
+            String classificationTypeCode = ( (AttributeClassificationType) attribute ).getClassificationType();
+            ClassificationType classificationType = typeService.getByCode(classificationTypeCode);
+            Classification classification = service.getByOid(classificationType, (String) value).get();
 
             LocalizedValue label = classification.getDisplayLabel();
 

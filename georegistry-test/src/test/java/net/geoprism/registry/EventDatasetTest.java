@@ -16,8 +16,7 @@ import com.runwaysdk.system.scheduler.SchedulerManager;
 import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.axon.event.repository.BusinessObjectEventBuilder;
 import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
-import net.geoprism.registry.axon.projection.BusinessObjectRepositoryProjection;
-import net.geoprism.registry.axon.projection.GeoObjectRepositoryProjection;
+import net.geoprism.registry.axon.projection.RepositoryProjection;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
@@ -63,10 +62,7 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
   protected CommandGateway                            gateway;
 
   @Autowired
-  protected BusinessObjectRepositoryProjection        bProjection;
-
-  @Autowired
-  protected GeoObjectRepositoryProjection             gProjection;
+  protected RepositoryProjection                      projection;
 
   protected static BusinessType                       btype;
 
@@ -240,8 +236,7 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
 
     this.store.truncate();
 
-    this.bProjection.clearCache();
-    this.gProjection.clearCache();
+    this.projection.clearCache();
   }
 
   protected PublishDTO getPublishDTO()

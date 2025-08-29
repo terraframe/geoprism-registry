@@ -58,13 +58,13 @@ public class PublishEventService
   private CommandGateway                 gateway;
 
   @Autowired
-  private GeoObjectBusinessServiceIF     service;
-
-  @Autowired
   private PublishBusinessServiceIF       publishService;
 
   @Autowired
   private DataSourceBusinessServiceIF    sourceService;
+
+  @Autowired
+  private GeoObjectBusinessServiceIF     service;
 
   @Autowired
   private CommitBusinessServiceIF        commitService;
@@ -160,6 +160,9 @@ public class PublishEventService
       String type = ( (GeoObjectApplyEvent) event ).getType();
       Boolean isNew = ( (GeoObjectApplyEvent) event ).getIsNew();
       String code = ( (GeoObjectApplyEvent) event ).getCode();
+
+      // Possible optimization - Directly convert from GeoObjectOverTime to
+      // GeoObject for a given time without using a ServerGeoObject
 
       ServerGeoObjectIF object = this.service.getGeoObjectByCode(code, type);
 

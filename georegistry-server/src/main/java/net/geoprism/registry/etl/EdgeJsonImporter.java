@@ -37,7 +37,7 @@ import com.runwaysdk.resource.ApplicationResource;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.axon.command.repository.GeoObjectCompositeCommand;
 import net.geoprism.registry.axon.event.repository.GeoObjectCreateEdgeEvent;
-import net.geoprism.registry.axon.projection.GeoObjectRepositoryProjection;
+import net.geoprism.registry.axon.projection.RepositoryProjection;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.service.business.ServiceFactory;
@@ -58,7 +58,7 @@ public class EdgeJsonImporter
 
   private CommandGateway                gateway;
 
-  private GeoObjectRepositoryProjection projection;
+  private RepositoryProjection projection;
 
   public EdgeJsonImporter(ApplicationResource resource, Date startDate, Date endDate, DataSource source, boolean validate)
   {
@@ -69,7 +69,7 @@ public class EdgeJsonImporter
     this.validate = validate;
 
     this.gateway = ServiceFactory.getBean(CommandGateway.class);
-    this.projection = ServiceFactory.getBean(GeoObjectRepositoryProjection.class);
+    this.projection = ServiceFactory.getBean(RepositoryProjection.class);
   }
 
   public void importData() throws JsonSyntaxException, IOException

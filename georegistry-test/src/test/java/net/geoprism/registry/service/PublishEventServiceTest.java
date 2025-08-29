@@ -102,7 +102,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
   @Test
   @Request
-  public void test() throws InterruptedException
+  public void testPublish() throws InterruptedException
   {
     String directory = "src/test/resources/commit";
 

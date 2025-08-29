@@ -170,8 +170,8 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
       Assert.assertEquals(object.getDisplayLabel(USATestData.DEFAULT_OVER_TIME_DATE).getValue(), test.getDisplayLabel(USATestData.DEFAULT_OVER_TIME_DATE).getValue());
       Assert.assertEquals(object.getExists(USATestData.DEFAULT_OVER_TIME_DATE), test.getExists(USATestData.DEFAULT_OVER_TIME_DATE));
       Assert.assertEquals(testDouble, test.getValue(attributeFloat.getName(), USATestData.DEFAULT_OVER_TIME_DATE), 0.000001);
-      Assert.assertEquals(root.getRID(), ( (ID) test.getValue(attributeClassification.getName(), USATestData.DEFAULT_OVER_TIME_DATE) ).getRid());
-      Assert.assertEquals(source.getRID(), ( (ID) test.getValue(DefaultAttribute.DATA_SOURCE.getName(), USATestData.DEFAULT_OVER_TIME_DATE) ).getRid());
+      Assert.assertEquals(root.getOid(), test.getValue(attributeClassification.getName(), USATestData.DEFAULT_OVER_TIME_DATE));
+      Assert.assertEquals(source.getOid(), test.getValue(DefaultAttribute.DATA_SOURCE.getName(), USATestData.DEFAULT_OVER_TIME_DATE));
 
       Classifier value = test.getValue(attributeTerm.getName(), USATestData.DEFAULT_OVER_TIME_DATE);
       Assert.assertEquals(term.getCode(), value.getClassifierId());

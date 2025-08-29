@@ -37,7 +37,7 @@ import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.axon.command.repository.BusinessObjectCompositeCommand;
 import net.geoprism.registry.axon.event.repository.BusinessObjectCreateEdgeEvent;
-import net.geoprism.registry.axon.projection.BusinessObjectRepositoryProjection;
+import net.geoprism.registry.axon.projection.RepositoryProjection;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
@@ -56,7 +56,7 @@ public class BusinessEdgeJsonImporter
 
   private CommandGateway                     gateway;
 
-  private BusinessObjectRepositoryProjection projection;
+  private RepositoryProjection projection;
 
   public BusinessEdgeJsonImporter(ApplicationResource resource, DataSource source, boolean validate)
   {
@@ -66,7 +66,7 @@ public class BusinessEdgeJsonImporter
 
     this.edgeTypeService = ServiceFactory.getBean(BusinessEdgeTypeBusinessServiceIF.class);
     this.gateway = ServiceFactory.getBean(CommandGateway.class);
-    this.projection = ServiceFactory.getBean(BusinessObjectRepositoryProjection.class);
+    this.projection = ServiceFactory.getBean(RepositoryProjection.class);
   }
 
   public void importData() throws JsonSyntaxException, IOException
