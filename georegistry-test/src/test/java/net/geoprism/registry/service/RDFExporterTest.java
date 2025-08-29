@@ -43,6 +43,7 @@ import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.lpg.jena.JenaBridge;
 import net.geoprism.registry.lpg.jena.JenaConnector;
 import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessServiceIF;
+import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessServiceIF.GeometryExportType;
 import net.geoprism.registry.service.business.LabeledPropertyGraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.LabeledPropertyGraphTypeEntryBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;

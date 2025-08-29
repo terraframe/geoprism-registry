@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Optional;
 
 import org.apache.commons.io.IOUtils;
 import org.axonframework.commandhandling.gateway.CommandGateway;
@@ -32,14 +33,18 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.resource.ApplicationResource;
 
+import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.axon.command.repository.GeoObjectCompositeCommand;
 import net.geoprism.registry.axon.event.repository.GeoObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.projection.RepositoryProjection;
+import net.geoprism.registry.cache.Cache;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.model.GraphType;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.business.ServiceFactory;
 
 public class EdgeJsonImporter
@@ -121,6 +126,29 @@ public class EdgeJsonImporter
       this.projection.clearCache();
     }
 
+  }
+  
+  public static Object getOrFetchRid(Cache<String, Object> ridCache, String code, String typeCode)
+  {
+    String typeDbClassName = ServerGeoObjectType.get(typeCode).getDBClassName();
+
+    Optional<Object> optional = ridCache.get(typeCode + "$#!" + code);
+
+    return optional.orElseGet(() -> {
+      GraphQuery<Object> query = new GraphQuery<Object>("select @rid from " + typeDbClassName + " where code=:code;");
+      query.setParameter("code", code);
+
+      Object rid = query.getSingleResult();
+
+      if (rid == null)
+      {
+        throw new DataNotFoundException("Could not find Geo-Object with code " + code + " on table " + typeDbClassName);
+      }
+
+      ridCache.put(typeCode + "$#!" + code, rid);
+
+      return rid;
+    });
   }
 
 }

@@ -18,7 +18,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.runwaysdk.constants.VaultProperties;
@@ -29,12 +30,12 @@ import com.runwaysdk.system.scheduler.SchedulerManager;
 import net.geoprism.graph.GraphTypeSnapshot;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
-import net.geoprism.registry.TestConfig;
+import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ObjectImporterFactory.ObjectImportType;
 import net.geoprism.registry.etl.upload.EdgeObjectImportConfiguration;
-import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.EdgeObjectImporter.ReferenceStrategy;
+import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.model.GraphType;
@@ -46,9 +47,9 @@ import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
-import net.geoprism.registry.test.USATestData;
 
-@ContextConfiguration(classes = { TestConfig.class })
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
+@AutoConfigureMockMvc
 @RunWith(SpringInstanceTestClassRunner.class)
 public class EdgeObjectImporterTest implements InstanceTestClassListener
 {
@@ -117,7 +118,7 @@ public class EdgeObjectImporterTest implements InstanceTestClassListener
 
     for (int i = 0; i < IMPORT_COUNT; ++i)
     {
-      TestGeoObjectInfo one = testData.newTestGeoObjectInfo(String.valueOf(i), USATestData.DISTRICT);
+      TestGeoObjectInfo one = testData.newTestGeoObjectInfo(String.valueOf(i), FastTestDataset.DISTRICT, FastTestDataset.SOURCE);
       one.setCode(String.valueOf(i));
       one.delete();
     }
@@ -141,7 +142,7 @@ public class EdgeObjectImporterTest implements InstanceTestClassListener
     
 	for (int i = 0; i < IMPORT_COUNT; ++i)
     {
-      TestGeoObjectInfo one = testData.newTestGeoObjectInfo(String.valueOf(i), FastTestDataset.DISTRICT);
+      TestGeoObjectInfo one = testData.newTestGeoObjectInfo(String.valueOf(i), FastTestDataset.DISTRICT, FastTestDataset.SOURCE);
       one.setCode(String.valueOf(i));
       one.apply();
     }

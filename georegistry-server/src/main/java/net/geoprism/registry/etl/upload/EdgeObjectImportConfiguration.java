@@ -37,34 +37,20 @@ import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
-import com.runwaysdk.session.Session;
 
-import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
-import net.geoprism.registry.BusinessEdgeType;
-import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.Organization;
+import net.geoprism.registry.etl.upload.EdgeObjectImporter.ReferenceStrategy;
 import net.geoprism.registry.graph.DataSource;
-import net.geoprism.registry.io.ConstantShapefileFunction;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.io.ImportAttributeSerializer;
-import net.geoprism.registry.io.LocalizedValueFunction;
 import net.geoprism.registry.io.Location;
-import net.geoprism.registry.io.ParentMatchStrategy;
 import net.geoprism.registry.jobs.ImportHistory;
-import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.GraphType;
-import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
-import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 
@@ -119,14 +105,14 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
   public static final String                               EDGE_TARGET_TYPE_STRATEGY = "edgeTargetTypeStrategy";
   
   private String edgeSource;
-  private String edgeSourceStrategy;
+  private ReferenceStrategy edgeSourceStrategy;
   private String edgeSourceType;
-  private String edgeSourceTypeStrategy;
+  private ReferenceStrategy edgeSourceTypeStrategy;
   
   private String edgeTarget;
-  private String edgeTargetStrategy;
+  private ReferenceStrategy edgeTargetStrategy;
   private String edgeTargetType;
-  private String edgeTargetTypeStrategy;
+  private ReferenceStrategy edgeTargetTypeStrategy;
 
   private Map<String, Set<String>>                         exclusions;
 
@@ -195,12 +181,12 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
     this.edgeSource = edgeSource;
   }
 
-  public String getEdgeSourceStrategy()
+  public ReferenceStrategy getEdgeSourceStrategy()
   {
     return edgeSourceStrategy;
   }
 
-  public void setEdgeSourceStrategy(String edgeSourceStrategy)
+  public void setEdgeSourceStrategy(ReferenceStrategy edgeSourceStrategy)
   {
     this.edgeSourceStrategy = edgeSourceStrategy;
   }
@@ -215,12 +201,12 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
     this.edgeSourceType = edgeSourceType;
   }
 
-  public String getEdgeSourceTypeStrategy()
+  public ReferenceStrategy getEdgeSourceTypeStrategy()
   {
     return edgeSourceTypeStrategy;
   }
 
-  public void setEdgeSourceTypeStrategy(String edgeSourceTypeStrategy)
+  public void setEdgeSourceTypeStrategy(ReferenceStrategy edgeSourceTypeStrategy)
   {
     this.edgeSourceTypeStrategy = edgeSourceTypeStrategy;
   }
@@ -235,12 +221,12 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
     this.edgeTarget = edgeTarget;
   }
 
-  public String getEdgeTargetStrategy()
+  public ReferenceStrategy getEdgeTargetStrategy()
   {
     return edgeTargetStrategy;
   }
 
-  public void setEdgeTargetStrategy(String edgeTargetStrategy)
+  public void setEdgeTargetStrategy(ReferenceStrategy edgeTargetStrategy)
   {
     this.edgeTargetStrategy = edgeTargetStrategy;
   }
@@ -255,12 +241,12 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
     this.edgeTargetType = edgeTargetType;
   }
 
-  public String getEdgeTargetTypeStrategy()
+  public ReferenceStrategy getEdgeTargetTypeStrategy()
   {
     return edgeTargetTypeStrategy;
   }
 
-  public void setEdgeTargetTypeStrategy(String edgeTargetTypeStrategy)
+  public void setEdgeTargetTypeStrategy(ReferenceStrategy edgeTargetTypeStrategy)
   {
     this.edgeTargetTypeStrategy = edgeTargetTypeStrategy;
   }
@@ -462,14 +448,14 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
 //    JSONArray locations = config.has(LOCATIONS) ? config.getJSONArray(LOCATIONS) : new JSONArray();
     
     edgeSource = config.optString(EDGE_SOURCE);
-    edgeSourceStrategy = config.optString(EDGE_SOURCE_STRATEGY);
+    edgeSourceStrategy = ReferenceStrategy.valueOf(config.optString(EDGE_SOURCE_STRATEGY));
     edgeSourceType = config.optString(EDGE_SOURCE_TYPE);
-    edgeSourceTypeStrategy = config.optString(EDGE_SOURCE_TYPE_STRATEGY);
+    edgeSourceTypeStrategy = ReferenceStrategy.valueOf(config.optString(EDGE_SOURCE_TYPE_STRATEGY));
 
     edgeTarget = config.optString(EDGE_TARGET);
-    edgeTargetStrategy = config.optString(EDGE_TARGET_STRATEGY);
+    edgeTargetStrategy = ReferenceStrategy.valueOf(config.optString(EDGE_TARGET_STRATEGY));
     edgeTargetType = config.optString(EDGE_TARGET_TYPE);
-    edgeTargetTypeStrategy = config.optString(EDGE_TARGET_TYPE_STRATEGY);
+    edgeTargetTypeStrategy = ReferenceStrategy.valueOf(config.optString(EDGE_TARGET_TYPE_STRATEGY));
     
     this.setValidate(config.has(VALIDATE) ? config.getBoolean(VALIDATE) : false);
 
@@ -568,12 +554,6 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
     // }
 
     return this;
-  }
-
-  @Override
-  public void validate()
-  {
-    super.validate();
   }
 
   public static String getBaseType(String attributeType)
