@@ -3,8 +3,10 @@ package net.geoprism.registry.service.business;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -29,96 +31,165 @@ import org.springframework.stereotype.Service;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.Commit;
 import net.geoprism.registry.Publish;
+import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectAddGeoObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectEvent;
-import net.geoprism.registry.axon.event.remote.RemoteEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectSetParentEvent;
+import net.geoprism.registry.etl.JenaExportConfig;
+import net.geoprism.registry.etl.export.ExportHistory;
+import net.geoprism.registry.etl.export.ExportStage;
 import net.geoprism.registry.model.EdgeDirection;
 
 @Service
-public class JenaExportBusinessService
+public class JenaSynchronizationService
 {
-  private static Logger                 logger             = LoggerFactory.getLogger(JenaExportBusinessService.class);
+  private static Logger                                      logger             = LoggerFactory.getLogger(JenaSynchronizationService.class);
 
-  public static final String            GEO                = "http://www.opengis.net/ont/geosparql#";
+  public static final String                                 GEO                = "http://www.opengis.net/ont/geosparql#";
 
-  public static final String            SF                 = "http://www.opengis.net/ont/sf#";
+  public static final String                                 SF                 = "http://www.opengis.net/ont/sf#";
 
-  public static final String            GRAPH_NAMESPACE    = "http://terraframe.com";
+  public static final String                                 GRAPH_NAMESPACE    = "http://terraframe.com";
 
-  public static final String            GRAPH_NAME         = GRAPH_NAMESPACE + "/g1";
+  public static final String                                 GRAPH_NAME         = GRAPH_NAMESPACE + "/g1";
 
-  public static final Boolean           INCLUDE_GEOMETRIES = true;
-
-  @Autowired
-  private BusinessTypeBusinessServiceIF bTypeService;
+  public static final Boolean                                INCLUDE_GEOMETRIES = true;
 
   @Autowired
-  private RemoteJenaServiceIF           service;
+  private BusinessTypeBusinessServiceIF                      bTypeService;
 
   @Autowired
-  private CommitBusinessServiceIF       commitService;
+  private RemoteJenaServiceIF                                service;
 
-  public void export(Publish publish)
+  @Autowired
+  private CommitBusinessServiceIF                            commitService;
+
+  @Autowired
+  private PublishBusinessServiceIF                           publishService;
+
+  @Autowired
+  private SynchronizationHasProcessedCommitBusinessServiceIF exportService;
+
+  public void execute(SynchronizationConfig synchronization, JenaExportConfig configuration, ExportHistory history)
   {
+    Publish publish = this.publishService.getByUid(configuration.getPublishUid()) //
+        .orElseThrow(() -> new ProgrammingErrorException("Unable to find publish with uid [" + configuration.getPublishUid() + "]"));
+
     this.commitService.getLatest(publish).ifPresent(commit -> {
-      export(commit);
+
+      if (history != null)
+      {
+        history.appLock();
+        history.setWorkTotal(0l);
+        history.setWorkProgress(0l);
+        history.setExportedRecords(0l);
+        history.clearStage();
+        history.addStage(ExportStage.EXPORT);
+        history.apply();
+      }
+
+      execute(synchronization, configuration, commit, history);
+
+      if (history != null)
+      {
+        history.appLock();
+        history.setWorkProgress(history.getWorkTotal());
+        history.clearStage();
+        history.addStage(ExportStage.COMPLETE);
+        history.apply();
+      }
     });
   }
 
-  protected void export(Commit commit)
+  protected void execute(SynchronizationConfig synchronization, JenaExportConfig config, Commit commit, ExportHistory history)
   {
-    // TODO: Determine if the commit has already been exported
-
-    this.commitService.getDependencies(commit) //
-        .stream() //
-        .forEach(dependency -> this.export(dependency));
-
-    int chunk = 0;
-    List<RemoteEvent> remoteEvents = null;
-
-    while ( ( remoteEvents = this.commitService.getRemoteEvents(commit, chunk) ).size() > 0)
+    if (!this.exportService.hasBeenPublished(synchronization, commit))
     {
-      remoteEvents.stream() //
-          .forEach(event -> {
-            if (event instanceof RemoteGeoObjectEvent)
-            {
-              this.handleRemoteGeoObject(commit, (RemoteGeoObjectEvent) event);
-            }
-            else if (event instanceof RemoteBusinessObjectAddGeoObjectEvent)
-            {
-              this.handleRemoteAddGeoObject(commit, (RemoteBusinessObjectAddGeoObjectEvent) event);
-            }
-            else if (event instanceof RemoteBusinessObjectEvent)
-            {
-              this.handleRemoteBusinessObject(commit, (RemoteBusinessObjectEvent) event);
-            }
-            else if (event instanceof RemoteBusinessObjectCreateEdgeEvent)
-            {
-              this.handleRemoteCreateEdge(commit, (RemoteBusinessObjectCreateEdgeEvent) event);
-            }
-            else if (event instanceof RemoteGeoObjectCreateEdgeEvent)
-            {
-              this.handleRemoteCreateEdge(commit, (RemoteGeoObjectCreateEdgeEvent) event);
-            }
-            else if (event instanceof RemoteGeoObjectSetParentEvent)
-            {
-              this.handleRemoteParent(commit, (RemoteGeoObjectSetParentEvent) event);
-            }
-          });
+      // TODO: If commit is the first version then export out the metadata
 
-      chunk++;
+      this.commitService.getDependencies(commit) //
+          .stream() //
+          .forEach(dependency -> this.execute(synchronization, config, dependency, history));
+
+      if (history != null)
+      {
+        long count = this.commitService.getEventCount(commit) + 1;
+
+        history.appLock();
+        history.setWorkTotal(count);
+        history.setWorkProgress(0l);
+        history.apply();
+      }
+
+      AtomicLong workProgress = new AtomicLong(0);
+      AtomicLong exportedRecords = history != null ? new AtomicLong(history.getExportedRecords()) : new AtomicLong(0);
+
+      this.commitService.getRemoteEvents(commit).forEach(event -> {
+        if (event instanceof RemoteGeoObjectEvent)
+        {
+          this.handleRemoteGeoObject(commit, (RemoteGeoObjectEvent) event, config);
+        }
+        else if (event instanceof RemoteBusinessObjectAddGeoObjectEvent)
+        {
+          this.handleRemoteAddGeoObject(commit, (RemoteBusinessObjectAddGeoObjectEvent) event, config);
+        }
+        else if (event instanceof RemoteBusinessObjectEvent)
+        {
+          this.handleRemoteBusinessObject(commit, (RemoteBusinessObjectEvent) event, config);
+        }
+        else if (event instanceof RemoteBusinessObjectCreateEdgeEvent)
+        {
+          this.handleRemoteCreateEdge(commit, (RemoteBusinessObjectCreateEdgeEvent) event, config);
+        }
+        else if (event instanceof RemoteGeoObjectCreateEdgeEvent)
+        {
+          this.handleRemoteCreateEdge(commit, (RemoteGeoObjectCreateEdgeEvent) event, config);
+        }
+        else if (event instanceof RemoteGeoObjectSetParentEvent)
+        {
+          this.handleRemoteParent(commit, (RemoteGeoObjectSetParentEvent) event, config);
+        }
+
+        long cExportRecords = exportedRecords.incrementAndGet();
+        long cWorkProgress = workProgress.incrementAndGet();
+
+        if (history != null && ( cExportRecords % 5 == 0 ))
+        {
+          history.appLock();
+          history.setWorkProgress(cWorkProgress);
+          history.setExportedRecords(cExportRecords);
+          history.apply();
+        }
+
+      });
+
+      if (history != null)
+      {
+        history.appLock();
+        history.setWorkProgress(workProgress.get());
+        history.setExportedRecords(exportedRecords.get());
+        history.apply();
+      }
+
+      // Mark the commit as exported
+      this.exportService.create(synchronization, commit);
+    }
+    else
+
+    {
+      System.out.println("Skipping export of commit [" + commit.getUid() + "] because its already been exported");
     }
   }
 
-  public void handleRemoteGeoObject(Commit commit, RemoteGeoObjectEvent event)
+  public void handleRemoteGeoObject(Commit commit, RemoteGeoObjectEvent event, JenaExportConfig config)
   {
     logger.trace("Jena Projection - Handling remote geo object");
 
@@ -207,13 +278,13 @@ public class JenaExportBusinessService
 
     if (!commit.getVersionNumber().equals(Integer.valueOf(0)))
     {
-      this.service.update(statements);
+      this.service.update(statements, config);
     }
 
-    this.service.load(GRAPH_NAME, model);
+    this.service.load(GRAPH_NAME, model, config);
   }
 
-  public void handleRemoteParent(Commit commit, RemoteGeoObjectSetParentEvent event)
+  public void handleRemoteParent(Commit commit, RemoteGeoObjectSetParentEvent event, JenaExportConfig config)
   {
     logger.trace("Jena Projection - Handling remote set parent");
 
@@ -225,20 +296,23 @@ public class JenaExportBusinessService
     List<String> statements = new LinkedList<>();
     statements.add("DELETE WHERE { GRAPH <" + GRAPH_NAME + "> { <" + subjectUri + "> <" + edgeTypeUri + "> ?obj}}");
 
-    this.addResourceToModel(model, //
-        subjectUri, //
-        edgeTypeUri, //
-        buildObjectUri(event.getParentCode(), event.getParentType()));
-
     if (!commit.getVersionNumber().equals(Integer.valueOf(0)))
     {
-      this.service.update(statements);
+      this.service.update(statements, config);
     }
 
-    this.service.load(GRAPH_NAME, model);
+    if (!StringUtils.isBlank(event.getParentType()) && !StringUtils.isBlank(event.getParentCode()))
+    {
+      this.addResourceToModel(model, //
+          subjectUri, //
+          edgeTypeUri, //
+          buildObjectUri(event.getParentCode(), event.getParentType()));
+
+      this.service.load(GRAPH_NAME, model, config);
+    }
   }
 
-  public void handleRemoteCreateEdge(Commit commit, RemoteGeoObjectCreateEdgeEvent event)
+  public void handleRemoteCreateEdge(Commit commit, RemoteGeoObjectCreateEdgeEvent event, JenaExportConfig config)
   {
     logger.trace("Jena Projection - Handling remote create edge");
 
@@ -249,10 +323,10 @@ public class JenaExportBusinessService
         GRAPH_NAMESPACE + "/" + event.getEdgeType(), //
         buildObjectUri(event.getTargetCode(), event.getTargetType()));
 
-    this.service.load(GRAPH_NAME, model);
+    this.service.load(GRAPH_NAME, model, config);
   }
 
-  public void handleRemoteBusinessObject(Commit commit, RemoteBusinessObjectEvent event)
+  public void handleRemoteBusinessObject(Commit commit, RemoteBusinessObjectEvent event, JenaExportConfig config)
   {
     logger.trace("Jena Projection - Handling remote business object");
 
@@ -317,13 +391,13 @@ public class JenaExportBusinessService
 
     if (!commit.getVersionNumber().equals(Integer.valueOf(0)))
     {
-      this.service.update(statements);
+      this.service.update(statements, config);
     }
 
-    this.service.load(GRAPH_NAME, model);
+    this.service.load(GRAPH_NAME, model, config);
   }
 
-  public void handleRemoteAddGeoObject(Commit commit, RemoteBusinessObjectAddGeoObjectEvent event)
+  public void handleRemoteAddGeoObject(Commit commit, RemoteBusinessObjectAddGeoObjectEvent event, JenaExportConfig config)
   {
     logger.trace("Jena Projection - Handling remote add geo object");
 
@@ -345,10 +419,10 @@ public class JenaExportBusinessService
 
     }
 
-    this.service.load(GRAPH_NAME, model);
+    this.service.load(GRAPH_NAME, model, config);
   }
 
-  public void handleRemoteCreateEdge(Commit commit, RemoteBusinessObjectCreateEdgeEvent event)
+  public void handleRemoteCreateEdge(Commit commit, RemoteBusinessObjectCreateEdgeEvent event, JenaExportConfig config)
   {
     logger.trace("Jena Projection - Handling remote create edge");
 
@@ -359,7 +433,7 @@ public class JenaExportBusinessService
         GRAPH_NAMESPACE + "/" + event.getEdgeType(), //
         buildObjectUri(event.getTargetCode(), event.getTargetType()));
 
-    this.service.load(GRAPH_NAME, model);
+    this.service.load(GRAPH_NAME, model, config);
   }
 
   protected String getSrs(Geometry geom)

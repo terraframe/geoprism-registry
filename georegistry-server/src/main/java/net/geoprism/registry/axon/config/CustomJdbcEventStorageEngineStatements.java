@@ -104,7 +104,7 @@ public abstract class CustomJdbcEventStorageEngineStatements
    *          The connection to the database.
    * @param schema
    *          The EventSchema to be used
-   * @param firstSequenceNumber
+   * @param firstIndexNumber
    *          The expected sequence number of the first returned entry.
    * @param batchSize
    *          The number of items to include in the batch.
@@ -115,7 +115,7 @@ public abstract class CustomJdbcEventStorageEngineStatements
    *           when an exception occurs while creating the prepared statement.
    */
   public static PreparedStatement readEventDataForCommit(Connection connection, EventSchema schema, //
-      Commit commit, long firstSequenceNumber, //
+      Commit commit, long firstIndexNumber, //
       int batchSize) throws SQLException
   {
     StringBuilder sql = new StringBuilder();
@@ -127,8 +127,8 @@ public abstract class CustomJdbcEventStorageEngineStatements
 
     PreparedStatement statement = connection.prepareStatement(sql.toString());
     statement.setString(1, commit.getUid());
-    statement.setLong(2, firstSequenceNumber);
-    statement.setLong(3, firstSequenceNumber + batchSize);
+    statement.setLong(2, firstIndexNumber);
+    statement.setLong(3, firstIndexNumber + batchSize);
 
     return statement;
   }

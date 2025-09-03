@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFormatter;
@@ -14,39 +15,34 @@ import org.apache.jena.rdfconnection.RDFConnectionRemoteBuilder;
 import org.apache.jena.update.UpdateFactory;
 import org.springframework.stereotype.Service;
 
+import net.geoprism.registry.etl.JenaExportConfig;
 import net.geoprism.registry.etl.RemoteConnectionException;
 
 @Service
 public class RemoteJenaService implements RemoteJenaServiceIF
 {
 
-  protected Optional<RDFConnectionRemoteBuilder> configuration()
+  protected Optional<RDFConnectionRemoteBuilder> builder(JenaExportConfig config)
   {
-    // String url = GeoregistryProperties.getBaseJenaUrl();
-    //
-    // if (!StringUtils.isBlank(url))
-    // {
-    // RDFConnectionRemoteBuilder builder =
-    // RDFConnectionRemote.newBuilder().gspEndpoint(null);
-    //
-    // return Optional.of(builder);
-    // }
-    // return Optional.empty();
-    String baseUrl = "http://localhost:3030/test";
+    String baseUrl = config.getSystem().getUrl();
 
-    RDFConnectionRemoteBuilder builder = RDFConnectionRemote.newBuilder()//
-        .gspEndpoint(baseUrl + "/data") //
-        .queryEndpoint(baseUrl + "/sparql")//
-        .updateEndpoint(baseUrl + "/update");
+    if (!StringUtils.isBlank(baseUrl))
+    {
+      RDFConnectionRemoteBuilder builder = RDFConnectionRemote.newBuilder()//
+          .gspEndpoint(baseUrl + "/data") //
+          .queryEndpoint(baseUrl + "/sparql")//
+          .updateEndpoint(baseUrl + "/update");
 
-    return Optional.of(builder);
+      return Optional.of(builder);
+    }
 
+    return Optional.empty();
   }
 
   @Override
-  public void load(String graphName, Model model)
+  public void load(String graphName, Model model, JenaExportConfig config)
   {
-    this.configuration().ifPresent(configuration -> {
+    this.builder(config).ifPresent(configuration -> {
 
       // Connect to the remote RDF store
       try (RDFConnection conn = configuration.build())
@@ -62,9 +58,9 @@ public class RemoteJenaService implements RemoteJenaServiceIF
   }
 
   @Override
-  public void update(List<String> statements)
+  public void update(List<String> statements, JenaExportConfig config)
   {
-    this.configuration().ifPresent(configuration -> {
+    this.builder(config).ifPresent(configuration -> {
 
       // Connect to the remote RDF store
       try (RDFConnection conn = configuration.build())
@@ -83,9 +79,9 @@ public class RemoteJenaService implements RemoteJenaServiceIF
   }
 
   @Override
-  public void clear(String graphName)
+  public void clear(String graphName, JenaExportConfig config)
   {
-    this.configuration().ifPresent(configuration -> {
+    this.builder(config).ifPresent(configuration -> {
       StringBuilder statement = new StringBuilder();
       statement.append("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>" + "\n");
       statement.append("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>" + "\n");
@@ -100,9 +96,9 @@ public class RemoteJenaService implements RemoteJenaServiceIF
   }
 
   @Override
-  public Optional<String> query(String statement)
+  public Optional<String> query(String statement, JenaExportConfig config)
   {
-    return this.configuration().map(configuration -> {
+    return this.builder(config).map(configuration -> {
 
       // Connect to the remote RDF store
       try (RDFConnection conn = configuration.build())

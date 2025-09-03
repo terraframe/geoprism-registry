@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.graph;
 
@@ -36,11 +36,10 @@ import com.runwaysdk.session.SessionIF;
 
 import net.geoprism.registry.ObjectHasDataException;
 import net.geoprism.registry.Organization;
-import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
-import net.geoprism.registry.etl.ExternalSystemSyncConfig;
 import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.business.ServiceFactory;
+import net.geoprism.registry.service.business.SynchronizationConfigBusinessServiceIF;
 import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
 import net.geoprism.registry.service.permission.RolePermissionService;
 import net.geoprism.registry.view.JsonSerializable;
@@ -53,8 +52,6 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
   {
     super();
   }
-
-  public abstract ExternalSystemSyncConfig configuration(Boolean isImport);
 
   public abstract boolean isExportSupported();
 
@@ -103,12 +100,8 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
       throw new ObjectHasDataException();
     }
 
-    List<SynchronizationConfig> configs = SynchronizationConfig.getAll(this);
-
-    for (SynchronizationConfig config : configs)
-    {
-      config.delete();
-    }
+    SynchronizationConfigBusinessServiceIF service = ServiceFactory.getBean(SynchronizationConfigBusinessServiceIF.class);
+    service.getAll(this).stream().forEach(service::delete);
 
     super.delete();
   }
@@ -284,6 +277,10 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
     else if (type.equals(FhirExternalSystem.class.getSimpleName()))
     {
       return new FhirExternalSystem();
+    }
+    else if (type.equals(JenaExternalSystem.class.getSimpleName()))
+    {
+      return new JenaExternalSystem();
     }
 
     return new DHIS2ExternalSystem();

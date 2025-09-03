@@ -20,6 +20,7 @@ public class Publish extends PublishBase
   public PublishDTO toDTO()
   {
     PublishDTO configuration = new PublishDTO(this.getForDate(), this.getStartDate(), this.getEndDate());
+    configuration.setUid(this.getUid());
 
     JsonArray types = JsonParser.parseString(this.getTypeCodes()).getAsJsonArray();
 

@@ -4,19 +4,19 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.etl.fhir;
+package net.geoprism.registry.service.business;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,6 +34,7 @@ import org.apache.tools.zip.ZipOutputStream;
 import org.hl7.fhir.r4.model.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
@@ -44,39 +45,35 @@ import ca.uhn.fhir.parser.DataFormatException;
 import ca.uhn.fhir.parser.IParser;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.etl.ExportJobHasErrors;
-import net.geoprism.registry.etl.FhirSyncExportConfig;
+import net.geoprism.registry.etl.FhirExportConfig;
 import net.geoprism.registry.etl.FhirSyncLevel;
 import net.geoprism.registry.etl.export.ExportErrorQuery;
 import net.geoprism.registry.etl.export.ExportHistory;
 import net.geoprism.registry.etl.export.ExportStage;
 import net.geoprism.registry.etl.export.HttpError;
+import net.geoprism.registry.etl.fhir.FhirConnection;
+import net.geoprism.registry.etl.fhir.FhirConnectionFactory;
+import net.geoprism.registry.etl.fhir.FhirDataPopulator;
+import net.geoprism.registry.etl.fhir.FhirFactory;
+import net.geoprism.registry.etl.fhir.ListTypeFhirExporter;
 import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.util.SessionPredicate;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;
 
-public class FhirExportSynchronizationManager
+@Service
+public class FhirExportSynchronizationService
 {
-  private static final Logger  logger = LoggerFactory.getLogger(FhirExportSynchronizationManager.class);
+  private static final Logger logger = LoggerFactory.getLogger(FhirExportSynchronizationService.class);
 
-  private FhirSyncExportConfig config;
-
-  private ExportHistory        history;
-
-  public FhirExportSynchronizationManager(FhirSyncExportConfig config, ExportHistory history)
+  public void execute(FhirExportConfig config, ExportHistory history)
   {
-    this.config = config;
-    this.history = history;
-  }
-
-  public void synchronize()
-  {
-    final FhirExternalSystem system = (FhirExternalSystem) this.config.getSystem();
+    final FhirExternalSystem system = (FhirExternalSystem) config.getSystem();
 
     try (FhirConnection connection = FhirConnectionFactory.get(system))
     {
-      SortedSet<FhirSyncLevel> levels = this.config.getLevels();
+      SortedSet<FhirSyncLevel> levels = config.getLevels();
 
       int expectedLevel = 0;
       long exportCount = 0;
@@ -115,7 +112,7 @@ public class FhirExportSynchronizationManager
 
       NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
 
-      handleExportErrors();
+      handleExportErrors(history);
     }
     catch (Exception e)
     {
@@ -123,7 +120,7 @@ public class FhirExportSynchronizationManager
     }
   }
 
-  private void handleExportErrors()
+  private void handleExportErrors(ExportHistory history)
   {
     ExportErrorQuery query = new ExportErrorQuery(new QueryFactory());
     query.WHERE(query.getHistory().EQ(history));
@@ -137,10 +134,10 @@ public class FhirExportSynchronizationManager
     }
   }
 
-  public InputStream generateZipFile() throws IOException
+  public InputStream generateZipFile(FhirExportConfig config) throws IOException
   {
     // Zip up the entire contents of the file
-    final File directory = this.writeToFile();
+    final File directory = writeToFile(config);
     final PipedOutputStream pos = new PipedOutputStream();
     final PipedInputStream pis = new PipedInputStream(pos);
 
@@ -190,9 +187,9 @@ public class FhirExportSynchronizationManager
     return pis;
   }
 
-  public File writeToFile() throws IOException
+  public File writeToFile(FhirExportConfig config) throws IOException
   {
-    final FhirExternalSystem system = (FhirExternalSystem) this.config.getSystem();
+    final FhirExternalSystem system = (FhirExternalSystem) config.getSystem();
 
     try (FhirConnection connection = FhirConnectionFactory.get(system))
     {
@@ -204,7 +201,7 @@ public class FhirExportSynchronizationManager
         logger.debug("Unable to create directory: " + root.getAbsolutePath());
       }
 
-      Bundle bundle = this.generateBundle(connection);
+      Bundle bundle = generateBundle(config, connection);
 
       FhirContext ctx = FhirContext.forR4();
       IParser parser = ctx.newJsonParser();
@@ -222,9 +219,9 @@ public class FhirExportSynchronizationManager
     }
   }
 
-  public Bundle generateBundle(FhirConnection connection)
+  public Bundle generateBundle(FhirExportConfig config, FhirConnection connection)
   {
-    SortedSet<FhirSyncLevel> levels = this.config.getLevels();
+    SortedSet<FhirSyncLevel> levels = config.getLevels();
 
     int expectedLevel = 0;
 

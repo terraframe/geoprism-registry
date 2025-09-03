@@ -57,6 +57,28 @@ public class RegistryEventStore extends EmbeddedEventStore implements EventStore
     Database.executeStatement(statement.toString());
   }
 
+  public Long size(Commit commit)
+  {
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT COUNT(*)");
+    statement.append(" FROM " + DOMAIN_EVENT_ENTRY_TABLE);
+    statement.append(" WHERE commit_id = '" + commit.getUid() + "'");
+
+    try (ResultSet resultSet = Database.query(statement.toString()))
+    {
+      if (resultSet.next())
+      {
+        return resultSet.getLong(1);
+      }
+
+      return 0L;
+    }
+    catch (SQLException e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
+  }
+
   public Long size()
   {
     StringBuilder statement = new StringBuilder();
@@ -86,7 +108,7 @@ public class RegistryEventStore extends EmbeddedEventStore implements EventStore
     statement.append("SELECT DISTINCT aggregateidentifier");
     statement.append(" FROM " + DOMAIN_EVENT_ENTRY_TABLE);
     statement.append(" WHERE commit_id IS NULL");
-    statement.append(" AND globalindex <= " + end.getIndex() );
+    statement.append(" AND globalindex <= " + end.getIndex());
 
     if (start != null)
     {
@@ -127,6 +149,11 @@ public class RegistryEventStore extends EmbeddedEventStore implements EventStore
   public DomainEventStream readEvents(@Nonnull Commit commit, long firstIndex, Long lastIndex, int batchSize)
   {
     return storageEngine().readEvents(commit, firstIndex, lastIndex, batchSize);
+  }
+
+  public DomainEventStream readBatch(@Nonnull Commit commit, Long firstIndex, Long lastIndex, int batchSize)
+  {
+    return storageEngine().readBatch(commit, firstIndex, lastIndex, batchSize);
   }
 
   public DomainEventStream readEvents(String aggregateIdentifier, GapAwareTrackingToken start, GapAwareTrackingToken end)

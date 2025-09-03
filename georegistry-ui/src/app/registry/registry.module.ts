@@ -177,6 +177,8 @@ import { RDFExportComponent } from "./component/data-export/rdf-export.component
 import { LabeledPropertyGraphTypeFormComponent } from "./component/labeled-property-graph-type/labeled-property-graph-form.component";
 import { EdgeImporterComponent } from './component/edge-importer/edge-importer.component';
 import { GraphTypeService } from "./service/graph-type.service";
+import { PublishService } from "./service/publish.service";
+import { JenaExportSynchronizationConfigComponent } from "./component/synchronization-config/jena-export-synchronization-config.component";
 
 @NgModule({
     imports: [
@@ -211,6 +213,7 @@ import { GraphTypeService } from "./service/graph-type.service";
         ExportTypesModalComponent,
         FhirExportSynchronizationConfigComponent,
         FhirImportSynchronizationConfigComponent,
+        JenaExportSynchronizationConfigComponent,
         Dhis2SynchronizationConfigComponent,
         CreateHierarchyTypeModalComponent,
         AddChildToHierarchyModalComponent,
@@ -346,7 +349,8 @@ import { GraphTypeService } from "./service/graph-type.service";
         ClassificationService,
         GeometryService,
         VotService,
-        SourceService
+        SourceService,
+        PublishService
     ],
     entryComponents: [
         ExportTypesModalComponent,

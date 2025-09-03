@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1037763527)
+@com.runwaysdk.business.ClassSignature(hash = -897065656)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -33,8 +15,6 @@ public abstract class SynchronizationConfigBase extends com.runwaysdk.business.B
   public final static java.lang.String CREATEDATE = "createDate";
   public final static java.lang.String CREATEDBY = "createdBy";
   public final static java.lang.String ENTITYDOMAIN = "entityDomain";
-  public final static java.lang.String GRAPHHIERARCHY = "graphHierarchy";
-  public final static java.lang.String ISIMPORT = "isImport";
   public final static java.lang.String KEYNAME = "keyName";
   public final static java.lang.String LABEL = "label";
   private com.runwaysdk.business.Struct label = null;
@@ -48,10 +28,11 @@ public abstract class SynchronizationConfigBase extends com.runwaysdk.business.B
   public final static java.lang.String OWNER = "owner";
   public final static java.lang.String SEQ = "seq";
   public final static java.lang.String SITEMASTER = "siteMaster";
+  public final static java.lang.String SYNCHRONIZATIONTYPE = "synchronizationType";
   public final static java.lang.String SYSTEM = "system";
   public final static java.lang.String TYPE = "type";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = -1037763527;
+  private static final long serialVersionUID = -897065656;
   
   public SynchronizationConfigBase()
   {
@@ -180,62 +161,6 @@ public abstract class SynchronizationConfigBase extends com.runwaysdk.business.B
     else
     {
       setValue(ENTITYDOMAIN, oid);
-    }
-  }
-  
-  public net.geoprism.registry.graph.HierarchicalRelationshipType getGraphHierarchy()
-  {
-    return (net.geoprism.registry.graph.HierarchicalRelationshipType)com.runwaysdk.business.graph.VertexObject.get("net.geoprism.registry.graph.HierarchicalRelationshipType", getValue(GRAPHHIERARCHY));
-  }
-  
-  public void validateGraphHierarchy()
-  {
-    this.validateAttribute(GRAPHHIERARCHY);
-  }
-  
-  public static com.runwaysdk.dataaccess.MdAttributeGraphReferenceDAOIF getGraphHierarchyMd()
-  {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.SynchronizationConfig.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeGraphReferenceDAOIF)mdClassIF.definesAttribute(GRAPHHIERARCHY);
-  }
-  
-  public void setGraphHierarchy(net.geoprism.registry.graph.HierarchicalRelationshipType value)
-  {
-    if(value == null)
-    {
-      setValue(GRAPHHIERARCHY, "");
-    }
-    else
-    {
-      setValue(GRAPHHIERARCHY, value.getOid());
-    }
-  }
-  
-  public Boolean getIsImport()
-  {
-    return com.runwaysdk.constants.MdAttributeBooleanUtil.getTypeSafeValue(getValue(ISIMPORT));
-  }
-  
-  public void validateIsImport()
-  {
-    this.validateAttribute(ISIMPORT);
-  }
-  
-  public static com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF getIsImportMd()
-  {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.SynchronizationConfig.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF)mdClassIF.definesAttribute(ISIMPORT);
-  }
-  
-  public void setIsImport(Boolean value)
-  {
-    if(value == null)
-    {
-      setValue(ISIMPORT, "");
-    }
-    else
-    {
-      setValue(ISIMPORT, java.lang.Boolean.toString(value));
     }
   }
   
@@ -535,6 +460,34 @@ public abstract class SynchronizationConfigBase extends com.runwaysdk.business.B
     return (com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF)mdClassIF.definesAttribute(SITEMASTER);
   }
   
+  public String getSynchronizationType()
+  {
+    return getValue(SYNCHRONIZATIONTYPE);
+  }
+  
+  public void validateSynchronizationType()
+  {
+    this.validateAttribute(SYNCHRONIZATIONTYPE);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getSynchronizationTypeMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.SynchronizationConfig.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(SYNCHRONIZATIONTYPE);
+  }
+  
+  public void setSynchronizationType(String value)
+  {
+    if(value == null)
+    {
+      setValue(SYNCHRONIZATIONTYPE, "");
+    }
+    else
+    {
+      setValue(SYNCHRONIZATIONTYPE, value);
+    }
+  }
+  
   public String getSystem()
   {
     return getValue(SYSTEM);
@@ -584,11 +537,32 @@ public abstract class SynchronizationConfigBase extends com.runwaysdk.business.B
     return CLASS;
   }
   
-  public static SynchronizationConfigQuery getAllInstances(String sortAttribute, Boolean ascending, Integer pageSize, Integer pageNumber)
+  public net.geoprism.registry.SynchronizationHasProcessedCommit addCommit(net.geoprism.registry.Commit commit)
   {
-    SynchronizationConfigQuery query = new SynchronizationConfigQuery(new com.runwaysdk.query.QueryFactory());
-    com.runwaysdk.business.Entity.getAllInstances(query, sortAttribute, ascending, pageSize, pageNumber);
-    return query;
+    return (net.geoprism.registry.SynchronizationHasProcessedCommit) addChild(commit, net.geoprism.registry.SynchronizationHasProcessedCommit.CLASS);
+  }
+  
+  public void removeCommit(net.geoprism.registry.Commit commit)
+  {
+    removeAllChildren(commit, net.geoprism.registry.SynchronizationHasProcessedCommit.CLASS);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.Commit> getAllCommit()
+  {
+    return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.Commit>) getChildren(net.geoprism.registry.SynchronizationHasProcessedCommit.CLASS);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.SynchronizationHasProcessedCommit> getAllCommitRel()
+  {
+    return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.SynchronizationHasProcessedCommit>) getChildRelationships(net.geoprism.registry.SynchronizationHasProcessedCommit.CLASS);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.SynchronizationHasProcessedCommit> getCommitRel(net.geoprism.registry.Commit commit)
+  {
+    return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.SynchronizationHasProcessedCommit>) getRelationshipsWithChild(commit, net.geoprism.registry.SynchronizationHasProcessedCommit.CLASS);
   }
   
   public static SynchronizationConfig get(String oid)

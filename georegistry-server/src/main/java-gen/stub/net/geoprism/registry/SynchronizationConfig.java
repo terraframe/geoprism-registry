@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -22,7 +22,6 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.commongeoregistry.adapter.JsonDateUtil;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
 import com.google.gson.Gson;
@@ -38,9 +37,9 @@ import com.runwaysdk.session.SessionIF;
 
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.etl.DHIS2AttributeMapping;
-import net.geoprism.registry.etl.DHIS2SyncConfig;
 import net.geoprism.registry.etl.ExternalSystemSyncConfig;
 import net.geoprism.registry.etl.FhirSyncLevel;
+import net.geoprism.registry.etl.SynchronizationConfigFactory;
 import net.geoprism.registry.etl.export.DataExportJob;
 import net.geoprism.registry.etl.export.SeverGeoObjectJsonAdapters;
 import net.geoprism.registry.graph.ExternalSystem;
@@ -52,13 +51,13 @@ import net.geoprism.registry.view.JsonSerializable;
 
 public class SynchronizationConfig extends SynchronizationConfigBase implements JsonSerializable
 {
-  private static final long   serialVersionUID    = -1221759231;
+  public static enum Type {
+    FHIR_IMPORT, FHIR_EXPORT, DHIS2, JENA, REVEAL
+  }
 
-  private static final String SYSTEM_LABEL        = "systemLabel";
+  private static final long   serialVersionUID = -1221759231;
 
-  public static final String  FIELD_DATE          = "date";
-
-  public static final String  FIELD_SYNC_NONEXIST = "syncNonExistent";
+  private static final String SYSTEM_LABEL     = "systemLabel";
 
   public SynchronizationConfig()
   {
@@ -70,64 +69,14 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
     this.setOrganization(value.getOrganization());
   }
 
-  @Override
-  @Transaction
-  public void apply()
-  {
-    SessionIF session = Session.getCurrentSession();
-
-    Organization organization = this.getOrganization();
-
-    if (session != null && organization != null)
-    {
-      ServiceFactory.getBean(RolePermissionService.class).enforceRA(organization.getCode());
-    }
-
-    super.apply();
-
-    if (this.isNew())
-    {
-      DataExportJob job = new DataExportJob();
-      job.setConfig(this);
-      job.apply();
-    }
-  }
-
-  @Override
-  @Transaction
-  public void delete()
-  {
-    List<? extends DataExportJob> jobs = getJobs();
-
-    for (DataExportJob job : jobs)
-    {
-      job.delete();
-    }
-
-    super.delete();
-  }
-
-  public List<? extends DataExportJob> getJobs()
-  {
-    return DataExportJob.getAll(this);
-  }
-
-  private void populate(JsonObject json)
+  public void populate(JsonObject json)
   {
     String orgCode = json.get(SynchronizationConfig.ORGANIZATION).getAsString();
 
     this.setOrganization(Organization.getByCode(orgCode));
     this.setSystem(json.get(SynchronizationConfig.SYSTEM).getAsString());
     this.setConfiguration(json.get(SynchronizationConfig.CONFIGURATION).getAsJsonObject().toString());
-
-    if (json.has(SynchronizationConfig.ISIMPORT))
-    {
-      this.setIsImport(json.get(SynchronizationConfig.ISIMPORT).getAsBoolean());
-    }
-    else
-    {
-      this.setIsImport(false);
-    }
+    this.setSynchronizationType(json.get(SynchronizationConfig.SYNCHRONIZATIONTYPE).getAsString());
 
     LocalizedValue label = LocalizedValue.fromJSON(json.get(SynchronizationConfig.LABEL).getAsJsonObject());
 
@@ -149,10 +98,9 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
     object.addProperty(SynchronizationConfig.OID, this.getOid());
     object.addProperty(SynchronizationConfig.ORGANIZATION, this.getOrganization().getCode());
     object.addProperty(SynchronizationConfig.SYSTEM, this.getSystem());
-    object.add(SynchronizationConfig.LABEL, RegistryLocalizedValueConverter.convert(this.getLabel()).toJSON());
-    object.addProperty(SynchronizationConfig.ISIMPORT, this.getIsImport() != null ? this.getIsImport() : false);
+    object.add(SynchronizationConfig.LABEL, RegistryLocalizedValueConverter.convertNoAutoCoalesce(this.getLabel()).toJSON());
 
-    ExternalSystemSyncConfig config = this.buildConfiguration();
+    ExternalSystemSyncConfig config = this.toConfiguration();
     object.add(SynchronizationConfig.CONFIGURATION, gson.toJsonTree(config));
 
     ExternalSystem system = this.getExternalSystem();
@@ -180,111 +128,16 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
     return ExternalSystem.get(this.getSystem());
   }
 
-  public ExternalSystemSyncConfig buildConfiguration()
+  @SuppressWarnings("unchecked")
+  public <T extends ExternalSystemSyncConfig> T toConfiguration()
   {
     ExternalSystem system = this.getExternalSystem();
 
-    ExternalSystemSyncConfig config = system.configuration(this.getIsImport());
+    ExternalSystemSyncConfig config = SynchronizationConfigFactory.get(this.getSynchronizationType());
     config.setSystem(system);
     config.populate(this);
 
-    JsonObject json = this.getConfigurationJson();
-
-    if (json.has(FIELD_DATE) && !json.get(FIELD_DATE).isJsonNull())
-    {
-      config.setDate(JsonDateUtil.parse(json.get(FIELD_DATE).getAsString()));
-    }
-
-    if (json.has(FIELD_SYNC_NONEXIST) && !json.get(FIELD_SYNC_NONEXIST).isJsonNull())
-    {
-      config.setSyncNonExistent(json.get(FIELD_SYNC_NONEXIST).getAsBoolean());
-    }
-    else
-    {
-      config.setSyncNonExistent(true);
-    }
-
-    if (config instanceof DHIS2SyncConfig && json.has(DHIS2SyncConfig.PREFERRED_LOCALE) && !json.get(DHIS2SyncConfig.PREFERRED_LOCALE).isJsonNull())
-    {
-      ( (DHIS2SyncConfig) config ).setPreferredLocale(json.get(DHIS2SyncConfig.PREFERRED_LOCALE).getAsString());
-    }
-
-    return config;
+    return (T) config;
   }
 
-  public static long getCount()
-  {
-    GPROrganizationPermissionService permissions = ServiceFactory.getBean(GPROrganizationPermissionService.class);
-
-    List<Organization> organizations = permissions.getUserAdminOrganizations();
-
-    if (organizations.size() > 0)
-    {
-      SynchronizationConfigQuery query = new SynchronizationConfigQuery(new QueryFactory());
-
-      for (int i = 0; i < organizations.size(); i++)
-      {
-        Organization organization = organizations.get(i);
-        query.OR(query.getOrganization().EQ(organization));
-      }
-
-      return query.getCount();
-    }
-
-    return 0;
-  }
-
-  public static List<SynchronizationConfig> getSynchronizationConfigsForOrg(Integer pageNumber, Integer pageSize)
-  {
-    GPROrganizationPermissionService permissions = ServiceFactory.getBean(GPROrganizationPermissionService.class);
-
-    List<Organization> organizations = permissions.getUserAdminOrganizations();
-
-    if (organizations.size() > 0)
-    {
-      SynchronizationConfigQuery query = new SynchronizationConfigQuery(new QueryFactory());
-
-      for (int i = 0; i < organizations.size(); i++)
-      {
-        Organization organization = organizations.get(i);
-        query.OR(query.getOrganization().EQ(organization));
-      }
-
-      query.ORDER_BY_ASC(query.getLabel().localize());
-      query.restrictRows(pageSize, pageNumber);
-
-      try (OIterator<? extends SynchronizationConfig> it = query.getIterator())
-      {
-        return new LinkedList<SynchronizationConfig>(it.getAll());
-      }
-    }
-
-    return new LinkedList<SynchronizationConfig>();
-  }
-
-  public static SynchronizationConfig deserialize(JsonObject json)
-  {
-    return deserialize(json, false);
-  }
-
-  public static SynchronizationConfig deserialize(JsonObject json, boolean lock)
-  {
-    String oid = json.has(SynchronizationConfig.OID) ? json.get(SynchronizationConfig.OID).getAsString() : null;
-
-    SynchronizationConfig config = ( oid != null ? ( lock ? SynchronizationConfig.lock(oid) : SynchronizationConfig.get(oid) ) : new SynchronizationConfig() );
-    config.populate(json);
-
-    return config;
-  }
-
-  public static List<SynchronizationConfig> getAll(ExternalSystem system)
-  {
-    SynchronizationConfigQuery query = new SynchronizationConfigQuery(new QueryFactory());
-    query.WHERE(query.getSystem().EQ(system.getOid()));
-
-    try (OIterator<? extends SynchronizationConfig> it = query.getIterator())
-    {
-      return new LinkedList<SynchronizationConfig>(it.getAll());
-    }
-  }
 }

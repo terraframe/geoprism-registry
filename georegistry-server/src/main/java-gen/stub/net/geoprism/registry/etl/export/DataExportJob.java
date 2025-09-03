@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.export;
 
@@ -41,11 +41,13 @@ import net.geoprism.registry.dhis2.DHIS2SynchronizationManager;
 import net.geoprism.registry.dhis2.SynchronizationHistoryProgressScribe;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
 import net.geoprism.registry.etl.ExternalSystemSyncConfig;
-import net.geoprism.registry.etl.FhirSyncExportConfig;
-import net.geoprism.registry.etl.FhirSyncImportConfig;
+import net.geoprism.registry.etl.FhirExportConfig;
+import net.geoprism.registry.etl.FhirImportConfig;
 import net.geoprism.registry.etl.export.dhis2.DHIS2TransportServiceIF;
-import net.geoprism.registry.etl.fhir.FhirExportSynchronizationManager;
-import net.geoprism.registry.etl.fhir.FhirImportSynchronizationManager;
+import net.geoprism.registry.service.business.DataExportJobBusinessServiceIF;
+import net.geoprism.registry.service.business.FhirExportSynchronizationService;
+import net.geoprism.registry.service.business.FhirImportSynchronizationService;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;
@@ -103,51 +105,15 @@ public class DataExportJob extends DataExportJobBase
   @Override
   public void execute(ExecutionContext executionContext) throws Throwable
   {
-    ExportHistory history = (ExportHistory) executionContext.getJobHistoryRecord().getChild();
+    DataExportJobBusinessServiceIF service = ServiceFactory.getBean(DataExportJobBusinessServiceIF.class);
+    service.execute(this, executionContext);
 
-    this.setStage(history, ExportStage.EXPORT);
-
-    SynchronizationConfig c = this.getConfig();
-    ExternalSystemSyncConfig config = c.buildConfiguration();
-
-    if (config instanceof DHIS2SyncConfig)
-    {
-      DHIS2SyncConfig dhis2Config = (DHIS2SyncConfig) config;
-
-      DHIS2TransportServiceIF dhis2 = DHIS2ServiceFactory.buildDhis2TransportService(dhis2Config.getSystem());
-
-      DHIS2FeatureService dhis2FeatureService = new DHIS2FeatureService();
-      dhis2FeatureService.setExternalSystemDhis2Version(dhis2, dhis2Config.getSystem());
-
-      AllJobStatus status = new DHIS2SynchronizationManager(dhis2, dhis2Config, history, new SynchronizationHistoryProgressScribe(history)).synchronize();
-      executionContext.setStatus(status);
-    }
-    else if (config instanceof FhirSyncExportConfig)
-    {
-      FhirExportSynchronizationManager manager = new FhirExportSynchronizationManager((FhirSyncExportConfig) config, history);
-      manager.synchronize();
-    }
-    else if (config instanceof FhirSyncImportConfig)
-    {
-      FhirImportSynchronizationManager manager = new FhirImportSynchronizationManager(c, (FhirSyncImportConfig) config, history);
-      manager.synchronize();
-    }
   }
 
   @Override
   public void afterJobExecute(JobHistory history)
   {
     super.afterJobExecute(history);
-
-    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
-  }
-
-  private void setStage(ExportHistory history, ExportStage stage)
-  {
-    history.appLock();
-    history.clearStage();
-    history.addStage(stage);
-    history.apply();
 
     NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
   }

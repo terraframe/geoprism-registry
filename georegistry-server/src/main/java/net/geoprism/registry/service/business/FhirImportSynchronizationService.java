@@ -4,62 +4,56 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.etl.fhir;
+package net.geoprism.registry.service.business;
 
 import java.util.Date;
 
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import org.springframework.stereotype.Service;
+
 import com.runwaysdk.query.QueryFactory;
 
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.etl.ExportJobHasErrors;
-import net.geoprism.registry.etl.FhirSyncImportConfig;
+import net.geoprism.registry.etl.FhirImportConfig;
 import net.geoprism.registry.etl.export.ExportErrorQuery;
 import net.geoprism.registry.etl.export.ExportHistory;
 import net.geoprism.registry.etl.export.ExportStage;
 import net.geoprism.registry.etl.export.HttpError;
+import net.geoprism.registry.etl.fhir.FhirConnection;
+import net.geoprism.registry.etl.fhir.FhirConnectionFactory;
+import net.geoprism.registry.etl.fhir.FhirFactory;
+import net.geoprism.registry.etl.fhir.FhirResourceImporter;
+import net.geoprism.registry.etl.fhir.FhirResourceProcessor;
 import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;
 
-public class FhirImportSynchronizationManager
+@Service
+public class FhirImportSynchronizationService
 {
-  private SynchronizationConfig config;
-
-  private FhirSyncImportConfig  details;
-
-  private ExportHistory         history;
-
-  public FhirImportSynchronizationManager(SynchronizationConfig config, FhirSyncImportConfig details, ExportHistory history)
+  public void execute(SynchronizationConfig config, FhirImportConfig details, ExportHistory history)
   {
-    this.config = config;
-    this.details = details;
-    this.history = history;
-  }
-
-  public void synchronize()
-  {
-    final FhirExternalSystem system = (FhirExternalSystem) this.details.getSystem();
+    final FhirExternalSystem system = (FhirExternalSystem) details.getSystem();
 
     try (FhirConnection connection = FhirConnectionFactory.get(system))
     {
 
-      FhirResourceProcessor processor = FhirFactory.getProcessor(this.details.getImplementation());
+      FhirResourceProcessor processor = FhirFactory.getProcessor(details.getImplementation());
 
-      FhirResourceImporter importer = new FhirResourceImporter(connection, processor, this.history, this.config.getLastSynchDate());
+      FhirResourceImporter importer = new FhirResourceImporter(connection, processor, history, config.getLastSynchDate());
       importer.synchronize();
 
       history.appLock();
@@ -73,7 +67,7 @@ public class FhirImportSynchronizationManager
 
       NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
 
-      handleExportErrors();
+      handleExportErrors(history);
     }
     catch (ExportJobHasErrors e)
     {
@@ -85,17 +79,16 @@ public class FhirImportSynchronizationManager
     }
   }
 
-  private void handleExportErrors()
+  private void handleExportErrors(ExportHistory history)
   {
     ExportErrorQuery query = new ExportErrorQuery(new QueryFactory());
     query.WHERE(query.getHistory().EQ(history));
+
     Boolean hasErrors = query.getCount() > 0;
 
     if (hasErrors)
     {
-      ExportJobHasErrors ex = new ExportJobHasErrors();
-
-      throw ex;
+      throw new ExportJobHasErrors();
     }
   }
 }

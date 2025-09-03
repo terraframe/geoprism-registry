@@ -40,7 +40,10 @@ import net.geoprism.registry.view.PublishDTO;
 public class PublishBusinessService implements PublishBusinessServiceIF
 {
   @Autowired
-  private CommitBusinessServiceIF commitService;
+  private CommitBusinessServiceIF        commitService;
+
+  @Autowired
+  private SynchronizationConfigBusinessServiceIF exportService;
 
   @Override
   @Transaction
@@ -57,6 +60,8 @@ public class PublishBusinessService implements PublishBusinessServiceIF
       }
 
     });
+
+//    this.exportService.getExports(publish).forEach(this.exportService::delete);
 
     publish.delete();
   }

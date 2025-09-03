@@ -4,21 +4,24 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl;
 
+import java.util.Date;
 import java.util.SortedSet;
+
+import org.commongeoregistry.adapter.JsonDateUtil;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -27,30 +30,59 @@ import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
 import net.geoprism.registry.SynchronizationConfig;
+import net.geoprism.registry.SynchronizationConfig.Type;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.model.ServerHierarchyType;
 
 public class DHIS2SyncConfig extends ExternalSystemSyncConfig
 {
-  public static final String            ATTRIBUTES       = "attributes";
+  public static final String            ATTRIBUTES          = "attributes";
 
-  public static final String            HIERARCHY        = "hierarchyCode";
+  public static final String            HIERARCHY           = "hierarchyCode";
 
-  public static final String            LEVELS           = "levels";
+  public static final String            LEVELS              = "levels";
 
-  public static final String            GEO_OBJECT_TYPE  = "geoObjectType";
+  public static final String            GEO_OBJECT_TYPE     = "geoObjectType";
 
-  public static final String            TYPE             = "type";
-  
-  public static final String            PREFERRED_LOCALE = "preferredLocale";
+  public static final String            TYPE                = "type";
+
+  public static final String            PREFERRED_LOCALE    = "preferredLocale";
+
+  public static final String            FIELD_DATE          = "date";
+
+  public static final String            FIELD_SYNC_NONEXIST = "syncNonExistent";
 
   private SortedSet<DHIS2SyncLevel>     levels;
 
   private String                        hierarchyCode;
-  
+
   private String                        preferredLocale;
 
   private transient ServerHierarchyType hierarchy;
+
+  private Boolean                       syncNonExistent     = true;
+
+  private Date                          date;
+
+  public Boolean getSyncNonExistent()
+  {
+    return syncNonExistent;
+  }
+
+  public void setSyncNonExistent(Boolean syncNonExistent)
+  {
+    this.syncNonExistent = syncNonExistent;
+  }
+
+  public Date getDate()
+  {
+    return date;
+  }
+
+  public void setDate(Date date)
+  {
+    this.date = date;
+  }
 
   public SortedSet<DHIS2SyncLevel> getLevels()
   {
@@ -82,7 +114,7 @@ public class DHIS2SyncConfig extends ExternalSystemSyncConfig
     this.hierarchy = hierarchy;
     this.hierarchyCode = hierarchy.getCode();
   }
-  
+
   public String getPreferredLocale()
   {
     return preferredLocale;
@@ -118,9 +150,36 @@ public class DHIS2SyncConfig extends ExternalSystemSyncConfig
     GsonBuilder builder = new GsonBuilder();
     builder.registerTypeAdapter(DHIS2AttributeMapping.class, new DHIS2AttributeMapping.DHIS2AttributeMappingDeserializer());
     Gson gson = builder.create();
+
     this.levels = gson.fromJson(jaLevels, new TypeToken<SortedSet<DHIS2SyncLevel>>()
     {
     }.getType());
+
+    if (json.has(FIELD_DATE) && !json.get(FIELD_DATE).isJsonNull())
+    {
+      this.setDate(JsonDateUtil.parse(json.get(FIELD_DATE).getAsString()));
+    }
+
+    if (json.has(FIELD_SYNC_NONEXIST) && !json.get(FIELD_SYNC_NONEXIST).isJsonNull())
+    {
+      this.setSyncNonExistent(json.get(FIELD_SYNC_NONEXIST).getAsBoolean());
+    }
+    else
+    {
+      this.setSyncNonExistent(true);
+    }
+
+    if (json.has(DHIS2SyncConfig.PREFERRED_LOCALE) && !json.get(DHIS2SyncConfig.PREFERRED_LOCALE).isJsonNull())
+    {
+      this.setPreferredLocale(json.get(DHIS2SyncConfig.PREFERRED_LOCALE).getAsString());
+    }
+
+  }
+
+  @Override
+  public String getSynchronizationType()
+  {
+    return Type.DHIS2.name();
   }
 
 }

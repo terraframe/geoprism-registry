@@ -339,6 +339,8 @@
                                                 key="external.system.reveal"></localize>
                                             <localize *ngIf="system.type === 'FhirExternalSystem'"
                                                 key="external.system.fhir"></localize>
+                                                <localize *ngIf="system.type === 'JenaExternalSystem'"
+                                                key="external.system.jena"></localize>
                                         </td>
                                         <td class="label-column">{{system.label.localizedValue}}</td>
                                         <td class="label-column">{{system.description.localizedValue}}</td>

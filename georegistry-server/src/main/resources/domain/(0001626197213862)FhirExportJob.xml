@@ -101,19 +101,6 @@
         </attributeStruct>
       </object>    
     </createOrUpdate>
-    <update>
-      <mdBusiness name="net.geoprism.registry.SynchronizationConfig">
-          <attributes>
-            <reference name="hierarchy" required="false" />
-          </attributes>
-          <create>
-            <attributes>
-              <boolean name="isImport" label="Is Import" required="false" />
-              <dateTime name="lastSynchDate" label="Last Synch Date" required="false" />
-             </attributes>
-          </create>
-      </mdBusiness>   
-    </update>    
     <permissions>
       <role roleName="geoprism.admin.Administrator">
         <grant>      

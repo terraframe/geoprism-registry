@@ -101,11 +101,6 @@ public class GeoregistryProperties
     return Singleton.INSTANCE.props.getString("mapboxgl.accessToken");
   }
   
-  public static String getBaseJenaUrl()
-  {
-    return Singleton.INSTANCE.props.getString("jena.base.url");
-  }
-  
   /**
    * Can be used to provide the default map bounds for all map activities such as the location manager.
    * This parameter should be specified as a <a href="https://docs.mapbox.com/mapbox-gl-js/api/geography/#lnglatboundslike">LngLatBoundsLike</a>

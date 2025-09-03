@@ -345,9 +345,9 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
     SynchronizationConfig config = new SynchronizationConfig();
     config.setConfiguration(dhis2JsonConfig);
     config.setOrganization(org);
-    config.setGraphHierarchy(ht.getObject());
     config.setSystem(system.getOid());
     config.getLabel().setValue("DHIS2 Export Test");
+    config.setSynchronizationType(dhis2Config.getSynchronizationType());
 
     if (apply)
     {
@@ -1262,9 +1262,9 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
     SynchronizationConfig config = new SynchronizationConfig();
     config.setConfiguration(dhis2JsonConfig);
     config.setOrganization(org);
-    config.setGraphHierarchy(ht.getObject());
     config.setSystem(system.getOid());
     config.getLabel().setValue("DHIS2 Export Test");
+    config.setSynchronizationType(dhis2Config.getSynchronizationType());
 
     config.apply();
 
@@ -1516,7 +1516,7 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
      * Serialize it
      */
     GsonBuilder builder = new GsonBuilder();
-    builder.registerTypeAdapter(VertexServerGeoObject.class, new DHIS2GeoObjectJsonAdapters.DHIS2Serializer(dhis2, (DHIS2SyncConfig) config.buildConfiguration(), level2, new ArrayList<DHIS2Locale>(), new DualHashBidiMap<String, String>()));
+    builder.registerTypeAdapter(VertexServerGeoObject.class, new DHIS2GeoObjectJsonAdapters.DHIS2Serializer(dhis2, (DHIS2SyncConfig) config.toConfiguration(), level2, new ArrayList<DHIS2Locale>(), new DualHashBidiMap<String, String>()));
 
     JsonObject joGo = builder.create().toJsonTree(serverGo, serverGo.getClass()).getAsJsonObject();
 
@@ -1619,7 +1619,7 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
 
     ImportReportResponse resp = new ImportReportResponse("Lorem ipsum dolor sit amet, consectetur adipiscing elit", 306);
 
-    DHIS2SynchronizationManager manager = new DHIS2SynchronizationManager(dhis2, (DHIS2SyncConfig) config.buildConfiguration(), history, new SynchronizationHistoryProgressScribe(history));
+    DHIS2SynchronizationManager manager = new DHIS2SynchronizationManager(dhis2, (DHIS2SyncConfig) config.toConfiguration(), history, new SynchronizationHistoryProgressScribe(history));
 
     DHIS2SynchronizationManagerProxy.processMetadataImportResponse(manager, level2, "", resp, new JsonArray(), new JsonArray());
   }

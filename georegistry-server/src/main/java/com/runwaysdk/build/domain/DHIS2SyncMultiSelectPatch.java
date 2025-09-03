@@ -73,7 +73,7 @@ public class DHIS2SyncMultiSelectPatch
       
       if (es instanceof DHIS2ExternalSystem)
       {
-        ExternalSystemSyncConfig esconfig = config.buildConfiguration();
+        ExternalSystemSyncConfig esconfig = config.toConfiguration();
         
         if (esconfig instanceof DHIS2SyncConfig)
         {

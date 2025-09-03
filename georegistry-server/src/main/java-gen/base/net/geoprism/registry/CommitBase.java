@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 1478306544)
+@com.runwaysdk.business.ClassSignature(hash = -808096118)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -28,7 +28,7 @@ public abstract class CommitBase extends com.runwaysdk.business.Business
   public final static java.lang.String UID = "uid";
   public final static java.lang.String VERSIONNUMBER = "versionNumber";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = 1478306544;
+  private static final long serialVersionUID = -808096118;
   
   public CommitBase()
   {
@@ -577,6 +577,34 @@ public abstract class CommitBase extends com.runwaysdk.business.Business
   public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.CommitHasDependency> getDependencyRel(net.geoprism.registry.Commit commit)
   {
     return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.CommitHasDependency>) getRelationshipsWithParent(commit, net.geoprism.registry.CommitHasDependency.CLASS);
+  }
+  
+  public net.geoprism.registry.SynchronizationHasProcessedCommit addSynchronization(net.geoprism.registry.SynchronizationConfig synchronizationConfig)
+  {
+    return (net.geoprism.registry.SynchronizationHasProcessedCommit) addParent(synchronizationConfig, net.geoprism.registry.SynchronizationHasProcessedCommit.CLASS);
+  }
+  
+  public void removeSynchronization(net.geoprism.registry.SynchronizationConfig synchronizationConfig)
+  {
+    removeAllParents(synchronizationConfig, net.geoprism.registry.SynchronizationHasProcessedCommit.CLASS);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.SynchronizationConfig> getAllSynchronization()
+  {
+    return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.SynchronizationConfig>) getParents(net.geoprism.registry.SynchronizationHasProcessedCommit.CLASS);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.SynchronizationHasProcessedCommit> getAllSynchronizationRel()
+  {
+    return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.SynchronizationHasProcessedCommit>) getParentRelationships(net.geoprism.registry.SynchronizationHasProcessedCommit.CLASS);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.SynchronizationHasProcessedCommit> getSynchronizationRel(net.geoprism.registry.SynchronizationConfig synchronizationConfig)
+  {
+    return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.SynchronizationHasProcessedCommit>) getRelationshipsWithParent(synchronizationConfig, net.geoprism.registry.SynchronizationHasProcessedCommit.CLASS);
   }
   
   public static Commit get(String oid)

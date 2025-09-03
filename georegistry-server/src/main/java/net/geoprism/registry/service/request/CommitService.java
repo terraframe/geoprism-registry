@@ -148,7 +148,7 @@ public class CommitService
         .map(this.sourceService::toDTO) //
         .map(dto -> {
           dto.setOid(null);
-          
+
           return dto;
         }) //
         .toList();

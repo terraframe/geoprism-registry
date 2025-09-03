@@ -43,12 +43,12 @@ import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.etl.fhir.BasicFhirConnection;
-import net.geoprism.registry.etl.fhir.FhirExportSynchronizationManager;
 import net.geoprism.registry.etl.fhir.MCSDFhirDataPopulator;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
+import net.geoprism.registry.service.business.FhirExportSynchronizationService;
 import net.geoprism.registry.service.request.SynchronizationConfigService;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
@@ -58,16 +58,19 @@ import net.geoprism.registry.test.USATestData;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class FhirExportTest extends USADatasetTest implements InstanceTestClassListener
 {
-  protected static ListType              multiHierarchyList;
+  protected static ListType                  multiHierarchyList;
 
-  protected static ListTypeVersion       multiHierarchyVersion;
+  protected static ListTypeVersion           multiHierarchyVersion;
 
-  protected static ListType              basicHierarchyList;
+  protected static ListType                  basicHierarchyList;
 
-  protected static ListTypeVersion       basicHierarchyVersion;
+  protected static ListTypeVersion           basicHierarchyVersion;
 
   @Autowired
-  protected SynchronizationConfigService syncService;
+  protected SynchronizationConfigService     syncService;
+
+  @Autowired
+  protected FhirExportSynchronizationService service;
 
   @Override
   public void beforeClassSetup() throws Exception
@@ -75,7 +78,7 @@ public class FhirExportTest extends USADatasetTest implements InstanceTestClassL
     TestDataSet.deleteExternalSystems("FHIRExportTest");
 
     super.beforeClassSetup();
-    
+
     testData.setUpInstanceData();
 
     classSetupInRequest();
@@ -183,7 +186,7 @@ public class FhirExportTest extends USADatasetTest implements InstanceTestClassL
     final ServerOrganization org = USATestData.ORG_NPS.getServerObject();
 
     // Create the FHIR Sync Config
-    FhirSyncExportConfig sourceConfig = new FhirSyncExportConfig();
+    FhirExportConfig sourceConfig = new FhirExportConfig();
     sourceConfig.setLabel(new LocalizedValue("FHIR Export Test Data"));
     sourceConfig.setOrganization(org);
 
@@ -207,9 +210,9 @@ public class FhirExportTest extends USADatasetTest implements InstanceTestClassL
     SynchronizationConfig config = new SynchronizationConfig();
     config.setConfiguration(fhirExportJsonConfig);
     config.setOrganization(org);
-    config.setGraphHierarchy(ht.getObject());
     config.setSystem(system.getOid());
     config.getLabel().setValue("FHIR Export Test");
+    config.setSynchronizationType(sourceConfig.getSynchronizationType());
     config.apply();
 
     return config;
@@ -225,8 +228,7 @@ public class FhirExportTest extends USADatasetTest implements InstanceTestClassL
 
       SynchronizationConfig config = createSyncConfig(system, multiHierarchyList, multiHierarchyVersion);
 
-      FhirExportSynchronizationManager manager = new FhirExportSynchronizationManager((FhirSyncExportConfig) config.buildConfiguration(), null);
-      Bundle bundle = manager.generateBundle(new BasicFhirConnection(system));
+      Bundle bundle = this.service.generateBundle(config.toConfiguration(), new BasicFhirConnection(system));
 
       // Assert bundle values
       List<BundleEntryComponent> entries = bundle.getEntry();
@@ -339,8 +341,7 @@ public class FhirExportTest extends USADatasetTest implements InstanceTestClassL
 
       SynchronizationConfig config = createSyncConfig(system, basicHierarchyList, basicHierarchyVersion);
 
-      FhirExportSynchronizationManager manager = new FhirExportSynchronizationManager((FhirSyncExportConfig) config.buildConfiguration(), null);
-      Bundle bundle = manager.generateBundle(new BasicFhirConnection(system));
+      Bundle bundle = this.service.generateBundle(config.toConfiguration(), new BasicFhirConnection(system));
 
       // Assert bundle values
       List<BundleEntryComponent> entries = bundle.getEntry();

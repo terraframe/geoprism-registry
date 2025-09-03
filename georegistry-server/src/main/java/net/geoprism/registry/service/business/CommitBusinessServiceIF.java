@@ -2,6 +2,7 @@ package net.geoprism.registry.service.business;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import net.geoprism.graph.BusinessEdgeTypeSnapshot;
 import net.geoprism.graph.BusinessTypeSnapshot;
@@ -55,12 +56,16 @@ public interface CommitBusinessServiceIF
 
   Commit create(Publish publish, CommitDTO dto);
 
-  List<RemoteEvent> getRemoteEvents(Commit commit, Integer chunk);
-
   List<Commit> getDependencies(Commit commit);
 
   List<DataSource> getSources(Commit commit);
 
   CommitHasDataSource addSource(Commit commit, DataSource source);
+
+  long getEventCount(Commit commit);
+
+  Stream<RemoteEvent> getRemoteEvents(Commit commit);
+
+  List<RemoteEvent> getRemoteEvents(Commit commit, Integer chunk);
 
 }

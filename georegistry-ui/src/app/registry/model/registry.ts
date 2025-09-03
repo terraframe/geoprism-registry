@@ -131,10 +131,10 @@ export interface AttributedType {
 }
 
 export class GraphType {
-  code: string;
-  typeCode: string;
-  label: LocalizedValue;
-  description?: LocalizedValue;
+    code: string;
+    typeCode: string;
+    label: LocalizedValue;
+    description?: LocalizedValue;
 }
 
 export class GeoObjectType implements AttributedType {
@@ -428,12 +428,13 @@ export class SynchronizationConfig {
     oid?: string;
     type?: string;
     systemLabel?: string;
-    isImport?: boolean;
     organization: string;
     system: string;
     hierarchy: string;
     label: LocalizedValue;
     configuration: any;
+    synchronizationType: string;
+    publishUid?: string;
 }
 
 export class OrgSyncInfo {

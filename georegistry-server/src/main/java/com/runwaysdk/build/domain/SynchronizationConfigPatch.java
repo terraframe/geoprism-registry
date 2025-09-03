@@ -32,7 +32,6 @@ import net.geoprism.registry.SynchronizationConfigQuery;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
-import net.geoprism.registry.graph.HierarchicalRelationshipType;
 import net.geoprism.registry.model.ServerHierarchyType;
 
 public class SynchronizationConfigPatch
@@ -71,14 +70,7 @@ public class SynchronizationConfigPatch
           JsonObject json = config.getConfigurationJson();
           ServerHierarchyType hierarchy = null;
           
-          HierarchicalRelationshipType hType = config.getGraphHierarchy();
-
-          if (hType != null)
-          {
-            // Get the cached version
-            hierarchy = ServerHierarchyType.get(hType.getCode());
-          }
-          else if (json.has("hierarchy"))
+          if (json.has("hierarchy"))
           {
             hierarchy = ServerHierarchyType.get(json.get("hierarchy").getAsString());
           }

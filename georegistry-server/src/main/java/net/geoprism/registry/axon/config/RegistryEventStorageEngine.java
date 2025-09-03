@@ -83,9 +83,9 @@ public class RegistryEventStorageEngine extends JdbcEventStorageEngine
 
   private final ReadEventDataForAggregateStatementBuilder readEventDataForAggregate;
 
-  private final IndexOfCommitStatementBuilder   lastSequenceNumberForCommit;
+  private final IndexOfCommitStatementBuilder             lastSequenceNumberForCommit;
 
-  private final IndexOfCommitStatementBuilder   firstSequenceNumberForCommit;
+  private final IndexOfCommitStatementBuilder             firstSequenceNumberForCommit;
 
   protected RegistryEventStorageEngine(Builder builder, TransactionManager transactionManager)
   {
@@ -108,11 +108,11 @@ public class RegistryEventStorageEngine extends JdbcEventStorageEngine
 
     EventStreamSpliterator<? extends IndexDomainEventData<?>> spliterator = new EventStreamSpliterator<>( //
         lastItem -> fetchDomainEvents(commit, //
-            lastItem == null ? firstIndex : lastItem.getGlobalIndex(), //
+            lastItem == null ? firstIndex : ( lastItem.getGlobalIndex() + 1 ), //
             lastIndex, //
             batchSize),
         (list) -> {
-          return list.size() < batchSize || list.get(list.size() - 1).getGlobalIndex() == lastIndex;
+          return list.size() < batchSize || list.get(list.size() - 1).getGlobalIndex().equals(lastIndex);
         }); //
 
     return StreamSupport.stream(spliterator, false);
@@ -127,6 +127,13 @@ public class RegistryEventStorageEngine extends JdbcEventStorageEngine
             JdbcUtils.listResults(this::getIndexDomainEventData), //
             e -> new EventStoreException(format("Failed to read events for commit [%s]", commit), e) //
         ));
+  }
+
+  public DomainEventStream readBatch(Commit commit, Long firstIndex, Long lastIndex, int batchSize)
+  {
+    List<? extends IndexDomainEventData<?>> events = fetchDomainEvents(commit, firstIndex, lastIndex, batchSize);
+
+    return upcastAndDeserializeDomainEvents(events.stream(), getEventSerializer(), upcasterChain);
   }
 
   public DomainEventStream readEvents(Commit commit, long firstIndex, Long lastIndex, int batchSize)
@@ -204,7 +211,7 @@ public class RegistryEventStorageEngine extends JdbcEventStorageEngine
 
     EventStreamSpliterator<? extends IndexDomainEventData<?>> spliterator = new EventStreamSpliterator<>( //
         lastItem -> fetchDomainEvents(aggregateIdentifier, //
-            lastItem == null ? firstIndex : lastItem.getGlobalIndex() + 1, //
+            lastItem == null ? firstIndex : ( lastItem.getGlobalIndex() + 1 ), //
             lastIndex),
         (list) -> true); //
 
@@ -221,7 +228,6 @@ public class RegistryEventStorageEngine extends JdbcEventStorageEngine
             e -> new EventStoreException(format("Failed to read events for aggregateIdentifier [%s]", aggregateIdentifier), e) //
         ));
   }
-  
 
   public DomainEventStream readEvents(String aggregateIdentifier, long firstIndex, Long lastIndex)
   {

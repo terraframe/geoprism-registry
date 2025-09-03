@@ -103,7 +103,7 @@ public class FhirImportTest extends USADatasetTest implements InstanceTestClassL
     final ServerOrganization org = USATestData.ORG_NPS.getServerObject();
 
     // Create DHIS2 Sync Config
-    FhirSyncImportConfig sourceConfig = new FhirSyncImportConfig();
+    FhirImportConfig sourceConfig = new FhirImportConfig();
     sourceConfig.setLabel(new LocalizedValue("FHIR Import Test Data"));
     sourceConfig.setOrganization(org);
     sourceConfig.setImplementation(BasicFhirResourceProcessor.class.getName());
@@ -116,10 +116,9 @@ public class FhirImportTest extends USADatasetTest implements InstanceTestClassL
     SynchronizationConfig config = new SynchronizationConfig();
     config.setConfiguration(fhirExportJsonConfig);
     config.setOrganization(org);
-    config.setGraphHierarchy(ht.getObject());
     config.setSystem(system.getOid());
     config.getLabel().setValue("FHIR Import Test");
-    config.setIsImport(true);
+    config.setSynchronizationType(sourceConfig.getSynchronizationType());
     config.apply();
 
     return config;
@@ -134,7 +133,7 @@ public class FhirImportTest extends USADatasetTest implements InstanceTestClassL
       FhirExternalSystem system = createExternalSystem();
 
       SynchronizationConfig config = createSyncConfig(system);
-      FhirSyncImportConfig iConfig = (FhirSyncImportConfig) config.buildConfiguration();
+      FhirImportConfig iConfig = (FhirImportConfig) config.toConfiguration();
 
       FhirResourceProcessor processor = FhirFactory.getProcessor(iConfig.getImplementation());
 

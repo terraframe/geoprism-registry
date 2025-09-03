@@ -115,7 +115,7 @@
       </mdBusiness>
     </create>
     <permissions>
-      <role roleName="cgr.RegistryAdministrator">
+      <role roleName="geoprism.admin.Administrator">
         <grant>
           <mdBusinessPermission type="net.geoprism.graph.RepoRDFExportJob">
             <operation name="ALL" />

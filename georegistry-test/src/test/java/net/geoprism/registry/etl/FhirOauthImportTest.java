@@ -99,7 +99,7 @@ public class FhirOauthImportTest extends FastDatasetTest implements InstanceTest
     final ServerOrganization org = FastTestDataset.ORG_CGOV.getServerObject();
 
     // Create DHIS2 Sync Config
-    FhirSyncImportConfig sourceConfig = new FhirSyncImportConfig();
+    FhirImportConfig sourceConfig = new FhirImportConfig();
     sourceConfig.setLabel(new LocalizedValue("FHIR Import Test Data"));
     sourceConfig.setOrganization(org);
     sourceConfig.setImplementation(BasicFhirResourceProcessor.class.getName());
@@ -112,10 +112,9 @@ public class FhirOauthImportTest extends FastDatasetTest implements InstanceTest
     SynchronizationConfig config = new SynchronizationConfig();
     config.setConfiguration(fhirExportJsonConfig);
     config.setOrganization(org);
-    config.setGraphHierarchy(ht.getObject());
     config.setSystem(system.getOid());
     config.getLabel().setValue("FHIR Import Test");
-    config.setIsImport(true);
+    config.setSynchronizationType(sourceConfig.getSynchronizationType());
     config.apply();
 
     return config;

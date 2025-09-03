@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.axonframework.eventsourcing.eventstore.DomainEventStream;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +68,7 @@ import net.geoprism.registry.view.PublishDTO;
 @Service
 public class CommitBusinessService implements CommitBusinessServiceIF
 {
-  public static final int                           BATCH_SIZE = 1000;
+  public static final int                           BATCH_SIZE = 5;
 
   @Autowired
   private BusinessTypeBusinessServiceIF             bService;
@@ -495,10 +496,13 @@ public class CommitBusinessService implements CommitBusinessServiceIF
     }
   }
 
+  /**
+   * Split stream of events, only gets a single chunk per split
+   */
   @Override
-  public List<RemoteEvent> getRemoteEvents(Commit commit, Integer chunk)
+  public Stream<RemoteEvent> getRemoteEvents(Commit commit)
   {
-    Long startIndex = this.store.firstIndexFor(commit).map(seq -> seq + ( chunk * BATCH_SIZE )).orElseThrow(() -> {
+    Long startIndex = this.store.firstIndexFor(commit).orElseThrow(() -> {
       throw new ProgrammingErrorException("Commit [" + commit.getUid() + "] does not have any events");
     });
 
@@ -510,7 +514,31 @@ public class CommitBusinessService implements CommitBusinessServiceIF
 
     return stream.asStream() //
         .filter(m -> RemoteEvent.class.isAssignableFrom(m.getPayloadType())) //
+        .map(m -> (RemoteEvent) m.getPayload());
+  }
+
+  @Override
+  public List<RemoteEvent> getRemoteEvents(Commit commit, Integer chunk)
+  {
+    Long startIndex = this.store.firstIndexFor(commit).map(seq -> seq + ( chunk * BATCH_SIZE )).orElseThrow(() -> {
+      throw new ProgrammingErrorException("Commit [" + commit.getUid() + "] does not have any events");
+    });
+
+    Long lastIndex = this.store.lastIndexFor(commit).orElseThrow(() -> {
+      throw new ProgrammingErrorException("Commit [" + commit.getUid() + "] does not have any events");
+    });
+
+    DomainEventStream stream = this.store.readBatch(commit, startIndex, lastIndex, BATCH_SIZE);
+
+    return stream.asStream() //
+        .filter(m -> RemoteEvent.class.isAssignableFrom(m.getPayloadType())) //
         .map(m -> (RemoteEvent) m.getPayload()).toList();
+  }
+
+  @Override
+  public long getEventCount(Commit commit)
+  {
+    return this.store.size(commit);
   }
 
 }

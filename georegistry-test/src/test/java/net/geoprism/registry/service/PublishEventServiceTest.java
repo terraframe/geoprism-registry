@@ -228,7 +228,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
         Assert.assertEquals(1, sources.size());
         Assert.assertEquals(USATestData.SOURCE.getCode(), sources.get(0).getCode());
 
-        List<RemoteEvent> events = this.cService.getRemoteEvents(commit, 0);
+        List<RemoteEvent> events = this.cService.getRemoteEvents(commit).toList();
 
         Assert.assertEquals(47, events.size());
 
@@ -335,7 +335,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
         Assert.assertEquals(1, sources.size());
         Assert.assertEquals(USATestData.SOURCE.getCode(), sources.get(0).getCode());
 
-        List<RemoteEvent> events = this.cService.getRemoteEvents(commit, 0);
+        List<RemoteEvent> events = this.cService.getRemoteEvents(commit).toList();
 
         Assert.assertEquals(41, events.size());
       }
@@ -369,7 +369,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
         Commit commit = commits.get(0);
 
-        Assert.assertEquals(47, this.cService.getRemoteEvents(commit, 0).size());
+        Assert.assertEquals(47, this.cService.getRemoteEvents(commit).toList().size());
         Assert.assertEquals(Long.valueOf(94), this.store.size());
 
         // Update a geo object
@@ -389,7 +389,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
         Assert.assertEquals(2, this.cService.getCommits(publish).size());
 
-        Assert.assertEquals(1, this.cService.getRemoteEvents(commit2, 0).size());
+        Assert.assertEquals(1, this.cService.getRemoteEvents(commit2).toList().size());
 
         List<Commit> dependencies = this.cService.getDependencies(commit2);
 

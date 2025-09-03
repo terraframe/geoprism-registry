@@ -50,6 +50,10 @@
               <option value="FhirExternalSystem">
                 <localize key="external.system.fhir"></localize>
               </option>
+              <option value="JenaExternalSystem">
+                <localize key="external.system.jena"></localize>
+              </option>
+
             </select>
           </span>
         </div>
@@ -165,7 +169,7 @@
         </div>
       </div>
 
-      <div *ngIf="system.type === 'DHIS2ExternalSystem' || system.type === 'FhirExternalSystem'" class="row-holder">
+      <div *ngIf="system.type === 'DHIS2ExternalSystem' || system.type === 'FhirExternalSystem'  || system.type === 'JenaExternalSystem'" class="row-holder">
         <div class="label-holder">
           <label>
             <localize key="external.system.url"></localize>

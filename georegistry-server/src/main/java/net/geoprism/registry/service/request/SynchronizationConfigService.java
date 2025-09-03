@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service.request;
 
@@ -26,7 +26,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,7 +34,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
@@ -56,7 +54,7 @@ import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
 import net.geoprism.registry.etl.ExternalSystemSyncConfig;
-import net.geoprism.registry.etl.FhirSyncExportConfig;
+import net.geoprism.registry.etl.FhirExportConfig;
 import net.geoprism.registry.etl.export.DataExportJob;
 import net.geoprism.registry.etl.export.DataExportJobQuery;
 import net.geoprism.registry.etl.export.ExportHistory;
@@ -64,13 +62,14 @@ import net.geoprism.registry.etl.export.ExportHistoryQuery;
 import net.geoprism.registry.etl.export.HttpError;
 import net.geoprism.registry.etl.export.LoginException;
 import net.geoprism.registry.etl.export.dhis2.DHIS2TransportServiceIF;
-import net.geoprism.registry.etl.fhir.FhirExportSynchronizationManager;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.service.business.FhirExportSynchronizationService;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.SynchronizationConfigBusinessServiceIF;
 import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
 import net.geoprism.registry.service.permission.RolePermissionService;
 import net.geoprism.registry.view.JsonWrapper;
@@ -79,23 +78,27 @@ import net.geoprism.registry.view.Page;
 @Service
 public class SynchronizationConfigService
 {
-  @Autowired
-  private RegistryComponentService         service;
 
   @Autowired
-  private HierarchyTypeBusinessServiceIF   hierarchyService;
+  private HierarchyTypeBusinessServiceIF         hierarchyService;
 
   @Autowired
-  private RolePermissionService            permissions;
+  private RolePermissionService                  permissions;
 
   @Autowired
-  private GPROrganizationPermissionService orgPermissions;
+  private GPROrganizationPermissionService       orgPermissions;
+
+  @Autowired
+  private FhirExportSynchronizationService       exportService;
+
+  @Autowired
+  private SynchronizationConfigBusinessServiceIF service;
 
   @Request(RequestType.SESSION)
   public JsonObject page(String sessionId, Integer pageNumber, Integer pageSize) throws JSONException
   {
-    long count = SynchronizationConfig.getCount();
-    List<SynchronizationConfig> results = SynchronizationConfig.getSynchronizationConfigsForOrg(pageNumber, pageSize);
+    long count = this.service.getCount();
+    List<SynchronizationConfig> results = this.service.getSynchronizationConfigsForOrg(pageNumber, pageSize);
 
     return new Page<SynchronizationConfig>(count, pageNumber, pageSize, results).toJSON();
   }
@@ -103,14 +106,8 @@ public class SynchronizationConfigService
   @Request(RequestType.SESSION)
   public JsonObject apply(String sessionId, JsonObject element) throws JSONException
   {
-    return applyInTrans(sessionId, element);
-  }
-
-  @Transaction
-  public JsonObject applyInTrans(String sessionId, JsonObject element) throws JSONException
-  {
-    SynchronizationConfig config = SynchronizationConfig.deserialize(element, true);
-    config.apply();
+    SynchronizationConfig config = this.service.deserialize(element, true);
+    this.service.apply(config);
 
     return config.toJSON();
   }
@@ -131,7 +128,7 @@ public class SynchronizationConfigService
 
     permissions.enforceRA(organization.getCode());
 
-    config.delete();
+    this.service.delete(config);
   }
 
   @Request(RequestType.SESSION)
@@ -147,7 +144,7 @@ public class SynchronizationConfigService
     // GeoObjectType[] gots = service.getGeoObjectTypes(sessionId, null, new
     // String[] { hierarchyTypeCode }, PermissionContext.WRITE);
 
-    CustomSerializer serializer = service.serializer(sessionId);
+    LocaleSerializer serializer = new LocaleSerializer(Session.getCurrentLocale());
 
     JsonArray jarray = new JsonArray();
     for (ServerGeoObjectType got : gots)
@@ -274,14 +271,13 @@ public class SynchronizationConfigService
 
     permissions.enforceRA(synchorinzation.getOrganization().getCode());
 
-    ExternalSystemSyncConfig config = synchorinzation.buildConfiguration();
+    ExternalSystemSyncConfig config = synchorinzation.toConfiguration();
 
-    if (config instanceof FhirSyncExportConfig)
+    if (config instanceof FhirExportConfig)
     {
       try
       {
-        FhirExportSynchronizationManager manager = new FhirExportSynchronizationManager((FhirSyncExportConfig) config, null);
-        return manager.generateZipFile();
+        return this.exportService.generateZipFile((FhirExportConfig) config);
       }
       catch (IOException e)
       {
@@ -299,7 +295,7 @@ public class SynchronizationConfigService
 
     permissions.enforceRA(config.getOrganization().getCode());
 
-    List<? extends DataExportJob> jobs = config.getJobs();
+    List<? extends DataExportJob> jobs = this.service.getJobs(config);
 
     DataExportJob job = jobs.get(0);
     job.appLock();

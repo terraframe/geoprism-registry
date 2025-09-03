@@ -81,51 +81,50 @@ public class RemoteDHIS2APITest implements InstanceTestClassListener
   /*
    * Which server are we connecting to?
    */
-  private static final Integer API_VERSION = 40;
-  
-  private static final String VERSION = "2.40.3";
-  
-  private static final String URL = "https://play.dhis2.org/40.3.0/";
-  
+  private static final Integer           API_VERSION         = 40;
+
+  private static final String            VERSION             = "2.40.3";
+
+  private static final String            URL                 = "https://play.dhis2.org/40.3.0/";
+
   /*
    * Constants that reference expected data in the remote system
    */
-  public static final String REMOTE_COUNTRY_CODE = "OU_525";
-  
-  public static final String TEST_DATA_KEY = "RemoteDHIS2Test";
-  
-  private static final String USERNAME = "admin";
-  
-  private static final String PASSWORD = "district";
-  
-  
-  protected static RemoteDHIS2Dataset  testData;
-  
+  public static final String             REMOTE_COUNTRY_CODE = "OU_525";
+
+  public static final String             TEST_DATA_KEY       = "RemoteDHIS2Test";
+
+  private static final String            USERNAME            = "admin";
+
+  private static final String            PASSWORD            = "district";
+
+  protected static RemoteDHIS2Dataset    testData;
+
   protected SynchronizationConfigService syncService;
 
   protected DHIS2ExternalSystem          system;
 
   protected DHIS2TransportServiceIF      dhis2;
-  
+
   @Autowired
-  private TestRegistryClient   client;
-  
+  private TestRegistryClient             client;
+
   @Autowired
-  private GPRGeoObjectBusinessService goBizService;
-  
+  private GPRGeoObjectBusinessService    goBizService;
+
   public static class RemoteDHIS2Dataset extends AllAttributesDataset
   {
-    public static final String TEST_DATA_KEY = "RemoteDHIS2";
-    
+    public static final String                TEST_DATA_KEY     = "RemoteDHIS2";
+
     public static final TestGeoObjectTypeInfo REMOTE_GOT_PARENT = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "RemoteGotParent", GeometryType.MULTIPOLYGON, AllAttributesDataset.ORG);
-    
+
     public static final TestGeoObjectInfo     REMOTE_GO_PARENT  = new TestGeoObjectInfo(TEST_DATA_KEY + "RemoteGoParent", REMOTE_GOT_PARENT, AllAttributesDataset.SOURCE);
-    
+
     {
       managedGeoObjectTypeInfos.add(REMOTE_GOT_PARENT);
       managedGeoObjectInfos.add(REMOTE_GO_PARENT);
     }
-    
+
     @Transaction
     @Override
     public void setUpClassRelationships()
@@ -160,22 +159,22 @@ public class RemoteDHIS2APITest implements InstanceTestClassListener
       return TEST_DATA_KEY;
     }
   }
-  
+
   @Override
   public void beforeClassSetup()
   {
     System.out.println("Test will run against server [" + URL + "].");
-    
+
     TestDataSet.deleteExternalSystems("RemoteDHIS2Test");
     testData = new RemoteDHIS2Dataset();
     testData.setUpMetadata();
-    
+
     if (!SchedulerManager.initialized())
     {
       SchedulerManager.start();
     }
   }
-  
+
   @Override
   public void afterClassSetup()
   {
@@ -191,15 +190,15 @@ public class RemoteDHIS2APITest implements InstanceTestClassListener
     testData.setUpInstanceData();
 
     system = createDhis2ExternalSystem();
-    
+
     syncService = new SynchronizationConfigService();
-    
+
     this.dhis2 = DHIS2ServiceFactory.buildDhis2TransportService(this.system);
-    
+
     setRootExternalId();
 
     testData.logIn(AllAttributesDataset.USER_ORG_RA);
-    
+
     // Delete any data from a previous run
     removeRemoteOrgUnitByCode(AllAttributesDataset.GO_BOOL.getCode());
     removeRemoteOrgUnitByCode(AllAttributesDataset.GO_CHAR.getCode());
@@ -236,14 +235,14 @@ public class RemoteDHIS2APITest implements InstanceTestClassListener
 
     return system;
   }
-  
+
   @Request
   private void setRootExternalId() throws Exception
   {
     OrganisationUnit ou = this.getRemoteOrgUnitByCode(REMOTE_COUNTRY_CODE);
     goBizService.createExternalId(RemoteDHIS2Dataset.REMOTE_GO_PARENT.getServerObject(), system, ou.getId(), ImportStrategy.NEW_ONLY);
   }
-  
+
   @Test
   @Request
   public void testExportCharacterAttr() throws Exception
@@ -285,15 +284,15 @@ public class RemoteDHIS2APITest implements InstanceTestClassListener
   {
     exportCustomAttribute(AllAttributesDataset.GOT_TERM, AllAttributesDataset.GO_TERM, testData.AT_GO_TERM, "Bp9g0VvC1fK");
   }
-  
+
   private OrganisationUnit getRemoteOrgUnitByCode(String code) throws Exception
   {
     MetadataGetResponse<OrganisationUnit> resp = dhis2.metadataGet(OrganisationUnit.class);
-    
+
     Assert.assertTrue(resp.isSuccess());
-    
+
     List<OrganisationUnit> orgUnits = resp.getObjects();
-    
+
     for (OrganisationUnit ou : orgUnits)
     {
       if (ou.getCode() != null && ou.getCode().equals(code))
@@ -301,41 +300,43 @@ public class RemoteDHIS2APITest implements InstanceTestClassListener
         return ou;
       }
     }
-    
+
     return null;
   }
-  
+
   private void removeRemoteOrgUnitByCode(String code) throws Exception
   {
     OrganisationUnit orgUnit = getRemoteOrgUnitByCode(code);
-    
+
     if (orgUnit != null)
     {
       DHIS2Response resp2 = this.dhis2.entityIdDelete(DHIS2Objects.ORGANISATION_UNITS, orgUnit.getId(), null);
-      
+
       if (!resp2.isSuccess())
       {
         System.out.println(resp2.getResponse());
       }
-      
+
       Assert.assertTrue(resp2.isSuccess());
     }
   }
-  
+
   public static Collection<DHIS2AttributeMapping> getDefaultMappings()
   {
     Collection<DHIS2AttributeMapping> mappings = new ArrayList<DHIS2AttributeMapping>();
-    
+
     final String defaultMappingStrategy = DHIS2AttributeMapping.class.getName();
-    
+
     HashMap<String, String> lazyMap = new HashMap<String, String>();
-    
-    // These DHIS2 default attribute names are also hardcoded in the synchronization-config-modal.component.ts front-end as well as the DHIS2FeatureService.buildDefaultDhis2OrgUnitAttributes
+
+    // These DHIS2 default attribute names are also hardcoded in the
+    // synchronization-config-modal.component.ts front-end as well as the
+    // DHIS2FeatureService.buildDefaultDhis2OrgUnitAttributes
     lazyMap.put("name", DefaultAttribute.DISPLAY_LABEL.getName());
     lazyMap.put("shortName", DefaultAttribute.DISPLAY_LABEL.getName());
     lazyMap.put("code", DefaultAttribute.CODE.getName());
     lazyMap.put("openingDate", DefaultAttribute.CREATE_DATE.getName());
-    
+
     for (Entry<String, String> entry : lazyMap.entrySet())
     {
       DHIS2AttributeMapping name = new DHIS2AttributeMapping();
@@ -344,10 +345,10 @@ public class RemoteDHIS2APITest implements InstanceTestClassListener
       name.setAttributeMappingStrategy(defaultMappingStrategy);
       mappings.add(name);
     }
-    
+
     return mappings;
   }
-  
+
   @Request
   public SynchronizationConfig createSyncConfig(TestGeoObjectTypeInfo got, TestGeoObjectInfo go, TestAttributeTypeInfo attr, String externalAttrId)
   {
@@ -364,7 +365,7 @@ public class RemoteDHIS2APITest implements InstanceTestClassListener
 
     // Populate Levels
     SortedSet<DHIS2SyncLevel> levels = new TreeSet<DHIS2SyncLevel>();
-    
+
     DHIS2SyncLevel level1 = new DHIS2SyncLevel();
     level1.setGeoObjectType(RemoteDHIS2Dataset.REMOTE_GOT_PARENT.getServerObject().getCode());
     level1.setSyncType(DHIS2SyncLevel.Type.RELATIONSHIPS);
@@ -384,14 +385,14 @@ public class RemoteDHIS2APITest implements InstanceTestClassListener
     level3.setMappings(getDefaultMappings());
     level3.setLevel(2);
     levels.add(level3);
-    
+
     Collection<DHIS2AttributeMapping> mappings = getDefaultMappings();
     DHIS2OptionSetAttributeMapping mapping = new DHIS2OptionSetAttributeMapping();
     mapping.setCgrAttrName(attr.getAttributeName());
     mapping.setExternalId(externalAttrId);
     mappings.add(mapping);
     level3.setMappings(mappings);
-    
+
     Map<String, String> terms = new HashMap<String, String>();
     terms.put(AllAttributesDataset.AT_GO_TERM.fetchRootAsClassifier().getClassifierId(), "HNaxl8GKadp");
     terms.put(AllAttributesDataset.TERM_TERM_VAL1.fetchClassifier().getClassifierId(), "HNaxl8GKadp");
@@ -409,70 +410,70 @@ public class RemoteDHIS2APITest implements InstanceTestClassListener
     SynchronizationConfig config = new SynchronizationConfig();
     config.setConfiguration(dhis2JsonConfig);
     config.setOrganization(org);
-    config.setGraphHierarchy(ht.getObject());
     config.setSystem(system.getOid());
     config.getLabel().setValue("DHIS2 Export Test");
+    config.setSynchronizationType(dhis2Config.getSynchronizationType());
     config.apply();
 
     return config;
   }
-  
+
   public void exportCustomAttribute(TestGeoObjectTypeInfo got, TestGeoObjectInfo go, TestAttributeTypeInfo attr, String externalAttrId) throws Exception
   {
     // Make sure our prerequsite data exists on the server
     String attrPayload = IOUtils.toString(RemoteDHIS2APITest.class.getClassLoader().getResourceAsStream("remote-dhis2-api-test-attrs.json"), "UTF-8");
     ImportReportResponse attrImportResponse = this.dhis2.metadataPost(null, new StringEntity(attrPayload.toString(), Charset.forName("UTF-8")));
     Assert.assertTrue(attrImportResponse.isSuccess());
-    
+
     SynchronizationConfig config = createSyncConfig(got, go, attr, externalAttrId);
-    DHIS2SyncConfig dhis2Config = (DHIS2SyncConfig) config.buildConfiguration();
-    
+    DHIS2SyncConfig dhis2Config = (DHIS2SyncConfig) config.toConfiguration();
+
     ExportHistory history = new ExportHistory();
     history.setStartTime(new Date());
     history.addStatus(AllJobStatus.NEW);
     history.addStage(ExportStage.CONNECTING);
     history.apply();
-    
+
     new DHIS2SynchronizationManager(dhis2, dhis2Config, history, new SynchronizationHistoryProgressScribe(history)).synchronize();
-    
+
     history = ExportHistory.get(history.getOid());
-    
+
     Assert.assertEquals(ExportStage.COMPLETE.name(), history.getStage().get(0).name());
   }
-  
+
   @Test
   public void testGetConfigForExternalSystem()
   {
     TestUserInfo[] users = new TestUserInfo[] { AllAttributesDataset.USER_ADMIN, AllAttributesDataset.USER_ORG_RA };
-    
+
     for (TestUserInfo user : users)
     {
       TestDataSet.runAsUser(user, (request) -> {
         JsonObject jo = client.getConfigForExternalSystem(this.system.getOid(), AllAttributesDataset.HIER.getCode());
-        
+
         Assert.assertTrue(jo.has("types"));
         JsonArray types = jo.get("types").getAsJsonArray();
-        
+
         Assert.assertTrue(types.size() == 7 || types.size() == 8);
-        
+
         Assert.assertTrue(jo.has("orgUnitGroups"));
         JsonArray orgUnitGroups = jo.get("orgUnitGroups").getAsJsonArray();
-        
+
         Assert.assertTrue(orgUnitGroups.size() > 0);
       });
     }
   }
-  
+
   @Test
   @Request
   public void testGetCustomAttributeConfiguration() throws Exception
   {
     JsonArray custConfig = new DHIS2FeatureService().getDHIS2AttributeConfiguration(testData.clientSession.getSessionId(), this.system.getOid(), AllAttributesDataset.GOT_ALL.getCode());
-    
+
     for (int i = 0; i < custConfig.size(); ++i)
     {
       JsonObject attr = custConfig.get(i).getAsJsonObject();
-      
+
       JsonObject cgrAttr = attr.get("cgrAttr").getAsJsonObject();
 
       Assert.assertTrue(cgrAttr.get("name").getAsString().length() > 0);
@@ -488,7 +489,7 @@ public class RemoteDHIS2APITest implements InstanceTestClassListener
       Assert.assertTrue(cgrAttr.get("typeLabel").getAsString().length() > 0);
     }
   }
-  
+
   @Request
   @Test
   public void testGetDHIS2Attributes() throws Exception
@@ -496,16 +497,16 @@ public class RemoteDHIS2APITest implements InstanceTestClassListener
     MetadataGetResponse<Attribute> resp = dhis2.<Attribute> metadataGet(Attribute.class);
 
     Assert.assertTrue(resp.isSuccess());
-    
+
     Assert.assertTrue(resp.getObjects().size() > 0);
   }
-  
+
   @Request
   @Test
   public void testOptionCache() throws Exception
   {
     DHIS2OptionCache cache = new DHIS2OptionCache(this.dhis2);
-    
+
     Assert.assertTrue(cache.getOptionSets().keySet().size() > 0);
   }
 
@@ -517,17 +518,17 @@ public class RemoteDHIS2APITest implements InstanceTestClassListener
     Assert.assertEquals(VERSION, this.dhis2.getVersionRemoteServer());
     Assert.assertEquals(null, this.dhis2.getVersionApiCompat());
   }
-  
+
   @Request
   @Test
   public void testFetchIds() throws Exception
   {
     Map<String, String> map = new HashMap<String, String>();
-    
+
     for (int i = 0; i < 30; ++i)
     {
       String id = this.dhis2.getDhis2Id();
-      
+
       if (map.put(id, id) != null)
       {
         Assert.fail("Non unqiue id");

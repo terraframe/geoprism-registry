@@ -111,15 +111,21 @@
     </update>
     
     <create>
-      <mdBusiness name="net.geoprism.registry.SynchronizationConfig" label="Synchronization Config">
+      
+      <mdBusiness name="net.geoprism.registry.SynchronizationConfig" label="Synchronization Config" exported="false" publish="false">
           <attributes>
             <localChar name="label" label="Label" required="true" size="255" />                  
             <reference name="organization" label="Organization" required="true" type="net.geoprism.registry.Organization" />            
-            <reference name="hierarchy" label="Hierarchy" type="com.runwaysdk.system.metadata.MdTermRelationship" required="true" />
             <char name="system" label="External System" required="true" size="255" />
             <text name="configuration" label="Configuration" required="true" />
+            <text name="synchronizationType" label="Synchronizaton Type" required="true" size="255" />
+            <dateTime name="lastSynchDate" label="Last Synch Date" required="false" />     
+<!-- 
+            <graphReference name="graphHierarchy" type="net.geoprism.registry.graph.HierarchicalRelationshipType" required="false" label="Hierarchy Type" />
+ -->            
+                   
           </attributes>
-      </mdBusiness>   
+      </mdBusiness>         
     </create>
     
     <permissions>

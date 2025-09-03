@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 1519852441)
+@com.runwaysdk.business.ClassSignature(hash = -1649943053)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -522,6 +522,122 @@ public  class CommitQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   }
 
 
+  public com.runwaysdk.query.Condition synchronization()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.SynchronizationHasProcessedCommit.CLASS);
+
+    return this.getBusinessQuery().isChildIn(relationshipQuery);
+  }
+
+
+  public com.runwaysdk.query.Condition SUBSELECT_synchronization()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.SynchronizationHasProcessedCommit.CLASS);
+
+    return this.getBusinessQuery().isChildIn_SUBSELECT(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition synchronization(net.geoprism.registry.SynchronizationHasProcessedCommitQuery synchronizationHasProcessedCommitQuery)
+  {
+    return this.getBusinessQuery().isChildIn(synchronizationHasProcessedCommitQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_synchronization(net.geoprism.registry.SynchronizationHasProcessedCommitQuery synchronizationHasProcessedCommitQuery)
+  {
+    return this.getBusinessQuery().isChildIn_SUBSELECT(synchronizationHasProcessedCommitQuery);
+  }
+
+  public com.runwaysdk.query.Condition synchronization(net.geoprism.registry.SynchronizationConfigQuery synchronizationConfigQuery)
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.SynchronizationHasProcessedCommit.CLASS);
+    relationshipQuery.AND(relationshipQuery.hasParent(synchronizationConfigQuery));
+
+    return this.getBusinessQuery().isChildIn(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_synchronization(net.geoprism.registry.SynchronizationConfigQuery synchronizationConfigQuery)
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.SynchronizationHasProcessedCommit.CLASS);
+    relationshipQuery.AND(relationshipQuery.hasParent(synchronizationConfigQuery));
+
+    return this.getBusinessQuery().isChildIn_SUBSELECT(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition synchronization(net.geoprism.registry.SynchronizationConfigQuery synchronizationConfigQuery, net.geoprism.registry.SynchronizationHasProcessedCommitQuery synchronizationHasProcessedCommitQuery)
+  {
+    synchronizationHasProcessedCommitQuery.AND(synchronizationHasProcessedCommitQuery.hasParent(synchronizationConfigQuery));
+    return this.getBusinessQuery().isChildIn(synchronizationHasProcessedCommitQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_synchronization(net.geoprism.registry.SynchronizationConfigQuery synchronizationConfigQuery, net.geoprism.registry.SynchronizationHasProcessedCommitQuery synchronizationHasProcessedCommitQuery)
+  {
+    synchronizationHasProcessedCommitQuery.AND(synchronizationHasProcessedCommitQuery.hasParent(synchronizationConfigQuery));
+    return this.getBusinessQuery().isChildIn_SUBSELECT(synchronizationHasProcessedCommitQuery);
+  }
+
+
+  public com.runwaysdk.query.Condition NOT_IN_synchronization()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.SynchronizationHasProcessedCommit.CLASS);
+
+    return this.getBusinessQuery().isNotChildIn(relationshipQuery);
+  }
+
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_synchronization()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.SynchronizationHasProcessedCommit.CLASS);
+
+    return this.getBusinessQuery().isNotChildIn_SUBSELECT(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition NOT_IN_synchronization(net.geoprism.registry.SynchronizationHasProcessedCommitQuery synchronizationHasProcessedCommitQuery)
+  {
+    return this.getBusinessQuery().isNotChildIn(synchronizationHasProcessedCommitQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_synchronization(net.geoprism.registry.SynchronizationHasProcessedCommitQuery synchronizationHasProcessedCommitQuery)
+  {
+    return this.getBusinessQuery().isNotChildIn_SUBSELECT(synchronizationHasProcessedCommitQuery);
+  }
+
+  public com.runwaysdk.query.Condition NOT_IN_synchronization(net.geoprism.registry.SynchronizationConfigQuery synchronizationConfigQuery)
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.SynchronizationHasProcessedCommit.CLASS);
+    relationshipQuery.AND(relationshipQuery.hasParent(synchronizationConfigQuery));
+
+    return this.getBusinessQuery().isNotChildIn(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_synchronization(net.geoprism.registry.SynchronizationConfigQuery synchronizationConfigQuery)
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.SynchronizationHasProcessedCommit.CLASS);
+    relationshipQuery.AND(relationshipQuery.hasParent(synchronizationConfigQuery));
+
+    return this.getBusinessQuery().isNotChildIn_SUBSELECT(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition NOT_IN_synchronization(net.geoprism.registry.SynchronizationConfigQuery synchronizationConfigQuery, net.geoprism.registry.SynchronizationHasProcessedCommitQuery synchronizationHasProcessedCommitQuery)
+  {
+    synchronizationHasProcessedCommitQuery.AND(synchronizationHasProcessedCommitQuery.hasParent(synchronizationConfigQuery));
+    return this.getBusinessQuery().isNotChildIn(synchronizationHasProcessedCommitQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_synchronization(net.geoprism.registry.SynchronizationConfigQuery synchronizationConfigQuery, net.geoprism.registry.SynchronizationHasProcessedCommitQuery synchronizationHasProcessedCommitQuery)
+  {
+    synchronizationHasProcessedCommitQuery.AND(synchronizationHasProcessedCommitQuery.hasParent(synchronizationConfigQuery));
+    return this.getBusinessQuery().isNotChildIn_SUBSELECT(synchronizationHasProcessedCommitQuery);
+  }
+
+
   public com.runwaysdk.query.Condition dependent()
   {
     com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
@@ -883,6 +999,18 @@ public  class CommitQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   public com.runwaysdk.query.Condition SUBSELECT_dependency(net.geoprism.registry.CommitQuery commitQuery, net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery);
 
 
+  public com.runwaysdk.query.Condition synchronization();
+  public com.runwaysdk.query.Condition synchronization(net.geoprism.registry.SynchronizationConfigQuery synchronizationConfigQuery);
+
+  public com.runwaysdk.query.Condition synchronization(net.geoprism.registry.SynchronizationConfigQuery synchronizationConfigQuery, net.geoprism.registry.SynchronizationHasProcessedCommitQuery synchronizationHasProcessedCommitQuery);
+
+
+  public com.runwaysdk.query.Condition SUBSELECT_synchronization();
+  public com.runwaysdk.query.Condition SUBSELECT_synchronization(net.geoprism.registry.SynchronizationConfigQuery synchronizationConfigQuery);
+
+  public com.runwaysdk.query.Condition SUBSELECT_synchronization(net.geoprism.registry.SynchronizationConfigQuery synchronizationConfigQuery, net.geoprism.registry.SynchronizationHasProcessedCommitQuery synchronizationHasProcessedCommitQuery);
+
+
   public com.runwaysdk.query.Condition NOT_IN_dependency();
   public com.runwaysdk.query.Condition NOT_IN_dependency(net.geoprism.registry.CommitQuery commitQuery);
 
@@ -893,6 +1021,18 @@ public  class CommitQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_dependency(net.geoprism.registry.CommitQuery commitQuery);
 
   public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_dependency(net.geoprism.registry.CommitQuery commitQuery, net.geoprism.registry.CommitHasDependencyQuery commitHasDependencyQuery);
+
+
+  public com.runwaysdk.query.Condition NOT_IN_synchronization();
+  public com.runwaysdk.query.Condition NOT_IN_synchronization(net.geoprism.registry.SynchronizationConfigQuery synchronizationConfigQuery);
+
+  public com.runwaysdk.query.Condition NOT_IN_synchronization(net.geoprism.registry.SynchronizationConfigQuery synchronizationConfigQuery, net.geoprism.registry.SynchronizationHasProcessedCommitQuery synchronizationHasProcessedCommitQuery);
+
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_synchronization();
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_synchronization(net.geoprism.registry.SynchronizationConfigQuery synchronizationConfigQuery);
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_synchronization(net.geoprism.registry.SynchronizationConfigQuery synchronizationConfigQuery, net.geoprism.registry.SynchronizationHasProcessedCommitQuery synchronizationHasProcessedCommitQuery);
 
   }
 
@@ -1487,6 +1627,64 @@ public  class CommitQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   }
 
 
+  public com.runwaysdk.query.Condition synchronization()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.SynchronizationHasProcessedCommit.CLASS);
+
+    return this.isChildIn(relationshipQuery);
+  }
+
+
+  public com.runwaysdk.query.Condition SUBSELECT_synchronization()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.SynchronizationHasProcessedCommit.CLASS);
+
+    return this.isChildIn_SUBSELECT(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition synchronization(net.geoprism.registry.SynchronizationHasProcessedCommitQuery synchronizationHasProcessedCommitQuery)
+  {
+    return this.isChildIn(synchronizationHasProcessedCommitQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_synchronization(net.geoprism.registry.SynchronizationHasProcessedCommitQuery synchronizationHasProcessedCommitQuery)
+  {
+    return this.isChildIn_SUBSELECT(synchronizationHasProcessedCommitQuery);
+  }
+
+  public com.runwaysdk.query.Condition synchronization(net.geoprism.registry.SynchronizationConfigQuery synchronizationConfigQuery)
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.SynchronizationHasProcessedCommit.CLASS);
+    relationshipQuery.AND(relationshipQuery.hasParent(synchronizationConfigQuery));
+
+    return this.isChildIn(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_synchronization(net.geoprism.registry.SynchronizationConfigQuery synchronizationConfigQuery)
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.SynchronizationHasProcessedCommit.CLASS);
+    relationshipQuery.AND(relationshipQuery.hasParent(synchronizationConfigQuery));
+
+    return this.isChildIn_SUBSELECT(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition synchronization(net.geoprism.registry.SynchronizationConfigQuery synchronizationConfigQuery, net.geoprism.registry.SynchronizationHasProcessedCommitQuery synchronizationHasProcessedCommitQuery)
+  {
+    synchronizationHasProcessedCommitQuery.AND(synchronizationHasProcessedCommitQuery.hasParent(synchronizationConfigQuery));
+    return this.isChildIn(synchronizationHasProcessedCommitQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_synchronization(net.geoprism.registry.SynchronizationConfigQuery synchronizationConfigQuery, net.geoprism.registry.SynchronizationHasProcessedCommitQuery synchronizationHasProcessedCommitQuery)
+  {
+    synchronizationHasProcessedCommitQuery.AND(synchronizationHasProcessedCommitQuery.hasParent(synchronizationConfigQuery));
+    return this.isChildIn_SUBSELECT(synchronizationHasProcessedCommitQuery);
+  }
+
+
   public com.runwaysdk.query.Condition NOT_IN_dependency()
   {
     com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
@@ -1542,6 +1740,64 @@ public  class CommitQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   {
     commitHasDependencyQuery.AND(commitHasDependencyQuery.hasParent(commitQuery));
     return this.isNotChildIn_SUBSELECT(commitHasDependencyQuery);
+  }
+
+
+  public com.runwaysdk.query.Condition NOT_IN_synchronization()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.SynchronizationHasProcessedCommit.CLASS);
+
+    return this.isNotChildIn(relationshipQuery);
+  }
+
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_synchronization()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.SynchronizationHasProcessedCommit.CLASS);
+
+    return this.isNotChildIn_SUBSELECT(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition NOT_IN_synchronization(net.geoprism.registry.SynchronizationHasProcessedCommitQuery synchronizationHasProcessedCommitQuery)
+  {
+    return this.isNotChildIn(synchronizationHasProcessedCommitQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_synchronization(net.geoprism.registry.SynchronizationHasProcessedCommitQuery synchronizationHasProcessedCommitQuery)
+  {
+    return this.isNotChildIn_SUBSELECT(synchronizationHasProcessedCommitQuery);
+  }
+
+  public com.runwaysdk.query.Condition NOT_IN_synchronization(net.geoprism.registry.SynchronizationConfigQuery synchronizationConfigQuery)
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.SynchronizationHasProcessedCommit.CLASS);
+    relationshipQuery.AND(relationshipQuery.hasParent(synchronizationConfigQuery));
+
+    return this.isNotChildIn(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_synchronization(net.geoprism.registry.SynchronizationConfigQuery synchronizationConfigQuery)
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.SynchronizationHasProcessedCommit.CLASS);
+    relationshipQuery.AND(relationshipQuery.hasParent(synchronizationConfigQuery));
+
+    return this.isNotChildIn_SUBSELECT(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition NOT_IN_synchronization(net.geoprism.registry.SynchronizationConfigQuery synchronizationConfigQuery, net.geoprism.registry.SynchronizationHasProcessedCommitQuery synchronizationHasProcessedCommitQuery)
+  {
+    synchronizationHasProcessedCommitQuery.AND(synchronizationHasProcessedCommitQuery.hasParent(synchronizationConfigQuery));
+    return this.isNotChildIn(synchronizationHasProcessedCommitQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_synchronization(net.geoprism.registry.SynchronizationConfigQuery synchronizationConfigQuery, net.geoprism.registry.SynchronizationHasProcessedCommitQuery synchronizationHasProcessedCommitQuery)
+  {
+    synchronizationHasProcessedCommitQuery.AND(synchronizationHasProcessedCommitQuery.hasParent(synchronizationConfigQuery));
+    return this.isNotChildIn_SUBSELECT(synchronizationHasProcessedCommitQuery);
   }
 
   protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
