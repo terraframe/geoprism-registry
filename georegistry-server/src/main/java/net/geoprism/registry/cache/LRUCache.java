@@ -32,36 +32,30 @@ public class LRUCache<K, V> implements Cache<K, V>
   {
     this.map = Collections.synchronizedMap(new LRUMap<K, V>(size));
   }
-
   @Override
   public int size()
   {
     return this.map.size();
   }
-
   @Override
   public boolean isEmpty()
   {
     return this.map.isEmpty();
   }
-
   @Override
   public void clear()
   {
     this.map.clear();
   }
-
   @Override
   public void put(K key, V value)
   {
     this.map.put(key, value);
   }
-
   public Optional<V> get(K key)
   {
     return Optional.ofNullable(this.map.get(key));
   }
-
   public boolean has(K key)
   {
     return this.map.containsKey(key);
@@ -71,5 +65,4 @@ public class LRUCache<K, V> implements Cache<K, V>
   {
     this.map.remove(key);
   }
-
 }

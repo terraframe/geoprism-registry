@@ -142,7 +142,7 @@ public class DataImportJob extends DataImportJobBase
 
       process(executionContext, history, stage, config);
 
-      System.out.println("Import finished total time: " + ( ( System.currentTimeMillis() - startTime ) ));
+      System.out.println("Import finished total time: " + ( ( System.currentTimeMillis() - startTime ) ) + "ms");
     }
     finally
     {

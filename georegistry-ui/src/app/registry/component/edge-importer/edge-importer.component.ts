@@ -9,7 +9,7 @@
 /// License, or (at your option) any later version.
 ///
 /// Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-/// WITHOUT ANY WARRANTY; without even the implied warranty of
+/// WITHOUT ANY WARRANTY; without even the implied warranty of 
 /// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 /// GNU Lesser General Public License for more details.
 ///
@@ -24,7 +24,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 
 import { DateFieldComponent, ErrorHandler } from "@shared/component";
 import { LocalizationService, EventService } from "@shared/service";
-import { HierarchyService } from "@registry/service";
+import { HierarchyService, RegistryService } from "@registry/service";
 
 import { ImportModalComponent } from "@registry/component/importer/modals/import-modal.component";
 import { ImportStrategy } from "@registry/model/constants";
@@ -32,7 +32,7 @@ import { HierarchyGroupedTypeView, TypeGroupedHierachyView } from "@registry/mod
 import { GraphTypeService } from "@registry/service/graph-type.service";
 
 import { environment } from 'src/environments/environment';
-import { GraphType } from "@registry/model/registry";
+import { GeoObjectType, GraphType } from "@registry/model/registry";
 import { Source } from "@registry/model/source";
 import { SourceService } from "@registry/service/source.service";
 
@@ -62,7 +62,7 @@ export class EdgeImporterComponent implements OnInit {
      */
     selectedGraphType: GraphType = null;
 
-    allTypes: any[];
+    allTypes: GeoObjectType[];
 
     sources: Source[];
     
@@ -105,7 +105,7 @@ export class EdgeImporterComponent implements OnInit {
         private modalService: BsModalService,
         private localizationService: LocalizationService,
         private sourceService: SourceService,
-        private hierarchyService: HierarchyService,
+        private registryService: RegistryService,
         private edgeService: GraphTypeService,
         private changeDetectorRef: ChangeDetectorRef
     ) { }
@@ -121,21 +121,8 @@ export class EdgeImporterComponent implements OnInit {
             this.graphTypes = edgeTypes;
         });
 
-        this.hierarchyService.getHierarchyGroupedTypes().then(views => {
-            this.allTypes = [];
-
-            let len = views.length;
-            for (let i = 0; i < len; ++i) {
-                let view = views[i];
-
-                let len2 = view.types.length;
-                for (let j = 0; j < len2; ++j) {
-                    let type = view.types[j];
-
-                    if (this.allTypes.findIndex(t => t.code == type.code) == -1)
-                        this.allTypes.push(type);
-                }
-            }
+        this.registryService.getGeoObjectTypes().then(types => {
+            this.allTypes = types;
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });

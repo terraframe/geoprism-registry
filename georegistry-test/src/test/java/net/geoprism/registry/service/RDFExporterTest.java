@@ -43,6 +43,7 @@ import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.lpg.jena.JenaBridge;
 import net.geoprism.registry.lpg.jena.JenaConnector;
 import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessServiceIF;
+import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessServiceIF.GeometryExportType;
 import net.geoprism.registry.service.business.LabeledPropertyGraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.LabeledPropertyGraphTypeEntryBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
@@ -152,7 +153,7 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
 
       LabeledPropertyGraphTest.waitUntilPublished(version.getOid());
       
-//      rdfExporter.export(version, GeometryExportType.NO_GEOMETRIES, System.out);
+      rdfExporter.export(null, version, GeometryExportType.NO_GEOMETRIES, System.out);
     }
     finally
     {
@@ -212,7 +213,7 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
 
       LabeledPropertyGraphTest.waitUntilPublished(version.getOid());
 
-//      rdfExporter.export(version, GeometryExportType.NO_GEOMETRIES, System.out);
+      rdfExporter.export(null, version, GeometryExportType.NO_GEOMETRIES, System.out);
     }
     finally
     {
@@ -274,7 +275,7 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
 
       LabeledPropertyGraphTest.waitUntilPublished(version.getOid());
 
-//      rdfExporter.export(version, GeometryExportType.NO_GEOMETRIES, System.out);
+      rdfExporter.export(null, version, GeometryExportType.NO_GEOMETRIES, System.out);
     }
     finally
     {

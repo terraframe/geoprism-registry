@@ -222,7 +222,7 @@ public class CambodiaTestDataset extends TestDataSet
   @Override
   protected void setUpMetadataInTrans()
   {
-    super.setUpMetadataInTrans();
+    super.setUpMetadataInTrans(); 
 
     AT_National_Anthem.apply();
     GO_Cambodia.setDefaultValue(AT_National_Anthem.getAttributeName(), "Nokor Reach");
