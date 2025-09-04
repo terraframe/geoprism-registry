@@ -39,6 +39,7 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.service.business.SynchronizationConfigBusinessServiceIF;
 import net.geoprism.registry.service.request.SynchronizationConfigService;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
@@ -49,10 +50,13 @@ import net.geoprism.registry.test.USATestData;
 public class FhirImportTest extends USADatasetTest implements InstanceTestClassListener
 {
   @Autowired
-  protected SynchronizationConfigService syncService;
+  protected SynchronizationConfigService           syncService;
 
   @Autowired
-  protected GeoObjectBusinessServiceIF   objectService;
+  protected SynchronizationConfigBusinessServiceIF bService;
+
+  @Autowired
+  protected GeoObjectBusinessServiceIF             objectService;
 
   @Override
   public void beforeClassSetup() throws Exception
@@ -96,7 +100,7 @@ public class FhirImportTest extends USADatasetTest implements InstanceTestClassL
   }
 
   @Request
-  public static SynchronizationConfig createSyncConfig(ExternalSystem system)
+  public SynchronizationConfig createSyncConfig(ExternalSystem system)
   {
     // Define reusable objects
     final ServerHierarchyType ht = USATestData.HIER_ADMIN.getServerObject();
@@ -119,7 +123,8 @@ public class FhirImportTest extends USADatasetTest implements InstanceTestClassL
     config.setSystem(system.getOid());
     config.getLabel().setValue("FHIR Import Test");
     config.setSynchronizationType(sourceConfig.getSynchronizationType());
-    config.apply();
+
+    this.bService.apply(config);
 
     return config;
   }

@@ -423,10 +423,11 @@ public class EdgeObjectImporter implements ObjectImporterIF
         } else if (ImportStrategy.UPDATE_ONLY.equals(this.configuration.getImportStrategy())) {
 //          throw new DataNotFoundException("Could not find an edge from " + childRid + " to " + parentRid);
         } else {
-          event = new GeoObjectCreateEdgeEvent(sourceCode, sourceTypeCode, graphTypeClass, graphTypeCode, targetCode, targetTypeCode, startDate, endDate, configuration.getDataSource().getCode(), validate);
+          event = new GeoObjectCreateEdgeEvent(sourceCode, sourceTypeCode, graphTypeClass, graphTypeCode, targetCode, targetTypeCode, startDate, endDate, dataSource, validate);
         }
       } else {
-        event = new GeoObjectCreateEdgeEvent(sourceCode, sourceTypeCode, graphTypeClass, graphTypeCode, targetCode, targetTypeCode, startDate, endDate, configuration.getDataSource().getCode(), validate);
+        
+        event = new GeoObjectCreateEdgeEvent(sourceCode, sourceTypeCode, graphTypeClass, graphTypeCode, targetCode, targetTypeCode, startDate, endDate, dataSource, validate);
       }
       
       this.commandGateway.sendAndWait(new GeoObjectCompositeCommand(sourceCode, sourceTypeCode, Arrays.asList(event)));

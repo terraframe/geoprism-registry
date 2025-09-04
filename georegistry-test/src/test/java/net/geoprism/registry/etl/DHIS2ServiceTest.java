@@ -90,6 +90,7 @@ import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.model.localization.LocaleView;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
+import net.geoprism.registry.service.business.SynchronizationConfigBusinessServiceIF;
 import net.geoprism.registry.service.request.GPRLocalizationService;
 import net.geoprism.registry.service.request.SynchronizationConfigService;
 import net.geoprism.registry.test.AllAttributesDataset;
@@ -108,35 +109,38 @@ import net.geoprism.registry.test.TestUserInfo;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class DHIS2ServiceTest implements InstanceTestClassListener
 {
-  public static final TestGeoObjectInfo  GO_NO_PARENT                      = new TestGeoObjectInfo("BOOL_NO_PARENT", AllAttributesDataset.GOT_BOOL, AllAttributesDataset.SOURCE);
+  public static final TestGeoObjectInfo          GO_NO_PARENT                      = new TestGeoObjectInfo("BOOL_NO_PARENT", AllAttributesDataset.GOT_BOOL, AllAttributesDataset.SOURCE);
 
-  public static final TestGeoObjectInfo  GO_NO_PARENT2                     = new TestGeoObjectInfo("BOOL_NO_PARENT2", AllAttributesDataset.GOT_BOOL, AllAttributesDataset.SOURCE);
+  public static final TestGeoObjectInfo          GO_NO_PARENT2                     = new TestGeoObjectInfo("BOOL_NO_PARENT2", AllAttributesDataset.GOT_BOOL, AllAttributesDataset.SOURCE);
 
-  public static final TestGeoObjectInfo  GO_NO_PARENT3                     = new TestGeoObjectInfo("BOOL_NO_PARENT3", AllAttributesDataset.GOT_BOOL, AllAttributesDataset.SOURCE);
+  public static final TestGeoObjectInfo          GO_NO_PARENT3                     = new TestGeoObjectInfo("BOOL_NO_PARENT3", AllAttributesDataset.GOT_BOOL, AllAttributesDataset.SOURCE);
 
-  public static final TestGeoObjectInfo  GO_NO_DEFAULT_LOCALE              = new TestGeoObjectInfo("NO_DEFAULT_LOCALE", AllAttributesDataset.GOT_BOOL, AllAttributesDataset.SOURCE);
+  public static final TestGeoObjectInfo          GO_NO_DEFAULT_LOCALE              = new TestGeoObjectInfo("NO_DEFAULT_LOCALE", AllAttributesDataset.GOT_BOOL, AllAttributesDataset.SOURCE);
 
-  public static final String             GO_NO_DEFAULT_LOCALE_CANADA_LABEL = "some canada value eh";
+  public static final String                     GO_NO_DEFAULT_LOCALE_CANADA_LABEL = "some canada value eh";
 
-  protected static AllAttributesDataset  testData;
+  protected static AllAttributesDataset          testData;
 
-  protected static FastTestDataset       fastTestData;
-
-  @Autowired
-  protected SynchronizationConfigService syncService;
-
-  protected ExternalSystem               system;
-
-  protected DHIS2TestService             dhis2;
+  protected static FastTestDataset               fastTestData;
 
   @Autowired
-  private TestRegistryClient             client;
+  protected SynchronizationConfigService         syncService;
+
+  protected ExternalSystem                       system;
+
+  protected DHIS2TestService                     dhis2;
 
   @Autowired
-  private GPRLocalizationService         localizationService;
+  private TestRegistryClient                     client;
 
   @Autowired
-  private GPRGeoObjectBusinessServiceIF  objectService;
+  private GPRLocalizationService                 localizationService;
+
+  @Autowired
+  private GPRGeoObjectBusinessServiceIF          objectService;
+
+  @Autowired
+  private SynchronizationConfigBusinessServiceIF synchronizationService;
 
   @Override
   @Request
@@ -282,18 +286,18 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
     return system;
   }
 
-  public static SynchronizationConfig createSyncConfig(ExternalSystem system, DHIS2SyncLevel additionalLevel)
+  public SynchronizationConfig createSyncConfig(ExternalSystem system, DHIS2SyncLevel additionalLevel)
   {
     return createSyncConfig(system, additionalLevel, true);
   }
 
-  public static SynchronizationConfig createSyncConfig(ExternalSystem system, DHIS2SyncLevel additionalLevel, boolean apply)
+  public SynchronizationConfig createSyncConfig(ExternalSystem system, DHIS2SyncLevel additionalLevel, boolean apply)
   {
     return createSyncConfig(system, additionalLevel, apply, TestDataSet.DEFAULT_OVER_TIME_DATE, false, null, null);
   }
 
   @Request
-  public static SynchronizationConfig createSyncConfig(ExternalSystem system, DHIS2SyncLevel additionalLevel, boolean apply, Date date, boolean syncNonExist, String preferredLocale, DHIS2SyncLevel.Type level1SyncType)
+  public SynchronizationConfig createSyncConfig(ExternalSystem system, DHIS2SyncLevel additionalLevel, boolean apply, Date date, boolean syncNonExist, String preferredLocale, DHIS2SyncLevel.Type level1SyncType)
   {
     if (level1SyncType == null)
     {
@@ -351,7 +355,7 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
 
     if (apply)
     {
-      config.apply();
+      synchronizationService.apply(config);
     }
 
     return config;
@@ -1266,7 +1270,7 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
     config.getLabel().setValue("DHIS2 Export Test");
     config.setSynchronizationType(dhis2Config.getSynchronizationType());
 
-    config.apply();
+    this.synchronizationService.apply(config);
 
     return new Object[] { config, config.getOid() };
   }

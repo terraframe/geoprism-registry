@@ -26,6 +26,7 @@ import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
+import net.geoprism.registry.service.business.SynchronizationConfigBusinessServiceIF;
 import net.geoprism.registry.service.request.SynchronizationConfigService;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
@@ -36,7 +37,10 @@ import net.geoprism.registry.test.TestDataSet;
 public class FhirOauthImportTest extends FastDatasetTest implements InstanceTestClassListener
 {
   @Autowired
-  protected SynchronizationConfigService syncService;
+  protected SynchronizationConfigService           syncService;
+
+  @Autowired
+  protected SynchronizationConfigBusinessServiceIF bService;
 
   @Override
   public void beforeClassSetup() throws Exception
@@ -92,7 +96,7 @@ public class FhirOauthImportTest extends FastDatasetTest implements InstanceTest
   }
 
   @Request
-  public static SynchronizationConfig createSyncConfig(ExternalSystem system)
+  public SynchronizationConfig createSyncConfig(ExternalSystem system)
   {
     // Define reusable objects
     final ServerHierarchyType ht = FastTestDataset.HIER_ADMIN.getServerObject();
@@ -115,7 +119,8 @@ public class FhirOauthImportTest extends FastDatasetTest implements InstanceTest
     config.setSystem(system.getOid());
     config.getLabel().setValue("FHIR Import Test");
     config.setSynchronizationType(sourceConfig.getSynchronizationType());
-    config.apply();
+
+    this.bService.apply(config);
 
     return config;
   }

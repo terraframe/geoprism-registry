@@ -63,6 +63,7 @@ import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessService;
+import net.geoprism.registry.service.business.SynchronizationConfigBusinessServiceIF;
 import net.geoprism.registry.service.request.SynchronizationConfigService;
 import net.geoprism.registry.test.AllAttributesDataset;
 import net.geoprism.registry.test.TestAttributeTypeInfo;
@@ -81,36 +82,39 @@ public class RemoteDHIS2APITest implements InstanceTestClassListener
   /*
    * Which server are we connecting to?
    */
-  private static final Integer           API_VERSION         = 40;
+  private static final Integer                   API_VERSION         = 40;
 
-  private static final String            VERSION             = "2.40.3";
+  private static final String                    VERSION             = "2.40.3";
 
-  private static final String            URL                 = "https://play.dhis2.org/40.3.0/";
+  private static final String                    URL                 = "https://play.dhis2.org/40.3.0/";
 
   /*
    * Constants that reference expected data in the remote system
    */
-  public static final String             REMOTE_COUNTRY_CODE = "OU_525";
+  public static final String                     REMOTE_COUNTRY_CODE = "OU_525";
 
-  public static final String             TEST_DATA_KEY       = "RemoteDHIS2Test";
+  public static final String                     TEST_DATA_KEY       = "RemoteDHIS2Test";
 
-  private static final String            USERNAME            = "admin";
+  private static final String                    USERNAME            = "admin";
 
-  private static final String            PASSWORD            = "district";
+  private static final String                    PASSWORD            = "district";
 
-  protected static RemoteDHIS2Dataset    testData;
+  protected static RemoteDHIS2Dataset            testData;
 
-  protected SynchronizationConfigService syncService;
+  protected SynchronizationConfigService         syncService;
 
-  protected DHIS2ExternalSystem          system;
+  protected DHIS2ExternalSystem                  system;
 
-  protected DHIS2TransportServiceIF      dhis2;
-
-  @Autowired
-  private TestRegistryClient             client;
+  protected DHIS2TransportServiceIF              dhis2;
 
   @Autowired
-  private GPRGeoObjectBusinessService    goBizService;
+  private TestRegistryClient                     client;
+
+  @Autowired
+  private GPRGeoObjectBusinessService            goBizService;
+
+  @Autowired
+  private SynchronizationConfigBusinessServiceIF synchronizationService;
 
   public static class RemoteDHIS2Dataset extends AllAttributesDataset
   {
@@ -413,7 +417,8 @@ public class RemoteDHIS2APITest implements InstanceTestClassListener
     config.setSystem(system.getOid());
     config.getLabel().setValue("DHIS2 Export Test");
     config.setSynchronizationType(dhis2Config.getSynchronizationType());
-    config.apply();
+
+    this.synchronizationService.apply(config);
 
     return config;
   }

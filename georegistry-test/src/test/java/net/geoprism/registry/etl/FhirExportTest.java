@@ -49,6 +49,7 @@ import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.business.FhirExportSynchronizationService;
+import net.geoprism.registry.service.business.SynchronizationConfigBusinessServiceIF;
 import net.geoprism.registry.service.request.SynchronizationConfigService;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
@@ -58,19 +59,22 @@ import net.geoprism.registry.test.USATestData;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class FhirExportTest extends USADatasetTest implements InstanceTestClassListener
 {
-  protected static ListType                  multiHierarchyList;
+  protected static ListType                        multiHierarchyList;
 
-  protected static ListTypeVersion           multiHierarchyVersion;
+  protected static ListTypeVersion                 multiHierarchyVersion;
 
-  protected static ListType                  basicHierarchyList;
+  protected static ListType                        basicHierarchyList;
 
-  protected static ListTypeVersion           basicHierarchyVersion;
-
-  @Autowired
-  protected SynchronizationConfigService     syncService;
+  protected static ListTypeVersion                 basicHierarchyVersion;
 
   @Autowired
-  protected FhirExportSynchronizationService service;
+  protected SynchronizationConfigService           syncService;
+
+  @Autowired
+  protected SynchronizationConfigBusinessServiceIF bService;
+
+  @Autowired
+  protected FhirExportSynchronizationService       service;
 
   @Override
   public void beforeClassSetup() throws Exception
@@ -179,7 +183,7 @@ public class FhirExportTest extends USADatasetTest implements InstanceTestClassL
   }
 
   @Request
-  public static SynchronizationConfig createSyncConfig(ExternalSystem system, ListType list, ListTypeVersion version)
+  public SynchronizationConfig createSyncConfig(ExternalSystem system, ListType list, ListTypeVersion version)
   {
     // Define reusable objects
     final ServerHierarchyType ht = USATestData.HIER_ADMIN.getServerObject();
@@ -213,7 +217,8 @@ public class FhirExportTest extends USADatasetTest implements InstanceTestClassL
     config.setSystem(system.getOid());
     config.getLabel().setValue("FHIR Export Test");
     config.setSynchronizationType(sourceConfig.getSynchronizationType());
-    config.apply();
+
+    this.bService.apply(config);
 
     return config;
   }

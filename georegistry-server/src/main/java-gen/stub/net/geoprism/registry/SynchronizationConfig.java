@@ -19,8 +19,6 @@
 package net.geoprism.registry;
 
 import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
@@ -29,24 +27,15 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.query.OIterator;
-import com.runwaysdk.query.QueryFactory;
-import com.runwaysdk.session.Session;
-import com.runwaysdk.session.SessionIF;
 
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.etl.DHIS2AttributeMapping;
 import net.geoprism.registry.etl.ExternalSystemSyncConfig;
 import net.geoprism.registry.etl.FhirSyncLevel;
 import net.geoprism.registry.etl.SynchronizationConfigFactory;
-import net.geoprism.registry.etl.export.DataExportJob;
 import net.geoprism.registry.etl.export.SeverGeoObjectJsonAdapters;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.model.ServerOrganization;
-import net.geoprism.registry.service.business.ServiceFactory;
-import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
-import net.geoprism.registry.service.permission.RolePermissionService;
 import net.geoprism.registry.view.JsonSerializable;
 
 public class SynchronizationConfig extends SynchronizationConfigBase implements JsonSerializable
@@ -62,6 +51,13 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
   public SynchronizationConfig()
   {
     super();
+  }
+
+  @Override
+  public void apply()
+  {
+    // TODO Auto-generated method stub
+    super.apply();
   }
 
   public void setOrganization(ServerOrganization value)
@@ -112,6 +108,8 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
       object.addProperty(SynchronizationConfig.TYPE, system.getClass().getSimpleName());
       object.addProperty(SynchronizationConfig.SYSTEM_LABEL, label.getValue());
     }
+
+    object.addProperty(SynchronizationConfig.SYNCHRONIZATIONTYPE, this.getSynchronizationType());
 
     return object;
   }
