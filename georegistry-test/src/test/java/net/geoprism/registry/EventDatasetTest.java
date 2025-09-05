@@ -17,6 +17,7 @@ import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.axon.event.repository.BusinessObjectEventBuilder;
 import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.axon.projection.RepositoryProjection;
+import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
@@ -166,7 +167,7 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
   {
     ServerGeoObjectEventBuilder builder = new ServerGeoObjectEventBuilder(this.gObjectService);
     builder.setObject(USATestData.COLORADO.getServerObject());
-    builder.addEdge(USATestData.CANADA.getServerObject(), undirectedType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, UUID.randomUUID().toString(), USATestData.SOURCE.getDataSource(), false);
+    builder.addEdge(USATestData.CANADA.getServerObject(), undirectedType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, UUID.randomUUID().toString(), USATestData.SOURCE.getDataSource(), ImportStrategy.NEW_ONLY, false);
 
     this.gateway.sendAndWait(builder.build());
   }
@@ -175,7 +176,7 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
   {
     ServerGeoObjectEventBuilder builder = new ServerGeoObjectEventBuilder(this.gObjectService);
     builder.setObject(USATestData.COLORADO.getServerObject());
-    builder.addEdge(USATestData.CANADA.getServerObject(), dagType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, UUID.randomUUID().toString(), USATestData.SOURCE.getDataSource(), false);
+    builder.addEdge(USATestData.CANADA.getServerObject(), dagType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, UUID.randomUUID().toString(), USATestData.SOURCE.getDataSource(), ImportStrategy.NEW_ONLY, false);
 
     this.gateway.sendAndWait(builder.build());
   }

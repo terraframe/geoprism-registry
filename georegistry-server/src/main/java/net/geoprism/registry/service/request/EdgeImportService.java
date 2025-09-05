@@ -14,10 +14,11 @@ import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.service.business.GraphBusinessService;
 
 @Service
-public class GraphService2
+public class EdgeImportService
 {
-  @Autowired GraphBusinessService bizService;
-  
+  @Autowired
+  private GraphBusinessService bizService;
+
   @Request(RequestType.SESSION)
   public ObjectNode getJsonImportConfiguration(String sessionId, String graphTypeClass, String graphTypeCode, Date startDate, Date endDate, String source, String fileName, InputStream fileStream, ImportStrategy strategy)
   {

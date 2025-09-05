@@ -6,37 +6,41 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.geoprism.graph.GraphTypeSnapshot;
+import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.view.PublishDTO;
 
-public class GeoObjectCreateEdgeEvent extends AbstractGeoObjectEvent implements GeoObjectEvent
+public class GeoObjectApplyEdgeEvent extends AbstractGeoObjectEvent implements GeoObjectEvent
 {
-  private String  sourceCode;
 
-  private String  sourceType;
+  private String         sourceCode;
 
-  private String  edgeUid;
+  private String         sourceType;
 
-  private String  edgeType;
+  private String         edgeUid;
 
-  private String  edgeTypeCode;
+  private String         edgeType;
 
-  private String  targetType;
+  private String         edgeTypeCode;
 
-  private String  targetCode;
+  private String         targetType;
 
-  private Boolean validate;
+  private String         targetCode;
 
-  private Date    startDate;
+  private Boolean        validate;
 
-  private Date    endDate;
+  private Date           startDate;
 
-  private String  dataSource;
+  private Date           endDate;
 
-  public GeoObjectCreateEdgeEvent()
+  private String         dataSource;
+
+  private ImportStrategy strategy;
+
+  public GeoObjectApplyEdgeEvent()
   {
   }
 
-  public GeoObjectCreateEdgeEvent(String sourceCode, String sourceType, String edgeType, String edgeTypeCode, String targetCode, String targetType, Date startDate, Date endDate, String dataSource, Boolean validate)
+  public GeoObjectApplyEdgeEvent(String sourceCode, String sourceType, String edgeType, String edgeTypeCode, String targetCode, String targetType, Date startDate, Date endDate, String dataSource, ImportStrategy strategy, Boolean validate)
   {
     super();
     this.edgeUid = UUID.randomUUID().toString();
@@ -49,6 +53,7 @@ public class GeoObjectCreateEdgeEvent extends AbstractGeoObjectEvent implements 
     this.startDate = startDate;
     this.endDate = endDate;
     this.dataSource = dataSource;
+    this.strategy = strategy;
     this.validate = validate;
   }
 
@@ -151,12 +156,12 @@ public class GeoObjectCreateEdgeEvent extends AbstractGeoObjectEvent implements 
   {
     this.endDate = endDate;
   }
-  
+
   public String getDataSource()
   {
     return dataSource;
   }
-  
+
   public void setDataSource(String dataSource)
   {
     this.dataSource = dataSource;
@@ -167,6 +172,16 @@ public class GeoObjectCreateEdgeEvent extends AbstractGeoObjectEvent implements 
   public EventType getEventType()
   {
     return EventType.HIERARCHY;
+  }
+
+  public ImportStrategy getStrategy()
+  {
+    return strategy;
+  }
+
+  public void setStrategy(ImportStrategy strategy)
+  {
+    this.strategy = strategy;
   }
 
   @Override

@@ -39,9 +39,10 @@ import com.runwaysdk.resource.ApplicationResource;
 import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.axon.command.repository.GeoObjectCompositeCommand;
-import net.geoprism.registry.axon.event.repository.GeoObjectCreateEdgeEvent;
+import net.geoprism.registry.axon.event.repository.GeoObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.projection.RepositoryProjection;
 import net.geoprism.registry.cache.Cache;
+import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -49,19 +50,19 @@ import net.geoprism.registry.service.business.ServiceFactory;
 
 public class EdgeJsonImporter
 {
-  private static final Logger           logger = LoggerFactory.getLogger(EdgeJsonImporter.class);
+  private static final Logger  logger = LoggerFactory.getLogger(EdgeJsonImporter.class);
 
-  private ApplicationResource           resource;
+  private ApplicationResource  resource;
 
-  private Date                          startDate;
+  private Date                 startDate;
 
-  private Date                          endDate;
+  private Date                 endDate;
 
-  private DataSource                    source;
+  private DataSource           source;
 
-  private boolean                       validate;
+  private boolean              validate;
 
-  private CommandGateway                gateway;
+  private CommandGateway       gateway;
 
   private RepositoryProjection projection;
 
@@ -110,7 +111,7 @@ public class EdgeJsonImporter
           Date endDate = joEdge.has("endDate") ? GeoRegistryUtil.parseDate(joEdge.get("endDate").getAsString()) : this.endDate;
 
           // UID
-          GeoObjectCreateEdgeEvent event = new GeoObjectCreateEdgeEvent(sourceCode, sourceTypeCode, graphTypeClass, graphType.getCode(), targetCode, targetTypeCode, startDate, endDate, source.getCode(), validate);
+          GeoObjectApplyEdgeEvent event = new GeoObjectApplyEdgeEvent(sourceCode, sourceTypeCode, graphTypeClass, graphType.getCode(), targetCode, targetTypeCode, startDate, endDate, source.getCode(), ImportStrategy.NEW_ONLY, validate);
 
           this.gateway.sendAndWait(new GeoObjectCompositeCommand(sourceCode, sourceTypeCode, Arrays.asList(event)));
 
@@ -127,7 +128,7 @@ public class EdgeJsonImporter
     }
 
   }
-  
+
   public static Object getOrFetchRid(Cache<String, Object> ridCache, String code, String typeCode)
   {
     String typeDbClassName = ServerGeoObjectType.get(typeCode).getDBClassName();

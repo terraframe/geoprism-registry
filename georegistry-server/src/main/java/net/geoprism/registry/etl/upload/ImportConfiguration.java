@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -34,6 +34,11 @@ import net.geoprism.registry.jobs.ImportHistory;
 
 public abstract class ImportConfiguration
 {
+  public static enum ImportStrategy {
+    NEW_AND_UPDATE, NEW_ONLY, UPDATE_ONLY
+    // DELETE
+  }
+
   public static final String               FORMAT_TYPE                  = "formatType";
 
   public static final String               OBJECT_TYPE                  = "objectType";
@@ -85,11 +90,6 @@ public abstract class ImportConfiguration
   protected Map<String, ShapefileFunction> functions;
 
   protected ImportStrategy                 importStrategy;
-
-  public static enum ImportStrategy {
-    NEW_AND_UPDATE, NEW_ONLY, UPDATE_ONLY
-    // DELETE
-  }
 
   public ImportConfiguration()
   {
@@ -217,12 +217,12 @@ public abstract class ImportConfiguration
   {
     this.copyBlank = copyBlank;
   }
-  
+
   public Boolean getIgnoreProjection()
   {
     return ignoreProjection;
   }
-  
+
   public void setIgnoreProjection(Boolean ignoreProjection)
   {
     this.ignoreProjection = ignoreProjection;
@@ -279,7 +279,9 @@ public abstract class ImportConfiguration
     this.vaultFileId = jo.getString(VAULT_FILE_ID);
 
     if (jo.has(IMPORT_STRATEGY))
+    {
       this.importStrategy = ImportStrategy.valueOf(jo.getString(IMPORT_STRATEGY));
+    }
 
     this.fileName = jo.getString(FILE_NAME);
 
@@ -302,7 +304,7 @@ public abstract class ImportConfiguration
     {
       this.ignoreProjection = jo.getBoolean(IGNORE_PROJECTION);
     }
-    
+
     if (jo.has(EXTERNAL_ID_ATTRIBUTE_TARGET))
     {
       this.externalIdFunction = new BasicColumnFunction(jo.getString(EXTERNAL_ID_ATTRIBUTE_TARGET));
@@ -321,9 +323,11 @@ public abstract class ImportConfiguration
     jo.put(IS_EXTERNAL, this.isExternal);
     jo.put(COPY_BLANK, this.copyBlank);
     jo.put(IGNORE_PROJECTION, this.ignoreProjection);
-    
+
     if (this.importStrategy != null)
+    {
       jo.put(IMPORT_STRATEGY, this.importStrategy.name());
+    }
 
     if (this.externalIdFunction != null)
     {

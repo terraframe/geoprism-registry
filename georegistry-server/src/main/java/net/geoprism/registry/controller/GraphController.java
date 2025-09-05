@@ -27,7 +27,7 @@ import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.service.request.GraphService2;
+import net.geoprism.registry.service.request.EdgeImportService;
 import net.geoprism.registry.service.request.GraphTypeService;
 import net.geoprism.registry.spring.NullableDateDeserializer;
 
@@ -40,7 +40,7 @@ public class GraphController extends RunwaySpringController
   @Autowired
   private GraphTypeService graphTypeService;
   
-  @Autowired GraphService2 myGraphService;
+  @Autowired EdgeImportService myGraphService;
   
   public static final class GetConfigurationBody
   {

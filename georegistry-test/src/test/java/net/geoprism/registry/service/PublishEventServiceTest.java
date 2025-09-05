@@ -98,7 +98,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
   @Autowired
   private DataSourceBusinessServiceIF               sourceService;
 
-  private static boolean                            WRITE_FILES = false;
+  private static boolean                            WRITE_FILES = true;
 
   @Test
   @Request
@@ -110,9 +110,6 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
     ObjectMapper mapper = new ObjectMapper();
     mapper.enable(SerializationFeature.INDENT_OUTPUT);
-
-    // RunwayTransactionWrapper.run(() -> {
-    // TrackingToken token = new GapAwareTrackingToken(0, null);
 
     try
     {
@@ -279,7 +276,6 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
     {
       throw new RuntimeException(e);
     }
-    // });
   }
 
   @Test

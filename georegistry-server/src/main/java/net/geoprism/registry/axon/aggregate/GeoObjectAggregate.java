@@ -17,7 +17,7 @@ import net.geoprism.registry.axon.event.remote.RemoteGeoObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectSetParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEvent;
-import net.geoprism.registry.axon.event.repository.GeoObjectCreateEdgeEvent;
+import net.geoprism.registry.axon.event.repository.GeoObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectCreateParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectUpdateParentEvent;
 
@@ -141,7 +141,7 @@ public class GeoObjectAggregate
   }
 
   @EventSourcingHandler
-  public void on(GeoObjectCreateEdgeEvent event)
+  public void on(GeoObjectApplyEdgeEvent event)
   {
     this.key = event.getSourceCode() + "#" + event.getSourceType();
     this.code = event.getSourceCode();

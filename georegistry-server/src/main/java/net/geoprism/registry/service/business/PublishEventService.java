@@ -38,7 +38,7 @@ import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.event.repository.EventType;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEvent;
-import net.geoprism.registry.axon.event.repository.GeoObjectCreateEdgeEvent;
+import net.geoprism.registry.axon.event.repository.GeoObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectCreateParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectRemoveParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectUpdateParentEvent;
@@ -222,18 +222,18 @@ public class PublishEventService
 
       return new RemoteGeoObjectSetParentCommand(commit.getUid(), code, type, edgeUid, edgeType, publish.getStartDate(), publish.getEndDate(), null, null, null);
     }
-    else if (event instanceof GeoObjectCreateEdgeEvent)
+    else if (event instanceof GeoObjectApplyEdgeEvent)
     {
-      String sourceCode = ( (GeoObjectCreateEdgeEvent) event ).getSourceCode();
-      String sourceType = ( (GeoObjectCreateEdgeEvent) event ).getSourceType();
-      String edgeUid = ( (GeoObjectCreateEdgeEvent) event ).getEdgeUid();
-      String edgeType = ( (GeoObjectCreateEdgeEvent) event ).getEdgeType();
-      String edgeTypeCode = ( (GeoObjectCreateEdgeEvent) event ).getEdgeTypeCode();
-      String targetCode = ( (GeoObjectCreateEdgeEvent) event ).getTargetCode();
-      String targetType = ( (GeoObjectCreateEdgeEvent) event ).getTargetType();
-      Date startDate = ( (GeoObjectCreateEdgeEvent) event ).getStartDate();
-      Date endDate = ( (GeoObjectCreateEdgeEvent) event ).getEndDate();
-      String dataSource = ( (GeoObjectCreateEdgeEvent) event ).getDataSource();
+      String sourceCode = ( (GeoObjectApplyEdgeEvent) event ).getSourceCode();
+      String sourceType = ( (GeoObjectApplyEdgeEvent) event ).getSourceType();
+      String edgeUid = ( (GeoObjectApplyEdgeEvent) event ).getEdgeUid();
+      String edgeType = ( (GeoObjectApplyEdgeEvent) event ).getEdgeType();
+      String edgeTypeCode = ( (GeoObjectApplyEdgeEvent) event ).getEdgeTypeCode();
+      String targetCode = ( (GeoObjectApplyEdgeEvent) event ).getTargetCode();
+      String targetType = ( (GeoObjectApplyEdgeEvent) event ).getTargetType();
+      Date startDate = ( (GeoObjectApplyEdgeEvent) event ).getStartDate();
+      Date endDate = ( (GeoObjectApplyEdgeEvent) event ).getEndDate();
+      String dataSource = ( (GeoObjectApplyEdgeEvent) event ).getDataSource();
 
       if (!StringUtils.isBlank(dataSource))
       {

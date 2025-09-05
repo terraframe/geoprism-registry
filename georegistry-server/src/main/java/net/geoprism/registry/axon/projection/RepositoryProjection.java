@@ -41,8 +41,8 @@ import net.geoprism.registry.axon.event.remote.RemoteGeoObjectSetParentEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectAddGeoObjectEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectCreateEdgeEvent;
+import net.geoprism.registry.axon.event.repository.GeoObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEvent;
-import net.geoprism.registry.axon.event.repository.GeoObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectCreateParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectRemoveParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectSetExternalIdEvent;
@@ -51,6 +51,7 @@ import net.geoprism.registry.cache.BusinessObjectCache;
 import net.geoprism.registry.cache.Cache;
 import net.geoprism.registry.cache.GeoObjectCache;
 import net.geoprism.registry.cache.LRUCache;
+import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
@@ -259,7 +260,7 @@ public class RepositoryProjection
 
   @EventHandler
   @Transaction
-  public void handleCreateEdge(GeoObjectCreateEdgeEvent event) throws Exception
+  public void handleCreateEdge(GeoObjectApplyEdgeEvent event) throws Exception
   {
     final GraphType graphType = GraphType.getByCode(event.getEdgeType(), event.getEdgeTypeCode());
     DataSource dataSource = this.sourceService.getByCode(event.getDataSource()).orElse(null);
@@ -269,14 +270,63 @@ public class RepositoryProjection
       ServerGeoObjectIF source = goCache.getOrFetchByCode(event.getSourceCode(), event.getSourceType());
       ServerGeoObjectIF target = goCache.getOrFetchByCode(event.getTargetCode(), event.getTargetType());
 
-      source.addGraphChild(target, graphType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), dataSource, event.getValidate());
+      if (ImportStrategy.NEW_AND_UPDATE.equals(event.getStrategy()) && ImportStrategy.UPDATE_ONLY.equals(event.getStrategy()))
+      {
+        // The only existing UNIQUE indexes that exist with edges are by uid. So
+        // we have to look this up if we want an 'update' mechanism.
+        EdgeObject edge = source.getEdge(target, graphType, null, null);
+
+        if (edge != null)
+        {
+          edge.setValue(GeoVertex.START_DATE, event.getStartDate());
+          edge.setValue(GeoVertex.END_DATE, event.getEndDate());
+          edge.apply();
+        }
+        else if (ImportStrategy.UPDATE_ONLY.equals(event.getStrategy()))
+        {
+          throw new DataNotFoundException("Could not find an edge from " + event.getSourceCode() + " to " + event.getTargetCode());
+        }
+        else
+        {
+          source.addGraphChild(target, graphType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), dataSource, event.getValidate());
+        }
+      }
+      else
+      {
+        source.addGraphChild(target, graphType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), dataSource, event.getValidate());
+      }
     }
     else
     {
       Object childRid = getOrFetchGeoObjectRid(event.getSourceCode(), event.getSourceType());
       Object parentRid = getOrFetchGeoObjectRid(event.getTargetCode(), event.getTargetType());
 
-      this.newEdge(childRid, parentRid, graphType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), dataSource, true);
+      if (ImportStrategy.NEW_AND_UPDATE.equals(event.getStrategy()) && ImportStrategy.UPDATE_ONLY.equals(event.getStrategy()))
+      {
+        // The only existing UNIQUE indexes that exist with edges are by uid. So
+        // we have to look this up if we want an 'update' mechanism.
+        EdgeObject edge = findEdge(childRid, parentRid, graphType, null, null);
+
+        if (edge != null)
+        {
+          edge.setValue(GeoVertex.START_DATE, event.getStartDate());
+          edge.setValue(GeoVertex.END_DATE, event.getEndDate());
+          edge.apply();
+        }
+        else if (ImportStrategy.UPDATE_ONLY.equals(event.getStrategy()))
+        {
+          throw new DataNotFoundException("Could not find an edge from " + childRid + " to " + parentRid);
+        }
+        else
+        {
+          this.newEdge(childRid, parentRid, graphType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), dataSource, true);
+        }
+      }
+      else
+      {
+        this.newEdge(childRid, parentRid, graphType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), dataSource, true);
+      }
+
     }
   }
 
@@ -611,6 +661,21 @@ public class RepositoryProjection
     parameters.put("dataSource", dataSource.getRID());
 
     service.command(request, statement, parameters);
+  }
+
+  public static EdgeObject findEdge(Object childRid, Object parentRid, GraphType type, Date startDate, Date endDate)
+  {
+    String clazz = type.getMdEdgeDAO().getDBClassName();
+
+    String statement = "SELECT FROM " + clazz + " WHERE out = :childRid AND in = :parentRid";
+
+    Map<String, Object> parameters = new HashMap<String, Object>();
+    parameters.put("childRid", childRid);
+    parameters.put("parentRid", parentRid);
+
+    GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement.toString(), parameters);
+
+    return query.getSingleResult();
   }
 
   public void clearCache()

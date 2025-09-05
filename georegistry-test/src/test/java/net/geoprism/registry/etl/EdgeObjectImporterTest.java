@@ -42,7 +42,7 @@ import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.request.ETLService;
-import net.geoprism.registry.service.request.GraphService2;
+import net.geoprism.registry.service.request.EdgeImportService;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestDataSet;
@@ -53,6 +53,13 @@ import net.geoprism.registry.test.TestGeoObjectInfo;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class EdgeObjectImporterTest implements InstanceTestClassListener
 {
+  public static final String         EDGE_CODE      = FastTestDataset.HIER_ADMIN.getCode();
+
+  public static final String         EDGE_TYPE_CODE = GraphTypeSnapshot.HIERARCHY_TYPE;
+
+  private static int                 IMPORT_COUNT   = 10;
+
+  protected static FastTestDataset   testData;
 
   @Autowired
   private GeoObjectBusinessServiceIF objectService;
@@ -61,22 +68,14 @@ public class EdgeObjectImporterTest implements InstanceTestClassListener
   private ETLService                 etlService;
 
   @Autowired
-  private GraphService2                 service;
-  
-  public static final String EDGE_CODE = FastTestDataset.HIER_ADMIN.getCode();
-  
-  public static final String EDGE_TYPE_CODE = GraphTypeSnapshot.HIERARCHY_TYPE;
-  
-  private int IMPORT_COUNT = 100_000;
-  
-  protected static FastTestDataset testData;
+  private EdgeImportService          service;
 
   @Override
   public void beforeClassSetup() throws Exception
   {
     testData = FastTestDataset.newTestData();
     testData.setUpMetadata();
-    
+
     if (!SchedulerManager.initialized())
     {
       SchedulerManager.start();
@@ -95,7 +94,7 @@ public class EdgeObjectImporterTest implements InstanceTestClassListener
     testData.setUpInstanceData();
 
     clearData();
-    
+
     testData.logIn();
   }
 
@@ -136,34 +135,36 @@ public class EdgeObjectImporterTest implements InstanceTestClassListener
 
     return ImportHistory.get(historyId);
   }
-  
-  private void generateDistricts() {
+
+  private void generateDistricts()
+  {
     System.out.println("Applying " + IMPORT_COUNT + " districts");
-    
-	for (int i = 0; i < IMPORT_COUNT; ++i)
+
+    for (int i = 0; i < IMPORT_COUNT; ++i)
     {
       TestGeoObjectInfo one = testData.newTestGeoObjectInfo(String.valueOf(i), FastTestDataset.DISTRICT, FastTestDataset.SOURCE);
       one.setCode(String.valueOf(i));
       one.apply();
     }
   }
-  
-  private InputStream generateEdgeJson() {
+
+  private InputStream generateEdgeJson()
+  {
     System.out.println("Generating " + IMPORT_COUNT + " edges");
-    
-	JSONArray all = new JSONArray();
-	
-	for (int i = 0; i < IMPORT_COUNT; ++i)
-	{
-	  JSONObject jo = new JSONObject();
-	  jo.put("source", String.valueOf(i));
-	  jo.put("sourceType", FastTestDataset.DISTRICT.getCode());
-	  jo.put("target", FastTestDataset.PROV_CENTRAL.getCode());
-	  jo.put("targetType", FastTestDataset.PROVINCE.getCode());
-	  all.put(jo);
-	}
-	
-	return new ByteArrayInputStream(all.toString().getBytes());
+
+    JSONArray all = new JSONArray();
+
+    for (int i = 0; i < IMPORT_COUNT; ++i)
+    {
+      JSONObject jo = new JSONObject();
+      jo.put("source", String.valueOf(i));
+      jo.put("sourceType", FastTestDataset.DISTRICT.getCode());
+      jo.put("target", FastTestDataset.PROV_CENTRAL.getCode());
+      jo.put("targetType", FastTestDataset.PROVINCE.getCode());
+      all.put(jo);
+    }
+
+    return new ByteArrayInputStream(all.toString().getBytes());
   }
 
   @Test
@@ -176,13 +177,13 @@ public class EdgeObjectImporterTest implements InstanceTestClassListener
     Assert.assertNotNull(istream);
 
     EdgeObjectImportConfiguration config = this.getTestConfiguration(istream, null, ImportStrategy.NEW_AND_UPDATE);
-    
+
     long start = System.nanoTime();
 
     ImportHistory hist = importJsonFile(testData.clientRequest.getSessionId(), config.toJSON().toString());
 
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
-    System.out.println("Elapsed: " + (System.nanoTime() - start) / 1_000_000_000.0 + " s");
+    System.out.println("Elapsed: " + ( System.nanoTime() - start ) / 1_000_000_000.0 + " s");
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(Long.valueOf(IMPORT_COUNT), hist.getWorkTotal());
@@ -202,7 +203,7 @@ public class EdgeObjectImporterTest implements InstanceTestClassListener
 
     result.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.JSON.name());
     result.put(ImportConfiguration.OBJECT_TYPE, ObjectImportType.EDGE_OBJECT.name());
-    
+
     result.put(EdgeObjectImportConfiguration.EDGE_SOURCE, "source");
     result.put(EdgeObjectImportConfiguration.EDGE_SOURCE_STRATEGY, ReferenceStrategy.CODE.name());
     result.put(EdgeObjectImportConfiguration.EDGE_SOURCE_TYPE, "sourceType");

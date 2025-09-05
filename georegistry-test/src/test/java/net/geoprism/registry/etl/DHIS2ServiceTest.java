@@ -497,7 +497,7 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
   @Request
   public void testDontSyncNonExist() throws Exception
   {
-    exportCustomAttribute(AllAttributesDataset.GOT_CHAR, AllAttributesDataset.GO_CHAR, testData.AT_GO_CHAR, null, new Date(), false, null);
+    exportCustomAttribute(AllAttributesDataset.GOT_CHAR, AllAttributesDataset.GO_CHAR, AllAttributesDataset.AT_GO_CHAR, null, new Date(), false, null);
   }
 
   @Test
@@ -510,49 +510,49 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
     sgo.setExists(false, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_OVER_TIME_DATE);
     this.objectService.apply(sgo, false, false);
 
-    exportCustomAttribute(AllAttributesDataset.GOT_CHAR, AllAttributesDataset.GO_CHAR, testData.AT_GO_CHAR, null, TestDataSet.DEFAULT_OVER_TIME_DATE, true, null);
+    exportCustomAttribute(AllAttributesDataset.GOT_CHAR, AllAttributesDataset.GO_CHAR, AllAttributesDataset.AT_GO_CHAR, null, TestDataSet.DEFAULT_OVER_TIME_DATE, true, null);
   }
 
   @Test
   @Request
   public void testExportCharacterAttr() throws Exception
   {
-    exportCustomAttribute(AllAttributesDataset.GOT_CHAR, AllAttributesDataset.GO_CHAR, testData.AT_GO_CHAR, null);
+    exportCustomAttribute(AllAttributesDataset.GOT_CHAR, AllAttributesDataset.GO_CHAR, AllAttributesDataset.AT_GO_CHAR, null);
   }
 
   @Test
   @Request
   public void testExportLocalAttr() throws Exception
   {
-    exportCustomAttribute(AllAttributesDataset.GOT_LOCAL, AllAttributesDataset.GO_LOCAL, testData.AT_GO_LOCAL, null);
+    exportCustomAttribute(AllAttributesDataset.GOT_LOCAL, AllAttributesDataset.GO_LOCAL, AllAttributesDataset.AT_GO_LOCAL, null);
   }
 
   @Test
   @Request
   public void testExportIntegerAttr() throws Exception
   {
-    exportCustomAttribute(AllAttributesDataset.GOT_INT, AllAttributesDataset.GO_INT, testData.AT_GO_INT, null);
+    exportCustomAttribute(AllAttributesDataset.GOT_INT, AllAttributesDataset.GO_INT, AllAttributesDataset.AT_GO_INT, null);
   }
 
   @Test
   @Request
   public void testExportFloatAttr() throws Exception
   {
-    exportCustomAttribute(AllAttributesDataset.GOT_FLOAT, AllAttributesDataset.GO_FLOAT, testData.AT_GO_FLOAT, null);
+    exportCustomAttribute(AllAttributesDataset.GOT_FLOAT, AllAttributesDataset.GO_FLOAT, AllAttributesDataset.AT_GO_FLOAT, null);
   }
 
   @Test
   @Request
   public void testExportDateAttr() throws Exception
   {
-    exportCustomAttribute(AllAttributesDataset.GOT_DATE, AllAttributesDataset.GO_DATE, testData.AT_GO_DATE, null);
+    exportCustomAttribute(AllAttributesDataset.GOT_DATE, AllAttributesDataset.GO_DATE, AllAttributesDataset.AT_GO_DATE, null);
   }
 
   @Test
   @Request
   public void testExportBoolAttr() throws Exception
   {
-    exportCustomAttribute(AllAttributesDataset.GOT_BOOL, AllAttributesDataset.GO_BOOL, testData.AT_GO_BOOL, null);
+    exportCustomAttribute(AllAttributesDataset.GOT_BOOL, AllAttributesDataset.GO_BOOL, AllAttributesDataset.AT_GO_BOOL, null);
   }
 
   @Test
@@ -568,7 +568,7 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
     terms.put(AllAttributesDataset.TERM_TERM_VAL2.fetchClassifier().getClassifierId(), "TEST_EXTERNAL_ID");
     mapping.setTerms(terms);
 
-    exportCustomAttribute(AllAttributesDataset.GOT_TERM, AllAttributesDataset.GO_TERM, testData.AT_GO_TERM, mapping);
+    exportCustomAttribute(AllAttributesDataset.GOT_TERM, AllAttributesDataset.GO_TERM, AllAttributesDataset.AT_GO_TERM, mapping);
   }
 
   @Test
@@ -586,7 +586,7 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
     // "uYxK4wmcPqA"); // This term isn't used by any exported Geo-Objects
     mapping.setTerms(terms);
 
-    exportCustomAttribute(AllAttributesDataset.GOT_TERM, AllAttributesDataset.GO_TERM, testData.AT_GO_TERM, mapping);
+    exportCustomAttribute(AllAttributesDataset.GOT_TERM, AllAttributesDataset.GO_TERM, AllAttributesDataset.AT_GO_TERM, mapping);
   }
 
   // @Test
@@ -765,7 +765,7 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
   {
     this.objectService.createExternalId(AllAttributesDataset.GO_BOOL.getServerObject(), system, DHIS2TestService.SIERRA_LEONE_ID, ImportStrategy.NEW_ONLY);
 
-    exportCustomAttribute(AllAttributesDataset.GOT_BOOL, AllAttributesDataset.GO_BOOL, testData.AT_GO_BOOL, null);
+    exportCustomAttribute(AllAttributesDataset.GOT_BOOL, AllAttributesDataset.GO_BOOL, AllAttributesDataset.AT_GO_BOOL, null);
   }
 
   /*
@@ -967,11 +967,13 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
 
         DHIS2AttributeMapping expectedStrategy = expectedStrategies.stream().filter(strat -> strat.getClass().getName().equals(strategy.get("type").getAsString())).findFirst().get();
 
+        Assert.assertNotNull(expectedStrategy);
+
         JsonArray dhis2Attrs = strategy.get("dhis2Attrs").getAsJsonArray();
 
-        if (cgrAttrName.equals(testData.AT_ALL_INT.getAttributeName()))
+        if (cgrAttrName.equals(AllAttributesDataset.AT_ALL_INT.getAttributeName()))
         {
-          testAttrType = testData.AT_ALL_INT;
+          testAttrType = AllAttributesDataset.AT_ALL_INT;
 
           Assert.assertEquals(1, dhis2Attrs.size());
 
@@ -983,9 +985,9 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
 
           Assert.assertEquals("CGRIntegrationAttributeTest-Integer", dhis2Attr.get("name").getAsString());
         }
-        else if (cgrAttrName.equals(testData.AT_ALL_BOOL.getAttributeName()))
+        else if (cgrAttrName.equals(AllAttributesDataset.AT_ALL_BOOL.getAttributeName()))
         {
-          testAttrType = testData.AT_ALL_BOOL;
+          testAttrType = AllAttributesDataset.AT_ALL_BOOL;
 
           Assert.assertEquals(1, dhis2Attrs.size());
 
@@ -997,9 +999,9 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
 
           Assert.assertEquals("CGRIntegrationAttributeTest-Bool", dhis2Attr.get("name").getAsString());
         }
-        else if (cgrAttrName.equals(testData.AT_ALL_CHAR.getAttributeName()))
+        else if (cgrAttrName.equals(AllAttributesDataset.AT_ALL_CHAR.getAttributeName()))
         {
-          testAttrType = testData.AT_ALL_CHAR;
+          testAttrType = AllAttributesDataset.AT_ALL_CHAR;
 
           Assert.assertEquals(13, dhis2Attrs.size());
 
@@ -1018,9 +1020,9 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
             Assert.assertTrue(code.equals("IRID") || code.equals("NGOID") || code.equals("CGRIntegrationAttributeTest-Char") || defaultNames.contains(code));
           }
         }
-        else if (cgrAttrName.equals(testData.AT_ALL_DATE.getAttributeName()))
+        else if (cgrAttrName.equals(AllAttributesDataset.AT_ALL_DATE.getAttributeName()))
         {
-          testAttrType = testData.AT_ALL_DATE;
+          testAttrType = AllAttributesDataset.AT_ALL_DATE;
 
           Assert.assertEquals(3, dhis2Attrs.size());
 
@@ -1039,9 +1041,9 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
           String name = dhis2Attr.get("name").getAsString();
           Assert.assertTrue(name.equals("CGRIntegrationAttributeTest-Date") || defaultNames.contains(name));
         }
-        else if (cgrAttrName.equals(testData.AT_ALL_FLOAT.getAttributeName()))
+        else if (cgrAttrName.equals(AllAttributesDataset.AT_ALL_FLOAT.getAttributeName()))
         {
-          testAttrType = testData.AT_ALL_FLOAT;
+          testAttrType = AllAttributesDataset.AT_ALL_FLOAT;
 
           Assert.assertEquals(1, dhis2Attrs.size());
 
@@ -1154,6 +1156,8 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
         {
           Assert.fail("Unexpected attribute name [" + cgrAttrName + "].");
         }
+        
+        Assert.assertNotNull(testAttrType);
 
         Assert.assertEquals(attrType.getLabel().getValue(), cgrAttr.get("label").getAsString());
 
@@ -1281,6 +1285,8 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
     Object[] objects = testSyncWithInheritedHierarchyConfig();
 
     SynchronizationConfig config = (SynchronizationConfig) objects[0];
+    Assert.assertNotNull(config);
+
     String configOid = (String) objects[1];
 
     JsonObject joHist = syncService.run(testData.clientSession.getSessionId(), configOid);
@@ -1546,7 +1552,7 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
     // Our parent needs an external id if we're not creating it.
     this.objectService.createExternalId(AllAttributesDataset.GO_ALL.getServerObject(), system, DHIS2TestService.SIERRA_LEONE_ID, ImportStrategy.NEW_ONLY);
 
-    exportCustomAttribute(AllAttributesDataset.GOT_BOOL, AllAttributesDataset.GO_BOOL, testData.AT_GO_BOOL, null, TestDataSet.DEFAULT_OVER_TIME_DATE, false, DHIS2SyncLevel.Type.NONE);
+    exportCustomAttribute(AllAttributesDataset.GOT_BOOL, AllAttributesDataset.GO_BOOL, AllAttributesDataset.AT_GO_BOOL, null, TestDataSet.DEFAULT_OVER_TIME_DATE, false, DHIS2SyncLevel.Type.NONE);
   }
 
   /**
@@ -1559,7 +1565,7 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
     // Our parent needs an external id if we're not creating it.
     this.objectService.createExternalId(AllAttributesDataset.GO_ALL.getServerObject(), system, DHIS2TestService.SIERRA_LEONE_ID, ImportStrategy.NEW_ONLY);
 
-    exportCustomAttribute(AllAttributesDataset.GOT_BOOL, AllAttributesDataset.GO_BOOL, testData.AT_GO_BOOL, null, TestDataSet.DEFAULT_OVER_TIME_DATE, false, DHIS2SyncLevel.Type.RELATIONSHIPS);
+    exportCustomAttribute(AllAttributesDataset.GOT_BOOL, AllAttributesDataset.GO_BOOL, AllAttributesDataset.AT_GO_BOOL, null, TestDataSet.DEFAULT_OVER_TIME_DATE, false, DHIS2SyncLevel.Type.RELATIONSHIPS);
   }
 
   /*
@@ -1596,7 +1602,6 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
     final TestGeoObjectInfo go = GO_NO_DEFAULT_LOCALE;
     final TestGeoObjectTypeInfo got = go.getGeoObjectType();
     final TestAttributeTypeInfo attr = AllAttributesDataset.AT_GO_BOOL;
-    final VertexServerGeoObject serverGo = (VertexServerGeoObject) go.getServerObject();
 
     /*
      * Create a config

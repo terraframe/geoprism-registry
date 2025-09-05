@@ -32,7 +32,6 @@ import net.geoprism.registry.service.business.JenaSynchronizationService;
 import net.geoprism.registry.service.business.PublishBusinessServiceIF;
 import net.geoprism.registry.service.business.PublishEventService;
 import net.geoprism.registry.service.business.RemoteJenaServiceIF;
-import net.geoprism.registry.service.business.SynchronizationConfigBusinessServiceIF;
 import net.geoprism.registry.test.USATestData;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)

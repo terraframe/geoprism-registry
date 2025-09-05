@@ -41,7 +41,6 @@ import com.runwaysdk.ProblemException;
 import com.runwaysdk.ProblemIF;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
-import com.runwaysdk.constants.MdAttributeDateInfo;
 import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -53,15 +52,13 @@ import com.runwaysdk.session.SessionFacade;
 
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
-import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.axon.command.repository.GeoObjectCompositeCommand;
 import net.geoprism.registry.axon.event.repository.AbstractGeoObjectEvent;
-import net.geoprism.registry.axon.event.repository.GeoObjectCreateEdgeEvent;
+import net.geoprism.registry.axon.event.repository.GeoObjectApplyEdgeEvent;
 import net.geoprism.registry.cache.Cache;
 import net.geoprism.registry.cache.GeoObjectCache;
 import net.geoprism.registry.cache.LRUCache;
-import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.io.IgnoreRowException;
 import net.geoprism.registry.io.Location;
 import net.geoprism.registry.io.RequiredMappingException;
@@ -75,7 +72,7 @@ public class EdgeObjectImporter implements ObjectImporterIF
   private static enum Action {
     VALIDATE, IMPORT
   }
-  
+
   public static enum ReferenceStrategy {
     CODE, FIXED_TYPE
   }
@@ -127,60 +124,48 @@ public class EdgeObjectImporter implements ObjectImporterIF
 
   private static class RowData
   {
-    private String                goJson;
+    private String  goJson;
 
-    private boolean               isNew;
-
-    public void setGoJson(String goJson)
-    {
-      this.goJson = goJson;
-    }
-
-    public void setNew(boolean isNew)
-    {
-      this.isNew = isNew;
-    }
+    private boolean isNew;
   }
 
-  private static final Logger                 logger                     = LoggerFactory.getLogger(BusinessObjectImporter.class);
+  private static final Logger             logger                     = LoggerFactory.getLogger(BusinessObjectImporter.class);
 
-  protected static final String               ERROR_OBJECT_TYPE          = GeoObjectOverTime.class.getName();
+  protected static final String           ERROR_OBJECT_TYPE          = GeoObjectOverTime.class.getName();
 
-  protected static final String               parentConcatToken          = "&";
+  protected static final String           parentConcatToken          = "&";
 
   // Refresh the user's session every X amount of records
-  private static final long                   refreshSessionRecordCount  = GeoregistryProperties.getRefreshSessionRecordCount();
+  private static final long               refreshSessionRecordCount  = GeoregistryProperties.getRefreshSessionRecordCount();
 
   protected EdgeObjectImportConfiguration configuration;
 
-  protected GeoObjectCache    goCache;
-  protected Cache<String, Object> goRidCache;
+  protected GeoObjectCache                goCache;
 
-  protected ImportProgressListenerIF          progressListener;
+  protected Cache<String, Object>         goRidCache;
 
-  protected FormatSpecificImporterIF          formatImporter;
+  protected ImportProgressListenerIF      progressListener;
 
-  private long                                lastValidateSessionRefresh = 0;
+  protected FormatSpecificImporterIF      formatImporter;
 
-  private long                                lastImportSessionRefresh   = 0;
+  private long                            lastValidateSessionRefresh = 0;
 
-  private BlockingQueue<Runnable>             blockingQueue;
+  private long                            lastImportSessionRefresh   = 0;
 
-  private ThreadPoolExecutor                  executor;
+  private BlockingQueue<Runnable>         blockingQueue;
 
-  private GeoObjectBusinessServiceIF          objectService;
+  private ThreadPoolExecutor              executor;
 
-  private CommandGateway                      commandGateway;
+  private CommandGateway                  commandGateway;
 
   public EdgeObjectImporter(EdgeObjectImportConfiguration configuration, ImportProgressListenerIF progressListener)
   {
-    this.objectService = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
     this.commandGateway = ServiceFactory.getBean(CommandGateway.class);
 
     this.configuration = configuration;
     this.progressListener = progressListener;
 
-    goCache    = new GeoObjectCache();
+    goCache = new GeoObjectCache();
     goRidCache = new LRUCache<String, Object>(10000);
 
     this.blockingQueue = new LinkedBlockingDeque<Runnable>(50);
@@ -228,21 +213,23 @@ public class EdgeObjectImporter implements ObjectImporterIF
         String sourceTypeCode = getValue("edgeSourceType", row);
         String targetCode = getValue("edgeTarget", row);
         String targetTypeCode = getValue("edgeTargetType", row);
-        
+
         Date startDate = this.configuration.getStartDate();
-        if (startDate == null) {
+        if (startDate == null)
+        {
           RequiredMappingException ex = new RequiredMappingException();
           ex.setAttributeLabel("startDate");
           throw ex;
         }
-        
+
         Date endDate = this.configuration.getEndDate();
-        if (endDate == null) {
+        if (endDate == null)
+        {
           RequiredMappingException ex = new RequiredMappingException();
           ex.setAttributeLabel("endDate");
           throw ex;
         }
-        
+
         goCache.getOrFetchByCode(sourceCode, sourceTypeCode);
         goCache.getOrFetchByCode(targetCode, targetTypeCode);
       }
@@ -272,16 +259,6 @@ public class EdgeObjectImporter implements ObjectImporterIF
     {
       e.printStackTrace();
     }
-  }
-
-  private boolean isEmptyString(Object value)
-  {
-    if (value instanceof String)
-    {
-      return ( (String) value ).trim().length() == 0;
-    }
-
-    return false;
   }
 
   public void importRow(FeatureRow row) throws InterruptedException
@@ -391,45 +368,12 @@ public class EdgeObjectImporter implements ObjectImporterIF
       String dataSource = configuration.getDataSource() == null ? null : this.configuration.getDataSource().getCode();
       Date startDate = this.configuration.getStartDate();
       Date endDate = this.configuration.getEndDate();
-//      boolean validate = this.configuration.isValidate();
-      boolean validate = true;
-      
+
       String graphTypeClass = GraphType.getTypeCode(this.configuration.getGraphType());
       String graphTypeCode = this.configuration.getGraphType().getCode();
-      
-      // TODO : What about updates?
 
-      AbstractGeoObjectEvent event = null;
-//      if (GraphTypeSnapshot.HIERARCHY_TYPE.equals(graphTypeClass)) {
-//        event = new GeoObjectCreateParentEvent(sourceCode, sourceTypeCode, UUID.randomUUID().toString(), graphTypeCode, startDate, endDate, targetCode, targetTypeCode, dataSource, validate);
-//      } else {
-//        event = new GeoObjectCreateEdgeEvent(sourceCode, sourceTypeCode, graphTypeClass, graphTypeCode, targetCode, targetTypeCode, startDate, endDate, dataSource, validate);
-//      }
-      
-//      Object childRid = EdgeJsonImporter.getOrFetchRid(goRidCache, sourceCode, sourceTypeCode);
-//      Object parentRid = EdgeJsonImporter.getOrFetchRid(goRidCache, targetCode, targetTypeCode);
-      
-      if (ImportStrategy.NEW_AND_UPDATE.equals(this.configuration.getImportStrategy()) && ImportStrategy.UPDATE_ONLY.equals(this.configuration.getImportStrategy())) {
-        // The only existing UNIQUE indexes that exist with edges are by oid. So we have to look this up if we want an 'update' mechanism.
-//        EdgeObject edge = findEdge(childRid, parentRid, configuration.getGraphType(), startDate, endDate);
-        EdgeObject edge = null;
-        
-        // TODO!!
-        
-        if (edge != null) {
-//          edge.setValue(MdAttributeDateInfo.START_DATE, startDate);
-//          edge.setValue(MdAttributeDateInfo.END_DATE, endDate);
-//          edge.apply();
-        } else if (ImportStrategy.UPDATE_ONLY.equals(this.configuration.getImportStrategy())) {
-//          throw new DataNotFoundException("Could not find an edge from " + childRid + " to " + parentRid);
-        } else {
-          event = new GeoObjectCreateEdgeEvent(sourceCode, sourceTypeCode, graphTypeClass, graphTypeCode, targetCode, targetTypeCode, startDate, endDate, dataSource, validate);
-        }
-      } else {
-        
-        event = new GeoObjectCreateEdgeEvent(sourceCode, sourceTypeCode, graphTypeClass, graphTypeCode, targetCode, targetTypeCode, startDate, endDate, dataSource, validate);
-      }
-      
+      AbstractGeoObjectEvent event = new GeoObjectApplyEdgeEvent(sourceCode, sourceTypeCode, graphTypeClass, graphTypeCode, targetCode, targetTypeCode, startDate, endDate, dataSource, this.configuration.getImportStrategy(), false);
+
       this.commandGateway.sendAndWait(new GeoObjectCompositeCommand(sourceCode, sourceTypeCode, Arrays.asList(event)));
 
       imported = true;
@@ -457,60 +401,47 @@ public class EdgeObjectImporter implements ObjectImporterIF
 
     return imported;
   }
-  
-  public static EdgeObject findEdge(Object childRid, Object parentRid, GraphType type, Date startDate, Date endDate)
+
+  protected String getValue(String attribute, FeatureRow row)
   {
-    String clazz = type.getMdEdgeDAO().getDBClassName();
-
-    String statement = "SELECT FROM " + clazz + " WHERE out = :childRid AND in = :parentRid";
-//    statement += " AND startDate=:startDate, endDate=:endDate, oid=:oid";
-
-//    GraphDBService service = GraphDBService.getInstance();
-//    GraphRequest request = service.getGraphDBRequest();
-
-    Map<String, Object> parameters = new HashMap<String, Object>();
-    parameters.put("childRid", childRid);
-    parameters.put("parentRid", parentRid);
-//    parameters.put("startDate", startDate);
-//    parameters.put("endDate", endDate);
-
-    GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement.toString(), parameters);
-
-    return query.getSingleResult();
-  }
-  
-  protected String getValue(String attribute, FeatureRow row) {
     ReferenceStrategy strategy = getStrategy(attribute);
-    
+
     String target;
-    if (strategy.equals(ReferenceStrategy.FIXED_TYPE)) {
+    if (strategy.equals(ReferenceStrategy.FIXED_TYPE))
+    {
       target = this.getConfigValue(attribute);
-    } else if (strategy.equals(ReferenceStrategy.CODE)) {
+    }
+    else if (strategy.equals(ReferenceStrategy.CODE))
+    {
       target = this.getConfigValue(attribute);
-    } else {
+    }
+    else
+    {
       throw new UnsupportedOperationException(attribute);
     }
-    
-    if (StringUtils.isEmpty(target)) {
+
+    if (StringUtils.isEmpty(target))
+    {
       RequiredMappingException ex = new RequiredMappingException();
       ex.setAttributeLabel(attribute);
       throw ex;
     }
-    
-    if (strategy.equals(ReferenceStrategy.FIXED_TYPE)) return target;
-    
-//    ShapefileFunction function = this.configuration.getFunction(attribute);
-//
-//    if (function == null)
-//    {
-//      RequiredMappingException ex = new RequiredMappingException();
-//      ex.setAttributeLabel(attribute);
-//      throw ex;
-//    }
-//    Object obj = function.getValue(row);
-    
+
+    if (strategy.equals(ReferenceStrategy.FIXED_TYPE))
+      return target;
+
+    // ShapefileFunction function = this.configuration.getFunction(attribute);
+    //
+    // if (function == null)
+    // {
+    // RequiredMappingException ex = new RequiredMappingException();
+    // ex.setAttributeLabel(attribute);
+    // throw ex;
+    // }
+    // Object obj = function.getValue(row);
+
     String result = null;
-    
+
     Object obj = row.getValue(target);
 
     if (obj != null)
@@ -524,34 +455,54 @@ public class EdgeObjectImporter implements ObjectImporterIF
       ex.setAttributeLabel(target);
       throw ex;
     }
-    
+
     return result;
   }
-  
-  private String getConfigValue(String attribute) {
-    if (attribute.equals("edgeSource")) {
+
+  private String getConfigValue(String attribute)
+  {
+    if (attribute.equals("edgeSource"))
+    {
       return this.configuration.getEdgeSource();
-    } else if (attribute.equals("edgeSourceType")) {
+    }
+    else if (attribute.equals("edgeSourceType"))
+    {
       return this.configuration.getEdgeSourceType();
-    } else if (attribute.equals("edgeTarget")) {
+    }
+    else if (attribute.equals("edgeTarget"))
+    {
       return this.configuration.getEdgeTarget();
-    } else if (attribute.equals("edgeTargetType")) {
+    }
+    else if (attribute.equals("edgeTargetType"))
+    {
       return this.configuration.getEdgeTargetType();
-    } else {
+    }
+    else
+    {
       throw new UnsupportedOperationException(attribute);
     }
   }
-  
-  private ReferenceStrategy getStrategy(String attribute) {
-    if (attribute.equals("edgeSource")) {
+
+  private ReferenceStrategy getStrategy(String attribute)
+  {
+    if (attribute.equals("edgeSource"))
+    {
       return this.configuration.getEdgeSourceStrategy();
-    } else if (attribute.equals("edgeSourceType")) {
+    }
+    else if (attribute.equals("edgeSourceType"))
+    {
       return this.configuration.getEdgeSourceTypeStrategy();
-    } else if (attribute.equals("edgeTarget")) {
+    }
+    else if (attribute.equals("edgeTarget"))
+    {
       return this.configuration.getEdgeTargetStrategy();
-    } else if (attribute.equals("edgeTargetType")) {
+    }
+    else if (attribute.equals("edgeTargetType"))
+    {
       return this.configuration.getEdgeTargetTypeStrategy();
-    } else {
+    }
+    else
+    {
       throw new UnsupportedOperationException(attribute);
     }
   }

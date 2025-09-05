@@ -177,12 +177,12 @@ public abstract class AbstractGeoObjectEventBuilder<K>
     this.events.add(new GeoObjectCreateParentEvent(this.getCode(), this.getType(), edgeUuid, hierarchy.getCode(), startDate, endDate, parent.getCode(), parent.getType().getCode(), code, validate));
   }
 
-  public void addEdge(ServerGeoObjectIF target, GraphType graphType, Date startDate, Date endDate, String edgeUuid, DataSource source, Boolean validate)
+  public void addEdge(ServerGeoObjectIF target, GraphType graphType, Date startDate, Date endDate, String edgeUuid, DataSource source, ImportStrategy strategy, Boolean validate)
   {
     String typeCode = GraphType.getTypeCode(graphType);
     String code = source != null ? source.getCode() : null;
 
-    this.events.add(new GeoObjectCreateEdgeEvent(this.getCode(), this.getType(), typeCode, graphType.getCode(), target.getCode(), target.getType().getCode(), startDate, endDate, code, validate));
+    this.events.add(new GeoObjectApplyEdgeEvent(this.getCode(), this.getType(), typeCode, graphType.getCode(), target.getCode(), target.getType().getCode(), startDate, endDate, code, strategy, validate));
   }
 
   public void setParents(ServerParentTreeNodeOverTime parentsOverTime, DataSource dataSource)

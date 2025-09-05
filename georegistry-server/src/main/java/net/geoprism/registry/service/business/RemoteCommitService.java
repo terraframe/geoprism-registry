@@ -106,6 +106,8 @@ public class RemoteCommitService
 
       client.getDataSources(commit.getUid()).forEach(dto -> {
         DataSource source = this.sourceService.getByCode(dto.getCode()).orElseGet(() -> {
+          dto.setOid(null);
+
           return this.sourceService.apply(dto);
         });
 
@@ -172,7 +174,7 @@ public class RemoteCommitService
     catch (RuntimeException e)
     {
       this.commitService.delete(commit);
-      
+
       throw e;
     }
 
