@@ -777,9 +777,8 @@ public class XMLImporter
 
     if (!StringUtils.isBlank(labelAttribute))
     {
-      type.appLock();
-      type.setLabelAttribute(labelAttribute);
-      type.apply();
+      this.bTypeService.setLabelAttribute(type, labelAttribute);
+      this.bTypeService.apply(type);
     }
   }
 

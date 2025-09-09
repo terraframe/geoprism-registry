@@ -97,7 +97,7 @@ public class DirectedAcyclicGraphTypeTest
 
     try
     {
-      DirectedAcyclicGraphType result = DirectedAcyclicGraphType.getByCode(type.getCode()).get();
+      DirectedAcyclicGraphType result = service.getByCode(type.getCode()).get();
 
       Assert.assertNotNull(result);
       Assert.assertEquals(type.getCode(), result.getCode());
@@ -117,7 +117,7 @@ public class DirectedAcyclicGraphTypeTest
 
     try
     {
-      DirectedAcyclicGraphType result = DirectedAcyclicGraphType.getByMdEdge(type.getMdEdge());
+      DirectedAcyclicGraphType result = service.getByMdEdge(type.getMdEdge());
 
       Assert.assertNotNull(result);
       Assert.assertEquals(type.getCode(), result.getCode());
@@ -137,7 +137,7 @@ public class DirectedAcyclicGraphTypeTest
 
     try
     {
-      List<DirectedAcyclicGraphType> results = DirectedAcyclicGraphType.getAll();
+      List<DirectedAcyclicGraphType> results = service.getAll();
 
       Assert.assertEquals(1, results.size());
 

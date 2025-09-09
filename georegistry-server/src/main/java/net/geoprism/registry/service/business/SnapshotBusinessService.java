@@ -116,11 +116,14 @@ public class SnapshotBusinessService
   @Autowired
   private BusinessTypeBusinessServiceIF             bTypeService;
 
+  @Autowired
+  private GraphTypeBusinessServiceIF                graphTypeService;
+
   public GraphTypeSnapshot createSnapshot(SnapshotContainer<?> version, GraphTypeReference gtr, GeoObjectTypeSnapshot root)
   {
     MdEdge mdEdge = null;
 
-    GraphType graphType = GraphType.resolve(gtr);
+    GraphType graphType = this.graphTypeService.resolve(gtr);
 
     if (version.createTablesWithSnapshot())
     {
@@ -436,7 +439,7 @@ public class SnapshotBusinessService
     {
       DirectedAcyclicGraphTypeSnapshot concrete = (DirectedAcyclicGraphTypeSnapshot) snapshot;
 
-      DirectedAcyclicGraphType type = DirectedAcyclicGraphType.getByCode(concrete.getCode()).orElseGet(() -> {
+      DirectedAcyclicGraphType type = this.dagTypeService.getByCode(concrete.getCode()).orElseGet(() -> {
         LocalizedValue label = LocalizedValueConverter.convertNoAutoCoalesce(concrete.getDisplayLabel());
         LocalizedValue description = LocalizedValueConverter.convertNoAutoCoalesce(concrete.getDescription());
 
@@ -449,7 +452,7 @@ public class SnapshotBusinessService
     {
       UndirectedGraphTypeSnapshot concrete = (UndirectedGraphTypeSnapshot) snapshot;
 
-      UndirectedGraphType type = UndirectedGraphType.getByCode(concrete.getCode()).orElseGet(() -> {
+      UndirectedGraphType type = this.undirectedTypeService.getByCode(concrete.getCode()).orElseGet(() -> {
         LocalizedValue label = LocalizedValueConverter.convertNoAutoCoalesce(concrete.getDisplayLabel());
         LocalizedValue description = LocalizedValueConverter.convertNoAutoCoalesce(concrete.getDescription());
 

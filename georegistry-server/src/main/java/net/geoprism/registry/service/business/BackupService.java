@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service.business;
 
@@ -68,19 +68,25 @@ import net.geoprism.registry.xml.XMLExporter;
 public class BackupService implements BackupServiceIF
 {
   @Autowired
-  private BusinessTypeBusinessServiceIF     bTypeService;
+  private BusinessTypeBusinessServiceIF             bTypeService;
 
   @Autowired
-  private BusinessEdgeTypeBusinessServiceIF bEdgeTypeService;
+  private BusinessEdgeTypeBusinessServiceIF         bEdgeTypeService;
 
   @Autowired
-  private GPRBusinessObjectBusinessService  bService;
+  private GPRBusinessObjectBusinessService          bService;
 
   @Autowired
-  private GeoObjectBusinessServiceIF        gService;
+  private GeoObjectBusinessServiceIF                gService;
 
   @Autowired
-  private GPRTransitionEventBusinessService teService;
+  private GPRTransitionEventBusinessService         teService;
+
+  @Autowired
+  private UndirectedGraphTypeBusinessServiceIF      ugService;
+
+  @Autowired
+  private DirectedAcyclicGraphTypeBusinessServiceIF dagService;
 
   @Override
   public void createBackup(File zipfile)
@@ -342,7 +348,7 @@ public class BackupService implements BackupServiceIF
     File data = new File(directory, "dags");
     data.mkdirs();
 
-    List<DirectedAcyclicGraphType> types = DirectedAcyclicGraphType.getAll();
+    List<DirectedAcyclicGraphType> types = this.dagService.getAll();
 
     for (DirectedAcyclicGraphType type : types)
     {
@@ -355,7 +361,7 @@ public class BackupService implements BackupServiceIF
     File data = new File(directory, "undirected-graphs");
     data.mkdirs();
 
-    List<UndirectedGraphType> types = UndirectedGraphType.getAll();
+    List<UndirectedGraphType> types = this.ugService.getAll();
 
     for (UndirectedGraphType type : types)
     {

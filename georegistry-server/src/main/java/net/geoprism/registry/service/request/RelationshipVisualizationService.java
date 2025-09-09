@@ -57,8 +57,11 @@ import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.GraphTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.permission.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.service.permission.GeoObjectTypePermissionServiceIF;
 import net.geoprism.registry.service.permission.HierarchyTypePermissionServiceIF;
@@ -71,37 +74,46 @@ public class RelationshipVisualizationService
 {
   // Usability really degrades past 500 or so. Past 1000 the browser falls over,
   // even on good computers. @rrowlands
-  public static final long                  maxResults = 500;
+  public static final long                          maxResults = 500;
 
   @Autowired
-  private BusinessObjectBusinessServiceIF   bObjectService;
+  private BusinessObjectBusinessServiceIF           bObjectService;
 
   @Autowired
-  private GeoObjectBusinessServiceIF        geoObjectService;
+  private GeoObjectBusinessServiceIF                geoObjectService;
 
   @Autowired
-  private BusinessTypeBusinessServiceIF     bTypeService;
+  private BusinessTypeBusinessServiceIF             bTypeService;
 
   @Autowired
-  private BusinessEdgeTypeBusinessServiceIF bEdgeService;
+  private BusinessEdgeTypeBusinessServiceIF         bEdgeService;
 
   @Autowired
-  private RegistryComponentService          service;
+  private DirectedAcyclicGraphTypeBusinessServiceIF dagService;
 
   @Autowired
-  private GeoObjectBusinessServiceIF        objectService;
+  private UndirectedGraphTypeBusinessServiceIF      undirectedService;
 
   @Autowired
-  private GeoObjectTypeBusinessServiceIF    typeService;
+  private GraphTypeBusinessServiceIF                graphTypeService;
 
   @Autowired
-  private GeoObjectPermissionServiceIF      objectPermissions;
+  private RegistryComponentService                  service;
 
   @Autowired
-  private GeoObjectTypePermissionServiceIF  typePermissions;
+  private GeoObjectBusinessServiceIF                objectService;
 
   @Autowired
-  private HierarchyTypePermissionServiceIF  hierarchyPermissions;
+  private GeoObjectTypeBusinessServiceIF            typeService;
+
+  @Autowired
+  private GeoObjectPermissionServiceIF              objectPermissions;
+
+  @Autowired
+  private GeoObjectTypePermissionServiceIF          typePermissions;
+
+  @Autowired
+  private HierarchyTypePermissionServiceIF          hierarchyPermissions;
 
   @Request(RequestType.SESSION)
   public JsonElement treeAsGeoJson(String sessionId, Date date, String relationshipType, String graphTypeCode, String sourceVertex, String boundsWKT)
@@ -131,7 +143,7 @@ public class RelationshipVisualizationService
         }
         else
         {
-          final GraphType graphType = GraphType.getByCode(relationshipType, graphTypeCode);
+          final GraphType graphType = this.graphTypeService.getByCode(relationshipType, graphTypeCode);
 
           geoObjects.add(this.objectService.toGeoObject(rootGo, date));
 
@@ -265,7 +277,7 @@ public class RelationshipVisualizationService
         }
         else
         {
-          final GraphType graphType = GraphType.getByCode(relationshipType, graphTypeCode);
+          final GraphType graphType = this.graphTypeService.getByCode(relationshipType, graphTypeCode);
 
           if (graphType instanceof UndirectedGraphType)
           {
@@ -513,14 +525,14 @@ public class RelationshipVisualizationService
       });
 
       // Non-hierarchy relationships
-      UndirectedGraphType.getAll().forEach(graphType -> {
+      this.undirectedService.getAll().forEach(graphType -> {
         JsonObject jo = graphType.toJSON();
         jo.addProperty("layout", "HORIZONTAL");
 
         views.add(jo);
       });
 
-      DirectedAcyclicGraphType.getAll().forEach(graphType -> {
+      this.dagService.getAll().forEach(graphType -> {
         JsonObject jo = graphType.toJSON();
         jo.addProperty("layout", "HORIZONTAL");
 

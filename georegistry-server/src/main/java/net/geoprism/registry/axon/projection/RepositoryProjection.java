@@ -67,6 +67,7 @@ import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.GPRBusinessTypeBusinessService;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
+import net.geoprism.registry.service.business.GraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 
@@ -93,6 +94,9 @@ public class RepositoryProjection
   @Autowired
   private BusinessObjectBusinessServiceIF   bObjectService;
 
+  @Autowired
+  private GraphTypeBusinessServiceIF        graphTypeService;
+
   private final GeoObjectCache              goCache;
 
   private final BusinessObjectCache         boCache;
@@ -112,9 +116,16 @@ public class RepositoryProjection
   {
     GeoObjectOverTime dto = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), event.getObject());
 
-    ServerGeoObjectIF object = this.gObjectService.apply(dto, event.getIsNew(), event.getIsImport(), true);
+    ServerGeoObjectType type = ServerGeoObjectType.get(dto.getType().getCode());
 
-    final ServerGeoObjectType type = object.getType();
+    ServerGeoObjectIF object = this.gObjectService.fromDTO(type, dto, event.getIsNew());
+
+    this.gObjectService.apply(object, event.getIsImport(), true);
+
+    // ServerGeoObjectIF object = this.gObjectService.apply(dto,
+    // event.getIsNew(), event.getIsImport(), true);
+    //
+    // final ServerGeoObjectType type = object.getType();
 
     if (event.getRefreshWorking())
     {
@@ -262,7 +273,7 @@ public class RepositoryProjection
   @Transaction
   public void handleCreateEdge(GeoObjectApplyEdgeEvent event) throws Exception
   {
-    final GraphType graphType = GraphType.getByCode(event.getEdgeType(), event.getEdgeTypeCode());
+    final GraphType graphType = this.graphTypeService.getByCode(event.getEdgeType(), event.getEdgeTypeCode());
     DataSource dataSource = this.sourceService.getByCode(event.getDataSource()).orElse(null);
 
     if (event.getValidate())
@@ -393,7 +404,7 @@ public class RepositoryProjection
   @Transaction
   public void handleRemoteCreateEdge(RemoteGeoObjectCreateEdgeEvent event) throws Exception
   {
-    final GraphType graphType = GraphType.getByCode(event.getEdgeType(), event.getEdgeTypeCode());
+    final GraphType graphType = this.graphTypeService.getByCode(event.getEdgeType(), event.getEdgeTypeCode());
 
     if (!GeoprismProperties.getOrigin().equals(graphType.getOrigin()))
     {

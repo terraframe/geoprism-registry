@@ -46,25 +46,28 @@ import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.service.business.GraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 
 public class EdgeJsonImporter
 {
-  private static final Logger  logger = LoggerFactory.getLogger(EdgeJsonImporter.class);
+  private static final Logger        logger = LoggerFactory.getLogger(EdgeJsonImporter.class);
 
-  private ApplicationResource  resource;
+  private ApplicationResource        resource;
 
-  private Date                 startDate;
+  private Date                       startDate;
 
-  private Date                 endDate;
+  private Date                       endDate;
 
-  private DataSource           source;
+  private DataSource                 source;
 
-  private boolean              validate;
+  private boolean                    validate;
 
-  private CommandGateway       gateway;
+  private CommandGateway             gateway;
 
-  private RepositoryProjection projection;
+  private RepositoryProjection       projection;
+
+  private GraphTypeBusinessServiceIF service;
 
   public EdgeJsonImporter(ApplicationResource resource, Date startDate, Date endDate, DataSource source, boolean validate)
   {
@@ -76,6 +79,7 @@ public class EdgeJsonImporter
 
     this.gateway = ServiceFactory.getBean(CommandGateway.class);
     this.projection = ServiceFactory.getBean(RepositoryProjection.class);
+    this.service = ServiceFactory.getBean(GraphTypeBusinessServiceIF.class);
   }
 
   public void importData() throws JsonSyntaxException, IOException
@@ -93,7 +97,7 @@ public class EdgeJsonImporter
         final String graphTypeClass = joGraphType.get("graphTypeClass").getAsString();
         final String code = joGraphType.get("code").getAsString();
 
-        final GraphType graphType = GraphType.getByCode(graphTypeClass, code);
+        final GraphType graphType = this.service.getByCode(graphTypeClass, code);
 
         JsonArray edges = joGraphType.get("edges").getAsJsonArray();
 

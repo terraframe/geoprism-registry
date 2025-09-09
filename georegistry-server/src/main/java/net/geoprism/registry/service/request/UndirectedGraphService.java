@@ -18,18 +18,21 @@
  */
 package net.geoprism.registry.service.request;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.model.GraphType;
+import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
 
 @Service
 public class UndirectedGraphService extends GraphService
 {
+  @Autowired
+  private UndirectedGraphTypeBusinessServiceIF serivce;
 
   @Override
   public GraphType getGraphType(String code)
   {
-    return UndirectedGraphType.getByCode(code).get();
+    return this.serivce.getByCode(code).get();
   }
 }

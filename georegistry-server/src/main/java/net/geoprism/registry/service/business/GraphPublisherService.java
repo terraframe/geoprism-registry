@@ -241,6 +241,9 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
   @Autowired
   private LabeledPropertyGraphTypeVersionBusinessServiceIF versionService;
 
+  @Autowired
+  private GraphTypeBusinessServiceIF                       graphTypeService;
+
   /*
    * 
    * ALL OF THE FOLLOWING PROPERTIES NEED TO BE REFACTORED. LOCAL PROPERTIES DO
@@ -324,7 +327,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
         {
           GraphTypeSnapshot graphSnapshot = this.graphSnapshotService.get(version, gtr.typeCode, gtr.code);
 
-          publish(state, GraphType.resolve(gtr), graphSnapshot, version);
+          publish(state, this.graphTypeService.resolve(gtr), graphSnapshot, version);
 
           ProgressService.put(lpgt.getOid(), new Progress(count, totalWork, version.getOid()));
           recordProgress(count, ImportStage.IMPORT);
@@ -371,7 +374,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
 
     for (GraphTypeReference gtr : gtrs)
     {
-      var graphType = GraphType.resolve(gtr);
+      GraphType graphType = this.graphTypeService.resolve(gtr);
       final String dbClass = graphType.getMdEdgeDAO().getDBClassName();
 
       total += new GraphQuery<Long>("SELECT COUNT(*) FROM " + dbClass).getSingleResult();

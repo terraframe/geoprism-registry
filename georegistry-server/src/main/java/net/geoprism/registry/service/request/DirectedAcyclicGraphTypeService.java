@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service.request;
 
@@ -42,7 +42,7 @@ public class DirectedAcyclicGraphTypeService
   @Request(RequestType.SESSION)
   public JsonArray getAll(String sessionId)
   {
-    List<DirectedAcyclicGraphType> types = DirectedAcyclicGraphType.getAll();
+    List<DirectedAcyclicGraphType> types = service.getAll();
 
     return types.stream().map(child -> child.toJSON()).collect(Collector.of(() -> new JsonArray(), (r, t) -> r.add((JsonObject) t), (x1, x2) -> {
       x1.addAll(x2);
@@ -66,7 +66,7 @@ public class DirectedAcyclicGraphTypeService
   {
     String code = object.get(DirectedAcyclicGraphType.CODE).getAsString();
 
-    DirectedAcyclicGraphType type = DirectedAcyclicGraphType.getByCode(code).get();
+    DirectedAcyclicGraphType type = service.getByCode(code).get();
 
     this.service.update(type, object);
 
@@ -76,7 +76,7 @@ public class DirectedAcyclicGraphTypeService
   @Request(RequestType.SESSION)
   public JsonObject get(String sessionId, String code)
   {
-    DirectedAcyclicGraphType type = DirectedAcyclicGraphType.getByCode(code).get();
+    DirectedAcyclicGraphType type = service.getByCode(code).get();
 
     return type.toJSON();
   }
@@ -84,7 +84,8 @@ public class DirectedAcyclicGraphTypeService
   @Request(RequestType.SESSION)
   public void remove(String sessionId, String code)
   {
-    DirectedAcyclicGraphType type = DirectedAcyclicGraphType.getByCode(code).get();
-    type.delete();
+    DirectedAcyclicGraphType type = service.getByCode(code).get();
+
+    this.service.delete(type);
   }
 }

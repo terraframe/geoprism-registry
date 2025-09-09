@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service.business;
 
@@ -27,10 +27,8 @@ import org.springframework.stereotype.Service;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 
-import net.geoprism.registry.DirectedAcyclicGraphType;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeQuery;
-import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.permission.RolePermissionService;
@@ -106,11 +104,11 @@ public class BackupAndRestoreBusinessService implements BackupAndRestoreBusiness
       this.bTypeService.delete(type);
     });
 
-    UndirectedGraphType.getAll().forEach(type -> {
+    this.ugService.getAll().forEach(type -> {
       this.ugService.delete(type);
     });
 
-    DirectedAcyclicGraphType.getAll().forEach(type -> {
+    this.dagService.getAll().forEach(type -> {
       this.dagService.delete(type);
     });
 

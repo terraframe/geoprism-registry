@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.xml;
 
@@ -74,36 +74,42 @@ import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.permission.RolePermissionService;
 import net.geoprism.registry.service.business.ServiceFactory;
+import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
 
 public class XMLExporter
 {
-  private static Logger                     logger = LoggerFactory.getLogger(XMLExporter.class);
+  private static Logger                             logger = LoggerFactory.getLogger(XMLExporter.class);
 
   /**
    * The DOM <code>document</code> that is populated with data from the core.
    */
-  private Document                          document;
+  private Document                                  document;
 
   /**
    * The <code>root</code> element of the DOM document.
    */
-  private Element                           root;
+  private Element                                   root;
 
-  private List<ServerOrganization>          organizations;
+  private List<ServerOrganization>                  organizations;
 
-  private Set<String>                       businessEdgeTypes;
+  private Set<String>                               businessEdgeTypes;
 
-  private GeoObjectTypeBusinessServiceIF    typeService;
+  private GeoObjectTypeBusinessServiceIF            typeService;
 
-  private HierarchyTypeBusinessServiceIF    hierarchyService;
+  private HierarchyTypeBusinessServiceIF            hierarchyService;
 
-  private BusinessTypeBusinessServiceIF     bTypeService;
+  private BusinessTypeBusinessServiceIF             bTypeService;
 
-  private BusinessEdgeTypeBusinessServiceIF bEdgeService;
+  private BusinessEdgeTypeBusinessServiceIF         bEdgeService;
+
+  private DirectedAcyclicGraphTypeBusinessServiceIF dagService;
+
+  private UndirectedGraphTypeBusinessServiceIF      undirectedService;
 
   /**
    * Initializes the <code>document</code>, creates the <code>root</code>
@@ -121,6 +127,8 @@ public class XMLExporter
     this.hierarchyService = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class);
     this.bTypeService = ServiceFactory.getBean(BusinessTypeBusinessServiceIF.class);
     this.bEdgeService = ServiceFactory.getBean(BusinessEdgeTypeBusinessServiceIF.class);
+    this.dagService = ServiceFactory.getBean(DirectedAcyclicGraphTypeBusinessServiceIF.class);
+    this.undirectedService = ServiceFactory.getBean(UndirectedGraphTypeBusinessServiceIF.class);
 
     this.organizations = organizations;
     this.businessEdgeTypes = new TreeSet<>();
@@ -161,13 +169,9 @@ public class XMLExporter
 
     if (new RolePermissionService().isSRA())
     {
-      UndirectedGraphType.getAll().forEach(type -> {
-        this.exportUndirectedGraphType(type);
-      });
+      this.undirectedService.getAll().forEach(this::exportUndirectedGraphType);
 
-      DirectedAcyclicGraphType.getAll().forEach(type -> {
-        this.exportDAG(type);
-      });
+      this.dagService.getAll().forEach(this::exportDAG);
     }
   }
 

@@ -56,7 +56,7 @@
           <attribute name="defaultLocale" value="Localized Value" />
         </attributeStruct>
       </object>
-      <object type="com.runwaysdk.localization.LocalizedValueStore" key="source">
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="attributeType.typeEnum.source">
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="attributeType.typeEnum.source" />
         <attributeStruct name="storeValue">

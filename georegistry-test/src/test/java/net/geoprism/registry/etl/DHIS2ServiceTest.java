@@ -1156,14 +1156,16 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
         {
           Assert.fail("Unexpected attribute name [" + cgrAttrName + "].");
         }
-        
+
         Assert.assertNotNull(testAttrType);
 
         Assert.assertEquals(attrType.getLabel().getValue(), cgrAttr.get("label").getAsString());
 
         Assert.assertEquals(attrType.getType(), cgrAttr.get("type").getAsString());
 
-        Assert.assertNotNull(cgrAttr.get("typeLabel").getAsString());
+        Assert.assertTrue("Type label doesn't exist for attribute type: " + attrType.getType(), cgrAttr.has("typeLabel"));
+        Assert.assertTrue("Type label doesn't exist for attribute type: " + attrType.getType(), !cgrAttr.get("typeLabel").isJsonNull());
+        Assert.assertNotNull("Type label doesn't exist for attribute type: " + attrType.getType(), cgrAttr.get("typeLabel").getAsString());
         Assert.assertEquals(AttributeTypeMetadata.get().getTypeEnumDisplayLabel(attrType.getType()), cgrAttr.get("typeLabel").getAsString());
       }
     }

@@ -142,12 +142,12 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
 
       if (dagType != null)
       {
-        DirectedAcyclicGraphType.getByCode(dagType.getCode()).ifPresent(this.dagTypeService::delete);
+        this.dagTypeService.getByCode(dagType.getCode()).ifPresent(this.dagTypeService::delete);
       }
 
       if (ugType != null)
       {
-        UndirectedGraphType.getByCode(ugType.getCode()).ifPresent(this.ugTypeService::delete);
+        this.ugTypeService.getByCode(ugType.getCode()).ifPresent(this.ugTypeService::delete);
       }
 
       if (bEdgeType != null)
@@ -263,8 +263,8 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
           this.backupService.restoreFromBackup(new FileInputStream(file));
 
           // Reload all of the cached test objects
-          dagType = DirectedAcyclicGraphType.getByCode(dagType.getCode()).get();
-          ugType = UndirectedGraphType.getByCode(ugType.getCode()).get();
+          dagType = this.dagTypeService.getByCode(dagType.getCode()).get();
+          ugType = this.ugTypeService.getByCode(ugType.getCode()).get();
           bEdgeType = this.bEdgeService.getByCodeOrThrow(bEdgeType.getCode());
           bType = this.bTypeService.getByCode(bType.getCode());
 

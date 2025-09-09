@@ -38,9 +38,9 @@ import net.geoprism.registry.etl.upload.EdgeObjectImporter.ReferenceStrategy;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.jobs.ImportHistory;
-import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.service.business.GraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.request.ETLService;
 import net.geoprism.registry.service.request.EdgeImportService;
 import net.geoprism.registry.test.FastTestDataset;
@@ -63,6 +63,9 @@ public class EdgeObjectImporterTest implements InstanceTestClassListener
 
   @Autowired
   private GeoObjectBusinessServiceIF objectService;
+
+  @Autowired
+  private GraphTypeBusinessServiceIF typeService;
 
   @Autowired
   private ETLService                 etlService;
@@ -192,7 +195,7 @@ public class EdgeObjectImporterTest implements InstanceTestClassListener
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
     ServerGeoObjectIF dist1 = this.objectService.getGeoObjectByCode("1", FastTestDataset.DISTRICT.getCode());
-    var parent = dist1.getGraphParents(GraphType.getByCode(EDGE_TYPE_CODE, EDGE_CODE), false, TestDataSet.DEFAULT_OVER_TIME_DATE).getGeoObject();
+    ServerGeoObjectIF parent = dist1.getGraphParents(this.typeService.getByCode(EDGE_TYPE_CODE, EDGE_CODE), false, TestDataSet.DEFAULT_OVER_TIME_DATE).getGeoObject();
     Assert.assertNotNull(parent);
     Assert.assertEquals("1", parent.getDisplayLabel(TestDataSet.DEFAULT_OVER_TIME_DATE).getValue());
   }

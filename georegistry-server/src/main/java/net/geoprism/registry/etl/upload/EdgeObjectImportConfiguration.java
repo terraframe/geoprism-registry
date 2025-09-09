@@ -52,95 +52,111 @@ import net.geoprism.registry.io.Location;
 import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
+import net.geoprism.registry.service.business.GraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 
 public class EdgeObjectImportConfiguration extends ImportConfiguration
 {
-  public static final String                               PARENT_EXCLUSION = "##PARENT##";
-  
-  public static final String                          DATA_SOURCE            = "dataSource";
+  public static final String                           PARENT_EXCLUSION          = "##PARENT##";
 
-  public static final String                               START_DATE             = "startDate";
-  
-  public static final String                               END_DATE             = "endDate";
+  public static final String                           DATA_SOURCE               = "dataSource";
 
-  public static final String                               TARGET           = "target";
+  public static final String                           START_DATE                = "startDate";
 
-  public static final String                               BASE_TYPE        = "baseType";
+  public static final String                           END_DATE                  = "endDate";
 
-  public static final String                               TEXT             = "text";
+  public static final String                           TARGET                    = "target";
 
-  public static final String                               NUMERIC          = "numeric";
+  public static final String                           BASE_TYPE                 = "baseType";
 
-  public static final String                               GRAPH_TYPE_CODE  = "graphTypeCode";
-  
-  public static final String                               GRAPH_TYPE_CLASS = "graphTypeClass";
+  public static final String                           TEXT                      = "text";
 
-  public static final String                               DIRECTION        = "direction";
+  public static final String                           NUMERIC                   = "numeric";
 
-  public static final String                               LOCATIONS        = "locations";
-  
-  public static final String                               TYPE                   = "type";
+  public static final String                           GRAPH_TYPE_CODE           = "graphTypeCode";
 
-  public static final String                               SHEET            = "sheet";
+  public static final String                           GRAPH_TYPE_CLASS          = "graphTypeClass";
 
-  public static final String                               EXCLUSIONS       = "exclusions";
+  public static final String                           DIRECTION                 = "direction";
 
-  public static final String                               VALUE            = "value";
+  public static final String                           LOCATIONS                 = "locations";
 
-  public static final String                               DATE_FORMAT      = "yyyy-MM-dd";
+  public static final String                           TYPE                      = "type";
 
-  public static final String                               MATCH_STRATEGY   = "matchStrategy";
-  
-  public static final String                               VALIDATE         = "validate";
-  
-  
-  public static final String                               EDGE_SOURCE      = "edgeSource";
-  public static final String                               EDGE_SOURCE_STRATEGY = "edgeSourceStrategy";
-  public static final String                               EDGE_SOURCE_TYPE = "edgeSourceType";
-  public static final String                               EDGE_SOURCE_TYPE_STRATEGY = "edgeSourceTypeStrategy";
-  public static final String                               EDGE_TARGET      = "edgeTarget";
-  public static final String                               EDGE_TARGET_STRATEGY = "edgeTargetStrategy";
-  public static final String                               EDGE_TARGET_TYPE = "edgeTargetType";
-  public static final String                               EDGE_TARGET_TYPE_STRATEGY = "edgeTargetTypeStrategy";
-  
-  private String edgeSource;
-  private ReferenceStrategy edgeSourceStrategy;
-  private String edgeSourceType;
-  private ReferenceStrategy edgeSourceTypeStrategy;
-  
-  private String edgeTarget;
-  private ReferenceStrategy edgeTargetStrategy;
-  private String edgeTargetType;
-  private ReferenceStrategy edgeTargetTypeStrategy;
+  public static final String                           SHEET                     = "sheet";
 
-  private Map<String, Set<String>>                         exclusions;
+  public static final String                           EXCLUSIONS                = "exclusions";
 
-  private List<Location>                                   locations;
-  
-  private DataSource                                       dataSource;
+  public static final String                           VALUE                     = "value";
 
-  private GraphType                                        graphType;
+  public static final String                           DATE_FORMAT               = "yyyy-MM-dd";
 
-  private Date                                             startDate;
-  
-  private Date                                             endDate;
-  
-  private boolean                                          validate;
-  
-  private LinkedList<EdgeObjectRecordedErrorException>     errors           = new LinkedList<EdgeObjectRecordedErrorException>();
-  
-  private DataSourceBusinessServiceIF                      sourceService;
+  public static final String                           MATCH_STRATEGY            = "matchStrategy";
+
+  public static final String                           VALIDATE                  = "validate";
+
+  public static final String                           EDGE_SOURCE               = "edgeSource";
+
+  public static final String                           EDGE_SOURCE_STRATEGY      = "edgeSourceStrategy";
+
+  public static final String                           EDGE_SOURCE_TYPE          = "edgeSourceType";
+
+  public static final String                           EDGE_SOURCE_TYPE_STRATEGY = "edgeSourceTypeStrategy";
+
+  public static final String                           EDGE_TARGET               = "edgeTarget";
+
+  public static final String                           EDGE_TARGET_STRATEGY      = "edgeTargetStrategy";
+
+  public static final String                           EDGE_TARGET_TYPE          = "edgeTargetType";
+
+  public static final String                           EDGE_TARGET_TYPE_STRATEGY = "edgeTargetTypeStrategy";
+
+  private String                                       edgeSource;
+
+  private ReferenceStrategy                            edgeSourceStrategy;
+
+  private String                                       edgeSourceType;
+
+  private ReferenceStrategy                            edgeSourceTypeStrategy;
+
+  private String                                       edgeTarget;
+
+  private ReferenceStrategy                            edgeTargetStrategy;
+
+  private String                                       edgeTargetType;
+
+  private ReferenceStrategy                            edgeTargetTypeStrategy;
+
+  private Map<String, Set<String>>                     exclusions;
+
+  private List<Location>                               locations;
+
+  private DataSource                                   dataSource;
+
+  private GraphType                                    graphType;
+
+  private Date                                         startDate;
+
+  private Date                                         endDate;
+
+  private boolean                                      validate;
+
+  private LinkedList<EdgeObjectRecordedErrorException> errors                    = new LinkedList<EdgeObjectRecordedErrorException>();
+
+  private DataSourceBusinessServiceIF                  sourceService;
+
+  private GraphTypeBusinessServiceIF                   service;
 
   public EdgeObjectImportConfiguration()
   {
     this.sourceService = ServiceFactory.getBean(DataSourceBusinessServiceIF.class);
-    
+    this.service = ServiceFactory.getBean(GraphTypeBusinessServiceIF.class);
+
     this.functions = new HashMap<String, ShapefileFunction>();
     this.locations = new LinkedList<Location>();
     this.exclusions = new HashMap<String, Set<String>>();
   }
-  
+
   public DataSource getDataSource()
   {
     return dataSource;
@@ -345,35 +361,37 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
     SimpleDateFormat format = new SimpleDateFormat(EdgeObjectImportConfiguration.DATE_FORMAT);
     format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
-    // TODO : We might want to serialize some things as attributes IDK. Otherwise get rid of this code.
-//    JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
-//
-//    for (int i = 0; i < attributes.length(); i++)
-//    {
-//      JSONObject attribute = attributes.getJSONObject(i);
-//      String attributeName = attribute.getString(AttributeType.JSON_CODE);
-//
-//      if (this.functions.containsKey(attributeName))
-//      {
-//        ShapefileFunction function = this.functions.get(attributeName);
-//
-//        if (function instanceof LocalizedValueFunction)
-//        {
-//          String locale = attribute.getString("locale");
-//
-//          ShapefileFunction localeFunction = ( (LocalizedValueFunction) function ).getFunction(locale);
-//
-//          if (localeFunction != null)
-//          {
-//            attribute.put(TARGET, localeFunction.toJson());
-//          }
-//        }
-//        else
-//        {
-//          attribute.put(TARGET, function.toJson());
-//        }
-//      }
-//    }
+    // TODO : We might want to serialize some things as attributes IDK.
+    // Otherwise get rid of this code.
+    // JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
+    //
+    // for (int i = 0; i < attributes.length(); i++)
+    // {
+    // JSONObject attribute = attributes.getJSONObject(i);
+    // String attributeName = attribute.getString(AttributeType.JSON_CODE);
+    //
+    // if (this.functions.containsKey(attributeName))
+    // {
+    // ShapefileFunction function = this.functions.get(attributeName);
+    //
+    // if (function instanceof LocalizedValueFunction)
+    // {
+    // String locale = attribute.getString("locale");
+    //
+    // ShapefileFunction localeFunction = ( (LocalizedValueFunction) function
+    // ).getFunction(locale);
+    //
+    // if (localeFunction != null)
+    // {
+    // attribute.put(TARGET, localeFunction.toJson());
+    // }
+    // }
+    // else
+    // {
+    // attribute.put(TARGET, function.toJson());
+    // }
+    // }
+    // }
 
     JSONArray locations = new JSONArray();
 
@@ -417,12 +435,12 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
 
       config.put(EXCLUSIONS, exclusions);
     }
-    
+
     if (this.getDataSource() != null)
     {
       config.put(GeoObjectImportConfiguration.DATA_SOURCE, dataSource.getCode());
     }
-    
+
     config.put(EDGE_SOURCE, edgeSource);
     config.put(EDGE_SOURCE_STRATEGY, edgeSourceStrategy);
     config.put(EDGE_SOURCE_TYPE, edgeSourceType);
@@ -445,8 +463,9 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
     format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
     JSONObject config = new JSONObject(json);
-//    JSONArray locations = config.has(LOCATIONS) ? config.getJSONArray(LOCATIONS) : new JSONArray();
-    
+    // JSONArray locations = config.has(LOCATIONS) ?
+    // config.getJSONArray(LOCATIONS) : new JSONArray();
+
     edgeSource = config.optString(EDGE_SOURCE);
     edgeSourceStrategy = ReferenceStrategy.valueOf(config.optString(EDGE_SOURCE_STRATEGY));
     edgeSourceType = config.optString(EDGE_SOURCE_TYPE);
@@ -456,10 +475,10 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
     edgeTargetStrategy = ReferenceStrategy.valueOf(config.optString(EDGE_TARGET_STRATEGY));
     edgeTargetType = config.optString(EDGE_TARGET_TYPE);
     edgeTargetTypeStrategy = ReferenceStrategy.valueOf(config.optString(EDGE_TARGET_TYPE_STRATEGY));
-    
+
     this.setValidate(config.has(VALIDATE) ? config.getBoolean(VALIDATE) : false);
 
-    this.setGraphType(GraphType.getByCode(config.getString(EdgeObjectImportConfiguration.GRAPH_TYPE_CLASS), config.getString(EdgeObjectImportConfiguration.GRAPH_TYPE_CODE)));
+    this.setGraphType(this.service.getByCode(config.getString(EdgeObjectImportConfiguration.GRAPH_TYPE_CLASS), config.getString(EdgeObjectImportConfiguration.GRAPH_TYPE_CODE)));
 
     if (config.has(DATA_SOURCE))
     {
@@ -467,7 +486,7 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
         this.setDataSource(source);
       });
     }
-    
+
     try
     {
       if (config.has(EdgeObjectImportConfiguration.START_DATE))
@@ -484,62 +503,70 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
       throw new ProgrammingErrorException(e);
     }
 
-    // TODO : We might want to serialize some things as attributes. Otherwise get rid of this code.
-//    for (int i = 0; i < attributes.length(); i++)
-//    {
-//      JSONObject attribute = attributes.getJSONObject(i);
-//
-//      if (attribute.has(TARGET))
-//      {
-//        String attributeName = attribute.getString(AttributeType.JSON_CODE);
-//
-//        // In the case of a spreadsheet, this ends up being the column header
-//        String target = attribute.getString(TARGET);
-//
-//        if (attribute.has("locale"))
-//        {
-//          String locale = attribute.getString("locale");
-//
-//          if (this.getFunction(attributeName) == null)
-//          {
-//            this.setFunction(attributeName, new LocalizedValueFunction());
-//          }
-//
-//          LocalizedValueFunction function = (LocalizedValueFunction) this.getFunction(attributeName);
-//          function.add(locale, new BasicColumnFunction(target));
-//        }
-//        else
-//        {
-//          this.setFunction(attributeName, new BasicColumnFunction(target));
-//        }
-//      }
-//    }
+    // TODO : We might want to serialize some things as attributes. Otherwise
+    // get rid of this code.
+    // for (int i = 0; i < attributes.length(); i++)
+    // {
+    // JSONObject attribute = attributes.getJSONObject(i);
+    //
+    // if (attribute.has(TARGET))
+    // {
+    // String attributeName = attribute.getString(AttributeType.JSON_CODE);
+    //
+    // // In the case of a spreadsheet, this ends up being the column header
+    // String target = attribute.getString(TARGET);
+    //
+    // if (attribute.has("locale"))
+    // {
+    // String locale = attribute.getString("locale");
+    //
+    // if (this.getFunction(attributeName) == null)
+    // {
+    // this.setFunction(attributeName, new LocalizedValueFunction());
+    // }
+    //
+    // LocalizedValueFunction function = (LocalizedValueFunction)
+    // this.getFunction(attributeName);
+    // function.add(locale, new BasicColumnFunction(target));
+    // }
+    // else
+    // {
+    // this.setFunction(attributeName, new BasicColumnFunction(target));
+    // }
+    // }
+    // }
 
     // TODO : We might want to use locations. Otherwise get rid of them.
-//    for (int i = 0; i < locations.length(); i++)
-//    {
-//      JSONObject location = locations.getJSONObject(i);
-//
-//      if (location.has(TARGET) && location.getString(TARGET).length() > 0 && location.has(MATCH_STRATEGY) && location.getString(MATCH_STRATEGY).length() > 0)
-//      {
-//        String pCode = location.getString(AttributeType.JSON_CODE);
-//        ServerGeoObjectType pType = ServerGeoObjectType.get(pCode);
-//
-//        String target = location.getString(TARGET);
-//        ParentMatchStrategy matchStrategy = ParentMatchStrategy.valueOf(location.getString(MATCH_STRATEGY));
-//
-//        // This is supported for testing reasons. On a live server all data
-//        // coming in with use BasicColumnFunctions
-//        if (location.has("type") && location.getString("type").equals(ConstantShapefileFunction.class.getName()))
-//        {
-//          this.addLocation(new Location(pType, this.hierarchy, new ConstantShapefileFunction(target), matchStrategy));
-//        }
-//        else
-//        {
-//          this.addLocation(new Location(pType, this.hierarchy, new BasicColumnFunction(target), matchStrategy));
-//        }
-//      }
-//    }
+    // for (int i = 0; i < locations.length(); i++)
+    // {
+    // JSONObject location = locations.getJSONObject(i);
+    //
+    // if (location.has(TARGET) && location.getString(TARGET).length() > 0 &&
+    // location.has(MATCH_STRATEGY) &&
+    // location.getString(MATCH_STRATEGY).length() > 0)
+    // {
+    // String pCode = location.getString(AttributeType.JSON_CODE);
+    // ServerGeoObjectType pType = ServerGeoObjectType.get(pCode);
+    //
+    // String target = location.getString(TARGET);
+    // ParentMatchStrategy matchStrategy =
+    // ParentMatchStrategy.valueOf(location.getString(MATCH_STRATEGY));
+    //
+    // // This is supported for testing reasons. On a live server all data
+    // // coming in with use BasicColumnFunctions
+    // if (location.has("type") &&
+    // location.getString("type").equals(ConstantShapefileFunction.class.getName()))
+    // {
+    // this.addLocation(new Location(pType, this.hierarchy, new
+    // ConstantShapefileFunction(target), matchStrategy));
+    // }
+    // else
+    // {
+    // this.addLocation(new Location(pType, this.hierarchy, new
+    // BasicColumnFunction(target), matchStrategy));
+    // }
+    // }
+    // }
 
     // If the hierarchy is inherited, we need to resolve the hierarchy
     // inheritance chain and set them properly on the Location objects
@@ -613,9 +640,9 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
   @Override
   public void populate(ImportHistory history)
   {
-//    Organization org = graphType.getOrganization().getOrganization();
-//
-//    history.setOrganization(org);
-//    history.setGeoObjectTypeCode(type.getCode());
+    // Organization org = graphType.getOrganization().getOrganization();
+    //
+    // history.setOrganization(org);
+    // history.setGeoObjectTypeCode(type.getCode());
   }
 }

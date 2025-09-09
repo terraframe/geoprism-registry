@@ -145,11 +145,11 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
   {
 
     Arrays.asList("TEST_DAG").forEach(code -> {
-      DirectedAcyclicGraphType.getByCode(code).ifPresent(this.dagTypeService::delete);
+      this.dagTypeService.getByCode(code).ifPresent(this.dagTypeService::delete);
     });
 
     Arrays.asList("TEST_UN").forEach(code -> {
-      UndirectedGraphType.getByCode(code).ifPresent(this.undirectedTypeService::delete);
+      this.undirectedTypeService.getByCode(code).ifPresent(this.undirectedTypeService::delete);
     });
 
     Arrays.asList("TEST_B_EDGE", "TEST_GEO_EDGE").forEach(code -> {
@@ -251,7 +251,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
         Assert.assertEquals(Long.valueOf(20), snapshot.getSequence());
 
         // Assert the actual type was created
-        Optional<DirectedAcyclicGraphType> optional = DirectedAcyclicGraphType.getByCode(code);
+        Optional<DirectedAcyclicGraphType> optional = this.dagTypeService.getByCode(code);
 
         Assert.assertTrue(optional.isPresent());
 
@@ -266,7 +266,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
         Assert.assertEquals(Long.valueOf(20), snapshot.getSequence());
 
         // Assert the actual type was created
-        Optional<UndirectedGraphType> optional = UndirectedGraphType.getByCode(code);
+        Optional<UndirectedGraphType> optional = this.undirectedTypeService.getByCode(code);
 
         Assert.assertTrue(optional.isPresent());
 
@@ -367,7 +367,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
       });
 
       Arrays.asList("TEST_DAG").forEach(code -> {
-        Optional<DirectedAcyclicGraphType> optional = DirectedAcyclicGraphType.getByCode(code);
+        Optional<DirectedAcyclicGraphType> optional = this.dagTypeService.getByCode(code);
 
         Assert.assertTrue(optional.isPresent());
 
@@ -377,7 +377,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
       });
 
       Arrays.asList("TEST_UN").forEach(code -> {
-        Optional<UndirectedGraphType> optional = UndirectedGraphType.getByCode(code);
+        Optional<UndirectedGraphType> optional = this.undirectedTypeService.getByCode(code);
 
         Assert.assertTrue(optional.isPresent());
 
@@ -432,11 +432,11 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
         });
 
         Arrays.asList("TEST_DAG").forEach(code -> {
-          Assert.assertTrue(DirectedAcyclicGraphType.getByCode(code).isPresent());
+          Assert.assertTrue(this.dagTypeService.getByCode(code).isPresent());
         });
 
         Arrays.asList("TEST_UN").forEach(code -> {
-          Assert.assertTrue(UndirectedGraphType.getByCode(code).isPresent());
+          Assert.assertTrue(this.undirectedTypeService.getByCode(code).isPresent());
         });
 
         Assert.assertEquals(Long.valueOf(47), this.store.size());
@@ -576,7 +576,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
           Assert.assertEquals(Long.valueOf(20), snapshot.getSequence());
 
           // Assert the actual type was created
-          Optional<DirectedAcyclicGraphType> optional = DirectedAcyclicGraphType.getByCode(code);
+          Optional<DirectedAcyclicGraphType> optional = this.dagTypeService.getByCode(code);
 
           Assert.assertTrue(optional.isPresent());
 
@@ -591,7 +591,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
           Assert.assertEquals(Long.valueOf(20), snapshot.getSequence());
 
           // Assert the actual type was created
-          Optional<UndirectedGraphType> optional = UndirectedGraphType.getByCode(code);
+          Optional<UndirectedGraphType> optional = this.undirectedTypeService.getByCode(code);
 
           Assert.assertTrue(optional.isPresent());
 

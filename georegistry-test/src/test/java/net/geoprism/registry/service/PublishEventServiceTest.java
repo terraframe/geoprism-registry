@@ -98,7 +98,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
   @Autowired
   private DataSourceBusinessServiceIF               sourceService;
 
-  private static boolean                            WRITE_FILES = true;
+  private static boolean                            WRITE_FILES = false;
 
   @Test
   @Request
@@ -196,7 +196,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
           Assert.assertNotNull(snapshot);
 
-          DirectedAcyclicGraphType type = DirectedAcyclicGraphType.getByCode(code).get();
+          DirectedAcyclicGraphType type = this.dagService.getByCode(code).get();
           Assert.assertEquals(type.getSequence(), snapshot.getSequence());
 
           dagTypes.add(snapshot.toJSON());
@@ -209,7 +209,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
           Assert.assertNotNull(snapshot);
 
-          UndirectedGraphType type = UndirectedGraphType.getByCode(code).get();
+          UndirectedGraphType type = this.undirectedService.getByCode(code).get();
           Assert.assertEquals(type.getSequence(), snapshot.getSequence());
 
           undirectedGraphTypes.add(snapshot.toJSON());

@@ -195,11 +195,14 @@ public class RepoRDFExportBusinessService
   @Autowired
   private BusinessTypeBusinessServiceIF     bTypeService;
 
+  @Autowired
+  private GraphTypeBusinessServiceIF        graphTypeService;
+
   public void export(ImportHistory history, RDFExport config, OutputStream os)
   {
     State state = new State();
     state.config = config;
-    state.graphTypes = config.getGraphTypes().stream().map(ref -> GraphType.resolve(ref)).toList();
+    state.graphTypes = config.getGraphTypes().stream().map(ref -> graphTypeService.resolve(ref)).toList();
     state.gots = config.getTypeCodes().stream().map(code -> ServerGeoObjectType.get(code)).toList();
     state.businessTypes = config.getBusinessTypeCodes().stream().map(code -> this.bTypeService.getByCode(code)).toList();
     state.businessEdgeTypes = config.getBusinessEdgeCodes().stream().map(code -> this.bEdgeService.getByCodeOrThrow(code)).toList();

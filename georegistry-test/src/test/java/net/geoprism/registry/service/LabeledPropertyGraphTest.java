@@ -27,9 +27,6 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.constants.ComponentInfo;
-import com.runwaysdk.constants.MdAttributeLocalInfo;
-import com.runwaysdk.constants.graph.MdEdgeInfo;
-import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.metadata.MdEdge;
@@ -77,6 +74,7 @@ import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.GraphType;
+import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessEdgeTypeSnapshotBusinessServiceIF;
@@ -85,6 +83,7 @@ import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
 import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.GraphRepoServiceIF;
@@ -157,6 +156,9 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
 
   @Autowired
   private GraphRepoServiceIF                                   repoService;
+
+  @Autowired
+  private DirectedAcyclicGraphTypeBusinessServiceIF            dagSerivce;
 
   @Autowired
   private JsonGraphVersionPublisherService                     publisherService;
@@ -488,86 +490,80 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
   @Request
   public void testPublishDAG()
   {
-    MdEdgeDAO mdEdge = MdEdgeDAO.newInstance();
-    mdEdge.setValue(MdEdgeInfo.NAME, "TestDag");
-    mdEdge.setValue(MdEdgeInfo.PACKAGE, "net.geoprism.registry.service.test.TestDag");
-    mdEdge.setStructValue(MdEdgeInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "TestDag for LabeledPropertyGraphTest");
-    mdEdge.setStructValue(MdEdgeInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, "TestDag for LabeledPropertyGraphTest");
-    mdEdge.setValue(MdEdgeInfo.PARENT_MD_VERTEX, USATestData.COUNTRY.getServerObject().getMdVertex().getOid());
-    mdEdge.setValue(MdEdgeInfo.CHILD_MD_VERTEX, USATestData.STATE.getServerObject().getMdVertex().getOid());
-    mdEdge.apply();
-
-    DirectedAcyclicGraphType dagType = new DirectedAcyclicGraphType();
-    dagType.setCode("TestDag");
-    dagType.getDisplayLabel().setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, "TestDag");
-    dagType.setMdEdgeId(mdEdge.getOid());
-    dagType.apply();
-
-    JsonObject json = getJson(dagType, new String[] { USATestData.COUNTRY.getCode(), USATestData.STATE.getCode() }, new String[] { btype.getCode() }, new String[] { bEdgeType.getCode(), bGeoEdgeType.getCode() }, USATestData.ORG_NPS.getServerObject().getOrganization());
-
-    LabeledPropertyGraphType test1 = this.typeService.apply(json);
+    DirectedAcyclicGraphType dagType = this.dagSerivce.create("TestDag", new LocalizedValue("TestDag"), new LocalizedValue("TestDag"), 1L);
 
     try
     {
-      USATestData.USA.getServerObject().getVertex().addChild(USATestData.COLORADO.getServerObject().getVertex(), mdEdge).apply();
 
-      List<LabeledPropertyGraphTypeEntry> entries = this.typeService.getEntries(test1);
+      JsonObject json = getJson(dagType, new String[] { USATestData.COUNTRY.getCode(), USATestData.STATE.getCode() }, new String[] { btype.getCode() }, new String[] { bEdgeType.getCode(), bGeoEdgeType.getCode() }, USATestData.ORG_NPS.getServerObject().getOrganization());
 
-      Assert.assertEquals(1, entries.size());
+      LabeledPropertyGraphType test1 = this.typeService.apply(json);
 
-      LabeledPropertyGraphTypeEntry entry = entries.get(0);
+      try
+      {
+        ServerGeoObjectIF object = USATestData.USA.getServerObject();
+        object.addGraphChild(USATestData.COLORADO.getServerObject(), dagType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, UUID.randomUUID().toString(), USATestData.SOURCE.getDataSource(), false);
 
-      List<LabeledPropertyGraphTypeVersion> versions = this.entryService.getVersions(entry);
+        List<LabeledPropertyGraphTypeEntry> entries = this.typeService.getEntries(test1);
 
-      Assert.assertEquals(1, versions.size());
+        Assert.assertEquals(1, entries.size());
 
-      LabeledPropertyGraphTypeVersion version = versions.get(0);
+        LabeledPropertyGraphTypeEntry entry = entries.get(0);
 
-      this.versionService.publish(new LPGPublishProgressMonitorNoOp(), version);
+        List<LabeledPropertyGraphTypeVersion> versions = this.entryService.getVersions(entry);
 
-      GeoObjectTypeSnapshot graphVertex = this.objectService.get(version, USATestData.COUNTRY.getCode());
-      MdVertex mdVertex = graphVertex.getGraphMdVertex();
+        Assert.assertEquals(1, versions.size());
 
-      /*
-       * We should expect to see 3 countries
-       */
-      GraphQuery<VertexObject> query = new GraphQuery<VertexObject>("SELECT FROM " + mdVertex.getDbClassName());
-      List<VertexObject> results = query.getResults();
+        LabeledPropertyGraphTypeVersion version = versions.get(0);
 
-      Assert.assertEquals(3, results.size());
+        this.versionService.publish(new LPGPublishProgressMonitorNoOp(), version);
 
-      /*
-       * There should be an edge between USA and Colorado
-       */
-      GraphTypeSnapshot graphEdge = this.graphSnapshotService.get(version, GraphType.getTypeCode(dagType), dagType.getCode());
+        GeoObjectTypeSnapshot graphVertex = this.objectService.get(version, USATestData.COUNTRY.getCode());
+        MdVertex mdVertex = graphVertex.getGraphMdVertex();
 
-      VertexObject usa = results.stream().filter(r -> r.getObjectValue(DefaultAttribute.CODE.getName()).equals(USATestData.USA.getCode())).findFirst().get();
+        /*
+         * We should expect to see 3 countries
+         */
+        GraphQuery<VertexObject> query = new GraphQuery<VertexObject>("SELECT FROM " + mdVertex.getDbClassName());
+        List<VertexObject> results = query.getResults();
 
-      List<VertexObject> children = usa.getChildren(graphEdge.getGraphMdEdge().definesType(), VertexObject.class);
+        Assert.assertEquals(3, results.size());
 
-      Assert.assertEquals(1, children.size());
-      Assert.assertEquals(USATestData.COLORADO.getCode(), children.get(0).getObjectValue(DefaultAttribute.CODE.getName()));
+        /*
+         * There should be an edge between USA and Colorado
+         */
+        GraphTypeSnapshot graphEdge = this.graphSnapshotService.get(version, GraphType.getTypeCode(dagType), dagType.getCode());
 
-      // Verify business objects were created
-      BusinessTypeSnapshot bTypeSnapshot = this.bTypeSnapshotService.get(version, btype.getCode());
+        VertexObject usa = results.stream().filter(r -> r.getObjectValue(DefaultAttribute.CODE.getName()).equals(USATestData.USA.getCode())).findFirst().get();
 
-      Assert.assertEquals(2, new GraphQuery<VertexObject>("SELECT FROM " + bTypeSnapshot.getGraphMdVertex().getDbClassName()).getResults().size());
+        List<VertexObject> children = usa.getChildren(graphEdge.getGraphMdEdge().definesType(), VertexObject.class);
 
-      // Verify business edges were created
-      BusinessEdgeTypeSnapshot bEdgeSnapshot = this.bEdgeSnapshotService.get(version, bEdgeType.getCode());
+        Assert.assertEquals(1, children.size());
+        Assert.assertEquals(USATestData.COLORADO.getCode(), children.get(0).getObjectValue(DefaultAttribute.CODE.getName()));
 
-      Assert.assertEquals(1, new GraphQuery<VertexObject>("SELECT FROM " + bEdgeSnapshot.getGraphMdEdge().getDbClassName()).getResults().size());
+        // Verify business objects were created
+        BusinessTypeSnapshot bTypeSnapshot = this.bTypeSnapshotService.get(version, btype.getCode());
 
-      // Verify business-geo edges were created
-      BusinessEdgeTypeSnapshot bGeoEdgeSnapshot = this.bEdgeSnapshotService.get(version, bGeoEdgeType.getCode());
+        Assert.assertEquals(2, new GraphQuery<VertexObject>("SELECT FROM " + bTypeSnapshot.getGraphMdVertex().getDbClassName()).getResults().size());
 
-      Assert.assertEquals(1, new GraphQuery<VertexObject>("SELECT FROM " + bGeoEdgeSnapshot.getGraphMdEdge().getDbClassName()).getResults().size());
+        // Verify business edges were created
+        BusinessEdgeTypeSnapshot bEdgeSnapshot = this.bEdgeSnapshotService.get(version, bEdgeType.getCode());
+
+        Assert.assertEquals(1, new GraphQuery<VertexObject>("SELECT FROM " + bEdgeSnapshot.getGraphMdEdge().getDbClassName()).getResults().size());
+
+        // Verify business-geo edges were created
+        BusinessEdgeTypeSnapshot bGeoEdgeSnapshot = this.bEdgeSnapshotService.get(version, bGeoEdgeType.getCode());
+
+        Assert.assertEquals(1, new GraphQuery<VertexObject>("SELECT FROM " + bGeoEdgeSnapshot.getGraphMdEdge().getDbClassName()).getResults().size());
+      }
+      finally
+      {
+        this.typeService.delete(test1);
+      }
     }
     finally
     {
-      this.typeService.delete(test1);
-      dagType.delete();
-      mdEdge.delete();
+      this.dagSerivce.delete(dagType);
     }
   }
 
@@ -601,7 +597,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
 
       job.start();
 
-      LabeledPropertyGraphTest.waitUntilPublished(version.getOid());
+      waitUntilPublished(version.getOid());
 
       GeoObjectTypeSnapshot graphVertex = this.objectService.get(version, USATestData.COUNTRY.getCode());
       MdVertex mdVertex = graphVertex.getGraphMdVertex();
@@ -706,7 +702,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
 
     try
     {
-      LabeledPropertyGraphTest.waitUntilPublished(oid);
+      this.waitUntilPublished(oid);
     }
     finally
     {

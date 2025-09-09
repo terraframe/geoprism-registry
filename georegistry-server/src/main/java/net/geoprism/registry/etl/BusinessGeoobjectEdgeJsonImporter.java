@@ -20,12 +20,10 @@ package net.geoprism.registry.etl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.Arrays;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,57 +31,32 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-import com.runwaysdk.business.graph.GraphQuery;
-import com.runwaysdk.dataaccess.graph.GraphDBService;
-import com.runwaysdk.dataaccess.graph.GraphRequest;
 import com.runwaysdk.resource.ApplicationResource;
-import com.runwaysdk.util.IDGenerator;
 
-import net.geoprism.registry.BusinessEdgeType;
-import net.geoprism.registry.BusinessType;
-import net.geoprism.registry.DataNotFoundException;
-import net.geoprism.registry.cache.BusinessObjectCache;
-import net.geoprism.registry.cache.GeoObjectCache;
-import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
-import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
+import net.geoprism.registry.axon.command.repository.BusinessObjectCompositeCommand;
+import net.geoprism.registry.axon.event.repository.BusinessObjectAddGeoObjectEvent;
+import net.geoprism.registry.graph.DataSource;
+import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.service.business.ServiceFactory;
 
 public class BusinessGeoobjectEdgeJsonImporter
 {
-  private static final Logger               logger   = LoggerFactory.getLogger(BusinessGeoobjectEdgeJsonImporter.class);
+  private static final Logger logger = LoggerFactory.getLogger(BusinessGeoobjectEdgeJsonImporter.class);
 
-  protected BusinessObjectCache             boCache  = new BusinessObjectCache();
+  private ApplicationResource resource;
 
-  protected GeoObjectCache                  goCache  = new GeoObjectCache();
+  private CommandGateway      gateway;
 
-  protected Map<String, Object>             ridCache = new LinkedHashMap<String, Object>()
-                                                     {
-                                                       public boolean removeEldestEntry(@SuppressWarnings("rawtypes") Map.Entry eldest)
-                                                       {
-                                                         final int cacheSize = 10000;
-                                                         return size() > cacheSize;
-                                                       }
-                                                     };
+  private String              defaultEdgeTypeCode;
 
-  private ApplicationResource               resource;
+  private DataSource          source;
 
-  private BusinessTypeBusinessServiceIF     typeService;
-
-  private BusinessEdgeTypeBusinessServiceIF edgeService;
-
-  private BusinessEdgeType                  defaultEdgeType;
-
-  public BusinessGeoobjectEdgeJsonImporter(ApplicationResource resource, String defaultEdgeTypeCode)
+  public BusinessGeoobjectEdgeJsonImporter(ApplicationResource resource, String defaultEdgeTypeCode, DataSource source)
   {
     this.resource = resource;
-    this.typeService = ServiceFactory.getBean(BusinessTypeBusinessServiceIF.class);
-    this.edgeService = ServiceFactory.getBean(BusinessEdgeTypeBusinessServiceIF.class);
-
-    if (StringUtils.isBlank(defaultEdgeTypeCode))
-    {
-      this.defaultEdgeType = this.edgeService.getByCodeOrThrow(defaultEdgeTypeCode);
-    }
+    this.source = source;
+    this.gateway = ServiceFactory.getBean(CommandGateway.class);
+    this.defaultEdgeTypeCode = defaultEdgeTypeCode;
   }
 
   public void importData() throws JsonSyntaxException, IOException
@@ -98,22 +71,15 @@ public class BusinessGeoobjectEdgeJsonImporter
       {
         JsonObject joEdge = edges.get(j).getAsJsonObject();
 
-        String sourceCode = joEdge.get("source").getAsString();
-        String sourceTypeCode = joEdge.get("sourceType").getAsString();
-        String targetCode = joEdge.get("target").getAsString();
-        String targetTypeCode = joEdge.get("targetType").getAsString();
+        String geoCode = joEdge.get("source").getAsString();
+        String geoTypeCode = joEdge.get("sourceType").getAsString();
+        String businessCode = joEdge.get("target").getAsString();
+        String businessTypeCode = joEdge.get("targetType").getAsString();
+        String edgeTypeCode = joEdge.has("edgeType") ? joEdge.get("edgeType").getAsString() : defaultEdgeTypeCode;
 
-        BusinessEdgeType edgeType = joEdge.has("edgeType") ? this.edgeService.getByCodeOrThrow(joEdge.get("edgeType").getAsString()) : defaultEdgeType;
+        BusinessObjectAddGeoObjectEvent event = new BusinessObjectAddGeoObjectEvent(businessCode, businessTypeCode, edgeTypeCode, geoCode, geoTypeCode, EdgeDirection.PARENT, source.getCode());
 
-        BusinessType targetType = this.typeService.getByCode(targetTypeCode);
-
-        String sourceDbClassName = ServerGeoObjectType.get(sourceTypeCode).getDBClassName();
-        String targetDbClassName = targetType.getMdVertexDAO().getDBClassName();
-
-        Object parentRid = getOrFetchRid(sourceCode, sourceDbClassName);
-        Object childRid = getOrFetchRid(targetCode, targetDbClassName);
-
-        this.newEdge(childRid, parentRid, edgeType);
+        this.gateway.sendAndWait(new BusinessObjectCompositeCommand(businessCode, businessTypeCode, Arrays.asList(event)));
 
         if (j % 500 == 0)
         {
@@ -123,46 +89,4 @@ public class BusinessGeoobjectEdgeJsonImporter
     }
 
   }
-
-  private Object getOrFetchRid(String code, String typeDbClassName)
-  {
-
-    Object rid = this.ridCache.get(typeDbClassName + "$#!" + code);
-
-    if (rid == null)
-    {
-      GraphQuery<Object> query = new GraphQuery<Object>("select @rid from " + typeDbClassName + " where code=:code;");
-      query.setParameter("code", code);
-
-      rid = query.getSingleResult();
-
-      if (rid == null)
-      {
-        throw new DataNotFoundException("Could not find Geo-Object with code " + code + " on table " + typeDbClassName);
-      }
-
-      this.ridCache.put(typeDbClassName + "$#!" + code, rid);
-    }
-
-    return rid;
-  }
-
-  public void newEdge(Object childRid, Object parentRid, BusinessEdgeType edgeType)
-  {
-    String clazz = edgeType.getMdEdgeDAO().getDBClassName();
-
-    String statement = "CREATE EDGE " + clazz + " FROM :parentRid TO :childRid";
-    statement += " SET oid=:oid";
-
-    GraphDBService service = GraphDBService.getInstance();
-    GraphRequest request = service.getGraphDBRequest();
-
-    Map<String, Object> parameters = new HashMap<String, Object>();
-    parameters.put("oid", IDGenerator.nextID());
-    parameters.put("childRid", childRid);
-    parameters.put("parentRid", parentRid);
-
-    service.command(request, statement, parameters);
-  }
-
 }

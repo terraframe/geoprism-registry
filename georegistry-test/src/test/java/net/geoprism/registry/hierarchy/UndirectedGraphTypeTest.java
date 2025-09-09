@@ -97,7 +97,7 @@ public class UndirectedGraphTypeTest
 
     try
     {
-      UndirectedGraphType result = UndirectedGraphType.getByCode(type.getCode()).get();
+      UndirectedGraphType result = this.service.getByCode(type.getCode()).get();
 
       Assert.assertNotNull(result);
       Assert.assertEquals(type.getCode(), result.getCode());
@@ -117,7 +117,7 @@ public class UndirectedGraphTypeTest
 
     try
     {
-      UndirectedGraphType result = UndirectedGraphType.getByMdEdge(type.getMdEdge());
+      UndirectedGraphType result = this.service.getByMdEdge(type.getMdEdge());
 
       Assert.assertNotNull(result);
       Assert.assertEquals(type.getCode(), result.getCode());
@@ -137,7 +137,7 @@ public class UndirectedGraphTypeTest
 
     try
     {
-      List<UndirectedGraphType> results = UndirectedGraphType.getAll();
+      List<UndirectedGraphType> results = this.service.getAll();
 
       Assert.assertEquals(1, results.size());
 
