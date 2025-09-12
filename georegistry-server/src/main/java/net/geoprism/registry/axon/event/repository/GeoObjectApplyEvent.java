@@ -1,5 +1,7 @@
 package net.geoprism.registry.axon.event.repository;
 
+import java.util.UUID;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.geoprism.registry.view.PublishDTO;
@@ -9,13 +11,12 @@ public class GeoObjectApplyEvent extends AbstractGeoObjectEvent implements GeoOb
   private String  code;
 
   private String  type;
-  
+
   private Boolean isNew;
 
   private Boolean isImport;
 
   private String  object;
-
 
   public GeoObjectApplyEvent()
   {
@@ -23,7 +24,7 @@ public class GeoObjectApplyEvent extends AbstractGeoObjectEvent implements GeoOb
 
   public GeoObjectApplyEvent(String code, String type, Boolean isNew, Boolean isImport, String object)
   {
-    super();
+    super(UUID.randomUUID().toString());
 
     this.code = code;
     this.type = type;
@@ -31,12 +32,12 @@ public class GeoObjectApplyEvent extends AbstractGeoObjectEvent implements GeoOb
     this.isImport = isImport;
     this.object = object;
   }
-  
+
   public String getCode()
   {
     return code;
   }
-  
+
   public void setCode(String code)
   {
     this.code = code;
@@ -84,16 +85,16 @@ public class GeoObjectApplyEvent extends AbstractGeoObjectEvent implements GeoOb
 
   @Override
   @JsonIgnore
-  public String getAggregate()
+  public String getBaseObjectId()
   {
     return this.code + "#" + this.type + "_O_";
   }
 
   @Override
   @JsonIgnore
-  public EventType getEventType()
+  public EventPhase getEventPhase()
   {
-    return EventType.OBJECT;
+    return EventPhase.OBJECT;
   }
 
   @Override

@@ -20,12 +20,12 @@ package net.geoprism.registry.etl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
 
 import org.apache.commons.io.IOUtils;
-import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.eventhandling.GenericEventMessage;
+import org.axonframework.eventhandling.gateway.EventGateway;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +38,6 @@ import com.runwaysdk.resource.ApplicationResource;
 
 import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.axon.command.repository.GeoObjectCompositeCommand;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.projection.RepositoryProjection;
 import net.geoprism.registry.cache.Cache;
@@ -63,7 +62,7 @@ public class EdgeJsonImporter
 
   private boolean                    validate;
 
-  private CommandGateway             gateway;
+  private EventGateway               gateway;
 
   private RepositoryProjection       projection;
 
@@ -77,7 +76,7 @@ public class EdgeJsonImporter
     this.source = source;
     this.validate = validate;
 
-    this.gateway = ServiceFactory.getBean(CommandGateway.class);
+    this.gateway = ServiceFactory.getBean(EventGateway.class);
     this.projection = ServiceFactory.getBean(RepositoryProjection.class);
     this.service = ServiceFactory.getBean(GraphTypeBusinessServiceIF.class);
   }
@@ -98,6 +97,7 @@ public class EdgeJsonImporter
         final String code = joGraphType.get("code").getAsString();
 
         final GraphType graphType = this.service.getByCode(graphTypeClass, code);
+        String edgeType = GraphType.getTypeCode(graphType);
 
         JsonArray edges = joGraphType.get("edges").getAsJsonArray();
 
@@ -115,9 +115,9 @@ public class EdgeJsonImporter
           Date endDate = joEdge.has("endDate") ? GeoRegistryUtil.parseDate(joEdge.get("endDate").getAsString()) : this.endDate;
 
           // UID
-          GeoObjectApplyEdgeEvent event = new GeoObjectApplyEdgeEvent(sourceCode, sourceTypeCode, graphTypeClass, graphType.getCode(), targetCode, targetTypeCode, startDate, endDate, source.getCode(), ImportStrategy.NEW_ONLY, validate);
+          GeoObjectApplyEdgeEvent event = new GeoObjectApplyEdgeEvent(sourceCode, sourceTypeCode, edgeType, graphType.getCode(), targetCode, targetTypeCode, startDate, endDate, source.getCode(), ImportStrategy.NEW_ONLY, validate);
 
-          this.gateway.sendAndWait(new GeoObjectCompositeCommand(sourceCode, sourceTypeCode, Arrays.asList(event)));
+          this.gateway.publish(GenericEventMessage.asEventMessage(event));
 
           if (j % 500 == 0)
           {

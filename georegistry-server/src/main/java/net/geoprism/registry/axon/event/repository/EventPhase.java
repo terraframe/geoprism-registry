@@ -1,5 +1,5 @@
 package net.geoprism.registry.axon.event.repository;
 
-public enum EventType {
-  OBJECT, HIERARCHY
+public enum EventPhase {
+  OBJECT, EDGE
 }

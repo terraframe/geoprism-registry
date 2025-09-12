@@ -5,10 +5,8 @@ import java.util.UUID;
 import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.view.PublishDTO;
 
-public class BusinessObjectAddGeoObjectEvent implements BusinessObjectEvent
+public class BusinessObjectAddGeoObjectEvent extends AbstractRepositoryEvent implements BusinessObjectEvent
 {
-  private String        key;
-
   private String        type;
 
   private String        code;
@@ -31,13 +29,8 @@ public class BusinessObjectAddGeoObjectEvent implements BusinessObjectEvent
 
   public BusinessObjectAddGeoObjectEvent(String code, String type, String edgeType, String geoObjectType, String geoObjectCode, EdgeDirection direction, String dataSource)
   {
-    this(code + "#" + type, code, type, edgeType, geoObjectType, geoObjectCode, direction, dataSource);
-  }
+    super(UUID.randomUUID().toString());
 
-  public BusinessObjectAddGeoObjectEvent(String key, String code, String type, String edgeType, String geoObjectType, String geoObjectCode, EdgeDirection direction, String dataSource)
-  {
-    super();
-    this.key = key;
     this.code = code;
     this.type = type;
     this.edgeType = edgeType;
@@ -46,16 +39,6 @@ public class BusinessObjectAddGeoObjectEvent implements BusinessObjectEvent
     this.geoObjectCode = geoObjectCode;
     this.direction = direction;
     this.dataSource = dataSource;
-  }
-
-  public String getKey()
-  {
-    return key;
-  }
-
-  public void setKey(String key)
-  {
-    this.key = key;
   }
 
   public String getType()
@@ -139,15 +122,15 @@ public class BusinessObjectAddGeoObjectEvent implements BusinessObjectEvent
   }
 
   @Override
-  public String getAggregate()
+  public String getBaseObjectId()
   {
-    return this.key + "#" + this.edgeType + "#" + this.geoObjectCode + "#" + this.geoObjectType;
+    return this.code + "#" + this.type + "#" + this.edgeType + "#" + this.geoObjectCode + "#" + this.geoObjectType;
   }
 
   @Override
-  public EventType getEventType()
+  public EventPhase getEventPhase()
   {
-    return EventType.HIERARCHY;
+    return EventPhase.EDGE;
   }
 
   @Override

@@ -136,13 +136,13 @@ public class AxonConfig
         .persistenceExceptionResolver(persistenceExceptionResolver) //
         .eventSerializer(serializer) //
         .transactionManager(transactionManager) //
-        .appendEvents(CustomJdbcEventStorageEngineStatements::appendEvents);
+        .appendEvents(RegistryJdbcEventStorageEngineStatements::appendEvents);
 
     RegistryEventStorageEngine storageEngine = new RegistryEventStorageEngine(builder, transactionManager);
 
     // If the schema has not been constructed yet, the createSchema method can
     // be used:
-    storageEngine.createSchema(CustomPostgresEventTableFactory.INSTANCE);
+    storageEngine.createSchema(RegistryPostgresEventTableFactory.INSTANCE);
 
     return storageEngine;
   }
@@ -159,124 +159,4 @@ public class AxonConfig
 
     return new RegistryEventStore(builder);
   }
-
-  // @Bean
-  // public EventBusSpanFactory eventBusSpanFactory(SpanFactory spanFactory)
-  // {
-  // return DefaultEventBusSpanFactory.builder() //
-  // .spanFactory(spanFactory) //
-  // .build();
-  // }
-  //
-  // @Qualifier("eventStore")
-  // @Bean(name = "eventBus")
-  // public EmbeddedEventStore eventStore(EventStorageEngine storageEngine,
-  // EventBusSpanFactory eventBusSpanFactory)
-  // {
-  // return EmbeddedEventStore.builder() //
-  // .storageEngine(storageEngine) //
-  // // .messageMonitor(configuration.messageMonitor(EventStore.class,
-  // // "eventStore")) //
-  // .spanFactory(eventBusSpanFactory) //
-  // .build();
-  // }
-  //
-  // @Bean
-  // public EventGateway eventGateway(EventBus eventBus)
-  // {
-  // return DefaultEventGateway.builder().eventBus(eventBus).build();
-  // }
-  //
-  // @Bean
-  // public DuplicateCommandHandlerResolver duplicateCommandHandlerResolver()
-  // {
-  // return LoggingDuplicateCommandHandlerResolver.instance();
-  // }
-  //
-  // @Bean
-  // public QueryUpdateEmitterSpanFactory
-  // queryUpdateEmitterSpanFactory(SpanFactory spanFactory)
-  // {
-  // return DefaultQueryUpdateEmitterSpanFactory.builder() //
-  // .spanFactory(spanFactory) //
-  // .build();
-  // }
-  //
-  // @Bean
-  // @Primary
-  // public QueryUpdateEmitter updateEmitter(QueryUpdateEmitterSpanFactory
-  // queryUpdateEmitterSpanFactory)
-  // {
-  // return SimpleQueryUpdateEmitter.builder() //
-  // .spanFactory(queryUpdateEmitterSpanFactory) //
-  // .build();
-  // }
-  //
-  // @Bean
-  // public QueryBusSpanFactory queryBusSpanFactory(SpanFactory spanFactory)
-  // {
-  // return DefaultQueryBusSpanFactory.builder() //
-  // .spanFactory(spanFactory) //
-  // .build();
-  // }
-  //
-  // @Bean
-  // public SimpleQueryBus queryBus(QueryBusSpanFactory queryBusSpanFactory,
-  // QueryUpdateEmitter updateEmitter, TransactionManager transactionManager)
-  // {
-  // return SimpleQueryBus.builder() //
-  // // .messageMonitor(axonConfiguration.messageMonitor(QueryBus.class,
-  // // "queryBus")) //
-  // .transactionManager(transactionManager) //
-  // .errorHandler(LoggingQueryInvocationErrorHandler.builder().build()) //
-  // .queryUpdateEmitter(updateEmitter) //
-  // .spanFactory(queryBusSpanFactory) //
-  // .build();
-  // }
-  //
-  // @Bean
-  // public QueryGateway queryGateway(QueryBus queryBus)
-  // {
-  // return DefaultQueryGateway.builder() //
-  // .queryBus(queryBus) //
-  // .build();
-  // }
-  //
-  // @Bean
-  // public CommandBusSpanFactory commandBusSpanFactory(SpanFactory spanFactory)
-  // {
-  // return DefaultCommandBusSpanFactory.builder() //
-  // .spanFactory(spanFactory) //
-  // .build();
-  // }
-  //
-  // @Bean
-  // public SimpleCommandBus commandBus(TransactionManager txManager,
-  // CommandBusSpanFactory commandBusSpanFactory,
-  // DuplicateCommandHandlerResolver duplicateCommandHandlerResolver)
-  // {
-  // SimpleCommandBus commandBus = SimpleCommandBus.builder() //
-  // .transactionManager(txManager) //
-  // .duplicateCommandHandlerResolver(duplicateCommandHandlerResolver) //
-  // .spanFactory(commandBusSpanFactory) // .messageMonitor() //
-  // .build();
-  //
-  // // commandBus.registerHandlerInterceptor(new
-  // //
-  // CorrelationDataInterceptor<>(axonConfiguration.correlationDataProviders()));
-  //
-  // return commandBus;
-  // }
-  //
-  // @Bean
-  // public CommandGateway commandGateway(CommandBus commandBus)
-  // {
-  // return DefaultCommandGateway.builder().commandBus(commandBus).build();
-  // }
-  //
-  // @Override
-  // public void setBeanClassLoader(@Nonnull ClassLoader classLoader)
-  // {
-  // this.beanClassLoader = classLoader;
-  // }
 }

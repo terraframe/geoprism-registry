@@ -2,7 +2,7 @@ package net.geoprism.registry.axon.config;
 
 import org.axonframework.eventhandling.GenericDomainEventEntry;
 
-public class IndexGenericDomainEventEntry<T> extends GenericDomainEventEntry<T> implements IndexDomainEventData<T>
+public class IndexGenericDomainEventEntry<T> extends GenericDomainEventEntry<T> implements IndexEventData<T>
 {
   private Long globalIndex;
 

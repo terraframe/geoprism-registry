@@ -77,6 +77,7 @@ import { DateTextComponent } from "./component/date-text/date-text.component";
 import { DateService } from "./service/date.service";
 import { DateFieldComponent } from "./component/form-fields/date-field/date-field.component";
 import { LocalizationService } from "./service";
+import { MultiSelectFieldComponent } from "./component/form-fields/multi-select/multi-select-field.component";
 
 @NgModule({
     imports: [
@@ -121,7 +122,8 @@ import { LocalizationService } from "./service";
         LocalizePipe,
         GenericTableComponent,
         DateFieldComponent,
-        DateTextComponent
+        DateTextComponent,
+        MultiSelectFieldComponent
     ],
     exports: [
         LocalizeComponent,
@@ -146,7 +148,8 @@ import { LocalizationService } from "./service";
         ReactiveFormsModule,
         GenericTableComponent,
         DateFieldComponent,
-        DateTextComponent
+        DateTextComponent,
+        MultiSelectFieldComponent
     ],
     entryComponents: [
         ErrorModalComponent,

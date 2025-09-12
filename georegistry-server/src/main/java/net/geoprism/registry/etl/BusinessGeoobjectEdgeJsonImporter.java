@@ -20,10 +20,10 @@ package net.geoprism.registry.etl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 
 import org.apache.commons.io.IOUtils;
-import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.eventhandling.GenericEventMessage;
+import org.axonframework.eventhandling.gateway.EventGateway;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +33,6 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.runwaysdk.resource.ApplicationResource;
 
-import net.geoprism.registry.axon.command.repository.BusinessObjectCompositeCommand;
 import net.geoprism.registry.axon.event.repository.BusinessObjectAddGeoObjectEvent;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.model.EdgeDirection;
@@ -45,7 +44,7 @@ public class BusinessGeoobjectEdgeJsonImporter
 
   private ApplicationResource resource;
 
-  private CommandGateway      gateway;
+  private EventGateway        gateway;
 
   private String              defaultEdgeTypeCode;
 
@@ -55,7 +54,7 @@ public class BusinessGeoobjectEdgeJsonImporter
   {
     this.resource = resource;
     this.source = source;
-    this.gateway = ServiceFactory.getBean(CommandGateway.class);
+    this.gateway = ServiceFactory.getBean(EventGateway.class);
     this.defaultEdgeTypeCode = defaultEdgeTypeCode;
   }
 
@@ -79,7 +78,7 @@ public class BusinessGeoobjectEdgeJsonImporter
 
         BusinessObjectAddGeoObjectEvent event = new BusinessObjectAddGeoObjectEvent(businessCode, businessTypeCode, edgeTypeCode, geoCode, geoTypeCode, EdgeDirection.PARENT, source.getCode());
 
-        this.gateway.sendAndWait(new BusinessObjectCompositeCommand(businessCode, businessTypeCode, Arrays.asList(event)));
+        this.gateway.publish(GenericEventMessage.asEventMessage(event));
 
         if (j % 500 == 0)
         {

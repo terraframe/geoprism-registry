@@ -1,7 +1,7 @@
 [
   {
     "code": "TEST_UN",
-    "origin": "TESTABC",
+    "origin": "terraframe.com",
     "sequence": 0,
     "typeCode": "UndirectedGraphType",
     "displayLabel": {

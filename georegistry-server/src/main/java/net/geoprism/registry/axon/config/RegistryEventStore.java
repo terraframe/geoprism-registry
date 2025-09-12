@@ -18,9 +18,14 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.database.Database;
 
 import net.geoprism.registry.Commit;
+import net.geoprism.registry.axon.event.repository.EventPhase;
 
 public class RegistryEventStore extends EmbeddedEventStore implements EventStore
 {
+  public static final String BASE_OBJECT              = "base_object_id";
+
+  public static final String PHASE                    = "phase";
+
   public static final String DOMAIN_EVENT_ENTRY_TABLE = "domainevententry";
 
   protected RegistryEventStore(Builder builder)
@@ -100,14 +105,15 @@ public class RegistryEventStore extends EmbeddedEventStore implements EventStore
     }
   }
 
-  public List<String> getAggregateIds(GapAwareTrackingToken start, GapAwareTrackingToken end)
+  public List<String> getBaseObjectIds(GapAwareTrackingToken start, GapAwareTrackingToken end, EventPhase phase, String lastObjectId)
   {
-    LinkedList<String> aggregateIds = new LinkedList<>();
+    LinkedList<String> objectIds = new LinkedList<>();
 
     StringBuilder statement = new StringBuilder();
-    statement.append("SELECT DISTINCT aggregateidentifier");
+    statement.append("SELECT DISTINCT " + BASE_OBJECT);
     statement.append(" FROM " + DOMAIN_EVENT_ENTRY_TABLE);
     statement.append(" WHERE commit_id IS NULL");
+    statement.append(" AND " + PHASE + " = '" + phase.name() + "'");
     statement.append(" AND globalindex <= " + end.getIndex());
 
     if (start != null)
@@ -115,11 +121,18 @@ public class RegistryEventStore extends EmbeddedEventStore implements EventStore
       statement.append(" AND globalindex > " + start.getIndex());
     }
 
+    if (lastObjectId != null)
+    {
+      statement.append(" AND " + BASE_OBJECT + " > '" + lastObjectId + "'");
+    }
+
+    statement.append(" LIMIT 1000");
+
     try (ResultSet resultSet = Database.query(statement.toString()))
     {
       while (resultSet.next())
       {
-        aggregateIds.add(resultSet.getString(1));
+        objectIds.add(resultSet.getString(1));
       }
     }
     catch (SQLException e)
@@ -127,7 +140,7 @@ public class RegistryEventStore extends EmbeddedEventStore implements EventStore
       throw new ProgrammingErrorException(e);
     }
 
-    return aggregateIds;
+    return objectIds;
   }
 
   public Optional<Long> lastIndexFor(Commit commit)
@@ -156,9 +169,8 @@ public class RegistryEventStore extends EmbeddedEventStore implements EventStore
     return storageEngine().readBatch(commit, firstIndex, lastIndex, batchSize);
   }
 
-  public DomainEventStream readEvents(String aggregateIdentifier, GapAwareTrackingToken start, GapAwareTrackingToken end)
+  public DomainEventStream readEvents(String baseObjectId, GapAwareTrackingToken start, GapAwareTrackingToken end)
   {
-    return storageEngine().readEvents(aggregateIdentifier, start.getIndex(), end.getIndex());
+    return storageEngine().readEvents(baseObjectId, start.getIndex(), end.getIndex());
   }
-
 }

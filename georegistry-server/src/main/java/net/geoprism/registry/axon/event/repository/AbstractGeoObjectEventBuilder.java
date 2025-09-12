@@ -9,7 +9,6 @@ import java.util.Optional;
 import com.google.gson.JsonObject;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
-import net.geoprism.registry.axon.command.repository.GeoObjectCompositeCommand;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.graph.ExternalSystem;
@@ -207,10 +206,9 @@ public abstract class AbstractGeoObjectEventBuilder<K>
     }
   }
 
-  @SuppressWarnings("unchecked")
-  public <T> T build()
+  public List<RepositoryEvent> build()
   {
-    LinkedList<GeoObjectEvent> list = new LinkedList<>();
+    LinkedList<RepositoryEvent> list = new LinkedList<>();
 
     if (this.attributeUpdate || this.isNew)
     {
@@ -221,16 +219,11 @@ public abstract class AbstractGeoObjectEventBuilder<K>
 
     if (this.refreshWorking && list.size() > 0)
     {
-      list.getLast().setRefreshWorking(true);
+      GeoObjectEvent event = (GeoObjectEvent) list.getLast();
+      event.setRefreshWorking(true);
     }
 
-    // if (this.isNew)
-    // {
-    // return (T) new GeoObjectCompositeCreateCommand(getCode(), getType(),
-    // list);
-    // }
-
-    return (T) new GeoObjectCompositeCommand(getCode(), getType(), list);
+    return list;
   }
 
 }

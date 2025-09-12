@@ -10,7 +10,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
-import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.eventhandling.GenericEventMessage;
+import org.axonframework.eventhandling.gateway.EventGateway;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
@@ -397,17 +398,24 @@ public class TestGeoObjectInfo extends TestCachedObject<ServerGeoObjectIF>
     child.addParent(this);
 
     GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
-//
-//    service.addChild(this.getServerObject(), child.getServerObject(), hierarchy.getServerObject(), date, TestDataSet.DEFAULT_END_TIME_DATE, UUID.randomUUID().toString(), false);
-    
-    
+    //
+    // service.addChild(this.getServerObject(), child.getServerObject(),
+    // hierarchy.getServerObject(), date, TestDataSet.DEFAULT_END_TIME_DATE,
+    // UUID.randomUUID().toString(), false);
+
     ServerGeoObjectEventBuilder builder = new ServerGeoObjectEventBuilder(service);
     builder.setObject(child.getServerObject());
     builder.addParent(this.getServerObject(), hierarchy.getServerObject(), date, TestDataSet.DEFAULT_END_TIME_DATE, UUID.randomUUID().toString(), this.source.getDataSource(), false);
     builder.setIsNew(this.isNew);
-    builder.build();
 
-    ServiceFactory.getBean(CommandGateway.class).sendAndWait(builder.build());
+    EventGateway gateway = ServiceFactory.getBean(EventGateway.class);
+
+    builder.build().stream().forEach(event -> {
+      gateway.publish(GenericEventMessage.asEventMessage(event));
+    });
+
+    // EventGateway gateway = ServiceFactory.getBean(EventGateway.class);
+    // gateway.sendAndWait(builder.build());
   }
 
   private void addParent(TestGeoObjectInfo parent)
@@ -463,23 +471,28 @@ public class TestGeoObjectInfo extends TestCachedObject<ServerGeoObjectIF>
   {
     GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
     TestRegistryAdapter adapter = ServiceFactory.getBean(TestRegistryAdapter.class);
-    
+
     GeoObjectEventBuilder builder = new GeoObjectEventBuilder(service);
     builder.setObject(this.newGeoObjectOverTime(adapter));
     builder.setIsImport(false);
     builder.setIsNew(this.isNew);
-    builder.build();
 
-    ServiceFactory.getBean(CommandGateway.class).sendAndWait(builder.build());
-    
+    EventGateway gateway = ServiceFactory.getBean(EventGateway.class);
+
+    gateway.publish(builder.build().stream().map(GenericEventMessage::asEventMessage).toList());
+
+    // ServiceFactory.getBean(EventGateway.class).sendAndWait(builder.build());
+    //
     return service.getGeoObjectByCode(builder.getCode(), builder.getType());
-    
-//    if (date == null)
-//    {
-//      return service.apply(this.newGeoObject(adapter), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, this.isNew, false, false);
-//    }
 
-//    return service.apply(, this.isNew, false, false);
+    // if (date == null)
+    // {
+    // return service.apply(this.newGeoObject(adapter),
+    // TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE,
+    // this.isNew, false, false);
+    // }
+
+    // return service.apply(, this.isNew, false, false);
   }
 
   /**

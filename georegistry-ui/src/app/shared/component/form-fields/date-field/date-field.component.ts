@@ -23,12 +23,14 @@ import { DateService } from "@shared/service/date.service";
 import { PRESENT } from "@shared/model/date";
 
 import { BsDatepickerConfig, BsDatepickerDirective } from "ngx-bootstrap/datepicker";
+import { ControlContainer, NgForm } from "@angular/forms";
 
 
 @Component({
     selector: "date-field",
     templateUrl: "./date-field.component.html",
-    styleUrls: ["./date-field.css"]
+    styleUrls: ["./date-field.css"],
+    viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
 })
 export class DateFieldComponent {
 

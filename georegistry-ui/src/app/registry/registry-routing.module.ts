@@ -46,6 +46,7 @@ import { LabeledPropertyGraphTypeManagerComponent } from "./component/labeled-pr
 import { SourceManagerComponent } from "./component/source/source-manager.component";
 import { RDFExportComponent } from "./component/data-export/rdf-export.component";
 import { EdgeImporterComponent } from "./component/edge-importer/edge-importer.component";
+import { PublishManagerComponent } from "./component/publish-events/publish-manager.component";
 
 const routes: Routes = [
     {
@@ -169,8 +170,8 @@ const routes: Routes = [
         canActivate: [AuthGuard, LabeledPropertyGraphGuard]
     },
     {
-        path: "export",
-        component: RDFExportComponent,
+        path: "publish",
+        component: PublishManagerComponent,
         canActivate: [AuthGuard]
     }
 

@@ -1,0 +1,27 @@
+<div class="holder">
+  <div class="row" *ngIf="!(readonly)">
+    <div class="col-md-12">
+
+      <!-- Custom Multi-Select widget built ontop of Bootstrap Dropdown component
+                      - ngx-bootstrap-multiselect was investigated as a potential solution and found to have lots of styling issues and as such was intentionally decided against.                       
+                  -->
+      <div class="btn-group" dropdown #dropdown="bs-dropdown" [autoClose]="true" [container]="container">
+        <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle">
+          {{buildButtonLabel()}} <span class="caret"></span>
+        </button>
+
+        <ul id="dropdown-triggers-manual" *dropdownMenu class="dropdown-menu orgUnit-ul" role="menu"
+          aria-labelledby="button-triggers-manual" style="overflow-y: scroll; max-height:400px;">
+          <li *ngFor="let option of options" (click)="clickOption($event, option)" role="menuitem"
+            [ngClass]="{'multiselect-listitem-selected': strArrayContains(option.value)}">
+            <a class="dropdown-item">{{option.label}}</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12" style="line-height: 41px;"> {{buildButtonLabel(true)}}
+    </div>
+  </div>
+</div>

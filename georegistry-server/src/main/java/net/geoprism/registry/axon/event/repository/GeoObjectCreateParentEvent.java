@@ -1,6 +1,7 @@
 package net.geoprism.registry.axon.event.repository;
 
 import java.util.Date;
+import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -32,7 +33,7 @@ public class GeoObjectCreateParentEvent extends AbstractHierarchyEvent implement
 
   public GeoObjectCreateParentEvent(String code, String type, String edgeUid, String edgeType, Date stateDate, Date endDate, String parentCode, String parentType, String dataSource, Boolean validate)
   {
-    super();
+    super(UUID.randomUUID().toString());
 
     this.code = code;
     this.type = type;
@@ -148,15 +149,15 @@ public class GeoObjectCreateParentEvent extends AbstractHierarchyEvent implement
 
   @Override
   @JsonIgnore
-  public String getAggregate()
+  public String getBaseObjectId()
   {
     return this.code + "#" + this.type + "_H_" + this.edgeType;
   }
 
   @Override
   @JsonIgnore
-  public EventType getEventType()
+  public EventPhase getEventPhase()
   {
-    return EventType.HIERARCHY;
+    return EventPhase.EDGE;
   }
 }

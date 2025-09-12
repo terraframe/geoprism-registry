@@ -22,14 +22,10 @@ import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { finalize } from "rxjs/operators";
 
 import { EventService } from "@shared/service";
-import { BusinessEdgeType, BusinessType, BusinessTypeByOrg } from "@registry/model/business-type";
-import { AttributeType } from "@registry/model/registry";
-import { GenericTableService } from "@shared/model/generic-table";
-import { PageResult } from "@shared/model/core";
 
 import { environment } from 'src/environments/environment';
 import { firstValueFrom } from "rxjs";
-import { Publish } from "@registry/model/publish";
+import { Commit, Publish, PublishEvents } from "@registry/model/publish";
 
 @Injectable()
 export class PublishService {
@@ -37,8 +33,41 @@ export class PublishService {
     // eslint-disable-next-line no-useless-constructor
     constructor(private http: HttpClient, private eventService: EventService) { }
 
+    toPublishEvent(p: Publish): PublishEvents {
+        return {
+            uid: p.uid,
+            date: p.date,
+            startDate: p.startDate,
+            endDate: p.endDate,
+            typeCodes: p.types.filter(t => t.type === 'GEO_OBJECT').map(t => t.code),
+            businessTypeCodes: p.types.filter(t => t.type === 'BUSINESS').map(t => t.code),
+            dagCodes: p.types.filter(t => t.type === 'DAG').map(t => t.code),
+            undirectedCodes: p.types.filter(t => t.type === 'UNDIRECTED').map(t => t.code),
+            hierarchyCodes: p.types.filter(t => t.type === 'HIERARCHY').map(t => t.code),
+            businessEdgeCodes: p.types.filter(t => t.type === 'BUSINESS_EDGE').map(t => t.code)
+        }
+    }
 
-    getAll(): Promise<Publish[]> {
+    toPublish(p: PublishEvents): Publish {
+        let types = [];
+        types = types.concat(p.businessEdgeCodes.map(code => { return { type: 'BUSINESS_EDGE', code } }))
+        types = types.concat(p.hierarchyCodes.map(code => { return { type: 'HIERARCHY', code } }))
+        types = types.concat(p.undirectedCodes.map(code => { return { type: 'UNDIRECTED', code } }))
+        types = types.concat(p.dagCodes.map(code => { return { type: 'DAG', code } }))
+        types = types.concat(p.businessTypeCodes.map(code => { return { type: 'BUSINESS', code } }))
+        types = types.concat(p.typeCodes.map(code => { return { type: 'GEO_OBJECT', code } }))
+
+        return {
+            uid: p.uid,
+            date: p.date,
+            startDate: p.startDate,
+            endDate: p.endDate,
+            types: types,
+            exclusions: []
+        }
+    }
+
+    getAll(): Promise<PublishEvents[]> {
         let params: HttpParams = new HttpParams();
 
         this.eventService.start();
@@ -46,7 +75,68 @@ export class PublishService {
         return firstValueFrom(this.http.get<Publish[]>(environment.apiUrl + "/api/publish/get-all", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
-            })))
+            }))).then(array => {
+                return array.map(this.toPublishEvent);
+            });
     }
+
+    get(uid: string): Promise<PublishEvents> {
+        let params: HttpParams = new HttpParams();
+        params = params.append('uid', uid);
+
+        this.eventService.start();
+
+        return firstValueFrom(this.http.get<Publish>(environment.apiUrl + "/api/publish/get", { params: params })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))).then(this.toPublishEvent);
+    }
+
+
+
+    create(publish: PublishEvents): Promise<PublishEvents> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
+
+        this.eventService.start();
+
+        return firstValueFrom(this.http
+            .post<Publish>(environment.apiUrl + "/api/publish/create", JSON.stringify(this.toPublish(publish)), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))).then(this.toPublishEvent);
+    }
+
+    remove(publish: PublishEvents): Promise<PublishEvents> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
+
+        this.eventService.start();
+
+        return this.http
+            .post<PublishEvents>(environment.apiUrl + "/api/publish/remove", JSON.stringify({ uid: publish.uid }), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
+
+
+    createNewVersion(uid: string): Promise<Commit> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
+
+        this.eventService.start();
+
+        return firstValueFrom(this.http
+            .post<Commit>(environment.apiUrl + "/api/publish/create-new-version", JSON.stringify({ uid }), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            })));
+    }
+
 
 }

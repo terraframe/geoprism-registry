@@ -179,6 +179,8 @@ import { EdgeImporterComponent } from './component/edge-importer/edge-importer.c
 import { GraphTypeService } from "./service/graph-type.service";
 import { PublishService } from "./service/publish.service";
 import { JenaExportSynchronizationConfigComponent } from "./component/synchronization-config/jena-export-synchronization-config.component";
+import { PublishManagerComponent } from "./component/publish-events/publish-manager.component";
+import { PublishEventsModalComponent } from "./component/publish-events/publish-events-modal.component";
 
 @NgModule({
     imports: [
@@ -322,7 +324,10 @@ import { JenaExportSynchronizationConfigComponent } from "./component/synchroniz
         SourceManagerComponent,
         ManageSourceModalComponent,
         SourceFieldComponent,
-        EdgeImporterComponent
+        EdgeImporterComponent,
+        // Publish
+        PublishManagerComponent,
+        PublishEventsModalComponent
     ],
     providers: [
         MapService,
@@ -352,46 +357,46 @@ import { JenaExportSynchronizationConfigComponent } from "./component/synchroniz
         SourceService,
         PublishService
     ],
-    entryComponents: [
-        ExportTypesModalComponent,
-        AddChildToHierarchyModalComponent,
-        CreateGeoObjTypeModalComponent,
-        ManageAttributesModalComponent,
-        DefineAttributeModalContentComponent,
-        EditAttributeModalContentComponent,
-        CreateHierarchyTypeModalComponent,
-        TermOptionWidgetComponent,
-        AttributeInputComponent,
-        EditTermOptionInputComponent,
-        ManageGeoObjectTypeModalComponent,
-        GeoObjectTypeInputComponent,
-        ManageTermOptionsComponent,
-        GeoObjectSharedAttributeEditorComponent,
-        SubmitChangeRequestComponent,
-        GeoObjectEditorComponent,
-        ExportFormatModalComponent,
-        DataPageComponent,
-        ChangeRequestPageComponent,
-        JobConflictModalComponent,
-        ReuploadModalComponent,
-        StepIndicatorComponent,
-        SynchronizationConfigModalComponent,
-        CreateBusinessTypeModalComponent,
-        ManageBusinessTypeModalComponent,
-        TransitionEventModalComponent,
-        ListTypePublishModalComponent,
-        PublishVersionComponent,
-        SelectTypeModalComponent,
-        CurationProblemModalComponent,
-        ClassificationTypePublishModalComponent,
-        ClassificationPublishModalComponent,
-        ClassificationFieldModalComponent,
-        ListModalComponent,
-        RecordPopupComponent,
-        LabeledPropertyGraphTypePublishModalComponent,
-        ConfigurationModalComponent,
-        ManageSourceModalComponent
-    ]
+    // entryComponents: [
+    //     ExportTypesModalComponent,
+    //     AddChildToHierarchyModalComponent,
+    //     CreateGeoObjTypeModalComponent,
+    //     ManageAttributesModalComponent,
+    //     DefineAttributeModalContentComponent,
+    //     EditAttributeModalContentComponent,
+    //     CreateHierarchyTypeModalComponent,
+    //     TermOptionWidgetComponent,
+    //     AttributeInputComponent,
+    //     EditTermOptionInputComponent,
+    //     ManageGeoObjectTypeModalComponent,
+    //     GeoObjectTypeInputComponent,
+    //     ManageTermOptionsComponent,
+    //     GeoObjectSharedAttributeEditorComponent,
+    //     SubmitChangeRequestComponent,
+    //     GeoObjectEditorComponent,
+    //     ExportFormatModalComponent,
+    //     DataPageComponent,
+    //     ChangeRequestPageComponent,
+    //     JobConflictModalComponent,
+    //     ReuploadModalComponent,
+    //     StepIndicatorComponent,
+    //     SynchronizationConfigModalComponent,
+    //     CreateBusinessTypeModalComponent,
+    //     ManageBusinessTypeModalComponent,
+    //     TransitionEventModalComponent,
+    //     ListTypePublishModalComponent,
+    //     PublishVersionComponent,
+    //     SelectTypeModalComponent,
+    //     CurationProblemModalComponent,
+    //     ClassificationTypePublishModalComponent,
+    //     ClassificationPublishModalComponent,
+    //     ClassificationFieldModalComponent,
+    //     ListModalComponent,
+    //     RecordPopupComponent,
+    //     LabeledPropertyGraphTypePublishModalComponent,
+    //     ConfigurationModalComponent,
+    //     ManageSourceModalComponent
+    // ]
 })
 export class RegistryModule { }
 

@@ -31,7 +31,7 @@ import org.axonframework.eventsourcing.eventstore.jdbc.JdbcEventStorageEngine;
  * @since 4.3
  */
 @FunctionalInterface
-public interface ReadEventDataForAggregateStatementBuilder {
+public interface ReadEventDataForBaseObjectStatementBuilder {
 
     /**
      * Creates a statement to read domain event entries for an aggregate with given identifier starting with the first
@@ -45,5 +45,5 @@ public interface ReadEventDataForAggregateStatementBuilder {
      * @return The newly created {@link PreparedStatement}.
      * @throws SQLException when an exception occurs while creating the prepared statement.
      */
-    PreparedStatement build(Connection connection, EventSchema schema, String aggregateIdentifier, long firstIndex, Long lastIndex) throws SQLException;
+    PreparedStatement build(Connection connection, EventSchema schema, String baseObjectId, long firstIndex, Long lastIndex) throws SQLException;
 }

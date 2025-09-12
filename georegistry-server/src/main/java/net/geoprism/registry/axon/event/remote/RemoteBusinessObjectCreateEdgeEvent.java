@@ -1,15 +1,11 @@
 package net.geoprism.registry.axon.event.remote;
 
-import org.axonframework.modelling.command.TargetAggregateIdentifier;
-
-import net.geoprism.registry.axon.command.remote.RemoteBusinessObjectCreateEdgeCommand;
 import net.geoprism.registry.view.PublishDTO;
 import net.geoprism.registry.view.TypeAndCode;
 import net.geoprism.registry.view.TypeAndCode.Type;
 
 public class RemoteBusinessObjectCreateEdgeEvent implements RemoteEvent
 {
-  @TargetAggregateIdentifier
   private String key;
 
   private String commitId;
@@ -130,21 +126,15 @@ public class RemoteBusinessObjectCreateEdgeEvent implements RemoteEvent
   {
     this.targetCode = targetCode;
   }
-  
+
   public String getDataSource()
   {
     return dataSource;
   }
-  
+
   public void setDataSource(String dataSource)
   {
     this.dataSource = dataSource;
-  }
-
-  @Override
-  public Object toCommand()
-  {
-    return new RemoteBusinessObjectCreateEdgeCommand(commitId, sourceCode, sourceType, edgeUid, edgeType, targetCode, targetType, dataSource);
   }
 
   @Override

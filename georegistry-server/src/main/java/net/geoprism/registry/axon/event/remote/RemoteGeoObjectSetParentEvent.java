@@ -5,7 +5,6 @@ import java.util.Date;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import net.geoprism.registry.axon.command.remote.RemoteGeoObjectSetParentCommand;
 import net.geoprism.registry.spring.DateDeserializer;
 import net.geoprism.registry.spring.DateSerializer;
 import net.geoprism.registry.view.PublishDTO;
@@ -146,21 +145,15 @@ public class RemoteGeoObjectSetParentEvent implements RemoteEvent
   {
     this.parentCode = parentCode;
   }
-  
+
   public String getDataSource()
   {
     return dataSource;
   }
-  
+
   public void setDataSource(String dataSource)
   {
     this.dataSource = dataSource;
-  }
-
-  @Override
-  public Object toCommand()
-  {
-    return new RemoteGeoObjectSetParentCommand(commitId, code, type, edgeUid, edgeType, startDate, endDate, parentCode, parentType, dataSource);
   }
 
   @Override

@@ -22,7 +22,8 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
-import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.eventhandling.GenericEventMessage;
+import org.axonframework.eventhandling.gateway.EventGateway;
 import org.commongeoregistry.adapter.constants.CGRAdapterProperties;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,16 +56,16 @@ import net.geoprism.registry.view.action.UpdateAttributeViewJsonAdapters;
 @Service
 public class GeoObjectEditorBusinessService
 {
-  private final CommandGateway             commandGateway;
+  private final EventGateway               gateway;
 
   private final RolePermissionService      permissions;
 
   private final GeoObjectBusinessServiceIF service;
 
   @Autowired
-  public GeoObjectEditorBusinessService(CommandGateway commandGateway, RolePermissionService permissions, GeoObjectBusinessServiceIF service)
+  public GeoObjectEditorBusinessService(EventGateway EventGateway, RolePermissionService permissions, GeoObjectBusinessServiceIF service)
   {
-    this.commandGateway = commandGateway;
+    this.gateway = EventGateway;
     this.permissions = permissions;
     this.service = service;
   }
@@ -232,7 +233,7 @@ public class GeoObjectEditorBusinessService
       view.build(builder);
     }
 
-    this.commandGateway.sendAndWait(builder.build());
+    this.gateway.publish(builder.build().stream().map(GenericEventMessage::asEventMessage).toList());
   }
 
   @Transaction
@@ -253,7 +254,7 @@ public class GeoObjectEditorBusinessService
       builder.setObject(timeGO, true);
       builder.setParents(ServerParentTreeNodeOverTime.fromJSON(serverGOT, sPtn), null);
 
-      this.commandGateway.sendAndWait(builder.build());
+      this.gateway.publish(builder.build().stream().map(GenericEventMessage::asEventMessage).toList());
 
       ServerGeoObjectIF sGO = this.service.getGeoObjectByCode(timeGO.getCode(), timeGO.getType().getCode());
 

@@ -1,5 +1,7 @@
 package net.geoprism.registry.axon.event.repository;
 
+import java.util.UUID;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
@@ -23,7 +25,7 @@ public class GeoObjectSetExternalIdEvent extends AbstractGeoObjectEvent implemen
 
   public GeoObjectSetExternalIdEvent(String code, String type, String systemId, String externalId, ImportStrategy strategy)
   {
-    super();
+    super(UUID.randomUUID().toString());
 
     this.code = code;
     this.type = type;
@@ -84,21 +86,21 @@ public class GeoObjectSetExternalIdEvent extends AbstractGeoObjectEvent implemen
 
   @Override
   @JsonIgnore
-  public String getAggregate()
+  public String getBaseObjectId()
   {
     return this.code + "#" + this.type + "_S_" + this.systemId;
   }
 
   @Override
   @JsonIgnore
-  public EventType getEventType()
+  public EventPhase getEventPhase()
   {
-    return EventType.OBJECT;
+    return EventPhase.EDGE;
   }
 
   @Override
   public Boolean isValidFor(PublishDTO dto)
   {
-    return dto.getHierarchyTypes().anyMatch(this.getType()::equals);
+    return dto.getGeoObjectTypes().anyMatch(this.getType()::equals);
   }
 }

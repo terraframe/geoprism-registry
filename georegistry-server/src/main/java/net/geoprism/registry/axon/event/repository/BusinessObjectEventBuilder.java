@@ -8,7 +8,6 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
 import net.geoprism.registry.BusinessEdgeType;
-import net.geoprism.registry.axon.command.repository.BusinessObjectCompositeCommand;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.EdgeDirection;
@@ -26,7 +25,7 @@ public class BusinessObjectEventBuilder
   private List<BusinessObjectEvent>       events;
 
   private BusinessObjectBusinessServiceIF service;
-  
+
   public BusinessObjectEventBuilder(BusinessObjectBusinessServiceIF service)
   {
     this.service = service;
@@ -134,13 +133,13 @@ public class BusinessObjectEventBuilder
     this.events.add(new BusinessObjectAddGeoObjectEvent(object.getCode(), object.getType().getCode(), edgeType.getCode(), geoObject.getType().getCode(), geoObject.getCode(), direction, code));
   }
 
-  public Object build()
+  public List<RepositoryEvent> build()
   {
+    LinkedList<RepositoryEvent> list = new LinkedList<>();
+
     BusinessObject object = this.getOrThrow();
 
-    LinkedList<BusinessObjectEvent> list = new LinkedList<>();
-
-    if (this.attributeUpdate || isNew)
+    if (this.attributeUpdate || this.isNew)
     {
       JsonObject dto = service.toJSON(object);
 
@@ -149,13 +148,7 @@ public class BusinessObjectEventBuilder
 
     list.addAll(events);
 
-    // if (this.isNew)
-    // {
-    // return new BusinessObjectCompositeCreateCommand(object.getCode(),
-    // object.getType().getCode(), list);
-    // }
-
-    return new BusinessObjectCompositeCommand(object.getCode(), object.getType().getCode(), list);
+    return list;
   }
 
 }

@@ -1,6 +1,5 @@
 package net.geoprism.registry.axon.event.remote;
 
-import net.geoprism.registry.axon.command.remote.RemoteBusinessObjectAddGeoObjectCommand;
 import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.view.PublishDTO;
 import net.geoprism.registry.view.TypeAndCode;
@@ -141,21 +140,15 @@ public class RemoteBusinessObjectAddGeoObjectEvent implements RemoteEvent
   {
     this.dataSource = dataSource;
   }
-  
+
   public String getEdgeUid()
   {
     return edgeUid;
   }
-  
+
   public void setEdgeUid(String edgeUid)
   {
     this.edgeUid = edgeUid;
-  }
-
-  @Override
-  public Object toCommand()
-  {
-    return new RemoteBusinessObjectAddGeoObjectCommand(commitId, code, type, edgeUid, edgeType, geoObjectType, geoObjectCode, direction, dataSource);
   }
 
   @Override

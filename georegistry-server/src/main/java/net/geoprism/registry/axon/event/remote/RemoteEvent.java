@@ -18,7 +18,5 @@ public interface RemoteEvent
 {
   public String getCommitId();
 
-  public Object toCommand();
-
   public boolean isValid(PublishDTO dto);
 }

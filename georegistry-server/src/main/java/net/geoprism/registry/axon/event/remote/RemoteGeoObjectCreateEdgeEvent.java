@@ -7,7 +7,6 @@ import org.axonframework.modelling.command.TargetAggregateIdentifier;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import net.geoprism.registry.axon.command.remote.RemoteGeoObjectCreateEdgeCommand;
 import net.geoprism.registry.spring.DateDeserializer;
 import net.geoprism.registry.spring.DateSerializer;
 import net.geoprism.registry.view.PublishDTO;
@@ -188,12 +187,6 @@ public class RemoteGeoObjectCreateEdgeEvent implements RemoteEvent
   public void setDataSource(String dataSource)
   {
     this.dataSource = dataSource;
-  }
-
-  @Override
-  public Object toCommand()
-  {
-    return new RemoteGeoObjectCreateEdgeCommand(commitId, sourceCode, sourceType, edgeUid, edgeType, edgeTypeCode, startDate, endDate, targetCode, targetType, dataSource);
   }
 
   @Override

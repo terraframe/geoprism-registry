@@ -32,7 +32,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
-import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.eventhandling.GenericEventMessage;
+import org.axonframework.eventhandling.gateway.EventGateway;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -204,13 +205,13 @@ public class BusinessObjectImporter implements ObjectImporterIF
 
   private GeoObjectBusinessServiceIF          objectService;
 
-  private CommandGateway                      commandGateway;
+  private EventGateway                        gateway;
 
   public BusinessObjectImporter(BusinessObjectImportConfiguration configuration, ImportProgressListenerIF progressListener)
   {
     this.bObjectService = ServiceFactory.getBean(BusinessObjectBusinessServiceIF.class);
     this.objectService = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
-    this.commandGateway = ServiceFactory.getBean(CommandGateway.class);
+    this.gateway = ServiceFactory.getBean(EventGateway.class);
 
     this.configuration = configuration;
     this.progressListener = progressListener;
@@ -634,7 +635,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
         eventBuilder.addGeoObject(this.configuration.getEdgeType(), geoObject, this.configuration.getDirection(), this.configuration.getDataSource());
       }
 
-      this.commandGateway.sendAndWait(eventBuilder.build());
+      this.gateway.publish(eventBuilder.build().stream().map(GenericEventMessage::asEventMessage).toList());
 
       imported = true;
 

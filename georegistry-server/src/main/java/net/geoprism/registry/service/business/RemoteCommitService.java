@@ -4,7 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.eventhandling.GenericEventMessage;
+import org.axonframework.eventhandling.gateway.EventGateway;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -56,7 +57,7 @@ public class RemoteCommitService
   private SnapshotBusinessService                   snapshotService;
 
   @Autowired
-  private CommandGateway                            gateway;
+  private EventGateway                              gateway;
 
   @Autowired
   private GraphRepoServiceIF                        metadataService;
@@ -163,10 +164,9 @@ public class RemoteCommitService
       while ( ( remoteEvents = client.getRemoteEvents(commit.getUid(), chunk) ).size() > 0)
       {
         remoteEvents.stream() //
-            .filter(event -> event.isValid(dto))//
-            .forEach(event -> {
-              this.gateway.sendAndWait(event.toCommand());
-            });
+            .filter(event -> event.isValid(dto)) //
+            .map(GenericEventMessage::asEventMessage) //
+            .forEach(this.gateway::publish);
 
         chunk++;
       }

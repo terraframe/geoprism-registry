@@ -1,6 +1,5 @@
 package net.geoprism.registry.axon.event.remote;
 
-import net.geoprism.registry.axon.command.remote.RemoteBusinessObjectCommand;
 import net.geoprism.registry.view.PublishDTO;
 import net.geoprism.registry.view.TypeAndCode;
 import net.geoprism.registry.view.TypeAndCode.Type;
@@ -85,12 +84,6 @@ public class RemoteBusinessObjectEvent implements RemoteEvent
   public void setObject(String object)
   {
     this.object = object;
-  }
-  
-  @Override
-  public Object toCommand()
-  {
-    return new RemoteBusinessObjectCommand(commitId, code, type, object);        
   }
   
   @Override

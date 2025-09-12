@@ -24,7 +24,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
-import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.eventhandling.GenericEventMessage;
+import org.axonframework.eventhandling.gateway.EventGateway;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTimeJsonAdapters;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -436,10 +437,10 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
       this.apply();
 
       // Apply the events
-      Object command = builder.build();
-      
-      CommandGateway gateway = ServiceFactory.getBean(CommandGateway.class);
-      gateway.sendAndWait(command);
+
+      EventGateway gateway = ServiceFactory.getBean(EventGateway.class);
+
+      gateway.publish(builder.build().stream().map(GenericEventMessage::asEventMessage).toList());
 
       // Email the contributor
       try

@@ -34,7 +34,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
-import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.eventhandling.GenericEventMessage;
+import org.axonframework.eventhandling.gateway.EventGateway;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -242,14 +243,14 @@ public class GeoObjectImporter implements ObjectImporterIF
 
   protected GPRGeoObjectBusinessServiceIF  service;
 
-  protected CommandGateway                 commandGateway;
+  protected EventGateway                   gateway;
 
   public GeoObjectImporter(GeoObjectImportConfiguration configuration, ImportProgressListenerIF progressListener)
   {
     this.configuration = configuration;
     this.progressListener = progressListener;
     this.service = ServiceFactory.getBean(GPRGeoObjectBusinessServiceIF.class);
-    this.commandGateway = ServiceFactory.getBean(CommandGateway.class);
+    this.gateway = ServiceFactory.getBean(EventGateway.class);
 
     final int MAX_ENTRIES = 10000; // The size of our parentCache
     this.parentCache = Collections.synchronizedMap(new LinkedHashMap<String, ServerGeoObjectIF>(MAX_ENTRIES + 1, .75F, true)
@@ -843,7 +844,7 @@ public class GeoObjectImporter implements ObjectImporterIF
       }
 
       // Execute the commands
-      this.commandGateway.sendAndWait(builder.build());
+      this.gateway.publish(builder.build().stream().map(GenericEventMessage::asEventMessage).toList());
 
       // We must ensure that any problems created during the transaction are
       // logged now instead of when the request returns. As such, if any
@@ -851,15 +852,9 @@ public class GeoObjectImporter implements ObjectImporterIF
       // exception handling can occur.
       List<ProblemIF> problems = RequestState.getProblemsInCurrentRequest();
 
-      List<ProblemIF> problems2 = new LinkedList<ProblemIF>();
-      for (ProblemIF problem : problems)
-      {
-        problems2.add(problem);
-      }
-
       if (problems.size() != 0)
       {
-        throw new ProblemException(null, problems2);
+        throw new ProblemException(null, new LinkedList<ProblemIF>(problems));
       }
     }
     catch (IgnoreRowException e)

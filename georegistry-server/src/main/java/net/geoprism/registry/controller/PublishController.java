@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.PublishService;
 import net.geoprism.registry.view.CommitDTO;
@@ -39,6 +40,22 @@ import net.geoprism.registry.view.PublishDTO;
 @Validated
 public class PublishController extends RunwaySpringController
 {
+  public static class UidBody
+  {
+    @NotBlank
+    private String uid;
+
+    public String getUid()
+    {
+      return uid;
+    }
+
+    public void setUid(String uid)
+    {
+      this.uid = uid;
+    }
+  }
+
   public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "publish";
 
   @Autowired
@@ -69,10 +86,18 @@ public class PublishController extends RunwaySpringController
   }
 
   @PostMapping(API_PATH + "/create-new-version")
-  public ResponseEntity<CommitDTO> createNewVersion(@RequestParam(name = "uid") String uid)
+  public ResponseEntity<CommitDTO> createNewVersion(@Valid @RequestBody UidBody body)
   {
-    CommitDTO commit = this.service.createNewVersion(getSessionId(), uid);
+    CommitDTO commit = this.service.createNewVersion(getSessionId(), body.uid);
 
     return ResponseEntity.ok(commit);
-  }  
+  }
+
+  @PostMapping(API_PATH + "/remove")
+  public ResponseEntity<Void> remove(@Valid @RequestBody UidBody body)
+  {
+    this.service.delete(getSessionId(), body.uid);
+
+    return ResponseEntity.ok(null);
+  }
 }

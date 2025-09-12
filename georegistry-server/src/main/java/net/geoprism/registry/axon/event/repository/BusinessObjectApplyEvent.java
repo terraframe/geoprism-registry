@@ -1,13 +1,13 @@
 package net.geoprism.registry.axon.event.repository;
 
+import java.util.UUID;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.geoprism.registry.view.PublishDTO;
 
-public class BusinessObjectApplyEvent implements BusinessObjectEvent
+public class BusinessObjectApplyEvent extends AbstractRepositoryEvent implements BusinessObjectEvent
 {
-  private String  key;
-
   private String  code;
 
   private String  type;
@@ -22,28 +22,12 @@ public class BusinessObjectApplyEvent implements BusinessObjectEvent
 
   public BusinessObjectApplyEvent(String code, String type, String object, Boolean isNew)
   {
-    this(code + "#" + type, code, type, object, isNew);
-  }
+    super(UUID.randomUUID().toString());
 
-  public BusinessObjectApplyEvent(String key, String code, String type, String object, Boolean isNew)
-  {
-    super();
-
-    this.key = key;
     this.code = code;
     this.type = type;
     this.object = object;
     this.isNew = isNew;
-  }
-
-  public String getKey()
-  {
-    return key;
-  }
-
-  public void setKey(String key)
-  {
-    this.key = key;
   }
 
   public String getType()
@@ -87,16 +71,16 @@ public class BusinessObjectApplyEvent implements BusinessObjectEvent
   }
 
   @Override
-  public String getAggregate()
+  public String getBaseObjectId()
   {
-    return this.key;
+    return this.code + "#" + this.type;
   }
 
   @Override
   @JsonIgnore
-  public EventType getEventType()
+  public EventPhase getEventPhase()
   {
-    return EventType.OBJECT;
+    return EventPhase.OBJECT;
   }
 
   @Override

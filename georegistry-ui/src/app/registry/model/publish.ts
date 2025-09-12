@@ -30,3 +30,24 @@ export class Publish {
     types: TypeAndCode[];
     exclusions: TypeAndCode[];
 }
+
+export class Commit {
+    uid: string;
+    publishId: string;
+    versionNumber: number;
+    lastOriginGlobalIndex: number;
+}
+
+
+export class PublishEvents {
+    uid: string
+    date: string;
+    startDate: string;
+    endDate: string;
+    typeCodes: string[];
+    businessTypeCodes: string[];
+    dagCodes: string[];
+    undirectedCodes: string[];
+    hierarchyCodes: string[];
+    businessEdgeCodes: string[];
+}

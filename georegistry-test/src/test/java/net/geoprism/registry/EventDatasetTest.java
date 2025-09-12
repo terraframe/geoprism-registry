@@ -2,7 +2,8 @@ package net.geoprism.registry;
 
 import java.util.UUID;
 
-import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.eventhandling.GenericEventMessage;
+import org.axonframework.eventhandling.gateway.EventGateway;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.After;
@@ -60,7 +61,7 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
   protected GeoObjectBusinessServiceIF                gObjectService;
 
   @Autowired
-  protected CommandGateway                            gateway;
+  protected EventGateway                              gateway;
 
   @Autowired
   protected RepositoryProjection                      projection;
@@ -169,7 +170,9 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
     builder.setObject(USATestData.COLORADO.getServerObject());
     builder.addEdge(USATestData.CANADA.getServerObject(), undirectedType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, UUID.randomUUID().toString(), USATestData.SOURCE.getDataSource(), ImportStrategy.NEW_ONLY, false);
 
-    this.gateway.sendAndWait(builder.build());
+    builder.build().stream().forEach(event -> {
+      gateway.publish(GenericEventMessage.asEventMessage(event));
+    });
   }
 
   protected void addDirectedAcyclicEdge()
@@ -178,7 +181,9 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
     builder.setObject(USATestData.COLORADO.getServerObject());
     builder.addEdge(USATestData.CANADA.getServerObject(), dagType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, UUID.randomUUID().toString(), USATestData.SOURCE.getDataSource(), ImportStrategy.NEW_ONLY, false);
 
-    this.gateway.sendAndWait(builder.build());
+    builder.build().stream().forEach(event -> {
+      gateway.publish(GenericEventMessage.asEventMessage(event));
+    });
   }
 
   protected void addBusinessEdge()
@@ -188,7 +193,9 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
     builder.addParent(pObject, bEdgeType, USATestData.SOURCE.getDataSource(), false);
     builder.addGeoObject(bGeoEdgeType, USATestData.COLORADO.getServerObject(), EdgeDirection.PARENT, USATestData.SOURCE.getDataSource());
 
-    this.gateway.sendAndWait(builder.build());
+    builder.build().stream().forEach(event -> {
+      gateway.publish(GenericEventMessage.asEventMessage(event));
+    });
   }
 
   protected BusinessObject createBusinessObject(String code)
@@ -200,7 +207,9 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
     BusinessObjectEventBuilder builder = new BusinessObjectEventBuilder(bObjectService);
     builder.setObject(object, true);
 
-    this.gateway.sendAndWait(builder.build());
+    builder.build().stream().forEach(event -> {
+      gateway.publish(GenericEventMessage.asEventMessage(event));
+    });
 
     return this.bObjectService.getByCode(btype, builder.getCode());
   }

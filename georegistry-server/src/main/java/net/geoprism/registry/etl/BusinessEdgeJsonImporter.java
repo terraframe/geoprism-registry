@@ -20,10 +20,10 @@ package net.geoprism.registry.etl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 
 import org.apache.commons.io.IOUtils;
-import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.eventhandling.GenericEventMessage;
+import org.axonframework.eventhandling.gateway.EventGateway;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +35,6 @@ import com.runwaysdk.resource.ApplicationResource;
 
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
-import net.geoprism.registry.axon.command.repository.BusinessObjectCompositeCommand;
 import net.geoprism.registry.axon.event.repository.BusinessObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.projection.RepositoryProjection;
 import net.geoprism.registry.graph.DataSource;
@@ -44,19 +43,19 @@ import net.geoprism.registry.service.business.ServiceFactory;
 
 public class BusinessEdgeJsonImporter
 {
-  private static final Logger                logger = LoggerFactory.getLogger(BusinessEdgeJsonImporter.class);
+  private static final Logger               logger = LoggerFactory.getLogger(BusinessEdgeJsonImporter.class);
 
-  private ApplicationResource                resource;
+  private ApplicationResource               resource;
 
-  private DataSource                         source;
+  private DataSource                        source;
 
-  private boolean                            validate;
+  private boolean                           validate;
 
-  private BusinessEdgeTypeBusinessServiceIF  edgeTypeService;
+  private BusinessEdgeTypeBusinessServiceIF edgeTypeService;
 
-  private CommandGateway                     gateway;
+  private EventGateway                      gateway;
 
-  private RepositoryProjection projection;
+  private RepositoryProjection              projection;
 
   public BusinessEdgeJsonImporter(ApplicationResource resource, DataSource source, boolean validate)
   {
@@ -65,7 +64,7 @@ public class BusinessEdgeJsonImporter
     this.validate = validate;
 
     this.edgeTypeService = ServiceFactory.getBean(BusinessEdgeTypeBusinessServiceIF.class);
-    this.gateway = ServiceFactory.getBean(CommandGateway.class);
+    this.gateway = ServiceFactory.getBean(EventGateway.class);
     this.projection = ServiceFactory.getBean(RepositoryProjection.class);
   }
 
@@ -100,7 +99,7 @@ public class BusinessEdgeJsonImporter
 
           BusinessObjectCreateEdgeEvent event = new BusinessObjectCreateEdgeEvent(sourceCode, sourceType.getCode(), edgeType.getCode(), targetCode, targetType.getCode(), source.getCode(), validate);
 
-          this.gateway.sendAndWait(new BusinessObjectCompositeCommand(sourceCode, sourceType.getCode(), Arrays.asList(event)));
+          this.gateway.publish(GenericEventMessage.asEventMessage(event));
 
           if (j % 50 == 0)
           {

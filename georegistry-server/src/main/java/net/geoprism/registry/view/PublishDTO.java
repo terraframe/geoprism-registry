@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import jakarta.validation.constraints.NotNull;
 import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.registry.JsonCollectors;
 import net.geoprism.registry.spring.DateDeserializer;
@@ -25,14 +26,17 @@ public class PublishDTO
 {
   private String            uid;
 
+  @NotNull
   @JsonSerialize(using = DateSerializer.class)
   @JsonDeserialize(using = DateDeserializer.class)
   private Date              date;
 
+  @NotNull
   @JsonSerialize(using = DateSerializer.class)
   @JsonDeserialize(using = DateDeserializer.class)
   private Date              startDate;
 
+  @NotNull
   @JsonSerialize(using = DateSerializer.class)
   @JsonDeserialize(using = DateDeserializer.class)
   private Date              endDate;

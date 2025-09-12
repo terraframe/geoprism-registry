@@ -18,13 +18,13 @@
 ///
 
 import { Component, Input, Output, EventEmitter } from "@angular/core";
-
-import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
+import { ControlContainer, NgForm } from "@angular/forms";
 
 @Component({
     selector: "boolean-field",
     templateUrl: "./boolean-field.component.html",
-    styleUrls: ["./boolean-field.css"]
+    styleUrls: ["./boolean-field.css"],
+    viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
 })
 export class BooleanFieldComponent {
 

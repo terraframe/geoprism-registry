@@ -18,19 +18,17 @@
  */
 package net.geoprism.registry.etl.upload;
 
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
-import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.eventhandling.GenericEventMessage;
+import org.axonframework.eventhandling.gateway.EventGateway;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -39,8 +37,6 @@ import org.slf4j.LoggerFactory;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.runwaysdk.ProblemException;
 import com.runwaysdk.ProblemIF;
-import com.runwaysdk.business.graph.EdgeObject;
-import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -53,7 +49,6 @@ import com.runwaysdk.session.SessionFacade;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.GeoregistryProperties;
-import net.geoprism.registry.axon.command.repository.GeoObjectCompositeCommand;
 import net.geoprism.registry.axon.event.repository.AbstractGeoObjectEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEdgeEvent;
 import net.geoprism.registry.cache.Cache;
@@ -64,7 +59,6 @@ import net.geoprism.registry.io.Location;
 import net.geoprism.registry.io.RequiredMappingException;
 import net.geoprism.registry.jobs.RowValidationProblem;
 import net.geoprism.registry.model.GraphType;
-import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 
 public class EdgeObjectImporter implements ObjectImporterIF
@@ -156,11 +150,11 @@ public class EdgeObjectImporter implements ObjectImporterIF
 
   private ThreadPoolExecutor              executor;
 
-  private CommandGateway                  commandGateway;
+  private EventGateway                    gateway;
 
   public EdgeObjectImporter(EdgeObjectImportConfiguration configuration, ImportProgressListenerIF progressListener)
   {
-    this.commandGateway = ServiceFactory.getBean(CommandGateway.class);
+    this.gateway = ServiceFactory.getBean(EventGateway.class);
 
     this.configuration = configuration;
     this.progressListener = progressListener;
@@ -369,12 +363,12 @@ public class EdgeObjectImporter implements ObjectImporterIF
       Date startDate = this.configuration.getStartDate();
       Date endDate = this.configuration.getEndDate();
 
-      String graphTypeClass = GraphType.getTypeCode(this.configuration.getGraphType());
-      String graphTypeCode = this.configuration.getGraphType().getCode();
+      String edgeTypeCode = GraphType.getTypeCode(this.configuration.getGraphType());
+      String edgeCode = this.configuration.getGraphType().getCode();
 
-      AbstractGeoObjectEvent event = new GeoObjectApplyEdgeEvent(sourceCode, sourceTypeCode, graphTypeClass, graphTypeCode, targetCode, targetTypeCode, startDate, endDate, dataSource, this.configuration.getImportStrategy(), false);
+      AbstractGeoObjectEvent event = new GeoObjectApplyEdgeEvent(sourceCode, sourceTypeCode, edgeTypeCode, edgeCode, targetCode, targetTypeCode, startDate, endDate, dataSource, this.configuration.getImportStrategy(), false);
 
-      this.commandGateway.sendAndWait(new GeoObjectCompositeCommand(sourceCode, sourceTypeCode, Arrays.asList(event)));
+      this.gateway.publish(GenericEventMessage.asEventMessage(event));
 
       imported = true;
 

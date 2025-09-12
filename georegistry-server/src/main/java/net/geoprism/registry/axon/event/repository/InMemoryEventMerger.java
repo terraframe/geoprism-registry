@@ -26,9 +26,9 @@ public class InMemoryEventMerger
 
   public void add(RepositoryEvent e)
   {
-    this.groupedEvents.computeIfAbsent(e.getAggregate(), s -> new LinkedList<RepositoryEvent>());
+    this.groupedEvents.computeIfAbsent(e.getBaseObjectId(), s -> new LinkedList<RepositoryEvent>());
 
-    this.groupedEvents.get(e.getAggregate()).add(e);
+    this.groupedEvents.get(e.getBaseObjectId()).add(e);
   }
 
   public List<RepositoryEvent> buildEvents()

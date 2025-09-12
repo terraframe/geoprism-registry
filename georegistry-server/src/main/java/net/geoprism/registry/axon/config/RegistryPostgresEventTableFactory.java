@@ -3,6 +3,7 @@ package net.geoprism.registry.axon.config;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.axonframework.eventsourcing.eventstore.jdbc.AbstractEventTableFactory;
 import org.axonframework.eventsourcing.eventstore.jdbc.EventSchema;
@@ -13,15 +14,15 @@ import org.axonframework.eventsourcing.eventstore.jdbc.EventSchema;
  * @author Rene de Waele
  * @since 3.0
  */
-public class CustomPostgresEventTableFactory extends AbstractEventTableFactory
+public class RegistryPostgresEventTableFactory extends AbstractEventTableFactory
 {
 
   /**
    * Singleton PostgresEventTableFactory instance
    */
-  public static final CustomPostgresEventTableFactory INSTANCE = new CustomPostgresEventTableFactory();
+  public static final RegistryPostgresEventTableFactory INSTANCE = new RegistryPostgresEventTableFactory();
 
-  private CustomPostgresEventTableFactory()
+  private RegistryPostgresEventTableFactory()
   {
   }
 
@@ -39,12 +40,43 @@ public class CustomPostgresEventTableFactory extends AbstractEventTableFactory
         schema.payloadRevisionColumn() + " VARCHAR(255),\n" + //
         schema.payloadTypeColumn() + " VARCHAR(255) NOT NULL,\n" + //
         schema.timestampColumn() + " " + timestampType() + " ,\n" + //
+        "base_object_id" + " " + " VARCHAR(255), \n" + //
+        "phase" + " " + " VARCHAR(255), \n" + //
         "commit_id" + " " + " VARCHAR(255),\n" + //
         "PRIMARY KEY (" + schema.globalIndexColumn() + "),\n" + //
-        "UNIQUE (" + schema.aggregateIdentifierColumn() + ", " + //
-        schema.sequenceNumberColumn() + "),\n" + //
+        "UNIQUE (" + schema.aggregateIdentifierColumn() + ", " + schema.sequenceNumberColumn() + "),\n" + //
         "UNIQUE (" + schema.eventIdentifierColumn() + ")\n" + //
         ")";
+    return connection.prepareStatement(sql);
+  }
+
+  public PreparedStatement createBaseObjectIndex(Connection connection, EventSchema schema) throws SQLException
+  {
+    String sql = "CREATE INDEX IF NOT EXISTS event_base_object_id ON " + schema.domainEventTable() + " USING btree (\n" + //
+        RegistryEventStore.BASE_OBJECT + " \n" + //
+        ")";
+
+    return connection.prepareStatement(sql);
+  }
+
+  public PreparedStatement createCommitIndex(Connection connection, EventSchema schema) throws SQLException
+  {
+    String sql = "CREATE INDEX IF NOT EXISTS event_commit ON " + schema.domainEventTable() + " USING btree (\n" + //
+        "commit_id \n" + //
+        ")";
+
+    return connection.prepareStatement(sql);
+  }
+
+  public PreparedStatement createLookupIndex(Connection connection, EventSchema schema) throws SQLException
+  {
+    String sql = "CREATE INDEX IF NOT EXISTS event_lookup ON " + schema.domainEventTable() + " USING btree (\n" + //
+        "commit_id, \n" + //
+        RegistryEventStore.PHASE + ", \n" + //
+        schema.globalIndexColumn() + ", \n" + //
+        RegistryEventStore.BASE_OBJECT + " \n" + //
+        ")";
+
     return connection.prepareStatement(sql);
   }
 
@@ -59,4 +91,5 @@ public class CustomPostgresEventTableFactory extends AbstractEventTableFactory
   {
     return "bytea";
   }
+
 }

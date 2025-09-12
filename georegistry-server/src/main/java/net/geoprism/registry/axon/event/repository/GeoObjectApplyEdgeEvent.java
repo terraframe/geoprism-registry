@@ -42,7 +42,8 @@ public class GeoObjectApplyEdgeEvent extends AbstractGeoObjectEvent implements G
 
   public GeoObjectApplyEdgeEvent(String sourceCode, String sourceType, String edgeType, String edgeTypeCode, String targetCode, String targetType, Date startDate, Date endDate, String dataSource, ImportStrategy strategy, Boolean validate)
   {
-    super();
+    super(UUID.randomUUID().toString());
+
     this.edgeUid = UUID.randomUUID().toString();
     this.sourceCode = sourceCode;
     this.sourceType = sourceType;
@@ -169,9 +170,9 @@ public class GeoObjectApplyEdgeEvent extends AbstractGeoObjectEvent implements G
 
   @Override
   @JsonIgnore
-  public EventType getEventType()
+  public EventPhase getEventPhase()
   {
-    return EventType.HIERARCHY;
+    return EventPhase.EDGE;
   }
 
   public ImportStrategy getStrategy()
@@ -199,7 +200,7 @@ public class GeoObjectApplyEdgeEvent extends AbstractGeoObjectEvent implements G
   }
 
   @Override
-  public String getAggregate()
+  public String getBaseObjectId()
   {
     return this.edgeUid;
   }

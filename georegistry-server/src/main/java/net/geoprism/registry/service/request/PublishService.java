@@ -64,6 +64,12 @@ public class PublishService
   }
 
   @Request(RequestType.SESSION)
+  public void delete(String sessionId, String uid)
+  {
+    this.service.getByUid(uid).ifPresent(this.service::delete);
+  }
+
+  @Request(RequestType.SESSION)
   public PublishDTO get(String sessionId, String uid)
   {
     return this.service.getByUidOrThrow(uid).toDTO();

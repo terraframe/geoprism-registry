@@ -17,8 +17,9 @@ import org.axonframework.serialization.Serializer;
 
 import net.geoprism.registry.Commit;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
+import net.geoprism.registry.axon.event.repository.RepositoryEvent;
 
-public abstract class CustomJdbcEventStorageEngineStatements
+public abstract class RegistryJdbcEventStorageEngineStatements
 {
   protected static <T> DomainEventMessage<T> asDomainEventMessage(EventMessage<T> event)
   {
@@ -54,7 +55,9 @@ public abstract class CustomJdbcEventStorageEngineStatements
    */
   public static PreparedStatement appendEvents(Connection connection, EventSchema schema, Class<?> dataType, List<? extends EventMessage<?>> events, Serializer serializer, TimestampWriter timestampWriter) throws SQLException
   {
-    final String sql = "INSERT INTO " + schema.domainEventTable() + " (" + schema.domainEventFields() + ", commit_id" + ") " + "VALUES (?,?,?,?,?,?,?,?,?,?)";
+    final String sql = "INSERT INTO " + schema.domainEventTable() + " (" + schema.domainEventFields() //
+        + ", " + RegistryEventStore.BASE_OBJECT + ", " + RegistryEventStore.PHASE + ", commit_id" + ") " //
+        + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
     PreparedStatement statement = connection.prepareStatement(sql);
     for (EventMessage<?> eventMessage : events)
     {
@@ -73,13 +76,24 @@ public abstract class CustomJdbcEventStorageEngineStatements
       statement.setObject(8, sPayload.getData());
       statement.setObject(9, sMetaData.getData());
 
-      if (payload instanceof RemoteEvent)
+      if (payload instanceof RepositoryEvent)
       {
-        statement.setString(10, ( (RemoteEvent) payload ).getCommitId());
+        statement.setString(10, ( (RepositoryEvent) payload ).getBaseObjectId());
+        statement.setString(11, ( (RepositoryEvent) payload ).getEventPhase().name());
       }
       else
       {
         statement.setNull(10, Types.VARCHAR);
+        statement.setNull(11, Types.VARCHAR);
+      }
+
+      if (payload instanceof RemoteEvent)
+      {
+        statement.setString(12, ( (RemoteEvent) payload ).getCommitId());
+      }
+      else
+      {
+        statement.setNull(12, Types.VARCHAR);
       }
 
       statement.addBatch();
@@ -119,7 +133,7 @@ public abstract class CustomJdbcEventStorageEngineStatements
       int batchSize) throws SQLException
   {
     StringBuilder sql = new StringBuilder();
-    sql.append("SELECT " + schema.trackedEventFields() + " FROM " + schema.domainEventTable());
+    sql.append("SELECT " + schema.trackedEventFields() + "," + RegistryEventStore.BASE_OBJECT + " FROM " + schema.domainEventTable());
     sql.append(" WHERE " + "commit_id" + " = ?");
     sql.append(" AND " + schema.globalIndexColumn() + " >= ?");
     sql.append(" AND " + schema.globalIndexColumn() + " < ?");
@@ -133,13 +147,13 @@ public abstract class CustomJdbcEventStorageEngineStatements
     return statement;
   }
 
-  public static PreparedStatement readEventDataForAggregate(Connection connection, EventSchema schema, //
-      String aggregateIdentifier, long firstIndex, //
+  public static PreparedStatement readEventDataForBaseObject(Connection connection, EventSchema schema, //
+      String baseObjectId, long firstIndex, //
       Long lastIndex) throws SQLException
   {
     StringBuilder sql = new StringBuilder();
-    sql.append("SELECT " + schema.trackedEventFields() + " FROM " + schema.domainEventTable());
-    sql.append(" WHERE " + schema.aggregateIdentifierColumn() + " = ?");
+    sql.append("SELECT " + schema.trackedEventFields() + "," + RegistryEventStore.BASE_OBJECT + " FROM " + schema.domainEventTable());
+    sql.append(" WHERE " + RegistryEventStore.BASE_OBJECT + " = ?");
     sql.append(" AND " + schema.globalIndexColumn() + " > ?");
 
     if (lastIndex != null)
@@ -150,7 +164,7 @@ public abstract class CustomJdbcEventStorageEngineStatements
     sql.append(" ORDER BY " + schema.globalIndexColumn() + " ASC");
 
     PreparedStatement statement = connection.prepareStatement(sql.toString());
-    statement.setString(1, aggregateIdentifier);
+    statement.setString(1, baseObjectId);
     statement.setLong(2, firstIndex);
 
     if (lastIndex != null)

@@ -5,7 +5,6 @@ import java.util.Date;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import net.geoprism.registry.axon.command.remote.RemoteGeoObjectCommand;
 import net.geoprism.registry.spring.DateDeserializer;
 import net.geoprism.registry.spring.DateSerializer;
 import net.geoprism.registry.view.PublishDTO;
@@ -117,12 +116,6 @@ public class RemoteGeoObjectEvent implements RemoteEvent
   public void setEndDate(Date endDate)
   {
     this.endDate = endDate;
-  }
-
-  @Override
-  public Object toCommand()
-  {
-    return new RemoteGeoObjectCommand(commitId, code, isNew, object, type, startDate, endDate);
   }
 
   @Override

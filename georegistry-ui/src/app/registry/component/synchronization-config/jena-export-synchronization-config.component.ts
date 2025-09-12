@@ -22,11 +22,8 @@ import { Subject, Subscription } from "rxjs";
 import { HttpErrorResponse } from "@angular/common/http";
 
 import { SynchronizationConfig } from "@registry/model/registry";
-import { SynchronizationConfigService } from "@registry/service";
-import { ListTypeService } from "@registry/service/list-type.service";
-import { ListTypeVersion } from "@registry/model/list-type";
 import { PublishService } from "@registry/service/publish.service";
-import { Publish } from "@registry/model/publish";
+import { PublishEvents } from "@registry/model/publish";
 
 @Component({
     selector: "jena-export-synchronization-config",
@@ -40,7 +37,7 @@ export class JenaExportSynchronizationConfigComponent implements OnInit, OnDestr
     @Output() onError = new EventEmitter<HttpErrorResponse>();
 
     subscription: Subscription = null;
-    publishes: Publish[] = null;
+    publishes: PublishEvents[] = null;
 
     constructor(private pService: PublishService) { }
 

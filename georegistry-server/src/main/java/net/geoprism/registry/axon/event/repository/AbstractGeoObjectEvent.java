@@ -1,11 +1,18 @@
 package net.geoprism.registry.axon.event.repository;
 
-public abstract class AbstractGeoObjectEvent implements GeoObjectEvent
+public abstract class AbstractGeoObjectEvent extends AbstractRepositoryEvent implements GeoObjectEvent
 {
   private Boolean refreshWorking;
 
   public AbstractGeoObjectEvent()
   {
+    this.refreshWorking = false;
+  }
+
+  public AbstractGeoObjectEvent(String eventId)
+  {
+    super(eventId);
+
     this.refreshWorking = false;
   }
 

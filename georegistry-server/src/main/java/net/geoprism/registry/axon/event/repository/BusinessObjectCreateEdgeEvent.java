@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.geoprism.registry.view.PublishDTO;
 
-public class BusinessObjectCreateEdgeEvent implements BusinessObjectEvent
+public class BusinessObjectCreateEdgeEvent extends AbstractRepositoryEvent implements BusinessObjectEvent
 {
   private String  sourceCode;
 
@@ -30,7 +30,8 @@ public class BusinessObjectCreateEdgeEvent implements BusinessObjectEvent
 
   public BusinessObjectCreateEdgeEvent(String sourceCode, String sourceType, String edgeType, String targetCode, String targetType, String dataSource, Boolean validate)
   {
-    super();
+    super(UUID.randomUUID().toString());
+
     this.edgeUid = UUID.randomUUID().toString();
     this.sourceCode = sourceCode;
     this.sourceType = sourceType;
@@ -100,12 +101,12 @@ public class BusinessObjectCreateEdgeEvent implements BusinessObjectEvent
   {
     this.targetCode = targetCode;
   }
-  
+
   public String getDataSource()
   {
     return dataSource;
   }
-  
+
   public void setDataSource(String dataSource)
   {
     this.dataSource = dataSource;
@@ -123,9 +124,9 @@ public class BusinessObjectCreateEdgeEvent implements BusinessObjectEvent
 
   @Override
   @JsonIgnore
-  public EventType getEventType()
+  public EventPhase getEventPhase()
   {
-    return EventType.HIERARCHY;
+    return EventPhase.EDGE;
   }
 
   @Override
@@ -135,7 +136,7 @@ public class BusinessObjectCreateEdgeEvent implements BusinessObjectEvent
   }
 
   @Override
-  public String getAggregate()
+  public String getBaseObjectId()
   {
     return this.edgeUid;
   }

@@ -1,0 +1,163 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<div class="modal-body">
+    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+    <ng-container *ngIf="type != null">
+
+        <div class="text-center">
+            <h2>
+                <localize key="type.publish.configuration.header"></localize>
+            </h2>
+            <hr>
+        </div>
+
+        <!-- <div class="col-md-12 order-md-1"> -->
+        <form #form="ngForm" class="modal-form" autocomplete="off">
+
+            <fieldset>
+
+
+                <div class="row-holder">
+                    <div class="label-holder">
+                        <label for="date">
+                            <localize key="list.type.valid.on"></localize>
+                        </label>
+                    </div>
+                    <div class="holder">
+                        <date-field [(value)]="type.date" [classNames]="'form-control'" label="" inputName="date"
+                            [allowFutureDates]="false" name="typeValidOn" [required]="true"
+                            [disable]="readonly || !isNew">
+                        </date-field>
+                    </div>
+                </div>
+
+                <div class="row-holder">
+                    <div class="label-holder">
+                        <label for="startDate">
+                            Start of period of validity
+                        </label>
+                    </div>
+                    <div class="holder">
+                        <date-field [(value)]="type.startDate" [classNames]="'form-control'" label=""
+                            inputName="starDate" [allowFutureDates]="true" name="starDate" [required]="true"
+                            [disable]="readonly || !isNew">
+                        </date-field>
+                    </div>
+                </div>
+
+                <div class="row-holder">
+                    <div class="label-holder">
+                        <label for="endDate">
+                            End of period of validity
+                        </label>
+                    </div>
+                    <div class="holder">
+                        <date-field [(value)]="type.endDate" [classNames]="'form-control'" label="" inputName="endDate"
+                            [allowFutureDates]="true" name="endDate" [required]="true" [disable]="readonly || !isNew">
+                        </date-field>
+                    </div>
+                </div>
+
+                <div class="row-holder">
+                    <div class="label-holder">
+                        <label>
+                            Geo Object Types
+                        </label>
+                    </div>
+                    <multi-select-field container="#select-root" [(value)]="type.typeCodes" [options]="types">
+                    </multi-select-field>
+                </div>
+
+                <div class="row-holder">
+                    <div class="label-holder">
+                        <label>
+                            Hierarchy Types
+                        </label>
+                    </div>
+                    <multi-select-field container="#select-root" [(value)]="type.hierarchyCodes" [options]="hierarchies">
+                    </multi-select-field>
+                </div>
+
+                <div class="row-holder">
+                    <div class="label-holder">
+                        <label>
+                            Directed Acyclic Graph Types
+                        </label>
+                    </div>
+                    <multi-select-field container="#select-root" [(value)]="type.dagCodes" [options]="dagTypes">
+                    </multi-select-field>
+                </div>
+
+                <div class="row-holder">
+                    <div class="label-holder">
+                        <label>
+                            Undirected Graph Types
+                        </label>
+                    </div>
+                    <multi-select-field container="#select-root" [(value)]="type.undirectedCodes" [options]="undirectedTypes">
+                    </multi-select-field>
+                </div>
+
+                <div class="row-holder">
+                    <div class="label-holder">
+                        <label>
+                            Business Types
+                        </label>
+                    </div>
+                    <multi-select-field container="#select-root" [(value)]="type.businessTypeCodes" [options]="businessTypes">
+                    </multi-select-field>
+                </div>
+
+                <div class="row-holder">
+                    <div class="label-holder">
+                        <label>
+                            Business Edge Types
+                        </label>
+                    </div>
+                    <multi-select-field container="#select-root" [(value)]="type.businessEdgeCodes" [options]="edgeTypes">
+                    </multi-select-field>
+                </div>
+
+
+                <div class="row-holder">
+                    <div class="label-holder"></div>
+                    <div>
+                        <div class="button-holder">
+                            <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
+                                <localize [key]="readonly ? 'io.back' : 'io.cancel'"></localize>
+                            </button>
+                            <button *ngIf="!readonly" type="submit" (click)="onSubmit()" class="btn btn-primary"
+                                role="button" [disabled]="form.invalid">
+                                <localize key="io.submit"></localize>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+
+            </fieldset>
+        </form>
+
+
+    </ng-container>
+</div>

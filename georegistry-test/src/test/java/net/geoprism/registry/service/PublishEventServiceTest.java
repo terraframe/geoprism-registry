@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
+import org.axonframework.eventhandling.GenericEventMessage;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.Assert;
 import org.junit.Test;
@@ -376,7 +377,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
         builder.setObject(object, false, false);
         builder.setAttributeUpdate(true);
 
-        gateway.sendAndWait(builder.build());
+        gateway.publish(builder.build().stream().map(GenericEventMessage::asEventMessage).toList());
 
         Assert.assertEquals(Long.valueOf(95), this.store.size());
 

@@ -6,6 +6,17 @@ import net.geoprism.registry.view.PublishDTO;
 
 public abstract class AbstractHierarchyEvent extends AbstractGeoObjectEvent implements GeoObjectEvent
 {
+
+  public AbstractHierarchyEvent()
+  {
+    super();
+  }
+
+  public AbstractHierarchyEvent(String eventId)
+  {
+    super(eventId);
+  }
+
   public abstract Date getStartDate();
 
   public abstract Date getEndDate();

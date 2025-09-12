@@ -8,9 +8,10 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
-import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.eventhandling.DomainEventMessage;
 import org.axonframework.eventhandling.GapAwareTrackingToken;
+import org.axonframework.eventhandling.GenericEventMessage;
+import org.axonframework.eventhandling.gateway.EventGateway;
 import org.axonframework.eventsourcing.eventstore.DomainEventStream;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -25,20 +26,20 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 
 import net.geoprism.registry.Commit;
 import net.geoprism.registry.Publish;
-import net.geoprism.registry.axon.command.remote.RemoteBusinessObjectAddGeoObjectCommand;
-import net.geoprism.registry.axon.command.remote.RemoteBusinessObjectCommand;
-import net.geoprism.registry.axon.command.remote.RemoteBusinessObjectCreateEdgeCommand;
-import net.geoprism.registry.axon.command.remote.RemoteCommand;
-import net.geoprism.registry.axon.command.remote.RemoteGeoObjectCommand;
-import net.geoprism.registry.axon.command.remote.RemoteGeoObjectCreateEdgeCommand;
-import net.geoprism.registry.axon.command.remote.RemoteGeoObjectSetParentCommand;
 import net.geoprism.registry.axon.config.RegistryEventStore;
+import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectAddGeoObjectEvent;
+import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectCreateEdgeEvent;
+import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectEvent;
+import net.geoprism.registry.axon.event.remote.RemoteEvent;
+import net.geoprism.registry.axon.event.remote.RemoteGeoObjectCreateEdgeEvent;
+import net.geoprism.registry.axon.event.remote.RemoteGeoObjectEvent;
+import net.geoprism.registry.axon.event.remote.RemoteGeoObjectSetParentEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectAddGeoObjectEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectCreateEdgeEvent;
-import net.geoprism.registry.axon.event.repository.EventType;
-import net.geoprism.registry.axon.event.repository.GeoObjectApplyEvent;
+import net.geoprism.registry.axon.event.repository.EventPhase;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEdgeEvent;
+import net.geoprism.registry.axon.event.repository.GeoObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectCreateParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectRemoveParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectUpdateParentEvent;
@@ -55,7 +56,7 @@ public class PublishEventService
   private RegistryEventStore             store;
 
   @Autowired
-  private CommandGateway                 gateway;
+  private EventGateway                   gateway;
 
   @Autowired
   private PublishBusinessServiceIF       publishService;
@@ -132,9 +133,9 @@ public class PublishEventService
 
       Set<String> sources = new TreeSet<String>();
 
-      processEventType(start, end, EventType.OBJECT, publish, commit, dto, sources);
+      processEventType(start, end, EventPhase.OBJECT, publish, commit, dto, sources);
 
-      processEventType(start, end, EventType.HIERARCHY, publish, commit, dto, sources);
+      processEventType(start, end, EventPhase.EDGE, publish, commit, dto, sources);
 
       // Add the sources as a dependency to the commit
 
@@ -152,7 +153,7 @@ public class PublishEventService
     throw new ProgrammingErrorException("Unable to publish events because no events exist");
   }
 
-  private RemoteCommand build(Publish publish, Commit commit, RepositoryEvent event, Set<String> sources)
+  private RemoteEvent build(Publish publish, Commit commit, RepositoryEvent event, Set<String> sources)
   {
     if (event instanceof GeoObjectApplyEvent)
     {
@@ -177,7 +178,7 @@ public class PublishEventService
         sources.add(dataSource);
       }
 
-      return new RemoteGeoObjectCommand(commit.getUid(), code, isNew, dto.toJSON().toString(), type, publish.getStartDate(), publish.getEndDate());
+      return new RemoteGeoObjectEvent(commit.getUid(), code, isNew, dto.toJSON().toString(), type, publish.getStartDate(), publish.getEndDate());
     }
     else if (event instanceof GeoObjectCreateParentEvent)
     {
@@ -194,7 +195,7 @@ public class PublishEventService
         sources.add(dataSource);
       }
 
-      return new RemoteGeoObjectSetParentCommand(commit.getUid(), code, type, edgeUid, edgeType, publish.getStartDate(), publish.getEndDate(), parentCode, parentType, dataSource);
+      return new RemoteGeoObjectSetParentEvent(commit.getUid(), code, type, edgeUid, edgeType, publish.getStartDate(), publish.getEndDate(), parentCode, parentType, dataSource);
     }
     else if (event instanceof GeoObjectUpdateParentEvent)
     {
@@ -211,7 +212,7 @@ public class PublishEventService
         sources.add(dataSource);
       }
 
-      return new RemoteGeoObjectSetParentCommand(commit.getUid(), code, type, edgeUid, edgeType, publish.getStartDate(), publish.getEndDate(), parentCode, parentType, dataSource);
+      return new RemoteGeoObjectSetParentEvent(commit.getUid(), code, type, edgeUid, edgeType, publish.getStartDate(), publish.getEndDate(), parentCode, parentType, dataSource);
     }
     else if (event instanceof GeoObjectRemoveParentEvent)
     {
@@ -220,7 +221,7 @@ public class PublishEventService
       String edgeUid = ( (GeoObjectRemoveParentEvent) event ).getEdgeUid();
       String edgeType = ( (GeoObjectRemoveParentEvent) event ).getEdgeType();
 
-      return new RemoteGeoObjectSetParentCommand(commit.getUid(), code, type, edgeUid, edgeType, publish.getStartDate(), publish.getEndDate(), null, null, null);
+      return new RemoteGeoObjectSetParentEvent(commit.getUid(), code, type, edgeUid, edgeType, publish.getStartDate(), publish.getEndDate(), null, null, null);
     }
     else if (event instanceof GeoObjectApplyEdgeEvent)
     {
@@ -240,7 +241,7 @@ public class PublishEventService
         sources.add(dataSource);
       }
 
-      return new RemoteGeoObjectCreateEdgeCommand(commit.getUid(), sourceCode, sourceType, edgeUid, edgeType, edgeTypeCode, startDate, endDate, targetCode, targetType, dataSource);
+      return new RemoteGeoObjectCreateEdgeEvent(commit.getUid(), sourceCode, sourceType, edgeUid, edgeType, edgeTypeCode, startDate, endDate, targetCode, targetType, dataSource);
     }
     else if (event instanceof BusinessObjectApplyEvent)
     {
@@ -259,7 +260,7 @@ public class PublishEventService
         sources.add(dataSource);
       }
 
-      return new RemoteBusinessObjectCommand(commit.getUid(), code, type, oJson);
+      return new RemoteBusinessObjectEvent(commit.getUid(), code, type, oJson);
     }
     else if (event instanceof BusinessObjectAddGeoObjectEvent)
     {
@@ -277,7 +278,7 @@ public class PublishEventService
         sources.add(dataSource);
       }
 
-      return new RemoteBusinessObjectAddGeoObjectCommand(commit.getUid(), code, type, edgeUid, edgeType, geoObjectType, geoObjectCode, direction, dataSource);
+      return new RemoteBusinessObjectAddGeoObjectEvent(commit.getUid(), code, type, edgeUid, edgeType, geoObjectType, geoObjectCode, direction, dataSource);
 
     }
     else if (event instanceof BusinessObjectCreateEdgeEvent)
@@ -295,41 +296,50 @@ public class PublishEventService
         sources.add(dataSource);
       }
 
-      return new RemoteBusinessObjectCreateEdgeCommand(commit.getUid(), sourceCode, sourceType, edgeUid, edgeType, targetCode, targetType, dataSource);
+      return new RemoteBusinessObjectCreateEdgeEvent(commit.getUid(), sourceCode, sourceType, edgeUid, edgeType, targetCode, targetType, dataSource);
     }
 
     throw new UnsupportedOperationException("Events of type [" + event.getClass().getName() + "] do not support being published");
   }
 
-  protected void processEventType(GapAwareTrackingToken start, GapAwareTrackingToken end, EventType eventType, Publish publish, Commit commit, PublishDTO dto, Set<String> source)
+  protected void processEventType(GapAwareTrackingToken start, GapAwareTrackingToken end, EventPhase phase, Publish publish, Commit commit, PublishDTO dto, Set<String> source)
   {
-    List<String> aggregateIds = this.store.getAggregateIds(start, end);
+    String lastObjectId = null;
+    List<String> baseObjectIds = null;
 
-    for (String aggregateId : aggregateIds)
+    this.store.getBaseObjectIds(start, end, phase, lastObjectId);
+
+    while ( ( baseObjectIds = this.store.getBaseObjectIds(start, end, phase, lastObjectId) ).size() > 0)
     {
-      InMemoryEventMerger merger = new InMemoryEventMerger();
-      DomainEventStream stream = this.store.readEvents(aggregateId, start, end);
-
-      while (stream.hasNext())
+      for (String baseObjectId : baseObjectIds)
       {
-        DomainEventMessage<?> message = stream.next();
+        InMemoryEventMerger merger = new InMemoryEventMerger();
+        DomainEventStream stream = this.store.readEvents(baseObjectId, start, end);
 
-        Object payload = message.getPayload();
-
-        if (payload instanceof RepositoryEvent)
+        while (stream.hasNext())
         {
-          RepositoryEvent event = (RepositoryEvent) payload;
+          DomainEventMessage<?> message = stream.next();
 
-          if (eventType.equals(event.getEventType()) && event.isValidFor(dto))
+          Object payload = message.getPayload();
+
+          if (payload instanceof RepositoryEvent)
           {
-            merger.add(event);
+            RepositoryEvent event = (RepositoryEvent) payload;
+
+            if (phase.equals(event.getEventPhase()) && event.isValidFor(dto))
+            {
+              merger.add(event);
+            }
           }
         }
-      }
 
-      merger.buildEvents().stream().map(event -> this.build(publish, commit, event, source)).forEach(command -> {
-        this.gateway.sendAndWait(command);
-      });
+        merger.buildEvents().stream() //
+            .map(event -> this.build(publish, commit, event, source)) //
+            .map(GenericEventMessage::asEventMessage) //
+            .forEach(this.gateway::publish);
+
+        lastObjectId = baseObjectId;
+      }
     }
 
   }

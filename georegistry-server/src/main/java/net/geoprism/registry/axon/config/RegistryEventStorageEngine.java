@@ -2,6 +2,7 @@ package net.geoprism.registry.axon.config;
 
 import static java.lang.String.format;
 import static org.axonframework.common.jdbc.JdbcUtils.executeQuery;
+import static org.axonframework.common.jdbc.JdbcUtils.executeUpdates;
 import static org.axonframework.common.jdbc.JdbcUtils.nextAndExtract;
 import static org.axonframework.eventsourcing.EventStreamUtils.upcastAndDeserializeDomainEvents;
 
@@ -77,25 +78,37 @@ public class RegistryEventStorageEngine extends JdbcEventStorageEngine
     }
   }
 
-  private final TransactionManager                        transactionManager;
+  private final TransactionManager                         transactionManager;
 
-  private final ReadEventDataForCommitStatementBuilder    readEventDataForCommit;
+  private final ReadEventDataForCommitStatementBuilder     readEventDataForCommit;
 
-  private final ReadEventDataForAggregateStatementBuilder readEventDataForAggregate;
+  private final ReadEventDataForBaseObjectStatementBuilder readEventDataForBaseObject;
 
-  private final IndexOfCommitStatementBuilder             lastSequenceNumberForCommit;
+  private final IndexOfCommitStatementBuilder              lastIndexForCommit;
 
-  private final IndexOfCommitStatementBuilder             firstSequenceNumberForCommit;
+  private final IndexOfCommitStatementBuilder              firstIndexForCommit;
 
   protected RegistryEventStorageEngine(Builder builder, TransactionManager transactionManager)
   {
     super(builder);
 
     this.transactionManager = transactionManager;
-    this.readEventDataForCommit = CustomJdbcEventStorageEngineStatements::readEventDataForCommit;
-    this.readEventDataForAggregate = CustomJdbcEventStorageEngineStatements::readEventDataForAggregate;
-    this.lastSequenceNumberForCommit = CustomJdbcEventStorageEngineStatements::lastIndexOf;
-    this.firstSequenceNumberForCommit = CustomJdbcEventStorageEngineStatements::firstIndexOf;
+    this.readEventDataForCommit = RegistryJdbcEventStorageEngineStatements::readEventDataForCommit;
+    this.readEventDataForBaseObject = RegistryJdbcEventStorageEngineStatements::readEventDataForBaseObject;
+    this.lastIndexForCommit = RegistryJdbcEventStorageEngineStatements::lastIndexOf;
+    this.firstIndexForCommit = RegistryJdbcEventStorageEngineStatements::firstIndexOf;
+  }
+
+  @SuppressWarnings("resource")
+  public void createSchema(RegistryPostgresEventTableFactory schemaFactory)
+  {
+    super.createSchema(schemaFactory);
+
+    executeUpdates(getConnection(), e -> {
+      throw new EventStoreException("Failed to create event index", e);
+    }, connection -> schemaFactory.createBaseObjectIndex(connection, schema()), //
+        connection -> schemaFactory.createCommitIndex(connection, schema()), //
+        connection -> schemaFactory.createLookupIndex(connection, schema()));
   }
 
   protected PreparedStatement readEventData(Connection connection, Commit commit, long firstIndex, Long lastIndex, int batchSize) throws SQLException
@@ -103,10 +116,10 @@ public class RegistryEventStorageEngine extends JdbcEventStorageEngine
     return readEventDataForCommit.build(connection, schema(), commit, firstIndex, batchSize);
   }
 
-  protected Stream<? extends IndexDomainEventData<?>> readEventData(Commit commit, long firstIndex, Long lastIndex, int batchSize)
+  protected Stream<? extends IndexEventData<?>> readEventData(Commit commit, long firstIndex, Long lastIndex, int batchSize)
   {
 
-    EventStreamSpliterator<? extends IndexDomainEventData<?>> spliterator = new EventStreamSpliterator<>( //
+    EventStreamSpliterator<? extends IndexEventData<?>> spliterator = new EventStreamSpliterator<>( //
         lastItem -> fetchDomainEvents(commit, //
             lastItem == null ? firstIndex : ( lastItem.getGlobalIndex() + 1 ), //
             lastIndex, //
@@ -118,20 +131,20 @@ public class RegistryEventStorageEngine extends JdbcEventStorageEngine
     return StreamSupport.stream(spliterator, false);
   }
 
-  public List<? extends IndexDomainEventData<?>> fetchDomainEvents(Commit commit, long firstIndex, Long lastIndex, int batchSize)
+  public List<? extends IndexEventData<?>> fetchDomainEvents(Commit commit, long firstIndex, Long lastIndex, int batchSize)
   {
     return transactionManager.fetchInTransaction( //
         () -> executeQuery( //
             getConnection(), //
             connection -> readEventData(connection, commit, firstIndex, lastIndex, batchSize), //
-            JdbcUtils.listResults(this::getIndexDomainEventData), //
+            JdbcUtils.listResults(result -> this.getIndexDomainEventData(result, false)), //
             e -> new EventStoreException(format("Failed to read events for commit [%s]", commit), e) //
         ));
   }
 
   public DomainEventStream readBatch(Commit commit, Long firstIndex, Long lastIndex, int batchSize)
   {
-    List<? extends IndexDomainEventData<?>> events = fetchDomainEvents(commit, firstIndex, lastIndex, batchSize);
+    List<? extends IndexEventData<?>> events = fetchDomainEvents(commit, firstIndex, lastIndex, batchSize);
 
     return upcastAndDeserializeDomainEvents(events.stream(), getEventSerializer(), upcasterChain);
   }
@@ -156,7 +169,7 @@ public class RegistryEventStorageEngine extends JdbcEventStorageEngine
 
   protected PreparedStatement lastIndexOf(Connection connection, Commit commit) throws SQLException
   {
-    return lastSequenceNumberForCommit.build(connection, schema(), commit);
+    return lastIndexForCommit.build(connection, schema(), commit);
   }
 
   public Optional<Long> firstIndexOf(@Nonnull Commit commit)
@@ -173,7 +186,7 @@ public class RegistryEventStorageEngine extends JdbcEventStorageEngine
 
   protected PreparedStatement firstIndexOf(Connection connection, Commit commit) throws SQLException
   {
-    return firstSequenceNumberForCommit.build(connection, schema(), commit);
+    return firstIndexForCommit.build(connection, schema(), commit);
   }
 
   /**
@@ -186,12 +199,12 @@ public class RegistryEventStorageEngine extends JdbcEventStorageEngine
    * @throws SQLException
    *           when an exception occurs while creating the event data.
    */
-  protected IndexDomainEventData<?> getIndexDomainEventData(ResultSet resultSet) throws SQLException
+  protected IndexEventData<?> getIndexDomainEventData(ResultSet resultSet, boolean useBaseObjectId) throws SQLException
   {
     return new IndexGenericDomainEventEntry<>( //
         resultSet.getLong(schema().globalIndexColumn()), //
-        resultSet.getString(schema().typeColumn()), //
-        resultSet.getString(schema().aggregateIdentifierColumn()), //
+        "NoAggregate", //
+        useBaseObjectId ? resultSet.getString(RegistryEventStore.BASE_OBJECT) : resultSet.getString(schema().aggregateIdentifierColumn()), //
         resultSet.getLong(schema().sequenceNumberColumn()), //
         resultSet.getString(schema().eventIdentifierColumn()), //
         readTimeStamp(resultSet, schema().timestampColumn()), //
@@ -201,16 +214,16 @@ public class RegistryEventStorageEngine extends JdbcEventStorageEngine
         readPayload(resultSet, schema().metaDataColumn()));
   }
 
-  protected PreparedStatement readEventData(Connection connection, String aggregateIdentifier, long firstIndex, Long lastIndex) throws SQLException
+  protected PreparedStatement readEventData(Connection connection, String baseObjectId, long firstIndex, Long lastIndex) throws SQLException
   {
-    return readEventDataForAggregate.build(connection, schema(), aggregateIdentifier, firstIndex, lastIndex);
+    return readEventDataForBaseObject.build(connection, schema(), baseObjectId, firstIndex, lastIndex);
   }
 
-  protected Stream<? extends IndexDomainEventData<?>> readEventData(String aggregateIdentifier, long firstIndex, Long lastIndex)
+  protected Stream<? extends IndexEventData<?>> readEventData(String baseObjectIdentifier, long firstIndex, Long lastIndex)
   {
 
-    EventStreamSpliterator<? extends IndexDomainEventData<?>> spliterator = new EventStreamSpliterator<>( //
-        lastItem -> fetchDomainEvents(aggregateIdentifier, //
+    EventStreamSpliterator<? extends IndexEventData<?>> spliterator = new EventStreamSpliterator<>( //
+        lastItem -> fetchEvents(baseObjectIdentifier, //
             lastItem == null ? firstIndex : ( lastItem.getGlobalIndex() + 1 ), //
             lastIndex),
         (list) -> true); //
@@ -218,20 +231,20 @@ public class RegistryEventStorageEngine extends JdbcEventStorageEngine
     return StreamSupport.stream(spliterator, false);
   }
 
-  public List<? extends IndexDomainEventData<?>> fetchDomainEvents(String aggregateIdentifier, long firstIndex, Long lastIndex)
+  public List<? extends IndexEventData<?>> fetchEvents(String baseObjectId, long firstIndex, Long lastIndex)
   {
     return transactionManager.fetchInTransaction( //
         () -> executeQuery( //
             getConnection(), //
-            connection -> readEventData(connection, aggregateIdentifier, firstIndex, lastIndex), //
-            JdbcUtils.listResults(this::getIndexDomainEventData), //
-            e -> new EventStoreException(format("Failed to read events for aggregateIdentifier [%s]", aggregateIdentifier), e) //
+            connection -> readEventData(connection, baseObjectId, firstIndex, lastIndex), //
+            JdbcUtils.listResults(result -> this.getIndexDomainEventData(result, true)), //
+            e -> new EventStoreException(format("Failed to read events for aggregateIdentifier [%s]", baseObjectId), e) //
         ));
   }
 
-  public DomainEventStream readEvents(String aggregateIdentifier, long firstIndex, Long lastIndex)
+  public DomainEventStream readEvents(String baseObjectId, long firstIndex, Long lastIndex)
   {
-    Stream<? extends DomainEventData<?>> input = readEventData(aggregateIdentifier, firstIndex, lastIndex);
+    Stream<? extends IndexEventData<?>> input = readEventData(baseObjectId, firstIndex, lastIndex);
     return upcastAndDeserializeDomainEvents(input, getEventSerializer(), upcasterChain);
   }
 

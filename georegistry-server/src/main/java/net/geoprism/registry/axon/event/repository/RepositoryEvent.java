@@ -4,10 +4,12 @@ import net.geoprism.registry.view.PublishDTO;
 
 public interface RepositoryEvent
 {
-  public EventType getEventType();
+  public String getEventId();
+
+  public EventPhase getEventPhase();
 
   public Boolean isValidFor(PublishDTO dto);
 
-  public String getAggregate();
+  public String getBaseObjectId();
 
 }
