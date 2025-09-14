@@ -138,5 +138,17 @@ export class PublishService {
             })));
     }
 
+    getCommits(uid: string): Promise<Commit[]> {
+        let params: HttpParams = new HttpParams();
+        params = params.append("publishId", uid);
+
+        this.eventService.start();
+
+        return firstValueFrom(this.http.get<Commit[]>(environment.apiUrl + "/api/commit/get-all", { params: params })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            })));
+    }
+
 
 }

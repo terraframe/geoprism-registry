@@ -29,6 +29,8 @@ import { LocalizationService } from "@shared/service";
 import { PublishEvents } from "@registry/model/publish";
 import { PublishService } from "@registry/service/publish.service";
 import { PublishEventsModalComponent } from "./publish-events-modal.component";
+import { BusinessTypeService } from "@registry/service/business-type.service";
+import { RegistryService } from "@registry/service";
 
 @Component({
     selector: "publish-manager",
@@ -51,6 +53,13 @@ export class PublishManagerComponent implements OnInit, OnDestroy {
      */
     bsModalRef: BsModalRef;
 
+    types: { label: string, value: string }[] = [];
+    hierarchies: { label: string, value: string }[] = [];
+    dagTypes: { label: string, value: string }[] = [];
+    undirectedTypes: { label: string, value: string }[] = [];
+    businessTypes: { label: string, value: string }[] = [];
+    edgeTypes: { label: string, value: string }[] = [];
+
 
     // eslint-disable-next-line no-useless-constructor
     constructor(
@@ -58,7 +67,9 @@ export class PublishManagerComponent implements OnInit, OnDestroy {
         private modalService: BsModalService,
         private route: ActivatedRoute,
         private router: Router,
-        private localizeService: LocalizationService
+        private localizeService: LocalizationService,
+        private businessService: BusinessTypeService,
+        private registryService: RegistryService,
     ) { }
 
     ngOnInit(): void {
@@ -85,6 +96,25 @@ export class PublishManagerComponent implements OnInit, OnDestroy {
                 this.error(err);
             });
         }
+
+        this.businessService.getAll().then(response => {
+            this.businessTypes = response.map(b => { return { label: b.displayLabel.localizedValue, value: b.code } });
+        })
+
+        this.businessService.getEdges().then(response => {
+            this.edgeTypes = response.map(b => { return { label: b.label.localizedValue, value: b.code } });
+        })
+
+        this.registryService.init(false, true).then(response => {
+            this.hierarchies = response.hierarchies.map(b => { return { label: b.label.localizedValue, value: b.code } });
+            this.types = response.types.map(b => { return { label: b.label.localizedValue, value: b.code } });
+            this.dagTypes = response.graphTypes
+                .filter(b => b.typeCode === 'DirectedAcyclicGraphType')
+                .map(b => { return { label: b.label.localizedValue, value: b.code } });
+            this.undirectedTypes = response.graphTypes
+                .filter(b => b.typeCode === 'UndirectedGraphType')
+                .map(b => { return { label: b.label.localizedValue, value: b.code } });
+        });
     }
 
     ngAfterViewInit() {
@@ -96,22 +126,29 @@ export class PublishManagerComponent implements OnInit, OnDestroy {
         }
     }
 
+
     onCreate(): void {
         this.bsModalRef = this.modalService.show(PublishEventsModalComponent, {
             animated: true,
             backdrop: true,
             ignoreBackdropClick: true
         });
-        this.bsModalRef.content.init((publish) => {
-            this.publishes.push(publish);
+        this.bsModalRef.content.init(this.types,
+            this.hierarchies,
+            this.dagTypes,
+            this.undirectedTypes,
+            this.businessTypes,
+            this.edgeTypes,
+            (publish) => {
+                this.publishes.push(publish);
 
-            this.router.navigate([], {
-                relativeTo: this.route,
-                queryParams: { uid: publish.uid },
-                queryParamsHandling: "merge",
-                replaceUrl: true
-            });
-        }, null);
+                this.router.navigate([], {
+                    relativeTo: this.route,
+                    queryParams: { uid: publish.uid },
+                    queryParamsHandling: "merge",
+                    replaceUrl: true
+                });
+            }, null);
     }
 
     onDelete(publish: PublishEvents): void {
@@ -137,7 +174,7 @@ export class PublishManagerComponent implements OnInit, OnDestroy {
 
                     this.router.navigate([], {
                         relativeTo: this.route,
-                        queryParams: { oid: null },
+                        queryParams: { uid: null },
                         queryParamsHandling: "merge",
                         replaceUrl: true
                     });

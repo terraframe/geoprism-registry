@@ -6,6 +6,8 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.geoprism.graph.GraphTypeSnapshot;
+import net.geoprism.registry.DirectedAcyclicGraphType;
+import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.view.PublishDTO;
 
@@ -188,15 +190,30 @@ public class GeoObjectApplyEdgeEvent extends AbstractGeoObjectEvent implements G
   @Override
   public Boolean isValidFor(PublishDTO dto)
   {
-    Date date = dto.getDate();
+    String edgeType = this.getEdgeType();
 
-    if ( ( this.getEdgeType().equals(GraphTypeSnapshot.DIRECTED_ACYCLIC_GRAPH_TYPE) && dto.getDagTypes().anyMatch(this.getEdgeTypeCode()::equals) ) //
-        || ( this.getEdgeType().equals(GraphTypeSnapshot.UNDIRECTED_GRAPH_TYPE) && dto.getUndirectedTypes().anyMatch(this.getEdgeTypeCode()::equals) ))
+    if ( ( edgeType.equals(GraphTypeSnapshot.DIRECTED_ACYCLIC_GRAPH_TYPE) || edgeType.equals(DirectedAcyclicGraphType.class.getName()) ) && !dto.getDagTypes().anyMatch(this.getEdgeTypeCode()::equals))
     {
-      return ( date.after(this.getStartDate()) && date.before(this.getEndDate()) ) || date.equals(this.getStartDate()) || date.equals(this.getEndDate());
+      return false;
     }
 
-    return false;
+    if ( ( edgeType.equals(GraphTypeSnapshot.UNDIRECTED_GRAPH_TYPE) || edgeType.equals(UndirectedGraphType.class.getName()) ) && !dto.getUndirectedTypes().anyMatch(this.getEdgeTypeCode()::equals))
+    {
+      return false;
+    }
+
+    if (!dto.getGeoObjectTypes().anyMatch(this.getSourceType()::equals))
+    {
+      return false;
+    }
+
+    if (!dto.getGeoObjectTypes().anyMatch(this.getTargetType()::equals))
+    {
+      return false;
+    }
+
+    Date date = dto.getDate();
+    return ( date.after(this.getStartDate()) && date.before(this.getEndDate()) ) || date.equals(this.getStartDate()) || date.equals(this.getEndDate());
   }
 
   @Override

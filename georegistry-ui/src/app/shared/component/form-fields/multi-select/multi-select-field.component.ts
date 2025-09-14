@@ -33,7 +33,7 @@ export class MultiSelectFieldComponent {
 
     @Input() noValueText: string = "Select options";
 
-    @Input() readonly: boolean = false;
+    @Input() disabled: boolean = false;
 
     @Input() options: { value: string, label: string }[] = [];
 
@@ -45,8 +45,14 @@ export class MultiSelectFieldComponent {
 
         let labels: string[] = [];
 
-        for (let i = 0; i < this.value.length; ++i) {
-            labels.push(this.options.find(t => t.value === this.value[i]).label);
+        if (this.options != null) {
+            for (let i = 0; i < this.value.length; ++i) {
+                const option = this.options.find(t => t.value === this.value[i]);
+
+                if (option != null) {
+                    labels.push(option.label);
+                }
+            }
         }
 
         if (showAll) {

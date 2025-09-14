@@ -73,7 +73,22 @@ export class PublishEventsModalComponent implements OnInit, OnDestroy {
         this.onChange.unsubscribe();
     }
 
-    init(observerOrNext?: Partial<Observer<PublishEvents>> | ((value: PublishEvents) => void), type?: PublishEvents): void {
+    init(types: { label: string, value: string }[],
+        hierarchies: { label: string, value: string }[],
+        dagTypes: { label: string, value: string }[],
+        undirectedTypes: { label: string, value: string }[],
+        businessTypes: { label: string, value: string }[],
+        edgeTypes: { label: string, value: string }[],
+        observerOrNext?: Partial<Observer<PublishEvents>> | ((value: PublishEvents) => void)): void {
+
+        this.types = types;
+        this.hierarchies = hierarchies;
+        this.dagTypes = dagTypes;
+        this.undirectedTypes = undirectedTypes;
+        this.businessTypes = businessTypes;
+        this.edgeTypes = edgeTypes;
+
+
         this.onChange = new Subject();
 
         if (observerOrNext != null) {

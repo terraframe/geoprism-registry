@@ -181,6 +181,7 @@ import { PublishService } from "./service/publish.service";
 import { JenaExportSynchronizationConfigComponent } from "./component/synchronization-config/jena-export-synchronization-config.component";
 import { PublishManagerComponent } from "./component/publish-events/publish-manager.component";
 import { PublishEventsModalComponent } from "./component/publish-events/publish-events-modal.component";
+import { PublishEventsComponent } from "./component/publish-events/publish-events.component";
 
 @NgModule({
     imports: [
@@ -327,7 +328,8 @@ import { PublishEventsModalComponent } from "./component/publish-events/publish-
         EdgeImporterComponent,
         // Publish
         PublishManagerComponent,
-        PublishEventsModalComponent
+        PublishEventsModalComponent,
+        PublishEventsComponent
     ],
     providers: [
         MapService,

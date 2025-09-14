@@ -123,6 +123,7 @@ public class PublishEventService
 
   protected Commit publish(Publish publish, GapAwareTrackingToken start, Integer versionNumber)
   {
+    long total = 0;
     PublishDTO dto = publish.toDTO();
 
     GapAwareTrackingToken end = (GapAwareTrackingToken) this.store.createHeadToken();
@@ -133,12 +134,16 @@ public class PublishEventService
 
       Set<String> sources = new TreeSet<String>();
 
-      processEventType(start, end, EventPhase.OBJECT, publish, commit, dto, sources);
+      total += processEventType(start, end, EventPhase.OBJECT, publish, commit, dto, sources);
 
-      processEventType(start, end, EventPhase.EDGE, publish, commit, dto, sources);
+      total += processEventType(start, end, EventPhase.EDGE, publish, commit, dto, sources);
+
+      if (total == 0)
+      {
+        throw new ProgrammingErrorException("No events to publish");
+      }
 
       // Add the sources as a dependency to the commit
-
       sources.stream() //
           .map(code -> this.sourceService.getByCode(code)) //
           .filter(Optional::isPresent) //
@@ -302,12 +307,12 @@ public class PublishEventService
     throw new UnsupportedOperationException("Events of type [" + event.getClass().getName() + "] do not support being published");
   }
 
-  protected void processEventType(GapAwareTrackingToken start, GapAwareTrackingToken end, EventPhase phase, Publish publish, Commit commit, PublishDTO dto, Set<String> source)
+  protected long processEventType(GapAwareTrackingToken start, GapAwareTrackingToken end, EventPhase phase, Publish publish, Commit commit, PublishDTO dto, Set<String> source)
   {
+    long total = 0;
+
     String lastObjectId = null;
     List<String> baseObjectIds = null;
-
-    this.store.getBaseObjectIds(start, end, phase, lastObjectId);
 
     while ( ( baseObjectIds = this.store.getBaseObjectIds(start, end, phase, lastObjectId) ).size() > 0)
     {
@@ -329,6 +334,8 @@ public class PublishEventService
             if (phase.equals(event.getEventPhase()) && event.isValidFor(dto))
             {
               merger.add(event);
+
+              total++;
             }
           }
         }
@@ -342,6 +349,7 @@ public class PublishEventService
       }
     }
 
+    return total;
   }
 
 }

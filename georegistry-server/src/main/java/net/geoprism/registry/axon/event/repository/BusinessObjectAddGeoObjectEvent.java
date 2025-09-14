@@ -136,6 +136,16 @@ public class BusinessObjectAddGeoObjectEvent extends AbstractRepositoryEvent imp
   @Override
   public Boolean isValidFor(PublishDTO dto)
   {
+    if (!dto.getGeoObjectTypes().anyMatch(this.getGeoObjectType()::equals))
+    {
+      return false;
+    }
+
+    if (!dto.getBusinessTypes().anyMatch(this.getType()::equals))
+    {
+      return false;
+    }
+
     return dto.getBusinessEdgeTypes().anyMatch(this.getEdgeType()::equals);
   }
 

@@ -24,8 +24,6 @@
 
     <div id="app-container" class="container-fluid">
 
-        <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
-
         <div class="row">
 
             <nav class="col-md-3 list-sidebar">
@@ -42,8 +40,7 @@
                                 {{type.uid}}
                             </a>
 
-                            <span
-                                style="position:absolute;right:10px;top:50%;transform:translateY(-50%);">
+                            <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);">
 
                                 <a class="fa fa-trash-o ico-remove" (click)="onDelete(type)"
                                     [title]="'button.delete.helptext' | localize"></a>
@@ -55,6 +52,13 @@
             </nav>
             <div class="col-md-9 list-type-content">
                 <div id="overflow-div">
+                    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+                    <publish-events *ngIf="current != null" [type]="current" [types]="types" [hierarchies]="hierarchies"
+                        [dagTypes]="dagTypes" [undirectedTypes]="undirectedTypes" [businessTypes]="businessTypes"
+                        [edgeTypes]="edgeTypes"
+                        (error)="error($event)">
+                    </publish-events>
                 </div>
             </div>
 

@@ -276,7 +276,7 @@ public class JenaSynchronizationService
       }
     }
 
-    if (!commit.getVersionNumber().equals(Integer.valueOf(0)))
+    if (!commit.getVersionNumber().equals(Integer.valueOf(1)))
     {
       this.service.update(statements, config);
     }
@@ -296,7 +296,7 @@ public class JenaSynchronizationService
     List<String> statements = new LinkedList<>();
     statements.add("DELETE WHERE { GRAPH <" + GRAPH_NAME + "> { <" + subjectUri + "> <" + edgeTypeUri + "> ?obj}}");
 
-    if (!commit.getVersionNumber().equals(Integer.valueOf(0)))
+    if (!commit.getVersionNumber().equals(Integer.valueOf(1)))
     {
       this.service.update(statements, config);
     }
@@ -389,7 +389,7 @@ public class JenaSynchronizationService
           }
         });
 
-    if (!commit.getVersionNumber().equals(Integer.valueOf(0)))
+    if (!commit.getVersionNumber().equals(Integer.valueOf(1)))
     {
       this.service.update(statements, config);
     }

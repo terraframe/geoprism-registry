@@ -1,0 +1,196 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<div class="modal-body">
+    <ng-container *ngIf="type != null">
+
+        <div class="text-center">
+            <h2>
+                <localize key="type.publish.configuration.header"></localize>
+            </h2>
+            <hr>
+        </div>
+
+        <fieldset>
+
+
+            <div class="row-holder">
+                <div class="label-holder">
+                    <label for="date">
+                        <localize key="list.type.valid.on"></localize>
+                    </label>
+                </div>
+                <div class="holder">
+                    <date-field [(value)]="type.date" [classNames]="'form-control'" label="" inputName="date"
+                        [allowFutureDates]="false" name="typeValidOn" [required]="true" [disable]="true">
+                    </date-field>
+                </div>
+            </div>
+
+            <div class="row-holder">
+                <div class="label-holder">
+                    <label for="startDate">
+                        Start of period of validity
+                    </label>
+                </div>
+                <div class="holder">
+                    <date-field [(value)]="type.startDate" [classNames]="'form-control'" label="" inputName="starDate"
+                        [allowFutureDates]="true" name="starDate" [required]="true" [disable]="true">
+                    </date-field>
+                </div>
+            </div>
+
+            <div class="row-holder">
+                <div class="label-holder">
+                    <label for="endDate">
+                        End of period of validity
+                    </label>
+                </div>
+                <div class="holder">
+                    <date-field [(value)]="type.endDate" [classNames]="'form-control'" label="" inputName="endDate"
+                        [allowFutureDates]="true" name="endDate" [required]="true" [disable]="true">
+                    </date-field>
+                </div>
+            </div>
+
+            <div class="row-holder" *ngIf="type.typeCodes != null && type.typeCodes.length > 0">
+                <div class="label-holder">
+                    <label>
+                        Geo Object Types
+                    </label>
+                </div>
+                <multi-select-field container="#select-root" [(value)]="type.typeCodes" [options]="types"
+                    [disabled]="true">
+                </multi-select-field>
+            </div>
+
+            <div class="row-holder" *ngIf="type.hierarchyCodes != null && type.hierarchyCodes.length > 0">
+                <div class="label-holder">
+                    <label>
+                        Hierarchy Types
+                    </label>
+                </div>
+                <multi-select-field container="#select-root" [(value)]="type.hierarchyCodes" [options]="hierarchies"
+                    [disabled]="true">
+                </multi-select-field>
+            </div>
+
+            <div class="row-holder" *ngIf="type.dagCodes != null && type.dagCodes.length > 0">
+                <div class="label-holder">
+                    <label>
+                        Directed Acyclic Graph Types
+                    </label>
+                </div>
+                <multi-select-field container="#select-root" [(value)]="type.dagCodes" [options]="dagTypes"
+                    [disabled]="true">
+                </multi-select-field>
+            </div>
+
+            <div class="row-holder" *ngIf="type.undirectedCodes != null && type.undirectedCodes.length > 0">
+                <div class="label-holder">
+                    <label>
+                        Undirected Graph Types
+                    </label>
+                </div>
+                <multi-select-field container="#select-root" [(value)]="type.undirectedCodes"
+                    [options]="undirectedTypes" [disabled]="true">
+                </multi-select-field>
+            </div>
+
+            <div class="row-holder" *ngIf="type.businessTypeCodes != null && type.businessTypeCodes.length > 0">
+                <div class="label-holder">
+                    <label>
+                        Business Types
+                    </label>
+                </div>
+                <multi-select-field container="#select-root" [(value)]="type.businessTypeCodes"
+                    [options]="businessTypes" [disabled]="true">
+                </multi-select-field>
+            </div>
+
+            <div class="row-holder" *ngIf="type.businessEdgeCodes != null && type.businessEdgeCodes.length > 0">
+                <div class="label-holder">
+                    <label>
+                        Business Edge Types
+                    </label>
+                </div>
+                <multi-select-field container="#select-root" [(value)]="type.businessEdgeCodes" [options]="edgeTypes"
+                    [disabled]="true">
+                </multi-select-field>
+            </div>
+
+            <div class="row-holder" *ngIf="type.businessEdgeCodes != null && type.businessEdgeCodes.length > 0">
+                <div class="label-holder">
+                    <label>
+                        Business Edge Types
+                    </label>
+                </div>
+                <multi-select-field container="#select-root" [(value)]="type.businessEdgeCodes" [options]="edgeTypes"
+                    [disabled]="true">
+                </multi-select-field>
+            </div>
+
+            <div class="row-holder">
+                <div class="label-holder">
+                    <label for="endDate">
+                        Commits
+                    </label>
+                </div>
+                <div class="holder">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th style="vertical-align: middle;">Version</th>
+                                <th style="vertical-align: middle;">UID</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let commit of commits">
+                                <td style="vertical-align: middle;">
+                                    {{commit.versionNumber}}
+                                </td>
+                                <td style="text-align: middle;">
+                                    {{commit.uid}}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+            <div class="row-holder">
+                <div class="label-holder"></div>
+                <div>
+                    <div class="button-holder">
+                        <button (click)="onCreateNewCommit()" class="btn btn-primary"
+                            role="button">
+                            Publish updates
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </fieldset>
+
+
+    </ng-container>
+</div>

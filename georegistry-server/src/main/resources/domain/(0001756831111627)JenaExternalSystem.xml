@@ -30,6 +30,21 @@
           <mdBusinessPermission type="net.geoprism.registry.graph.JenaExternalSystem">
             <operation name="ALL" />
           </mdBusinessPermission>                  
+          <mdBusinessPermission type="net.geoprism.registry.Publish">
+            <operation name="ALL" />
+          </mdBusinessPermission>                  
+          <mdBusinessPermission type="net.geoprism.registry.Commit">
+            <operation name="ALL" />
+          </mdBusinessPermission>                  
+          <mdRelationshipPermission type="net.geoprism.registry.CommitHasSnapshot">
+            <operation name="ALL" />
+          </mdRelationshipPermission>          
+          <mdRelationshipPermission type="net.geoprism.registry.CommitHasDataSource">
+            <operation name="ALL" />
+          </mdRelationshipPermission>          
+          <mdRelationshipPermission type="net.geoprism.registry.CommitHasDependency">
+            <operation name="ALL" />
+          </mdRelationshipPermission>          
           <mdRelationshipPermission type="net.geoprism.registry.SynchronizationHasProcessedCommit">
             <operation name="ALL" />
           </mdRelationshipPermission>          
@@ -40,6 +55,21 @@
           <mdBusinessPermission type="net.geoprism.registry.graph.JenaExternalSystem">
             <operation name="ALL" />
           </mdBusinessPermission>                  
+          <mdBusinessPermission type="net.geoprism.registry.Publish">
+            <operation name="ALL" />
+          </mdBusinessPermission>                  
+          <mdBusinessPermission type="net.geoprism.registry.Commit">
+            <operation name="ALL" />
+          </mdBusinessPermission>                            
+          <mdRelationshipPermission type="net.geoprism.registry.CommitHasSnapshot">
+            <operation name="ALL" />
+          </mdRelationshipPermission>                    
+          <mdRelationshipPermission type="net.geoprism.registry.CommitHasDataSource">
+            <operation name="ALL" />
+          </mdRelationshipPermission>                    
+          <mdRelationshipPermission type="net.geoprism.registry.CommitHasDependency">
+            <operation name="ALL" />
+          </mdRelationshipPermission>                    
           <mdRelationshipPermission type="net.geoprism.registry.SynchronizationHasProcessedCommit">
             <operation name="ALL" />
           </mdRelationshipPermission>          
@@ -51,6 +81,26 @@
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>                  
+          <mdBusinessPermission type="net.geoprism.registry.Publish">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>                  
+          <mdBusinessPermission type="net.geoprism.registry.Commit">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>              
+          <mdRelationshipPermission type="net.geoprism.registry.CommitHasSnapshot">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>                                  
+          <mdRelationshipPermission type="net.geoprism.registry.CommitHasDataSource">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>                    
+          <mdRelationshipPermission type="net.geoprism.registry.CommitHasDependency">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>                    
           <mdRelationshipPermission type="net.geoprism.registry.SynchronizationHasProcessedCommit">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
@@ -63,6 +113,26 @@
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>                  
+          <mdBusinessPermission type="net.geoprism.registry.Publish">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>                  
+          <mdBusinessPermission type="net.geoprism.registry.Commit">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>                                      
+          <mdRelationshipPermission type="net.geoprism.registry.CommitHasSnapshot">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>                                            
+          <mdRelationshipPermission type="net.geoprism.registry.CommitHasDataSource">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>                              
+          <mdRelationshipPermission type="net.geoprism.registry.CommitHasDependency">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>                    
           <mdRelationshipPermission type="net.geoprism.registry.SynchronizationHasProcessedCommit">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
