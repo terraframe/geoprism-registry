@@ -32,7 +32,6 @@ import org.springframework.stereotype.Service;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.Commit;
@@ -58,10 +57,6 @@ public class JenaSynchronizationService
   public static final String                                 GEO                = "http://www.opengis.net/ont/geosparql#";
 
   public static final String                                 SF                 = "http://www.opengis.net/ont/sf#";
-
-  public static final String                                 GRAPH_NAMESPACE    = "http://terraframe.com";
-
-  public static final String                                 GRAPH_NAME         = GRAPH_NAMESPACE + "/g1";
 
   public static final Boolean                                INCLUDE_GEOMETRIES = true;
 
@@ -98,12 +93,16 @@ public class JenaSynchronizationService
         history.apply();
       }
 
-      execute(synchronization, configuration, commit, history);
+      AtomicLong workProgress = new AtomicLong(0);
+      AtomicLong exportedRecords = history != null ? new AtomicLong(history.getExportedRecords()) : new AtomicLong(0);
+
+      execute(synchronization, configuration, commit, history, workProgress, exportedRecords);
 
       if (history != null)
       {
         history.appLock();
         history.setWorkProgress(history.getWorkTotal());
+        history.setExportedRecords(history.getWorkTotal());
         history.clearStage();
         history.addStage(ExportStage.COMPLETE);
         history.apply();
@@ -111,7 +110,7 @@ public class JenaSynchronizationService
     });
   }
 
-  protected void execute(SynchronizationConfig synchronization, JenaExportConfig config, Commit commit, ExportHistory history)
+  protected void execute(SynchronizationConfig synchronization, JenaExportConfig config, Commit commit, ExportHistory history, AtomicLong workProgress, AtomicLong exportedRecords)
   {
     if (!this.exportService.hasBeenPublished(synchronization, commit))
     {
@@ -119,21 +118,18 @@ public class JenaSynchronizationService
 
       this.commitService.getDependencies(commit) //
           .stream() //
-          .forEach(dependency -> this.execute(synchronization, config, dependency, history));
+          .forEach(dependency -> this.execute(synchronization, config, dependency, history, workProgress, exportedRecords));
 
       if (history != null)
       {
         long count = this.commitService.getEventCount(commit) + 1;
 
         history.appLock();
-        history.setWorkTotal(count);
-        history.setWorkProgress(0l);
+        history.setWorkTotal(history.getWorkTotal() + count);
         history.apply();
       }
 
       AtomicReference<Model> model = new AtomicReference<Model>(ModelFactory.createDefaultModel());
-      AtomicLong workProgress = new AtomicLong(0);
-      AtomicLong exportedRecords = history != null ? new AtomicLong(history.getExportedRecords()) : new AtomicLong(0);
 
       this.commitService.getRemoteEvents(commit).forEach(event -> {
         if (event instanceof RemoteGeoObjectEvent)
@@ -167,7 +163,7 @@ public class JenaSynchronizationService
         if ( ( cExportRecords % 1000 == 0 ))
         {
           // Push the model chunk to Jena
-          this.service.load(GRAPH_NAME, model.get(), config);
+          this.service.load(model.get(), config);
 
           // Reset to an empty model
           model.set(ModelFactory.createDefaultModel());
@@ -185,7 +181,7 @@ public class JenaSynchronizationService
       });
 
       // Push the model chunk to Jena
-      this.service.load(GRAPH_NAME, model.get(), config);
+      this.service.load(model.get(), config);
 
       // Mark the commit as exported
       this.exportService.create(synchronization, commit);
@@ -219,10 +215,10 @@ public class JenaSynchronizationService
     Map<String, AttributeType> attributes = dto.getType().getAttributeMap();
 
     attributes.forEach((attributeName, attribute) -> {
-      String subjectUri = buildObjectUri(code, typeCode);
-      String attributeUri = buildAttributeUri(typeCode, attribute);
+      String subjectUri = buildObjectUri(config, code, typeCode);
+      String attributeUri = buildAttributeUri(config, typeCode, attribute);
 
-      statements.add("DELETE WHERE { GRAPH <" + GRAPH_NAME + "> { <" + subjectUri + "> <" + attributeUri + "> ?obj}}");
+      statements.add("DELETE WHERE { GRAPH <" + config.getGraph() + "> { <" + subjectUri + "> <" + attributeUri + "> ?obj}}");
 
       String literal = null;
 
@@ -264,28 +260,28 @@ public class JenaSynchronizationService
       if (geom != null)
       {
         this.addResourceToModel(model, //
-            buildObjectUri(code, typeCode), //
+            buildObjectUri(config, code, typeCode), //
             buildHasGeometryPredicate(), //
-            buildObjectUri(code + "Geometry", typeCode));
+            buildObjectUri(config, code + "Geometry", typeCode));
 
         this.addResourceToModel(model, //
-            () -> model.createResource(buildObjectUri(code + "Geometry", typeCode)), //
+            () -> model.createResource(buildObjectUri(config, code + "Geometry", typeCode)), //
             () -> org.apache.jena.vocabulary.RDF.type, //
             () -> model.createResource(GEO + "Geometry"));
 
         this.addResourceToModel(model, //
-            () -> model.createResource(buildObjectUri(code + "Geometry", typeCode)), //
+            () -> model.createResource(buildObjectUri(config, code + "Geometry", typeCode)), //
             () -> org.apache.jena.vocabulary.RDF.type, //
             () -> model.createResource(SF + geom.getClass().getSimpleName()));
 
-        final String geomValue = buildObjectUri(code + "Geometry", typeCode);
+        final String geomValue = buildObjectUri(config, code + "Geometry", typeCode);
 
         this.addLiteralToModel(model, //
             () -> model.createResource(geomValue), //
             () -> model.createProperty(GEO + "asWKT"), //
             () -> model.createTypedLiteral("<" + getSrs(geom) + "> " + geom.toText(), new org.apache.jena.datatypes.BaseDatatype(GEO + "wktLiteral")));
 
-        statements.add("DELETE WHERE { GRAPH <" + GRAPH_NAME + "> { <" + geomValue + "> <" + GEO + "asWKT" + "> ?obj}}");
+        statements.add("DELETE WHERE { GRAPH <" + config.getGraph() + "> { <" + geomValue + "> <" + GEO + "asWKT" + "> ?obj}}");
 
       }
     }
@@ -302,11 +298,11 @@ public class JenaSynchronizationService
   {
     logger.trace("Jena Projection - Handling remote set parent");
 
-    String subjectUri = buildObjectUri(event.getCode(), event.getType());
-    String edgeTypeUri = GRAPH_NAMESPACE + "/" + event.getEdgeType();
+    String subjectUri = buildObjectUri(config, event.getCode(), event.getType());
+    String edgeTypeUri = config.getNamespace() + "/" + event.getEdgeType();
 
     List<String> statements = new LinkedList<>();
-    statements.add("DELETE WHERE { GRAPH <" + GRAPH_NAME + "> { <" + subjectUri + "> <" + edgeTypeUri + "> ?obj}}");
+    statements.add("DELETE WHERE { GRAPH <" + config.getGraph() + "> { <" + subjectUri + "> <" + edgeTypeUri + "> ?obj}}");
 
     if (!commit.getVersionNumber().equals(Integer.valueOf(1)))
     {
@@ -318,7 +314,7 @@ public class JenaSynchronizationService
       this.addResourceToModel(model, //
           subjectUri, //
           edgeTypeUri, //
-          buildObjectUri(event.getParentCode(), event.getParentType()));
+          buildObjectUri(config, event.getParentCode(), event.getParentType()));
 
       // this.service.load(GRAPH_NAME, model, config);
     }
@@ -329,9 +325,9 @@ public class JenaSynchronizationService
     logger.trace("Jena Projection - Handling remote create edge");
 
     this.addResourceToModel(model, //
-        buildObjectUri(event.getSourceCode(), event.getSourceType()), //
-        GRAPH_NAMESPACE + "/" + event.getEdgeType(), //
-        buildObjectUri(event.getTargetCode(), event.getTargetType()));
+        buildObjectUri(config, event.getSourceCode(), event.getSourceType()), //
+        config.getNamespace() + "/" + event.getEdgeType(), //
+        buildObjectUri(config, event.getTargetCode(), event.getTargetType()));
 
     // this.service.load(GRAPH_NAME, model, config);
   }
@@ -358,10 +354,10 @@ public class JenaSynchronizationService
         .forEach(attribute -> {
           String literal = null;
 
-          String subjectUri = buildObjectUri(code, typeCode);
-          String attributeUri = buildAttributeUri(typeCode, attribute);
+          String subjectUri = buildObjectUri(config, code, typeCode);
+          String attributeUri = buildAttributeUri(config, typeCode, attribute);
 
-          statements.add("DELETE WHERE { GRAPH <" + GRAPH_NAME + "> { <" + subjectUri + "> <" + attributeUri + "> ?obj}}");
+          statements.add("DELETE WHERE { GRAPH <" + config.getGraph() + "> { <" + subjectUri + "> <" + attributeUri + "> ?obj}}");
 
           JsonElement element = data.get(attribute.getName());
 
@@ -412,16 +408,16 @@ public class JenaSynchronizationService
     if (event.getDirection().equals(EdgeDirection.CHILD))
     {
       this.addResourceToModel(model, //
-          buildObjectUri(event.getCode(), event.getType()), //
-          GRAPH_NAMESPACE + "/" + event.getEdgeType(), //
-          buildObjectUri(event.getGeoObjectCode(), event.getGeoObjectType()));
+          buildObjectUri(config, event.getCode(), event.getType()), //
+          config.getNamespace() + "/" + event.getEdgeType(), //
+          buildObjectUri(config, event.getGeoObjectCode(), event.getGeoObjectType()));
     }
     else
     {
       this.addResourceToModel(model, //
-          buildObjectUri(event.getGeoObjectCode(), event.getGeoObjectType()), //
-          GRAPH_NAMESPACE + "/" + event.getEdgeType(), //
-          buildObjectUri(event.getCode(), event.getType()));
+          buildObjectUri(config, event.getGeoObjectCode(), event.getGeoObjectType()), //
+          config.getNamespace() + "/" + event.getEdgeType(), //
+          buildObjectUri(config, event.getCode(), event.getType()));
 
     }
 
@@ -433,9 +429,9 @@ public class JenaSynchronizationService
     logger.trace("Jena Projection - Handling remote create edge");
 
     this.addResourceToModel(model, //
-        buildObjectUri(event.getSourceCode(), event.getSourceType()), //
-        GRAPH_NAMESPACE + "/" + event.getEdgeType(), //
-        buildObjectUri(event.getTargetCode(), event.getTargetType()));
+        buildObjectUri(config, event.getSourceCode(), event.getSourceType()), //
+        config.getNamespace() + "/" + event.getEdgeType(), //
+        buildObjectUri(config, event.getTargetCode(), event.getTargetType()));
 
     // this.service.load(GRAPH_NAME, model, config);
   }
@@ -451,12 +447,12 @@ public class JenaSynchronizationService
     return srs_uri;
   }
 
-  protected String buildObjectUri(String code, final String typeCode)
+  protected String buildObjectUri(JenaExportConfig config, String code, final String typeCode)
   {
-    return GRAPH_NAMESPACE + "/" + typeCode + "-" + code;
+    return config.getNamespace() + "/" + typeCode + "-" + code;
   }
 
-  protected String buildAttributeUri(String typeCode, AttributeType attribute)
+  protected String buildAttributeUri(JenaExportConfig config, String typeCode, AttributeType attribute)
   {
     if (attribute.getIsDefault())
     {
@@ -465,10 +461,10 @@ public class JenaSynchronizationService
         return org.apache.jena.vocabulary.RDFS.label.getURI();
       }
 
-      return GRAPH_NAMESPACE + "/" + "GeoObject-" + attribute.getName();
+      return config.getNamespace() + "/" + "GeoObject-" + attribute.getName();
     }
 
-    return GRAPH_NAMESPACE + "/" + typeCode + "-" + attribute.getName();
+    return config.getNamespace() + "/" + typeCode + "-" + attribute.getName();
   }
 
   protected String buildHasGeometryPredicate()

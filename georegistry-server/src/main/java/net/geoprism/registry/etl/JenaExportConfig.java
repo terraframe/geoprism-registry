@@ -29,6 +29,16 @@ public class JenaExportConfig extends ExternalSystemSyncConfig
 
   private String publishUid;
 
+  private String namespace;
+
+  private String graph;
+
+  public JenaExportConfig()
+  {
+    this.namespace = "http://terraframe.com";
+    this.graph = this.namespace + "/g1";
+  }
+
   public String getPublishUid()
   {
     return publishUid;
@@ -37,6 +47,26 @@ public class JenaExportConfig extends ExternalSystemSyncConfig
   public void setPublishUid(String publishUid)
   {
     this.publishUid = publishUid;
+  }
+
+  public String getNamespace()
+  {
+    return namespace;
+  }
+
+  public void setNamespace(String namespace)
+  {
+    this.namespace = namespace;
+  }
+
+  public String getGraph()
+  {
+    return graph;
+  }
+
+  public void setGraph(String graph)
+  {
+    this.graph = graph;
   }
 
   @Override
@@ -55,6 +85,16 @@ public class JenaExportConfig extends ExternalSystemSyncConfig
     if (json != null && json.has("publishUid"))
     {
       this.setPublishUid(json.get("publishUid").getAsString());
+    }
+
+    if (json != null && json.has("namespace"))
+    {
+      this.setNamespace(json.get("namespace").getAsString());
+    }
+
+    if (json != null && json.has("graph"))
+    {
+      this.setGraph(json.get("graph").getAsString());
     }
   }
 

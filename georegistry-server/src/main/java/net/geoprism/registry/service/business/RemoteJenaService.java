@@ -40,7 +40,7 @@ public class RemoteJenaService implements RemoteJenaServiceIF
   }
 
   @Override
-  public void load(String graphName, Model model, JenaExportConfig config)
+  public void load(Model model, JenaExportConfig config)
   {
     this.builder(config).ifPresent(configuration -> {
 
@@ -48,7 +48,7 @@ public class RemoteJenaService implements RemoteJenaServiceIF
       try (RDFConnection conn = configuration.build())
       {
         // Add the model (containing the triple) to the remote store
-        conn.load(graphName, model);
+        conn.load(config.getGraph(), model);
       }
       catch (Exception e)
       {
@@ -79,13 +79,13 @@ public class RemoteJenaService implements RemoteJenaServiceIF
   }
 
   @Override
-  public void clear(String graphName, JenaExportConfig config)
+  public void clear(JenaExportConfig config)
   {
     this.builder(config).ifPresent(configuration -> {
       StringBuilder statement = new StringBuilder();
       statement.append("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>" + "\n");
       statement.append("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>" + "\n");
-      statement.append("CLEAR GRAPH <" + graphName + ">" + "\n");
+      statement.append("CLEAR GRAPH <" + config.getGraph() + ">" + "\n");
 
       // Connect to the remote RDF store
       try (RDFConnection conn = configuration.build())

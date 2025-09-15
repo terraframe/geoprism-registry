@@ -138,6 +138,27 @@
           <attribute name="defaultLocale" value="Sources" />
         </attributeStruct>
       </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="external.system.jena">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="external.system.jena" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Jena" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="synchronization.config.graph">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="synchronization.config.graph" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Graph" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="synchronization.config.namespace">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="synchronization.config.namespace" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Namespace" />
+        </attributeStruct>
+      </object>
       
     </createOrUpdate> 
     <permissions>

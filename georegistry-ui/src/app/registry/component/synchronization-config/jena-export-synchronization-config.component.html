@@ -18,18 +18,41 @@
     License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<div class="row-holder">
-    <div class="label-holder">
-        <label>
-            <localize key="skg.label"></localize>
-        </label>
+<ng-container>
+    <div class="row-holder">
+        <div class="label-holder">
+            <label>
+                <localize key="skg.label"></localize>
+            </label>
+        </div>
+        <div class="holder">
+            <ng-container *ngIf="publishes != null">
+                <select [(ngModel)]="config.configuration.publishUid" name="publishUid" required>
+                    <option></option>
+                    <option *ngFor="let publish of publishes" [value]="publish.uid">{{publish.label}}</option>
+                </select>
+
+            </ng-container>
+        </div>
     </div>
-    <div class="holder">
-        <ng-container *ngIf="publishes != null">
-            <select [(ngModel)]="config.configuration.publishUid" name="publishUid" required>
-                <option></option>
-                <option *ngFor="let publish of publishes" [value]="publish.uid">{{publish.uid}}</option>
-            </select>
-        </ng-container>
+    <div class="row-holder">
+        <div class="label-holder">
+            <label>
+                <localize key="synchronization.config.namespace"></localize>
+            </label>
+        </div>
+        <div class="holder">
+            <input type="text" minlength="1" [(ngModel)]="config.configuration.namespace" name="namespace" required />
+        </div>
     </div>
-</div>
+    <div class="row-holder">
+        <div class="label-holder">
+            <label>
+                <localize key="synchronization.config.graph"></localize>
+            </label>
+        </div>
+        <div class="holder">
+            <input type="text" minlength="1" [(ngModel)]="config.configuration.graph" name="graph" required />
+        </div>
+    </div>
+</ng-container>
