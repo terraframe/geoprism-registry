@@ -55,6 +55,8 @@ export class PublishEventsComponent implements OnInit {
     onCreateNewCommit(): void {
 
         if (this.type != null) {
+            this.error.emit(null);
+
             this.service.createNewVersion(this.type.uid).then(dto => {
                 this.service.getCommits(this.type.uid)
                     .then(commits => this.commits = commits)

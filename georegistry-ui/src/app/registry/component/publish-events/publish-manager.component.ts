@@ -85,8 +85,6 @@ export class PublishManagerComponent implements OnInit, OnDestroy {
             } else {
                 this.noQueryParams = true;
             }
-
-            // this.refresh();
         });
 
         if (this.publishes.length === 0) {
@@ -162,7 +160,10 @@ export class PublishManagerComponent implements OnInit, OnDestroy {
         this.bsModalRef.content.type = "danger";
 
         this.bsModalRef.content.onConfirm.subscribe(() => {
+            this.message = null;
+
             this.service.remove(publish).then(() => {
+
                 const index = this.publishes.findIndex(v => v.uid === publish.uid);
 
                 if (index !== -1) {
@@ -188,7 +189,12 @@ export class PublishManagerComponent implements OnInit, OnDestroy {
 
 
     error(err: HttpErrorResponse): void {
-        this.message = ErrorHandler.getMessageFromError(err);
+        if (err != null) {
+            this.message = ErrorHandler.getMessageFromError(err);
+        }
+        else {
+            this.message = null;
+        }
     }
 
 }

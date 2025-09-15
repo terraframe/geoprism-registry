@@ -18,6 +18,7 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
+import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeGeometryType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
@@ -326,7 +327,7 @@ public class JenaSynchronizationService
 
     this.addResourceToModel(model, //
         buildObjectUri(config, event.getSourceCode(), event.getSourceType()), //
-        config.getNamespace() + "/" + event.getEdgeType(), //
+        config.getNamespace() + "/" + event.getEdgeTypeCode(), //
         buildObjectUri(config, event.getTargetCode(), event.getTargetType()));
 
     // this.service.load(GRAPH_NAME, model, config);
@@ -352,7 +353,7 @@ public class JenaSynchronizationService
         .filter(a -> data.has(a.getName()) && !data.get(a.getName()).isJsonNull()) //
         .filter(a -> ! ( a instanceof AttributeTermType || a instanceof AttributeGeometryType )) //
         .forEach(attribute -> {
-          String literal = null;
+          Object literal = null;
 
           String subjectUri = buildObjectUri(config, code, typeCode);
           String attributeUri = buildAttributeUri(config, typeCode, attribute);
@@ -369,15 +370,19 @@ public class JenaSynchronizationService
           }
           else if (attribute instanceof AttributeIntegerType)
           {
-            literal = Long.toString(element.getAsLong());
+            literal = element.getAsLong();
           }
           else if (attribute instanceof AttributeFloatType)
           {
-            literal = Double.toString(element.getAsDouble());
+            literal = element.getAsDouble();
+          }
+          else if (attribute instanceof AttributeDateType)
+          {
+            literal = GeoRegistryUtil.parseDate(element.getAsString());
           }
           else if (attribute instanceof AttributeBooleanType)
           {
-            literal = Boolean.toString(element.getAsBoolean());
+            literal = element.getAsBoolean();
           }
           else
           {
@@ -486,11 +491,11 @@ public class JenaSynchronizationService
     model.add(subject.get(), predicate.get(), resource.get());
   }
 
-  protected void addLiteralToModel(Model model, String sub, String pred, String obj)
+  protected void addLiteralToModel(Model model, String sub, String pred, Object obj)
   {
     Resource subject = model.createResource(sub);
     Property predicate = model.createProperty(pred);
-    Literal object = model.createLiteral(obj);
+    Literal object = model.createTypedLiteral(obj);
 
     // This GeoObject has a Geometry
     model.add(subject, predicate, object);

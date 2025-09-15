@@ -142,7 +142,7 @@ public class JenaSynchronizationServiceTest extends EventDatasetTest implements 
       {
         try
         {
-          this.remoteService.clear(JenaSynchronizationService.GRAPH_NAME, config);
+          this.remoteService.clear(config);
         }
         finally
         {
