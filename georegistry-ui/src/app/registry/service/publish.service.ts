@@ -36,6 +36,7 @@ export class PublishService {
     toPublishEvent(p: Publish): PublishEvents {
         return {
             uid: p.uid,
+            label: p.label,
             date: p.date,
             startDate: p.startDate,
             endDate: p.endDate,
@@ -59,6 +60,7 @@ export class PublishService {
 
         return {
             uid: p.uid,
+            label: p.label,
             date: p.date,
             startDate: p.startDate,
             endDate: p.endDate,

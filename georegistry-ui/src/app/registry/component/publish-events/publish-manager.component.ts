@@ -157,7 +157,7 @@ export class PublishManagerComponent implements OnInit, OnDestroy {
             backdrop: true,
             ignoreBackdropClick: true
         });
-        this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " Publish [" + publish.uid + "]";
+        this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " [" + publish.label + "]";
         this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
         this.bsModalRef.content.type = "danger";
 

@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 
 import net.geoprism.registry.Commit;
@@ -45,6 +44,7 @@ import net.geoprism.registry.axon.event.repository.GeoObjectRemoveParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectUpdateParentEvent;
 import net.geoprism.registry.axon.event.repository.InMemoryEventMerger;
 import net.geoprism.registry.axon.event.repository.RepositoryEvent;
+import net.geoprism.registry.event.EmptyPublishException;
 import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.view.PublishDTO;
@@ -140,7 +140,7 @@ public class PublishEventService
 
       if (total == 0)
       {
-        throw new ProgrammingErrorException("No events to publish");
+        throw new EmptyPublishException();
       }
 
       // Add the sources as a dependency to the commit
@@ -155,7 +155,7 @@ public class PublishEventService
       return commit;
     }
 
-    throw new ProgrammingErrorException("Unable to publish events because no events exist");
+    throw new EmptyPublishException();
   }
 
   private RemoteEvent build(Publish publish, Commit commit, RepositoryEvent event, Set<String> sources)

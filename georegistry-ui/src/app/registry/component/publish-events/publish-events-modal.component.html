@@ -36,6 +36,18 @@
 
             <fieldset>
 
+                <div class="row-holder">
+                    <div class="label-holder">
+                        <label for="label">
+                            <localize key="data.property.label.label"></localize>
+                        </label>
+                    </div>
+                    <div class="holder">
+                        <input [(ngModel)]="type.label" name="label" type="text" class="form-control"
+                            [disabled]="readonly" [required]="true" />
+                    </div>
+                </div>
+
 
                 <div class="row-holder">
                     <div class="label-holder">
@@ -54,7 +66,7 @@
                 <div class="row-holder">
                     <div class="label-holder">
                         <label for="startDate">
-                            Start of period of validity
+                            <localize key="skg.start.date"></localize>
                         </label>
                     </div>
                     <div class="holder">
@@ -68,7 +80,7 @@
                 <div class="row-holder">
                     <div class="label-holder">
                         <label for="endDate">
-                            End of period of validity
+                            <localize key="skg.end.date"></localize>
                         </label>
                     </div>
                     <div class="holder">
@@ -81,7 +93,7 @@
                 <div class="row-holder">
                     <div class="label-holder">
                         <label>
-                            Geo Object Types
+                            <localize key="hierarchy.sidebar.geoObjectTypes"></localize>
                         </label>
                     </div>
                     <multi-select-field container="#select-root" [(value)]="type.typeCodes" [options]="types">
@@ -91,17 +103,18 @@
                 <div class="row-holder">
                     <div class="label-holder">
                         <label>
-                            Hierarchy Types
+                            <localize key="skg.hierarchy.types"></localize>
                         </label>
                     </div>
-                    <multi-select-field container="#select-root" [(value)]="type.hierarchyCodes" [options]="hierarchies">
+                    <multi-select-field container="#select-root" [(value)]="type.hierarchyCodes"
+                        [options]="hierarchies">
                     </multi-select-field>
                 </div>
 
                 <div class="row-holder">
                     <div class="label-holder">
                         <label>
-                            Directed Acyclic Graph Types
+                            <localize key="skg.dag.types"></localize>
                         </label>
                     </div>
                     <multi-select-field container="#select-root" [(value)]="type.dagCodes" [options]="dagTypes">
@@ -111,30 +124,33 @@
                 <div class="row-holder">
                     <div class="label-holder">
                         <label>
-                            Undirected Graph Types
+                            <localize key="skg.ug.types"></localize>
                         </label>
                     </div>
-                    <multi-select-field container="#select-root" [(value)]="type.undirectedCodes" [options]="undirectedTypes">
+                    <multi-select-field container="#select-root" [(value)]="type.undirectedCodes"
+                        [options]="undirectedTypes">
                     </multi-select-field>
                 </div>
 
                 <div class="row-holder">
                     <div class="label-holder">
                         <label>
-                            Business Types
+                            <localize key="skg.business.types"></localize>
                         </label>
                     </div>
-                    <multi-select-field container="#select-root" [(value)]="type.businessTypeCodes" [options]="businessTypes">
+                    <multi-select-field container="#select-root" [(value)]="type.businessTypeCodes"
+                        [options]="businessTypes">
                     </multi-select-field>
                 </div>
 
                 <div class="row-holder">
                     <div class="label-holder">
                         <label>
-                            Business Edge Types
+                            <localize key="skg.business.edge.types"></localize>
                         </label>
                     </div>
-                    <multi-select-field container="#select-root" [(value)]="type.businessEdgeCodes" [options]="edgeTypes">
+                    <multi-select-field container="#select-root" [(value)]="type.businessEdgeCodes"
+                        [options]="edgeTypes">
                     </multi-select-field>
                 </div>
 
@@ -147,13 +163,13 @@
                                 <localize [key]="readonly ? 'io.back' : 'io.cancel'"></localize>
                             </button>
                             <button *ngIf="!readonly" type="submit" (click)="onSubmit()" class="btn btn-primary"
-                                role="button" [disabled]="form.invalid">
+                                role="button" [disabled]="!valid()">
                                 <localize key="io.submit"></localize>
                             </button>
                         </div>
                     </div>
                 </div>
-                
+
 
             </fieldset>
         </form>

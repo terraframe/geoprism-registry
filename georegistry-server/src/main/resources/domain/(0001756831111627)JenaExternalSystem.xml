@@ -23,7 +23,123 @@
           name="net.geoprism.registry.Commit"
           method="Commit" />
       </mdRelationship>      
+ 
+      <mdException name="net.geoprism.registry.event.EmptyPublishException" label="EmptyPublishException" message="There are no new events to publish">
+      </mdException>
+      
+      <mdException name="net.geoprism.registry.event.EmptyRemoteCommitException" label="EmptyRemoteCommitException" message="The remote commit does not contain any events">
+      </mdException>
+      
+ 
     </create>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="skg.start.date">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="skg.start.date" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Start of period of validity" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="skg.end.date">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="skg.end.date" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Start of period of validity" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="skg.hierarchy.types">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="skg.hierarchy.types" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Hierarchy Types" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="skg.hierarchy.types">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="skg.hierarchy.types" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Hierarchy Types" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="skg.dag.types">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="skg.dag.types" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Directed Acyclic Graph Types" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="skg.ug.types">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="skg.ug.types" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Undirected Graph Types" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="skg.business.types">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="skg.business.types" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Business Types" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="skg.business.edge.types">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="skg.business.edge.types" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Business Edge Types" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="skg.versions">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="skg.versions" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Versions" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="skg.version.number">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="skg.version.number" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Number" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="skg.version.uid">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="skg.version.uid" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="UID" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="skg.publish.updates">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="skg.publish.updates" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Publish updates" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="skg.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="skg.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Spatial Knowledge Graph" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="skg.list.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="skg.list.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Spatial Knowledge Graphs" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="source.list.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="source.list.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Sources" />
+        </attributeStruct>
+      </object>
+      
+    </createOrUpdate> 
     <permissions>
       <role roleName="geoprism.admin.Administrator">
         <grant>      
@@ -143,6 +259,8 @@
   </doIt>
   <undoIt>
     <delete>
+      <object type="com.runwaysdk.system.metadata.MdException" key="net.geoprism.registry.event.EmptyRemoteCommitException"/>        
+      <object type="com.runwaysdk.system.metadata.MdException" key="net.geoprism.registry.event.EmptyPublishException"/>        
       <object type="com.runwaysdk.system.metadata.MdBusiness" key="net.geoprism.registry.graph.JenaExternalSystem"/>        
       <object type="com.runwaysdk.system.metadata.MdRelationship" key="net.geoprism.registry.SynchronizationHasProcessedCommit"/>        
     </delete>

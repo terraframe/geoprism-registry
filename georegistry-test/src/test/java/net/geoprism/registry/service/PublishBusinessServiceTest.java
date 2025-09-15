@@ -33,7 +33,7 @@ public class PublishBusinessServiceTest
   @Request
   public void testCreateAndDelete()
   {
-    PublishDTO expected = new PublishDTO(USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+    PublishDTO expected = new PublishDTO("USA Geospatial Graph", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
     expected.addBusinessEdgeType("TEST_B_EDGE");
     expected.addBusinessType("TEST_B");
     expected.addDagType("TEST_DAG");
@@ -78,7 +78,7 @@ public class PublishBusinessServiceTest
   @Request
   public void testGetRemoteFor()
   {
-    PublishDTO expected = new PublishDTO(USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+    PublishDTO expected = new PublishDTO("USA Geospatial Graph", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
     expected.addBusinessEdgeType("TEST_B_EDGE");
     expected.addBusinessType("TEST_B");
     expected.addDagType("TEST_DAG");
@@ -96,36 +96,36 @@ public class PublishBusinessServiceTest
       Assert.assertEquals(1, results.size());
       Assert.assertEquals(publish.getOid(), results.get(0).getOid());
 
-      PublishDTO dto = new PublishDTO(USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+      PublishDTO dto = new PublishDTO("USA Geospatial Graph", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
 
       Assert.assertEquals(0, this.service.getRemoteFor(dto).size());
 
-      dto = new PublishDTO(USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+      dto = new PublishDTO("USA Geospatial Graph", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       expected.getBusinessEdgeTypes().forEach(dto::addBusinessEdgeType);
 
       Assert.assertEquals(1, this.service.getRemoteFor(dto).size());
 
-      dto = new PublishDTO(USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+      dto = new PublishDTO("USA Geospatial Graph", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       expected.getBusinessTypes().forEach(dto::addBusinessType);
 
       Assert.assertEquals(1, this.service.getRemoteFor(dto).size());
 
-      dto = new PublishDTO(USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+      dto = new PublishDTO("USA Geospatial Graph", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       expected.getDagTypes().forEach(dto::addDagType);
 
       Assert.assertEquals(1, this.service.getRemoteFor(dto).size());
 
-      dto = new PublishDTO(USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+      dto = new PublishDTO("USA Geospatial Graph", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       expected.getGeoObjectTypes().forEach(dto::addGeoObjectType);
 
       Assert.assertEquals(1, this.service.getRemoteFor(dto).size());
 
-      dto = new PublishDTO(USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+      dto = new PublishDTO("USA Geospatial Graph", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       expected.getHierarchyTypes().forEach(dto::addHierarchyType);
 
       Assert.assertEquals(1, this.service.getRemoteFor(dto).size());
 
-      dto = new PublishDTO(USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+      dto = new PublishDTO("USA Geospatial Graph", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       expected.getUndirectedTypes().forEach(dto::addUndirectedType);
 
       Assert.assertEquals(1, this.service.getRemoteFor(dto).size());
@@ -134,7 +134,7 @@ public class PublishBusinessServiceTest
       calendar.setTime(USATestData.DEFAULT_OVER_TIME_DATE);
       calendar.add(Calendar.DAY_OF_YEAR, -1);
 
-      dto = new PublishDTO(USATestData.DEFAULT_OVER_TIME_DATE, calendar.getTime(), USATestData.DEFAULT_END_TIME_DATE);
+      dto = new PublishDTO("USA Geospatial Graph", USATestData.DEFAULT_OVER_TIME_DATE, calendar.getTime(), USATestData.DEFAULT_END_TIME_DATE);
       expected.getUndirectedTypes().forEach(dto::addUndirectedType);
 
       Assert.assertEquals(1, this.service.getRemoteFor(dto).size());
@@ -143,7 +143,7 @@ public class PublishBusinessServiceTest
       calendar.setTime(USATestData.DEFAULT_END_TIME_DATE);
       calendar.add(Calendar.DAY_OF_YEAR, 1);
 
-      dto = new PublishDTO(calendar.getTime(), calendar.getTime(), calendar.getTime());
+      dto = new PublishDTO("USA Geospatial Graph", calendar.getTime(), calendar.getTime(), calendar.getTime());
       expected.getUndirectedTypes().forEach(dto::addUndirectedType);
 
       Assert.assertEquals(0, this.service.getRemoteFor(dto).size());
@@ -152,12 +152,12 @@ public class PublishBusinessServiceTest
       calendar.setTime(USATestData.DEFAULT_OVER_TIME_DATE);
       calendar.add(Calendar.DAY_OF_YEAR, -1);
 
-      dto = new PublishDTO(calendar.getTime(), calendar.getTime(), calendar.getTime());
+      dto = new PublishDTO("USA Geospatial Graph", calendar.getTime(), calendar.getTime(), calendar.getTime());
       expected.getUndirectedTypes().forEach(dto::addUndirectedType);
 
       Assert.assertEquals(0, this.service.getRemoteFor(dto).size());
 
-      dto = new PublishDTO(USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE);
+      dto = new PublishDTO("USA Geospatial Graph", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE);
       expected.getUndirectedTypes().forEach(dto::addUndirectedType);
 
       Assert.assertEquals(1, this.service.getRemoteFor(dto).size());

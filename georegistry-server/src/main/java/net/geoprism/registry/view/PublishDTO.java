@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.registry.JsonCollectors;
@@ -24,7 +25,11 @@ import net.geoprism.registry.view.TypeAndCode.Type;
 
 public class PublishDTO
 {
+
   private String            uid;
+
+  @NotBlank
+  private String            label;
 
   @NotNull
   @JsonSerialize(using = DateSerializer.class)
@@ -53,16 +58,27 @@ public class PublishDTO
     this.origin = GeoprismProperties.getOrigin();
   }
 
-  public PublishDTO(Date date, Date startDate, Date endDate)
+  public PublishDTO(String label, Date date, Date startDate, Date endDate)
   {
     this();
 
+    this.label = label;
     this.date = date;
     this.startDate = startDate;
     this.endDate = endDate;
 
     this.types = new LinkedList<>();
     this.exclusions = new LinkedList<>();
+  }
+
+  public String getLabel()
+  {
+    return label;
+  }
+
+  public void setLabel(String label)
+  {
+    this.label = label;
   }
 
   public String getUid()

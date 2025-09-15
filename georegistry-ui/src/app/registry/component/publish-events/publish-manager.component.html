@@ -30,14 +30,20 @@
                 <div class="sidebar-section-content">
                     <ul class="list-group">
                         <li class="list-group-item got-li-item">
-                            <button type="submit" (click)="onCreate()" class="btn btn-primary" role="button">
-                                <localize key="hierarchy.management.button.create"></localize>
-                            </button>
+
+                            <localize key="skg.label"></localize>
+
+                            <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);">
+
+                                <a class="fa fa-plus" (click)="onCreate()"></a>
+                            </span>
                         </li>
+                        <hr>
+
                         <li class="list-group-item got-li-item" *ngFor="let type of publishes" [id]="type.uid">
                             <a [routerLink]="'/registry/publish'" [queryParams]="{uid:type.uid}"
                                 routerLinkActive="active">
-                                {{type.uid}}
+                                {{type.label}}
                             </a>
 
                             <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);">

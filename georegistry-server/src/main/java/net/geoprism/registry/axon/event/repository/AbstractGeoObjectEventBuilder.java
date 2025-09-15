@@ -67,6 +67,7 @@ public abstract class AbstractGeoObjectEventBuilder<K>
   public <T extends K> T getOrThrow(boolean hasAttributeUpdate)
   {
     return (T) this.getObject(hasAttributeUpdate).orElseThrow(() -> {
+
       throw new ProgrammingErrorException("Geo Object is request to perform action");
     });
   }

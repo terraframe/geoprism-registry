@@ -8,6 +8,7 @@
         table="publish"        
         exported="false">
         <attributes>
+          <localText name="displayLabel" label="Label" required="true" />        
           <uuid
             name="uid"
             label="UID"
@@ -123,16 +124,19 @@
   <undoIt>
     <delete>
       <object
+        key="net.geoprism.registry.CommitHasDataSource"
+        type="com.runwaysdk.system.metadata.MdBusiness" />
+      <object
         key="net.geoprism.registry.CommitHasDependency"
         type="com.runwaysdk.system.metadata.MdRelationship" />
       <object
         key="net.geoprism.registry.CommitHasSnapshot"
         type="com.runwaysdk.system.metadata.MdRelationship" />
       <object
-        key="net.geoprism.registry.Publish"
+        key="net.geoprism.registry.Commit"
         type="com.runwaysdk.system.metadata.MdBusiness" />
       <object
-        key="net.geoprism.registry.Commit"
+        key="net.geoprism.registry.Publish"
         type="com.runwaysdk.system.metadata.MdBusiness" />
     </delete>
   </undoIt>

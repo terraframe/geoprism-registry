@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1866702700)
+@com.runwaysdk.business.ClassSignature(hash = -847137243)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -13,6 +13,9 @@ public abstract class PublishBase extends com.runwaysdk.business.Business
   public final static String CLASS = "net.geoprism.registry.Publish";
   public final static java.lang.String CREATEDATE = "createDate";
   public final static java.lang.String CREATEDBY = "createdBy";
+  public final static java.lang.String DISPLAYLABEL = "displayLabel";
+  private com.runwaysdk.business.Struct displayLabel = null;
+  
   public final static java.lang.String ENDDATE = "endDate";
   public final static java.lang.String ENTITYDOMAIN = "entityDomain";
   public final static java.lang.String EXCLUSIONS = "exclusions";
@@ -31,11 +34,12 @@ public abstract class PublishBase extends com.runwaysdk.business.Business
   public final static java.lang.String TYPECODES = "typeCodes";
   public final static java.lang.String UID = "uid";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = -1866702700;
+  private static final long serialVersionUID = -847137243;
   
   public PublishBase()
   {
     super();
+    displayLabel = super.getStruct("displayLabel");
   }
   
   public java.util.Date getCreateDate()
@@ -80,6 +84,22 @@ public abstract class PublishBase extends com.runwaysdk.business.Business
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.Publish.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(CREATEDBY);
+  }
+  
+  public net.geoprism.registry.PublishDisplayLabel getDisplayLabel()
+  {
+    return (net.geoprism.registry.PublishDisplayLabel) displayLabel;
+  }
+  
+  public void validateDisplayLabel()
+  {
+    this.validateAttribute(DISPLAYLABEL);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF getDisplayLabelMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.Publish.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF)mdClassIF.definesAttribute(DISPLAYLABEL);
   }
   
   public java.util.Date getEndDate()

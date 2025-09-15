@@ -24,13 +24,23 @@
 
         <div class="text-center">
             <h2>
-                <localize key="type.publish.configuration.header"></localize>
+                <localize key="skg.label"></localize>
             </h2>
             <hr>
         </div>
 
         <fieldset>
-
+            <div class="row-holder">
+                <div class="label-holder">
+                    <label for="label">
+                        <localize key="data.property.label.label"></localize>
+                    </label>
+                </div>
+                <div class="holder">
+                    <input [(ngModel)]="type.label" name="label" type="text" class="form-control" [disabled]="true"
+                        [required]="true" />
+                </div>
+            </div>
 
             <div class="row-holder">
                 <div class="label-holder">
@@ -48,7 +58,7 @@
             <div class="row-holder">
                 <div class="label-holder">
                     <label for="startDate">
-                        Start of period of validity
+                        <localize key="skg.start.date"></localize>
                     </label>
                 </div>
                 <div class="holder">
@@ -61,7 +71,7 @@
             <div class="row-holder">
                 <div class="label-holder">
                     <label for="endDate">
-                        End of period of validity
+                        <localize key="skg.end.date"></localize>
                     </label>
                 </div>
                 <div class="holder">
@@ -74,7 +84,7 @@
             <div class="row-holder" *ngIf="type.typeCodes != null && type.typeCodes.length > 0">
                 <div class="label-holder">
                     <label>
-                        Geo Object Types
+                        <localize key="hierarchy.sidebar.geoObjectTypes"></localize>
                     </label>
                 </div>
                 <multi-select-field container="#select-root" [(value)]="type.typeCodes" [options]="types"
@@ -85,7 +95,7 @@
             <div class="row-holder" *ngIf="type.hierarchyCodes != null && type.hierarchyCodes.length > 0">
                 <div class="label-holder">
                     <label>
-                        Hierarchy Types
+                        <localize key="skg.hierarchy.types"></localize>
                     </label>
                 </div>
                 <multi-select-field container="#select-root" [(value)]="type.hierarchyCodes" [options]="hierarchies"
@@ -96,7 +106,7 @@
             <div class="row-holder" *ngIf="type.dagCodes != null && type.dagCodes.length > 0">
                 <div class="label-holder">
                     <label>
-                        Directed Acyclic Graph Types
+                        <localize key="skg.dag.types"></localize>
                     </label>
                 </div>
                 <multi-select-field container="#select-root" [(value)]="type.dagCodes" [options]="dagTypes"
@@ -107,7 +117,7 @@
             <div class="row-holder" *ngIf="type.undirectedCodes != null && type.undirectedCodes.length > 0">
                 <div class="label-holder">
                     <label>
-                        Undirected Graph Types
+                        <localize key="skg.ug.types"></localize>
                     </label>
                 </div>
                 <multi-select-field container="#select-root" [(value)]="type.undirectedCodes"
@@ -118,7 +128,7 @@
             <div class="row-holder" *ngIf="type.businessTypeCodes != null && type.businessTypeCodes.length > 0">
                 <div class="label-holder">
                     <label>
-                        Business Types
+                        <localize key="skg.business.types"></localize>
                     </label>
                 </div>
                 <multi-select-field container="#select-root" [(value)]="type.businessTypeCodes"
@@ -129,18 +139,7 @@
             <div class="row-holder" *ngIf="type.businessEdgeCodes != null && type.businessEdgeCodes.length > 0">
                 <div class="label-holder">
                     <label>
-                        Business Edge Types
-                    </label>
-                </div>
-                <multi-select-field container="#select-root" [(value)]="type.businessEdgeCodes" [options]="edgeTypes"
-                    [disabled]="true">
-                </multi-select-field>
-            </div>
-
-            <div class="row-holder" *ngIf="type.businessEdgeCodes != null && type.businessEdgeCodes.length > 0">
-                <div class="label-holder">
-                    <label>
-                        Business Edge Types
+                        <localize key="skg.business.edge.types"></localize>
                     </label>
                 </div>
                 <multi-select-field container="#select-root" [(value)]="type.businessEdgeCodes" [options]="edgeTypes"
@@ -151,15 +150,19 @@
             <div class="row-holder">
                 <div class="label-holder">
                     <label for="endDate">
-                        Commits
+                        <localize key="skg.versions"></localize>
                     </label>
                 </div>
                 <div class="holder">
                     <table class="table">
                         <thead>
                             <tr>
-                                <th style="vertical-align: middle;">Version</th>
-                                <th style="vertical-align: middle;">UID</th>
+                                <th style="vertical-align: middle;">
+                                    <localize key="skg.version.number"></localize>
+                                </th>
+                                <th style="vertical-align: middle;">
+                                    <localize key="skg.version.uid"></localize>
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -181,9 +184,8 @@
                 <div class="label-holder"></div>
                 <div>
                     <div class="button-holder">
-                        <button (click)="onCreateNewCommit()" class="btn btn-primary"
-                            role="button">
-                            Publish updates
+                        <button (click)="onCreateNewCommit()" class="btn btn-primary" role="button">
+                            <localize key="skg.publish.updates"></localize>
                         </button>
                     </div>
                 </div>

@@ -251,7 +251,7 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
 
   protected PublishDTO getPublishDTO()
   {
-    PublishDTO dto = new PublishDTO(USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+    PublishDTO dto = new PublishDTO("USA Geospatial Graph", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
     dto.addGeoObjectType(testData.getManagedGeoObjectTypes().stream().map(t -> t.getCode()).toArray(s -> new String[s]));
     dto.addHierarchyType(testData.getManagedHierarchyTypes().stream().map(t -> t.getCode()).toArray(s -> new String[s]));
     dto.addBusinessType(btype.getCode());

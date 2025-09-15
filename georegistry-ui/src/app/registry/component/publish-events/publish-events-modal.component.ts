@@ -116,6 +116,7 @@ export class PublishEventsModalComponent implements OnInit, OnDestroy {
 
         this.type = {
             uid: uuid(),
+            label: null,
             date: null,
             startDate: null,
             endDate: null,
@@ -126,6 +127,25 @@ export class PublishEventsModalComponent implements OnInit, OnDestroy {
             undirectedCodes: [],
             businessEdgeCodes: []
         }
+    }
+
+    valid(): boolean {
+
+        if (this.type.label == null || this.type.label.trim().length == 0) {
+            return false;
+        }
+
+        if (this.type.date == null || this.type.date.trim().length == 0) {
+            return false;
+        }
+        if (this.type.startDate == null || this.type.startDate.trim().length == 0) {
+            return false;
+        }
+        if (this.type.endDate == null || this.type.endDate.trim().length == 0) {
+            return false;
+        }
+
+        return true;
     }
 
     onSubmit(): void {

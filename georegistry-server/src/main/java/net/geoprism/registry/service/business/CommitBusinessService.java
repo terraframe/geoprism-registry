@@ -30,7 +30,6 @@ import org.axonframework.eventsourcing.eventstore.DomainEventStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
@@ -56,9 +55,11 @@ import net.geoprism.registry.CommitHasDataSourceQuery;
 import net.geoprism.registry.CommitHasDependencyQuery;
 import net.geoprism.registry.CommitHasSnapshotQuery;
 import net.geoprism.registry.CommitQuery;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Publish;
 import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
+import net.geoprism.registry.event.EmptyRemoteCommitException;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -327,7 +328,7 @@ public class CommitBusinessService implements CommitBusinessServiceIF
       }
     }
 
-    throw new ProgrammingErrorException("Unable to find Geo-Object Type Snapshot definition for the type [" + typeCode + "]");
+    throw GeoRegistryUtil.createDataNotFoundException(GeoObjectTypeSnapshot.CLASS, GeoObjectTypeSnapshot.CODE, typeCode);
   }
 
   @Override
@@ -350,7 +351,7 @@ public class CommitBusinessService implements CommitBusinessServiceIF
       }
     }
 
-    throw new ProgrammingErrorException("Unable to find Hierarchy Type Snapshot definition for the type [" + typeCode + "]");
+    throw GeoRegistryUtil.createDataNotFoundException(HierarchyTypeSnapshot.CLASS, HierarchyTypeSnapshot.CODE, typeCode);
   }
 
   @Override
@@ -444,9 +445,9 @@ public class CommitBusinessService implements CommitBusinessServiceIF
   public Commit getOrThrow(String uid)
   {
     return this.getCommit(uid).orElseThrow(() -> {
-      throw new ProgrammingErrorException("Unable to find commit with uid of [" + uid + "]");
+      throw GeoRegistryUtil.createDataNotFoundException(Commit.CLASS, Commit.UID, uid);
     });
-  }
+      }
 
   @Override
   public List<Commit> getCommits(Publish publish)
@@ -503,11 +504,11 @@ public class CommitBusinessService implements CommitBusinessServiceIF
   public Stream<RemoteEvent> getRemoteEvents(Commit commit)
   {
     Long startIndex = this.store.firstIndexFor(commit).orElseThrow(() -> {
-      throw new ProgrammingErrorException("Commit [" + commit.getUid() + "] does not have any events");
+      throw new EmptyRemoteCommitException();
     });
 
     Long lastIndex = this.store.lastIndexFor(commit).orElseThrow(() -> {
-      throw new ProgrammingErrorException("Commit [" + commit.getUid() + "] does not have any events");
+      throw new EmptyRemoteCommitException();
     });
 
     DomainEventStream stream = this.store.readEvents(commit, startIndex, lastIndex, BATCH_SIZE);
@@ -521,11 +522,11 @@ public class CommitBusinessService implements CommitBusinessServiceIF
   public List<RemoteEvent> getRemoteEvents(Commit commit, Integer chunk)
   {
     Long startIndex = this.store.firstIndexFor(commit).map(seq -> seq + ( chunk * BATCH_SIZE )).orElseThrow(() -> {
-      throw new ProgrammingErrorException("Commit [" + commit.getUid() + "] does not have any events");
+      throw new EmptyRemoteCommitException();
     });
 
     Long lastIndex = this.store.lastIndexFor(commit).orElseThrow(() -> {
-      throw new ProgrammingErrorException("Commit [" + commit.getUid() + "] does not have any events");
+      throw new EmptyRemoteCommitException();
     });
 
     DomainEventStream stream = this.store.readBatch(commit, startIndex, lastIndex, BATCH_SIZE);

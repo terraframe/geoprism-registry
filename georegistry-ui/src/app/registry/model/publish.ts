@@ -24,6 +24,7 @@ export class TypeAndCode {
 
 export class Publish {
     uid: string
+    label: string;
     date: string;
     startDate: string;
     endDate: string;
@@ -41,6 +42,7 @@ export class Commit {
 
 export class PublishEvents {
     uid: string
+    label: string;
     date: string;
     startDate: string;
     endDate: string;

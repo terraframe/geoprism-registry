@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -45,18 +45,20 @@ import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.business.rbac.Authenticate;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
+import com.runwaysdk.dataaccess.MdClassDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
+import com.runwaysdk.dataaccess.metadata.MdClassDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.resource.StreamResource;
+import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.excel.ListTypeExcelExporter;
 import net.geoprism.registry.excel.ListTypeExcelExporter.ListMetadataSource;
@@ -67,8 +69,8 @@ import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
-import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
 import net.geoprism.registry.service.business.ServiceFactory;
+import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
 import net.geoprism.registry.shapefile.ListTypeShapefileExporter;
 import net.geoprism.registry.shapefile.MasterListShapefileExporter;
 import net.geoprism.registry.xml.XMLImporter;
@@ -416,6 +418,18 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
     {
       throw new RuntimeException(e);
     }
+  }
+
+  public static DataNotFoundException createDataNotFoundException(String clazz, String attribute, String value)
+  {
+    MdClassDAOIF mdVertex = MdClassDAO.getMdClassDAO(clazz);
+
+    DataNotFoundException ex = new DataNotFoundException();
+    ex.setDataIdentifier(value);
+    ex.setTypeLabel(mdVertex.getDisplayLabel(Session.getCurrentLocale()));
+    ex.setAttributeLabel(mdVertex.definesAttribute(attribute).getDisplayLabel(Session.getCurrentLocale()));
+
+    return ex;
   }
 
 }

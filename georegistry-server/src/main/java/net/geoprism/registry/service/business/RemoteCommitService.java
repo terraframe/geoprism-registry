@@ -19,6 +19,7 @@ import net.geoprism.graph.GeoObjectTypeSnapshot;
 import net.geoprism.graph.HierarchyTypeSnapshot;
 import net.geoprism.graph.UndirectedGraphTypeSnapshot;
 import net.geoprism.registry.Commit;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Publish;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
 import net.geoprism.registry.graph.DataSource;
@@ -69,7 +70,7 @@ public class RemoteCommitService
     {
 
       CommitDTO remoteCommit = client.getLatest(publishId).orElseThrow(() -> {
-        throw new ProgrammingErrorException("The remote server does not have the commit");
+        throw GeoRegistryUtil.createDataNotFoundException(Publish.CLASS, Publish.UID, publishId);
       });
 
       return pull(client, remoteCommit, exclusions);
@@ -186,7 +187,7 @@ public class RemoteCommitService
   {
     return this.publishService.getByUid(publishId).orElseGet(() -> {
       PublishDTO dto = client.getPublish(publishId).orElseThrow(() -> {
-        throw new ProgrammingErrorException("The remote server has no publish data with the uid of [" + publishId + "]");
+        throw GeoRegistryUtil.createDataNotFoundException(Publish.CLASS, Publish.UID, publishId);
       });
       dto.setExclusions(exclusions);
 

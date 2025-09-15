@@ -25,13 +25,13 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.configuration.GeoprismProperties;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Publish;
 import net.geoprism.registry.PublishQuery;
 import net.geoprism.registry.view.PublishDTO;
@@ -40,10 +40,10 @@ import net.geoprism.registry.view.PublishDTO;
 public class PublishBusinessService implements PublishBusinessServiceIF
 {
   @Autowired
-  private CommitBusinessServiceIF        commitService;
+  private CommitBusinessServiceIF                commitService;
 
   @Autowired
-  private SynchronizationConfigBusinessServiceIF exportService;
+  private SynchronizationConfigBusinessServiceIF synchronizationService;
 
   @Override
   @Transaction
@@ -61,7 +61,7 @@ public class PublishBusinessService implements PublishBusinessServiceIF
 
     });
 
-//    this.exportService.getExports(publish).forEach(this.exportService::delete);
+    this.synchronizationService.getSynchronizations(publish).forEach(this.synchronizationService::delete);
 
     publish.delete();
   }
@@ -71,6 +71,7 @@ public class PublishBusinessService implements PublishBusinessServiceIF
   public Publish create(PublishDTO configuration)
   {
     Publish publish = new Publish();
+    publish.getDisplayLabel().setValue(configuration.getLabel());
     publish.setUid(configuration.getUid());
     publish.setTypeCodes(configuration.toTypeJson().toString());
     publish.setExclusions(configuration.toExclusionJson().toString());
@@ -121,7 +122,7 @@ public class PublishBusinessService implements PublishBusinessServiceIF
   public Publish getByUidOrThrow(String uid)
   {
     return this.getByUid(uid).orElseThrow(() -> {
-      throw new ProgrammingErrorException("Unable to find a publish with the uid [" + uid + "]");
+      throw GeoRegistryUtil.createDataNotFoundException(Publish.CLASS, Publish.UID, uid);
     });
   }
 
