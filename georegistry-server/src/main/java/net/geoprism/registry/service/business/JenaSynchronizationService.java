@@ -95,9 +95,8 @@ public class JenaSynchronizationService
       }
 
       AtomicLong workProgress = new AtomicLong(0);
-      AtomicLong exportedRecords = history != null ? new AtomicLong(history.getExportedRecords()) : new AtomicLong(0);
 
-      execute(synchronization, configuration, commit, history, workProgress, exportedRecords);
+      execute(synchronization, configuration, commit, history, workProgress);
 
       if (history != null)
       {
@@ -111,7 +110,7 @@ public class JenaSynchronizationService
     });
   }
 
-  protected void execute(SynchronizationConfig synchronization, JenaExportConfig config, Commit commit, ExportHistory history, AtomicLong workProgress, AtomicLong exportedRecords)
+  protected void execute(SynchronizationConfig synchronization, JenaExportConfig config, Commit commit, ExportHistory history, AtomicLong progress)
   {
     if (!this.exportService.hasBeenPublished(synchronization, commit))
     {
@@ -119,7 +118,7 @@ public class JenaSynchronizationService
 
       this.commitService.getDependencies(commit) //
           .stream() //
-          .forEach(dependency -> this.execute(synchronization, config, dependency, history, workProgress, exportedRecords));
+          .forEach(dependency -> this.execute(synchronization, config, dependency, history, progress));
 
       if (history != null)
       {
@@ -158,10 +157,9 @@ public class JenaSynchronizationService
           this.handleRemoteParent(commit, (RemoteGeoObjectSetParentEvent) event, config, model.get());
         }
 
-        long cExportRecords = exportedRecords.incrementAndGet();
-        long cWorkProgress = workProgress.incrementAndGet();
+        long cWorkProgress = progress.incrementAndGet();
 
-        if ( ( cExportRecords % 1000 == 0 ))
+        if ( ( cWorkProgress % 1000 == 0 ))
         {
           // Push the model chunk to Jena
           this.service.load(model.get(), config);
@@ -174,7 +172,7 @@ public class JenaSynchronizationService
 
             history.appLock();
             history.setWorkProgress(cWorkProgress);
-            history.setExportedRecords(cExportRecords);
+            history.setExportedRecords(cWorkProgress);
             history.apply();
           }
         }
@@ -190,8 +188,8 @@ public class JenaSynchronizationService
       if (history != null)
       {
         history.appLock();
-        history.setWorkProgress(workProgress.get());
-        history.setExportedRecords(exportedRecords.get());
+        history.setWorkProgress(progress.get());
+        history.setExportedRecords(progress.get());
         history.apply();
       }
     }

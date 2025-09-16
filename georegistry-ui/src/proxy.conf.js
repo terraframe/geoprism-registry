@@ -21,7 +21,7 @@ const PROXY_CONFIG = [
         context: [
             "/api", "/net/geoprism/images/", "/glyphs", "/session"
         ],
-        target: "https://localhost:8443/georegistry/",
+        target: "https://localhost:8443/",
         "changeOrigin": true,       // solves CORS Error in F12
         "logLevel": "debug",         //"info": prints out in console
         "rejectUnauthorzied": true, // must be false if not specify here
@@ -36,7 +36,7 @@ const PROXY_CONFIG = [
         context: [
             "/websocket"
         ],
-        target: "wss://localhost:8443/georegistry/",
+        target: "wss://localhost:8443/",
         "changeOrigin": true,       // solves CORS Error in F12
         "logLevel": "debug",         //"info": prints out in console
         "rejectUnauthorzied": true, // must be false if not specify here

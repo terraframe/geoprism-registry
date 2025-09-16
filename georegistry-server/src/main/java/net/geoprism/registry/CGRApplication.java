@@ -195,7 +195,7 @@ public class CGRApplication
     CGRApplication hierarchies = new CGRApplication();
     hierarchies.setId("hierarchies");
     hierarchies.setLabel(LocalizationFacade.localize("hierarchies.landing"));
-    hierarchies.setSrc(context + "assets/hierarchy-icon-modified.svg");
+    hierarchies.setSrc("hierarchy-icon-modified.svg");
     hierarchies.setUrl("#/registry/hierarchies");
     hierarchies.setDescription(LocalizationFacade.localize("hierarchies.landing.description"));
     hierarchies.addRole(RoleConstants.ADMIN);
@@ -209,7 +209,7 @@ public class CGRApplication
     CGRApplication masterLists = new CGRApplication();
     masterLists.setId("lists");
     masterLists.setLabel(LocalizationFacade.localize("masterlists.landing"));
-    masterLists.setSrc(context + "assets/masterlist-icon-modified.svg");
+    masterLists.setSrc("masterlist-icon-modified.svg");
     masterLists.setUrl("#/registry/master-lists");
     masterLists.setDescription(LocalizationFacade.localize("masterlists.landing.description"));
     masterLists.addRole(RoleConstants.ADMIN);
@@ -223,7 +223,7 @@ public class CGRApplication
     CGRApplication uploads = new CGRApplication();
     uploads.setId("uploads");
     uploads.setLabel(LocalizationFacade.localize("uploads.landing"));
-    uploads.setSrc(context + "assets/dm_icon.svg");
+    uploads.setSrc("dm_icon.svg");
     uploads.setUrl("#/registry/data");
     uploads.setDescription(LocalizationFacade.localize("uploads.landing.description"));
     uploads.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
@@ -234,7 +234,7 @@ public class CGRApplication
     CGRApplication scheduledJobs = new CGRApplication();
     scheduledJobs.setId("scheduledJobs");
     scheduledJobs.setLabel(LocalizationFacade.localize("scheduledjobs.menu"));
-    scheduledJobs.setSrc(context + "assets/job-scheduler.svg");
+    scheduledJobs.setSrc("job-scheduler.svg");
     scheduledJobs.setUrl("#/registry/scheduled-jobs");
     scheduledJobs.setDescription(LocalizationFacade.localize("scheduledjobs.menu"));
     scheduledJobs.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
@@ -245,7 +245,7 @@ public class CGRApplication
     CGRApplication management = new CGRApplication();
     management.setId("locations");
     management.setLabel(LocalizationFacade.localize("navigator.landing"));
-    management.setSrc(context + "assets/map_icon.svg");
+    management.setSrc("map_icon.svg");
     management.setUrl("#/registry/location-manager");
     management.setDescription(LocalizationFacade.localize("navigator.landing.description"));
     management.addRole(RoleConstants.ADMIN);
@@ -258,7 +258,7 @@ public class CGRApplication
     CGRApplication requests = new CGRApplication();
     requests.setId("requests");
     requests.setLabel(LocalizationFacade.localize("requests.landing"));
-    requests.setSrc(context + "assets/update-icon-modified.svg");
+    requests.setSrc("update-icon-modified.svg");
     requests.setUrl("#/registry/change-requests");
     requests.setDescription(LocalizationFacade.localize("requests.landing.description"));
     requests.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
@@ -270,7 +270,7 @@ public class CGRApplication
     CGRApplication tasks = new CGRApplication();
     tasks.setId("tasks");
     tasks.setLabel(LocalizationFacade.localize("header.tasks"));
-    tasks.setSrc(context + "assets/task.svg");
+    tasks.setSrc("task.svg");
     tasks.setUrl("#/registry/tasks");
     tasks.setDescription(LocalizationFacade.localize("header.tasks"));
     tasks.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
@@ -281,7 +281,7 @@ public class CGRApplication
     CGRApplication historicalEvents = new CGRApplication();
     historicalEvents.setId("historicalEvents");
     historicalEvents.setLabel(LocalizationFacade.localize("historical.events"));
-    historicalEvents.setSrc(context + "assets/historical-events.svg");
+    historicalEvents.setSrc("historical-events.svg");
     historicalEvents.setUrl("#/registry/historical-events");
     historicalEvents.setDescription(LocalizationFacade.localize("historical.events.description"));
     historicalEvents.addRole(RoleConstants.ADMIN);

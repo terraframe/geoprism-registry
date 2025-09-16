@@ -43,7 +43,7 @@ export class SessionService {
         this.service.start();
 
         return this.http
-            .post<User>(environment.apiUrl + "/session/login", JSON.stringify({ username: username, password: password }), { headers: headers })
+            .post<User>(environment.apiUrl + "/api/session/login", JSON.stringify({ username: username, password: password }), { headers: headers })
             .pipe(finalize(() => {
                 this.service.complete();
             }))
@@ -63,7 +63,7 @@ export class SessionService {
         this.service.start();
 
         return this.http
-            .get<void>(environment.apiUrl + "/session/logout", { headers: headers })
+            .get<void>(environment.apiUrl + "/api/session/logout", { headers: headers })
             .pipe(finalize(() => {
                 this.service.complete();
             }))

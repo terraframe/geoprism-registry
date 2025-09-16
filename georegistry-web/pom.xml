@@ -133,7 +133,7 @@
 									<artifactId>georegistry-web</artifactId>
 									<type>war</type>
 									<properties>
-										<context>georegistry</context>
+										<context>ROOT</context>
 									</properties>
 								</deployable>
 							</deployables>
@@ -159,8 +159,9 @@
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
-				<filtering>true</filtering>
+				<filtering>false</filtering>
 				<excludes>
+					<exclude>**/*.pbf</exclude>
 					<exclude>**/*.xlsx</exclude>
 					<exclude>**/*.zip</exclude>
 				</excludes>
@@ -169,6 +170,7 @@
 				<directory>src/main/resources</directory>
 				<filtering>false</filtering>
 				<includes>
+					<include>**/*.pbf</include>
 					<include>**/*.xlsx</include>
 					<include>**/*.zip</include>
 				</includes>

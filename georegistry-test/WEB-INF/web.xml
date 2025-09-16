@@ -45,6 +45,7 @@
     <param-name>contextClass</param-name>
     <param-value>org.springframework.web.context.support.AnnotationConfigWebApplicationContext</param-value>
   </context-param>
+ -->  
  
  <filter>
     <filter-name>StaticResourceResolver</filter-name>
@@ -63,7 +64,6 @@
     <filter-name>RegistryCorsFilter</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
- -->  
   
   <!-- Spring Servlet Dispatcher -->
 <!-- 

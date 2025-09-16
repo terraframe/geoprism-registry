@@ -52,7 +52,11 @@ export class HubComponent implements OnInit {
         public authService: AuthService
 
     ) {
-        this.context = EnvironmentUtil.getApiUrl();
+        this.context = EnvironmentUtil.getApiUrl().trim();
+
+        if (this.context.length > 0) {
+            this.context = this.context + "/";
+        }
     }
 
     ngOnInit(): void {

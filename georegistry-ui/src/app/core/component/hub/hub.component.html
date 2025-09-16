@@ -44,7 +44,7 @@
                                 <div *ngFor="let application of applications; let internalIndex = index;">
                                     <div *ngIf="internalIndex >= i && internalIndex < i + 4" class="col-xs-12 col-sm-12 col-md-3 text-center" (click)="open(application)">
                                         <div [id]="application.oid" class="nav-option-wrapper">
-                                            <img class="nav-icon-img img-responsive" [src]="context + '/' + application.src" alt="Navigation" />
+                                            <img class="nav-icon-img img-responsive" [src]="context + 'assets/' + application.src" alt="Navigation" />
                                             <h3 class="nav-icon-img-label">{{application.label}}</h3>
                                             <!-- <p class="nav-icon-img-description"> {{application.description}} </p> -->
                                         </div>

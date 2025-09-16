@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { HttpErrorResponse } from "@angular/common/http";
 
@@ -26,13 +26,14 @@ import { ErrorHandler } from "@shared/component";
 import { RegistryService, IOService, SynchronizationConfigService } from "@registry/service";
 import { ScheduledJob, SynchronizationConfig } from "@registry/model/registry";
 import { PageResult } from "@shared/model/core";
+import { interval, Observable, Subscription, switchMap, timeout } from "rxjs";
 
 @Component({
     selector: "sync-details",
     templateUrl: "./details.component.html",
     styleUrls: ["./details.css"]
 })
-export class SyncDetailsComponent implements OnInit {
+export class SyncDetailsComponent implements OnInit, OnDestroy {
 
     message: string = null;
     job: ScheduledJob;
@@ -47,7 +48,9 @@ export class SyncDetailsComponent implements OnInit {
         resultSet: []
     };
 
-    constructor(private configService: SynchronizationConfigService, public service: RegistryService, private route: ActivatedRoute, public ioService: IOService) {
+    pollingSubscription: Subscription = null;
+
+    constructor(private configService: SynchronizationConfigService, public service: RegistryService, private route: ActivatedRoute) {
     }
 
     ngOnInit(): void {
@@ -63,8 +66,11 @@ export class SyncDetailsComponent implements OnInit {
     }
 
     ngOnDestroy() {
+        if (this.pollingSubscription != null) {
+            this.pollingSubscription.unsubscribe();
+        }
     }
-    
+
     formatGeoObjectCode(codes: string) {
         return codes == null ? "" : codes.replace(/,/g, ", ");
     }
@@ -84,6 +90,23 @@ export class SyncDetailsComponent implements OnInit {
             if (response.exception && response.exception.type && response.exception.type.indexOf("ExportJobHasErrors") === -1) {
                 this.error(response.exception);
             }
+            else if (this.job.stage === 'EXPORT' && this.pollingSubscription == null) {
+                const pollInterval = 60000; // Poll every 60 seconds
+                const timeoutInterval = pollInterval * 60; // Poll every 60 seconds
+
+                this.pollingSubscription = interval(pollInterval).pipe(timeout(timeoutInterval)).subscribe(() => {
+                    this.onPageChange(this.page.pageNumber)
+                });
+            }
+            
+            if (this.job.stage !== 'EXPORT' && this.pollingSubscription != null) {
+                // The job is finished. Stop polling
+                this.pollingSubscription.unsubscribe();
+
+                this.pollingSubscription = null;
+            }
+
+
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
