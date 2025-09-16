@@ -157,21 +157,27 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th style="vertical-align: middle;">
+                                <th style="text-align: middle;">
                                     <localize key="skg.version.number"></localize>
                                 </th>
-                                <th style="vertical-align: middle;">
+                                <th style="text-align: middle;">
                                     <localize key="skg.version.uid"></localize>
+                                </th>
+                                <th style="text-align: middle;">
+                                    <localize key="data.type.label.date"></localize>
                                 </th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr *ngFor="let commit of commits">
-                                <td style="vertical-align: middle;">
+                                <td style="text-align: middle;">
                                     {{commit.versionNumber}}
                                 </td>
                                 <td style="text-align: middle;">
                                     {{commit.uid}}
+                                </td>
+                                <td style="text-align: middle;">
+                                    {{commit.createDate}}
                                 </td>
                             </tr>
                         </tbody>

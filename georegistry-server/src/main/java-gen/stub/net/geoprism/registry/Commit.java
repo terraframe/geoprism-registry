@@ -6,7 +6,7 @@ import net.geoprism.registry.view.CommitDTO;
 public class Commit extends CommitBase implements SnapshotContainer<CommitHasSnapshot>
 {
   @SuppressWarnings("unused")
-  private static final long  serialVersionUID         = 372845489;
+  private static final long serialVersionUID = 372845489;
 
   public Commit()
   {
@@ -21,7 +21,7 @@ public class Commit extends CommitBase implements SnapshotContainer<CommitHasSna
 
   public CommitDTO toDTO(Publish publish)
   {
-    return new CommitDTO(this.getUid(), publish.getUid(), this.getVersionNumber(), getLastOriginGlobalIndex());
+    return new CommitDTO(this.getUid(), publish.getUid(), this.getVersionNumber(), getLastOriginGlobalIndex(), this.getCreateDate());
   }
 
   public CommitDTO toDTO()

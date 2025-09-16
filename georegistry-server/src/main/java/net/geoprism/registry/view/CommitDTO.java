@@ -1,6 +1,13 @@
 package net.geoprism.registry.view;
 
+import java.util.Date;
 import java.util.UUID;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+import net.geoprism.registry.spring.DateTimeDeserializer;
+import net.geoprism.registry.spring.DateTimeSerializer;
 
 public class CommitDTO
 {
@@ -12,17 +19,22 @@ public class CommitDTO
 
   private Long    lastOriginGlobalIndex;
 
+  @JsonSerialize(using = DateTimeSerializer.class)
+  @JsonDeserialize(using = DateTimeDeserializer.class)
+  private Date    createDate;
+
   public CommitDTO()
   {
     this.uid = UUID.randomUUID().toString();
   }
 
-  public CommitDTO(String uid, String publishId, Integer versionNumber, Long lastOriginGlobalIndex)
+  public CommitDTO(String uid, String publishId, Integer versionNumber, Long lastOriginGlobalIndex, Date createDate)
   {
     this.uid = uid;
     this.publishId = publishId;
     this.versionNumber = versionNumber;
     this.lastOriginGlobalIndex = lastOriginGlobalIndex;
+    this.createDate = createDate;
   }
 
   public String getUid()
@@ -63,5 +75,15 @@ public class CommitDTO
   public void setLastOriginGlobalIndex(Long lastOriginGlobalIndex)
   {
     this.lastOriginGlobalIndex = lastOriginGlobalIndex;
+  }
+
+  public Date getCreateDate()
+  {
+    return createDate;
+  }
+
+  public void setCreateDate(Date createDate)
+  {
+    this.createDate = createDate;
   }
 }

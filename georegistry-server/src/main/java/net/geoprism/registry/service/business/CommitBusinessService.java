@@ -360,7 +360,7 @@ public class CommitBusinessService implements CommitBusinessServiceIF
   {
     PublishDTO configuration = publish.toDTO();
 
-    Commit commit = create(publish, new CommitDTO(UUID.randomUUID().toString(), publish.getUid(), versionNumber, lastOriginalIndex));
+    Commit commit = create(publish, new CommitDTO(UUID.randomUUID().toString(), publish.getUid(), versionNumber, lastOriginalIndex, null));
 
     GeoObjectTypeSnapshot root = this.snapshotService.createRoot(commit);
 
@@ -447,7 +447,7 @@ public class CommitBusinessService implements CommitBusinessServiceIF
     return this.getCommit(uid).orElseThrow(() -> {
       throw GeoRegistryUtil.createDataNotFoundException(Commit.CLASS, Commit.UID, uid);
     });
-      }
+  }
 
   @Override
   public List<Commit> getCommits(Publish publish)

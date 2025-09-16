@@ -37,6 +37,7 @@ export class Commit {
     publishId: string;
     versionNumber: number;
     lastOriginGlobalIndex: number;
+    createDate: string;
 }
 
 
