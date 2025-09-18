@@ -39,15 +39,15 @@ public class ExcelService
   private ExcelBusinessService service;
 
   @Request(RequestType.SESSION)
-  public JSONObject getExcelConfiguration(String sessionId, String type, Date startDate, Date endDate, String fileName, InputStream fileStream, ImportStrategy strategy, Boolean copyBlank)
+  public JSONObject getExcelConfiguration(String sessionId, String type, Date startDate, Date endDate, String dataSource, String fileName, InputStream fileStream, ImportStrategy strategy, Boolean copyBlank)
   {
-    return this.service.getExcelConfiguration(type, startDate, endDate, fileName, fileStream, strategy, copyBlank);
+    return this.service.getExcelConfiguration(type, startDate, endDate, dataSource, fileName, fileStream, strategy, copyBlank);
   }
 
   @Request(RequestType.SESSION)
-  public JSONObject getBusinessTypeConfiguration(String sessionId, String type, Date date, String fileName, InputStream fileStream, ImportStrategy strategy, Boolean copyBlank)
+  public JSONObject getBusinessTypeConfiguration(String sessionId, String type, Date date, String dataSource, String fileName, InputStream fileStream, ImportStrategy strategy, Boolean copyBlank)
   {
-    return this.service.getBusinessTypeConfiguration(type, date, fileName, fileStream, strategy, copyBlank);
+    return this.service.getBusinessTypeConfiguration(type, date, dataSource, fileName, fileStream, strategy, copyBlank);
   }
 
   @Request(RequestType.SESSION)

@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -54,15 +53,12 @@ import net.geoprism.registry.etl.upload.BusinessObjectRecordedErrorException;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.excel.MapFeatureRow;
-import net.geoprism.registry.io.Location;
 import net.geoprism.registry.io.ParentCodeException;
-import net.geoprism.registry.io.ParentMatchStrategy;
 import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
@@ -370,14 +366,10 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
       BusinessObjectImportConfiguration configuration = new BusinessObjectImportConfiguration();
       configuration.setImportStrategy(ImportStrategy.NEW_ONLY);
       configuration.setType(type);
-      configuration.setHierarchy(hierarchy);
       configuration.setDate(FastTestDataset.DEFAULT_END_TIME_DATE);
       configuration.setCopyBlank(false);
       configuration.setFunction(attributeType.getName(), new BasicColumnFunction(rowAttribute));
       configuration.setFunction(BusinessObject.CODE, new BasicColumnFunction(BusinessObject.CODE));
-      configuration.addLocation(new Location(got, hierarchy, new BasicColumnFunction(geoAttribute), ParentMatchStrategy.CODE));
-      configuration.setEdgeType(bGeoEdgeType);
-      configuration.setDirection(EdgeDirection.PARENT);
       configuration.setDataSource(FastTestDataset.SOURCE.getDataSource());
 
       try (BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener()))
@@ -390,16 +382,6 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
       try
       {
         Assert.assertNotNull(result);
-
-        List<VertexServerGeoObject> results = this.bObjectService.getGeoObjects(result, bGeoEdgeType, EdgeDirection.PARENT);
-
-        Assert.assertEquals(1, results.size());
-
-        VertexServerGeoObject geoObject = results.get(0);
-
-        Assert.assertNotNull(geoObject);
-        Assert.assertEquals(FastTestDataset.DIST_CENTRAL.getCode(), geoObject.getCode());
-        Assert.assertEquals(got.getCode(), geoObject.getType().getCode());
       }
       finally
       {
@@ -431,12 +413,10 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
       BusinessObjectImportConfiguration configuration = new BusinessObjectImportConfiguration();
       configuration.setImportStrategy(ImportStrategy.NEW_ONLY);
       configuration.setType(type);
-      configuration.setHierarchy(hierarchy);
       configuration.setDate(FastTestDataset.DEFAULT_END_TIME_DATE);
       configuration.setCopyBlank(false);
       configuration.setFunction(attributeType.getName(), new BasicColumnFunction(rowAttribute));
       configuration.setFunction(BusinessObject.CODE, new BasicColumnFunction(BusinessObject.CODE));
-      configuration.addLocation(new Location(got, hierarchy, new BasicColumnFunction(geoAttribute), ParentMatchStrategy.CODE));
 
       try (BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener()))
       {
@@ -484,7 +464,6 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
       JSONObject json = this.getTestConfiguration(istream, ImportStrategy.NEW_AND_UPDATE);
 
       BusinessObjectImportConfiguration config = (BusinessObjectImportConfiguration) ImportConfiguration.build(json.toString(), true);
-      config.setHierarchy(FastTestDataset.HIER_ADMIN.getServerObject());
 
       ImportHistory hist = mockImport(config);
       Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
@@ -518,7 +497,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
 
   private JSONObject getTestConfiguration(InputStream istream, ImportStrategy strategy) throws JSONException
   {
-    JSONObject result = this.excelService.getBusinessTypeConfiguration(Session.getCurrentSession().getOid(), type.getCode(), TestDataSet.DEFAULT_END_TIME_DATE, "business-spreadsheet.xlsx", istream, strategy, false);
+    JSONObject result = this.excelService.getBusinessTypeConfiguration(Session.getCurrentSession().getOid(), type.getCode(), TestDataSet.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getCode(), "business-spreadsheet.xlsx", istream, strategy, false);
     JSONObject type = result.getJSONObject(BusinessObjectImportConfiguration.TYPE);
     JSONArray attributes = type.getJSONArray(BusinessType.JSON_ATTRIBUTES);
 

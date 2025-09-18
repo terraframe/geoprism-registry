@@ -20,8 +20,6 @@ package net.geoprism.registry.etl.upload;
 
 import com.runwaysdk.RunwayException;
 
-import net.geoprism.registry.etl.upload.BusinessObjectImporter.GeoObjectErrorBuilder;
-
 public class BusinessObjectRecordedErrorException extends RunwayException
 {
 
@@ -32,8 +30,6 @@ public class BusinessObjectRecordedErrorException extends RunwayException
   private String                objectJson;
 
   private String                objectType;
-
-  private GeoObjectErrorBuilder builder;
 
   public BusinessObjectRecordedErrorException()
   {
@@ -68,15 +64,5 @@ public class BusinessObjectRecordedErrorException extends RunwayException
   public String getObjectType()
   {
     return objectType;
-  }
-
-  public GeoObjectErrorBuilder getBuilder()
-  {
-    return builder;
-  }
-
-  public void setBuilder(GeoObjectErrorBuilder builder)
-  {
-    this.builder = builder;
   }
 }

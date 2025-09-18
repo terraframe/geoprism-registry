@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -66,6 +66,7 @@ import net.geoprism.registry.UnableToReadProjectionException;
 import net.geoprism.registry.etl.CloseableDelegateFile;
 import net.geoprism.registry.etl.ImportFileFormatException;
 import net.geoprism.registry.etl.ImportStage;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
 
 /**
  * Class responsible for reading data from a shapefile row by row and making
@@ -267,24 +268,22 @@ public class ShapefileImporter implements FormatSpecificImporterIF
     // also so that we have predictable ordering if we want to resume the import
     // later.
     List<SortBy> sortBy = new ArrayList<SortBy>();
+
     sortBy.add(SortBy.NATURAL_ORDER); // We also sort by featureId because it's
                                       // guaranteed to be unique.
-    if (this.config.getLocations().size() > 0)
-    {
-      ShapefileFunction loc = this.config.getLocations().get(0).getFunction();
 
-      if (loc instanceof BasicColumnFunction)
+    if (this.config instanceof GeoObjectImportConfiguration)
+    {
+      GeoObjectImportConfiguration gConfig = (GeoObjectImportConfiguration) this.config;
+
+      if (gConfig.getLocations().size() > 0)
       {
-        sortBy.add(ff.sort(loc.toJson().toString(), SortOrder.ASCENDING)); // TODO
-                                                                           // :
-                                                                           // This
-                                                                           // assumes
-                                                                           // loc.tojson()
-                                                                           // returns
-                                                                           // only
-                                                                           // the
-                                                                           // attribute
-                                                                           // name.
+        ShapefileFunction loc = gConfig.getLocations().get(0).getFunction();
+
+        if (loc instanceof BasicColumnFunction)
+        {
+          sortBy.add(ff.sort(loc.toJson().toString(), SortOrder.ASCENDING));
+        }
       }
     }
 

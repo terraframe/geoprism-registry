@@ -23,7 +23,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -46,21 +45,12 @@ import com.runwaysdk.session.Request;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
-import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.graph.DataSource;
-import net.geoprism.registry.io.ConstantShapefileFunction;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.LocalizedValueFunction;
-import net.geoprism.registry.io.Location;
-import net.geoprism.registry.io.ParentMatchStrategy;
 import net.geoprism.registry.jobs.ImportHistory;
-import net.geoprism.registry.model.EdgeDirection;
-import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
@@ -81,14 +71,6 @@ public class BusinessObjectImportConfiguration extends ImportConfiguration
 
   public static final String                               NUMERIC          = "numeric";
 
-  public static final String                               HIERARCHY        = "hierarchy";
-
-  public static final String                               EDGE_TYPE        = "edgeType";
-
-  public static final String                               DIRECTION        = "direction";
-
-  public static final String                               LOCATIONS        = "locations";
-
   public static final String                               TYPE             = "type";
 
   public static final String                               SHEET            = "sheet";
@@ -107,29 +89,17 @@ public class BusinessObjectImportConfiguration extends ImportConfiguration
 
   private Map<String, Set<String>>                         exclusions;
 
-  private List<Location>                                   locations;
-
-  private ServerHierarchyType                              hierarchy;
-
-  private BusinessEdgeType                                 edgeType;
-
-  private EdgeDirection                                    direction;
-
   private Date                                             date;
 
   private LinkedList<BusinessObjectRecordedErrorException> errors           = new LinkedList<BusinessObjectRecordedErrorException>();
 
   private BusinessTypeBusinessServiceIF                    typeService;
 
-  private BusinessEdgeTypeBusinessServiceIF                edgeService;
-
   public BusinessObjectImportConfiguration()
   {
     this.typeService = ServiceFactory.getBean(BusinessTypeBusinessServiceIF.class);
-    this.edgeService = ServiceFactory.getBean(BusinessEdgeTypeBusinessServiceIF.class);
 
     this.functions = new HashMap<String, ShapefileFunction>();
-    this.locations = new LinkedList<Location>();
     this.exclusions = new HashMap<String, Set<String>>();
   }
 
@@ -141,26 +111,6 @@ public class BusinessObjectImportConfiguration extends ImportConfiguration
   public void setType(BusinessType type)
   {
     this.type = type;
-  }
-
-  public BusinessEdgeType getEdgeType()
-  {
-    return edgeType;
-  }
-
-  public void setEdgeType(BusinessEdgeType edgeType)
-  {
-    this.edgeType = edgeType;
-  }
-
-  public EdgeDirection getDirection()
-  {
-    return direction;
-  }
-
-  public void setDirection(EdgeDirection direction)
-  {
-    this.direction = direction;
   }
 
   public Date getDate()
@@ -211,26 +161,6 @@ public class BusinessObjectImportConfiguration extends ImportConfiguration
   public boolean isExclusion(String attributeName, String value)
   {
     return ( this.exclusions.get(attributeName) != null && this.exclusions.get(attributeName).contains(value) );
-  }
-
-  public void addLocation(Location location)
-  {
-    this.locations.add(location);
-  }
-
-  public List<Location> getLocations()
-  {
-    return this.locations;
-  }
-
-  public ServerHierarchyType getHierarchy()
-  {
-    return hierarchy;
-  }
-
-  public void setHierarchy(ServerHierarchyType hierarchy)
-  {
-    this.hierarchy = hierarchy;
   }
 
   /**
@@ -297,29 +227,11 @@ public class BusinessObjectImportConfiguration extends ImportConfiguration
       }
     }
 
-    JSONArray locations = new JSONArray();
-
-    for (Location location : this.locations)
-    {
-      locations.put(location.toJSON());
-    }
-
     config.put(BusinessObjectImportConfiguration.TYPE, type);
-    config.put(BusinessObjectImportConfiguration.LOCATIONS, locations);
-
-    if (this.getEdgeType() != null)
-    {
-      config.put(BusinessObjectImportConfiguration.EDGE_TYPE, type);
-    }
 
     if (this.getDate() != null)
     {
       config.put(BusinessObjectImportConfiguration.DATE, format.format(this.getDate()));
-    }
-
-    if (this.hierarchy != null)
-    {
-      config.put(BusinessObjectImportConfiguration.HIERARCHY, this.getHierarchy().getCode());
     }
 
     if (this.getDataSource() != null)
@@ -357,11 +269,10 @@ public class BusinessObjectImportConfiguration extends ImportConfiguration
 
     JSONObject config = new JSONObject(json);
     JSONObject type = config.getJSONObject(TYPE);
-    JSONArray locations = config.has(LOCATIONS) ? config.getJSONArray(LOCATIONS) : new JSONArray();
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
     String code = type.getString(GeoObjectType.JSON_CODE);
     BusinessType businessType = this.typeService.getByCode(code);
- 
+
     this.setType(businessType);
 
     if (config.has(DATA_SOURCE))
@@ -371,11 +282,6 @@ public class BusinessObjectImportConfiguration extends ImportConfiguration
       sourceService.getByCode(config.getString(DATA_SOURCE)).ifPresent(source -> {
         this.setDataSource(source);
       });
-    }
-
-    if (config.has(BusinessObjectImportConfiguration.EDGE_TYPE))
-    {
-      this.setEdgeType(this.edgeService.getByCodeOrThrow(config.getString(BusinessObjectImportConfiguration.EDGE_TYPE)));
     }
 
     try
@@ -388,18 +294,6 @@ public class BusinessObjectImportConfiguration extends ImportConfiguration
     catch (ParseException e)
     {
       throw new ProgrammingErrorException(e);
-    }
-
-    if (config.has(HIERARCHY))
-    {
-      String hCode = config.getString(HIERARCHY);
-
-      if (hCode.length() > 0)
-      {
-        ServerHierarchyType hierarchyType = ServerHierarchyType.get(hCode);
-
-        this.setHierarchy(hierarchyType);
-      }
     }
 
     if (config.has(EXCLUSIONS))
@@ -445,43 +339,6 @@ public class BusinessObjectImportConfiguration extends ImportConfiguration
         }
       }
     }
-
-    for (int i = 0; i < locations.length(); i++)
-    {
-      JSONObject location = locations.getJSONObject(i);
-
-      if (location.has(TARGET) && location.getString(TARGET).length() > 0 && location.has(MATCH_STRATEGY) && location.getString(MATCH_STRATEGY).length() > 0)
-      {
-        String pCode = location.getString(AttributeType.JSON_CODE);
-        ServerGeoObjectType pType = ServerGeoObjectType.get(pCode);
-
-        String target = location.getString(TARGET);
-        ParentMatchStrategy matchStrategy = ParentMatchStrategy.valueOf(location.getString(MATCH_STRATEGY));
-
-        // This is supported for testing reasons. On a live server all data
-        // coming in with use BasicColumnFunctions
-        if (location.has("type") && location.getString("type").equals(ConstantShapefileFunction.class.getName()))
-        {
-          this.addLocation(new Location(pType, this.hierarchy, new ConstantShapefileFunction(target), matchStrategy));
-        }
-        else
-        {
-          this.addLocation(new Location(pType, this.hierarchy, new BasicColumnFunction(target), matchStrategy));
-        }
-      }
-    }
-
-    // If the hierarchy is inherited, we need to resolve the hierarchy
-    // inheritance chain and set them properly on the Location objects
-    // To do this, we must start from the bottom and resolve upwards
-    // ServerHierarchyType ht = this.hierarchy;
-    // for (int i = this.locations.size() - 1; i >= 0; --i)
-    // {
-    // Location loc = this.locations.get(i);
-    //
-    // ht = got.findHierarchy(ht, loc.getType());
-    // loc.setHierarchy(ht);
-    // }
 
     return this;
   }

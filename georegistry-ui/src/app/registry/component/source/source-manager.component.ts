@@ -27,7 +27,6 @@ import { LocalizationService } from "@shared/service/localization.service";
 import { Source } from "@registry/model/source";
 import { ManageSourceModalComponent } from "./modals/manage-source-modal.component";
 import { SourceService } from "@registry/service/source.service";
-import { read } from "@popperjs/core";
 
 @Component({
     selector: "source-manager",
@@ -74,7 +73,7 @@ export class SourceManagerComponent implements OnInit {
             backdrop: true,
             ignoreBackdropClick: true
         });
-        this.bsModalRef.content.init(source, readOnly);
+        this.bsModalRef.content.init({...source}, readOnly);
 
         this.bsModalRef.content.onSourceChange.subscribe(t => {
             const index = this.sources.findIndex((tt) => source.code === tt.code);

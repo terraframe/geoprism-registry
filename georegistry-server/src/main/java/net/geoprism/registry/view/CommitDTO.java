@@ -28,6 +28,11 @@ public class CommitDTO
     this.uid = UUID.randomUUID().toString();
   }
 
+  public CommitDTO(String uid, String publishId, Integer versionNumber, Long lastOriginGlobalIndex)
+  {
+    this(uid, publishId, versionNumber, lastOriginGlobalIndex, null);
+  }
+
   public CommitDTO(String uid, String publishId, Integer versionNumber, Long lastOriginGlobalIndex, Date createDate)
   {
     this.uid = uid;

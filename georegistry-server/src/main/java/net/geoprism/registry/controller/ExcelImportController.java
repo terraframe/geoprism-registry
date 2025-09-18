@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
@@ -23,10 +23,6 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-
-import jakarta.validation.constraints.NotEmpty;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -43,6 +39,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.controller.ShapefileController.GetConfigurationBody;
@@ -59,6 +58,8 @@ public class ExcelImportController extends RunwaySpringController
   {
     @NotEmpty(message = "Import type requires a value")
     private String        type;
+
+    private String        dataSource;
 
     @JsonDeserialize(using = NullableDateDeserializer.class)
     private Date          date;
@@ -121,6 +122,16 @@ public class ExcelImportController extends RunwaySpringController
     {
       this.copyBlank = copyBlank;
     }
+    
+    public String getDataSource()
+    {
+      return dataSource;
+    }
+    
+    public void setDataSource(String dataSource)
+    {
+      this.dataSource = dataSource;
+    }
 
   }
 
@@ -143,17 +154,14 @@ public class ExcelImportController extends RunwaySpringController
 
       ImportStrategy strategy = ImportStrategy.valueOf(body.getStrategy());
 
-      JSONObject configuration = service.getExcelConfiguration(sessionId, body.getType(), body.getStartDate(), body.getEndDate(), fileName, stream, strategy, body.getCopyBlank());
+      JSONObject configuration = service.getExcelConfiguration(sessionId, body.getType(), body.getStartDate(), body.getEndDate(), body.getDataSource(), fileName, stream, strategy, body.getCopyBlank());
 
       return new ResponseEntity<String>(configuration.toString(), HttpStatus.OK);
     }
   }
 
   @PostMapping(API_PATH + "/export-spreadsheet")
-  public ResponseEntity<?> exportSpreadsheet(@RequestParam
-  @NotEmpty String type,
-      @RequestParam
-      @NotEmpty String hierarchyType)
+  public ResponseEntity<?> exportSpreadsheet(@RequestParam @NotEmpty String type, @RequestParam @NotEmpty String hierarchyType)
   {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
@@ -175,7 +183,7 @@ public class ExcelImportController extends RunwaySpringController
 
       ImportStrategy strategy = ImportStrategy.valueOf(body.getStrategy());
 
-      JSONObject configuration = service.getBusinessTypeConfiguration(this.getSessionId(), body.type, body.date, fileName, stream, strategy, body.copyBlank);
+      JSONObject configuration = service.getBusinessTypeConfiguration(this.getSessionId(), body.type, body.date, body.dataSource, fileName, stream, strategy, body.copyBlank);
 
       return new ResponseEntity<String>(configuration.toString(), HttpStatus.OK);
     }

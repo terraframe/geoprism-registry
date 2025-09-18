@@ -18,9 +18,6 @@
  */
 package net.geoprism.registry.etl.upload;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +42,6 @@ import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,31 +70,16 @@ import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.axon.event.repository.BusinessObjectEventBuilder;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
-import net.geoprism.registry.io.AmbiguousParentException;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.IgnoreRowException;
-import net.geoprism.registry.io.Location;
-import net.geoprism.registry.io.ParentCodeException;
-import net.geoprism.registry.io.ParentMatchStrategy;
 import net.geoprism.registry.io.RequiredMappingException;
 import net.geoprism.registry.io.TermValueException;
-import net.geoprism.registry.jobs.ParentReferenceProblem;
 import net.geoprism.registry.jobs.RowValidationProblem;
 import net.geoprism.registry.jobs.TermReferenceProblem;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.GeoObjectMetadata;
 import net.geoprism.registry.model.GeoObjectTypeMetadata;
-import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.model.ServerParentTreeNode;
-import net.geoprism.registry.query.ServerCodeRestriction;
-import net.geoprism.registry.query.ServerExternalIdRestriction;
-import net.geoprism.registry.query.ServerGeoObjectQuery;
-import net.geoprism.registry.query.ServerSynonymRestriction;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
-import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
-import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class BusinessObjectImporter implements ObjectImporterIF
 {
@@ -153,11 +134,9 @@ public class BusinessObjectImporter implements ObjectImporterIF
 
   private static class RowData
   {
-    private String                goJson;
+    private String  goJson;
 
-    private boolean               isNew;
-
-    private GeoObjectErrorBuilder builder;
+    private boolean isNew;
 
     public void setGoJson(String goJson)
     {
@@ -167,11 +146,6 @@ public class BusinessObjectImporter implements ObjectImporterIF
     public void setNew(boolean isNew)
     {
       this.isNew = isNew;
-    }
-
-    public void setParentBuilder(GeoObjectErrorBuilder parentBuilder)
-    {
-      this.builder = parentBuilder;
     }
 
   }
@@ -187,8 +161,6 @@ public class BusinessObjectImporter implements ObjectImporterIF
 
   protected BusinessObjectImportConfiguration configuration;
 
-  protected Map<String, ServerGeoObjectIF>    cache;
-
   protected ImportProgressListenerIF          progressListener;
 
   protected FormatSpecificImporterIF          formatImporter;
@@ -203,117 +175,21 @@ public class BusinessObjectImporter implements ObjectImporterIF
 
   private BusinessObjectBusinessServiceIF     bObjectService;
 
-  private GeoObjectBusinessServiceIF          objectService;
-
   private EventGateway                        gateway;
 
   public BusinessObjectImporter(BusinessObjectImportConfiguration configuration, ImportProgressListenerIF progressListener)
   {
     this.bObjectService = ServiceFactory.getBean(BusinessObjectBusinessServiceIF.class);
-    this.objectService = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
     this.gateway = ServiceFactory.getBean(EventGateway.class);
 
     this.configuration = configuration;
     this.progressListener = progressListener;
-
-    final int MAX_ENTRIES = 10000; // The size of our parentCache
-    this.cache = Collections.synchronizedMap(new LinkedHashMap<String, ServerGeoObjectIF>(MAX_ENTRIES + 1, .75F, true)
-    {
-      private static final long serialVersionUID = 1L;
-
-      public boolean removeEldestEntry(@SuppressWarnings("rawtypes") Map.Entry eldest)
-      {
-        return size() > MAX_ENTRIES;
-      }
-    });
 
     this.blockingQueue = new LinkedBlockingDeque<Runnable>(50);
 
     this.executor = new ThreadPoolExecutor(10, 20, 5, TimeUnit.SECONDS, blockingQueue);
     this.executor.prestartAllCoreThreads();
   }
-
-  protected class GeoObjectErrorBuilder
-  {
-    protected ServerGeoObjectIF geoObject;
-
-    protected BusinessObject    object;
-
-    protected GeoObjectErrorBuilder()
-    {
-
-    }
-
-    public ServerGeoObjectIF getGeoObject()
-    {
-      return geoObject;
-    }
-
-    public void setGeoObject(ServerGeoObjectIF geoObject)
-    {
-      this.geoObject = geoObject;
-    }
-
-    public BusinessObject getObject()
-    {
-      return object;
-    }
-
-    public void setObject(BusinessObject object)
-    {
-      this.object = object;
-    }
-
-    public JSONArray build()
-    {
-      JSONArray parents = new JSONArray();
-
-      try
-      {
-        if (this.getGeoObject() != null)
-        {
-          final ServerGeoObjectIF geoObject = this.getGeoObject();
-          final List<Location> locations = BusinessObjectImporter.this.getConfiguration().getLocations();
-          final ServerHierarchyType hierarchy = BusinessObjectImporter.this.configuration.getHierarchy();
-
-          String[] types = new String[locations.size() - 1];
-
-          for (int i = 0; i < locations.size() - 1; ++i)
-          {
-            Location location = locations.get(i);
-            types[i] = location.getType().getCode();
-          }
-
-          ServerParentTreeNode tnParent = new ServerParentTreeNode(geoObject, hierarchy, BusinessObjectImporter.this.getConfiguration().getDate(), BusinessObjectImporter.this.getConfiguration().getDate(), null, null, BusinessObjectImporter.this.getConfiguration().getDataSource());
-
-          ServerParentTreeNodeOverTime grandParentsOverTime = objectService.getParentsOverTime(geoObject, null, true, true);
-
-          if (grandParentsOverTime != null && grandParentsOverTime.hasEntries(hierarchy))
-          {
-            List<ServerParentTreeNode> entries = grandParentsOverTime.getEntries(hierarchy);
-
-            if (entries != null && entries.size() > 0)
-            {
-              ServerParentTreeNode ptn = grandParentsOverTime.getEntries(hierarchy).get(0);
-
-              tnParent.addParent(ptn);
-            }
-          }
-
-          ServerParentTreeNodeOverTime parentsOverTime = new ServerParentTreeNodeOverTime(geoObject.getType());
-          parentsOverTime.add(hierarchy, tnParent);
-
-          return new JSONArray(parentsOverTime.toJSON().toString());
-        }
-      }
-      catch (Throwable t2)
-      {
-        logger.error("Error constructing parents", t2);
-      }
-
-      return parents;
-    }
-  };
 
   public FormatSpecificImporterIF getFormatSpecificImporter()
   {
@@ -350,17 +226,12 @@ public class BusinessObjectImporter implements ObjectImporterIF
 
       try
       {
-        if (this.configuration.getHierarchy() != null && this.configuration.getLocations().size() > 0)
-        {
-          this.getGeoObject(row);
-        }
-
         /*
          * 2. Check for serialization and term problems
          */
         String code = this.getCode(row);
 
-        if (code == null || code.length() <= 0)
+        if (StringUtils.isBlank(code))
         {
           RequiredMappingException ex = new RequiredMappingException();
           ex.setAttributeLabel(GeoObjectTypeMetadata.getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
@@ -491,7 +362,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
       }
       catch (DuplicateDataException e)
       {
-        buildRecordException(data.goJson, data.isNew, data.builder, e);
+        buildRecordException(data.goJson, data.isNew, e);
       }
     }
     catch (BusinessObjectRecordedErrorException e)
@@ -514,12 +385,6 @@ public class BusinessObjectImporter implements ObjectImporterIF
   {
     JSONObject obj = new JSONObject(e.getObjectJson());
 
-    GeoObjectErrorBuilder parentBuilder = e.getBuilder();
-    if (parentBuilder != null)
-    {
-      obj.put("parents", parentBuilder.build());
-    }
-
     this.progressListener.recordError(e.getError(), obj.toString(), e.getObjectType(), row.getRowNumber());
     this.getConfiguration().addException(e);
   }
@@ -538,11 +403,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
 
     BusinessObject businessObject = null;
 
-    ServerGeoObjectIF geoObject = null;
-
     boolean isNew = false;
-
-    GeoObjectErrorBuilder builder = new GeoObjectErrorBuilder();
 
     try
     {
@@ -575,10 +436,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
 
         businessObject = this.bObjectService.newInstance(this.configuration.getType());
         businessObject.setCode(code);
-        businessObject.setValue(DefaultAttribute.DATA_SOURCE.getName(), configuration.getDataSource());
       }
-
-      builder.setObject(businessObject);
 
       Map<String, AttributeType> attributes = this.configuration.getType().getAttributeMap();
       Set<Entry<String, AttributeType>> entries = attributes.entrySet();
@@ -605,17 +463,9 @@ public class BusinessObjectImporter implements ObjectImporterIF
           }
         }
       }
+      
+      businessObject.setValue(DefaultAttribute.DATA_SOURCE.getName(), configuration.getDataSource());
 
-      /*
-       * Try to get the parent and ensure that this row is not ignored. The
-       * getParent method will throw a IgnoreRowException if the parent is
-       * configured to be ignored.
-       */
-      if (this.configuration.getHierarchy() != null && this.configuration.getLocations().size() > 0)
-      {
-        geoObject = this.getGeoObject(row);
-      }
-      builder.setGeoObject(geoObject);
 
       if (this.progressListener.hasValidationProblems())
       {
@@ -624,16 +474,10 @@ public class BusinessObjectImporter implements ObjectImporterIF
 
       data.setGoJson(this.bObjectService.toJSON(businessObject).toString());
       data.setNew(isNew);
-      data.setParentBuilder(builder);
 
       BusinessObjectEventBuilder eventBuilder = new BusinessObjectEventBuilder(this.bObjectService);
       eventBuilder.setObject(businessObject, isNew);
       eventBuilder.setAttributeUpdate(true);
-
-      if (this.configuration.getDirection() != null && this.configuration.getEdgeType() != null)
-      {
-        eventBuilder.addGeoObject(this.configuration.getEdgeType(), geoObject, this.configuration.getDirection(), this.configuration.getDataSource());
-      }
 
       this.gateway.publish(eventBuilder.build().stream().map(GenericEventMessage::asEventMessage).toList());
 
@@ -656,13 +500,13 @@ public class BusinessObjectImporter implements ObjectImporterIF
     }
     catch (Throwable t)
     {
-      buildRecordException(this.bObjectService.toJSON(businessObject).toString(), isNew, builder, t);
+      buildRecordException(this.bObjectService.toJSON(businessObject).toString(), isNew, t);
     }
 
     return imported;
   }
 
-  private void buildRecordException(String goJson, boolean isNew, GeoObjectErrorBuilder parentBuilder, Throwable t)
+  private void buildRecordException(String goJson, boolean isNew, Throwable t)
   {
     JSONObject obj = new JSONObject();
 
@@ -677,7 +521,6 @@ public class BusinessObjectImporter implements ObjectImporterIF
     re.setError(t);
     re.setObjectJson(obj.toString());
     re.setObjectType(ERROR_OBJECT_TYPE);
-    re.setBuilder(parentBuilder);
     throw re;
   }
 
@@ -707,200 +550,6 @@ public class BusinessObjectImporter implements ObjectImporterIF
     }
 
     return null;
-  }
-
-  /**
-   * Returns the entity as defined by the 'parent' and 'parentType' attributes
-   * of the given feature. If an entity is not found then Earth is returned by
-   * default. The 'parent' value of the feature must define an entity name or a
-   * geo oid. The 'parentType' value of the feature must define the localized
-   * display label of the universal.
-   * 
-   * This algorithm resolves parent contexts starting at the top of the
-   * hierarchy and traversing downward, resolving hierarchy inheritance as
-   * needed. If at any point a location cannot be found, a SmartException will
-   * be thrown which varies depending on the ParentMatchStrategy.
-   *
-   * @param feature
-   *          Shapefile feature used to determine the parent
-   * @return Parent entity
-   */
-  private ServerGeoObjectIF getGeoObject(FeatureRow feature)
-  {
-    List<Location> locations = this.configuration.getLocations();
-
-    ServerGeoObjectIF parent = null;
-
-    JSONArray context = new JSONArray();
-
-    ArrayList<String> parentKeyBuilder = new ArrayList<String>();
-
-    for (Location location : locations)
-    {
-      Object label = getParentCode(feature, location);
-
-      if (label != null)
-      {
-        String key = parent != null ? parent.getCode() + "-" + label : label.toString();
-
-        parentKeyBuilder.add(label.toString());
-
-        if (this.configuration.isExclusion(GeoObjectImportConfiguration.PARENT_EXCLUSION, key))
-        {
-          throw new IgnoreRowException();
-        }
-
-        // Check the parent cache
-        String parentChainKey = StringUtils.join(parentKeyBuilder, parentConcatToken);
-        if (this.cache.containsKey(parentChainKey))
-        {
-          parent = this.cache.get(parentChainKey);
-
-          JSONObject element = new JSONObject();
-          element.put("label", label.toString());
-          element.put("type", location.getType().getLabel().getValue());
-
-          context.put(element);
-
-          continue;
-        }
-
-        final ParentMatchStrategy ms = location.getMatchStrategy();
-
-        // Search
-        ServerGeoObjectQuery query = this.objectService.createQuery(location.getType(), this.configuration.getDate());
-        query.setLimit(20);
-
-        if (ms.equals(ParentMatchStrategy.CODE))
-        {
-          query.setRestriction(new ServerCodeRestriction(location.getType(), label.toString()));
-        }
-        else if (ms.equals(ParentMatchStrategy.EXTERNAL))
-        {
-          query.setRestriction(new ServerExternalIdRestriction(location.getType(), this.getConfiguration().getExternalSystem(), label.toString()));
-        }
-        else if (ms.equals(ParentMatchStrategy.DHIS2_PATH))
-        {
-          String path = label.toString();
-
-          String dhis2Parent;
-          try
-          {
-            if (path.startsWith("/"))
-            {
-              path = path.substring(1);
-            }
-
-            String pathArr[] = path.split("/");
-
-            dhis2Parent = pathArr[pathArr.length - 2];
-          }
-          catch (Throwable t)
-          {
-            InvalidDhis2PathException ex = new InvalidDhis2PathException(t);
-            ex.setDhis2Path(path);
-            throw ex;
-          }
-
-          query.setRestriction(new ServerExternalIdRestriction(location.getType(), this.getConfiguration().getExternalSystem(), dhis2Parent));
-        }
-        else
-        {
-          query.setRestriction(new ServerSynonymRestriction(label.toString(), this.configuration.getDate(), parent, location.getHierarchy()));
-        }
-
-        List<ServerGeoObjectIF> results = query.getResults();
-
-        if (results != null && results.size() > 0)
-        {
-          ServerGeoObjectIF result = null;
-
-          // There may be multiple results because our query doesn't filter out
-          // relationships that don't fit the date criteria
-          // You can't really add a date filter on a match query. Look at
-          // RegistryService.getGeoObjectSuggestions for an example
-          // of how this date filter could maybe be rewritten to be included
-          // into the query SQL.
-          for (ServerGeoObjectIF loop : results)
-          {
-            if (result != null && !result.getCode().equals(loop.getCode()))
-            {
-              AmbiguousParentException ex = new AmbiguousParentException();
-              ex.setParentLabel(label.toString());
-              ex.setContext(context.toString());
-              throw ex;
-            }
-
-            result = loop;
-          }
-
-          parent = result;
-
-          JSONObject element = new JSONObject();
-          element.put("label", label.toString());
-          element.put("type", location.getType().getLabel().getValue());
-
-          context.put(element);
-
-          this.cache.put(parentChainKey, parent);
-        }
-        else
-        {
-          // if (context.length() == 0)
-          // {
-          // GeoObject root = this.configuration.getRoot();
-          //
-          // if (root != null)
-          // {
-          // JSONObject element = new JSONObject();
-          // element.put("label", root.getLocalizedDisplayLabel());
-          // element.put("type", root.getType().getLabel().getValue());
-          //
-          // context.put(element);
-          // }
-          // }
-
-          if (ms.equals(ParentMatchStrategy.CODE))
-          {
-            final ParentCodeException ex = new ParentCodeException();
-            ex.setParentCode(label.toString());
-            ex.setParentType(location.getType().getLabel().getValue());
-            ex.setContext(context.toString());
-
-            throw ex;
-          }
-          else if (ms.equals(ParentMatchStrategy.EXTERNAL))
-          {
-            final ExternalParentReferenceException ex = new ExternalParentReferenceException();
-            ex.setExternalId(label.toString());
-            ex.setParentType(location.getType().getLabel().getValue());
-            ex.setContext(context.toString());
-
-            throw ex;
-          }
-          else
-          {
-            String parentCode = ( parent == null ) ? null : parent.getCode();
-
-            ParentReferenceProblem prp = new ParentReferenceProblem(location.getType().getCode(), label.toString(), parentCode, context.toString());
-            prp.addAffectedRowNumber(feature.getRowNumber());
-            prp.setHistoryId(this.configuration.historyId);
-
-            this.progressListener.addReferenceProblem(prp);
-          }
-
-          return null;
-        }
-      }
-    }
-
-    return parent;
-  }
-
-  protected Object getParentCode(FeatureRow feature, Location location)
-  {
-    ShapefileFunction function = location.getFunction();
-    return function.getValue(feature);
   }
 
   protected void setTermValue(BusinessObject entity, AttributeType attributeType, String attributeName, Object value, FeatureRow row)

@@ -91,7 +91,7 @@ export class SyncDetailsComponent implements OnInit, OnDestroy {
                 this.error(response.exception);
             }
             else if (this.job.stage === 'EXPORT' && this.pollingSubscription == null) {
-                const pollInterval = 60000; // Poll every 60 seconds
+                const pollInterval = 30*1000; // Poll every 60 seconds
                 const timeoutInterval = pollInterval * 60; // Poll every 60 seconds
 
                 this.pollingSubscription = interval(pollInterval).pipe(timeout(timeoutInterval)).subscribe(() => {

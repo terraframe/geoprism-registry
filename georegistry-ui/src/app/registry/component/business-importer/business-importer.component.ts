@@ -51,28 +51,14 @@ export class BusinessImporterComponent implements OnInit {
     isValid: boolean = false;
 
     /*
-    * GeoObjectTypes grouped by hierarchy
+    * Business Types
     */
     businessTypes: BusinessType[] = [];
 
     /*
-     * Code of the currently selected GeoObjectType
+     * Code of the currently selected Business Type
      */
     businessTypeCode: string = null;
-
-    /*
-    * GeoObjectTypes grouped by hierarchy
-    */
-    allHierarchyViews: HierarchyGroupedTypeView[];
-
-    filteredHierarchyViews: any[];
-
-    /*
-     * Hierarchies grouped by GeoObjectType
-     */
-    allTypeViews: TypeGroupedHierachyView[];
-
-    filteredTypeViews: any[];
 
     importStrategy: ImportStrategy;
     importStrategies: any[] = [
@@ -85,11 +71,6 @@ export class BusinessImporterComponent implements OnInit {
      * Code of the currently selected GeoObjectType
      */
     typeCode: string = null;
-
-    /*
-     * Code of the currently selected Hierarchy
-     */
-    hierarchyCode: string = null;
 
     /*
      * Date
@@ -132,7 +113,6 @@ export class BusinessImporterComponent implements OnInit {
         private modalService: BsModalService,
         private sourceService: SourceService,
         private localizationService: LocalizationService,
-        private hierarchyService: HierarchyService,
         private businessService: BusinessTypeService
     ) { }
 
@@ -147,67 +127,6 @@ export class BusinessImporterComponent implements OnInit {
             this.businessTypes = businessTypes;
         });
 
-        this.hierarchyService.getHierarchyGroupedTypes().then(views => {
-            this.allHierarchyViews = views;
-            this.allTypeViews = [];
-
-            // Make sure we are using the same object references for all types
-            let len0 = this.allHierarchyViews.length;
-            for (let i = 0; i < len0; ++i) {
-                let view = this.allHierarchyViews[i];
-
-                let len2 = view.types.length;
-                for (let j = 0; j < len2; ++j) {
-                    let type = view.types[j];
-
-                    let len9 = this.allHierarchyViews.length;
-                    for (let j = 0; j < len9; ++j) {
-                        let view2 = this.allHierarchyViews[j];
-
-                        let indexOf = view2.types.findIndex(findType => type.code === findType.code);
-
-                        if (indexOf !== -1) {
-                            view2.types[indexOf] = type;
-                        }
-                    }
-                }
-            }
-
-            // Generate a TypeGroupedHierarchy lookup structure from the HierarchyGroupedType structure
-            let len = this.allHierarchyViews.length;
-            for (let i = 0; i < len; ++i) {
-                let view = this.allHierarchyViews[i];
-
-                let len2 = view.types.length;
-                for (let j = 0; j < len2; ++j) {
-                    let type = view.types[j];
-
-                    let indexOf = this.allTypeViews.findIndex(findType => findType.code === type.code);
-
-                    if (indexOf !== -1) {
-                        let findType = this.allTypeViews[indexOf];
-
-                        let existingHierarchyIndex = findType.hierarchies.findIndex(findHier => findHier.code === view.code);
-
-                        if (existingHierarchyIndex === -1) {
-                            findType.hierarchies.push(view);
-                        }
-                    } else {
-                        if (type.hierarchies == null) {
-                            type.hierarchies = [];
-                        }
-                        type.hierarchies.push(view);
-                        this.allTypeViews.push(type);
-                    }
-                }
-            }
-
-            this.filteredHierarchyViews = this.allHierarchyViews;
-            this.filteredTypeViews = this.allTypeViews;
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-
         let getUrl = environment.apiUrl + "/api/excel/get-business-config";
 
         let options: FileUploaderOptions = {
@@ -219,13 +138,13 @@ export class BusinessImporterComponent implements OnInit {
         this.uploader = new FileUploader(options);
 
         this.uploader.onBuildItemForm = (fileItem: any, form: any) => {
+
+            console.log('Data Source', this.dataSource);
+
             form.append("type", this.businessTypeCode);
             form.append("copyBlank", this.copyBlank);
+            form.append("dataSource", this.dataSource);
 
-            if (this.dataSource != null) {
-                form.append("dataSource", this.dataSource);
-            }
-            
             if (this.date != null) {
                 form.append("date", this.date);
             }
@@ -243,8 +162,6 @@ export class BusinessImporterComponent implements OnInit {
         this.uploader.onSuccessItem = (item: any, response: string, status: number, headers: any) => {
             const configuration = JSON.parse(response);
 
-            configuration.hierarchy = this.hierarchyCode;
-            configuration.geoObjectType = { code: this.typeCode };
 
             this.bsModalRef = this.modalService.show(ImportModalComponent, { backdrop: true, ignoreBackdropClick: true });
             this.bsModalRef.content.init(configuration, "geoObjectType", true);
@@ -254,42 +171,6 @@ export class BusinessImporterComponent implements OnInit {
 
             this.error({ error: error });
         };
-    }
-
-    onSelectHierarchy(): void {
-        let view: HierarchyGroupedTypeView = null;
-
-        let len = this.allHierarchyViews.length;
-        for (let i = 0; i < len; ++i) {
-            if (this.allHierarchyViews[i].code === this.hierarchyCode) {
-                view = this.allHierarchyViews[i];
-                break;
-            }
-        }
-
-        if (view != null) {
-            this.filteredTypeViews = view.types;
-        } else {
-            this.filteredTypeViews = this.allTypeViews;
-        }
-    }
-
-    onSelectType(): void {
-        let view: TypeGroupedHierachyView = null;
-
-        let len = this.allTypeViews.length;
-        for (let i = 0; i < len; ++i) {
-            if (this.allTypeViews[i].code === this.typeCode) {
-                view = this.allTypeViews[i];
-                break;
-            }
-        }
-
-        if (view != null) {
-            this.filteredHierarchyViews = view.hierarchies;
-        } else {
-            this.filteredHierarchyViews = this.allHierarchyViews;
-        }
     }
 
     onClick(): void {

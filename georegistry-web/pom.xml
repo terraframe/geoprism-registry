@@ -159,7 +159,7 @@
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
-				<filtering>false</filtering>
+				<filtering>true</filtering>
 				<excludes>
 					<exclude>**/*.pbf</exclude>
 					<exclude>**/*.xlsx</exclude>

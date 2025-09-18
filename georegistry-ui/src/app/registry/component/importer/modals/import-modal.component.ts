@@ -76,7 +76,7 @@ export class ImportModalComponent {
 
     handleNext(): void {
         if (this.state === 'MAP') {
-            if (!this.configuration.postalCode) {
+            if (!this.configuration.postalCode && this.configuration.hierarchy != null) {
                 this.state = 'LOCATION';
             }
             else {

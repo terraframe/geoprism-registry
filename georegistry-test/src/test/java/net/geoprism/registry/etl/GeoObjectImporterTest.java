@@ -617,7 +617,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
 
   private GeoObjectImportConfiguration getTestConfiguration(InputStream istream, ExcelService service, AttributeTermType attributeTerm, ImportStrategy strategy) throws JSONException
   {
-    JSONObject result = service.getExcelConfiguration(testData.clientRequest.getSessionId(), USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, "test-spreadsheet.xlsx", istream, strategy, false);
+    JSONObject result = service.getExcelConfiguration(testData.clientRequest.getSessionId(), USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getCode(), "test-spreadsheet.xlsx", istream, strategy, false);
     JSONObject type = result.getJSONObject(GeoObjectImportConfiguration.TYPE);
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 
