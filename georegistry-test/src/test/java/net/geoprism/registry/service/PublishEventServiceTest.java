@@ -40,6 +40,7 @@ import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.Publish;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.UndirectedGraphType;
+import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
 import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.config.TestApplication;
@@ -99,12 +100,23 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
   @Autowired
   private DataSourceBusinessServiceIF               sourceService;
 
+  @Autowired
+  private RegistryEventStore                        store;
+
   private static boolean                            WRITE_FILES = false;
 
   @Test
   @Request
   public void testPublish() throws InterruptedException
   {
+    System.out.println("");
+    System.out.println("");
+    System.out.println("TEST PUBLISH START");
+    System.out.println("");
+    System.out.println("");
+
+    Assert.assertEquals(Long.valueOf(47L), this.store.size());
+
     String directory = "src/test/resources/commit";
 
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -226,7 +238,14 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
         Assert.assertEquals(1, sources.size());
         Assert.assertEquals(USATestData.SOURCE.getCode(), sources.get(0).getCode());
 
+        Assert.assertEquals(Long.valueOf(94L), this.store.size());
+
         List<RemoteEvent> events = this.cService.getRemoteEvents(commit).toList();
+
+        if (events.size() != 47)
+        {
+          System.out.println("BAD");
+        }
 
         Assert.assertEquals(47, events.size());
 
@@ -277,14 +296,23 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
     {
       throw new RuntimeException(e);
     }
+
+    System.out.println("");
+    System.out.println("");
+    System.out.println("TEST PUBLISH END");
+    System.out.println("");
+    System.out.println("");
   }
 
   @Test
   @Request
   public void testIncludeAllTypesFromHierarchy() throws InterruptedException
   {
+
     try
     {
+      Assert.assertEquals(Long.valueOf(47L), this.store.size());
+
       PublishDTO dto = new PublishDTO("USA Geospatial Graph", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       dto.addHierarchyType(testData.getManagedHierarchyTypes().stream().map(t -> t.getCode()).toArray(s -> new String[s]));
 

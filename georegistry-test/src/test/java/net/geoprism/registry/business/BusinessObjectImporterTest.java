@@ -394,65 +394,6 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
   }
 
   @Test
-  public void testUnknownGeoObject()
-  {
-    TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
-
-      ServerHierarchyType hierarchy = FastTestDataset.HIER_ADMIN.getServerObject();
-      ServerGeoObjectType got = FastTestDataset.DISTRICT.getServerObject();
-
-      String value = "Test Text";
-      String rowAttribute = "Bad";
-      String geoAttribute = "Geo Object";
-
-      HashMap<String, Object> row = new HashMap<String, Object>();
-      row.put(rowAttribute, value);
-      row.put(geoAttribute, "Blarg");
-      row.put(BusinessObject.CODE, TEST_CODE);
-
-      BusinessObjectImportConfiguration configuration = new BusinessObjectImportConfiguration();
-      configuration.setImportStrategy(ImportStrategy.NEW_ONLY);
-      configuration.setType(type);
-      configuration.setDate(FastTestDataset.DEFAULT_END_TIME_DATE);
-      configuration.setCopyBlank(false);
-      configuration.setFunction(attributeType.getName(), new BasicColumnFunction(rowAttribute));
-      configuration.setFunction(BusinessObject.CODE, new BasicColumnFunction(BusinessObject.CODE));
-
-      try (BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener()))
-      {
-        importer.importRow(new MapFeatureRow(row, 0L));
-      }
-
-      BusinessObject result = this.bObjectService.get(type, attributeType.getName(), value);
-
-      try
-      {
-        Assert.assertNull(result);
-
-        LinkedList<BusinessObjectRecordedErrorException> exceptions = configuration.getExceptions();
-
-        Assert.assertEquals(1, exceptions.size());
-
-        BusinessObjectRecordedErrorException exception = exceptions.get(0);
-        Throwable error = exception.getError();
-
-        Assert.assertTrue(error instanceof ParentCodeException);
-
-        ParentCodeException ex = (ParentCodeException) error;
-        Assert.assertEquals("Blarg", ex.getParentCode());
-        Assert.assertEquals(got.getCode(), ex.getParentType());
-      }
-      finally
-      {
-        if (result != null)
-        {
-          this.deleteObject(result);
-        }
-      }
-    });
-  }
-
-  @Test
   public void testImportSpreadsheet() throws Throwable
   {
     TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {

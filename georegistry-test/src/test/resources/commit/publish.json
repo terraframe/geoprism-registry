@@ -1,9 +1,10 @@
 {
-  "uid" : "3a290638-4852-41f9-bb2f-594f8f9706f4",
+  "uid" : "e7a11df0-b6c7-40fb-84d2-dcbdb902328c",
+  "label" : "USA Geospatial Graph",
   "date" : "2020-04-04",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04",
-  "origin" : "TESTABC",
+  "origin" : "terraframe.com",
   "types" : [ {
     "code" : "USATestDataCountry",
     "type" : "GEO_OBJECT"

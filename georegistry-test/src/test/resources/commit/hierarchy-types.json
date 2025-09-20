@@ -2,7 +2,7 @@
   {
     "code": "USATestDataAdminCode",
     "orgCode": "USATestDataNPS",
-    "origin": "TESTABC",
+    "origin": "terraframe.com",
     "sequence": 8,
     "typeCode": "HierarchyType",
     "displayLabel": {
@@ -66,7 +66,7 @@
   {
     "code": "USATestDataSchoolCode",
     "orgCode": "USATestDataNPS",
-    "origin": "TESTABC",
+    "origin": "terraframe.com",
     "sequence": 2,
     "typeCode": "HierarchyType",
     "displayLabel": {
@@ -102,7 +102,7 @@
   {
     "code": "USATestDataReportsToCode",
     "orgCode": "USATestDataNPS",
-    "origin": "TESTABC",
+    "origin": "terraframe.com",
     "sequence": 2,
     "typeCode": "HierarchyType",
     "displayLabel": {

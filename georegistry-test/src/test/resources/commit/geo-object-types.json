@@ -2,7 +2,7 @@
   {
     "code": "USATestDataCountry",
     "orgCode": "USATestDataNPS",
-    "origin": "TESTABC",
+    "origin": "terraframe.com",
     "sequence": 0,
     "displayLabel": {
       "localizedValue": "USATestDataCountry",
@@ -189,7 +189,7 @@
   {
     "code": "USATestDataState",
     "orgCode": "USATestDataNPS",
-    "origin": "TESTABC",
+    "origin": "terraframe.com",
     "sequence": 0,
     "displayLabel": {
       "localizedValue": "USATestDataState",
@@ -376,7 +376,7 @@
   {
     "code": "USATestDataDistrict",
     "orgCode": "USATestDataNPS",
-    "origin": "TESTABC",
+    "origin": "terraframe.com",
     "sequence": 0,
     "displayLabel": {
       "localizedValue": "USATestDataDistrict",
@@ -563,7 +563,7 @@
   {
     "code": "USATestDataCounty",
     "orgCode": "USATestDataNPS",
-    "origin": "TESTABC",
+    "origin": "terraframe.com",
     "sequence": 0,
     "displayLabel": {
       "localizedValue": "USATestDataCounty",
@@ -750,7 +750,7 @@
   {
     "code": "USATestDataArea",
     "orgCode": "USATestDataNPS",
-    "origin": "TESTABC",
+    "origin": "terraframe.com",
     "sequence": 0,
     "displayLabel": {
       "localizedValue": "USATestDataArea",
@@ -937,7 +937,7 @@
   {
     "code": "USATestDataSchoolZone",
     "orgCode": "USATestDataNPS",
-    "origin": "TESTABC",
+    "origin": "terraframe.com",
     "sequence": 0,
     "displayLabel": {
       "localizedValue": "USATestDataSchoolZone",
@@ -1124,7 +1124,7 @@
   {
     "code": "USATestDataHealthFacility",
     "orgCode": "USATestDataNPS",
-    "origin": "TESTABC",
+    "origin": "terraframe.com",
     "sequence": 0,
     "displayLabel": {
       "localizedValue": "USATestDataHealthFacility",
@@ -1285,7 +1285,7 @@
   {
     "code": "USATestDataHealthPost",
     "orgCode": "USATestDataNPS",
-    "origin": "TESTABC",
+    "origin": "terraframe.com",
     "sequence": 0,
     "displayLabel": {
       "localizedValue": "USATestDataHealthPost",
@@ -1472,7 +1472,7 @@
   {
     "code": "USATestDataHealthStop",
     "orgCode": "USATestDataNPS",
-    "origin": "TESTABC",
+    "origin": "terraframe.com",
     "sequence": 0,
     "displayLabel": {
       "localizedValue": "USATestDataHealthStop",
@@ -1659,7 +1659,7 @@
   {
     "code": "USATestDataMexico_State_GOT",
     "orgCode": "USATestDataNPS",
-    "origin": "TESTABC",
+    "origin": "terraframe.com",
     "sequence": 0,
     "displayLabel": {
       "localizedValue": "USATestDataMexico_State_GOT",
@@ -1846,7 +1846,7 @@
   {
     "code": "USATestDataMexico_City_GOT",
     "orgCode": "USATestDataNPS",
-    "origin": "TESTABC",
+    "origin": "terraframe.com",
     "sequence": 0,
     "displayLabel": {
       "localizedValue": "USATestDataMexico_City_GOT",

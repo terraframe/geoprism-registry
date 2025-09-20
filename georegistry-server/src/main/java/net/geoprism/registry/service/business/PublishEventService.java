@@ -309,12 +309,14 @@ public class PublishEventService
 
   protected long processEventType(GapAwareTrackingToken start, GapAwareTrackingToken end, EventPhase phase, Publish publish, Commit commit, PublishDTO dto, Set<String> source)
   {
+    long limit = 1000;
+    long offset = 0;
+
     long total = 0;
 
-    String lastObjectId = null;
     List<String> baseObjectIds = null;
 
-    while ( ( baseObjectIds = this.store.getBaseObjectIds(start, end, phase, lastObjectId) ).size() > 0)
+    while ( ( baseObjectIds = this.store.getBaseObjectIds(start, end, phase, limit, offset) ).size() > 0)
     {
       for (String baseObjectId : baseObjectIds)
       {
@@ -345,7 +347,7 @@ public class PublishEventService
             .map(GenericEventMessage::asEventMessage) //
             .forEach(this.gateway::publish);
 
-        lastObjectId = baseObjectId;
+        offset += limit;
       }
     }
 

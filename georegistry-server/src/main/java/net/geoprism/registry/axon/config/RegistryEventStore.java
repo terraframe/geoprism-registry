@@ -105,7 +105,7 @@ public class RegistryEventStore extends EmbeddedEventStore implements EventStore
     }
   }
 
-  public List<String> getBaseObjectIds(GapAwareTrackingToken start, GapAwareTrackingToken end, EventPhase phase, String lastObjectId)
+  public List<String> getBaseObjectIds(GapAwareTrackingToken start, GapAwareTrackingToken end, EventPhase phase, long limit, long offset)
   {
     LinkedList<String> objectIds = new LinkedList<>();
 
@@ -121,12 +121,8 @@ public class RegistryEventStore extends EmbeddedEventStore implements EventStore
       statement.append(" AND globalindex > " + start.getIndex());
     }
 
-    if (lastObjectId != null)
-    {
-      statement.append(" AND " + BASE_OBJECT + " > '" + lastObjectId + "'");
-    }
-
-    statement.append(" LIMIT 1000");
+    statement.append(" ORDER BY " + BASE_OBJECT);
+    statement.append(" LIMIT " + limit + " OFFSET " + offset);
 
     try (ResultSet resultSet = Database.query(statement.toString()))
     {

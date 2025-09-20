@@ -2,7 +2,7 @@
   {
     "code": "TEST_B_EDGE",
     "orgCode": "USATestDataPPP",
-    "origin": "TESTABC",
+    "origin": "terraframe.com",
     "sequence": 0,
     "displayLabel": {
       "localizedValue": "TEST_B_EDGE",
@@ -30,7 +30,7 @@
   {
     "code": "TEST_GEO_EDGE",
     "orgCode": "USATestDataPPP",
-    "origin": "TESTABC",
+    "origin": "terraframe.com",
     "sequence": 0,
     "displayLabel": {
       "localizedValue": "TEST_GEO_EDGE",

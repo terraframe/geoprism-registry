@@ -554,8 +554,6 @@ public class RepositoryProjection
   @Transaction
   public void handleRemoteBusinessObject(RemoteBusinessObjectEvent event) throws Exception
   {
-    System.out.println("Repository Projection - Handling remote geo object");
-
     BusinessType type = this.typeService.getByCode(event.getType());
 
     if (!GeoprismProperties.getOrigin().equals(type.getOrigin()))
