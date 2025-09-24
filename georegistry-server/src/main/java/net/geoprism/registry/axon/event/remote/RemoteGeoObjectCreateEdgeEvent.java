@@ -190,6 +190,12 @@ public class RemoteGeoObjectCreateEdgeEvent implements RemoteEvent
   }
 
   @Override
+  public String getBaseObjectId()
+  {
+    return this.edgeUid;
+  }
+
+  @Override
   public boolean isValid(PublishDTO dto)
   {
     return !dto.getExclusions().contains(TypeAndCode.build(edgeTypeCode, edgeType));

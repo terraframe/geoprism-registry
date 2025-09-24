@@ -73,7 +73,7 @@ public class BusinessObjectApplyEvent extends AbstractRepositoryEvent implements
   @Override
   public String getBaseObjectId()
   {
-    return this.code + "#" + this.type;
+    return this.code + "#" + this.type + "#B";
   }
 
   @Override

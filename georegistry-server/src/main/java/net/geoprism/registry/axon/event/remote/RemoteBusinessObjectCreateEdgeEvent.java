@@ -143,4 +143,9 @@ public class RemoteBusinessObjectCreateEdgeEvent implements RemoteEvent
     return !dto.getExclusions().contains(TypeAndCode.build(edgeType, Type.BUSINESS_EDGE));
   }
 
+  @Override
+  public String getBaseObjectId()
+  {
+    return this.edgeUid;
+  }
 }

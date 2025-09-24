@@ -89,6 +89,7 @@ public abstract class RegistryJdbcEventStorageEngineStatements
 
       if (payload instanceof RemoteEvent)
       {
+        statement.setString(10, ( (RemoteEvent) payload ).getBaseObjectId());
         statement.setString(12, ( (RemoteEvent) payload ).getCommitId());
       }
       else

@@ -347,8 +347,10 @@ public class PublishEventService
             .map(GenericEventMessage::asEventMessage) //
             .forEach(this.gateway::publish);
 
-        offset += limit;
       }
+      
+      
+      offset += limit;
     }
 
     return total;

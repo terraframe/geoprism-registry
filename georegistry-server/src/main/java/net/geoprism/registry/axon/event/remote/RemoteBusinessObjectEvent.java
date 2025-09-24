@@ -87,6 +87,12 @@ public class RemoteBusinessObjectEvent implements RemoteEvent
   }
   
   @Override
+  public String getBaseObjectId()
+  {
+    return this.code + "#" + this.type + "#B";
+  }
+  
+  @Override
   public boolean isValid(PublishDTO dto)
   {
     return !dto.getExclusions().contains(TypeAndCode.build(type, Type.BUSINESS));

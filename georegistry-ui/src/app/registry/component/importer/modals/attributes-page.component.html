@@ -134,8 +134,8 @@
                 <localize key="io.cancel"></localize>
             </button>
             <button type="submit" (click)="onNext()" class="btn btn-primary" role="button" [disabled]="form.invalid">
-                <localize *ngIf="!configuration.postalCode && !configuration.hierarchy" key="io.next"></localize>
-                <localize *ngIf="configuration.postalCode" key="io.ok"></localize>
+                <localize *ngIf="!configuration.postalCode && configuration.hierarchy" key="io.next"></localize>
+                <localize *ngIf="configuration.postalCode || !configuration.hierarchy" key="io.ok"></localize>
             </button>
           </div>
         </div>

@@ -177,6 +177,13 @@
 			</resource>
 		</resources>
 		<plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <parameters>true</parameters>
+        </configuration>
+      </plugin>          		
 			<!-- Copy over the compiled angular code   -->
 			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>

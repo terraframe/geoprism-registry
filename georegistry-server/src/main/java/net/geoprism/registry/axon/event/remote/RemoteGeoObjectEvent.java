@@ -2,6 +2,7 @@ package net.geoprism.registry.axon.event.remote;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -116,6 +117,13 @@ public class RemoteGeoObjectEvent implements RemoteEvent
   public void setEndDate(Date endDate)
   {
     this.endDate = endDate;
+  }
+
+  @Override
+  @JsonIgnore
+  public String getBaseObjectId()
+  {
+    return this.code + "#" + this.type + "_O_";
   }
 
   @Override

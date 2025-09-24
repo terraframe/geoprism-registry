@@ -2,6 +2,7 @@ package net.geoprism.registry.axon.event.remote;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -154,6 +155,13 @@ public class RemoteGeoObjectSetParentEvent implements RemoteEvent
   public void setDataSource(String dataSource)
   {
     this.dataSource = dataSource;
+  }
+
+  @Override
+  @JsonIgnore
+  public String getBaseObjectId()
+  {
+    return this.code + "#" + this.type + "_H_" + this.edgeType;
   }
 
   @Override

@@ -4,9 +4,6 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import net.geoprism.graph.GraphTypeSnapshot;
-import net.geoprism.registry.DirectedAcyclicGraphType;
-import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.view.PublishDTO;
 
 public class BusinessObjectCreateEdgeEvent extends AbstractRepositoryEvent implements BusinessObjectEvent
