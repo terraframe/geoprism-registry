@@ -8,11 +8,13 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.sparql.core.Quad;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -169,7 +171,6 @@ public class JenaSynchronizationService
 
           if (history != null)
           {
-
             history.appLock();
             history.setWorkProgress(cWorkProgress);
             history.setExportedRecords(cWorkProgress);
@@ -212,6 +213,12 @@ public class JenaSynchronizationService
     GeoObject dto = GeoObject.fromJSON(ServiceFactory.getAdapter(), event.getObject());
 
     Map<String, AttributeType> attributes = dto.getType().getAttributeMap();
+
+    // Add type information
+    this.addResourceToModel(model, //
+        buildObjectUri(config, code, typeCode), //
+        org.apache.jena.vocabulary.RDF.type.getURI(), //
+        buildTypeUri(config, typeCode));
 
     attributes.forEach((attributeName, attribute) -> {
       String subjectUri = buildObjectUri(config, code, typeCode);
@@ -298,7 +305,7 @@ public class JenaSynchronizationService
     logger.trace("Jena Projection - Handling remote set parent");
 
     String subjectUri = buildObjectUri(config, event.getCode(), event.getType());
-    String edgeTypeUri = config.getNamespace() + "/" + event.getEdgeType();
+    String edgeTypeUri = config.getNamespace() + "#" + event.getEdgeType();
 
     List<String> statements = new LinkedList<>();
     statements.add("DELETE WHERE { GRAPH <" + config.getGraph() + "> { <" + subjectUri + "> <" + edgeTypeUri + "> ?obj}}");
@@ -325,7 +332,7 @@ public class JenaSynchronizationService
 
     this.addResourceToModel(model, //
         buildObjectUri(config, event.getSourceCode(), event.getSourceType()), //
-        config.getNamespace() + "/" + event.getEdgeTypeCode(), //
+        config.getNamespace() + "#" + event.getEdgeTypeCode(), //
         buildObjectUri(config, event.getTargetCode(), event.getTargetType()));
 
     // this.service.load(GRAPH_NAME, model, config);
@@ -412,14 +419,14 @@ public class JenaSynchronizationService
     {
       this.addResourceToModel(model, //
           buildObjectUri(config, event.getCode(), event.getType()), //
-          config.getNamespace() + "/" + event.getEdgeType(), //
+          config.getNamespace() + "#" + event.getEdgeType(), //
           buildObjectUri(config, event.getGeoObjectCode(), event.getGeoObjectType()));
     }
     else
     {
       this.addResourceToModel(model, //
           buildObjectUri(config, event.getGeoObjectCode(), event.getGeoObjectType()), //
-          config.getNamespace() + "/" + event.getEdgeType(), //
+          config.getNamespace() + "#" + event.getEdgeType(), //
           buildObjectUri(config, event.getCode(), event.getType()));
 
     }
@@ -433,7 +440,7 @@ public class JenaSynchronizationService
 
     this.addResourceToModel(model, //
         buildObjectUri(config, event.getSourceCode(), event.getSourceType()), //
-        config.getNamespace() + "/" + event.getEdgeType(), //
+        config.getNamespace() + "#" + event.getEdgeType(), //
         buildObjectUri(config, event.getTargetCode(), event.getTargetType()));
 
     // this.service.load(GRAPH_NAME, model, config);
@@ -450,9 +457,14 @@ public class JenaSynchronizationService
     return srs_uri;
   }
 
+  protected String buildTypeUri(JenaExportConfig config, final String typeCode)
+  {
+    return config.getNamespace() + "#" + typeCode;
+  }
+
   protected String buildObjectUri(JenaExportConfig config, String code, final String typeCode)
   {
-    return config.getNamespace() + "/" + typeCode + "-" + code;
+    return config.getNamespace() + "#" + typeCode + "-" + code;
   }
 
   protected String buildAttributeUri(JenaExportConfig config, String typeCode, AttributeType attribute)
@@ -464,10 +476,10 @@ public class JenaSynchronizationService
         return org.apache.jena.vocabulary.RDFS.label.getURI();
       }
 
-      return config.getNamespace() + "/" + "GeoObject-" + attribute.getName();
+      return config.getNamespace() + "#" + "GeoObject-" + attribute.getName();
     }
 
-    return config.getNamespace() + "/" + typeCode + "-" + attribute.getName();
+    return config.getNamespace() + "#" + typeCode + "-" + attribute.getName();
   }
 
   protected String buildHasGeometryPredicate()
