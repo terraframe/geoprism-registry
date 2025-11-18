@@ -25,7 +25,7 @@
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="cgr.title" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="GeoPrism Registry" />
+          <attribute name="defaultLocale" value="Geoprism Builder" />
         </attributeStruct>
       </object>    
     </update>

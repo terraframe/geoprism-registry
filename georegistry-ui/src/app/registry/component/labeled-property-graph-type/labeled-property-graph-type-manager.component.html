@@ -18,47 +18,42 @@
     License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<div class="new-admin-design-main" style="overflow-y:hidden;">
-    <cgr-header></cgr-header>
-    <loading-bar></loading-bar>
+<page-container>
 
-    <div id="app-container" class="container-fluid">
+    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
-        <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+    <div class="row">
 
-        <div class="row">
+        <nav class="col-md-3 list-sidebar">
+            <div class="sidebar-section-content">
+                <ul class="list-group">
+                    <li class="list-group-item got-li-item">
+                        <button type="submit" (click)="onCreate()" class="btn btn-primary" role="button">
+                            <localize key="hierarchy.management.button.create"></localize>
+                        </button>
+                    </li>
+                    <li class="list-group-item got-li-item" *ngFor="let type of types" [id]="type.oid">
+                        <a [routerLink]="'/registry/labeled-property-graph-type'" [queryParams]="{oid:type.oid}"
+                            routerLinkActive="active">
+                            {{type.label}}
+                        </a>
 
-            <nav class="col-md-3 list-sidebar">
-                <div class="sidebar-section-content">
-                    <ul class="list-group">
-                        <li class="list-group-item got-li-item">
-                            <button type="submit" (click)="onCreate()" class="btn btn-primary" role="button">
-                                <localize key="hierarchy.management.button.create"></localize>
-                            </button>
-                        </li>
-                        <li class="list-group-item got-li-item" *ngFor="let type of types" [id]="type.oid">
-                            <a [routerLink]="'/registry/labeled-property-graph-type'" [queryParams]="{oid:type.oid}"
-                                routerLinkActive="active">
-                                {{type.label}}
-                            </a>
+                        <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);">
 
-                            <span
-                                style="position:absolute;right:10px;top:50%;transform:translateY(-50%);">
+                            <a class="fa fa-trash-o ico-remove" (click)="onDelete(type)"
+                                [title]="'button.delete.helptext' | localize"></a>
+                        </span>
 
-                                <a class="fa fa-trash-o ico-remove" (click)="onDelete(type)"
-                                    [title]="'button.delete.helptext' | localize"></a>
-                            </span>
-
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-            <div class="col-md-9 list-type-content">
-                <div id="overflow-div">
-                    <labeled-property-graph-type *ngIf="current != null" [type]="current" (error)="error($event)"></labeled-property-graph-type>
-                </div>
+                    </li>
+                </ul>
             </div>
-
+        </nav>
+        <div class="col-md-9 list-type-content">
+            <div id="overflow-div">
+                <labeled-property-graph-type *ngIf="current != null" [type]="current"
+                    (error)="error($event)"></labeled-property-graph-type>
+            </div>
         </div>
+
     </div>
-</div>
+</page-container>

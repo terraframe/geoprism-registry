@@ -1,9 +1,14 @@
+$fa-font-path: "~@fortawesome/fontawesome-free/webfonts";
+@import "../../node_modules/@fortawesome/fontawesome-free/scss/fontawesome.scss";
+@import '../../node_modules/@fortawesome/fontawesome-free/scss/regular.scss';
+@import '../../node_modules/@fortawesome/fontawesome-free/scss/solid.scss';
+@import '../../node_modules/@fortawesome/fontawesome-free/scss/brands.scss';
+
 @import '~bootstrap/dist/css/bootstrap.min.css';
 @import '~@circlon/angular-tree-component/css/angular-tree-component.css';
 @import '~maplibre-gl/dist/maplibre-gl.css';
 @import '~@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 @import '~ngx-bootstrap/datepicker/bs-datepicker.css';
-@import '~font-awesome/css/font-awesome.min.css';
 
 @import '@angular/cdk/overlay-prebuilt.css';
 
@@ -35,7 +40,7 @@ body {
 	/* min-width:1030px; */
 	overflow: hidden;
 	background: white;
-	padding-top: 50px;
+	// padding-top: 50px;
 }
 
 .new-admin-design-main {

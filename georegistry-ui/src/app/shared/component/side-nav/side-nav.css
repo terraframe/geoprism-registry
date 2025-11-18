@@ -1,0 +1,32 @@
+.fixed-bottom-row {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    padding: 15px 0;
+}
+
+.brand-img {
+    height: 25px;
+    padding-right: 10px;
+}
+
+.route-icon {
+    padding-right: 10px;
+}
+
+.route-item {
+    font-size: large;
+    color: #9A9A9AFF;
+    border-radius: 5px;
+    padding-left: 5px;
+}
+
+.route-item.active {
+    background-color: #D985FFFF;
+    color: #27232CFF;
+}
+
+
+.nav-row {
+    padding-top: 10px;
+}

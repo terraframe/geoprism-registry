@@ -18,45 +18,41 @@
     License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<div class="new-admin-design-main" style="overflow-y:hidden;">
-    <cgr-header></cgr-header>
-    <loading-bar></loading-bar>
+<page-container>
 
-    <div id="app-container" class="container-fluid">
 
-        <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
-        <div class="row">
+    <div class="row">
 
-            <nav class="col-md-3 list-sidebar">
-                <div class="sidebar-section-content">
-                    <ul *ngFor="let typeByOrg of typesByOrg;" class="list-group">
-                        <div>
+        <nav class="col-md-3 list-sidebar">
+            <div class="sidebar-section-content">
+                <ul *ngFor="let typeByOrg of typesByOrg;" class="list-group">
+                    <div>
 
-                            <div class="got-org-label-wrapper">
-                                <h3>{{typeByOrg.org.label.localizedValue}}</h3>
-                            </div>
-
-                            <li class="list-group-item got-li-item" [ngClass]="{'got-group-child' : type.superTypeCode}" *ngFor="let type of typeByOrg.types"
-                                [id]="type.code" #typesByOrgIter>
-                                <a [routerLink]="'/registry/master-lists'"
-                                    [queryParams]="{typeCode:type.code}" routerLinkActive="active">
-                                    {{type.label.localizedValue}}
-                                </a>
-                            </li>
+                        <div class="got-org-label-wrapper">
+                            <h3>{{typeByOrg.org.label.localizedValue}}</h3>
                         </div>
-                    </ul>
-                </div>
-            </nav>
-            <div class="col-md-9 list-type-content">
-                <div id="overflow-div">
-                    <lists-for-type *ngIf="listByType != null" [listByType]="listByType" (error)="error($event)">
-                    </lists-for-type>
 
-                    <list-type *ngIf="current != null" [list]="current" (error)="error($event)"></list-type>
-                </div>
+                        <li class="list-group-item got-li-item" [ngClass]="{'got-group-child' : type.superTypeCode}"
+                            *ngFor="let type of typeByOrg.types" [id]="type.code" #typesByOrgIter>
+                            <a [routerLink]="'/registry/master-lists'" [queryParams]="{typeCode:type.code}"
+                                routerLinkActive="active">
+                                {{type.label.localizedValue}}
+                            </a>
+                        </li>
+                    </div>
+                </ul>
             </div>
+        </nav>
+        <div class="col-md-9 list-type-content">
+            <div id="overflow-div">
+                <lists-for-type *ngIf="listByType != null" [listByType]="listByType" (error)="error($event)">
+                </lists-for-type>
 
+                <list-type *ngIf="current != null" [list]="current" (error)="error($event)"></list-type>
+            </div>
         </div>
+
     </div>
-</div>
+</page-container>

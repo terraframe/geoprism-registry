@@ -18,15 +18,10 @@
     License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<div class="new-admin-design-main">
-    <cgr-header></cgr-header>
-    <loading-bar></loading-bar>
-
-    <div id="app-container" class="container-fluid">
-        <ng-container *ngIf="businessType != null">
-            <h2>{{businessType.displayLabel.localizedValue}}</h2>
-            <generic-table [setup]="setup" [config]="config" [pageConfig]="{typeCode: businessType.code}" (click)="onClick($event)"></generic-table>		
-        </ng-container>
-    </div>
-</div>
-
+<page-container>
+    <ng-container *ngIf="businessType != null">
+        <h2>{{businessType.displayLabel.localizedValue}}</h2>
+        <generic-table [setup]="setup" [config]="config" [pageConfig]="{typeCode: businessType.code}"
+            (click)="onClick($event)"></generic-table>
+    </ng-container>
+</page-container>

@@ -18,13 +18,10 @@
     License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<div class="new-admin-design-main">
-    <cgr-header></cgr-header>
-    <loading-bar></loading-bar>
+<page-container>
 
-    <div id="app-container" class="container-fluid">
 
-        <!-- <div class="heading text-center">
+    <!-- <div class="heading text-center">
             <h2>
                 <localize key="spreadsheet.title"></localize>
             </h2>
@@ -33,31 +30,33 @@
             </p>
         </div> -->
 
-        <div class="row">
-            <div class="col-md-1"></div>
-			<div class="col-md-10" style="padding-top: 30px;">
-				
-				<div class="heading">
-					<h2>
-						{{pageTitle}}
-					</h2>
-				</div>
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-10" style="padding-top: 30px;">
 
-				<div>
-					<a style="margin-right:10px;font-size:20px;" *ngIf="isMaintainer" [routerLink]="" [ngClass]="{'active': content === 'SPREADSHEET'}" (click)="renderContent('SPREADSHEET')">
-                      <localize key="import-spreadsheet-localization-manager.menu"></localize>
-                    </a> 
-					<a style="margin-right:10px;font-size:20px;" *ngIf="isMaintainer" [routerLink]="" [ngClass]="{'active': content === 'SHAPEFILE'}" (click)="renderContent('SHAPEFILE')">
-                      <localize key="import-shapefile-localization-manager.menu"></localize>
-                    </a> 
-				</div>
-
-				<div class="inner-col-content-wrapper" style="padding-top: 30px;margin-top: 10px;">
-					<dataimporter *ngIf="content === 'SPREADSHEET'" [format]="'EXCEL'"></dataimporter>
-					<dataimporter *ngIf="content === 'SHAPEFILE'" [format]="'SHAPEFILE'"></dataimporter>
-				</div>
-				
+            <div class="heading">
+                <h2>
+                    {{pageTitle}}
+                </h2>
             </div>
-            <div class="col-md-1"></div>
+
+            <div>
+                <a style="margin-right:10px;font-size:20px;" *ngIf="isMaintainer" [routerLink]=""
+                    [ngClass]="{'active': content === 'SPREADSHEET'}" (click)="renderContent('SPREADSHEET')">
+                    <localize key="import-spreadsheet-localization-manager.menu"></localize>
+                </a>
+                <a style="margin-right:10px;font-size:20px;" *ngIf="isMaintainer" [routerLink]=""
+                    [ngClass]="{'active': content === 'SHAPEFILE'}" (click)="renderContent('SHAPEFILE')">
+                    <localize key="import-shapefile-localization-manager.menu"></localize>
+                </a>
+            </div>
+
+            <div class="inner-col-content-wrapper" style="padding-top: 30px;margin-top: 10px;">
+                <dataimporter *ngIf="content === 'SPREADSHEET'" [format]="'EXCEL'"></dataimporter>
+                <dataimporter *ngIf="content === 'SHAPEFILE'" [format]="'SHAPEFILE'"></dataimporter>
+            </div>
+
         </div>
-</div>
+        <div class="col-md-1"></div>
+    </div>
+</page-container>

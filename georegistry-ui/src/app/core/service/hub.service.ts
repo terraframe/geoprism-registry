@@ -23,12 +23,24 @@ import { HttpHeaders, HttpClient, HttpParams } from "@angular/common/http";
 import { Application } from "@shared/model/application";
 
 import { environment } from 'src/environments/environment';
-import { firstValueFrom } from "rxjs";
+import { BehaviorSubject, firstValueFrom, Observable } from "rxjs";
 
 @Injectable()
 export class HubService {
 
-    constructor(private http: HttpClient) { }
+    private expanded$: BehaviorSubject<boolean>;
+
+    constructor(private http: HttpClient) {
+        this.expanded$ = new BehaviorSubject<boolean>(false);
+    }
+
+    getExpanded(): Observable<boolean> {
+        return this.expanded$;
+    }
+
+    setExpanded(expanded: boolean): void {
+        this.expanded$.next(expanded);
+    }
 
     applications(): Promise<Application[]> {
         return firstValueFrom(this.http

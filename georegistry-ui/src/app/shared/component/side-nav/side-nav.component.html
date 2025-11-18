@@ -1,0 +1,191 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!-- HEADER AND NAVBAR -->
+<div>
+  <div class="row nav-row">
+    <div class="col-xs-12">
+      <a [href]="context + '#/menu'">
+        
+        <h3>
+          <img class="brand-img" [src]="context + 'api/asset/view?oid=logo'" />
+          <localize *ngIf="expanded" key="cgr.standard.title"></localize>
+        </h3>
+      </a>
+    </div>
+  </div>
+
+  <div class="row nav-row">
+    <div class="col-xs-12">
+
+      <div class="card card-default">
+        <div class="card-body">
+          <h4 class="card-title" *ngIf="expanded">Create</h4>
+
+          <div class="row nav-row" *ngIf="shouldShowMenuItem('HIERARCHIES')">
+            <div class="col-xs-12">
+              <a routerLink="/registry/hierarchies" class="route-item" routerLinkActive="active">
+                <i class="route-icon fa-solid fa-sitemap"></i>
+                <localize *ngIf="expanded" key="hierarchies.menu"></localize>
+              </a>
+            </div>
+          </div>
+
+          <div class="row nav-row" *ngIf="shouldShowMenuItem('CLASSIFICATION')">
+            <div class="col-xs-12">
+              <a routerLink="/registry/classification-type" class="route-item" routerLinkActive="active">
+                <i class="route-icon fa-solid fa-bars-staggered"></i>
+                <localize *ngIf="expanded" key="header.classifications.option"></localize>
+              </a>
+            </div>
+          </div>
+
+          <div class="row nav-row" *ngIf="shouldShowMenuItem('BUSINESS-TYPES') === true">
+            <div class="col-xs-12">
+              <a routerLink="/registry/business-types" class="route-item" routerLinkActive="active">
+                <i class="route-icon fa-solid fa-briefcase"></i>
+                <localize *ngIf="expanded" key="business.data.type"></localize>
+              </a>
+            </div>
+          </div>
+
+          <ng-container *ngIf="shouldShowMenuItem('BUSINESS-TYPES') === true">
+            <div class="row nav-row">
+              <div class="col-xs-12">
+                <a routerLink="/registry/business-importer" class="route-item" routerLinkActive="active">
+                  <i class="route-icon fa-solid fa-file-import"></i>
+                  <localize *ngIf="expanded" key="business.data.import"></localize>
+                </a>
+              </div>
+            </div>
+
+            <div class="row nav-row">
+              <div class="col-xs-12">
+                <a routerLink="/registry/edge-importer" class="route-item" routerLinkActive="active">
+                  <i class="route-icon fa-solid fa-file-arrow-up"></i>
+                  <localize *ngIf="expanded" key="edge.data.import"></localize>
+                </a>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+
+      <div class="card card-default">
+        <div class="card-body">
+          <h4 class="card-title" *ngIf="expanded">Edit</h4>
+
+          <div class="row nav-row" *ngIf="shouldShowMenuItem('SCHEDULED-JOBS')">
+            <div class="col-xs-12">
+              <a routerLink="/registry/scheduled-jobs" class="route-item" routerLinkActive="active">
+                <i class="route-icon fa-solid fa-clock-rotate-left"></i>
+                <localize *ngIf="expanded" key="scheduledjobs.menu"></localize>
+              </a>
+            </div>
+          </div>
+          <div class="row nav-row" *ngIf="shouldShowMenuItem('CHANGE-REQUESTS')">
+            <div class="col-xs-12">
+              <a routerLink="/registry/change-requests" class="route-item" routerLinkActive="active">
+                <i class="route-icon fa-solid fa-arrow-right-arrow-left"></i>
+                <localize *ngIf="expanded" key="header.changerequest.option"></localize>
+              </a>
+            </div>
+          </div>
+          <div class="row nav-row" *ngIf="shouldShowMenuItem('EVENTS')">
+            <div class="col-xs-12">
+              <a routerLink="/registry/historical-events" class="route-item" routerLinkActive="active">
+                <i class="route-icon fa-solid fa-calendar-days"></i>
+                <localize *ngIf="expanded" key="historical.events"></localize>
+              </a>
+            </div>
+          </div>
+          <div class="row nav-row" *ngIf="shouldShowMenuItem('TASKS')">
+            <div class="col-xs-12">
+              <a routerLink="/registry/tasks" class="route-item" routerLinkActive="active">
+                <i class="route-icon fa-solid fa-angle-down"></i>
+                <localize *ngIf="expanded" key="header.tasks"></localize>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-default">
+        <div class="card-body">
+          <h4 class="card-title" *ngIf="expanded">View & Share</h4>
+
+          <div class="row nav-row" *ngIf="shouldShowMenuItem('NAVIGATOR')">
+            <div class="col-xs-12">
+              <a routerLink="/registry/location-manager" class="route-item" [queryParams]="{pageContext:'EXPLORER'}" routerLinkActive="active">
+                <i class="route-icon fa-regular fa-map"></i>
+                <localize *ngIf="expanded" key=navigator.menu></localize>
+              </a>
+            </div>
+          </div>
+
+          <div class="row nav-row" *ngIf="shouldShowMenuItem('LISTS')">
+            <div class="col-xs-12">
+              <a routerLink="/registry/master-lists" class="route-item" routerLinkActive="active">
+                <i class="route-icon fa-solid fa-table-list"></i>
+                <localize *ngIf="expanded" key="masterlist.menu"></localize>
+              </a>
+            </div>
+          </div>
+
+          <div class="row nav-row" *ngIf="shouldShowMenuItem('EXPORT')">
+            <div class="col-xs-12">
+              <a routerLink="/registry/export" class="route-item" routerLinkActive="active">
+                <i class="route-icon fa-solid fa-file-export"></i>
+                <localize *ngIf="expanded" key="header.export"></localize>
+              </a>
+            </div>
+          </div>
+
+          <div class="row nav-row" *ngIf="shouldShowMenuItem('LPG')">
+            <div class="col-xs-12">
+              <a routerLink="/registry/labeled-property-graph-type" class="route-item" routerLinkActive="active">
+                <i class="route-icon fa-solid fa-hexagon-nodes"></i>
+                <localize *ngIf="expanded" key="lpg.menu"></localize>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row nav-row" *ngIf="!isPublic">
+        <hr>
+        <div class="col-xs-12">
+          <a class="user-command-link route-item" (click)="logout()">
+            <i class="route-icon fa-solid fa-square-up-right"></i>
+            <localize *ngIf="expanded" key="userDashboards.logout"></localize>
+          </a>
+        </div>
+      </div>
+
+      <div class="row fixed-bottom-row">
+        <div class="col-xs-12">
+          <a class="user-command-link route-item" (click)="handleToggle()">
+            <i class="fa-solid" [ngClass]="{'fa-chevron-left':expanded, 'fa-chevron-right': !expanded}"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

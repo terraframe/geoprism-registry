@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input } from "@angular/core";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
 import { ProfileComponent } from "../profile/profile.component";
@@ -31,14 +31,17 @@ import { ConfigurationService } from "@core/service/configuration.service";
 import { LocaleView } from "@core/model/core";
 import { Router } from "@angular/router";
 import EnvironmentUtil from "@core/utility/environment-util";
+import { HubService } from "@core/service/hub.service";
 
 @Component({
 
-    selector: "cgr-header",
-    templateUrl: "./header.component.html",
-    styleUrls: ["./header.css"]
+    selector: "side-nav",
+    templateUrl: "./side-nav.component.html",
+    styleUrls: ['./side-nav.css']
 })
-export class CgrHeaderComponent {
+export class SideNavComponent {
+
+
 
     context: string;
     isAdmin: boolean;
@@ -54,8 +57,10 @@ export class CgrHeaderComponent {
     enableBusinessData: boolean = false;
 
     @Input() loggedIn: boolean = true;
+    @Input() expanded: boolean = true;
 
     constructor(
+        private hService: HubService,
         private modalService: BsModalService,
         private profileService: ProfileService,
         private service: AuthService,
@@ -64,9 +69,6 @@ export class CgrHeaderComponent {
     ) {
         this.context = EnvironmentUtil.getApiUrl();
 
-        this.isAdmin = service.isAdmin();
-        this.isMaintainer = this.isAdmin || service.isMaintainer();
-        this.isContributor = this.isAdmin || this.isMaintainer || service.isContributer();
         this.isPublic = service.isPublic();
 
         this.enableBusinessData = configuration.isEnableBusinessData() || false;
@@ -182,5 +184,11 @@ export class CgrHeaderComponent {
             this.bsModalRef = this.modalService.show(ProfileComponent, { backdrop: "static", class: "gray modal-lg" });
             this.bsModalRef.content.profile = profile;
         });
+    }
+
+    handleToggle(): void {
+        console.log('Test Click');
+
+        this.hService.setExpanded(!this.expanded);
     }
 }

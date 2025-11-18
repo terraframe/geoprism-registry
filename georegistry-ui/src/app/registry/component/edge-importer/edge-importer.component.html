@@ -18,13 +18,10 @@
     License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<div class="new-admin-design-main">
-    <cgr-header></cgr-header>
-    <loading-bar></loading-bar>
+<page-container>
 
-    <div id="app-container" class="container-fluid">
 
-        <!-- <div class="heading text-center">
+    <!-- <div class="heading text-center">
             <h2>
                 <localize key="spreadsheet.title"></localize>
             </h2>
@@ -33,36 +30,38 @@
             </p>
         </div> -->
 
-        <div class="row">
-            <div class="col-md-1"></div>
-            <div class="col-md-10" style="padding-top: 30px;">
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-10" style="padding-top: 30px;">
 
-                <div class="heading">
-                    <h2>
-                        <localize key="edge.data.import"></localize>
-                    </h2>
-                </div>
+            <div class="heading">
+                <h2>
+                    <localize key="edge.data.import"></localize>
+                </h2>
+            </div>
 
-                <div class="inner-col-content-wrapper" style="padding-top: 30px;margin-top: 10px;">
+            <div class="inner-col-content-wrapper" style="padding-top: 30px;margin-top: 10px;">
 
-                    <div *ngIf="showImportConfig">
-                        <div>
-                            <form #form="ngForm" autocomplete="off">
+                <div *ngIf="showImportConfig">
+                    <div>
+                        <form #form="ngForm" autocomplete="off">
 
-                                <div class="form-group row">
-                                    <label class="col-md-2 text-right" for="graphTypeCode"> <localize key="edge.data.type"></localize></label>
-                                    <div class="col-md-8">
-                                        <select id="graphType" name="graphType" class="select-area"
-                                            [(ngModel)]="selectedGraphType" required>
-                                            <option></option>
-                                            <option *ngFor="let graphType of graphTypes"
-                                                [ngValue]="graphType">{{graphType.label.localizedValue}}
-                                            </option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-2"></div>
+                            <div class="form-group row">
+                                <label class="col-md-2 text-right" for="graphTypeCode">
+                                    <localize key="edge.data.type"></localize>
+                                </label>
+                                <div class="col-md-8">
+                                    <select id="graphType" name="graphType" class="select-area"
+                                        [(ngModel)]="selectedGraphType" required>
+                                        <option></option>
+                                        <option *ngFor="let graphType of graphTypes" [ngValue]="graphType">
+                                            {{graphType.label.localizedValue}}
+                                        </option>
+                                    </select>
                                 </div>
-                                <!--
+                                <div class="col-md-2"></div>
+                            </div>
+                            <!--
                                 <div class="form-group row" *ngIf="allTypes">
                                     <label class="col-md-2 text-right" for="code">
                                         <localize key="io.geoObjectType"></localize>
@@ -78,69 +77,78 @@
                                     <div class="col-md-2"></div>
                                 </div>
                             -->
-                                
-                                <div class="form-group row">
-                                    <label class="col-md-2 text-right" for="strategy">
-                                        <localize *ngIf="this.format === 'JSON'"
-                                            key="spreadsheet.import.import.strategy"></localize>
+
+                            <div class="form-group row">
+                                <label class="col-md-2 text-right" for="strategy">
+                                    <localize *ngIf="this.format === 'JSON'" key="spreadsheet.import.import.strategy">
+                                    </localize>
+                                </label>
+                                <div class="col-md-8">
+                                    <select id="strategy" name="strategy" class="select-area"
+                                        [(ngModel)]="importStrategy" required>
+                                        <option *ngFor="let strategy of importStrategies" value={{strategy.strategy}}>
+                                            {{strategy.label}}</option>
+                                    </select>
+                                    <label *ngIf="importStrategy === 'NEW_ONLY'" style="font-size:0.9em;">
+                                        Please note: existing data will NOT be overwritten. If data exists with the
+                                        same values, it will cause duplicates. You will however receieve a
+                                        performance boost by not checking for existing data.
                                     </label>
-                                    <div class="col-md-8">
-                                        <select id="strategy" name="strategy" class="select-area"
-                                            [(ngModel)]="importStrategy" required>
-                                            <option *ngFor="let strategy of importStrategies"
-                                                value={{strategy.strategy}}>{{strategy.label}}</option>
-                                        </select>
-                                        <label *ngIf="importStrategy === 'NEW_ONLY'" style="font-size:0.9em;">
-                                            Please note: existing data will NOT be overwritten. If data exists with the same values, it will cause duplicates. You will however receieve a performance boost by not checking for existing data.
-                                        </label>
-                                    </div>
-                                    <div class="col-md-2"></div>
                                 </div>
-                            
-                                <div class="form-group row">
-                                    <label class="col-md-2 text-right" for="startDate"><localize key="io.startDate"></localize></label>
-                                    <div class="col-md-8">
-                                    <date-field #dateFieldComponents [(value)]="startDate" label="" [inputName]="'startDate'" (change)="checkDates()" [allowFutureDates]="true" [required]="true"></date-field>
-                                    </div>
-                                    
-                                    <div class="col-md-2"></div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-md-2 text-right" for="endDate"><localize key="io.endDate"></localize></label>
-                                    <div class="col-md-8">
-                                    <date-field #dateFieldComponents [(value)]="endDate" label="" [inputName]="'endDate'" (change)="checkDates()" [allowInfinity]="true" [allowFutureDates]="true" [required]="true" ></date-field>
-                                    </div>
-                                                        
-                                    <div class="col-md-2"></div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-md-2 text-right" for="file">
-                                        <localize *ngIf="this.format === 'JSON'" key="io.json"></localize>
-                                    </label>
-                                    <div class="col-md-8">
-                                        <input *ngIf="this.format === 'JSON'" class="ghost-input" #myFile name="file"
-                                            type="file" ng2FileSelect [uploader]="uploader" accept=".json"
-                                            required />
-                                    </div>
-                                    <div class="col-md-2"></div>
+                                <div class="col-md-2"></div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-md-2 text-right" for="startDate">
+                                    <localize key="io.startDate"></localize>
+                                </label>
+                                <div class="col-md-8">
+                                    <date-field #dateFieldComponents [(value)]="startDate" label=""
+                                        [inputName]="'startDate'" (change)="checkDates()" [allowFutureDates]="true"
+                                        [required]="true"></date-field>
                                 </div>
 
-                                <div class="form-group row">
-                                    <div class="col-md-2"></div>
-                                    <div class="button-holder col-md-8 text-right">
-                                        <button type="submit" class="btn btn-primary" [disabled]="form.invalid"
-                                            (click)="onClick()">
-                                            <localize key="io.submit"></localize>
-                                        </button>
-                                    </div>
-                                    <div class="col-md-2"></div>
+                                <div class="col-md-2"></div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-md-2 text-right" for="endDate">
+                                    <localize key="io.endDate"></localize>
+                                </label>
+                                <div class="col-md-8">
+                                    <date-field #dateFieldComponents [(value)]="endDate" label=""
+                                        [inputName]="'endDate'" (change)="checkDates()" [allowInfinity]="true"
+                                        [allowFutureDates]="true" [required]="true"></date-field>
                                 </div>
-                            </form>
-                        </div>
+
+                                <div class="col-md-2"></div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-md-2 text-right" for="file">
+                                    <localize *ngIf="this.format === 'JSON'" key="io.json"></localize>
+                                </label>
+                                <div class="col-md-8">
+                                    <input *ngIf="this.format === 'JSON'" class="ghost-input" #myFile name="file"
+                                        type="file" ng2FileSelect [uploader]="uploader" accept=".json" required />
+                                </div>
+                                <div class="col-md-2"></div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-md-2"></div>
+                                <div class="button-holder col-md-8 text-right">
+                                    <button type="submit" class="btn btn-primary" [disabled]="form.invalid"
+                                        (click)="onClick()">
+                                        <localize key="io.submit"></localize>
+                                    </button>
+                                </div>
+                                <div class="col-md-2"></div>
+                            </div>
+                        </form>
                     </div>
                 </div>
-
             </div>
-            <div class="col-md-1"></div>
+
         </div>
+        <div class="col-md-1"></div>
     </div>
+</page-container>

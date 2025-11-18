@@ -77,6 +77,8 @@ import { DateTextComponent } from "./component/date-text/date-text.component";
 import { DateService } from "./service/date.service";
 import { DateFieldComponent } from "./component/form-fields/date-field/date-field.component";
 import { LocalizationService } from "./service";
+import { PageContainerComponent } from "./component/page-container/page-container.component";
+import { SideNavComponent } from "./component/side-nav/side-nav.component";
 
 @NgModule({
     imports: [
@@ -121,7 +123,9 @@ import { LocalizationService } from "./service";
         LocalizePipe,
         GenericTableComponent,
         DateFieldComponent,
-        DateTextComponent
+        DateTextComponent,
+        PageContainerComponent,
+        SideNavComponent
     ],
     exports: [
         LocalizeComponent,
@@ -139,6 +143,7 @@ import { LocalizationService } from "./service";
         ProgressBarComponent,
         ModalStepIndicatorComponent,
         CgrHeaderComponent,
+        PageContainerComponent,
         ProfileComponent,
         LocalizePipe,
         CommonModule,
@@ -146,7 +151,8 @@ import { LocalizationService } from "./service";
         ReactiveFormsModule,
         GenericTableComponent,
         DateFieldComponent,
-        DateTextComponent
+        DateTextComponent,
+        SideNavComponent
     ],
     entryComponents: [
         ErrorModalComponent,

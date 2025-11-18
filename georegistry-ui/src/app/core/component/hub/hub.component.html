@@ -18,56 +18,54 @@
     License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-    <div class="new-admin-design-main">
+<page-container>
 
-        <cgr-header></cgr-header>
-        <loading-bar></loading-bar>
-        
-        <div id="app-container" class="container-fluid" style="height:100%">
-            <div class="nav-icon-container" >
-                <div *ngIf="applications?.length == 0" style="display: flex; justify-content: center; align-items: center; height:100%">
-			            <div *ngIf="!loading && authService.getRoles().length == 0" class="error-message" style="font-size:1.5em;">
-			              <localize key="hub.no-valid-roles"></localize>
-			            </div>
-			            <div *ngIf="loading" class="standby-overlay" style="width:100%; height:100%; font-size:4em; color:black;">
-			              
-			            </div>
-			          </div>
-                
-                <div *ngIf="applications?.length > 0 && !loading" class="row vertical-center-row">
-                    <div class="col-md-3 col-sm-4 col-xs-2"></div>
-                    <div class="col-md-6 col-sm-4 col-xs-8">
-                        <div *ngFor="let app of applications; let i = index;">
+  <div class="nav-icon-container">
+    <div *ngIf="applications?.length == 0"
+      style="display: flex; justify-content: center; align-items: center; height:100%">
+      <div *ngIf="!loading && authService.getRoles().length == 0" class="error-message" style="font-size:1.5em;">
+        <localize key="hub.no-valid-roles"></localize>
+      </div>
+      <div *ngIf="loading" class="standby-overlay" style="width:100%; height:100%; font-size:4em; color:black;">
 
-                            <div style="padding: 10px 0;" class="row" *ngIf="i % 4 === 0">
+      </div>
+    </div>
 
-                                <div *ngFor="let application of applications; let internalIndex = index;">
-                                    <div *ngIf="internalIndex >= i && internalIndex < i + 4" class="col-xs-12 col-sm-12 col-md-3 text-center" (click)="open(application)">
-                                        <div [id]="application.oid" class="nav-option-wrapper">
-                                            <img class="nav-icon-img img-responsive" [src]="context + '/' + application.src" alt="Navigation" />
-                                            <h3 class="nav-icon-img-label">{{application.label}}</h3>
-                                            <!-- <p class="nav-icon-img-description"> {{application.description}} </p> -->
-                                        </div>
-                                    </div>
-                                    <div *ngIf="applications?.length === 1 || applications?.length === 2" class="col-xs-12 col-sm-12 col-md-4"></div>
-                                    <div *ngIf="applications?.length === 1" class="col-xs-12 col-sm-12 col-md-4"></div>
-                                </div>
+    <div *ngIf="applications?.length > 0 && !loading" class="row vertical-center-row">
+      <div class="col-md-3 col-sm-4 col-xs-2"></div>
+      <div class="col-md-6 col-sm-4 col-xs-8">
+        <div *ngFor="let app of applications; let i = index;">
 
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 col-sm-4 col-xs-2"></div>
+          <div style="padding: 10px 0;" class="row" *ngIf="i % 4 === 0">
+
+            <div *ngFor="let application of applications; let internalIndex = index;">
+              <div *ngIf="internalIndex >= i && internalIndex < i + 4" class="col-xs-12 col-sm-12 col-md-3 text-center"
+                (click)="open(application)">
+                <div [id]="application.oid" class="nav-option-wrapper">
+                  <img class="nav-icon-img img-responsive" [src]="context + '/' + application.src" alt="Navigation" />
+                  <h3 class="nav-icon-img-label">{{application.label}}</h3>
+                  <!-- <p class="nav-icon-img-description"> {{application.description}} </p> -->
                 </div>
+              </div>
+              <div *ngIf="applications?.length === 1 || applications?.length === 2"
+                class="col-xs-12 col-sm-12 col-md-4"></div>
+              <div *ngIf="applications?.length === 1" class="col-xs-12 col-sm-12 col-md-4"></div>
             </div>
 
+          </div>
         </div>
-        <!-- 
+      </div>
+      <div class="col-md-3 col-sm-4 col-xs-2"></div>
+    </div>
+  </div>
+
+  <!-- 
       <div style="width:100%">
         <label style="text-align: left; width:50%; display: inline;">{{authService.getUsername()}} : {{authService.getRoles()}}</label>
         <label style="text-align: right; width:50%; display: inline;">{{authService.getVersion()}}</label>
       </div>
       -->
-        <!--
+  <!--
       <div class="container">
 		    <div class="row justify-content-between">
 			    <div class="col-4">
@@ -80,4 +78,4 @@
       </div>
       -->
 
-    </div>
+</page-container>

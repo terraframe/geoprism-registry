@@ -18,398 +18,391 @@
     License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<div class="new-admin-design-main">
-    <cgr-header></cgr-header>
+<page-container [loadingBar]="false">
 
     <div *ngIf="!view" class="standby-overlay" style="width:100%; height:100%; font-size:4em; color:black;"></div>
 
-    <div id="app-container" class="container">
+    <message></message>
+    <!-- <loading-bar></loading-bar> -->
 
-        <message></message>
-        <!-- <loading-bar></loading-bar> -->
+    <h2>
+        <localize key="settings.title"></localize>
+    </h2>
 
-        <h2>
-            <localize key="settings.title"></localize>
-        </h2>
+    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
-        <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+    <div *ngIf="view" style="padding-bottom: 30px;">
+        <div class="row">
+            <div class="col-md-12">
+                <h3>
+                    <localize key="settings.information.heading"></localize>
+                </h3>
 
-        <div *ngIf="view" style="padding-bottom: 30px;">
-            <div class="row">
-                <div class="col-md-12">
-                    <h3>
-                        <localize key="settings.information.heading"></localize>
-                    </h3>
-
-                    <div class="content-wrapper">
-                        <h4>
-                            <localize key="settings.version.label"></localize> {{getCGRVersion()}}
-                        </h4>
-                    </div>
+                <div class="content-wrapper">
+                    <h4>
+                        <localize key="settings.version.label"></localize> {{getCGRVersion()}}
+                    </h4>
                 </div>
             </div>
+        </div>
 
-            <div class="row">
-                <div class="col-md-12">
-                    <h3>
-                        <localize key="settings.administrators.heading"></localize>
-                    </h3>
+        <div class="row">
+            <div class="col-md-12">
+                <h3>
+                    <localize key="settings.administrators.heading"></localize>
+                </h3>
 
-                    <div class="content-wrapper">
-                        <div class="list-table-wrapper">
-                            <table id="manage-systems-table" class="list-table table table-bordered table-striped">
-                                <thead>
-                                    <tr>
-                                        <th class="label-column">
-                                            <localize key='account.username'></localize>
-                                        </th>
-                                        <th class="label-column">
-                                            <localize key='account.firstname'></localize>
-                                        </th>
-                                        <th class="label-column">
-                                            <localize key='account.lastname'></localize>
-                                        </th>
-                                        <th class="label-column">
-                                            <localize key='account.phonenumber'></localize>
-                                        </th>
-                                        <th class="label-column">
-                                            <localize key='account.email'></localize>
-                                        </th>
-                                        <th>
-                                            <localize key="organization.manager.enabled"></localize>
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr *ngFor="let account of sRAs.resultSet | paginate: {id:'accounts', itemsPerPage: sRAs.pageSize, currentPage: sRAs.pageNumber, totalItems: sRAs.count }"
-                                        class="fade-ngRepeat-item">
-                                        <td class="label-column username-col">{{ account.username }}</td>
-                                        <td class="label-column firstname-col">{{ account.firstName }}</td>
-                                        <td class="label-column lastname-col">{{ account.lastName }}</td>
-                                        <td class="label-column phone-col">{{ account.phoneNumber }}</td>
-                                        <td class="label-column email-col">{{ account.email }}</td>
-                                        <td class="label-column email-col">{{ !account.inactive }}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <pagination-controls id="accounts"
-                                (pageChange)="onSRAPageChange($event)"></pagination-controls>
+                <div class="content-wrapper">
+                    <div class="list-table-wrapper">
+                        <table id="manage-systems-table" class="list-table table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th class="label-column">
+                                        <localize key='account.username'></localize>
+                                    </th>
+                                    <th class="label-column">
+                                        <localize key='account.firstname'></localize>
+                                    </th>
+                                    <th class="label-column">
+                                        <localize key='account.lastname'></localize>
+                                    </th>
+                                    <th class="label-column">
+                                        <localize key='account.phonenumber'></localize>
+                                    </th>
+                                    <th class="label-column">
+                                        <localize key='account.email'></localize>
+                                    </th>
+                                    <th>
+                                        <localize key="organization.manager.enabled"></localize>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let account of sRAs.resultSet | paginate: {id:'accounts', itemsPerPage: sRAs.pageSize, currentPage: sRAs.pageNumber, totalItems: sRAs.count }"
+                                    class="fade-ngRepeat-item">
+                                    <td class="label-column username-col">{{ account.username }}</td>
+                                    <td class="label-column firstname-col">{{ account.firstName }}</td>
+                                    <td class="label-column lastname-col">{{ account.lastName }}</td>
+                                    <td class="label-column phone-col">{{ account.phoneNumber }}</td>
+                                    <td class="label-column email-col">{{ account.email }}</td>
+                                    <td class="label-column email-col">{{ !account.inactive }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <pagination-controls id="accounts" (pageChange)="onSRAPageChange($event)"></pagination-controls>
 
-                        </div>
                     </div>
-
                 </div>
+
             </div>
+        </div>
 
 
-            <div *ngIf="isAdmin" class="row">
-                <div class="col-md-12">
-                    <h3>
-                        <localize key="settings.organizations.heading"></localize>
+        <div *ngIf="isAdmin" class="row">
+            <div class="col-md-12">
+                <h3>
+                    <localize key="settings.organizations.heading"></localize>
 
-                        <span style="float: right;">
-                            <a class="fa fa-upload" (click)="onUploadHierarchy()"
-                                [title]="'organization.manager.upload.button' | localize"></a>
-                            <a class="fa fa-sitemap" (click)="onManageHierarchy()"
-                                [title]="'organization.manager.manage.button' | localize"></a>
-                        </span>
-                    </h3>
+                    <span style="float: right;">
+                        <a class="fa fa-upload" (click)="onUploadHierarchy()"
+                            [title]="'organization.manager.upload.button' | localize"></a>
+                        <a class="fa fa-sitemap" (click)="onManageHierarchy()"
+                            [title]="'organization.manager.manage.button' | localize"></a>
+                    </span>
+                </h3>
 
-                    <div class="content-wrapper">
-                        <div class="list-table-wrapper">
-                            <table id="manage-organizations-table"
-                                class="list-table table table-bordered table-striped">
-                                <thead>
-                                    <tr>
-                                        <th *ngIf="isSRA"></th>
-                                        <th>
-                                            <localize key="settings.manage.orgs.table.code.header"></localize>
-                                        </th>
-                                        <th>
-                                            <localize key="settings.manage.orgs.table.name.header"></localize>
-                                        </th>
-                                        <th>
-                                            <localize key="settings.manage.orgs.table.contact.header"></localize>
-                                        </th>
-                                        <th>
-                                            <localize key="settings.manage.orgs.table.parent.header"></localize>
-                                        </th>
-                                        <th>
-                                            <localize key="organization.manager.enabled"></localize>
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr
-                                        *ngFor="let org of oPage.resultSet | paginate: { id:'orgs', itemsPerPage: oPage.pageSize, currentPage: oPage.pageNumber, totalItems: oPage.count }">
-                                        <td *ngIf="isSRA" class="button-column">
-                                            <a class="fa fa-pencil ico-edit" (click)="onEditOrganization(org)"
-                                                [title]="'account.editTooltip' | localize"></a>
-                                            <!-- <a class="fa fa-trash-o ico-remove"
+                <div class="content-wrapper">
+                    <div class="list-table-wrapper">
+                        <table id="manage-organizations-table" class="list-table table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th *ngIf="isSRA"></th>
+                                    <th>
+                                        <localize key="settings.manage.orgs.table.code.header"></localize>
+                                    </th>
+                                    <th>
+                                        <localize key="settings.manage.orgs.table.name.header"></localize>
+                                    </th>
+                                    <th>
+                                        <localize key="settings.manage.orgs.table.contact.header"></localize>
+                                    </th>
+                                    <th>
+                                        <localize key="settings.manage.orgs.table.parent.header"></localize>
+                                    </th>
+                                    <th>
+                                        <localize key="organization.manager.enabled"></localize>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr
+                                    *ngFor="let org of oPage.resultSet | paginate: { id:'orgs', itemsPerPage: oPage.pageSize, currentPage: oPage.pageNumber, totalItems: oPage.count }">
+                                    <td *ngIf="isSRA" class="button-column">
+                                        <a class="fa fa-pencil ico-edit" (click)="onEditOrganization(org)"
+                                            [title]="'account.editTooltip' | localize"></a>
+                                        <!-- <a class="fa fa-trash-o ico-remove"
                                                 (click)="onRemoveOrganization(org.code, org.code)"
                                                 [title]="'account.removeTooltip' | localize"></a> -->
-                                        </td>
-                                        <td class="label-column">{{org.code}}</td>
-                                        <td class="label-column">{{org.label.localizedValue}}</td>
-                                        <td class="label-column">{{org.contactInfo.localizedValue}}</td>
-                                        <td class="label-column">
-                                            <ng-container *ngIf="org.parentLabel != null">
-                                                {{org.parentLabel.localizedValue}}
-                                            </ng-container>
-                                        </td>
-                                        <td class="label-column">
-                                            <localize *ngIf="org.enabled" key="change.request.boolean.option.true">
-                                            </localize>
-                                            <localize *ngIf="!org.enabled" key="change.request.boolean.option.false">
-                                            </localize>
-                                        </td>
-                                    </tr>
-                                    <tr *ngIf="isSRA">
-                                        <td class="button-column">
-                                            <a class="fa fa-plus" (click)="newOrganization()"
-                                                [title]="'organization.manager.tooltip' | localize"></a>
-                                        </td>
-                                    </tr>
+                                    </td>
+                                    <td class="label-column">{{org.code}}</td>
+                                    <td class="label-column">{{org.label.localizedValue}}</td>
+                                    <td class="label-column">{{org.contactInfo.localizedValue}}</td>
+                                    <td class="label-column">
+                                        <ng-container *ngIf="org.parentLabel != null">
+                                            {{org.parentLabel.localizedValue}}
+                                        </ng-container>
+                                    </td>
+                                    <td class="label-column">
+                                        <localize *ngIf="org.enabled" key="change.request.boolean.option.true">
+                                        </localize>
+                                        <localize *ngIf="!org.enabled" key="change.request.boolean.option.false">
+                                        </localize>
+                                    </td>
+                                </tr>
+                                <tr *ngIf="isSRA">
+                                    <td class="button-column">
+                                        <a class="fa fa-plus" (click)="newOrganization()"
+                                            [title]="'organization.manager.tooltip' | localize"></a>
+                                    </td>
+                                </tr>
 
-                                </tbody>
-                            </table>
-                            <pagination-controls id="orgs" (pageChange)="onOrgPageChange($event)"></pagination-controls>
-
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-
-            <div class="row">
-                <div class="col-md-12">
-                    <h3>
-                        <localize key="settings.accounts.heading"></localize>
-                    </h3>
-
-                    <div class="content-wrapper">
-
-                        <div class="row">
-                            <div class="col-md-12">
-                                <a [routerLink]="'/admin/accounts/'" routerLinkActive="active">
-                                    <button class="btn btn-primary" role="button">
-                                        <localize key="settings.manage.accounts.button"></localize>
-                                    </button>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-12" *ngIf="isSRA || isRA">
-                                <input class="btn btn-primary" style="margin-top:10px;" type="submit"
-                                    [value]="'accounts.inviteUser' | localize" (click)="inviteUsers()">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div *ngIf="isSRA && installedLocales" class="row">
-                <div class="col-md-12">
-                    <h3>
-                        <localize key="settings.localization.heading"></localize>
-                    </h3>
-
-                    <div class="content-wrapper">
-                        <div class="list-table-wrapper">
-                            <table id="manage-accounts-table" class="list-table table table-bordered table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>
-                                        </th>
-                                        <th>
-                                            <localize key="settings.localization.locale.displayLabel"></localize>
-                                        </th>
-                                        <th>
-                                            <localize key="settings.manage.lang.table.language.header"></localize>
-                                        </th>
-                                        <th>
-                                            <localize key="settings.manage.lang.table.country.header"></localize>
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr *ngFor="let loc of installedLocales">
-                                        <td *ngIf="isSRA" class="button-column">
-                                            <a class="fa fa-pencil ico-edit" (click)="onEditLocale(loc)"></a>
-                                            <a *ngIf="!loc.isDefaultLocale" class="fa fa-trash-o ico-remove"
-                                                (click)="onRemoveLocale(loc)"></a>
-                                        </td>
-                                        <td class="label-column">{{loc.label.localizedValue}}</td>
-                                        <td class="label-column">{{loc.language.label}}</td>
-                                        <td class="label-column">{{loc.country.label}}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="button-column"><a class="fa fa-plus" (click)="newLocalization()"
-                                                [title]="'account.newTooltip' | localize"></a></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-12">
-                                <input class="btn btn-primary" type="submit" (click)="exportLocalization()"
-                                    [value]="'localization-manager.exportButton' | localize">
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-12">
-                                <input class="btn btn-primary" style="margin-top:10px;" type="submit"
-                                    (click)="importLocalization()"
-                                    [value]="'localization-manager.importButton' | localize">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div *ngIf="isSRA" class="row">
-                <div class="col-md-12">
-                    <h3>
-                        <localize key="settings.branding.heading"></localize>
-                    </h3>
-
-                    <div class="content-wrapper">
-                        <system-logos></system-logos>
-                    </div>
-                </div>
-            </div>
-
-            <div *ngIf="isSRA" class="row" style="margin-bottom: 30px;">
-                <div class="col-md-12">
-                    <h3>
-                        <localize key="settings.email.heading"></localize>
-                    </h3>
-
-                    <div class="content-wrapper">
-                        <input class="btn btn-primary" type="submit" (click)="configureEmail()"
-                            [value]="'settings.email.configure' | localize">
-
-                        <i *ngIf="settings.email.isConfigured" class="fa fa-check" aria-hidden="true">
-                            <localize key="settings.email.configured"></localize>
-                        </i>
-                    </div>
-                </div>
-            </div>
-
-            <div *ngIf="isRA && organizations.length > 0" class="row">
-                <div class="col-md-12">
-                    <h3>
-                        <localize key="settings.external.system.heading"></localize>
-                    </h3>
-
-                    <div class="content-wrapper">
-                        <div class="list-table-wrapper">
-                            <table id="manage-systems-table" class="list-table table table-bordered table-striped">
-                                <thead>
-                                    <tr>
-                                        <th></th>
-                                        <th>
-                                            <localize key="external.system.type"></localize>
-                                        </th>
-                                        <th>
-                                            <localize key="external.system.label"></localize>
-                                        </th>
-                                        <th>
-                                            <localize key="external.system.description"></localize>
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr
-                                        *ngFor="let system of systems.resultSet | paginate: {id:'systems', itemsPerPage: systems.pageSize, currentPage: systems.pageNumber, totalItems: systems.count }">
-                                        <td class="button-column">
-                                            <a class="fa fa-pencil ico-edit" (click)="onEditSystem(system)"
-                                                [title]="'account.editTooltip' | localize"></a>
-                                            <a class="fa fa-trash-o ico-remove" (click)="onRemoveSystem(system)"
-                                                [title]="'account.removeTooltip' | localize"></a>
-                                        </td>
-                                        <td class="label-column">
-                                            <localize *ngIf="system.type === 'DHIS2ExternalSystem'"
-                                                key="external.system.dhis2"></localize>
-                                            <localize *ngIf="system.type === 'RevealExternalSystem'"
-                                                key="external.system.reveal"></localize>
-                                            <localize *ngIf="system.type === 'FhirExternalSystem'"
-                                                key="external.system.fhir"></localize>
-                                        </td>
-                                        <td class="label-column">{{system.label.localizedValue}}</td>
-                                        <td class="label-column">{{system.description.localizedValue}}</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="button-column">
-                                            <a class="fa fa-plus" (click)="newSystem()"
-                                                [title]="'account.newTooltip' | localize"></a>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <pagination-controls id="systems"
-                                (pageChange)="onSystemPageChange($event)"></pagination-controls>
-
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            <div *ngIf="isRA && organizations.length > 0" class="row">
-                <div class="col-md-12">
-                    <h3>
-                        <localize key="settings.external.synchronization.heading"></localize>
-                    </h3>
-
-                    <div class="content-wrapper">
-
-                        <div class="row">
-                            <div class="col-md-12">
-                                <a [routerLink]="'/registry/synchronization-configs'" routerLinkActive="active">
-                                    <button class="btn btn-primary" role="button">
-                                        <localize key="settings.external.synchronization.button"></localize>
-                                    </button>
-                                </a>
-                            </div>
-                        </div>
+                            </tbody>
+                        </table>
+                        <pagination-controls id="orgs" (pageChange)="onOrgPageChange($event)"></pagination-controls>
 
                     </div>
                 </div>
+
             </div>
-
-            <div *ngIf="isSRA" class="row">
-                <div class="col-md-12">
-                    <loading-bar></loading-bar>
-
-                    <h3>
-                        <localize key="settings.backup.title"></localize>
-                    </h3>
-
-                    <div class="content-wrapper">
-
-                        <div class="row">
-                            <div class="col-md-12">
-                                <input class="btn btn-primary" type="submit" (click)="onBackup()"
-                                    [value]="'settings.backup.button' | localize">
-
-                                <input class="btn btn-primary" type="submit" (click)="onDeleteData()"
-                                    [value]="'settings.delete.data.button' | localize">
-
-                                <input class="btn btn-primary" type="submit" (click)="onRestore()"
-                                    [value]="'settings.restore.button' | localize">
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-
         </div>
+
+
+        <div class="row">
+            <div class="col-md-12">
+                <h3>
+                    <localize key="settings.accounts.heading"></localize>
+                </h3>
+
+                <div class="content-wrapper">
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <a [routerLink]="'/admin/accounts/'" routerLinkActive="active">
+                                <button class="btn btn-primary" role="button">
+                                    <localize key="settings.manage.accounts.button"></localize>
+                                </button>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12" *ngIf="isSRA || isRA">
+                            <input class="btn btn-primary" style="margin-top:10px;" type="submit"
+                                [value]="'accounts.inviteUser' | localize" (click)="inviteUsers()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="isSRA && installedLocales" class="row">
+            <div class="col-md-12">
+                <h3>
+                    <localize key="settings.localization.heading"></localize>
+                </h3>
+
+                <div class="content-wrapper">
+                    <div class="list-table-wrapper">
+                        <table id="manage-accounts-table" class="list-table table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>
+                                    </th>
+                                    <th>
+                                        <localize key="settings.localization.locale.displayLabel"></localize>
+                                    </th>
+                                    <th>
+                                        <localize key="settings.manage.lang.table.language.header"></localize>
+                                    </th>
+                                    <th>
+                                        <localize key="settings.manage.lang.table.country.header"></localize>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let loc of installedLocales">
+                                    <td *ngIf="isSRA" class="button-column">
+                                        <a class="fa fa-pencil ico-edit" (click)="onEditLocale(loc)"></a>
+                                        <a *ngIf="!loc.isDefaultLocale" class="fa fa-trash-o ico-remove"
+                                            (click)="onRemoveLocale(loc)"></a>
+                                    </td>
+                                    <td class="label-column">{{loc.label.localizedValue}}</td>
+                                    <td class="label-column">{{loc.language.label}}</td>
+                                    <td class="label-column">{{loc.country.label}}</td>
+                                </tr>
+                                <tr>
+                                    <td class="button-column"><a class="fa fa-plus" (click)="newLocalization()"
+                                            [title]="'account.newTooltip' | localize"></a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <input class="btn btn-primary" type="submit" (click)="exportLocalization()"
+                                [value]="'localization-manager.exportButton' | localize">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <input class="btn btn-primary" style="margin-top:10px;" type="submit"
+                                (click)="importLocalization()" [value]="'localization-manager.importButton' | localize">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="isSRA" class="row">
+            <div class="col-md-12">
+                <h3>
+                    <localize key="settings.branding.heading"></localize>
+                </h3>
+
+                <div class="content-wrapper">
+                    <system-logos></system-logos>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="isSRA" class="row" style="margin-bottom: 30px;">
+            <div class="col-md-12">
+                <h3>
+                    <localize key="settings.email.heading"></localize>
+                </h3>
+
+                <div class="content-wrapper">
+                    <input class="btn btn-primary" type="submit" (click)="configureEmail()"
+                        [value]="'settings.email.configure' | localize">
+
+                    <i *ngIf="settings.email.isConfigured" class="fa fa-check" aria-hidden="true">
+                        <localize key="settings.email.configured"></localize>
+                    </i>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="isRA && organizations.length > 0" class="row">
+            <div class="col-md-12">
+                <h3>
+                    <localize key="settings.external.system.heading"></localize>
+                </h3>
+
+                <div class="content-wrapper">
+                    <div class="list-table-wrapper">
+                        <table id="manage-systems-table" class="list-table table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>
+                                        <localize key="external.system.type"></localize>
+                                    </th>
+                                    <th>
+                                        <localize key="external.system.label"></localize>
+                                    </th>
+                                    <th>
+                                        <localize key="external.system.description"></localize>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr
+                                    *ngFor="let system of systems.resultSet | paginate: {id:'systems', itemsPerPage: systems.pageSize, currentPage: systems.pageNumber, totalItems: systems.count }">
+                                    <td class="button-column">
+                                        <a class="fa fa-pencil ico-edit" (click)="onEditSystem(system)"
+                                            [title]="'account.editTooltip' | localize"></a>
+                                        <a class="fa fa-trash-o ico-remove" (click)="onRemoveSystem(system)"
+                                            [title]="'account.removeTooltip' | localize"></a>
+                                    </td>
+                                    <td class="label-column">
+                                        <localize *ngIf="system.type === 'DHIS2ExternalSystem'"
+                                            key="external.system.dhis2"></localize>
+                                        <localize *ngIf="system.type === 'RevealExternalSystem'"
+                                            key="external.system.reveal"></localize>
+                                        <localize *ngIf="system.type === 'FhirExternalSystem'"
+                                            key="external.system.fhir"></localize>
+                                    </td>
+                                    <td class="label-column">{{system.label.localizedValue}}</td>
+                                    <td class="label-column">{{system.description.localizedValue}}</td>
+                                </tr>
+                                <tr>
+                                    <td class="button-column">
+                                        <a class="fa fa-plus" (click)="newSystem()"
+                                            [title]="'account.newTooltip' | localize"></a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <pagination-controls id="systems"
+                            (pageChange)="onSystemPageChange($event)"></pagination-controls>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div *ngIf="isRA && organizations.length > 0" class="row">
+            <div class="col-md-12">
+                <h3>
+                    <localize key="settings.external.synchronization.heading"></localize>
+                </h3>
+
+                <div class="content-wrapper">
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <a [routerLink]="'/registry/synchronization-configs'" routerLinkActive="active">
+                                <button class="btn btn-primary" role="button">
+                                    <localize key="settings.external.synchronization.button"></localize>
+                                </button>
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="isSRA" class="row">
+            <div class="col-md-12">
+                <loading-bar></loading-bar>
+
+                <h3>
+                    <localize key="settings.backup.title"></localize>
+                </h3>
+
+                <div class="content-wrapper">
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <input class="btn btn-primary" type="submit" (click)="onBackup()"
+                                [value]="'settings.backup.button' | localize">
+
+                            <input class="btn btn-primary" type="submit" (click)="onDeleteData()"
+                                [value]="'settings.delete.data.button' | localize">
+
+                            <input class="btn btn-primary" type="submit" (click)="onRestore()"
+                                [value]="'settings.restore.button' | localize">
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
     </div>
-</div>
+</page-container>

@@ -1,0 +1,22 @@
+.nopadding {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.collapsed-sidebar {
+    width: 50px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.collapsed-main {
+    width: calc(100% - 50px);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.sidebar {
+    background-color: #27232CFF;
+    color: #9A9A9AFF; 
+    height: 100vh;
+}
