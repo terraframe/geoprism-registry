@@ -16,6 +16,8 @@
 }
 
 .route-icon {
+    font-size: 16px;
+
     padding-right: 8px;
 }
 
@@ -23,10 +25,15 @@
     font-size: 12px;
     color: #9A9A9AFF;
     border-radius: 6px;
-    padding-left: 8px;
-    padding-right: 8px;
     padding-top: 4px;
     padding-bottom: 4px;
+    padding-left: 4px;
+    padding-right: 1px;
+}
+
+.route-item.expanded {
+    padding-left: 8px;
+    padding-right: 8px;
 }
 
 .route-item.active {

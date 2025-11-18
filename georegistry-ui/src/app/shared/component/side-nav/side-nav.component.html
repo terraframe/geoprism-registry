@@ -23,7 +23,7 @@
   <div class="row nav-row">
     <div class="col-xs-12">
       <a [href]="context + '#/menu'" class="brand">
-        
+
         <h3>
           <img class="brand-img" [src]="context + 'api/asset/view?oid=logo'" />
           <localize *ngIf="expanded" key="cgr.standard.title"></localize>
@@ -37,11 +37,12 @@
 
       <div class="card card-default section">
         <div class="card-body">
-          <h4 class="card-title" *ngIf="expanded">CREATE</h4>
+          <h4 class="card-title" *ngIf="expanded">CONFIGURE</h4>
 
           <div class="row nav-row" *ngIf="shouldShowMenuItem('HIERARCHIES')">
             <div class="col-xs-12">
-              <a routerLink="/registry/hierarchies" class="route-item" routerLinkActive="active">
+              <a routerLink="/registry/hierarchies" [ngClass]="{'expanded': expanded}" class="route-item"
+                routerLinkActive="active">
                 <i class="route-icon fa-solid fa-sitemap"></i>
                 <localize *ngIf="expanded" key="hierarchies.menu"></localize>
               </a>
@@ -50,7 +51,8 @@
 
           <div class="row nav-row" *ngIf="shouldShowMenuItem('CLASSIFICATION')">
             <div class="col-xs-12">
-              <a routerLink="/registry/classification-type" class="route-item" routerLinkActive="active">
+              <a routerLink="/registry/classification-type" [ngClass]="{'expanded': expanded}" class="route-item"
+                routerLinkActive="active">
                 <i class="route-icon fa-solid fa-bars-staggered"></i>
                 <localize *ngIf="expanded" key="header.classifications.option"></localize>
               </a>
@@ -59,9 +61,63 @@
 
           <div class="row nav-row" *ngIf="shouldShowMenuItem('BUSINESS-TYPES') === true">
             <div class="col-xs-12">
-              <a routerLink="/registry/business-types" class="route-item" routerLinkActive="active">
+              <a routerLink="/registry/business-types" [ngClass]="{'expanded': expanded}" class="route-item"
+                routerLinkActive="active">
                 <i class="route-icon fa-solid fa-briefcase"></i>
                 <localize *ngIf="expanded" key="business.data.type"></localize>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-default section">
+        <div class="card-body">
+          <h4 class="card-title" *ngIf="expanded">CURATE</h4>
+
+          <div class="row nav-row" *ngIf="shouldShowMenuItem('SCHEDULED-JOBS')">
+            <div class="col-xs-12">
+              <a routerLink="/registry/scheduled-jobs" [ngClass]="{'expanded': expanded}" class="route-item"
+                routerLinkActive="active">
+                <i class="route-icon fa-solid fa-clock-rotate-left"></i>
+                <localize *ngIf="expanded" key="scheduledjobs.menu"></localize>
+              </a>
+            </div>
+          </div>
+          <div class="row nav-row" *ngIf="shouldShowMenuItem('CHANGE-REQUESTS')">
+            <div class="col-xs-12">
+              <a routerLink="/registry/change-requests" [ngClass]="{'expanded': expanded}" class="route-item"
+                routerLinkActive="active">
+                <i class="route-icon fa-solid fa-arrow-right-arrow-left"></i>
+                <localize *ngIf="expanded" key="header.changerequest.option"></localize>
+              </a>
+            </div>
+          </div>
+          <div class="row nav-row" *ngIf="shouldShowMenuItem('EVENTS')">
+            <div class="col-xs-12">
+              <a routerLink="/registry/historical-events" [ngClass]="{'expanded': expanded}" class="route-item"
+                routerLinkActive="active">
+                <i class="route-icon fa-solid fa-calendar-days"></i>
+                <localize *ngIf="expanded" key="historical.events"></localize>
+              </a>
+            </div>
+          </div>
+          <div class="row nav-row" *ngIf="shouldShowMenuItem('TASKS')">
+            <div class="col-xs-12">
+              <a routerLink="/registry/tasks" [ngClass]="{'expanded': expanded}" class="route-item"
+                routerLinkActive="active">
+                <i class="route-icon fa-solid fa-angle-down"></i>
+                <localize *ngIf="expanded" key="header.tasks"></localize>
+              </a>
+            </div>
+          </div>
+
+          <div class="row nav-row" *ngIf="shouldShowMenuItem('IMPORT')">
+            <div class="col-xs-12">
+              <a routerLink="/registry/data" [ngClass]="{'expanded': expanded}" class="route-item"
+                routerLinkActive="active">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <localize *ngIf="expanded" key="header.data.option"></localize>
               </a>
             </div>
           </div>
@@ -69,7 +125,8 @@
           <ng-container *ngIf="shouldShowMenuItem('BUSINESS-TYPES') === true">
             <div class="row nav-row">
               <div class="col-xs-12">
-                <a routerLink="/registry/business-importer" class="route-item" routerLinkActive="active">
+                <a routerLink="/registry/business-importer" [ngClass]="{'expanded': expanded}" class="route-item"
+                  routerLinkActive="active">
                   <i class="route-icon fa-solid fa-file-import"></i>
                   <localize *ngIf="expanded" key="business.data.import"></localize>
                 </a>
@@ -78,62 +135,26 @@
 
             <div class="row nav-row">
               <div class="col-xs-12">
-                <a routerLink="/registry/edge-importer" class="route-item" routerLinkActive="active">
+                <a routerLink="/registry/edge-importer" [ngClass]="{'expanded': expanded}" class="route-item"
+                  routerLinkActive="active">
                   <i class="route-icon fa-solid fa-file-arrow-up"></i>
                   <localize *ngIf="expanded" key="edge.data.import"></localize>
                 </a>
               </div>
             </div>
           </ng-container>
+
         </div>
       </div>
 
       <div class="card card-default section">
         <div class="card-body">
-          <h4 class="card-title" *ngIf="expanded">EDIT</h4>
-
-          <div class="row nav-row" *ngIf="shouldShowMenuItem('SCHEDULED-JOBS')">
-            <div class="col-xs-12">
-              <a routerLink="/registry/scheduled-jobs" class="route-item" routerLinkActive="active">
-                <i class="route-icon fa-solid fa-clock-rotate-left"></i>
-                <localize *ngIf="expanded" key="scheduledjobs.menu"></localize>
-              </a>
-            </div>
-          </div>
-          <div class="row nav-row" *ngIf="shouldShowMenuItem('CHANGE-REQUESTS')">
-            <div class="col-xs-12">
-              <a routerLink="/registry/change-requests" class="route-item" routerLinkActive="active">
-                <i class="route-icon fa-solid fa-arrow-right-arrow-left"></i>
-                <localize *ngIf="expanded" key="header.changerequest.option"></localize>
-              </a>
-            </div>
-          </div>
-          <div class="row nav-row" *ngIf="shouldShowMenuItem('EVENTS')">
-            <div class="col-xs-12">
-              <a routerLink="/registry/historical-events" class="route-item" routerLinkActive="active">
-                <i class="route-icon fa-solid fa-calendar-days"></i>
-                <localize *ngIf="expanded" key="historical.events"></localize>
-              </a>
-            </div>
-          </div>
-          <div class="row nav-row" *ngIf="shouldShowMenuItem('TASKS')">
-            <div class="col-xs-12">
-              <a routerLink="/registry/tasks" class="route-item" routerLinkActive="active">
-                <i class="route-icon fa-solid fa-angle-down"></i>
-                <localize *ngIf="expanded" key="header.tasks"></localize>
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card card-default section">
-        <div class="card-body">
-          <h4 class="card-title" *ngIf="expanded">VIEW & SHARE</h4>
+          <h4 class="card-title" *ngIf="expanded">EXPLORE</h4>
 
           <div class="row nav-row" *ngIf="shouldShowMenuItem('NAVIGATOR')">
             <div class="col-xs-12">
-              <a routerLink="/registry/location-manager" class="route-item" [queryParams]="{pageContext:'EXPLORER'}" routerLinkActive="active">
+              <a routerLink="/registry/location-manager" [ngClass]="{'expanded': expanded}" class="route-item"
+                [queryParams]="{pageContext:'EXPLORER'}" routerLinkActive="active">
                 <i class="route-icon fa-regular fa-map"></i>
                 <localize *ngIf="expanded" key=navigator.menu></localize>
               </a>
@@ -142,7 +163,8 @@
 
           <div class="row nav-row" *ngIf="shouldShowMenuItem('LISTS')">
             <div class="col-xs-12">
-              <a routerLink="/registry/master-lists" class="route-item" routerLinkActive="active">
+              <a routerLink="/registry/master-lists" [ngClass]="{'expanded': expanded}" class="route-item"
+                routerLinkActive="active">
                 <i class="route-icon fa-solid fa-table-list"></i>
                 <localize *ngIf="expanded" key="masterlist.menu"></localize>
               </a>
@@ -151,7 +173,8 @@
 
           <div class="row nav-row" *ngIf="shouldShowMenuItem('EXPORT')">
             <div class="col-xs-12">
-              <a routerLink="/registry/export" class="route-item" routerLinkActive="active">
+              <a routerLink="/registry/export" [ngClass]="{'expanded': expanded}" class="route-item"
+                routerLinkActive="active">
                 <i class="route-icon fa-solid fa-file-export"></i>
                 <localize *ngIf="expanded" key="header.export"></localize>
               </a>
@@ -160,7 +183,8 @@
 
           <div class="row nav-row" *ngIf="shouldShowMenuItem('LPG')">
             <div class="col-xs-12">
-              <a routerLink="/registry/labeled-property-graph-type" class="route-item" routerLinkActive="active">
+              <a routerLink="/registry/labeled-property-graph-type" [ngClass]="{'expanded': expanded}"
+                class="route-item" routerLinkActive="active">
                 <i class="route-icon fa-solid fa-hexagon-nodes"></i>
                 <localize *ngIf="expanded" key="lpg.menu"></localize>
               </a>
@@ -169,15 +193,31 @@
         </div>
       </div>
 
-      <div class="row nav-row" *ngIf="!isPublic">
-        <hr>
-        <div class="col-xs-12">
-          <a class="user-command-link route-item" (click)="logout()">
-            <i class="route-icon fa-solid fa-square-up-right"></i>
-            <localize *ngIf="expanded" key="userDashboards.logout"></localize>
-          </a>
+      <ng-container *ngIf="!isPublic">
+        <div class="card card-default section">
+          <div class="card-body">
+            <div class="row nav-row" *ngIf="shouldShowMenuItem('SETTINGS')">
+              <div class="col-xs-12">
+                <a routerLink="/admin/settings" [ngClass]="{'expanded': expanded}" class="route-item"
+                  routerLinkActive="active">
+                  <i class="route-icon fa-solid fa-gear"></i>
+                  <localize *ngIf="expanded" key="settings.menu"></localize>
+                </a>
+              </div>
+            </div>
+
+            <div class="row nav-row">
+              <div class="col-xs-12">
+                <a [ngClass]="{'expanded': expanded}" class="route-item" class="user-command-link route-item" (click)="logout()">
+                  <i class="route-icon fa-solid fa-square-up-right"></i>
+                  <localize *ngIf="expanded" key="userDashboards.logout"></localize>
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      </ng-container>
+
 
       <div class="row fixed-bottom-row">
         <div class="col-xs-12">

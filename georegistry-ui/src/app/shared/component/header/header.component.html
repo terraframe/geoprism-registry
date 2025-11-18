@@ -23,11 +23,6 @@
   <nav class="navbar navbar-default">
     <div class="container-fluid">
       <ul class="nav navbar-nav navbar-right">
-        <li *ngIf="shouldShowMenuItem('SETTINGS')">
-          <a routerLink="/admin/settings" routerLinkActive="active">
-            <i class="fa-solid fa-gear"></i>
-          </a>
-        </li>
 
         <li *ngIf="!isPublic" class="hidden-xs">
 
