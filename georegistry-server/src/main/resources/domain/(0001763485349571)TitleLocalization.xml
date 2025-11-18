@@ -28,6 +28,13 @@
           <attribute name="defaultLocale" value="Geoprism Builder" />
         </attributeStruct>
       </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="cgr.standard.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="cgr.standard.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Geoprism Builder" />
+        </attributeStruct>
+      </object>    
     </update>
   </doIt>
   <undoIt>

@@ -22,7 +22,7 @@
 <div>
   <div class="row nav-row">
     <div class="col-xs-12">
-      <a [href]="context + '#/menu'">
+      <a [href]="context + '#/menu'" class="brand">
         
         <h3>
           <img class="brand-img" [src]="context + 'api/asset/view?oid=logo'" />
@@ -35,9 +35,9 @@
   <div class="row nav-row">
     <div class="col-xs-12">
 
-      <div class="card card-default">
+      <div class="card card-default section">
         <div class="card-body">
-          <h4 class="card-title" *ngIf="expanded">Create</h4>
+          <h4 class="card-title" *ngIf="expanded">CREATE</h4>
 
           <div class="row nav-row" *ngIf="shouldShowMenuItem('HIERARCHIES')">
             <div class="col-xs-12">
@@ -88,9 +88,9 @@
         </div>
       </div>
 
-      <div class="card card-default">
+      <div class="card card-default section">
         <div class="card-body">
-          <h4 class="card-title" *ngIf="expanded">Edit</h4>
+          <h4 class="card-title" *ngIf="expanded">EDIT</h4>
 
           <div class="row nav-row" *ngIf="shouldShowMenuItem('SCHEDULED-JOBS')">
             <div class="col-xs-12">
@@ -127,9 +127,9 @@
         </div>
       </div>
 
-      <div class="card card-default">
+      <div class="card card-default section">
         <div class="card-body">
-          <h4 class="card-title" *ngIf="expanded">View & Share</h4>
+          <h4 class="card-title" *ngIf="expanded">VIEW & SHARE</h4>
 
           <div class="row nav-row" *ngIf="shouldShowMenuItem('NAVIGATOR')">
             <div class="col-xs-12">
