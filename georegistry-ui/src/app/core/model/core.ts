@@ -32,12 +32,12 @@ export class LocaleValue {
 export class AlternateId {
     type: string;
     id: string;
-    
+
     public static getKey(id: AlternateId) {
         if (id instanceof ExternalId) {
             return id.id + "," + id.externalSystemId;
         }
-        
+
         return id.type + "," + id.id;
     }
 }
@@ -134,4 +134,29 @@ export class GeoRegistryConfiguration {
     googleanalyticstoken: string;
     customFont: string;
 
+}
+
+// <div class="row nav-row" *ngIf="shouldShowMenuItem('HIERARCHIES')">
+// <div class="col-xs-12">
+//   <a routerLink="/registry/hierarchies" [ngClass]="{'expanded': expanded}" class="route-item"
+//     routerLinkActive="active" [title]="'hierarchies.menu' | localize">
+//     <i class="route-icon fa-solid fa-sitemap"></i>
+//     <localize *ngIf="expanded" key="header.classifications.option"></localize>
+//   </a>
+// </div>
+// </div>
+
+
+export class MenuItem {
+    id: string;
+    link: string;
+    icon: string;
+    key: string;
+    description: string;
+}
+
+export class MenuSection {
+    title: string;
+    description: string;
+    items: MenuItem[];
 }

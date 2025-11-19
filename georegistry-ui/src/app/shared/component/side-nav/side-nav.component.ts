@@ -28,7 +28,7 @@ import { RegistryRoleType } from "@shared/model/core";
 
 import { environment } from 'src/environments/environment';
 import { ConfigurationService } from "@core/service/configuration.service";
-import { LocaleView } from "@core/model/core";
+import { LocaleView, MenuSection } from "@core/model/core";
 import { Router } from "@angular/router";
 import EnvironmentUtil from "@core/utility/environment-util";
 import { HubService } from "@core/service/hub.service";
@@ -44,11 +44,13 @@ export class SideNavComponent {
 
 
     context: string;
+
+    sections: MenuSection[];
+
     isAdmin: boolean;
     isMaintainer: boolean;
     isContributor: boolean;
     isPublic: boolean = true;
-    bsModalRef: BsModalRef;
 
     defaultLocaleView: LocaleView;
     locales: LocaleView[];
@@ -68,6 +70,9 @@ export class SideNavComponent {
         private router: Router
     ) {
         this.context = EnvironmentUtil.getApiUrl();
+        this.sections = hService.getMenuSections();
+
+        console.log('Sections', this.sections);
 
         this.isPublic = service.isPublic();
 
@@ -99,47 +104,6 @@ export class SideNavComponent {
         // }
     }
 
-    shouldShowMenuItem(item: string): boolean {
-        if (this.isPublic) {
-            return false;
-        }
-
-        if (item === "HIERARCHIES") {
-            return true;
-        } else if (item === "LISTS") {
-            // return this.service.hasExactRole(RegistryRoleType.SRA) || this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM) || this.service.hasExactRole(RegistryRoleType.RC) || this.service.hasExactRole(RegistryRoleType.AC);
-            return true;
-        } else if (item === "BUSINESS-TYPES") {
-            if (this.configuration.isEnableBusinessData()) {
-                return true;
-            } else {
-                return false;
-            }
-        } else if (item === "LPG") {
-            return this.configuration.isEnableLabeledPropertyGraph();
-        } else if (this.service.hasExactRole(RegistryRoleType.SRA)) {
-            return true;
-        } else if (item === "IMPORT") {
-            return this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM);
-        } else if (item === "SCHEDULED-JOBS") {
-            return this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM);
-        } else if (item === "NAVIGATOR") {
-            return this.service.hasExactRole(RegistryRoleType.SRA) || this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM) || this.service.hasExactRole(RegistryRoleType.RC);
-        } else if (item === "CHANGE-REQUESTS") {
-            return this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM) || this.service.hasExactRole(RegistryRoleType.RC);
-        } else if (item === "TASKS") {
-            return this.service.hasExactRole(RegistryRoleType.SRA) || this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM);
-        } else if (item === "EVENTS") {
-            // return this.service.hasExactRole(RegistryRoleType.SRA) || this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM);
-            return true;
-        } else if (item === "CONFIGS" || item === "CLASSIFICATION") {
-            return this.service.hasExactRole(RegistryRoleType.RA);
-        } else if (item === "SETTINGS") {
-            return true;
-        } else {
-            return false;
-        }
-    }
 
     logout(): void {
         if (environment.production) {
@@ -181,14 +145,16 @@ export class SideNavComponent {
 
     account(): void {
         this.profileService.get().then(profile => {
-            this.bsModalRef = this.modalService.show(ProfileComponent, { backdrop: "static", class: "gray modal-lg" });
-            this.bsModalRef.content.profile = profile;
+            const bsModalRef = this.modalService.show(ProfileComponent, { backdrop: "static", class: "gray modal-lg" });
+            bsModalRef.content.profile = profile;
         });
     }
 
     handleToggle(): void {
-        console.log('Test Click');
-
         this.hService.setExpanded(!this.expanded);
+    }
+
+    shouldShowMenuItem(item: string): boolean {
+        return this.service.shouldShowMenuItem(item);
     }
 }

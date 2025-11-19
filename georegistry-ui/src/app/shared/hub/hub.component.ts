@@ -30,6 +30,7 @@ import { HubService } from '@core/service/hub.service';
 import { APP_BASE_HREF } from '@angular/common';
 import EnvironmentUtil from '@core/utility/environment-util';
 import { Router } from '@angular/router';
+import { MenuSection } from '@core/model/core';
 
 @Component({
     selector: 'hub',
@@ -38,12 +39,12 @@ import { Router } from '@angular/router';
 })
 export class HubComponent implements OnInit {
     context: string;
-    applications: Application[] = [];
     tasks: any = [];
-    isAdmin: boolean = false;
     buckets: string = 'col-sm-6';
     bsModalRef: BsModalRef;
     loading: boolean = true;
+
+    sections: MenuSection[] = [];
 
     constructor(
         @Inject(APP_BASE_HREF) private baseHref: string,
@@ -53,15 +54,11 @@ export class HubComponent implements OnInit {
 
     ) {
         this.context = EnvironmentUtil.getApiUrl();
+
+        this.sections = this.service.getMenuSections();
     }
 
     ngOnInit(): void {
-        this.service.applications().then(applications => {
-            this.loading = false;
-            this.applications = applications;
-        });
-
-        this.isAdmin = this.authService.isAdmin();
     }
 
     //   logout():void {
@@ -99,4 +96,9 @@ export class HubComponent implements OnInit {
     //       this.bsModalRef.content.profile = profile;
     //     });
     //   }
+
+    shouldShowMenuItem(item: string): boolean {
+        return this.authService.shouldShowMenuItem(item);
+    }
+
 }
