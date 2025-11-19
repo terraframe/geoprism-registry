@@ -64,8 +64,8 @@ export class HubService {
 
         // The CREATE section
         sections.push({
-            title: 'CREATE',
-            description: 'Create a framework',
+            title: 'CONFIGURE',
+            description: 'Define how your data should look and behave by specifying the structure of your data, how data relate, classification rules, and other system configurations',
             items: [
                 {
                     id: 'HIERARCHIES',
@@ -95,7 +95,7 @@ export class HubService {
         // The CREATE section
         sections.push({
             title: 'CURATE',
-            description: "Edit the details",
+            description: "Integrate and curate data across space and time to ensure Integrity, Provenance, and Trust (IPT)",
             items: [
                 {
                     id: 'SCHEDULED-JOBS',
@@ -153,7 +153,7 @@ export class HubService {
         // The EXPLORE section
         sections.push({
             title: 'EXPLORE',
-            description: 'Share the data',
+            description: 'Explore and share insights in different formats',
             items: [
                 {
                     id: 'NAVIGATOR',
