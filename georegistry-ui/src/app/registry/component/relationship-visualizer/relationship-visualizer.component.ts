@@ -540,7 +540,14 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
     public getLabelWidth(node: any) {
 
         if (this.relationship.layout === "HORIZONTAL" && node.relation === "SELECTED") {
-            return Math.min(DIMENSIONS.LABEL.WIDTH, calculateTextWidth(node.label, DIMENSIONS.LABEL.FONTSIZE, "svg.ngx-charts")) + DIMENSIONS.PADDING.NODE_LABEL;
+            try {
+                return Math.min(DIMENSIONS.LABEL.WIDTH, calculateTextWidth(node.label, DIMENSIONS.LABEL.FONTSIZE, "svg.ngx-charts")) + DIMENSIONS.PADDING.NODE_LABEL;
+            }
+            catch (e) {
+                console.log('Unable to calculate the horizontal label width');
+
+                return DIMENSIONS.LABEL.WIDTH;
+            }
         } else {
             return DIMENSIONS.LABEL.WIDTH + DIMENSIONS.PADDING.NODE_LABEL;
         }
