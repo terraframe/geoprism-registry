@@ -1,0 +1,19 @@
+<div class="new-admin-design-main">
+  <loading-bar *ngIf="loadingBar"></loading-bar>
+
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-xs-2 sidebar" [ngClass]="{'collapsed-sidebar' : !expanded}">
+        <side-nav [expanded]="expanded" (toggleExpanded)="onToggleExpanded()"></side-nav>
+      </div>
+      <div class="col-xs-10 main-content nopadding" style="height: 100vh;  overflow-y: scroll;"
+        [ngClass]="{'collapsed-main' : !expanded}" id="app-container">
+        <cgr-header></cgr-header>
+
+        <div class="container-fluid">
+          <ng-content />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

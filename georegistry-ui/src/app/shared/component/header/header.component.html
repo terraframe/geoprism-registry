@@ -20,84 +20,43 @@
 -->
 <!-- HEADER AND NAVBAR -->
 <header>
-  <nav class="navbar navbar-default navbar-fixed-top">
+  <nav class="navbar navbar-default">
     <div class="container-fluid">
-      <div class="navbar-header">
-        <a class="navbar-brand" [href]="context + '#/menu'"><img [src]="context + 'api/asset/view?oid=logo'" /></a>
-        <a class="navbar-brand" [href]="context + '#/menu'"><localize key="cgr.standard.title"></localize></a>
-      </div>
-       <ul class="nav navbar-nav navbar-right"> 
-         <li *ngIf="!isPublic" class="hidden-xs">
-            
-           <a (click)="account()" class="navbar-username">
-           <!-- <div>Logged in as</div> -->
-             <div>{{getUsername()}}</div>
-           </a>                      
-         </li>
-         <li dropdown *ngIf="!isPublic || locales.length > 0"> 
-             <!-- <localize key="hierarchy-management.menu"></localize> -->
-           <a class="dropdown-toggle" role="button" aria-haspopup="true" aria-expanded="false" dropdownToggle> 
-             <span class="glyphicon glyphicon-menu-hamburger"></span> 
-           </a>     
+      <ul class="nav navbar-nav navbar-right">
 
-           
-              <ul *dropdownMenu class="dropdown-menu">
-                <!-- GeoRegistry specific links -->
-                <li *ngIf="shouldShowMenuItem('HIERARCHIES')" role="menuitem"><a class="dropdown-item" routerLink="/registry/hierarchies" routerLinkActive="active"><localize key="hierarchies.menu"></localize></a></li> 
-                <li *ngIf="shouldShowMenuItem('LISTS')" role="menuitem"><a class="dropdown-item" routerLink="/registry/master-lists" routerLinkActive="active"><localize key="masterlist.menu"></localize> </a></li>
-                <li *ngIf="shouldShowMenuItem('IMPORT')" role="menuitem"><a class="dropdown-item" routerLink="/registry/data" routerLinkActive="active"><localize key="header.data.option"></localize> </a></li>
-                <li *ngIf="shouldShowMenuItem('PUBLISH')" role="menuitem"><a class="dropdown-item" routerLink="/registry/publish" routerLinkActive="active"><localize key="skg.list.label"></localize> </a></li>
-                <li *ngIf="shouldShowMenuItem('SCHEDULED-JOBS')" role="menuitem"><a class="dropdown-item" routerLink="/registry/scheduled-jobs" routerLinkActive="active"><localize key="scheduledjobs.menu"></localize> </a></li>
-                <li *ngIf="shouldShowMenuItem('NAVIGATOR')" role="menuitem"><a class="dropdown-item" routerLink="/registry/location-manager" [queryParams]="{pageContext:'EXPLORER'}"><localize key=navigator.menu></localize> </a></li>
-                <li *ngIf="shouldShowMenuItem('CHANGE-REQUESTS')" role="menuitem"><a class="dropdown-item" routerLink="/registry/change-requests" routerLinkActive="active"><localize key="header.changerequest.option"></localize> </a></li>
-                <li *ngIf="shouldShowMenuItem('EVENTS')" role="menuitem"><a class="dropdown-item" routerLink="/registry/historical-events" routerLinkActive="active"><localize key="historical.events"></localize></a></li>
-                <li *ngIf="shouldShowMenuItem('TASKS')" role="menuitem"><a class="dropdown-item" routerLink="/registry/tasks" routerLinkActive="active"><localize key="header.tasks"></localize></a></li>
-                <li *ngIf="shouldShowMenuItem('CLASSIFICATION')" role="menuitem"><a class="dropdown-item" routerLink="/registry/classification-type" routerLinkActive="active"><localize key="header.classifications.option"></localize></a></li>
-                <li *ngIf="shouldShowMenuItem('SOURCE')" role="menuitem"><a class="dropdown-item" routerLink="/registry/sources" routerLinkActive="active"><localize key="source.list.label"></localize></a></li>
-                <!-- <li *ngIf="shouldShowMenuItem('CONFIGS')" role="menuitem"><a class="dropdown-item" routerLink="/registry/synchronization-configs" routerLinkActive="active"><localize key="synchronization.config.manager"></localize></a></li> -->
-                <ng-container *ngIf="shouldShowMenuItem('BUSINESS-TYPES') === true">
-                  <hr>
-                  <li  role="menuitem"><a class="dropdown-item" routerLink="/registry/business-types" routerLinkActive="active"><localize key="business.data.type"></localize></a></li>
-                  <li role="menuitem"><a class="dropdown-item" routerLink="/registry/business-importer" routerLinkActive="active"><localize key="business.data.import"></localize></a></li>
-                  <li role="menuitem"><a class="dropdown-item" routerLink="/registry/edge-importer" routerLinkActive="active"><localize key="edge.data.import"></localize></a></li>
-                </ng-container>
-                <li *ngIf="shouldShowMenuItem('LPG')" role="menuitem"><a class="dropdown-item" routerLink="/registry/labeled-property-graph-type" routerLinkActive="active"><localize key="lpg.menu"></localize> </a></li>
-                
-                <hr *ngIf="!isPublic">
-                <li *ngIf="shouldShowMenuItem('SETTINGS')" role="menuitem"><a class="dropdown-item" routerLink="/admin/settings" routerLinkActive="active"><localize key="settings.menu"></localize> </a></li>
-                
-                <div *ngIf="locales.length > 0" style="padding: 0 20px;">
-                  <hr *ngIf="!isPublic">
-<!--                     <span><localize key="userDashboards.setLocale"></localize></span> -->
+        <li *ngIf="!isPublic" class="hidden-xs">
 
-                    <label class="radio" style="font-weight: inherit;">
-                      <input class="inline-radio-input" type="radio" name="default" [value]="''" (change)="setLocale()" [(ngModel)]="locale">
-                      <span>{{defaultLocaleView.label.localizedValue}}</span>
-                    </label>
-                    <label *ngFor="let l of locales" class="radio" style="font-weight: inherit;">
-                      <input class="inline-radio-input" type="radio" [name]="l.toString" [value]="l.toString" (change)="setLocale()" [(ngModel)]="locale">
-                      <span>{{l.label.localizedValue}}</span>
-                    </label>
-                </div>
-                
-                <!-- <hr *ngIf="isAdmin">
-                <li *ngIf="isAdmin" role="menuitem"><a class="dropdown-item" routerLink="/registry/localization-manager" routerLinkActive="active"><localize key="localization-manager.menu"></localize></a></li>
-                <li *ngIf="isAdmin" role="menuitem"><a class="dropdown-item" routerLink="/admin/logos" routerLinkActive="active"><i></i><localize key="Icons"></localize></a></li>
-                <li *ngIf="isAdmin" role="menuitem">
-                    <a class="user-command-link" routerLink="/admin/accounts"><localize key="accounts.link"></localize></a>
-                </li>
-                <li *ngIf="isAdmin" role="menuitem"><a class="dropdown-item" routerLink="/admin/email" routerLinkActive="active"><i></i><localize key="email.link"></localize></a></li> -->
-  
-                <hr *ngIf="!isPublic">
-                <li *ngIf="!isPublic" role="menuitem"><a class="user-command-link" (click)="logout()"><localize key="userDashboards.logout"></localize></a></li>
-            
-              </ul>
-         </li> 
-         
-        
-       </ul>
-       
-       
+          <a (click)="account()" class="navbar-username">
+            <i class="fa-regular fa-user"></i>
+          </a>
+        </li>
+        <li dropdown *ngIf="locales.length > 0">
+          <!-- <localize key="hierarchy-management.menu"></localize> -->
+          <a class="dropdown-toggle" role="button" aria-haspopup="true" aria-expanded="false" dropdownToggle>
+            <span class="glyphicon glyphicon-menu-hamburger"></span>
+          </a>
+          <ul *dropdownMenu class="dropdown-menu">
+
+            <div *ngIf="locales.length > 0" style="padding: 0 20px;">
+              <label class="radio" style="font-weight: inherit;">
+                <input class="inline-radio-input" type="radio" name="default" [value]="''" (change)="setLocale()"
+                  [(ngModel)]="locale">
+                <span>{{defaultLocaleView.label.localizedValue}}</span>
+              </label>
+              <label *ngFor="let l of locales" class="radio" style="font-weight: inherit;">
+                <input class="inline-radio-input" type="radio" [name]="l.toString" [value]="l.toString"
+                  (change)="setLocale()" [(ngModel)]="locale">
+                <span>{{l.label.localizedValue}}</span>
+              </label>
+            </div>
+
+          </ul>
+        </li>
+
+
+      </ul>
+
+
     </div>
   </nav>
 </header>

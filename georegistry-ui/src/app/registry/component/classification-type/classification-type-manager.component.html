@@ -18,52 +18,47 @@
     License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<div class="new-admin-design-main">
-    <cgr-header></cgr-header>
-    <loading-bar></loading-bar>
+<page-container>
 
-    <div id="app-container" class="container-fluid">
+    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
-        <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+    <div class="row">
 
-        <div class="row">
-
-            <nav class="col-md-3 list-sidebar">
-                <div class="sidebar-section-content" style="padding-top:20px;">
-                    <ul class="list-group">
+        <nav class="col-md-3 list-sidebar">
+            <div class="sidebar-section-content" style="padding-top:20px;">
+                <ul class="list-group">
 
 
-                        <li class="list-group-item got-li-item" *ngFor="let type of page.resultSet" [id]="type.code">
-                            <a [routerLink]="'/registry/classification-type'" [queryParams]="{typeCode:type.code}"
-                                routerLinkActive="active">
-                                {{type.displayLabel.localizedValue}}
-                            </a>
+                    <li class="list-group-item got-li-item" *ngFor="let type of page.resultSet" [id]="type.code">
+                        <a [routerLink]="'/registry/classification-type'" [queryParams]="{typeCode:type.code}"
+                            routerLinkActive="active">
+                            {{type.displayLabel.localizedValue}}
+                        </a>
 
-                            <span
-                                style="position:absolute;right:10px;top:50%;transform:translateY(-50%);">
+                        <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);">
 
-                                <a class="fa fa-pencil ico-edit" (click)="onEdit(type)"
-                                    [title]="'modal.button.edit' | localize"></a>
-                                <a class="fa fa-trash-o ico-remove" (click)="onDelete(type)"
-                                    [title]="'button.delete.helptext' | localize"></a>
-                            </span>
+                            <a class="fa fa-pencil ico-edit" (click)="onEdit(type)"
+                                [title]="'modal.button.edit' | localize"></a>
+                            <a class="fa fa-trash-o ico-remove" (click)="onDelete(type)"
+                                [title]="'button.delete.helptext' | localize"></a>
+                        </span>
 
-                        </li>
-                        <li class="list-group-item got-li-item">
-                            <hr class="bottom">
-                            <button type="submit" (click)="onCreate()" class="btn btn-primary" role="button">
-                                <localize key="hierarchy.management.button.create"></localize>
-                            </button>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-            <div class="col-md-9 hierarchy-content">
-                <div id="overflow-div">
-                    <classification-type *ngIf="classificationType != null" [classificationType]="classificationType"></classification-type>
-                </div>
+                    </li>
+                    <li class="list-group-item got-li-item">
+                        <hr class="bottom">
+                        <button type="submit" (click)="onCreate()" class="btn btn-primary" role="button">
+                            <localize key="hierarchy.management.button.create"></localize>
+                        </button>
+                    </li>
+                </ul>
             </div>
-
+        </nav>
+        <div class="col-md-9 hierarchy-content">
+            <div id="overflow-div">
+                <classification-type *ngIf="classificationType != null"
+                    [classificationType]="classificationType"></classification-type>
+            </div>
         </div>
+
     </div>
-</div>
+</page-container>

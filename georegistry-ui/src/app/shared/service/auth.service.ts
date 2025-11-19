@@ -22,6 +22,7 @@ import { CookieService } from "ngx-cookie-service";
 import { User } from "@shared/model/user";
 import { RoleBuilder, RegistryRole, RegistryRoleType } from "@shared/model/core";
 import { EventService, ISessionListener } from "./event.service";
+import { ConfigurationService } from "@core/service/configuration.service";
 
 @Injectable()
 export class AuthService implements ISessionListener, OnDestroy {
@@ -35,7 +36,10 @@ export class AuthService implements ISessionListener, OnDestroy {
         installedLocales: []
     };
 
-    constructor(private service: CookieService, private eventService: EventService) {
+    constructor(
+        private configuration: ConfigurationService,
+        private service: CookieService,
+        private eventService: EventService) {
         let cookie = service.get("user");
 
         if (this.service.check("user") && cookie != null && cookie.length > 0) {
@@ -337,4 +341,47 @@ export class AuthService implements ISessionListener, OnDestroy {
         sessionStorage.removeItem("locales");
         localStorage.clear();
     }
+
+    shouldShowMenuItem(item: string): boolean {
+        // if (this.isPublic) {
+        //     return false;
+        // }
+
+        if (item === "HIERARCHIES") {
+            return true;
+        } else if (item === "LISTS") {
+            // return this.hasExactRole(RegistryRoleType.SRA) || this.hasExactRole(RegistryRoleType.RA) || this.hasExactRole(RegistryRoleType.RM) || this.hasExactRole(RegistryRoleType.RC) || this.hasExactRole(RegistryRoleType.AC);
+            return true;
+        } else if (item === "BUSINESS-TYPES") {
+            if (this.configuration.isEnableBusinessData()) {
+                return true;
+            } else {
+                return false;
+            }
+        } else if (item === "LPG") {
+            return this.configuration.isEnableLabeledPropertyGraph();
+        } else if (this.hasExactRole(RegistryRoleType.SRA)) {
+            return true;
+        } else if (item === "IMPORT") {
+            return this.hasExactRole(RegistryRoleType.RA) || this.hasExactRole(RegistryRoleType.RM);
+        } else if (item === "SCHEDULED-JOBS") {
+            return this.hasExactRole(RegistryRoleType.RA) || this.hasExactRole(RegistryRoleType.RM);
+        } else if (item === "NAVIGATOR") {
+            return this.hasExactRole(RegistryRoleType.SRA) || this.hasExactRole(RegistryRoleType.RA) || this.hasExactRole(RegistryRoleType.RM) || this.hasExactRole(RegistryRoleType.RC);
+        } else if (item === "CHANGE-REQUESTS") {
+            return this.hasExactRole(RegistryRoleType.RA) || this.hasExactRole(RegistryRoleType.RM) || this.hasExactRole(RegistryRoleType.RC);
+        } else if (item === "TASKS") {
+            return this.hasExactRole(RegistryRoleType.SRA) || this.hasExactRole(RegistryRoleType.RA) || this.hasExactRole(RegistryRoleType.RM);
+        } else if (item === "EVENTS") {
+            // return this.hasExactRole(RegistryRoleType.SRA) || this.hasExactRole(RegistryRoleType.RA) || this.hasExactRole(RegistryRoleType.RM);
+            return true;
+        } else if (item === "CONFIGS" || item === "CLASSIFICATION") {
+            return this.hasExactRole(RegistryRoleType.RA);
+        } else if (item === "SETTINGS") {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }

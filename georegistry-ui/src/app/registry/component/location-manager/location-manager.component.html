@@ -29,11 +29,8 @@
   </h6>
 </ng-template>
 
-<cgr-header></cgr-header>
-<loading-bar></loading-bar>
+<page-container>
 
-
-<div id="app-container" class="container-fluid">
 
   <!-- Floating search panel-->
   <div style="position: absolute; top: 0; bottom: 0; left: 10px; right: 10px; height: 100%;">
@@ -56,7 +53,8 @@
                   <ngx-spinner [fullScreen]="false" [name]="CONSTANTS.SEARCH_OVERLAY" type="ball-clip-rotate-multiple"
                     size="medium"></ngx-spinner>
                   <date-field [(value)]="dateFieldValue" label="" [inputName]="'date'" [allowInfinity]="false"
-                    [allowFutureDates]="false" [required]="false" [customContainerClasses]="'bs-datepicker-container-custom-left'"
+                    [allowFutureDates]="false" [required]="false"
+                    [customContainerClasses]="'bs-datepicker-container-custom-left'"
                     style="display:table-cell;vertical-align:middle;width:175px;"> </date-field>
 
                   <input type="text" class="form-control" [placeholder]="'explorer.search.placeholder' | localize"
@@ -110,9 +108,8 @@
                   [ngClass]="{'full-height-sidebar' : current != null, 'max-height' : !searchEnabled }">
                   <feature-panel *ngIf="current.objectType === 'GEOOBJECT' && typeCache.ready()" #FeaturePanel
                     [type]="typeCache.getTypeByCode(state.type)" [code]="current.code" [forDate]="current.forDate"
-                    (forDateChange)="featurePanelForDateChange($event)"
-                    (modeChange)="onModeChange($event)" (panelCancel)="clearRecord()"
-                    (panelSubmit)="onPanelSubmit($event)">
+                    (forDateChange)="featurePanelForDateChange($event)" (modeChange)="onModeChange($event)"
+                    (panelCancel)="clearRecord()" (panelSubmit)="onPanelSubmit($event)">
                   </feature-panel>
 
                   <business-object-panel *ngIf="current.objectType === 'BUSINESS'" [type]="current.businessType"
@@ -130,8 +127,8 @@
         style="z-index:4;padding-top:10px;">
 
         <div style="z-index:999;padding-top:10px;overflow-y:auto;position:absolute;top:0;overflow:visible;">
-          <div *ngIf="searchEnabled || current != null" class="map-button clickable" style="padding-bottom: 5px;"
-            (click)="!isEdit && togglePanel()">
+          <div *ngIf="searchEnabled || current != null" class="map-button clickable"
+            style="padding-bottom: 5px; padding-right: 5px;" (click)="!isEdit && togglePanel()">
             <div class="map-button-icon">
               <span class="fa clickable" style="font-size: 35px;"
                 [title]="(state.attrPanelOpen ? 'explorer.resize.closeAttributePanel' : 'explorer.resize.openAttributePanel') | localize"
@@ -196,4 +193,4 @@
       </div>
     </div>
   </div>
-</div>
+</page-container>

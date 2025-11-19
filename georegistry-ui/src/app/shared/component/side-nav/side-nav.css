@@ -1,0 +1,58 @@
+.fixed-bottom-row {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    padding: 15px 0;
+}
+
+.brand {
+    color: #9A9A9AFF;
+}
+
+
+.brand-img {
+    height: 25px;
+    padding-right: 10px;
+}
+
+.route-icon {
+    font-size: 16px;
+
+    padding-right: 8px;
+}
+
+.route-item {
+    font-size: 12px;
+    color: #9A9A9AFF;
+    border-radius: 6px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left: 4px;
+    padding-right: 1px;
+}
+
+.route-item.expanded {
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+.route-item.active {
+    background-color: #D9B5FFFF;
+    color: #3B3B3BFF;
+}
+
+a:hover {
+    background-color: #3B2F41;
+    stroke: #D9B5ff;
+    color: #BABABA;
+}
+
+.nav-row {
+    padding-top: 10px;
+}
+
+.section {
+    padding-top: 20px;
+    font-size: 10px;
+    letter-spacing: 2%;
+}

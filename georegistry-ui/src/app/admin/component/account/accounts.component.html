@@ -18,65 +18,78 @@
     License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<div class="new-admin-design-main">
-    <cgr-header></cgr-header>
+<page-container>
 
-    <div id="app-container" class="container-fluid">
 
-        <message></message>
-        <!-- <loading-bar></loading-bar> -->
+    <message></message>
+    <!-- <loading-bar></loading-bar> -->
 
-        <h2>
-            <localize key="accounts.title"></localize>
-        </h2>
+    <h2>
+        <localize key="accounts.title"></localize>
+    </h2>
 
-        <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
-        <div class="row" *ngIf="isRA">
-            <div class="col-md-12 text-right">
-                <input class="btn btn-primary" style="margin-top: 10px;" type="submit" [value]="'accounts.inviteUser' | localize" (click)="inviteUsers()">
-            </div>
+    <div class="row" *ngIf="isRA">
+        <div class="col-md-12 text-right">
+            <input class="btn btn-primary" style="margin-top: 10px;" type="submit"
+                [value]="'accounts.inviteUser' | localize" (click)="inviteUsers()">
         </div>
-
-        <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
-        
-        <div class="list-table-wrapper">
-            <table id="manage-accounts-table" class="list-table table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th *ngIf="isRA"></th>
-                        <th class="label-column"><localize key='account.username'></localize></th>
-                        <th class="label-column"><localize key='account.firstname'></localize></th>
-                        <th class="label-column"><localize key='account.lastname'></localize></th>
-                        <th class="label-column"><localize key='account.phonenumber'></localize></th>
-                        <th class="label-column"><localize key='account.email'></localize></th>
-                        <th class="label-column"><localize key='account.status'></localize></th>
-                        <!-- <th class="label-column"><localize key='account.roles'></localize></th> -->
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let account of res.resultSet | paginate: { itemsPerPage: res.pageSize, currentPage: res.pageNumber, totalItems: res.count }" class="fade-ngRepeat-item" [ngClass]="{'inactive': account.inactive}">
-                        <td *ngIf="isRA" class="button-column">
-                          <a class="fa fa-pencil ico-edit" (click)="edit(account)" [title]="'account.editTooltip' | localize"></a>
-                        </td>
-                        <td class="label-column username-col">{{ account.username }}</td>
-                        <td class="label-column firstname-col">{{ account.firstName }}</td>
-                        <td class="label-column lastname-col">{{ account.lastName }}</td>
-                        <td class="label-column phone-col">{{ account.phoneNumber }}</td>
-                        <td class="label-column email-col">{{ account.email }}</td>
-                        <td class="label-column email-col">
-                          <localize *ngIf="account.inactive" key='account.status.inactive'></localize>
-                          <localize *ngIf="!account.inactive" key='account.status.active'></localize>
-                        </td>
-                        <!-- <td class="label-column role-col">{{ account.roles }}</td> -->
-                    </tr>
-                    <tr *ngIf="isRA">
-                        <td class="button-column"><a class="fa fa-plus" (click)="newInstance()" [title]="'account.newTooltip' | localize"></a></td>
-                    </tr>
-
-                </tbody>
-            </table>
-        </div>
-        <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
     </div>
-</div>
+
+    <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
+
+    <div class="list-table-wrapper">
+        <table id="manage-accounts-table" class="list-table table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th *ngIf="isRA"></th>
+                    <th class="label-column">
+                        <localize key='account.username'></localize>
+                    </th>
+                    <th class="label-column">
+                        <localize key='account.firstname'></localize>
+                    </th>
+                    <th class="label-column">
+                        <localize key='account.lastname'></localize>
+                    </th>
+                    <th class="label-column">
+                        <localize key='account.phonenumber'></localize>
+                    </th>
+                    <th class="label-column">
+                        <localize key='account.email'></localize>
+                    </th>
+                    <th class="label-column">
+                        <localize key='account.status'></localize>
+                    </th>
+                    <!-- <th class="label-column"><localize key='account.roles'></localize></th> -->
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let account of res.resultSet | paginate: { itemsPerPage: res.pageSize, currentPage: res.pageNumber, totalItems: res.count }"
+                    class="fade-ngRepeat-item" [ngClass]="{'inactive': account.inactive}">
+                    <td *ngIf="isRA" class="button-column">
+                        <a class="fa fa-pencil ico-edit" (click)="edit(account)"
+                            [title]="'account.editTooltip' | localize"></a>
+                    </td>
+                    <td class="label-column username-col">{{ account.username }}</td>
+                    <td class="label-column firstname-col">{{ account.firstName }}</td>
+                    <td class="label-column lastname-col">{{ account.lastName }}</td>
+                    <td class="label-column phone-col">{{ account.phoneNumber }}</td>
+                    <td class="label-column email-col">{{ account.email }}</td>
+                    <td class="label-column email-col">
+                        <localize *ngIf="account.inactive" key='account.status.inactive'></localize>
+                        <localize *ngIf="!account.inactive" key='account.status.active'></localize>
+                    </td>
+                    <!-- <td class="label-column role-col">{{ account.roles }}</td> -->
+                </tr>
+                <tr *ngIf="isRA">
+                    <td class="button-column"><a class="fa fa-plus" (click)="newInstance()"
+                            [title]="'account.newTooltip' | localize"></a></td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+    <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
+</page-container>

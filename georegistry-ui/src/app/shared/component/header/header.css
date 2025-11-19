@@ -17,8 +17,7 @@
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 .navbar.navbar-default {
-    background-color: #3E2A5A; /* IE fallback */
-    background-color: var(--theme-primary-color);
+    background-color: #F1F1F1FF; /* IE fallback */
     height: 50px;
     border-radius: 0;
     border: none;

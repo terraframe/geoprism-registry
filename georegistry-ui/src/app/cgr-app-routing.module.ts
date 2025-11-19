@@ -22,7 +22,7 @@ import { LocationStrategy, HashLocationStrategy } from "@angular/common";
 import { Routes, RouterModule } from "@angular/router";
 
 import { LoginComponent } from "./core/component/login/login.component";
-import { HubComponent } from "./core/component/hub/hub.component";
+import { HubComponent } from "./shared/hub/hub.component";
 import { ForgotPasswordComponent } from "./core/component/forgotpassword/forgotpassword.component";
 import { ForgotPasswordCompleteComponent } from "./core/component/forgotpassword-complete/forgotpassword-complete.component";
 

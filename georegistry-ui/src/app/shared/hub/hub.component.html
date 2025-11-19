@@ -1,0 +1,91 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<page-container>
+  <div class="container">
+    <div class="row" style="margin-top: 50px;">
+      <div class="col-md-12">
+        <div class="text-center" style="font-size: 40px;">
+          Set up your data for <span style="color: #6BA542;">GeoPrism.AI</span>
+        </div>
+      </div>
+    </div>
+    <div class="row" style="margin-top: 50px;">
+      <div class="col-md-4" *ngFor="let section of sections; let idx = index">
+
+        <div class="row">
+          <div class="col-md-12">
+            <div class="text-center" style="color: #6BA542;">
+              <svg width="100" height="100">
+                <circle cx="50" cy="50" r="20" stroke="#6BA542" stroke-width="10" fill="none" />
+                <!-- <text x="43" y="50" font-family="Verdana" font-size="20pt" dy="0.35em">{{idx + 1}}</text> -->
+
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-12">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3>{{section.title}}</h3>
+                <p>{{section.description}}</p>
+              </div>
+              <div class="panel-body">
+                <ng-container *ngFor="let item of section.items">
+                  <ng-container *ngIf="shouldShowMenuItem(item.id)">
+                    <div class="row">
+                      <div class="col-xs-12">
+                        <a [routerLink]="item.link" class="route-item" routerLinkActive="active"
+                          [title]="item.key | localize">
+                          <i class="route-icon" style="font-size: 16;" [class]="item.icon"></i>
+                          <span style="padding-left: 10px; font-size: 14px;">
+                            <localize [key]="item.key"></localize>
+                          </span>
+                        </a>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-xs-12">
+                        <p style="padding-left: 27px;">{{item.description}}</p>
+                      </div>
+                    </div>
+                  </ng-container>
+
+                </ng-container>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row" style="padding-top: 20px;">
+      <div class="col-md-12">
+        Geoprism.ai is an application suite for creating and maintaining interoperable Spatial Knowledge Graphs
+        (iSKGs) optimized for Geo-GraphRAG workflows. It implements the Common Geo-Registry (CGR) approach, treating
+        locations, location hierarchies, and networks of locations as cross-sector semantic standards. This enables
+        siloed geospatial datasets—from NSDIs, digital public goods, and domain systems—to be aligned and integrated
+        into a cohesive geospatial knowledge layer that Large Language Models can query and reason over.
+      </div>
+    </div>
+  </div>
+</page-container>

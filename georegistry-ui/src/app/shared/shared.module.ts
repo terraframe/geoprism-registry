@@ -78,6 +78,8 @@ import { DateService } from "./service/date.service";
 import { DateFieldComponent } from "./component/form-fields/date-field/date-field.component";
 import { LocalizationService } from "./service";
 import { MultiSelectFieldComponent } from "./component/form-fields/multi-select/multi-select-field.component";
+import { PageContainerComponent } from "./component/page-container/page-container.component";
+import { SideNavComponent } from "./component/side-nav/side-nav.component";
 
 @NgModule({
     imports: [
@@ -123,7 +125,9 @@ import { MultiSelectFieldComponent } from "./component/form-fields/multi-select/
         GenericTableComponent,
         DateFieldComponent,
         DateTextComponent,
-        MultiSelectFieldComponent
+        MultiSelectFieldComponent,
+        PageContainerComponent,
+        SideNavComponent
     ],
     exports: [
         LocalizeComponent,
@@ -141,6 +145,7 @@ import { MultiSelectFieldComponent } from "./component/form-fields/multi-select/
         ProgressBarComponent,
         ModalStepIndicatorComponent,
         CgrHeaderComponent,
+        PageContainerComponent,
         ProfileComponent,
         LocalizePipe,
         CommonModule,
@@ -149,7 +154,8 @@ import { MultiSelectFieldComponent } from "./component/form-fields/multi-select/
         GenericTableComponent,
         DateFieldComponent,
         DateTextComponent,
-        MultiSelectFieldComponent
+        MultiSelectFieldComponent,
+        SideNavComponent
     ],
     entryComponents: [
         ErrorModalComponent,

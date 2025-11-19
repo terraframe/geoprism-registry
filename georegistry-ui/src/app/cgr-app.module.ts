@@ -38,7 +38,7 @@ import { CgrAppRoutingModule, routedComponents } from "./cgr-app-routing.module"
 
 import { LoginComponent } from "@core/component/login/login.component";
 import { LoginHeaderComponent } from "@core/component/login/login-header.component";
-import { HubComponent } from "@core/component/hub/hub.component";
+import { HubComponent } from "@shared/hub/hub.component";
 import { ForgotPasswordComponent } from "@core/component/forgotpassword/forgotpassword.component";
 import { ForgotPasswordCompleteComponent } from "@core/component/forgotpassword-complete/forgotpassword-complete.component";
 

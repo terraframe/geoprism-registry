@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input } from "@angular/core";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
 import { ProfileComponent } from "../profile/profile.component";
@@ -28,24 +28,29 @@ import { RegistryRoleType } from "@shared/model/core";
 
 import { environment } from 'src/environments/environment';
 import { ConfigurationService } from "@core/service/configuration.service";
-import { LocaleView } from "@core/model/core";
+import { LocaleView, MenuSection } from "@core/model/core";
 import { Router } from "@angular/router";
 import EnvironmentUtil from "@core/utility/environment-util";
+import { HubService } from "@core/service/hub.service";
 
 @Component({
 
-    selector: "cgr-header",
-    templateUrl: "./header.component.html",
-    styleUrls: ["./header.css"]
+    selector: "side-nav",
+    templateUrl: "./side-nav.component.html",
+    styleUrls: ['./side-nav.css']
 })
-export class CgrHeaderComponent {
+export class SideNavComponent {
+
+
 
     context: string;
+
+    sections: MenuSection[];
+
     isAdmin: boolean;
     isMaintainer: boolean;
     isContributor: boolean;
     isPublic: boolean = true;
-    bsModalRef: BsModalRef;
 
     defaultLocaleView: LocaleView;
     locales: LocaleView[];
@@ -54,8 +59,10 @@ export class CgrHeaderComponent {
     enableBusinessData: boolean = false;
 
     @Input() loggedIn: boolean = true;
+    @Input() expanded: boolean = true;
 
     constructor(
+        private hService: HubService,
         private modalService: BsModalService,
         private profileService: ProfileService,
         private service: AuthService,
@@ -63,10 +70,10 @@ export class CgrHeaderComponent {
         private router: Router
     ) {
         this.context = EnvironmentUtil.getApiUrl();
+        this.sections = hService.getMenuSections();
 
-        this.isAdmin = service.isAdmin();
-        this.isMaintainer = this.isAdmin || service.isMaintainer();
-        this.isContributor = this.isAdmin || this.isMaintainer || service.isContributer();
+        console.log('Sections', this.sections);
+
         this.isPublic = service.isPublic();
 
         this.enableBusinessData = configuration.isEnableBusinessData() || false;
@@ -97,47 +104,6 @@ export class CgrHeaderComponent {
         // }
     }
 
-    shouldShowMenuItem(item: string): boolean {
-        if (this.isPublic) {
-            return false;
-        }
-
-        if (item === "HIERARCHIES") {
-            return true;
-        } else if (item === "LISTS") {
-            // return this.service.hasExactRole(RegistryRoleType.SRA) || this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM) || this.service.hasExactRole(RegistryRoleType.RC) || this.service.hasExactRole(RegistryRoleType.AC);
-            return true;
-        } else if (item === "BUSINESS-TYPES") {
-            if (this.configuration.isEnableBusinessData()) {
-                return true;
-            } else {
-                return false;
-            }
-        } else if (item === "LPG") {
-            return this.configuration.isEnableLabeledPropertyGraph();
-        } else if (this.service.hasExactRole(RegistryRoleType.SRA)) {
-            return true;
-        } else if (item === "IMPORT") {
-            return this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM);
-        } else if (item === "SCHEDULED-JOBS") {
-            return this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM);
-        } else if (item === "NAVIGATOR") {
-            return this.service.hasExactRole(RegistryRoleType.SRA) || this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM) || this.service.hasExactRole(RegistryRoleType.RC);
-        } else if (item === "CHANGE-REQUESTS") {
-            return this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM) || this.service.hasExactRole(RegistryRoleType.RC);
-        } else if (item === "TASKS") {
-            return this.service.hasExactRole(RegistryRoleType.SRA) || this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM);
-        } else if (item === "EVENTS") {
-            // return this.service.hasExactRole(RegistryRoleType.SRA) || this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM);
-            return true;
-        } else if (item === "CONFIGS" || item === "CLASSIFICATION") {
-            return this.service.hasExactRole(RegistryRoleType.RA);
-        } else if (item === "SETTINGS") {
-            return true;
-        } else {
-            return false;
-        }
-    }
 
     logout(): void {
         if (environment.production) {
@@ -179,8 +145,16 @@ export class CgrHeaderComponent {
 
     account(): void {
         this.profileService.get().then(profile => {
-            this.bsModalRef = this.modalService.show(ProfileComponent, { backdrop: "static", class: "gray modal-lg" });
-            this.bsModalRef.content.profile = profile;
+            const bsModalRef = this.modalService.show(ProfileComponent, { backdrop: "static", class: "gray modal-lg" });
+            bsModalRef.content.profile = profile;
         });
+    }
+
+    handleToggle(): void {
+        this.hService.setExpanded(!this.expanded);
+    }
+
+    shouldShowMenuItem(item: string): boolean {
+        return this.service.shouldShowMenuItem(item);
     }
 }
