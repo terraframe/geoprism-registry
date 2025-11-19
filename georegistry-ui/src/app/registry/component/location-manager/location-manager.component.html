@@ -127,8 +127,8 @@
         style="z-index:4;padding-top:10px;">
 
         <div style="z-index:999;padding-top:10px;overflow-y:auto;position:absolute;top:0;overflow:visible;">
-          <div *ngIf="searchEnabled || current != null" class="map-button clickable" style="padding-bottom: 5px;"
-            (click)="!isEdit && togglePanel()">
+          <div *ngIf="searchEnabled || current != null" class="map-button clickable"
+            style="padding-bottom: 5px; padding-right: 5px;" (click)="!isEdit && togglePanel()">
             <div class="map-button-icon">
               <span class="fa clickable" style="font-size: 35px;"
                 [title]="(state.attrPanelOpen ? 'explorer.resize.closeAttributePanel' : 'explorer.resize.openAttributePanel') | localize"
