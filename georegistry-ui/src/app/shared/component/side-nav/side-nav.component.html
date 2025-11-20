@@ -70,15 +70,6 @@
               </div>
             </div>
 
-            <div class="row nav-row">
-              <div class="col-xs-12">
-                <a [ngClass]="{'expanded': expanded}" class="route-item" class="route-item"
-                  [title]="'userDashboards.logout' | localize" (click)="logout()">
-                  <i class="route-icon fa-solid fa-square-up-right"></i>
-                  <localize *ngIf="expanded" key="userDashboards.logout"></localize>
-                </a>
-              </div>
-            </div>
           </div>
         </div>
       </ng-container>
