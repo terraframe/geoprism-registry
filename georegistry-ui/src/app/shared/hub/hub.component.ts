@@ -59,6 +59,9 @@ export class HubComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        this.service.applications().then(applications => {
+            this.loading = false;
+        });
     }
 
     //   logout():void {
