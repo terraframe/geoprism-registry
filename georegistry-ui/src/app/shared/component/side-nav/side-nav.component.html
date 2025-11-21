@@ -38,7 +38,7 @@
       <ng-container *ngFor="let section of sections">
         <div class="card card-default section">
           <div class="card-body">
-            <h4 class="card-title" *ngIf="expanded">{{section.title}}</h4>
+            <h4 class="card-title" *ngIf="expanded"><localize [key]="section.title"></localize></h4>
 
             <ng-container *ngFor="let menu of section.items">
               <div class="row nav-row" *ngIf="shouldShowMenuItem(menu.id)">
