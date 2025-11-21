@@ -21,6 +21,7 @@
     height: 50px;
     border-radius: 0;
     border: none;
+    border-bottom: 1px solid #3E2A5A;
 }
 
 .fa.fa-bars {
