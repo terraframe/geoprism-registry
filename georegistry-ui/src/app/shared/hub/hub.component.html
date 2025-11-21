@@ -24,8 +24,12 @@
       <div class="col-md-12">
         <div class="text-center" style="font-size: 40px;">
           <div _ngcontent-yvv-c54="" class="text-center" style="font-size: 40px;">
-            <h1 style="font-size:36px;line-height:unset;">GeoPrism Builder</h1>
-            <h3>Set up your data for <span _ngcontent-yvv-c54="" style="color: #6BA542;">GeoPrism.AI</span></h3>
+            <h1 style="font-size:36px;line-height:unset;">
+              <localize key="cgr.standard.title"></localize>
+            </h1>
+            <h3>
+              <localize key="hub.prefix"></localize> <span style="color: #6BA542;">GeoPrism.AI</span>
+            </h3>
           </div>
         </div>
       </div>
@@ -49,8 +53,12 @@
           <div class="col-md-12">
             <div class="panel panel-default">
               <div class="panel-heading">
-                <h3>{{section.title}}</h3>
-                <p>{{section.description}}</p>
+                <h3>
+                  <localize [key]="section.title"></localize>
+                </h3>
+                <p>
+                  <localize [key]="section.description"></localize>
+                </p>
               </div>
               <div class="panel-body">
                 <ng-container *ngFor="let item of section.items">
@@ -68,7 +76,9 @@
                     </div>
                     <div class="row">
                       <div class="col-xs-12">
-                        <p style="padding-left: 27px;">{{item.description}}</p>
+                        <p style="padding-left: 27px;">
+                          <localize [key]="item.description"></localize>
+                        </p>
                       </div>
                     </div>
                   </ng-container>
@@ -89,11 +99,7 @@
     <div class="row">
       <div class="col-md-12">
         <span class="float-right">
-          Geoprism.ai is an application suite for creating and maintaining interoperable Spatial Knowledge Graphs
-          (iSKGs) optimized for Geo-GraphRAG workflows. It implements the Common Geo-Registry (CGR) approach, treating
-          locations, location hierarchies, and networks of locations as cross-sector semantic standards. This enables
-          siloed geospatial datasets—from NSDIs, digital public goods, and domain systems—to be aligned and integrated
-          into a cohesive geospatial knowledge layer that Large Language Models can query and reason over.
+          <localize key="hub.footer"></localize>
         </span>
       </div>
     </div>

@@ -1,0 +1,204 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="cgr.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="cgr.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Geoprism Builder" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="cgr.standard.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="cgr.standard.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Geoprism Builder" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="cgr.nav.configure.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="cgr.nav.configure.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="CONFIGURE" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="cgr.nav.configure.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="cgr.nav.configure.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Define how your data should look and behave by specifying the structure of your data, how data relate, classification rules, and other system configurations" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="cgr.nav.curate.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="cgr.nav.curate.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="CURATE" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="cgr.nav.curate.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="cgr.nav.curate.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Integrate and curate data across space and time to ensure Integrity, Provenance, and Trust (IPT)" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="cgr.nav.explore.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="cgr.nav.explore.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="EXPLORE" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="cgr.nav.explore.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="cgr.nav.explore.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Explore and share insights in different formats" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="nav.hierarchies.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="nav.hierarchies.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Start with your organization's data hierarchy" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="nav.classifications.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="nav.classifications.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Define ontology classifications" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="nav.business.type.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="nav.business.type.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Create business type definitions" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="nav.scheduledjobs.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="nav.scheduledjobs.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="View scheduled jobs" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="nav.changerequest.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="nav.changerequest.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Manage change requests" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="nav.historical.events.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="nav.historical.events.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Manage historical events" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="nav.tasks.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="nav.tasks.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="View curation tasks" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="nav.importer.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="nav.importer.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Import GeoObject data" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="nav.importer.business.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="nav.importer.business.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Import Business data" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="nav.importer.edge.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="nav.importer.edge.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Import edges between business objects" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="nav.navigator.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="nav.navigator.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Explore the data on a map" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="nav.list.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="nav.list.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Manage lists of the data" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="nav.export.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="nav.export.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Export data to RDF" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="nav.lpg.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="nav.lpg.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Manage Label Property Graphs of the data" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hub.footer">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hub.footer" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Geoprism.ai is an application suite for creating and maintaining interoperable Spatial Knowledge Graphs (iSKGs) optimized for Geo-GraphRAG workflows. It implements the Common Geo-Registry (CGR) approach, treating locations, location hierarchies, and networks of locations as cross-sector semantic standards. This enables siloed geospatial datasets—from NSDIs, digital public goods, and domain systems—to be aligned and integrated into a cohesive geospatial knowledge layer that Large Language Models can query and reason over." />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hub.prefix">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hub.prefix" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Set up your data for " />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hub.prefix">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hub.prefix" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Set up your data for " />
+        </attributeStruct>
+      </object>    
+    </createOrUpdate>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>
