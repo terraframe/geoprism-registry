@@ -17,8 +17,10 @@
 
 .route-icon {
     font-size: 16px;
+}
 
-    padding-right: 8px;
+.route-text {
+    margin-left: 5px;
 }
 
 .route-item {

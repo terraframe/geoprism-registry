@@ -36,6 +36,12 @@
           </a>
         </li>
 
+        <li *ngIf="isPublic" class="hidden-xs">
+          <a class="route-item" class="route-item" [title]="'userDashboards.logout' | localize" (click)="login()">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          </a>
+        </li>
+
         <li dropdown *ngIf="locales.length > 0">
           <!-- <localize key="hierarchy-management.menu"></localize> -->
           <a class="dropdown-toggle" role="button" aria-haspopup="true" aria-expanded="false" dropdownToggle>

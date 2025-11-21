@@ -139,6 +139,11 @@ export class CgrHeaderComponent {
         }
     }
 
+    login(): void {
+        this.router.navigate(['/login']);
+    }
+
+
     logout(): void {
         if (environment.production) {
             sessionStorage.removeItem("locales");

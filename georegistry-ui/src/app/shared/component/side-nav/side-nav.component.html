@@ -46,7 +46,9 @@
                   <a [routerLink]="menu.link" [ngClass]="{'expanded': expanded}" class="route-item"
                     routerLinkActive="active" [title]="menu.key | localize">
                     <i class="route-icon" [class]="menu.icon"></i>
-                    <localize *ngIf="expanded" [key]="menu.key"></localize>
+                    <span class="route-text">
+                      <localize *ngIf="expanded" [key]="menu.key"></localize>
+                    </span>
                   </a>
                 </div>
               </div>
@@ -65,7 +67,9 @@
                 <a routerLink="/admin/settings" [ngClass]="{'expanded': expanded}" class="route-item"
                   routerLinkActive="active" [title]="'settings.menu' | localize">
                   <i class="route-icon fa-solid fa-gear"></i>
-                  <localize *ngIf="expanded" key="settings.menu"></localize>
+                  <span class="route-text">
+                    <localize *ngIf="expanded" key="settings.menu"></localize>
+                  </span>
                 </a>
               </div>
             </div>
