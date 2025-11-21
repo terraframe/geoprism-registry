@@ -2,6 +2,21 @@
 # Release Notes
 
 
+## [1.6.3](https://github.com/terraframe/geoprism-registry/releases/tag/1.6.3) (2025-11-21)
+
+### Features
+
+ - show LPG publish jobs in scheduler page   ([55124](https://github.com/terraframe/geoprism-registry/commit/551247d14632665df53f72048277258baed85800))
+ - support for including business objects in a LPG export   ([1f01f](https://github.com/terraframe/geoprism-registry/commit/1f01fbe645dfc1268f907067c0edf9eb97dccd87))
+ - upgrade to tomcat 11 jdk 17   ([91e02](https://github.com/terraframe/geoprism-registry/commit/91e02388faa388bbbd8e8e6bb31ced1d5aa35ff1))
+ - update to spring 6 and java 17   ([43071](https://github.com/terraframe/geoprism-registry/commit/43071c21ec0df8a7d0db5d516d0e0b193b6550a3))
+
+### Bug Fixes
+
+   - georegistry-server/pom.xml to reduce vulnerabilities The following vulnerabilities are fixed with an upgrade:- https://snyk.io/vuln/SNYK-JAVA-ORGSPRINGFRAMEWORK-10176071  ([21c7e](https://github.com/terraframe/geoprism-registry/commit/21c7e8f0f86243da4c85c6f436ed0f94087c720f))
+
+
+
 ## [1.6.2](https://github.com/terraframe/geoprism-registry/releases/tag/1.6.2) (2025-04-28)
 
 
