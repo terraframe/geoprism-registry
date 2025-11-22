@@ -179,21 +179,49 @@
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="hub.footer" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="Geoprism.ai is an application suite for creating and maintaining interoperable Spatial Knowledge Graphs (iSKGs) optimized for Geo-GraphRAG workflows. It implements the Common Geo-Registry (CGR) approach, treating locations, location hierarchies, and networks of locations as cross-sector semantic standards. This enables siloed geospatial datasets—from NSDIs, digital public goods, and domain systems—to be aligned and integrated into a cohesive geospatial knowledge layer that Large Language Models can query and reason over." />
+          <attribute name="defaultLocale" value="Geoprism.ai is an application suite for creating and maintaining interoperable Spatial Knowledge Graphs (iSKGs) optimized for Geo-GraphRAG workflows. It implements the Common Geo-Registry (CGR) approach, treating locations, location hierarchies, and networks of locations as cross-sector semantic standards. This enables siloed geospatial datasets—from NSDIs, digital public goods, and domain systems—to be aligned and integrated into a cohesive geospatial knowledge layer for Digital Public Infrastructures (DPI) to support the development of GeoAI solutions using Large Language Models." />
         </attributeStruct>
       </object>    
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="hub.prefix">
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="hub.prefix" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="Set up your data for " />
+          <attribute name="defaultLocale" value="Define and curate Interoperable Spatial Knowledge Graphs (iSKGs) for building Geo-GraphRAGs" />
         </attributeStruct>
       </object>    
-      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hub.prefix">
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="header.classifications">
         <attribute name="storeTag" value="UIText" />
-        <attribute name="storeKey" value="hub.prefix" />
+        <attribute name="storeKey" value="header.classifications" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="Set up your data for " />
+          <attribute name="defaultLocale" value="Manage classifications" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="header.lpg">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="header.lpg" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Manage label property graphs" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="header.business.type">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="header.business.type" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Manage Business Types" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="header.business.type">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="header.business.type" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Manage Business Types" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="header.list.type">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="header.list.type" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Manage List Types" />
         </attributeStruct>
       </object>    
     </createOrUpdate>
