@@ -64,26 +64,26 @@ export class HubService {
 
         // The CREATE section
         sections.push({
-            title: 'CONFIGURE',
-            description: 'Define how your data should look and behave by specifying the structure of your data, how data relate, classification rules, and other system configurations',
+            title: 'cgr.nav.configure.title',
+            description: 'cgr.nav.configure.description',
             items: [
                 {
                     id: 'HIERARCHIES',
-                    description: "Start with your organization's data hierarchy",
+                    description: "nav.hierarchies.description",
                     link: '/registry/hierarchies',
                     icon: 'fa-solid fa-sitemap',
                     key: 'hierarchies.menu'
                 },
                 {
                     id: 'CLASSIFICATION',
-                    description: "Define ontology classifications",
+                    description: "nav.classifications.description",
                     link: '/registry/classification-type',
                     icon: 'fa-solid fa-bars-staggered',
                     key: 'header.classifications.option'
                 },
                 {
                     id: 'BUSINESS-TYPES',
-                    description: "Create business type definitions",
+                    description: "nav.business.type.description",
                     link: '/registry/business-types',
                     icon: 'fa-solid fa-briefcase',
                     key: 'business.data.type'
@@ -94,54 +94,54 @@ export class HubService {
 
         // The CREATE section
         sections.push({
-            title: 'CURATE',
-            description: "Integrate and curate data across space and time to ensure Integrity, Provenance, and Trust (IPT)",
+            title: 'cgr.nav.curate.title',
+            description: "cgr.nav.curate.description",
             items: [
                 {
                     id: 'SCHEDULED-JOBS',
-                    description: "View scheduled jobs",
+                    description: "nav.scheduledjobs.description",
                     link: '/registry/scheduled-jobs',
                     icon: 'fa-solid fa-clock-rotate-left',
                     key: 'scheduledjobs.menu'
                 },
                 {
                     id: 'CHANGE-REQUESTS',
-                    description: "Manage change requests",
+                    description: "nav.changerequest.description",
                     link: '/registry/change-requests',
                     icon: 'fa-solid fa-arrow-right-arrow-left',
                     key: 'header.changerequest.option'
                 },
                 {
                     id: 'EVENTS',
-                    description: "Manage historical events",
+                    description: "nav.historical.events.description",
                     link: '/registry/historical-events',
                     icon: 'fa-solid fa-calendar-days',
                     key: 'historical.events'
                 },
                 {
                     id: 'TASKS',
-                    description: "View curation tasks",
+                    description: "nav.tasks.description",
                     link: '/registry/tasks',
                     icon: 'fa-solid fa-angle-down',
                     key: 'header.tasks'
                 },
                 {
                     id: 'IMPORT',
-                    description: "Import GeoObject data",
+                    description: "nav.importer.description",
                     link: '/registry/data',
                     icon: 'fa-solid fa-cloud-arrow-up',
                     key: 'header.data.option'
                 },
                 {
                     id: 'BUSINESS-TYPES',
-                    description: "Import Business data",
+                    description: "nav.importer.business.description",
                     link: '/registry/business-importer',
                     icon: 'fa-solid fa-file-import',
                     key: 'business.data.import'
                 },
                 {
                     id: 'BUSINESS-TYPES',
-                    description: "Import edges between business objects",
+                    description: "nav.importer.edge.description",
                     link: '/registry/edge-importer',
                     icon: 'fa-solid fa-file-arrow-up',
                     key: 'edge.data.import'
@@ -152,33 +152,33 @@ export class HubService {
 
         // The EXPLORE section
         sections.push({
-            title: 'EXPLORE',
-            description: 'Explore and share insights in different formats',
+            title: 'cgr.nav.explore.title',
+            description: 'cgr.nav.explore.description',
             items: [
                 {
                     id: 'NAVIGATOR',
-                    description: "Explore the data on a map",
+                    description: "nav.navigator.description",
                     link: '/registry/location-manager',
                     icon: 'fa-regular fa-map',
                     key: 'navigator.menu'
                 },
                 {
                     id: 'LISTS',
-                    description: "Manage lists of the data",
+                    description: "nav.list.description",
                     link: '/registry/master-lists',
                     icon: 'fa-solid fa-table-list',
                     key: 'masterlist.menu'
                 },
                 {
                     id: 'EXPORT',
-                    description: "Export data to RDF",
+                    description: "nav.export.description",
                     link: '/registry/export',
                     icon: 'fa-solid fa-file-export',
                     key: 'header.export'
                 },
                 {
                     id: 'LPG',
-                    description: "Manage Label Property Graphs of the data",
+                    description: "nav.lpg.description",
                     link: '/registry/labeled-property-graph-type',
                     icon: 'fa-solid fa-hexagon-nodes',
                     key: 'lpg.menu'

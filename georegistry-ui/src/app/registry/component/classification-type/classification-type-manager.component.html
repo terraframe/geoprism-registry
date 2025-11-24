@@ -26,9 +26,13 @@
 
         <nav class="col-md-3 list-sidebar">
             <div class="sidebar-section-content" style="padding-top:20px;">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h2><localize key="header.classifications"></localize></h2>
+                    </div>
+                </div>    
+
                 <ul class="list-group">
-
-
                     <li class="list-group-item got-li-item" *ngFor="let type of page.resultSet" [id]="type.code">
                         <a [routerLink]="'/registry/classification-type'" [queryParams]="{typeCode:type.code}"
                             routerLinkActive="active">

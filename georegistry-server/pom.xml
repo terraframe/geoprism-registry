@@ -27,7 +27,7 @@
   <parent>
     <groupId>net.geoprism</groupId>
     <artifactId>georegistry</artifactId>
-    <version>1.6.3-SNAPSHOT</version>
+    <version>1.6.4-SNAPSHOT</version>
   </parent>
   <artifactId>georegistry-server</artifactId>
   <packaging>jar</packaging>
@@ -68,12 +68,12 @@
       <scope>provided</scope>
     </dependency>
     <!--   
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-webmvc</artifactId>
-			<version>6.1.20</version>
-		</dependency>
-		-->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+      <version>6.1.20</version>
+    </dependency>
+    -->
     <!-- https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator -->
     <dependency>
       <groupId>org.hibernate.validator</groupId>
@@ -81,22 +81,22 @@
       <version>8.0.2.Final</version>
     </dependency>
     <dependency>
-	  <groupId>jakarta.persistence</groupId>
-	  <artifactId>jakarta.persistence-api</artifactId>
-	  <version>3.2.0</version>
-	</dependency>
-	<!--
-	Compile-only shim: some Axon 4.11.x jars reference javax.persistence annotations.
-	We add javax.persistence-api:2.2 with scope=provided so javac can resolve them.
-	Runtime remains Jakarta (Spring Boot 3/Hibernate); this jar is NOT packaged.
-	Remove once Axon artifacts are fully Jakarta (no javax.* refs).
-	-->
-	<dependency>
-	  <groupId>javax.persistence</groupId>
-	  <artifactId>javax.persistence-api</artifactId>
-	  <version>2.2</version>
-	  <scope>provided</scope>
-	</dependency>
+    <groupId>jakarta.persistence</groupId>
+    <artifactId>jakarta.persistence-api</artifactId>
+    <version>3.2.0</version>
+  </dependency>
+  <!--
+  Compile-only shim: some Axon 4.11.x jars reference javax.persistence annotations.
+  We add javax.persistence-api:2.2 with scope=provided so javac can resolve them.
+  Runtime remains Jakarta (Spring Boot 3/Hibernate); this jar is NOT packaged.
+  Remove once Axon artifacts are fully Jakarta (no javax.* refs).
+  -->
+  <dependency>
+    <groupId>javax.persistence</groupId>
+    <artifactId>javax.persistence-api</artifactId>
+    <version>2.2</version>
+    <scope>provided</scope>
+  </dependency>
 
 
     <!-- The OrientDB Server is using the locationtech jts. Orientdb-Spatial is
@@ -215,21 +215,21 @@
     <!-- 
     
     <dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-api</artifactId>
-			<version>2.17.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-core</artifactId>
-			<version>2.17.1</version>
-		</dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+      <version>2.17.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>2.17.1</version>
+    </dependency>
   
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-slf4j-impl</artifactId>
-			<version>2.17.1</version>
-		</dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j-impl</artifactId>
+      <version>2.17.1</version>
+    </dependency>
 -->
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -303,7 +303,7 @@
       <groupId>org.axonframework</groupId>
       <artifactId>axon-spring</artifactId>
       <version>${axon.version}</version>
-    </dependency>	
+    </dependency> 
 -->
     <dependency>
       <groupId>org.axonframework</groupId>
@@ -327,7 +327,7 @@
   </dependencies>
 
   <!-- These profiles allow for Maven execution of Runway-SDK's Java Tools,
-		like rebuilding the database and importing schemas. -->
+    like rebuilding the database and importing schemas. -->
   <profiles>
     <profile>
       <id>new-schema</id>
@@ -452,7 +452,7 @@
                     </systemProperty>
                     <!-- <systemProperty> <key>jsp.dir</key>
                     <value>georegistry-web/src/main/webapp/WEB-INF</value>
-											</systemProperty> -->
+                      </systemProperty> -->
                   </systemProperties>
                 </configuration>
               </execution>

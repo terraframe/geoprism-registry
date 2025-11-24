@@ -16,8 +16,10 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-.vcenter {
-  display: inline-block;
-  vertical-align: middle;
-  float: none;
+.small-hexagon {
+  fill: none;
+  stroke: #3E2A5A;
+  stroke-width: 13px;
+  width: 30px;
+  height: 30px;
 }

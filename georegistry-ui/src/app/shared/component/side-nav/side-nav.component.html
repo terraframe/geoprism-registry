@@ -38,7 +38,7 @@
       <ng-container *ngFor="let section of sections">
         <div class="card card-default section">
           <div class="card-body">
-            <h4 class="card-title" *ngIf="expanded">{{section.title}}</h4>
+            <h4 class="card-title" *ngIf="expanded"><localize [key]="section.title"></localize></h4>
 
             <ng-container *ngFor="let menu of section.items">
               <div class="row nav-row" *ngIf="shouldShowMenuItem(menu.id)">
@@ -46,7 +46,9 @@
                   <a [routerLink]="menu.link" [ngClass]="{'expanded': expanded}" class="route-item"
                     routerLinkActive="active" [title]="menu.key | localize">
                     <i class="route-icon" [class]="menu.icon"></i>
-                    <localize *ngIf="expanded" [key]="menu.key"></localize>
+                    <span class="route-text" *ngIf="expanded">
+                      <localize [key]="menu.key"></localize>
+                    </span>
                   </a>
                 </div>
               </div>
@@ -65,20 +67,13 @@
                 <a routerLink="/admin/settings" [ngClass]="{'expanded': expanded}" class="route-item"
                   routerLinkActive="active" [title]="'settings.menu' | localize">
                   <i class="route-icon fa-solid fa-gear"></i>
-                  <localize *ngIf="expanded" key="settings.menu"></localize>
+                  <span class="route-text" *ngIf="expanded">
+                    <localize key="settings.menu"></localize>
+                  </span>
                 </a>
               </div>
             </div>
 
-            <div class="row nav-row">
-              <div class="col-xs-12">
-                <a [ngClass]="{'expanded': expanded}" class="route-item" class="route-item"
-                  [title]="'userDashboards.logout' | localize" (click)="logout()">
-                  <i class="route-icon fa-solid fa-square-up-right"></i>
-                  <localize *ngIf="expanded" key="userDashboards.logout"></localize>
-                </a>
-              </div>
-            </div>
           </div>
         </div>
       </ng-container>

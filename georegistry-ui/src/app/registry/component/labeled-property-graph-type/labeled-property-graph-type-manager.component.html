@@ -21,10 +21,16 @@
 <page-container>
 
     <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+    
 
     <div class="row">
 
         <nav class="col-md-3 list-sidebar">
+            <div class="row">
+                <div class="col-md-12">
+                    <h2><localize key="header.lpg"></localize></h2>
+                </div>
+            </div>
             <div class="sidebar-section-content">
                 <ul class="list-group">
                     <li class="list-group-item got-li-item">

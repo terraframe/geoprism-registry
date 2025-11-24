@@ -63,91 +63,12 @@ export class SideNavComponent {
 
     constructor(
         private hService: HubService,
-        private modalService: BsModalService,
-        private profileService: ProfileService,
-        private service: AuthService,
-        private configuration: ConfigurationService,
-        private router: Router
+        private service: AuthService
     ) {
         this.context = EnvironmentUtil.getApiUrl();
         this.sections = hService.getMenuSections();
 
-        console.log('Sections', this.sections);
-
         this.isPublic = service.isPublic();
-
-        this.enableBusinessData = configuration.isEnableBusinessData() || false;
-
-        const locales = configuration.getLocales();
-        this.locale = configuration.getLocale();
-
-        this.locales = locales.filter((l: LocaleView) => l.toString !== "defaultLocale");
-        this.defaultLocaleView = locales.filter((l: LocaleView) => l.toString === "defaultLocale")[0];
-
-        let found: boolean = false;
-
-        for (let i = 0; i < this.locales.length; ++i) {
-            if (this.locales[i].toString === this.locale) {
-                found = true;
-            }
-        }
-
-        if (!found) {
-            this.locale = "";
-        }
-
-
-
-        // } else {
-        //     this.locales = [];
-        //     this.defaultLocaleView = null;
-        // }
-    }
-
-
-    logout(): void {
-        if (environment.production) {
-            sessionStorage.removeItem("locales");
-
-            window.location.href = environment.apiUrl + "/api/session/logout";
-        }
-        else {
-
-            this.configuration.logout().catch(err => {
-                // Ignore errors
-                sessionStorage.removeItem("locales");
-
-                this.service.clear();
-
-                this.router.navigate(['/login']);
-            }).then(response => {
-                sessionStorage.removeItem("locales");
-
-                this.service.clear();
-
-                this.router.navigate(['/login']);
-            });
-        }
-    }
-
-    getUsername() {
-        let name: string = this.service.getUsername();
-
-        return name;
-    }
-
-    setLocale() {
-        this.profileService.setLocale(this.locale).then(() => {
-            // Refresh the page
-            window.location.reload();
-        });
-    }
-
-    account(): void {
-        this.profileService.get().then(profile => {
-            const bsModalRef = this.modalService.show(ProfileComponent, { backdrop: "static", class: "gray modal-lg" });
-            bsModalRef.content.profile = profile;
-        });
     }
 
     handleToggle(): void {
