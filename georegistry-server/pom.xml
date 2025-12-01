@@ -24,13 +24,13 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>net.geoprism</groupId>
-    <artifactId>georegistry</artifactId>
-    <version>1.6.4-SNAPSHOT</version>
-  </parent>
-  <artifactId>georegistry-server</artifactId>
-  <packaging>jar</packaging>
+	<parent>
+		<groupId>net.geoprism</groupId>
+		<artifactId>georegistry</artifactId>
+		<version>1.6.5-SNAPSHOT</version>
+	</parent>
+	<artifactId>georegistry-server</artifactId>
+	<packaging>jar</packaging>
 
   <name>GeoRegistry Server</name>
   <description>The back-end database server for the georegistry project</description>
