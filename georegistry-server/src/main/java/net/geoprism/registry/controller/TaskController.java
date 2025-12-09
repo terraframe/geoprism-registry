@@ -79,11 +79,11 @@ public class TaskController extends RunwaySpringController
   
   
   @GetMapping(API_PATH + "/get")
-  public ResponseEntity<String> get(
-      @RequestParam(required = false, defaultValue = "createDate") String orderBy, 
-      @RequestParam(required = false, defaultValue = "1") Integer pageNum, 
-      @RequestParam(required = false, defaultValue = "1000") Integer pageSize, 
-      @RequestParam(required = false) String whereStatus)
+  public ResponseEntity<String> get( //
+      @RequestParam(name = "orderBy", required = false, defaultValue = "createDate") String orderBy, //
+      @RequestParam(name = "pageNum", required = false, defaultValue = "1") Integer pageNum, //
+      @RequestParam(name = "pageSize", required = false, defaultValue = "1000") Integer pageSize, //
+      @RequestParam(name = "whereStatus", required = false) String whereStatus)
   {
     JsonObject jo = service.getTasksForCurrentUser(this.getSessionId(), orderBy, pageNum, pageSize, whereStatus);
 

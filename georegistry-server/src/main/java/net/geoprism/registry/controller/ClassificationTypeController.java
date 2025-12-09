@@ -91,7 +91,7 @@ public class ClassificationTypeController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get")
-  public ResponseEntity<String> get(@NotNull @RequestParam String classificationCode)
+  public ResponseEntity<String> get(@NotNull @RequestParam(name = "classificationCode") String classificationCode)
   {
     JsonObject response = this.service.get(this.getSessionId(), classificationCode);
 

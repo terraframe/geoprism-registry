@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
@@ -169,14 +169,13 @@ public class ClassificationController extends RunwaySpringController
     }
   }
 
-  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "classification";
+  public static final String    API_PATH = RegistryConstants.CONTROLLER_ROOT + "classification";
 
   @Autowired
   private ClassificationService service;
 
   @PostMapping(API_PATH + "/apply")
-  public ResponseEntity<String> apply(@Valid
-  @RequestBody ApplyBody body)
+  public ResponseEntity<String> apply(@Valid @RequestBody ApplyBody body)
   {
     JsonObject response = this.service.apply(this.getSessionId(), body.classificationCode, body.parentCode, body.classification, body.isNew);
 
@@ -184,8 +183,7 @@ public class ClassificationController extends RunwaySpringController
   }
 
   @PostMapping(API_PATH + "/remove")
-  public ResponseEntity<Void> remove(@Valid
-  @RequestBody ClassificationBody body)
+  public ResponseEntity<Void> remove(@Valid @RequestBody ClassificationBody body)
   {
     this.service.remove(this.getSessionId(), body.classificationCode, body.code);
 
@@ -193,10 +191,9 @@ public class ClassificationController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get")
-  public ResponseEntity<String> get(@NotBlank
-  @RequestParam String classificationCode,
-      @NotBlank
-      @RequestParam String code)
+  public ResponseEntity<String> get( //
+      @NotBlank @RequestParam(name = "classificationCode") String classificationCode, //
+      @NotBlank @RequestParam(name = "code") String code)
   {
     JsonObject response = this.service.get(this.getSessionId(), classificationCode, code);
 
@@ -204,8 +201,7 @@ public class ClassificationController extends RunwaySpringController
   }
 
   @PostMapping(API_PATH + "/move")
-  public ResponseEntity<Void> move(@Valid
-  @RequestBody MoveClassificationBody body)
+  public ResponseEntity<Void> move(@Valid @RequestBody MoveClassificationBody body)
   {
     this.service.move(this.getSessionId(), body.classificationCode, body.code, body.parentCode);
 
@@ -213,8 +209,11 @@ public class ClassificationController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get-children")
-  public ResponseEntity<String> getChildren(@NotBlank
-  @RequestParam String classificationCode, @RequestParam(required = false) String code, @RequestParam(required = false) Integer pageSize, @RequestParam(required = false) Integer pageNumber)
+  public ResponseEntity<String> getChildren( //
+      @NotBlank @RequestParam(name = "classificationCode") String classificationCode, //
+      @NotBlank @RequestParam(name = "code") String code, //
+      @RequestParam(required = false, name = "pageSize") Integer pageSize, //
+      @RequestParam(required = false, name = "pageNumber") Integer pageNumber)
   {
     JsonObject page = this.service.getChildren(this.getSessionId(), classificationCode, code, pageSize, pageNumber);
 
@@ -222,10 +221,11 @@ public class ClassificationController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get-ancestor-tree")
-  public ResponseEntity<String> getAncestorTree(@NotBlank
-  @RequestParam String classificationCode, @RequestParam(required = false) String rootCode,
-      @NotBlank
-      @RequestParam String code, @RequestParam(required = false) Integer pageSize)
+  public ResponseEntity<String> getAncestorTree( //
+      @NotBlank @RequestParam(name = "classificationCode") String classificationCode, //
+      @RequestParam(required = false, name = "rootCode") String rootCode, //
+      @NotBlank @RequestParam(name = "code") String code, //
+      @RequestParam(required = false, name = "pageSize") Integer pageSize)
   {
     JsonObject page = this.service.getAncestorTree(this.getSessionId(), classificationCode, rootCode, code, pageSize);
 
@@ -233,8 +233,10 @@ public class ClassificationController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/search")
-  public ResponseEntity<String> search(@NotBlank
-  @RequestParam String classificationCode, @RequestParam(required = false) String rootCode, @RequestParam(required = false) String text)
+  public ResponseEntity<String> search( //
+      @NotBlank @RequestParam(name = "classificationCode") String classificationCode, //
+      @RequestParam(required = false, name = "rootCode") String rootCode, //
+      @RequestParam(required = false, name = "text") String text)
   {
     JsonArray results = this.service.search(this.getSessionId(), classificationCode, rootCode, text);
 

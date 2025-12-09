@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
@@ -169,7 +169,9 @@ public class RegistryAccountController extends RunwaySpringController
   private AccountService     accountService;
 
   @GetMapping(API_PATH + "/page")
-  public ResponseEntity<String> page(@RequestParam Integer pageNumber, @RequestParam Integer pageSize)
+  public ResponseEntity<String> page( //
+      @RequestParam(name = "pageNumber") Integer pageNumber, //
+      @RequestParam(name = "pageSize") Integer pageSize)
   {
     String json = this.accountService.page(this.getSessionId(), pageNumber, pageSize);
 
@@ -177,7 +179,9 @@ public class RegistryAccountController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get-sras")
-  public ResponseEntity<String> getSRAs(@RequestParam Integer pageNumber, @RequestParam Integer pageSize)
+  public ResponseEntity<String> getSRAs(//
+      @RequestParam(name = "pageNumber") Integer pageNumber, //
+      @RequestParam(name = "pageSize") Integer pageSize)
   {
     String json = this.accountService.getSRAs(this.getSessionId(), pageNumber, pageSize);
 
@@ -185,7 +189,7 @@ public class RegistryAccountController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/getRolesForUser")
-  public ResponseEntity<String> getRolesForUser(@RequestParam String userOID)
+  public ResponseEntity<String> getRolesForUser(@RequestParam(name = "userOID") String userOID)
   {
     RegistryRole[] roles = this.accountService.getRolesForUser(this.getSessionId(), userOID);
 
@@ -247,13 +251,15 @@ public class RegistryAccountController extends RunwaySpringController
       orgCodeArray = new String[0];
     }
 
-//    GeoprismUserDTO user = UserInviteDTO.newUserInst(this.getClientRequest());
+    // GeoprismUserDTO user =
+    // UserInviteDTO.newUserInst(this.getClientRequest());
 
     RegistryRole[] registryRoles = this.accountService.getRolesForOrganization(this.getSessionId(), orgCodeArray);
     JsonArray rolesJSONArray = this.createRoleMap(registryRoles);
 
     JSONObject response = new JSONObject();
-//    response.put("user", BusinessDTOToBasicJSON.getConverter(user, new NullConfiguration()).populate());
+    // response.put("user", BusinessDTOToBasicJSON.getConverter(user, new
+    // NullConfiguration()).populate());
     response.put("roles", new JSONArray(rolesJSONArray.toString()));
 
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
@@ -273,7 +279,7 @@ public class RegistryAccountController extends RunwaySpringController
     String[] roleNameArray = null;
 
     if (body.roleNames != null)
-    {      
+    {
       roleNameArray = new String[body.roleNames.size()];
       for (int i = 0; i < body.roleNames.size(); i++)
       {

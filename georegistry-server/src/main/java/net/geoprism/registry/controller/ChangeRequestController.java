@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
@@ -63,8 +63,8 @@ public class ChangeRequestController extends RunwaySpringController
     @NotNull
     @JsonDeserialize(using = JsonObjectDeserializer.class)
     private JsonObject request;
-    
-    String newCode;
+
+    String             newCode;
 
     public JsonObject getRequest()
     {
@@ -75,12 +75,12 @@ public class ChangeRequestController extends RunwaySpringController
     {
       this.request = request;
     }
-    
+
     public String getNewCode()
     {
       return newCode;
     }
-    
+
     public void setNewCode(String newCode)
     {
       this.newCode = newCode;
@@ -165,7 +165,7 @@ public class ChangeRequestController extends RunwaySpringController
 
   }
 
-  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "changerequest";
+  public static final String   API_PATH = RegistryConstants.CONTROLLER_ROOT + "changerequest";
 
   @Autowired
   private ChangeRequestService service;
@@ -179,8 +179,7 @@ public class ChangeRequestController extends RunwaySpringController
    * @throws IOException
    */
   @PostMapping(API_PATH + "/upload-file-cr")
-  public ResponseEntity<String> uploadFileCR(@Valid
-  @ModelAttribute UploadFileBody body) throws IOException
+  public ResponseEntity<String> uploadFileCR(@Valid @ModelAttribute UploadFileBody body) throws IOException
   {
     try (InputStream stream = body.file.getInputStream())
     {
@@ -193,8 +192,7 @@ public class ChangeRequestController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/list-documents-cr")
-  public ResponseEntity<String> listDocumentsCR(@NotBlank
-  @RequestParam String requestId)
+  public ResponseEntity<String> listDocumentsCR(@NotBlank @RequestParam(name = "requestId") String requestId)
   {
     String json = service.listDocumentsCR(this.getSessionId(), requestId);
 
@@ -202,10 +200,7 @@ public class ChangeRequestController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/download-file-cr")
-  public ResponseEntity<InputStreamResource> downloadDocumentCR(@NotBlank
-  @RequestParam String requestId,
-      @NotBlank
-      @RequestParam String fileId)
+  public ResponseEntity<InputStreamResource> downloadDocumentCR(@NotBlank @RequestParam(name = "requestId") String requestId, @NotBlank @RequestParam(name = "fileId") String fileId)
   {
     ApplicationResource res = service.downloadDocumentCR(this.getSessionId(), requestId, fileId);
 
@@ -217,8 +212,7 @@ public class ChangeRequestController extends RunwaySpringController
   }
 
   @PostMapping(API_PATH + "/delete-file-cr")
-  public ResponseEntity<Void> deleteDocumentCR(@Valid
-  @RequestBody DocumentFileBody body)
+  public ResponseEntity<Void> deleteDocumentCR(@Valid @RequestBody DocumentFileBody body)
   {
     service.deleteDocumentCR(this.getSessionId(), body.getRequestId(), body.getFileId());
 
@@ -226,8 +220,7 @@ public class ChangeRequestController extends RunwaySpringController
   }
 
   @PostMapping(API_PATH + "/reject")
-  public ResponseEntity<Void> reject(@Valid
-  @RequestBody ChangeRequestBody body)
+  public ResponseEntity<Void> reject(@Valid @RequestBody ChangeRequestBody body)
   {
     service.reject(this.getSessionId(), body.getRequestId());
 
@@ -247,10 +240,12 @@ public class ChangeRequestController extends RunwaySpringController
    *          May be one of PENDING, REJECTED, ACCEPTED, INVALID
    */
   @GetMapping(API_PATH + "/get-all-requests")
-  public ResponseEntity<String> getAllRequests(@NotNull
-  @RequestParam Integer pageSize,
-      @NotNull
-      @RequestParam Integer pageNumber, @RequestParam(required = false) String filter, @RequestParam(required = false) String sort, @RequestParam(required = false) String oid)
+  public ResponseEntity<String> getAllRequests( //
+      @NotNull @RequestParam(name = "pageSize") Integer pageSize, //
+      @NotNull @RequestParam(name = "pageNumber") Integer pageNumber, //
+      @RequestParam(required = false, name = "filter") String filter, //
+      @RequestParam(required = false, name = "sort") String sort, //
+      @RequestParam(required = false, name = "oid") String oid)
   {
     JsonObject paginated = service.getAllRequestsSerialized(this.getSessionId(), pageSize, pageNumber, filter, sort, oid);
 
@@ -271,8 +266,7 @@ public class ChangeRequestController extends RunwaySpringController
    * @return Empty response
    */
   @PostMapping(API_PATH + "/set-action-status")
-  public ResponseEntity<Void> setActionStatus(@Valid
-  @RequestBody ActionStatusBody body)
+  public ResponseEntity<Void> setActionStatus(@Valid @RequestBody ActionStatusBody body)
   {
     service.setActionStatus(this.getSessionId(), body.actionOid, body.status);
 
@@ -296,8 +290,7 @@ public class ChangeRequestController extends RunwaySpringController
    * @return Empty response
    */
   @PostMapping(API_PATH + "/implement-decisions")
-  public ResponseEntity<String> implementDecisions(@Valid
-  @RequestBody RequestObjectBody body)
+  public ResponseEntity<String> implementDecisions(@Valid @RequestBody RequestObjectBody body)
   {
     JsonObject details = service.implementDecisions(this.getSessionId(), body.request.toString(), body.newCode);
 
@@ -313,8 +306,7 @@ public class ChangeRequestController extends RunwaySpringController
   }
 
   @PostMapping(API_PATH + "/delete")
-  public ResponseEntity<Void> deleteChangeRequest(@Valid
-  @RequestBody ChangeRequestBody body) throws JSONException
+  public ResponseEntity<Void> deleteChangeRequest(@Valid @RequestBody ChangeRequestBody body) throws JSONException
   {
     service.deleteChangeRequest(this.getSessionId(), body.requestId);
 

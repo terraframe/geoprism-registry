@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
@@ -51,14 +51,14 @@ import net.geoprism.registry.service.request.RegistryComponentService;
 @Validated
 public class RegistryLocationController extends RunwaySpringController
 {
-  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "registrylocation";
+  public static final String       API_PATH = RegistryConstants.CONTROLLER_ROOT + "registrylocation";
 
   @Autowired
-  private LocationService    service;
+  private LocationService          service;
 
   @Autowired
-  private RegistryComponentService    registryService;
-  
+  private RegistryComponentService registryService;
+
   /**
    * @param request
    * @param code
@@ -77,10 +77,10 @@ public class RegistryLocationController extends RunwaySpringController
    */
 
   @GetMapping(API_PATH + "/roots")
-  public ResponseEntity<String> roots(
-      @RequestParam(required = false) Date date, 
-      @RequestParam(required = false) String typeCode, 
-      @RequestParam(required = false) String hierarchyCode)
+  public ResponseEntity<String> roots( //
+      @RequestParam(name = "date", required = false) Date date, //
+      @RequestParam(name = "typeCode", required = false) String typeCode, //
+      @RequestParam(name = "hierarchyCode", required = false) String hierarchyCode)
   {
     // ServerGeoObjectIF parent = service.getGeoObjectByEntityId(oid);
 
@@ -90,9 +90,9 @@ public class RegistryLocationController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/search")
-  public ResponseEntity<String> search(
-      @RequestParam(required = false) String text, 
-      @RequestParam(required = false) Date date)
+  public ResponseEntity<String> search( //
+      @RequestParam(name = "text", required = false) String text, //
+      @RequestParam(name = "date", required = false) Date date)
   {
     List<GeoObject> results = service.search(this.getSessionId(), text, date);
     CustomSerializer serializer = registryService.serializer(this.getSessionId());
@@ -106,17 +106,17 @@ public class RegistryLocationController extends RunwaySpringController
 
     return new ResponseEntity<String>(featureCollection.toString(), HttpStatus.OK);
   }
-  
+
   @GetMapping(API_PATH + "/labels")
-  public ResponseEntity<String> labels(
-      @RequestParam(required = false) String text, 
-      @RequestParam(required = false) Date date)
+  public ResponseEntity<String> labels( //
+      @RequestParam(name = "text", required = false) String text, //
+      @RequestParam(name = "date", required = false) Date date)
   {
     List<JsonObject> results = service.labels(this.getSessionId(), text, date);
-    
+
     JsonArray response = results.stream().collect(() -> new JsonArray(), (array, element) -> array.add(element), (listA, listB) -> {
     });
-    
+
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 }

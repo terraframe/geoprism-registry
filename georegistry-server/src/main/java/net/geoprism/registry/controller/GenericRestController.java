@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
@@ -118,22 +118,21 @@ public class GenericRestController extends RunwaySpringController
    * @throws IOException
    */
   @PostMapping(RegistryConstants.CONTROLLER_ROOT + "cgr/import-types")
-  public ResponseEntity<Void> importTypes(@Valid
-  @ModelAttribute ImportTypeBody body) throws IOException
+  public ResponseEntity<Void> importTypes(@Valid @ModelAttribute ImportTypeBody body) throws IOException
   {
     try (InputStream istream = body.file.getInputStream())
     {
       JsonArray array = new JsonArray();
       array.add(body.orgCode);
-      
+
       service.importTypes(this.getSessionId(), array.toString(), istream);
 
       return new ResponseEntity<Void>(HttpStatus.OK);
     }
   }
-  
+
   @GetMapping(RegistryConstants.CONTROLLER_ROOT + "cgr/export-types")
-  public ResponseEntity<InputStreamResource> exportTypes(@NotEmpty @RequestParam String code)
+  public ResponseEntity<InputStreamResource> exportTypes(@NotEmpty @RequestParam(name = "code") String code)
   {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_XML);
@@ -152,7 +151,9 @@ public class GenericRestController extends RunwaySpringController
    * @return
    */
   @GetMapping(RegistryConstants.CONTROLLER_ROOT + "cgr/init")
-  public ResponseEntity<String> init(@RequestParam(defaultValue = "false", required = false) Boolean publicOnly, @RequestParam(defaultValue = "false", required = false) Boolean includeGraphTypes)
+  public ResponseEntity<String> init( //
+      @RequestParam(name = "publicOnly", defaultValue = "false", required = false) Boolean publicOnly, //
+      @RequestParam(name = "includeGraphTypes", defaultValue = "false", required = false) Boolean includeGraphTypes)
   {
     JsonObject response = this.service.initHierarchyManager(this.getSessionId(), publicOnly, includeGraphTypes);
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);

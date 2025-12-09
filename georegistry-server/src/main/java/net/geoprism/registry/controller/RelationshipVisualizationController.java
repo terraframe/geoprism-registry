@@ -46,12 +46,12 @@ public class RelationshipVisualizationController extends RunwaySpringController
 
 
   @GetMapping(API_PATH + "/tree")
-  public ResponseEntity<String> tree( 
-      @RequestParam(required = false) String relationshipType,
-      @NotEmpty @RequestParam String graphTypeCode,
-      @NotEmpty @RequestParam String sourceVertex, 
-      @RequestParam(required = false) Date date, 
-      @RequestParam(required = false) String boundsWKT)
+  public ResponseEntity<String> tree( // 
+      @RequestParam(name = "relationshipType", required = false) String relationshipType, //
+      @NotEmpty @RequestParam(name = "graphTypeCode") String graphTypeCode, //
+      @NotEmpty @RequestParam(name = "sourceVertex") String sourceVertex, //
+      @RequestParam(name = "date", required = false) Date date, //
+      @RequestParam(name = "boundsWKT", required = false) String boundsWKT)
   {
     JsonElement json = this.service.tree(this.getSessionId(), date, relationshipType, graphTypeCode, sourceVertex, boundsWKT);
 
@@ -59,12 +59,12 @@ public class RelationshipVisualizationController extends RunwaySpringController
   }
   
   @GetMapping(API_PATH + "/treeAsGeoJson")
-  public ResponseEntity<String> treeAsGeoJson(
-      @RequestParam(required = false) String relationshipType,
-      @NotEmpty @RequestParam String graphTypeCode,
-      @NotEmpty @RequestParam String sourceVertex, 
-      @RequestParam(required = false) Date date, 
-      @RequestParam(required = false) String boundsWKT)
+  public ResponseEntity<String> treeAsGeoJson( //
+      @RequestParam(name = "relationshipType", required = false) String relationshipType, //
+      @NotEmpty @RequestParam(name = "graphTypeCode") String graphTypeCode, //
+      @NotEmpty @RequestParam(name = "sourceVertex") String sourceVertex, //
+      @RequestParam(name = "date", required = false) Date date, //
+      @RequestParam(name = "boundsWKT", required = false) String boundsWKT)
   {
     JsonElement json = this.service.treeAsGeoJson(this.getSessionId(), date, relationshipType, graphTypeCode, sourceVertex, boundsWKT);
 

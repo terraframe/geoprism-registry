@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
@@ -75,8 +75,7 @@ public class ExternalSystemController extends RunwaySpringController
   private ExternalSystemService service;
 
   @GetMapping(API_PATH + "/system-capabilities")
-  public ResponseEntity<String> getSystemCapabilities(@NotEmpty
-  @RequestParam String system)
+  public ResponseEntity<String> getSystemCapabilities(@NotEmpty @RequestParam(name = "system") String system)
   {
     JsonObject response = this.service.getSystemCapabilities(this.getSessionId(), system);
 
@@ -96,13 +95,13 @@ public class ExternalSystemController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get-all")
-  public ResponseEntity<String> page(@RequestParam Integer pageNumber, @RequestParam Integer pageSize)
+  public ResponseEntity<String> page(@RequestParam(name = "pageNumber") Integer pageNumber, @RequestParam(name = "pageSize") Integer pageSize)
   {
     JsonObject response = this.service.page(this.getSessionId(), pageNumber, pageSize);
 
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
-  
+
   @GetMapping(API_PATH + "/get-all-read")
   public ResponseEntity<String> getAllRead()
   {
@@ -128,8 +127,7 @@ public class ExternalSystemController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get")
-  public ResponseEntity<String> get(@NotEmpty
-  @RequestParam String oid)
+  public ResponseEntity<String> get(@NotEmpty @RequestParam(name = "oid") String oid)
   {
     JsonObject response = this.service.get(this.getSessionId(), oid);
 

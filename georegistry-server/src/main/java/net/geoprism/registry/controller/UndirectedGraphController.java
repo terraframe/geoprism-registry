@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
@@ -69,7 +69,7 @@ public class UndirectedGraphController extends RunwaySpringController
     @NotNull
     @JsonDeserialize(using = NullableDateDeserializer.class)
     Date   endDate;
-    
+
     String dataSource;
 
     public String getSourceCode()
@@ -141,25 +141,30 @@ public class UndirectedGraphController extends RunwaySpringController
     {
       this.endDate = endDate;
     }
-    
+
     public String getDataSource()
     {
       return dataSource;
     }
-    
+
     public void setDataSource(String dataSource)
     {
       this.dataSource = dataSource;
     }
   }
 
-  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "undirected";
+  public static final String     API_PATH = RegistryConstants.CONTROLLER_ROOT + "undirected";
 
   @Autowired
   private UndirectedGraphService service;
 
   @GetMapping(API_PATH + "/get-related-geo-objects")
-  public ResponseEntity<String> getChildren(@NotEmpty @RequestParam String sourceCode, @NotEmpty @RequestParam String sourceTypeCode, @NotEmpty @RequestParam String undirectedRelationshipCode, @RequestParam Boolean recursive, @RequestParam Date date)
+  public ResponseEntity<String> getChildren( //
+      @NotEmpty @RequestParam(name = "sourceCode") String sourceCode, //
+      @NotEmpty @RequestParam(name = "sourceTypeCode") String sourceTypeCode, //
+      @NotEmpty @RequestParam(name = "undirectedRelationshipCode") String undirectedRelationshipCode, //
+      @RequestParam(name = "recursive") Boolean recursive, //
+      @RequestParam(name = "date") Date date)
   {
     JsonObject response = this.service.getChildren(this.getSessionId(), sourceCode, sourceTypeCode, undirectedRelationshipCode, recursive, date);
 

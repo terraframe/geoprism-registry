@@ -231,7 +231,15 @@ public class GeoObjectController extends RunwaySpringController
    * criteria.
    **/
   @GetMapping(API_PATH + "/get-all")
-  public ResponseEntity<String> getAll(@NotEmpty @RequestParam String typeCode, @NotEmpty @RequestParam String hierarchyCode, @RequestParam(required = false) Long updatedSince, @RequestParam(required = false) Boolean includeLevel, @RequestParam(required = false) String format, @RequestParam(required = false) Integer pageNumber, @RequestParam(required = false) Integer pageSize, @RequestParam(required = false) String externalSystemId)
+  public ResponseEntity<String> getAll( //
+      @NotEmpty @RequestParam(name = "typeCode") String typeCode, //
+      @NotEmpty @RequestParam(name = "hierarchyCode") String hierarchyCode, //
+      @RequestParam(name = "updatedSince", required = false) Long updatedSince, //
+      @RequestParam(name = "includeLevel", required = false) Boolean includeLevel, //
+      @RequestParam(name = "format", required = false) String format, //
+      @RequestParam(name = "pageNumber", required = false) Integer pageNumber, //
+      @RequestParam(name = "pageSize", required = false) Integer pageSize, //
+      @RequestParam(name = "pageSize", required = false) String externalSystemId)
   {
     Date dUpdatedSince = null;
     if (updatedSince != null)
@@ -245,7 +253,11 @@ public class GeoObjectController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/exists-at-range")
-  public ResponseEntity<String> doesGeoObjectExistAtRange(@RequestParam(required = false) Date startDate, @RequestParam(required = false) Date endDate, @NotEmpty @RequestParam String typeCode, @NotEmpty @RequestParam String code)
+  public ResponseEntity<String> doesGeoObjectExistAtRange( //
+      @RequestParam(required = false, name = "startDate") Date startDate, //
+      @RequestParam(required = false, name = "endDate") Date endDate, //
+      @NotEmpty @RequestParam(name = "typeCode") String typeCode, //
+      @NotEmpty @RequestParam(name = "code") String code)
   {
     JsonObject stats = this.objectService.doesGeoObjectExistAtRange(this.getSessionId(), startDate, endDate, typeCode, code);
 
@@ -253,7 +265,11 @@ public class GeoObjectController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/has-duplicate-label")
-  public ResponseEntity<String> hasDuplicateLabel(@RequestParam Date date, @NotEmpty @RequestParam String typeCode, @RequestParam(required = false) String code, @NotEmpty @RequestParam String label)
+  public ResponseEntity<String> hasDuplicateLabel( //
+      @RequestParam(name = "date") Date date, //
+      @NotEmpty @RequestParam(name = "typeCode") String typeCode, //
+      @RequestParam(name = "code", required = false) String code, //
+      @NotEmpty @RequestParam(name = "label") String label)
   {
     JsonObject stats = this.objectService.hasDuplicateLabel(this.getSessionId(), date, typeCode, code, label);
 
@@ -273,13 +289,13 @@ public class GeoObjectController extends RunwaySpringController
    **/
   @GetMapping(API_PATH + "/suggestions")
   public ResponseEntity<String> getGeoObjectSuggestions( //
-      @RequestParam(required = false) String text, //
-      @NotBlank @RequestParam String type, //
-      @RequestParam(required = false) String parent, //
-      @RequestParam(required = false) String parentTypeCode, //
-      @RequestParam(required = false) String hierarchy, //
-      @RequestParam(required = false) Date startDate, //
-      @RequestParam(required = false) Date endDate)
+      @RequestParam(name = "text", required = false) String text, //
+      @NotBlank @RequestParam(name = "type") String type, //
+      @RequestParam(name = "parent", required = false) String parent, //
+      @RequestParam(name = "parentTypeCode", required = false) String parentTypeCode, //
+      @RequestParam(name = "hierarchy", required = false) String hierarchy, //
+      @RequestParam(name = "startDate", required = false) Date startDate, //
+      @RequestParam(name = "endDate", required = false) Date endDate)
   {
     JsonArray response = this.service.getGeoObjectSuggestions(this.getSessionId(), text, type, parent, parentTypeCode, hierarchy, startDate, endDate);
 
@@ -287,7 +303,10 @@ public class GeoObjectController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get-hierarchies")
-  public ResponseEntity<String> getHierarchiesForGeoObject(@NotEmpty @RequestParam String code, @NotEmpty @RequestParam String typeCode, @NotNull @RequestParam Date date)
+  public ResponseEntity<String> getHierarchiesForGeoObject( //
+      @NotEmpty @RequestParam(name = "code") String code, //
+      @NotEmpty @RequestParam(name = "typeCode") String typeCode, //
+      @NotNull @RequestParam(name = "date") Date date)
   {
     JsonArray response = this.service.getHierarchiesForGeoObject(this.getSessionId(), code, typeCode, date);
 
@@ -295,9 +314,9 @@ public class GeoObjectController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get-hierarchies-over-time")
-  public ResponseEntity<String> getHierarchiesForGeoObjectOverTime(//
-      @NotEmpty @RequestParam String code, //
-      @NotEmpty @RequestParam String typeCode)
+  public ResponseEntity<String> getHierarchiesForGeoObjectOverTime( //
+      @NotEmpty @RequestParam(name = "code") String code, //
+      @NotEmpty @RequestParam(name = "typeCode") String typeCode)
   {
     JsonArray response = hierService.getHierarchiesForGeoObjectOverTime(this.getSessionId(), code, typeCode);
 
@@ -306,9 +325,9 @@ public class GeoObjectController extends RunwaySpringController
 
   @GetMapping(API_PATH + "/search")
   public ResponseEntity<String> search( //
-      @NotEmpty @RequestParam String typeCode, //
-      @NotEmpty @RequestParam String text, //
-      @NotNull @RequestParam Date date) throws JSONException, ParseException
+      @NotEmpty @RequestParam(name = "typeCode") String typeCode, //
+      @NotEmpty @RequestParam(name = "text") String text, //
+      @NotNull @RequestParam(name = "date") Date date) throws JSONException, ParseException
   {
     List<GeoObject> results = this.service.search(this.getSessionId(), typeCode, text, date);
 
@@ -325,7 +344,9 @@ public class GeoObjectController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get-bounds")
-  public ResponseEntity<String> getGeoObjectBounds(@NotEmpty @RequestParam String code, @NotEmpty @RequestParam String typeCode) throws JSONException
+  public ResponseEntity<String> getGeoObjectBounds( //
+      @NotEmpty @RequestParam(name = "code") String code, //
+      @NotEmpty @RequestParam(name = "typeCode") String typeCode) throws JSONException
   {
     GeoObject geoObject = this.service.getGeoObjectByCode(this.getSessionId(), code, typeCode, null);
 
@@ -336,10 +357,10 @@ public class GeoObjectController extends RunwaySpringController
 
   @GetMapping(API_PATH + "/business-objects")
   public ResponseEntity<String> getBusinessObjects( //
-      @NotEmpty @RequestParam String typeCode, //
-      @NotEmpty @RequestParam String code, //
-      @NotEmpty @RequestParam String edgeTypeCode, //
-      @NotEmpty @RequestParam String direction)
+      @NotEmpty @RequestParam(name = "code") String code, //
+      @NotEmpty @RequestParam(name = "typeCode") String typeCode, //
+      @NotEmpty @RequestParam(name = "edgeTypeCode") String edgeTypeCode, //
+      @NotEmpty @RequestParam(name = "direction") String direction)
   {
     JsonArray objects = this.objectService.getBusinessObjects(this.getSessionId(), typeCode, code, edgeTypeCode, direction);
 
@@ -434,12 +455,12 @@ public class GeoObjectController extends RunwaySpringController
    **/
   @GetMapping(RegistryConstants.CONTROLLER_ROOT + RegistryUrls.GEO_OBJECT_GET_CHILDREN)
   public ResponseEntity<String> getChildGeoObjects( //
-      @NotEmpty @RequestParam String parentCode, //
-      @NotEmpty @RequestParam String parentTypeCode, //
-      @RequestParam(required = false) String hierarchyCode, //
-      @RequestParam(required = false) Date date, //
-      @RequestParam(required = false) String childrenTypes, //
-      @NotNull @RequestParam Boolean recursive)
+      @NotEmpty @RequestParam(name = "parentCode") String parentCode, //
+      @NotEmpty @RequestParam(name = "parentTypeCode") String parentTypeCode, //
+      @RequestParam(name = "hierarchyCode", required = false) String hierarchyCode, //
+      @RequestParam(name = "date", required = false) Date date, //
+      @RequestParam(name = "childrenTypes", required = false) String childrenTypes, //
+      @NotNull @RequestParam(name = "recursive") Boolean recursive)
   {
     String[] aChildTypes = null;
 
@@ -483,12 +504,12 @@ public class GeoObjectController extends RunwaySpringController
    **/
   @GetMapping(RegistryConstants.CONTROLLER_ROOT + RegistryUrls.GEO_OBJECT_GET_PARENTS)
   public ResponseEntity<String> getParentGeoObjects( //
-      @NotEmpty @RequestParam String childCode, //
-      @NotEmpty @RequestParam String childTypeCode, //
-      @RequestParam(required = false) String hierarchyCode, //
-      @RequestParam(required = false) Date date, //
-      @RequestParam(required = false) String parentTypes, //
-      @NotNull @RequestParam Boolean recursive)
+      @NotEmpty @RequestParam(name = "childCode") String childCode, //
+      @NotEmpty @RequestParam(name = "childTypeCode") String childTypeCode, //
+      @RequestParam(name = "hierarchyCode", required = false) String hierarchyCode, //
+      @RequestParam(name = "date", required = false) Date date, //
+      @RequestParam(name = "parentTypes", required = false) String parentTypes, //
+      @NotNull @RequestParam(name = "recursive") Boolean recursive)
   {
     String[] aParentTypes = null;
 
@@ -559,7 +580,7 @@ public class GeoObjectController extends RunwaySpringController
    * @returns @throws
    **/
   @GetMapping(RegistryConstants.CONTROLLER_ROOT + RegistryUrls.GEO_OBJECT_GET_UIDS)
-  public ResponseEntity<String> getUIDs(@NotNull @RequestParam Integer amount)
+  public ResponseEntity<String> getUIDs(@NotNull @RequestParam(name = "amount") Integer amount)
   {
     String[] ids = this.service.getUIDS(this.getSessionId(), amount);
 
@@ -581,9 +602,9 @@ public class GeoObjectController extends RunwaySpringController
    **/
   @GetMapping(RegistryConstants.CONTROLLER_ROOT + RegistryUrls.GEO_OBJECT_GET)
   public ResponseEntity<String> getGeoObject( //
-      @NotEmpty @RequestParam String id, //
-      @NotEmpty @RequestParam String typeCode, //
-      @RequestParam(required = false) Date date)
+      @NotEmpty @RequestParam(name = "id") String id, //
+      @NotEmpty @RequestParam(name = "typeCode") String typeCode, //
+      @RequestParam(name = "date", required = false) Date date)
   {
     GeoObject geoObject = this.service.getGeoObject(this.getSessionId(), id, typeCode, date);
 
@@ -605,9 +626,9 @@ public class GeoObjectController extends RunwaySpringController
    **/
   @GetMapping(RegistryConstants.CONTROLLER_ROOT + RegistryUrls.GEO_OBJECT_GET_CODE)
   public ResponseEntity<String> getGeoObjectByCode( //
-      @NotEmpty @RequestParam String code, //
-      @NotEmpty @RequestParam String typeCode, //
-      @RequestParam(required = false) Date date)
+      @NotEmpty @RequestParam(name = "code") String code, //
+      @NotEmpty @RequestParam(name = "typeCode") String typeCode, //
+      @RequestParam(name = "date", required = false) Date date)
   {
     GeoObject geoObject = this.service.getGeoObjectByCode(this.getSessionId(), code, typeCode, date);
     CustomSerializer serializer = this.service.serializer(this.getSessionId());

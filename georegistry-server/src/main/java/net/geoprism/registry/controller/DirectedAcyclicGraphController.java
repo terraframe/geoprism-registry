@@ -32,7 +32,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonObject;
-import com.runwaysdk.mvc.RequestParamter;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -141,12 +140,12 @@ public class DirectedAcyclicGraphController extends RunwaySpringController
     {
       this.endDate = endDate;
     }
-    
+
     public String getDataSource()
     {
       return dataSource;
     }
-    
+
     public void setDataSource(String dataSource)
     {
       this.dataSource = dataSource;
@@ -159,7 +158,12 @@ public class DirectedAcyclicGraphController extends RunwaySpringController
   private DirectedAcyclicGraphService service;
 
   @GetMapping(API_PATH + "/get-children")
-  public ResponseEntity<String> getChildren(@RequestParam String parentCode, @RequestParam String parentTypeCode, @RequestParamter(name = "directedGraphCode", required = true) String directedGraphCode, @RequestParam Boolean recursive, @RequestParam Date date)
+  public ResponseEntity<String> getChildren( //
+      @RequestParam(name = "parentCode") String parentCode, //
+      @RequestParam(name = "parentTypeCode") String parentTypeCode, //
+      @RequestParam(name = "directedGraphCode", required = true) String directedGraphCode, //
+      @RequestParam(name = "recursive") Boolean recursive, //
+      @RequestParam(name = "date") Date date)
   {
     JsonObject response = this.service.getChildren(this.getSessionId(), parentCode, parentTypeCode, directedGraphCode, recursive, date);
 
@@ -167,7 +171,12 @@ public class DirectedAcyclicGraphController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get-parents")
-  public ResponseEntity<String> getParents(@RequestParam String childCode, @RequestParam String childTypeCode, @RequestParam String directedGraphCode, @RequestParam Boolean recursive, @RequestParam Date date)
+  public ResponseEntity<String> getParents( //
+      @RequestParam(name = "childCode") String childCode, //
+      @RequestParam(name = "childTypeCode") String childTypeCode, //
+      @RequestParam(name = "directedGraphCode", required = true) String directedGraphCode, //
+      @RequestParam(name = "recursive") Boolean recursive, //
+      @RequestParam(name = "date") Date date)
   {
     JsonObject response = this.service.getParents(this.getSessionId(), childCode, childTypeCode, directedGraphCode, recursive, date);
 

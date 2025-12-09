@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
@@ -84,8 +84,7 @@ public class AssetController extends RunwaySpringController
   private AssetService service;
 
   @PostMapping(RegistryConstants.CONTROLLER_ROOT + "asset/apply")
-  public ResponseEntity<Void> apply(@Valid
-  @ModelAttribute AssetBody body) throws IOException
+  public ResponseEntity<Void> apply(@Valid @ModelAttribute AssetBody body) throws IOException
   {
     if (body.getOid() != null && body.getOid().equals("banner"))
     {
@@ -123,7 +122,7 @@ public class AssetController extends RunwaySpringController
   }
 
   @GetMapping(RegistryConstants.CONTROLLER_ROOT + "asset/view")
-  public ResponseEntity<InputStreamResource> view(@RequestParam(required = false) String oid) throws IOException
+  public ResponseEntity<InputStreamResource> view(@RequestParam(required = false, name = "oid") String oid) throws IOException
   {
     Pair<String, InputStream> file;
 

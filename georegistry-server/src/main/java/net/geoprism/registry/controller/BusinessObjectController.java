@@ -44,8 +44,8 @@ public class BusinessObjectController extends RunwaySpringController
 
   @GetMapping(API_PATH + "/get")
   public ResponseEntity<String> get( 
-      @NotBlank @RequestParam String businessTypeCode,
-      @NotBlank @RequestParam String code)
+      @NotBlank @RequestParam(name = "businessTypeCode") String businessTypeCode,
+      @NotBlank @RequestParam(name = "code") String code)
   {
     JsonObject response = service.get(this.getSessionId(), businessTypeCode, code);
     
@@ -54,8 +54,8 @@ public class BusinessObjectController extends RunwaySpringController
 
   @GetMapping(API_PATH + "/get-type-and-object")
   public ResponseEntity<String> getTypeAndObject( 
-      @NotBlank @RequestParam String businessTypeCode,
-      @NotBlank @RequestParam String code)
+      @NotBlank @RequestParam(name = "businessTypeCode") String businessTypeCode,
+      @NotBlank @RequestParam(name = "code") String code)
   {
     JsonObject response = service.getTypeAndObject(this.getSessionId(), businessTypeCode, code);
     
@@ -64,9 +64,9 @@ public class BusinessObjectController extends RunwaySpringController
   
   @GetMapping(API_PATH + "/get-parents")
   public ResponseEntity<String> getParents( 
-      @NotBlank @RequestParam String businessTypeCode,
-      @NotBlank @RequestParam String code,
-      @NotBlank @RequestParam String businessEdgeTypeCode)
+      @NotBlank @RequestParam(name = "businessTypeCode") String businessTypeCode,
+      @NotBlank @RequestParam(name = "code") String code,
+      @NotBlank @RequestParam(name = "businessEdgeTypeCode") String businessEdgeTypeCode)
   {
     JsonArray parents = this.service.getParents(this.getSessionId(), businessTypeCode, code, businessEdgeTypeCode);
     
@@ -75,9 +75,9 @@ public class BusinessObjectController extends RunwaySpringController
   
   @GetMapping(API_PATH + "/get-children")
   public ResponseEntity<String> getChildren( 
-      @NotBlank @RequestParam String businessTypeCode,
-      @NotBlank @RequestParam String code,
-      @NotBlank @RequestParam String businessEdgeTypeCode)
+      @NotBlank @RequestParam(name = "businessTypeCode") String businessTypeCode,
+      @NotBlank @RequestParam(name = "code") String code,
+      @NotBlank @RequestParam(name = "businessEdgeTypeCode") String businessEdgeTypeCode)
   {
     JsonArray parents = this.service.getChildren(this.getSessionId(), businessTypeCode, code, businessEdgeTypeCode);
     
@@ -86,11 +86,11 @@ public class BusinessObjectController extends RunwaySpringController
   
   @GetMapping(API_PATH + "/get-geo-objects")
   public ResponseEntity<String> getGeoObjects( 
-      @NotBlank @RequestParam String businessTypeCode,
-      @NotBlank @RequestParam String code,
-      @NotBlank @RequestParam String date,
-      @NotBlank @RequestParam String edgeTypeCode,
-      @NotBlank @RequestParam String direction
+      @NotBlank @RequestParam(name = "businessTypeCode") String businessTypeCode,
+      @NotBlank @RequestParam(name = "code") String code,
+      @NotBlank @RequestParam(name = "date") String date,
+      @NotBlank @RequestParam(name = "edgeTypeCode") String edgeTypeCode,
+      @NotBlank @RequestParam(name = "direction") String direction
 )
   {
     JsonArray geoObjects = this.service.getGeoObjects(this.getSessionId(), businessTypeCode, code, date, edgeTypeCode, direction);

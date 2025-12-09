@@ -89,9 +89,9 @@ public class SynchronizationConfigController extends RunwaySpringController
   private SynchronizationConfigService service;
 
   @GetMapping(API_PATH + "/get-config-for-es")
-  public ResponseEntity<String> getConfigForExternalSystem( 
-      @NotEmpty @RequestParam String externalSystemId,
-      @NotEmpty @RequestParam String hierarchyTypeCode)
+  public ResponseEntity<String> getConfigForExternalSystem( // 
+      @NotEmpty @RequestParam(name = "externalSystemId") String externalSystemId, //
+      @NotEmpty @RequestParam(name = "hierarchyTypeCode") String hierarchyTypeCode)
   {
     JsonObject resp = this.service.getConfigForExternalSystem(this.getSessionId(), externalSystemId, hierarchyTypeCode);
 
@@ -99,9 +99,9 @@ public class SynchronizationConfigController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get-custom-attr")  
-  public ResponseEntity<String> getCustomAttributeConfiguration( 
-      @NotEmpty @RequestParam String geoObjectTypeCode, 
-      @NotEmpty @RequestParam String externalId)
+  public ResponseEntity<String> getCustomAttributeConfiguration( //
+      @NotEmpty @RequestParam(name = "geoObjectTypeCode") String geoObjectTypeCode, //
+      @NotEmpty @RequestParam(name = "externalId") String externalId)
   {
     JsonArray resp = new DHIS2FeatureService().getDHIS2AttributeConfiguration(this.getSessionId(), externalId, geoObjectTypeCode);
 
@@ -109,9 +109,9 @@ public class SynchronizationConfigController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get-all")    
-  public ResponseEntity<String> getAll( 
-      @RequestParam Integer pageNumber, 
-      @RequestParam Integer pageSize)
+  public ResponseEntity<String> getAll( //
+      @RequestParam(name = "pageNumber") Integer pageNumber, //
+      @RequestParam(name = "pageSize") Integer pageSize)
   {
     JsonObject response = this.service.page(this.getSessionId(), pageNumber, pageSize);
 
@@ -135,7 +135,7 @@ public class SynchronizationConfigController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get")    
-  public ResponseEntity<String> get( @NotEmpty @RequestParam String oid)
+  public ResponseEntity<String> get( @NotEmpty @RequestParam(name = "oid") String oid)
   {
     JsonObject response = this.service.get(this.getSessionId(), oid);
 
@@ -159,10 +159,10 @@ public class SynchronizationConfigController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get-jobs")      
-  public ResponseEntity<String> getJobs( 
-      @NotEmpty @RequestParam String oid, 
-      @RequestParam Integer pageNumber,
-      @RequestParam Integer pageSize)
+  public ResponseEntity<String> getJobs( //
+      @NotEmpty @RequestParam(name = "oid") String oid, //
+      @RequestParam(name = "pageNumber") Integer pageNumber, //
+      @RequestParam(name = "pageSize") Integer pageSize)
   {
     JsonObject jobs = this.service.getJobs(this.getSessionId(), oid, pageSize, pageNumber);
 
@@ -178,7 +178,7 @@ public class SynchronizationConfigController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/generate-file")        
-  public ResponseEntity<InputStreamResource> generateFile( @NotEmpty @RequestParam String oid)
+  public ResponseEntity<InputStreamResource> generateFile( @NotEmpty @RequestParam(name = "oid") String oid)
   {
     HttpHeaders headers = new HttpHeaders();
     headers.set(HttpHeaders.CONTENT_TYPE, "application/zip");

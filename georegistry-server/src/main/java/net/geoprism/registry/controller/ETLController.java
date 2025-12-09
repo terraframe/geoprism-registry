@@ -184,7 +184,11 @@ public class ETLController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get-active")
-  public ResponseEntity<String> getActiveImports(@RequestParam(required = false) Integer pageSize, @RequestParam(required = false) Integer pageNumber, @RequestParam(required = false) String sortAttr, @RequestParam(required = false) Boolean isAscending)
+  public ResponseEntity<String> getActiveImports( //
+      @RequestParam(required = false, name = "pageSize") Integer pageSize, //
+      @RequestParam(required = false, name = "pageNumber") Integer pageNumber, //
+      @RequestParam(required = false, name = "sortAttr") String sortAttr, //
+      @RequestParam(required = false, name = "isAscending") Boolean isAscending)
   {
     if (sortAttr == null || sortAttr.equals(""))
     {
@@ -202,7 +206,11 @@ public class ETLController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get-completed")
-  public ResponseEntity<String> getCompletedImports(@RequestParam(required = false) Integer pageSize, @RequestParam(required = false) Integer pageNumber, @RequestParam(required = false) String sortAttr, @RequestParam(required = false) Boolean isAscending)
+  public ResponseEntity<String> getCompletedImports( //
+      @RequestParam(required = false, name = "pageSize") Integer pageSize, //
+      @RequestParam(required = false, name = "pageNumber") Integer pageNumber, //
+      @RequestParam(required = false, name = "sortAttr") String sortAttr, //
+      @RequestParam(required = false, name = "isAscending") Boolean isAscending)
   {
     if (sortAttr == null || sortAttr.equals(""))
     {
@@ -220,7 +228,11 @@ public class ETLController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get-errors")
-  public ResponseEntity<String> getImportErrors(@RequestParam(required = false) String historyId, @RequestParam(required = false) Boolean onlyUnresolved, @RequestParam(required = false) Integer pageSize, @RequestParam(required = false) Integer pageNumber)
+  public ResponseEntity<String> getImportErrors( //
+      @RequestParam(required = false, name = "historyId") String historyId, //
+      @RequestParam(required = false, name = "onlyUnresolved") Boolean onlyUnresolved, //
+      @RequestParam(required = false, name = "pageSize") Integer pageSize, //
+      @RequestParam(required = false, name = "pageNumber") Integer pageNumber)
   {
     JsonObject json = this.service.getImportErrors(this.getSessionId(), historyId, onlyUnresolved, pageSize, pageNumber);
 
@@ -228,7 +240,11 @@ public class ETLController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get-import-details")
-  public ResponseEntity<String> getImportDetails(@RequestParam(required = false) String historyId, @RequestParam(required = false) Boolean onlyUnresolved, @RequestParam(required = false) Integer pageSize, @RequestParam(required = false) Integer pageNumber)
+  public ResponseEntity<String> getImportDetails( //
+      @RequestParam(required = false, name = "historyId") String historyId, //
+      @RequestParam(required = false, name = "onlyUnresolved") Boolean onlyUnresolved, //
+      @RequestParam(required = false, name = "pageSize") Integer pageSize, //
+      @RequestParam(required = false, name = "pageNumber") Integer pageNumber)
   {
     JsonObject details = this.service.getImportDetails(this.getSessionId(), historyId, onlyUnresolved, pageSize, pageNumber);
 
@@ -244,7 +260,10 @@ public class ETLController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get-export-details")
-  public ResponseEntity<String> getExportDetails(@RequestParam(required = false) String historyId, @RequestParam(required = false) Integer pageSize, @RequestParam(required = false) Integer pageNumber)
+  public ResponseEntity<String> getExportDetails( //
+      @RequestParam(required = false, name = "historyId") String historyId, //
+      @RequestParam(required = false, name = "pageSize") Integer pageSize, //
+      @RequestParam(required = false, name = "pageNumber") Integer pageNumber)
   {
     JsonObject details = this.service.getExportDetails(this.getSessionId(), historyId, pageSize, pageNumber);
 

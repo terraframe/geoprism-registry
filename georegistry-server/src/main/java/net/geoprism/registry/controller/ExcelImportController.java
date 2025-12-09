@@ -161,7 +161,7 @@ public class ExcelImportController extends RunwaySpringController
   }
 
   @PostMapping(API_PATH + "/export-spreadsheet")
-  public ResponseEntity<?> exportSpreadsheet(@RequestParam @NotEmpty String type, @RequestParam @NotEmpty String hierarchyType)
+  public ResponseEntity<?> exportSpreadsheet(@RequestParam(name = "type") @NotEmpty String type, @RequestParam(name = "hierarchyType") @NotEmpty String hierarchyType)
   {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);

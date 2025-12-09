@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
@@ -195,13 +195,13 @@ public class GeoObjectTypeController extends RunwaySpringController
 
   }
 
-  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "geoobjecttype";
+  public static final String       API_PATH = RegistryConstants.CONTROLLER_ROOT + "geoobjecttype";
 
   @Autowired
-  private RegistryComponentService    service;
-  
+  private RegistryComponentService service;
+
   @Autowired
-  private HierarchyTypeServiceIF      hierService;
+  private HierarchyTypeServiceIF   hierService;
 
   @PostMapping(RegistryConstants.CONTROLLER_ROOT + RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE)
   public ResponseEntity<String> createAttributeType(@Valid @RequestBody AttributeBody body)
@@ -213,8 +213,7 @@ public class GeoObjectTypeController extends RunwaySpringController
   }
 
   @PostMapping(RegistryConstants.CONTROLLER_ROOT + RegistryUrls.GEO_OBJECT_TYPE_UPDATE_ATTRIBUTE)
-  public ResponseEntity<String> updateAttributeType(@Valid
-  @RequestBody AttributeBody body)
+  public ResponseEntity<String> updateAttributeType(@Valid @RequestBody AttributeBody body)
   {
     AttributeType attrType = this.service.updateAttributeType(this.getSessionId(), body.geoObjTypeCode, body.attributeType.toString());
 
@@ -223,8 +222,7 @@ public class GeoObjectTypeController extends RunwaySpringController
   }
 
   @PostMapping(RegistryConstants.CONTROLLER_ROOT + RegistryUrls.GEO_OBJECT_TYPE_DELETE_ATTRIBUTE)
-  public ResponseEntity<Void> deleteAttributeType(@Valid
-  @RequestBody AttributeNameBody body)
+  public ResponseEntity<Void> deleteAttributeType(@Valid @RequestBody AttributeNameBody body)
   {
     this.service.deleteAttributeType(this.getSessionId(), body.geoObjTypeId, body.attributeName);
 
@@ -241,8 +239,7 @@ public class GeoObjectTypeController extends RunwaySpringController
   }
 
   @PostMapping(RegistryConstants.CONTROLLER_ROOT + RegistryUrls.GEO_OBJECT_TYPE_UPDATE_TERM)
-  public ResponseEntity<String> updateTerm(@Valid
-  @RequestBody TermBody body)
+  public ResponseEntity<String> updateTerm(@Valid @RequestBody TermBody body)
   {
     Term term = this.service.updateTerm(this.getSessionId(), body.parentTermCode, body.termJSON.toString());
 
@@ -274,9 +271,9 @@ public class GeoObjectTypeController extends RunwaySpringController
    * @returns @throws
    **/
   @GetMapping(RegistryConstants.CONTROLLER_ROOT + RegistryUrls.GEO_OBJECT_TYPE_GET_ALL)
-  public ResponseEntity<String> getGeoObjectTypes(
-      @RequestParam(required = false) String types,
-      @RequestParam(required = false) String context)
+  public ResponseEntity<String> getGeoObjectTypes( //
+      @RequestParam(name = "types", required = false) String types, //
+      @RequestParam(name = "context", required = false) String context)
   {
     String[] aTypes = null;
     if (types != null)
@@ -315,8 +312,7 @@ public class GeoObjectTypeController extends RunwaySpringController
    * @returns @throws
    **/
   @GetMapping(API_PATH + "/list-types")
-  public ResponseEntity<String> listGeoObjectTypes(@NotNull
-  @RequestParam Boolean includeAbstractTypes)
+  public ResponseEntity<String> listGeoObjectTypes(@NotNull @RequestParam(name = "includeAbstractTypes") Boolean includeAbstractTypes)
   {
     GeoObjectType[] gots = this.service.getGeoObjectTypes(this.getSessionId(), null, PermissionContext.READ);
 
@@ -358,8 +354,7 @@ public class GeoObjectTypeController extends RunwaySpringController
    *          JSON of the {@link GeoObjectType} to be created.
    */
   @PostMapping(RegistryConstants.CONTROLLER_ROOT + RegistryUrls.GEO_OBJECT_TYPE_CREATE)
-  public ResponseEntity<String> createGeoObjectType(@Valid
-  @RequestBody GeoObjectTypeBody body)
+  public ResponseEntity<String> createGeoObjectType(@Valid @RequestBody GeoObjectTypeBody body)
   {
     GeoObjectType geoObjectType = this.service.createGeoObjectType(this.getSessionId(), body.gtJSON.toString());
 
@@ -399,11 +394,11 @@ public class GeoObjectTypeController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get-ancestors")
-  public ResponseEntity<String> getTypeAncestors(
-      @NotBlank @RequestParam String code,
-      @NotBlank @RequestParam String hierarchyCode, 
-      @RequestParam(required = false, defaultValue = "false") Boolean includeInheritedTypes, 
-      @RequestParam(required = false, defaultValue = "false") Boolean includeChild)
+  public ResponseEntity<String> getTypeAncestors( //
+      @NotBlank @RequestParam(name = "code") String code, //
+      @NotBlank @RequestParam(name = "hierarchyCode") String hierarchyCode, //
+      @RequestParam(name = "includeInheritedTypes", required = false, defaultValue = "false") Boolean includeInheritedTypes, //
+      @RequestParam(name = "includeChild", required = false, defaultValue = "false") Boolean includeChild)
   {
     JsonArray response = new JsonArray();
 
@@ -422,7 +417,9 @@ public class GeoObjectTypeController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get-hierarchies")
-  public ResponseEntity<String> getHierarchiesForType(@NotBlank @RequestParam String code, @RequestParam Boolean includeTypes)
+  public ResponseEntity<String> getHierarchiesForType( //
+      @NotBlank @RequestParam(name = "code") String code, //
+      @RequestParam(name = "includeTypes") Boolean includeTypes)
   {
     JsonArray response = hierService.getHierarchiesForType(this.getSessionId(), code, includeTypes);
 
@@ -430,7 +427,7 @@ public class GeoObjectTypeController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get-subtype-hierarchies")
-  public ResponseEntity<String> getHierarchiesForSubtypes(@NotBlank @RequestParam String code)
+  public ResponseEntity<String> getHierarchiesForSubtypes(@NotBlank @RequestParam(name = "code") String code)
   {
     JsonArray response = hierService.getHierarchiesForSubtypes(this.getSessionId(), code);
 

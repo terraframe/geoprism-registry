@@ -18,7 +18,6 @@
  */
 package net.geoprism.registry.controller;
 
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +33,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.LabeledPropertyGraphTypeServiceIF;
@@ -45,7 +45,7 @@ public class LabeledPropertyGraphTypeController extends RunwaySpringController
 {
   public static class OidBody
   {
-    @NotEmpty
+    @NotBlank
     private String oid;
 
     public String getOid()
@@ -82,7 +82,7 @@ public class LabeledPropertyGraphTypeController extends RunwaySpringController
     @JsonDeserialize(using = JsonObjectDeserializer.class)
     JsonObject metadata;
 
-    @NotEmpty
+    @NotBlank
     String     oid;
 
     public JsonObject getMetadata()
@@ -151,7 +151,7 @@ public class LabeledPropertyGraphTypeController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get")
-  public ResponseEntity<String> get(@NotEmpty @RequestParam String oid)
+  public ResponseEntity<String> get(@NotBlank @RequestParam(name = "oid") String oid)
   {
     JsonObject response = this.service.get(this.getSessionId(), oid);
 
@@ -159,7 +159,7 @@ public class LabeledPropertyGraphTypeController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/entries")
-  public ResponseEntity<String> entries(@NotEmpty @RequestParam String oid)
+  public ResponseEntity<String> entries(@NotBlank @RequestParam(name = "oid") String oid)
   {
     JsonObject response = this.service.getEntries(this.getSessionId(), oid);
 
@@ -167,7 +167,7 @@ public class LabeledPropertyGraphTypeController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/entry")
-  public ResponseEntity<String> entry(@NotEmpty @RequestParam String oid)
+  public ResponseEntity<String> entry(@NotBlank @RequestParam(name = "oid") String oid)
   {
     JsonObject response = this.service.getEntry(this.getSessionId(), oid);
 
@@ -175,7 +175,7 @@ public class LabeledPropertyGraphTypeController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/versions")
-  public ResponseEntity<String> versions(@NotEmpty @RequestParam String oid)
+  public ResponseEntity<String> versions(@NotBlank @RequestParam(name = "oid") String oid)
   {
     JsonArray response = this.service.getVersions(this.getSessionId(), oid);
 
@@ -183,7 +183,9 @@ public class LabeledPropertyGraphTypeController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/version")
-  public ResponseEntity<String> version(@NotEmpty @RequestParam String oid, @RequestParam(defaultValue = "false", required = false) Boolean includeTableDefinitions)
+  public ResponseEntity<String> version( //
+      @NotBlank @RequestParam(name = "oid") String oid, //
+      @RequestParam(name = "includeTableDefinitions", defaultValue = "false", required = false) Boolean includeTableDefinitions)
   {
     JsonObject response = this.service.getVersion(this.getSessionId(), oid, includeTableDefinitions);
 
@@ -191,7 +193,7 @@ public class LabeledPropertyGraphTypeController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/data")
-  public ResponseEntity<String> data(@NotEmpty @RequestParam String oid)
+  public ResponseEntity<String> data(@NotBlank @RequestParam(name = "oid") String oid)
   {
     JsonObject response = this.service.getData(this.getSessionId(), oid);
 
@@ -199,7 +201,10 @@ public class LabeledPropertyGraphTypeController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/geo-objects")
-  public ResponseEntity<String> geoObjects(@NotEmpty @RequestParam String oid, @NotEmpty @RequestParam Long skip, @NotEmpty @RequestParam Integer blockSize)
+  public ResponseEntity<String> geoObjects( //
+      @NotBlank @RequestParam(name = "oid") String oid, //
+      @RequestParam(name = "skip") Long skip, //
+      @RequestParam(name = "blockSize") Integer blockSize)
   {
     JsonArray response = this.service.getGeoObjects(this.getSessionId(), oid, skip, blockSize);
 
@@ -207,7 +212,10 @@ public class LabeledPropertyGraphTypeController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/edges")
-  public ResponseEntity<String> edges(@NotEmpty @RequestParam String oid, @NotEmpty @RequestParam Long skip, @NotEmpty @RequestParam Integer blockSize)
+  public ResponseEntity<String> edges( //
+      @NotBlank @RequestParam(name = "oid") String oid, //
+      @RequestParam(name = "skip") Long skip, //
+      @RequestParam(name = "blockSize") Integer blockSize)
   {
     JsonArray response = this.service.getEdges(this.getSessionId(), oid, skip, blockSize);
 
@@ -224,7 +232,7 @@ public class LabeledPropertyGraphTypeController extends RunwaySpringController
 
   // @GetMapping(API_PATH + "/get-publish-jobs")
   // public ResponseEntity<String> getPublishJobs(
-  // @NotEmpty @RequestParam String oid,
+  // @NotBlank @RequestParam String oid,
   // @RequestParam Integer pageSize,
   // @RequestParam Integer pageNumber,
   // @RequestParam(required = false) String sortAttr,
@@ -248,7 +256,7 @@ public class LabeledPropertyGraphTypeController extends RunwaySpringController
   //
   // @GetMapping(API_PATH + "/get-publish-job")
   // public ResponseEntity<String> getPublishJob(
-  // @NotEmpty @RequestParam String historyOid)
+  // @NotBlank @RequestParam String historyOid)
   // {
   // JsonObject job = this.service.getPublishJob(this.getSessionId(),
   // historyOid);

@@ -152,7 +152,7 @@ public class GraphController extends RunwaySpringController
   }
   
   @GetMapping(API_PATH + "get")
-  public ResponseEntity<String> get(@RequestParam(required = false) String[] codes)
+  public ResponseEntity<String> get(@RequestParam(name = "codes", required = false) String[] codes)
   {
     final JsonArray graphTypes = new JsonArray();
     

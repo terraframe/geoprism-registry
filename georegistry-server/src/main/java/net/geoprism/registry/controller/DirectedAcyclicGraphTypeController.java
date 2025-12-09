@@ -115,7 +115,7 @@ public class DirectedAcyclicGraphTypeController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get")
-  public ResponseEntity<String> get(@NotBlank @RequestParam String code)
+  public ResponseEntity<String> get(@NotBlank @RequestParam(name = "code") String code)
   {
     JsonObject response = this.service.get(this.getSessionId(), code);
 

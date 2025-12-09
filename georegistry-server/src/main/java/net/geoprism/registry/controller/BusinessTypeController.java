@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
@@ -153,7 +153,7 @@ public class BusinessTypeController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get")
-  public ResponseEntity<String> get(@NotBlank @RequestParam String oid)
+  public ResponseEntity<String> get(@NotBlank @RequestParam(name = "oid") String oid)
   {
     JsonObject response = service.get(this.getSessionId(), oid);
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
@@ -217,7 +217,7 @@ public class BusinessTypeController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/data")
-  public ResponseEntity<String> data(@NotBlank @RequestParam String typeCode, @RequestParam(required = false) String criteria)
+  public ResponseEntity<String> data(@NotBlank @RequestParam(name = "typeCode") String typeCode, @RequestParam(required = false, name = "criteria") String criteria)
   {
     JsonObject page = this.service.data(this.getSessionId(), typeCode, criteria);
 
@@ -225,7 +225,7 @@ public class BusinessTypeController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get-edge-types")
-  public ResponseEntity<String> getEdgeTypes(@NotBlank @RequestParam String typeCode)
+  public ResponseEntity<String> getEdgeTypes(@NotBlank @RequestParam(name = "typeCode") String typeCode)
   {
     JsonArray edgeTypes = this.service.getEdgeTypes(this.getSessionId(), typeCode);
 

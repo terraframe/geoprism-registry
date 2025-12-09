@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
@@ -73,41 +73,41 @@ public class ListTypeController extends RunwaySpringController
       this.list = list;
     }
   }
-  
+
   public static class ListVersionBody
   {
     @NotNull
     @JsonDeserialize(using = JsonObjectDeserializer.class)
     JsonObject metadata;
-    
+
     @NotEmpty
-    String oid;
-    
+    String     oid;
+
     public JsonObject getMetadata()
     {
       return metadata;
     }
-    
+
     public void setMetadata(JsonObject metadata)
     {
       this.metadata = metadata;
     }
-    
+
     public String getOid()
     {
       return oid;
     }
-    
+
     public void setOid(String oid)
     {
       this.oid = oid;
     }
   }
-  
+
   public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "list-type";
 
   @Autowired
-  private ListTypeService service;
+  private ListTypeService    service;
 
   @GetMapping(API_PATH + "/list-all")
   public ResponseEntity<String> listAll()
@@ -116,15 +116,15 @@ public class ListTypeController extends RunwaySpringController
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/list-for-type")  
-  public ResponseEntity<String> listForType(@NotEmpty @RequestParam String typeCode)
+  @GetMapping(API_PATH + "/list-for-type")
+  public ResponseEntity<String> listForType(@NotEmpty @RequestParam(name = "typeCode") String typeCode)
   {
     JsonObject response = this.service.listForType(this.getSessionId(), typeCode);
 
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @PostMapping(API_PATH + "/apply")  
+  @PostMapping(API_PATH + "/apply")
   public ResponseEntity<String> apply(@Valid @RequestBody ListTypeBody body)
   {
     JsonObject response = this.service.apply(this.getSessionId(), body.list);
@@ -132,7 +132,7 @@ public class ListTypeController extends RunwaySpringController
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @PostMapping(API_PATH + "/create-entries")    
+  @PostMapping(API_PATH + "/create-entries")
   public ResponseEntity<String> createEntries(@Valid @RequestBody OidBody body)
   {
     JsonObject response = this.service.createEntries(this.getSessionId(), body.getOid());
@@ -140,7 +140,7 @@ public class ListTypeController extends RunwaySpringController
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @PostMapping(API_PATH + "/remove")      
+  @PostMapping(API_PATH + "/remove")
   public ResponseEntity<Void> remove(@Valid @RequestBody OidBody body)
   {
     this.service.remove(this.getSessionId(), body.getOid());
@@ -148,7 +148,7 @@ public class ListTypeController extends RunwaySpringController
     return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
   }
 
-  @PostMapping(API_PATH + "/create-version")        
+  @PostMapping(API_PATH + "/create-version")
   public ResponseEntity<String> createVersion(@Valid @RequestBody ListVersionBody body)
   {
     JsonObject response = this.service.createVersion(this.getSessionId(), body.oid, body.metadata.toString());
@@ -156,7 +156,7 @@ public class ListTypeController extends RunwaySpringController
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @PostMapping(API_PATH + "/apply-version")          
+  @PostMapping(API_PATH + "/apply-version")
   public ResponseEntity<String> applyVersion(@Valid @RequestBody ListVersionBody body) throws ParseException
   {
     JsonObject response = this.service.applyVersion(this.getSessionId(), body.oid, body.metadata.toString());
@@ -164,7 +164,7 @@ public class ListTypeController extends RunwaySpringController
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @PostMapping(API_PATH + "/publish")            
+  @PostMapping(API_PATH + "/publish")
   public ResponseEntity<String> publish(@Valid @RequestBody OidBody body) throws ParseException
   {
     JsonObject response = this.service.publishVersion(this.getSessionId(), body.getOid());
@@ -172,47 +172,47 @@ public class ListTypeController extends RunwaySpringController
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/get")              
-  public ResponseEntity<String> get(@NotEmpty @RequestParam String oid)
+  @GetMapping(API_PATH + "/get")
+  public ResponseEntity<String> get(@NotEmpty @RequestParam(name = "oid") String oid)
   {
     JsonObject response = this.service.get(this.getSessionId(), oid);
 
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/entries")                
-  public ResponseEntity<String> entries(@NotEmpty @RequestParam String oid)
+  @GetMapping(API_PATH + "/entries")
+  public ResponseEntity<String> entries(@NotEmpty @RequestParam(name = "oid") String oid)
   {
     JsonObject response = this.service.getEntries(this.getSessionId(), oid);
 
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/versions")                  
-  public ResponseEntity<String> versions(@NotEmpty @RequestParam String oid)
+  @GetMapping(API_PATH + "/versions")
+  public ResponseEntity<String> versions(@NotEmpty @RequestParam(name = "oid") String oid)
   {
     JsonArray response = this.service.getVersions(this.getSessionId(), oid);
 
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/version")                    
-  public ResponseEntity<String> version(@NotEmpty @RequestParam String oid)
+  @GetMapping(API_PATH + "/version")
+  public ResponseEntity<String> version(@NotEmpty @RequestParam(name = "oid") String oid)
   {
     JsonObject response = this.service.getVersion(this.getSessionId(), oid);
 
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
-  
-  @GetMapping(API_PATH + "/fetchVersionsAsListVersion")                      
-  public ResponseEntity<String> fetchVersionsAsListVersion(@NotEmpty @RequestParam String oids)
+
+  @GetMapping(API_PATH + "/fetchVersionsAsListVersion")
+  public ResponseEntity<String> fetchVersionsAsListVersion(@NotEmpty @RequestParam(name = "oids") String oids)
   {
     JsonElement response = this.service.fetchVersionsAsListVersion(this.getSessionId(), oids);
 
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @PostMapping(API_PATH + "/remove-version")            
+  @PostMapping(API_PATH + "/remove-version")
   public ResponseEntity<Void> removeVersion(@Valid @RequestBody OidBody body)
   {
     this.service.removeVersion(this.getSessionId(), body.getOid());
@@ -221,11 +221,7 @@ public class ListTypeController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/data")
-  public ResponseEntity<String> data(
-      @NotEmpty @RequestParam String oid,
-      @RequestParam(required = false) String criteria,
-      @RequestParam(required = false) Boolean showInvalid,
-      @RequestParam(required = false) Boolean includeGeometries)
+  public ResponseEntity<String> data(@NotEmpty @RequestParam(name = "oid") String oid, @RequestParam(name = "criteria", required = false) String criteria, @RequestParam(name = "showInvalid", required = false) Boolean showInvalid, @RequestParam(name = "includeGeometries", required = false) Boolean includeGeometries)
   {
     if (StringUtils.isEmpty(criteria))
     {
@@ -239,43 +235,34 @@ public class ListTypeController extends RunwaySpringController
     {
       includeGeometries = Boolean.FALSE;
     }
-    
+
     JsonObject response = this.service.data(this.getSessionId(), oid, criteria, showInvalid, includeGeometries);
 
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/record")                        
-  public ResponseEntity<String> record(
-      @NotEmpty @RequestParam String oid, 
-      @NotEmpty @RequestParam String uid)
+  @GetMapping(API_PATH + "/record")
+  public ResponseEntity<String> record(@NotEmpty @RequestParam(name = "oid") String oid, @NotEmpty @RequestParam(name = "uid") String uid)
   {
     JsonObject response = this.service.record(this.getSessionId(), oid, uid);
 
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/values")                          
-  public ResponseEntity<String> values(
-      @NotEmpty @RequestParam String oid, 
-      @RequestParam(required = false) String value, 
-      @NotEmpty @RequestParam String attributeName,
-      @RequestParam(required = false) String criteria)
+  @GetMapping(API_PATH + "/values")
+  public ResponseEntity<String> values(@NotEmpty @RequestParam(name = "oid") String oid, @RequestParam(name = "value", required = false) String value, @NotEmpty @RequestParam(name = "attributeName") String attributeName, @RequestParam(name = "criteria", required = false) String criteria)
   {
     JsonArray response = this.service.values(this.getSessionId(), oid, value, attributeName, criteria);
 
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/export-shapefile")                            
-  public ResponseEntity<InputStreamResource> exportShapefile(
-      @NotEmpty @RequestParam String oid, 
-      @RequestParam(required = false) String criteria,
-      @RequestParam(required = false) String actualGeometryType) throws JSONException
+  @GetMapping(API_PATH + "/export-shapefile")
+  public ResponseEntity<InputStreamResource> exportShapefile(@NotEmpty @RequestParam(name = "oid") String oid, @RequestParam(name = "criteria", required = false) String criteria, @RequestParam(name = "actualGeometryType", required = false) String actualGeometryType) throws JSONException
   {
     JsonObject masterList = this.service.getVersion(this.getSessionId(), oid);
     String code = masterList.get(ListType.TYPE_CODE).getAsString() + "-" + masterList.get(ListTypeVersion.FORDATE).getAsString();
-    
+
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
     headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + code + ".zip");
@@ -284,10 +271,8 @@ public class ListTypeController extends RunwaySpringController
     return new ResponseEntity<InputStreamResource>(isr, headers, HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/download-shapefile")                            
-  public ResponseEntity<InputStreamResource> downloadShapefile(
-      @NotEmpty @RequestParam String oid, 
-      @RequestParam(required = false) String filter) throws JSONException
+  @GetMapping(API_PATH + "/download-shapefile")
+  public ResponseEntity<InputStreamResource> downloadShapefile(@NotEmpty @RequestParam(name = "oid") String oid, @RequestParam(name = "filter", required = false) String filter) throws JSONException
   {
     JsonObject masterList = this.service.getVersion(this.getSessionId(), oid);
     String code = masterList.get(ListType.TYPE_CODE).getAsString() + "-" + masterList.get(ListTypeVersion.FORDATE).getAsString();
@@ -297,7 +282,7 @@ public class ListTypeController extends RunwaySpringController
     headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + code + ".zip");
 
     InputStreamResource isr = new InputStreamResource(service.downloadShapefile(this.getSessionId(), oid));
-    return new ResponseEntity<InputStreamResource>(isr, headers, HttpStatus.OK);    
+    return new ResponseEntity<InputStreamResource>(isr, headers, HttpStatus.OK);
   }
 
   // @Endpoint(url = "generate-shapefile", method = ServletMethod.POST, error =
@@ -314,10 +299,8 @@ public class ListTypeController extends RunwaySpringController
   // return response;
   // }
 
-  @GetMapping(API_PATH + "/export-spreadsheet")                              
-  public ResponseEntity<InputStreamResource> exportSpreadsheet(
-      @NotEmpty @RequestParam String oid, 
-      @RequestParam(required = false) String criteria) throws JSONException
+  @GetMapping(API_PATH + "/export-spreadsheet")
+  public ResponseEntity<InputStreamResource> exportSpreadsheet(@NotEmpty @RequestParam(name = "oid") String oid, @RequestParam(name = "criteria", required = false) String criteria) throws JSONException
   {
     JsonObject masterList = this.service.getVersion(this.getSessionId(), oid);
     String code = masterList.get(ListType.TYPE_CODE).getAsString() + "-" + masterList.get(ListTypeVersion.FORDATE).getAsString();
@@ -327,24 +310,24 @@ public class ListTypeController extends RunwaySpringController
     headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + code + ".xlsx");
 
     InputStreamResource isr = new InputStreamResource(service.exportSpreadsheet(this.getSessionId(), oid, criteria));
-    return new ResponseEntity<InputStreamResource>(isr, headers, HttpStatus.OK);        
+    return new ResponseEntity<InputStreamResource>(isr, headers, HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/progress")                                
-  public ResponseEntity<String> progress(@NotEmpty @RequestParam String oid)
+  @GetMapping(API_PATH + "/progress")
+  public ResponseEntity<String> progress(@NotEmpty @RequestParam(name = "oid") String oid)
   {
     JsonObject response = this.service.progress(this.getSessionId(), oid);
 
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/get-publish-jobs")                                  
-  public ResponseEntity<String> getPublishJobs(
-      @NotEmpty @RequestParam String oid, 
-      @RequestParam Integer pageSize, 
-      @RequestParam Integer pageNumber, 
-      @RequestParam(required = false) String sortAttr, 
-      @RequestParam(required = false) Boolean isAscending)
+  @GetMapping(API_PATH + "/get-publish-jobs")
+  public ResponseEntity<String> getPublishJobs( //
+      @NotEmpty @RequestParam(name = "oid") String oid, //
+      @RequestParam(name = "pageSize") Integer pageSize, //
+      @RequestParam(name = "pageNumber") Integer pageNumber, //
+      @RequestParam(name = "sortAttr", required = false) String sortAttr, //
+      @RequestParam(name = "isAscending", required = false) Boolean isAscending)
   {
     if (sortAttr == null || sortAttr.equals(""))
     {
@@ -361,52 +344,53 @@ public class ListTypeController extends RunwaySpringController
     return new ResponseEntity<String>(config.toString(), HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/get-publish-job")                                    
-  public ResponseEntity<String> getPublishJob(
-      @NotEmpty @RequestParam String historyOid)
+  @GetMapping(API_PATH + "/get-publish-job")
+  public ResponseEntity<String> getPublishJob(@NotEmpty @RequestParam(name = "historyOid") String historyOid)
   {
     JsonObject job = this.service.getPublishJob(this.getSessionId(), historyOid);
-    
+
     return new ResponseEntity<String>(job.toString(), HttpStatus.OK);
   }
-  
-  @GetMapping(API_PATH + "/tile")                                      
-  public ResponseEntity<InputStreamResource> tile(
-      @RequestParam Integer x, 
-      @RequestParam Integer y, 
-      @RequestParam Integer z, 
-      @NotEmpty @RequestParam String config) throws JSONException
+
+  @GetMapping(API_PATH + "/tile")
+  public ResponseEntity<InputStreamResource> tile( //
+      @RequestParam(name = "x") Integer x, //
+      @RequestParam(name = "y") Integer y, //
+      @RequestParam(name = "z") Integer z, //
+      @NotEmpty @RequestParam(name = "config") String config) throws JSONException
   {
     JSONObject object = new JSONObject(config);
     object.put("x", x);
     object.put("y", y);
     object.put("z", z);
-    
+
     HttpHeaders headers = new HttpHeaders();
     headers.set(HttpHeaders.CONTENT_TYPE, "application/x-protobuf");
 
     InputStreamResource isr = new InputStreamResource(this.service.getTile(this.getSessionId(), object));
-    return new ResponseEntity<InputStreamResource>(isr, headers, HttpStatus.OK);        
+    return new ResponseEntity<InputStreamResource>(isr, headers, HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/get-public-versions")                                        
-  public ResponseEntity<String> getPublicVersions(@NotEmpty @RequestParam String oid)
+  @GetMapping(API_PATH + "/get-public-versions")
+  public ResponseEntity<String> getPublicVersions(@NotEmpty @RequestParam(name = "oid") String oid)
   {
     JsonArray response = this.service.getPublicVersions(this.getSessionId(), oid);
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/get-geospatial-versions")                                          
-  public ResponseEntity<String> getGeospatialVersions(@RequestParam(required = false) String startDate, @RequestParam(required = false) String endDate)
+  @GetMapping(API_PATH + "/get-geospatial-versions")
+  public ResponseEntity<String> getGeospatialVersions( //
+      @RequestParam(name = "startDate", required = false) String startDate, //
+      @RequestParam(name = "endDate", required = false) String endDate)
   {
     JsonArray response = this.service.getGeospatialVersions(this.getSessionId(), startDate, endDate);
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/bounds")                                            
-  public ResponseEntity<String> getGeoObjectBounds(
-      @NotEmpty @RequestParam String oid, 
-      @RequestParam(required = false) String uid)
+  @GetMapping(API_PATH + "/bounds")
+  public ResponseEntity<String> getGeoObjectBounds( //
+      @NotEmpty @RequestParam(name = "oid") String oid, //
+      @RequestParam(name = "uid", required = false) String uid)
   {
     JsonArray bounds = this.service.getBounds(this.getSessionId(), oid, uid);
 

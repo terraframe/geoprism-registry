@@ -75,7 +75,7 @@ public class ExternalProfileController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/ologin")
-  public RedirectView ologin(@RequestParam(required = true) String code, @RequestParam(required = true) String state)
+  public RedirectView ologin(@RequestParam(required = true, name = "code") String code, @RequestParam(required = true, name = "state") String state)
   {
     final RequestDecorator req = new RequestDecorator(this.getRequest());
     final String contextPath = this.getRequest().getContextPath().contains("/") ? this.getRequest().getContextPath() + "/" : "/";

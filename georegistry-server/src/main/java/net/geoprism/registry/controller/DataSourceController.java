@@ -87,7 +87,7 @@ public class DataSourceController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get")
-  public ResponseEntity<DataSourceDTO> get(@NotEmpty @RequestParam String code)
+  public ResponseEntity<DataSourceDTO> get(@NotEmpty @RequestParam(name = "code") String code)
   {
     DataSourceDTO source = this.service.getByCode(this.getSessionId(), code);
 
@@ -95,7 +95,7 @@ public class DataSourceController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/search")
-  public ResponseEntity<List<DataSourceDTO>> search(@RequestParam(required = false) String text)
+  public ResponseEntity<List<DataSourceDTO>> search(@RequestParam(name = "text", required = false) String text)
   {
     List<DataSourceDTO> sources = this.service.search(this.getSessionId(), text);
 
