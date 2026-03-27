@@ -6,6 +6,7 @@ package net.geoprism.registry.hierarchy;
 import java.util.List;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.metadata.GraphTypeDTO;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.google.gson.JsonObject;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.session.Request;
@@ -73,9 +73,9 @@ public class DirectedAcyclicGraphTypeTest
 
     try
     {
-      JsonObject object = new JsonObject();
-      object.add(DirectedAcyclicGraphType.DISPLAYLABEL, new LocalizedValue("Updated Label").toJSON());
-      object.add(DirectedAcyclicGraphType.DESCRIPTION, new LocalizedValue("Updated Description").toJSON());
+      GraphTypeDTO object = new GraphTypeDTO();
+      object.setLabel(new LocalizedValue("Updated Label"));
+      object.setDescription(new LocalizedValue("Updated Description"));
 
       this.service.update(type, object);
 

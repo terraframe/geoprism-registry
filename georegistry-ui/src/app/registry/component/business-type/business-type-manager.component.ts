@@ -25,9 +25,10 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { ErrorHandler, ConfirmModalComponent } from "@shared/component";
 import { LocalizationService } from "@shared/service/localization.service";
 import { BusinessTypeService } from "@registry/service/business-type.service";
-import { BusinessType, BusinessTypeByOrg } from "@registry/model/business-type";
+import { BusinessType } from "@registry/model/business-type";
 import { CreateBusinessTypeModalComponent } from "./modals/create-business-type-modal.component";
 import { ManageBusinessTypeModalComponent } from "./modals/manage-business-type-modal.component";
+import { OrganizationGroup } from "@shared/model/core";
 
 @Component({
     selector: "business-type-manager",
@@ -37,7 +38,7 @@ import { ManageBusinessTypeModalComponent } from "./modals/manage-business-type-
 export class BusinessTypeManagerComponent implements OnInit {
 
     message: string = null;
-    orgs: BusinessTypeByOrg[];
+    orgs: OrganizationGroup<BusinessType>[];
 
     /*
      * Reference to the modal current showing
@@ -55,7 +56,7 @@ export class BusinessTypeManagerComponent implements OnInit {
         });
     }
 
-    onCreate(org: BusinessTypeByOrg): void {
+    onCreate(org: OrganizationGroup<BusinessType>): void {
 
         this.bsModalRef = this.modalService.show(CreateBusinessTypeModalComponent, {
             animated: true,
@@ -81,7 +82,7 @@ export class BusinessTypeManagerComponent implements OnInit {
         });
     }
 
-    onEdit(org: BusinessTypeByOrg, type: BusinessType): void {
+    onEdit(org: OrganizationGroup<BusinessType>, type: BusinessType): void {
         this.service.edit(type.oid).then(t => {
             this.bsModalRef = this.modalService.show(ManageBusinessTypeModalComponent, {
                 animated: true,
@@ -102,7 +103,7 @@ export class BusinessTypeManagerComponent implements OnInit {
         });
     }
 
-    onDelete(org: BusinessTypeByOrg, type: BusinessType): void {
+    onDelete(org: OrganizationGroup<BusinessType>, type: BusinessType): void {
         this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
             animated: true,
             backdrop: true,

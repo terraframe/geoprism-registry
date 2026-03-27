@@ -22,7 +22,7 @@ import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { finalize } from "rxjs/operators";
 
 import { EventService } from "@shared/service";
-import { GraphType } from "@registry/model/registry";
+import { GraphType, ImportHistory } from "@registry/model/registry";
 
 import { environment } from 'src/environments/environment';
 import { firstValueFrom } from "rxjs";
@@ -33,7 +33,15 @@ export class GraphTypeService {
     // eslint-disable-next-line no-useless-constructor
     constructor(private http: HttpClient, private eventService: EventService) { }
 
-    get(codes: string[] = null): Promise<GraphType[]> {
+    controller(typeCode: string): string {
+        if (typeCode === 'DirectedAcyclicGraphType') {
+            return '/api/directed-graph-type'
+        }
+
+        return '/api/undirected-graph-type'
+    }
+
+    getAll(codes: string[] = null): Promise<GraphType[]> {
         let params: HttpParams = new HttpParams();
 
         if (codes?.length) {
@@ -43,6 +51,72 @@ export class GraphTypeService {
         this.eventService.start();
 
         return firstValueFrom(this.http.get<GraphType[]>(environment.apiUrl + "/api/graph/get", { params: params })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            })))
+    }
+
+    getAllForType(typeCode: string): Promise<GraphType[]> {
+        let params: HttpParams = new HttpParams();
+
+
+        this.eventService.start();
+
+        return firstValueFrom(this.http.get<GraphType[]>(environment.apiUrl + this.controller(typeCode) + "/get-all", { params: params })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            })))
+    }
+
+
+    get(typeCode: string, code: string): Promise<GraphType> {
+        let params: HttpParams = new HttpParams();
+        params = params.append("code", code);
+
+        this.eventService.start();
+
+        return firstValueFrom(this.http.get<GraphType>(environment.apiUrl + this.controller(typeCode) + "/get", { params: params })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+        );
+    }
+
+    apply(typeCode: string, type: GraphType): Promise<GraphType> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
+
+        this.eventService.start();
+
+        return firstValueFrom(this.http
+            .post<GraphType>(environment.apiUrl + this.controller(typeCode) + "/apply", JSON.stringify(type), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            })));
+    }
+
+    remove(typeCode: string, type: GraphType): Promise<GraphType> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
+
+        this.eventService.start();
+
+        return firstValueFrom(this.http
+            .post<GraphType>(environment.apiUrl + this.controller(typeCode) + "/remove", JSON.stringify({ code: type.code }), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            })));
+    }
+
+    getImportHistory(typeCode: string, code: string): Promise<ImportHistory[]> {
+        let params: HttpParams = new HttpParams();
+        params = params.append("code", code);
+
+        this.eventService.start();
+
+        return firstValueFrom(this.http.get<ImportHistory[]>(environment.apiUrl + this.controller(typeCode) + "/get-import-history", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             })))

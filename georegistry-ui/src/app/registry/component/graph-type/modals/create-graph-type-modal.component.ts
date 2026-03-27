@@ -24,56 +24,59 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { ErrorHandler } from "@shared/component";
 
 import { LocalizationService } from "@shared/service/localization.service";
-import { BusinessTypeService } from "@registry/service/business-type.service";
-import { BusinessType } from "@registry/model/business-type";
-import { OrganizationGroup } from "@shared/model/core";
+import { GraphTypeService } from "@registry/service/graph-type.service";
+import { GraphType } from "@registry/model/registry";
 
 @Component({
-    selector: "create-business-type-modal",
-    templateUrl: "./create-business-type-modal.component.html",
+    selector: "create-graph-type-modal",
+    templateUrl: "./create-graph-type-modal.component.html",
     styleUrls: []
 })
-export class CreateBusinessTypeModalComponent implements OnInit {
+export class CreateGraphTypeModalComponent implements OnInit {
 
-    type: BusinessType;
-    organization: OrganizationGroup<BusinessType> = null;
+    typeCode: string;
+
+    type: GraphType;
     message: string = null;
     organizationLabel: string;
 
     /*
      * Observable subject for TreeNode changes.  Called when create is successful
      */
-    public onBusinessTypeChange: Subject<BusinessType>;
+    public onGraphTypeChange: Subject<GraphType>;
 
     // eslint-disable-next-line no-useless-constructor
-    constructor(private service: BusinessTypeService, private lService: LocalizationService, public bsModalRef: BsModalRef) {
-        this.onBusinessTypeChange = new Subject<BusinessType>();
+    constructor(
+        private service: GraphTypeService,
+        private lService: LocalizationService,
+        public bsModalRef: BsModalRef) {
+        this.onGraphTypeChange = new Subject<GraphType>();
     }
 
     ngOnInit(): void {
         this.type = {
             code: "",
-            organization: "",
-            displayLabel: this.lService.create(),
+            typeCode: "",
+            label: this.lService.create(),
             description: this.lService.create(),
-            attributes: [],
-            labelAttribute: ""
         };
     }
 
-    init(organization: OrganizationGroup<BusinessType>) {
-        // Filter out organizations they're not RA's of
-        this.organization = organization;
-
-        this.type.organization = this.organization.code;
-        this.type.organizationLabel = this.organization.label;
+    init(typeCode: string) {
+        this.typeCode = typeCode;
+        this.type = {
+            code: "",
+            typeCode: typeCode,
+            label: this.lService.create(),
+            description: this.lService.create(),
+        };
     }
 
     handleOnSubmit(): void {
         this.message = null;
 
-        this.service.apply(this.type).then(data => {
-            this.onBusinessTypeChange.next(data);
+        this.service.apply(this.typeCode, this.type).then(data => {
+            this.onGraphTypeChange.next(data);
             this.bsModalRef.hide();
         }).catch((err: HttpErrorResponse) => {
             this.error(err);

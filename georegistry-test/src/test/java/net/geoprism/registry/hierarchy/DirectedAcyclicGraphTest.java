@@ -3,11 +3,13 @@
  */
 package net.geoprism.registry.hierarchy;
 
+import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.metadata.GraphTypeDTO;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -20,17 +22,27 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.system.scheduler.AllJobStatus;
+import com.runwaysdk.system.scheduler.SchedulerManager;
 
 import net.geoprism.registry.DirectedAcyclicGraphType;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.config.TestApplication;
+import net.geoprism.registry.etl.ObjectImporterFactory;
+import net.geoprism.registry.etl.upload.EdgeObjectImportConfiguration;
+import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.model.ServerChildGraphNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerParentGraphNode;
 import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.EdgeImportTestService;
 import net.geoprism.registry.test.FastTestDataset;
+import net.geoprism.registry.test.SchedulerTestUtils;
+import net.geoprism.registry.test.TestDataSet;
+import net.geoprism.registry.view.ImportHistoryView;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
@@ -42,6 +54,9 @@ public class DirectedAcyclicGraphTest extends FastDatasetTest implements Instanc
   @Autowired
   private DirectedAcyclicGraphTypeBusinessServiceIF service;
 
+  @Autowired
+  private EdgeImportTestService                     importService;
+
   @Override
   @Request
   public void beforeClassSetup() throws Exception
@@ -49,6 +64,12 @@ public class DirectedAcyclicGraphTest extends FastDatasetTest implements Instanc
     super.beforeClassSetup();
 
     type = this.service.create("TEST_DAG", new LocalizedValue("TEST_DAG"), new LocalizedValue("TEST_DAG"), 0L);
+
+    if (!SchedulerManager.initialized())
+    {
+      SchedulerManager.start();
+    }
+
   }
 
   @Override
@@ -274,6 +295,33 @@ public class DirectedAcyclicGraphTest extends FastDatasetTest implements Instanc
     List<ServerChildGraphNode> children = node.getChildren();
 
     Assert.assertEquals(0, children.size());
+  }
+
+  @Test
+  public void testEdgeObjectImport() throws InterruptedException
+  {
+    TestDataSet.executeRequestAsUser(FastTestDataset.USER_ADMIN, () -> {
+      InputStream istream = this.importService.generateEdgeJson(FastTestDataset.PROV_CENTRAL, FastTestDataset.PROV_WESTERN);
+
+      Assert.assertNotNull(istream);
+
+      EdgeObjectImportConfiguration config = this.importService.getTestConfiguration(GraphTypeDTO.DIRECTED_ACYCLIC_GRAPH_TYPE, type.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
+
+      ImportHistory hist = this.importService.importJsonFile(config.toJSON().toString());
+
+      try
+      {
+        SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
+
+        List<ImportHistoryView> histories = this.importService.getHistory(ObjectImporterFactory.ObjectImportType.EDGE_OBJECT.name(), type.getCode(), GraphTypeDTO.DIRECTED_ACYCLIC_GRAPH_TYPE);
+
+        Assert.assertEquals(1, histories.size());
+      }
+      finally
+      {
+        ImportHistory.get(hist.getOid()).delete();
+      }
+    });
   }
 
 }

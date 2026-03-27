@@ -117,7 +117,7 @@ export class EdgeImporterComponent implements OnInit {
             this.error(err);
         });
 
-        this.edgeService.get().then(edgeTypes => {
+        this.edgeService.getAll().then(edgeTypes => {
             this.graphTypes = edgeTypes;
         });
 

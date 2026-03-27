@@ -7,6 +7,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
@@ -39,6 +40,8 @@ import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.service.business.ETLBusinessService;
+import net.geoprism.registry.service.business.EdgeImportTestService;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.request.ETLService;
@@ -47,6 +50,7 @@ import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
+import net.geoprism.registry.view.ImportHistoryView;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
@@ -68,7 +72,10 @@ public class EdgeObjectImporterTest implements InstanceTestClassListener
   private GraphTypeBusinessServiceIF typeService;
 
   @Autowired
-  private ETLService                 etlService;
+  private EdgeImportTestService      etlService;
+
+  @Autowired
+  private ETLBusinessService         etlBusinessService;
 
   @Autowired
   private EdgeImportService          service;
@@ -126,19 +133,6 @@ public class EdgeObjectImporterTest implements InstanceTestClassListener
     }
   }
 
-  private ImportHistory importJsonFile(String sessionId, String config) throws InterruptedException
-  {
-    String retConfig = this.etlService.doImport(sessionId, config).toString();
-
-    EdgeObjectImportConfiguration configuration = (EdgeObjectImportConfiguration) ImportConfiguration.build(retConfig, true);
-
-    String historyId = configuration.getHistoryId();
-
-    Thread.sleep(100);
-
-    return ImportHistory.get(historyId);
-  }
-
   private void generateDistricts()
   {
     System.out.println("Applying " + IMPORT_COUNT + " districts");
@@ -179,11 +173,11 @@ public class EdgeObjectImporterTest implements InstanceTestClassListener
 
     Assert.assertNotNull(istream);
 
-    EdgeObjectImportConfiguration config = this.getTestConfiguration(istream, null, ImportStrategy.NEW_AND_UPDATE);
+    EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(EDGE_TYPE_CODE, EDGE_CODE, istream, ImportStrategy.NEW_AND_UPDATE);
 
     long start = System.nanoTime();
 
-    ImportHistory hist = importJsonFile(testData.clientRequest.getSessionId(), config.toJSON().toString());
+    ImportHistory hist = this.etlService.importJsonFile(config.toJSON().toString());
 
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
     System.out.println("Elapsed: " + ( System.nanoTime() - start ) / 1_000_000_000.0 + " s");
@@ -198,26 +192,10 @@ public class EdgeObjectImporterTest implements InstanceTestClassListener
     ServerGeoObjectIF parent = dist1.getGraphParents(this.typeService.getByCode(EDGE_TYPE_CODE, EDGE_CODE), false, TestDataSet.DEFAULT_OVER_TIME_DATE).getGeoObject();
     Assert.assertNotNull(parent);
     Assert.assertEquals("1", parent.getDisplayLabel(TestDataSet.DEFAULT_OVER_TIME_DATE).getValue());
+
+    List<ImportHistoryView> histories = this.etlBusinessService.getHistory(ObjectImporterFactory.ObjectImportType.EDGE_OBJECT.name(), EDGE_CODE, EDGE_TYPE_CODE);
+
+    Assert.assertEquals(1, histories.size());
   }
 
-  private EdgeObjectImportConfiguration getTestConfiguration(InputStream istream, AttributeTermType attributeTerm, ImportStrategy strategy)
-  {
-    ObjectNode result = service.getJsonImportConfiguration(testData.clientRequest.getSessionId(), EDGE_TYPE_CODE, EDGE_CODE, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, null, "test.json", istream, strategy);
-
-    result.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.JSON.name());
-    result.put(ImportConfiguration.OBJECT_TYPE, ObjectImportType.EDGE_OBJECT.name());
-
-    result.put(EdgeObjectImportConfiguration.EDGE_SOURCE, "source");
-    result.put(EdgeObjectImportConfiguration.EDGE_SOURCE_STRATEGY, ReferenceStrategy.CODE.name());
-    result.put(EdgeObjectImportConfiguration.EDGE_SOURCE_TYPE, "sourceType");
-    result.put(EdgeObjectImportConfiguration.EDGE_SOURCE_TYPE_STRATEGY, ReferenceStrategy.CODE.name());
-    result.put(EdgeObjectImportConfiguration.EDGE_TARGET, "target");
-    result.put(EdgeObjectImportConfiguration.EDGE_TARGET_STRATEGY, ReferenceStrategy.CODE.name());
-    result.put(EdgeObjectImportConfiguration.EDGE_TARGET_TYPE, "targetType");
-    result.put(EdgeObjectImportConfiguration.EDGE_TARGET_TYPE_STRATEGY, ReferenceStrategy.CODE.name());
-
-    EdgeObjectImportConfiguration configuration = (EdgeObjectImportConfiguration) ImportConfiguration.build(result.toString(), true);
-
-    return configuration;
-  }
 }

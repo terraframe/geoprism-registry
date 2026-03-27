@@ -36,6 +36,16 @@ export class Organization {
     enabled: boolean;
 }
 
+export class OrganizationGroup<T> {
+
+    oid: string;
+    code: string;
+    label: string;
+    types: T[];
+    write: boolean;
+
+}
+
 export class OrganizationNode {
 
     classification: Organization;

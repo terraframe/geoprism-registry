@@ -448,3 +448,10 @@ export class ExportScheduledJob extends AbstractScheduledJob {
     stepConfig?: StepConfig;
     fileName: string;
 }
+
+export class ImportHistory {
+    historyId: string;
+    filename: string;
+    importDate: string;
+}
+

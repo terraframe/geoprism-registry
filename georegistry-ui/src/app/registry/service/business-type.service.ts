@@ -22,10 +22,10 @@ import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { finalize } from "rxjs/operators";
 
 import { EventService } from "@shared/service";
-import { BusinessEdgeType, BusinessType, BusinessTypeByOrg } from "@registry/model/business-type";
+import { BusinessEdgeType, BusinessType } from "@registry/model/business-type";
 import { AttributeType } from "@registry/model/registry";
 import { GenericTableService } from "@shared/model/generic-table";
-import { PageResult } from "@shared/model/core";
+import { OrganizationGroup, PageResult } from "@shared/model/core";
 
 import { environment } from 'src/environments/environment';
 import { firstValueFrom } from "rxjs";
@@ -36,12 +36,12 @@ export class BusinessTypeService implements GenericTableService {
     // eslint-disable-next-line no-useless-constructor
     constructor(private http: HttpClient, private eventService: EventService) { }
 
-    getByOrganization(): Promise<BusinessTypeByOrg[]> {
+    getByOrganization(): Promise<OrganizationGroup<BusinessType>[]> {
         let params: HttpParams = new HttpParams();
 
         this.eventService.start();
 
-        return firstValueFrom(this.http.get<BusinessTypeByOrg[]>(environment.apiUrl + "/api/business-type/get-by-org", { params: params })
+        return firstValueFrom(this.http.get<OrganizationGroup<BusinessType>[]>(environment.apiUrl + "/api/business-type/get-by-org", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             })));

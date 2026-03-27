@@ -6,6 +6,7 @@ package net.geoprism.registry.hierarchy;
 import java.util.List;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.metadata.GraphTypeDTO;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -73,9 +74,9 @@ public class UndirectedGraphTypeTest
 
     try
     {
-      JsonObject object = new JsonObject();
-      object.add(UndirectedGraphType.JSON_LABEL, new LocalizedValue("Updated Label").toJSON());
-      object.add(UndirectedGraphType.DESCRIPTION, new LocalizedValue("Updated Description").toJSON());
+      GraphTypeDTO object = new GraphTypeDTO();
+      object.setLabel(new LocalizedValue("Updated Label"));
+      object.setDescription(new LocalizedValue("Updated Description"));
 
       this.service.update(type, object);
 

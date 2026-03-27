@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -26,6 +27,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.google.gson.JsonObject;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
+import com.runwaysdk.business.Business;
 import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.database.Database;
@@ -46,6 +48,7 @@ import net.geoprism.registry.etl.DataImportJob;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ImportStage;
 import net.geoprism.registry.etl.NullImportProgressListener;
+import net.geoprism.registry.etl.ObjectImporterFactory;
 import net.geoprism.registry.etl.ObjectImporterFactory.ObjectImportType;
 import net.geoprism.registry.etl.upload.BusinessObjectImportConfiguration;
 import net.geoprism.registry.etl.upload.BusinessObjectImporter;
@@ -62,11 +65,13 @@ import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.ETLBusinessService;
 import net.geoprism.registry.service.request.ExcelService;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.BusinessGeoEdgeTypeView;
+import net.geoprism.registry.view.ImportHistoryView;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
@@ -92,6 +97,9 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
 
   @Autowired
   private ExcelService                      excelService;
+
+  @Autowired
+  private ETLBusinessService                etlBusinessService;
 
   @Autowired
   private RegistryEventStore                store;
@@ -203,6 +211,36 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
         {
           this.deleteObject(result);
         }
+      }
+    });
+  }
+
+  @Test
+  public void testGetHistory()
+  {
+    TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
+
+      InputStream istream = this.getClass().getResourceAsStream("/business-spreadsheet.xlsx");
+
+      Assert.assertNotNull(istream);
+
+      JSONObject json = this.getTestConfiguration(istream, ImportStrategy.NEW_AND_UPDATE);
+
+      BusinessObjectImportConfiguration config = (BusinessObjectImportConfiguration) ImportConfiguration.build(json.toString(), true);
+
+      ImportHistory hist = mockImport(config);
+
+      try
+      {
+        Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
+
+        List<ImportHistoryView> histories = this.etlBusinessService.getHistory(ObjectImporterFactory.ObjectImportType.BUSINESS_OBJECT.name(), type.getCode(), null);
+
+        Assert.assertEquals(1, histories.size());
+      }
+      finally
+      {
+        Business.get(hist.getOid()).delete();
       }
     });
   }
@@ -410,13 +448,22 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
       Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
 
       hist = ImportHistory.get(hist.getOid());
-      Assert.assertEquals(Long.valueOf(2), hist.getWorkTotal());
-      Assert.assertEquals(Long.valueOf(2), hist.getWorkProgress());
-      Assert.assertEquals(Long.valueOf(2), hist.getImportedRecords());
-      Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-      assertAndDelete(this.bObjectService.get(type, attributeType.getName(), "0001"));
-      assertAndDelete(this.bObjectService.get(type, attributeType.getName(), "0002"));
+      try
+      {
+        Assert.assertEquals(Long.valueOf(2), hist.getWorkTotal());
+        Assert.assertEquals(Long.valueOf(2), hist.getWorkProgress());
+        Assert.assertEquals(Long.valueOf(2), hist.getImportedRecords());
+        Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+
+        assertAndDelete(this.bObjectService.get(type, attributeType.getName(), "0001"));
+        assertAndDelete(this.bObjectService.get(type, attributeType.getName(), "0002"));
+      }
+      finally
+      {
+        Business.get(hist.getOid()).delete();
+      }
+
     });
   }
 

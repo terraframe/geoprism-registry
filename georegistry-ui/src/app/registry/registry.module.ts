@@ -182,6 +182,10 @@ import { JenaExportSynchronizationConfigComponent } from "./component/synchroniz
 import { PublishManagerComponent } from "./component/publish-events/publish-manager.component";
 import { PublishEventsModalComponent } from "./component/publish-events/publish-events-modal.component";
 import { PublishEventsComponent } from "./component/publish-events/publish-events.component";
+import { ManageGraphTypeModalComponent } from "./component/graph-type/modals/manage-graph-type-modal.component";
+import { CreateGraphTypeModalComponent } from "./component/graph-type/modals/create-graph-type-modal.component";
+import { GraphTypeManagerComponent } from "./component/graph-type/graph-type-manager.component";
+import { ImportHistoryModalComponent } from "./component/import-history/modals/import-history-modal.component";
 
 @NgModule({
     imports: [
@@ -329,7 +333,12 @@ import { PublishEventsComponent } from "./component/publish-events/publish-event
         // Publish
         PublishManagerComponent,
         PublishEventsModalComponent,
-        PublishEventsComponent
+        PublishEventsComponent,
+        // Graph Type
+        GraphTypeManagerComponent,
+        CreateGraphTypeModalComponent,
+        ManageGraphTypeModalComponent,
+        ImportHistoryModalComponent
     ],
     providers: [
         MapService,
@@ -358,47 +367,7 @@ import { PublishEventsComponent } from "./component/publish-events/publish-event
         VotService,
         SourceService,
         PublishService
-    ],
-    // entryComponents: [
-    //     ExportTypesModalComponent,
-    //     AddChildToHierarchyModalComponent,
-    //     CreateGeoObjTypeModalComponent,
-    //     ManageAttributesModalComponent,
-    //     DefineAttributeModalContentComponent,
-    //     EditAttributeModalContentComponent,
-    //     CreateHierarchyTypeModalComponent,
-    //     TermOptionWidgetComponent,
-    //     AttributeInputComponent,
-    //     EditTermOptionInputComponent,
-    //     ManageGeoObjectTypeModalComponent,
-    //     GeoObjectTypeInputComponent,
-    //     ManageTermOptionsComponent,
-    //     GeoObjectSharedAttributeEditorComponent,
-    //     SubmitChangeRequestComponent,
-    //     GeoObjectEditorComponent,
-    //     ExportFormatModalComponent,
-    //     DataPageComponent,
-    //     ChangeRequestPageComponent,
-    //     JobConflictModalComponent,
-    //     ReuploadModalComponent,
-    //     StepIndicatorComponent,
-    //     SynchronizationConfigModalComponent,
-    //     CreateBusinessTypeModalComponent,
-    //     ManageBusinessTypeModalComponent,
-    //     TransitionEventModalComponent,
-    //     ListTypePublishModalComponent,
-    //     PublishVersionComponent,
-    //     SelectTypeModalComponent,
-    //     CurationProblemModalComponent,
-    //     ClassificationTypePublishModalComponent,
-    //     ClassificationPublishModalComponent,
-    //     ClassificationFieldModalComponent,
-    //     ListModalComponent,
-    //     RecordPopupComponent,
-    //     LabeledPropertyGraphTypePublishModalComponent,
-    //     ConfigurationModalComponent,
-    //     ManageSourceModalComponent
-    // ]
+    ]
 })
 export class RegistryModule { }
 

@@ -4,25 +4,29 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service.business;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -37,7 +41,11 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
+import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.dataaccess.database.Database;
+import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.Condition;
 import com.runwaysdk.query.OIterator;
@@ -55,12 +63,14 @@ import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.etl.DataImportJob;
 import net.geoprism.registry.etl.ImportStage;
+import net.geoprism.registry.etl.ObjectImporterFactory;
 import net.geoprism.registry.etl.export.DataExportJob;
 import net.geoprism.registry.etl.export.ExportError;
 import net.geoprism.registry.etl.export.ExportErrorQuery;
 import net.geoprism.registry.etl.export.ExportHistory;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.jobs.GPRJobHistory;
 import net.geoprism.registry.jobs.ImportError;
 import net.geoprism.registry.jobs.ImportError.ErrorResolution;
 import net.geoprism.registry.jobs.ImportErrorQuery;
@@ -74,6 +84,7 @@ import net.geoprism.registry.jobs.ValidationProblemQuery;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.permission.RolePermissionService;
+import net.geoprism.registry.view.ImportHistoryView;
 import net.geoprism.registry.view.JsonWrapper;
 import net.geoprism.registry.view.Page;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
@@ -695,6 +706,70 @@ public class ETLBusinessService
     {
       file.delete();
     }
+  }
+
+  public List<ImportHistoryView> getHistory(String objectType, String typeCode, String graphTypeClass)
+  {
+    LinkedList<ImportHistoryView> histories = new LinkedList<>();
+
+    MdBusinessDAOIF mdClass = MdBusinessDAO.getMdBusinessDAO(GPRJobHistory.CLASS);
+    MdBusinessDAOIF jobHistory = MdBusinessDAO.getMdBusinessDAO(JobHistory.CLASS);
+    Map<String, ? extends MdAttributeConcreteDAOIF> mdAttributes = mdClass.getAllDefinedMdAttributeMap();
+
+    MdAttributeConcreteDAOIF attribute = mdAttributes.get(GPRJobHistory.CONFIGJSON.toLowerCase());
+    MdAttributeConcreteDAOIF sort = mdAttributes.get(GPRJobHistory.CREATEDATE.toLowerCase());
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT " + GPRJobHistory.OID + ", " + sort.getColumnName() + ", " + attribute.getColumnName() + "->>'fileName' AS filename");
+    statement.append(" FROM " + mdClass.getTableName());
+    statement.append(" NATURAL JOIN " + jobHistory.getTableName());
+
+    if (objectType.equals(ObjectImporterFactory.ObjectImportType.GEO_OBJECT.name()))
+    {
+      statement.append(" WHERE " + attribute.getColumnName() + "->>'objectType' = '" + ObjectImporterFactory.ObjectImportType.GEO_OBJECT.name() + "'");
+      statement.append(" AND " + attribute.getColumnName() + "->'type'->>'code' = '" + typeCode + "'");
+    }
+    else if (objectType.equals(ObjectImporterFactory.ObjectImportType.BUSINESS_OBJECT.name()))
+    {
+      statement.append(" WHERE " + attribute.getColumnName() + "->>'objectType' = '" + ObjectImporterFactory.ObjectImportType.BUSINESS_OBJECT.name() + "'");
+      statement.append(" AND " + attribute.getColumnName() + "->'type'->>'code' = '" + typeCode + "'");
+    }
+    else if (objectType.equals(ObjectImporterFactory.ObjectImportType.EDGE_OBJECT.name()))
+    {
+      statement.append(" WHERE " + attribute.getColumnName() + "->>'objectType' = '" + ObjectImporterFactory.ObjectImportType.EDGE_OBJECT.name() + "'");
+      statement.append(" AND " + attribute.getColumnName() + "->>'graphTypeClass' = '" + graphTypeClass + "'");
+      statement.append(" AND " + attribute.getColumnName() + "->>'graphTypeCode' = '" + typeCode + "'");
+    }
+    else
+    {
+      throw new UnsupportedOperationException("Object type is unsupported [" + objectType + "]");
+    }
+
+    statement.append(" ORDER BY " + sort.getColumnName() + " DESC");
+
+    try (ResultSet resultSet = Database.query(statement.toString()))
+    {
+      while (resultSet.next())
+      {
+        java.sql.Date date = resultSet.getDate(sort.getColumnName());
+
+        String oid = resultSet.getString(GPRJobHistory.OID);
+        Date createDate = new Date(date.getTime());
+        String filename = resultSet.getString("filename");
+
+        ImportHistoryView history = new ImportHistoryView(oid);
+        history.setFilename(filename);
+        history.setImportDate(createDate);
+
+        histories.add(history);
+      }
+    }
+    catch (SQLException e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
+
+    return histories;
   }
 
 }

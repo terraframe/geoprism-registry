@@ -23,7 +23,7 @@ Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>. -->
   <parent>
     <groupId>net.geoprism</groupId>
     <artifactId>georegistry</artifactId>
-    <version>1.6.3-SNAPSHOT</version>
+    <version>1.6.5-SNAPSHOT</version>
   </parent>
   <artifactId>georegistry-test</artifactId>
   <packaging>war</packaging>

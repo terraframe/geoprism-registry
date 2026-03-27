@@ -37,7 +37,7 @@
       <mdBusiness name="net.geoprism.registry.etl.ImportHistory" extends="com.runwaysdk.system.scheduler.JobHistory" exported="false">
         <attributes>
           <enumeration name="stage" label="stage" selectMultiple="false" required="true" type="net.geoprism.registry.etl.ImportStage"/>
-          <text name="configJson" label="configJson" description="A JSON object which configures the import." />
+          <json name="configJson" label="configJson" description="A JSON object which configures the import." />
           <text name="validationProblems" label="validationProblems" description="A JSON array which contains a set of serialized validation problems." />
           <long name="importedRecords" label="Imported Records" rejectNegative="true" />
           <reference name="importFile" type="com.runwaysdk.system.VaultFile" label="Import File"/>

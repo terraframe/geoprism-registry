@@ -20,10 +20,6 @@ package net.geoprism.registry.controller;
 
 import java.util.Date;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-
-import jakarta.validation.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,17 +27,21 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonObject;
 
-import net.geoprism.registry.RegistryConstants;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import net.geoprism.registry.service.request.UndirectedGraphService;
 import net.geoprism.registry.spring.NullableDateDeserializer;
 
 @RestController
+@RequestMapping("api/undirected")
 @Validated
 public class UndirectedGraphController extends RunwaySpringController
 {
@@ -153,12 +153,10 @@ public class UndirectedGraphController extends RunwaySpringController
     }
   }
 
-  public static final String     API_PATH = RegistryConstants.CONTROLLER_ROOT + "undirected";
-
   @Autowired
   private UndirectedGraphService service;
 
-  @GetMapping(API_PATH + "/get-related-geo-objects")
+  @GetMapping("/get-related-geo-objects")
   public ResponseEntity<String> getChildren( //
       @NotEmpty @RequestParam(name = "sourceCode") String sourceCode, //
       @NotEmpty @RequestParam(name = "sourceTypeCode") String sourceTypeCode, //
@@ -171,7 +169,7 @@ public class UndirectedGraphController extends RunwaySpringController
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @PostMapping(API_PATH + "/add-target")
+  @PostMapping("/add-target")
   public ResponseEntity<String> addChild(@Valid @RequestBody GraphRequestBody body)
   {
     JsonObject response = this.service.addChild(this.getSessionId(), body.sourceCode, body.sourceTypeCode, body.targetCode, body.targetTypeCode, body.undirectedRelationshipCode, body.startDate, body.endDate, body.dataSource);
@@ -179,7 +177,7 @@ public class UndirectedGraphController extends RunwaySpringController
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @PostMapping(API_PATH + "/remove-target")
+  @PostMapping("/remove-target")
   public ResponseEntity<Void> removeChild(@Valid @RequestBody GraphRequestBody body)
   {
     this.service.removeChild(this.getSessionId(), body.sourceCode, body.sourceTypeCode, body.targetCode, body.targetTypeCode, body.undirectedRelationshipCode, body.startDate, body.endDate);

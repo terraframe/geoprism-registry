@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry.jobs;
 
-@com.runwaysdk.business.ClassSignature(hash = 973272763)
+@com.runwaysdk.business.ClassSignature(hash = -1730414944)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -35,7 +17,7 @@ public abstract class GPRJobHistoryBase extends com.runwaysdk.system.scheduler.J
   public final static java.lang.String ORGANIZATION = "organization";
   public final static java.lang.String STAGE = "stage";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = 973272763;
+  private static final long serialVersionUID = -1730414944;
   
   public GPRJobHistoryBase()
   {
@@ -80,10 +62,10 @@ public abstract class GPRJobHistoryBase extends com.runwaysdk.system.scheduler.J
     this.validateAttribute(CONFIGJSON);
   }
   
-  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getConfigJsonMd()
+  public static com.runwaysdk.dataaccess.MdAttributeJsonDAOIF getConfigJsonMd()
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.jobs.GPRJobHistory.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(CONFIGJSON);
+    return (com.runwaysdk.dataaccess.MdAttributeJsonDAOIF)mdClassIF.definesAttribute(CONFIGJSON);
   }
   
   public void setConfigJson(String value)

@@ -44,16 +44,6 @@ export class BusinessEdgeType {
     childType: string;
 }
 
-export class BusinessTypeByOrg {
-
-    oid: string;
-    code: string;
-    label: string;
-    types: BusinessType[];
-    write: boolean;
-
-}
-
 export class BusinessObject {
 
     code: string;

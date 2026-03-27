@@ -47,6 +47,7 @@ import { SourceManagerComponent } from "./component/source/source-manager.compon
 import { RDFExportComponent } from "./component/data-export/rdf-export.component";
 import { EdgeImporterComponent } from "./component/edge-importer/edge-importer.component";
 import { PublishManagerComponent } from "./component/publish-events/publish-manager.component";
+import { GraphTypeManagerComponent } from "./component/graph-type/graph-type-manager.component";
 
 const routes: Routes = [
     {
@@ -173,8 +174,12 @@ const routes: Routes = [
         path: "publish",
         component: PublishManagerComponent,
         canActivate: [AuthGuard]
-    }
-
+    },
+    {
+        path: "graph-type/:typeCode",
+        component: GraphTypeManagerComponent,
+        canActivate: [AuthGuard]
+    },
 ];
 
 @NgModule({

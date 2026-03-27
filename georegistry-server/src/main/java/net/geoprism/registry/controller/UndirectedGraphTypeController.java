@@ -18,10 +18,9 @@
  */
 package net.geoprism.registry.controller;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
+import java.util.List;
 
-import jakarta.validation.constraints.NotEmpty;
+import org.commongeoregistry.adapter.metadata.GraphTypeDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,18 +28,17 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-
-import net.geoprism.registry.RegistryConstants;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import net.geoprism.registry.service.request.UndirectedGraphTypeService;
-import net.geoprism.registry.spring.JsonObjectDeserializer;
+import net.geoprism.registry.view.ImportHistoryView;
 
 @RestController
+@RequestMapping("api/undirected-graph-type")
 @Validated
 public class UndirectedGraphTypeController extends RunwaySpringController
 {
@@ -60,53 +58,26 @@ public class UndirectedGraphTypeController extends RunwaySpringController
     }
   }
 
-  public static final class TypeBody
-  {
-    @NotNull
-    @JsonDeserialize(using = JsonObjectDeserializer.class)
-    private JsonObject type;
-
-    public JsonObject getType()
-    {
-      return type;
-    }
-
-    public void setType(JsonObject type)
-    {
-      this.type = type;
-    }
-  }
-
-  public static final String         API_PATH = RegistryConstants.CONTROLLER_ROOT + "undirected-graph-type";
-
   @Autowired
   private UndirectedGraphTypeService service;
 
-  @GetMapping(API_PATH + "/get-all")
-  public ResponseEntity<String> getAll()
+  @GetMapping("/get-all")
+  public ResponseEntity<List<GraphTypeDTO>> getAll()
   {
-    JsonArray response = this.service.getAll(this.getSessionId());
+    List<GraphTypeDTO> response = this.service.getAll(this.getSessionId());
 
-    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+    return ResponseEntity.ok(response);
   }
 
-  @PostMapping(API_PATH + "/create")
-  public ResponseEntity<String> create(@RequestBody TypeBody body)
+  @PostMapping("/apply")
+  public ResponseEntity<GraphTypeDTO> apply(@RequestBody GraphTypeDTO type)
   {
-    JsonObject response = this.service.create(this.getSessionId(), body.type);
+    GraphTypeDTO response = this.service.apply(this.getSessionId(), type);
 
-    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+    return ResponseEntity.ok(response);
   }
 
-  @PostMapping(API_PATH + "/update")
-  public ResponseEntity<String> update(@RequestBody TypeBody body)
-  {
-    JsonObject response = this.service.update(this.getSessionId(), body.type);
-
-    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
-  }
-
-  @PostMapping(API_PATH + "/remove")
+  @PostMapping("/remove")
   public ResponseEntity<Void> remove(@Valid @RequestBody CodeBody body)
   {
     this.service.remove(this.getSessionId(), body.code);
@@ -114,11 +85,19 @@ public class UndirectedGraphTypeController extends RunwaySpringController
     return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
   }
 
-  @GetMapping(API_PATH + "/get")
-  public ResponseEntity<String> get(@NotEmpty @RequestParam(name = "code") String code)
+  @GetMapping("/get")
+  public ResponseEntity<GraphTypeDTO> get(@NotEmpty @RequestParam(name = "code") String code)
   {
-    JsonObject response = this.service.get(this.getSessionId(), code);
+    GraphTypeDTO response = this.service.get(this.getSessionId(), code);
 
-    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/get-import-history")
+  public ResponseEntity<List<ImportHistoryView>> getImportHistory(@NotEmpty @RequestParam(name = "code") String code)
+  {
+    List<ImportHistoryView> response = this.service.getHistory(this.getSessionId(), code);
+
+    return ResponseEntity.ok(response);
   }
 }

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.dhis2;
 
@@ -30,6 +30,7 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.resource.CloseableFile;
 
 import net.geoprism.configuration.GeoprismProperties;
@@ -96,12 +97,16 @@ public class DHIS2PluginZipManager
       {
         GeoRegistryUtil.zipDirectory(directory, pluginZip);
       }
+      catch (IOException e)
+      {
+        throw new ProgrammingErrorException(e);
+      }
 
       return pluginZip;
     }
   }
 
-  private CloseableFile extractAndReplace()
+  private CloseableFile extractAndReplace() throws IOException
   {
     // create a buffer to improve copy performance later.
     byte[] buffer = new byte[2048];

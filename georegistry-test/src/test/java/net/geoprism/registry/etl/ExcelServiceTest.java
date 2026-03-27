@@ -91,6 +91,7 @@ import net.geoprism.registry.query.ServerCodeRestriction;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
 import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.ETLBusinessService;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
@@ -100,6 +101,7 @@ import net.geoprism.registry.service.request.ExcelService;
 import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
+import net.geoprism.registry.view.ImportHistoryView;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
@@ -136,6 +138,9 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
   @Autowired
   private ETLService                          etlService;
+
+  @Autowired
+  private ETLBusinessService                  etlBusinessService;
 
   @Autowired
   private ClassificationTypeBusinessServiceIF cTypeService;
@@ -387,6 +392,29 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
     Assert.assertNotNull(object);
     Assert.assertEquals(Long.valueOf(123), object.getValue(testInteger.getName()));
+  }
+
+  @Test
+  @Request
+  public void testGetHistory() throws Throwable
+  {
+    InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
+
+    Assert.assertNotNull(istream);
+
+    JSONObject json = this.getTestConfiguration(istream, null, ImportStrategy.NEW_AND_UPDATE);
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
+
+    GeoObjectImportConfiguration config = (GeoObjectImportConfiguration) ImportConfiguration.build(json.toString(), true);
+    config.setFunction(testInteger.getName(), new BasicColumnFunction("Test Integer"));
+    config.setHierarchy(hierarchyType);
+
+    ImportHistory hist = mockImport(config);
+    Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
+
+    List<ImportHistoryView> histories = this.etlBusinessService.getHistory(ObjectImporterFactory.ObjectImportType.GEO_OBJECT.name(), USATestData.DISTRICT.getCode(), null);
+
+    Assert.assertEquals(1, histories.size());
   }
 
   @Test

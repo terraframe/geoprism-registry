@@ -20,18 +20,20 @@ package net.geoprism.registry.service.request;
 
 import java.util.List;
 
+import org.commongeoregistry.adapter.metadata.GraphTypeDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
-import com.runwaysdk.session.Session;
 
-import net.geoprism.registry.JsonCollectors;
+import net.geoprism.registry.DataNotFoundException;
+import net.geoprism.registry.DirectedAcyclicGraphType;
 import net.geoprism.registry.UndirectedGraphType;
+import net.geoprism.registry.etl.ObjectImporterFactory;
+import net.geoprism.registry.service.business.ETLBusinessService;
 import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
+import net.geoprism.registry.view.ImportHistoryView;
 
 @Service
 public class UndirectedGraphTypeService
@@ -39,50 +41,63 @@ public class UndirectedGraphTypeService
   @Autowired
   private UndirectedGraphTypeBusinessServiceIF service;
 
+  @Autowired
+  private ETLBusinessService                   etlBusinessService;
+
   @Request(RequestType.SESSION)
-  public JsonArray getAll(String sessionId)
+  public List<GraphTypeDTO> getAll(String sessionId)
   {
     List<UndirectedGraphType> types = this.service.getAll();
 
-    return types.stream().map(child -> child.toJSON()).collect(JsonCollectors.toJsonArray());
+    return types.stream().map(child -> child.toDTO()).toList();
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject create(String sessionId, JsonObject object)
+  public GraphTypeDTO apply(String sessionId, GraphTypeDTO object)
   {
-    UndirectedGraphType type = this.service.create(object);
+    String code = object.getCode();
 
-    // Refresh the users session
-    ( (Session) Session.getCurrentSession() ).reloadPermissions();
+    return service.getByCode(code).map(type -> {
 
-    return type.toJSON();
+      this.service.update(type, object);
+
+      return type.toDTO();
+
+    }).orElseGet(() -> {
+
+      UndirectedGraphType type = this.service.create(object);
+
+      return type.toDTO();
+    });
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject update(String sessionId, JsonObject object)
+  public GraphTypeDTO get(String sessionId, String code)
   {
-    String code = object.get(UndirectedGraphType.CODE).getAsString();
+    UndirectedGraphType type = service.getByCode(code).orElseThrow(() -> {
+      DataNotFoundException ex = new DataNotFoundException();
+      ex.setTypeLabel("DAG");
+      ex.setAttributeLabel(DirectedAcyclicGraphType.CODE);
+      ex.setDataIdentifier(code);
 
-    UndirectedGraphType type = this.service.getByCode(code).get();
+      return ex;
+    });
 
-    this.service.update(type, object);
-
-    return type.toJSON();
-  }
-
-  @Request(RequestType.SESSION)
-  public JsonObject get(String sessionId, String code)
-  {
-    UndirectedGraphType type = this.service.getByCode(code).get();
-
-    return type.toJSON();
+    return type.toDTO();
   }
 
   @Request(RequestType.SESSION)
   public void remove(String sessionId, String code)
   {
-    UndirectedGraphType type = this.service.getByCode(code).get();
-
-    this.service.delete(type);
+    service.getByCode(code).ifPresent(type -> {
+      this.service.delete(type);
+    });
   }
+
+  @Request(RequestType.SESSION)
+  public List<ImportHistoryView> getHistory(String sessionId, String code)
+  {
+    return this.etlBusinessService.getHistory(ObjectImporterFactory.ObjectImportType.EDGE_OBJECT.name(), code, GraphTypeDTO.UNDIRECTED_GRAPH_TYPE);
+  }
+
 }
