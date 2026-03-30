@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
+import org.commongeoregistry.adapter.metadata.GraphTypeDTO;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -708,7 +709,7 @@ public class ETLBusinessService
     }
   }
 
-  public List<ImportHistoryView> getHistory(String objectType, String typeCode, String graphTypeClass)
+  public List<ImportHistoryView> getHistory(String classType, String typeCode)
   {
     LinkedList<ImportHistoryView> histories = new LinkedList<>();
 
@@ -724,25 +725,27 @@ public class ETLBusinessService
     statement.append(" FROM " + mdClass.getTableName());
     statement.append(" NATURAL JOIN " + jobHistory.getTableName());
 
-    if (objectType.equals(ObjectImporterFactory.ObjectImportType.GEO_OBJECT.name()))
+    if (classType.equals(ObjectImporterFactory.ObjectImportType.GEO_OBJECT.name()))
     {
       statement.append(" WHERE " + attribute.getColumnName() + "->>'objectType' = '" + ObjectImporterFactory.ObjectImportType.GEO_OBJECT.name() + "'");
       statement.append(" AND " + attribute.getColumnName() + "->'type'->>'code' = '" + typeCode + "'");
     }
-    else if (objectType.equals(ObjectImporterFactory.ObjectImportType.BUSINESS_OBJECT.name()))
+    else if (classType.equals(ObjectImporterFactory.ObjectImportType.BUSINESS_OBJECT.name()))
     {
       statement.append(" WHERE " + attribute.getColumnName() + "->>'objectType' = '" + ObjectImporterFactory.ObjectImportType.BUSINESS_OBJECT.name() + "'");
       statement.append(" AND " + attribute.getColumnName() + "->'type'->>'code' = '" + typeCode + "'");
     }
-    else if (objectType.equals(ObjectImporterFactory.ObjectImportType.EDGE_OBJECT.name()))
+    else if (classType.equals(GraphTypeDTO.DIRECTED_ACYCLIC_GRAPH_TYPE) //
+        || classType.equals(GraphTypeDTO.UNDIRECTED_GRAPH_TYPE) //
+        || classType.equals(GraphTypeDTO.HIERARCHY_TYPE))
     {
       statement.append(" WHERE " + attribute.getColumnName() + "->>'objectType' = '" + ObjectImporterFactory.ObjectImportType.EDGE_OBJECT.name() + "'");
-      statement.append(" AND " + attribute.getColumnName() + "->>'graphTypeClass' = '" + graphTypeClass + "'");
+      statement.append(" AND " + attribute.getColumnName() + "->>'graphTypeClass' = '" + classType + "'");
       statement.append(" AND " + attribute.getColumnName() + "->>'graphTypeCode' = '" + typeCode + "'");
     }
     else
     {
-      throw new UnsupportedOperationException("Object type is unsupported [" + objectType + "]");
+      throw new UnsupportedOperationException("Object type is unsupported [" + classType + "]");
     }
 
     statement.append(" ORDER BY " + sort.getColumnName() + " DESC");

@@ -24,7 +24,8 @@ import { finalize } from "rxjs/operators";
 
 import {
     GeoObject, GeoObjectType, AttributeType, Term, ParentTreeNode,
-    ChildTreeNode, GeoObjectOverTime, HierarchyOverTime, ScheduledJob, GraphType
+    ChildTreeNode, GeoObjectOverTime, HierarchyOverTime, ScheduledJob, GraphType,
+    ImportHistory
 } from "@registry/model/registry";
 
 import { HierarchyType } from "@registry/model/hierarchy";
@@ -681,6 +682,20 @@ export class RegistryService implements AttributeTypeService {
                 this.eventService.complete();
             }))
             .toPromise();
+    }
+
+
+    getImportHistory(classType: string, typeCode: string): Promise<ImportHistory[]> {
+        let params: HttpParams = new HttpParams();
+        params = params.append("classType", classType);
+        params = params.append("typeCode", typeCode);
+
+        this.eventService.start();
+
+        return firstValueFrom(this.http.get<ImportHistory[]>(environment.apiUrl + "/api/etl/get-import-history", { params: params })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            })))
     }
 
 }

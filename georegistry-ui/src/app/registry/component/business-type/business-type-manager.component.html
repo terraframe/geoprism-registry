@@ -69,6 +69,9 @@
                                 </a>
                             </td>
                             <td style="width: 30%; text-align: right;">
+                                <button type="submit" (click)="onImportHistory(type)" class="btn btn-success" role="button">
+                                    <localize key="modal.button.import.history"></localize>
+                                </button>        
                                 <button type="submit" (click)="onView(type)" class="btn btn-primary" role="button">
                                     <localize key="modal.button.view"></localize>
                                 </button>

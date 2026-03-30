@@ -109,17 +109,4 @@ export class GraphTypeService {
                 this.eventService.complete();
             })));
     }
-
-    getImportHistory(typeCode: string, code: string): Promise<ImportHistory[]> {
-        let params: HttpParams = new HttpParams();
-        params = params.append("code", code);
-
-        this.eventService.start();
-
-        return firstValueFrom(this.http.get<ImportHistory[]>(environment.apiUrl + this.controller(typeCode) + "/get-import-history", { params: params })
-            .pipe(finalize(() => {
-                this.eventService.complete();
-            })))
-    }
-
 }

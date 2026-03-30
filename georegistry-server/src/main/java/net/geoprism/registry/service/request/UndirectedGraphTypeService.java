@@ -97,7 +97,7 @@ public class UndirectedGraphTypeService
   @Request(RequestType.SESSION)
   public List<ImportHistoryView> getHistory(String sessionId, String code)
   {
-    return this.etlBusinessService.getHistory(ObjectImporterFactory.ObjectImportType.EDGE_OBJECT.name(), code, GraphTypeDTO.UNDIRECTED_GRAPH_TYPE);
+    return this.etlBusinessService.getHistory(ObjectImporterFactory.ObjectImportType.EDGE_OBJECT.name(), code);
   }
 
 }

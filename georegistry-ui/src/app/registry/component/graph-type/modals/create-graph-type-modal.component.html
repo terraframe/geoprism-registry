@@ -25,7 +25,8 @@
 
     <div class="heading text-center">
       <h1>
-        <localize key="graph.data.type"></localize>
+        <localize *ngIf="typeCode != null && typeCode === 'DirectedAcyclicGraphType'" key="dag.data.type"></localize>
+        <localize *ngIf="typeCode != null && typeCode !== 'DirectedAcyclicGraphType'" key="undirected.data.type"></localize>
       </h1>
     </div> 
 

@@ -93,14 +93,14 @@ export class HubService {
                     description: "nav.directed.graph.type.description",
                     link: '/registry/graph-type/DirectedAcyclicGraphType',
                     icon: 'fa-solid fa-chart-gantt',
-                    key: 'header.directed.graph.type'
+                    key: 'header.dag.type'
                 },
                 {
                     id: 'UG-TYPES',
                     description: "nav.undirected.graph.type.description",
                     link: '/registry/graph-type/UndirectedGraphType',
-                    icon: 'fa-solid fa-hexagon-nodes',
-                    key: 'header.undirected.graph.type'
+                    icon: 'fa-solid fa-chart-diagram',
+                    key: 'header.undirected.type'
                 }
 
             ]

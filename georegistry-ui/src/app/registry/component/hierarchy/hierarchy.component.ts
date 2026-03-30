@@ -45,6 +45,7 @@ import { ImportTypesModalComponent } from "./modals/import-types-modal.component
 import Utils from "@registry/utility/Utils";
 import { ExportTypesModalComponent } from "./modals/export-types-modal.component";
 import { environment } from "src/environments/environment";
+import { ImportHistoryModalComponent } from "../import-history/modals/import-history-modal.component";
 
 export const TREE_SCALE_FACTOR_X: number = 1.8;
 export const TREE_SCALE_FACTOR_Y: number = 1.8;
@@ -1379,6 +1380,33 @@ export class HierarchyComponent implements OnInit {
             }
         });
     }
+
+    onImportHistory(type: GeoObjectType): void {
+        this.registryService.getImportHistory('GEO_OBJECT', type.code).then(histories => {
+            this.bsModalRef = this.modalService.show(ImportHistoryModalComponent, {
+                animated: true,
+                backdrop: true,
+                ignoreBackdropClick: true
+            });
+            this.bsModalRef.content.init(type.label, histories);
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
+    }
+
+    onEdgeImportHistory(type: HierarchyType): void {
+        this.registryService.getImportHistory('HierarchyType', type.code).then(histories => {
+            this.bsModalRef = this.modalService.show(ImportHistoryModalComponent, {
+                animated: true,
+                backdrop: true,
+                ignoreBackdropClick: true
+            });
+            this.bsModalRef.content.init(type.label, histories);
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
+    }
+
 
     public error(err: HttpErrorResponse): void {
         this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);

@@ -20,7 +20,9 @@ package net.geoprism.registry.service.request;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
+import org.commongeoregistry.adapter.metadata.GraphTypeDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,9 +35,11 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
 import net.geoprism.registry.etl.EdgeJsonImporter;
+import net.geoprism.registry.etl.ObjectImporterFactory;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.ETLBusinessService;
+import net.geoprism.registry.view.ImportHistoryView;
 
 @Service
 public class ETLService
@@ -140,6 +144,12 @@ public class ETLService
     {
       throw new ProgrammingErrorException(e);
     }
+  }
+
+  @Request(RequestType.SESSION)
+  public List<ImportHistoryView> getHistory(String sessionId, String classType, String typeCode)
+  {
+    return this.service.getHistory(classType, typeCode);
   }
 
 }

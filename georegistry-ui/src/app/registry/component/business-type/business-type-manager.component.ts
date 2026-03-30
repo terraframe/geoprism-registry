@@ -29,6 +29,8 @@ import { BusinessType } from "@registry/model/business-type";
 import { CreateBusinessTypeModalComponent } from "./modals/create-business-type-modal.component";
 import { ManageBusinessTypeModalComponent } from "./modals/manage-business-type-modal.component";
 import { OrganizationGroup } from "@shared/model/core";
+import { ImportHistoryModalComponent } from "../import-history/modals/import-history-modal.component";
+import { RegistryService } from "@registry/service";
 
 @Component({
     selector: "business-type-manager",
@@ -46,7 +48,11 @@ export class BusinessTypeManagerComponent implements OnInit {
     bsModalRef: BsModalRef;
 
     // eslint-disable-next-line no-useless-constructor
-    constructor(public service: BusinessTypeService, private modalService: BsModalService, private router: Router, private localizeService: LocalizationService) { }
+    constructor(
+        public service: BusinessTypeService,
+        private registryService: RegistryService,
+        private modalService: BsModalService,
+        private localizeService: LocalizationService) { }
 
     ngOnInit(): void {
         this.service.getByOrganization().then(orgs => {
@@ -123,6 +129,20 @@ export class BusinessTypeManagerComponent implements OnInit {
             });
         });
     }
+
+    onImportHistory(type: BusinessType): void {
+        this.registryService.getImportHistory('BUSINESS_OBJECT', type.code).then(histories => {
+            this.bsModalRef = this.modalService.show(ImportHistoryModalComponent, {
+                animated: true,
+                backdrop: true,
+                ignoreBackdropClick: true
+            });
+            this.bsModalRef.content.init(type.displayLabel, histories);
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
+    }
+
 
     error(err: HttpErrorResponse): void {
         this.message = ErrorHandler.getMessageFromError(err);

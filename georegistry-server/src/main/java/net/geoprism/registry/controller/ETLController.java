@@ -22,11 +22,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.List;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-
-import jakarta.validation.constraints.NotEmpty;
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,6 +33,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -45,17 +43,19 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.resource.StreamResource;
 import com.runwaysdk.system.scheduler.JobHistory;
 
-import net.geoprism.registry.RegistryConstants;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import net.geoprism.registry.service.request.ETLService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
 import net.geoprism.registry.spring.NullableDateDeserializer;
+import net.geoprism.registry.view.ImportHistoryView;
 
 @RestController
+@RequestMapping("api/etl")
 @Validated
 public class ETLController extends RunwaySpringController
 {
-  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "etl";
-
   public static class HistoryIdBody
   {
     @NotEmpty
@@ -143,7 +143,7 @@ public class ETLController extends RunwaySpringController
   @Autowired
   protected ETLService service;
 
-  @PostMapping(API_PATH + "/reimport")
+  @PostMapping("/reimport")
   public ResponseEntity<String> doReImport(@Valid @ModelAttribute ReImportConfigBody body)
   {
     JsonObject config = this.service.reImport(this.getSessionId(), body.file, body.config);
@@ -151,7 +151,7 @@ public class ETLController extends RunwaySpringController
     return new ResponseEntity<String>(config.toString(), HttpStatus.OK);
   }
 
-  @PostMapping(API_PATH + "/import")
+  @PostMapping("/import")
   public ResponseEntity<String> doImport(@Valid @RequestBody ConfigBody body)
   {
     JsonObject config = this.service.doImport(this.getSessionId(), body.config.toString());
@@ -159,7 +159,7 @@ public class ETLController extends RunwaySpringController
     return new ResponseEntity<String>(config.toString(), HttpStatus.OK);
   }
 
-  @PostMapping(API_PATH + "/validation-resolve")
+  @PostMapping("/validation-resolve")
   public ResponseEntity<Void> submitValidationProblemResolution(@Valid @RequestBody ConfigBody body)
   {
     this.service.submitValidationProblemResolution(this.getSessionId(), body.config.toString());
@@ -167,7 +167,7 @@ public class ETLController extends RunwaySpringController
     return new ResponseEntity<Void>(HttpStatus.OK);
   }
 
-  @PostMapping(API_PATH + "/error-resolve")
+  @PostMapping("/error-resolve")
   public ResponseEntity<Void> submitImportErrorResolution(@Valid @RequestBody ConfigBody body)
   {
     this.service.submitImportErrorResolution(this.getSessionId(), body.config.toString());
@@ -175,7 +175,7 @@ public class ETLController extends RunwaySpringController
     return new ResponseEntity<Void>(HttpStatus.OK);
   }
 
-  @PostMapping(API_PATH + "/import-resolve")
+  @PostMapping("/import-resolve")
   public ResponseEntity<Void> resolveImport(@Valid @RequestBody HistoryIdBody body)
   {
     this.service.resolveImport(this.getSessionId(), body.getHistoryId());
@@ -183,7 +183,7 @@ public class ETLController extends RunwaySpringController
     return new ResponseEntity<Void>(HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/get-active")
+  @GetMapping("/get-active")
   public ResponseEntity<String> getActiveImports( //
       @RequestParam(required = false, name = "pageSize") Integer pageSize, //
       @RequestParam(required = false, name = "pageNumber") Integer pageNumber, //
@@ -205,7 +205,7 @@ public class ETLController extends RunwaySpringController
     return new ResponseEntity<String>(config.toString(), HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/get-completed")
+  @GetMapping("/get-completed")
   public ResponseEntity<String> getCompletedImports( //
       @RequestParam(required = false, name = "pageSize") Integer pageSize, //
       @RequestParam(required = false, name = "pageNumber") Integer pageNumber, //
@@ -227,7 +227,7 @@ public class ETLController extends RunwaySpringController
     return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/get-errors")
+  @GetMapping("/get-errors")
   public ResponseEntity<String> getImportErrors( //
       @RequestParam(required = false, name = "historyId") String historyId, //
       @RequestParam(required = false, name = "onlyUnresolved") Boolean onlyUnresolved, //
@@ -239,7 +239,7 @@ public class ETLController extends RunwaySpringController
     return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/get-import-details")
+  @GetMapping("/get-import-details")
   public ResponseEntity<String> getImportDetails( //
       @RequestParam(required = false, name = "historyId") String historyId, //
       @RequestParam(required = false, name = "onlyUnresolved") Boolean onlyUnresolved, //
@@ -251,7 +251,7 @@ public class ETLController extends RunwaySpringController
     return new ResponseEntity<String>(details.toString(), HttpStatus.OK);
   }
 
-  @PostMapping(API_PATH + "/cancel-import")
+  @PostMapping("/cancel-import")
   public ResponseEntity<Void> cancelImport(@Valid @RequestBody ConfigBody body)
   {
     this.service.cancelImport(this.getSessionId(), body.config.toString());
@@ -259,7 +259,7 @@ public class ETLController extends RunwaySpringController
     return new ResponseEntity<Void>(HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/get-export-details")
+  @GetMapping("/get-export-details")
   public ResponseEntity<String> getExportDetails( //
       @RequestParam(required = false, name = "historyId") String historyId, //
       @RequestParam(required = false, name = "pageSize") Integer pageSize, //
@@ -270,7 +270,7 @@ public class ETLController extends RunwaySpringController
     return new ResponseEntity<String>(details.toString(), HttpStatus.OK);
   }
 
-  @PostMapping(API_PATH + "/import-edge-json")
+  @PostMapping("/import-edge-json")
   public ResponseEntity<Void> importEdgeJson(@Valid @ModelAttribute EdgeImportBody body) throws IOException, JSONException, ParseException
   {
     try (InputStream stream = body.file.getInputStream())
@@ -279,6 +279,17 @@ public class ETLController extends RunwaySpringController
 
       return new ResponseEntity<Void>(HttpStatus.OK);
     }
+  }
+
+  @GetMapping("/get-import-history")
+  public ResponseEntity<List<ImportHistoryView>> getImportHistory( //
+      @NotEmpty @RequestParam(name = "classType") String classType, //
+      @NotEmpty @RequestParam(name = "typeCode") String typeCode //
+  )
+  {
+    List<ImportHistoryView> response = this.service.getHistory(this.getSessionId(), classType, typeCode);
+
+    return ResponseEntity.ok(response);
   }
 
 }

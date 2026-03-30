@@ -26,6 +26,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -36,12 +37,12 @@ import com.google.gson.JsonObject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.BusinessEdgeTypeServiceIF;
 import net.geoprism.registry.service.request.BusinessTypeService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
 
 @RestController
+@RequestMapping("api/business-type")
 @Validated
 public class BusinessTypeController extends RunwaySpringController
 {
@@ -121,15 +122,13 @@ public class BusinessTypeController extends RunwaySpringController
     }
   }
 
-  public static final String        API_PATH = RegistryConstants.CONTROLLER_ROOT + "business-type";
-
   @Autowired
   private BusinessTypeService       service;
 
   @Autowired
   private BusinessEdgeTypeServiceIF edgeService;
 
-  @GetMapping(API_PATH + "/get-by-org")
+  @GetMapping("/get-by-org")
   public ResponseEntity<String> getByOrg()
   {
     JsonArray response = service.listByOrg(this.getSessionId());
@@ -137,14 +136,14 @@ public class BusinessTypeController extends RunwaySpringController
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/get-all")
+  @GetMapping("/get-all")
   public ResponseEntity<String> getAll()
   {
     JsonArray response = service.getAll(this.getSessionId());
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/get-edges")
+  @GetMapping("/get-edges")
   public ResponseEntity<String> getEdges()
   {
     JsonArray response = this.edgeService.getAll(this.getSessionId());
@@ -152,14 +151,14 @@ public class BusinessTypeController extends RunwaySpringController
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/get")
+  @GetMapping("/get")
   public ResponseEntity<String> get(@NotBlank @RequestParam(name = "oid") String oid)
   {
     JsonObject response = service.get(this.getSessionId(), oid);
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @PostMapping(API_PATH + "/apply")
+  @PostMapping("/apply")
   public ResponseEntity<String> apply(@RequestBody String type)
   {
     JsonObject response = this.service.apply(this.getSessionId(), type);
@@ -167,7 +166,7 @@ public class BusinessTypeController extends RunwaySpringController
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @PostMapping(API_PATH + "/remove")
+  @PostMapping("/remove")
   public ResponseEntity<Void> remove(@Valid @RequestBody OidBody body)
   {
     this.service.remove(this.getSessionId(), body.oid);
@@ -175,14 +174,14 @@ public class BusinessTypeController extends RunwaySpringController
     return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
   }
 
-  @PostMapping(API_PATH + "/edit")
+  @PostMapping("/edit")
   public ResponseEntity<String> edit(@Valid @RequestBody OidBody body)
   {
     JsonObject response = this.service.edit(this.getSessionId(), body.oid);
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @PostMapping(API_PATH + "/unlock")
+  @PostMapping("/unlock")
   public ResponseEntity<Void> unlock(@Valid @RequestBody OidBody body)
   {
     this.service.unlock(this.getSessionId(), body.oid);
@@ -190,7 +189,7 @@ public class BusinessTypeController extends RunwaySpringController
     return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
   }
 
-  @PostMapping(API_PATH + "/add-attribute")
+  @PostMapping("/add-attribute")
   public ResponseEntity<String> createAttributeType(@Valid @RequestBody AttributeTypeBody body)
   {
     AttributeType attrType = this.service.createAttributeType(this.getSessionId(), body.typeCode, body.attributeType);
@@ -199,7 +198,7 @@ public class BusinessTypeController extends RunwaySpringController
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @PostMapping(API_PATH + "/update-attribute")
+  @PostMapping("/update-attribute")
   public ResponseEntity<String> updateAttributeType(@Valid @RequestBody AttributeTypeBody body)
   {
     AttributeType attrType = this.service.updateAttributeType(this.getSessionId(), body.typeCode, body.attributeType);
@@ -208,7 +207,7 @@ public class BusinessTypeController extends RunwaySpringController
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @PostMapping(API_PATH + "/remove-attribute")
+  @PostMapping("/remove-attribute")
   public ResponseEntity<Void> removeAttributeType(@Valid @RequestBody RemoveAttributeBody body)
   {
     this.service.removeAttributeType(this.getSessionId(), body.typeCode, body.attributeName);
@@ -216,7 +215,7 @@ public class BusinessTypeController extends RunwaySpringController
     return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
   }
 
-  @GetMapping(API_PATH + "/data")
+  @GetMapping("/data")
   public ResponseEntity<String> data(@NotBlank @RequestParam(name = "typeCode") String typeCode, @RequestParam(required = false, name = "criteria") String criteria)
   {
     JsonObject page = this.service.data(this.getSessionId(), typeCode, criteria);
@@ -224,12 +223,11 @@ public class BusinessTypeController extends RunwaySpringController
     return new ResponseEntity<String>(page.toString(), HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/get-edge-types")
+  @GetMapping("/get-edge-types")
   public ResponseEntity<String> getEdgeTypes(@NotBlank @RequestParam(name = "typeCode") String typeCode)
   {
     JsonArray edgeTypes = this.service.getEdgeTypes(this.getSessionId(), typeCode);
 
     return new ResponseEntity<String>(edgeTypes.toString(), HttpStatus.OK);
-  }
-
+  }  
 }

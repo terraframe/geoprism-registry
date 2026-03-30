@@ -30,6 +30,7 @@ import { ManageGraphTypeModalComponent } from "./modals/manage-graph-type-modal.
 import { GraphType } from "@registry/model/registry";
 import { Subscription } from "rxjs";
 import { ImportHistoryModalComponent } from "../import-history/modals/import-history-modal.component";
+import { RegistryService } from "@registry/service";
 
 @Component({
     selector: "graph-type-manager",
@@ -52,6 +53,7 @@ export class GraphTypeManagerComponent implements OnInit, OnDestroy {
     // eslint-disable-next-line no-useless-constructor
     constructor(
         public service: GraphTypeService,
+        private registryService: RegistryService,
         private modalService: BsModalService,
         private localizeService: LocalizationService,
         private route: ActivatedRoute) { }
@@ -130,7 +132,7 @@ export class GraphTypeManagerComponent implements OnInit, OnDestroy {
     }
 
     onImportHistory(type: GraphType): void {
-        this.service.getImportHistory(this.typeCode, type.code).then(histories => {
+        this.registryService.getImportHistory(this.typeCode, type.code).then(histories => {
             this.bsModalRef = this.modalService.show(ImportHistoryModalComponent, {
                 animated: true,
                 backdrop: true,

@@ -86,6 +86,11 @@
 										<i *ngIf="(type.isAbstract)" class="fa fa-plus clickable pull-right"
 											(click)="createGeoObjectType(type, false, typeByOrg.org)" title="add">
 										</i>
+										
+										<i class="fa fa-solid fa-notes-medical clickable pull-right"
+											(click)="onImportHistory(type)"
+											[title]="'modal.button.import.history' | localize"> </i>
+
 									</span>
 
 									<span
@@ -94,6 +99,8 @@
 										<i class="fa fa-eye clickable pull-right"
 											(click)="manageGeoObjectType(type, true)"
 											[title]="'button.view.helptext' | localize"> </i>
+
+
 									</span>
 								</li>
 							</div>
@@ -139,6 +146,10 @@
 										<i class="fa fa-pencil pull-right clickable"
 											(click)="editHierarchyType(hierarchy, false)"
 											[title]="'button.edit.helptext' | localize"> </i>
+										<i class="fa fa-solid fa-notes-medical clickable pull-right"
+											(click)="onEdgeImportHistory(hierarchy)"
+											[title]="'modal.button.import.history' | localize"> </i>
+
 									</span>
 
 									<span *ngIf="!isOrganizationRA(hierarchy.organizationCode)"
@@ -146,6 +157,7 @@
 										<i class="fa fa-eye pull-right clickable"
 											(click)="editHierarchyType(hierarchy, true)"
 											[title]="'button.view.helptext' | localize"> </i>
+
 									</span>
 								</li>
 							</div>

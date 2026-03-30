@@ -24,7 +24,8 @@
 
     <div class="heading">
         <h2>
-            <localize key="header.graph.type"></localize>
+            <localize *ngIf="typeCode != null && typeCode === 'DirectedAcyclicGraphType'" key="header.dag.type"></localize>
+            <localize *ngIf="typeCode != null && typeCode !== 'DirectedAcyclicGraphType'" key="header.undirected.type"></localize>
         </h2>
     </div>
 
