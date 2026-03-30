@@ -1,0 +1,107 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="modal.button.import.history">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="modal.button.import.history" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Import History" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="header.dag.type">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="header.dag.type" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Directed Acyclic Graph Types" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="header.undirected.type">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="header.undirected.type" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Undirected Graph Types" />
+        </attributeStruct>
+      </object>   
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="graph.data.noTypes">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="graph.data.noTypes" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="No types defined" />
+        </attributeStruct>
+      </object>   
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="dag.data.type">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="dag.data.type" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Directed Acyclic Graph Type" />
+        </attributeStruct>
+      </object>   
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="undirected.data.type">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="undirected.data.type" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Undirected Graph Type" />
+        </attributeStruct>
+      </object>   
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="graph.data.view.type">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="graph.data.view.type" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="View Type" />
+        </attributeStruct>
+      </object>   
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="graph.data.edit.type">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="graph.data.edit.type" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Edit Type" />
+        </attributeStruct>
+      </object>   
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="nav.directed.graph.type.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="nav.directed.graph.type.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Manage directed acyclic graph types" />
+        </attributeStruct>
+      </object>   
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="nav.undirected.graph.type.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="nav.undirected.graph.type.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Manage undirected graph types" />
+        </attributeStruct>
+      </object>   
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="graph.data.types">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="graph.data.types" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Types" />
+        </attributeStruct>
+      </object>   
+      
+    </createOrUpdate>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>
