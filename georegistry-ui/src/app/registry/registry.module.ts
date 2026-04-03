@@ -35,17 +35,16 @@ import { DndModule } from "ngx-drag-drop";
 import { DragDropModule } from "@angular/cdk/drag-drop";
 import { NgxSpinnerModule } from "ngx-spinner";
 
-import { ImportTypesModalComponent } from "./component/hierarchy/modals/import-types-modal.component";
+import { ImportTypesModalComponent } from "./component/geo-ontology/modals/import-types-modal.component";
 import { LocalizedInputComponent } from "./component/form-fields/localized-input/localized-input.component";
 import { LocalizedTextComponent } from "./component/form-fields/localized-text/localized-text.component";
-import { HierarchyComponent } from "./component/hierarchy/hierarchy.component";
+import { GeoOntologyComponent } from "./component/geo-ontology/geo-ontology.component";
 import { RelationshipVisualizerComponent } from "./component/relationship-visualizer/relationship-visualizer.component";
-import { CreateHierarchyTypeModalComponent } from "./component/hierarchy/modals/create-hierarchy-type-modal.component";
-import { AddChildToHierarchyModalComponent } from "./component/hierarchy/modals/add-child-to-hierarchy-modal.component";
-import { CreateGeoObjTypeModalComponent } from "./component/hierarchy/modals/create-geoobjtype-modal.component";
-import { ManageAttributesModalComponent } from "./component/hierarchy/geoobjecttype-management/manage-attributes-modal.component";
-import { DefineAttributeModalContentComponent } from "./component/hierarchy/geoobjecttype-management/define-attribute-modal-content.component";
-import { EditAttributeModalContentComponent } from "./component/hierarchy/geoobjecttype-management/edit-attribute-modal-content.component";
+import { CreateHierarchyTypeModalComponent } from "./component/geo-ontology/modals/create-hierarchy-type-modal.component";
+import { AddChildToHierarchyModalComponent } from "./component/geo-ontology/modals/add-child-to-hierarchy-modal.component";
+import { ManageAttributesModalComponent } from "./component/geo-ontology/geoobjecttype-management/manage-attributes-modal.component";
+import { DefineAttributeModalContentComponent } from "./component/geo-ontology/geoobjecttype-management/define-attribute-modal-content.component";
+import { EditAttributeModalContentComponent } from "./component/geo-ontology/geoobjecttype-management/edit-attribute-modal-content.component";
 import { ImportModalComponent } from "./component/importer/modals/import-modal.component";
 import { AttributesPageComponent } from "./component/importer/modals/attributes-page.component";
 import { EdgePageComponent } from "./component/importer/modals/edge-page.component";
@@ -55,12 +54,11 @@ import { LocationProblemComponent } from "./component/importer/modals/location-p
 import { TermProblemPageComponent } from "./component/importer/modals/term-problem-page.component";
 import { TermProblemComponent } from "./component/importer/modals/term-problem.component";
 import { DataPageComponent } from "./component/data-page/data-page.component";
-import { TermOptionWidgetComponent } from "./component/hierarchy/geoobjecttype-management/term-option-widget.component";
-import { AttributeInputComponent } from "./component/hierarchy/geoobjecttype-management/attribute-input.component";
-import { EditTermOptionInputComponent } from "./component/hierarchy/geoobjecttype-management/edit-term-option-input.component";
-import { ManageTermOptionsComponent } from "./component/hierarchy/geoobjecttype-management/manage-term-options.component";
-import { GeoObjectTypeInputComponent } from "./component/hierarchy/geoobjecttype-management/geoobjecttype-input.component";
-import { ManageGeoObjectTypeModalComponent } from "./component/hierarchy/modals/manage-geoobjecttype-modal.component";
+import { TermOptionWidgetComponent } from "./component/geo-ontology/geoobjecttype-management/term-option-widget.component";
+import { AttributeInputComponent } from "./component/geo-ontology/geoobjecttype-management/attribute-input.component";
+import { EditTermOptionInputComponent } from "./component/geo-ontology/geoobjecttype-management/edit-term-option-input.component";
+import { ManageTermOptionsComponent } from "./component/geo-ontology/geoobjecttype-management/manage-term-options.component";
+import { GeoObjectTypeInputComponent } from "./component/geo-ontology/geoobjecttype-management/geoobjecttype-input.component";
 import { RequestTableComponent } from "./component/crtable/request-table.component";
 import { GeoObjectSharedAttributeEditorComponent } from "./component/geoobject-shared-attribute-editor/geoobject-shared-attribute-editor.component";
 import { StabilityPeriodComponent } from "./component/geoobject-shared-attribute-editor/stability-period.component";
@@ -168,7 +166,7 @@ import { LabeledPropertyGraphTypeComponent } from "./component/labeled-property-
 import { LabeledPropertyGraphTypeService } from "./service/labeled-property-graph-type.service";
 import { LabeledPropertyGraphTypePublishModalComponent } from "./component/labeled-property-graph-type/publish-modal.component";
 import { ConfigurationModalComponent } from "./component/scheduled-jobs/configuration-modal.component";
-import { ExportTypesModalComponent } from "./component/hierarchy/modals/export-types-modal.component";
+import { ExportTypesModalComponent } from "./component/geo-ontology/modals/export-types-modal.component";
 import { SourceManagerComponent } from "./component/source/source-manager.component";
 import { ManageSourceModalComponent } from "./component/source/modals/manage-source-modal.component";
 import { SourceService } from "./service/source.service";
@@ -182,10 +180,14 @@ import { JenaExportSynchronizationConfigComponent } from "./component/synchroniz
 import { PublishManagerComponent } from "./component/publish-events/publish-manager.component";
 import { PublishEventsModalComponent } from "./component/publish-events/publish-events-modal.component";
 import { PublishEventsComponent } from "./component/publish-events/publish-events.component";
-import { ManageGraphTypeModalComponent } from "./component/graph-type/modals/manage-graph-type-modal.component";
-import { CreateGraphTypeModalComponent } from "./component/graph-type/modals/create-graph-type-modal.component";
-import { GraphTypeManagerComponent } from "./component/graph-type/graph-type-manager.component";
 import { ImportHistoryModalComponent } from "./component/import-history/modals/import-history-modal.component";
+import { GeoObjectTypePageComponent } from "./component/geo-ontology/geo-object-type-page/geo-object-type-page.component";
+import { CreateGeoObjectTypeComponent } from "./component/geo-ontology/geo-object-type-page/create-geo-object-type.component";
+import { ManageGeoObjectTypeComponent } from "./component/geo-ontology/geo-object-type-page/manage-geo-object-type.component";
+import { GraphTypePageComponent } from "./component/geo-ontology/graph-type-page/graph-type-page.component";
+import { HierarchyTypePageComponent } from "./component/geo-ontology/hierarchy-type-page/hierarchy-type-page.component";
+import { CreateGraphTypeComponent } from "./component/geo-ontology/graph-type-page/create-graph-type.component";
+import { ManageGraphTypeComponent } from "./component/geo-ontology/graph-type-page/manage-graph-type.component";
 
 @NgModule({
     imports: [
@@ -212,7 +214,9 @@ import { ImportHistoryModalComponent } from "./component/import-history/modals/i
         NgxSpinnerModule
     ],
     declarations: [
-        HierarchyComponent,
+        GeoOntologyComponent,
+        GeoObjectTypePageComponent,
+        HierarchyTypePageComponent,
         RelationshipVisualizerComponent,
         RequestTableComponent,
         RDFExportComponent,
@@ -224,7 +228,7 @@ import { ImportHistoryModalComponent } from "./component/import-history/modals/i
         Dhis2SynchronizationConfigComponent,
         CreateHierarchyTypeModalComponent,
         AddChildToHierarchyModalComponent,
-        CreateGeoObjTypeModalComponent,
+        CreateGeoObjectTypeComponent,
         ManageAttributesModalComponent,
         DefineAttributeModalContentComponent,
         ImportModalComponent,
@@ -241,7 +245,7 @@ import { ImportHistoryModalComponent } from "./component/import-history/modals/i
         TermOptionWidgetComponent,
         AttributeInputComponent,
         EditTermOptionInputComponent,
-        ManageGeoObjectTypeModalComponent,
+        ManageGeoObjectTypeComponent,
         GeoObjectTypeInputComponent,
         ManageTermOptionsComponent,
         LocalizedInputComponent,
@@ -335,9 +339,9 @@ import { ImportHistoryModalComponent } from "./component/import-history/modals/i
         PublishEventsModalComponent,
         PublishEventsComponent,
         // Graph Type
-        GraphTypeManagerComponent,
-        CreateGraphTypeModalComponent,
-        ManageGraphTypeModalComponent,
+        GraphTypePageComponent,
+        CreateGraphTypeComponent,
+        ManageGraphTypeComponent,
         ImportHistoryModalComponent
     ],
     providers: [

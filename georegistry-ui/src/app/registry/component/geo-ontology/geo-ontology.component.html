@@ -1,0 +1,59 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<page-container>
+    <div class="row">
+        <div class="col-md-12 order-md-1">
+            <tabset>
+                <tab heading="Geo-Object Types" id="geo-object-type">
+                    <geo-object-type-page [userOrganization]="userOrganization" [organizations]="organizations"
+                        [types]="geoObjectTypes" (typesChange)="setGeoObjectTypes($event)" (onError)="error($event)">
+                    </geo-object-type-page>
+                </tab>
+                <tab heading="Hierarchy Types">
+                    <hierarchy-type-page [userOrganization]="userOrganization" [organizations]="organizations"
+                        [geoObjectTypes]="geoObjectTypes" [hierarchies]="hierarchies" (onError)="error($event)">
+                    </hierarchy-type-page>
+
+                </tab>
+                <tab heading="Directed Acyclic Graph Type">
+                    <graph-type-page [typeCode]="'DirectedAcyclicGraphType'"></graph-type-page>
+                </tab>
+                <tab heading="Undirected Graph Type">
+                    <graph-type-page [typeCode]="'UndirectedGraphType'"></graph-type-page>
+                </tab>
+                <tab *ngIf="isSRA" heading="Import/Export">
+                    <div *ngIf="isSRA" style="text-align: center;padding: 10px 0;">
+                        <button (click)="importTypes()" type="button" class="btn btn-primary"
+                            style="margin-bottom:20px;min-width:30%;">
+                            <localize key="hierarchy.sidebar.importTypes"></localize>
+                        </button>
+                        <button (click)="exportTypes()" type="button" class="btn btn-primary"
+                            style="margin-bottom:20px;margin-left:5px;min-width:30%;">
+                            <localize key="hierarchy.sidebar.exportTypes"></localize>
+                        </button>
+                    </div>
+                </tab>
+
+            </tabset>
+        </div>
+    </div>
+
+</page-container>

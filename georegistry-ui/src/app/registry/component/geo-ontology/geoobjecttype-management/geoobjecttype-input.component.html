@@ -1,0 +1,181 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<div class="modal-body">
+    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+    <form #form="ngForm" *ngIf="editGeoObjectType" class="modal-form" (ngSubmit)="form.valid">
+        <div class="heading text-center">
+            <h1>
+                <localize key="hierarchy.management.edit.geoobjecttype.title"></localize>
+                : {{editGeoObjectType.label.localizedValue}}
+            </h1>
+        </div>
+        <fieldset>
+            <div class="row-holder">
+                <div class="label-holder">
+                    <label><localize key="data.property.label.code"></localize></label>
+                </div>
+                <div class="holder">
+                    <span class="text"> <input type="text" [(ngModel)]="editGeoObjectType.code" name="code" disabled required>
+                    </span>
+                </div>
+            </div>
+            
+            <localized-input [disabled]="readOnly" [(value)]="editGeoObjectType.label" key="data.property.label.label"></localized-input>
+            <localized-text [disabled]="readOnly" [(value)]="editGeoObjectType.description" key="data.property.label.description"></localized-text>
+
+            <div class="row-holder">
+                <div class="label-holder">
+                    <label><localize key="attribute.group.label"></localize></label>
+                </div>
+                <div class="holder">
+                    <boolean-field [disable]="true" [(value)]="geoObjectType.isAbstract" [localizeLabelKey]="'attribute.isAbstract.label'"></boolean-field>
+                </div>
+            </div>
+            
+            <div class="row-holder">
+                <div class="label-holder">
+                    <label><localize key="geoObjectType.attr.visibility.label"></localize></label>
+                </div>
+                <div class="holder">
+                    <boolean-field [disable]="readOnly || (geoObjectType.superTypeCode != null && geoObjectType.superTypeCode != '')" [(value)]="editGeoObjectType.isPrivate" [localizeLabelKey]="'geoObjectType.attr.isPrivate'"></boolean-field>
+                </div>
+            </div>
+            
+            <div class="row-holder" *ngIf="!geoObjectType.isAbstract && geoObjectType.superTypeCode">
+                <div class="label-holder">
+                    <localize key="attribute.parentType.label"></localize>
+                </div>
+                <div class="holder">
+                    <span class="text"> 
+                        {{geoObjectType.superTypeCode}}
+                    </span>
+                </div>
+            </div>
+
+
+            <div class="row-holder">
+                <div class="label-holder">
+                    <label><localize key="data.property.label.geometryType"></localize></label>
+                </div>
+                <div class="holder">
+                    <select name="geometryType" [(ngModel)]="editGeoObjectType.geometryType" disabled>
+                        <option></option>
+                         <option value="MULTIPOINT"><localize key="georegistry.geometry.point"></localize></option>
+                        <option value="MULTILINE"><localize key="georegistry.geometry.line"></localize></option>
+                        <option value="MULTIPOLYGON"><localize key="georegistry.geometry.polygon"></localize></option>
+                        <option value="MIXED"><localize key="georegistry.geometry.mixed"></localize></option>
+                        <!-- <option value="POINT"><localize key="georegistry.geometry.point"></localize></option>
+                        <option value="LINE"><localize key="georegistry.geometry.line"></localize></option>
+                        <option value="POLYGON"><localize key="georegistry.geometry.polygon"></localize></option>
+                        <option value="MULTIPOINT"><localize key="georegistry.geometry.multipoint"></localize></option>
+                        <option value="MULTILINE"><localize key="georegistry.geometry.multiline"></localize></option>
+                        <option value="MULTIPOLYGON"><localize key="georegistry.geometry.multipolygon"></localize></option> -->
+                    </select>
+                </div>
+            </div>
+
+
+            <div class="row-holder">
+                <div class="label-holder">
+                    <label><localize key="hierarchy.management.option.label.geometryEditable"></localize></label>
+                </div>
+                <div class="holder">
+
+                    <boolean-field [disable]="readOnly" [(value)]="editGeoObjectType.isGeometryEditable" [localizeLabelKey]="'hierarchy.management.option.label.isGeometryEditable'"></boolean-field>
+                </div>
+            </div>
+            
+            <div class="row-holder">
+              <div class="label-holder">
+                <label><localize key="attribute.organization.label"></localize></label>
+              </div>
+              <div class="holder">
+                <span class="text"> <input type="text" [(ngModel)]="organizationLabel" name="organization" disabled required></span>
+              </div>
+            </div>
+
+            <div class="row-holder">
+                <div class="label-holder">
+                    <label><localize key="hierarchy.management.manage.attributes.label.displayAttributes"></localize></label>
+                </div>
+                <div class="holder">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+<!--                             <ul class="list-group list-group-flush"> -->
+<!--                                 <li *ngFor="let attr of editGeoObjectType.attributes" class="list-group-item">{{attr.label.localizedValue}}</li> -->
+<!--                             </ul> -->
+
+<!--                             <button [disabled]="readOnly || geoObjectType.superTypeCode" type="button" class="btn btn-primary full-width" (click)="manageAttributes()"> -->
+<!--                                 <localize key="modal.button.manageAttributes"></localize> -->
+<!--                             </button> -->
+
+                        <div class="table-responsive">
+                              <table class="table">
+<!--                                   <thead> -->
+<!--                                       <tr> -->
+<!--                                           <th> -->
+<!--                                               <localize key="data.property.label.label"></localize> -->
+<!--                                           </th> -->
+<!--                                           <th class="button-column-header"> -->
+<!--                                               <localize key="data.property.label.actions"></localize> -->
+<!--                                           </th> -->
+<!--                                       </tr> -->
+<!--                                   </thead> -->
+                                  <tbody>
+                                      <tr *ngFor="let attr of geoObjectType.attributes" >
+                                          <td>{{attr.label.localizedValue}}</td>
+                                          <td class="button-column" style="width: 60px;">
+                                              <a *ngIf="!attr.isDefault && attr.code !== 'keyName'" class="fa fa-pencil ico-edit" [routerLink]="" (click)="editAttribute(attr, $event)"
+                                                  [title]="'modal.button.edit' | localize"></a>
+                                              <a *ngIf="!attr.isDefault && attr.code !== 'keyName'" class="fa fa-trash-o ico-remove" [routerLink]="" (click)="removeAttributeType(attr, $event)"
+                                                  [title]="'modal.button.remove' | localize"></a>
+                                          </td>
+                                      </tr>
+                                  </tbody>
+                              </table>
+                          </div>
+                          
+                          <a *ngIf="!readOnly" aria-hidden="true" style="font-size:20px;margin:10px 0 10px 0;" (click)="defineAttributeModal()">
+                            <i class="fa fa-plus clickable"></i>
+                            <localize key="modal.button.add"></localize>
+                          </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row-holder">
+                    <div class="button-holder">
+                        <button type="button" class="btn btn-default" (click)="close()">
+                            <localize key="modal.button.cancel"></localize>
+                        </button>
+                        <button *ngIf="!readOnly" type="button" class="btn btn-primary" [disabled]="!isValid()" (click)="update()">
+                            <localize key="modal.button.submit"></localize>
+                        </button>
+                    </div>
+                </div>
+        </fieldset>
+    </form>
+</div>
+
+<!-- </form> -->

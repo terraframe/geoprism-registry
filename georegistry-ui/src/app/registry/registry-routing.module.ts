@@ -21,7 +21,7 @@ import { NgModule } from "@angular/core";
 import { LocationStrategy, HashLocationStrategy } from "@angular/common";
 import { Routes, RouterModule } from "@angular/router";
 
-import { HierarchyComponent } from "./component/hierarchy/hierarchy.component";
+import { GeoOntologyComponent } from "./component/geo-ontology/geo-ontology.component";
 import { SubmitChangeRequestComponent } from "./component/submit-change-request/submit-change-request.component";
 import { DataPageComponent } from "./component/data-page/data-page.component";
 import { ChangeRequestPageComponent } from "./component/change-request-page/change-request-page.component";
@@ -47,17 +47,16 @@ import { SourceManagerComponent } from "./component/source/source-manager.compon
 import { RDFExportComponent } from "./component/data-export/rdf-export.component";
 import { EdgeImporterComponent } from "./component/edge-importer/edge-importer.component";
 import { PublishManagerComponent } from "./component/publish-events/publish-manager.component";
-import { GraphTypeManagerComponent } from "./component/graph-type/graph-type-manager.component";
 
 const routes: Routes = [
     {
         path: "",
-        component: HierarchyComponent,
+        component: GeoOntologyComponent,
         canActivate: [AuthGuard]
     },
     {
         path: "hierarchies",
-        component: HierarchyComponent,
+        component: GeoOntologyComponent,
         canActivate: [AuthGuard]
     },
     {
@@ -174,12 +173,7 @@ const routes: Routes = [
         path: "publish",
         component: PublishManagerComponent,
         canActivate: [AuthGuard]
-    },
-    {
-        path: "graph-type/:typeCode",
-        component: GraphTypeManagerComponent,
-        canActivate: [AuthGuard]
-    },
+    }
 ];
 
 @NgModule({

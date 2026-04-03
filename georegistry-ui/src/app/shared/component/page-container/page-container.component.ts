@@ -38,8 +38,6 @@ export class PageContainerComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.subscription = this.service.getExpanded().subscribe(expanded => {
-            console.log('Setting expanded: ', expanded);
-
             this.expanded = expanded;
         });
     }

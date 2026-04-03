@@ -31,9 +31,9 @@ public class EdgeImportTestService
   @Autowired
   private ETLBusinessService   etlService;
 
-  public List<ImportHistoryView> getHistory(String objectType, String typeCode, String graphTypeClass)
+  public List<ImportHistoryView> getHistory(String classType, String typeCode)
   {
-    return this.etlService.getHistory(objectType, typeCode, graphTypeClass);
+    return this.etlService.getHistory(classType, typeCode);
   }
 
   public ImportHistory importJsonFile(String config) throws InterruptedException

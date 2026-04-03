@@ -412,7 +412,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
     ImportHistory hist = mockImport(config);
     Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
 
-    List<ImportHistoryView> histories = this.etlBusinessService.getHistory(ObjectImporterFactory.ObjectImportType.GEO_OBJECT.name(), USATestData.DISTRICT.getCode(), null);
+    List<ImportHistoryView> histories = this.etlBusinessService.getHistory(ObjectImporterFactory.ObjectImportType.GEO_OBJECT.name(), USATestData.DISTRICT.getCode());
 
     Assert.assertEquals(1, histories.size());
   }

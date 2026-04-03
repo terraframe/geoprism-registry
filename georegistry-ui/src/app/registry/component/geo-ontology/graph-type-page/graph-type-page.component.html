@@ -1,0 +1,117 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<!--   <h2> <localize key="hierarchy.management.title"></localize> </h2> -->
+<div class="row">
+
+    <nav class="col-md-3 hierarchy-sidebar">
+
+        <accordion [isAnimated]="true" [closeOthers]="false">
+            <accordion-group [panelClass]="'hierarchy-sidebar-content'" [isOpen]="true" style="border-radius: 0;">
+                <div accordion-heading style="padding: 10px 15px;">
+                    <span>
+                        <i style="margin-right:10px;" class="fa fa-circle"></i>
+                    </span>
+                    <localize *ngIf="typeCode != null && typeCode === 'DirectedAcyclicGraphType'" key="header.dag.type">
+                    </localize>
+                    <localize *ngIf="typeCode != null && typeCode !== 'DirectedAcyclicGraphType'"
+                        key="header.undirected.type">
+                    </localize>
+                </div>
+                <div class="sidebar-section-content">
+
+                    <div style="text-align: center;padding: 10px 0;">
+                        <button (click)="onCreate()" type="button" class="btn btn-primary"
+                            style="margin-bottom:20px;min-width:45%;">
+                            <localize key="hierarchy.management.button.create"></localize>
+                        </button>
+                    </div>
+
+                    <li class="list-group-item got-li-item" *ngFor="let type of types; let i = index;" [id]="type.code">
+                        {{type.label.localizedValue}}
+
+                        <div class="btn-group pull-right" dropdown [dropup]="true" container="body">
+                            <a class="pull-right" dropdownToggle (click)="$event.stopPropagation();"
+                                aria-controls="basic-link-dropdown">
+                                <i class="fa fa-ellipsis-vertical clickable dropdown-toggle"></i>
+                            </a>
+                            <ul *dropdownMenu class="dropdown-menu" role="menu" aria-labelledby="button-animated">
+                                <ng-container *ngIf="isSRA">
+                                    <li role="menuitem">
+                                        <a class="dropdown-item" (click)="onDelete(type)">
+                                            <localize key="button.delete.helptext"></localize>
+                                        </a>
+                                    </li>
+                                </ng-container>
+                                <li role="menuitem">
+                                    <a class="dropdown-item" (click)="onEdit(type)">
+                                        <localize [key]="isSRA ? 'button.edit.helptext' : 'button.view.helptext'">
+                                        </localize>
+                                    </a>
+                                </li>
+                                <li role="menuitem">
+                                    <a class="dropdown-item" (click)="onImportHistory(type)">
+                                        <localize key="modal.button.import.history"></localize>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+
+                    </li>
+                </div>
+            </accordion-group>
+        </accordion>
+    </nav>
+
+    <div class="col-md-9 hierarchy-content">
+        <div id="overflow-div">
+            <create-graph-type *ngIf="selection != null && selection.action === Action.CREATE" [typeCode]="typeCode"
+                (typeChange)="handleTypeChange($event)" (onCancel)="selection = null" (onError)="error($event)">
+            </create-graph-type>
+
+            <manage-graph-type *ngIf="selection != null && selection.action === Action.EDIT" [typeCode]="typeCode"
+                [type]="selection.type" [readOnly]="selection.readOnly" (typeChange)="handleTypeChange($event)"
+                (onCancel)="selection = null" (onError)="error($event)">
+            </manage-graph-type>
+
+        </div>
+    </div>
+</div>

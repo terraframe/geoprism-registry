@@ -42,8 +42,7 @@ import { LngLatBounds } from "maplibre-gl";
 import { ObjectReference, RelatedType, Relationship, TreeData, Vertex } from "@registry/model/graph";
 import { LocationManagerState } from "../location-manager/location-manager.component";
 import { Layer, RelationshipVisualizionDataSource, RelationshipVisualizionLayer, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE, ListVectorLayer } from "@registry/service/layer-data-source";
-
-import { calculateTextWidth } from "@registry/component/hierarchy/d3/svg-util";
+import { calculateTextWidth } from "../geo-ontology/hierarchy/d3/svg-util";
 
 export const DRAW_SCALE_MULTIPLIER: number = 1.0;
 

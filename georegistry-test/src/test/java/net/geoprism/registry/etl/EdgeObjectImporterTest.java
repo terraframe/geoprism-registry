@@ -10,7 +10,6 @@ import java.io.InputStream;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
@@ -22,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.scheduler.AllJobStatus;
@@ -32,19 +30,16 @@ import net.geoprism.graph.GraphTypeSnapshot;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.config.TestApplication;
-import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
-import net.geoprism.registry.etl.ObjectImporterFactory.ObjectImportType;
 import net.geoprism.registry.etl.upload.EdgeObjectImportConfiguration;
-import net.geoprism.registry.etl.upload.EdgeObjectImporter.ReferenceStrategy;
-import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.jobs.ImportHistory;
+import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.ServerGraphNode;
 import net.geoprism.registry.service.business.ETLBusinessService;
 import net.geoprism.registry.service.business.EdgeImportTestService;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GraphTypeBusinessServiceIF;
-import net.geoprism.registry.service.request.ETLService;
 import net.geoprism.registry.service.request.EdgeImportService;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.SchedulerTestUtils;
@@ -76,9 +71,6 @@ public class EdgeObjectImporterTest implements InstanceTestClassListener
 
   @Autowired
   private ETLBusinessService         etlBusinessService;
-
-  @Autowired
-  private EdgeImportService          service;
 
   @Override
   public void beforeClassSetup() throws Exception
@@ -165,37 +157,41 @@ public class EdgeObjectImporterTest implements InstanceTestClassListener
   }
 
   @Test
-  @Request
   public void testPerformance() throws InterruptedException
   {
-    generateDistricts();
-    InputStream istream = generateEdgeJson();
+    TestDataSet.executeRequestAsUser(FastTestDataset.USER_ADMIN, () -> {
+      generateDistricts();
+      InputStream istream = generateEdgeJson();
 
-    Assert.assertNotNull(istream);
+      Assert.assertNotNull(istream);
 
-    EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(EDGE_TYPE_CODE, EDGE_CODE, istream, ImportStrategy.NEW_AND_UPDATE);
+      EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(EDGE_TYPE_CODE, EDGE_CODE, istream, ImportStrategy.NEW_AND_UPDATE);
 
-    long start = System.nanoTime();
+      long start = System.nanoTime();
 
-    ImportHistory hist = this.etlService.importJsonFile(config.toJSON().toString());
+      ImportHistory hist = this.etlService.importJsonFile(config.toJSON().toString());
 
-    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
-    System.out.println("Elapsed: " + ( System.nanoTime() - start ) / 1_000_000_000.0 + " s");
+      SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
+      System.out.println("Elapsed: " + ( System.nanoTime() - start ) / 1_000_000_000.0 + " s");
 
-    hist = ImportHistory.get(hist.getOid());
-    Assert.assertEquals(Long.valueOf(IMPORT_COUNT), hist.getWorkTotal());
-    Assert.assertEquals(Long.valueOf(IMPORT_COUNT), hist.getWorkProgress());
-    Assert.assertEquals(Long.valueOf(IMPORT_COUNT), hist.getImportedRecords());
-    Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+      hist = ImportHistory.get(hist.getOid());
+      Assert.assertEquals(Long.valueOf(IMPORT_COUNT), hist.getWorkTotal());
+      Assert.assertEquals(Long.valueOf(IMPORT_COUNT), hist.getWorkProgress());
+      Assert.assertEquals(Long.valueOf(IMPORT_COUNT), hist.getImportedRecords());
+      Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-    ServerGeoObjectIF dist1 = this.objectService.getGeoObjectByCode("1", FastTestDataset.DISTRICT.getCode());
-    ServerGeoObjectIF parent = dist1.getGraphParents(this.typeService.getByCode(EDGE_TYPE_CODE, EDGE_CODE), false, TestDataSet.DEFAULT_OVER_TIME_DATE).getGeoObject();
-    Assert.assertNotNull(parent);
-    Assert.assertEquals("1", parent.getDisplayLabel(TestDataSet.DEFAULT_OVER_TIME_DATE).getValue());
+      GraphType hierarchyType = this.typeService.getByCode(EDGE_TYPE_CODE, EDGE_CODE);
+      ServerGeoObjectIF dist1 = this.objectService.getGeoObjectByCode("1", FastTestDataset.DISTRICT.getCode());
+      ServerGraphNode node = dist1.getGraphParents(hierarchyType, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-    List<ImportHistoryView> histories = this.etlBusinessService.getHistory(ObjectImporterFactory.ObjectImportType.EDGE_OBJECT.name(), EDGE_CODE, EDGE_TYPE_CODE);
+      ServerGeoObjectIF parent = node.getGeoObject();
+      Assert.assertNotNull(parent);
+      Assert.assertEquals("1", parent.getDisplayLabel(TestDataSet.DEFAULT_OVER_TIME_DATE).getValue());
 
-    Assert.assertEquals(1, histories.size());
+      List<ImportHistoryView> histories = this.etlBusinessService.getHistory(EDGE_TYPE_CODE, EDGE_CODE);
+
+      Assert.assertEquals(1, histories.size());
+    });
   }
 
 }

@@ -1,0 +1,128 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<!--   <h2> <localize key="hierarchy.management.title"></localize> </h2> -->
+<div class="row">
+
+	<nav class="col-md-3 hierarchy-sidebar">
+
+		<div class="row" style="padding: 5px 5px;">
+			<div class="col-md-12">
+				<input type="text" class="form-control" [placeholder]="'hierarchy.sidebar.searchAll' | localize"
+					[(ngModel)]="filter" (change)="onFilterChange()">
+			</div>
+		</div>
+		<accordion [isAnimated]="true" [closeOthers]="false">
+			<accordion-group [panelClass]="'hierarchy-sidebar-content'" [isOpen]="true" style="border-radius: 0;">
+				<div accordion-heading style="padding: 10px 15px;">
+					<span>
+						<i style="margin-right:10px;" class="fa fa-circle"></i>
+					</span>
+					<localize key="hierarchy.sidebar.geoObjectTypes"></localize>
+				</div>
+				<div class="sidebar-section-content">
+					<ul *ngFor="let typeByOrg of filteredTypesByOrg;" class="list-group">
+						<div>
+
+							<div class="got-org-label-wrapper">
+								<label>{{typeByOrg.org.label.localizedValue}}</label>
+							</div>
+
+							<div *ngIf="isSRA || typeByOrg.org.code === userOrganization"
+								style="text-align: center;padding: 10px 0;">
+								<button (click)="createGeoObjectType(null, false, typeByOrg.org)" type="button"
+									class="btn btn-primary" style="margin-bottom:20px;min-width:45%;">
+									<localize key="hierarchy.sidebar.newGeoObjectType"></localize>
+								</button>
+
+								<button (click)="createGeoObjectType(null, true, typeByOrg.org)" type="button"
+									class="btn btn-primary" style="margin-bottom:20px;margin-left:10px;min-width:45%;">
+									<localize key="hierarchies.add.group.button.label"></localize>
+								</button>
+							</div>
+
+							<li class="list-group-item type-item"
+								[attr.data-superTypeCode]="(type.superTypeCode && type.superTypeCode.length > 0) ? type.superTypeCode : null"
+								*ngFor="let type of typeByOrg.types"
+								[ngClass]="{'got-group-parent' : (type.isAbstract), 'got-group-child' : type.superTypeCode && type.superTypeCode.length > 0}">
+								{{type.label.localizedValue}}
+
+								<div class="btn-group pull-right" dropdown [dropup]="true" container="body">
+									<a class="pull-right" dropdownToggle (click)="$event.stopPropagation();"
+										aria-controls="basic-link-dropdown">
+										<i class="fa fa-ellipsis-vertical clickable dropdown-toggle"></i>
+									</a>
+									<ul *dropdownMenu class="dropdown-menu" role="menu" aria-labelledby="button-animated">
+										<ng-container *ngIf="type.permissions.includes('WRITE')">
+											<li role="menuitem">
+												<a class="dropdown-item" (click)="deleteGeoObjectType(type)">
+													<localize key="button.delete.helptext"></localize>
+												</a>
+											</li>
+											<li *ngIf="(type.isAbstract)" role="menuitem">
+												<a class="dropdown-item" (click)="createGeoObjectType(type, false, typeByOrg.org)">
+													Add sub type
+												</a>
+											</li>
+										</ng-container>
+										<li role="menuitem">
+											<a class="dropdown-item" (click)="manageGeoObjectType(type, !type.permissions.includes('WRITE'))">
+												<localize [key]="type.permissions.includes('WRITE') ? 'button.edit.helptext' : 'button.view.helptext'">
+												</localize>
+											</a>
+										</li>
+										<li role="menuitem">
+											<a class="dropdown-item" (click)="onImportHistory(type)">
+												<localize key="modal.button.import.history"></localize>
+											</a>
+										</li>
+									</ul>
+								</div>
+		
+
+							</li>
+						</div>
+					</ul>
+				</div>
+			</accordion-group>
+		</accordion>
+	</nav>
+
+	<div class="col-md-9 hierarchy-content">
+		<div id="overflow-div">
+			<create-geo-object-type *ngIf="selection != null && selection.action === Action.CREATE"
+				[organization]="selection.org" [parents]="types" [groupSuperType]="selection.groupSuperType"
+				[isAbstract]="selection.isAbstract" 
+				(typeChange)="handleTypeChange($event)"
+				(onCancel)="selection = null" 
+				(onError)="error($event)">
+			</create-geo-object-type>
+
+			<manage-geo-object-type *ngIf="selection != null && selection.action === Action.EDIT"
+				[type]="selection.type" [readOnly]="selection.readOnly" 
+				(typeChange)="handleTypeChange($event)"
+				(onCancel)="selection = null" 
+				(onError)="error($event)">
+			</manage-geo-object-type>
+
+		</div>
+	</div>
+</div>

@@ -234,7 +234,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
       {
         Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
 
-        List<ImportHistoryView> histories = this.etlBusinessService.getHistory(ObjectImporterFactory.ObjectImportType.BUSINESS_OBJECT.name(), type.getCode(), null);
+        List<ImportHistoryView> histories = this.etlBusinessService.getHistory(ObjectImporterFactory.ObjectImportType.BUSINESS_OBJECT.name(), type.getCode());
 
         Assert.assertEquals(1, histories.size());
       }

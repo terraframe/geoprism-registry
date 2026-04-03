@@ -30,15 +30,18 @@ import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.config.TestApplication;
-import net.geoprism.registry.etl.ObjectImporterFactory;
 import net.geoprism.registry.etl.upload.EdgeObjectImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.jobs.ImportHistory;
+import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerChildGraphNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.ServerGraphNode;
 import net.geoprism.registry.model.ServerParentGraphNode;
 import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.EdgeImportTestService;
+import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestDataSet;
@@ -56,6 +59,9 @@ public class DirectedAcyclicGraphTest extends FastDatasetTest implements Instanc
 
   @Autowired
   private EdgeImportTestService                     importService;
+
+  @Autowired
+  private GeoObjectBusinessServiceIF                objectService;
 
   @Override
   @Request
@@ -313,9 +319,24 @@ public class DirectedAcyclicGraphTest extends FastDatasetTest implements Instanc
       {
         SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
 
-        List<ImportHistoryView> histories = this.importService.getHistory(ObjectImporterFactory.ObjectImportType.EDGE_OBJECT.name(), type.getCode(), GraphTypeDTO.DIRECTED_ACYCLIC_GRAPH_TYPE);
+        List<ImportHistoryView> histories = this.importService.getHistory(GraphTypeDTO.DIRECTED_ACYCLIC_GRAPH_TYPE, type.getCode());
 
         Assert.assertEquals(1, histories.size());
+
+        ServerGeoObjectIF sourceObject = this.objectService.getGeoObjectByCode(FastTestDataset.PROV_CENTRAL.getCode(), FastTestDataset.PROV_CENTRAL.getGeoObjectType().getCode());
+        ServerChildGraphNode node = sourceObject.getGraphChildren(type, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
+
+        List<ServerChildGraphNode> children = node.getChildren();
+
+        Assert.assertEquals(1, children.size());
+
+        ServerChildGraphNode child = children.get(0);
+
+        DataSource source = child.getSource();
+
+        Assert.assertNotNull(source);
+        Assert.assertEquals(FastTestDataset.SOURCE.getCode(), source.getCode());
+
       }
       finally
       {

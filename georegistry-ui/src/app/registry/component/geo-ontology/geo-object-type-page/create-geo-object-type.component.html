@@ -1,0 +1,192 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<form #form="ngForm" (ngSubmit)="form.valid && handleOnSubmit()" class="modal-form">
+
+  <div class="modal-body">
+
+    <div class="heading text-center">
+      <h1>
+        <localize *ngIf="geoObjectType.isAbstract" key="hierarchy.management.create.geoobjecttype.group.title"></localize> 
+        <localize *ngIf="!geoObjectType.isAbstract" key="hierarchy.management.create.geoobjecttype.title"></localize> 
+      </h1>
+    </div> 
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="form-group">
+          <div>
+            <label for="codeInput">
+              <localize key="data.property.label.code"></localize>
+            </label>
+            <input [(ngModel)]="geoObjectType.code" name="code" type="text" class="form-control" id="codeInput"
+              required>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="form-group" *ngFor="let localeValue of geoObjectType.label.localeValues">
+          <label>
+            <localize key="data.property.label.label"></localize> 
+            <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale"></convert-key-label>)</span>
+          </label>
+          <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input"
+            class="form-control" [required]="localeValue.locale === 'defaultLocale'">
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <localized-text [(value)]="geoObjectType.description" key="data.property.label.description" [inlinelayout]="true"></localized-text>
+      </div>
+    </div>
+    
+    <div class="row" *ngIf="!geoObjectType.superTypeCode">
+      <div class="col-md-12" style="margin-bottom: 15px;">
+        <div class="form-group">
+          <label style="display: block;">
+            <localize key="attribute.group.label"></localize> 
+          </label>
+          <div class="check-block">
+            <boolean-field [disable]="true" [(value)]="geoObjectType.isAbstract" [localizeLabelKey]="'attribute.isAbstract.label'"></boolean-field>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-12" style="margin-bottom: 15px;">
+        <div class="form-group">
+        
+          <label style="display: block;">
+            <localize key="geoObjectType.attr.visibility.label"></localize> 
+          </label>
+          <div class="check-block">
+            <boolean-field [disable]="geoObjectType.superTypeCode != null" [(value)]="geoObjectType.isPrivate" [localizeLabelKey]="'geoObjectType.attr.isPrivate'"></boolean-field>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="form-group">
+          <label for="geometryType">
+            <localize key="data.property.label.geometryType"></localize>
+          </label>
+          <select class="select-area" name="geometryType" [(ngModel)]="geoObjectType.geometryType" required [disabled]="geoObjectType.superTypeCode != null && geoObjectType.superTypeCode != ''">
+            <option></option>
+            <!-- <option value="POINT">
+              <localize key="georegistry.geometry.point"></localize>
+            </option>
+            <option value="LINE">
+              <localize key="georegistry.geometry.line"></localize>
+            </option>
+            <option value="POLYGON">
+              <localize key="georegistry.geometry.polygon"></localize>
+            </option>
+            <option value="MULTIPOINT">
+              <localize key="georegistry.geometry.multipoint"></localize>
+            </option>
+            <option value="MULTILINE">
+              <localize key="georegistry.geometry.multiline"></localize>
+            </option>
+            <option value="MULTIPOLYGON">
+              <localize key="georegistry.geometry.multipolygon"></localize>
+            </option> -->
+             <option value="MULTIPOINT">
+              <localize key="georegistry.geometry.point"></localize>
+            </option>
+            <option value="MULTILINE">
+              <localize key="georegistry.geometry.line"></localize>
+            </option>
+            <option value="MULTIPOLYGON">
+              <localize key="georegistry.geometry.polygon"></localize>
+            </option>
+            <option value="MIXED">
+              <localize key="georegistry.geometry.mixed"></localize>
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <!-- 
+    <div class="form-group">
+      <div >
+        <div class="check-block" style="display:inline-block;">
+         <div (click)="toggleIsLeaf()" [ngClass]="{'chk-checked' : geoObjectType.isLeaf}" style="margin:0;" class="jcf-unselectable chk-area">
+          <span></span>
+         </div>
+    
+         <label class="checkbox-label" style="line-height: normal;"> <localize key="hierarchy.management.option.label.isLeafNode"></localize></label>
+        </div>
+       </div>
+    </div>
+ -->
+
+    <div class="row">
+      <div class="col-md-12" style="margin-bottom: 15px;">
+        <div class="form-group">
+          <div class="check-block">
+            <div (click)="toggleIsGeometryEditable()" [ngClass]="{'chk-checked' : geoObjectType.isGeometryEditable}"
+              style="margin:0;" class="jcf-unselectable chk-area">
+              <span></span>
+            </div>
+
+            <label class="checkbox-label">
+              <localize key="hierarchy.management.option.label.isGeometryEditable"></localize>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-12">
+        <div class="form-group">
+          <label for="organization">
+            <localize key="attribute.organization.label"></localize>
+          </label>
+          <span class="text">
+            <input type="text" name="organization" [(ngModel)]="organizationLabel" disabled required>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="button-holder">
+          <button type="button" class="btn btn-default" (click)="handleCancel()">
+            <localize key="modal.button.cancel"></localize>
+          </button>
+          <button type="submit" [disabled]="form.invalid" class="btn btn-primary">
+            <localize key="modal.button.ok"></localize>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</form>
