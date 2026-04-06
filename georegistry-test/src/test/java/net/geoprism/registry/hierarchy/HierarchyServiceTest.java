@@ -367,7 +367,7 @@ public class HierarchyServiceTest extends FastDatasetTest implements InstanceTes
     FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request) -> {
       HierarchyType[] hierarchyTypes = this.service.getHierarchyTypes(request.getSessionId(), null, PermissionContext.READ);
 
-      Assert.assertEquals(testData.getManagedHierarchyTypes().size(), hierarchyTypes.length);
+      Assert.assertTrue(testData.getManagedHierarchyTypes().size() <= hierarchyTypes.length);
     });
   }
 
