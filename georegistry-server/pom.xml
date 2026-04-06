@@ -72,6 +72,11 @@
       <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
       <version>2.8.5</version>
     </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+      <version>${spring.boot.version}</version>
+    </dependency>
     
     <!--   
     <dependency>
@@ -329,7 +334,7 @@
       <version>${axon.version}</version>
       <scope>test</scope>
     </dependency>
-
+    
   </dependencies>
 
   <!-- These profiles allow for Maven execution of Runway-SDK's Java Tools,
