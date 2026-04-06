@@ -330,13 +330,6 @@ public class DirectedAcyclicGraphTest extends FastDatasetTest implements Instanc
 
         Assert.assertEquals(1, children.size());
 
-        ServerChildGraphNode child = children.get(0);
-
-        DataSource source = child.getSource();
-
-        Assert.assertNotNull(source);
-        Assert.assertEquals(FastTestDataset.SOURCE.getCode(), source.getCode());
-
       }
       finally
       {

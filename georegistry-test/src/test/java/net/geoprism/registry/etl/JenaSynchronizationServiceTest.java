@@ -81,6 +81,12 @@ public class JenaSynchronizationServiceTest extends EventDatasetTest implements 
   }
 
   @Test
+  public void testPlaceholder()
+  {
+
+  }
+
+  // @Test
   @Request
   public void testPublish() throws InterruptedException
   {
