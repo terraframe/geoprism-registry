@@ -48,7 +48,6 @@ import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.ValueQuery;
 import com.runwaysdk.system.gis.geo.GeoEntity;
-import com.runwaysdk.system.gis.mapping.GeoserverFacade;
 import com.wdtinc.mapbox_vector_tile.VectorTile;
 import com.wdtinc.mapbox_vector_tile.VectorTile.Tile;
 import com.wdtinc.mapbox_vector_tile.VectorTile.Tile.Layer;
@@ -67,6 +66,8 @@ import net.postgis.jdbc.jts.JtsGeometry;
 
 public class VectorTileBuilder implements VectorLayerPublisherIF
 {
+  public static final String GEOM_COLUMN = "geom";
+  
   private TableEntity        version;
 
   private Collection<Locale> locales;
@@ -103,7 +104,7 @@ public class VectorTileBuilder implements VectorLayerPublisherIF
       }
     }
 
-    sql.append(", ST_Transform(ge." + column + ", 3857) AS " + GeoserverFacade.GEOM_COLUMN + "\n ");
+    sql.append(", ST_Transform(ge." + column + ", 3857) AS " + GEOM_COLUMN + "\n ");
     sql.append("FROM " + mdBusiness.getTableName() + " AS ge\n ");
     sql.append("WHERE ge." + column + " IS NOT NULL\n ");
     sql.append("AND ge.invalid=0");
@@ -157,7 +158,7 @@ public class VectorTileBuilder implements VectorLayerPublisherIF
       {
         ValueObject object = iterator.next();
 
-        AttributeGeometryIF attributeIF = (AttributeGeometryIF) object.getAttributeIF(GeoserverFacade.GEOM_COLUMN);
+        AttributeGeometryIF attributeIF = (AttributeGeometryIF) object.getAttributeIF(GEOM_COLUMN);
 
         Geometry geometry = attributeIF.getGeometry();
         geometry.setUserData(this.getUserData(object));
@@ -253,7 +254,7 @@ public class VectorTileBuilder implements VectorLayerPublisherIF
           }
         }
 
-        JtsGeometry geom = (JtsGeometry) resultSet.getObject(GeoserverFacade.GEOM_COLUMN);
+        JtsGeometry geom = (JtsGeometry) resultSet.getObject(GEOM_COLUMN);
 
         if (geom != null)
         {
@@ -310,7 +311,7 @@ public class VectorTileBuilder implements VectorLayerPublisherIF
     {
       String name = attribute.getName();
 
-      if (!name.equals(GeoserverFacade.GEOM_COLUMN))
+      if (!name.equals(GEOM_COLUMN))
       {
         data.put(name, attribute.getValue());
       }

@@ -31,7 +31,6 @@ import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.system.gis.geo.GeoEntity;
-import com.runwaysdk.system.gis.mapping.GeoserverFacade;
 
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.MasterListVersion;
@@ -93,7 +92,7 @@ public class PostgisVectorTileBuilder
     statement.append("    , ST_TileEnvelope(" + zoom + ", " + x + ", " + y + ")" + "\n");
     statement.append("    , extent => 4096" + "\n");
     statement.append("    , buffer => 64" + "\n");
-    statement.append("  ) AS " + GeoserverFacade.GEOM_COLUMN + "\n");
+    statement.append("  ) AS " + VectorTileBuilder.GEOM_COLUMN + "\n");
     statement.append(" FROM _fdata AS ge" + "\n");
     statement.append(" WHERE ST_Transform( ge." + column + ", 3857 ) && ST_TileEnvelope(" + zoom + ", " + x + ", " + y + ", margin => (64.0 / 4096))" + "\n");
     statement.append(")" + "\n");
