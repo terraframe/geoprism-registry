@@ -40,7 +40,6 @@ import { LocalizedInputComponent } from "./component/form-fields/localized-input
 import { LocalizedTextComponent } from "./component/form-fields/localized-text/localized-text.component";
 import { GeoOntologyComponent } from "./component/geo-ontology/geo-ontology.component";
 import { RelationshipVisualizerComponent } from "./component/relationship-visualizer/relationship-visualizer.component";
-import { CreateHierarchyTypeModalComponent } from "./component/geo-ontology/modals/create-hierarchy-type-modal.component";
 import { AddChildToHierarchyModalComponent } from "./component/geo-ontology/modals/add-child-to-hierarchy-modal.component";
 import { ManageAttributesModalComponent } from "./component/geo-ontology/geoobjecttype-management/manage-attributes-modal.component";
 import { DefineAttributeModalContentComponent } from "./component/geo-ontology/geoobjecttype-management/define-attribute-modal-content.component";
@@ -188,6 +187,8 @@ import { GraphTypePageComponent } from "./component/geo-ontology/graph-type-page
 import { HierarchyTypePageComponent } from "./component/geo-ontology/hierarchy-type-page/hierarchy-type-page.component";
 import { CreateGraphTypeComponent } from "./component/geo-ontology/graph-type-page/create-graph-type.component";
 import { ManageGraphTypeComponent } from "./component/geo-ontology/graph-type-page/manage-graph-type.component";
+import { HierarchyTypeComponent } from "./component/geo-ontology/hierarchy-type-page/hierarchy-type.component";
+import { DragSidebarComponent } from "./component/geo-ontology/hierarchy-type-page/drag-sidebar.component";
 
 @NgModule({
     imports: [
@@ -217,6 +218,7 @@ import { ManageGraphTypeComponent } from "./component/geo-ontology/graph-type-pa
         GeoOntologyComponent,
         GeoObjectTypePageComponent,
         HierarchyTypePageComponent,
+        DragSidebarComponent,
         RelationshipVisualizerComponent,
         RequestTableComponent,
         RDFExportComponent,
@@ -226,7 +228,7 @@ import { ManageGraphTypeComponent } from "./component/geo-ontology/graph-type-pa
         FhirImportSynchronizationConfigComponent,
         JenaExportSynchronizationConfigComponent,
         Dhis2SynchronizationConfigComponent,
-        CreateHierarchyTypeModalComponent,
+        HierarchyTypeComponent,
         AddChildToHierarchyModalComponent,
         CreateGeoObjectTypeComponent,
         ManageAttributesModalComponent,

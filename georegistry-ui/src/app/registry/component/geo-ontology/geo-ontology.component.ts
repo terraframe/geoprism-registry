@@ -68,31 +68,6 @@ export class GeoOntologyComponent implements OnInit {
         return this.localizeService.decode(key);
     }
 
-    public findGeoObjectTypeByCode(code: string): GeoObjectType {
-        return this.geoObjectTypes.find(t => t.code === code);
-    }
-
-    public findHierarchyByCode(code: string): HierarchyType {
-        for (let i = 0; i < this.hierarchies.length; ++i) {
-            let ht: HierarchyType = this.hierarchies[i];
-
-            if (ht.code === code) {
-                return ht;
-            }
-        }
-    }
-
-    public findOrganizationByCode(code: string): Organization {
-        for (let i = 0; i < this.organizations.length; ++i) {
-            let org: Organization = this.organizations[i];
-
-            if (org.code === code) {
-                return org;
-            }
-        }
-    }
-
-
     isRA(): boolean {
         return this.authService.isRA();
     }
@@ -165,7 +140,7 @@ export class GeoOntologyComponent implements OnInit {
             //     this.geoObjectTypes.splice(pos, 1);
             // }
 
-            this.setHierarchies(response.hierarchies);
+            this.setHierarchyTypes(response.hierarchies);
 
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
@@ -218,8 +193,12 @@ export class GeoOntologyComponent implements OnInit {
         });
     }
 
-    private setHierarchies(data: HierarchyType[]): void {
-        let hierarchies: HierarchyType[] = [];
+
+
+
+    setHierarchyTypes(data: HierarchyType[]): void {
+        const hierarchies: HierarchyType[] = [];
+
         data.forEach((hierarchyType, index) => {
             if (hierarchyType.rootGeoObjectTypes.length > 0) {
                 hierarchyType.rootGeoObjectTypes.forEach(rootGeoObjectType => {
@@ -259,6 +238,49 @@ export class GeoOntologyComponent implements OnInit {
 
         return label;
     }
+
+    handleRemoveHierarchyType(code: string): void {
+        const hierarchies = [...this.hierarchies];
+
+        const index = hierarchies.findIndex(t => t.code === code);
+
+        if (index != -1) {
+            hierarchies.splice(index, 1);
+        }
+
+        this.setHierarchyTypes(hierarchies);
+    }
+
+    handleHierarchyType(type: HierarchyType): void {
+        const hierarchies = [...this.hierarchies];
+
+        const index = hierarchies.findIndex(t => t.code === type.code);
+
+        if (index != -1) {
+            hierarchies[index] = type;
+        }
+        else {
+            hierarchies.push(type);
+        }
+
+        this.setHierarchyTypes(hierarchies);
+    }
+
+    handleGeoObjectType(type: GeoObjectType): void {
+        const geoObjectTypes = [...this.geoObjectTypes];
+
+        const index = geoObjectTypes.findIndex(t => t.code === type.code);
+
+        if (index != -1) {
+            geoObjectTypes[index] = type;
+        }
+        else {
+            geoObjectTypes.push(type);
+        }
+
+        this.setGeoObjectTypes(geoObjectTypes);
+    }
+
 
 
     public importTypes(): void {

@@ -25,7 +25,7 @@ import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
 import * as d3 from "d3";
 
-import { CreateHierarchyTypeModalComponent } from "./modals/create-hierarchy-type-modal.component";
+import { CreateHierarchyTypeModalComponent } from "./modals/hierarchy-type.component";
 import { CreateGeoObjTypeModalComponent } from "./modals/create-geoobjtype-modal.component";
 import { ManageGeoObjectTypeModalComponent } from "./modals/manage-geoobjecttype-modal.component";
 

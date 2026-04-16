@@ -29,7 +29,11 @@
                 </tab>
                 <tab heading="Hierarchy Types">
                     <hierarchy-type-page [userOrganization]="userOrganization" [organizations]="organizations"
-                        [geoObjectTypes]="geoObjectTypes" [hierarchies]="hierarchies" (onError)="error($event)">
+                        [geoObjectTypes]="geoObjectTypes" [hierarchies]="hierarchies"
+                        (onHierarchyType)="handleHierarchyType($event)"
+                        (onGeoObjectType)="handleGeoObjectType($event)"
+                        (onRemove)="handleRemoveHierarchyType($event)"
+                        (onError)="error($event)">
                     </hierarchy-type-page>
 
                 </tab>

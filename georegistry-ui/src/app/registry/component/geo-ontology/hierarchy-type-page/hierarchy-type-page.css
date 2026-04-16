@@ -118,7 +118,7 @@ ul li:last-child:before {
 }
 
 .hierarchy-content {
-	height: calc(100vh - 92px);
+	height: calc(100vh - 200px);
     overflow: auto;
 }
 

@@ -145,7 +145,7 @@ export class SvgHierarchyNode {
 
             let relatedHierarchies = this.svgHierarchyType.getRelatedHierarchies(this.getCode());
 
-            const hasActionsPermissions = this.authService.isSRA() || this.authService.isOrganizationRA(this.svgHierarchyType.hierarchyType.organizationCode);
+            const hasActionsPermissions = this.hierarchyComponent.canEdit();
 
             let bbox = this.getBbox();
             let x = bbox.x + bbox.width - 5;
@@ -488,7 +488,7 @@ export class SvgHierarchyNode {
                 }
             }
 
-            this.hierarchyComponent.removeFromHierarchy(parent, svgGot.getCode(), (err: any) => { console.log(err); });
+            this.hierarchyComponent.handleRemoveFromHierarchy(parent, svgGot.getCode(), (err: any) => { console.log(err); });
         });
     }
 

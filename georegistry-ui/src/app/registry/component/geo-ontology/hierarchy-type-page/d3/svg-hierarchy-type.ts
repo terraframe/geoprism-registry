@@ -271,7 +271,7 @@ export class SvgHierarchyType {
             // .attr("d", d3.linkVertical().x(function(d:any) { return d.x; }).y(function(d:any) { return d.y; })); // draws edges as curved lines
             .attr("d", (d: any, i) => { // draws edges as square bracket lines
                 return "M" + d.source.x + "," + (d.source.y) +
-                    "V" + ((d.source.y + d.target.y) / 2) +
+                    "V" + (((d.source.y + d.target.y - SvgHierarchyType.gotHeaderH) / 2)) +
                     "H" + d.target.x +
                     "V" + (d.target.y);
             });

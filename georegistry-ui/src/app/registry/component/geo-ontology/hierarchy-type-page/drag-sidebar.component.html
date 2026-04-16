@@ -1,0 +1,37 @@
+<accordion [isAnimated]="true" [closeOthers]="false">
+	<accordion-group [isOpen]="true" [panelClass]="'hierarchy-sidebar-content'" style="border-radius: 0;">
+		<div accordion-heading style="padding: 10px 15px;">
+			<span>
+				<i style="margin-right:10px;" class="fa fa-circle"></i>
+			</span>
+			<localize key="hierarchy.sidebar.geoObjectTypes"></localize>
+		</div>
+		<div class="sidebar-section-content">
+			<ul *ngFor="let typeByOrg of typesByOrg;" class="list-group">
+				<div>
+					<div class="got-org-label-wrapper">
+						<label>{{typeByOrg.org.label.localizedValue}}</label>
+					</div>
+
+					<li class="list-group-item got-li-item"
+						[attr.data-superTypeCode]="(type.superTypeCode && type.superTypeCode.length > 0) ? type.superTypeCode : null"
+						*ngFor="let type of typeByOrg.types" [id]="type.code"
+						[attr.data-canDrag]="type.canDrag"
+						[ngClass]="{'got-group-parent' : (type.isAbstract), 'got-group-child' : type.superTypeCode && type.superTypeCode.length > 0}">
+						{{type.label.localizedValue}}
+
+						<!-- <span
+							*ngIf="!type.permissions.includes('WRITE') && type.permissions.includes('READ')"
+							style="position:absolute;right:10px;background:rgba(255,255,255,.7);top:50%;transform:translateY(-50%);">
+							<i class="fa fa-eye clickable pull-right"
+								(click)="manageGeoObjectType(type, true)"
+								[title]="'button.view.helptext' | localize"> </i>
+
+
+						</span> -->
+					</li>
+				</div>
+			</ul>
+		</div>
+	</accordion-group>
+</accordion>

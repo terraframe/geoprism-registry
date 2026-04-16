@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -92,7 +92,14 @@ public class EdgeObjectImporter implements ObjectImporterIF
     {
       try
       {
-        runInRequest(sessionId);
+        if (sessionId != null)
+        {
+          runInRequest(sessionId);
+        }
+        else
+        {
+          this.runAsSystem();
+        }
       }
       catch (InterruptedException e)
       {
@@ -103,6 +110,17 @@ public class EdgeObjectImporter implements ObjectImporterIF
 
     @Request(RequestType.SESSION)
     public void runInRequest(String sessionId) throws InterruptedException
+    {
+      execute();
+    }
+
+    @Request
+    public void runAsSystem() throws InterruptedException
+    {
+      execute();
+    }
+
+    protected void execute() throws InterruptedException
     {
       if (action.equals(Action.VALIDATE))
       {
@@ -186,7 +204,7 @@ public class EdgeObjectImporter implements ObjectImporterIF
 
   public void validateRow(FeatureRow row) throws InterruptedException
   {
-    this.blockingQueue.put(new Task(row, Action.VALIDATE, Session.getCurrentSession().getOid()));
+    this.blockingQueue.put(new Task(row, Action.VALIDATE, Session.getCurrentSession() != null ? Session.getCurrentSession().getOid() : null));
   }
 
   @Transaction
@@ -195,7 +213,7 @@ public class EdgeObjectImporter implements ObjectImporterIF
     try
     {
       // Refresh the session because it might expire on long imports
-      if ( ( this.lastValidateSessionRefresh + EdgeObjectImporter.refreshSessionRecordCount ) < row.getRowNumber())
+      if ( ( this.lastValidateSessionRefresh + EdgeObjectImporter.refreshSessionRecordCount ) < row.getRowNumber() && Session.getCurrentSession() != null)
       {
         SessionFacade.renewSession(Session.getCurrentSession().getOid());
         this.lastValidateSessionRefresh = row.getRowNumber();
@@ -259,7 +277,7 @@ public class EdgeObjectImporter implements ObjectImporterIF
   {
     if (!this.progressListener.isComplete(row.getRowNumber()))
     {
-      this.blockingQueue.put(new Task(row, Action.IMPORT, Session.getCurrentSession().getOid()));
+      this.blockingQueue.put(new Task(row, Action.IMPORT, Session.getCurrentSession() != null ? Session.getCurrentSession().getOid() : null));
     }
   }
 
@@ -345,7 +363,7 @@ public class EdgeObjectImporter implements ObjectImporterIF
     boolean imported = false;
 
     // Refresh the session because it might expire on long imports
-    if ( ( this.lastImportSessionRefresh + EdgeObjectImporter.refreshSessionRecordCount ) < row.getRowNumber())
+    if ( ( this.lastImportSessionRefresh + EdgeObjectImporter.refreshSessionRecordCount ) < row.getRowNumber() && Session.getCurrentSession() != null)
     {
       SessionFacade.renewSession(Session.getCurrentSession().getOid());
       this.lastImportSessionRefresh = row.getRowNumber();

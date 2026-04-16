@@ -226,7 +226,7 @@ public class JenaSynchronizationService
 
       statements.add("DELETE WHERE { GRAPH <" + config.getGraph() + "> { <" + subjectUri + "> <" + attributeUri + "> ?obj}}");
 
-      String literal = null;
+      Object literal = null;
 
       if (attribute instanceof AttributeTermType || attribute instanceof AttributeGeometryType)
       {
@@ -240,13 +240,9 @@ public class JenaSynchronizationService
         {
           literal = ( (LocalizedValue) value ).getValue();
         }
-        else if (value == null || value instanceof String)
-        {
-          literal = (String) value;
-        }
         else
         {
-          literal = value.toString();
+          literal = value;
         }
       }
 

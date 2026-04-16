@@ -21,7 +21,8 @@ import { Component, OnInit, ViewChild, ElementRef, Input, Output, EventEmitter, 
 import { HttpErrorResponse } from "@angular/common/http";
 import { debounceTime, distinctUntilChanged, filter, tap } from "rxjs/operators";
 import { fromEvent } from "rxjs";
-import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
+import { BsModalService } from "ngx-bootstrap/modal";
+import * as lodash from 'lodash';
 
 import * as d3 from "d3";
 
@@ -36,8 +37,6 @@ import { RegistryService, HierarchyService } from "@registry/service";
 
 import { SvgHierarchyType } from "./d3/svg-hierarchy-type";
 import { svgPoint, isPointWithin, calculateTextWidth, getBboxFromSelection } from "./d3/svg-util";
-import { SvgHierarchyNode } from "./d3/svg-hierarchy-node";
-import { CreateHierarchyTypeModalComponent } from "../modals/create-hierarchy-type-modal.component";
 import { ImportHistoryModalComponent } from "@registry/component/import-history/modals/import-history-modal.component";
 
 export const TREE_SCALE_FACTOR_X: number = 1.4;
@@ -61,13 +60,27 @@ export interface DropTarget {
     [others: string]: any;
 }
 
-@Component({
+enum Action {
+    VIEW = 0, CREATE = 1, EDIT = 2
+}
 
+enum Tab {
+    METADATA = 0, HIERARCHY = 1
+}
+
+interface Selection {
+    action: Action
+    type: HierarchyType;
+}
+
+@Component({
     selector: "hierarchy-type-page",
     templateUrl: "./hierarchy-type-page.component.html",
     styleUrls: ["./hierarchy-type-page.css"]
 })
 export class HierarchyTypePageComponent implements OnInit {
+    Action = Action;
+    Tab = Tab;
 
     @Input() userOrganization: string = null;
     @Input() organizations: Organization[] = [];
@@ -75,10 +88,11 @@ export class HierarchyTypePageComponent implements OnInit {
     @Input() hierarchies: HierarchyType[] = [];
 
     @Output() onError: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>()
-    @Output() typesChange: EventEmitter<HierarchyType[]> = new EventEmitter<HierarchyType[]>()
+    @Output() onHierarchyType: EventEmitter<HierarchyType> = new EventEmitter<HierarchyType>()
+    @Output() onRemove: EventEmitter<string> = new EventEmitter<string>()
+    @Output() onGeoObjectType: EventEmitter<GeoObjectType> = new EventEmitter<GeoObjectType>()
 
     primarySvgHierarchy: SvgHierarchyType;
-    currentHierarchy: HierarchyType = null;
 
     instance: Instance = new Instance();
 
@@ -87,29 +101,23 @@ export class HierarchyTypePageComponent implements OnInit {
 
     filter: string = "";
     filteredHierarchiesByOrg: { org: Organization, hierarchies: HierarchyType[] }[] = [];
-    filteredTypesByOrg: { org: Organization, types: GeoObjectType[] }[] = [];
 
     @ViewChild("searchInput", { static: true }) searchInput: ElementRef;
 
-    _opened: boolean = false;
-
-    /*
-     * Currently clicked on id for delete confirmation modal
-     */
-    current: any;
-
     isSRA: boolean = false;
 
-    hierarchyService: HierarchyService;
+    dropTargets: DropTarget[] = []
 
-    localizeService: LocalizationService;
+    selection: Selection;
+    tab: Tab = Tab.METADATA;
 
-    constructor(hierarchyService: HierarchyService, private modalService: BsModalService,
-        localizeService: LocalizationService, private registryService: RegistryService, private authService: AuthService) {
+    constructor(
+        private hierarchyService: HierarchyService,
+        private modalService: BsModalService,
+        private localizeService: LocalizationService,
+        private registryService: RegistryService,
+        private authService: AuthService) {
         this.isSRA = authService.isSRA();
-
-        this.hierarchyService = hierarchyService;
-        this.localizeService = localizeService;
     }
 
     ngOnInit(): void {
@@ -124,6 +132,8 @@ export class HierarchyTypePageComponent implements OnInit {
             })
             // subscription for response
         ).subscribe();
+
+        this.registerDragHandlers();
     }
 
     ngOnChanges(changes: SimpleChanges) {
@@ -135,10 +145,7 @@ export class HierarchyTypePageComponent implements OnInit {
                 return { org: org, types: types.filter(t => t.organizationCode === org.code) };
             });
 
-            this.filteredTypesByOrg = this.typesByOrg;
-
-            // this.onFilterChange();
-            setTimeout(() => { this.registerDragHandlers(); }, 500);
+            this.updateGeoObjectTypeStatus();
         }
 
         if (changes['hierarchies'] || changes['organizations']) {
@@ -154,98 +161,73 @@ export class HierarchyTypePageComponent implements OnInit {
 
     }
 
+    ngAfterViewInit() {
+    }
+
     localize(key: string): string {
         return this.localizeService.decode(key);
     }
 
-    private renderTree(): void {
-        if (this.currentHierarchy == null || this.currentHierarchy.rootGeoObjectTypes == null || this.currentHierarchy.rootGeoObjectTypes.length == 0) {
-            d3.select("#svg").remove();
+    handleTabChange(tab: Tab): void {
+        this.tab = tab;
 
-            let canDrag = false;
-            if (this.currentHierarchy != null) {
-                canDrag = (this.authService.isSRA() || this.authService.isOrganizationRA(this.currentHierarchy.organizationCode));
+        if (this.tab === Tab.HIERARCHY) {
+            setTimeout(() => {
+                this.renderTree();
+            }, 100);
+        }
+    }
+
+
+    getNodeByCode(code: string): HierarchyNode {
+        if (this.selection != null && this.selection.type.rootGeoObjectTypes != null) {
+
+            for (let i = 0; i < this.selection.type.rootGeoObjectTypes.length; i++) {
+                const root = this.selection.type.rootGeoObjectTypes[i];
+
+                const node = this.findNodeByCode(code, root);
+
+                if (node != null) {
+                    return node;
+                }
             }
-
-            this.geoObjectTypes.forEach((got: GeoObjectType) => {
-                got.canDrag = canDrag;
-            });
-            return;
         }
 
-        d3.select(".g-context-menu").remove();
-        d3.select(".hierarchy-inherit-button").remove();
-        d3.select(".g-hierarchy-got-connector").remove();
+        return null;
+    }
 
-        let overflowDiv: any = d3.select("#overflow-div").node();
-        let scrollLeft = overflowDiv.scrollLeft;
-        let scrollRight = overflowDiv.scrollRight;
+    findNodeByCode(code: string, node: HierarchyNode): HierarchyNode {
 
-        let svg = d3.select("#svg");
-
-        if (svg.node() == null) {
-            svg = d3.select("#svgHolder").append("svg");
-            svg.attr("id", "svg");
-            // Define zoom behavior
-            // const zoom = d3.zoom()
-            //     .scaleExtent([0.5, 5]) // Min and max zoom scale
-            //     .on("zoom", (event) => {
-            //         svg.attr("transform", event.transform); // Apply zoom/pan transform
-            //     });
-
-            // // Attach zoom behavior to SVG
-            // svg.call(zoom)
-            //     .on("wheel.zoom", null) // Remove default wheel handler
-            //     .on("wheel", (event) => {
-            //         event.preventDefault(); // Prevent page scroll
-            //         svg.call(zoom.scaleBy, event.deltaY < 0 ? 1.1 : 0.9); // Zoom in/out
-            //     });
+        if (node.geoObjectType === code) {
+            return node;
         }
 
-        this.primarySvgHierarchy = new SvgHierarchyType(this, svg, this.currentHierarchy, true, this.localizeService, this.modalService, this.authService);
-        this.primarySvgHierarchy.render();
+        if (node.children != null) {
 
-        this.calculateSvgViewBox();
+            for (let i = 0; i < node.children.length; i++) {
 
-        let overflowDiv2: any = d3.select("#overflow-div").node();
-        overflowDiv2.scrollLeft = scrollLeft;
-        overflowDiv2.scrollRight = scrollRight;
+                const child = this.findNodeByCode(code, node.children[i]);
 
-        // this.registerSvgHandlers();
+                if (child != null) {
+                    return child;
+                }
+            }
+        }
 
-        this.geoObjectTypes.forEach((got: GeoObjectType) => {
-            got.canDrag = this.calculateCanDrag(got);
-        });
+        return null;
     }
 
-    calculateSvgViewBox(): void {
-        let svg: any = d3.select("#svg");
-        let svgNode: any = svg.node();
-
-        let { x, y, width, height } = svgNode.getBBox();
-
-        const xPadding = 30;
-        const yPadding = 40;
-        svg.attr("viewBox", (x - xPadding) + " " + (y - yPadding) + " " + (width + xPadding * 2) + " " + (height + yPadding * 2));
-
-        width = (width + xPadding * 2) * TREE_SCALE_FACTOR_X;
-        height = (height + yPadding * 2) * TREE_SCALE_FACTOR_Y;
-
-        d3.select("#svgHolder").style("width", width + "px");
-        // d3.select("#svgHolder").style("height", height + "px");
-    }
 
     calculateCanDrag(got: GeoObjectType): boolean {
-        let hierarchyComponent = this;
 
-        if (this.primarySvgHierarchy != null) {
+        if (this.selection != null) {
             // Check permissions against GOT and Hierarchy org
-            if (!(this.authService.isSRA() || this.authService.isOrganizationRA(this.currentHierarchy.organizationCode))) {
+            if (!(this.authService.isSRA() || this.authService.isOrganizationRA(this.selection.type.organizationCode))) {
                 return false;
             }
 
             // If the child is already on the graph, they cannot drag.
-            if (this.primarySvgHierarchy.getNodeByCode(got.code) != null) {
+            if (this.getNodeByCode(got.code) != null) {
                 return false;
             }
 
@@ -255,7 +237,7 @@ export class HierarchyTypePageComponent implements OnInit {
 
                 this.geoObjectTypes.forEach((child: GeoObjectType) => {
                     if (child.superTypeCode === got.code) {
-                        if (hierarchyComponent.primarySvgHierarchy.getNodeByCode(child.code) != null) {
+                        if (this.getNodeByCode(child.code) != null) {
                             isChildOnGraph = true;
                         }
                     }
@@ -267,7 +249,7 @@ export class HierarchyTypePageComponent implements OnInit {
             }
             // If we are a child of an abstract type, and our abstract type is on the graph, we cannot drag.
             else if (got.superTypeCode != null) {
-                if (hierarchyComponent.primarySvgHierarchy.getNodeByCode(got.superTypeCode) != null) {
+                if (this.getNodeByCode(got.superTypeCode) != null) {
                     return false;
                 }
             }
@@ -301,13 +283,418 @@ export class HierarchyTypePageComponent implements OnInit {
         return relatedHiers;
     }
 
+
+
+    handleDrag(event: { dragEl: Element, dropEl: Element, event: any }): void {
+        for (let i = 0; i < this.dropTargets.length; ++i) {
+            this.dropTargets[i].onDrag(event.dragEl, event.dropEl, event.event);
+        }
+    }
+
+    handleDrop(event: { dragEl: Element, event: any }): void {
+        for (let i = 0; i < this.dropTargets.length; ++i) {
+            this.dropTargets[i].onDrop(event.dragEl, event.event);
+        }
+    }
+
+    findGeoObjectTypeByCode(code: string): GeoObjectType {
+        return this.geoObjectTypes.find(t => t.code === code);
+    }
+
+    findHierarchyByCode(code: string): HierarchyType {
+        return this.hierarchies.find(t => t.code === code);
+    }
+
+    findOrganizationByCode(code: string): Organization {
+        return this.organizations.find(t => t.code === code);
+    }
+
+    isRA(): boolean {
+        return this.authService.isRA();
+    }
+
+    isOrganizationRA(orgCode: string, dropZone: boolean = false): boolean {
+        return this.isSRA || this.authService.isOrganizationRA(orgCode);
+    }
+
+    canEdit(): boolean {
+        return this.selection != null && this.selection.action === Action.EDIT && (
+            this.authService.isSRA() || this.authService.isOrganizationRA(this.selection.type.organizationCode)
+        );
+    }
+
+
+
+
+    getTypesByOrg(org: Organization): GeoObjectType[] {
+        let orgTypes: GeoObjectType[] = [];
+
+        for (let i = 0; i < this.geoObjectTypes.length; ++i) {
+            let geoObjectType: GeoObjectType = this.geoObjectTypes[i];
+
+            if (geoObjectType.organizationCode === org.code) {
+                orgTypes.push(geoObjectType);
+            }
+        }
+
+        return orgTypes;
+    }
+
+    getHierarchiesByOrg(org: Organization): HierarchyType[] {
+        let orgHierarchies: HierarchyType[] = [];
+
+        for (let i = 0; i < this.hierarchies.length; ++i) {
+            let hierarchy: HierarchyType = this.hierarchies[i];
+
+            if (hierarchy.organizationCode === org.code) {
+                orgHierarchies.push(hierarchy);
+            }
+        }
+
+        return orgHierarchies;
+    }
+
+
+    private processHierarchyNodes(node: HierarchyNode) {
+        if (node != null) {
+            node.label = this.getHierarchyLabel(node.geoObjectType);
+
+            node.children.forEach(child => {
+                this.processHierarchyNodes(child);
+            });
+        }
+    }
+
+    private getHierarchyLabel(geoObjectTypeCode: string): string {
+        let label: string = null;
+        this.geoObjectTypes.forEach(function (gOT) {
+            if (gOT.code === geoObjectTypeCode) {
+                label = gOT.label.localizedValue;
+            }
+        });
+
+        return label;
+    }
+
+    handleRemoveFromHierarchy(parentGotCode: string, gotCode: string, errCallback: (err: HttpErrorResponse) => void = null): void {
+
+        this.hierarchyService.removeFromHierarchy(this.selection.type.code, parentGotCode, gotCode).then(hierarchyType => {
+
+            const geoObjectType = this.findGeoObjectTypeByCode(gotCode);
+
+            const index = geoObjectType.relatedHierarchies.findIndex(t => t === hierarchyType.code);
+
+            if (index != -1) {
+
+                const got = lodash.cloneDeep(geoObjectType);
+                got.relatedHierarchies.splice(index, 1);
+
+                this.onGeoObjectType.emit(got);
+            }
+
+            this.refreshPrimaryHierarchy(hierarchyType);
+        }).catch((err: HttpErrorResponse) => {
+            if (errCallback != null) {
+                errCallback(err);
+            }
+
+            this.error(err);
+        });
+    }
+
+
+    handleAddChild(hierarchyCode: string, parentGeoObjectTypeCode: string, childGeoObjectTypeCode: string): void {
+        this.hierarchyService.addChildToHierarchy(hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode).then((ht: HierarchyType) => {
+            const geoObjectType = this.findGeoObjectTypeByCode(childGeoObjectTypeCode);
+
+            const index = geoObjectType.relatedHierarchies.findIndex(t => t === hierarchyCode);
+
+            if (index == -1) {
+
+                const got = lodash.cloneDeep(geoObjectType);
+                got.relatedHierarchies.push(hierarchyCode);
+
+                this.onGeoObjectType.emit(got);
+            }
+
+            this.refreshPrimaryHierarchy(ht);
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
+    }
+
+    handleInsertBetweenTypes(hierarchyCode: string, parentGeoObjectTypeCode: string, middleGeoObjectTypeCode: string, youngestGeoObjectTypeCode: string): void {
+        this.hierarchyService.insertBetweenTypes(hierarchyCode, parentGeoObjectTypeCode, middleGeoObjectTypeCode, youngestGeoObjectTypeCode).then((ht: HierarchyType) => {
+            this.refreshPrimaryHierarchy(ht);
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
+    }
+
+    handleCreateHierarchy(organizationCode: string): void {
+        this.setSelection({
+            action: Action.CREATE,
+            type: {
+                code: "",
+                description: this.localizeService.create(),
+                label: this.localizeService.create(),
+                rootGeoObjectTypes: [],
+                organizationCode: organizationCode
+            },
+        });
+    }
+
+    handleDeleteHierarchyType(obj: HierarchyType): void {
+        const bsModalRef = this.modalService.show(ConfirmModalComponent, {
+            animated: true,
+            backdrop: true,
+            ignoreBackdropClick: true
+        });
+        bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " [" + obj.label.localizedValue + "]";
+        bsModalRef.content.data = obj.code;
+        bsModalRef.content.type = "DANGER";
+        bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
+
+        bsModalRef.content.onConfirm.subscribe(data => {
+            this.removeHierarchyType(data);
+        });
+    }
+
+    handleEditHierarchyType(obj: HierarchyType, readOnly: boolean): void {
+
+        this.setSelection({
+            action: readOnly ? Action.VIEW : Action.EDIT,
+            type: lodash.cloneDeep(obj),
+        });
+    }
+
+    handleTypeChange(event: { edit: boolean, hierarchy: HierarchyType }): void {
+        if (event != null) {
+
+            const bsModalRef = this.modalService.show(ConfirmModalComponent, {
+                animated: true,
+                backdrop: true,
+                ignoreBackdropClick: true
+            });
+            bsModalRef.content.message = "You have unsaved changes";
+            bsModalRef.content.submitText = "Save changes and close"
+
+            bsModalRef.content.onConfirm.subscribe(data => {
+
+                if (event.edit) {
+                    this.hierarchyService.updateHierarchyType(event.hierarchy).then(type => {
+                        this.onHierarchyType.emit(type);
+
+                        this.setSelection({
+                            action: Action.VIEW,
+                            type: type,
+                        });
+                    }).catch((err: HttpErrorResponse) => {
+                        this.error(err);
+                    });
+                } else {
+                    this.hierarchyService.createHierarchyType(event.hierarchy).then(type => {
+                        this.onHierarchyType.emit(type);
+
+                        this.setSelection({
+                            action: Action.VIEW,
+                            type: type,
+                        });
+                    }).catch((err: HttpErrorResponse) => {
+                        this.error(err);
+                    });
+                }
+            });
+
+        }
+        else {
+            this.setSelection({
+                action: Action.VIEW,
+                type: this.selection.type,
+            });
+        }
+    }
+
+    handleTypeView(hierarchyType: HierarchyType): void {
+
+        this.setSelection({
+            type: lodash.cloneDeep(hierarchyType),
+            action: Action.VIEW
+        });
+    }
+
+    updateGeoObjectTypeStatus(): void {
+
+        if (this.typesByOrg != null) {
+            // Update the can drag options
+            if (this.selection == null || this.selection.type.rootGeoObjectTypes == null || this.selection.type.rootGeoObjectTypes.length == 0) {
+
+                let canDrag = (this.authService.isSRA() || this.authService.isOrganizationRA(this.selection.type.organizationCode));
+
+                this.typesByOrg.forEach(org => org.types.forEach(t => t.canDrag = canDrag));
+            } else {
+                this.typesByOrg.forEach(org => org.types.forEach(t => {
+                    t.canDrag = this.calculateCanDrag(t)
+                    t.relatedHierarchies = this.calculateRelatedHierarchies(t);
+                }));
+            }
+        }
+    }
+
+    setSelection(selection: Selection): void {
+        this.selection = selection;
+
+        this.updateGeoObjectTypeStatus();
+
+        if (this.tab === Tab.HIERARCHY) {
+            this.renderTree();
+        }
+    }
+
+    isPrimaryHierarchy(hierarchy: HierarchyType): boolean {
+        return this.selection != null && hierarchy.code === this.selection.type.code;
+    }
+
+    removeHierarchyType(code: string): void {
+        this.hierarchyService.deleteHierarchyType(code).then(response => {
+            this.onRemove.emit(code);
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
+    }
+
+
+    refreshPrimaryHierarchy(hierarchyType: HierarchyType) {
+        this.processHierarchyNodes(hierarchyType.rootGeoObjectTypes[0]);
+
+        this.selection.type = hierarchyType;
+
+        this.updateGeoObjectTypeStatus();
+
+        this.renderTree();
+
+        this.onHierarchyType.emit(hierarchyType);
+    }
+
+
+    onFilterChange(): void {
+        const label = this.filter.toLowerCase();
+
+        this.filteredHierarchiesByOrg = [];
+
+        this.hierarchiesByOrg.forEach((item: { org: Organization, hierarchies: HierarchyType[] }) => {
+            const filtered = item.hierarchies.filter((hierarchy: HierarchyType) => {
+                const index = hierarchy.label.localizedValue.toLowerCase().indexOf(label);
+
+                return (index !== -1);
+            });
+
+            this.filteredHierarchiesByOrg.push({ org: item.org, hierarchies: filtered });
+        });
+    }
+
+    handleInheritHierarchy(hierarchyTypeCode: string, inheritedHierarchyTypeCode: string, geoObjectTypeCode: string) {
+        this.hierarchyService.setInheritedHierarchy(hierarchyTypeCode, inheritedHierarchyTypeCode, geoObjectTypeCode).then((ht: HierarchyType) => {
+            this.refreshPrimaryHierarchy(ht);
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
+    }
+
+    handleUninheritHierarchy(hierarchyTypeCode: string, geoObjectTypeCode: string) {
+        this.hierarchyService.removeInheritedHierarchy(hierarchyTypeCode, geoObjectTypeCode).then((ht: HierarchyType) => {
+            this.refreshPrimaryHierarchy(ht);
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
+    }
+
+
+    onImportHistory(type: HierarchyType): void {
+        this.registryService.getImportHistory('HierarchyType', type.code).then(histories => {
+            const bsModalRef = this.modalService.show(ImportHistoryModalComponent, {
+                animated: true,
+                backdrop: true,
+                ignoreBackdropClick: true
+            });
+            bsModalRef.content.init(type.label, histories);
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
+    }
+
+
+
+    renderTree(): void {
+        console.log('Render Tree')
+
+        // Remove existing tree
+        if (this.selection == null || this.selection.type.rootGeoObjectTypes == null || this.selection.type.rootGeoObjectTypes.length == 0) {
+            d3.select("#svg").remove();
+        }
+
+        d3.select(".g-context-menu").remove();
+        d3.select(".hierarchy-inherit-button").remove();
+        d3.select(".g-hierarchy-got-connector").remove();
+
+        let overflowDiv: any = d3.select("#overflow-div").node();
+        let scrollLeft = overflowDiv.scrollLeft;
+        let scrollRight = overflowDiv.scrollRight;
+
+        let svg = d3.select("#svg");
+
+        if (svg.node() == null) {
+            svg = d3.select("#svgHolder").append("svg");
+            svg.attr("id", "svg");
+            // Define zoom behavior
+            // const zoom = d3.zoom()
+            //     .scaleExtent([0.5, 5]) // Min and max zoom scale
+            //     .on("zoom", (event) => {
+            //         svg.attr("transform", event.transform); // Apply zoom/pan transform
+            //     });
+
+            // // Attach zoom behavior to SVG
+            // svg.call(zoom)
+            //     .on("wheel.zoom", null) // Remove default wheel handler
+            //     .on("wheel", (event) => {
+            //         event.preventDefault(); // Prevent page scroll
+            //         svg.call(zoom.scaleBy, event.deltaY < 0 ? 1.1 : 0.9); // Zoom in/out
+            //     });
+        }
+
+        this.primarySvgHierarchy = new SvgHierarchyType(this, svg, this.selection.type, true, this.localizeService, this.modalService, this.authService);
+        this.primarySvgHierarchy.render();
+
+        this.calculateSvgViewBox();
+
+        let overflowDiv2: any = d3.select("#overflow-div").node();
+        overflowDiv2.scrollLeft = scrollLeft;
+        overflowDiv2.scrollRight = scrollRight;
+    }
+
+    calculateSvgViewBox(): void {
+        let svg: any = d3.select("#svg");
+        let svgNode: any = svg.node();
+
+        let { x, y, width, height } = svgNode.getBBox();
+
+        const xPadding = 30;
+        const yPadding = 40;
+        svg.attr("viewBox", (x - xPadding) + " " + (y - yPadding) + " " + (width + xPadding * 2) + " " + (height + 200 + yPadding * 2 ));
+
+        width = (width + xPadding * 2) * TREE_SCALE_FACTOR_X;
+        height = (height + 200 + yPadding * 2) * TREE_SCALE_FACTOR_Y;
+
+        d3.select("#svgHolder").style("width", width + "px");
+    }
+
     private registerDragHandlers(): any {
         let that = this;
 
-        let dropTargets: DropTarget[] = [];
+        this.dropTargets = [];
 
         // Empty Hierarchy Drop Zone
-        dropTargets.push({
+        this.dropTargets.push({
             dropSelector: ".drop-box-container",
             onDrag: function (dragEl: Element, dropEl: Element) {
                 if (this.dropEl != null) {
@@ -326,14 +713,14 @@ export class HierarchyTypePageComponent implements OnInit {
             onDrop: function (dragEl: Element) {
                 if (this.dropEl != null) {
                     this.dropEl.style("border-color", null);
-                    that.addChild(that.currentHierarchy.code, "ROOT", d3.select(dragEl).attr("id"));
+                    that.handleAddChild(that.selection.type.code, "ROOT", d3.select(dragEl).attr("id"));
                     this.dropEl = null;
                 }
             }
         });
 
         // SVG GeoObjectType Drop Zone
-        dropTargets.push({
+        this.dropTargets.push({
             dropSelector: ".svg-got-body-rect",
             onDrag: function (dragEl: Element, mouseTarget: Element, event: any) {
                 this.clearDropZones();
@@ -508,7 +895,7 @@ export class HierarchyTypePageComponent implements OnInit {
 
                     if (this.activeDz === this.childDz) {
                         if (dropNode.data.children.length == 0) {
-                            that.addChild(that.currentHierarchy.code, dropGot, dragGot);
+                            that.handleAddChild(that.selection.type.code, dropGot, dragGot);
                         } else {
                             let youngest = "";
 
@@ -520,16 +907,16 @@ export class HierarchyTypePageComponent implements OnInit {
                                 }
                             }
 
-                            that.insertBetweenTypes(that.currentHierarchy.code, dropGot, dragGot, youngest);
+                            that.handleInsertBetweenTypes(that.selection.type.code, dropGot, dragGot, youngest);
                         }
                     } else if (this.activeDz === this.parentDz) {
                         if (dropNode.parent == null) {
-                            that.insertBetweenTypes(that.currentHierarchy.code, "ROOT", dragGot, dropGot);
+                            that.handleInsertBetweenTypes(that.selection.type.code, "ROOT", dragGot, dropGot);
                         } else {
-                            that.insertBetweenTypes(that.currentHierarchy.code, dropNode.parent.data.geoObjectType, dragGot, dropGot);
+                            that.handleInsertBetweenTypes(that.selection.type.code, dropNode.parent.data.geoObjectType, dragGot, dropGot);
                         }
                     } else if (this.activeDz === "sibling") {
-                        that.addChild(that.currentHierarchy.code, dropNode.parent.data.geoObjectType, d3.select(dragEl).attr("id"));
+                        that.handleAddChild(that.selection.type.code, dropNode.parent.data.geoObjectType, d3.select(dragEl).attr("id"));
                     }
                 }
                 this.clearDropZones();
@@ -575,671 +962,7 @@ export class HierarchyTypePageComponent implements OnInit {
             }
         });
 
-        // GeoObjectTypes and Hierarchies
-        let deltaX: number, deltaY: number, width: number;
-        let sidebarDragHandler = d3.drag()
-            .on("start", function (event: any) {
-                let canDrag = d3.select(this).attr("data-candrag");
-                if (canDrag === "false") {
-                    return;
-                }
-
-                let rect = this.getBoundingClientRect();
-                deltaX = rect.left - event.sourceEvent.pageX;
-                deltaY = rect.top - event.sourceEvent.pageY;
-                width = rect.width;
-            })
-            .on("drag", function (event: any) {
-                let canDrag = d3.select(this).attr("data-candrag");
-                if (canDrag === "false") {
-                    return;
-                }
-
-                d3.select(".g-context-menu").remove();
-
-                let selThis = d3.select(this);
-
-                // Kind of a dumb hack, but if we hide our drag element for a sec, then we can check what's underneath it.
-                selThis.style("display", "none");
-
-                let target = document.elementFromPoint(event.sourceEvent.pageX, event.sourceEvent.pageY);
-
-                selThis.style("display", null);
-
-                for (let i = 0; i < dropTargets.length; ++i) {
-                    dropTargets[i].onDrag(this, target, event);
-                }
-
-                // Move the GeoObjectType with the pointer when they move their mouse
-                selThis
-                    .classed("dragging", true)
-                    .style("left", (event.sourceEvent.pageX + deltaX) + "px")
-                    .style("top", (event.sourceEvent.pageY + deltaY) + "px")
-                    .style("width", width + "px");
-
-                // If they are moving a GOT group then we have to move the children as well
-                if (selThis.classed("got-group-parent")) {
-                    let index = 1;
-                    d3.selectAll(".got-group-child[data-superTypeCode=\"" + selThis.attr("id") + "\"]").each(function () {
-                        let li: any = this;
-                        let child = d3.select(li);
-
-                        child
-                            .classed("dragging", true)
-                            .style("left", (event.sourceEvent.pageX + deltaX) + "px")
-                            .style("top", (event.sourceEvent.pageY + deltaY + (li.getBoundingClientRect().height + 2) * index) + "px")
-                            .style("width", width + "px");
-
-                        index++;
-                    });
-                }
-            }).on("end", function (event: any) {
-                let selThis = d3.select(this)
-                    .classed("dragging", false)
-                    .style("left", null)
-                    .style("top", null)
-                    .style("width", null);
-
-                // If they are moving a GOT group then we have to reset the children as well
-                if (selThis.classed("got-group-parent")) {
-                    d3.selectAll(".got-group-child[data-superTypeCode=\"" + selThis.attr("id") + "\"]").each(function () {
-                        let child = d3.select(this);
-
-                        child
-                            .classed("dragging", false)
-                            .style("left", null)
-                            .style("top", null)
-                            .style("width", null);
-                    });
-                }
-
-                for (let i = 0; i < dropTargets.length; ++i) {
-                    dropTargets[i].onDrop(this, event);
-                }
-            });
-
-        sidebarDragHandler(d3.selectAll(".sidebar-section-content ul.list-group li.got-li-item"));
     }
-
-    private registerSvgHandlers(): void {
-        let hierarchyComponent = this;
-
-        // SVG Drag Handler
-        let deltaX: number, deltaY: number, width: number;
-        let startPoint: any;
-        let svgGot: SvgHierarchyNode;
-        let svgDragHandler = d3.drag()
-            .on("start", function (event: any) {
-                let svgMousePoint: any = svgPoint(event.sourceEvent.pageX, event.sourceEvent.pageY);
-                // let select = d3.select(this);
-
-                svgGot = hierarchyComponent.primarySvgHierarchy.getNodeByCode(d3.select(this).attr("data-gotCode"));
-
-                // d3.selectAll(".svg-got-relatedhiers-button").sort(function (a: any, b: any) {
-                //   if (a.data.geoObjectType !== event.subject.data.geoObjectType) {
-                //     return -1
-                //   }
-                //   else {
-                //     return 1
-                //   }
-                // });
-
-                //   d3.selectAll(".svg-got-body-rect").sort(function (a: any, b: any) {
-                //   if (a.data.geoObjectType !== event.subject.data.geoObjectType) {
-                //     return -1
-                //   }
-                //   else {
-                //     return 1
-                //   }
-                // });
-
-                // d3.selectAll(".svg-got-header-rect").sort(function (a: any, b: any) {
-                //   if (a.data.geoObjectType !== event.subject.data.geoObjectType) {
-                //     console.log("no --> ",a.data.geoObjectType)
-                //     return -1
-                //   }
-                //   else {
-                //     console.log("yes --> ",a.data.geoObjectType)
-                //     return 1
-                //   }
-                // });
-
-                startPoint = svgGot.getPos();
-
-                deltaX = startPoint.x - svgMousePoint.x;
-                deltaY = startPoint.y - svgMousePoint.y;
-            })
-            .on("drag", function (event: any) {
-                d3.select(".g-context-menu").remove();
-
-                let svgMousePoint = svgPoint(event.sourceEvent.pageX, event.sourceEvent.pageY);
-
-                svgGot = hierarchyComponent.primarySvgHierarchy.getNodeByCode(d3.select(this).attr("data-gotCode"));
-
-                svgGot.setPos(svgMousePoint.x + deltaX, svgMousePoint.y + deltaY, true);
-            }).on("end", function (event: any) {
-                let bbox: string[] = d3.select("#svg").attr("viewBox").split(" ");
-
-                svgGot.setPos(startPoint.x, startPoint.y, false);
-
-                // if (!isBboxPartiallyWithin(svgGot.getBbox(), { x: parseInt(bbox[0]), y: parseInt(bbox[1]), width: parseInt(bbox[2]), height: parseInt(bbox[3]) })) {
-
-                //   if (hierarchyComponent.isOrganizationRA(hierarchyComponent.currentHierarchy.organizationCode)) {
-                //     let obj = hierarchyComponent.findGeoObjectTypeByCode(svgGot.getCode());
-
-                //     hierarchyComponent.bsModalRef = hierarchyComponent.modalService.show(ConfirmModalComponent, {
-                //       animated: true,
-                //       backdrop: true,
-                //       ignoreBackdropClick: true,
-                //     });
-
-                //     let message = hierarchyComponent.localizeService.decode("confirm.modal.verify.remove.hierarchy");
-                //     message = message.replace("{label}", obj.label.localizedValue);
-
-                //     hierarchyComponent.bsModalRef.content.message = message;
-                //     hierarchyComponent.bsModalRef.content.data = obj.code;
-
-                //     (<ConfirmModalComponent>hierarchyComponent.bsModalRef.content).onConfirm.subscribe(data => {
-                //       let treeNode = svgGot.getTreeNode();
-                //       let parent = null;
-                //       if (treeNode.parent == null) {
-                //         parent = "ROOT";
-                //       }
-                //       else {
-                //         if (treeNode.parent.data.inheritedHierarchyCode != null) {
-                //           parent = "ROOT";
-                //         }
-                //         else {
-                //           parent = treeNode.parent.data.geoObjectType;
-                //         }
-                //       }
-
-                //       hierarchyComponent.removeFromHierarchy(parent, svgGot.getCode(), (err: any) => { svgGot.setPos(startPoint.x, startPoint.y, false); });
-                //     });
-
-                //     (<ConfirmModalComponent>hierarchyComponent.bsModalRef.content).onCancel.subscribe(data => {
-                //       svgGot.setPos(startPoint.x, startPoint.y, false);
-                //     });
-                //   }
-                //   else {
-                //     svgGot.setPos(startPoint.x, startPoint.y, false);
-                //   }
-
-                // }
-                // else {
-                //   svgGot.setPos(startPoint.x, startPoint.y, false);
-                // }
-            });
-
-        svgDragHandler(d3.selectAll(".svg-got-body-rect[data-inherited=false],.svg-got-label-text[data-inherited=false],.svg-got-header-rect[data-inherited=false]"));
-    }
-
-    public findGeoObjectTypeByCode(code: string): GeoObjectType {
-        for (let i = 0; i < this.geoObjectTypes.length; ++i) {
-            let got: GeoObjectType = this.geoObjectTypes[i];
-
-            if (got.code === code) {
-                return got;
-            }
-        }
-    }
-
-    public findHierarchyByCode(code: string): HierarchyType {
-        for (let i = 0; i < this.hierarchies.length; ++i) {
-            let ht: HierarchyType = this.hierarchies[i];
-
-            if (ht.code === code) {
-                return ht;
-            }
-        }
-    }
-
-    public findOrganizationByCode(code: string): Organization {
-        for (let i = 0; i < this.organizations.length; ++i) {
-            let org: Organization = this.organizations[i];
-
-            if (org.code === code) {
-                return org;
-            }
-        }
-    }
-
-    private addChild(hierarchyCode: string, parentGeoObjectTypeCode: string, childGeoObjectTypeCode: string): void {
-        this.hierarchyService.addChildToHierarchy(hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode).then((ht: HierarchyType) => {
-            let got = this.findGeoObjectTypeByCode(childGeoObjectTypeCode);
-
-            let index = null;
-            for (let i = 0; i < got.relatedHierarchies.length; ++i) {
-                if (got.relatedHierarchies[i] === hierarchyCode) {
-                    index = i;
-                    break;
-                }
-            }
-
-            if (index == null) {
-                got.relatedHierarchies.push(hierarchyCode);
-            }
-
-            this.refreshPrimaryHierarchy(ht);
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
-
-    private insertBetweenTypes(hierarchyCode: string, parentGeoObjectTypeCode: string, middleGeoObjectTypeCode: string, youngestGeoObjectTypeCode: string): void {
-        this.hierarchyService.insertBetweenTypes(hierarchyCode, parentGeoObjectTypeCode, middleGeoObjectTypeCode, youngestGeoObjectTypeCode).then((ht: HierarchyType) => {
-            this.refreshPrimaryHierarchy(ht);
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
-
-    ngAfterViewInit() {
-
-    }
-
-    isRA(): boolean {
-        return this.authService.isRA();
-    }
-
-    isOrganizationRA(orgCode: string, dropZone: boolean = false): boolean {
-        return this.isSRA || this.authService.isOrganizationRA(orgCode);
-    }
-
-    getTypesByOrg(org: Organization): GeoObjectType[] {
-        let orgTypes: GeoObjectType[] = [];
-
-        for (let i = 0; i < this.geoObjectTypes.length; ++i) {
-            let geoObjectType: GeoObjectType = this.geoObjectTypes[i];
-
-            if (geoObjectType.organizationCode === org.code) {
-                orgTypes.push(geoObjectType);
-            }
-        }
-
-        return orgTypes;
-    }
-
-    getHierarchiesByOrg(org: Organization): HierarchyType[] {
-        let orgHierarchies: HierarchyType[] = [];
-
-        for (let i = 0; i < this.hierarchies.length; ++i) {
-            let hierarchy: HierarchyType = this.hierarchies[i];
-
-            if (hierarchy.organizationCode === org.code) {
-                orgHierarchies.push(hierarchy);
-            }
-        }
-
-        return orgHierarchies;
-    }
-
-
-    public setGeoObjectTypes(types: GeoObjectType[]): void {
-        // Set group parent types
-        this.setAbstractTypes(types);
-
-        // Set GeoObjectTypes that aren't part of a group.
-        types.forEach(type => {
-            if (!type.isAbstract) {
-                if (!type.superTypeCode) {
-                    this.geoObjectTypes.push(type);
-                }
-            }
-        });
-
-        // Sort aphabetically because all other types to add will be children in a group.
-        this.geoObjectTypes.sort((a, b) => {
-            if (a.label.localizedValue.toLowerCase() < b.label.localizedValue.toLowerCase()) return -1;
-            else if (a.label.localizedValue.toLowerCase() > b.label.localizedValue.toLowerCase()) return 1;
-            else return 0;
-        });
-
-        // Add group children
-        types.forEach(type => {
-            if (!type.isAbstract) {
-                if (type.superTypeCode && type.superTypeCode.length > 0) {
-                    for (let i = 0; i < this.geoObjectTypes.length; i++) {
-                        let setType = this.geoObjectTypes[i];
-                        if (type.superTypeCode === setType.code) {
-                            this.geoObjectTypes.splice(i + 1, 0, type);
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    private setAbstractTypes(types: GeoObjectType[]): void {
-        types.forEach(type => {
-            if (type.isAbstract) {
-                this.geoObjectTypes.push(type);
-            }
-        });
-    }
-
-    public updateViewDatastructures(): void {
-        this.hierarchiesByOrg = [];
-        this.typesByOrg = [];
-
-        for (let i = 0; i < this.organizations.length; ++i) {
-            let org: Organization = this.organizations[i];
-
-            this.hierarchiesByOrg.push({ org: org, hierarchies: this.getHierarchiesByOrg(org) });
-            this.typesByOrg.push({ org: org, types: this.getTypesByOrg(org) });
-        }
-
-        this.geoObjectTypes.forEach((got: GeoObjectType) => {
-            got.canDrag = this.calculateCanDrag(got);
-            got.relatedHierarchies = this.calculateRelatedHierarchies(got);
-        });
-
-        this.onFilterChange();
-    }
-
-    private setNodesOnInit(desiredHierarchy: HierarchyType): void {
-        let index = -1;
-
-        if (desiredHierarchy != null) {
-            index = this.hierarchies.findIndex(h => h.code === desiredHierarchy.code);
-        } else if (this.hierarchies.length > 0) {
-            index = 0;
-        }
-
-        if (index > -1) {
-            const hierarchy = this.hierarchies[index];
-
-            this.setCurrentHierarchy(hierarchy);
-
-            this.renderTree();
-        }
-    }
-
-    private getHierarchy(hierarchyId: string): HierarchyType {
-        let target: HierarchyType = null;
-        this.hierarchies.forEach(hierarchy => {
-            if (hierarchyId === hierarchy.code) {
-                target = hierarchy;
-            }
-        });
-
-        return target;
-    }
-
-    private setHierarchies(data: HierarchyType[]): void {
-        let hierarchies: HierarchyType[] = [];
-        data.forEach((hierarchyType, index) => {
-            if (hierarchyType.rootGeoObjectTypes.length > 0) {
-                hierarchyType.rootGeoObjectTypes.forEach(rootGeoObjectType => {
-                    this.processHierarchyNodes(rootGeoObjectType);
-                });
-            }
-
-            hierarchies.push(hierarchyType);
-        });
-
-        this.hierarchies = hierarchies;
-
-        this.hierarchies.sort((a, b) => {
-            if (a.label.localizedValue.toLowerCase() < b.label.localizedValue.toLowerCase()) return -1;
-            else if (a.label.localizedValue.toLowerCase() > b.label.localizedValue.toLowerCase()) return 1;
-            else return 0;
-        });
-    }
-
-    private processHierarchyNodes(node: HierarchyNode) {
-        if (node != null) {
-            node.label = this.getHierarchyLabel(node.geoObjectType);
-
-            node.children.forEach(child => {
-                this.processHierarchyNodes(child);
-            });
-        }
-    }
-
-    private getHierarchyLabel(geoObjectTypeCode: string): string {
-        let label: string = null;
-        this.geoObjectTypes.forEach(function (gOT) {
-            if (gOT.code === geoObjectTypeCode) {
-                label = gOT.label.localizedValue;
-            }
-        });
-
-        return label;
-    }
-
-    public hierarchyOnClick(event: any, item: HierarchyType) {
-        this.setCurrentHierarchy(item);
-        this.renderTree();
-    }
-
-    public createHierarchy(): void {
-        const bsModalRef = this.modalService.show(CreateHierarchyTypeModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true,
-            class: "upload-modal"
-        });
-
-        bsModalRef.content.onHierarchytTypeCreate.subscribe(data => {
-            this.hierarchies.push(data);
-
-            this.hierarchies.sort((a: HierarchyType, b: HierarchyType) => {
-                let nameA = a.label.localizedValue.toUpperCase(); // ignore upper and lowercase
-                let nameB = b.label.localizedValue.toUpperCase(); // ignore upper and lowercase
-
-                if (nameA < nameB) {
-                    return -1; // nameA comes first
-                }
-
-                if (nameA > nameB) {
-                    return 1; // nameB comes first
-                }
-
-                return 0; // names must be equal
-            });
-
-            this.updateViewDatastructures();
-        });
-    }
-
-    public deleteHierarchyType(obj: HierarchyType): void {
-        const bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
-        });
-        bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " [" + obj.label.localizedValue + "]";
-        bsModalRef.content.data = obj.code;
-        bsModalRef.content.type = "DANGER";
-        bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
-
-        bsModalRef.content.onConfirm.subscribe(data => {
-            this.removeHierarchyType(data);
-        });
-    }
-
-    public editHierarchyType(obj: HierarchyType, readOnly: boolean): void {
-        const bsModalRef = this.modalService.show(CreateHierarchyTypeModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true,
-            class: "upload-modal"
-        });
-        bsModalRef.content.edit = true;
-        bsModalRef.content.readOnly = readOnly;
-        bsModalRef.content.hierarchyType = obj;
-        bsModalRef.content.onHierarchytTypeCreate.subscribe(data => {
-            let pos = this.getHierarchyTypePosition(data.code);
-
-            this.hierarchies[pos].label = data.label;
-            this.hierarchies[pos].description = data.description;
-            this.hierarchies[pos].progress = data.progress;
-            this.hierarchies[pos].acknowledgement = data.acknowledgement;
-            this.hierarchies[pos].disclaimer = data.disclaimer;
-            this.hierarchies[pos].useConstraints = data.useConstraints;
-            this.hierarchies[pos].accessConstraints = data.accessConstraints;
-            this.hierarchies[pos].contact = data.contact;
-            this.hierarchies[pos].phoneNumber = data.phoneNumber;
-            this.hierarchies[pos].email = data.email;
-
-            this.updateViewDatastructures();
-
-            if (this.currentHierarchy.code === data.code) {
-                this.setCurrentHierarchy(this.hierarchies[pos]);
-
-                this.renderTree();
-            }
-        });
-    }
-
-    setCurrentHierarchy(hierarchyType: HierarchyType): void {
-        this.currentHierarchy = hierarchyType;
-    }
-
-    isPrimaryHierarchy(hierarchy: HierarchyType): boolean {
-        // return hierarchy.isPrimary;
-        return hierarchy.code === this.currentHierarchy.code;
-    }
-
-    public removeHierarchyType(code: string): void {
-        this.hierarchyService.deleteHierarchyType(code).then(response => {
-            let pos = this.getHierarchyTypePosition(code);
-            this.hierarchies.splice(pos, 1);
-            this.updateViewDatastructures();
-
-            if (this.hierarchies.length > 0) {
-                this.setCurrentHierarchy(this.hierarchies[0]);
-            } else {
-                this.currentHierarchy = null;
-            }
-
-            this.renderTree();
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
-
-
-    private getHierarchyTypePosition(code: string): number {
-        for (let i = 0; i < this.hierarchies.length; i++) {
-            let obj = this.hierarchies[i];
-            if (obj.code === code) {
-                return i;
-            }
-        }
-    }
-
-
-    public refreshPrimaryHierarchy(hierarchyType: HierarchyType) {
-        this.processHierarchyNodes(hierarchyType.rootGeoObjectTypes[0]);
-
-        for (let i = 0; i < this.hierarchies.length; ++i) {
-            let hierarchy = this.hierarchies[i];
-
-            if (hierarchy.code === hierarchyType.code) {
-                this.hierarchies[i] = hierarchyType;
-
-                this.setCurrentHierarchy(hierarchyType);
-            }
-        }
-
-        this.updateViewDatastructures();
-
-        this.renderTree();
-    }
-
-    public removeFromHierarchy(parentGotCode, gotCode, errCallback: (err: HttpErrorResponse) => void = null): void {
-        const that = this;
-
-        this.hierarchyService.removeFromHierarchy(this.currentHierarchy.code, parentGotCode, gotCode).then(hierarchyType => {
-            let got = that.findGeoObjectTypeByCode(gotCode);
-
-            let index = null;
-            for (let i = 0; i < got.relatedHierarchies.length; ++i) {
-                if (got.relatedHierarchies[i] === hierarchyType.code) {
-                    index = i;
-                    break;
-                }
-            }
-
-            if (index != null) {
-                got.relatedHierarchies.splice(index, 1);
-            }
-
-            that.refreshPrimaryHierarchy(hierarchyType);
-        }).catch((err: HttpErrorResponse) => {
-            if (errCallback != null) {
-                errCallback(err);
-            }
-
-            this.error(err);
-        });
-    }
-
-    public isActive(item: HierarchyType) {
-        return this.currentHierarchy === item;
-    }
-
-    onFilterChange(): void {
-        const label = this.filter.toLowerCase();
-
-        this.filteredHierarchiesByOrg = [];
-        this.filteredTypesByOrg = [];
-
-        this.hierarchiesByOrg.forEach((item: { org: Organization, hierarchies: HierarchyType[] }) => {
-            const filtered = item.hierarchies.filter((hierarchy: HierarchyType) => {
-                const index = hierarchy.label.localizedValue.toLowerCase().indexOf(label);
-
-                return (index !== -1);
-            });
-
-            this.filteredHierarchiesByOrg.push({ org: item.org, hierarchies: filtered });
-        });
-
-        // this.typesByOrg.forEach((item: { org: Organization, types: GeoObjectType[] }) => {
-        //     const filtered = item.types.filter((type: GeoObjectType) => {
-        //         const index = type.label.localizedValue.toLowerCase().indexOf(label);
-
-        //         return (index !== -1);
-        //     });
-
-        //     this.filteredTypesByOrg.push({ org: item.org, types: filtered });
-        // });
-
-        setTimeout(() => { this.registerDragHandlers(); }, 500);
-    }
-
-    handleInheritHierarchy(hierarchyTypeCode: string, inheritedHierarchyTypeCode: string, geoObjectTypeCode: string) {
-        this.hierarchyService.setInheritedHierarchy(hierarchyTypeCode, inheritedHierarchyTypeCode, geoObjectTypeCode).then((ht: HierarchyType) => {
-            this.refreshPrimaryHierarchy(ht);
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
-
-    handleUninheritHierarchy(hierarchyTypeCode: string, geoObjectTypeCode: string) {
-        this.hierarchyService.removeInheritedHierarchy(hierarchyTypeCode, geoObjectTypeCode).then((ht: HierarchyType) => {
-            this.refreshPrimaryHierarchy(ht);
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
-
-
-    onImportHistory(type: HierarchyType): void {
-        this.registryService.getImportHistory('HierarchyType', type.code).then(histories => {
-            const bsModalRef = this.modalService.show(ImportHistoryModalComponent, {
-                animated: true,
-                backdrop: true,
-                ignoreBackdropClick: true
-            });
-            bsModalRef.content.init(type.label, histories);
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
-
 
     public error(err: HttpErrorResponse): void {
         this.onError.emit(err);

@@ -32,7 +32,8 @@
 						[placeholder]="'hierarchy.sidebar.searchAll' | localize" [(ngModel)]="filter">
 				</div>
 			</div>
-			<accordion [isAnimated]="true" [closeOthers]="false">
+			<accordion *ngIf="selection == null || selection.action != Action.EDIT" [isAnimated]="true"
+				[closeOthers]="false">
 				<accordion-group [isOpen]="true" class="sidebar-section" style="border-radius: 0;"
 					[panelClass]="'hierarchy-sidebar-content'">
 					<div accordion-heading style="padding: 10px 15px;">
@@ -51,33 +52,35 @@
 
 								<div *ngIf="isSRA || hierarchyByOrg.org.code === userOrganization"
 									style="text-align: center;padding: 10px 0;">
-									<button (click)="createHierarchy()" type="button" class="btn btn-primary"
-										style="margin-bottom:20px;min-width:45%;">
+									<button (click)="handleCreateHierarchy(hierarchyByOrg.org.code)" type="button"
+										class="btn btn-primary" style="margin-bottom:20px;min-width:45%;">
 										<localize key="hierarchy.sidebar.newHierarchy"></localize>
 									</button>
 								</div>
 
 								<li *ngFor="let hierarchy of hierarchyByOrg.hierarchies;" [id]="hierarchy.code"
-									class="list-group-item hier-li-item clickable"
-									[ngClass]="{'primary': (currentHierarchy != null && hierarchy.code === currentHierarchy.code), 'active': isActive(hierarchy)}"
-									(click)="hierarchyOnClick($event,hierarchy)">
+									class="list-group-item hier-li-item"
+									[ngClass]="{'primary active': (selection != null && hierarchy.code === selection.type.code)}"
+									(click)="handleTypeView(hierarchy)">
 									{{hierarchy.label.localizedValue}}
 
 									<div class="btn-group pull-right" dropdown [dropup]="true" container="body">
-										<a class="pull-right" id="basic-link" dropdownToggle (click)="$event.stopPropagation();"
-											aria-controls="basic-link-dropdown">
+										<a class="pull-right" id="basic-link" dropdownToggle
+											(click)="$event.stopPropagation();" aria-controls="basic-link-dropdown">
 											<i class="fa fa-ellipsis-vertical clickable dropdown-toggle"></i>
 										</a>
 										<ul id="dropdown-animated" *dropdownMenu class="dropdown-menu" role="menu"
 											aria-labelledby="button-animated">
 											<ng-container *ngIf="isOrganizationRA(hierarchy.organizationCode)">
 												<li role="menuitem">
-													<a class="dropdown-item" (click)="deleteHierarchyType(hierarchy)">
+													<a class="dropdown-item"
+														(click)="handleDeleteHierarchyType(hierarchy)">
 														<localize key="button.delete.helptext"></localize>
 													</a>
 												</li>
 												<li role="menuitem">
-													<a class="dropdown-item" (click)="editHierarchyType(hierarchy, false)">
+													<a class="dropdown-item"
+														(click)="handleEditHierarchyType(hierarchy, false)">
 														<localize key="button.edit.helptext"></localize>
 													</a>
 												</li>
@@ -89,7 +92,8 @@
 											</ng-container>
 											<ng-container *ngIf="!isOrganizationRA(hierarchy.organizationCode)">
 												<li role="menuitem">
-													<a class="dropdown-item" (click)="editHierarchyType(hierarchy, false)">
+													<a class="dropdown-item"
+														(click)="handleEditHierarchyType(hierarchy, false)">
 														<localize key="button.view.helptext"></localize>
 													</a>
 												</li>
@@ -103,129 +107,138 @@
 					</div>
 				</accordion-group>
 			</accordion>
+			<ng-container *ngIf="selection != null && selection.action == Action.EDIT">
+
+				<drag-sidebar *ngIf="selection != null && selection.action == Action.EDIT" [typesByOrg]="typesByOrg"
+					(onDrag)="handleDrag($event)" (onDrop)="handleDrop($event)">
+				</drag-sidebar>
+
+			</ng-container>
 		</nav>
 
-		<div class="col-md-8 hierarchy-content">
-			<div id="overflow-div">
-				<div
-					*ngIf="currentHierarchy != null && (currentHierarchy.rootGeoObjectTypes == null || currentHierarchy.rootGeoObjectTypes.length == 0)">
-					<div *ngIf="isOrganizationRA(currentHierarchy.organizationCode, true)" id="emptyHierarchyDropzone"
-						class="drop-box-container">
-						<div class="hierarchy-drop-box">
-							<div class="inner-drop-box">
-								<p class="upload-text">
-									<localize key="hierarchy.content.dragGotToHierarchy"></localize>
-								</p>
+		<div class="col-md-10">
+			<ng-container *ngIf="selection != null">
+				<tabset>
+					<tab heading="Metadata" [active]="tab === Tab.METADATA" (selectTab)="handleTabChange(Tab.METADATA)">
+						<hierarchy-type [hierarchyType]="selection.type" [edit]="selection.action === Action.EDIT"
+							[readOnly]="selection.action === Action.VIEW" (onClose)="handleTypeChange($event)"
+							(onError)="error($event)">
+						</hierarchy-type>
+
+					</tab>
+					<tab heading="Hierarchy" [active]="tab === Tab.HIERARCHY"
+						(selectTab)="handleTabChange(Tab.HIERARCHY)">
+						<div *ngIf="selection != null">
+							<div class="row">
+								<div class="col-md-12">
+									<div class="hierarchy-content">
+										<div id="overflow-div">
+											<div
+												*ngIf="(selection.type.rootGeoObjectTypes == null || selection.type.rootGeoObjectTypes.length == 0)">
+												<div *ngIf="isOrganizationRA(selection.type.organizationCode, true)"
+													id="emptyHierarchyDropzone" class="drop-box-container">
+													<div class="hierarchy-drop-box">
+														<div class="inner-drop-box">
+															<p class="upload-text">
+																<localize key="hierarchy.content.dragGotToHierarchy">
+																</localize>
+															</p>
+														</div>
+													</div>
+												</div>
+												<div *ngIf="!isOrganizationRA(selection.type.organizationCode, true)">
+													<p class="upload-text">
+														<localize key="hierarchy.content.emptyHierarchy"></localize>
+													</p>
+												</div>
+											</div>
+
+											<div id="svgHolder">
+												<!-- <svg id="graph" style="width:1200px; height:750px"></svg> -->
+											</div>
+											<div id="NodeTooltip" class="modal-dialog">
+												<div class="modal-content">
+													<div class="modal-form">
+														<div class="row-holder">
+															<div class="label-holder">
+																<label>
+																	<localize
+																		key="hierarchy.nodeTooltip.geoObjectTypeCode">
+																	</localize>
+																</label>
+															</div>
+															<div class="holder">
+																<label id="geoObjectTypeCodeLabel"></label>
+															</div>
+														</div>
+														<div class="row-holder">
+															<div class="label-holder">
+																<label>
+																	<localize
+																		key="hierarchy.nodeTooltip.geoObjectTypeOrganization">
+																	</localize>
+																</label>
+															</div>
+															<div class="holder">
+																<label id="geoObjectTypeOrganizationLabel"></label>
+															</div>
+														</div>
+														<div class="row-holder">
+															<div class="label-holder">
+																<label>
+																	<localize key="hierarchy.nodeTooltip.hierarchy">
+																	</localize>
+																</label>
+															</div>
+															<div class="holder">
+																<label id="hierarchyLabel"></label>
+															</div>
+														</div>
+														<div class="row-holder">
+															<div class="label-holder">
+																<label>
+																	<localize key="hierarchy.nodeTooltip.hierarchyCode">
+																	</localize>
+																</label>
+															</div>
+															<div class="holder">
+																<label id="hierarchyCodeLabel"></label>
+															</div>
+														</div>
+														<div class="row-holder">
+															<div class="label-holder">
+																<label>
+																	<localize
+																		key="hierarchy.nodeTooltip.hierarchyOrganization">
+																	</localize>
+																</label>
+															</div>
+															<div class="holder">
+																<label id="hierarchyOrganizationLabel"></label>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
 							</div>
+							<div class="row" *ngIf="selection.action === Action.EDIT">
+								<div class="col-md-12">
+									<div class="button-holder pull-right">
+										<button type="button" class="btn btn-default" (click)="selection = null"
+											style="padding: 4px 18px;margin-bottom: 5px;margin-right: 5px;">
+											<localize key="modal.button.close"></localize>
+										</button>
+									</div>
+								</div>
+							</div>
+
 						</div>
-					</div>
-					<div *ngIf="!isOrganizationRA(currentHierarchy.organizationCode, true)">
-						<p class="upload-text">
-							<localize key="hierarchy.content.emptyHierarchy"></localize>
-						</p>
-					</div>
-				</div>
-
-				<div id="svgHolder">
-					<!-- <svg id="graph" style="width:1200px; height:750px"></svg> -->
-				</div>
-				<div id="NodeTooltip" class="modal-dialog">
-					<div class="modal-content">
-						<div class="modal-form">
-							<div class="row-holder">
-								<div class="label-holder">
-									<label>
-										<localize key="hierarchy.nodeTooltip.geoObjectTypeCode"></localize>
-									</label>
-								</div>
-								<div class="holder">
-									<label id="geoObjectTypeCodeLabel"></label>
-								</div>
-							</div>
-							<div class="row-holder">
-								<div class="label-holder">
-									<label>
-										<localize key="hierarchy.nodeTooltip.geoObjectTypeOrganization"></localize>
-									</label>
-								</div>
-								<div class="holder">
-									<label id="geoObjectTypeOrganizationLabel"></label>
-								</div>
-							</div>
-							<div class="row-holder">
-								<div class="label-holder">
-									<label>
-										<localize key="hierarchy.nodeTooltip.hierarchy"></localize>
-									</label>
-								</div>
-								<div class="holder">
-									<label id="hierarchyLabel"></label>
-								</div>
-							</div>
-							<div class="row-holder">
-								<div class="label-holder">
-									<label>
-										<localize key="hierarchy.nodeTooltip.hierarchyCode"></localize>
-									</label>
-								</div>
-								<div class="holder">
-									<label id="hierarchyCodeLabel"></label>
-								</div>
-							</div>
-							<div class="row-holder">
-								<div class="label-holder">
-									<label>
-										<localize key="hierarchy.nodeTooltip.hierarchyOrganization"></localize>
-									</label>
-								</div>
-								<div class="holder">
-									<label id="hierarchyOrganizationLabel"></label>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="col-md-2 hierarchy-sidebar">
-			<accordion [isAnimated]="true" [closeOthers]="false">
-				<accordion-group [isOpen]="true" [panelClass]="'hierarchy-sidebar-content'" style="border-radius: 0;">
-					<div accordion-heading style="padding: 10px 15px;">
-						<span>
-							<i style="margin-right:10px;" class="fa fa-circle"></i>
-						</span>
-						<localize key="hierarchy.sidebar.geoObjectTypes"></localize>
-					</div>
-					<div class="sidebar-section-content">
-						<ul *ngFor="let typeByOrg of typesByOrg;" class="list-group">
-							<div>
-
-								<div class="got-org-label-wrapper">
-									<label>{{typeByOrg.org.label.localizedValue}}</label>
-								</div>
-
-								<li class="list-group-item got-li-item"
-									[attr.data-superTypeCode]="(type.superTypeCode && type.superTypeCode.length > 0) ? type.superTypeCode : null"
-									*ngFor="let type of typeByOrg.types" [id]="type.code"
-									[attr.data-canDrag]="type.canDrag"
-									[ngClass]="{'got-group-parent' : (type.isAbstract), 'got-group-child' : type.superTypeCode && type.superTypeCode.length > 0}">
-									{{type.label.localizedValue}}
-
-									<!-- <span
-										*ngIf="!type.permissions.includes('WRITE') && type.permissions.includes('READ')"
-										style="position:absolute;right:10px;background:rgba(255,255,255,.7);top:50%;transform:translateY(-50%);">
-										<i class="fa fa-eye clickable pull-right"
-											(click)="manageGeoObjectType(type, true)"
-											[title]="'button.view.helptext' | localize"> </i>
-
-
-									</span> -->
-								</li>
-							</div>
-						</ul>
-					</div>
-				</accordion-group>
-			</accordion>
+					</tab>
+				</tabset>
+			</ng-container>
 		</div>
 	</div>
 </div>
