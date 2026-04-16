@@ -36,7 +36,7 @@
   <description>The back-end database server for the georegistry project</description>
 
   <properties>
-    <hapifhir_version>8.0.0</hapifhir_version>
+    <hapifhir_version>8.6.0</hapifhir_version>
     <axon.version>4.11.2</axon.version>
   </properties>
 
@@ -70,7 +70,18 @@
     <dependency>
       <groupId>org.springdoc</groupId>
       <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-      <version>2.8.5</version>
+      <version>2.8.16</version>
+      <exclusions>
+      	<exclusion>
+      		<groupId>org.slf4j</groupId>
+      		<artifactId>slf4j-api</artifactId>
+      	</exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+      <version>${spring.boot.version}</version>
     </dependency>
     
     <!--   
@@ -126,22 +137,46 @@
       <groupId>com.wdtinc</groupId>
       <artifactId>mapbox-vector-tile</artifactId>
       <version>3.1.2-TF</version>
+      <exclusions>
+      	<exclusion>
+      		<groupId>org.slf4j</groupId>
+      		<artifactId>slf4j-api</artifactId>
+      	</exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>net.geoprism</groupId>
       <artifactId>dhis2adapter</artifactId>
       <version>${project.version}</version>
+      <exclusions>
+      	<exclusion>
+      		<groupId>org.slf4j</groupId>
+      		<artifactId>slf4j-api</artifactId>
+      	</exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
       <groupId>net.geoprism</groupId>
       <artifactId>geoprism-classifier</artifactId>
       <version>${geoprism.version}</version>
+      <exclusions>
+      	<exclusion>
+      		<groupId>org.slf4j</groupId>
+      		<artifactId>slf4j-api</artifactId>
+      	</exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>net.geoprism</groupId>
       <artifactId>geoprism-external-profile</artifactId>
       <version>${geoprism.version}</version>
+      <exclusions>
+      	<exclusion>
+      		<groupId>org.slf4j</groupId>
+      		<artifactId>slf4j-api</artifactId>
+      	</exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>net.geoprism</groupId>
@@ -182,6 +217,12 @@
       <groupId>net.geoprism</groupId>
       <artifactId>georegistry-adapter</artifactId>
       <version>${geoprism.version}</version>
+      <exclusions>
+      	<exclusion>
+      		<groupId>org.slf4j</groupId>
+      		<artifactId>slf4j-api</artifactId>
+      	</exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>jakarta.servlet</groupId>
@@ -218,34 +259,16 @@
       <artifactId>jakarta.websocket-client-api</artifactId>
       <version>2.2.0</version>
     </dependency>
-    <!-- 
-    
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-api</artifactId>
-      <version>2.17.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
-      <version>2.17.1</version>
-    </dependency>
-  
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-slf4j-impl</artifactId>
-      <version>2.17.1</version>
-    </dependency>
--->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>2.0.17</version>
-    </dependency>
     <dependency>
       <groupId>org.apache.httpcomponents.client5</groupId>
       <artifactId>httpclient5</artifactId>
-      <version>5.4.1</version>
+      <version>5.6</version>
+      <exclusions>
+      	<exclusion>
+      		<groupId>org.slf4j</groupId>
+      		<artifactId>slf4j-api</artifactId>
+      	</exclusion>
+      </exclusions>
     </dependency>
 
 
@@ -253,6 +276,12 @@
       <groupId>ca.uhn.hapi.fhir</groupId>
       <artifactId>hapi-fhir-base</artifactId>
       <version>${hapifhir_version}</version>
+      <exclusions>
+      	<exclusion>
+      		<groupId>org.slf4j</groupId>
+      		<artifactId>slf4j-api</artifactId>
+      	</exclusion>
+      </exclusions>
     </dependency>
 
     <!-- Include the client -->
@@ -267,11 +296,23 @@
       <groupId>ca.uhn.hapi.fhir</groupId>
       <artifactId>hapi-fhir-structures-r4</artifactId>
       <version>${hapifhir_version}</version>
+      <exclusions>
+      	<exclusion>
+      		<groupId>org.slf4j</groupId>
+      		<artifactId>slf4j-api</artifactId>
+      	</exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>ca.uhn.hapi.fhir</groupId>
       <artifactId>hapi-fhir-validation</artifactId>
       <version>${hapifhir_version}</version>
+      <exclusions>
+      	<exclusion>
+      		<groupId>org.slf4j</groupId>
+      		<artifactId>slf4j-api</artifactId>
+      	</exclusion>
+      </exclusions>
     </dependency>
     <!--
     https://mvnrepository.com/artifact/com.github.ben-manes.caffeine/caffeine -->
@@ -284,22 +325,22 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
-      <version>2.18.1</version>
+      <version>2.21</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.18.1</version>
+      <version>2.21.2</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>2.18.1</version>
+      <version>2.21.2</version>
     </dependency>
     <dependency>
       <groupId>com.opencsv</groupId>
       <artifactId>opencsv</artifactId>
-      <version>5.9</version>
+      <version>5.12.0</version>
     </dependency>
 
     <!--AXON Dependencies-->
@@ -320,6 +361,10 @@
           <groupId>org.axonframework</groupId>
           <artifactId>axon-server-connector</artifactId>
         </exclusion>
+        <exclusion>
+        	<groupId>org.slf4j</groupId>
+        	<artifactId>slf4j-api</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
 
@@ -329,7 +374,7 @@
       <version>${axon.version}</version>
       <scope>test</scope>
     </dependency>
-
+    
   </dependencies>
 
   <!-- These profiles allow for Maven execution of Runway-SDK's Java Tools,

@@ -25,7 +25,7 @@
   </modules>
 
   <properties>
-    <spring.boot.version>3.5.0</spring.boot.version>
+    <spring.boot.version>3.5.13</spring.boot.version>
     <geoprism.version>3.0.0-SNAPSHOT</geoprism.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>17</maven.compiler.source>
@@ -142,7 +142,7 @@
       <plugin>
         <groupId>se.bjurr.gitchangelog</groupId>
         <artifactId>git-changelog-maven-plugin</artifactId>
-        <version>1.92</version>
+        <version>2.2.11</version>
         <inherited>false</inherited>
         <configuration>
           <file>CHANGELOG2.md</file>
