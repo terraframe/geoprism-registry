@@ -36,7 +36,7 @@
   <description>The back-end database server for the georegistry project</description>
 
   <properties>
-    <hapifhir_version>8.6.0</hapifhir_version>
+    <hapifhir_version>8.8.1</hapifhir_version>
     <axon.version>4.11.2</axon.version>
   </properties>
 
