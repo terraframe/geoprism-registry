@@ -266,6 +266,7 @@
     </dependency>
 
 
+<!--
     <dependency>
       <groupId>ca.uhn.hapi.fhir</groupId>
       <artifactId>hapi-fhir-base</artifactId>
@@ -275,19 +276,9 @@
       		<groupId>org.slf4j</groupId>
       		<artifactId>slf4j-api</artifactId>
       	</exclusion>
-      	
-      	<!-- I have no idea if hapi fhir actually needs this dependency.
-      	  We're only excluding this here because, at the momment, it has
-      	  a critical security vulnerability with no fix. Hopefully in the
-      	  future that won't be true, but at the moment we don't really use
-      	  hapi fhir anyway so it should be ok.
-      	-->
-      	<exclusion>
-			<groupId>org.thymeleaf</groupId>
-			<artifactId>thymeleaf</artifactId>
-		  </exclusion>
       </exclusions>
     </dependency>
+    -->
 
     <!-- Include the client -->
     <dependency>
