@@ -31,7 +31,7 @@ import { ImportHistoryModalComponent } from "@registry/component/import-history/
 import { AuthService } from "@shared/service";
 
 enum Action {
-    NONE = 0, CREATE = 1, EDIT = 2
+    VIEW = 0, CREATE = 1, EDIT = 2
 }
 
 interface Selection {
@@ -84,6 +84,13 @@ export class GraphTypePageComponent implements OnInit, OnDestroy {
 
         this.selection = {
             action: Action.CREATE,
+            type: {
+                code: "",
+                typeCode: this.typeCode,
+                label: this.localizeService.create(),
+                description: this.localizeService.create(),
+            },
+            readOnly: false
         };
     }
 
@@ -99,6 +106,14 @@ export class GraphTypePageComponent implements OnInit, OnDestroy {
         });
     }
 
+    handleTypeView(type: GraphType): void {
+
+        this.selection = {
+            action: Action.VIEW,
+            type: type,
+            readOnly: true
+        };
+    }
 
     handleTypeChange(type: GraphType): void {
         this.selection = null;

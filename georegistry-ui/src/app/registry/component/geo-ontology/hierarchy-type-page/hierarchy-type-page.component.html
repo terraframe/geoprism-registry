@@ -126,7 +126,7 @@
 						</hierarchy-type>
 
 					</tab>
-					<tab heading="Hierarchy" [active]="tab === Tab.HIERARCHY"
+					<tab *ngIf="selection.action !== Action.CREATE" heading="Hierarchy" [active]="tab === Tab.HIERARCHY"
 						(selectTab)="handleTabChange(Tab.HIERARCHY)">
 						<div *ngIf="selection != null">
 							<div class="row">
@@ -224,7 +224,8 @@
 									</div>
 								</div>
 							</div>
-							<div class="row" *ngIf="selection.action === Action.EDIT">
+							<div class="row"
+								*ngIf="selection.action === Action.EDIT">
 								<div class="col-md-12">
 									<div class="button-holder pull-right">
 										<button type="button" class="btn btn-default" (click)="selection = null"

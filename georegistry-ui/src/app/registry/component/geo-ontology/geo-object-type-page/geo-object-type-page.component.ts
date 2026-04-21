@@ -32,7 +32,7 @@ import { RegistryService } from "@registry/service";
 import { ImportHistoryModalComponent } from "@registry/component/import-history/modals/import-history-modal.component";
 
 enum Action {
-    NONE = 0, CREATE = 1, EDIT = 2
+    VIEW = 0, CREATE = 1, EDIT = 2
 }
 
 interface Selection {
@@ -141,6 +141,20 @@ export class GeoObjectTypePageComponent implements OnInit, OnChanges {
         };
     }
 
+    handleTypeView(type: GeoObjectType): void {
+        type.attributes.sort((a, b) => {
+            if (a.label.localizedValue < b.label.localizedValue) return -1;
+            else if (a.label.localizedValue > b.label.localizedValue) return 1;
+            else return 0;
+        });
+
+        this.selection = {
+            action: Action.VIEW,
+            type: lodash.cloneDeep(type),
+            readOnly: true
+        };
+    }
+
 
     deleteGeoObjectType(obj: GeoObjectType): void {
         const bsModalRef = this.modalService.show(ConfirmModalComponent, {
@@ -208,7 +222,7 @@ export class GeoObjectTypePageComponent implements OnInit, OnChanges {
                 type: lodash.cloneDeep(type),
                 readOnly: false
             };
-    
+
         }
 
         this.typesChange.emit(types);

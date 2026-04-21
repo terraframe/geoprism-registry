@@ -21,7 +21,7 @@
 <page-container>
     <div class="row">
         <div class="col-md-12 order-md-1">
-            <tabset>
+            <tabset [justified]="true">
                 <tab heading="Geo-Object Types" id="geo-object-type">
                     <geo-object-type-page [userOrganization]="userOrganization" [organizations]="organizations"
                         [types]="geoObjectTypes" (typesChange)="setGeoObjectTypes($event)" (onError)="error($event)">
@@ -30,10 +30,8 @@
                 <tab heading="Hierarchy Types">
                     <hierarchy-type-page [userOrganization]="userOrganization" [organizations]="organizations"
                         [geoObjectTypes]="geoObjectTypes" [hierarchies]="hierarchies"
-                        (onHierarchyType)="handleHierarchyType($event)"
-                        (onGeoObjectType)="handleGeoObjectType($event)"
-                        (onRemove)="handleRemoveHierarchyType($event)"
-                        (onError)="error($event)">
+                        (onHierarchyType)="handleHierarchyType($event)" (onGeoObjectType)="handleGeoObjectType($event)"
+                        (onRemove)="handleRemoveHierarchyType($event)" (onError)="error($event)">
                     </hierarchy-type-page>
 
                 </tab>
@@ -43,18 +41,17 @@
                 <tab heading="Undirected Graph Type">
                     <graph-type-page [typeCode]="'UndirectedGraphType'"></graph-type-page>
                 </tab>
-                <tab *ngIf="isSRA" heading="Import/Export">
-                    <div *ngIf="isSRA" style="text-align: center;padding: 10px 0;">
-                        <button (click)="importTypes()" type="button" class="btn btn-primary"
-                            style="margin-bottom:20px;min-width:30%;">
-                            <localize key="hierarchy.sidebar.importTypes"></localize>
-                        </button>
-                        <button (click)="exportTypes()" type="button" class="btn btn-primary"
-                            style="margin-bottom:20px;margin-left:5px;min-width:30%;">
-                            <localize key="hierarchy.sidebar.exportTypes"></localize>
-                        </button>
-                    </div>
+                <tab *ngIf="isSRA" [disabled]="true">
+                    <ng-template tabHeading>
+                        <a (click)="importTypes()" [title]="'hierarchy.sidebar.importTypes' | localize">
+                            <i class="fa-solid fa-file-import"></i>
+                        </a>
+                        <a (click)="exportTypes()" [title]="'hierarchy.sidebar.exportTypes' | localize">
+                            <i class="fa-solid fa-file-export"></i>
+                        </a>
+                    </ng-template>
                 </tab>
+
 
             </tabset>
         </div>

@@ -166,7 +166,7 @@
         </div>
       </div>
 
-      <div class="row" *ngIf="edit">
+      <div class="row" *ngIf="!readOnly">
         <div class="col-md-12">
           <div class="button-holder">
             <button type="button" class="btn btn-default" (click)="handleClose()" style="padding: 4px 18px;">

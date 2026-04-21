@@ -185,7 +185,6 @@ import { CreateGeoObjectTypeComponent } from "./component/geo-ontology/geo-objec
 import { ManageGeoObjectTypeComponent } from "./component/geo-ontology/geo-object-type-page/manage-geo-object-type.component";
 import { GraphTypePageComponent } from "./component/geo-ontology/graph-type-page/graph-type-page.component";
 import { HierarchyTypePageComponent } from "./component/geo-ontology/hierarchy-type-page/hierarchy-type-page.component";
-import { CreateGraphTypeComponent } from "./component/geo-ontology/graph-type-page/create-graph-type.component";
 import { ManageGraphTypeComponent } from "./component/geo-ontology/graph-type-page/manage-graph-type.component";
 import { HierarchyTypeComponent } from "./component/geo-ontology/hierarchy-type-page/hierarchy-type.component";
 import { DragSidebarComponent } from "./component/geo-ontology/hierarchy-type-page/drag-sidebar.component";
@@ -342,7 +341,6 @@ import { DragSidebarComponent } from "./component/geo-ontology/hierarchy-type-pa
         PublishEventsComponent,
         // Graph Type
         GraphTypePageComponent,
-        CreateGraphTypeComponent,
         ManageGraphTypeComponent,
         ImportHistoryModalComponent
     ],

@@ -22,7 +22,7 @@
 <!--   <h2> <localize key="hierarchy.management.title"></localize> </h2> -->
 <div class="row">
 
-	<nav class="col-md-3 hierarchy-sidebar">
+	<nav class="col-md-2 hierarchy-sidebar">
 
 		<div class="row" style="padding: 5px 5px;">
 			<div class="col-md-12">
@@ -59,10 +59,11 @@
 								</button>
 							</div>
 
-							<li class="list-group-item type-item"
+							<li class="list-group-item type-item type-li-item"
 								[attr.data-superTypeCode]="(type.superTypeCode && type.superTypeCode.length > 0) ? type.superTypeCode : null"
 								*ngFor="let type of typeByOrg.types"
-								[ngClass]="{'got-group-parent' : (type.isAbstract), 'got-group-child' : type.superTypeCode && type.superTypeCode.length > 0}">
+								[ngClass]="{'got-group-parent' : (type.isAbstract), 'got-group-child' : type.superTypeCode && type.superTypeCode.length > 0, 'primary active': (selection != null && selection.type != null && type.code === selection.type.code)}"
+								(click)="handleTypeView(type)">
 								{{type.label.localizedValue}}
 
 								<div class="btn-group pull-right" dropdown [dropup]="true" container="body">
@@ -70,7 +71,8 @@
 										aria-controls="basic-link-dropdown">
 										<i class="fa fa-ellipsis-vertical clickable dropdown-toggle"></i>
 									</a>
-									<ul *dropdownMenu class="dropdown-menu" role="menu" aria-labelledby="button-animated">
+									<ul *dropdownMenu class="dropdown-menu" role="menu"
+										aria-labelledby="button-animated">
 										<ng-container *ngIf="type.permissions.includes('WRITE')">
 											<li role="menuitem">
 												<a class="dropdown-item" (click)="deleteGeoObjectType(type)">
@@ -78,14 +80,17 @@
 												</a>
 											</li>
 											<li *ngIf="(type.isAbstract)" role="menuitem">
-												<a class="dropdown-item" (click)="createGeoObjectType(type, false, typeByOrg.org)">
+												<a class="dropdown-item"
+													(click)="createGeoObjectType(type, false, typeByOrg.org)">
 													Add sub type
 												</a>
 											</li>
 										</ng-container>
 										<li role="menuitem">
-											<a class="dropdown-item" (click)="manageGeoObjectType(type, !type.permissions.includes('WRITE'))">
-												<localize [key]="type.permissions.includes('WRITE') ? 'button.edit.helptext' : 'button.view.helptext'">
+											<a class="dropdown-item"
+												(click)="manageGeoObjectType(type, !type.permissions.includes('WRITE'))">
+												<localize
+													[key]="type.permissions.includes('WRITE') ? 'button.edit.helptext' : 'button.view.helptext'">
 												</localize>
 											</a>
 										</li>
@@ -96,7 +101,7 @@
 										</li>
 									</ul>
 								</div>
-		
+
 
 							</li>
 						</div>
@@ -106,21 +111,17 @@
 		</accordion>
 	</nav>
 
-	<div class="col-md-9 hierarchy-content">
+	<div class="col-md-10 hierarchy-content">
 		<div id="overflow-div">
 			<create-geo-object-type *ngIf="selection != null && selection.action === Action.CREATE"
 				[organization]="selection.org" [parents]="types" [groupSuperType]="selection.groupSuperType"
-				[isAbstract]="selection.isAbstract" 
-				(typeChange)="handleTypeChange($event)"
-				(onCancel)="selection = null" 
-				(onError)="error($event)">
+				[isAbstract]="selection.isAbstract" (typeChange)="handleTypeChange($event)"
+				(onCancel)="selection = null" (onError)="error($event)">
 			</create-geo-object-type>
 
-			<manage-geo-object-type *ngIf="selection != null && selection.action === Action.EDIT"
-				[type]="selection.type" [readOnly]="selection.readOnly" 
-				(typeChange)="handleTypeChange($event)"
-				(onCancel)="selection = null" 
-				(onError)="error($event)">
+			<manage-geo-object-type *ngIf="selection != null && (selection.action === Action.EDIT || selection.action === Action.VIEW)"
+				[type]="selection.type" [readOnly]="selection.readOnly" (typeChange)="handleTypeChange($event)"
+				(onCancel)="selection = null" (onError)="error($event)">
 			</manage-geo-object-type>
 
 		</div>

@@ -25,38 +25,21 @@ li.list-group-item.active {
     background-color: #DBD7A5;
 }
 
-li.list-group-item.got-li-item
-{
-	border-top: 15px solid #a0a0a0;
-	border-radius: 5px;
-}
-
-li.list-group-item.got-li-item.got-group-child {
-	margin-left: 40px;
-}
-li.list-group-item.got-li-item.got-group-child:before {
-    content: "";
-    position: absolute;
-    left: -8px;
-    border-left: 3px solid white;
-    height: 44px;
-    width: 1px;
-    top: -10px;
-}
-
-li.list-group-item.hier-li-item {
+li.list-group-item.graph-li-item {
 	background: #6e6775;
     border: 2px solid #3E2A5A;
     color: white;
 }
-li.list-group-item.hier-li-item i.fa {
+li.list-group-item.graph-li-item i.fa {
 	color: white;
 }
 
-li.list-group-item.hier-li-item.primary
+li.list-group-item.graph-li-item.primary
 {
 	background: #3E2A5A;
 }
+
+
 
 
 ul li:first-child:before {
@@ -69,7 +52,7 @@ ul li:last-child:before {
    height: 6px; /* shorten the line so it goes only up to the bullet. Is equal to first-child:before's top */
 }
 
-/* li.list-group-item.got-li-item.got-group-parent:before { */
+/* li.list-group-item.graph-li-item.got-group-parent:before { */
 /*     background-color: white; */
 /*     width: 3px; */
 /*     content: ''; */
@@ -78,7 +61,7 @@ ul li:last-child:before {
 /*     bottom: -35px; */
 /*     left: 14px; */
 /* } */
-/* li.list-group-item.got-li-item.got-group-child:before { */
+/* li.list-group-item.graph-li-item.got-group-child:before { */
 /*     background-color: white; */
 /*     width: 25px; */
 /*     height: 3px; */
@@ -175,7 +158,7 @@ li.list-group-item {
   cursor: default;
 }
 
-li.got-li-item.dragging {
+li.graph-li-item.dragging {
 	position: fixed;
 	cursor: grabbing !important;
 	z-index: 99999999;

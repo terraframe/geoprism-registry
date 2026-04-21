@@ -323,9 +323,6 @@ export class HierarchyTypePageComponent implements OnInit {
         );
     }
 
-
-
-
     getTypesByOrg(org: Organization): GeoObjectType[] {
         let orgTypes: GeoObjectType[] = [];
 

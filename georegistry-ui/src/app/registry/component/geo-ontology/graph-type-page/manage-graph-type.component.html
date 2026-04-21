@@ -22,34 +22,42 @@
 
 
   <form #form="ngForm" *ngIf="type != null && typeCode != null" class="modal-form" (ngSubmit)="form.valid">
-    <div class="heading text-center">
-      <h1>
-        <localize *ngIf="readOnly" key="graph.data.view.type"></localize>
-        <localize *ngIf="!readOnly" key="graph.data.edit.type"></localize>
-        : {{type.label.localizedValue}}
-      </h1>
-    </div>
     <fieldset>
-      <div class="row-holder">
-        <div class="label-holder">
-          <label>
-            <localize key="data.property.label.code"></localize>
-          </label>
-        </div>
-        <div class="holder">
-          <span class="text"> <input type="text" [(ngModel)]="type.code" name="code" disabled required>
-          </span>
+
+      <div class="row">
+        <div class="col-md-12">
+          <div class="form-group">
+            <label for="codeInput">
+              <localize key="data.property.label.code"></localize>
+            </label>
+            <span class="text">
+              <input type="text" [(ngModel)]="type.code" name="code" disabled required>
+            </span>
+          </div>
         </div>
       </div>
 
-      <localized-input [disabled]="readOnly" [(value)]="type.label" key="data.property.label.label">
-      </localized-input>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group" *ngFor="let localeValue of type.label.localeValues">
+            <label for="labelInput">
+              <localize key="data.property.label.label"></localize>
+              <span style="color: #BABABA">&nbsp;(<convert-key-label
+                  [key]="localeValue.locale"></convert-key-label>)</span>
+            </label>
+            <input [disabled]="readOnly" [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale"
+              type="input" class="form-control" required>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <localized-text [disabled]="readOnly" [(value)]="type.description" key="data.property.label.description" [inlinelayout]="true">
+            </localized-text>      
+          </div>
+        </div>
+      </div>
 
-      <localized-text [disabled]="readOnly" [(value)]="type.description" key="data.property.label.description">
-      </localized-text>
-
-
-      <div class="row-holder">
+      <div class="row-holder" *ngIf="!readOnly">
         <div class="button-holder">
           <button type="button" class="btn btn-default" (click)="close()">
             <localize key="modal.button.cancel"></localize>

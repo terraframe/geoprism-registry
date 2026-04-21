@@ -42,7 +42,7 @@
 <!--   <h2> <localize key="hierarchy.management.title"></localize> </h2> -->
 <div class="row">
 
-    <nav class="col-md-3 hierarchy-sidebar">
+    <nav class="col-md-2 hierarchy-sidebar">
 
         <accordion [isAnimated]="true" [closeOthers]="false">
             <accordion-group [panelClass]="'hierarchy-sidebar-content'" [isOpen]="true" style="border-radius: 0;">
@@ -65,7 +65,10 @@
                         </button>
                     </div>
 
-                    <li class="list-group-item got-li-item" *ngFor="let type of types; let i = index;" [id]="type.code">
+                    <li class="list-group-item graph-li-item" *ngFor="let type of types; let i = index;"
+                        [id]="type.code"
+                        [ngClass]="{'primary active': (selection != null && selection.type != null && type.code === selection.type.code)}"
+                        (click)="handleTypeView(type)">
                         {{type.label.localizedValue}}
 
                         <div class="btn-group pull-right" dropdown [dropup]="true" container="body">
@@ -101,13 +104,9 @@
         </accordion>
     </nav>
 
-    <div class="col-md-9 hierarchy-content">
+    <div class="col-md-10 hierarchy-content">
         <div id="overflow-div">
-            <create-graph-type *ngIf="selection != null && selection.action === Action.CREATE" [typeCode]="typeCode"
-                (typeChange)="handleTypeChange($event)" (onCancel)="selection = null" (onError)="error($event)">
-            </create-graph-type>
-
-            <manage-graph-type *ngIf="selection != null && selection.action === Action.EDIT" [typeCode]="typeCode"
+            <manage-graph-type *ngIf="selection != null" [typeCode]="typeCode"
                 [type]="selection.type" [readOnly]="selection.readOnly" (typeChange)="handleTypeChange($event)"
                 (onCancel)="selection = null" (onError)="error($event)">
             </manage-graph-type>
