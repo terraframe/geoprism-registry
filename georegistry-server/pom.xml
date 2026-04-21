@@ -36,7 +36,7 @@
   <description>The back-end database server for the georegistry project</description>
 
   <properties>
-    <hapifhir_version>8.6.0</hapifhir_version>
+    <hapifhir_version>8.8.1</hapifhir_version>
     <axon.version>4.11.2</axon.version>
   </properties>
 
@@ -60,12 +60,6 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
       <version>${spring.boot.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-tomcat</artifactId>
-      <version>${spring.boot.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.springdoc</groupId>
@@ -272,6 +266,12 @@
     </dependency>
 
 
+
+    <dependency>
+      <groupId>ca.uhn.hapi.fhir</groupId>
+      <artifactId>hapi-fhir-client</artifactId>
+      <version>${hapifhir_version}</version>
+    </dependency>
     <dependency>
       <groupId>ca.uhn.hapi.fhir</groupId>
       <artifactId>hapi-fhir-base</artifactId>
@@ -283,15 +283,6 @@
       	</exclusion>
       </exclusions>
     </dependency>
-
-    <!-- Include the client -->
-    <dependency>
-      <groupId>ca.uhn.hapi.fhir</groupId>
-      <artifactId>hapi-fhir-client</artifactId>
-      <version>${hapifhir_version}</version>
-    </dependency>
-
-    <!-- At least one "structures" JAR must also be included -->
     <dependency>
       <groupId>ca.uhn.hapi.fhir</groupId>
       <artifactId>hapi-fhir-structures-r4</artifactId>
@@ -307,6 +298,7 @@
       	</exclusion>
       </exclusions>
     </dependency>
+<!--
     <dependency>
       <groupId>ca.uhn.hapi.fhir</groupId>
       <artifactId>hapi-fhir-validation</artifactId>
@@ -318,6 +310,7 @@
       	</exclusion>
       </exclusions>
     </dependency>
+    -->
     <!--
     https://mvnrepository.com/artifact/com.github.ben-manes.caffeine/caffeine -->
     <dependency>
