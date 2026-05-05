@@ -106,7 +106,7 @@
 
     <div class="col-md-10 hierarchy-content">
         <div id="overflow-div">
-            <manage-graph-type *ngIf="selection != null" [typeCode]="typeCode"
+            <manage-graph-type *ngIf="selection != null" [typeCode]="typeCode" [isNew]="selection.isNew"
                 [type]="selection.type" [readOnly]="selection.readOnly" (typeChange)="handleTypeChange($event)"
                 (onCancel)="selection = null" (onError)="error($event)">
             </manage-graph-type>

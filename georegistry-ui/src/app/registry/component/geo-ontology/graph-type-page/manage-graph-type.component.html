@@ -31,7 +31,7 @@
               <localize key="data.property.label.code"></localize>
             </label>
             <span class="text">
-              <input type="text" [(ngModel)]="type.code" name="code" disabled required>
+              <input type="text" [(ngModel)]="type.code" name="code" [disabled]="readOnly || !isNew" required>
             </span>
           </div>
         </div>

@@ -57,6 +57,7 @@ export class ManageGraphTypeComponent implements OnInit {
     @Input() typeCode: string;
     @Input() type: GraphType = null;
     @Input() readOnly: boolean = false;
+    @Input() isNew: boolean = false;
 
     @Output() onCancel: EventEmitter<void> = new EventEmitter<void>()
     @Output() onError: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>()

@@ -34,7 +34,6 @@ import { firstValueFrom } from "rxjs";
 export class MapService {
 
     constructor(private configuration: ConfigurationService, private http: HttpClient, private eventService: EventService) {
-        (mapboxgl as any).accessToken = configuration.getMapboxAccessToken();
     }
 
     roots(typeCode: string, hierarchyCode: string, date: string): Promise<LocationInformation> {

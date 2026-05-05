@@ -83,8 +83,6 @@ export class HierarchyTypeComponent implements OnInit, AfterViewInit {
     }
 
     handleClose(): void {
-        console.log("Dirty", this.myForm.dirty);
-
         if (!this.readOnly && this.myForm.dirty) {
             this.onClose.emit({ edit: this.edit, hierarchy: this.hierarchyType });
         }

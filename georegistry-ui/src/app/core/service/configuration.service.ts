@@ -72,10 +72,6 @@ export class ConfigurationService {
         return this.getConfiguration().locales;
     }
 
-    getMapboxAccessToken(): string {
-        return this.getConfiguration().mapboxAccessToken;
-    }
-
     getAnalyticsToken(): string {
         return this.getConfiguration().googleanalyticstoken;
     }

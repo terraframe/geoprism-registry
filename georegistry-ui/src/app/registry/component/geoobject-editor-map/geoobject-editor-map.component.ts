@@ -92,7 +92,7 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
                         'base-raster': {
                             'type': 'raster',
                             'tiles': [
-                                'https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}@2x.jpg90?access_token=' + this.configuration.getMapboxAccessToken()
+                                window.location.protocol + "//" + window.location.host + EnvironmentUtil.getApiUrl() + "/api/mapbox/v4/mapbox.satellite/{z}/{x}/{y}@2x.jpg90"
                             ],
                             'tileSize': 512,
                         }

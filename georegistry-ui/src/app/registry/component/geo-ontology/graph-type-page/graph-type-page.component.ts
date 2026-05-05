@@ -39,7 +39,8 @@ interface Selection {
 
     // params for editing
     type?: GraphType;
-    readOnly?: boolean
+    readOnly?: boolean;
+    isNew?: boolean;
 }
 
 
@@ -90,7 +91,8 @@ export class GraphTypePageComponent implements OnInit, OnDestroy {
                 label: this.localizeService.create(),
                 description: this.localizeService.create(),
             },
-            readOnly: false
+            readOnly: false,
+            isNew: true
         };
     }
 
@@ -99,7 +101,8 @@ export class GraphTypePageComponent implements OnInit, OnDestroy {
             this.selection = {
                 action: Action.EDIT,
                 type: type,
-                readOnly: !this.isSRA
+                readOnly: !this.isSRA,
+                isNew: false
             };
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
@@ -111,7 +114,8 @@ export class GraphTypePageComponent implements OnInit, OnDestroy {
         this.selection = {
             action: Action.VIEW,
             type: type,
-            readOnly: true
+            readOnly: true,
+            isNew: false
         };
     }
 
@@ -130,7 +134,8 @@ export class GraphTypePageComponent implements OnInit, OnDestroy {
             this.selection = {
                 action: Action.EDIT,
                 type: lodash.cloneDeep(type),
-                readOnly: !this.isSRA
+                readOnly: !this.isSRA,
+                isNew: false
             };
 
         }
