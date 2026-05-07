@@ -3,8 +3,6 @@ package net.geoprism.registry.axon.event.repository;
 import java.util.Date;
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 public class GeoObjectUpdateParentEvent extends AbstractHierarchyEvent implements GeoObjectEvent
 {
   private String code;
@@ -13,7 +11,7 @@ public class GeoObjectUpdateParentEvent extends AbstractHierarchyEvent implement
 
   private String edgeUid;
 
-  private String edgeType;
+  private String edgeTypeCode;
 
   private Date   startDate;
 
@@ -36,7 +34,7 @@ public class GeoObjectUpdateParentEvent extends AbstractHierarchyEvent implement
     this.code = code;
     this.type = type;
     this.edgeUid = edgeUid;
-    this.edgeType = edgeType;
+    this.edgeTypeCode = edgeType;
     this.startDate = startDate;
     this.endDate = endDate;
     this.parentType = parentType;
@@ -74,14 +72,14 @@ public class GeoObjectUpdateParentEvent extends AbstractHierarchyEvent implement
     this.edgeUid = edgeUid;
   }
 
-  public String getEdgeType()
+  public String getEdgeTypeCode()
   {
-    return edgeType;
+    return edgeTypeCode;
   }
 
-  public void setEdgeType(String edgeType)
+  public void setEdgeTypeCode(String edgeTypeCode)
   {
-    this.edgeType = edgeType;
+    this.edgeTypeCode = edgeTypeCode;
   }
 
   public Date getStartDate()
@@ -132,19 +130,5 @@ public class GeoObjectUpdateParentEvent extends AbstractHierarchyEvent implement
   public void setDataSource(String dataSource)
   {
     this.dataSource = dataSource;
-  }
-
-  @Override
-  @JsonIgnore
-  public String getBaseObjectId()
-  {
-    return this.code + "#" + this.type + "_H_" + this.edgeType;
-  }
-
-  @Override
-  @JsonIgnore
-  public EventPhase getEventPhase()
-  {
-    return EventPhase.EDGE;
   }
 }

@@ -13,7 +13,7 @@ public class GeoObjectCreateParentEvent extends AbstractHierarchyEvent implement
 
   private String  edgeUid;
 
-  private String  edgeType;
+  private String  edgeTypeCode;
 
   private Date    startDate;
 
@@ -31,14 +31,14 @@ public class GeoObjectCreateParentEvent extends AbstractHierarchyEvent implement
   {
   }
 
-  public GeoObjectCreateParentEvent(String code, String type, String edgeUid, String edgeType, Date stateDate, Date endDate, String parentCode, String parentType, String dataSource, Boolean validate)
+  public GeoObjectCreateParentEvent(String code, String type, String edgeUid, String edgeTypeCode, Date stateDate, Date endDate, String parentCode, String parentType, String dataSource, Boolean validate)
   {
     super(UUID.randomUUID().toString());
 
     this.code = code;
     this.type = type;
     this.edgeUid = edgeUid;
-    this.edgeType = edgeType;
+    this.edgeTypeCode = edgeTypeCode;
     this.startDate = stateDate;
     this.endDate = endDate;
     this.parentType = parentType;
@@ -77,14 +77,14 @@ public class GeoObjectCreateParentEvent extends AbstractHierarchyEvent implement
     this.edgeUid = edgeUid;
   }
 
-  public String getEdgeType()
+  public String getEdgeTypeCode()
   {
-    return edgeType;
+    return edgeTypeCode;
   }
 
-  public void setEdgeType(String edgeType)
+  public void setEdgeTypeCode(String edgeTypeCode)
   {
-    this.edgeType = edgeType;
+    this.edgeTypeCode = edgeTypeCode;
   }
 
   public Date getStartDate()
@@ -145,13 +145,6 @@ public class GeoObjectCreateParentEvent extends AbstractHierarchyEvent implement
   public void setDataSource(String dataSource)
   {
     this.dataSource = dataSource;
-  }
-
-  @Override
-  @JsonIgnore
-  public String getBaseObjectId()
-  {
-    return this.code + "#" + this.type + "_H_" + this.edgeType;
   }
 
   @Override

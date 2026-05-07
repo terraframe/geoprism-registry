@@ -177,6 +177,11 @@ public abstract class AbstractGeoObjectEventBuilder<K>
     this.events.add(new GeoObjectCreateParentEvent(this.getCode(), this.getType(), edgeUuid, hierarchy.getCode(), startDate, endDate, parent.getCode(), parent.getType().getCode(), code, validate));
   }
 
+  public void removeParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchy, Date startDate, Date endDate, String edgeUuid)
+  {
+    this.events.add(new GeoObjectRemoveParentEvent(this.getCode(), this.getType(), edgeUuid, hierarchy.getCode(), startDate, endDate));
+  }
+
   public void addEdge(ServerGeoObjectIF target, GraphType graphType, Date startDate, Date endDate, String edgeUuid, DataSource source, ImportStrategy strategy, Boolean validate)
   {
     String typeCode = GraphType.getTypeCode(graphType);

@@ -114,11 +114,15 @@ public class RegistryEventStore extends EmbeddedEventStore implements EventStore
     statement.append(" FROM " + DOMAIN_EVENT_ENTRY_TABLE);
     statement.append(" WHERE commit_id IS NULL");
     statement.append(" AND " + PHASE + " = '" + phase.name() + "'");
-    statement.append(" AND globalindex <= " + end.getIndex());
 
     if (start != null)
     {
       statement.append(" AND globalindex > " + start.getIndex());
+    }
+
+    if (end != null)
+    {
+      statement.append(" AND globalindex <= " + end.getIndex());
     }
 
     statement.append(" ORDER BY " + BASE_OBJECT);
@@ -167,6 +171,6 @@ public class RegistryEventStore extends EmbeddedEventStore implements EventStore
 
   public DomainEventStream readEvents(String baseObjectId, GapAwareTrackingToken start, GapAwareTrackingToken end)
   {
-    return storageEngine().readEvents(baseObjectId, start.getIndex(), end.getIndex());
+    return storageEngine().readEvents(baseObjectId, start != null ? start.getIndex() : null, end != null ? end.getIndex() : null);
   }
 }

@@ -1,8 +1,5 @@
 package net.geoprism.registry.axon.event.repository;
 
-import java.util.UUID;
-
-import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 
 import com.google.gson.JsonObject;

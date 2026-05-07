@@ -190,7 +190,7 @@ public class PublishEventService
       String code = ( (GeoObjectCreateParentEvent) event ).getCode();
       String type = ( (GeoObjectCreateParentEvent) event ).getType();
       String edgeUid = ( (GeoObjectCreateParentEvent) event ).getEdgeUid();
-      String edgeType = ( (GeoObjectCreateParentEvent) event ).getEdgeType();
+      String edgeType = ( (GeoObjectCreateParentEvent) event ).getEdgeTypeCode();
       String parentType = ( (GeoObjectCreateParentEvent) event ).getParentType();
       String parentCode = ( (GeoObjectCreateParentEvent) event ).getParentCode();
       String dataSource = ( (GeoObjectCreateParentEvent) event ).getDataSource();
@@ -207,7 +207,7 @@ public class PublishEventService
       String code = ( (GeoObjectUpdateParentEvent) event ).getCode();
       String type = ( (GeoObjectUpdateParentEvent) event ).getType();
       String edgeUid = ( (GeoObjectUpdateParentEvent) event ).getEdgeUid();
-      String edgeType = ( (GeoObjectUpdateParentEvent) event ).getEdgeType();
+      String edgeType = ( (GeoObjectUpdateParentEvent) event ).getEdgeTypeCode();
       String parentType = ( (GeoObjectUpdateParentEvent) event ).getParentType();
       String parentCode = ( (GeoObjectUpdateParentEvent) event ).getParentCode();
       String dataSource = ( (GeoObjectUpdateParentEvent) event ).getDataSource();
@@ -224,7 +224,7 @@ public class PublishEventService
       String code = ( (GeoObjectRemoveParentEvent) event ).getCode();
       String type = ( (GeoObjectRemoveParentEvent) event ).getType();
       String edgeUid = ( (GeoObjectRemoveParentEvent) event ).getEdgeUid();
-      String edgeType = ( (GeoObjectRemoveParentEvent) event ).getEdgeType();
+      String edgeType = ( (GeoObjectRemoveParentEvent) event ).getEdgeTypeCode();
 
       return new RemoteGeoObjectSetParentEvent(commit.getUid(), code, type, edgeUid, edgeType, publish.getStartDate(), publish.getEndDate(), null, null, null);
     }
@@ -291,7 +291,7 @@ public class PublishEventService
       String sourceCode = ( (BusinessObjectCreateEdgeEvent) event ).getSourceCode();
       String sourceType = ( (BusinessObjectCreateEdgeEvent) event ).getSourceType();
       String edgeUid = ( (BusinessObjectCreateEdgeEvent) event ).getEdgeUid();
-      String edgeType = ( (BusinessObjectCreateEdgeEvent) event ).getEdgeType();
+      String edgeType = ( (BusinessObjectCreateEdgeEvent) event ).getEdgeTypeCode();
       String targetCode = ( (BusinessObjectCreateEdgeEvent) event ).getTargetCode();
       String targetType = ( (BusinessObjectCreateEdgeEvent) event ).getTargetType();
       String dataSource = ( (BusinessObjectCreateEdgeEvent) event ).getDataSource();
@@ -348,8 +348,7 @@ public class PublishEventService
             .forEach(this.gateway::publish);
 
       }
-      
-      
+
       offset += limit;
     }
 

@@ -5,7 +5,10 @@ import java.util.UUID;
 import org.axonframework.eventhandling.GenericEventMessage;
 import org.axonframework.eventhandling.gateway.EventGateway;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
+import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.junit.After;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,11 +19,13 @@ import com.runwaysdk.system.scheduler.SchedulerManager;
 
 import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.axon.event.repository.BusinessObjectEventBuilder;
+import net.geoprism.registry.axon.event.repository.GeoObjectEventBuilder;
 import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.axon.projection.RepositoryProjection;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.EdgeDirection;
+import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
@@ -29,6 +34,7 @@ import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GraphRepoServiceIF;
 import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
 import net.geoprism.registry.test.TestDataSet;
+import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.BusinessEdgeTypeView;
 import net.geoprism.registry.view.BusinessGeoEdgeTypeView;
@@ -103,6 +109,8 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
 
     btype = this.bTypeService.apply(object);
 
+    this.bTypeService.createAttributeType(btype, new AttributeBooleanType("testBoolean", new LocalizedValue("Test Boolean"), new LocalizedValue("Test Boolean"), false, false, false));
+
     bEdgeType = this.bEdgeService.create(BusinessEdgeTypeView.build(USATestData.ORG_PPP.getCode(), "TEST_B_EDGE", new LocalizedValue("TEST_B_EDGE"), new LocalizedValue("TEST_B_EDGE"), btype.getCode(), btype.getCode()));
 
     bGeoEdgeType = this.bEdgeService.createGeoEdge(BusinessGeoEdgeTypeView.build(USATestData.ORG_PPP.getCode(), "TEST_GEO_EDGE", new LocalizedValue("TEST_GEO_EDGE"), new LocalizedValue("TEST_GEO_EDGE"), btype.getCode(), EdgeDirection.PARENT));
@@ -164,26 +172,42 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
     addUndirectedEdge();
   }
 
-  protected void addUndirectedEdge()
+  protected String addUndirectedEdge()
   {
+    String edgeUid = UUID.randomUUID().toString();
+
     ServerGeoObjectEventBuilder builder = new ServerGeoObjectEventBuilder(this.gObjectService);
     builder.setObject(USATestData.COLORADO.getServerObject());
-    builder.addEdge(USATestData.CANADA.getServerObject(), undirectedType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, UUID.randomUUID().toString(), USATestData.SOURCE.getDataSource(), ImportStrategy.NEW_ONLY, false);
+    builder.addEdge(USATestData.CANADA.getServerObject(), undirectedType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, edgeUid, USATestData.SOURCE.getDataSource(), ImportStrategy.NEW_ONLY, false);
 
     builder.build().stream().forEach(event -> {
       gateway.publish(GenericEventMessage.asEventMessage(event));
     });
+
+    return edgeUid;
   }
 
-  protected void addDirectedAcyclicEdge()
+  protected String addDirectedAcyclicEdge()
   {
+    TestGeoObjectInfo source = USATestData.COLORADO;
+    TestGeoObjectInfo target = USATestData.CANADA;
+
+    return addDirectedAcyclicEdge(source, target);
+  }
+
+  protected String addDirectedAcyclicEdge(TestGeoObjectInfo source, TestGeoObjectInfo target)
+  {
+    String edgeUid = UUID.randomUUID().toString();
+
     ServerGeoObjectEventBuilder builder = new ServerGeoObjectEventBuilder(this.gObjectService);
-    builder.setObject(USATestData.COLORADO.getServerObject());
-    builder.addEdge(USATestData.CANADA.getServerObject(), dagType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, UUID.randomUUID().toString(), USATestData.SOURCE.getDataSource(), ImportStrategy.NEW_ONLY, false);
+    builder.setObject(source.getServerObject());
+    builder.addEdge(target.getServerObject(), dagType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, edgeUid, USATestData.SOURCE.getDataSource(), ImportStrategy.NEW_ONLY, false);
 
     builder.build().stream().forEach(event -> {
       gateway.publish(GenericEventMessage.asEventMessage(event));
     });
+
+    return edgeUid;
   }
 
   protected void addBusinessEdge()
@@ -202,16 +226,38 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
   {
     BusinessObject object = this.bObjectService.newInstance(btype);
     object.setCode(code);
+    object.setValue("testBoolean", false);
     object.setValue(DefaultAttribute.DATA_SOURCE.getName(), USATestData.SOURCE.getDataSource());
 
+    return applyBusinessObject(object, true);
+  }
+
+  protected BusinessObject applyBusinessObject(BusinessObject object, boolean isNew)
+  {
     BusinessObjectEventBuilder builder = new BusinessObjectEventBuilder(bObjectService);
-    builder.setObject(object, true);
+    builder.setObject(object, isNew);
+    builder.setAttributeUpdate(true);
 
     builder.build().stream().forEach(event -> {
       gateway.publish(GenericEventMessage.asEventMessage(event));
     });
 
     return this.bObjectService.getByCode(btype, builder.getCode());
+  }
+
+  protected ServerGeoObjectIF applyGeoObject(ServerGeoObjectIF object)
+  {
+    GeoObjectOverTime dto = this.gObjectService.toGeoObjectOverTime(object);
+
+    GeoObjectEventBuilder builder = new GeoObjectEventBuilder(this.gObjectService);
+    builder.setObject(dto, false);
+    builder.setAttributeUpdate(true);
+
+    builder.build().stream().forEach(event -> {
+      gateway.publish(GenericEventMessage.asEventMessage(event));
+    });
+
+    return this.gObjectService.getGeoObjectByCode(object.getCode(), object.getType());
   }
 
   @After

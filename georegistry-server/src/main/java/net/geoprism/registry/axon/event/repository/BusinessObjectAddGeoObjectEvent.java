@@ -2,10 +2,12 @@ package net.geoprism.registry.axon.event.repository;
 
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.view.PublishDTO;
 
-public class BusinessObjectAddGeoObjectEvent extends AbstractRepositoryEvent implements BusinessObjectEvent
+public class BusinessObjectAddGeoObjectEvent extends AbstractBusinessObjectEdgeEvent implements BusinessObjectEvent
 {
   private String        type;
 
@@ -119,6 +121,41 @@ public class BusinessObjectAddGeoObjectEvent extends AbstractRepositoryEvent imp
   public void setDataSource(String dataSource)
   {
     this.dataSource = dataSource;
+  }
+
+  @Override
+  @JsonIgnore
+  public String getSourceType()
+  {
+    return this.direction.equals(EdgeDirection.PARENT) ? this.geoObjectType : this.type;
+  }
+
+  @Override
+  @JsonIgnore
+  public String getSourceCode()
+  {
+    return this.direction.equals(EdgeDirection.PARENT) ? this.geoObjectCode : this.code;
+  }
+
+  @Override
+  @JsonIgnore
+  public String getTargetType()
+  {
+    return this.direction.equals(EdgeDirection.CHILD) ? this.geoObjectType : this.type;
+  }
+
+  @Override
+  @JsonIgnore
+  public String getTargetCode()
+  {
+    return this.direction.equals(EdgeDirection.CHILD) ? this.geoObjectCode : this.code;
+  }
+
+  @Override
+  @JsonIgnore
+  public String getEdgeTypeCode()
+  {
+    return this.edgeType;
   }
 
   @Override

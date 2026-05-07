@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.geoprism.registry.view.PublishDTO;
 
-public class BusinessObjectCreateEdgeEvent extends AbstractRepositoryEvent implements BusinessObjectEvent
+public class BusinessObjectCreateEdgeEvent extends AbstractBusinessObjectEdgeEvent implements BusinessObjectEvent
 {
   private String  sourceCode;
 
@@ -14,7 +14,7 @@ public class BusinessObjectCreateEdgeEvent extends AbstractRepositoryEvent imple
 
   private String  edgeUid;
 
-  private String  edgeType;
+  private String  edgeTypeCode;
 
   private String  targetType;
 
@@ -28,14 +28,14 @@ public class BusinessObjectCreateEdgeEvent extends AbstractRepositoryEvent imple
   {
   }
 
-  public BusinessObjectCreateEdgeEvent(String sourceCode, String sourceType, String edgeType, String targetCode, String targetType, String dataSource, Boolean validate)
+  public BusinessObjectCreateEdgeEvent(String sourceCode, String sourceType, String edgeTypeCode, String targetCode, String targetType, String dataSource, Boolean validate)
   {
     super(UUID.randomUUID().toString());
 
     this.edgeUid = UUID.randomUUID().toString();
     this.sourceCode = sourceCode;
     this.sourceType = sourceType;
-    this.edgeType = edgeType;
+    this.edgeTypeCode = edgeTypeCode;
     this.targetCode = targetCode;
     this.targetType = targetType;
     this.dataSource = dataSource;
@@ -72,14 +72,14 @@ public class BusinessObjectCreateEdgeEvent extends AbstractRepositoryEvent imple
     this.edgeUid = edgeUid;
   }
 
-  public String getEdgeType()
+  public String getEdgeTypeCode()
   {
-    return edgeType;
+    return edgeTypeCode;
   }
 
-  public void setEdgeType(String edgeType)
+  public void setEdgeTypeCode(String edgeTypeCode)
   {
-    this.edgeType = edgeType;
+    this.edgeTypeCode = edgeTypeCode;
   }
 
   public String getTargetType()
@@ -141,8 +141,8 @@ public class BusinessObjectCreateEdgeEvent extends AbstractRepositoryEvent imple
     {
       return false;
     }
-    
-    return dto.getBusinessEdgeTypes().anyMatch(this.getEdgeType()::equals);
+
+    return dto.getBusinessEdgeTypes().anyMatch(this.getEdgeTypeCode()::equals);
   }
 
   @Override

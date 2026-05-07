@@ -11,7 +11,7 @@ public class GeoObjectRemoveParentEvent extends AbstractHierarchyEvent implement
 
   private String type;
 
-  private String edgeType;
+  private String edgeTypeCode;
 
   private String edgeUid;
 
@@ -23,14 +23,14 @@ public class GeoObjectRemoveParentEvent extends AbstractHierarchyEvent implement
   {
   }
 
-  public GeoObjectRemoveParentEvent(String code, String type, String edgeUid, String edgeType, Date startDate, Date endDate)
+  public GeoObjectRemoveParentEvent(String code, String type, String edgeUid, String edgeTypeCode, Date startDate, Date endDate)
   {
     super(UUID.randomUUID().toString());
 
     this.code = code;
     this.type = type;
     this.edgeUid = edgeUid;
-    this.edgeType = edgeType;
+    this.edgeTypeCode = edgeTypeCode;
     this.startDate = startDate;
     this.endDate = endDate;
   }
@@ -55,14 +55,14 @@ public class GeoObjectRemoveParentEvent extends AbstractHierarchyEvent implement
     this.code = code;
   }
 
-  public String getEdgeType()
+  public String getEdgeTypeCode()
   {
-    return edgeType;
+    return edgeTypeCode;
   }
 
-  public void setEdgeType(String edgeType)
+  public void setEdgeTypeCode(String edgeTypeCode)
   {
-    this.edgeType = edgeType;
+    this.edgeTypeCode = edgeTypeCode;
   }
 
   public String getEdgeUid()
@@ -95,17 +95,4 @@ public class GeoObjectRemoveParentEvent extends AbstractHierarchyEvent implement
     this.endDate = endDate;
   }
 
-  @Override
-  @JsonIgnore
-  public String getBaseObjectId()
-  {
-    return this.code + "#" + this.type + "_H_" + this.edgeType;
-  }
-
-  @Override
-  @JsonIgnore
-  public EventPhase getEventPhase()
-  {
-    return EventPhase.EDGE;
-  }
 }

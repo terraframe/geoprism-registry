@@ -31,6 +31,7 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.axon.event.repository.GeoObjectEventBuilder;
+import net.geoprism.registry.axon.event.repository.GeoObjectUpdateParentEvent;
 import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -389,8 +390,19 @@ public class TestGeoObjectInfo extends TestCachedObject<ServerGeoObjectIF>
   }
 
   @Request
-  public void addChild(TestGeoObjectInfo child, TestHierarchyTypeInfo hierarchy)
+  public void updateParent(TestGeoObjectInfo parent, TestHierarchyTypeInfo hierarchy, String edgeUid, Date startDate, Date endDate)
   {
+    GeoObjectUpdateParentEvent event = new GeoObjectUpdateParentEvent(this.code, this.geoObjectType.getCode(), edgeUid, hierarchy.getCode(), startDate, endDate, parent.getCode(), parent.getGeoObjectType().getCode(), source.getCode());
+
+    EventGateway gateway = ServiceFactory.getBean(EventGateway.class);
+    gateway.publish(GenericEventMessage.asEventMessage(event));
+  }
+
+  @Request
+  public String addChild(TestGeoObjectInfo child, TestHierarchyTypeInfo hierarchy)
+  {
+    String edgeId = UUID.randomUUID().toString();
+
     if (!this.children.contains(child))
     {
       children.add(child);
@@ -405,7 +417,40 @@ public class TestGeoObjectInfo extends TestCachedObject<ServerGeoObjectIF>
 
     ServerGeoObjectEventBuilder builder = new ServerGeoObjectEventBuilder(service);
     builder.setObject(child.getServerObject());
-    builder.addParent(this.getServerObject(), hierarchy.getServerObject(), date, TestDataSet.DEFAULT_END_TIME_DATE, UUID.randomUUID().toString(), this.source.getDataSource(), false);
+    builder.addParent(this.getServerObject(), hierarchy.getServerObject(), date, TestDataSet.DEFAULT_END_TIME_DATE, edgeId, this.source.getDataSource(), false);
+    builder.setIsNew(this.isNew);
+
+    EventGateway gateway = ServiceFactory.getBean(EventGateway.class);
+
+    builder.build().stream().forEach(event -> {
+      gateway.publish(GenericEventMessage.asEventMessage(event));
+    });
+
+    // EventGateway gateway = ServiceFactory.getBean(EventGateway.class);
+    // gateway.sendAndWait(builder.build());
+
+    return edgeId;
+  }
+
+  @Request
+  public void removeChild(TestGeoObjectInfo child, TestHierarchyTypeInfo hierarchy, String edgeId)
+  {
+    if (this.children.contains(child))
+    {
+      children.remove(child);
+    }
+
+    child.getParents().remove(this);
+
+    GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
+    //
+    // service.addChild(this.getServerObject(), child.getServerObject(),
+    // hierarchy.getServerObject(), date, TestDataSet.DEFAULT_END_TIME_DATE,
+    // UUID.randomUUID().toString(), false);
+
+    ServerGeoObjectEventBuilder builder = new ServerGeoObjectEventBuilder(service);
+    builder.setObject(child.getServerObject());
+    builder.removeParent(this.getServerObject(), hierarchy.getServerObject(), date, TestDataSet.DEFAULT_END_TIME_DATE, edgeId);
     builder.setIsNew(this.isNew);
 
     EventGateway gateway = ServiceFactory.getBean(EventGateway.class);
@@ -664,4 +709,5 @@ public class TestGeoObjectInfo extends TestCachedObject<ServerGeoObjectIF>
 
     this.assertEquals(service.toGeoObject(serverGO, startDate));
   }
+
 }

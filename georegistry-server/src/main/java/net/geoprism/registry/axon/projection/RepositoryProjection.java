@@ -47,6 +47,10 @@ import net.geoprism.registry.axon.event.repository.GeoObjectCreateParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectRemoveParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectSetExternalIdEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectUpdateParentEvent;
+import net.geoprism.registry.axon.event.repository.RemoveBusinessObjectEdgeEvent;
+import net.geoprism.registry.axon.event.repository.RemoveBusinessObjectEvent;
+import net.geoprism.registry.axon.event.repository.RemoveGeoObjectEdgeEvent;
+import net.geoprism.registry.axon.event.repository.RemoveGeoObjectEvent;
 import net.geoprism.registry.cache.BusinessObjectCache;
 import net.geoprism.registry.cache.Cache;
 import net.geoprism.registry.cache.GeoObjectCache;
@@ -60,6 +64,7 @@ import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.graph.EdgeVertexType;
 import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
@@ -89,7 +94,7 @@ public class RepositoryProjection
   private BusinessEdgeTypeBusinessServiceIF edgeService;
 
   @Autowired
-  private GPRBusinessTypeBusinessService    typeService;
+  private GPRBusinessTypeBusinessService    bTypeService;
 
   @Autowired
   private BusinessObjectBusinessServiceIF   bObjectService;
@@ -112,7 +117,7 @@ public class RepositoryProjection
 
   @EventHandler
   @Transaction
-  public void handleApplyGeoObject(GeoObjectApplyEvent event) throws Exception
+  public void handleApplyGeoObject(GeoObjectApplyEvent event)
   {
     GeoObjectOverTime dto = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), event.getObject());
 
@@ -135,9 +140,9 @@ public class RepositoryProjection
 
   @EventHandler
   @Transaction
-  public void handleRemoveParent(GeoObjectRemoveParentEvent event) throws Exception
+  public void handleRemoveParent(GeoObjectRemoveParentEvent event)
   {
-    ServerHierarchyType hierarchyType = this.hService.get(event.getEdgeType());
+    ServerHierarchyType hierarchyType = this.hService.get(event.getEdgeTypeCode());
 
     ServerGeoObjectIF object = this.gObjectService.getGeoObjectByCode(event.getCode(), event.getType());
     EdgeObject edge = object.getEdge(hierarchyType, event.getEdgeUid());
@@ -157,10 +162,10 @@ public class RepositoryProjection
 
   @EventHandler
   @Transaction
-  public void handleUpdateParent(GeoObjectUpdateParentEvent event) throws Exception
+  public void handleUpdateParent(GeoObjectUpdateParentEvent event)
   {
     ServerGeoObjectIF object = this.gObjectService.getGeoObjectByCode(event.getCode(), event.getType());
-    ServerHierarchyType hierarchy = this.hService.get(event.getEdgeType());
+    ServerHierarchyType hierarchy = this.hService.get(event.getEdgeTypeCode());
 
     EdgeObject edge = object.getEdge(hierarchy, event.getEdgeUid());
 
@@ -233,10 +238,10 @@ public class RepositoryProjection
 
   @EventHandler
   @Transaction
-  public void handleCreateParent(GeoObjectCreateParentEvent event) throws Exception
+  public void handleCreateParent(GeoObjectCreateParentEvent event)
   {
     ServerGeoObjectIF object = this.gObjectService.getGeoObjectByCode(event.getCode(), event.getType());
-    ServerHierarchyType hierarchy = this.hService.get(event.getEdgeType());
+    ServerHierarchyType hierarchy = this.hService.get(event.getEdgeTypeCode());
     VertexServerGeoObject newParent = (VertexServerGeoObject) this.gObjectService.getGeoObjectByCode(event.getParentCode(), event.getParentType());
     DataSource dataSource = this.sourceService.getByCode(event.getDataSource()).orElse(null);
 
@@ -259,7 +264,7 @@ public class RepositoryProjection
 
   @EventHandler
   @Transaction
-  public void handleSetExternalId(GeoObjectSetExternalIdEvent event) throws Exception
+  public void handleSetExternalId(GeoObjectSetExternalIdEvent event)
   {
     ServerGeoObjectIF object = this.gObjectService.getGeoObjectByCode(event.getCode(), event.getType());
     String systemId = event.getSystemId();
@@ -271,7 +276,7 @@ public class RepositoryProjection
 
   @EventHandler
   @Transaction
-  public void handleCreateEdge(GeoObjectApplyEdgeEvent event) throws Exception
+  public void handleCreateEdge(GeoObjectApplyEdgeEvent event)
   {
     final GraphType graphType = this.graphTypeService.getByCode(event.getEdgeType(), event.getEdgeTypeCode());
     DataSource dataSource = this.sourceService.getByCode(event.getDataSource()).orElse(null);
@@ -343,7 +348,7 @@ public class RepositoryProjection
 
   @EventHandler
   @Transaction
-  public void handleRemoteGeoObject(RemoteGeoObjectEvent event) throws Exception
+  public void handleRemoteGeoObject(RemoteGeoObjectEvent event)
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(event.getType());
 
@@ -369,7 +374,7 @@ public class RepositoryProjection
 
   @EventHandler
   @Transaction
-  public void handleRemoteParent(RemoteGeoObjectSetParentEvent event) throws Exception
+  public void handleRemoteParent(RemoteGeoObjectSetParentEvent event)
   {
     ServerHierarchyType hierarchyType = this.hService.get(event.getEdgeType());
 
@@ -402,7 +407,7 @@ public class RepositoryProjection
 
   @EventHandler
   @Transaction
-  public void handleRemoteCreateEdge(RemoteGeoObjectCreateEdgeEvent event) throws Exception
+  public void handleRemoteCreateEdge(RemoteGeoObjectCreateEdgeEvent event)
   {
     final GraphType graphType = this.graphTypeService.getByCode(event.getEdgeType(), event.getEdgeTypeCode());
 
@@ -499,9 +504,9 @@ public class RepositoryProjection
 
   @EventHandler
   @Transaction
-  public void handleApplyBusinessObject(BusinessObjectApplyEvent event) throws Exception
+  public void handleApplyBusinessObject(BusinessObjectApplyEvent event)
   {
-    BusinessType type = this.typeService.getByCode(event.getType());
+    BusinessType type = this.bTypeService.getByCode(event.getType());
 
     JsonObject json = JsonParser.parseString(event.getObject()).getAsJsonObject();
 
@@ -514,9 +519,9 @@ public class RepositoryProjection
 
   @EventHandler
   @Transaction
-  public void handleAddGeoObjectEdge(BusinessObjectAddGeoObjectEvent event) throws Exception
+  public void handleAddGeoObjectEdge(BusinessObjectAddGeoObjectEvent event)
   {
-    BusinessType type = this.typeService.getByCode(event.getType());
+    BusinessType type = this.bTypeService.getByCode(event.getType());
     BusinessObject object = this.bObjectService.getByCode(type, event.getCode());
     ServerGeoObjectIF geoObject = this.gObjectService.getGeoObjectByCode(event.getGeoObjectCode(), event.getGeoObjectType());
 
@@ -529,9 +534,9 @@ public class RepositoryProjection
 
   @EventHandler
   @Transaction
-  public void handleCreateEdge(BusinessObjectCreateEdgeEvent event) throws Exception
+  public void handleCreateEdge(BusinessObjectCreateEdgeEvent event)
   {
-    BusinessEdgeType edgeType = this.edgeService.getByCodeOrThrow(event.getEdgeType());
+    BusinessEdgeType edgeType = this.edgeService.getByCodeOrThrow(event.getEdgeTypeCode());
     DataSource dataSource = this.sourceService.getByCode(event.getDataSource()).orElse(null);
 
     if (event.getValidate())
@@ -552,9 +557,9 @@ public class RepositoryProjection
 
   @EventHandler
   @Transaction
-  public void handleRemoteBusinessObject(RemoteBusinessObjectEvent event) throws Exception
+  public void handleRemoteBusinessObject(RemoteBusinessObjectEvent event)
   {
-    BusinessType type = this.typeService.getByCode(event.getType());
+    BusinessType type = this.bTypeService.getByCode(event.getType());
 
     if (!GeoprismProperties.getOrigin().equals(type.getOrigin()))
     {
@@ -579,13 +584,13 @@ public class RepositoryProjection
 
   @EventHandler
   @Transaction
-  public void handleRemoteAddGeoObjectEdge(RemoteBusinessObjectAddGeoObjectEvent event) throws Exception
+  public void handleRemoteAddGeoObjectEdge(RemoteBusinessObjectAddGeoObjectEvent event)
   {
     BusinessEdgeType edgeType = this.edgeService.getByCodeOrThrow(event.getEdgeType());
 
     if (!GeoprismProperties.getOrigin().equals(edgeType.getOrigin()))
     {
-      BusinessType type = this.typeService.getByCode(event.getType());
+      BusinessType type = this.bTypeService.getByCode(event.getType());
       BusinessObject object = this.bObjectService.getByCode(type, event.getCode());
       ServerGeoObjectIF geoObject = this.gObjectService.getGeoObjectByCode(event.getGeoObjectCode(), event.getGeoObjectType());
 
@@ -601,7 +606,7 @@ public class RepositoryProjection
 
   @EventHandler
   @Transaction
-  public void handleRemoteCreateEdge(RemoteBusinessObjectCreateEdgeEvent event) throws Exception
+  public void handleRemoteCreateEdge(RemoteBusinessObjectCreateEdgeEvent event)
   {
     BusinessEdgeType edgeType = this.edgeService.getByCodeOrThrow(event.getEdgeType());
 
@@ -624,7 +629,7 @@ public class RepositoryProjection
 
   private Object getOrFetchBusinessRid(String code, String businessTypeCode)
   {
-    BusinessType businessType = this.typeService.getByCode(businessTypeCode);
+    BusinessType businessType = this.bTypeService.getByCode(businessTypeCode);
 
     String typeDbClassName = businessType.getMdVertexDAO().getDBClassName();
 
@@ -685,6 +690,92 @@ public class RepositoryProjection
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement.toString(), parameters);
 
     return query.getSingleResult();
+  }
+
+  public void handleRemoveGeoObjectEvent(RemoveGeoObjectEvent event)
+  {
+    ServerGeoObjectIF object = this.gObjectService.getGeoObjectByCode(event.getCode(), event.getType());
+
+    if (object != null)
+    {
+      object.delete();
+    }
+  }
+
+  public void handleRemoveBusinessObjectEvent(RemoveBusinessObjectEvent event)
+  {
+    BusinessType type = this.bTypeService.getByCode(event.getType());
+
+    BusinessObject object = this.bObjectService.getByCode(type, event.getCode());
+
+    if (object != null)
+    {
+      this.bObjectService.delete(object);
+    }
+  }
+
+  public void handleRemoveGeoObjectEvent(RemoveGeoObjectEdgeEvent event)
+  {
+    GraphType graphType = this.graphTypeService.getByCode(event.getEdgeClassType(), event.getEdgeTypeCode());
+
+    Map<String, Object> parameters = new HashMap<String, Object>();
+
+    String clazz = graphType.getMdEdgeDAO().getDBClassName();
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("DELETE EDGE " + clazz);
+
+    if (!StringUtils.isEmpty(event.getSourceCode()))
+    {
+      VertexServerGeoObject object = (VertexServerGeoObject) this.gObjectService.getGeoObjectByCode(event.getSourceCode(), event.getSourceType());
+      parameters.put("parentRid", object.getVertex().getRID());
+
+      statement.append(" FROM :parentRid");
+    }
+
+    if (!StringUtils.isEmpty(event.getTargetCode()))
+    {
+      VertexServerGeoObject object = (VertexServerGeoObject) this.gObjectService.getGeoObjectByCode(event.getTargetCode(), event.getTagetType());
+      parameters.put("childRid", object.getVertex().getRID());
+
+      statement.append(" TO :childRid");
+    }
+
+    GraphDBService service = GraphDBService.getInstance();
+    GraphRequest request = service.getGraphDBRequest();
+
+    service.command(request, statement.toString(), parameters);
+  }
+
+  public void handleRemoveBusinessObjectEvent(RemoveBusinessObjectEdgeEvent event)
+  {
+    BusinessEdgeType edgeType = this.edgeService.getByCodeOrThrow(event.getEdgeTypeCode());
+    EdgeVertexType parentType = this.edgeService.getParent(edgeType);
+    EdgeVertexType childType = this.edgeService.getChild(edgeType);
+
+    String clazz = edgeType.getMdEdgeDAO().getDBClassName();
+
+    Object parentRid = parentType.isGeoObjectType() ? //
+        this.gObjectService.getGeoObjectByCode(event.getSourceCode(), event.getSourceType()).getVertex().getRID() : //
+        this.bObjectService.getByCode(this.bTypeService.getByCode(event.getSourceType()), event.getSourceCode()).getVertex().getRID();
+
+    Object childRid = childType.isGeoObjectType() ? //
+        this.gObjectService.getGeoObjectByCode(event.getTargetCode(), event.getTargetType()).getVertex().getRID() : //
+        this.bObjectService.getByCode(this.bTypeService.getByCode(event.getTargetType()), event.getTargetCode()).getVertex().getRID();
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("DELETE EDGE " + clazz);
+    statement.append(" FROM :parentRid");
+    statement.append(" TO :childRid");
+
+    Map<String, Object> parameters = new HashMap<String, Object>();
+    parameters.put("parentRid", parentRid);
+    parameters.put("childRid", childRid);
+
+    GraphDBService service = GraphDBService.getInstance();
+    GraphRequest request = service.getGraphDBRequest();
+
+    service.command(request, statement.toString(), parameters);
   }
 
   public void clearCache()

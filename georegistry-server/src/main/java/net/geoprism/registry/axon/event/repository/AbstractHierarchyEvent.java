@@ -2,9 +2,12 @@ package net.geoprism.registry.axon.event.repository;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import net.geoprism.graph.GraphTypeSnapshot;
 import net.geoprism.registry.view.PublishDTO;
 
-public abstract class AbstractHierarchyEvent extends AbstractGeoObjectEvent implements GeoObjectEvent
+public abstract class AbstractHierarchyEvent extends AbstractGeoObjectEdgeEvent implements GeoObjectEvent
 {
 
   public AbstractHierarchyEvent()
@@ -21,18 +24,64 @@ public abstract class AbstractHierarchyEvent extends AbstractGeoObjectEvent impl
 
   public abstract Date getEndDate();
 
-  public abstract String getEdgeType();
+  public abstract String getCode();
+
+  public abstract String getType();
+
+  @Override
+  public String getEdgeClassType()
+  {
+    return GraphTypeSnapshot.HIERARCHY_TYPE;
+  }
 
   @Override
   public Boolean isValidFor(PublishDTO dto)
   {
     Date date = dto.getDate();
 
-    if (dto.getHierarchyTypes().anyMatch(this.getEdgeType()::equals))
+    if (dto.getHierarchyTypes().anyMatch(this.getEdgeTypeCode()::equals))
     {
       return ( date.after(this.getStartDate()) && date.before(this.getEndDate()) ) || date.equals(this.getStartDate()) || date.equals(this.getEndDate());
     }
 
     return false;
+  }
+
+  @Override
+  public String getSourceCode()
+  {
+    return null;
+  }
+
+  @Override
+  public String getSourceType()
+  {
+    return null;
+  }
+
+  @Override
+  public String getTargetCode()
+  {
+    return this.getCode();
+  }
+
+  @Override
+  public String getTargetType()
+  {
+    return this.getType();
+  }
+
+  @Override
+  @JsonIgnore
+  public String getBaseObjectId()
+  {
+    return this.getCode() + "#" + this.getType() + "_H_" + this.getEdgeTypeCode();
+  }
+
+  @Override
+  @JsonIgnore
+  public EventPhase getEventPhase()
+  {
+    return EventPhase.EDGE;
   }
 }

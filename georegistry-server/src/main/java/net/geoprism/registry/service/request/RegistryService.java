@@ -395,7 +395,6 @@ public class RegistryService implements RegistryServiceIF
     config.addProperty("graphVisualizerEnabled", GeoregistryProperties.isGraphVisualizerEnabled());
     config.addProperty("enableBusinessData", GeoregistryProperties.isBusinessDataEnabled());
     config.addProperty("enableLabeledPropertyGraph", GeoregistryProperties.isLabeledPropertyGraphEnabled());
-    config.addProperty("mapboxAccessToken", GeoregistryProperties.getMapboxglAccessToken());
     config.add("defaultMapBounds", JsonParser.parseString(GeoregistryProperties.getDefaultMapBounds()));
     config.add("localization", JsonParser.parseString(getLocalizationMap(sessionId)));
     config.addProperty("googleanalyticstoken", GeoregistryProperties.getGoogleAnalyticsToken());

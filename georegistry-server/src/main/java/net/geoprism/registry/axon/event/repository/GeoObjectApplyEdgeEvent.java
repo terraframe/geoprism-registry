@@ -11,7 +11,7 @@ import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.view.PublishDTO;
 
-public class GeoObjectApplyEdgeEvent extends AbstractGeoObjectEvent implements GeoObjectEvent
+public class GeoObjectApplyEdgeEvent extends AbstractGeoObjectEdgeEvent implements GeoObjectEvent
 {
 
   private String         sourceCode;
@@ -171,10 +171,9 @@ public class GeoObjectApplyEdgeEvent extends AbstractGeoObjectEvent implements G
   }
 
   @Override
-  @JsonIgnore
-  public EventPhase getEventPhase()
+  public String getEdgeClassType()
   {
-    return EventPhase.EDGE;
+    return this.edgeType;
   }
 
   public ImportStrategy getStrategy()
@@ -217,8 +216,20 @@ public class GeoObjectApplyEdgeEvent extends AbstractGeoObjectEvent implements G
   }
 
   @Override
+  @JsonIgnore
   public String getBaseObjectId()
   {
-    return this.edgeUid;
+    String delimeter = this.edgeType.equals(GraphTypeSnapshot.HIERARCHY_TYPE) ? "_H_" //
+        : this.edgeType.equals(GraphTypeSnapshot.DIRECTED_ACYCLIC_GRAPH_TYPE) ? "_D_" : "_U_";
+
+    return this.sourceCode + "#" + this.sourceType + delimeter + this.edgeTypeCode + this.targetCode + "#" + this.targetType;
   }
+
+  @Override
+  @JsonIgnore
+  public EventPhase getEventPhase()
+  {
+    return EventPhase.EDGE;
+  }
+
 }
