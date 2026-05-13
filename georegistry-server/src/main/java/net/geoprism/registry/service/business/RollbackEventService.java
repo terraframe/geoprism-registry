@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.runwaysdk.dataaccess.transaction.Transaction;
 
+import net.geoprism.registry.RollbackCheckpoint;
 import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.axon.event.repository.AbstractBusinessObjectEdgeEvent;
 import net.geoprism.registry.axon.event.repository.AbstractGeoObjectEdgeEvent;
@@ -31,7 +32,6 @@ import net.geoprism.registry.axon.event.rollback.RollbackEventBuilder;
 import net.geoprism.registry.axon.event.rollback.RollbackGeoObjectEdgeEventBuilder;
 import net.geoprism.registry.axon.event.rollback.RollbackGeoObjectEventBuilder;
 import net.geoprism.registry.axon.projection.RepositoryProjection;
-import net.geoprism.registry.view.RollbackDTO;
 
 @Service
 public class RollbackEventService
@@ -43,13 +43,16 @@ public class RollbackEventService
   private RepositoryProjection projection;
 
   @Transaction
-  public void rollback(RollbackDTO configuration)
+  public void rollback(RollbackCheckpoint checkpoint)
   {
-    GapAwareTrackingToken start = GapAwareTrackingToken.newInstance(configuration.getStartIndex(), new LinkedList<>());
+    GapAwareTrackingToken start = GapAwareTrackingToken.newInstance(checkpoint.getGlobalIndex(), new LinkedList<>());
 
     processEventType(start, EventPhase.EDGE);
 
     processEventType(start, EventPhase.OBJECT);
+
+    // Delete the events
+    store.delete(checkpoint.getGlobalIndex());
   }
 
   private void rollback(RepositoryEvent original, GapAwareTrackingToken start, EventPhase phase)

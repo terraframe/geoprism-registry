@@ -188,6 +188,8 @@ import { HierarchyTypePageComponent } from "./component/geo-ontology/hierarchy-t
 import { ManageGraphTypeComponent } from "./component/geo-ontology/graph-type-page/manage-graph-type.component";
 import { HierarchyTypeComponent } from "./component/geo-ontology/hierarchy-type-page/hierarchy-type.component";
 import { DragSidebarComponent } from "./component/geo-ontology/hierarchy-type-page/drag-sidebar.component";
+import { RollbackCheckpointManagerComponent } from "./component/rollback-checkpoint/rollback-checkpoint-manager.component";
+import { RollbackCheckpointService } from "./service/rollback-checkpoint.service";
 
 @NgModule({
     imports: [
@@ -342,7 +344,9 @@ import { DragSidebarComponent } from "./component/geo-ontology/hierarchy-type-pa
         // Graph Type
         GraphTypePageComponent,
         ManageGraphTypeComponent,
-        ImportHistoryModalComponent
+        ImportHistoryModalComponent,
+        // Rollback
+        RollbackCheckpointManagerComponent
     ],
     providers: [
         MapService,
@@ -370,7 +374,8 @@ import { DragSidebarComponent } from "./component/geo-ontology/hierarchy-type-pa
         GeometryService,
         VotService,
         SourceService,
-        PublishService
+        PublishService,
+        RollbackCheckpointService
     ]
 })
 export class RegistryModule { }

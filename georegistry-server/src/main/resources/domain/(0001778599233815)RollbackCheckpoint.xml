@@ -1,0 +1,119 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="rollback.filename">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="rollback.filename" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="File name" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="rollback.no.data">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="rollback.no.data" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="No rollback checkpoints have been created" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="header.rollback.checkpoint">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="header.rollback.checkpoint" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Data rollback management" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="modal.button.rollback">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="modal.button.rollback" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Rollback" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="modal.confirm.rollback">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="modal.confirm.rollback" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Are you sure you want to rollback all data imported and changes in the repoistory to the state it was before importing [{filename}]?" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="nav.rollback.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="nav.rollback.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Manage and rollback data to previous states" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="nav.rollback.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="nav.rollback.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Data Rollback" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="nav.datasource.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="nav.datasource.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Data Sources" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="nav.datasource.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="nav.datasource.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Manage Data Sources" />
+        </attributeStruct>
+      </object>    
+    </createOrUpdate>
+<!--   
+    <create>
+      <mdBusiness name="net.geoprism.registry.RollbackCheckpoint" label="RollbackCheckpoint">
+        <attributes>
+          <long name="globalIndex" label="Global Index" required="true" />
+          <reference name="history" label="Job History" required="true" type="net.geoprism.registry.jobs.GPRJobHistory" />
+          <text name="status" label="Status" required="true" />
+        </attributes>
+      </mdBusiness>   
+
+    </create>
+    
+ -->
+   <permissions>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>      
+          <mdBusinessPermission type="net.geoprism.registry.RollbackCheckpoint">
+            <operation name="ALL" />
+          </mdBusinessPermission>                  
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryMaintainer">
+        <grant>      
+          <mdBusinessPermission type="net.geoprism.registry.RollbackCheckpoint">
+            <operation name="ALL" />
+          </mdBusinessPermission>                  
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryContributor">
+        <grant>          
+          <mdBusinessPermission type="net.geoprism.registry.RollbackCheckpoint">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>                  
+        </grant>
+      </role>
+      <role roleName="cgr.APIConsumer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.RollbackCheckpoint">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>                  
+        </grant>
+      </role>
+    </permissions>         
+  </doIt>
+  <undoIt>
+    <delete>
+      <object type="com.runwaysdk.system.metadata.MdBusiness" key="net.geoprism.registry.RollbackCheckpoint"/>        
+    </delete>
+  </undoIt>
+</version>

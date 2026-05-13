@@ -47,6 +47,7 @@ import { SourceManagerComponent } from "./component/source/source-manager.compon
 import { RDFExportComponent } from "./component/data-export/rdf-export.component";
 import { EdgeImporterComponent } from "./component/edge-importer/edge-importer.component";
 import { PublishManagerComponent } from "./component/publish-events/publish-manager.component";
+import { RollbackCheckpointManagerComponent } from "./component/rollback-checkpoint/rollback-checkpoint-manager.component";
 
 const routes: Routes = [
     {
@@ -173,7 +174,13 @@ const routes: Routes = [
         path: "publish",
         component: PublishManagerComponent,
         canActivate: [AuthGuard]
+    },
+    {
+        path: "rollback",
+        component: RollbackCheckpointManagerComponent,
+        canActivate: [AuthGuard, MaintainerGuard]
     }
+
 ];
 
 @NgModule({

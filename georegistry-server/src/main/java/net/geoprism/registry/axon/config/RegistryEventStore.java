@@ -45,6 +45,11 @@ public class RegistryEventStore extends EmbeddedEventStore implements EventStore
     Database.executeStatement(statement.toString());
   }
 
+  public void delete(long globalindex)
+  {
+    Database.deleteWhere(RegistryEventStore.DOMAIN_EVENT_ENTRY_TABLE, "globalindex > " + globalindex);
+  }
+
   public void truncate()
   {
     StringBuilder statement = new StringBuilder();

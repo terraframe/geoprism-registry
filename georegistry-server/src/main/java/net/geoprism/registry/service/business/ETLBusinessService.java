@@ -60,6 +60,7 @@ import com.runwaysdk.system.scheduler.JobHistory;
 import com.runwaysdk.system.scheduler.JobHistoryRecord;
 
 import net.geoprism.GeoprismUser;
+import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.etl.DataImportJob;
@@ -107,6 +108,12 @@ public class ETLBusinessService
 
   @Autowired
   protected GeoSynonymBusinessService      geoSynonymService;
+
+  @Autowired
+  protected GraphTypeBusinessServiceIF     graphTypeService;
+
+  @Autowired
+  protected BusinessTypeBusinessServiceIF  businessTypeService;
 
   @Autowired
   protected GeoObjectEditorBusinessService editorService;
@@ -727,11 +734,20 @@ public class ETLBusinessService
 
     if (classType.equals(ObjectImporterFactory.ObjectImportType.GEO_OBJECT.name()))
     {
+      // Ensure the type code is valid
+      ServerGeoObjectType.get(typeCode);
+
       statement.append(" WHERE " + attribute.getColumnName() + "->>'objectType' = '" + ObjectImporterFactory.ObjectImportType.GEO_OBJECT.name() + "'");
       statement.append(" AND " + attribute.getColumnName() + "->'type'->>'code' = '" + typeCode + "'");
     }
     else if (classType.equals(ObjectImporterFactory.ObjectImportType.BUSINESS_OBJECT.name()))
     {
+      // Ensure the type code is valid
+      if (this.businessTypeService.getByCode(typeCode) == null)
+      {
+        throw new DataNotFoundException();
+      }
+
       statement.append(" WHERE " + attribute.getColumnName() + "->>'objectType' = '" + ObjectImporterFactory.ObjectImportType.BUSINESS_OBJECT.name() + "'");
       statement.append(" AND " + attribute.getColumnName() + "->'type'->>'code' = '" + typeCode + "'");
     }
@@ -739,6 +755,9 @@ public class ETLBusinessService
         || classType.equals(GraphTypeDTO.UNDIRECTED_GRAPH_TYPE) //
         || classType.equals(GraphTypeDTO.HIERARCHY_TYPE))
     {
+      // Ensure the type code is valid
+      this.graphTypeService.getByCode(classType, typeCode);
+
       statement.append(" WHERE " + attribute.getColumnName() + "->>'objectType' = '" + ObjectImporterFactory.ObjectImportType.EDGE_OBJECT.name() + "'");
       statement.append(" AND " + attribute.getColumnName() + "->>'graphTypeClass' = '" + classType + "'");
       statement.append(" AND " + attribute.getColumnName() + "->>'graphTypeCode' = '" + typeCode + "'");

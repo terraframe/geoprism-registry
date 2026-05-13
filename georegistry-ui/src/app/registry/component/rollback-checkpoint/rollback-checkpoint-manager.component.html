@@ -1,0 +1,68 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<page-container>
+
+
+
+    <div class="heading">
+        <h2>
+            <localize key="header.rollback.checkpoint"></localize>
+        </h2>
+    </div>
+
+    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+
+    <div *ngIf="page.count === 0" class="row">
+        <div class="col-md-12">
+            <div class="py-5">
+                <p class="inline-message">
+                    <localize key="rollback.no.data"></localize>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <ul *ngIf="page.count > 0" class="type-group" style="border-bottom: 2px solid lightgrey; margin-top: 30px;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 70%;">
+                        <localize key="rollback.filename"></localize>
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let checkpoint of page.resultSet; let i = index;">
+                    <td style="width: 70%; vertical-align: middle;">
+                        <a [routerLink]="'/registry/job/' + checkpoint.historyId">{{checkpoint.filename}}</a>
+                    </td>
+                    <td style="width: 30%; text-align: right;">
+                        <button type="submit" (click)="onRollback(checkpoint)" class="btn btn-danger" role="button">
+                            <localize key="modal.button.rollback"></localize>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </ul>
+</page-container>

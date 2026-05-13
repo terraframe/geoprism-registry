@@ -25,6 +25,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -38,14 +39,13 @@ import net.geoprism.registry.view.CommitDTO;
 
 @RestController
 @Validated
+@RequestMapping(RegistryConstants.CONTROLLER_ROOT + "commit")
 public class CommitController extends RunwaySpringController
 {
-  public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "commit";
-
   @Autowired
-  private CommitService      service;
+  private CommitService service;
 
-  @GetMapping(API_PATH + "/get-all")
+  @GetMapping("/get-all")
   public ResponseEntity<List<CommitDTO>> getAll(@RequestParam(name = "publishId") String publishId)
   {
     List<CommitDTO> dtos = this.service.getAll(this.getSessionId(), publishId);
@@ -53,7 +53,7 @@ public class CommitController extends RunwaySpringController
     return new ResponseEntity<List<CommitDTO>>(dtos, HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/get-latest")
+  @GetMapping("/get-latest")
   public ResponseEntity<CommitDTO> getLatest(@RequestParam(name = "publishId") String publishId)
   {
     CommitDTO dto = this.service.getLatest(this.getSessionId(), publishId);
@@ -61,7 +61,7 @@ public class CommitController extends RunwaySpringController
     return new ResponseEntity<CommitDTO>(dto, HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/get-dependencies")
+  @GetMapping("/get-dependencies")
   public ResponseEntity<List<CommitDTO>> getDependencies(@RequestParam(name = "uid") String uid)
   {
     List<CommitDTO> dependencies = this.service.getDependencies(this.getSessionId(), uid);
@@ -69,7 +69,7 @@ public class CommitController extends RunwaySpringController
     return ResponseEntity.ok(dependencies);
   }
 
-  @GetMapping(API_PATH + "/business-types")
+  @GetMapping("/business-types")
   public ResponseEntity<String> getBusinessTypes(@RequestParam(name = "uid") String uid)
   {
     JsonArray response = this.service.getBusinessTypes(this.getSessionId(), uid);
@@ -77,7 +77,7 @@ public class CommitController extends RunwaySpringController
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/geo-object-types")
+  @GetMapping("/geo-object-types")
   public ResponseEntity<String> getGeoObjectTypes(@RequestParam(name = "uid") String uid)
   {
     JsonArray response = this.service.getGeoObjectTypes(this.getSessionId(), uid);
@@ -85,7 +85,7 @@ public class CommitController extends RunwaySpringController
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/business-edge-types")
+  @GetMapping("/business-edge-types")
   public ResponseEntity<String> getBusinessEdgeTypes(@RequestParam(name = "uid") String uid)
   {
     JsonArray response = this.service.getBusinessEdgeTypes(this.getSessionId(), uid);
@@ -93,7 +93,7 @@ public class CommitController extends RunwaySpringController
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/hierarchy-types")
+  @GetMapping("/hierarchy-types")
   public ResponseEntity<String> getHierarchyTypes(@RequestParam(name = "uid") String uid)
   {
     JsonArray response = this.service.getHierarchyTypes(this.getSessionId(), uid);
@@ -101,7 +101,7 @@ public class CommitController extends RunwaySpringController
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/directed-acyclic-graph-types")
+  @GetMapping("/directed-acyclic-graph-types")
   public ResponseEntity<String> getDirectedAcyclicGraphTypes(@RequestParam(name = "uid") String uid)
   {
     JsonArray response = this.service.getDirectedAcyclicGraphTypes(this.getSessionId(), uid);
@@ -109,7 +109,7 @@ public class CommitController extends RunwaySpringController
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/undirected-graph-types")
+  @GetMapping("/undirected-graph-types")
   public ResponseEntity<String> getUndirectedGraphTypes(@RequestParam(name = "uid") String uid)
   {
     JsonArray response = this.service.getUndirectedGraphTypes(this.getSessionId(), uid);
@@ -117,7 +117,7 @@ public class CommitController extends RunwaySpringController
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/sources")
+  @GetMapping("/sources")
   public ResponseEntity<List<DataSourceDTO>> getSources(@RequestParam(name = "uid") String uid)
   {
     List<DataSourceDTO> sources = this.service.getSources(this.getSessionId(), uid);
@@ -125,7 +125,7 @@ public class CommitController extends RunwaySpringController
     return ResponseEntity.ok(sources);
   }
 
-  @GetMapping(API_PATH + "/events")
+  @GetMapping("/events")
   public ResponseEntity<List<RemoteEvent>> getEvents(@RequestParam(name = "uid") String uid, @RequestParam(name = "chunk") Integer chunk)
   {
     List<RemoteEvent> events = this.service.getRemoteEvents(this.getSessionId(), uid, chunk);

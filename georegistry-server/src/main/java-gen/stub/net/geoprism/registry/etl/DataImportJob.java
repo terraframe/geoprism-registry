@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl;
 
@@ -22,6 +22,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.util.Date;
 
+import org.axonframework.eventhandling.TrackingToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +38,8 @@ import com.runwaysdk.system.scheduler.JobHistoryRecord;
 import com.runwaysdk.system.scheduler.QuartzRunwayJob;
 import com.runwaysdk.system.scheduler.QueueingQuartzJob;
 
+import net.geoprism.registry.RollbackCheckpoint;
+import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.etl.upload.FormatSpecificImporterIF;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportHistoryProgressScribe;
@@ -45,6 +48,7 @@ import net.geoprism.registry.etl.upload.ObjectImporterIF;
 import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.jobs.ValidationProblem;
 import net.geoprism.registry.jobs.ValidationProblemQuery;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;
@@ -93,7 +97,7 @@ public class DataImportJob extends DataImportJobBase
     history.appLock();
     history.setConfigJson(configuration.toJSON().toString());
     history.setImportFileId(configuration.getVaultFileId());
-    
+
     configuration.populate(history);
 
     history.apply();
@@ -275,8 +279,21 @@ public class DataImportJob extends DataImportJobBase
   private ImportProgressListenerIF runImport(ImportHistory history, ImportStage stage, ImportConfiguration config) throws MalformedURLException, InvocationTargetException
   {
     config.enforceCreatePermissions();
-    
-    
+
+    // Create the rollback checkpoint
+    if (stage.equals(ImportStage.IMPORT))
+    {
+      RegistryEventStore store = ServiceFactory.getBean(RegistryEventStore.class);
+      TrackingToken head = store.createHeadToken();
+      long index = head != null ? head.position().orElse(0L) : 0L;
+
+      RollbackCheckpoint checkpoint = new RollbackCheckpoint();
+      checkpoint.setGlobalIndex(index);
+      checkpoint.setHistory(history);
+      checkpoint.setStatus(RollbackCheckpoint.Status.AVAILABLE.name());
+      checkpoint.apply();
+    }
+
     ImportHistoryProgressScribe progressListener = new ImportHistoryProgressScribe(history);
 
     FormatSpecificImporterIF formatImporter = FormatSpecificImporterFactory.getImporter(config.getFormatType(), history.getImportFile(), config, progressListener);

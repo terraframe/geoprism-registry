@@ -96,6 +96,9 @@ public class CommitBusinessService implements CommitBusinessServiceIF
   private DataSourceBusinessServiceIF               sourceService;
 
   @Autowired
+  private RollbackCheckpointBusinessService         rollbackService;
+
+  @Autowired
   private RegistryEventStore                        store;
 
   @Override
@@ -408,6 +411,10 @@ public class CommitBusinessService implements CommitBusinessServiceIF
     commit.setLastOriginGlobalIndex(dto.getLastOriginGlobalIndex());
     commit.setVersionNumber(dto.getVersionNumber());
     commit.apply();
+
+    // Clear the rollback checkpoints because once something has been published
+    // or pulled the repository can no longer rollback those changes
+    this.rollbackService.clear();
 
     return commit;
   }

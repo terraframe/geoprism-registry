@@ -139,8 +139,6 @@ export class BusinessImporterComponent implements OnInit {
 
         this.uploader.onBuildItemForm = (fileItem: any, form: any) => {
 
-            console.log('Data Source', this.dataSource);
-
             form.append("type", this.businessTypeCode);
             form.append("copyBlank", this.copyBlank);
             form.append("dataSource", this.dataSource);

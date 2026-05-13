@@ -87,7 +87,15 @@ export class HubService {
                     link: '/registry/business-types',
                     icon: 'fa-solid fa-briefcase',
                     key: 'business.data.type'
+                },
+                {
+                    id: 'DATA_SOURCE',
+                    description: "nav.datasource.description",
+                    link: '/registry/sources',
+                    icon: 'fa-solid fa-database',
+                    key: 'nav.datasource.label'
                 }
+
 
             ]
         });
@@ -145,6 +153,13 @@ export class HubService {
                     link: '/registry/edge-importer',
                     icon: 'fa-solid fa-file-arrow-up',
                     key: 'edge.data.import'
+                },
+                {
+                    id: 'ROLLBACK',
+                    description: "nav.rollback.description",
+                    link: '/registry/rollback',
+                    icon: 'fa-solid fa-trash-arrow-up',
+                    key: 'nav.rollback.label'
                 },
 
             ]

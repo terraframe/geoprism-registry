@@ -17,25 +17,21 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
-import com.runwaysdk.dataaccess.MdEdgeDAOIF;
-import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.metadata.MdEdge;
 
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.EventDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.RollbackCheckpoint;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.config.TestApplication;
-import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.BusinessObject;
-import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.ServerChildGraphNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.service.business.RollbackEventService;
 import net.geoprism.registry.test.USATestData;
-import net.geoprism.registry.view.RollbackDTO;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
@@ -90,12 +86,14 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
 
     GapAwareTrackingToken start = (GapAwareTrackingToken) this.store.createTailToken();
 
-    RollbackDTO dto = new RollbackDTO();
-    dto.setStartIndex(start.getIndex());
+    RollbackCheckpoint dto = new RollbackCheckpoint();
+    dto.setGlobalIndex(start.getIndex());
 
     this.service.rollback(dto);
 
     Assert.assertNull(this.gObjectService.getGeoObjectByCode(USATestData.USA.getCode(), USATestData.USA.getGeoObjectType().getCode(), false));
+
+    Assert.assertEquals(Long.valueOf(0), this.store.size());
   }
 
   @Test
@@ -114,8 +112,8 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
     Assert.assertEquals(Long.valueOf(2), this.store.size());
 
     // Rollback the last event
-    RollbackDTO dto = new RollbackDTO();
-    dto.setStartIndex(startIndex);
+    RollbackCheckpoint dto = new RollbackCheckpoint();
+    dto.setGlobalIndex(startIndex);
 
     this.service.rollback(dto);
 
@@ -123,6 +121,8 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
 
     Assert.assertNotNull(test);
     Assert.assertEquals(USATestData.USA.getDisplayLabel(), test.getDisplayLabel(USATestData.DEFAULT_OVER_TIME_DATE).getValue());
+
+    Assert.assertEquals(Long.valueOf(1), this.store.size());
   }
 
   @Test
@@ -135,12 +135,14 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
     Assert.assertNotNull(this.bObjectService.getByCode(btype, pObject.getCode()));
     Assert.assertEquals(Long.valueOf(1), this.store.size());
 
-    RollbackDTO dto = new RollbackDTO();
-    dto.setStartIndex(this.store.createTailToken().position().getAsLong());
+    RollbackCheckpoint dto = new RollbackCheckpoint();
+    dto.setGlobalIndex(this.store.createTailToken().position().getAsLong());
 
     this.service.rollback(dto);
 
     Assert.assertNull(this.bObjectService.getByCode(btype, pObject.getCode()));
+
+    Assert.assertEquals(Long.valueOf(0), this.store.size());
   }
 
   @Test
@@ -160,8 +162,8 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
     Assert.assertEquals(Long.valueOf(2), this.store.size());
 
     // Rollback the last event
-    RollbackDTO dto = new RollbackDTO();
-    dto.setStartIndex(startIndex);
+    RollbackCheckpoint dto = new RollbackCheckpoint();
+    dto.setGlobalIndex(startIndex);
 
     this.service.rollback(dto);
 
@@ -169,6 +171,8 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
 
     Assert.assertNotNull(test);
     Assert.assertEquals(false, test.getObjectValue("testBoolean"));
+
+    Assert.assertEquals(Long.valueOf(1), this.store.size());
   }
 
   @Test
@@ -188,8 +192,8 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
     Assert.assertEquals(1, child.getEdges(USATestData.HIER_ADMIN.getServerObject()).size());
 
     // Rollback the last event
-    RollbackDTO dto = new RollbackDTO();
-    dto.setStartIndex(startIndex);
+    RollbackCheckpoint dto = new RollbackCheckpoint();
+    dto.setGlobalIndex(startIndex);
 
     this.service.rollback(dto);
 
@@ -198,6 +202,8 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
     Assert.assertNotNull(test);
 
     Assert.assertEquals(0, test.getEdges(USATestData.HIER_ADMIN.getServerObject()).size());
+
+    Assert.assertEquals(Long.valueOf(2), this.store.size());
   }
 
   @Test
@@ -219,8 +225,8 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
     Assert.assertEquals(0, child.getEdges(USATestData.HIER_ADMIN.getServerObject()).size());
 
     // Rollback the last event
-    RollbackDTO dto = new RollbackDTO();
-    dto.setStartIndex(startIndex);
+    RollbackCheckpoint dto = new RollbackCheckpoint();
+    dto.setGlobalIndex(startIndex);
 
     this.service.rollback(dto);
 
@@ -229,6 +235,8 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
     Assert.assertNotNull(test);
 
     Assert.assertEquals(1, test.getEdges(USATestData.HIER_ADMIN.getServerObject()).size());
+
+    Assert.assertEquals(Long.valueOf(3), this.store.size());
   }
 
   @Test
@@ -249,8 +257,8 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
     Assert.assertEquals(Long.valueOf(5), this.store.size());
 
     // Rollback the last event
-    RollbackDTO dto = new RollbackDTO();
-    dto.setStartIndex(startIndex);
+    RollbackCheckpoint dto = new RollbackCheckpoint();
+    dto.setGlobalIndex(startIndex);
 
     this.service.rollback(dto);
 
@@ -264,6 +272,7 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
 
     Assert.assertEquals(parent.getRunwayId(), edges.first().getParent().getOid());
 
+    Assert.assertEquals(Long.valueOf(4), this.store.size());
   }
 
   @Test
@@ -285,8 +294,8 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
     Assert.assertEquals(1, node.getChildren().size());
 
     // Rollback the last event
-    RollbackDTO dto = new RollbackDTO();
-    dto.setStartIndex(startIndex);
+    RollbackCheckpoint dto = new RollbackCheckpoint();
+    dto.setGlobalIndex(startIndex);
 
     this.service.rollback(dto);
 
@@ -295,6 +304,8 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
     Assert.assertNotNull(test);
 
     Assert.assertEquals(0, test.getEdges(USATestData.HIER_ADMIN.getServerObject()).size());
+
+    Assert.assertEquals(Long.valueOf(2), this.store.size());
   }
 
   @Test
@@ -315,13 +326,15 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
     Assert.assertEquals(1, this.getEdgeCount(bGeoEdgeType, USATestData.COLORADO.getServerObject().getVertex().getRID(), cObject.getVertex().getRID()));
 
     // Rollback the last event
-    RollbackDTO dto = new RollbackDTO();
-    dto.setStartIndex(startIndex);
+    RollbackCheckpoint dto = new RollbackCheckpoint();
+    dto.setGlobalIndex(startIndex);
 
     this.service.rollback(dto);
 
     Assert.assertEquals(0, this.getEdgeCount(bEdgeType, pObject.getVertex().getRID(), cObject.getVertex().getRID()));
     Assert.assertEquals(0, this.getEdgeCount(bGeoEdgeType, USATestData.COLORADO.getServerObject().getVertex().getRID(), cObject.getVertex().getRID()));
+
+    Assert.assertEquals(Long.valueOf(3), this.store.size());
   }
 
   public long getEdgeCount(BusinessEdgeType type, Object outRid, Object inRid)
