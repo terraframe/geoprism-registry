@@ -38,8 +38,8 @@ export class RollbackCheckpointManagerComponent implements OnInit {
 
     page: PageResult<RollbackCheckpoint> = {
         count: 0,
-        pageNumber: 0,
-        pageSize: 0,
+        pageNumber: 1,
+        pageSize: 20,
         resultSet: []
     };
 
@@ -50,16 +50,9 @@ export class RollbackCheckpointManagerComponent implements OnInit {
         private modalService: BsModalService) { }
 
     ngOnInit(): void {
-        this.refresh();
+        this.onPageChange(1);
     }
 
-    refresh(): void {
-        this.service.getPage().then(page => {
-            this.page = page;
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
 
     onRollback(checkpoint: RollbackCheckpoint): void {
         const bsModalRef = this.modalService.show(ConfirmModalComponent, {
@@ -73,12 +66,21 @@ export class RollbackCheckpointManagerComponent implements OnInit {
 
         bsModalRef.content.onConfirm.subscribe(() => {
             this.service.rollback(checkpoint.oid).then(() => {
-                this.refresh();
+                this.onPageChange(1);
             }).catch((err: HttpErrorResponse) => {
                 this.error(err);
             });
         });
     }
+
+    onPageChange(pageNumber: number): void {
+		this.service.getPage(pageNumber, 20).then(page => {
+			this.page = page;
+		}).catch((err: HttpErrorResponse) => {
+			this.error(err);
+		});
+	}
+
 
     error(err: HttpErrorResponse): void {
         this.message = ErrorHandler.getMessageFromError(err);

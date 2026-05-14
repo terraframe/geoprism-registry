@@ -52,7 +52,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let checkpoint of page.resultSet; let i = index;">
+                <tr *ngFor="let checkpoint of page.resultSet | paginate: { id:'rollback', itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count}">
                     <td style="width: 70%; vertical-align: middle;">
                         <a [routerLink]="'/registry/job/' + checkpoint.historyId">{{checkpoint.filename}}</a>
                     </td>
@@ -64,5 +64,8 @@
                 </tr>
             </tbody>
         </table>
+
+        <pagination-controls id="rollback" (pageChange)="onPageChange($event)"></pagination-controls>
+
     </ul>
 </page-container>
