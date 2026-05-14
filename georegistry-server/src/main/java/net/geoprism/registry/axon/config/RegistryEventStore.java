@@ -6,9 +6,11 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Nonnull;
 
+import org.axonframework.eventhandling.EventMessage;
 import org.axonframework.eventhandling.GapAwareTrackingToken;
 import org.axonframework.eventsourcing.eventstore.DomainEventStream;
 import org.axonframework.eventsourcing.eventstore.EmbeddedEventStore;
@@ -27,6 +29,8 @@ public class RegistryEventStore extends EmbeddedEventStore implements EventStore
   public static final String PHASE                    = "phase";
 
   public static final String DOMAIN_EVENT_ENTRY_TABLE = "domainevententry";
+
+  private AtomicBoolean      locked                   = new AtomicBoolean(false);
 
   protected RegistryEventStore(Builder builder)
   {
@@ -177,5 +181,21 @@ public class RegistryEventStore extends EmbeddedEventStore implements EventStore
   public DomainEventStream readEvents(String baseObjectId, GapAwareTrackingToken start, GapAwareTrackingToken end)
   {
     return storageEngine().readEvents(baseObjectId, start != null ? start.getIndex() : null, end != null ? end.getIndex() : null);
+  }
+
+  public void setLock(boolean locked)
+  {
+    this.locked.set(locked);
+  }
+
+  @Override
+  protected void prepareCommit(List<? extends EventMessage<?>> events)
+  {
+    if (locked.get())
+    {
+      throw new ProgrammingErrorException("The system is currently being rolled back and cannot add new data");
+    }
+
+    super.prepareCommit(events);
   }
 }

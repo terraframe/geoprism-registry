@@ -45,14 +45,23 @@ public class RollbackEventService
   @Transaction
   public void rollback(RollbackCheckpoint checkpoint)
   {
-    GapAwareTrackingToken start = GapAwareTrackingToken.newInstance(checkpoint.getGlobalIndex(), new LinkedList<>());
+    try
+    {
+      store.setLock(true);
 
-    processEventType(start, EventPhase.EDGE);
+      GapAwareTrackingToken start = GapAwareTrackingToken.newInstance(checkpoint.getGlobalIndex(), new LinkedList<>());
 
-    processEventType(start, EventPhase.OBJECT);
+      processEventType(start, EventPhase.EDGE);
 
-    // Delete the events
-    store.delete(checkpoint.getGlobalIndex());
+      processEventType(start, EventPhase.OBJECT);
+
+      // Delete the events
+      store.delete(checkpoint.getGlobalIndex());
+    }
+    finally
+    {
+      store.setLock(false);
+    }
   }
 
   private void rollback(RepositoryEvent original, GapAwareTrackingToken start, EventPhase phase)
