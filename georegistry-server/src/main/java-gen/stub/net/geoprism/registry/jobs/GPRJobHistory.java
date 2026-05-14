@@ -19,8 +19,12 @@
 package net.geoprism.registry.jobs;
 
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.query.QueryFactory;
+import com.runwaysdk.system.scheduler.AllJobStatus;
+import com.runwaysdk.system.scheduler.JobHistoryQuery;
 
 import net.geoprism.registry.RollbackCheckpoint;
+import net.geoprism.registry.etl.DuplicateJobException;
 
 public class GPRJobHistory extends GPRJobHistoryBase
 {
@@ -39,6 +43,14 @@ public class GPRJobHistory extends GPRJobHistoryBase
     RollbackCheckpoint.getAll(this).forEach(RollbackCheckpoint::delete);
 
     super.delete();
+  }
+
+  public static long getPendingCount()
+  {
+    GPRJobHistoryQuery q = new GPRJobHistoryQuery(new QueryFactory());
+    q.WHERE(q.getStatus().containsAny(AllJobStatus.NEW, AllJobStatus.QUEUED, AllJobStatus.RUNNING));
+
+    return q.getCount();
   }
 
 }

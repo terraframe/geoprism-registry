@@ -22,7 +22,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.util.Date;
 
-import org.axonframework.eventhandling.TrackingToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,8 +37,6 @@ import com.runwaysdk.system.scheduler.JobHistoryRecord;
 import com.runwaysdk.system.scheduler.QuartzRunwayJob;
 import com.runwaysdk.system.scheduler.QueueingQuartzJob;
 
-import net.geoprism.registry.RollbackCheckpoint;
-import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.etl.upload.FormatSpecificImporterIF;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportHistoryProgressScribe;
@@ -48,6 +45,7 @@ import net.geoprism.registry.etl.upload.ObjectImporterIF;
 import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.jobs.ValidationProblem;
 import net.geoprism.registry.jobs.ValidationProblemQuery;
+import net.geoprism.registry.service.business.RollbackCheckpointBusinessService;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
@@ -283,15 +281,7 @@ public class DataImportJob extends DataImportJobBase
     // Create the rollback checkpoint
     if (stage.equals(ImportStage.IMPORT))
     {
-      RegistryEventStore store = ServiceFactory.getBean(RegistryEventStore.class);
-      TrackingToken head = store.createHeadToken();
-      long index = head != null ? head.position().orElse(0L) : 0L;
-
-      RollbackCheckpoint checkpoint = new RollbackCheckpoint();
-      checkpoint.setGlobalIndex(index);
-      checkpoint.setHistory(history);
-      checkpoint.setStatus(RollbackCheckpoint.Status.AVAILABLE.name());
-      checkpoint.apply();
+      ServiceFactory.getBean(RollbackCheckpointBusinessService.class).create(history);
     }
 
     ImportHistoryProgressScribe progressListener = new ImportHistoryProgressScribe(history);

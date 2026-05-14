@@ -17,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.metadata.MdEdge;
 
@@ -335,6 +336,23 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
     Assert.assertEquals(0, this.getEdgeCount(bGeoEdgeType, USATestData.COLORADO.getServerObject().getVertex().getRID(), cObject.getVertex().getRID()));
 
     Assert.assertEquals(Long.valueOf(3), this.store.size());
+  }
+
+  @Test(expected = ProgrammingErrorException.class)
+  @Request
+  public void testLock()
+  {
+    try
+    {
+      this.store.setLock(true);
+
+      pObject = createBusinessObject("P_CODE");
+    }
+    finally
+    {
+      this.store.setLock(false);
+    }
+
   }
 
   public long getEdgeCount(BusinessEdgeType type, Object outRid, Object inRid)

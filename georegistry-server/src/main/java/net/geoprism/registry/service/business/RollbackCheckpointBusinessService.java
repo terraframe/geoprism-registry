@@ -2,6 +2,7 @@ package net.geoprism.registry.service.business;
 
 import java.util.List;
 
+import org.axonframework.eventhandling.TrackingToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
@@ -14,13 +15,42 @@ import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.RollbackCheckpoint;
 import net.geoprism.registry.RollbackCheckpoint.Status;
+import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.RollbackCheckpointQuery;
+import net.geoprism.registry.jobs.GPRJobHistory;
 
 @Service
 public class RollbackCheckpointBusinessService
 {
   @Autowired
   private RollbackEventService service;
+
+  @Autowired
+  private RegistryEventStore   store;
+
+  public RollbackCheckpoint create(GPRJobHistory history)
+  {
+    TrackingToken head = store.createHeadToken();
+    long index = head != null ? head.position().orElse(0L) : 0L;
+
+    return create(history, index);
+  }
+
+  public RollbackCheckpoint create(GPRJobHistory history, long globalIndex)
+  {
+    return create(history, globalIndex, RollbackCheckpoint.Status.AVAILABLE);
+  }
+
+  public RollbackCheckpoint create(GPRJobHistory history, long globalIndex, RollbackCheckpoint.Status status)
+  {
+    RollbackCheckpoint checkpoint = new RollbackCheckpoint();
+    checkpoint.setGlobalIndex(globalIndex);
+    checkpoint.setHistory(history);
+    checkpoint.setStatus(status.name());
+    checkpoint.apply();
+
+    return checkpoint;
+  }
 
   public void clear()
   {
@@ -43,6 +73,11 @@ public class RollbackCheckpointBusinessService
     if (this.getExecutionCount() > 0)
     {
       throw new ProgrammingErrorException("A rollback is already in progress");
+    }
+
+    if (GPRJobHistory.getPendingCount() > 0)
+    {
+      throw new ProgrammingErrorException("The system cannot be rolledback because data imports are running or scheduled");
     }
 
     List<RollbackCheckpoint> checkpoints = this.getAfter(checkpoint);
@@ -110,7 +145,7 @@ public class RollbackCheckpointBusinessService
   public List<RollbackCheckpoint> getAfter(RollbackCheckpoint checkpoint)
   {
     RollbackCheckpointQuery query = new RollbackCheckpointQuery(new QueryFactory());
-    query.WHERE(query.getCreateDate().GE(checkpoint.getCreateDate()));
+    query.WHERE(query.getGlobalIndex().GE(checkpoint.getGlobalIndex()));
     query.ORDER_BY_DESC(query.getCreateDate());
 
     try (OIterator<? extends RollbackCheckpoint> it = query.getIterator())
@@ -141,6 +176,7 @@ public class RollbackCheckpointBusinessService
     }
     catch (Exception e)
     {
+      // Ignore. This will happen when the metadata is being imported
     }
   }
 
