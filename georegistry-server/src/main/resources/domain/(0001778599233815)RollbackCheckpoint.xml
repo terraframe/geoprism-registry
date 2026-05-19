@@ -15,6 +15,13 @@
           <attribute name="defaultLocale" value="No rollback checkpoints have been created" />
         </attributeStruct>
       </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="rollback.import.date">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="rollback.import.date" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Import Date" />
+        </attributeStruct>
+      </object>    
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="header.rollback.checkpoint">
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="header.rollback.checkpoint" />

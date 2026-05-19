@@ -60,7 +60,7 @@ export class RollbackCheckpointManagerComponent implements OnInit {
             backdrop: true,
             ignoreBackdropClick: true
         });
-        bsModalRef.content.message = this.localizeService.decode("modal.button.rollback").replaceAll("{filename}", checkpoint.filename);
+        bsModalRef.content.message = this.localizeService.decode("modal.confirm.rollback").replaceAll("{filename}", checkpoint.filename);
         bsModalRef.content.submitText = this.localizeService.decode("modal.button.rollback");
         bsModalRef.content.type = "danger";
 

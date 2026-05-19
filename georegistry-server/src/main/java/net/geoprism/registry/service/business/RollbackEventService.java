@@ -9,8 +9,6 @@ import org.axonframework.eventsourcing.eventstore.DomainEventStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.runwaysdk.dataaccess.transaction.Transaction;
-
 import net.geoprism.registry.RollbackCheckpoint;
 import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.axon.event.repository.AbstractBusinessObjectEdgeEvent;
@@ -42,7 +40,6 @@ public class RollbackEventService
   @Autowired
   private RepositoryProjection projection;
 
-  @Transaction
   public void rollback(RollbackCheckpoint checkpoint)
   {
     try
