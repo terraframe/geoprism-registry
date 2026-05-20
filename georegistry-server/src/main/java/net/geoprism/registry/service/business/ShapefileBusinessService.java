@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service.business;
 
@@ -22,9 +22,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
@@ -56,23 +56,23 @@ import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterTyp
 import net.geoprism.registry.etl.ObjectImporterFactory;
 import net.geoprism.registry.etl.ShapefileFormatException;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
-import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.etl.upload.ShapefileImporter;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.io.PostalCodeFactory;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.view.ImportConfigurationView;
 
 @Service
 public class ShapefileBusinessService
 {
-  
-  public JSONObject getShapefileConfiguration(String type, Date startDate, Date endDate, String source, String fileName, InputStream fileStream, ImportStrategy strategy, Boolean copyBlank, boolean ignoreProjection)
+
+  public JSONObject getShapefileConfiguration(String fileName, InputStream fileStream, ImportConfigurationView view, boolean ignoreProjection)
   {
     // Save the file to the file system
     try
     {
-      ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(type);
+      ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(view.getType());
 
       VaultFile vf = VaultFile.createAndApply(fileName, fileStream);
 
@@ -87,25 +87,30 @@ public class ShapefileBusinessService
         object.put(ImportConfiguration.VAULT_FILE_ID, vf.getOid());
         object.put(ImportConfiguration.FILE_NAME, fileName);
         object.put(GeoObjectImportConfiguration.HAS_POSTAL_CODE, PostalCodeFactory.isAvailable(geoObjectType));
-        object.put(ImportConfiguration.IMPORT_STRATEGY, strategy.name());
+        object.put(ImportConfiguration.IMPORT_STRATEGY, view.getStrategy().name());
         object.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.SHAPEFILE.name());
         object.put(ImportConfiguration.OBJECT_TYPE, ObjectImporterFactory.ObjectImportType.GEO_OBJECT.name());
-        object.put(ImportConfiguration.COPY_BLANK, copyBlank);
+        object.put(ImportConfiguration.COPY_BLANK, view.getCopyBlank());
         object.put(ImportConfiguration.IGNORE_PROJECTION, ignoreProjection);
 
-        if (source != null)
+        if (!StringUtils.isBlank(view.getDataSource()))
         {
-          object.put(GeoObjectImportConfiguration.DATA_SOURCE, source);
-        }
-        
-        if (startDate != null)
-        {
-          object.put(GeoObjectImportConfiguration.START_DATE, format.format(startDate));
+          object.put(GeoObjectImportConfiguration.DATA_SOURCE, view.getDataSource());
         }
 
-        if (endDate != null)
+        if (!StringUtils.isBlank(view.getDescription()))
         {
-          object.put(GeoObjectImportConfiguration.END_DATE, format.format(endDate));
+          object.put(GeoObjectImportConfiguration.DESCRIPTION, view.getDescription());
+        }
+
+        if (view.getStartDate() != null)
+        {
+          object.put(GeoObjectImportConfiguration.START_DATE, format.format(view.getStartDate()));
+        }
+
+        if (view.getEndDate() != null)
+        {
+          object.put(GeoObjectImportConfiguration.END_DATE, format.format(view.getEndDate()));
         }
 
         return object;
@@ -240,7 +245,6 @@ public class ShapefileBusinessService
     }
   }
 
-  
   public void cancelImport(String json)
   {
     ImportConfiguration config = ImportConfiguration.build(json);
@@ -250,7 +254,6 @@ public class ShapefileBusinessService
     VaultFile.get(id).delete();
   }
 
-  
   public InputStream exportShapefile(String code, String hierarchyCode)
   {
     return GeoRegistryUtil.exportShapefile(code, hierarchyCode);

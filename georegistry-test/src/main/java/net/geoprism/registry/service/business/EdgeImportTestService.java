@@ -20,6 +20,7 @@ import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
+import net.geoprism.registry.view.EdgeImportConfigurationView;
 import net.geoprism.registry.view.ImportHistoryView;
 
 @Service
@@ -51,7 +52,7 @@ public class EdgeImportTestService
 
   public EdgeObjectImportConfiguration getTestConfiguration(String graphTypeClass, String graphTypeCode, InputStream istream, ImportStrategy strategy)
   {
-    ObjectNode result = service.getJsonImportConfiguration(graphTypeClass, graphTypeCode, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, null, "test.json", istream, strategy);
+    ObjectNode result = service.getJsonImportConfiguration("test.json", istream, EdgeImportConfigurationView.of(graphTypeClass, graphTypeCode, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, null, strategy));
 
     result.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.JSON.name());
     result.put(ImportConfiguration.OBJECT_TYPE, ObjectImportType.EDGE_OBJECT.name());

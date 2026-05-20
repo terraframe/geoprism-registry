@@ -25,5 +25,7 @@ export class RollbackCheckpoint {
     filename: string;
     importDate?: string;
     checkpointDate: string;
+    description?: string;
+
 }
 

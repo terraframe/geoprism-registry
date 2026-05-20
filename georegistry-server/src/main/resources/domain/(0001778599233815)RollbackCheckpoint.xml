@@ -57,6 +57,13 @@
           <attribute name="defaultLocale" value="Data Rollback" />
         </attributeStruct>
       </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="datasource.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="datasource.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Data Source" />
+        </attributeStruct>
+      </object>          
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="nav.datasource.label">
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="nav.datasource.label" />

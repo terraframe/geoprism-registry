@@ -20,12 +20,7 @@ package net.geoprism.registry.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-
-import jakarta.validation.constraints.NotEmpty;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,111 +28,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
+import jakarta.validation.Valid;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.service.request.ShapefileService;
-import net.geoprism.registry.spring.NullableDateDeserializer;
+import net.geoprism.registry.view.ImportConfigurationView;
 
 @RestController
 public class ShapefileController extends RunwaySpringController
 {
-  public static final class GetConfigurationBody
-  {
-    @NotEmpty(message = "Import type requires a value")
-    private String        type;
-
-    @JsonDeserialize(using = NullableDateDeserializer.class)
-    private Date          startDate;
-
-    @JsonDeserialize(using = NullableDateDeserializer.class)
-    private Date          endDate;
-
-    @NotNull(message = "Shapefile requires a value")
-    private MultipartFile file;
-
-    @NotEmpty(message = "Import Strategy requires a value")
-    private String        strategy;
-
-    @NotNull(message = "Import blank cells requires a value")
-    private Boolean       copyBlank;
-
-    private String        dataSource;
-
-    public String getType()
-    {
-      return type;
-    }
-
-    public void setType(String type)
-    {
-      this.type = type;
-    }
-
-    public Date getStartDate()
-    {
-      return startDate;
-    }
-
-    public void setStartDate(Date startDate)
-    {
-      this.startDate = startDate;
-    }
-
-    public Date getEndDate()
-    {
-      return endDate;
-    }
-
-    public void setEndDate(Date endDate)
-    {
-      this.endDate = endDate;
-    }
-
-    public MultipartFile getFile()
-    {
-      return file;
-    }
-
-    public void setFile(MultipartFile file)
-    {
-      this.file = file;
-    }
-
-    public String getStrategy()
-    {
-      return strategy;
-    }
-
-    public void setStrategy(String strategy)
-    {
-      this.strategy = strategy;
-    }
-
-    public Boolean getCopyBlank()
-    {
-      return copyBlank;
-    }
-
-    public void setCopyBlank(Boolean copyBlank)
-    {
-      this.copyBlank = copyBlank;
-    }
-    
-    public String getDataSource()
-    {
-      return dataSource;
-    }
-    
-    public void setDataSource(String dataSource)
-    {
-      this.dataSource = dataSource;
-    }
-
-  }
 
   public static final String API_PATH = RegistryConstants.CONTROLLER_ROOT + "shapefile";
 
@@ -145,17 +44,15 @@ public class ShapefileController extends RunwaySpringController
   private ShapefileService   service;
 
   @PostMapping(API_PATH + "/get-shapefile-configuration")
-  public ResponseEntity<String> getShapefileConfiguration(@Valid @ModelAttribute GetConfigurationBody input) throws IOException
+  public ResponseEntity<String> getShapefileConfiguration(@Valid @ModelAttribute ImportConfigurationView input) throws IOException
   {
     String sessionId = this.getSessionId();
 
-    try (InputStream stream = input.file.getInputStream())
+    try (InputStream stream = input.getFile().getInputStream())
     {
-      String fileName = input.file.getOriginalFilename();
+      String fileName = input.getFile().getOriginalFilename();
 
-      ImportStrategy strategy = ImportStrategy.valueOf(input.strategy);
-
-      JSONObject configuration = service.getShapefileConfiguration(sessionId, input.type, input.startDate, input.endDate, input.dataSource, fileName, stream, strategy, input.copyBlank);
+      JSONObject configuration = service.getShapefileConfiguration(sessionId, fileName, stream, input);
 
       return new ResponseEntity<String>(configuration.toString(), HttpStatus.OK);
     }

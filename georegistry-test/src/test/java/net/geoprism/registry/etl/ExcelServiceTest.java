@@ -101,6 +101,7 @@ import net.geoprism.registry.service.request.ExcelService;
 import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
+import net.geoprism.registry.view.ImportConfigurationView;
 import net.geoprism.registry.view.ImportHistoryView;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
@@ -225,7 +226,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
     Assert.assertNotNull(istream);
 
-    JSONObject result = this.excelService.getExcelConfiguration(testData.clientRequest.getSessionId(), USATestData.DISTRICT.getCode(), null, null, USATestData.SOURCE.getCode(), "test-spreadsheet.xlsx", istream, ImportStrategy.NEW_AND_UPDATE, false);
+    JSONObject result = this.excelService.getExcelConfiguration(testData.clientRequest.getSessionId(), "test-spreadsheet.xlsx", istream, ImportConfigurationView.of(USATestData.DISTRICT.getCode(), null, null, USATestData.SOURCE.getCode(), ImportStrategy.NEW_AND_UPDATE, false));
 
     Assert.assertFalse(result.getBoolean(GeoObjectImportConfiguration.HAS_POSTAL_CODE));
 
@@ -269,7 +270,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
     Assert.assertNotNull(istream);
 
-    JSONObject result = this.excelService.getExcelConfiguration(testData.clientRequest.getSessionId(), USATestData.DISTRICT.getCode(), null, null, USATestData.SOURCE.getCode(), "test-spreadsheet.xlsx", istream, ImportStrategy.NEW_AND_UPDATE, false);
+    JSONObject result = this.excelService.getExcelConfiguration(testData.clientRequest.getSessionId(), "test-spreadsheet.xlsx", istream, ImportConfigurationView.of(USATestData.DISTRICT.getCode(), null, null, USATestData.SOURCE.getCode(), ImportStrategy.NEW_AND_UPDATE, false));
 
     Assert.assertTrue(result.getBoolean(GeoObjectImportConfiguration.HAS_POSTAL_CODE));
   }
@@ -1037,7 +1038,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
   private JSONObject getTestConfiguration(InputStream istream, AttributeType attributeTerm, ImportStrategy strategy) throws JSONException
   {
-    JSONObject result = this.excelService.getExcelConfiguration(testData.clientRequest.getSessionId(), USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getCode(), "test-spreadsheet.xlsx", istream, strategy, false);
+    JSONObject result = this.excelService.getExcelConfiguration(testData.clientRequest.getSessionId(), "test-spreadsheet.xlsx", istream, ImportConfigurationView.of(USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getCode(), strategy, false));
     JSONObject type = result.getJSONObject(GeoObjectImportConfiguration.TYPE);
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 

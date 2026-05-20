@@ -20,6 +20,10 @@ public class RollbackCheckpointDTO
   @JsonSerialize(using = DateTimeSerializer.class)
   private Date   checkpointDate;
 
+  private String description;
+
+  private Long   globalIndex;
+
   public String getOid()
   {
     return oid;
@@ -68,6 +72,26 @@ public class RollbackCheckpointDTO
   public void setCheckpointDate(Date checkpointDate)
   {
     this.checkpointDate = checkpointDate;
+  }
+
+  public String getDescription()
+  {
+    return description;
+  }
+
+  public void setDescription(String description)
+  {
+    this.description = description;
+  }
+
+  public Long getGlobalIndex()
+  {
+    return globalIndex;
+  }
+
+  public void setGlobalIndex(Long globalIndex)
+  {
+    this.globalIndex = globalIndex;
   }
 
 }

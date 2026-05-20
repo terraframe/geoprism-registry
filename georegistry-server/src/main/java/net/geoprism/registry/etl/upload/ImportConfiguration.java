@@ -61,6 +61,8 @@ public abstract class ImportConfiguration
 
   public static final String               IGNORE_PROJECTION            = "ignoreProjection";
 
+  public static final String               DESCRIPTION                  = "description";
+
   protected String                         formatType;
 
   protected String                         objectType;
@@ -80,6 +82,8 @@ public abstract class ImportConfiguration
   protected Boolean                        ignoreProjection             = false;
 
   protected String                         externalSystemId             = null;
+
+  protected String                         description                  = null;
 
   protected ExternalSystem                 externalSystem               = null;
 
@@ -224,6 +228,16 @@ public abstract class ImportConfiguration
     this.ignoreProjection = ignoreProjection;
   }
 
+  public String getDescription()
+  {
+    return description;
+  }
+
+  public void setDescription(String description)
+  {
+    this.description = description;
+  }
+
   public Boolean isExternalImport()
   {
     return this.isExternal;
@@ -261,6 +275,11 @@ public abstract class ImportConfiguration
 
     this.objectType = jo.getString(OBJECT_TYPE);
     this.formatType = jo.getString(FORMAT_TYPE);
+
+    if (jo.has(DESCRIPTION))
+    {
+      this.description = jo.getString(DESCRIPTION);
+    }
 
     if (jo.has(HISTORY_ID))
     {
@@ -323,6 +342,11 @@ public abstract class ImportConfiguration
     if (this.importStrategy != null)
     {
       jo.put(IMPORT_STRATEGY, this.importStrategy.name());
+    }
+
+    if (this.description != null)
+    {
+      jo.put(DESCRIPTION, this.description);
     }
 
     if (this.externalIdFunction != null)

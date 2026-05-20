@@ -24,11 +24,10 @@ import { HttpErrorResponse } from "@angular/common/http";
 
 import { DateFieldComponent, ErrorHandler } from "@shared/component";
 import { LocalizationService, EventService } from "@shared/service";
-import { HierarchyService, RegistryService } from "@registry/service";
+import { RegistryService } from "@registry/service";
 
 import { ImportModalComponent } from "@registry/component/importer/modals/import-modal.component";
 import { ImportStrategy } from "@registry/model/constants";
-import { HierarchyGroupedTypeView, TypeGroupedHierachyView } from "@registry/model/hierarchy";
 import { GraphTypeService } from "@registry/service/graph-type.service";
 
 import { environment } from 'src/environments/environment';
@@ -65,10 +64,12 @@ export class EdgeImporterComponent implements OnInit {
     allTypes: GeoObjectType[];
 
     sources: Source[];
-    
+
     source: Source;
 
     dataSource: string;
+
+    description: string;
 
     importStrategy: ImportStrategy;
     importStrategies: any[] = [
@@ -146,6 +147,9 @@ export class EdgeImporterComponent implements OnInit {
             }
             if (this.endDate != null) {
                 form.append("endDate", this.endDate);
+            }
+            if (this.description != null) {
+                form.append("description", this.description);
             }
             if (this.importStrategy) {
                 form.append("strategy", this.importStrategy);

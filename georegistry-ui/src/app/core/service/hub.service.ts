@@ -127,13 +127,6 @@ export class HubService {
                     key: 'historical.events'
                 },
                 {
-                    id: 'TASKS',
-                    description: "nav.tasks.description",
-                    link: '/registry/tasks',
-                    icon: 'fa-solid fa-angle-down',
-                    key: 'header.tasks'
-                },
-                {
                     id: 'IMPORT',
                     description: "nav.importer.description",
                     link: '/registry/data',
@@ -148,7 +141,7 @@ export class HubService {
                     key: 'business.data.import'
                 },
                 {
-                    id: 'BUSINESS-TYPES',
+                    id: 'BUSINESS-EDGE-IMPORT',
                     description: "nav.importer.edge.description",
                     link: '/registry/edge-importer',
                     icon: 'fa-solid fa-file-arrow-up',

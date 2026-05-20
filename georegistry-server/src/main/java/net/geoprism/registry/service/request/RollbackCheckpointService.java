@@ -73,6 +73,7 @@ public class RollbackCheckpointService
     RollbackCheckpointDTO dto = new RollbackCheckpointDTO();
     dto.setOid(checkpoint.getOid());
     dto.setCheckpointDate(checkpoint.getCreateDate());
+    dto.setGlobalIndex(checkpoint.getGlobalIndex());
     dto.setHistoryId(history.getOid());
     dto.setImportDate(history.getCreateDate());
 
@@ -80,8 +81,15 @@ public class RollbackCheckpointService
     {
       JsonObject config = JsonParser.parseString(history.getConfigJson()).getAsJsonObject();
 
-      dto.setFilename(config.get(ImportConfiguration.FILE_NAME).getAsString());
+      if (config.has(ImportConfiguration.FILE_NAME))
+      {
+        dto.setFilename(config.get(ImportConfiguration.FILE_NAME).getAsString());
+      }
 
+      if (config.has(ImportConfiguration.DESCRIPTION))
+      {
+        dto.setDescription(config.get(ImportConfiguration.DESCRIPTION).getAsString());
+      }
     }
 
     return dto;

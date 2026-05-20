@@ -45,25 +45,32 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th style="width: 40%;">
+                    <th style="width: 30%;">
                         <localize key="rollback.filename"></localize>
                     </th>
-                    <th style="width: 30%;">
+                    <th style="width: 15%;">
                         <localize key="rollback.import.date"></localize>
                     </th>
+                    <th style="width: 30%;">
+                        <localize key="transition.event.description"></localize>
+                    </th>
+
                     <th></th>
                 </tr>
             </thead>
             <tbody>
                 <tr *ngFor="let checkpoint of page.resultSet | paginate: { id:'rollback', itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count}">
-                    <td style="width: 40%; vertical-align: middle;">
+                    <td style="width: 30%; vertical-align: middle;">
                         <a [routerLink]="'/registry/job/' + checkpoint.historyId">{{checkpoint.filename}}</a>
                     </td>
-                    <td style="width: 30%; vertical-align: middle;">
+                    <td style="width: 15%; vertical-align: middle;">
                         {{checkpoint.importDate}}
                     </td>
+                    <td style="width: 30%; vertical-align: middle;">
+                        {{checkpoint.description}}
+                    </td>
 
-                    <td style="width: 30%; text-align: right;">
+                    <td style="width: 25%; text-align: right;">
                         <button type="submit" (click)="onRollback(checkpoint)" class="btn btn-danger" role="button">
                             <localize key="modal.button.rollback"></localize>
                         </button>

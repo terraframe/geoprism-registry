@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.metadata.AttributeDataSourceType;
@@ -53,6 +54,7 @@ import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.io.PostalCodeFactory;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.view.ImportConfigurationView;
 
 @Service
 public class ExcelBusinessService
@@ -60,12 +62,12 @@ public class ExcelBusinessService
   @Autowired
   private BusinessTypeBusinessServiceIF bTypeService;
 
-  public JSONObject getExcelConfiguration(String type, Date startDate, Date endDate, String dataSource, String fileName, InputStream fileStream, ImportStrategy strategy, Boolean copyBlank)
+  public JSONObject getExcelConfiguration(String fileName, InputStream fileStream, ImportConfigurationView view)
   {
     // Save the file to the file system
     try
     {
-      ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(type);
+      ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(view.getType());
 
       VaultFile vf = VaultFile.createAndApply(fileName, fileStream);
 
@@ -86,24 +88,29 @@ public class ExcelBusinessService
         object.put(ImportConfiguration.VAULT_FILE_ID, vf.getOid());
         object.put(ImportConfiguration.FILE_NAME, fileName);
         object.put(GeoObjectImportConfiguration.HAS_POSTAL_CODE, PostalCodeFactory.isAvailable(geoObjectType));
-        object.put(ImportConfiguration.IMPORT_STRATEGY, strategy.name());
+        object.put(ImportConfiguration.IMPORT_STRATEGY, view.getStrategy().name());
         object.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.EXCEL.name());
         object.put(ImportConfiguration.OBJECT_TYPE, ObjectImporterFactory.ObjectImportType.GEO_OBJECT.name());
-        object.put(ImportConfiguration.COPY_BLANK, copyBlank);
+        object.put(ImportConfiguration.COPY_BLANK, view.getCopyBlank());
 
-        if (dataSource != null)
+        if (!StringUtils.isEmpty(view.getDataSource()))
         {
-          object.put(GeoObjectImportConfiguration.DATA_SOURCE, dataSource);
+          object.put(GeoObjectImportConfiguration.DATA_SOURCE, view.getDataSource());
         }
 
-        if (startDate != null)
+        if (!StringUtils.isBlank(view.getDescription()))
         {
-          object.put(GeoObjectImportConfiguration.START_DATE, format.format(startDate));
+          object.put(GeoObjectImportConfiguration.DESCRIPTION, view.getDescription());
         }
 
-        if (endDate != null)
+        if (view.getStartDate() != null)
         {
-          object.put(GeoObjectImportConfiguration.END_DATE, format.format(endDate));
+          object.put(GeoObjectImportConfiguration.START_DATE, format.format(view.getStartDate()));
+        }
+
+        if (view.getEndDate() != null)
+        {
+          object.put(GeoObjectImportConfiguration.END_DATE, format.format(view.getEndDate()));
         }
 
         return object;

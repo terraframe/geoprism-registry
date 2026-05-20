@@ -44,11 +44,11 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.controller.ShapefileController.GetConfigurationBody;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.service.request.ExcelService;
 import net.geoprism.registry.spring.NullableDateDeserializer;
+import net.geoprism.registry.view.ImportConfigurationView;
 
 @RestController
 @Validated
@@ -122,12 +122,12 @@ public class ExcelImportController extends RunwaySpringController
     {
       this.copyBlank = copyBlank;
     }
-    
+
     public String getDataSource()
     {
       return dataSource;
     }
-    
+
     public void setDataSource(String dataSource)
     {
       this.dataSource = dataSource;
@@ -141,7 +141,7 @@ public class ExcelImportController extends RunwaySpringController
   private ExcelService       service;
 
   @PostMapping(API_PATH + "/get-configuration")
-  public ResponseEntity<String> getConfiguration(@Valid @ModelAttribute GetConfigurationBody body) throws IOException
+  public ResponseEntity<String> getConfiguration(@Valid @ModelAttribute ImportConfigurationView body) throws IOException
   {
     String sessionId = this.getSessionId();
 
@@ -149,12 +149,7 @@ public class ExcelImportController extends RunwaySpringController
     {
       String fileName = body.getFile().getOriginalFilename();
 
-      SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
-      format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
-
-      ImportStrategy strategy = ImportStrategy.valueOf(body.getStrategy());
-
-      JSONObject configuration = service.getExcelConfiguration(sessionId, body.getType(), body.getStartDate(), body.getEndDate(), body.getDataSource(), fileName, stream, strategy, body.getCopyBlank());
+      JSONObject configuration = service.getExcelConfiguration(sessionId, fileName, stream, body);
 
       return new ResponseEntity<String>(configuration.toString(), HttpStatus.OK);
     }

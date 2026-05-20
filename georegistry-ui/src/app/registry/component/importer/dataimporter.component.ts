@@ -133,6 +133,10 @@ export class DataImporterComponent implements OnInit {
 
     dataSource: string;
 
+    description: string;
+
+
+
     // eslint-disable-next-line no-useless-constructor
     constructor(
         private eventService: EventService,
@@ -246,6 +250,10 @@ export class DataImporterComponent implements OnInit {
 
             if (this.dataSource != null) {
                 form.append("dataSource", this.dataSource);
+            }
+
+            if (this.description != null) {
+                form.append("description", this.description);
             }
 
             if (this.startDate != null) {
