@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service.request;
 
@@ -47,20 +47,22 @@ import net.geoprism.registry.DirectedAcyclicGraphType;
 import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.EdgeDirection;
+import net.geoprism.registry.model.EdgeType;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerChildGraphNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerParentGraphNode;
 import net.geoprism.registry.model.graph.EdgeVertexType;
+import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.EdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
-import net.geoprism.registry.service.business.GraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.permission.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.service.permission.GeoObjectTypePermissionServiceIF;
@@ -95,7 +97,7 @@ public class RelationshipVisualizationService
   private UndirectedGraphTypeBusinessServiceIF      undirectedService;
 
   @Autowired
-  private GraphTypeBusinessServiceIF                graphTypeService;
+  private EdgeTypeBusinessServiceIF                 graphTypeService;
 
   @Autowired
   private RegistryComponentService                  service;
@@ -173,7 +175,7 @@ public class RelationshipVisualizationService
     else if (VertexView.ObjectType.BUSINESS.equals(sourceView.getObjectType()))
     {
       // TODO: Figure this out
-      if (relationshipType != null && relationshipType.equals("BusinessEdgeType"))
+      if (relationshipType != null && relationshipType.equals(EdgeType.BUSINESS_EDGE_TYPE))
       {
         final BusinessType type = this.bTypeService.getByCode(sourceView.getTypeCode());
 
@@ -181,19 +183,17 @@ public class RelationshipVisualizationService
         {
           BusinessEdgeType edgeType = this.bEdgeService.getByCodeOrThrow(graphTypeCode);
 
-          EdgeVertexType childType = this.bEdgeService.getChild(edgeType);
-
-          if (childType.isGeoObjectType())
+          if (edgeType.getIsChildGeoObject())
           {
             final BusinessObject selected = this.bObjectService.getByCode(type, sourceView.getCode());
 
-            List<VertexServerGeoObject> objects = this.bObjectService.getGeoObjects(selected, edgeType, EdgeDirection.CHILD);
+            List<VertexComponent> objects = this.bObjectService.getChildren(selected, edgeType, date);
 
             long endIndex = Math.min(maxResults, objects.size());
 
             for (int i = 0; i < endIndex; ++i)
             {
-              VertexServerGeoObject object = objects.get(i);
+              VertexServerGeoObject object = (VertexServerGeoObject) objects.get(i);
 
               geoObjects.add(this.objectService.toGeoObject(object, date));
             }
@@ -321,53 +321,59 @@ public class RelationshipVisualizationService
         EdgeVertexType parentType = this.bEdgeService.getParent(edgeType);
         EdgeVertexType childType = this.bEdgeService.getChild(edgeType);
 
-        if (parentType.isGeoObjectType() || childType.isGeoObjectType())
+        List<VertexComponent> objects = this.bObjectService.getParents(selected, edgeType, date);
+
+        long endIndex = Math.min(maxResults, objects.size());
+
+        for (int i = 0; i < endIndex; ++i)
         {
-          EdgeDirection direction = parentType.isGeoObjectType() ? EdgeDirection.PARENT : EdgeDirection.CHILD;
-
-          List<VertexServerGeoObject> objects = this.bObjectService.getGeoObjects(selected, edgeType, direction);
-
-          long endIndex = Math.min(maxResults, objects.size());
-
-          for (int i = 0; i < endIndex; ++i)
+          if (edgeType.getIsParentGeoObject())
           {
-            VertexServerGeoObject child = objects.get(i);
+            VertexServerGeoObject parent = (VertexServerGeoObject) objects.get(i);
+
+            if (!verticies.containsKey(parent.getCode()))
+            {
+              verticies.put(parent.getCode(), this.fromGeoObject(parent, "PARENT"));
+              EdgeView edge = EdgeView.create(selected, parent);
+              edges.put(edge.getId(), edge);
+              addRelatedType(relatedTypes, parent.getType());
+            }
+          }
+          else
+          {
+            BusinessObject parent = (BusinessObject) objects.get(i);
+
+            if (!verticies.containsKey(parent.getCode()))
+            {
+              verticies.put(parent.getCode(), this.fromBusinessObject(parent, "PARENT"));
+              EdgeView edge = EdgeView.create(selected, parent);
+              edges.put(edge.getId(), edge);
+              addRelatedType(relatedTypes, parent.getType());
+            }
+          }
+        }
+
+        // Children
+        objects = this.bObjectService.getChildren(selected, edgeType, date);
+        endIndex = Math.min(maxResults - verticies.size(), objects.size());
+
+        for (int i = 0; i < endIndex; ++i)
+        {
+          if (edgeType.getIsParentGeoObject())
+          {
+            VertexServerGeoObject child = (VertexServerGeoObject) objects.get(i);
 
             if (!verticies.containsKey(child.getCode()))
             {
-              verticies.put(child.getCode(), this.fromGeoObject(child, direction.equals(EdgeDirection.CHILD) ? "CHILD" : "PARENT"));
+              verticies.put(child.getCode(), this.fromGeoObject(child, "CHILD"));
               EdgeView edge = EdgeView.create(selected, child);
               edges.put(edge.getId(), edge);
               addRelatedType(relatedTypes, child.getType());
             }
           }
-        }
-        else
-        {
-          // Parents
-          List<BusinessObject> objects = this.bObjectService.getParents(selected, edgeType);
-          long endIndex = Math.min(maxResults, objects.size());
-
-          for (int i = 0; i < endIndex; ++i)
+          else
           {
-            BusinessObject parent = objects.get(i);
-
-            if (!verticies.containsKey(parent.getCode()))
-            {
-              verticies.put(parent.getCode(), this.fromBusinessObject(parent, "PARENT"));
-              EdgeView edge = EdgeView.create(parent, selected);
-              edges.put(edge.getId(), edge);
-              addRelatedType(relatedTypes, parent.getType());
-            }
-          }
-
-          // Children
-          objects = this.bObjectService.getChildren(selected, edgeType);
-          endIndex = Math.min(maxResults - verticies.size(), objects.size());
-
-          for (int i = 0; i < endIndex; ++i)
-          {
-            BusinessObject child = objects.get(i);
+            BusinessObject child = (BusinessObject) objects.get(i);
 
             if (!verticies.containsKey(child.getCode()))
             {
@@ -378,6 +384,7 @@ public class RelationshipVisualizationService
             }
           }
         }
+
       }
     }
 

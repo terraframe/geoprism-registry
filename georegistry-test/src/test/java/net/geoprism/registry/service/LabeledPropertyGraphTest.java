@@ -73,6 +73,7 @@ import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.EdgeDirection;
+import net.geoprism.registry.model.EdgeType;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -292,8 +293,8 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
 
     this.bObjectService.apply(cObject);
 
-    this.bObjectService.addChild(pObject, bEdgeType, cObject, UUID.randomUUID().toString(), USATestData.SOURCE.getDataSource());
-    this.bObjectService.addGeoObject(pObject, bGeoEdgeType, USATestData.COLORADO.getServerObject(), EdgeDirection.PARENT, UUID.randomUUID().toString(), USATestData.SOURCE.getDataSource(), false);
+    this.bObjectService.addChild(pObject, bEdgeType, cObject, UUID.randomUUID().toString(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getDataSource());
+    this.bObjectService.addParent(pObject, bGeoEdgeType, USATestData.COLORADO.getServerObject(), UUID.randomUUID().toString(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getDataSource());
   }
 
   @After
@@ -532,7 +533,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
         /*
          * There should be an edge between USA and Colorado
          */
-        GraphTypeSnapshot graphEdge = this.graphSnapshotService.get(version, GraphType.getTypeCode(dagType), dagType.getCode());
+        GraphTypeSnapshot graphEdge = this.graphSnapshotService.get(version, EdgeType.getTypeCode(dagType), dagType.getCode());
 
         VertexObject usa = results.stream().filter(r -> r.getObjectValue(DefaultAttribute.CODE.getName()).equals(USATestData.USA.getCode())).findFirst().get();
 
@@ -837,7 +838,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
   public static JsonObject getJson(GraphType graphType, String[] geoObjectTypeCodes, String[] businessTypeCodes, String[] businessEdgeTypeCodes, Organization organization)
   {
     LabeledPropertyGraphTypeBuilder builder = new LabeledPropertyGraphTypeBuilder();
-    builder.setGraphTypes(new GraphTypeReference[] { new GraphTypeReference(GraphType.getTypeCode(graphType), graphType.getCode()) });
+    builder.setGraphTypes(new GraphTypeReference[] { new GraphTypeReference(EdgeType.getTypeCode(graphType), graphType.getCode()) });
     builder.setGeoObjectTypeCodes(geoObjectTypeCodes);
     builder.setBusinessTypeCodes(businessTypeCodes);
     builder.setBusinessEdgeCodes(businessEdgeTypeCodes);

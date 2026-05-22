@@ -110,7 +110,7 @@ public class ETLBusinessService
   protected GeoSynonymBusinessService      geoSynonymService;
 
   @Autowired
-  protected GraphTypeBusinessServiceIF     graphTypeService;
+  protected EdgeTypeBusinessServiceIF     graphTypeService;
 
   @Autowired
   protected BusinessTypeBusinessServiceIF  businessTypeService;

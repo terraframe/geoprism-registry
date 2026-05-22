@@ -39,8 +39,7 @@ import net.geoprism.registry.Commit;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Publish;
 import net.geoprism.registry.SynchronizationConfig;
-import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectAddGeoObjectEvent;
-import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectCreateEdgeEvent;
+import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectEvent;
@@ -48,7 +47,6 @@ import net.geoprism.registry.axon.event.remote.RemoteGeoObjectSetParentEvent;
 import net.geoprism.registry.etl.JenaExportConfig;
 import net.geoprism.registry.etl.export.ExportHistory;
 import net.geoprism.registry.etl.export.ExportStage;
-import net.geoprism.registry.model.EdgeDirection;
 
 @Service
 public class JenaSynchronizationService
@@ -136,17 +134,13 @@ public class JenaSynchronizationService
         {
           this.handleRemoteGeoObject(commit, (RemoteGeoObjectEvent) event, config, model.get());
         }
-        else if (event instanceof RemoteBusinessObjectAddGeoObjectEvent)
-        {
-          this.handleRemoteAddGeoObject(commit, (RemoteBusinessObjectAddGeoObjectEvent) event, config, model.get());
-        }
         else if (event instanceof RemoteBusinessObjectEvent)
         {
           this.handleRemoteBusinessObject(commit, (RemoteBusinessObjectEvent) event, config, model.get());
         }
-        else if (event instanceof RemoteBusinessObjectCreateEdgeEvent)
+        else if (event instanceof RemoteBusinessObjectApplyEdgeEvent)
         {
-          this.handleRemoteCreateEdge(commit, (RemoteBusinessObjectCreateEdgeEvent) event, config, model.get());
+          this.handleRemoteCreateEdge(commit, (RemoteBusinessObjectApplyEdgeEvent) event, config, model.get());
         }
         else if (event instanceof RemoteGeoObjectCreateEdgeEvent)
         {
@@ -405,30 +399,7 @@ public class JenaSynchronizationService
     // this.service.load(GRAPH_NAME, model, config);
   }
 
-  public void handleRemoteAddGeoObject(Commit commit, RemoteBusinessObjectAddGeoObjectEvent event, JenaExportConfig config, Model model)
-  {
-    logger.trace("Jena Projection - Handling remote add geo object");
-
-    if (event.getDirection().equals(EdgeDirection.CHILD))
-    {
-      this.addResourceToModel(model, //
-          buildObjectUri(config, event.getCode(), event.getType()), //
-          config.getNamespace() + "#" + event.getEdgeType(), //
-          buildObjectUri(config, event.getGeoObjectCode(), event.getGeoObjectType()));
-    }
-    else
-    {
-      this.addResourceToModel(model, //
-          buildObjectUri(config, event.getGeoObjectCode(), event.getGeoObjectType()), //
-          config.getNamespace() + "#" + event.getEdgeType(), //
-          buildObjectUri(config, event.getCode(), event.getType()));
-
-    }
-
-    // this.service.load(GRAPH_NAME, model, config);
-  }
-
-  public void handleRemoteCreateEdge(Commit commit, RemoteBusinessObjectCreateEdgeEvent event, JenaExportConfig config, Model model)
+  public void handleRemoteCreateEdge(Commit commit, RemoteBusinessObjectApplyEdgeEvent event, JenaExportConfig config, Model model)
   {
     logger.trace("Jena Projection - Handling remote create edge");
 

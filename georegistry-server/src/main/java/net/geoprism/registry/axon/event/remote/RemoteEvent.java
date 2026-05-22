@@ -11,8 +11,7 @@ import net.geoprism.registry.view.PublishDTO;
     @JsonSubTypes.Type(value = RemoteGeoObjectSetParentEvent.class), //
     @JsonSubTypes.Type(value = RemoteGeoObjectCreateEdgeEvent.class), //
     @JsonSubTypes.Type(value = RemoteBusinessObjectEvent.class), //
-    @JsonSubTypes.Type(value = RemoteBusinessObjectAddGeoObjectEvent.class), //
-    @JsonSubTypes.Type(value = RemoteBusinessObjectCreateEdgeEvent.class), //
+    @JsonSubTypes.Type(value = RemoteBusinessObjectApplyEdgeEvent.class), //
 })
 public interface RemoteEvent
 {

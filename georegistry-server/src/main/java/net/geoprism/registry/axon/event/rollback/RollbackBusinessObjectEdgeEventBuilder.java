@@ -43,7 +43,7 @@ public class RollbackBusinessObjectEdgeEventBuilder extends RollbackEventBuilder
     List<RepositoryEvent> list = new LinkedList<>();
 
     // Reset the edge and the replay all of the events
-    list.add(new RemoveBusinessObjectEdgeEvent(this.original.getTargetCode(), this.original.getTargetType(), this.original.getSourceCode(), this.original.getSourceType(), this.original.getEdgeTypeCode()));
+    list.add(new RemoveBusinessObjectEdgeEvent(this.original.getTargetCode(), this.original.getTargetType(), this.original.getSourceCode(), this.original.getSourceType(), this.original.getEdgeTypeCode(), this.original.getStartDate(), this.original.getEndDate()));
     list.addAll(this.events);
 
     return list;

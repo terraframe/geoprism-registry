@@ -37,7 +37,6 @@ import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.model.BusinessObject;
-import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -305,8 +304,8 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
       BusinessEdgeType bEdgeType = this.bEdgeService.getByCode("TEST_B_EDGE").get();
       BusinessEdgeType bGeoEdgeType = this.bEdgeService.getByCode("TEST_GEO_EDGE").get();
 
-      Assert.assertEquals(1, this.bObjectService.getParents(bObject, bEdgeType).size());
-      Assert.assertEquals(1, this.bObjectService.getGeoObjects(bObject, bGeoEdgeType, EdgeDirection.PARENT).size());
+      Assert.assertEquals(1, this.bObjectService.getParents(bObject, bEdgeType, USATestData.DEFAULT_OVER_TIME_DATE).size());
+      Assert.assertEquals(1, this.bObjectService.getParents(bObject, bGeoEdgeType, USATestData.DEFAULT_OVER_TIME_DATE).size());
     }
     finally
     {
@@ -629,8 +628,8 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
         BusinessEdgeType bEdgeType = this.bEdgeService.getByCode("TEST_B_EDGE").get();
         BusinessEdgeType bGeoEdgeType = this.bEdgeService.getByCode("TEST_GEO_EDGE").get();
 
-        Assert.assertEquals(1, this.bObjectService.getParents(bObject, bEdgeType).size());
-        Assert.assertEquals(1, this.bObjectService.getGeoObjects(bObject, bGeoEdgeType, EdgeDirection.PARENT).size());
+        Assert.assertEquals(1, this.bObjectService.getParents(bObject, bEdgeType, USATestData.DEFAULT_OVER_TIME_DATE).size());
+        Assert.assertEquals(1, this.bObjectService.getParents(bObject, bGeoEdgeType, USATestData.DEFAULT_OVER_TIME_DATE).size());
       }
       finally
       {

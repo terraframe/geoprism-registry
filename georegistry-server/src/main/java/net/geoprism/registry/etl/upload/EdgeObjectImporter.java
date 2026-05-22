@@ -48,9 +48,12 @@ import com.runwaysdk.session.SessionFacade;
 
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
+import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.GeoregistryProperties;
-import net.geoprism.registry.axon.event.repository.AbstractGeoObjectEvent;
+import net.geoprism.registry.axon.event.repository.AbstractRepositoryEvent;
+import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEdgeEvent;
+import net.geoprism.registry.cache.BusinessObjectCache;
 import net.geoprism.registry.cache.Cache;
 import net.geoprism.registry.cache.GeoObjectCache;
 import net.geoprism.registry.cache.LRUCache;
@@ -58,7 +61,8 @@ import net.geoprism.registry.io.IgnoreRowException;
 import net.geoprism.registry.io.Location;
 import net.geoprism.registry.io.RequiredMappingException;
 import net.geoprism.registry.jobs.RowValidationProblem;
-import net.geoprism.registry.model.GraphType;
+import net.geoprism.registry.model.EdgeType;
+import net.geoprism.registry.model.VertexComponentType;
 import net.geoprism.registry.service.business.ServiceFactory;
 
 public class EdgeObjectImporter implements ObjectImporterIF
@@ -154,6 +158,8 @@ public class EdgeObjectImporter implements ObjectImporterIF
 
   protected GeoObjectCache                goCache;
 
+  protected BusinessObjectCache           boCache;
+
   protected Cache<String, Object>         goRidCache;
 
   protected ImportProgressListenerIF      progressListener;
@@ -178,6 +184,7 @@ public class EdgeObjectImporter implements ObjectImporterIF
     this.progressListener = progressListener;
 
     goCache = new GeoObjectCache();
+    boCache = new BusinessObjectCache();
     goRidCache = new LRUCache<String, Object>(10000);
 
     this.blockingQueue = new LinkedBlockingDeque<Runnable>(50);
@@ -242,8 +249,10 @@ public class EdgeObjectImporter implements ObjectImporterIF
           throw ex;
         }
 
-        goCache.getOrFetchByCode(sourceCode, sourceTypeCode);
-        goCache.getOrFetchByCode(targetCode, targetTypeCode);
+        EdgeType graphType = this.configuration.getGraphType();
+
+        validateObject(graphType.getSourceType(), sourceCode, sourceTypeCode);
+        validateObject(graphType.getTargetType(), targetCode, targetTypeCode);
       }
       catch (IgnoreRowException e)
       {
@@ -270,6 +279,22 @@ public class EdgeObjectImporter implements ObjectImporterIF
     catch (Throwable e)
     {
       e.printStackTrace();
+    }
+  }
+
+  public void validateObject(VertexComponentType type, String code, String typeCode)
+  {
+    if (type.equals(VertexComponentType.GEO_OBJECT))
+    {
+      goCache.getOrFetchByCode(code, typeCode);
+    }
+    else if (type.equals(VertexComponentType.BUSINESS))
+    {
+      boCache.getOrFetchByCode(code, typeCode);
+    }
+    else
+    {
+      throw new UnsupportedOperationException();
     }
   }
 
@@ -380,11 +405,14 @@ public class EdgeObjectImporter implements ObjectImporterIF
       String dataSource = configuration.getDataSource() == null ? null : this.configuration.getDataSource().getCode();
       Date startDate = this.configuration.getStartDate();
       Date endDate = this.configuration.getEndDate();
+      EdgeType graphType = this.configuration.getGraphType();
 
-      String edgeTypeCode = GraphType.getTypeCode(this.configuration.getGraphType());
+      String edgeTypeCode = EdgeType.getTypeCode(graphType);
       String edgeCode = this.configuration.getGraphType().getCode();
 
-      AbstractGeoObjectEvent event = new GeoObjectApplyEdgeEvent(sourceCode, sourceTypeCode, edgeTypeCode, edgeCode, targetCode, targetTypeCode, startDate, endDate, dataSource, this.configuration.getImportStrategy(), false);
+      AbstractRepositoryEvent event = graphType instanceof BusinessEdgeType ? //
+          new BusinessObjectApplyEdgeEvent(sourceCode, sourceTypeCode, edgeCode, targetCode, targetTypeCode, startDate, endDate, dataSource, this.configuration.getImportStrategy(), false) : //
+          new GeoObjectApplyEdgeEvent(sourceCode, sourceTypeCode, edgeTypeCode, edgeCode, targetCode, targetTypeCode, startDate, endDate, dataSource, this.configuration.getImportStrategy(), false);
 
       this.gateway.publish(GenericEventMessage.asEventMessage(event));
 

@@ -1,5 +1,6 @@
 package net.geoprism.registry.axon.event.repository;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -8,10 +9,10 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
 import net.geoprism.registry.BusinessEdgeType;
+import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.model.BusinessObject;
-import net.geoprism.registry.model.EdgeDirection;
-import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 
 public class BusinessObjectEventBuilder
@@ -117,20 +118,20 @@ public class BusinessObjectEventBuilder
     this.attributeUpdate = attributeUpdate;
   }
 
-  public void addParent(BusinessObject parent, BusinessEdgeType edgeType, DataSource source, Boolean validate)
+  public void addParent(VertexComponent parent, BusinessEdgeType edgeType, Date startDate, Date endDate, DataSource source, Boolean validate)
   {
     BusinessObject object = this.getOrThrow();
     String code = source != null ? source.getCode() : null;
 
-    this.events.add(new BusinessObjectCreateEdgeEvent(parent.getCode(), parent.getType().getCode(), edgeType.getCode(), object.getCode(), object.getType().getCode(), code, validate));
+    this.events.add(new BusinessObjectApplyEdgeEvent(parent.getCode(), parent.getType().getCode(), edgeType.getCode(), object.getCode(), object.getType().getCode(), startDate, endDate, code, ImportStrategy.NEW_AND_UPDATE, validate));
   }
 
-  public void addGeoObject(BusinessEdgeType edgeType, ServerGeoObjectIF geoObject, EdgeDirection direction, DataSource source)
+  public void addChild(VertexComponent child, BusinessEdgeType edgeType, Date startDate, Date endDate, DataSource source, Boolean validate)
   {
     BusinessObject object = this.getOrThrow();
     String code = source != null ? source.getCode() : null;
 
-    this.events.add(new BusinessObjectAddGeoObjectEvent(object.getCode(), object.getType().getCode(), edgeType.getCode(), geoObject.getType().getCode(), geoObject.getCode(), direction, code));
+    this.events.add(new BusinessObjectApplyEdgeEvent(object.getCode(), object.getType().getCode(), edgeType.getCode(), child.getCode(), child.getType().getCode(), startDate, endDate, code, ImportStrategy.NEW_AND_UPDATE, validate));
   }
 
   public List<RepositoryEvent> build()

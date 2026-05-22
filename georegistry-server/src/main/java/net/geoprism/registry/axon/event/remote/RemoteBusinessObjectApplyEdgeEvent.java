@@ -1,10 +1,14 @@
 package net.geoprism.registry.axon.event.remote;
 
+import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import net.geoprism.registry.view.PublishDTO;
 import net.geoprism.registry.view.TypeAndCode;
 import net.geoprism.registry.view.TypeAndCode.Type;
 
-public class RemoteBusinessObjectCreateEdgeEvent implements RemoteEvent
+public class RemoteBusinessObjectApplyEdgeEvent implements RemoteEvent
 {
   private String key;
 
@@ -22,18 +26,22 @@ public class RemoteBusinessObjectCreateEdgeEvent implements RemoteEvent
 
   private String targetCode;
 
+  private Date   startDate;
+
+  private Date   endDate;
+
   private String dataSource;
 
-  public RemoteBusinessObjectCreateEdgeEvent()
+  public RemoteBusinessObjectApplyEdgeEvent()
   {
   }
 
-  public RemoteBusinessObjectCreateEdgeEvent(String commitId, String sourceCode, String sourceType, String edgeUid, String edgeType, String targetCode, String targetType, String dataSource)
+  public RemoteBusinessObjectApplyEdgeEvent(String commitId, String sourceCode, String sourceType, String edgeUid, String edgeType, String targetCode, String targetType, Date startDate, Date endDate, String dataSource)
   {
-    this(commitId, sourceCode + "#" + sourceType, sourceCode, sourceType, edgeUid, edgeType, targetCode, targetType, dataSource);
+    this(commitId, sourceCode + "#" + sourceType, sourceCode, sourceType, edgeUid, edgeType, targetCode, targetType, startDate, endDate, dataSource);
   }
 
-  public RemoteBusinessObjectCreateEdgeEvent(String commitId, String key, String sourceCode, String sourceType, String edgeUid, String edgeType, String targetCode, String targetType, String dataSource)
+  public RemoteBusinessObjectApplyEdgeEvent(String commitId, String key, String sourceCode, String sourceType, String edgeUid, String edgeType, String targetCode, String targetType, Date startDate, Date endDate, String dataSource)
   {
     super();
     this.commitId = commitId;
@@ -44,6 +52,8 @@ public class RemoteBusinessObjectCreateEdgeEvent implements RemoteEvent
     this.edgeType = edgeType;
     this.targetCode = targetCode;
     this.targetType = targetType;
+    this.startDate = startDate;
+    this.endDate = endDate;
     this.dataSource = dataSource;
   }
 
@@ -137,6 +147,26 @@ public class RemoteBusinessObjectCreateEdgeEvent implements RemoteEvent
     this.dataSource = dataSource;
   }
 
+  public Date getStartDate()
+  {
+    return startDate;
+  }
+
+  public void setStartDate(Date startDate)
+  {
+    this.startDate = startDate;
+  }
+
+  public Date getEndDate()
+  {
+    return endDate;
+  }
+
+  public void setEndDate(Date endDate)
+  {
+    this.endDate = endDate;
+  }
+
   @Override
   public boolean isValid(PublishDTO dto)
   {
@@ -144,6 +174,7 @@ public class RemoteBusinessObjectCreateEdgeEvent implements RemoteEvent
   }
 
   @Override
+  @JsonIgnore
   public String getBaseObjectId()
   {
     return this.edgeUid;

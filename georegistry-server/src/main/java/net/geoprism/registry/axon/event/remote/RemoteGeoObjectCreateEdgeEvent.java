@@ -4,6 +4,7 @@ import java.util.Date;
 
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -190,6 +191,7 @@ public class RemoteGeoObjectCreateEdgeEvent implements RemoteEvent
   }
 
   @Override
+  @JsonIgnore
   public String getBaseObjectId()
   {
     return this.edgeUid;

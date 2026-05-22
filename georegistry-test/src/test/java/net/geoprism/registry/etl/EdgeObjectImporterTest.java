@@ -39,7 +39,7 @@ import net.geoprism.registry.model.ServerGraphNode;
 import net.geoprism.registry.service.business.ETLBusinessService;
 import net.geoprism.registry.service.business.EdgeImportTestService;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
-import net.geoprism.registry.service.business.GraphTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.EdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.request.EdgeImportService;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.SchedulerTestUtils;
@@ -64,7 +64,7 @@ public class EdgeObjectImporterTest implements InstanceTestClassListener
   private GeoObjectBusinessServiceIF objectService;
 
   @Autowired
-  private GraphTypeBusinessServiceIF typeService;
+  private EdgeTypeBusinessServiceIF typeService;
 
   @Autowired
   private EdgeImportTestService      etlService;

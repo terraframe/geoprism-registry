@@ -242,7 +242,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
   private LabeledPropertyGraphTypeVersionBusinessServiceIF versionService;
 
   @Autowired
-  private GraphTypeBusinessServiceIF                       graphTypeService;
+  private EdgeTypeBusinessServiceIF                       graphTypeService;
 
   /*
    * 

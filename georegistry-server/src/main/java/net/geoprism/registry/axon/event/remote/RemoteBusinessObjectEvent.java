@@ -1,5 +1,7 @@
 package net.geoprism.registry.axon.event.remote;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import net.geoprism.registry.view.PublishDTO;
 import net.geoprism.registry.view.TypeAndCode;
 import net.geoprism.registry.view.TypeAndCode.Type;
@@ -87,6 +89,7 @@ public class RemoteBusinessObjectEvent implements RemoteEvent
   }
   
   @Override
+  @JsonIgnore
   public String getBaseObjectId()
   {
     return this.code + "#" + this.type + "#B";

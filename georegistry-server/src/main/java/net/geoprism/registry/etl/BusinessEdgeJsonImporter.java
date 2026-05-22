@@ -20,6 +20,7 @@ package net.geoprism.registry.etl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 
 import org.apache.commons.io.IOUtils;
 import org.axonframework.eventhandling.GenericEventMessage;
@@ -35,8 +36,10 @@ import com.runwaysdk.resource.ApplicationResource;
 
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
-import net.geoprism.registry.axon.event.repository.BusinessObjectCreateEdgeEvent;
+import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.projection.RepositoryProjection;
+import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
@@ -96,8 +99,10 @@ public class BusinessEdgeJsonImporter
 
           String sourceCode = joEdge.get("source").getAsString();
           String targetCode = joEdge.get("target").getAsString();
+          Date startDate = GeoRegistryUtil.parseDate(joEdge.get("startDate").getAsString());
+          Date endDate = GeoRegistryUtil.parseDate(joEdge.get("endDate").getAsString());
 
-          BusinessObjectCreateEdgeEvent event = new BusinessObjectCreateEdgeEvent(sourceCode, sourceType.getCode(), edgeType.getCode(), targetCode, targetType.getCode(), source.getCode(), validate);
+          BusinessObjectApplyEdgeEvent event = new BusinessObjectApplyEdgeEvent(sourceCode, sourceType.getCode(), edgeType.getCode(), targetCode, targetType.getCode(), startDate, endDate, source.getCode(), ImportStrategy.NEW_ONLY, validate);
 
           this.gateway.publish(GenericEventMessage.asEventMessage(event));
 

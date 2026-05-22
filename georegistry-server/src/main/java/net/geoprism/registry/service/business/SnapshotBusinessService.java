@@ -117,7 +117,7 @@ public class SnapshotBusinessService
   private BusinessTypeBusinessServiceIF             bTypeService;
 
   @Autowired
-  private GraphTypeBusinessServiceIF                graphTypeService;
+  private EdgeTypeBusinessServiceIF                graphTypeService;
 
   public GraphTypeSnapshot createSnapshot(SnapshotContainer<?> version, GraphTypeReference gtr, GeoObjectTypeSnapshot root)
   {

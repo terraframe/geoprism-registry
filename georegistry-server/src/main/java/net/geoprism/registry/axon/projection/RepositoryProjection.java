@@ -32,15 +32,13 @@ import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.OriginException;
 import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
-import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectAddGeoObjectEvent;
-import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectCreateEdgeEvent;
+import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectSetParentEvent;
-import net.geoprism.registry.axon.event.repository.BusinessObjectAddGeoObjectEvent;
+import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEvent;
-import net.geoprism.registry.axon.event.repository.BusinessObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectCreateParentEvent;
@@ -60,6 +58,7 @@ import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.BusinessObject;
+import net.geoprism.registry.model.EdgeType;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -70,9 +69,9 @@ import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
+import net.geoprism.registry.service.business.EdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GPRBusinessTypeBusinessService;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
-import net.geoprism.registry.service.business.GraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 
@@ -100,7 +99,7 @@ public class RepositoryProjection
   private BusinessObjectBusinessServiceIF   bObjectService;
 
   @Autowired
-  private GraphTypeBusinessServiceIF        graphTypeService;
+  private EdgeTypeBusinessServiceIF         graphTypeService;
 
   private final GeoObjectCache              goCache;
 
@@ -276,7 +275,7 @@ public class RepositoryProjection
 
   @EventHandler
   @Transaction
-  public void handleCreateEdge(GeoObjectApplyEdgeEvent event)
+  public void handleGeoObjectApplyEdge(GeoObjectApplyEdgeEvent event)
   {
     final GraphType graphType = this.graphTypeService.getByCode(event.getEdgeType(), event.getEdgeTypeCode());
     DataSource dataSource = this.sourceService.getByCode(event.getDataSource()).orElse(null);
@@ -314,14 +313,14 @@ public class RepositoryProjection
     }
     else
     {
-      Object childRid = getOrFetchGeoObjectRid(event.getSourceCode(), event.getSourceType());
-      Object parentRid = getOrFetchGeoObjectRid(event.getTargetCode(), event.getTargetType());
+      Object sourceRid = getOrFetchGeoObjectRid(event.getSourceCode(), event.getSourceType());
+      Object targetRid = getOrFetchGeoObjectRid(event.getTargetCode(), event.getTargetType());
 
       if (ImportStrategy.NEW_AND_UPDATE.equals(event.getStrategy()) && ImportStrategy.UPDATE_ONLY.equals(event.getStrategy()))
       {
         // The only existing UNIQUE indexes that exist with edges are by uid. So
         // we have to look this up if we want an 'update' mechanism.
-        EdgeObject edge = findEdge(childRid, parentRid, graphType, null, null);
+        EdgeObject edge = findEdge(targetRid, sourceRid, graphType, null, null);
 
         if (edge != null)
         {
@@ -331,16 +330,16 @@ public class RepositoryProjection
         }
         else if (ImportStrategy.UPDATE_ONLY.equals(event.getStrategy()))
         {
-          throw new DataNotFoundException("Could not find an edge from " + childRid + " to " + parentRid);
+          throw new DataNotFoundException("Could not find an edge from " + targetRid + " to " + sourceRid);
         }
         else
         {
-          this.newEdge(childRid, parentRid, graphType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), dataSource, true);
+          this.newEdge(sourceRid, targetRid, graphType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), dataSource, true);
         }
       }
       else
       {
-        this.newEdge(childRid, parentRid, graphType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), dataSource, true);
+        this.newEdge(sourceRid, targetRid, graphType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), dataSource, true);
       }
 
     }
@@ -413,14 +412,14 @@ public class RepositoryProjection
 
     if (!GeoprismProperties.getOrigin().equals(graphType.getOrigin()))
     {
-      Object childRid = getOrFetchGeoObjectRid(event.getSourceCode(), event.getSourceType());
-      Object parentRid = getOrFetchGeoObjectRid(event.getTargetCode(), event.getTargetType());
+      Object sourceRid = getOrFetchGeoObjectRid(event.getSourceCode(), event.getSourceType());
+      Object targetRid = getOrFetchGeoObjectRid(event.getTargetCode(), event.getTargetType());
       DataSource dataSource = this.sourceService.getByCode(event.getDataSource()).orElse(null);
 
       // Ensure the edge doesn't already exist
       if (!this.gObjectService.exists(graphType, event.getEdgeUid()))
       {
-        this.newEdge(childRid, parentRid, graphType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), dataSource, false);
+        this.newEdge(targetRid, sourceRid, graphType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), dataSource, false);
       }
     }
     else
@@ -465,7 +464,7 @@ public class RepositoryProjection
     });
   }
 
-  private void newEdge(Object childRid, Object parentRid, GraphType type, Date startDate, Date endDate, String uid, DataSource dataSource, Boolean validateOrigin)
+  private void newEdge(Object sourceRid, Object targetRid, EdgeType type, Date startDate, Date endDate, String uid, DataSource dataSource, Boolean validateOrigin)
   {
     if (validateOrigin && !type.getOrigin().equals(GeoprismProperties.getOrigin()))
     {
@@ -475,7 +474,7 @@ public class RepositoryProjection
     String clazz = type.getMdEdgeDAO().getDBClassName();
 
     StringBuilder statement = new StringBuilder();
-    statement.append("CREATE EDGE " + clazz + " FROM :childRid TO :parentRid");
+    statement.append("CREATE EDGE " + clazz + " FROM :sourceRid TO :targetRid");
     statement.append(" SET startDate=:startDate, endDate=:endDate, oid=:oid, uid=:uid");
 
     if (dataSource != null)
@@ -488,8 +487,8 @@ public class RepositoryProjection
 
     Map<String, Object> parameters = new HashMap<String, Object>();
     parameters.put("oid", IDGenerator.nextID());
-    parameters.put("childRid", childRid);
-    parameters.put("parentRid", parentRid);
+    parameters.put("sourceRid", sourceRid);
+    parameters.put("targetRid", targetRid);
     parameters.put("startDate", startDate);
     parameters.put("endDate", endDate);
     parameters.put("uid", uid);
@@ -519,39 +518,34 @@ public class RepositoryProjection
 
   @EventHandler
   @Transaction
-  public void handleAddGeoObjectEdge(BusinessObjectAddGeoObjectEvent event)
-  {
-    BusinessType type = this.bTypeService.getByCode(event.getType());
-    BusinessObject object = this.bObjectService.getByCode(type, event.getCode());
-    ServerGeoObjectIF geoObject = this.gObjectService.getGeoObjectByCode(event.getGeoObjectCode(), event.getGeoObjectType());
-
-    BusinessEdgeType edgeType = this.edgeService.getByCodeOrThrow(event.getEdgeType());
-
-    DataSource source = this.sourceService.getByCode(event.getDataSource()).orElse(null);
-
-    this.bObjectService.addGeoObject(object, edgeType, geoObject, event.getDirection(), event.getEdgeUid(), source, true);
-  }
-
-  @EventHandler
-  @Transaction
-  public void handleCreateEdge(BusinessObjectCreateEdgeEvent event)
+  public void handleBusinessObjectApplyEdge(BusinessObjectApplyEdgeEvent event)
   {
     BusinessEdgeType edgeType = this.edgeService.getByCodeOrThrow(event.getEdgeTypeCode());
     DataSource dataSource = this.sourceService.getByCode(event.getDataSource()).orElse(null);
 
     if (event.getValidate())
     {
-      BusinessObject source = boCache.getOrFetchByCode(event.getSourceCode(), event.getSourceType());
-      BusinessObject target = boCache.getOrFetchByCode(event.getTargetCode(), event.getTargetType());
+      VertexComponent source = edgeType.getIsParentGeoObject() ? //
+          goCache.getOrFetchByCode(event.getSourceCode(), event.getSourceType()) : //
+          boCache.getOrFetchByCode(event.getSourceCode(), event.getSourceType());
 
-      this.bObjectService.addChild(source, edgeType, target, event.getEdgeUid(), dataSource);
+      VertexComponent target = edgeType.getIsChildGeoObject() ? //
+          goCache.getOrFetchByCode(event.getTargetCode(), event.getTargetType()) : //
+          boCache.getOrFetchByCode(event.getTargetCode(), event.getTargetType());
+
+      this.bObjectService.addChild(source, edgeType, target, event.getEdgeUid(), event.getStartDate(), event.getEndDate(), dataSource);
     }
     else
     {
-      Object parentRid = getOrFetchBusinessRid(event.getSourceCode(), event.getSourceType());
-      Object childRid = getOrFetchBusinessRid(event.getTargetCode(), event.getTargetType());
+      Object sourceRid = edgeType.getIsParentGeoObject() ? //
+          getOrFetchGeoObjectRid(event.getSourceCode(), event.getSourceType()) : //
+          getOrFetchBusinessRid(event.getSourceCode(), event.getSourceType());
 
-      this.newEdge(childRid, parentRid, event.getEdgeUid(), edgeType, dataSource, true);
+      Object targetRid = edgeType.getIsChildGeoObject() ? //
+          getOrFetchGeoObjectRid(event.getTargetCode(), event.getTargetType()) : //
+          getOrFetchBusinessRid(event.getTargetCode(), event.getTargetType());
+
+      this.newEdge(sourceRid, targetRid, edgeType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), dataSource, true);
     }
   }
 
@@ -584,41 +578,25 @@ public class RepositoryProjection
 
   @EventHandler
   @Transaction
-  public void handleRemoteAddGeoObjectEdge(RemoteBusinessObjectAddGeoObjectEvent event)
+  public void handleRemoteBusinessObjectApplyEdge(RemoteBusinessObjectApplyEdgeEvent event)
   {
     BusinessEdgeType edgeType = this.edgeService.getByCodeOrThrow(event.getEdgeType());
 
     if (!GeoprismProperties.getOrigin().equals(edgeType.getOrigin()))
     {
-      BusinessType type = this.bTypeService.getByCode(event.getType());
-      BusinessObject object = this.bObjectService.getByCode(type, event.getCode());
-      ServerGeoObjectIF geoObject = this.gObjectService.getGeoObjectByCode(event.getGeoObjectCode(), event.getGeoObjectType());
+      Object sourceRid = edgeType.getIsParentGeoObject() ? //
+          getOrFetchGeoObjectRid(event.getSourceCode(), event.getSourceType()) : //
+          getOrFetchBusinessRid(event.getSourceCode(), event.getSourceType());
 
-      DataSource source = this.sourceService.getByCode(event.getDataSource()).orElse(null);
+      Object targetRid = edgeType.getIsChildGeoObject() ? //
+          getOrFetchGeoObjectRid(event.getTargetCode(), event.getTargetType()) : //
+          getOrFetchBusinessRid(event.getTargetCode(), event.getTargetType());
 
-      this.bObjectService.addGeoObject(object, edgeType, geoObject, event.getDirection(), event.getEdgeUid(), source, false);
-    }
-    else
-    {
-      logger.info("Skipping remote add geo object: [" + event.getEdgeType() + "][" + event.getType() + "][" + event.getCode() + "]");
-    }
-  }
-
-  @EventHandler
-  @Transaction
-  public void handleRemoteCreateEdge(RemoteBusinessObjectCreateEdgeEvent event)
-  {
-    BusinessEdgeType edgeType = this.edgeService.getByCodeOrThrow(event.getEdgeType());
-
-    if (!GeoprismProperties.getOrigin().equals(edgeType.getOrigin()))
-    {
-      Object parentRid = getOrFetchBusinessRid(event.getSourceCode(), event.getSourceType());
-      Object childRid = getOrFetchBusinessRid(event.getTargetCode(), event.getTargetType());
       DataSource dataSource = this.sourceService.getByCode(event.getDataSource()).orElse(null);
 
       if (!this.bObjectService.exists(edgeType, event.getEdgeUid()))
       {
-        this.newEdge(childRid, parentRid, event.getEdgeUid(), edgeType, dataSource, false);
+        this.newEdge(sourceRid, targetRid, edgeType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), dataSource, false);
       }
     }
     else
@@ -652,40 +630,15 @@ public class RepositoryProjection
     });
   }
 
-  private void newEdge(Object childRid, Object parentRid, String uid, BusinessEdgeType type, DataSource dataSource, boolean validateOrigin)
-  {
-    if (validateOrigin && !type.getOrigin().equals(GeoprismProperties.getOrigin()))
-    {
-      throw new OriginException();
-    }
-
-    String clazz = type.getMdEdgeDAO().getDBClassName();
-
-    String statement = "CREATE EDGE " + clazz + " FROM :parentRid TO :childRid";
-    statement += " SET oid=:oid, uid=:uid, dataSource=:dataSource";
-
-    GraphDBService service = GraphDBService.getInstance();
-    GraphRequest request = service.getGraphDBRequest();
-
-    Map<String, Object> parameters = new HashMap<String, Object>();
-    parameters.put("oid", IDGenerator.nextID());
-    parameters.put("uid", uid);
-    parameters.put("parentRid", parentRid);
-    parameters.put("childRid", childRid);
-    parameters.put("dataSource", dataSource.getRID());
-
-    service.command(request, statement, parameters);
-  }
-
-  public static EdgeObject findEdge(Object childRid, Object parentRid, GraphType type, Date startDate, Date endDate)
+  public static EdgeObject findEdge(Object targetRid, Object sourceRid, GraphType type, Date startDate, Date endDate)
   {
     String clazz = type.getMdEdgeDAO().getDBClassName();
 
-    String statement = "SELECT FROM " + clazz + " WHERE out = :childRid AND in = :parentRid";
+    String statement = "SELECT FROM " + clazz + " WHERE out = :sourceRid AND in = :targetRid";
 
     Map<String, Object> parameters = new HashMap<String, Object>();
-    parameters.put("childRid", childRid);
-    parameters.put("parentRid", parentRid);
+    parameters.put("sourceRid", sourceRid);
+    parameters.put("targetRid", targetRid);
 
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement.toString(), parameters);
 
@@ -755,22 +708,26 @@ public class RepositoryProjection
 
     String clazz = edgeType.getMdEdgeDAO().getDBClassName();
 
-    Object parentRid = parentType.isGeoObjectType() ? //
+    Object sourceRid = parentType.isGeoObjectType() ? //
         this.gObjectService.getGeoObjectByCode(event.getSourceCode(), event.getSourceType()).getVertex().getRID() : //
         this.bObjectService.getByCode(this.bTypeService.getByCode(event.getSourceType()), event.getSourceCode()).getVertex().getRID();
 
-    Object childRid = childType.isGeoObjectType() ? //
+    Object targetRid = childType.isGeoObjectType() ? //
         this.gObjectService.getGeoObjectByCode(event.getTargetCode(), event.getTargetType()).getVertex().getRID() : //
         this.bObjectService.getByCode(this.bTypeService.getByCode(event.getTargetType()), event.getTargetCode()).getVertex().getRID();
 
     StringBuilder statement = new StringBuilder();
     statement.append("DELETE EDGE " + clazz);
-    statement.append(" FROM :parentRid");
-    statement.append(" TO :childRid");
+    statement.append(" FROM :sourceRid");
+    statement.append(" TO :targetRid");
+    statement.append(" WHERE :startDate = startDate");
+    statement.append(" AND :endDate = endDate");
 
     Map<String, Object> parameters = new HashMap<String, Object>();
-    parameters.put("parentRid", parentRid);
-    parameters.put("childRid", childRid);
+    parameters.put("sourceRid", sourceRid);
+    parameters.put("targetRid", targetRid);
+    parameters.put("startDate", event.getStartDate());
+    parameters.put("endDate", event.getEndDate());
 
     GraphDBService service = GraphDBService.getInstance();
     GraphRequest request = service.getGraphDBRequest();

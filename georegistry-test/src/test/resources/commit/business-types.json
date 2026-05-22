@@ -3,7 +3,7 @@
     "code": "TEST_BUSINESS",
     "orgCode": "USATestDataPPP",
     "origin": "terraframe.com",
-    "sequence": 0,
+    "sequence": 1,
     "labelAttribute": "",
     "displayLabel": {
       "localizedValue": "Test Business",
@@ -15,6 +15,32 @@
       ]
     },
     "attributes": [
+      {
+        "code": "testBoolean",
+        "type": "boolean",
+        "label": {
+          "localizedValue": "Test Boolean",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Test Boolean"
+            }
+          ]
+        },
+        "description": {
+          "localizedValue": "Test Boolean",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Test Boolean"
+            }
+          ]
+        },
+        "isDefault": false,
+        "required": false,
+        "unique": false,
+        "isChangeOverTime": true
+      },
       {
         "code": "code",
         "type": "character",

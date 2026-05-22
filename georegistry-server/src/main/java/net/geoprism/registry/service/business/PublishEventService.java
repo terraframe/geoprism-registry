@@ -26,16 +26,14 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import net.geoprism.registry.Commit;
 import net.geoprism.registry.Publish;
 import net.geoprism.registry.axon.config.RegistryEventStore;
-import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectAddGeoObjectEvent;
-import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectCreateEdgeEvent;
+import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectSetParentEvent;
-import net.geoprism.registry.axon.event.repository.BusinessObjectAddGeoObjectEvent;
+import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEvent;
-import net.geoprism.registry.axon.event.repository.BusinessObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.event.repository.EventPhase;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEvent;
@@ -45,7 +43,6 @@ import net.geoprism.registry.axon.event.repository.GeoObjectUpdateParentEvent;
 import net.geoprism.registry.axon.event.repository.InMemoryEventMerger;
 import net.geoprism.registry.axon.event.repository.RepositoryEvent;
 import net.geoprism.registry.event.EmptyPublishException;
-import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.view.PublishDTO;
 
@@ -53,25 +50,25 @@ import net.geoprism.registry.view.PublishDTO;
 public class PublishEventService
 {
   @Autowired
-  private RegistryEventStore                store;
+  private RegistryEventStore             store;
 
   @Autowired
-  private EventGateway                      gateway;
+  private EventGateway                   gateway;
 
   @Autowired
-  private PublishBusinessServiceIF          publishService;
+  private PublishBusinessServiceIF       publishService;
 
   @Autowired
-  private DataSourceBusinessServiceIF       sourceService;
+  private DataSourceBusinessServiceIF    sourceService;
 
   @Autowired
-  private GeoObjectBusinessServiceIF        service;
+  private GeoObjectBusinessServiceIF     service;
 
   @Autowired
-  private CommitBusinessServiceIF           commitService;
+  private CommitBusinessServiceIF        commitService;
 
   @Autowired
-  private HierarchyTypeBusinessServiceIF    hiearchyService;
+  private HierarchyTypeBusinessServiceIF hiearchyService;
 
   @Transaction
   public Publish publish(PublishDTO configuration) throws InterruptedException
@@ -267,41 +264,24 @@ public class PublishEventService
 
       return new RemoteBusinessObjectEvent(commit.getUid(), code, type, oJson);
     }
-    else if (event instanceof BusinessObjectAddGeoObjectEvent)
+    else if (event instanceof BusinessObjectApplyEdgeEvent)
     {
-      String code = ( (BusinessObjectAddGeoObjectEvent) event ).getCode();
-      String type = ( (BusinessObjectAddGeoObjectEvent) event ).getType();
-      String edgeUid = ( (BusinessObjectAddGeoObjectEvent) event ).getEdgeUid();
-      String edgeType = ( (BusinessObjectAddGeoObjectEvent) event ).getEdgeType();
-      String geoObjectType = ( (BusinessObjectAddGeoObjectEvent) event ).getGeoObjectType();
-      String geoObjectCode = ( (BusinessObjectAddGeoObjectEvent) event ).getGeoObjectCode();
-      EdgeDirection direction = ( (BusinessObjectAddGeoObjectEvent) event ).getDirection();
-      String dataSource = ( (BusinessObjectAddGeoObjectEvent) event ).getDataSource();
+      String sourceCode = ( (BusinessObjectApplyEdgeEvent) event ).getSourceCode();
+      String sourceType = ( (BusinessObjectApplyEdgeEvent) event ).getSourceType();
+      String edgeUid = ( (BusinessObjectApplyEdgeEvent) event ).getEdgeUid();
+      String edgeType = ( (BusinessObjectApplyEdgeEvent) event ).getEdgeTypeCode();
+      String targetCode = ( (BusinessObjectApplyEdgeEvent) event ).getTargetCode();
+      String targetType = ( (BusinessObjectApplyEdgeEvent) event ).getTargetType();
+      Date startDate = ( (BusinessObjectApplyEdgeEvent) event ).getStartDate();
+      Date endDate = ( (BusinessObjectApplyEdgeEvent) event ).getEndDate();
+      String dataSource = ( (BusinessObjectApplyEdgeEvent) event ).getDataSource();
 
       if (!StringUtils.isBlank(dataSource))
       {
         sources.add(dataSource);
       }
 
-      return new RemoteBusinessObjectAddGeoObjectEvent(commit.getUid(), code, type, edgeUid, edgeType, geoObjectType, geoObjectCode, direction, dataSource);
-
-    }
-    else if (event instanceof BusinessObjectCreateEdgeEvent)
-    {
-      String sourceCode = ( (BusinessObjectCreateEdgeEvent) event ).getSourceCode();
-      String sourceType = ( (BusinessObjectCreateEdgeEvent) event ).getSourceType();
-      String edgeUid = ( (BusinessObjectCreateEdgeEvent) event ).getEdgeUid();
-      String edgeType = ( (BusinessObjectCreateEdgeEvent) event ).getEdgeTypeCode();
-      String targetCode = ( (BusinessObjectCreateEdgeEvent) event ).getTargetCode();
-      String targetType = ( (BusinessObjectCreateEdgeEvent) event ).getTargetType();
-      String dataSource = ( (BusinessObjectCreateEdgeEvent) event ).getDataSource();
-
-      if (!StringUtils.isBlank(dataSource))
-      {
-        sources.add(dataSource);
-      }
-
-      return new RemoteBusinessObjectCreateEdgeEvent(commit.getUid(), sourceCode, sourceType, edgeUid, edgeType, targetCode, targetType, dataSource);
+      return new RemoteBusinessObjectApplyEdgeEvent(commit.getUid(), sourceCode, sourceType, edgeUid, edgeType, targetCode, targetType, startDate, endDate, dataSource);
     }
 
     throw new UnsupportedOperationException("Events of type [" + event.getClass().getName() + "] do not support being published");

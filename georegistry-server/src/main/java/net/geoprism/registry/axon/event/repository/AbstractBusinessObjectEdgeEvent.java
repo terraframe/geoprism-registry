@@ -1,5 +1,7 @@
 package net.geoprism.registry.axon.event.repository;
 
+import java.util.Date;
+
 public abstract class AbstractBusinessObjectEdgeEvent extends AbstractRepositoryEvent
 {
   public AbstractBusinessObjectEdgeEvent()
@@ -22,4 +24,7 @@ public abstract class AbstractBusinessObjectEdgeEvent extends AbstractRepository
 
   public abstract String getEdgeTypeCode();
 
+  public abstract Date getStartDate();
+
+  public abstract Date getEndDate();
 }

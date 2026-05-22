@@ -41,7 +41,7 @@ import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerParentGraphNode;
 import net.geoprism.registry.model.ServerParentTreeNode;
-import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.service.business.BackupAndRestoreBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
@@ -194,9 +194,9 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
     boChild.setCode("BoChild");
     this.bObjectService.apply(boChild);
 
-    this.bObjectService.addChild(boParent, bEdgeType, boChild, UUID.randomUUID().toString(), USATestData.SOURCE.getDataSource());
+    this.bObjectService.addChild(boParent, bEdgeType, boChild, UUID.randomUUID().toString(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.SOURCE.getDataSource());
 
-    this.bObjectService.addGeoObject(boChild, bGeoEdgeType, USATestData.COLORADO.getServerObject(), EdgeDirection.PARENT, UUID.randomUUID().toString(), USATestData.SOURCE.getDataSource(), false);
+    this.bObjectService.addParent(boChild, bGeoEdgeType, USATestData.COLORADO.getServerObject(), UUID.randomUUID().toString(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.SOURCE.getDataSource());
 
     TransitionEvent event = new TransitionEvent();
 
@@ -308,13 +308,13 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
           Assert.assertNotNull(boChild);
 
           // Validate Business Edges
-          List<BusinessObject> children = this.bObjectService.getChildren(boParent, bEdgeType);
+           List<VertexComponent> children = this.bObjectService.getChildren(boParent, bEdgeType, USATestData.DEFAULT_OVER_TIME_DATE);
 
           Assert.assertEquals(1, children.size());
           Assert.assertEquals(boChild.getCode(), children.get(0).getCode());
 
           // Validate Business-GeoObject edges
-          List<VertexServerGeoObject> geoObjects = this.bObjectService.getGeoObjects(boChild, bGeoEdgeType, EdgeDirection.PARENT);
+          List<VertexComponent> geoObjects = this.bObjectService.getParents(boChild, bGeoEdgeType, USATestData.DEFAULT_OVER_TIME_DATE);
 
           Assert.assertEquals(1, geoObjects.size());
 

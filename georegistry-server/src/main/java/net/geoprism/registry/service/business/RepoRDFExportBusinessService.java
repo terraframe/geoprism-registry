@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service.business;
 
@@ -196,13 +196,13 @@ public class RepoRDFExportBusinessService
   private BusinessTypeBusinessServiceIF     bTypeService;
 
   @Autowired
-  private GraphTypeBusinessServiceIF        graphTypeService;
+  private EdgeTypeBusinessServiceIF         graphTypeService;
 
   public void export(ImportHistory history, RDFExport config, OutputStream os)
   {
     State state = new State();
     state.config = config;
-    state.graphTypes = config.getGraphTypes().stream().map(ref -> graphTypeService.resolve(ref)).toList();
+    state.graphTypes = config.getGraphTypes().stream().map(ref -> (GraphType) graphTypeService.resolve(ref)).toList();
     state.gots = config.getTypeCodes().stream().map(code -> ServerGeoObjectType.get(code)).toList();
     state.businessTypes = config.getBusinessTypeCodes().stream().map(code -> this.bTypeService.getByCode(code)).toList();
     state.businessEdgeTypes = config.getBusinessEdgeCodes().stream().map(code -> this.bEdgeService.getByCodeOrThrow(code)).toList();

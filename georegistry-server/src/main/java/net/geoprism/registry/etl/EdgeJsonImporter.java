@@ -43,30 +43,31 @@ import net.geoprism.registry.axon.projection.RepositoryProjection;
 import net.geoprism.registry.cache.Cache;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.DataSource;
+import net.geoprism.registry.model.EdgeType;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.service.business.GraphTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.EdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 
 public class EdgeJsonImporter
 {
-  private static final Logger        logger = LoggerFactory.getLogger(EdgeJsonImporter.class);
+  private static final Logger       logger = LoggerFactory.getLogger(EdgeJsonImporter.class);
 
-  private ApplicationResource        resource;
+  private ApplicationResource       resource;
 
-  private Date                       startDate;
+  private Date                      startDate;
 
-  private Date                       endDate;
+  private Date                      endDate;
 
-  private DataSource                 source;
+  private DataSource                source;
 
-  private boolean                    validate;
+  private boolean                   validate;
 
-  private EventGateway               gateway;
+  private EventGateway              gateway;
 
-  private RepositoryProjection       projection;
+  private RepositoryProjection      projection;
 
-  private GraphTypeBusinessServiceIF service;
+  private EdgeTypeBusinessServiceIF service;
 
   public EdgeJsonImporter(ApplicationResource resource, Date startDate, Date endDate, DataSource source, boolean validate)
   {
@@ -78,7 +79,7 @@ public class EdgeJsonImporter
 
     this.gateway = ServiceFactory.getBean(EventGateway.class);
     this.projection = ServiceFactory.getBean(RepositoryProjection.class);
-    this.service = ServiceFactory.getBean(GraphTypeBusinessServiceIF.class);
+    this.service = ServiceFactory.getBean(EdgeTypeBusinessServiceIF.class);
   }
 
   public void importData() throws JsonSyntaxException, IOException
@@ -97,7 +98,7 @@ public class EdgeJsonImporter
         final String code = joGraphType.get("code").getAsString();
 
         final GraphType graphType = this.service.getByCode(graphTypeClass, code);
-        String edgeType = GraphType.getTypeCode(graphType);
+        String edgeType = EdgeType.getTypeCode(graphType);
 
         JsonArray edges = joGraphType.get("edges").getAsJsonArray();
 

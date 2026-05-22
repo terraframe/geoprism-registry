@@ -8,7 +8,6 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
-import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.junit.After;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -214,8 +213,8 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
   {
     BusinessObjectEventBuilder builder = new BusinessObjectEventBuilder(bObjectService);
     builder.setObject(cObject);
-    builder.addParent(pObject, bEdgeType, USATestData.SOURCE.getDataSource(), false);
-    builder.addGeoObject(bGeoEdgeType, USATestData.COLORADO.getServerObject(), EdgeDirection.PARENT, USATestData.SOURCE.getDataSource());
+    builder.addParent(pObject, bEdgeType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getDataSource(), false);
+    builder.addParent(USATestData.COLORADO.getServerObject(), bGeoEdgeType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getDataSource(), false);
 
     builder.build().stream().forEach(event -> {
       gateway.publish(GenericEventMessage.asEventMessage(event));

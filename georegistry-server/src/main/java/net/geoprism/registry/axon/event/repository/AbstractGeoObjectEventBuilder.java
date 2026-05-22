@@ -12,6 +12,7 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.graph.ExternalSystem;
+import net.geoprism.registry.model.EdgeType;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -184,7 +185,7 @@ public abstract class AbstractGeoObjectEventBuilder<K>
 
   public void addEdge(ServerGeoObjectIF target, GraphType graphType, Date startDate, Date endDate, String edgeUuid, DataSource source, ImportStrategy strategy, Boolean validate)
   {
-    String typeCode = GraphType.getTypeCode(graphType);
+    String typeCode = EdgeType.getTypeCode(graphType);
     String code = source != null ? source.getCode() : null;
 
     this.events.add(new GeoObjectApplyEdgeEvent(this.getCode(), this.getType(), typeCode, graphType.getCode(), target.getCode(), target.getType().getCode(), startDate, endDate, code, strategy, validate));

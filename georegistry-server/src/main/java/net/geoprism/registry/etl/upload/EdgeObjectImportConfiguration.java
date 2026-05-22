@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -50,9 +50,11 @@ import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.Location;
 import net.geoprism.registry.jobs.ImportHistory;
+import net.geoprism.registry.model.EdgeType;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
-import net.geoprism.registry.service.business.GraphTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.EdgeTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.EdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 
 public class EdgeObjectImportConfiguration extends ImportConfiguration
@@ -133,7 +135,7 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
 
   private DataSource                                   dataSource;
 
-  private GraphType                                    graphType;
+  private EdgeType                                     graphType;
 
   private Date                                         startDate;
 
@@ -145,12 +147,12 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
 
   private DataSourceBusinessServiceIF                  sourceService;
 
-  private GraphTypeBusinessServiceIF                   service;
+  private EdgeTypeBusinessServiceIF                    service;
 
   public EdgeObjectImportConfiguration()
   {
     this.sourceService = ServiceFactory.getBean(DataSourceBusinessServiceIF.class);
-    this.service = ServiceFactory.getBean(GraphTypeBusinessServiceIF.class);
+    this.service = ServiceFactory.getBean(EdgeTypeBusinessServiceIF.class);
 
     this.functions = new HashMap<String, ShapefileFunction>();
     this.locations = new LinkedList<Location>();
@@ -277,7 +279,7 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
     this.validate = validate;
   }
 
-  public GraphType getGraphType()
+  public EdgeType getGraphType()
   {
     return graphType;
   }
@@ -405,7 +407,7 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
     if (this.getGraphType() != null)
     {
       config.put(EdgeObjectImportConfiguration.GRAPH_TYPE_CODE, this.getGraphType().getCode());
-      config.put(EdgeObjectImportConfiguration.GRAPH_TYPE_CLASS, GraphType.getTypeCode(this.getGraphType()));
+      config.put(EdgeObjectImportConfiguration.GRAPH_TYPE_CLASS, EdgeType.getTypeCode(this.getGraphType()));
     }
 
     if (this.getStartDate() != null)
