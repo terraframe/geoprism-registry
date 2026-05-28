@@ -29,7 +29,7 @@ import { PageResult } from "@shared/model/core";
 
 import { environment } from 'src/environments/environment';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ClassificationService {
 
     // eslint-disable-next-line no-useless-constructor

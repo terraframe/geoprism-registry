@@ -27,7 +27,7 @@ import { environment } from 'src/environments/environment';
 import { firstValueFrom } from "rxjs";
 import { Commit, Publish, PublishEvents } from "@registry/model/publish";
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class PublishService {
 
     // eslint-disable-next-line no-useless-constructor

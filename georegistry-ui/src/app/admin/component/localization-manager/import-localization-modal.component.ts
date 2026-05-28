@@ -19,7 +19,7 @@
 
 import { Component, ViewChild, ElementRef } from "@angular/core";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
-import { FileUploader, FileUploaderOptions } from "ng2-file-upload";
+import { FileUploader, FileUploaderOptions, FileUploadModule } from "ng2-file-upload";
 
 import { ErrorHandler } from "@shared/component";
 import { LocalizationService, EventService } from "@shared/service";
@@ -27,11 +27,16 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { LocalizationFeedbackModalComponent } from "./localization-feedback-modal.component";
 
 import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { FormsModule } from "@angular/forms";
+import { LoadingBarComponent } from "../../../shared/component/loading-bar/loading-bar.component";
 
 @Component({
     selector: "import-localization-modal",
     templateUrl: "./import-localization-modal.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [LoadingBarComponent, FormsModule, LocalizeComponent, FileUploadModule]
 })
 export class ImportLocalizationModalComponent {
 
@@ -77,7 +82,10 @@ export class ImportLocalizationModalComponent {
 
             let errMsg = error.localizedMessage.replaceAll("\\n", newline);
 
-            let bsModalRef = this.modalService.show(LocalizationFeedbackModalComponent, { backdrop: true, class: "error-white-space-pre" });
+            let bsModalRef = this.modalService.show(LocalizationFeedbackModalComponent, {
+                animated: false, backdrop: true,
+                class: "error-white-space-pre"
+            });
 
             bsModalRef.content.message = errMsg;
 

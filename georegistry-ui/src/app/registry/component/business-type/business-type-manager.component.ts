@@ -18,7 +18,7 @@
 ///
 
 import { Component, OnInit } from "@angular/core";
-import { Router } from "@angular/router";
+import { Router, RouterLinkActive, RouterLink } from "@angular/router";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import { HttpErrorResponse } from "@angular/common/http";
 
@@ -31,11 +31,17 @@ import { ManageBusinessTypeModalComponent } from "./modals/manage-business-type-
 import { OrganizationGroup } from "@shared/model/core";
 import { ImportHistoryModalComponent } from "../import-history/modals/import-history-modal.component";
 import { RegistryService } from "@registry/service";
+import { NgIf, NgFor } from "@angular/common";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
+import { ModalTypes } from "@shared/model/modal";
 
 @Component({
     selector: "business-type-manager",
     templateUrl: "./business-type-manager.component.html",
-    styleUrls: ["./business-type-manager.css"]
+    styleUrls: ["./business-type-manager.css"],
+    standalone: true,
+    imports: [PageContainerComponent, LocalizeComponent, NgIf, NgFor, RouterLinkActive, RouterLink]
 })
 export class BusinessTypeManagerComponent implements OnInit {
 
@@ -65,9 +71,7 @@ export class BusinessTypeManagerComponent implements OnInit {
     onCreate(org: OrganizationGroup<BusinessType>): void {
 
         this.bsModalRef = this.modalService.show(CreateBusinessTypeModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         this.bsModalRef.content.init(org);
         this.bsModalRef.content.onBusinessTypeChange.subscribe((type: BusinessType) => {
@@ -78,8 +82,7 @@ export class BusinessTypeManagerComponent implements OnInit {
     onView(type: BusinessType): void {
         this.service.get(type.oid).then(t => {
             this.bsModalRef = this.modalService.show(ManageBusinessTypeModalComponent, {
-                animated: true,
-                backdrop: true,
+                animated: false, backdrop: true,
                 ignoreBackdropClick: true
             });
             this.bsModalRef.content.init(t, true);
@@ -91,8 +94,7 @@ export class BusinessTypeManagerComponent implements OnInit {
     onEdit(org: OrganizationGroup<BusinessType>, type: BusinessType): void {
         this.service.edit(type.oid).then(t => {
             this.bsModalRef = this.modalService.show(ManageBusinessTypeModalComponent, {
-                animated: true,
-                backdrop: true,
+                animated: false, backdrop: true,
                 ignoreBackdropClick: true
             });
             this.bsModalRef.content.init(t, false);
@@ -111,13 +113,11 @@ export class BusinessTypeManagerComponent implements OnInit {
 
     onDelete(org: OrganizationGroup<BusinessType>, type: BusinessType): void {
         this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " [" + type.displayLabel.localizedValue + "]";
         this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
-        this.bsModalRef.content.type = "danger";
+        this.bsModalRef.content.type =  ModalTypes.danger;
 
         this.bsModalRef.content.onConfirm.subscribe(data => {
             this.service.remove(type).then(() => {
@@ -133,8 +133,7 @@ export class BusinessTypeManagerComponent implements OnInit {
     onImportHistory(type: BusinessType): void {
         this.registryService.getImportHistory('BUSINESS_OBJECT', type.code).then(histories => {
             this.bsModalRef = this.modalService.show(ImportHistoryModalComponent, {
-                animated: true,
-                backdrop: true,
+                animated: false, backdrop: true,
                 ignoreBackdropClick: true
             });
             this.bsModalRef.content.init(type.displayLabel, histories);

@@ -17,9 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { NgModule } from "@angular/core";
-import { LocationStrategy, HashLocationStrategy } from "@angular/common";
-import { Routes, RouterModule } from "@angular/router";
+import { Routes } from "@angular/router";
 
 import { GeoOntologyComponent } from "./component/geo-ontology/geo-ontology.component";
 import { SubmitChangeRequestComponent } from "./component/submit-change-request/submit-change-request.component";
@@ -44,12 +42,11 @@ import { BusinessTableComponent } from "./component/business-table/business-tabl
 import { ClassificationTypeManagerComponent } from "./component/classification-type/classification-type-manager.component";
 import { LabeledPropertyGraphTypeManagerComponent } from "./component/labeled-property-graph-type/labeled-property-graph-type-manager.component";
 import { SourceManagerComponent } from "./component/source/source-manager.component";
-import { RDFExportComponent } from "./component/data-export/rdf-export.component";
 import { EdgeImporterComponent } from "./component/edge-importer/edge-importer.component";
 import { PublishManagerComponent } from "./component/publish-events/publish-manager.component";
 import { RollbackCheckpointManagerComponent } from "./component/rollback-checkpoint/rollback-checkpoint-manager.component";
 
-const routes: Routes = [
+export const routes: Routes = [
     {
         path: "",
         component: GeoOntologyComponent,
@@ -182,12 +179,3 @@ const routes: Routes = [
     }
 
 ];
-
-@NgModule({
-    imports: [RouterModule.forChild(routes)],
-    exports: [RouterModule],
-    providers: [
-        { provide: LocationStrategy, useClass: HashLocationStrategy }
-    ]
-})
-export class RegistryRoutingModule { }

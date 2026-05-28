@@ -29,7 +29,7 @@ import { EventService, ISessionListener } from "@shared/service";
  * The WebSocket functionality was found to be working for primary usecases (creating types, logging in, logging out) on 12/15/2022.
  * There does appear to be a corner-case where it stops working but I'm having trouble tracking it down.
  */
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class RegistryCacheService implements ISessionListener, OnDestroy {
 
     typeCache: GeoObjectTypeCache;

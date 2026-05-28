@@ -18,7 +18,7 @@
 ///
 
 import { Component, OnInit } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, RouterLinkActive, RouterLink } from "@angular/router";
 import { HttpErrorResponse } from "@angular/common/http";
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 
@@ -32,11 +32,20 @@ import { WebSockets } from "@shared/component/web-sockets/web-sockets";
 import { Subscription } from "rxjs";
 
 import { environment } from 'src/environments/environment';
+import { LocalizePipe } from "../../../shared/pipe/localize.pipe";
+import { NgxPaginationModule } from "ngx-pagination";
+import { StepIndicatorComponent } from "../scheduled-jobs/step-indicator.component";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { FormsModule } from "@angular/forms";
+import { NgIf, NgClass, NgFor } from "@angular/common";
+import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
 
 @Component({
     selector: "synchronization-config",
     templateUrl: "./synchronization-config.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [PageContainerComponent, NgIf, NgClass, FormsModule, LocalizeComponent, NgFor, StepIndicatorComponent, RouterLinkActive, RouterLink, NgxPaginationModule, LocalizePipe]
 })
 export class SynchronizationConfigComponent implements OnInit {
 

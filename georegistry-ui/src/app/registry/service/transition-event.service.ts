@@ -28,7 +28,7 @@ import { HistoricalRow, TransitionEvent } from "@registry/model/transition-event
 
 import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class TransitionEventService {
 
     // eslint-disable-next-line no-useless-constructor

@@ -32,11 +32,17 @@ import { IOService } from '@registry/service';
 import { ImportStrategy } from '@registry/model/constants';
 import { RegistryCacheService } from '@registry/service/registry-cache.service';
 import { GeoObjectType } from '@registry/model/registry';
+import { DateTextComponent } from '../../../shared/component/date-text/date-text.component';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+import { NgIf, NgFor } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
     selector: 'configuration-modal',
     templateUrl: './configuration-modal.component.html',
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [FormsModule, NgIf, LocalizeComponent, DateTextComponent, NgFor]
 })
 export class ConfigurationModalComponent implements OnInit {
 

@@ -27,7 +27,7 @@ import { Observable } from "rxjs";
 
 import { environment } from 'src/environments/environment';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class LabeledPropertyGraphTypeService {
 
     // eslint-disable-next-line no-useless-constructor

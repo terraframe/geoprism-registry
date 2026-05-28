@@ -22,11 +22,14 @@ import { ModalStepIndicatorService } from "@shared/service";
 
 import { Step, StepConfig } from "@shared/model/modal";
 import { Subscription } from "rxjs";
+import { NgIf, NgFor, NgClass } from "@angular/common";
 
 @Component({
     selector: "modal-step-indicator",
     templateUrl: "./modal-step-indicator.component.html",
-    styleUrls: ["./modal-step-indicator.css"]
+    styleUrls: ["./modal-step-indicator.css"],
+    standalone: true,
+    imports: [NgIf, NgFor, NgClass]
 })
 export class ModalStepIndicatorComponent {
 

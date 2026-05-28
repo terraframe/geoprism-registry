@@ -22,14 +22,18 @@ import { Classification } from "@registry/model/classification-type";
 import { ClassificationService } from "@registry/service/classification.service";
 import { LocalizedValue } from "@core/model/core";
 import { BsModalService } from "ngx-bootstrap/modal";
-import { TypeaheadMatch } from "ngx-bootstrap/typeahead";
+import { TypeaheadMatch, TypeaheadModule } from "ngx-bootstrap/typeahead";
 import { Observable, Observer, Subscription } from "rxjs";
 import { ClassificationFieldModalComponent } from "./classification-field-modal.component";
+import { NgClass } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 
 @Component({
     selector: "classification-field",
     templateUrl: "./classification-field.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [FormsModule, TypeaheadModule, NgClass]
 })
 export class ClassificationFieldComponent implements OnInit, OnDestroy {
 
@@ -94,9 +98,7 @@ export class ClassificationFieldComponent implements OnInit, OnDestroy {
 
     onViewTree(): void {
         const bsModalRef = this.modalService.show(ClassificationFieldModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         this.subscription = bsModalRef.content.init(this.classificationType, this.rootCode, this.disabled, this.value, (classification:Classification) => {
             this.text = classification.displayLabel.localizedValue;

@@ -52,7 +52,7 @@ export const SEARCH_DATASOURCE_ID = 'search';
  * Layers contain references to data sources, which are invoked when deserializing from the url param to facilitate
  * population of layer data.
  */
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class GeometryService implements OnDestroy {
 
     map: Map;

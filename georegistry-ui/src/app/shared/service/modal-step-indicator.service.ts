@@ -23,7 +23,7 @@ import { Step, StepConfig } from "@shared/model/modal";
 
 import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ModalStepIndicatorService {
 
     stepConfig: StepConfig;

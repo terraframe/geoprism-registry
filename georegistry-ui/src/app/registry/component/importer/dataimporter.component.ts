@@ -19,7 +19,7 @@
 
 import { Component, OnInit, Input, ViewChild, ViewChildren, ElementRef, QueryList, ChangeDetectorRef } from "@angular/core";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
-import { FileUploader, FileUploaderOptions } from "ng2-file-upload";
+import { FileUploader, FileUploaderOptions, FileUploadModule } from "ng2-file-upload";
 import { HttpErrorResponse } from "@angular/common/http";
 
 import { DateFieldComponent, ErrorHandler } from "@shared/component";
@@ -33,13 +33,19 @@ import { HierarchyGroupedTypeView, TypeGroupedHierachyView } from "@registry/mod
 import { environment } from "src/environments/environment";
 import { Source } from "@registry/model/source";
 import { SourceService } from "@registry/service/source.service";
+import { BooleanFieldComponent } from "../../../shared/component/form-fields/boolean-field/boolean-field.component";
+import { DateFieldComponent as DateFieldComponent_1 } from "../../../shared/component/form-fields/date-field/date-field.component";
+import { FormsModule } from "@angular/forms";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { NgIf, NgClass, NgFor } from "@angular/common";
 
 
 @Component({
-
     selector: "dataimporter",
     templateUrl: "./dataimporter.component.html",
-    styleUrls: ["./dataimporter.css"]
+    styleUrls: ["./dataimporter.css"],
+    standalone: true,
+    imports: [NgIf, NgClass, LocalizeComponent, FormsModule, NgFor, DateFieldComponent_1, BooleanFieldComponent, FileUploadModule]
 })
 export class DataImporterComponent implements OnInit {
 
@@ -291,7 +297,10 @@ export class DataImporterComponent implements OnInit {
             configuration.externalSystemId = this.externalSystemId;
             configuration.externalSystem = externalSystem;
 
-            this.bsModalRef = this.modalService.show(ImportModalComponent, { backdrop: true, ignoreBackdropClick: true });
+            this.bsModalRef = this.modalService.show(ImportModalComponent, {
+                animated: false, backdrop: true,
+                ignoreBackdropClick: true
+            });
             this.bsModalRef.content.init(configuration);
             this.bsModalRef.content.configuration = configuration;
 

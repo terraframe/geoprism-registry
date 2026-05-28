@@ -26,7 +26,7 @@ import { Profile } from "@shared/model/profile";
 
 import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ProfileService {
 
     // eslint-disable-next-line no-useless-constructor

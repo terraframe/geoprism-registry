@@ -24,7 +24,7 @@ import Utils from "@registry/utility/Utils";
 import { TimeRangeEntry } from "@shared/model/message";
 import { DateService } from "@shared/service";
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class VotService {
 
     constructor(private service: DateService) { }

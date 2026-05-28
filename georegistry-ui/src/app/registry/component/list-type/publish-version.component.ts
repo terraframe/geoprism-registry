@@ -24,11 +24,18 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { ErrorHandler } from "@shared/component";
 import { ListType, ListTypeEntry, ListTypeVersion, ListVersionMetadata } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
+import { ConvertKeyLabel } from "../../../shared/component/localize/convert-key-label.component";
+import { NgIf, NgFor, NgClass, NgTemplateOutlet } from "@angular/common";
+import { FormsModule } from "@angular/forms";
+import { BooleanFieldComponent } from "../../../shared/component/form-fields/boolean-field/boolean-field.component";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
 
 @Component({
     selector: "publish-version",
     templateUrl: "./publish-version.component.html",
-    styleUrls: ["./list-type-manager.css"]
+    styleUrls: ["./list-type-manager.css"],
+    standalone: true,
+    imports: [LocalizeComponent, BooleanFieldComponent, FormsModule, NgIf, NgFor, ConvertKeyLabel, NgClass, NgTemplateOutlet]
 })
 export class PublishVersionComponent implements OnInit {
 

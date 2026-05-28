@@ -80,7 +80,7 @@
 							</date-field>
 						</ng-container>
 						<p-autoComplete *ngSwitchCase="'AUTOCOMPLETE'" appendTo="body" [(ngModel)]="col.text"
-							[suggestions]="col.results" (completeMethod)="onComplete(col, $event)"
+							[suggestions]="col.results" (completeMethod)="onComplete(col)"
 							(onSelect)="dt.filter(col.text, col.field, 'equals')"
 							(onClear)="dt.filter(col.text, col.field, 'equals')">
 						</p-autoComplete>

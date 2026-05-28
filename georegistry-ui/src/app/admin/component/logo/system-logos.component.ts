@@ -36,12 +36,16 @@ import { ErrorHandler } from '@shared/component';
 
 import { environment } from 'src/environments/environment';
 import EnvironmentUtil from '@core/utility/environment-util';
+import { LocalizePipe } from '../../../shared/pipe/localize.pipe';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+import { NgIf, NgFor } from '@angular/common';
 
 @Component({
-
-  selector: 'system-logos',
-  templateUrl: './system-logos.component.html',
-  styleUrls: []
+    selector: 'system-logos',
+    templateUrl: './system-logos.component.html',
+    styleUrls: [],
+    standalone: true,
+    imports: [NgIf, LocalizeComponent, NgFor, LocalizePipe]
 })
 export class SystemLogosComponent implements OnInit {
   public icons: SystemLogo[];
@@ -67,8 +71,8 @@ export class SystemLogosComponent implements OnInit {
 
   onClickRemove(icon): void {
     this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-      animated: true,
-      backdrop: true,
+      
+      animated: false, backdrop: true, 
       ignoreBackdropClick: true,
     });
     this.bsModalRef.content.message = this.localizeService.decode("system.image.removeContent");
@@ -92,8 +96,8 @@ export class SystemLogosComponent implements OnInit {
     // this.router.navigate(['/admin/logo', icon.oid]);
 
     let bsModalRef = this.modalService.show(SystemLogoComponent, {
-      animated: true,
-      backdrop: true,
+      
+      animated: false, backdrop: true, 
       ignoreBackdropClick: true,
     });
 

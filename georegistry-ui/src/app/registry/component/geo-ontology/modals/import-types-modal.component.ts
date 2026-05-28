@@ -22,15 +22,20 @@ import { BsModalRef } from "ngx-bootstrap/modal";
 import { Subject } from "rxjs";
 import { ErrorHandler } from "@shared/component";
 import { Organization } from "@shared/model/core";
-import { FileUploader, FileUploaderOptions } from "ng2-file-upload";
+import { FileUploader, FileUploaderOptions, FileUploadModule } from "ng2-file-upload";
 import { EventService, LocalizationService } from "@shared/service";
 
 import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
+import { FormsModule } from "@angular/forms";
+import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { NgIf, NgFor } from "@angular/common";
 
 @Component({
     selector: "import-types-modal",
     templateUrl: "./import-types-modal.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [NgIf, LocalizeComponent, FormsModule, NgFor, FileUploadModule]
 })
 export class ImportTypesModalComponent implements OnInit {
 

@@ -19,17 +19,24 @@
 
 import { Component } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Location } from "@angular/common";
+import { Location, NgIf } from "@angular/common";
 import { HttpErrorResponse } from "@angular/common/http";
 
 import { ForgotPasswordService } from "@core/service/forgotpassword.service";
 
 import { ErrorHandler } from "@shared/component";
+import { LocalizePipe } from "../../../shared/pipe/localize.pipe";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { FormsModule } from "@angular/forms";
+import { LoadingBarComponent } from "../../../shared/component/loading-bar/loading-bar.component";
+import { MessageComponent } from "../../../shared/component/message/message.component";
 
 @Component({
     selector: "forgotpassword",
     templateUrl: "./forgotpassword.component.html",
-    styleUrls: ["./forgotpassword.component.css"]
+    styleUrls: ["./forgotpassword.component.css"],
+    standalone: true,
+    imports: [MessageComponent, LoadingBarComponent, FormsModule, LocalizeComponent, NgIf, LocalizePipe]
 })
 export class ForgotPasswordComponent {
 

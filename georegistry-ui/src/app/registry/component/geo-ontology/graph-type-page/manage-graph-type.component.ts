@@ -27,6 +27,11 @@ import {
 import { HttpErrorResponse } from "@angular/common/http";
 import { GraphType } from "@registry/model/registry";
 import { GraphTypeService } from "@registry/service/graph-type.service";
+import { LocalizedTextComponent } from "../../form-fields/localized-text/localized-text.component";
+import { ConvertKeyLabel } from "../../../../shared/component/localize/convert-key-label.component";
+import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { FormsModule } from "@angular/forms";
+import { NgIf, NgFor } from "@angular/common";
 
 @Component({
     selector: "manage-graph-type",
@@ -42,15 +47,14 @@ import { GraphTypeService } from "@registry/service/graph-type.service";
                     }),
                     animate("500ms")
                 ]),
-                transition(":leave",
-                    animate("500ms",
-                        style({
-                            opacity: 0
-                        })
-                    )
-                )
+                transition(":leave", animate("500ms", style({
+                    opacity: 0
+                })))
             ])
-        ]]
+        ]
+    ],
+    standalone: true,
+    imports: [NgIf, FormsModule, LocalizeComponent, NgFor, ConvertKeyLabel, LocalizedTextComponent]
 })
 export class ManageGraphTypeComponent implements OnInit {
 

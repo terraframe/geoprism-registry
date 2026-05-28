@@ -22,7 +22,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
 import { Observable } from "rxjs";
-import { TypeaheadMatch } from "ngx-bootstrap/typeahead";
+import { TypeaheadMatch, TypeaheadModule } from "ngx-bootstrap/typeahead";
 
 import { ErrorHandler } from "@shared/component";
 import { LocalizationService, AuthService, DateService } from "@shared/service";
@@ -31,13 +31,20 @@ import uniqolor from 'uniqolor';
 import { RegistryService, ChangeRequestService, GeometryService } from "@registry/service";
 import { GeoObjectType, GeoObjectOverTime } from "@registry/model/registry";
 import { GeoObjectLayerDataSource } from "@registry/service/layer-data-source";
-import { Router } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
 import { RegistryCacheService } from "@registry/service/registry-cache.service";
+import { LocalizePipe } from "../../../shared/pipe/localize.pipe";
+import { DateFieldComponent } from "../../../shared/component/form-fields/date-field/date-field.component";
+import { NgFor, NgClass, NgIf } from "@angular/common";
+import { FormsModule } from "@angular/forms";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
 
 @Component({
     selector: "submit-change-request",
     templateUrl: "./submit-change-request.component.html",
-    styleUrls: ["./submit-change-request.css"]
+    styleUrls: ["./submit-change-request.css"],
+    standalone: true,
+    imports: [LocalizeComponent, FormsModule, NgFor, DateFieldComponent, NgClass, TypeaheadModule, NgIf, RouterLink, LocalizePipe]
 })
 export class SubmitChangeRequestComponent implements OnInit {
 

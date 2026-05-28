@@ -28,7 +28,7 @@ import { AllLocaleInfo } from "@admin/model/localization-manager";
 import { environment } from 'src/environments/environment';
 import { LocaleView } from "@core/model/core";
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class LocalizationManagerService {
 
     constructor(private http: HttpClient, private eventService: EventService) { }

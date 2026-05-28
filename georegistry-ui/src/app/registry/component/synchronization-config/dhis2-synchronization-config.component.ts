@@ -25,7 +25,12 @@ import { SynchronizationConfig, OrgSyncInfo, GeoObjectType } from "@registry/mod
 import { SynchronizationConfigService } from "@registry/service";
 import { AttributeConfigInfo, DHIS2AttributeMapping, SyncLevel } from "@registry/model/sync";
 import { LocalizationService } from "@shared/service/localization.service";
-import { ControlContainer, NgForm } from "@angular/forms";
+import { ControlContainer, NgForm, FormsModule } from "@angular/forms";
+import { LocalizePipe } from "../../../shared/pipe/localize.pipe";
+import { BsDropdownModule } from "ngx-bootstrap/dropdown";
+import { BooleanFieldComponent } from "../../../shared/component/form-fields/boolean-field/boolean-field.component";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { NgIf, NgFor, NgClass } from "@angular/common";
 
 let DEFAULT_MAPPING_STRATEGY = "net.geoprism.registry.etl.DHIS2AttributeMapping";
 let END_DATE_MAPPING = "net.geoprism.registry.etl.DHIS2EndDateAttributeMapping";
@@ -46,11 +51,12 @@ export interface LevelRow {
 }
 
 @Component({
-
     selector: "dhis2-synchronization-config",
     templateUrl: "./dhis2-synchronization-config.component.html",
     styleUrls: ["dhis2-synchronization-config.css"],
-    viewProviders: [ { provide: ControlContainer, useExisting: NgForm } ]
+    viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
+    standalone: true,
+    imports: [NgIf, LocalizeComponent, FormsModule, NgFor, BooleanFieldComponent, BsDropdownModule, NgClass, LocalizePipe]
 })
 export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
 

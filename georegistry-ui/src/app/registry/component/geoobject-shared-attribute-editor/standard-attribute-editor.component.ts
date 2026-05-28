@@ -47,12 +47,15 @@ import { DateService } from "@shared/service/date.service";
 
 import { LocalizationService } from "@shared/service/localization.service";
 
-import { ControlContainer, NgForm } from "@angular/forms";
+import { ControlContainer, NgForm, FormsModule } from "@angular/forms";
 import { StandardAttributeCRModel, StandardDiffView, ListDiffView } from "./StandardAttributeCRModel";
 import { ChangeRequestEditor } from "./change-request-editor";
 import { ExternalId } from "@core/model/core";
 import { ExternalSystemService } from "@shared/service";
 import { ExternalSystem } from "@shared/model/core";
+import { LocalizePipe } from "../../../shared/pipe/localize.pipe";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { NgIf, NgFor, NgClass } from "@angular/common";
 
 @Component({
     selector: "standard-attribute-editor",
@@ -68,17 +71,15 @@ import { ExternalSystem } from "@shared/model/core";
                     }),
                     animate("500ms")
                 ]),
-                transition(":leave",
-                    animate("500ms",
-                        style({
-                            opacity: 0
-                        })
-                    )
-                )
+                transition(":leave", animate("500ms", style({
+                    opacity: 0
+                })))
             ])
-        ]],
-    viewProviders: [{ provide: ControlContainer, useExisting: NgForm }]
-
+        ]
+    ],
+    viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
+    standalone: true,
+    imports: [NgIf, LocalizeComponent, NgFor, NgClass, FormsModule, LocalizePipe]
 })
 export class StandardAttributeEditorComponent implements OnInit {
 

@@ -29,12 +29,21 @@ import { Organization } from '@shared/model/core';
 import { SettingsService } from '@admin/service/settings.service'
 import { AccountService } from '@admin/service/account.service';
 import { AuthService } from '@shared/service';
+import { LocalizePipe } from '../../../shared/pipe/localize.pipe';
+import { RoleManagementComponent } from './role-management.component';
+import { NgIf } from '@angular/common';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+import { FormsModule } from '@angular/forms';
+import { LoadingBarComponent } from '../../../shared/component/loading-bar/loading-bar.component';
+import { MessageComponent } from '../../../shared/component/message/message.component';
 
 
 @Component({
-	selector: 'account-invite',
-	templateUrl: './account-invite.component.html',
-	styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}']
+    selector: 'account-invite',
+    templateUrl: './account-invite.component.html',
+    styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}'],
+    standalone: true,
+    imports: [MessageComponent, LoadingBarComponent, FormsModule, LocalizeComponent, NgIf, RoleManagementComponent, LocalizePipe]
 })
 export class AccountInviteComponent implements OnInit {
 	invite: UserInvite;

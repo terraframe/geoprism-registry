@@ -34,12 +34,20 @@ import { LabeledPropertyGraphTypePublishModalComponent } from "./publish-modal.c
 import { Progress } from "@shared/model/progress";
 import { RegistryService } from "@registry/service";
 import { Router } from "@angular/router";
+import { DateTextComponent } from "../../../shared/component/date-text/date-text.component";
+import { ProgressBarComponent } from "../../../shared/component/progress-bar/progress-bar.component";
+import { NgIf, NgFor, NgTemplateOutlet } from "@angular/common";
+import { BsDropdownModule } from "ngx-bootstrap/dropdown";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { ModalTypes } from "@shared/model/modal";
 
 
 @Component({
     selector: "labeled-property-graph-type",
     templateUrl: "./labeled-property-graph-type.component.html",
-    styleUrls: ["./labeled-property-graph-type-manager.css"]
+    styleUrls: ["./labeled-property-graph-type-manager.css"],
+    standalone: true,
+    imports: [LocalizeComponent, BsDropdownModule, NgIf, ProgressBarComponent, NgFor, DateTextComponent, NgTemplateOutlet]
 })
 export class LabeledPropertyGraphTypeComponent implements OnInit, OnDestroy {
 
@@ -101,9 +109,7 @@ export class LabeledPropertyGraphTypeComponent implements OnInit, OnDestroy {
     onCreate(entry: LabeledPropertyGraphTypeEntry): void {
 
         this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         this.bsModalRef.content.message = "Are you sure you want to publish a new version of the entry [" + entry.period.value + "]";
 
@@ -138,9 +144,7 @@ export class LabeledPropertyGraphTypeComponent implements OnInit, OnDestroy {
 
     onViewConfiguration(type: LabeledPropertyGraphType): void {
         this.bsModalRef = this.modalService.show(LabeledPropertyGraphTypePublishModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         this.bsModalRef.content.init(null, type);
     }
@@ -156,13 +160,11 @@ export class LabeledPropertyGraphTypeComponent implements OnInit, OnDestroy {
 
     onDelete(entry: LabeledPropertyGraphTypeEntry, version: LabeledPropertyGraphTypeVersion): void {
         this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " Version [" + version.versionNumber + "]";
         this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
-        this.bsModalRef.content.type = "danger";
+        this.bsModalRef.content.type =  ModalTypes.danger;
 
         this.bsModalRef.content.onConfirm.subscribe(data => {
             this.service.removeVersion(version).then(response => {

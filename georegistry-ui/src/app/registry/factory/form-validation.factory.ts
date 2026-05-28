@@ -44,7 +44,8 @@ function validateGeoObjectAttributeCodeValidator(): ValidatorFn {
     providers: [
         // eslint-disable-next-line no-use-before-define
         { provide: NG_VALIDATORS, useExisting: GeoObjectAttributeCodeValidator, multi: true }
-    ]
+    ],
+    standalone: true
 })
 export class GeoObjectAttributeCodeValidator implements Validator {
 

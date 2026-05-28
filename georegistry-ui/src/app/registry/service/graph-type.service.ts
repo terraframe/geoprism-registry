@@ -27,7 +27,7 @@ import { GraphType, ImportHistory } from "@registry/model/registry";
 import { environment } from 'src/environments/environment';
 import { firstValueFrom } from "rxjs";
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class GraphTypeService {
 
     // eslint-disable-next-line no-useless-constructor

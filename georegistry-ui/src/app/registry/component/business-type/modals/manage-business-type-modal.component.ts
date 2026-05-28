@@ -34,6 +34,16 @@ import { BusinessTypeService } from "@registry/service/business-type.service";
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
 import { ModalTypes } from "@shared/model/modal";
 import { LocalizationService } from "@shared/service/localization.service";
+import { LocalizePipe } from "../../../../shared/pipe/localize.pipe";
+import { EditTermOptionInputComponent } from "../../geo-ontology/geoobjecttype-management/edit-term-option-input.component";
+import { ManageTermOptionsComponent } from "../../geo-ontology/geoobjecttype-management/manage-term-options.component";
+import { EditAttributeModalContentComponent } from "../../geo-ontology/geoobjecttype-management/edit-attribute-modal-content.component";
+import { DefineAttributeModalContentComponent } from "../../geo-ontology/geoobjecttype-management/define-attribute-modal-content.component";
+import { RouterLink } from "@angular/router";
+import { LocalizedInputComponent } from "../../form-fields/localized-input/localized-input.component";
+import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { FormsModule } from "@angular/forms";
+import { NgIf, NgFor } from "@angular/common";
 
 @Component({
     selector: "manage-business-type-modal",
@@ -49,15 +59,14 @@ import { LocalizationService } from "@shared/service/localization.service";
                     }),
                     animate("500ms")
                 ]),
-                transition(":leave",
-                    animate("500ms",
-                        style({
-                            opacity: 0
-                        })
-                    )
-                )
+                transition(":leave", animate("500ms", style({
+                    opacity: 0
+                })))
             ])
-        ]]
+        ]
+    ],
+    standalone: true,
+    imports: [NgIf, FormsModule, LocalizeComponent, LocalizedInputComponent, NgFor, RouterLink, DefineAttributeModalContentComponent, EditAttributeModalContentComponent, ManageTermOptionsComponent, EditTermOptionInputComponent, LocalizePipe]
 })
 export class ManageBusinessTypeModalComponent implements OnInit {
 
@@ -90,9 +99,7 @@ export class ManageBusinessTypeModalComponent implements OnInit {
 
     removeAttributeType(attr: AttributeType, e: any): void {
         let confirmBsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         confirmBsModalRef.content.message = this.localizationService.decode("confirm.modal.verify.delete") + "[" + attr.label.localizedValue + "]";
         confirmBsModalRef.content.data = { attributeType: attr, geoObjectType: this.type };

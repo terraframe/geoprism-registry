@@ -31,7 +31,7 @@ import { PageResult } from "@shared/model/core";
 
 import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class AccountService {
 
     constructor(private http: HttpClient, private eventService: EventService) { }

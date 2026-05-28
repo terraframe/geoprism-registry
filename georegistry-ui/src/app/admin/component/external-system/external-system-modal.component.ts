@@ -30,11 +30,19 @@ import { LocalizationService, AuthService, ExternalSystemService } from "@shared
 import { ErrorHandler } from "@shared/component";
 
 import { environment } from 'src/environments/environment';
+import { LocalizePipe } from "../../../shared/pipe/localize.pipe";
+import { ConvertKeyLabel } from "../../../shared/component/localize/convert-key-label.component";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { NgIf, NgFor } from "@angular/common";
+import { FormsModule } from "@angular/forms";
+import { LoadingBarComponent } from "../../../shared/component/loading-bar/loading-bar.component";
 
 @Component({
     selector: "external-system-modal",
     templateUrl: "./external-system-modal.component.html",
-    styles: [".modal-form .check-block .chk-area { margin: 10px 0px 0 0;}"]
+    styles: [".modal-form .check-block .chk-area { margin: 10px 0px 0 0;}"],
+    standalone: true,
+    imports: [LoadingBarComponent, FormsModule, NgIf, LocalizeComponent, NgFor, ConvertKeyLabel, LocalizePipe]
 })
 export class ExternalSystemModalComponent implements OnInit {
 

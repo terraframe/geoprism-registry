@@ -27,12 +27,18 @@ import { LocalizationService, AuthService } from "@shared/service";
 import { ErrorHandler, ErrorModalComponent } from "@shared/component";
 
 import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
+import { SubmitChangeRequestComponent } from "../submit-change-request/submit-change-request.component";
+import { NgIf } from "@angular/common";
+import { RequestTableComponent } from "../crtable/request-table.component";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
 
 @Component({
-
     selector: "change-request-page",
     templateUrl: "./change-request-page.component.html",
-    styleUrls: ["./change-request-page.css"]
+    styleUrls: ["./change-request-page.css"],
+    standalone: true,
+    imports: [PageContainerComponent, LocalizeComponent, RequestTableComponent, NgIf, SubmitChangeRequestComponent]
 })
 export class ChangeRequestPageComponent implements OnInit {
 

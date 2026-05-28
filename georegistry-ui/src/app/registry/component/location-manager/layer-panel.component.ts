@@ -18,16 +18,16 @@
 ///
 
 import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from "@angular/core";
-import { ActivatedRoute, Params, Router } from "@angular/router";
+import { ActivatedRoute, Params, Router, RouterLinkActive } from "@angular/router";
 
 import { ContextList, ListOrgGroup, ListVersion } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
 import uniqolor from 'uniqolor';
 import { Subscription } from "rxjs";
 
-import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
+import { CdkDragDrop, moveItemInArray, CdkDropList, CdkDrag, CdkDragPlaceholder } from "@angular/cdk/drag-drop";
 import { PANEL_SIZE_STATE } from "@registry/model/location-manager";
-import { NgxSpinnerService } from "ngx-spinner";
+import { NgxSpinnerService, NgxSpinnerModule } from "ngx-spinner";
 import { OverlayerIdentifier } from "@registry/model/constants";
 import { GeometryService } from "@registry/service/geometry.service";
 import { GEO_OBJECT_DATA_SOURCE_TYPE, Layer, ListVectorLayerDataSource, LIST_VECTOR_SOURCE_TYPE, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE, SEARCH_DATASOURCE_TYPE } from "@registry/service/layer-data-source";
@@ -35,6 +35,13 @@ import { RegistryService } from "@registry/service/registry.service";
 import { RelationshipVisualizationService } from "@registry/service/relationship-visualization.service";
 import { LayerGroup, LayerGroupSorter } from "./layer-group";
 import { LocalizationService } from "@shared/service/localization.service";
+import { LocalizePipe } from "../../../shared/pipe/localize.pipe";
+import { DateFieldComponent } from "../../../shared/component/form-fields/date-field/date-field.component";
+import { FormsModule } from "@angular/forms";
+import { DateTextComponent } from "../../../shared/component/date-text/date-text.component";
+import { BooleanFieldComponent } from "../../../shared/component/form-fields/boolean-field/boolean-field.component";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { NgIf, NgClass, NgFor, NgStyle, NgTemplateOutlet } from "@angular/common";
 
 export interface BaseLayer {
     name: string,
@@ -48,7 +55,9 @@ export interface BaseLayer {
 @Component({
     selector: "layer-panel",
     templateUrl: "./layer-panel.component.html",
-    styleUrls: ["./location-manager.css", "./layer-panel.css"]
+    styleUrls: ["./location-manager.css", "./layer-panel.css"],
+    standalone: true,
+    imports: [NgIf, RouterLinkActive, LocalizeComponent, NgClass, NgFor, BooleanFieldComponent, DateTextComponent, NgStyle, NgxSpinnerModule, CdkDropList, CdkDrag, CdkDragPlaceholder, FormsModule, DateFieldComponent, NgTemplateOutlet, LocalizePipe]
 })
 export class LayerPanelComponent implements OnInit, OnDestroy {
 

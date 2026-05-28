@@ -27,8 +27,8 @@ describe('EdgeImporterComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ EdgeImporterComponent ]
-    })
+    imports: [EdgeImporterComponent]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(EdgeImporterComponent);

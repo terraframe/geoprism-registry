@@ -19,11 +19,16 @@
 
 import { Component, Input, Output, EventEmitter } from "@angular/core";
 import { BusinessObject, BusinessType } from "@registry/model/business-type";
+import { DateTextComponent } from "../../../shared/component/date-text/date-text.component";
+import { NgFor, NgIf } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 
 @Component({
     selector: "business-object-panel",
     templateUrl: "./business-object-panel.component.html",
-    styleUrls: ["./dataset-location-manager.css"]
+    styleUrls: ["./dataset-location-manager.css"],
+    standalone: true,
+    imports: [FormsModule, NgFor, NgIf, DateTextComponent]
 })
 export class BusinessObjectPanelComponent {
 

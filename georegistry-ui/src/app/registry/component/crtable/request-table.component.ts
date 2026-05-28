@@ -18,9 +18,9 @@
 ///
 
 import { Component, ViewEncapsulation, ViewChild, ElementRef, Input } from "@angular/core";
-import { Router, ActivatedRoute } from "@angular/router";
+import { Router, ActivatedRoute, RouterLink } from "@angular/router";
 import { HttpErrorResponse } from "@angular/common/http";
-import { Location } from "@angular/common";
+import { Location, NgClass, NgIf, NgFor } from "@angular/common";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import {
     trigger,
@@ -29,7 +29,7 @@ import {
     transition
 } from "@angular/animations";
 
-import { FileUploader, FileUploaderOptions } from "ng2-file-upload";
+import { FileUploader, FileUploaderOptions, FileUploadModule } from "ng2-file-upload";
 
 import { AbstractAction, ChangeRequest, CreateGeoObjectAction, UpdateAttributeAction } from "@registry/model/crtable";
 import { ActionTypes } from "@registry/model/constants";
@@ -44,9 +44,13 @@ import { ErrorHandler, ConfirmModalComponent } from "@shared/component";
 import { environment } from 'src/environments/environment';
 import { GeoObjectSharedAttributeEditorComponent } from "../geoobject-shared-attribute-editor/geoobject-shared-attribute-editor.component";
 import { ModalTypes } from "@shared/model/modal";
+import { LocalizePipe } from "../../../shared/pipe/localize.pipe";
+import { NgxPaginationModule } from "ngx-pagination";
+import { FormsModule } from "@angular/forms";
+import { DateTextComponent } from "../../../shared/component/date-text/date-text.component";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
 
 @Component({
-
     selector: "request-table",
     templateUrl: "./request-table.component.html",
     styleUrls: ["./request-table.css"],
@@ -60,13 +64,9 @@ import { ModalTypes } from "@shared/model/modal";
                     }),
                     animate("300ms")
                 ]),
-                transition(":leave",
-                    animate("100ms",
-                        style({
-                            opacity: 0
-                        })
-                    )
-                )
+                transition(":leave", animate("100ms", style({
+                    opacity: 0
+                })))
             ]),
             trigger("fadeIn", [
                 transition(":enter", [
@@ -77,7 +77,9 @@ import { ModalTypes } from "@shared/model/modal";
                 ])
             ])
         ]
-    ]
+    ],
+    standalone: true,
+    imports: [RouterLink, NgClass, LocalizeComponent, NgIf, NgFor, DateTextComponent, FormsModule, GeoObjectSharedAttributeEditorComponent, FileUploadModule, NgxPaginationModule, LocalizePipe]
 })
 export class RequestTableComponent {
 
@@ -312,8 +314,7 @@ export class RequestTableComponent {
                 this.refresh();
 
                 const bsModalRef = this.modalService.show(ConfirmModalComponent, {
-                    animated: true,
-                    backdrop: true,
+animated: false, backdrop: true,
                     ignoreBackdropClick: true
                 });
 
@@ -385,8 +386,7 @@ export class RequestTableComponent {
     onDelete(changeRequest: ChangeRequest): void {
         if (changeRequest != null) {
             const bsModalRef = this.modalService.show(ConfirmModalComponent, {
-                animated: true,
-                backdrop: true,
+                animated: false, backdrop: true,
                 ignoreBackdropClick: true
             });
 
@@ -476,9 +476,7 @@ export class RequestTableComponent {
 
     setActionStatus(action: CreateGeoObjectAction | UpdateAttributeAction, status: string): void {
         const bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
 
         bsModalRef.content.onConfirm.subscribe(data => {

@@ -34,11 +34,22 @@ import { AttributeType, GeoObjectType } from "@registry/model/registry";
 import Utils from "@registry/utility/Utils";
 import { RegistryCacheService } from "@registry/service/registry-cache.service";
 import { PRESENT } from "@shared/model/date";
+import { LocalizePipe } from "../../../shared/pipe/localize.pipe";
+import { ClassificationFieldComponent } from "../form-fields/classification-field/classification-field.component";
+import { DateTextComponent } from "../../../shared/component/date-text/date-text.component";
+import { DateFieldComponent } from "../../../shared/component/form-fields/date-field/date-field.component";
+import { BooleanFieldComponent } from "../../../shared/component/form-fields/boolean-field/boolean-field.component";
+import { FormsModule } from "@angular/forms";
+import { ConvertKeyLabel } from "../../../shared/component/localize/convert-key-label.component";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { NgFor, NgIf, NgClass, NgSwitch, NgSwitchCase, NgSwitchDefault, NgTemplateOutlet } from "@angular/common";
 
 @Component({
     selector: "list-type-publish-modal",
     templateUrl: "./publish-modal.component.html",
-    styleUrls: ["./list-type-manager.css"]
+    styleUrls: ["./list-type-manager.css"],
+    standalone: true,
+    imports: [NgFor, LocalizeComponent, ConvertKeyLabel, FormsModule, NgIf, BooleanFieldComponent, NgClass, DateFieldComponent, DateTextComponent, NgSwitch, NgSwitchCase, ClassificationFieldComponent, NgSwitchDefault, NgTemplateOutlet, LocalizePipe]
 })
 export class ListTypePublishModalComponent implements OnInit {
 

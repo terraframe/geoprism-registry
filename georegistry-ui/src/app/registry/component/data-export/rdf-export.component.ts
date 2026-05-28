@@ -26,11 +26,19 @@ import { LocalizationService } from "@shared/service/localization.service";
 import { LabeledPropertyGraphType } from "@registry/model/labeled-property-graph-type";
 import { RegistryService } from "@registry/service";
 import { RDFExport } from "@registry/model/rdf-export";
+import { LabeledPropertyGraphTypeFormComponent } from "../labeled-property-graph-type/labeled-property-graph-form.component";
+import { BsDropdownModule } from "ngx-bootstrap/dropdown";
+import { FormsModule } from "@angular/forms";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { NgIf } from "@angular/common";
+import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
 
 @Component({
     selector: "rdf-export",
     templateUrl: "./rdf-export.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [PageContainerComponent, NgIf, LocalizeComponent, FormsModule, BsDropdownModule, LabeledPropertyGraphTypeFormComponent]
 })
 export class RDFExportComponent implements OnInit {
 

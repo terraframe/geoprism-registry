@@ -29,7 +29,7 @@ import { Organization, OrganizationNode, PageResult } from "@shared/model/core";
 import { environment } from 'src/environments/environment';
 import { firstValueFrom } from "rxjs";
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class OrganizationService {
 
     // eslint-disable-next-line no-useless-constructor

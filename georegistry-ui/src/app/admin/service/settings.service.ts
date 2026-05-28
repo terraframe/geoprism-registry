@@ -41,7 +41,7 @@ export class SettingsInitView {
 
 }
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class SettingsService {
 
     constructor(private http: HttpClient, private eventService: EventService) { }

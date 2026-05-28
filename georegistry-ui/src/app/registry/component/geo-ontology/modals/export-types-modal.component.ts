@@ -21,11 +21,16 @@ import { Component, OnInit, ElementRef, ViewChild, OnDestroy } from "@angular/co
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { Subject } from "rxjs";
 import { Organization } from "@shared/model/core";
+import { NgFor } from "@angular/common";
+import { FormsModule } from "@angular/forms";
+import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
 
 @Component({
     selector: "export-types-modal",
     templateUrl: "./export-types-modal.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [LocalizeComponent, FormsModule, NgFor]
 })
 export class ExportTypesModalComponent implements OnInit, OnDestroy {
 

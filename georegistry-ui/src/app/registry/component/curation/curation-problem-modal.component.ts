@@ -26,11 +26,17 @@ import { CurationJob, CurationProblem, ListTypeVersion } from "@registry/model/l
 import { GeoObjectEditorComponent } from "../geoobject-editor/geoobject-editor.component";
 import { DateService } from "@shared/service";
 import { ListTypeService } from "@registry/service/list-type.service";
+import { DateTextComponent } from "../../../shared/component/date-text/date-text.component";
+import { FormsModule } from "@angular/forms";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { NgIf } from "@angular/common";
 
 @Component({
     selector: "curation-problem-modal",
     templateUrl: "./curation-problem-modal.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [NgIf, LocalizeComponent, FormsModule, DateTextComponent]
 })
 export class CurationProblemModalComponent {
 
@@ -64,8 +70,7 @@ export class CurationProblemModalComponent {
 
     onEditGeoObject(): void {
         const editModal = this.modalService.show(GeoObjectEditorComponent, {
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
 
         editModal.content.configureAsExisting(this.problem.goCode, this.problem.typeCode, this.version.forDate, true);

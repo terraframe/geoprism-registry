@@ -32,7 +32,8 @@ import EnvironmentUtil from "@core/utility/environment-util";
 @Component({
     selector: "geoobject-editor-map[geometryType]",
     templateUrl: "./geoobject-editor-map.component.html",
-    styleUrls: ["./geoobject-editor-map.component.css"]
+    styleUrls: ["./geoobject-editor-map.component.css"],
+    standalone: true
 })
 
 /**

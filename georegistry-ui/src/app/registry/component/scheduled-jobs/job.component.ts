@@ -40,11 +40,18 @@ import { Subscription } from "rxjs";
 import { WebSockets } from "@shared/component/web-sockets/web-sockets";
 import { environment } from 'src/environments/environment';
 import { ConfigurationModalComponent } from "./configuration-modal.component";
+import { NgxPaginationModule } from "ngx-pagination";
+import { DateTextComponent } from "../../../shared/component/date-text/date-text.component";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { NgIf, NgFor } from "@angular/common";
+import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
 
 @Component({
     selector: "job",
     templateUrl: "./job.component.html",
-    styleUrls: ["./scheduled-jobs.css"]
+    styleUrls: ["./scheduled-jobs.css"],
+    standalone: true,
+    imports: [PageContainerComponent, NgIf, LocalizeComponent, DateTextComponent, NgFor, NgxPaginationModule]
 })
 export class JobComponent implements OnInit, OnDestroy {
 
@@ -179,9 +186,7 @@ export class JobComponent implements OnInit, OnDestroy {
         // this.router.navigate( ['/registry/master-list-history/', code] )
 
         this.bsModalRef = this.modalService.show(JobConflictModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true, ignoreBackdropClick: true
         });
         this.bsModalRef.content.problem = problem;
         this.bsModalRef.content.job = this.job;
@@ -238,9 +243,7 @@ export class JobComponent implements OnInit, OnDestroy {
 
     onReuploadAndResume(historyId: string): void {
         this.bsModalRef = this.modalService.show(ReuploadModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true, ignoreBackdropClick: true
         });
 
         this.bsModalRef.content.job = this.job;
@@ -259,8 +262,7 @@ export class JobComponent implements OnInit, OnDestroy {
             });
         } else {
             this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-                animated: true,
-                backdrop: true,
+                animated: false, backdrop: true,
                 ignoreBackdropClick: true
             });
 
@@ -286,8 +288,7 @@ export class JobComponent implements OnInit, OnDestroy {
 
     onCancelScheduledJob(historyId: string): void {
         this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
+            animated: false, backdrop: true,
             ignoreBackdropClick: true
         });
 
@@ -307,7 +308,10 @@ export class JobComponent implements OnInit, OnDestroy {
     }
 
     onConfiguration(): void {
-        this.bsModalRef = this.modalService.show(ConfigurationModalComponent, { backdrop: true, ignoreBackdropClick: true });
+        this.bsModalRef = this.modalService.show(ConfigurationModalComponent, {
+            animated: false, backdrop: true,
+            ignoreBackdropClick: true
+        });
         this.bsModalRef.content.init(this.job.configuration);
     }
 

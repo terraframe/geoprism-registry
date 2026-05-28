@@ -464,9 +464,7 @@ export class SvgHierarchyNode {
         let obj = this.hierarchyComponent.findGeoObjectTypeByCode(svgGot.getCode());
 
         this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
 
         let message = this.localizeService.decode("confirm.modal.verify.remove.hierarchy");

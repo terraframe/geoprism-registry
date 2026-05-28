@@ -17,27 +17,24 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, EventEmitter, Input, Output } from "@angular/core";
-import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
+import { Component, Input } from "@angular/core";
 
-import { ProfileComponent } from "../profile/profile.component";
+import { AuthService } from "@shared/service";
 
-import { AuthService, ProfileService } from "@shared/service";
-
-import { RegistryRoleType } from "@shared/model/core";
-
-import { environment } from 'src/environments/environment';
-import { ConfigurationService } from "@core/service/configuration.service";
 import { LocaleView, MenuSection } from "@core/model/core";
-import { Router } from "@angular/router";
+import { RouterLinkActive, RouterLink } from "@angular/router";
 import EnvironmentUtil from "@core/utility/environment-util";
 import { HubService } from "@core/service/hub.service";
+import { LocalizePipe } from "../../pipe/localize.pipe";
+import { LocalizeComponent } from "../localize/localize.component";
+import { NgIf, NgFor, NgClass } from "@angular/common";
 
 @Component({
-
     selector: "side-nav",
     templateUrl: "./side-nav.component.html",
-    styleUrls: ['./side-nav.css']
+    styleUrls: ['./side-nav.css'],
+    standalone: true,
+    imports: [NgIf, LocalizeComponent, NgFor, RouterLinkActive, RouterLink, NgClass, LocalizePipe]
 })
 export class SideNavComponent {
 

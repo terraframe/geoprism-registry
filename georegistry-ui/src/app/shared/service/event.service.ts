@@ -29,7 +29,7 @@ export interface ISessionListener {
     onLogout(): void;
 }
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class EventService {
 
     private eventListeners: IEventListener[] = [];

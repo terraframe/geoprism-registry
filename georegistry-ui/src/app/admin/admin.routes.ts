@@ -17,13 +17,9 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { NgModule, Injectable, Inject } from '@angular/core';
-import { LocationStrategy, HashLocationStrategy } from '@angular/common';
-import { Routes, RouterModule, Resolve, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Routes } from '@angular/router';
 
-import { AuthGuard, AdminGuard, MaintainerGuard, ContributerGuard } from '../shared/service/guard.service';
-import { PendingChangesGuard } from "../shared/service/pending-changes-guard";
+import { AuthGuard } from '../shared/service/guard.service';
 
 import { AccountsComponent } from './component/account/accounts.component';
 import { SettingsComponent } from './component/settings.component';
@@ -35,7 +31,7 @@ import { SystemLogosComponent } from './component/logo/system-logos.component';
 import { EmailComponent } from './component/email/email.component';
 
 
-const routes: Routes = [
+export const routes: Routes = [
     {
         path: 'logos',
         canActivate: [AuthGuard],
@@ -61,13 +57,13 @@ const routes: Routes = [
         canActivate: [AuthGuard],
         component: AccountsComponent,
         data: { title: 'useraccounts.title' }
-    },   
+    },
     {
         path: 'settings',
         canActivate: [AuthGuard],
         component: SettingsComponent,
         data: { title: 'settings.title' }
-    }, 
+    },
     {
         path: 'accounts',
         canActivate: [AuthGuard],
@@ -94,12 +90,3 @@ const routes: Routes = [
         data: { title: 'account.title' }
     }
 ];
-
-@NgModule( {
-    imports: [RouterModule.forChild( routes )],
-    exports: [RouterModule],
-    providers: [
-        { provide: LocationStrategy, useClass: HashLocationStrategy },
-    ]
-} )
-export class AdminRoutingModule { }

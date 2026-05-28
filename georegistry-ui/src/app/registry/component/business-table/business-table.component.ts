@@ -24,11 +24,16 @@ import { GenericTableConfig, TableColumnSetup, TableEvent } from "@shared/model/
 import { BusinessTypeService } from "@registry/service/business-type.service";
 import { BusinessType } from "@registry/model/business-type";
 import { LocalizationService } from "@shared/service/localization.service";
+import { GenericTableComponent } from "../../../shared/component/generic-table/generic-table.component";
+import { NgIf } from "@angular/common";
+import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
 
 @Component({
     selector: "business-table",
     templateUrl: "./business-table.component.html",
-    styles: []
+    styles: [],
+    standalone: true,
+    imports: [PageContainerComponent, NgIf, GenericTableComponent]
 })
 export class BusinessTableComponent implements OnInit {
 

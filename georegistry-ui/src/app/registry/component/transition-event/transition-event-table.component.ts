@@ -29,9 +29,14 @@ import { TransitionEvent } from "@registry/model/transition-event";
 import { TransitionEventModalComponent } from "./transition-event-modal.component";
 import { AuthService, DateService, LocalizationService } from "@shared/service";
 import { IOService } from "@registry/service";
+import { NgxPaginationModule } from "ngx-pagination";
+import { DateTextComponent } from "../../../shared/component/date-text/date-text.component";
+import { DateFieldComponent } from "../../../shared/component/form-fields/date-field/date-field.component";
+import { NgFor, NgIf, NgClass } from "@angular/common";
+import { FormsModule } from "@angular/forms";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
 
 @Component({
-
     selector: "transition-event-table",
     templateUrl: "./transition-event-table.component.html",
     styleUrls: ["./transition-event-table.css"],
@@ -45,13 +50,9 @@ import { IOService } from "@registry/service";
                     }),
                     animate("300ms")
                 ]),
-                transition(":leave",
-                    animate("100ms",
-                        style({
-                            opacity: 0
-                        })
-                    )
-                )
+                transition(":leave", animate("100ms", style({
+                    opacity: 0
+                })))
             ]),
             trigger("fadeIn", [
                 transition(":enter", [
@@ -62,7 +63,9 @@ import { IOService } from "@registry/service";
                 ])
             ])
         ]
-    ]
+    ],
+    standalone: true,
+    imports: [LocalizeComponent, FormsModule, NgFor, DateFieldComponent, NgIf, NgClass, DateTextComponent, NgxPaginationModule]
 })
 export class TransitionEventTableComponent {
 
@@ -144,8 +147,7 @@ export class TransitionEventTableComponent {
 
     onCreate(): void {
         this.bsModalRef = this.modalService.show(TransitionEventModalComponent, {
-            animated: true,
-            backdrop: true,
+            animated: false, backdrop: true,
             ignoreBackdropClick: true
         });
         this.bsModalRef.content.init(false);
@@ -158,8 +160,7 @@ export class TransitionEventTableComponent {
         jsEvent.stopPropagation();
 
         this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
+            animated: false, backdrop: true,
             ignoreBackdropClick: true
         });
         this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " [" + transitionEvent.eventId + "]";
@@ -179,8 +180,7 @@ export class TransitionEventTableComponent {
     onView(event: TransitionEvent): void {
         this.service.getDetails(event.oid).then(response => {
             this.bsModalRef = this.modalService.show(TransitionEventModalComponent, {
-                animated: true,
-                backdrop: true,
+                animated: false, backdrop: true,
                 ignoreBackdropClick: true
             });
             this.bsModalRef.content.init(false, response);

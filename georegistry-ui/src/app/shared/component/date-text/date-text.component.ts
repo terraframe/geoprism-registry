@@ -23,7 +23,8 @@ import { DateService } from "../../service";
 @Component({
     selector: "date-text",
     templateUrl: "./date-text.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true
 })
 export class DateTextComponent implements OnChanges {
 

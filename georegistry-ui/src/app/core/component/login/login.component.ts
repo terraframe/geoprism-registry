@@ -18,7 +18,7 @@
 ///
 
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
@@ -34,11 +34,19 @@ import { LoginHeaderComponent } from './login-header.component';
 
 import { GeoRegistryConfiguration } from "@core/model/core";
 import { environment } from 'src/environments/environment';
+import { LocalizePipe } from '../../../shared/pipe/localize.pipe';
+import { NgIf, NgFor } from '@angular/common';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+import { FormsModule } from '@angular/forms';
+import { MessageComponent } from '../../../shared/component/message/message.component';
+import { LoadingBarComponent } from '../../../shared/component/loading-bar/loading-bar.component';
 
 @Component({
-  selector: 'login',
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+    selector: 'login',
+    templateUrl: './login.component.html',
+    styleUrls: ['./login.component.css'],
+    standalone: true,
+    imports: [LoginHeaderComponent, LoadingBarComponent, MessageComponent, FormsModule, RouterLink, LocalizeComponent, NgIf, NgFor, LocalizePipe]
 })
 export class LoginComponent implements OnInit {
   context: string;
@@ -68,7 +76,8 @@ export class LoginComponent implements OnInit {
 
     this.sub = this.route.params.subscribe(params => {
       if (params['errorMsg'] != null) {
-        this.bsModalRef = this.modalService.show(ErrorModalComponent, { backdrop: true });
+        this.bsModalRef = this.modalService.show(ErrorModalComponent, { animated: false, backdrop: true, 
+ });
 
         let encodedError = params['errorMsg'];
         let decodedError = encodedError.replaceAll("+", " ");

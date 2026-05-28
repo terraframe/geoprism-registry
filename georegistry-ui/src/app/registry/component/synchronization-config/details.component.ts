@@ -27,11 +27,17 @@ import { RegistryService, IOService, SynchronizationConfigService } from "@regis
 import { ScheduledJob, SynchronizationConfig } from "@registry/model/registry";
 import { PageResult } from "@shared/model/core";
 import { interval, Observable, Subscription, switchMap, timeout } from "rxjs";
+import { NgxPaginationModule } from "ngx-pagination";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { NgIf, NgFor } from "@angular/common";
+import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
 
 @Component({
     selector: "sync-details",
     templateUrl: "./details.component.html",
-    styleUrls: ["./details.css"]
+    styleUrls: ["./details.css"],
+    standalone: true,
+    imports: [PageContainerComponent, NgIf, LocalizeComponent, NgFor, NgxPaginationModule]
 })
 export class SyncDetailsComponent implements OnInit, OnDestroy {
 

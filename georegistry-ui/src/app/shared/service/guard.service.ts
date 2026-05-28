@@ -22,7 +22,7 @@ import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from
 import { ConfigurationService } from "@core/service/configuration.service";
 import { AuthService } from "./auth.service";
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class AdminGuard implements CanActivate {
 
     // eslint-disable-next-line no-useless-constructor
@@ -40,7 +40,7 @@ export class AdminGuard implements CanActivate {
 
 }
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class MaintainerGuard implements CanActivate {
 
     // eslint-disable-next-line no-useless-constructor
@@ -58,7 +58,7 @@ export class MaintainerGuard implements CanActivate {
 
 }
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ContributerGuard implements CanActivate {
 
     // eslint-disable-next-line no-useless-constructor
@@ -76,7 +76,7 @@ export class ContributerGuard implements CanActivate {
 
 }
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {
 
     // eslint-disable-next-line no-useless-constructor
@@ -94,7 +94,7 @@ export class AuthGuard implements CanActivate {
 
 }
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class LabeledPropertyGraphGuard implements CanActivate {
 
     // eslint-disable-next-line no-useless-constructor
@@ -111,7 +111,7 @@ export class LabeledPropertyGraphGuard implements CanActivate {
     }
 }
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class BusinessDataGuard implements CanActivate {
 
     // eslint-disable-next-line no-useless-constructor

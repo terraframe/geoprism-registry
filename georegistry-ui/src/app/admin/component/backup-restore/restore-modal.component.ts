@@ -19,18 +19,23 @@
 
 import { Component, ViewChild, ElementRef } from "@angular/core";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
-import { FileUploader, FileUploaderOptions } from "ng2-file-upload";
+import { FileUploader, FileUploaderOptions, FileUploadModule } from "ng2-file-upload";
 
 import { ErrorHandler } from "@shared/component";
 import { LocalizationService, EventService } from "@shared/service";
 import { HttpErrorResponse } from "@angular/common/http";
 
 import { environment } from 'src/environments/environment';
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { FormsModule } from "@angular/forms";
+import { LoadingBarComponent } from "../../../shared/component/loading-bar/loading-bar.component";
 
 @Component({
     selector: "restore-modal",
     templateUrl: "./restore-modal.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [LoadingBarComponent, FormsModule, LocalizeComponent, FileUploadModule]
 })
 export class RestoreModalComponent {
 

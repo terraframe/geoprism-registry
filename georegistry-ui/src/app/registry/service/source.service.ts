@@ -31,7 +31,7 @@ import { PageResult } from "@shared/model/core";
 import { environment } from 'src/environments/environment';
 import { firstValueFrom } from "rxjs";
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class SourceService {
 
     // eslint-disable-next-line no-useless-constructor

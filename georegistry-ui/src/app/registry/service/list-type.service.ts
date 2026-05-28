@@ -32,7 +32,7 @@ import { GenericTableService } from "@shared/model/generic-table";
 import { ScheduledJob } from "@registry/model/registry";
 import { environment } from 'src/environments/environment';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ListTypeService implements GenericTableService {
 
     // eslint-disable-next-line no-useless-constructor
@@ -249,7 +249,9 @@ export class ListTypeService implements GenericTableService {
             .toPromise();
     }
 
-    values(oid: string, value: string, attributeName: string, filters: { [s: string]: FilterMetadata }): Promise<string[]> {
+    values(oid: string, value: string, attributeName: string, filters: {
+        [s: string]: FilterMetadata | FilterMetadata[] | undefined;
+    }): Promise<string[]> {
         let params: HttpParams = new HttpParams();
         params = params.set("oid", oid);
         params = params.set("attributeName", attributeName);

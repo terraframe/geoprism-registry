@@ -24,11 +24,16 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { SynchronizationConfig } from "@registry/model/registry";
 import { PublishService } from "@registry/service/publish.service";
 import { PublishEvents } from "@registry/model/publish";
+import { FormsModule } from "@angular/forms";
+import { NgIf, NgFor } from "@angular/common";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
 
 @Component({
     selector: "jena-export-synchronization-config",
     templateUrl: "./jena-export-synchronization-config.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [LocalizeComponent, NgIf, FormsModule, NgFor]
 })
 export class JenaExportSynchronizationConfigComponent implements OnInit, OnDestroy {
 

@@ -32,14 +32,19 @@ import { WebSockets } from "@shared/component/web-sockets/web-sockets";
 import { ExportFormatModalComponent } from "../list-type/export-format-modal.component";
 import { GeoRegistryConfiguration } from "@core/model/core";
 import { OverlayerIdentifier } from "@registry/model/constants";
-import { NgxSpinnerService } from "ngx-spinner";
+import { NgxSpinnerService, NgxSpinnerModule } from "ngx-spinner";
 
 import { environment } from 'src/environments/environment';
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { BooleanFieldComponent } from "../../../shared/component/form-fields/boolean-field/boolean-field.component";
+import { NgIf, NgClass } from "@angular/common";
 
 @Component({
     selector: "list-modal",
     templateUrl: "./list-modal.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [NgIf, NgxSpinnerModule, BooleanFieldComponent, NgClass, LocalizeComponent]
 })
 export class ListModalComponent implements OnInit, OnDestroy {
 
@@ -335,9 +340,7 @@ export class ListModalComponent implements OnInit, OnDestroy {
         }
 
         const modal = this.modalService.show(ExportFormatModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         modal.content.init(this.list);
         modal.content.onFormat.subscribe(data => {

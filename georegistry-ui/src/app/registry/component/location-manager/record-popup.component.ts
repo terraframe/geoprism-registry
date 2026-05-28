@@ -19,11 +19,15 @@
 
 import { Component, Input, Output, EventEmitter } from "@angular/core";
 import { LayerRecord } from "@registry/model/list-type";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { NgIf, NgFor } from "@angular/common";
 
 @Component({
     selector: "record-popup",
     templateUrl: "./record-popup.component.html",
-    styleUrls: ["./dataset-location-manager.css"]
+    styleUrls: ["./dataset-location-manager.css"],
+    standalone: true,
+    imports: [NgIf, NgFor, LocalizeComponent]
 })
 export class RecordPopupComponent {
 

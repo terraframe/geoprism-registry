@@ -24,10 +24,10 @@ import { ConfigurationService } from "@core/service/configuration.service";
 import { LocalizationService } from "@shared/service";
 
 @Component({
-
     selector: "convert-key-label",
     templateUrl: "./convert-key-label.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true
 })
 export class ConvertKeyLabel implements OnInit {
 

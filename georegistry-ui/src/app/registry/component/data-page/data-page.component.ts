@@ -23,12 +23,18 @@ import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
 import { ErrorHandler } from "@shared/component";
 import { LocalizationService, AuthService } from "@shared/service";
+import { DataImporterComponent } from "../importer/dataimporter.component";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { RouterLink } from "@angular/router";
+import { NgIf, NgClass } from "@angular/common";
+import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
 
 @Component({
-
     selector: "data-page",
     templateUrl: "./data-page.component.html",
-    styleUrls: ["./data-page.css"]
+    styleUrls: ["./data-page.css"],
+    standalone: true,
+    imports: [PageContainerComponent, NgIf, RouterLink, NgClass, LocalizeComponent, DataImporterComponent]
 })
 export class DataPageComponent implements OnInit {
 

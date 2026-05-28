@@ -21,11 +21,20 @@ import { Component, Input } from "@angular/core";
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { Profile } from "@shared/model/profile";
 import { AuthService, ProfileService } from "@shared/service";
+import { LocalizePipe } from "../../pipe/localize.pipe";
+import { PasswordStrengthBarComponent } from "../password-strength-bar/password-strength-bar.component";
+import { LocalizeComponent } from "../localize/localize.component";
+import { MustMatchDirective } from "../../directive/must-match.directive";
+import { FormsModule } from "@angular/forms";
+import { MessageComponent } from "../message/message.component";
+import { NgIf, NgFor } from "@angular/common";
 
 @Component({
     selector: "profile",
     templateUrl: "./profile.component.html",
-    styles: [".modal-form .check-block .chk-area { margin: 10px 0px 0 0;}"]
+    styles: [".modal-form .check-block .chk-area { margin: 10px 0px 0 0;}"],
+    standalone: true,
+    imports: [NgIf, MessageComponent, FormsModule, MustMatchDirective, LocalizeComponent, PasswordStrengthBarComponent, NgFor, LocalizePipe]
 })
 export class ProfileComponent {
 

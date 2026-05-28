@@ -36,6 +36,11 @@ import { LocalizationService, ModalStepIndicatorService } from "@shared/service"
 import { RegistryService } from "@registry/service";
 import { Term, ManageGeoObjectTypeModalState, AttributeType } from "@registry/model/registry";
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
+import { RouterLink } from "@angular/router";
+import { ConvertKeyLabel } from "../../../../shared/component/localize/convert-key-label.component";
+import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { NgIf, NgFor } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 
 @Component({
     selector: "manage-term-options",
@@ -43,32 +48,24 @@ import { GeoObjectTypeModalStates } from "@registry/model/constants";
     styleUrls: ["./manage-term-options.css"],
     animations: [
         trigger("toggleInputs", [
-            state("none, void",
-                style({ opacity: 0 })
-            ),
-            state("show",
-                style({ opacity: 1 })
-            ),
+            state("none, void", style({ opacity: 0 })),
+            state("show", style({ opacity: 1 })),
             transition("none => show", animate("300ms")),
             transition("show => none", animate("100ms"))
         ]),
-        trigger("openClose",
-            [
-                transition(
-                    ":enter", [
-                    style({ opacity: 0 }),
-                    animate("500ms", style({ opacity: 1 }))
-                ]
-                ),
-                transition(
-                    ":leave", [
-                    style({ opacity: 1 }),
-                    animate("0ms", style({ opacity: 0 }))
-
-                ]
-                )]
-        )
-    ]
+        trigger("openClose", [
+            transition(":enter", [
+                style({ opacity: 0 }),
+                animate("500ms", style({ opacity: 1 }))
+            ]),
+            transition(":leave", [
+                style({ opacity: 1 }),
+                animate("0ms", style({ opacity: 0 }))
+            ])
+        ])
+    ],
+    standalone: true,
+    imports: [FormsModule, NgIf, LocalizeComponent, NgFor, ConvertKeyLabel, RouterLink]
 })
 export class ManageTermOptionsComponent implements OnInit {
 
@@ -177,8 +174,7 @@ export class ManageTermOptionsComponent implements OnInit {
 
     removeTermOption(termOption: Term): void {
         this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
+            animated: false, backdrop: true,
             ignoreBackdropClick: true
         });
         this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + "[" + termOption.label + "]";

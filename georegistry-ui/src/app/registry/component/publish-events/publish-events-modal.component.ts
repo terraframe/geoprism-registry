@@ -32,11 +32,18 @@ import { RegistryService } from "@registry/service";
 import { BusinessTypeService } from "@registry/service/business-type.service";
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { Observable, Observer, Subject, Subscription } from "rxjs";
+import { MultiSelectFieldComponent } from "../../../shared/component/form-fields/multi-select/multi-select-field.component";
+import { DateFieldComponent } from "../../../shared/component/form-fields/date-field/date-field.component";
+import { FormsModule } from "@angular/forms";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { NgIf } from "@angular/common";
 
 @Component({
     selector: "publish-events-modal",
     templateUrl: "./publish-events-modal.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [NgIf, LocalizeComponent, FormsModule, DateFieldComponent, MultiSelectFieldComponent]
 })
 export class PublishEventsModalComponent implements OnInit, OnDestroy {
 

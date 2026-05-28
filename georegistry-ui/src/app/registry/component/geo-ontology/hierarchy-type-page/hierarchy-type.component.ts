@@ -23,12 +23,18 @@ import { HierarchyType } from "@registry/model/hierarchy";
 import { RegistryService, HierarchyService } from "@registry/service";
 
 import { AuthService } from "@shared/service";
-import { NgForm } from "@angular/forms";
+import { NgForm, FormsModule } from "@angular/forms";
+import { LocalizedTextComponent } from "../../form-fields/localized-text/localized-text.component";
+import { ConvertKeyLabel } from "../../../../shared/component/localize/convert-key-label.component";
+import { NgIf, NgFor } from "@angular/common";
+import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
 
 @Component({
     selector: "hierarchy-type",
     templateUrl: "./hierarchy-type.component.html",
-    styleUrls: ["./hierarchy-type.css"]
+    styleUrls: ["./hierarchy-type.css"],
+    standalone: true,
+    imports: [FormsModule, LocalizeComponent, NgIf, NgFor, ConvertKeyLabel, LocalizedTextComponent]
 })
 export class HierarchyTypeComponent implements OnInit, AfterViewInit {
 

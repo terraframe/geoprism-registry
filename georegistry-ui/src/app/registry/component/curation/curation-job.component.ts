@@ -37,11 +37,20 @@ import { Subscription } from "rxjs";
 import { WebSockets } from "@shared/component/web-sockets/web-sockets";
 
 import { environment } from 'src/environments/environment';
+import { LocalizePipe } from "../../../shared/pipe/localize.pipe";
+import { NgxPaginationModule } from "ngx-pagination";
+import { BooleanFieldComponent } from "../../../shared/component/form-fields/boolean-field/boolean-field.component";
+import { DateTextComponent } from "../../../shared/component/date-text/date-text.component";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { NgIf, NgFor } from "@angular/common";
+import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
 
 @Component({
     selector: "curation-job",
     templateUrl: "./curation-job.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [PageContainerComponent, NgIf, LocalizeComponent, DateTextComponent, NgFor, BooleanFieldComponent, NgxPaginationModule, LocalizePipe]
 })
 export class CurationJobComponent implements OnInit, OnDestroy {
 
@@ -136,8 +145,8 @@ export class CurationJobComponent implements OnInit, OnDestroy {
 
     onEdit(problem: CurationProblem): void {
         // this.bsModalRef = this.modalService.show(CurationProblemModalComponent, {
-        //     animated: true,
-        //     backdrop: true,
+        //     
+        //     animated: false, backdrop: true, 
         //     ignoreBackdropClick: true
         // });
         // this.bsModalRef.content.init(this.version, problem, this.job, (result: any) => {

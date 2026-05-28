@@ -21,7 +21,8 @@ import { Pipe, PipeTransform } from "@angular/core";
 
 @Pipe({
     name: "toEpochDateTime",
-    pure: true
+    pure: true,
+    standalone: true
 })
 export class ToEpochDateTimePipe implements PipeTransform {
 

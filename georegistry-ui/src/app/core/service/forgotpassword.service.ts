@@ -27,7 +27,7 @@ import { EventService } from '@shared/service'
 
 import { environment } from 'src/environments/environment';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ForgotPasswordService {
 
 	constructor(private http: HttpClient, private eventService: EventService) { }

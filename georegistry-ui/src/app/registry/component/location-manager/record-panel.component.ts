@@ -19,11 +19,16 @@
 
 import { Component, Input, Output, EventEmitter } from "@angular/core";
 import { LayerRecord } from "@registry/model/list-type";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { NgFor } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 
 @Component({
     selector: "record-panel",
     templateUrl: "./record-panel.component.html",
-    styleUrls: ["./dataset-location-manager.css"]
+    styleUrls: ["./dataset-location-manager.css"],
+    standalone: true,
+    imports: [FormsModule, NgFor, LocalizeComponent]
 })
 export class RecordPanelComponent {
 

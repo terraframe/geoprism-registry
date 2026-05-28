@@ -27,11 +27,17 @@ import { LocalizationService } from "@shared/service/localization.service";
 import { Source } from "@registry/model/source";
 import { ManageSourceModalComponent } from "./modals/manage-source-modal.component";
 import { SourceService } from "@registry/service/source.service";
+import { NgIf, NgFor } from "@angular/common";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
+import { ModalTypes } from "@shared/model/modal";
 
 @Component({
     selector: "source-manager",
     templateUrl: "./source-manager.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [PageContainerComponent, LocalizeComponent, NgIf, NgFor]
 })
 export class SourceManagerComponent implements OnInit {
 
@@ -57,9 +63,7 @@ export class SourceManagerComponent implements OnInit {
     onCreate(): void {
 
         this.bsModalRef = this.modalService.show(ManageSourceModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         this.bsModalRef.content.init({ code: '' }, false);
         this.bsModalRef.content.onSourceChange.subscribe((source: Source) => {
@@ -69,9 +73,7 @@ export class SourceManagerComponent implements OnInit {
 
     onEdit(source: Source, readOnly: boolean): void {
         this.bsModalRef = this.modalService.show(ManageSourceModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         this.bsModalRef.content.init({...source}, readOnly);
 
@@ -86,13 +88,11 @@ export class SourceManagerComponent implements OnInit {
 
     onDelete(source: Source): void {
         this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " [" + source.code + "]";
         this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
-        this.bsModalRef.content.type = "danger";
+        this.bsModalRef.content.type =  ModalTypes.danger;
 
         this.bsModalRef.content.onConfirm.subscribe(data => {
             this.service.remove(source).then(() => {

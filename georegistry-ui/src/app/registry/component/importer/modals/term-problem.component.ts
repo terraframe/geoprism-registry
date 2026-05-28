@@ -18,19 +18,24 @@
 ///
 
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
-import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
+import { TypeaheadMatch, TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { Observable } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 
 import { ImportConfiguration, TermProblem } from '@registry/model/io';
 import { IOService } from '@registry/service';
+import { LocalizePipe } from '../../../../shared/pipe/localize.pipe';
+import { LocalizeComponent } from '../../../../shared/component/localize/localize.component';
+import { NgIf, NgClass } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
-@Component( {
-
+@Component({
     selector: 'term-problem',
     templateUrl: './term-problem.component.html',
-    styleUrls: []
-} )
+    styleUrls: [],
+    standalone: true,
+    imports: [FormsModule, NgIf, TypeaheadModule, NgClass, LocalizeComponent, LocalizePipe]
+})
 export class TermProblemComponent implements OnInit {
 
     @Input() configuration: ImportConfiguration;

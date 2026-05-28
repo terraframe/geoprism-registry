@@ -18,18 +18,29 @@
 ///
 
 import { Component, OnInit, Input, Output, EventEmitter, OnDestroy, ViewChild, AfterViewInit, OnChanges, SimpleChanges } from "@angular/core";
-import { FilterMetadata, LazyLoadEvent } from "primeng/api";
-import { Table } from "primeng/table";
+import { FilterMetadata, LazyLoadEvent, SharedModule } from "primeng/api";
+import { Table, TableLazyLoadEvent, TableModule } from "primeng/table";
 
 import { Subject } from "rxjs";
 import { GenericTableColumn, GenericTableConfig, TableColumnSetup, TableEvent } from "@shared/model/generic-table";
 import { PageResult } from "@shared/model/core";
 import { LocalizationService } from "@shared/service/localization.service";
+import { LocalizePipe } from "../../pipe/localize.pipe";
+import { DateTextComponent } from "../date-text/date-text.component";
+import { LocalizeComponent } from "../localize/localize.component";
+import { RouterLink } from "@angular/router";
+import { DropdownModule } from "primeng/dropdown";
+import { FormsModule } from "@angular/forms";
+import { AutoCompleteModule } from "primeng/autocomplete";
+import { DateFieldComponent } from "../form-fields/date-field/date-field.component";
+import { NgFor, NgIf, NgClass, NgSwitch, NgSwitchCase, NgSwitchDefault } from "@angular/common";
 
 @Component({
     selector: "generic-table",
     templateUrl: "./generic-table.component.html",
-    styleUrls: ["./generic-table.css"]
+    styleUrls: ["./generic-table.css"],
+    standalone: true,
+    imports: [TableModule, SharedModule, NgFor, NgIf, NgClass, NgSwitch, NgSwitchCase, DateFieldComponent, AutoCompleteModule, FormsModule, DropdownModule, RouterLink, LocalizeComponent, DateTextComponent, NgSwitchDefault, LocalizePipe]
 })
 export class GenericTableComponent implements OnInit, OnDestroy, AfterViewInit, OnChanges {
 
@@ -48,10 +59,10 @@ export class GenericTableComponent implements OnInit, OnDestroy, AfterViewInit, 
 
     @Input() refresh: Subject<void>;
 
-    @Input() initialState: LazyLoadEvent = null;
+    @Input() initialState: TableLazyLoadEvent = null;
 
     @Output() click = new EventEmitter<TableEvent>();
-    @Output() onLoadEvent = new EventEmitter<LazyLoadEvent>();
+    @Output() onLoadEvent = new EventEmitter<TableLazyLoadEvent>();
 
     @Input() paginator: boolean = true;
 
@@ -67,7 +78,7 @@ export class GenericTableComponent implements OnInit, OnDestroy, AfterViewInit, 
 
     hasFilter: boolean = false;
 
-    event: LazyLoadEvent = null;
+    event: TableLazyLoadEvent = null;
 
     constructor(private localizationService: LocalizationService) {
         this.booleanOptions = [
@@ -114,7 +125,7 @@ export class GenericTableComponent implements OnInit, OnDestroy, AfterViewInit, 
                 const keys = Object.keys(this.initialState.filters);
 
                 keys.forEach(key => {
-                    const metadata: FilterMetadata = this.initialState.filters[key];
+                    const metadata: FilterMetadata = this.initialState.filters[key] as FilterMetadata;
 
                     this.dt.filter(metadata.value, key, metadata.matchMode);
                 });
@@ -137,29 +148,29 @@ export class GenericTableComponent implements OnInit, OnDestroy, AfterViewInit, 
 
                 if (column.type === "DATE") {
                     if (this.initialState != null && this.initialState.filters != null && this.initialState.filters[column.field] != null) {
-                        const dates = this.initialState.filters[column.field].value;
+                        const dates = (this.initialState.filters[column.field] as FilterMetadata).value;
 
                         column.startDate = dates.startDate;
                         column.endDate = dates.endDate;
                     }
                 } else if (column.type === "BOOLEAN") {
                     if (this.initialState != null && this.initialState.filters != null && this.initialState.filters[column.field] != null) {
-                        column.value = this.initialState.filters[column.field].value;
+                        column.value = (this.initialState.filters[column.field] as FilterMetadata).value;
                     }
                 } else if (column.type === "NUMBER") {
                     if (this.initialState != null && this.initialState.filters != null && this.initialState.filters[column.field] != null) {
-                        column.value = this.initialState.filters[column.field].value;
+                        column.value = (this.initialState.filters[column.field] as FilterMetadata).value;
                     }
                 } else if (column.type === "AUTOCOMPLETE") {
                     if (this.initialState != null && this.initialState.filters != null && this.initialState.filters[column.field] != null) {
-                        column.text = this.initialState.filters[column.field].value;
+                        column.text = (this.initialState.filters[column.field] as FilterMetadata).value;
                     }
                 }
             }
         });
     }
 
-    onPageChange(event: LazyLoadEvent): void {
+    onPageChange(event: TableLazyLoadEvent): void {
         this.loading = true;
         this.event = event;
 
@@ -182,7 +193,7 @@ export class GenericTableComponent implements OnInit, OnDestroy, AfterViewInit, 
         });
     }
 
-    onComplete(col: GenericTableColumn, event: LazyLoadEvent): void {
+    onComplete(col: GenericTableColumn): void {
         col.onComplete();
     }
 

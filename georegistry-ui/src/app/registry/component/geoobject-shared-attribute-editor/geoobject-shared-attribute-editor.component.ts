@@ -18,7 +18,7 @@
 ///
 
 import { Component, OnInit, ViewChild, Input, ViewChildren, QueryList, Output, EventEmitter, OnDestroy } from "@angular/core";
-import { DatePipe } from "@angular/common";
+import { DatePipe, NgIf, NgClass, NgFor } from "@angular/common";
 import {
     trigger,
     style,
@@ -42,6 +42,12 @@ import { Subscription } from "rxjs";
 import { LocationManagerState } from "../location-manager/location-manager.component";
 import { VotService } from "@registry/service/vot.service";
 import { ExternalSystem } from "@shared/model/core";
+import { GeoObjectAttributeExcludesPipe } from "../../pipe/geoobject-attribute-excludes.pipe";
+import { StandardAttributeEditorComponent } from "./standard-attribute-editor.component";
+import { FormsModule } from "@angular/forms";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { BooleanFieldComponent } from "../../../shared/component/form-fields/boolean-field/boolean-field.component";
+import { StabilityPeriodComponent } from "./stability-period.component";
 
 @Component({
     selector: "geoobject-shared-attribute-editor",
@@ -57,20 +63,19 @@ import { ExternalSystem } from "@shared/model/core";
                     }),
                     animate("500ms")
                 ]),
-                transition(":leave",
-                    animate("500ms",
-                        style({
-                            opacity: 0
-                        })
-                    )
-                )
+                transition(":leave", animate("500ms", style({
+                    opacity: 0
+                })))
             ]),
             trigger("slide", [
                 state("left", style({ left: 0 })),
                 state("right", style({ left: "100%" })),
                 transition("* => *", animate(200))
             ])
-        ]]
+        ]
+    ],
+    standalone: true,
+    imports: [NgIf, StabilityPeriodComponent, BooleanFieldComponent, NgClass, LocalizeComponent, FormsModule, NgFor, ManageVersionsComponent, StandardAttributeEditorComponent, GeoObjectAttributeExcludesPipe]
 })
 
 /**

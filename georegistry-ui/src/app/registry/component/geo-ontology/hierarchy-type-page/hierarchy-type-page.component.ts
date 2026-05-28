@@ -38,6 +38,16 @@ import { RegistryService, HierarchyService } from "@registry/service";
 import { SvgHierarchyType } from "./d3/svg-hierarchy-type";
 import { svgPoint, isPointWithin, calculateTextWidth, getBboxFromSelection } from "./d3/svg-util";
 import { ImportHistoryModalComponent } from "@registry/component/import-history/modals/import-history-modal.component";
+import { LocalizePipe } from "../../../../shared/pipe/localize.pipe";
+import { HierarchyTypeComponent } from "./hierarchy-type.component";
+import { TabsModule } from "ngx-bootstrap/tabs";
+import { DragSidebarComponent } from "./drag-sidebar.component";
+import { BsDropdownModule } from "ngx-bootstrap/dropdown";
+import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { AccordionModule } from "ngx-bootstrap/accordion";
+import { NgIf, NgFor, NgClass } from "@angular/common";
+import { FormsModule } from "@angular/forms";
+import { ModalTypes } from "@shared/model/modal";
 
 export const TREE_SCALE_FACTOR_X: number = 1.4;
 export const TREE_SCALE_FACTOR_Y: number = 1.4;
@@ -76,7 +86,9 @@ interface Selection {
 @Component({
     selector: "hierarchy-type-page",
     templateUrl: "./hierarchy-type-page.component.html",
-    styleUrls: ["./hierarchy-type-page.css"]
+    styleUrls: ["./hierarchy-type-page.css"],
+    standalone: true,
+    imports: [FormsModule, NgIf, AccordionModule, LocalizeComponent, NgFor, NgClass, BsDropdownModule, DragSidebarComponent, TabsModule, HierarchyTypeComponent, LocalizePipe]
 })
 export class HierarchyTypePageComponent implements OnInit {
     Action = Action;
@@ -443,13 +455,12 @@ export class HierarchyTypePageComponent implements OnInit {
 
     handleDeleteHierarchyType(obj: HierarchyType): void {
         const bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
+            animated: false, backdrop: true,
             ignoreBackdropClick: true
         });
         bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " [" + obj.label.localizedValue + "]";
         bsModalRef.content.data = obj.code;
-        bsModalRef.content.type = "DANGER";
+        bsModalRef.content.type = ModalTypes.danger;
         bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
 
         bsModalRef.content.onConfirm.subscribe(data => {
@@ -469,8 +480,8 @@ export class HierarchyTypePageComponent implements OnInit {
         if (event != null) {
 
             const bsModalRef = this.modalService.show(ConfirmModalComponent, {
-                animated: true,
-                backdrop: true,
+                
+                animated: false, backdrop: true,
                 ignoreBackdropClick: true
             });
             bsModalRef.content.message = "You have unsaved changes";
@@ -610,8 +621,8 @@ export class HierarchyTypePageComponent implements OnInit {
     onImportHistory(type: HierarchyType): void {
         this.registryService.getImportHistory('HierarchyType', type.code).then(histories => {
             const bsModalRef = this.modalService.show(ImportHistoryModalComponent, {
-                animated: true,
-                backdrop: true,
+                
+                animated: false, backdrop: true,
                 ignoreBackdropClick: true
             });
             bsModalRef.content.init(type.label, histories);
@@ -623,8 +634,6 @@ export class HierarchyTypePageComponent implements OnInit {
 
 
     renderTree(): void {
-        console.log('Render Tree')
-
         // Remove existing tree
         if (this.selection == null || this.selection.type.rootGeoObjectTypes == null || this.selection.type.rootGeoObjectTypes.length == 0) {
             d3.select("#svg").remove();

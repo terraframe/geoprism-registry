@@ -31,7 +31,7 @@ import uniqolor from 'uniqolor';
 import { ListTypeService } from "./list-type.service";
 import { SELECTED_COLOR } from "./geometry.service";
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class LocationManagerStateService {
 
     constructor(private route: ActivatedRoute, private router: Router, private cacheService: RegistryCacheService, private geomService: GeometryService, private dateService: DateService, private registryService: RegistryService, private listTypeService: ListTypeService) {

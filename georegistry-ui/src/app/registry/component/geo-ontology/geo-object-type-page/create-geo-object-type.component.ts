@@ -24,11 +24,19 @@ import { GeoObjectType } from "@registry/model/registry";
 import { RegistryService } from "@registry/service";
 import { LocalizationService } from "@shared/service";
 import { Organization } from "@shared/model/core";
+import { BooleanFieldComponent } from "../../../../shared/component/form-fields/boolean-field/boolean-field.component";
+import { LocalizedTextComponent } from "../../form-fields/localized-text/localized-text.component";
+import { ConvertKeyLabel } from "../../../../shared/component/localize/convert-key-label.component";
+import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { NgIf, NgFor, NgClass } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 
 @Component({
     selector: "create-geo-object-type",
     templateUrl: "./create-geo-object-type.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [FormsModule, NgIf, LocalizeComponent, NgFor, ConvertKeyLabel, LocalizedTextComponent, BooleanFieldComponent, NgClass]
 })
 export class CreateGeoObjectTypeComponent implements OnInit {
 

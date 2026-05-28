@@ -18,7 +18,7 @@
 ///
 
 import { Component, OnInit, Input } from "@angular/core";
-import { DatePipe } from "@angular/common";
+import { DatePipe, NgIf, NgFor } from "@angular/common";
 
 import { TaskService } from "@registry/service";
 import { DateService } from "@shared/service/date.service";
@@ -26,12 +26,19 @@ import { GeoObjectType } from "@registry/model/registry";
 
 import { LocalizationService } from "@shared/service/localization.service";
 import { PageResult } from "@shared/model/core";
+import { NgxPaginationModule } from "ngx-pagination";
+import { DateTextComponent } from "../../../shared/component/date-text/date-text.component";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { MessageComponent } from "../../../shared/component/message/message.component";
+import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
 
 @Component({
     selector: "task-viewer",
     templateUrl: "./task-viewer.component.html",
     styleUrls: ["./task-viewer.component.css"],
-    providers: [DatePipe]
+    providers: [DatePipe],
+    standalone: true,
+    imports: [PageContainerComponent, MessageComponent, LocalizeComponent, NgIf, NgFor, DateTextComponent, NgxPaginationModule]
 })
 
 export class TaskViewerComponent implements OnInit {

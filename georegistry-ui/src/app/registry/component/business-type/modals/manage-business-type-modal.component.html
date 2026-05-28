@@ -71,7 +71,7 @@
         <div class="row-holder">
           <div class="label-holder">
             <label>
-              <localize key="attribute.labelAttribute.label"></localize>                            
+              <localize key="attribute.labelAttribute.label"></localize>
             </label>
           </div>
           <div class="holder">
@@ -113,10 +113,13 @@
                   </table>
                 </div>
 
-                <i *ngIf="!readOnly" class="fa fa-plus clickable" style="font-size:20px;margin:10px 0 10px 0;"
-                  aria-hidden="true" (click)="createAttribute()">
+                <span class="clickable" (click)="createAttribute()">
+                  <i *ngIf="!readOnly" class="fa fa-plus" style="font-size:20px;margin:10px 0 10px 0;"
+                    aria-hidden="true">
+                  </i>
                   <localize key="modal.button.add"></localize>
-                </i>
+                </span>
+
               </div>
             </div>
           </div>

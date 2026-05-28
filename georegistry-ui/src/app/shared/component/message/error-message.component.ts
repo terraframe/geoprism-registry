@@ -19,11 +19,15 @@
 
 import { Component, Input } from "@angular/core";
 import { LocalizationService } from "@shared/service/localization.service";
+import { LocalizeComponent } from "../localize/localize.component";
+import { NgIf } from "@angular/common";
 
 @Component({
     selector: "error-message",
     templateUrl: "./error-message.component.html",
-    styleUrls: ["./error-message.css"]
+    styleUrls: ["./error-message.css"],
+    standalone: true,
+    imports: [NgIf, LocalizeComponent]
 })
 export class ErrorMessageComponent {
 

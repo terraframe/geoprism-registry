@@ -18,18 +18,21 @@
 ///
 
 import { Component } from "@angular/core";
-import { NavigationEnd, Router } from "@angular/router";
+import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
 import { ConfigurationService } from "@core/service/configuration.service";
 import { filter } from "rxjs";
 import { environment } from 'src/environments/environment';
+import { PhetsarathFontComponent } from "./core/component/phetsarath-font/phetsarath-font.component";
+import { NgIf } from "@angular/common";
 
 declare const window: any;
 
 @Component({
-
     selector: "app-root",
-    templateUrl: "./cgr-app.component.html",
-    styleUrls: []
+    templateUrl: "./app.component.html",
+    styleUrls: [],
+    standalone: true,
+    imports: [NgIf, PhetsarathFontComponent, RouterOutlet]
 })
 export class CgrAppComponent {
 

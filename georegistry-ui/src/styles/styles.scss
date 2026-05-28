@@ -1,25 +1,24 @@
 $fa-font-path: "~@fortawesome/fontawesome-free/webfonts";
-@import "../../node_modules/@fortawesome/fontawesome-free/scss/fontawesome.scss";
-@import '../../node_modules/@fortawesome/fontawesome-free/scss/regular.scss';
-@import '../../node_modules/@fortawesome/fontawesome-free/scss/solid.scss';
-@import '../../node_modules/@fortawesome/fontawesome-free/scss/brands.scss';
+@use "@fortawesome/fontawesome-free/scss/fontawesome.scss";
+@use '@fortawesome/fontawesome-free/scss/regular.scss';
+@use '@fortawesome/fontawesome-free/scss/solid.scss';
+@use '@fortawesome/fontawesome-free/scss/brands.scss';
 
-@import '~bootstrap/dist/css/bootstrap.min.css';
-@import '~@circlon/angular-tree-component/css/angular-tree-component.css';
-@import '~maplibre-gl/dist/maplibre-gl.css';
-@import '~@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
-@import '~ngx-bootstrap/datepicker/bs-datepicker.css';
+@use "bootstrap/dist/css/bootstrap.css";
 
-@import '@angular/cdk/overlay-prebuilt.css';
+@use '@ali-hm/angular-tree-component/css/angular-tree-component.css';
+@use 'maplibre-gl/dist/maplibre-gl.css';
+@use '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
+@use 'ngx-bootstrap/datepicker/bs-datepicker.css';
 
-@import "~primeng/resources/themes/nova/theme.css";
-@import "~primeng/resources/primeng.min.css";
-@import "~primeicons/primeicons.css";
+@use '@angular/cdk/overlay-prebuilt.css';
 
-@import 'theme.css';
-@import 'main.css';
-@import 'modal.scss';
-@import 'form.scss';
+@use "primeicons/primeicons.css";
+
+@use 'theme.css';
+@use 'main.css';
+@use 'modal.scss';
+@use 'form.scss';
 
 /*
  * International Development:

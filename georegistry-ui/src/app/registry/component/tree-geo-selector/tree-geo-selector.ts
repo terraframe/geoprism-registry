@@ -18,15 +18,18 @@
 ///
 
 import { Component, Input, EventEmitter, Output, SimpleChanges } from "@angular/core";
-import { IActionMapping, ITreeOptions } from "@circlon/angular-tree-component";
+import { IActionMapping, ITreeOptions, TreeModule } from "@ali-hm/angular-tree-component";
 
 import { HierarchyOverTime } from "@registry/model/registry";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { NgIf } from "@angular/common";
 
 @Component({
-
     selector: "tree-geo-selector",
     templateUrl: "./tree-geo-selector.html",
-    styleUrls: ["./tree-geo-selector.css"]
+    styleUrls: ["./tree-geo-selector.css"],
+    standalone: true,
+    imports: [NgIf, TreeModule, LocalizeComponent]
 })
 export class TreeGeoSelector {
 

@@ -29,7 +29,7 @@ import { User } from "@shared/model/user";
 
 import { environment } from 'src/environments/environment';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class SessionService {
 
     // eslint-disable-next-line no-useless-constructor

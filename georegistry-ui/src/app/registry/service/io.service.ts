@@ -26,7 +26,7 @@ import { EventService } from "@shared/service";
 
 import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class IOService {
 
     constructor(private http: HttpClient, private eventService: EventService) { }

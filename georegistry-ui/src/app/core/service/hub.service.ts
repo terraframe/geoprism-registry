@@ -26,7 +26,7 @@ import { environment } from 'src/environments/environment';
 import { BehaviorSubject, firstValueFrom, Observable } from "rxjs";
 import { MenuSection } from "@core/model/core";
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class HubService {
 
     private expanded$: BehaviorSubject<boolean>;

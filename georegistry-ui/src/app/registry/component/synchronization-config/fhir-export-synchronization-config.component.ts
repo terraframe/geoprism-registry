@@ -25,6 +25,10 @@ import { SynchronizationConfig } from "@registry/model/registry";
 import { SynchronizationConfigService } from "@registry/service";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { ListTypeVersion } from "@registry/model/list-type";
+import { LocalizePipe } from "../../../shared/pipe/localize.pipe";
+import { FormsModule } from "@angular/forms";
+import { NgFor, NgIf } from "@angular/common";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
 
 interface FhirSyncLevel {
   masterListId: string;
@@ -35,7 +39,9 @@ interface FhirSyncLevel {
 @Component({
     selector: "fhir-export-synchronization-config",
     templateUrl: "./fhir-export-synchronization-config.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [LocalizeComponent, NgFor, FormsModule, NgIf, LocalizePipe]
 })
 export class FhirExportSynchronizationConfigComponent implements OnInit, OnDestroy {
 

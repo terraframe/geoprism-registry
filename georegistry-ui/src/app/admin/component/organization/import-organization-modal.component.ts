@@ -19,17 +19,23 @@
 
 import { Component, ViewChild, ElementRef, OnInit, OnDestroy } from "@angular/core";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
-import { FileUploader, FileUploaderOptions } from "ng2-file-upload";
+import { FileUploader, FileUploaderOptions, FileUploadModule } from "ng2-file-upload";
 
 import { ErrorHandler } from "@shared/component";
 import { LocalizationService, EventService } from "@shared/service";
 import { environment } from 'src/environments/environment';
 import { Subject } from "rxjs";
+import { NgIf } from "@angular/common";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { FormsModule } from "@angular/forms";
+import { LoadingBarComponent } from "../../../shared/component/loading-bar/loading-bar.component";
 
 @Component({
     selector: "import-organization-modal",
     templateUrl: "./import-organization-modal.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [LoadingBarComponent, FormsModule, LocalizeComponent, NgIf, FileUploadModule]
 })
 export class ImportOrganizationModalComponent implements OnInit, OnDestroy {
 

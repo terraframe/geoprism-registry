@@ -22,11 +22,15 @@ import { BsModalRef } from "ngx-bootstrap/modal";
 import { Subject } from "rxjs";
 import { LocalizationService } from "@shared/service/localization.service";
 import { ModalTypes } from "@shared/model/modal";
+import { NgClass } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 
 @Component({
     selector: "confirm-modal",
     templateUrl: "./confirm-modal.component.html",
-    styleUrls: ["./modal.css"]
+    styleUrls: ["./modal.css"],
+    standalone: true,
+    imports: [FormsModule, NgClass]
 })
 export class ConfirmModalComponent implements OnInit, OnDestroy {
 

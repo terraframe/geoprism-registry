@@ -30,6 +30,14 @@ import { GeoObjectType } from "@registry/model/registry";
 import { Organization } from "@shared/model/core";
 import { RegistryService } from "@registry/service";
 import { ImportHistoryModalComponent } from "@registry/component/import-history/modals/import-history-modal.component";
+import { LocalizePipe } from "../../../../shared/pipe/localize.pipe";
+import { ManageGeoObjectTypeComponent } from "./manage-geo-object-type.component";
+import { CreateGeoObjectTypeComponent } from "./create-geo-object-type.component";
+import { BsDropdownModule } from "ngx-bootstrap/dropdown";
+import { NgFor, NgIf, NgClass } from "@angular/common";
+import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { AccordionModule } from "ngx-bootstrap/accordion";
+import { FormsModule } from "@angular/forms";
 
 enum Action {
     VIEW = 0, CREATE = 1, EDIT = 2
@@ -50,7 +58,9 @@ interface Selection {
 @Component({
     selector: "geo-object-type-page",
     templateUrl: "./geo-object-type-page.component.html",
-    styleUrls: ["./geo-object-type-page.css"]
+    styleUrls: ["./geo-object-type-page.css"],
+    standalone: true,
+    imports: [FormsModule, AccordionModule, LocalizeComponent, NgFor, NgIf, NgClass, BsDropdownModule, CreateGeoObjectTypeComponent, ManageGeoObjectTypeComponent, LocalizePipe]
 })
 export class GeoObjectTypePageComponent implements OnInit, OnChanges {
     Action = Action;
@@ -158,9 +168,7 @@ export class GeoObjectTypePageComponent implements OnInit, OnChanges {
 
     deleteGeoObjectType(obj: GeoObjectType): void {
         const bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " [" + obj.label.localizedValue + "]";
         bsModalRef.content.data = obj.code;
@@ -250,8 +258,7 @@ export class GeoObjectTypePageComponent implements OnInit, OnChanges {
     onImportHistory(type: GeoObjectType): void {
         this.registryService.getImportHistory('GEO_OBJECT', type.code).then(histories => {
             const bsModalRef = this.modalService.show(ImportHistoryModalComponent, {
-                animated: true,
-                backdrop: true,
+                animated: false, backdrop: true,
                 ignoreBackdropClick: true
             });
             bsModalRef.content.init(type.label, histories);

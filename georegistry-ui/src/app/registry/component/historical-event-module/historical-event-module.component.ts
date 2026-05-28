@@ -19,12 +19,19 @@
 
 import { Component } from "@angular/core";
 import { AuthService } from "@shared/service";
+import { HistoricalReportComponent } from "../historical-report/historical-report.component";
+import { TransitionEventTableComponent } from "../transition-event/transition-event-table.component";
+import { RouterLink } from "@angular/router";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { NgIf, NgClass } from "@angular/common";
+import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
 
 @Component({
-
     selector: "historical-event-module",
     templateUrl: "./historical-event-module.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [PageContainerComponent, NgIf, LocalizeComponent, RouterLink, NgClass, TransitionEventTableComponent, HistoricalReportComponent]
 })
 export class HistoricalEventModuleComponent {
 

@@ -19,13 +19,17 @@
 
 import { Component, Input, Output, EventEmitter } from "@angular/core";
 import { SourceService } from "@registry/service/source.service";
-import { TypeaheadMatch } from "ngx-bootstrap/typeahead";
+import { TypeaheadMatch, TypeaheadModule } from "ngx-bootstrap/typeahead";
 import { Observable, Observer, Subscription } from "rxjs";
+import { NgClass } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 
 @Component({
     selector: "source-field",
     templateUrl: "./source-field.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [FormsModule, TypeaheadModule, NgClass]
 })
 export class SourceFieldComponent {
 

@@ -18,7 +18,7 @@
 ///
 
 import { Component, OnDestroy, OnInit, ViewChildren, QueryList } from "@angular/core";
-import { ActivatedRoute, Params, Router } from "@angular/router";
+import { ActivatedRoute, Params, Router, RouterLinkActive, RouterLink } from "@angular/router";
 import { HttpErrorResponse } from "@angular/common/http";
 
 
@@ -31,11 +31,19 @@ import { PublishService } from "@registry/service/publish.service";
 import { PublishEventsModalComponent } from "./publish-events-modal.component";
 import { BusinessTypeService } from "@registry/service/business-type.service";
 import { RegistryService } from "@registry/service";
+import { LocalizePipe } from "../../../shared/pipe/localize.pipe";
+import { PublishEventsComponent } from "./publish-events.component";
+import { NgFor, NgIf } from "@angular/common";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
+import { ModalTypes } from "@shared/model/modal";
 
 @Component({
     selector: "publish-manager",
     templateUrl: "./publish-manager.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [PageContainerComponent, LocalizeComponent, NgFor, RouterLinkActive, RouterLink, NgIf, PublishEventsComponent, LocalizePipe]
 })
 export class PublishManagerComponent implements OnInit, OnDestroy {
 
@@ -127,9 +135,7 @@ export class PublishManagerComponent implements OnInit, OnDestroy {
 
     onCreate(): void {
         this.bsModalRef = this.modalService.show(PublishEventsModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         this.bsModalRef.content.init(this.types,
             this.hierarchies,
@@ -151,13 +157,11 @@ export class PublishManagerComponent implements OnInit, OnDestroy {
 
     onDelete(publish: PublishEvents): void {
         this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " [" + publish.label + "]";
         this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
-        this.bsModalRef.content.type = "danger";
+        this.bsModalRef.content.type =  ModalTypes.danger;
 
         this.bsModalRef.content.onConfirm.subscribe(() => {
             this.message = null;

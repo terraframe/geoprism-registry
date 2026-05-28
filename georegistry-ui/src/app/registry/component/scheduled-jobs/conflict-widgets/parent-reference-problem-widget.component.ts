@@ -23,7 +23,7 @@ import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 import { Observable } from "rxjs";
 import { HttpErrorResponse } from "@angular/common/http";
 
-import { TypeaheadMatch } from "ngx-bootstrap/typeahead";
+import { TypeaheadMatch, TypeaheadModule } from "ngx-bootstrap/typeahead";
 
 import { ScheduledJob } from "@registry/model/registry";
 import { RegistryService, IOService } from "@registry/service";
@@ -31,11 +31,17 @@ import { DateService } from "@shared/service/date.service";
 
 import { ErrorHandler } from "@shared/component";
 import { LocalizationService } from "@shared/service/localization.service";
+import { FormsModule } from "@angular/forms";
+import { DateTextComponent } from "../../../../shared/component/date-text/date-text.component";
+import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { NgIf, NgFor } from "@angular/common";
 
 @Component({
     selector: "parent-reference-problem-widget",
     templateUrl: "./parent-reference-problem-widget.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [NgIf, LocalizeComponent, DateTextComponent, NgFor, FormsModule, TypeaheadModule]
 })
 export class ParentReferenceProblemWidgetComponent implements OnInit {
 

@@ -23,11 +23,16 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { ErrorHandler } from '@shared/component';
 import { environment } from 'src/environments/environment';
 import EnvironmentUtil from '@core/utility/environment-util';
+import { LocalizePipe } from '../../../shared/pipe/localize.pipe';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+import { RouterLink } from '@angular/router';
 
 @Component({
-  selector: 'login-header',
-  templateUrl: './login-header.component.html',
-  styleUrls: []
+    selector: 'login-header',
+    templateUrl: './login-header.component.html',
+    styleUrls: [],
+    standalone: true,
+    imports: [RouterLink, LocalizeComponent, LocalizePipe]
 })
 export class LoginHeaderComponent {
   context: string;

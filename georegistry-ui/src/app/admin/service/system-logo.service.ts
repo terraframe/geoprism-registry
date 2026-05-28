@@ -28,7 +28,7 @@ import { SystemLogo } from '@admin/model/system-logo';
 
 import { environment } from 'src/environments/environment';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class SystemLogoService {
 
 	constructor(private http: HttpClient, private eventService: EventService) { }

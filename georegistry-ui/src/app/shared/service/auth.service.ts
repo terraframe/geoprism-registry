@@ -24,7 +24,7 @@ import { RoleBuilder, RegistryRole, RegistryRoleType } from "@shared/model/core"
 import { EventService, ISessionListener } from "./event.service";
 import { ConfigurationService } from "@core/service/configuration.service";
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class AuthService implements ISessionListener, OnDestroy {
 
     private user: User = {

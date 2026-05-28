@@ -29,7 +29,7 @@ import { ClassificationType } from "@registry/model/classification-type";
 
 import { environment } from 'src/environments/environment';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ClassificationTypeService implements GenericTableService {
 
     // eslint-disable-next-line no-useless-constructor

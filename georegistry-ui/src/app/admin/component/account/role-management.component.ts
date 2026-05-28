@@ -24,12 +24,20 @@ import { AuthService } from '@shared/service';
 
 import { Role, FormattedRoles, FormattedOrganization, FormattedGeoObjectTypeRoleGroup } from '@admin/model/account';
 import { RegistryRoleType } from '@shared/model/core';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+import { BooleanFieldComponent } from '../../../shared/component/form-fields/boolean-field/boolean-field.component';
+import { NgIf, NgFor, NgClass } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { LoadingBarComponent } from '../../../shared/component/loading-bar/loading-bar.component';
+import { MessageComponent } from '../../../shared/component/message/message.component';
 
 @Component({
-	selector: 'role-management',
-	templateUrl: './role-management.component.html',
-	styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}'],
-	styleUrls: ['./role-management.css']
+    selector: 'role-management',
+    templateUrl: './role-management.component.html',
+    styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}'],
+    styleUrls: ['./role-management.css'],
+    standalone: true,
+    imports: [MessageComponent, LoadingBarComponent, FormsModule, NgIf, BooleanFieldComponent, NgFor, NgClass, LocalizeComponent]
 })
 export class RoleManagementComponent {
 

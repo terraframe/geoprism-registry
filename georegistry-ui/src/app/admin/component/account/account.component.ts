@@ -30,12 +30,23 @@ import { LocalizationService, AuthService } from '@shared/service';
 import { ExternalSystem } from '@shared/model/core';
 
 import { ErrorHandler } from '@shared/component';
+import { LocalizePipe } from '../../../shared/pipe/localize.pipe';
+import { RoleManagementComponent } from './role-management.component';
+import { PasswordStrengthBarComponent } from '../../../shared/component/password-strength-bar/password-strength-bar.component';
+import { MustMatchDirective } from '../../../shared/directive/must-match.directive';
+import { FormsModule } from '@angular/forms';
+import { NgIf, NgFor } from '@angular/common';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+import { LoadingBarComponent } from '../../../shared/component/loading-bar/loading-bar.component';
+import { MessageComponent } from '../../../shared/component/message/message.component';
 
 @Component({
-  selector: 'account',
-  templateUrl: './account.component.html',
-  styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}'],
-  styleUrls: ['./account.css']
+    selector: 'account',
+    templateUrl: './account.component.html',
+    styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}'],
+    styleUrls: ['./account.css'],
+    standalone: true,
+    imports: [MessageComponent, LoadingBarComponent, LocalizeComponent, NgIf, FormsModule, MustMatchDirective, NgFor, PasswordStrengthBarComponent, RoleManagementComponent, LocalizePipe]
 })
 export class AccountComponent implements OnInit {
 

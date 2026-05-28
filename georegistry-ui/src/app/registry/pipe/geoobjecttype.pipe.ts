@@ -23,7 +23,8 @@ import { GeoObjectType } from "@registry/model/registry";
 
 @Pipe({
     name: "geoobjecttype",
-    pure: false
+    pure: false,
+    standalone: true
 })
 export class GeoObjectTypePipe implements PipeTransform {
 

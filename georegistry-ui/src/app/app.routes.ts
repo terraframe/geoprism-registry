@@ -17,18 +17,16 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { NgModule } from "@angular/core";
-import { LocationStrategy, HashLocationStrategy } from "@angular/common";
-import { Routes, RouterModule } from "@angular/router";
+import { Routes } from "@angular/router";
 
 import { LoginComponent } from "./core/component/login/login.component";
 import { HubComponent } from "./shared/hub/hub.component";
 import { ForgotPasswordComponent } from "./core/component/forgotpassword/forgotpassword.component";
 import { ForgotPasswordCompleteComponent } from "./core/component/forgotpassword-complete/forgotpassword-complete.component";
 
-import { AuthGuard, AdminGuard, MaintainerGuard, ContributerGuard } from "./shared/service/guard.service";
+import { AuthGuard } from "./shared/service/guard.service";
 
-const routes: Routes = [
+export const routes: Routes = [
     {
         path: "",
         redirectTo: "/menu",
@@ -67,11 +65,11 @@ const routes: Routes = [
     },
     {
         path: "admin",
-        loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule)
+        loadChildren: () => import('./admin/admin.routes').then(r => r.routes)
     },
     {
         path: "registry",
-        loadChildren: () => import('./registry/registry.module').then(m => m.RegistryModule)
+        loadChildren: () => import('./registry/registry.routes').then(r => r.routes)
     },
     {
         path: "**",
@@ -79,17 +77,3 @@ const routes: Routes = [
     },
 
 ];
-
-@NgModule({
-    imports: [RouterModule.forRoot(routes)],
-    exports: [RouterModule],
-    providers: [
-        { provide: LocationStrategy, useClass: HashLocationStrategy },
-        AdminGuard,
-        MaintainerGuard,
-        ContributerGuard
-    ]
-})
-export class CgrAppRoutingModule { }
-
-export const routedComponents: any = [LoginComponent, HubComponent, ForgotPasswordComponent, ForgotPasswordCompleteComponent];

@@ -25,7 +25,7 @@ import { ExternalSystem, PageResult, SystemCapabilities } from "@shared/model/co
 
 import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ExternalSystemService {
 
     // eslint-disable-next-line no-useless-constructor

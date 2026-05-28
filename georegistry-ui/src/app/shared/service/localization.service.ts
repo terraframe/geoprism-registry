@@ -21,7 +21,7 @@ import { Injectable } from "@angular/core";
 import { LocaleView, LocalizedValue } from "@core/model/core";
 import { ConfigurationService } from "@core/service/configuration.service";
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class LocalizationService {
 
     constructor(private config : ConfigurationService) {

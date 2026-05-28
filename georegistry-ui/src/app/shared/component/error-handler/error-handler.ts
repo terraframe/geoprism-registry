@@ -60,7 +60,10 @@ export class ErrorHandler {
             return null;
         }
 
-        let bsModalRef = modalService.show(ErrorModalComponent, { backdrop: true, class: "error-white-space-pre" });
+        let bsModalRef = modalService.show(ErrorModalComponent, {
+            animated: false, backdrop: true,
+            class: "error-white-space-pre"
+        });
 
         bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
 

@@ -49,6 +49,7 @@ import com.runwaysdk.session.SessionFacade;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.BusinessEdgeType;
+import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.axon.event.repository.AbstractRepositoryEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEdgeEvent;
@@ -61,6 +62,7 @@ import net.geoprism.registry.io.IgnoreRowException;
 import net.geoprism.registry.io.Location;
 import net.geoprism.registry.io.RequiredMappingException;
 import net.geoprism.registry.jobs.RowValidationProblem;
+import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.EdgeType;
 import net.geoprism.registry.model.VertexComponentType;
 import net.geoprism.registry.service.business.ServiceFactory;
@@ -290,7 +292,16 @@ public class EdgeObjectImporter implements ObjectImporterIF
     }
     else if (type.equals(VertexComponentType.BUSINESS))
     {
-      boCache.getOrFetchByCode(code, typeCode);
+      BusinessObject business = boCache.getOrFetchByCode(code, typeCode);
+
+      if (business == null)
+      {
+        DataNotFoundException ex = new DataNotFoundException();
+        ex.setAttributeLabel("Code");
+        ex.setDataIdentifier(code);
+        ex.setTypeLabel(typeCode);
+        throw ex;
+      }
     }
     else
     {

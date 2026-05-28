@@ -30,11 +30,18 @@ import { GeoObjectType, AttributeType, ManageGeoObjectTypeModalState } from "@re
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
 
 import { RegistryService } from "@registry/service";
+import { LocalizePipe } from "../../../../shared/pipe/localize.pipe";
+import { RouterLink } from "@angular/router";
+import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { FormsModule } from "@angular/forms";
+import { NgIf, NgFor } from "@angular/common";
 
 @Component({
     selector: "manage-attributes-modal",
     templateUrl: "./manage-attributes-modal.component.html",
-    styleUrls: ["./manage-attributes-modal.css"]
+    styleUrls: ["./manage-attributes-modal.css"],
+    standalone: true,
+    imports: [NgIf, FormsModule, LocalizeComponent, NgFor, RouterLink, LocalizePipe]
 })
 export class ManageAttributesModalComponent implements OnInit {
 
@@ -82,8 +89,7 @@ export class ManageAttributesModalComponent implements OnInit {
 
     removeAttributeType(attr: AttributeType, e: any): void {
         const confirmBsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
+            animated: false, backdrop: true,
             ignoreBackdropClick: true
         });
         confirmBsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + "[" + attr.label.localizedValue + "]";

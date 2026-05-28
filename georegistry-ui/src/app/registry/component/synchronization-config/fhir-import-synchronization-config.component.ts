@@ -23,6 +23,9 @@ import { HttpErrorResponse } from "@angular/common/http";
 
 import { SynchronizationConfig } from "@registry/model/registry";
 import { SynchronizationConfigService } from "@registry/service";
+import { NgFor } from "@angular/common";
+import { FormsModule } from "@angular/forms";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
 
 interface FhirSyncLevel {
   masterListId: string;
@@ -33,7 +36,9 @@ interface FhirSyncLevel {
 @Component({
     selector: "fhir-import-synchronization-config",
     templateUrl: "./fhir-import-synchronization-config.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [LocalizeComponent, FormsModule, NgFor]
 })
 export class FhirImportSynchronizationConfigComponent implements OnInit, OnDestroy {
 

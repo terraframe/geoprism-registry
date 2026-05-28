@@ -39,6 +39,11 @@ import moment, { Moment } from "moment";
 import { VotService } from "@registry/service/vot.service";
 import { PRESENT } from "@shared/model/date";
 import { DateFieldComponent } from "@shared/component";
+import { LocalizePipe } from "../../../shared/pipe/localize.pipe";
+import { DateFieldComponent as DateFieldComponent_1 } from "../../../shared/component/form-fields/date-field/date-field.component";
+import { FormsModule } from "@angular/forms";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { NgIf, NgFor, NgClass } from "@angular/common";
 
 @Component({
     selector: "geometry-panel",
@@ -54,15 +59,14 @@ import { DateFieldComponent } from "@shared/component";
                     }),
                     animate("500ms")
                 ]),
-                transition(":leave",
-                    animate("500ms",
-                        style({
-                            opacity: 0
-                        })
-                    )
-                )
+                transition(":leave", animate("500ms", style({
+                    opacity: 0
+                })))
             ])
-        ]]
+        ]
+    ],
+    standalone: true,
+    imports: [NgIf, LocalizeComponent, FormsModule, NgFor, NgClass, DateFieldComponent_1, LocalizePipe]
 })
 export class GeometryPanelComponent implements OnInit {
 

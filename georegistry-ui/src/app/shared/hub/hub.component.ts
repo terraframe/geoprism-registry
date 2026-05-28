@@ -27,15 +27,20 @@ import { AuthService } from '@shared/service';
 
 import { HubService } from '@core/service/hub.service';
 
-import { APP_BASE_HREF } from '@angular/common';
+import { APP_BASE_HREF, NgFor, NgIf } from '@angular/common';
 import EnvironmentUtil from '@core/utility/environment-util';
-import { Router } from '@angular/router';
+import { Router, RouterLinkActive, RouterLink } from '@angular/router';
 import { MenuSection } from '@core/model/core';
+import { LocalizePipe } from '../pipe/localize.pipe';
+import { LocalizeComponent } from '../component/localize/localize.component';
+import { PageContainerComponent } from '../component/page-container/page-container.component';
 
 @Component({
     selector: 'hub',
     templateUrl: './hub.component.html',
-    styleUrls: ['./hub.component.css']
+    styleUrls: ['./hub.component.css'],
+    standalone: true,
+    imports: [PageContainerComponent, LocalizeComponent, NgFor, NgIf, RouterLinkActive, RouterLink, LocalizePipe]
 })
 export class HubComponent implements OnInit {
     context: string;

@@ -21,11 +21,18 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { Commit, PublishEvents } from "@registry/model/publish";
 import { PublishService } from "@registry/service/publish.service";
+import { MultiSelectFieldComponent } from "../../../shared/component/form-fields/multi-select/multi-select-field.component";
+import { DateFieldComponent } from "../../../shared/component/form-fields/date-field/date-field.component";
+import { FormsModule } from "@angular/forms";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { NgIf, NgFor } from "@angular/common";
 
 @Component({
     selector: "publish-events",
     templateUrl: "./publish-events.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [NgIf, LocalizeComponent, FormsModule, DateFieldComponent, MultiSelectFieldComponent, NgFor]
 })
 export class PublishEventsComponent implements OnInit {
 

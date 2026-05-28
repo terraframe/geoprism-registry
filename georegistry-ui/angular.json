@@ -69,15 +69,15 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "georegistry:build:production"
+              "buildTarget": "georegistry:build:production"
             },
             "development": {
-              "browserTarget": "georegistry:build:development"
+              "buildTarget": "georegistry:build:development"
             }
           },
           "defaultConfiguration": "development",
           "options": {
-            "browserTarget": "your-application-name:build",
+            "buildTarget": "your-application-name:build",
             "ssl": true,
             "proxyConfig": "src/proxy.conf.js"
           }
@@ -85,7 +85,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "georegistry:build"
+            "buildTarget": "georegistry:build"
           }
         },
         "test": {

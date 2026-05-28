@@ -26,11 +26,19 @@ import { LocalizationService } from "@shared/service/localization.service";
 import { RollbackCheckpointService } from "@registry/service/rollback-checkpoint.service";
 import { PageResult } from "@shared/model/core";
 import { RollbackCheckpoint } from "@registry/model/rollback-checkpoint";
+import { NgxPaginationModule } from "ngx-pagination";
+import { RouterLink } from "@angular/router";
+import { NgIf, NgFor } from "@angular/common";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
+import { ModalTypes } from "@shared/model/modal";
 
 @Component({
     selector: "rollback-checkpoint-manager",
     templateUrl: "./rollback-checkpoint-manager.component.html",
-    styleUrls: ["./rollback-checkpoint-manager.css"]
+    styleUrls: ["./rollback-checkpoint-manager.css"],
+    standalone: true,
+    imports: [PageContainerComponent, LocalizeComponent, NgIf, NgFor, RouterLink, NgxPaginationModule]
 })
 export class RollbackCheckpointManagerComponent implements OnInit {
 
@@ -56,13 +64,11 @@ export class RollbackCheckpointManagerComponent implements OnInit {
 
     onRollback(checkpoint: RollbackCheckpoint): void {
         const bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         bsModalRef.content.message = this.localizeService.decode("modal.confirm.rollback").replaceAll("{filename}", checkpoint.filename);
         bsModalRef.content.submitText = this.localizeService.decode("modal.button.rollback");
-        bsModalRef.content.type = "danger";
+        bsModalRef.content.type =  ModalTypes.danger;
 
         bsModalRef.content.onConfirm.subscribe(() => {
             this.service.rollback(checkpoint.oid).then(() => {

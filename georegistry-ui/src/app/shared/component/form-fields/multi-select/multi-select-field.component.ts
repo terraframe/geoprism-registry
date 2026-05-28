@@ -19,6 +19,8 @@
 
 import { Component, Input, Output, EventEmitter } from "@angular/core";
 import { ControlContainer, NgForm } from "@angular/forms";
+import { BsDropdownModule } from "ngx-bootstrap/dropdown";
+import { NgIf, NgFor, NgClass } from "@angular/common";
 
 
 @Component({
@@ -26,6 +28,8 @@ import { ControlContainer, NgForm } from "@angular/forms";
     templateUrl: "./multi-select-field.component.html",
     styleUrls: [],
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
+    standalone: true,
+    imports: [NgIf, BsDropdownModule, NgFor, NgClass]
 })
 export class MultiSelectFieldComponent {
 

@@ -47,7 +47,7 @@ export interface AttributeTypeService {
     deleteAttributeType(geoObjTypeId: string, attributeName: string): Promise<boolean>;
 }
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class RegistryService implements AttributeTypeService {
 
     // eslint-disable-next-line no-useless-constructor

@@ -27,16 +27,23 @@ import { ListType, ListTypeEntry, ListTypeVersion } from "@registry/model/list-t
 import { ListTypePublishModalComponent } from "./publish-modal.component";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { PublishVersionComponent } from "./publish-version.component";
-import { Router } from "@angular/router";
+import { Router, RouterLinkActive, RouterLink } from "@angular/router";
 import { LngLatBounds } from "maplibre-gl";
 import uniqolor from 'uniqolor';
 import { ListVectorLayerDataSource } from "@registry/service/layer-data-source";
 import { GeometryService } from "@registry/service/geometry.service";
+import { DateTextComponent } from "../../../shared/component/date-text/date-text.component";
+import { CollapseModule } from "ngx-bootstrap/collapse";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { NgClass, NgIf, NgFor, NgTemplateOutlet } from "@angular/common";
+import { ModalTypes } from "@shared/model/modal";
 
 @Component({
     selector: "list-type",
     templateUrl: "./list-type.component.html",
-    styleUrls: ["./list-type-manager.css"]
+    styleUrls: ["./list-type-manager.css"],
+    standalone: true,
+    imports: [NgClass, NgIf, LocalizeComponent, CollapseModule, RouterLinkActive, RouterLink, NgFor, DateTextComponent, NgTemplateOutlet]
 })
 export class ListTypeComponent implements OnInit, OnDestroy {
 
@@ -83,9 +90,7 @@ export class ListTypeComponent implements OnInit, OnDestroy {
 
     onCreate(entry: ListTypeEntry): void {
         this.bsModalRef = this.modalService.show(PublishVersionComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         this.bsModalRef.content.init(this.list, entry);
     }
@@ -112,31 +117,25 @@ export class ListTypeComponent implements OnInit, OnDestroy {
 
     onEdit(entry: ListTypeEntry, version: ListTypeVersion): void {
         this.bsModalRef = this.modalService.show(PublishVersionComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         this.bsModalRef.content.init(this.list, entry, version);
     }
 
     onViewConfiguration(list: ListType): void {
         this.bsModalRef = this.modalService.show(ListTypePublishModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         this.bsModalRef.content.init(list, null, list);
     }
 
     onDelete(entry: ListTypeEntry, version: ListTypeVersion): void {
         this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " Version [" + version.versionNumber + "]";
         this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
-        this.bsModalRef.content.type = "danger";
+        this.bsModalRef.content.type =  ModalTypes.danger;
 
         this.bsModalRef.content.onConfirm.subscribe(data => {
             this.service.removeVersion(version).then(response => {

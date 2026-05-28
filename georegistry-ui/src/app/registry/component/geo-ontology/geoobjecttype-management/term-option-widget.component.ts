@@ -30,6 +30,8 @@ import { BsModalRef } from "ngx-bootstrap/modal";
 
 import { AttributeType, ManageGeoObjectTypeModalState } from "@registry/model/registry";
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
+import { NgFor } from "@angular/common";
+import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
 
 @Component({
     selector: "term-option-widget",
@@ -37,32 +39,24 @@ import { GeoObjectTypeModalStates } from "@registry/model/constants";
     styleUrls: ["./term-option-widget.css"],
     animations: [
         trigger("toggleInputs", [
-            state("none, void",
-                style({ opacity: 0 })
-            ),
-            state("show",
-                style({ opacity: 1 })
-            ),
+            state("none, void", style({ opacity: 0 })),
+            state("show", style({ opacity: 1 })),
             transition("none => show", animate("300ms")),
             transition("show => none", animate("100ms"))
         ]),
-        trigger("openClose",
-            [
-                transition(
-                    ":enter", [
-                        style({ opacity: 0 }),
-                        animate("500ms", style({ opacity: 1 }))
-                    ]
-                ),
-                transition(
-                    ":leave", [
-                        style({ opacity: 1 }),
-                        animate("0ms", style({ opacity: 0 }))
-
-                    ]
-                )]
-        )
-    ]
+        trigger("openClose", [
+            transition(":enter", [
+                style({ opacity: 0 }),
+                animate("500ms", style({ opacity: 1 }))
+            ]),
+            transition(":leave", [
+                style({ opacity: 1 }),
+                animate("0ms", style({ opacity: 0 }))
+            ])
+        ])
+    ],
+    standalone: true,
+    imports: [LocalizeComponent, NgFor]
 })
 export class TermOptionWidgetComponent implements OnInit {
 

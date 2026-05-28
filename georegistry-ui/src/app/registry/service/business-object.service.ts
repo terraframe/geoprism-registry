@@ -27,7 +27,7 @@ import { GeoRegistryConfiguration } from "@core/model/core";
 
 import { environment } from 'src/environments/environment';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class BusinessObjectService {
 
     // eslint-disable-next-line no-useless-constructor

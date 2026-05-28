@@ -26,11 +26,15 @@ import { HierarchyOverTime } from "@registry/model/registry";
 import { RegistryService } from "@registry/service";
 
 import { ErrorHandler, ErrorModalComponent } from "@shared/component";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { NgFor, NgIf } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 
 @Component({
-
     selector: "cascading-geo-selector",
-    templateUrl: "./cascading-geo-selector.html"
+    templateUrl: "./cascading-geo-selector.html",
+    standalone: true,
+    imports: [FormsModule, NgFor, NgIf, LocalizeComponent]
 })
 export class CascadingGeoSelector {
 
@@ -137,8 +141,7 @@ export class CascadingGeoSelector {
         } else {
 /*
             this.bsModalRef = this.modalService.show(ManageParentVersionsModalComponent, {
-                animated: true,
-                backdrop: true,
+                animated: false, backdrop: true,
                 ignoreBackdropClick: true,
             });
             this.bsModalRef.content.init(hierarchy);

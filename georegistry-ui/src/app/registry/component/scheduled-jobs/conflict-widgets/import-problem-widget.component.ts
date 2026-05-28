@@ -29,11 +29,16 @@ import { RegistryService } from "@registry/service";
 import { DateService } from "@shared/service/date.service";
 import { ErrorHandler } from "@shared/component";
 import { LocalizationService } from "@shared/service/localization.service";
+import { DateTextComponent } from "../../../../shared/component/date-text/date-text.component";
+import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { NgIf } from "@angular/common";
 
 @Component({
     selector: "import-problem-widget",
     templateUrl: "./import-problem-widget.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [NgIf, LocalizeComponent, DateTextComponent]
 })
 export class ImportProblemWidgetComponent implements OnInit {
 
@@ -56,8 +61,7 @@ export class ImportProblemWidgetComponent implements OnInit {
 
     onEditGeoObject(): void {
         let editModal = this.modalService.show(GeoObjectEditorComponent, {
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
 
         editModal.content.configureFromImportError(this.problem, this.job.historyId, this.job.configuration.startDate, true);

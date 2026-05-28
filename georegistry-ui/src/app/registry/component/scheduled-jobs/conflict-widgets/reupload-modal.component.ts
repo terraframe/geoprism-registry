@@ -20,7 +20,7 @@
 import { Component, Input, ViewChild, ElementRef } from "@angular/core";
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { Subject } from "rxjs";
-import { FileUploader, FileUploaderOptions } from "ng2-file-upload";
+import { FileUploader, FileUploaderOptions, FileUploadModule } from "ng2-file-upload";
 
 import { ModalTypes } from "@shared/model/modal";
 import { LocalizationService, EventService } from "@shared/service";
@@ -29,11 +29,16 @@ import { ErrorHandler } from "@shared/component";
 import { ScheduledJob } from "@registry/model/registry";
 
 import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
+import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { FormsModule } from "@angular/forms";
+import { NgIf, NgClass } from "@angular/common";
 
 @Component({
     selector: "reupload-modal",
     templateUrl: "./reupload-modal.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [NgIf, FormsModule, LocalizeComponent, FileUploadModule, NgClass]
 })
 export class ReuploadModalComponent {
 

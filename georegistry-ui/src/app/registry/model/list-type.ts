@@ -20,8 +20,8 @@
 import { LocalizedValue } from "@core/model/core";
 import { Layer } from "@registry/service/layer-data-source";
 import { PageResult } from "@shared/model/core";
-import { LazyLoadEvent } from "primeng/api";
 import { GeoObject, GeoObjectType } from "./registry";
+import { TableLazyLoadEvent } from "primeng/table";
 
 export class VersionMetadata {
 
@@ -323,7 +323,7 @@ export class CurationJob {
 
 export class ListData {
 
-    event: LazyLoadEvent;
+    event: TableLazyLoadEvent;
     oid: string;
 
 }

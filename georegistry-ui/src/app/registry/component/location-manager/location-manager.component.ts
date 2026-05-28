@@ -18,7 +18,7 @@
 ///
 
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, HostListener, Injector, ApplicationRef, ComponentFactoryResolver } from "@angular/core";
-import { Location } from "@angular/common";
+import { Location, NgIf, NgClass, NgFor, NgStyle } from "@angular/common";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Map, NavigationControl, AttributionControl, IControl, LngLatBounds } from "maplibre-gl";
 
@@ -41,7 +41,7 @@ import { SelectTypeModalComponent } from "./select-type-modal.component";
 
 import { LocalizedValue } from "@core/model/core";
 import { OverlayerIdentifier } from "@registry/model/constants";
-import { NgxSpinnerService } from "ngx-spinner";
+import { NgxSpinnerService, NgxSpinnerModule } from "ngx-spinner";
 import { ModalTypes } from "@shared/model/modal";
 import { FeaturePanelComponent } from "./feature-panel.component";
 import { RegistryCacheService } from "@registry/service/registry-cache.service";
@@ -55,6 +55,16 @@ import { ListTypeVersion } from "@registry/model/list-type";
 import { ConfigurationService } from "@core/service/configuration.service";
 import EnvironmentUtil from "@core/utility/environment-util";
 import { FeatureCollection } from "@turf/turf";
+import { LocalizePipe } from "../../../shared/pipe/localize.pipe";
+import { ListRowComponent } from "./list-row.component";
+import { ListPanelComponent } from "./list-panel.component";
+import { LayerPanelComponent } from "./layer-panel.component";
+import { RelationshipVisualizerComponent } from "../relationship-visualizer/relationship-visualizer.component";
+import { BusinessObjectPanelComponent } from "./business-object-panel.component";
+import { FormsModule } from "@angular/forms";
+import { DateFieldComponent } from "../../../shared/component/form-fields/date-field/date-field.component";
+import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
 
 class SelectedObject {
 
@@ -104,7 +114,9 @@ export interface LocationManagerState {
     selector: "location-manager",
     providers: [Location],
     templateUrl: "./location-manager.component.html",
-    styleUrls: ["./location-manager.css"]
+    styleUrls: ["./location-manager.css"],
+    standalone: true,
+    imports: [NgIf, LocalizeComponent, PageContainerComponent, NgClass, NgxSpinnerModule, DateFieldComponent, FormsModule, NgFor, FeaturePanelComponent, BusinessObjectPanelComponent, RelationshipVisualizerComponent, NgStyle, LayerPanelComponent, ListPanelComponent, ListRowComponent, LocalizePipe]
 })
 export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestroy {
 
@@ -540,8 +552,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                         }, null);
                     } else {
                         this.bsModalRef = this.modalService.show(SelectTypeModalComponent, {
-                            animated: true,
-                            backdrop: true,
+                            
+                            animated: false, backdrop: true,
                             ignoreBackdropClick: true
                         });
                         this.bsModalRef.content.init(version, typeCode => {
@@ -564,9 +576,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }
 
         let confirmBsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true, ignoreBackdropClick: true
         });
         confirmBsModalRef.content.message = this.lService.decode("explorer.edit.loseAllChanges");
         confirmBsModalRef.content.data = {};
@@ -649,7 +659,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
         if (applyInfo.isChangeRequest) {
             if (this.backReference != null && this.backReference.length >= 2 && this.backReference.substring(0, 2) === "CR") {
-                this.bsModalRef = this.modalService.show(SuccessModalComponent, { backdrop: true, class: "error-white-space-pre" });
+                this.bsModalRef = this.modalService.show(SuccessModalComponent, {
+                    animated: false, backdrop: true,
+                    class: "error-white-space-pre"
+                });
 
                 this.bsModalRef.content.message = this.lService.decode("geoobject-editor.changerequest.submitted");
                 this.bsModalRef.content.submitText = this.lService.decode("geoobject-editor.changerequest.view");
@@ -658,7 +671,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     this.router.navigate(["/registry/change-requests", applyInfo.changeRequestId]);
                 });
             } else {
-                this.bsModalRef = this.modalService.show(ConfirmModalComponent, { backdrop: true, class: "error-white-space-pre" });
+                this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
+                    animated: false, backdrop: true,
+                    class: "error-white-space-pre"
+                });
 
                 this.bsModalRef.content.message = this.lService.decode("geoobject-editor.changerequest.submitted");
                 this.bsModalRef.content.submitText = this.lService.decode("geoobject-editor.changerequest.view");
@@ -672,7 +688,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 });
             }
         } else {
-            this.bsModalRef = this.modalService.show(SuccessModalComponent, { backdrop: true, class: "error-white-space-pre" });
+            this.bsModalRef = this.modalService.show(SuccessModalComponent, {
+                animated: false, backdrop: true,
+                class: "error-white-space-pre"
+            });
 
             this.bsModalRef.content.message = this.lService.decode("geoobject-editor.edit.submitted");
             this.bsModalRef.content.submitText = this.lService.decode("geoobject-editor.cancel.returnExplorer");
@@ -777,8 +796,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     this.data = [];
 
                     let confirmBsModalRef = this.modalService.show(ErrorModalComponent, {
-                        animated: true,
-                        backdrop: true,
+                        animated: false, backdrop: true,
                         ignoreBackdropClick: true
                     });
                     confirmBsModalRef.content.message = this.lService.decode("explorer.search.no.results");

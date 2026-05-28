@@ -31,12 +31,17 @@ import { ConfigurationService } from "@core/service/configuration.service";
 import { LocaleView } from "@core/model/core";
 import { Router } from "@angular/router";
 import EnvironmentUtil from "@core/utility/environment-util";
+import { LocalizePipe } from "../../pipe/localize.pipe";
+import { FormsModule } from "@angular/forms";
+import { BsDropdownModule } from "ngx-bootstrap/dropdown";
+import { NgIf, NgFor } from "@angular/common";
 
 @Component({
-
     selector: "cgr-header",
     templateUrl: "./header.component.html",
-    styleUrls: ["./header.css"]
+    styleUrls: ["./header.css"],
+    standalone: true,
+    imports: [NgIf, BsDropdownModule, FormsModule, NgFor, LocalizePipe]
 })
 export class CgrHeaderComponent {
 

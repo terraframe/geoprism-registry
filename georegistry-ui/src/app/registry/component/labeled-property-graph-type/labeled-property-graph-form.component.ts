@@ -31,14 +31,24 @@ import { Organization } from '@shared/model/core';
 import Utils from "@registry/utility/Utils";
 import { PRESENT } from "@shared/model/date";
 import { HierarchyNode, HierarchyType } from "@registry/model/hierarchy";
-import { TypeaheadMatch } from "ngx-bootstrap/typeahead";
+import { TypeaheadMatch, TypeaheadModule } from "ngx-bootstrap/typeahead";
 import { BusinessEdgeType, BusinessType } from "@registry/model/business-type";
 import { BusinessTypeService } from "@registry/service/business-type.service";
+import { LocalizePipe } from "../../../shared/pipe/localize.pipe";
+import { BsDropdownModule } from "ngx-bootstrap/dropdown";
+import { DateTextComponent } from "../../../shared/component/date-text/date-text.component";
+import { DateFieldComponent } from "../../../shared/component/form-fields/date-field/date-field.component";
+import { ConvertKeyLabel } from "../../../shared/component/localize/convert-key-label.component";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { NgIf, NgFor, NgClass } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 
 @Component({
     selector: "labeled-property-graph-type-form",
     templateUrl: "./labeled-property-graph-form.component.html",
-    styleUrls: ["./labeled-property-graph-type-manager.css"]
+    styleUrls: ["./labeled-property-graph-type-manager.css"],
+    standalone: true,
+    imports: [FormsModule, NgIf, LocalizeComponent, NgFor, ConvertKeyLabel, DateFieldComponent, DateTextComponent, TypeaheadModule, BsDropdownModule, NgClass, LocalizePipe]
 })
 export class LabeledPropertyGraphTypeFormComponent implements OnInit, OnDestroy {
 

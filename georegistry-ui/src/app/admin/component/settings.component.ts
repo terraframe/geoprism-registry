@@ -46,11 +46,22 @@ import { ConfigurationService } from '@core/service/configuration.service';
 import { OrganizationHierarchyModalComponent } from './organization/organization-hierarchy-modal.component';
 import { ImportOrganizationModalComponent } from './organization/import-organization-modal.component';
 import { RestoreModalComponent } from './backup-restore/restore-modal.component';
+import { LocalizePipe } from '../../shared/pipe/localize.pipe';
+import { LoadingBarComponent } from '../../shared/component/loading-bar/loading-bar.component';
+import { SystemLogosComponent } from './logo/system-logos.component';
+import { RouterLinkActive, RouterLink } from '@angular/router';
+import { NgxPaginationModule } from 'ngx-pagination';
+import { NgIf, NgFor } from '@angular/common';
+import { LocalizeComponent } from '../../shared/component/localize/localize.component';
+import { MessageComponent } from '../../shared/component/message/message.component';
+import { PageContainerComponent } from '../../shared/component/page-container/page-container.component';
 
 @Component({
 	selector: 'settings',
 	templateUrl: './settings.component.html',
-	styleUrls: ['./settings.css']
+	styleUrls: ['./settings.css'],
+	standalone: true,
+	imports: [PageContainerComponent, MessageComponent, LocalizeComponent, NgIf, NgFor, NgxPaginationModule, RouterLinkActive, RouterLink, SystemLogosComponent, LoadingBarComponent, LocalizePipe]
 })
 export class SettingsComponent implements OnInit {
 	bsModalRef: BsModalRef;
@@ -144,16 +155,14 @@ export class SettingsComponent implements OnInit {
 
 	public importLocalization(): void {
 		this.modalService.show(ImportLocalizationModalComponent, {
-			animated: true,
-			backdrop: true,
+			animated: false, backdrop: true,
 			ignoreBackdropClick: true,
 		});
 	}
 
 	public newOrganization(): void {
 		let bsModalRef = this.modalService.show(OrganizationModalComponent, {
-			animated: true,
-			backdrop: true,
+			animated: false, backdrop: true,
 			ignoreBackdropClick: true,
 		});
 
@@ -168,8 +177,7 @@ export class SettingsComponent implements OnInit {
 
 	public onEditOrganization(org: Organization): void {
 		let bsModalRef = this.modalService.show(OrganizationModalComponent, {
-			animated: true,
-			backdrop: true,
+			animated: false, backdrop: true,
 			ignoreBackdropClick: true,
 		});
 
@@ -193,8 +201,7 @@ export class SettingsComponent implements OnInit {
 
 	public onRemoveOrganization(code: string, name: string): void {
 		this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-			animated: true,
-			backdrop: true,
+			animated: false, backdrop: true,
 			ignoreBackdropClick: true,
 		});
 		this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + ' [' + name + ']';
@@ -221,8 +228,7 @@ export class SettingsComponent implements OnInit {
 
 	public onEditLocale(locale: LocaleView) {
 		let bsModalRef = this.modalService.show(NewLocaleModalComponent, {
-			animated: true,
-			backdrop: true,
+			animated: false, backdrop: true,
 			ignoreBackdropClick: true,
 		});
 
@@ -245,8 +251,7 @@ export class SettingsComponent implements OnInit {
 
 	public onRemoveLocale(locale: LocaleView) {
 		this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-			animated: true,
-			backdrop: true,
+			animated: false, backdrop: true,
 			ignoreBackdropClick: true,
 		});
 		this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + ' [' + locale.label.localizedValue + ']';
@@ -279,8 +284,7 @@ export class SettingsComponent implements OnInit {
 	public newLocalization(): void {
 
 		let bsModalRef = this.modalService.show(NewLocaleModalComponent, {
-			animated: true,
-			backdrop: true,
+			animated: false, backdrop: true,
 			ignoreBackdropClick: true
 		});
 
@@ -292,8 +296,7 @@ export class SettingsComponent implements OnInit {
 
 	public configureEmail(): void {
 		this.bsModalRef = this.modalService.show(EmailComponent, {
-			animated: true,
-			backdrop: true,
+			animated: false, backdrop: true,
 			ignoreBackdropClick: true,
 		});
 
@@ -306,8 +309,7 @@ export class SettingsComponent implements OnInit {
 		// this.router.navigate(['/admin/invite']);	  
 
 		this.bsModalRef = this.modalService.show(AccountInviteComponent, {
-			animated: true,
-			backdrop: true,
+			animated: false, backdrop: true,
 			ignoreBackdropClick: true,
 		});
 
@@ -343,8 +345,7 @@ export class SettingsComponent implements OnInit {
 
 	newSystem(): void {
 		let bsModalRef = this.modalService.show(ExternalSystemModalComponent, {
-			animated: true,
-			backdrop: true,
+			animated: false, backdrop: true,
 			ignoreBackdropClick: true,
 		});
 		bsModalRef.content.init(this.organizations);
@@ -358,8 +359,8 @@ export class SettingsComponent implements OnInit {
 		this.externalSystemService.getExternalSystem(system.oid).then(system => {
 
 			let bsModalRef = this.modalService.show(ExternalSystemModalComponent, {
-				animated: true,
-				backdrop: true,
+				
+				animated: false, backdrop: true,
 				ignoreBackdropClick: true,
 			});
 			bsModalRef.content.init(this.organizations, system);
@@ -372,8 +373,7 @@ export class SettingsComponent implements OnInit {
 	onRemoveSystem(system: ExternalSystem): void {
 
 		this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-			animated: true,
-			backdrop: true,
+			animated: false, backdrop: true,
 			ignoreBackdropClick: true,
 		});
 		this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + ' [' + system.label.localizedValue + ']';
@@ -391,8 +391,7 @@ export class SettingsComponent implements OnInit {
 
 	onManageHierarchy(): void {
 		this.bsModalRef = this.modalService.show(OrganizationHierarchyModalComponent, {
-			animated: true,
-			backdrop: true,
+			animated: false, backdrop: true,
 			ignoreBackdropClick: true,
 		});
 
@@ -407,8 +406,7 @@ export class SettingsComponent implements OnInit {
 
 	onUploadHierarchy(): void {
 		this.bsModalRef = this.modalService.show(ImportOrganizationModalComponent, {
-			animated: true,
-			backdrop: true,
+			animated: false, backdrop: true,
 			ignoreBackdropClick: true,
 		});
 
@@ -427,8 +425,7 @@ export class SettingsComponent implements OnInit {
 
 	onDeleteData() {
 		this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-			animated: true,
-			backdrop: true,
+			animated: false, backdrop: true,
 			ignoreBackdropClick: true,
 		});
 		this.bsModalRef.content.message = this.localizeService.decode("settings.delete.data.confirm");
@@ -448,8 +445,7 @@ export class SettingsComponent implements OnInit {
 
 	onRestore(): void {
 		this.modalService.show(RestoreModalComponent, {
-			animated: true,
-			backdrop: true,
+			animated: false, backdrop: true,
 			ignoreBackdropClick: true,
 		});
 	}

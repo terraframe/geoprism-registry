@@ -21,7 +21,7 @@ import { TestBed, ComponentFixture, async } from "@angular/core/testing";
 import { NO_ERRORS_SCHEMA, DebugElement } from "@angular/core";
 import { By } from "@angular/platform-browser";
 
-import { CgrAppComponent } from "../../src/app/cgr-app.component";
+import { CgrAppComponent } from "../../src/app/app.component";
 
 describe("CgrAppComponent", () => {
 	beforeEach(async(() => {

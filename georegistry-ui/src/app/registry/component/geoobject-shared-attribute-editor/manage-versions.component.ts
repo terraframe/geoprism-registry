@@ -53,16 +53,24 @@ import { DateService } from "@shared/service/date.service";
 import { LocalizationService } from "@shared/service/localization.service";
 
 import { VersionDiffView } from "./manage-versions-model";
-import { ControlContainer, NgForm } from "@angular/forms";
+import { ControlContainer, NgForm, FormsModule } from "@angular/forms";
 import { Observable, Observer, Subscription } from "rxjs";
 import { ValueOverTimeCREditor } from "./ValueOverTimeCREditor";
-import { TypeaheadMatch } from "ngx-bootstrap/typeahead";
+import { TypeaheadMatch, TypeaheadModule } from "ngx-bootstrap/typeahead";
 import { HierarchyCREditor } from "./HierarchyCREditor";
 import { ChangeRequestEditor } from "./change-request-editor";
 import { ChangeRequestChangeOverTimeAttributeEditor } from "./change-request-change-over-time-attribute-editor";
 import uniqolor from 'uniqolor';
 import { CHANGE_REQUEST_SOURCE_TYPE_NEW, CHANGE_REQUEST_SOURCE_TYPE_OLD, GeoJsonLayer, GeoObjectLayerDataSource, Layer, ValueOverTimeDataSource } from "@registry/service/layer-data-source";
 import { LocationManagerState } from "../location-manager/location-manager.component";
+import { LocalizePipe } from "../../../shared/pipe/localize.pipe";
+import { GeoObjectEditorMapComponent } from "../geoobject-editor-map/geoobject-editor-map.component";
+import { DateFieldComponent as DateFieldComponent_1 } from "../../../shared/component/form-fields/date-field/date-field.component";
+import { SourceFieldComponent } from "../form-fields/source-field/source-field.component";
+import { ClassificationFieldComponent } from "../form-fields/classification-field/classification-field.component";
+import { ConvertKeyLabel } from "../../../shared/component/localize/convert-key-label.component";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { NgStyle, NgIf, NgFor, NgClass } from "@angular/common";
 
 @Component({
     selector: "manage-versions",
@@ -78,17 +86,15 @@ import { LocationManagerState } from "../location-manager/location-manager.compo
                     }),
                     animate("500ms")
                 ]),
-                transition(":leave",
-                    animate("500ms",
-                        style({
-                            opacity: 0
-                        })
-                    )
-                )
+                transition(":leave", animate("500ms", style({
+                    opacity: 0
+                })))
             ])
-        ]],
-    viewProviders: [{ provide: ControlContainer, useExisting: NgForm }]
-
+        ]
+    ],
+    viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
+    standalone: true,
+    imports: [FormsModule, NgStyle, NgIf, LocalizeComponent, NgFor, NgClass, ConvertKeyLabel, ClassificationFieldComponent, SourceFieldComponent, DateFieldComponent_1, TypeaheadModule, GeoObjectEditorMapComponent, LocalizePipe]
 })
 export class ManageVersionsComponent implements OnInit, OnDestroy {
 

@@ -27,11 +27,18 @@ import { ListType, ListTypeByType } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { ListTypePublishModalComponent } from "./publish-modal.component";
 import { Subject } from "rxjs";
+import { DateTextComponent } from "../../../shared/component/date-text/date-text.component";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { RouterLinkActive, RouterLink } from "@angular/router";
+import { NgFor, NgIf, NgTemplateOutlet } from "@angular/common";
+import { ModalTypes } from "@shared/model/modal";
 
 @Component({
     selector: "lists-for-type",
     templateUrl: "./lists-for-type.component.html",
-    styleUrls: ["./list-type-manager.css"]
+    styleUrls: ["./list-type-manager.css"],
+    standalone: true,
+    imports: [NgFor, NgIf, RouterLinkActive, RouterLink, LocalizeComponent, DateTextComponent, NgTemplateOutlet]
 })
 export class ListsForTypeComponent implements OnInit, OnDestroy, OnChanges {
 
@@ -104,31 +111,25 @@ export class ListsForTypeComponent implements OnInit, OnDestroy, OnChanges {
 
     onCreate(): void {
         this.bsModalRef = this.modalService.show(ListTypePublishModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         this.bsModalRef.content.init(this.listByType, this.onListTypeChange);
     }
 
     onEdit(list: ListType): void {
         this.bsModalRef = this.modalService.show(ListTypePublishModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         this.bsModalRef.content.init(this.listByType, this.onListTypeChange, list);
     }
 
     onDelete(list: ListType): void {
         this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " [" + list.displayLabel.localizedValue + "]";
         this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
-        this.bsModalRef.content.type = "danger";
+        this.bsModalRef.content.type =  ModalTypes.danger;
 
         this.bsModalRef.content.onConfirm.subscribe(() => {
             this.service.remove(list).then(() => {

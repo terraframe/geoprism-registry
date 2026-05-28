@@ -20,12 +20,17 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 import { ImportConfiguration } from '@registry/model/io';
+import { NgFor, NgIf, NgClass } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { LocalizeComponent } from '../../../../shared/component/localize/localize.component';
 
-@Component( {
+@Component({
     selector: 'attributes-page',
     templateUrl: './attributes-page.component.html',
-    styleUrls: []
-} )
+    styleUrls: [],
+    standalone: true,
+    imports: [LocalizeComponent, FormsModule, NgFor, NgIf, NgClass]
+})
 export class AttributesPageComponent {
 
     @Input() configuration: ImportConfiguration;

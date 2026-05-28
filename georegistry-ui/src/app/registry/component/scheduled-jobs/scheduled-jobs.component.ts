@@ -18,7 +18,7 @@
 ///
 
 import { Component, OnInit } from "@angular/core";
-import { Router } from "@angular/router";
+import { Router, RouterLinkActive, RouterLink } from "@angular/router";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
 import { HttpErrorResponse } from "@angular/common/http";
@@ -31,11 +31,19 @@ import { ErrorHandler, ConfirmModalComponent } from "@shared/component";
 import { LocalizationService, AuthService } from "@shared/service";
 import { ModalTypes } from "@shared/model/modal";
 import { PageResult } from "@shared/model/core";
+import { NgxPaginationModule } from "ngx-pagination";
+import { StepIndicatorComponent } from "./step-indicator.component";
+import { DateTextComponent } from "../../../shared/component/date-text/date-text.component";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { NgIf, NgFor } from "@angular/common";
+import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
 
 @Component({
     selector: "scheduled-jobs",
     templateUrl: "./scheduled-jobs.component.html",
-    styleUrls: ["./scheduled-jobs.css"]
+    styleUrls: ["./scheduled-jobs.css"],
+    standalone: true,
+    imports: [PageContainerComponent, NgIf, LocalizeComponent, NgFor, DateTextComponent, StepIndicatorComponent, RouterLinkActive, RouterLink, NgxPaginationModule]
 })
 export class ScheduledJobsComponent implements OnInit {
 
@@ -247,8 +255,7 @@ export class ScheduledJobsComponent implements OnInit {
 
     onCancelScheduledJob(historyId: string, job: ScheduledJob): void {
         this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
+            animated: false, backdrop: true,
             ignoreBackdropClick: true
         });
 
@@ -279,9 +286,7 @@ export class ScheduledJobsComponent implements OnInit {
 
     onResolveScheduledJob(historyId: string, job: ScheduledJob): void {
         this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true, ignoreBackdropClick: true
         });
 
         this.bsModalRef.content.message = this.localizeService.decode("etl.import.resume.modal.importDescription");

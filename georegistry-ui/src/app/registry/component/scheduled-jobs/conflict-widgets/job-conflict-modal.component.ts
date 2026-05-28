@@ -25,11 +25,20 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { ScheduledJobOverview } from "@registry/model/registry";
 
 import { ErrorHandler } from "@shared/component";
+import { RowValidationProblemWidgetComponent } from "./row-validation-problem-widget.component";
+import { TermReferenceProblemWidgetComponent } from "./term-reference-problem-widget.component";
+import { ParentReferenceProblemWidgetComponent } from "./parent-reference-problem-widget.component";
+import { ImportProblemWidgetComponent } from "./import-problem-widget.component";
+import { FormsModule } from "@angular/forms";
+import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { NgIf } from "@angular/common";
 
 @Component({
     selector: "job-conflict-modal",
     templateUrl: "./job-conflict-modal.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [NgIf, LocalizeComponent, FormsModule, ImportProblemWidgetComponent, ParentReferenceProblemWidgetComponent, TermReferenceProblemWidgetComponent, RowValidationProblemWidgetComponent]
 })
 export class JobConflictModalComponent implements OnInit {
 

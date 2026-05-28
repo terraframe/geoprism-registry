@@ -34,6 +34,14 @@ import { LocalizationService, ModalStepIndicatorService } from "@shared/service"
 import { GeoObjectType, ManageGeoObjectTypeModalState, AttributeType } from "@registry/model/registry";
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
 import { RegistryService } from "@registry/service";
+import { LocalizePipe } from "../../../../shared/pipe/localize.pipe";
+import { RouterLink } from "@angular/router";
+import { BooleanFieldComponent } from "../../../../shared/component/form-fields/boolean-field/boolean-field.component";
+import { LocalizedTextComponent } from "../../form-fields/localized-text/localized-text.component";
+import { LocalizedInputComponent } from "../../form-fields/localized-input/localized-input.component";
+import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { FormsModule } from "@angular/forms";
+import { NgIf, NgFor } from "@angular/common";
 
 @Component({
     selector: "geoobjecttype-input",
@@ -49,15 +57,14 @@ import { RegistryService } from "@registry/service";
                     }),
                     animate("500ms")
                 ]),
-                transition(":leave",
-                    animate("500ms",
-                        style({
-                            opacity: 0
-                        })
-                    )
-                )
+                transition(":leave", animate("500ms", style({
+                    opacity: 0
+                })))
             ])
-        ]]
+        ]
+    ],
+    standalone: true,
+    imports: [NgIf, FormsModule, LocalizeComponent, LocalizedInputComponent, LocalizedTextComponent, BooleanFieldComponent, NgFor, RouterLink, LocalizePipe]
 })
 export class GeoObjectTypeInputComponent implements OnInit {
 
@@ -174,8 +181,7 @@ export class GeoObjectTypeInputComponent implements OnInit {
 
     removeAttributeType(attr: AttributeType, e: any): void {
         const confirmBsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
+            animated: false, backdrop: true,
             ignoreBackdropClick: true
         });
         confirmBsModalRef.content.message = this.localizationService.decode("confirm.modal.verify.delete") + "[" + attr.label.localizedValue + "]";

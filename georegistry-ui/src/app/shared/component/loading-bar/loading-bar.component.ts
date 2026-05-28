@@ -20,12 +20,14 @@
 import { Component, OnInit } from "@angular/core";
 
 import { EventService, IEventListener } from "@shared/service";
+import { NgIf } from "@angular/common";
 
 @Component({
-
     selector: "loading-bar",
     templateUrl: "./loading-bar.component.html",
-    styleUrls: ["./loading-bar.css"]
+    styleUrls: ["./loading-bar.css"],
+    standalone: true,
+    imports: [NgIf]
 })
 export class LoadingBarComponent implements OnInit, IEventListener {
 

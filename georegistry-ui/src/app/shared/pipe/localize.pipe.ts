@@ -20,7 +20,10 @@
 import { Pipe, PipeTransform } from "@angular/core";
 import { LocalizationService } from "@shared/service/localization.service";
 
-@Pipe({ name: "localize" })
+@Pipe({
+    name: "localize",
+    standalone: true
+})
 export class LocalizePipe implements PipeTransform {
 
     // eslint-disable-next-line no-useless-constructor

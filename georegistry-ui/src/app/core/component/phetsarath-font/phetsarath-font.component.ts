@@ -23,7 +23,8 @@ import { Component, ViewEncapsulation } from '@angular/core';
     selector: 'phetsarath-font',
     templateUrl: './phetsarath-font.component.html',
     encapsulation: ViewEncapsulation.None,
-    styleUrls: ['./phetsarath-font.component.scss']
+    styleUrls: ['./phetsarath-font.component.scss'],
+    standalone: true
 })
 export class PhetsarathFontComponent {
 }

@@ -21,19 +21,26 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 import { ErrorHandler } from '@shared/component';
-import { FileUploader, FileUploaderOptions } from 'ng2-file-upload';
+import { FileUploader, FileUploaderOptions, FileUploadModule } from 'ng2-file-upload';
 
 import { EventService } from '@shared/service';
 import { SystemLogo } from '@admin/model/system-logo';
 
 import { environment } from 'src/environments/environment';
 import EnvironmentUtil from '@core/utility/environment-util';
+import { LocalizePipe } from '../../../shared/pipe/localize.pipe';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+import { NgIf, NgClass } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { LoadingBarComponent } from '../../../shared/component/loading-bar/loading-bar.component';
+import { MessageComponent } from '../../../shared/component/message/message.component';
 
 @Component({
-
     selector: 'system-logo',
     templateUrl: './system-logo.component.html',
-    styles: []
+    styles: [],
+    standalone: true,
+    imports: [MessageComponent, LoadingBarComponent, FormsModule, NgIf, FileUploadModule, NgClass, LocalizeComponent, LocalizePipe]
 })
 export class SystemLogoComponent implements OnInit {
     message: string = null;

@@ -37,6 +37,8 @@ import { Subscription } from "rxjs";
 import { LocationManagerState } from "../location-manager/location-manager.component";
 import { GeometryService } from "@registry/service";
 import { VotService } from "@registry/service/vot.service";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { NgIf, NgFor, NgClass, NgStyle } from "@angular/common";
 
 export interface DateBoundary { date: string; isStart: boolean; isEnd: boolean }
 
@@ -63,15 +65,14 @@ export interface DataTimeSpan {startDay: number, startDate: string, displayStart
                     }),
                     animate("1000ms")
                 ]),
-                transition(":leave",
-                    animate("1000ms",
-                        style({
-                            opacity: 0
-                        })
-                    )
-                )
+                transition(":leave", animate("1000ms", style({
+                    opacity: 0
+                })))
             ])
-        ]]
+        ]
+    ],
+    standalone: true,
+    imports: [NgIf, LocalizeComponent, NgFor, NgClass, NgStyle]
 })
 export class StabilityPeriodComponent implements OnInit, OnDestroy {
 

@@ -29,6 +29,13 @@ import {
 import { GeoObjectType, AttributeType } from "@registry/model/registry";
 import { ClassificationTypeService } from "@registry/service/classification-type.service";
 import { ClassificationType } from "@registry/model/classification-type";
+import { ClassificationFieldComponent } from "../../form-fields/classification-field/classification-field.component";
+import { LocalizedTextComponent } from "../../form-fields/localized-text/localized-text.component";
+import { NgIf, NgFor } from "@angular/common";
+import { LocalizedInputComponent } from "../../form-fields/localized-input/localized-input.component";
+import { GeoObjectAttributeCodeValidator } from "../../../factory/form-validation.factory";
+import { FormsModule } from "@angular/forms";
+import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
 
 @Component({
     selector: "attribute-input",
@@ -36,16 +43,14 @@ import { ClassificationType } from "@registry/model/classification-type";
     styleUrls: ["./attribute-input.css"],
     animations: [
         trigger("toggleInputs", [
-            state("none, void",
-                style({ opacity: 0 })
-            ),
-            state("show",
-                style({ opacity: 1 })
-            ),
+            state("none, void", style({ opacity: 0 })),
+            state("show", style({ opacity: 1 })),
             transition("none => show", animate("300ms"))
             // transition('show => none', animate('100ms'))
         ])
-    ]
+    ],
+    standalone: true,
+    imports: [LocalizeComponent, FormsModule, GeoObjectAttributeCodeValidator, LocalizedInputComponent, NgIf, LocalizedTextComponent, NgFor, ClassificationFieldComponent]
 })
 export class AttributeInputComponent implements OnChanges {
 

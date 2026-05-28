@@ -20,18 +20,23 @@
 import { Component, OnInit } from "@angular/core";
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { Subject } from "rxjs";
-import { TreeNode } from "@circlon/angular-tree-component";
+import { TreeNode } from "@ali-hm/angular-tree-component";
 import { HttpErrorResponse } from "@angular/common/http";
 import { ErrorHandler } from "@shared/component";
 import { HierarchyType, HierarchyNode } from "@registry/model/hierarchy";
 import { GeoObjectType } from "@registry/model/registry";
 import { HierarchyService } from "@registry/service";
+import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { NgIf, NgFor } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 
 
 @Component({
     selector: "add-child-to-hierarchy-modal",
     templateUrl: "./add-child-to-hierarchy-modal.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [FormsModule, NgIf, LocalizeComponent, NgFor]
 })
 export class AddChildToHierarchyModalComponent implements OnInit {
 

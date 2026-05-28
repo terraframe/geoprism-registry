@@ -28,11 +28,18 @@ import { LocalizationService } from '@shared/service/localization.service';
 
 import { ErrorHandler, ErrorModalComponent } from '@shared/component';
 import { LocaleView } from '@core/model/core';
+import { ConvertKeyLabel } from '../../../shared/component/localize/convert-key-label.component';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+import { NgIf, NgFor } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { LoadingBarComponent } from '../../../shared/component/loading-bar/loading-bar.component';
 
 @Component({
-	selector: 'locale-modal',
-	templateUrl: './locale-modal.component.html',
-	styleUrls: []
+    selector: 'locale-modal',
+    templateUrl: './locale-modal.component.html',
+    styleUrls: [],
+    standalone: true,
+    imports: [LoadingBarComponent, FormsModule, NgIf, LocalizeComponent, NgFor, ConvertKeyLabel]
 })
 export class NewLocaleModalComponent {
 

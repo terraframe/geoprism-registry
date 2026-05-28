@@ -28,12 +28,17 @@ import { IOService } from "@registry/service";
 import { AuthService } from "@shared/service";
 
 import { environment } from 'src/environments/environment';
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { FormsModule } from "@angular/forms";
+import { NgIf, NgFor } from "@angular/common";
+import { LoadingBarComponent } from "../../../shared/component/loading-bar/loading-bar.component";
 
 @Component({
-
     selector: "data-export",
     templateUrl: "./data-export.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [LoadingBarComponent, NgIf, FormsModule, LocalizeComponent, NgFor]
 })
 export class DataExportComponent implements OnInit {
 

@@ -20,7 +20,7 @@
 import { Component, OnInit, ViewChild, Input } from "@angular/core";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
-import { DatePipe } from "@angular/common";
+import { DatePipe, NgIf } from "@angular/common";
 import { HttpErrorResponse } from "@angular/common/http";
 
 import { ErrorHandler } from "@shared/component";
@@ -32,12 +32,17 @@ import { GeoObjectType, GeoObjectOverTime, HierarchyOverTime, ParentTreeNode, Im
 
 import { Observable } from "rxjs";
 import { TypeaheadMatch } from "ngx-bootstrap/typeahead";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { GeoObjectSharedAttributeEditorComponent } from "../geoobject-shared-attribute-editor/geoobject-shared-attribute-editor.component";
+import { FormsModule } from "@angular/forms";
 
 @Component({
     selector: "geoobject-editor",
     templateUrl: "./geoobject-editor.component.html",
     styleUrls: ["./geoobject-editor.component.css"],
-    providers: [DatePipe]
+    providers: [DatePipe],
+    standalone: true,
+    imports: [FormsModule, NgIf, GeoObjectSharedAttributeEditorComponent, LocalizeComponent]
 })
 
 /**

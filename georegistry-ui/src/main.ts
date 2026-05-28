@@ -18,14 +18,15 @@
 ///
 
 import { enableProdMode } from '@angular/core';
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 
-import { CgrAppModule } from './app/cgr-app.module';
 import { environment } from './environments/environment';
+import { CgrAppComponent } from './app/app.component';
+import { bootstrapApplication } from '@angular/platform-browser';
+import { appConfig } from './app/app.config';
 
 if (environment.production) {
-  enableProdMode();
+    enableProdMode();
 }
 
-platformBrowserDynamic().bootstrapModule(CgrAppModule)
-  .catch(err => console.error(err));
+bootstrapApplication(CgrAppComponent, appConfig)
+    .catch(err => console.error(err));

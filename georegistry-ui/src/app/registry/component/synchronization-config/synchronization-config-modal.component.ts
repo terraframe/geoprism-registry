@@ -27,11 +27,22 @@ import { ErrorHandler } from "@shared/component";
 
 import { SynchronizationConfig, OrgSyncInfo } from "@registry/model/registry";
 import { SynchronizationConfigService } from "@registry/service";
+import { LocalizePipe } from "../../../shared/pipe/localize.pipe";
+import { JenaExportSynchronizationConfigComponent } from "./jena-export-synchronization-config.component";
+import { FhirImportSynchronizationConfigComponent } from "./fhir-import-synchronization-config.component";
+import { FhirExportSynchronizationConfigComponent } from "./fhir-export-synchronization-config.component";
+import { Dhis2SynchronizationConfigComponent } from "./dhis2-synchronization-config.component";
+import { ConvertKeyLabel } from "../../../shared/component/localize/convert-key-label.component";
+import { FormsModule } from "@angular/forms";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { NgIf, NgFor } from "@angular/common";
 
 @Component({
     selector: "synchronization-config-modal",
     templateUrl: "./synchronization-config-modal.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [NgIf, LocalizeComponent, FormsModule, NgFor, ConvertKeyLabel, Dhis2SynchronizationConfigComponent, FhirExportSynchronizationConfigComponent, FhirImportSynchronizationConfigComponent, JenaExportSynchronizationConfigComponent, LocalizePipe]
 })
 export class SynchronizationConfigModalComponent implements OnInit, OnDestroy {
 

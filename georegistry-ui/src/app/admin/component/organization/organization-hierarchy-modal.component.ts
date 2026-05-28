@@ -26,8 +26,12 @@ import { ConfirmModalComponent, ErrorHandler } from '@shared/component';
 import { Organization, PageResult } from '@shared/model/core';
 
 import { LocalizationService, OrganizationService } from '@shared/service';
-import { TreeComponent, TreeModel, TreeNode, TREE_ACTIONS } from '@circlon/angular-tree-component';
-import { ContextMenuComponent, ContextMenuService } from '@perfectmemory/ngx-contextmenu';
+import { TreeComponent, TreeModel, TreeNode, TREE_ACTIONS, TreeModule } from '@ali-hm/angular-tree-component';
+import { ContextMenuComponent, ContextMenuService, ContextMenuModule } from '@perfectmemory/ngx-contextmenu';
+import { LocalizePipe } from '../../../shared/pipe/localize.pipe';
+import { NgIf } from '@angular/common';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+import { ModalTypes } from '@shared/model/modal';
 
 const PAGE_SIZE: number = 100;
 
@@ -49,9 +53,11 @@ class PaginatedTreeNode<T> {
 }
 
 @Component({
-	selector: 'organization-hierarchy-modal',
-	templateUrl: './organization-hierarchy-modal.component.html',
-	styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}']
+    selector: 'organization-hierarchy-modal',
+    templateUrl: './organization-hierarchy-modal.component.html',
+    styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}'],
+    standalone: true,
+    imports: [ContextMenuModule, LocalizeComponent, NgIf, TreeModule, LocalizePipe]
 })
 export class OrganizationHierarchyModalComponent implements OnInit {
 
@@ -237,12 +243,11 @@ export class OrganizationHierarchyModalComponent implements OnInit {
 		message = message.replace("{1}", parent.label.localizedValue);
 
 		const modalRef = this.modalService.show(ConfirmModalComponent, {
-			animated: true,
-			backdrop: true,
+			animated: false, backdrop: true, 
 			ignoreBackdropClick: true
 		});
 		modalRef.content.message = message;
-		modalRef.content.type = "danger";
+		modalRef.content.type = ModalTypes.danger;
 
 		modalRef.content.onConfirm.subscribe(() => {
 			this.message = null;
@@ -264,12 +269,11 @@ export class OrganizationHierarchyModalComponent implements OnInit {
 		message = message.replace("{1}", "ROOT");
 
 		const modalRef = this.modalService.show(ConfirmModalComponent, {
-			animated: true,
-			backdrop: true,
+			animated: false, backdrop: true, 
 			ignoreBackdropClick: true
 		});
 		modalRef.content.message = message;
-		modalRef.content.type = "danger";
+		modalRef.content.type =  ModalTypes.danger;
 
 		modalRef.content.onConfirm.subscribe(() => {
 			this.message = null;

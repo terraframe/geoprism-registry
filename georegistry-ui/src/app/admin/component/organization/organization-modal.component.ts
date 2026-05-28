@@ -26,11 +26,21 @@ import { ErrorHandler } from '@shared/component';
 import { Organization } from '@shared/model/core';
 
 import { LocalizationService, OrganizationService } from '@shared/service';
+import { LocalizePipe } from '../../../shared/pipe/localize.pipe';
+import { BooleanFieldComponent } from '../../../shared/component/form-fields/boolean-field/boolean-field.component';
+import { ConvertKeyLabel } from '../../../shared/component/localize/convert-key-label.component';
+import { NgIf, NgFor } from '@angular/common';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+import { FormsModule } from '@angular/forms';
+import { LoadingBarComponent } from '../../../shared/component/loading-bar/loading-bar.component';
+import { MessageComponent } from '../../../shared/component/message/message.component';
 
 @Component({
-	selector: 'organization-modal',
-	templateUrl: './organization-modal.component.html',
-	styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}']
+    selector: 'organization-modal',
+    templateUrl: './organization-modal.component.html',
+    styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}'],
+    standalone: true,
+    imports: [MessageComponent, LoadingBarComponent, FormsModule, LocalizeComponent, NgIf, NgFor, ConvertKeyLabel, BooleanFieldComponent, LocalizePipe]
 })
 export class OrganizationModalComponent implements OnInit, OnDestroy {
 

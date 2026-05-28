@@ -29,9 +29,14 @@ import { AuthService, DateService } from "@shared/service";
 import { IOService } from "@registry/service";
 
 import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
+import { NgxPaginationModule } from "ngx-pagination";
+import { DateTextComponent } from "../../../shared/component/date-text/date-text.component";
+import { DateFieldComponent } from "../../../shared/component/form-fields/date-field/date-field.component";
+import { NgFor, NgIf } from "@angular/common";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { FormsModule } from "@angular/forms";
 
 @Component({
-
     selector: "historical-report",
     templateUrl: "./historical-report.component.html",
     styleUrls: [],
@@ -45,13 +50,9 @@ import { GeoRegistryConfiguration } from "@core/model/core"; import { environmen
                     }),
                     animate("300ms")
                 ]),
-                transition(":leave",
-                    animate("100ms",
-                        style({
-                            opacity: 0
-                        })
-                    )
-                )
+                transition(":leave", animate("100ms", style({
+                    opacity: 0
+                })))
             ]),
             trigger("fadeIn", [
                 transition(":enter", [
@@ -62,7 +63,9 @@ import { GeoRegistryConfiguration } from "@core/model/core"; import { environmen
                 ])
             ])
         ]
-    ]
+    ],
+    standalone: true,
+    imports: [FormsModule, LocalizeComponent, NgFor, DateFieldComponent, NgIf, DateTextComponent, NgxPaginationModule]
 })
 export class HistoricalReportComponent {
 

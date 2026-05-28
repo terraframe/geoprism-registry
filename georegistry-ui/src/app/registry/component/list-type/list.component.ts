@@ -19,7 +19,7 @@
 
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, Router, RouterLinkActive, RouterLink } from "@angular/router";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import { LazyLoadEvent } from "primeng/api";
 
@@ -44,11 +44,22 @@ import { RegistryCacheService } from "@registry/service/registry-cache.service";
 import { LocationManagerState } from "../location-manager/location-manager.component";
 import Utils from "@registry/utility/Utils";
 import { environment } from 'src/environments/environment';
+import { GenericTableComponent } from "../../../shared/component/generic-table/generic-table.component";
+import { BsDropdownModule } from "ngx-bootstrap/dropdown";
+import { BooleanFieldComponent } from "../../../shared/component/form-fields/boolean-field/boolean-field.component";
+import { DateTextComponent } from "../../../shared/component/date-text/date-text.component";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { ProgressBarComponent } from "../../../shared/component/progress-bar/progress-bar.component";
+import { NgIf, NgClass, NgFor } from "@angular/common";
+import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
+import { TableLazyLoadEvent } from "primeng/table";
 
 @Component({
     selector: "list",
     templateUrl: "./list.component.html",
-    styleUrls: ["./list.component.css"]
+    styleUrls: ["./list.component.css"],
+    standalone: true,
+    imports: [PageContainerComponent, NgIf, ProgressBarComponent, LocalizeComponent, DateTextComponent, RouterLinkActive, RouterLink, BooleanFieldComponent, NgClass, BsDropdownModule, NgFor, GenericTableComponent]
 })
 export class ListComponent implements OnInit, OnDestroy {
 
@@ -70,7 +81,7 @@ export class ListComponent implements OnInit, OnDestroy {
     setup: TableColumnSetup = null;
     refresh: Subject<void>;
 
-    tableState: LazyLoadEvent = null;
+    tableState: TableLazyLoadEvent = null;
     isFiltered: boolean = false;
 
     showInvalid = false;
@@ -235,7 +246,10 @@ export class ListComponent implements OnInit, OnDestroy {
     }
 
     onEdit(data): void {
-        let editModal = this.modalService.show(GeoObjectEditorComponent, { backdrop: true, ignoreBackdropClick: true });
+        let editModal = this.modalService.show(GeoObjectEditorComponent, {
+            animated: false, backdrop: true,
+            ignoreBackdropClick: true
+        });
         editModal.content.configureAsExisting(data.code, this.list.typeCode, this.list.forDate, this.list.isGeometryEditable);
         editModal.content.setMasterListId(this.list.oid);
         editModal.content.setOnSuccessCallback(() => {
@@ -284,9 +298,7 @@ export class ListComponent implements OnInit, OnDestroy {
         }
 
         this.bsModalRef = this.modalService.show(ExportFormatModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true, ignoreBackdropClick: true
         });
         this.bsModalRef.content.init(this.list);
         this.bsModalRef.content.onFormat.subscribe(data => {
@@ -372,7 +384,7 @@ export class ListComponent implements OnInit, OnDestroy {
         });
     }
 
-    onLoadEvent(event: LazyLoadEvent): void {
+    onLoadEvent(event: TableLazyLoadEvent): void {
         this.tableState = event;
         this.isFiltered = (this.tableState != null && this.tableState.filters != null && Object.keys(this.tableState.filters).length > 0);
 

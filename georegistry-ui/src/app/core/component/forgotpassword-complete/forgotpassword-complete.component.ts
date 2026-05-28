@@ -25,10 +25,19 @@ import { ErrorHandler } from "@shared/component";
 
 import { ForgotPasswordService } from "@core/service/forgotpassword.service";
 import { PasswordStrengthBarComponent } from "@shared/component/password-strength-bar/password-strength-bar.component";
+import { LocalizePipe } from "../../../shared/pipe/localize.pipe";
+import { PasswordStrengthBarComponent as PasswordStrengthBarComponent_1 } from "../../../shared/component/password-strength-bar/password-strength-bar.component";
+import { NgIf } from "@angular/common";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { FormsModule } from "@angular/forms";
+import { LoadingBarComponent } from "../../../shared/component/loading-bar/loading-bar.component";
+import { MessageComponent } from "../../../shared/component/message/message.component";
 
 @Component({
     templateUrl: "./forgotpassword-complete.component.html",
-    styleUrls: ["./forgotpassword-complete.component.css"]
+    styleUrls: ["./forgotpassword-complete.component.css"],
+    standalone: true,
+    imports: [MessageComponent, LoadingBarComponent, FormsModule, LocalizeComponent, NgIf, PasswordStrengthBarComponent_1, LocalizePipe]
 })
 export class ForgotPasswordCompleteComponent implements OnInit {
 

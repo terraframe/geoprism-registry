@@ -18,7 +18,7 @@
 ///
 
 import { Component, OnDestroy, OnInit, ViewChildren, QueryList } from "@angular/core";
-import { ActivatedRoute, Params } from "@angular/router";
+import { ActivatedRoute, Params, RouterLinkActive, RouterLink } from "@angular/router";
 import { HttpErrorResponse } from "@angular/common/http";
 
 import { RegistryService } from "@registry/service";
@@ -31,11 +31,18 @@ import { ListType, ListTypeByType } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { Subscription } from "rxjs";
 import Utils from "@registry/utility/Utils";
+import { ListTypeComponent } from "./list-type.component";
+import { ListsForTypeComponent } from "./lists-for-type.component";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { NgIf, NgFor, NgClass } from "@angular/common";
+import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
 
 @Component({
     selector: "list-type-manager",
     templateUrl: "./list-type-manager.component.html",
-    styleUrls: ["./list-type-manager.css"]
+    styleUrls: ["./list-type-manager.css"],
+    standalone: true,
+    imports: [PageContainerComponent, NgIf, LocalizeComponent, NgFor, NgClass, RouterLinkActive, RouterLink, ListsForTypeComponent, ListTypeComponent]
 })
 export class ListTypeManagerComponent implements OnInit, OnDestroy {
 

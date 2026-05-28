@@ -27,12 +27,12 @@ import { ErrorHandler } from "@shared/component";
 import { GeoObjectTypeCache } from "@registry/model/registry";
 import { Subject, Subscription } from "rxjs";
 import { RelationshipVisualizationService } from "@registry/service/relationship-visualization.service";
-import { Layout, Orientation } from "@swimlane/ngx-graph";
+import { Layout, Orientation, GraphModule } from "@swimlane/ngx-graph";
 
 import { DagreNodesOnlyLayout } from "./relationship-viz-layout";
 
 import * as shape from "d3-shape";
-import { NgxSpinnerService } from "ngx-spinner";
+import { NgxSpinnerService, NgxSpinnerModule } from "ngx-spinner";
 import { OverlayerIdentifier } from "@registry/model/constants";
 import uniqolor from 'uniqolor';
 import { RegistryCacheService } from "@registry/service/registry-cache.service";
@@ -43,6 +43,9 @@ import { ObjectReference, RelatedType, Relationship, TreeData, Vertex } from "@r
 import { LocationManagerState } from "../location-manager/location-manager.component";
 import { Layer, RelationshipVisualizionDataSource, RelationshipVisualizionLayer, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE, ListVectorLayer } from "@registry/service/layer-data-source";
 import { calculateTextWidth } from "../geo-ontology/hierarchy/d3/svg-util";
+import { BooleanFieldComponent } from "../../../shared/component/form-fields/boolean-field/boolean-field.component";
+import { FormsModule } from "@angular/forms";
+import { NgIf, NgFor, NgStyle, KeyValuePipe } from "@angular/common";
 
 export const DRAW_SCALE_MULTIPLIER: number = 1.0;
 
@@ -65,10 +68,11 @@ export const DIMENSIONS = {
 };
 
 @Component({
-
     selector: "relationship-visualizer",
     templateUrl: "./relationship-visualizer.component.html",
-    styleUrls: ["./relationship-visualizer.css"]
+    styleUrls: ["./relationship-visualizer.css"],
+    standalone: true,
+    imports: [NgIf, NgxSpinnerModule, FormsModule, NgFor, BooleanFieldComponent, NgStyle, GraphModule, KeyValuePipe]
 })
 export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
 

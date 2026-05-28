@@ -20,11 +20,15 @@
 import { Component, Input } from "@angular/core";
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { LocalizationService } from "@shared/service/localization.service";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { FormsModule } from "@angular/forms";
 
 @Component({
     selector: "error-modal",
     templateUrl: "./localization-feedback-modal.component.html",
-    styleUrls: ["./localization-feedback-modal.css"]
+    styleUrls: ["./localization-feedback-modal.css"],
+    standalone: true,
+    imports: [FormsModule, LocalizeComponent]
 })
 export class LocalizationFeedbackModalComponent {
 

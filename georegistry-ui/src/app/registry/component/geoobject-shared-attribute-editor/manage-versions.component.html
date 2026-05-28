@@ -437,9 +437,10 @@
               <li
                 *ngIf="!readonly && !isRootOfHierarchy && (!this.isNew || attributeType.code !== 'exists') && filterDate == null"
                 class="list-group-item" style="text-align: left;">
-                <i class="fa fa-plus clickable" (click)="onAddNewVersion()">
+                <span class="clickable" (click)="onAddNewVersion()">
+                  <i class="fa fa-plus"></i>
                   <localize key="changeovertime.manageVersions.newVersion"></localize>
-                </i>
+                </span>
               </li>
 
             </ul>

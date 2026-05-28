@@ -27,11 +27,18 @@ import { LocalizationService } from "@shared/service/localization.service";
 import { BusinessTypeService } from "@registry/service/business-type.service";
 import { BusinessType } from "@registry/model/business-type";
 import { OrganizationGroup } from "@shared/model/core";
+import { LocalizedTextComponent } from "../../form-fields/localized-text/localized-text.component";
+import { ConvertKeyLabel } from "../../../../shared/component/localize/convert-key-label.component";
+import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { NgIf, NgFor } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 
 @Component({
     selector: "create-business-type-modal",
     templateUrl: "./create-business-type-modal.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [FormsModule, NgIf, LocalizeComponent, NgFor, ConvertKeyLabel, LocalizedTextComponent]
 })
 export class CreateBusinessTypeModalComponent implements OnInit {
 

@@ -30,7 +30,7 @@ import { ImportConfiguration } from "@registry/model/io";
 import { GeoRegistryConfiguration } from "@core/model/core";
 import { environment } from 'src/environments/environment';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ChangeRequestService {
 
     // eslint-disable-next-line no-useless-constructor

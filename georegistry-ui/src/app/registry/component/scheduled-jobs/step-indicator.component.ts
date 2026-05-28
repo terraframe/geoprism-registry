@@ -20,11 +20,14 @@
 import { Component, Input } from "@angular/core";
 
 import { Step, StepConfig } from "@registry/model/registry";
+import { NgIf, NgFor, NgClass } from "@angular/common";
 
 @Component({
     selector: "step-indicator",
     templateUrl: "./step-indicator.component.html",
-    styleUrls: ["./step-indicator.css"]
+    styleUrls: ["./step-indicator.css"],
+    standalone: true,
+    imports: [NgIf, NgFor, NgClass]
 })
 export class StepIndicatorComponent {
 

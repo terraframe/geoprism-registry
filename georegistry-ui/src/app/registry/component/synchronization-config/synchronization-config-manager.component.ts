@@ -19,7 +19,7 @@
 
 import { Component, OnInit } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
-import { Router } from "@angular/router";
+import { Router, RouterLinkActive, RouterLink } from "@angular/router";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
 import { PageResult } from "@shared/model/core";
@@ -30,11 +30,17 @@ import { ErrorHandler, ConfirmModalComponent } from "@shared/component";
 import { SynchronizationConfig } from "@registry/model/registry";
 import { SynchronizationConfigService } from "@registry/service";
 import { SynchronizationConfigModalComponent } from "./synchronization-config-modal.component";
+import { NgxPaginationModule } from "ngx-pagination";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { NgIf, NgFor } from "@angular/common";
+import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
 
 @Component({
     selector: "synchronization-config-manager",
     templateUrl: "./synchronization-config-manager.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [PageContainerComponent, NgIf, LocalizeComponent, NgFor, RouterLinkActive, RouterLink, NgxPaginationModule]
 })
 export class SynchronizationConfigManagerComponent implements OnInit {
 
@@ -70,8 +76,7 @@ export class SynchronizationConfigManagerComponent implements OnInit {
     create(): void {
         this.service.edit(null).then(response => {
             let bsModalRef = this.modalService.show(SynchronizationConfigModalComponent, {
-                animated: true,
-                backdrop: true,
+                animated: false, backdrop: true,
                 ignoreBackdropClick: true
             });
             bsModalRef.content.init(null, response.orgs);
@@ -84,8 +89,7 @@ export class SynchronizationConfigManagerComponent implements OnInit {
     onEdit(config: SynchronizationConfig): void {
         this.service.edit(config.oid).then(response => {
             let bsModalRef = this.modalService.show(SynchronizationConfigModalComponent, {
-                animated: true,
-                backdrop: true,
+                animated: false, backdrop: true,
                 ignoreBackdropClick: true
             });
             bsModalRef.content.init(response.config, response.orgs);
@@ -97,9 +101,7 @@ export class SynchronizationConfigManagerComponent implements OnInit {
 
     onRemove(config: SynchronizationConfig): void {
         this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         this.bsModalRef.content.message = this.lService.decode("confirm.modal.verify.delete") + " [" + config.label.localizedValue + "]";
         this.bsModalRef.content.submitText = this.lService.decode("modal.button.delete");

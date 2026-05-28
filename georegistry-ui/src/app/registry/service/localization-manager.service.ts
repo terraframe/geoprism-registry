@@ -27,7 +27,7 @@ import { AllLocaleInfo } from "@registry/model/localization-manager";
 
 import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class LocalizationManagerService {
 
     // eslint-disable-next-line no-useless-constructor

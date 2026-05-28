@@ -28,11 +28,21 @@ import { AccountService } from '@admin/service/account.service';
 import { ErrorHandler } from '@shared/component';
 
 import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
+import { LocalizePipe } from '../../../shared/pipe/localize.pipe';
+import { PasswordStrengthBarComponent } from '../../../shared/component/password-strength-bar/password-strength-bar.component';
+import { FormsModule } from '@angular/forms';
+import { NgIf } from '@angular/common';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+import { LoadingBarComponent } from '../../../shared/component/loading-bar/loading-bar.component';
+import { MessageComponent } from '../../../shared/component/message/message.component';
+import { CgrHeaderComponent } from '../../../shared/component/header/header.component';
 
 @Component({
-	selector: 'account-invite-complete',
-	templateUrl: './account-invite-complete.component.html',
-	styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}']
+    selector: 'account-invite-complete',
+    templateUrl: './account-invite-complete.component.html',
+    styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}'],
+    standalone: true,
+    imports: [CgrHeaderComponent, MessageComponent, LoadingBarComponent, LocalizeComponent, NgIf, FormsModule, PasswordStrengthBarComponent, LocalizePipe]
 })
 export class AccountInviteCompleteComponent implements OnInit, OnDestroy {
 	user: User;

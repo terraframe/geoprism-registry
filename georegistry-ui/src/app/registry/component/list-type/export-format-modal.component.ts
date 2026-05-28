@@ -21,11 +21,16 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ListTypeVersion } from "@registry/model/list-type";
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { Subject } from "rxjs";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { FormsModule } from "@angular/forms";
+import { NgIf } from "@angular/common";
 
 @Component({
     selector: "export-format-modal",
     templateUrl: "./export-format-modal.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [NgIf, FormsModule, LocalizeComponent]
 })
 export class ExportFormatModalComponent implements OnInit, OnDestroy {
 

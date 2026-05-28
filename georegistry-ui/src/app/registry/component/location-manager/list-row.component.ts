@@ -24,11 +24,16 @@ import { ListTypeService } from "@registry/service/list-type.service";
 import { HttpErrorResponse } from "@angular/common/http";
 import { LazyLoadEvent } from "primeng/api";
 import Utils from "@registry/utility/Utils";
+import { GenericTableComponent } from "../../../shared/component/generic-table/generic-table.component";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { NgIf } from "@angular/common";
 
 @Component({
     selector: "list-row",
     templateUrl: "./list-row.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [NgIf, LocalizeComponent, GenericTableComponent]
 })
 export class ListRowComponent implements OnInit, OnDestroy, OnChanges {
 

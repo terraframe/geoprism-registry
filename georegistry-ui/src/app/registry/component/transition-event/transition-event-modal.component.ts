@@ -32,11 +32,18 @@ import { LocalizationService, AuthService } from "@shared/service";
 import { Transition, TransitionEvent } from "@registry/model/transition-event";
 import { TransitionEventService } from "@registry/service/transition-event.service";
 
-import { DndDropEvent, EffectAllowed } from "ngx-drag-drop";
+import { DndDropEvent, EffectAllowed, DndModule } from "ngx-drag-drop";
 import * as uuid from "uuid";
 
 /* D3 Stuffs */
 import * as d3 from "d3";
+import { TypeaheadModule } from "ngx-bootstrap/typeahead";
+import { ConvertKeyLabel } from "../../../shared/component/localize/convert-key-label.component";
+import { DateFieldComponent } from "../../../shared/component/form-fields/date-field/date-field.component";
+import { DateTextComponent } from "../../../shared/component/date-text/date-text.component";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { FormsModule } from "@angular/forms";
+import { NgIf, NgFor } from "@angular/common";
 
 export const DRAW_SCALE_MULTIPLIER: number = 1.0;
 
@@ -51,7 +58,9 @@ export const GRAPH_LINE_COLOR: string = "#999";
 @Component({
     selector: "transition-event-modal",
     templateUrl: "./transition-event-modal.component.html",
-    styleUrls: ["./transition-event-modal.component.css"]
+    styleUrls: ["./transition-event-modal.component.css"],
+    standalone: true,
+    imports: [NgIf, FormsModule, LocalizeComponent, DateTextComponent, DateFieldComponent, NgFor, ConvertKeyLabel, DndModule, TypeaheadModule]
 })
 export class TransitionEventModalComponent implements OnInit, OnDestroy {
 

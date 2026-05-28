@@ -31,11 +31,16 @@ import { DateService } from "@shared/service/date.service";
 
 import { ErrorHandler } from "@shared/component";
 import { LocalizationService } from "@shared/service/localization.service";
+import { DateTextComponent } from "../../../../shared/component/date-text/date-text.component";
+import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { NgIf } from "@angular/common";
 
 @Component({
     selector: "row-validation-problem-widget",
     templateUrl: "./row-validation-problem-widget.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [NgIf, LocalizeComponent, DateTextComponent]
 })
 export class RowValidationProblemWidgetComponent implements OnInit {
 

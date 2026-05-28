@@ -19,7 +19,7 @@
 
 import { Component, OnInit, Input, ViewChild, ElementRef } from "@angular/core";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
-import { FileUploader, FileUploaderOptions } from "ng2-file-upload";
+import { FileUploader, FileUploaderOptions, FileUploadModule } from "ng2-file-upload";
 import { HttpErrorResponse } from "@angular/common/http";
 
 import { ErrorHandler } from "@shared/component";
@@ -35,12 +35,19 @@ import { BusinessTypeService } from "@registry/service/business-type.service";
 import { environment } from 'src/environments/environment';
 import { Source } from "@registry/model/source";
 import { SourceService } from "@registry/service/source.service";
+import { BooleanFieldComponent } from "../../../shared/component/form-fields/boolean-field/boolean-field.component";
+import { DateFieldComponent } from "../../../shared/component/form-fields/date-field/date-field.component";
+import { FormsModule } from "@angular/forms";
+import { NgIf, NgFor } from "@angular/common";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
 
 @Component({
-
     selector: "business-importer",
     templateUrl: "./business-importer.component.html",
-    styleUrls: ["./business-importer.css"]
+    styleUrls: ["./business-importer.css"],
+    standalone: true,
+    imports: [PageContainerComponent, LocalizeComponent, NgIf, FormsModule, NgFor, DateFieldComponent, BooleanFieldComponent, FileUploadModule]
 })
 export class BusinessImporterComponent implements OnInit {
 
@@ -161,7 +168,10 @@ export class BusinessImporterComponent implements OnInit {
             const configuration = JSON.parse(response);
 
 
-            this.bsModalRef = this.modalService.show(ImportModalComponent, { backdrop: true, ignoreBackdropClick: true });
+            this.bsModalRef = this.modalService.show(ImportModalComponent, {
+                animated: false, backdrop: true,
+                ignoreBackdropClick: true
+            });
             this.bsModalRef.content.init(configuration, "geoObjectType", true);
         };
         this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {

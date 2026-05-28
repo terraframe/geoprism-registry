@@ -20,14 +20,16 @@
 import { Component, OnDestroy, ViewChild } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
 import { Observer, Subject, Subscription } from "rxjs";
-import { TreeComponent, TreeNode } from "@circlon/angular-tree-component";
-import { ContextMenuComponent, ContextMenuService } from "@perfectmemory/ngx-contextmenu";
+import { TreeComponent, TreeNode, TreeModule } from "@ali-hm/angular-tree-component";
+import { ContextMenuComponent, ContextMenuService, ContextMenuModule } from "@perfectmemory/ngx-contextmenu";
 
 import { ErrorHandler } from "@shared/component";
 import { Classification, ClassificationNode } from "@registry/model/classification-type";
 import { ClassificationService } from "@registry/service/classification.service";
 import { PageResult } from "@shared/model/core";
 import { BsModalRef } from "ngx-bootstrap/modal";
+import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { FormsModule } from "@angular/forms";
 
 const PAGE_SIZE: number = 100;
 
@@ -53,7 +55,9 @@ class ClassificationTreeNode {
 @Component({
     selector: "classification-field-modal",
     templateUrl: "./classification-field-modal.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [ContextMenuModule, FormsModule, TreeModule, LocalizeComponent]
 })
 export class ClassificationFieldModalComponent implements OnDestroy {
 

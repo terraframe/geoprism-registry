@@ -20,11 +20,17 @@
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { HubService } from "@core/service/hub.service";
 import { Subscription } from "rxjs";
+import { CgrHeaderComponent } from "../header/header.component";
+import { SideNavComponent } from "../side-nav/side-nav.component";
+import { LoadingBarComponent } from "../loading-bar/loading-bar.component";
+import { NgIf, NgClass } from "@angular/common";
 
 @Component({
     selector: "page-container",
     templateUrl: "./page-container.component.html",
-    styleUrls: ['./page-container.css']
+    styleUrls: ['./page-container.css'],
+    standalone: true,
+    imports: [NgIf, LoadingBarComponent, NgClass, SideNavComponent, CgrHeaderComponent]
 })
 export class PageContainerComponent implements OnInit, OnDestroy {
     @Input() loadingBar: boolean = true;

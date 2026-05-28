@@ -21,7 +21,8 @@ import { Pipe, PipeTransform } from "@angular/core";
 
 @Pipe({
     name: "geoObjectAttributeExcludesFilter",
-    pure: true
+    pure: true,
+    standalone: true
 })
 export class GeoObjectAttributeExcludesPipe implements PipeTransform {
 

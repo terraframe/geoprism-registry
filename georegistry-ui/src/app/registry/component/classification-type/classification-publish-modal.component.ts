@@ -26,11 +26,17 @@ import { ErrorHandler } from "@shared/component";
 import { LocalizationService } from "@shared/service/localization.service";
 import { Classification, ClassificationType } from "@registry/model/classification-type";
 import { ClassificationService } from "@registry/service/classification.service";
+import { ConvertKeyLabel } from "../../../shared/component/localize/convert-key-label.component";
+import { FormsModule } from "@angular/forms";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { NgIf, NgFor } from "@angular/common";
 
 @Component({
     selector: "classification-publish-modal",
     templateUrl: "./classification-publish-modal.component.html",
-    styleUrls: ["./classification-type-manager.css"]
+    styleUrls: ["./classification-type-manager.css"],
+    standalone: true,
+    imports: [NgIf, LocalizeComponent, FormsModule, NgFor, ConvertKeyLabel]
 })
 export class ClassificationPublishModalComponent implements OnInit, OnDestroy {
 

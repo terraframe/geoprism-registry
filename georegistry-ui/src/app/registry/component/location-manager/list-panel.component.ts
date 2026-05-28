@@ -18,10 +18,9 @@
 ///
 
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from "@angular/core";
-import { ListColumn, ListData, ListTypeVersion } from "@registry/model/list-type";
-import { GenericTableColumn, GenericTableConfig, TableColumnSetup, TableEvent } from "@shared/model/generic-table";
+import { ListData, ListTypeVersion } from "@registry/model/list-type";
+import { GenericTableConfig, TableColumnSetup, TableEvent } from "@shared/model/generic-table";
 import { BsModalService } from "ngx-bootstrap/modal";
-import { LazyLoadEvent } from "primeng/api";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { AuthService } from "@shared/service";
 import { HttpErrorResponse } from "@angular/common/http";
@@ -29,17 +28,24 @@ import { Subject, Subscription } from "rxjs";
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 import { WebSockets } from "@shared/component/web-sockets/web-sockets";
 import { ExportFormatModalComponent } from "../list-type/export-format-modal.component";
-import { GeoRegistryConfiguration } from "@core/model/core";
 import { OverlayerIdentifier } from "@registry/model/constants";
-import { NgxSpinnerService } from "ngx-spinner";
+import { NgxSpinnerService, NgxSpinnerModule } from "ngx-spinner";
 import Utils from "@registry/utility/Utils";
 
 import { environment } from 'src/environments/environment';
+import { GenericTableComponent } from "../../../shared/component/generic-table/generic-table.component";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { BooleanFieldComponent } from "../../../shared/component/form-fields/boolean-field/boolean-field.component";
+import { DateTextComponent } from "../../../shared/component/date-text/date-text.component";
+import { NgIf, NgClass } from "@angular/common";
+import { TableLazyLoadEvent } from "primeng/table";
 
 @Component({
     selector: "list-panel",
     templateUrl: "./list-panel.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [NgxSpinnerModule, NgIf, NgClass, DateTextComponent, BooleanFieldComponent, LocalizeComponent, GenericTableComponent]
 })
 export class ListPanelComponent implements OnInit, OnDestroy, OnChanges {
 
@@ -72,7 +78,7 @@ export class ListPanelComponent implements OnInit, OnDestroy, OnChanges {
 
     showInvalid = false;
 
-    tableState: LazyLoadEvent = null;
+    tableState: TableLazyLoadEvent = null;
     isFiltered = false;
 
     progressNotifier: WebSocketSubject<{ type: string, content: any }>;
@@ -180,7 +186,7 @@ export class ListPanelComponent implements OnInit, OnDestroy, OnChanges {
         this.refresh.next();
     }
 
-    onLoadEvent(event: LazyLoadEvent): void {
+    onLoadEvent(event: TableLazyLoadEvent): void {
         this.tableState = event;
         this.isFiltered = (this.tableState != null && this.tableState.filters != null && Object.keys(this.tableState.filters).length > 0);
 
@@ -251,9 +257,7 @@ export class ListPanelComponent implements OnInit, OnDestroy, OnChanges {
         }
 
         const modal = this.modalService.show(ExportFormatModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         modal.content.init(this.list);
         modal.content.onFormat.subscribe(data => {

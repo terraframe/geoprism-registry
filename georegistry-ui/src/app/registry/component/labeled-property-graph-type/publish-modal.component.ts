@@ -28,11 +28,16 @@ import { LocalizationService } from "@shared/service/localization.service";
 import { LabeledPropertyGraphType } from "@registry/model/labeled-property-graph-type";
 import { LabeledPropertyGraphTypeService } from "@registry/service/labeled-property-graph-type.service";
 import { PRESENT } from "@shared/model/date";
+import { LabeledPropertyGraphTypeFormComponent } from "./labeled-property-graph-form.component";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { NgIf } from "@angular/common";
 
 @Component({
     selector: "labeled-property-graph-type-publish-modal",
     templateUrl: "./publish-modal.component.html",
-    styleUrls: ["./labeled-property-graph-type-manager.css"]
+    styleUrls: ["./labeled-property-graph-type-manager.css"],
+    standalone: true,
+    imports: [NgIf, LocalizeComponent, LabeledPropertyGraphTypeFormComponent]
 })
 export class LabeledPropertyGraphTypePublishModalComponent implements OnInit {
 

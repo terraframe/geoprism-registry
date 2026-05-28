@@ -47,7 +47,8 @@ export function MustMatch(controlName: string, matchingControlName: string) {
 
 @Directive({
     selector: "[mustMatch]",
-    providers: [{ provide: NG_VALIDATORS, useExisting: MustMatchDirective, multi: true }]
+    providers: [{ provide: NG_VALIDATORS, useExisting: MustMatchDirective, multi: true }],
+    standalone: true
 })
 export class MustMatchDirective implements Validator {
 

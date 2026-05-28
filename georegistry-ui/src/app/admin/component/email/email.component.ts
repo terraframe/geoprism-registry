@@ -26,13 +26,20 @@ import { Email } from '@admin/model/email';
 import { EmailService } from '@admin/service/email.service';
 
 import { BsModalRef } from 'ngx-bootstrap/modal';
+import { LocalizePipe } from '../../../shared/pipe/localize.pipe';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+import { NgIf } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { LoadingBarComponent } from '../../../shared/component/loading-bar/loading-bar.component';
+import { MessageComponent } from '../../../shared/component/message/message.component';
 
 
 @Component({
-
-	selector: 'email',
-	templateUrl: './email.component.html',
-	styleUrls: []
+    selector: 'email',
+    templateUrl: './email.component.html',
+    styleUrls: [],
+    standalone: true,
+    imports: [MessageComponent, LoadingBarComponent, FormsModule, NgIf, LocalizeComponent, LocalizePipe]
 })
 export class EmailComponent implements OnInit {
 	message: string = null;

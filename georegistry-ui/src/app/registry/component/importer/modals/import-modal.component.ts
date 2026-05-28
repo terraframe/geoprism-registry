@@ -28,11 +28,19 @@ import { ErrorHandler, SuccessModalComponent, ConfirmModalComponent } from '@sha
 
 import { ImportConfiguration } from '@registry/model/io';
 import { IOService } from '@registry/service';
+import { TermProblemPageComponent } from './term-problem-page.component';
+import { LocationProblemPageComponent } from './location-problem-page.component';
+import { LocationPageComponent } from './location-page.component';
+import { AttributesPageComponent } from './attributes-page.component';
+import { EdgePageComponent } from './edge-page.component';
+import { NgIf } from '@angular/common';
 
 @Component({
     selector: 'import-modal',
     templateUrl: './import-modal.component.html',
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [NgIf, EdgePageComponent, AttributesPageComponent, LocationPageComponent, LocationProblemPageComponent, TermProblemPageComponent]
 })
 export class ImportModalComponent {
 
@@ -120,8 +128,7 @@ export class ImportModalComponent {
                 this.bsModalRef.hide()
 
                 this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-                    animated: true,
-                    backdrop: true,
+animated: false, backdrop: true,
                     ignoreBackdropClick: true,
                 });
                 this.bsModalRef.content.message = this.localizeService.decode("data.import.go.to.scheduled.jobs.confirm.message");

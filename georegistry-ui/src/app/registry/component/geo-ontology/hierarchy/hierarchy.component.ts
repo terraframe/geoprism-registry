@@ -701,8 +701,8 @@ export class HierarchyComponent implements OnInit {
                 //     let obj = hierarchyComponent.findGeoObjectTypeByCode(svgGot.getCode());
 
                 //     hierarchyComponent.bsModalRef = hierarchyComponent.modalService.show(ConfirmModalComponent, {
-                //       animated: true,
-                //       backdrop: true,
+                //       
+                //       animated: false, backdrop: true, 
                 //       ignoreBackdropClick: true,
                 //     });
 
@@ -1039,9 +1039,7 @@ export class HierarchyComponent implements OnInit {
 
     public createHierarchy(): void {
         this.bsModalRef = this.modalService.show(CreateHierarchyTypeModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true,
+            animated: false, backdrop: true,             ignoreBackdropClick: true,
             class: "upload-modal"
         });
 
@@ -1069,9 +1067,7 @@ export class HierarchyComponent implements OnInit {
 
     public deleteHierarchyType(obj: HierarchyType): void {
         this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " [" + obj.label.localizedValue + "]";
         this.bsModalRef.content.data = obj.code;
@@ -1085,9 +1081,7 @@ export class HierarchyComponent implements OnInit {
 
     public editHierarchyType(obj: HierarchyType, readOnly: boolean): void {
         this.bsModalRef = this.modalService.show(CreateHierarchyTypeModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true,
+            animated: false, backdrop: true,             ignoreBackdropClick: true,
             class: "upload-modal"
         });
         this.bsModalRef.content.edit = true;
@@ -1146,9 +1140,7 @@ export class HierarchyComponent implements OnInit {
 
     public createGeoObjectType(groupSuperType: GeoObjectType, isAbstract: boolean, org: Organization): void {
         this.bsModalRef = this.modalService.show(CreateGeoObjTypeModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true,
+            animated: false, backdrop: true,             ignoreBackdropClick: true,
             class: "upload-modal"
         });
         this.bsModalRef.content.init(org, this.geoObjectTypes, groupSuperType, isAbstract);
@@ -1162,9 +1154,7 @@ export class HierarchyComponent implements OnInit {
 
     public deleteGeoObjectType(obj: GeoObjectType): void {
         this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " [" + obj.label.localizedValue + "]";
         this.bsModalRef.content.data = obj.code;
@@ -1192,9 +1182,7 @@ export class HierarchyComponent implements OnInit {
 
     public manageGeoObjectType(geoObjectType: GeoObjectType, readOnly: boolean): void {
         this.bsModalRef = this.modalService.show(ManageGeoObjectTypeModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true,
+            animated: false, backdrop: true,             ignoreBackdropClick: true,
             class: "manage-geoobjecttype-modal"
         });
 
@@ -1350,9 +1338,7 @@ export class HierarchyComponent implements OnInit {
 
     public importTypes(): void {
         this.bsModalRef = this.modalService.show(ImportTypesModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true,
+            animated: false, backdrop: true,             ignoreBackdropClick: true,
             class: "upload-modal"
         });
 
@@ -1366,9 +1352,7 @@ export class HierarchyComponent implements OnInit {
 
     public exportTypes(): void {
         this.bsModalRef = this.modalService.show(ExportTypesModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true,
+            animated: false, backdrop: true,             ignoreBackdropClick: true,
             class: "upload-modal"
         });
 
@@ -1384,8 +1368,7 @@ export class HierarchyComponent implements OnInit {
     onImportHistory(type: GeoObjectType): void {
         this.registryService.getImportHistory('GEO_OBJECT', type.code).then(histories => {
             this.bsModalRef = this.modalService.show(ImportHistoryModalComponent, {
-                animated: true,
-                backdrop: true,
+                animated: false, backdrop: true,
                 ignoreBackdropClick: true
             });
             this.bsModalRef.content.init(type.label, histories);
@@ -1397,8 +1380,7 @@ export class HierarchyComponent implements OnInit {
     onEdgeImportHistory(type: HierarchyType): void {
         this.registryService.getImportHistory('HierarchyType', type.code).then(histories => {
             this.bsModalRef = this.modalService.show(ImportHistoryModalComponent, {
-                animated: true,
-                backdrop: true,
+                animated: false, backdrop: true,
                 ignoreBackdropClick: true
             });
             this.bsModalRef.content.init(type.label, histories);

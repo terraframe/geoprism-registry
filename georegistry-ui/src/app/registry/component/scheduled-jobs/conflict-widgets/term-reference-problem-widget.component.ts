@@ -21,7 +21,7 @@ import { Component, OnInit, Input, EventEmitter, Output } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 import { Observable } from "rxjs";
-import { TypeaheadMatch } from "ngx-bootstrap/typeahead";
+import { TypeaheadMatch, TypeaheadModule } from "ngx-bootstrap/typeahead";
 
 import { ScheduledJob } from "@registry/model/registry";
 import { RegistryService, IOService } from "@registry/service";
@@ -29,11 +29,17 @@ import { DateService } from "@shared/service/date.service";
 
 import { LocalizationService } from "@shared/service/localization.service";
 import { ErrorHandler } from "@shared/component";
+import { FormsModule } from "@angular/forms";
+import { DateTextComponent } from "../../../../shared/component/date-text/date-text.component";
+import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { NgIf } from "@angular/common";
 
 @Component({
     selector: "term-reference-problem-widget",
     templateUrl: "./term-reference-problem-widget.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [NgIf, LocalizeComponent, DateTextComponent, FormsModule, TypeaheadModule]
 })
 export class TermReferenceProblemWidgetComponent implements OnInit {
 

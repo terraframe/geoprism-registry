@@ -28,6 +28,14 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { ManageGeoObjectTypeModalState, GeoObjectType } from "@registry/model/registry";
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
 import { RegistryService } from "@registry/service";
+import { EditTermOptionInputComponent } from "../geoobjecttype-management/edit-term-option-input.component";
+import { ManageTermOptionsComponent } from "../geoobjecttype-management/manage-term-options.component";
+import { EditAttributeModalContentComponent } from "../geoobjecttype-management/edit-attribute-modal-content.component";
+import { DefineAttributeModalContentComponent } from "../geoobjecttype-management/define-attribute-modal-content.component";
+import { GeoObjectTypeInputComponent } from "../geoobjecttype-management/geoobjecttype-input.component";
+import { NgIf } from "@angular/common";
+import { ModalStepIndicatorComponent } from "../../../../shared/component/modals/modal-step-indicator.component";
+import { FormsModule } from "@angular/forms";
 
 @Component({
     selector: "manage-geo-object-type",
@@ -43,15 +51,14 @@ import { RegistryService } from "@registry/service";
                     }),
                     animate("500ms")
                 ]),
-                transition(":leave",
-                    animate("500ms",
-                        style({
-                            opacity: 0
-                        })
-                    )
-                )
+                transition(":leave", animate("500ms", style({
+                    opacity: 0
+                })))
             ])
-        ]]
+        ]
+    ],
+    standalone: true,
+    imports: [FormsModule, ModalStepIndicatorComponent, NgIf, GeoObjectTypeInputComponent, DefineAttributeModalContentComponent, EditAttributeModalContentComponent, ManageTermOptionsComponent, EditTermOptionInputComponent]
 })
 export class ManageGeoObjectTypeComponent implements OnInit {
 

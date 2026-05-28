@@ -19,12 +19,16 @@
 
 import { Component, Input, Output, EventEmitter } from "@angular/core";
 import { ControlContainer, NgForm } from "@angular/forms";
+import { LocalizeComponent } from "../../localize/localize.component";
+import { NgClass, NgIf } from "@angular/common";
 
 @Component({
     selector: "boolean-field",
     templateUrl: "./boolean-field.component.html",
     styleUrls: ["./boolean-field.css"],
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
+    standalone: true,
+    imports: [NgClass, NgIf, LocalizeComponent]
 })
 export class BooleanFieldComponent {
 

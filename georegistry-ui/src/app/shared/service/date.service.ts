@@ -22,7 +22,7 @@ import { LocalizationService } from "@shared/service/localization.service";
 import { PRESENT } from "../model/date";
 import { ConflictMessage, ConflictType } from "../model/message";
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class DateService {
 
     public overlapMessage: ConflictMessage = {

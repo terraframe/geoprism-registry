@@ -29,11 +29,16 @@ import { AttributeType, ManageGeoObjectTypeModalState, AttributedType } from "@r
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
 import { AttributeTypeService } from "@registry/service";
 import { AttributeInputComponent } from "./attribute-input.component";
+import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { NgIf, NgClass } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 
 @Component({
     selector: "define-attribute-modal-content",
     templateUrl: "./define-attribute-modal-content.component.html",
-    styleUrls: ["./define-attribute-modal-content.css"]
+    styleUrls: ["./define-attribute-modal-content.css"],
+    standalone: true,
+    imports: [FormsModule, NgIf, LocalizeComponent, NgClass, AttributeInputComponent]
 })
 export class DefineAttributeModalContentComponent implements OnInit {
 

@@ -21,8 +21,8 @@ import { Component, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 import { Subscription } from "rxjs";
-import { TreeComponent, TreeModel, TreeNode, TREE_ACTIONS } from "@circlon/angular-tree-component";
-import { ContextMenuComponent, ContextMenuService } from "@perfectmemory/ngx-contextmenu";
+import { TreeComponent, TreeModel, TreeNode, TREE_ACTIONS, TreeModule } from "@ali-hm/angular-tree-component";
+import { ContextMenuComponent, ContextMenuService, ContextMenuModule } from "@perfectmemory/ngx-contextmenu";
 
 import { ConfirmModalComponent, ErrorHandler } from "@shared/component";
 import { Classification, ClassificationType } from "@registry/model/classification-type";
@@ -30,6 +30,9 @@ import { LocalizationService } from "@shared/service/localization.service";
 import { ClassificationService } from "@registry/service/classification.service";
 import { ClassificationPublishModalComponent } from "./classification-publish-modal.component";
 import { PageResult } from "@shared/model/core";
+import { NgIf } from "@angular/common";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { ModalTypes } from "@shared/model/modal";
 
 const PAGE_SIZE: number = 100;
 
@@ -55,7 +58,9 @@ class ClassificationNode {
 @Component({
     selector: "classification-type",
     templateUrl: "./classification-type.component.html",
-    styleUrls: ["./classification-type-manager.css"]
+    styleUrls: ["./classification-type-manager.css"],
+    standalone: true,
+    imports: [ContextMenuModule, LocalizeComponent, NgIf, TreeModule]
 })
 export class ClassificationTypeComponent implements OnInit, OnDestroy {
 
@@ -251,9 +256,7 @@ export class ClassificationTypeComponent implements OnInit, OnDestroy {
         const parent: ClassificationNode = parentNode != null ? parentNode.data : null;
 
         this.bsModalRef = this.modalService.show(ClassificationPublishModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         this.subscription = this.bsModalRef.content.init(classification => {
             const node: ClassificationNode = {
@@ -280,9 +283,7 @@ export class ClassificationTypeComponent implements OnInit, OnDestroy {
         }
 
         this.bsModalRef = this.modalService.show(ClassificationPublishModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         this.subscription = this.bsModalRef.content.init(classification => {
             const classificationNode: ClassificationNode = node.data;
@@ -295,13 +296,11 @@ export class ClassificationTypeComponent implements OnInit, OnDestroy {
 
     onRemove(node: TreeNode): void {
         this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         this.bsModalRef.content.message = this.lService.decode("confirm.modal.verify.delete") + " [" + node.data.classification.code + "]";
         this.bsModalRef.content.submitText = this.lService.decode("modal.button.delete");
-        this.bsModalRef.content.type = "danger";
+        this.bsModalRef.content.type =  ModalTypes.danger;
 
         this.bsModalRef.content.onConfirm.subscribe(() => {
             this.removeTreeNode(node);
@@ -322,12 +321,10 @@ export class ClassificationTypeComponent implements OnInit, OnDestroy {
         message = message.replace("{1}", parent.displayLabel.localizedValue);
 
         this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         this.bsModalRef.content.message = message;
-        this.bsModalRef.content.type = "danger";
+        this.bsModalRef.content.type =  ModalTypes.danger;
 
         this.bsModalRef.content.onConfirm.subscribe(() => {
             this.message = null;

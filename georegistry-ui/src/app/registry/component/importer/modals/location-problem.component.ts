@@ -18,18 +18,23 @@
 ///
 
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
-import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
+import { TypeaheadMatch, TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { Observable } from 'rxjs';
 
 import { ImportConfiguration, LocationProblem } from '@registry/model/io';
 import { IOService } from '@registry/service';
+import { LocalizePipe } from '../../../../shared/pipe/localize.pipe';
+import { LocalizeComponent } from '../../../../shared/component/localize/localize.component';
+import { NgIf, NgFor, NgClass } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
-@Component( {
-
+@Component({
     selector: 'location-problem',
     templateUrl: './location-problem.component.html',
-    styleUrls: []
-} )
+    styleUrls: [],
+    standalone: true,
+    imports: [FormsModule, NgIf, NgFor, TypeaheadModule, NgClass, LocalizeComponent, LocalizePipe]
+})
 export class LocationProblemComponent implements OnInit {
 
     @Input() configuration: ImportConfiguration;

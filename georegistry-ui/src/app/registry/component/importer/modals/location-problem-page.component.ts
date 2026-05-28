@@ -20,13 +20,18 @@
 import { Component, Input, OnInit, EventEmitter, Output } from '@angular/core';
 import { ImportConfiguration, LocationProblem } from '@registry/model/io';
 import { ErrorHandler } from '@shared/component';
+import { LocationProblemComponent } from './location-problem.component';
+import { FormsModule } from '@angular/forms';
+import { NgIf, NgFor } from '@angular/common';
+import { LocalizeComponent } from '../../../../shared/component/localize/localize.component';
 
-@Component( {
-
+@Component({
     selector: 'location-problem-page',
     templateUrl: './location-problem-page.component.html',
-    styleUrls: []
-} )
+    styleUrls: [],
+    standalone: true,
+    imports: [LocalizeComponent, NgIf, FormsModule, NgFor, LocationProblemComponent]
+})
 export class LocationProblemPageComponent implements OnInit {
 
     @Input() configuration: ImportConfiguration;

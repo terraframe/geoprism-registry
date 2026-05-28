@@ -18,7 +18,7 @@
 ///
 
 import { Component, OnDestroy, OnInit, ViewChildren, QueryList } from "@angular/core";
-import { ActivatedRoute, Params, Router } from "@angular/router";
+import { ActivatedRoute, Params, Router, RouterLinkActive, RouterLink } from "@angular/router";
 import { HttpErrorResponse } from "@angular/common/http";
 
 
@@ -29,11 +29,19 @@ import { LabeledPropertyGraphTypeService } from "@registry/service/labeled-prope
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 import { LabeledPropertyGraphTypePublishModalComponent } from "./publish-modal.component";
 import { LocalizationService } from "@shared/service";
+import { LocalizePipe } from "../../../shared/pipe/localize.pipe";
+import { LabeledPropertyGraphTypeComponent } from "./labeled-property-graph-type.component";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { NgIf, NgFor } from "@angular/common";
+import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
+import { ModalTypes } from "@shared/model/modal";
 
 @Component({
     selector: "labeled-property-graph-type-manager",
     templateUrl: "./labeled-property-graph-type-manager.component.html",
-    styleUrls: ["./labeled-property-graph-type-manager.css"]
+    styleUrls: ["./labeled-property-graph-type-manager.css"],
+    standalone: true,
+    imports: [PageContainerComponent, NgIf, LocalizeComponent, NgFor, RouterLinkActive, RouterLink, LabeledPropertyGraphTypeComponent, LocalizePipe]
 })
 export class LabeledPropertyGraphTypeManagerComponent implements OnInit, OnDestroy {
 
@@ -98,9 +106,7 @@ export class LabeledPropertyGraphTypeManagerComponent implements OnInit, OnDestr
 
     onCreate(): void {
         this.bsModalRef = this.modalService.show(LabeledPropertyGraphTypePublishModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         this.bsModalRef.content.init((type) => {
             this.types.push({ oid: type.oid, label: type.displayLabel.localizedValue });
@@ -116,8 +122,8 @@ export class LabeledPropertyGraphTypeManagerComponent implements OnInit, OnDestr
 
     onEdit(type: { label: string, oid: string }): void {
         // this.bsModalRef = this.modalService.show(PublishVersionComponent, {
-        //     animated: true,
-        //     backdrop: true,
+        //     
+        //     animated: false, backdrop: true, 
         //     ignoreBackdropClick: true
         // });
         // this.bsModalRef.content.init(this.type, entry, version);
@@ -125,13 +131,11 @@ export class LabeledPropertyGraphTypeManagerComponent implements OnInit, OnDestr
 
     onDelete(type: { label: string, oid: string }): void {
         this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " Version [" + type.label + "]";
         this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
-        this.bsModalRef.content.type = "danger";
+        this.bsModalRef.content.type =  ModalTypes.danger;
 
         this.bsModalRef.content.onConfirm.subscribe(() => {
             this.service.remove(type).then(() => {

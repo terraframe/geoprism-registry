@@ -29,6 +29,12 @@ import { GraphType } from "@registry/model/registry";
 import { RegistryService } from "@registry/service";
 import { ImportHistoryModalComponent } from "@registry/component/import-history/modals/import-history-modal.component";
 import { AuthService } from "@shared/service";
+import { ManageGraphTypeComponent } from "./manage-graph-type.component";
+import { BsDropdownModule } from "ngx-bootstrap/dropdown";
+import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { NgIf, NgFor, NgClass } from "@angular/common";
+import { AccordionModule } from "ngx-bootstrap/accordion";
+import { ModalTypes } from "@shared/model/modal";
 
 enum Action {
     VIEW = 0, CREATE = 1, EDIT = 2
@@ -47,7 +53,9 @@ interface Selection {
 @Component({
     selector: "graph-type-page",
     templateUrl: "./graph-type-page.component.html",
-    styleUrls: ["./graph-type-page.css"]
+    styleUrls: ["./graph-type-page.css"],
+    standalone: true,
+    imports: [AccordionModule, NgIf, LocalizeComponent, NgFor, NgClass, BsDropdownModule, ManageGraphTypeComponent]
 })
 export class GraphTypePageComponent implements OnInit, OnDestroy {
     Action = Action;
@@ -149,13 +157,12 @@ export class GraphTypePageComponent implements OnInit, OnDestroy {
 
     onDelete(type: GraphType): void {
         const bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
+            animated: false, backdrop: true,
             ignoreBackdropClick: true
         });
         bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " [" + type.label.localizedValue + "]";
         bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
-        bsModalRef.content.type = "danger";
+        bsModalRef.content.type =  ModalTypes.danger;
 
         bsModalRef.content.onConfirm.subscribe(data => {
             this.service.remove(this.typeCode, type).then(() => {
@@ -171,8 +178,8 @@ export class GraphTypePageComponent implements OnInit, OnDestroy {
     onImportHistory(type: GraphType): void {
         this.registryService.getImportHistory(this.typeCode, type.code).then(histories => {
             const bsModalRef = this.modalService.show(ImportHistoryModalComponent, {
-                animated: true,
-                backdrop: true,
+                
+                animated: false, backdrop: true,
                 ignoreBackdropClick: true
             });
             bsModalRef.content.init(type.label, histories);

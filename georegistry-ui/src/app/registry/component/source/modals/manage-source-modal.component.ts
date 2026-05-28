@@ -31,6 +31,9 @@ import { ErrorHandler } from "@shared/component";
 import { Source } from "@registry/model/source";
 import { SourceService } from "@registry/service/source.service";
 import { LocalizationService } from "@shared/service/localization.service";
+import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { FormsModule } from "@angular/forms";
+import { NgIf } from "@angular/common";
 
 @Component({
     selector: "manage-source-modal",
@@ -46,15 +49,14 @@ import { LocalizationService } from "@shared/service/localization.service";
                     }),
                     animate("500ms")
                 ]),
-                transition(":leave",
-                    animate("500ms",
-                        style({
-                            opacity: 0
-                        })
-                    )
-                )
+                transition(":leave", animate("500ms", style({
+                    opacity: 0
+                })))
             ])
-        ]]
+        ]
+    ],
+    standalone: true,
+    imports: [NgIf, FormsModule, LocalizeComponent]
 })
 export class ManageSourceModalComponent implements OnInit {
 

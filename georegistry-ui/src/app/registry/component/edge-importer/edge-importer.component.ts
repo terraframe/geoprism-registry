@@ -19,7 +19,7 @@
 
 import { Component, OnInit, Input, ViewChild, ElementRef, QueryList, ViewChildren, ChangeDetectorRef } from "@angular/core";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
-import { FileUploader, FileUploaderOptions } from "ng2-file-upload";
+import { FileUploader, FileUploaderOptions, FileUploadModule } from "ng2-file-upload";
 import { HttpErrorResponse } from "@angular/common/http";
 
 import { DateFieldComponent, ErrorHandler } from "@shared/component";
@@ -34,12 +34,18 @@ import { environment } from 'src/environments/environment';
 import { GeoObjectType, GraphType } from "@registry/model/registry";
 import { Source } from "@registry/model/source";
 import { SourceService } from "@registry/service/source.service";
+import { DateFieldComponent as DateFieldComponent_1 } from "../../../shared/component/form-fields/date-field/date-field.component";
+import { FormsModule } from "@angular/forms";
+import { NgIf, NgFor } from "@angular/common";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
 
 @Component({
-
     selector: "edge-importer",
     templateUrl: "./edge-importer.component.html",
-    styleUrls: ["./edge-importer.component.css"]
+    styleUrls: ["./edge-importer.component.css"],
+    standalone: true,
+    imports: [PageContainerComponent, LocalizeComponent, NgIf, FormsModule, NgFor, DateFieldComponent_1, FileUploadModule]
 })
 export class EdgeImporterComponent implements OnInit {
 
@@ -170,7 +176,10 @@ export class EdgeImporterComponent implements OnInit {
             const configuration = JSON.parse(response);
             configuration.allTypes = this.allTypes;
 
-            this.bsModalRef = this.modalService.show(ImportModalComponent, { backdrop: true, ignoreBackdropClick: true });
+            this.bsModalRef = this.modalService.show(ImportModalComponent, {
+                animated: false, backdrop: true,
+                ignoreBackdropClick: true
+            });
             this.bsModalRef.content.init(configuration, "EDGE");
         };
         this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {

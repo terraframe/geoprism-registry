@@ -22,7 +22,8 @@ import { Component, OnChanges, Input, SimpleChange } from "@angular/core";
 @Component({
     selector: "password-strength-bar",
     templateUrl: "./password-strength-bar.component.html",
-    styleUrls: ["./password-strength-bar.component.css"]
+    styleUrls: ["./password-strength-bar.component.css"],
+    standalone: true
 })
 export class PasswordStrengthBarComponent implements OnChanges {
 

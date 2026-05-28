@@ -22,12 +22,16 @@ import { Component, OnInit, Input, Output, EventEmitter, Directive } from '@angu
 import { ImportConfiguration } from '@registry/model/io';
 
 import { IOService } from '@registry/service';
+import { NgFor, NgIf } from '@angular/common';
+import { LocalizeComponent } from '../../../../shared/component/localize/localize.component';
+import { FormsModule } from '@angular/forms';
 
 @Component({
-
     selector: 'location-page',
     templateUrl: './location-page.component.html',
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [FormsModule, LocalizeComponent, NgFor, NgIf]
 })
 export class LocationPageComponent implements OnInit {
 

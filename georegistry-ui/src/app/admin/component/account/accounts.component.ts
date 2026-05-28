@@ -31,11 +31,19 @@ import { AccountService } from '@admin/service/account.service';
 import { AccountComponent } from './account.component';
 import { AccountInviteComponent } from '../account/account-invite.component';
 import { AuthService } from '@shared/service';
+import { LocalizePipe } from '../../../shared/pipe/localize.pipe';
+import { NgxPaginationModule } from 'ngx-pagination';
+import { NgIf, NgFor, NgClass } from '@angular/common';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+import { MessageComponent } from '../../../shared/component/message/message.component';
+import { PageContainerComponent } from '../../../shared/component/page-container/page-container.component';
 
 @Component({
-	selector: 'accounts',
-	templateUrl: './accounts.component.html',
-	styleUrls: ['./accounts.css']
+    selector: 'accounts',
+    templateUrl: './accounts.component.html',
+    styleUrls: ['./accounts.css'],
+    standalone: true,
+    imports: [PageContainerComponent, MessageComponent, LocalizeComponent, NgIf, NgxPaginationModule, NgFor, NgClass, LocalizePipe]
 })
 export class AccountsComponent implements OnInit {
 	res: PageResult<User> = {
@@ -65,8 +73,7 @@ export class AccountsComponent implements OnInit {
 		// this.router.navigate(['/admin/account', user.oid]);
 
 		this.bsModalRef = this.modalService.show(AccountComponent, {
-			animated: true,
-			backdrop: true,
+			animated: false, backdrop: true,
 			ignoreBackdropClick: true,
 		});
 		this.bsModalRef.content.oid = user.oid;
@@ -87,8 +94,7 @@ export class AccountsComponent implements OnInit {
 		// this.router.navigate(['/admin/account', 'NEW']);
 
 		this.bsModalRef = this.modalService.show(AccountComponent, {
-			animated: true,
-			backdrop: true,
+			animated: false, backdrop: true, 
 			ignoreBackdropClick: true,
 		});
 		this.bsModalRef.content.oid = 'NEW';
@@ -104,8 +110,7 @@ export class AccountsComponent implements OnInit {
 		// this.router.navigate(['/admin/invite']);	  
 
 		this.bsModalRef = this.modalService.show(AccountInviteComponent, {
-			animated: true,
-			backdrop: true,
+			animated: false, backdrop: true, 
 			ignoreBackdropClick: true,
 		});
 

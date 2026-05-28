@@ -29,6 +29,10 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { ErrorHandler } from "@shared/component";
 import { ImportHistory } from "@registry/model/registry";
 import { LocalizedValue } from "@core/model/core";
+import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { DateTextComponent } from "../../../../shared/component/date-text/date-text.component";
+import { RouterLink } from "@angular/router";
+import { NgIf, NgFor } from "@angular/common";
 
 @Component({
     selector: "import-history-modal",
@@ -43,15 +47,14 @@ import { LocalizedValue } from "@core/model/core";
                     }),
                     animate("500ms")
                 ]),
-                transition(":leave",
-                    animate("500ms",
-                        style({
-                            opacity: 0
-                        })
-                    )
-                )
+                transition(":leave", animate("500ms", style({
+                    opacity: 0
+                })))
             ])
-        ]]
+        ]
+    ],
+    standalone: true,
+    imports: [NgIf, NgFor, RouterLink, DateTextComponent, LocalizeComponent]
 })
 export class ImportHistoryModalComponent implements OnInit {
 

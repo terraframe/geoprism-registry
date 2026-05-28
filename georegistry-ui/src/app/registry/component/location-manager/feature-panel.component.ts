@@ -20,7 +20,7 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, OnChanges, SimpleChanges } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
-import { NgxSpinnerService } from "ngx-spinner";
+import { NgxSpinnerService, NgxSpinnerModule } from "ngx-spinner";
 
 import { GeoObjectType, GeoObjectOverTime, AttributeType, HierarchyOverTime } from "@registry/model/registry";
 import { RegistryService, GeometryService } from "@registry/service";
@@ -28,11 +28,17 @@ import { AuthService } from "@shared/service";
 import { ErrorHandler } from "@shared/component";
 import { CreateGeoObjectAction } from "@registry/model/crtable";
 import { OverlayerIdentifier } from "@registry/model/constants";
+import { FormsModule } from "@angular/forms";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { GeoObjectSharedAttributeEditorComponent } from "../geoobject-shared-attribute-editor/geoobject-shared-attribute-editor.component";
+import { NgIf } from "@angular/common";
 
 @Component({
     selector: "feature-panel",
     templateUrl: "./feature-panel.component.html",
-    styleUrls: ["./dataset-location-manager.css"]
+    styleUrls: ["./dataset-location-manager.css"],
+    standalone: true,
+    imports: [NgIf, NgxSpinnerModule, GeoObjectSharedAttributeEditorComponent, LocalizeComponent, FormsModule]
 })
 export class FeaturePanelComponent implements OnInit, OnChanges {
 

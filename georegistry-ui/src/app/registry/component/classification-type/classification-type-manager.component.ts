@@ -28,12 +28,20 @@ import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 import { LocalizationService } from "@shared/service/localization.service";
 import { Subscription } from "rxjs";
 import { ClassificationTypePublishModalComponent } from "./classification-type-publish-modal.component";
-import { ActivatedRoute, Params, Router } from "@angular/router";
+import { ActivatedRoute, Params, Router, RouterLinkActive, RouterLink } from "@angular/router";
+import { LocalizePipe } from "../../../shared/pipe/localize.pipe";
+import { ClassificationTypeComponent } from "./classification-type.component";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { NgIf, NgFor } from "@angular/common";
+import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
+import { ModalTypes } from "@shared/model/modal";
 
 @Component({
     selector: "classification-type-manager",
     templateUrl: "./classification-type-manager.component.html",
-    styleUrls: ["./classification-type-manager.css"]
+    styleUrls: ["./classification-type-manager.css"],
+    standalone: true,
+    imports: [PageContainerComponent, NgIf, LocalizeComponent, NgFor, RouterLinkActive, RouterLink, ClassificationTypeComponent, LocalizePipe]
 })
 export class ClassificationTypeManagerComponent implements OnInit, OnDestroy {
 
@@ -106,9 +114,7 @@ export class ClassificationTypeManagerComponent implements OnInit, OnDestroy {
         }
 
         this.bsModalRef = this.modalService.show(ClassificationTypePublishModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         this.subscription = this.bsModalRef.content.init(() => this.refresh());
     }
@@ -119,22 +125,18 @@ export class ClassificationTypeManagerComponent implements OnInit, OnDestroy {
         }
 
         this.bsModalRef = this.modalService.show(ClassificationTypePublishModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         this.subscription = this.bsModalRef.content.init(() => this.refresh(), type);
     }
 
     onDelete(type: ClassificationType): void {
         this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+            animated: false, backdrop: true,             ignoreBackdropClick: true
         });
         this.bsModalRef.content.message = this.lService.decode("confirm.modal.verify.delete") + " [" + type.displayLabel.localizedValue + "]";
         this.bsModalRef.content.submitText = this.lService.decode("modal.button.delete");
-        this.bsModalRef.content.type = "danger";
+        this.bsModalRef.content.type =  ModalTypes.danger;
 
         this.bsModalRef.content.onConfirm.subscribe(() => {
             this.service.remove(type).then(() => {

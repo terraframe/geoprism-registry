@@ -20,6 +20,8 @@
 import { Component } from "@angular/core";
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { LocalizationService } from "@shared/service/localization.service";
+import { NgFor } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 
 export class GenericButton {
 
@@ -33,7 +35,9 @@ export class GenericButton {
 @Component({
     selector: "generic-modal",
     templateUrl: "./generic-modal.component.html",
-    styleUrls: ["./modal.css"]
+    styleUrls: ["./modal.css"],
+    standalone: true,
+    imports: [FormsModule, NgFor]
 })
 export class GenericModalComponent {
 

@@ -28,7 +28,7 @@ import { Email } from '@admin/model/email';
 
 import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class EmailService {
 
 	constructor(private http: HttpClient, private eventService: EventService) {

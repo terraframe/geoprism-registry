@@ -30,7 +30,7 @@ import { environment } from 'src/environments/environment';
 import { ConfigurationService } from "@core/service/configuration.service";
 import { firstValueFrom } from "rxjs";
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class MapService {
 
     constructor(private configuration: ConfigurationService, private http: HttpClient, private eventService: EventService) {

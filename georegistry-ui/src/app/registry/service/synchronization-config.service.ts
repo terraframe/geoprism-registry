@@ -30,7 +30,7 @@ import { AttributeConfigInfo } from "@registry/model/sync";
 
 import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class SynchronizationConfigService {
 
     // eslint-disable-next-line no-useless-constructor

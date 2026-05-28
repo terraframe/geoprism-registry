@@ -22,8 +22,10 @@ import { LocalizationService } from "@shared/service/localization.service";
 import { DateService } from "@shared/service/date.service";
 import { PRESENT } from "@shared/model/date";
 
-import { BsDatepickerConfig, BsDatepickerDirective } from "ngx-bootstrap/datepicker";
+import { BsDatepickerConfig, BsDatepickerDirective, BsDatepickerModule } from "ngx-bootstrap/datepicker";
 import { ControlContainer, NgForm } from "@angular/forms";
+import { LocalizeComponent } from "../../localize/localize.component";
+import { NgIf, NgClass, DatePipe } from "@angular/common";
 
 
 @Component({
@@ -31,6 +33,8 @@ import { ControlContainer, NgForm } from "@angular/forms";
     templateUrl: "./date-field.component.html",
     styleUrls: ["./date-field.css"],
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
+    standalone: true,
+    imports: [NgIf, NgClass, LocalizeComponent, BsDatepickerModule, DatePipe]
 })
 export class DateFieldComponent {
 

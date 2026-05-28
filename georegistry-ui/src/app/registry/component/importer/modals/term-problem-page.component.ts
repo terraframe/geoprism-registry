@@ -19,13 +19,18 @@
 
 import { Component, Input, OnInit, EventEmitter, Output } from '@angular/core';
 import { ImportConfiguration, TermProblem } from '@registry/model/io';
+import { TermProblemComponent } from './term-problem.component';
+import { FormsModule } from '@angular/forms';
+import { NgIf, NgFor } from '@angular/common';
+import { LocalizeComponent } from '../../../../shared/component/localize/localize.component';
 
-@Component( {
-
+@Component({
     selector: 'term-problem-page',
     templateUrl: './term-problem-page.component.html',
-    styleUrls: []
-} )
+    styleUrls: [],
+    standalone: true,
+    imports: [LocalizeComponent, NgIf, FormsModule, NgFor, TermProblemComponent]
+})
 export class TermProblemPageComponent implements OnInit {
 
     @Input() configuration: ImportConfiguration;

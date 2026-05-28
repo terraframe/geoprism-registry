@@ -21,11 +21,14 @@ import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { Subject } from "rxjs";
 import { LocalizationService } from "@shared/service/localization.service";
+import { FormsModule } from "@angular/forms";
 
 @Component({
     selector: "success-modal",
     templateUrl: "./success-modal.component.html",
-    styleUrls: ["./success-modal.css"]
+    styleUrls: ["./success-modal.css"],
+    standalone: true,
+    imports: [FormsModule]
 })
 export class SuccessModalComponent implements OnInit, OnDestroy {
 

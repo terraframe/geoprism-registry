@@ -21,15 +21,18 @@ import { Component, OnInit } from "@angular/core";
 
 import { Progress } from "@shared/model/progress";
 import { ProgressService, IProgressListener } from "@shared/service";
+import { ProgressbarModule } from "ngx-bootstrap/progressbar";
+import { NgIf } from "@angular/common";
 
 @Component({
-
     selector: "progress-bar",
     templateUrl: "./progress-bar.component.html",
     styles: [
         ".progress-overlay { background-color: #CCCCCC; position: absolute; display: block;opacity: 0.8;z-index: 99999 !important;}",
         ".progress-div { width: 100%; margin-left: 0; padding-left: 25%; padding-right: 25%; margin-top: 30% }"
-    ]
+    ],
+    standalone: true,
+    imports: [NgIf, ProgressbarModule]
 })
 export class ProgressBarComponent implements OnInit, IProgressListener {
 

@@ -21,12 +21,17 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ListTypeVersion } from "@registry/model/list-type";
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { Observer, Subject, Subscription } from "rxjs";
+import { NgIf, NgFor } from "@angular/common";
+import { FormsModule } from "@angular/forms";
+import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
 
 
 @Component({
     selector: "select-type-modal",
     templateUrl: "./select-type-modal.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true,
+    imports: [LocalizeComponent, FormsModule, NgIf, NgFor]
 })
 export class SelectTypeModalComponent implements OnInit, OnDestroy {
 

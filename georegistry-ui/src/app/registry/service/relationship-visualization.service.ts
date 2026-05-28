@@ -28,7 +28,7 @@ import { ActivatedRoute } from "@angular/router";
 import { ObjectReference, Relationship, TreeData } from "@registry/model/graph";
 import { environment } from 'src/environments/environment';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class RelationshipVisualizationService {
 
     constructor(private http: HttpClient, private eventService: EventService, private route: ActivatedRoute) {

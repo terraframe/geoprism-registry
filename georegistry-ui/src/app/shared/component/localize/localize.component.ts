@@ -22,10 +22,10 @@ import { Input, Component, OnInit } from "@angular/core";
 import { LocalizationService } from "@shared/service/localization.service";
 
 @Component({
-
     selector: "localize",
     templateUrl: "./localize.component.html",
-    styleUrls: []
+    styleUrls: [],
+    standalone: true
 })
 export class LocalizeComponent implements OnInit {
 

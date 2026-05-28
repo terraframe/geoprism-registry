@@ -20,11 +20,15 @@
 import { Component, Input } from "@angular/core";
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { LocalizationService } from "@shared/service/localization.service";
+import { LocalizeComponent } from "../localize/localize.component";
+import { FormsModule } from "@angular/forms";
 
 @Component({
     selector: "error-modal",
     templateUrl: "./error-modal.component.html",
-    styleUrls: ["./error-modal.css"]
+    styleUrls: ["./error-modal.css"],
+    standalone: true,
+    imports: [FormsModule, LocalizeComponent]
 })
 export class ErrorModalComponent {
 

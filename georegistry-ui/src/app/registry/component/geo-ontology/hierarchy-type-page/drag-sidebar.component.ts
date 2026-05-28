@@ -23,11 +23,16 @@ import * as d3 from "d3";
 
 import { GeoObjectType } from "@registry/model/registry";
 import { Organization } from "@shared/model/core";
+import { NgFor, NgClass } from "@angular/common";
+import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { AccordionModule } from "ngx-bootstrap/accordion";
 
 @Component({
     selector: "drag-sidebar",
     templateUrl: "./drag-sidebar.component.html",
-    styleUrls: ["./hierarchy-type-page.css"]
+    styleUrls: ["./hierarchy-type-page.css"],
+    standalone: true,
+    imports: [AccordionModule, LocalizeComponent, NgFor, NgClass]
 })
 export class DragSidebarComponent implements AfterViewInit, OnChanges {
 

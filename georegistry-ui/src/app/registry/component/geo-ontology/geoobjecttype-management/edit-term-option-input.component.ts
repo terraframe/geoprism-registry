@@ -34,28 +34,29 @@ import { ErrorHandler } from "@shared/component";
 import { Term, ManageGeoObjectTypeModalState, AttributeType } from "@registry/model/registry";
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
 import { RegistryService } from "@registry/service";
+import { LocalizedInputComponent } from "../../form-fields/localized-input/localized-input.component";
+import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { FormsModule } from "@angular/forms";
+import { NgIf } from "@angular/common";
 
 @Component({
     selector: "edit-term-option-input",
     templateUrl: "./edit-term-option-input.component.html",
     styleUrls: [],
     animations: [
-        trigger("openClose",
-            [
-                transition(
-                    ":enter", [
-                    style({ opacity: 0 }),
-                    animate("500ms", style({ opacity: 1 }))
-                ]
-                ),
-                transition(
-                    ":leave", [
-                    style({ opacity: 1 }),
-                    animate("0ms", style({ opacity: 0 }))
-                ]
-                )]
-        )
-    ]
+        trigger("openClose", [
+            transition(":enter", [
+                style({ opacity: 0 }),
+                animate("500ms", style({ opacity: 1 }))
+            ]),
+            transition(":leave", [
+                style({ opacity: 1 }),
+                animate("0ms", style({ opacity: 0 }))
+            ])
+        ])
+    ],
+    standalone: true,
+    imports: [NgIf, FormsModule, LocalizeComponent, LocalizedInputComponent]
 })
 export class EditTermOptionInputComponent implements OnInit {
 

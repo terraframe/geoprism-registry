@@ -23,7 +23,7 @@ import { GeoRegistryConfiguration, LocaleView } from "@core/model/core";
 import { firstValueFrom } from "rxjs";
 import { environment } from "src/environments/environment";
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ConfigurationService {
 
     configuration: GeoRegistryConfiguration;

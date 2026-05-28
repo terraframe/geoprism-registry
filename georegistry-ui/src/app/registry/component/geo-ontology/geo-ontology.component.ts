@@ -33,13 +33,21 @@ import { ImportTypesModalComponent } from "./modals/import-types-modal.component
 import Utils from "@registry/utility/Utils";
 import { ExportTypesModalComponent } from "./modals/export-types-modal.component";
 import { environment } from "src/environments/environment";
+import { LocalizePipe } from "../../../shared/pipe/localize.pipe";
+import { NgIf } from "@angular/common";
+import { GraphTypePageComponent } from "./graph-type-page/graph-type-page.component";
+import { HierarchyTypePageComponent } from "./hierarchy-type-page/hierarchy-type-page.component";
+import { GeoObjectTypePageComponent } from "./geo-object-type-page/geo-object-type-page.component";
+import { TabsModule } from "ngx-bootstrap/tabs";
+import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
 
 
 @Component({
-
     selector: "geo-ontology",
     templateUrl: "./geo-ontology.component.html",
-    styleUrls: ["./geo-ontology.css"]
+    styleUrls: ["./geo-ontology.css"],
+    standalone: true,
+    imports: [PageContainerComponent, TabsModule, GeoObjectTypePageComponent, HierarchyTypePageComponent, GraphTypePageComponent, NgIf, LocalizePipe]
 })
 export class GeoOntologyComponent implements OnInit {
 
@@ -285,9 +293,7 @@ export class GeoOntologyComponent implements OnInit {
 
     public importTypes(): void {
         const bsModalRef = this.modalService.show(ImportTypesModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true,
+            animated: false, backdrop: true,             ignoreBackdropClick: true,
             class: "upload-modal"
         });
 
@@ -301,9 +307,7 @@ export class GeoOntologyComponent implements OnInit {
 
     public exportTypes(): void {
         const bsModalRef = this.modalService.show(ExportTypesModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true,
+            animated: false, backdrop: true,             ignoreBackdropClick: true,
             class: "upload-modal"
         });
 
