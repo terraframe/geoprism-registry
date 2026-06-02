@@ -32,7 +32,6 @@ import { SyncDetailsComponent } from "./component/synchronization-config/details
 import { LocationManagerComponent } from "./component/location-manager/location-manager.component";
 
 import { MaintainerGuard, ContributerGuard, AuthGuard, LabeledPropertyGraphGuard, BusinessDataGuard } from "../shared/service/guard.service";
-import { BusinessTypeManagerComponent } from "./component/business-type/business-type-manager.component";
 import { BusinessImporterComponent } from "./component/business-importer/business-importer.component";
 import { HistoricalEventModuleComponent } from "./component/historical-event-module/historical-event-module.component";
 import { ListTypeManagerComponent } from "./component/list-type/list-type-manager.component";
@@ -45,6 +44,7 @@ import { SourceManagerComponent } from "./component/source/source-manager.compon
 import { EdgeImporterComponent } from "./component/edge-importer/edge-importer.component";
 import { PublishManagerComponent } from "./component/publish-events/publish-manager.component";
 import { RollbackCheckpointManagerComponent } from "./component/rollback-checkpoint/rollback-checkpoint-manager.component";
+import { BusinessOntologyComponent } from "./component/business-ontology/business-ontology.component";
 
 export const routes: Routes = [
     {
@@ -134,7 +134,7 @@ export const routes: Routes = [
     },
     {
         path: "business-types",
-        component: BusinessTypeManagerComponent,
+        component: BusinessOntologyComponent,
         canActivate: [AuthGuard, BusinessDataGuard]
     },
     {

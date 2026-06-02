@@ -89,6 +89,8 @@ export class DagreNodesOnlyLayout implements Layout {
     this.createDagreGraph(graph);
     dagre.layout(this.dagreGraph);
 
+    console.log(graph);
+
     graph.edgeLabels = this.dagreGraph._edgeLabels;
 
     for (const dagreNodeId in this.dagreGraph._nodes) {

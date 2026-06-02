@@ -19,6 +19,7 @@
 
 import { select } from "d3";
 
+
 export function calculateTextWidth(text: string, fontSize: number, svgSelector: string = "#svg"): number {
 
     let svg = select(svgSelector);

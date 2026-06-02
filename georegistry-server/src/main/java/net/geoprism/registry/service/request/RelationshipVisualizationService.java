@@ -34,10 +34,14 @@ import org.locationtech.jts.io.WKTReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
@@ -67,6 +71,7 @@ import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessService
 import net.geoprism.registry.service.permission.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.service.permission.GeoObjectTypePermissionServiceIF;
 import net.geoprism.registry.service.permission.HierarchyTypePermissionServiceIF;
+import net.geoprism.registry.view.BusinessEdgeTypeView;
 import net.geoprism.registry.visualization.EdgeView;
 import net.geoprism.registry.visualization.VertexView;
 import net.geoprism.registry.visualization.VertexView.ObjectType;
@@ -550,9 +555,20 @@ public class RelationshipVisualizationService
         // Show all business objects which are related to a Geo-Object
         if (this.bEdgeService.getParent(graphType).isGeoObjectType() || this.bEdgeService.getChild(graphType).isGeoObjectType())
         {
-          JsonObject jo = this.bEdgeService.toJSON(graphType);
-          jo.addProperty("layout", "VERTICAL");
-          views.add(jo);
+          try
+          {
+            ObjectMapper mapper = new ObjectMapper();
+            String json = mapper.writeValueAsString(this.bEdgeService.toDTO(graphType));
+
+            JsonObject jo = JsonParser.parseString(json).getAsJsonObject();
+            jo.addProperty("layout", "VERTICAL");
+            views.add(jo);
+          }
+          catch (JsonProcessingException e)
+          {
+            throw new ProgrammingErrorException(e);
+          }
+
         }
       });
 
@@ -565,11 +581,20 @@ public class RelationshipVisualizationService
 
         if (graphType.getParentTypeOid().equals(type.getMdVertexOid()) || graphType.getChildTypeOid().equals(type.getMdVertexOid()))
         {
-
           // Show all business objects which are related to a Geo-Object
-          JsonObject jo = this.bEdgeService.toJSON(graphType);
-          jo.addProperty("layout", "VERTICAL");
-          views.add(jo);
+          try
+          {
+            ObjectMapper mapper = new ObjectMapper();
+            String json = mapper.writeValueAsString(this.bEdgeService.toDTO(graphType));
+
+            JsonObject jo = JsonParser.parseString(json).getAsJsonObject();
+            jo.addProperty("layout", "VERTICAL");
+            views.add(jo);
+          }
+          catch (JsonProcessingException e)
+          {
+            throw new ProgrammingErrorException(e);
+          }
         }
       });
 

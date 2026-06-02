@@ -5,7 +5,7 @@ package net.geoprism.registry;
 
 import net.geoprism.registry.test.FastTestDataset;
 
-public class FastDatasetTest implements InstanceTestClassListener
+public class FastDatasetTest extends DatasetTest implements InstanceTestClassListener
 {
   protected static FastTestDataset testData;
 

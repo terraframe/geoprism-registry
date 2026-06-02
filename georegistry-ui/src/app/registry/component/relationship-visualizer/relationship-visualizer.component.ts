@@ -42,7 +42,6 @@ import { LngLatBounds } from "maplibre-gl";
 import { ObjectReference, RelatedType, Relationship, TreeData, Vertex } from "@registry/model/graph";
 import { LocationManagerState } from "../location-manager/location-manager.component";
 import { Layer, RelationshipVisualizionDataSource, RelationshipVisualizionLayer, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE, ListVectorLayer } from "@registry/service/layer-data-source";
-import { calculateTextWidth } from "../geo-ontology/hierarchy/d3/svg-util";
 import { BooleanFieldComponent } from "../../../shared/component/form-fields/boolean-field/boolean-field.component";
 import { FormsModule } from "@angular/forms";
 import { NgIf, NgFor, NgStyle, KeyValuePipe } from "@angular/common";
@@ -128,8 +127,7 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
         private vizService: RelationshipVisualizationService,
         private cacheService: RegistryCacheService,
         private geomService: GeometryService,
-        private router: Router,
-        private route: ActivatedRoute) { }
+    ) { }
 
     ngOnInit(): void {
         this.typeCache = this.cacheService.getTypeCache();
@@ -270,6 +268,8 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
 
             this.vizService.tree(this.relationship.type, this.relationship.code, source, this.state.date, this.getBoundsAsWKT()).then(data => {
                 this.data = null;
+
+                console.log(data);
 
                 window.setTimeout(() => {
                     this.data = data;
@@ -543,14 +543,16 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
     public getLabelWidth(node: any) {
 
         if (this.relationship.layout === "HORIZONTAL" && node.relation === "SELECTED") {
-            try {
-                return Math.min(DIMENSIONS.LABEL.WIDTH, calculateTextWidth(node.label, DIMENSIONS.LABEL.FONTSIZE, "svg.ngx-charts")) + DIMENSIONS.PADDING.NODE_LABEL;
-            }
-            catch (e) {
-                console.log('Unable to calculate the horizontal label width');
+            // try {
+            //     return Math.min(DIMENSIONS.LABEL.WIDTH, calculateTextWidth(node.label, DIMENSIONS.LABEL.FONTSIZE, "svg.ngx-charts")) + DIMENSIONS.PADDING.NODE_LABEL;
+            // }
+            // catch (e) {
+            //     console.log('Unable to calculate the horizontal label width', e);
 
+            //     return DIMENSIONS.LABEL.WIDTH;
+            // }
                 return DIMENSIONS.LABEL.WIDTH;
-            }
+
         } else {
             return DIMENSIONS.LABEL.WIDTH + DIMENSIONS.PADDING.NODE_LABEL;
         }

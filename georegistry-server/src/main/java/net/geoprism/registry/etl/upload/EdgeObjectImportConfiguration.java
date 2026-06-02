@@ -284,7 +284,7 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
     return graphType;
   }
 
-  public void setGraphType(GraphType graphType)
+  public void setGraphType(EdgeType graphType)
   {
     this.graphType = graphType;
   }

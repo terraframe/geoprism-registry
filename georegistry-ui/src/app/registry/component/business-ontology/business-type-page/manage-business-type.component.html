@@ -21,21 +21,9 @@
 <div>
 
 
-  <!--
-    <modal-step-indicator></modal-step-indicator>
-  -->
-
   <ng-container *ngIf="modalState.state === 'MANAGE-GEO-OBJECT-TYPE'">
-    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
     <form #form="ngForm" *ngIf="type" class="modal-form" (ngSubmit)="form.valid">
-      <div class="heading text-center">
-        <h1>
-          <localize *ngIf="readOnly" key="business.data.view.type"></localize>
-          <localize *ngIf="!readOnly" key="business.data.edit.type"></localize>
-          : {{type.displayLabel.localizedValue}}
-        </h1>
-      </div>
       <fieldset>
         <div class="row-holder">
           <div class="label-holder">
@@ -51,9 +39,6 @@
 
         <localized-input [disabled]="readOnly" [(value)]="type.displayLabel" key="data.property.label.label">
         </localized-input>
-        <!--  
-  <localized-text [disabled]="readOnly" [(value)]="type.description" key="data.property.label.description"></localized-text>
--->
 
         <div class="row-holder">
           <div class="label-holder">
@@ -113,9 +98,8 @@
                   </table>
                 </div>
 
-                <span class="clickable" (click)="createAttribute()">
-                  <i *ngIf="!readOnly" class="fa fa-plus" style="font-size:20px;margin:10px 0 10px 0;"
-                    aria-hidden="true">
+                <span *ngIf="!readOnly" class="clickable" (click)="createAttribute()">
+                  <i class="fa fa-plus" style="font-size:20px;margin:10px 0 10px 0;" aria-hidden="true">
                   </i>
                   <localize key="modal.button.add"></localize>
                 </span>

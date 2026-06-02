@@ -7,7 +7,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -52,11 +54,14 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.geojson.GeoJsonWriter;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.session.Request;
 
 import ca.uhn.fhir.context.FhirContext;
@@ -150,18 +155,19 @@ public class Sandbox
 
   public static void main(String[] args) throws Exception
   {
-//    SimpleDateFormat format = new SimpleDateFormat("dd/MM/yy");
-//    format.setLenient(false);
-//    
-//    System.out.println(format.parse("4/21/2021"));
-    
-//    String url = "http://localhost:8082/gofr/fhir/Cgre9b41c35-7c85-46df-aeea-a4e8dbf0364e?_getpages=ee514824-fd7c-440e-b9ce-ec0c03a89179&_getpagesoffset=20&_count=20&_pretty=true&_include=Location%3Aorganization&_bundletype=searchset";
-//    
-//    String[] split = url.split("\\?");
-//    
-//    System.out.println("https://global/Cgre9b41c35-7c85-46df-aeea-a4e8dbf0364e" + "?" + split[1]);
+    // SimpleDateFormat format = new SimpleDateFormat("dd/MM/yy");
+    // format.setLenient(false);
+    //
+    // System.out.println(format.parse("4/21/2021"));
 
-    
+    // String url =
+    // "http://localhost:8082/gofr/fhir/Cgre9b41c35-7c85-46df-aeea-a4e8dbf0364e?_getpages=ee514824-fd7c-440e-b9ce-ec0c03a89179&_getpagesoffset=20&_count=20&_pretty=true&_include=Location%3Aorganization&_bundletype=searchset";
+    //
+    // String[] split = url.split("\\?");
+    //
+    // System.out.println("https://global/Cgre9b41c35-7c85-46df-aeea-a4e8dbf0364e"
+    // + "?" + split[1]);
+
     test();
 
   }
@@ -169,52 +175,33 @@ public class Sandbox
   @Request
   private static void test() throws Exception
   {
-    ServerGeoObjectType type = ServerGeoObjectType.get("SHR");
-    List<ListType> listTypes = ListType.getForType(type);
-    
-    ListType listType = listTypes.get(0);    
-    List<ListTypeEntry> entries = listType.getEntries();
-    
-    entries.get(0).delete();
-    entries.get(1).delete();
-    entries.get(2).delete();
-    entries.get(entries.size() - 1).delete();
-    
-//    String statement = "SELECT event.oid AS eventId, event.eventDate  AS eventDate, transitionType  AS eventType, event.description AS description\n" + 
-//        "  ,event.beforeTypeCode AS beforeType, source.code AS beforeCode, source.displayLabel_cot.value[0] AS beforeLabel\n" + 
-//        "  ,event.afterTypeCode AS afterType, target.code AS afterCode, target.displayLabel_cot.value[0] AS afterLabel\n" + 
-//        "FROM transition\n" + 
-//        "WHERE event.afterTypeCode = 'FASTProvince'\n" + 
-//        "OR event.beforeTypeCode = 'FASTProvince'\n";
-//    
-//    GraphQuery<Object> query = new GraphQuery<>(statement);
-//    List<Object> results = query.getRawResults();
-//    
-//    System.out.println(results.size());
-    
-    
-//    // String url = "http://hapi.fhir.org/baseR4";
-//    String url = "http://localhost:8080/fhir";
-//    // String url = "https://fhir-gis-widget.terraframe.com:8080/fhir/";
-//    // Create a client
-//
-//    // testImport(url);
-//
-//    // // Location parent =
-//    // // client.read().resource(Location.class).withId("1").execute();
-//    //
-//    // Calendar cal = Calendar.getInstance();
-//    // cal.clear();
-//    // cal.set(2021, Calendar.MARCH, 15, 0, 0);
-//    //
-//    // Date date = cal.getTime();
-//    //
-//    // // exportType(client, date, ServerGeoObjectType.get("District"));
-//    // // exportType(client, date, ServerGeoObjectType.get("Village"));
-//    //
-//    // exportJson(url, new
-//    // File("/home/jsmethie/Documents/IntraHealth/4f0438970323fd5ee6ef42b1df668d46-d37e49daa036afb7284d194e5c9fe9de12d96143/dhis2play.json"));
-//    exportBundle(url, new File("/home/jsmethie/Documents/IntraHealth/Bundle.json"));
+    List<Integer> limits = Arrays.asList(5000, 20000, 50000);
+
+    for (Integer limit : limits)
+    {
+      StringBuilder statement = new StringBuilder();
+      statement.append("SELECT code");
+      statement.append(" FROM lt_0real_property");
+      statement.append(" ORDER BY code DESC");
+      statement.append(" LIMIT " + limit);
+
+      JsonArray array = new JsonArray();
+
+      try (ResultSet resultSet = Database.query(statement.toString()))
+      {
+        while (resultSet.next())
+        {
+          array.add(resultSet.getString("code"));
+        }
+      }
+
+      Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+      try (FileWriter writer = new FileWriter("real_property_" + limit + ".json"))
+      {
+        gson.toJson(array, writer);
+      }
+    }
   }
 
   public static void testImport(String url) throws Exception

@@ -47,7 +47,7 @@ public class BusinessEdgeTypeTest extends FastDatasetTest implements InstanceTes
   public void beforeClassSetup() throws Exception
   {
     super.beforeClassSetup();
-    
+
     setUpClassInRequest();
   }
 
@@ -128,11 +128,11 @@ public class BusinessEdgeTypeTest extends FastDatasetTest implements InstanceTes
 
     try
     {
-      JsonObject object = new JsonObject();
-      object.add(BusinessEdgeType.DISPLAYLABEL, new LocalizedValue("Updated Label").toJSON());
-      object.add(BusinessEdgeType.DESCRIPTION, new LocalizedValue("Updated Description").toJSON());
-      
-      this.bEdgeService.update(type, object);
+      BusinessEdgeTypeView view = new BusinessEdgeTypeView();
+      view.setLabel(new LocalizedValue("Updated Label"));
+      view.setDescription(new LocalizedValue("Updated Description"));
+
+      this.bEdgeService.update(type, view);
 
       Assert.assertEquals("Updated Label", type.getDisplayLabel().getValue());
       Assert.assertEquals("Updated Description", type.getDescription().getValue());

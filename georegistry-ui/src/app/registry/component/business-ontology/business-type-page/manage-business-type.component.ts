@@ -17,17 +17,16 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from "@angular/core";
+import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import {
     trigger,
     style,
     animate,
     transition
 } from "@angular/animations";
-import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
-import { Subject } from "rxjs";
+import { BsModalService } from "ngx-bootstrap/modal";
 import { HttpErrorResponse } from "@angular/common/http";
-import { ConfirmModalComponent, ErrorHandler } from "@shared/component";
+import { ConfirmModalComponent } from "@shared/component";
 import { BusinessType } from "@registry/model/business-type";
 import { AttributeType, ManageGeoObjectTypeModalState } from "@registry/model/registry";
 import { BusinessTypeService } from "@registry/service/business-type.service";
@@ -46,9 +45,9 @@ import { FormsModule } from "@angular/forms";
 import { NgIf, NgFor } from "@angular/common";
 
 @Component({
-    selector: "manage-business-type-modal",
-    templateUrl: "./manage-business-type-modal.component.html",
-    styleUrls: ["./manage-business-type-modal.css"],
+    selector: "manage-business-type",
+    templateUrl: "./manage-business-type.component.html",
+    styleUrls: ["./manage-business-type.css"],
     // host: { '[@fadeInOut]': 'true' },
     animations: [
         [
@@ -68,25 +67,25 @@ import { NgIf, NgFor } from "@angular/common";
     standalone: true,
     imports: [NgIf, FormsModule, LocalizeComponent, LocalizedInputComponent, NgFor, RouterLink, DefineAttributeModalContentComponent, EditAttributeModalContentComponent, ManageTermOptionsComponent, EditTermOptionInputComponent, LocalizePipe]
 })
-export class ManageBusinessTypeModalComponent implements OnInit {
+export class ManageBusinessTypeComponent implements OnInit {
+
+    @Input() type: BusinessType;
+    @Input() readOnly: boolean = false;
+
+    @Output() onCancel: EventEmitter<void> = new EventEmitter<void>()
+    @Output() onError: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>()
+    @Output() typeChange: EventEmitter<BusinessType> = new EventEmitter<BusinessType>()
+
 
     modalState: ManageGeoObjectTypeModalState = { state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: "", termOption: "" };
 
-    message: string = null;
-    type: BusinessType;
-    public onBusinessTypeChange: Subject<BusinessType>;
-    readOnly: boolean = false;
-
-    constructor(public service: BusinessTypeService, private localizationService: LocalizationService, private modalService: BsModalService, public bsModalRef: BsModalRef) {
+    constructor(
+        public service: BusinessTypeService,
+        private localizationService: LocalizationService,
+        private modalService: BsModalService) {
     }
 
     ngOnInit(): void {
-        this.onBusinessTypeChange = new Subject();
-    }
-
-    init(type: BusinessType, readOnly: boolean) {
-        this.type = type;
-        this.readOnly = readOnly;
     }
 
     createAttribute(): void {
@@ -99,7 +98,7 @@ export class ManageBusinessTypeModalComponent implements OnInit {
 
     removeAttributeType(attr: AttributeType, e: any): void {
         let confirmBsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: false, backdrop: true,             ignoreBackdropClick: true
+            animated: false, backdrop: true, ignoreBackdropClick: true
         });
         confirmBsModalRef.content.message = this.localizationService.decode("confirm.modal.verify.delete") + "[" + attr.label.localizedValue + "]";
         confirmBsModalRef.content.data = { attributeType: attr, geoObjectType: this.type };
@@ -110,9 +109,9 @@ export class ManageBusinessTypeModalComponent implements OnInit {
             this.service.deleteAttributeType(this.type.code, attr.code).then(() => {
                 this.type.attributes.splice(this.type.attributes.indexOf(attr), 1);
 
-                this.onBusinessTypeChange.next(this.type);
+                this.typeChange.emit(this.type);
             }).catch((err: HttpErrorResponse) => {
-                this.error(err);
+                this.onError.emit(err);
             });
         });
     }
@@ -122,33 +121,28 @@ export class ManageBusinessTypeModalComponent implements OnInit {
     }
 
     onTypeChange(): void {
-        this.onBusinessTypeChange.next(this.type);
+        this.typeChange.emit(this.type);
     }
 
     update(): void {
         this.service.apply(this.type).then(type => {
-            this.onBusinessTypeChange.next(type);
-
-            this.bsModalRef.hide();
+            this.typeChange.emit(this.type);
         }).catch((err: HttpErrorResponse) => {
-            this.error(err);
+            this.onError.emit(err);
         });
     }
 
     close(): void {
         if (this.type.oid != null) {
             this.service.unlock(this.type.oid).then(() => {
-                this.bsModalRef.hide();
+                this.onCancel.emit();
             }).catch((err: HttpErrorResponse) => {
-                this.error(err);
+                this.onError.emit(err);
             });
         } else {
-            this.bsModalRef.hide();
+            this.onCancel.emit();
         }
     }
 
-    error(err: HttpErrorResponse): void {
-        this.message = ErrorHandler.getMessageFromError(err);
-    }
 
 }

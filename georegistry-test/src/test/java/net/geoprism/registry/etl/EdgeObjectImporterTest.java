@@ -7,9 +7,12 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
@@ -21,62 +24,81 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.google.gson.JsonObject;
+import com.runwaysdk.Pair;
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 
-import net.geoprism.graph.GraphTypeSnapshot;
+import net.geoprism.registry.BusinessEdgeType;
+import net.geoprism.registry.BusinessType;
+import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.axon.projection.RepositoryProjection;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.etl.upload.EdgeObjectImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.jobs.ImportHistory;
+import net.geoprism.registry.model.BusinessObject;
+import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.GraphType;
-import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.model.ServerGraphNode;
+import net.geoprism.registry.model.graph.VertexComponent;
+import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ETLBusinessService;
 import net.geoprism.registry.service.business.EdgeImportTestService;
-import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
-import net.geoprism.registry.service.business.EdgeTypeBusinessServiceIF;
-import net.geoprism.registry.service.request.EdgeImportService;
+import net.geoprism.registry.service.business.GraphRepoServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
+import net.geoprism.registry.view.BusinessEdgeTypeView;
+import net.geoprism.registry.view.BusinessGeoEdgeTypeView;
 import net.geoprism.registry.view.ImportHistoryView;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
 @RunWith(SpringInstanceTestClassRunner.class)
-public class EdgeObjectImporterTest implements InstanceTestClassListener
+public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  public static final String         EDGE_CODE      = FastTestDataset.HIER_ADMIN.getCode();
+  private static int                        IMPORT_COUNT = 10;
 
-  public static final String         EDGE_TYPE_CODE = GraphTypeSnapshot.HIERARCHY_TYPE;
+  private static BusinessType               btype;
 
-  private static int                 IMPORT_COUNT   = 10;
+  private static BusinessEdgeType           bEdgeType;
 
-  protected static FastTestDataset   testData;
-
-  @Autowired
-  private GeoObjectBusinessServiceIF objectService;
+  private static BusinessEdgeType           bGeoEdgeType;
 
   @Autowired
-  private EdgeTypeBusinessServiceIF typeService;
+  private EdgeImportTestService             etlService;
 
   @Autowired
-  private EdgeImportTestService      etlService;
+  private ETLBusinessService                etlBusinessService;
 
   @Autowired
-  private ETLBusinessService         etlBusinessService;
+  private BusinessTypeBusinessServiceIF     bTypeService;
+
+  @Autowired
+  private BusinessEdgeTypeBusinessServiceIF bEdgeService;
+
+  @Autowired
+  protected GraphRepoServiceIF              repoService;
+
+  @Autowired
+  protected RepositoryProjection            projection;
+
+  private BusinessObject                    pObject;
+
+  private BusinessObject                    cObject;
 
   @Override
   public void beforeClassSetup() throws Exception
   {
-    testData = FastTestDataset.newTestData();
-    testData.setUpMetadata();
+    super.beforeClassSetup();
+
+    setUpInReq();
 
     if (!SchedulerManager.initialized())
     {
@@ -84,13 +106,49 @@ public class EdgeObjectImporterTest implements InstanceTestClassListener
     }
   }
 
+  @Request
+  private void setUpInReq()
+  {
+    JsonObject object = new JsonObject();
+    object.addProperty(BusinessType.CODE, "TEST_BUSINESS");
+    object.addProperty(BusinessType.ORGANIZATION, FastTestDataset.ORG_CGOV.getCode());
+    object.add(BusinessType.DISPLAYLABEL, new LocalizedValue("Test Business").toJSON());
+
+    btype = this.bTypeService.apply(object);
+
+    this.bTypeService.createAttributeType(btype, new AttributeBooleanType("testBoolean", new LocalizedValue("Test Boolean"), new LocalizedValue("Test Boolean"), false, false, false));
+
+    bEdgeType = this.bEdgeService.create(BusinessEdgeTypeView.build(FastTestDataset.ORG_CGOV.getCode(), "TEST_B_EDGE", new LocalizedValue("TEST_B_EDGE"), new LocalizedValue("TEST_B_EDGE"), btype.getCode(), btype.getCode()));
+
+    bGeoEdgeType = this.bEdgeService.create(BusinessGeoEdgeTypeView.build(FastTestDataset.ORG_CGOV.getCode(), "TEST_GEO_EDGE", new LocalizedValue("TEST_GEO_EDGE"), new LocalizedValue("TEST_GEO_EDGE"), btype.getCode(), EdgeDirection.PARENT));
+
+    this.repoService.refreshMetadataCache();
+  }
+
   @Override
+  @Request
   public void afterClassSetup() throws Exception
   {
-    testData.tearDownMetadata();
+    super.afterClassSetup();
+
+    if (bGeoEdgeType != null)
+    {
+      this.bEdgeService.delete(bGeoEdgeType);
+    }
+
+    if (bEdgeType != null)
+    {
+      this.bEdgeService.delete(bEdgeType);
+    }
+
+    if (btype != null)
+    {
+      this.bTypeService.delete(btype);
+    }
   }
 
   @Before
+  @Request
   public void setUp()
   {
     testData.setUpInstanceData();
@@ -98,6 +156,19 @@ public class EdgeObjectImporterTest implements InstanceTestClassListener
     clearData();
 
     testData.logIn();
+
+    pObject = createBusinessObject("P_CODE", btype, null);
+    cObject = createBusinessObject("C_CODE", btype, null);
+
+    addBusinessEdge();
+  }
+
+  protected void addBusinessEdge()
+  {
+    List<Pair<VertexComponent, BusinessEdgeType>> targets = Arrays.asList( //
+        new Pair<VertexComponent, BusinessEdgeType>(pObject, bEdgeType), //
+        new Pair<VertexComponent, BusinessEdgeType>(FastTestDataset.CAMBODIA.getServerObject(), bGeoEdgeType) //
+    );
   }
 
   @After
@@ -115,6 +186,20 @@ public class EdgeObjectImporterTest implements InstanceTestClassListener
   @Request
   private void clearData()
   {
+    if (cObject != null)
+    {
+      this.bObjectService.delete(cObject);
+
+      cObject = null;
+    }
+
+    if (pObject != null)
+    {
+      this.bObjectService.delete(pObject);
+
+      pObject = null;
+    }
+
     SchedulerTestUtils.clearImportData();
 
     for (int i = 0; i < IMPORT_COUNT; ++i)
@@ -123,6 +208,8 @@ public class EdgeObjectImporterTest implements InstanceTestClassListener
       one.setCode(String.valueOf(i));
       one.delete();
     }
+
+    projection.clearCache();
   }
 
   private void generateDistricts()
@@ -156,16 +243,80 @@ public class EdgeObjectImporterTest implements InstanceTestClassListener
     return new ByteArrayInputStream(all.toString().getBytes());
   }
 
+  private InputStream generateEdgeJson(VertexComponent source, VertexComponent target)
+  {
+    JSONArray all = new JSONArray();
+
+    JSONObject jo = new JSONObject();
+    jo.put("source", source.getCode());
+    jo.put("sourceType", source.getType().getCode());
+    jo.put("target", target.getCode());
+    jo.put("targetType", target.getType().getCode());
+    all.put(jo);
+
+    return new ByteArrayInputStream(all.toString().getBytes());
+  }
+
+  // @Test
+  // public void testPerformance() throws InterruptedException
+  // {
+  // TestDataSet.executeRequestAsUser(FastTestDataset.USER_ADMIN, () -> {
+  // generateDistricts();
+  // InputStream istream = generateEdgeJson();
+  //
+  // Assert.assertNotNull(istream);
+  //
+  // EdgeObjectImportConfiguration config =
+  // this.etlService.getTestConfiguration(GraphTypeSnapshot.HIERARCHY_TYPE,
+  // FastTestDataset.HIER_ADMIN.getCode(), istream,
+  // ImportStrategy.NEW_AND_UPDATE);
+  //
+  // long start = System.nanoTime();
+  //
+  // ImportHistory hist =
+  // this.etlService.importJsonFile(config.toJSON().toString());
+  //
+  // SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
+  // System.out.println("Elapsed: " + ( System.nanoTime() - start ) /
+  // 1_000_000_000.0 + " s");
+  //
+  // hist = ImportHistory.get(hist.getOid());
+  // Assert.assertEquals(Long.valueOf(IMPORT_COUNT), hist.getWorkTotal());
+  // Assert.assertEquals(Long.valueOf(IMPORT_COUNT), hist.getWorkProgress());
+  // Assert.assertEquals(Long.valueOf(IMPORT_COUNT), hist.getImportedRecords());
+  // Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+  //
+  // GraphType hierarchyType =
+  // this.typeService.getByCode(GraphTypeSnapshot.HIERARCHY_TYPE,
+  // FastTestDataset.HIER_ADMIN.getCode());
+  // ServerGeoObjectIF dist1 = this.objectService.getGeoObjectByCode("1",
+  // FastTestDataset.DISTRICT.getCode());
+  // ServerGraphNode node = dist1.getGraphParents(hierarchyType, false,
+  // TestDataSet.DEFAULT_OVER_TIME_DATE);
+  //
+  // ServerGeoObjectIF parent = node.getGeoObject();
+  // Assert.assertNotNull(parent);
+  // Assert.assertEquals("1",
+  // parent.getDisplayLabel(TestDataSet.DEFAULT_OVER_TIME_DATE).getValue());
+  //
+  // List<ImportHistoryView> histories =
+  // this.etlBusinessService.getHistory(GraphTypeSnapshot.HIERARCHY_TYPE,
+  // FastTestDataset.HIER_ADMIN.getCode());
+  //
+  // Assert.assertEquals(1, histories.size());
+  // });
+  // }
+
   @Test
-  public void testPerformance() throws InterruptedException
+  public void testBusinessEdge() throws InterruptedException
   {
     TestDataSet.executeRequestAsUser(FastTestDataset.USER_ADMIN, () -> {
       generateDistricts();
-      InputStream istream = generateEdgeJson();
+      InputStream istream = generateEdgeJson(cObject, pObject);
 
       Assert.assertNotNull(istream);
 
-      EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(EDGE_TYPE_CODE, EDGE_CODE, istream, ImportStrategy.NEW_AND_UPDATE);
+      EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(GraphType.BUSINESS_EDGE_TYPE, bEdgeType.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
 
       long start = System.nanoTime();
 
@@ -175,20 +326,50 @@ public class EdgeObjectImporterTest implements InstanceTestClassListener
       System.out.println("Elapsed: " + ( System.nanoTime() - start ) / 1_000_000_000.0 + " s");
 
       hist = ImportHistory.get(hist.getOid());
-      Assert.assertEquals(Long.valueOf(IMPORT_COUNT), hist.getWorkTotal());
-      Assert.assertEquals(Long.valueOf(IMPORT_COUNT), hist.getWorkProgress());
-      Assert.assertEquals(Long.valueOf(IMPORT_COUNT), hist.getImportedRecords());
+      Assert.assertEquals(Long.valueOf(1), hist.getWorkTotal());
+      Assert.assertEquals(Long.valueOf(1), hist.getWorkProgress());
+      Assert.assertEquals(Long.valueOf(1), hist.getImportedRecords());
       Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-      GraphType hierarchyType = this.typeService.getByCode(EDGE_TYPE_CODE, EDGE_CODE);
-      ServerGeoObjectIF dist1 = this.objectService.getGeoObjectByCode("1", FastTestDataset.DISTRICT.getCode());
-      ServerGraphNode node = dist1.getGraphParents(hierarchyType, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
+      List<VertexComponent> tagets = this.bObjectService.getChildren(cObject, bEdgeType, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-      ServerGeoObjectIF parent = node.getGeoObject();
-      Assert.assertNotNull(parent);
-      Assert.assertEquals("1", parent.getDisplayLabel(TestDataSet.DEFAULT_OVER_TIME_DATE).getValue());
+      Assert.assertEquals(1, tagets.size());
 
-      List<ImportHistoryView> histories = this.etlBusinessService.getHistory(EDGE_TYPE_CODE, EDGE_CODE);
+      List<ImportHistoryView> histories = this.etlBusinessService.getHistory(GraphType.BUSINESS_EDGE_TYPE, bEdgeType.getCode());
+
+      Assert.assertEquals(1, histories.size());
+    });
+  }
+
+  @Test
+  public void testBusinessGeoEdge() throws InterruptedException
+  {
+    TestDataSet.executeRequestAsUser(FastTestDataset.USER_ADMIN, () -> {
+      generateDistricts();
+      InputStream istream = generateEdgeJson(FastTestDataset.CAMBODIA.getServerObject(), cObject);
+
+      Assert.assertNotNull(istream);
+
+      EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(GraphType.BUSINESS_EDGE_TYPE, bGeoEdgeType.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
+
+      long start = System.nanoTime();
+
+      ImportHistory hist = this.etlService.importJsonFile(config.toJSON().toString());
+
+      SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
+      System.out.println("Elapsed: " + ( System.nanoTime() - start ) / 1_000_000_000.0 + " s");
+
+      hist = ImportHistory.get(hist.getOid());
+      Assert.assertEquals(Long.valueOf(1), hist.getWorkTotal());
+      Assert.assertEquals(Long.valueOf(1), hist.getWorkProgress());
+      Assert.assertEquals(Long.valueOf(1), hist.getImportedRecords());
+      Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+
+      List<VertexComponent> tagets = this.bObjectService.getParents(cObject, bGeoEdgeType, TestDataSet.DEFAULT_OVER_TIME_DATE);
+
+      Assert.assertEquals(1, tagets.size());
+
+      List<ImportHistoryView> histories = this.etlBusinessService.getHistory(GraphType.BUSINESS_EDGE_TYPE, bGeoEdgeType.getCode());
 
       Assert.assertEquals(1, histories.size());
     });

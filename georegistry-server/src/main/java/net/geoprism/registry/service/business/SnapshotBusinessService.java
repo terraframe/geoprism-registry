@@ -77,14 +77,12 @@ import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.graph.GeoObjectTypeAlreadyInHierarchyException;
-import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.SnapshotContainer;
 import net.geoprism.registry.model.graph.EdgeVertexType;
 import net.geoprism.registry.view.BusinessEdgeTypeView;
-import net.geoprism.registry.view.BusinessGeoEdgeTypeView;
 
 @Service
 public class SnapshotBusinessService
@@ -117,7 +115,7 @@ public class SnapshotBusinessService
   private BusinessTypeBusinessServiceIF             bTypeService;
 
   @Autowired
-  private EdgeTypeBusinessServiceIF                graphTypeService;
+  private EdgeTypeBusinessServiceIF                 graphTypeService;
 
   public GraphTypeSnapshot createSnapshot(SnapshotContainer<?> version, GraphTypeReference gtr, GeoObjectTypeSnapshot root)
   {
@@ -484,28 +482,6 @@ public class SnapshotBusinessService
 
       return t;
     }).orElseGet(() -> {
-      if (snapshot.getIsParentGeoObject() || snapshot.getIsChildGeoObject())
-      {
-        String businssTypeCode = snapshot.getIsParentGeoObject() ? //
-            snapshot.getChildType().getCode() : //
-            snapshot.getParentType().getCode();
-
-        EdgeDirection direction = snapshot.getIsParentGeoObject() ? EdgeDirection.PARENT : EdgeDirection.CHILD;
-
-        BusinessGeoEdgeTypeView dto = new BusinessGeoEdgeTypeView();
-        dto.setCode(snapshot.getCode());
-        dto.setDescription(description);
-        dto.setDirection(direction);
-        dto.setLabel(label);
-        dto.setOrganizationCode(snapshot.getOrgCode());
-        dto.setOrigin(snapshot.getOrigin());
-        dto.setSeq(snapshot.getSequence());
-        dto.setTypeCode(businssTypeCode);
-
-        return this.bEdgeService.createGeoEdge(dto);
-      }
-      else
-      {
         BusinessEdgeTypeView dto = new BusinessEdgeTypeView();
         dto.setCode(snapshot.getCode());
         dto.setDescription(description);
@@ -513,11 +489,10 @@ public class SnapshotBusinessService
         dto.setOrganizationCode(snapshot.getOrgCode());
         dto.setOrigin(snapshot.getOrigin());
         dto.setSeq(snapshot.getSequence());
-        dto.setParentTypeCode(snapshot.getParentType().getCode());
-        dto.setChildTypeCode(snapshot.getChildType().getCode());
+        dto.setChildTypeCode(snapshot.getIsChildGeoObject() ? BusinessEdgeTypeView.GEO_OBJECT_TYPE : snapshot.getChildType().getCode());
+        dto.setParentTypeCode(snapshot.getIsParentGeoObject() ? BusinessEdgeTypeView.GEO_OBJECT_TYPE : snapshot.getParentType().getCode());
 
         return this.bEdgeService.create(dto);
-      }
     });
 
     return type;

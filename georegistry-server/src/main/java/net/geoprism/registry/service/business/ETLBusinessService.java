@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
-import org.commongeoregistry.adapter.metadata.GraphTypeDTO;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -83,6 +82,7 @@ import net.geoprism.registry.jobs.TermReferenceProblem;
 import net.geoprism.registry.jobs.ValidationProblem;
 import net.geoprism.registry.jobs.ValidationProblem.ValidationResolution;
 import net.geoprism.registry.jobs.ValidationProblemQuery;
+import net.geoprism.registry.model.EdgeType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.permission.RolePermissionService;
@@ -110,7 +110,7 @@ public class ETLBusinessService
   protected GeoSynonymBusinessService      geoSynonymService;
 
   @Autowired
-  protected EdgeTypeBusinessServiceIF     graphTypeService;
+  protected EdgeTypeBusinessServiceIF      graphTypeService;
 
   @Autowired
   protected BusinessTypeBusinessServiceIF  businessTypeService;
@@ -751,12 +751,16 @@ public class ETLBusinessService
       statement.append(" WHERE " + attribute.getColumnName() + "->>'objectType' = '" + ObjectImporterFactory.ObjectImportType.BUSINESS_OBJECT.name() + "'");
       statement.append(" AND " + attribute.getColumnName() + "->'type'->>'code' = '" + typeCode + "'");
     }
-    else if (classType.equals(GraphTypeDTO.DIRECTED_ACYCLIC_GRAPH_TYPE) //
-        || classType.equals(GraphTypeDTO.UNDIRECTED_GRAPH_TYPE) //
-        || classType.equals(GraphTypeDTO.HIERARCHY_TYPE))
+    else if (classType.equals(EdgeType.DIRECTED_ACYCLIC_GRAPH_TYPE) //
+        || classType.equals(EdgeType.UNDIRECTED_GRAPH_TYPE) //
+        || classType.equals(EdgeType.BUSINESS_EDGE_TYPE) //
+        || classType.equals(EdgeType.HIERARCHY_TYPE))
     {
       // Ensure the type code is valid
-      this.graphTypeService.getByCode(classType, typeCode);
+      if (this.graphTypeService.getByCode(classType, typeCode) == null)
+      {
+        throw new DataNotFoundException();
+      }
 
       statement.append(" WHERE " + attribute.getColumnName() + "->>'objectType' = '" + ObjectImporterFactory.ObjectImportType.EDGE_OBJECT.name() + "'");
       statement.append(" AND " + attribute.getColumnName() + "->>'graphTypeClass' = '" + classType + "'");

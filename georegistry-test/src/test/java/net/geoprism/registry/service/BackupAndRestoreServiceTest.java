@@ -130,7 +130,7 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
 
     bEdgeType = this.bEdgeService.create(BusinessEdgeTypeView.build(USATestData.ORG_NPS.getCode(), code, label, description, bType.getCode(), bType.getCode()));
 
-    bGeoEdgeType = this.bEdgeService.createGeoEdge(BusinessGeoEdgeTypeView.build(USATestData.ORG_NPS.getCode(), "GEO_EDGE", new LocalizedValue("Geo Edge"), new LocalizedValue("Geo Edge"), bType.getCode(), EdgeDirection.PARENT));
+    bGeoEdgeType = this.bEdgeService.create(BusinessGeoEdgeTypeView.build(USATestData.ORG_NPS.getCode(), "GEO_EDGE", new LocalizedValue("Geo Edge"), new LocalizedValue("Geo Edge"), bType.getCode(), EdgeDirection.PARENT));
   }
 
   @Override

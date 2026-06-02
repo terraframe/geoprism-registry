@@ -1099,3 +1099,11 @@ typeahead-container {
 .mapboxgl-popup-content {
 	width: 350px;
 }
+
+/* 
+  Workaround for bootstrap 3 and ngx-bootstrap
+  https://github.com/valor-software/ngx-bootstrap/issues/2891
+*/
+.dropdown-menu {
+	transform: none !important;
+}

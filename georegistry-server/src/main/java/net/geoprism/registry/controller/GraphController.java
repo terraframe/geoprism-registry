@@ -57,7 +57,9 @@ public class GraphController extends RunwaySpringController
   {
     final JsonArray graphTypes = new JsonArray();
 
-    graphTypeService.getGraphTypes(this.getSessionId(), codes).stream().sorted((a, b) -> a.getLabel().getValue().compareTo(b.getLabel().getValue())).forEach(t -> graphTypes.add(t.toJSON()));
+    graphTypeService.getGraphTypes(this.getSessionId(), codes).stream() //
+        .sorted((a, b) -> a.getLabel().getValue().compareTo(b.getLabel().getValue())) //
+        .forEach(t -> graphTypes.add(t.toJSON()));
 
     return new ResponseEntity<String>(graphTypes.toString(), HttpStatus.OK);
   }

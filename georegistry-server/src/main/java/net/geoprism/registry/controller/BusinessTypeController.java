@@ -18,6 +18,8 @@
  */
 package net.geoprism.registry.controller;
 
+import java.util.List;
+
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -40,6 +42,7 @@ import jakarta.validation.constraints.NotNull;
 import net.geoprism.registry.service.request.BusinessEdgeTypeServiceIF;
 import net.geoprism.registry.service.request.BusinessTypeService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
+import net.geoprism.registry.view.BusinessEdgeTypeView;
 
 @RestController
 @RequestMapping("api/business-type")
@@ -143,14 +146,6 @@ public class BusinessTypeController extends RunwaySpringController
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @GetMapping("/get-edges")
-  public ResponseEntity<String> getEdges()
-  {
-    JsonArray response = this.edgeService.getAll(this.getSessionId());
-
-    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
-  }
-
   @GetMapping("/get")
   public ResponseEntity<String> get(@NotBlank @RequestParam(name = "oid") String oid)
   {
@@ -224,10 +219,10 @@ public class BusinessTypeController extends RunwaySpringController
   }
 
   @GetMapping("/get-edge-types")
-  public ResponseEntity<String> getEdgeTypes(@NotBlank @RequestParam(name = "typeCode") String typeCode)
+  public ResponseEntity<List<BusinessEdgeTypeView>> getEdgeTypes(@NotBlank @RequestParam(name = "typeCode") String typeCode)
   {
-    JsonArray edgeTypes = this.service.getEdgeTypes(this.getSessionId(), typeCode);
+    List<BusinessEdgeTypeView> edgeTypes = this.service.getEdgeTypes(this.getSessionId(), typeCode);
 
-    return new ResponseEntity<String>(edgeTypes.toString(), HttpStatus.OK);
-  }  
+    return ResponseEntity.ok(edgeTypes);
+  }
 }

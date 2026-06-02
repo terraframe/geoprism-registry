@@ -34,14 +34,14 @@ export class BusinessType implements AttributedType {
 }
 
 export class BusinessEdgeType {
-
     oid?: string;
     code: string;
-    organization: string;
+    organizationCode: string;
     label: LocalizedValue;
     description: LocalizedValue;
-    parentType: string;
-    childType: string;
+    parentTypeCode: string;
+    childTypeCode: string;
+    direction?: string;
 }
 
 export class BusinessObject {

@@ -75,7 +75,7 @@ public class PostgisVectorTileBuilder
     statement.append(" SELECT " + "\n");
     statement.append("  ge.oid AS " + GeoEntity.OID + "\n");
     statement.append(", ge.uid AS " + DefaultAttribute.UID.getName() + "\n");
-    statement.append(", ge.code AS" + DefaultAttribute.CODE.getName() + "\n");
+    statement.append(", ge.code AS " + DefaultAttribute.CODE.getName() + "\n");
     statement.append(", ge." + labelColumn + " AS label" + "\n");
 
     for (Locale locale : locales)

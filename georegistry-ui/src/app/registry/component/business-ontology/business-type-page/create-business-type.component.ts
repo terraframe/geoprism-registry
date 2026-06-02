@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from "@angular/core";
+import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { Subject } from "rxjs";
 import { HttpErrorResponse } from "@angular/common/http";
@@ -26,7 +26,7 @@ import { ErrorHandler } from "@shared/component";
 import { LocalizationService } from "@shared/service/localization.service";
 import { BusinessTypeService } from "@registry/service/business-type.service";
 import { BusinessType } from "@registry/model/business-type";
-import { OrganizationGroup } from "@shared/model/core";
+import { Organization, OrganizationGroup } from "@shared/model/core";
 import { LocalizedTextComponent } from "../../form-fields/localized-text/localized-text.component";
 import { ConvertKeyLabel } from "../../../../shared/component/localize/convert-key-label.component";
 import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
@@ -34,27 +34,24 @@ import { NgIf, NgFor } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 
 @Component({
-    selector: "create-business-type-modal",
-    templateUrl: "./create-business-type-modal.component.html",
+    selector: "create-business-type",
+    templateUrl: "./create-business-type.component.html",
     styleUrls: [],
     standalone: true,
-    imports: [FormsModule, NgIf, LocalizeComponent, NgFor, ConvertKeyLabel, LocalizedTextComponent]
+    imports: [FormsModule, LocalizeComponent, NgFor, ConvertKeyLabel, LocalizedTextComponent]
 })
-export class CreateBusinessTypeModalComponent implements OnInit {
+export class CreateBusinessTypeComponent implements OnInit {
 
-    type: BusinessType;
-    organization: OrganizationGroup<BusinessType> = null;
-    message: string = null;
-    organizationLabel: string;
+    @Input() organization: Organization = null;
 
-    /*
-     * Observable subject for TreeNode changes.  Called when create is successful
-     */
-    public onBusinessTypeChange: Subject<BusinessType>;
+    @Output() onCancel: EventEmitter<void> = new EventEmitter<void>()
+    @Output() onError: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>()
+    @Output() typeChange: EventEmitter<BusinessType> = new EventEmitter<BusinessType>()
+
+    type: BusinessType = null;
 
     // eslint-disable-next-line no-useless-constructor
     constructor(private service: BusinessTypeService, private lService: LocalizationService, public bsModalRef: BsModalRef) {
-        this.onBusinessTypeChange = new Subject<BusinessType>();
     }
 
     ngOnInit(): void {
@@ -64,31 +61,25 @@ export class CreateBusinessTypeModalComponent implements OnInit {
             displayLabel: this.lService.create(),
             description: this.lService.create(),
             attributes: [],
-            labelAttribute: ""
+            labelAttribute: "",
+            organizationLabel: ""
         };
-    }
-
-    init(organization: OrganizationGroup<BusinessType>) {
-        // Filter out organizations they're not RA's of
-        this.organization = organization;
 
         this.type.organization = this.organization.code;
-        this.type.organizationLabel = this.organization.label;
+        this.type.organizationLabel = this.organization.label.localizedValue;
     }
 
     handleOnSubmit(): void {
-        this.message = null;
 
         this.service.apply(this.type).then(data => {
-            this.onBusinessTypeChange.next(data);
+            this.typeChange.next(data);
             this.bsModalRef.hide();
         }).catch((err: HttpErrorResponse) => {
-            this.error(err);
+            this.onError.emit(err);
         });
     }
 
-    error(err: HttpErrorResponse): void {
-        this.message = ErrorHandler.getMessageFromError(err);
+    handleCancel(): void {
+        this.onCancel.emit();
     }
-
 }

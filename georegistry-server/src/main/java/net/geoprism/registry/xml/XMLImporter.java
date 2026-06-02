@@ -691,9 +691,9 @@ public class XMLImporter
 
       ServiceFactory.getHierarchyPermissionService().enforceCanCreate(organization.getCode());
 
-      BusinessGeoEdgeTypeView dto = BusinessGeoEdgeTypeView.build(organization.getCode(), code, label, description, typeCode, EdgeDirection.valueOf(direction));
+      BusinessEdgeTypeView dto = BusinessGeoEdgeTypeView.build(organization.getCode(), code, label, description, typeCode, EdgeDirection.valueOf(direction));
 
-      BusinessEdgeType type = this.bEdgeService.createGeoEdge(dto);
+      BusinessEdgeType type = this.bEdgeService.create(dto);
 
       TransactionCacheFacade.put(type);
       this.importedTypes.add(BUSINESS_EDGE_TYPE_PREFIX + type.getCode());

@@ -36,6 +36,7 @@ import { LayerDiffingStrategy } from "./layer-diffing-strategy";
 import { LocationManagerState } from "@registry/component/location-manager/location-manager.component";
 import { PANEL_SIZE_STATE } from "@registry/model/location-manager";
 import { debounce } from "ts-debounce";
+// import items from '../../../real_property_5000.json';
 
 export const OLD_LAYER_COLOR = "#A4A4A4";
 
@@ -928,6 +929,13 @@ export class GeometryService implements OnDestroy {
         layer.configureMapboxLayer("LABEL", labelConfig);
 
         this.map.addLayer(labelConfig, otherLayer ? otherLayer.getId() + "-LABEL" : null);
+
+        // this.map.setFilter(labelConfig.id, [
+        //     'in',
+        //     ['get', 'code'],
+        //     ['literal', items]
+        // ]);
+
     }
 
     private mapboxMapLayerAsType(geometryType: string, layer: Layer, otherLayer?: Layer): void {
@@ -950,7 +958,7 @@ export class GeometryService implements OnDestroy {
                     "fill-opacity": 0.7
                 },
                 filter: ["all",
-                    ["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]
+                     ["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]
                 ]
             };
         } else if (geometryType === "POINT" || geometryType === "MULTIPOINT") {
@@ -971,7 +979,7 @@ export class GeometryService implements OnDestroy {
                     "circle-stroke-color": "#FFFFFF"
                 },
                 filter: ["all",
-                    ["match", ["geometry-type"], ["Point", "MultiPont"], true, false]
+                     ["match", ["geometry-type"], ["Point", "MultiPont"], true, false]
                 ]
             };
         } else if (geometryType === "LINE" || geometryType === "MULTILINE") {
@@ -993,7 +1001,7 @@ export class GeometryService implements OnDestroy {
                     "line-width": 3
                 },
                 filter: ["all",
-                    ["match", ["geometry-type"], ["LineString", "MultiLineString"], true, false]
+                     ["match", ["geometry-type"], ["LineString", "MultiLineString"], true, false]
                 ]
             };
         } else {
@@ -1010,6 +1018,12 @@ export class GeometryService implements OnDestroy {
         }
 
         this.map.addLayer(layerConfig, otherLayer ? otherLayer.getId() + "-" + this.getLayerIdGeomTypePostfix(otherLayer.dataSource.getGeometryType()) : null);
+
+        // this.map.setFilter(layerConfig.id, [
+        //     'in',
+        //     ['get', 'code'],
+        //     ['literal', items]
+        // ]);
     }
 
     private getLayerIdGeomTypePostfix(geometryType: string) {

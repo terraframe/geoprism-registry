@@ -1,0 +1,83 @@
+<!--   <h2> <localize key="hierarchy.management.title"></localize> </h2> -->
+<div class="row">
+
+    <nav class="col-md-2 hierarchy-sidebar">
+
+        <accordion [isAnimated]="true" [closeOthers]="false">
+            <accordion-group [panelClass]="'hierarchy-sidebar-content'" [isOpen]="true" style="border-radius: 0;">
+                <div accordion-heading style="padding: 10px 15px;">
+                    <span>
+                        <i style="margin-right:10px;" class="fa fa-circle"></i>
+                    </span>
+                    <localize key="skg.business.edge.types">
+                    </localize>
+                </div>
+                <div class="sidebar-section-content">
+
+                    <ul *ngFor="let typeByOrg of typesByOrg;" class="list-group">
+                        <div>
+
+                            <div class="got-org-label-wrapper">
+                                <label>{{typeByOrg.org.label.localizedValue}}</label>
+                            </div>
+
+                            <div *ngIf="typeByOrg.write" style="text-align: center;padding: 10px 0;">
+                                <button (click)="onCreate(typeByOrg.org)" type="button" class="btn btn-primary"
+                                    style="margin-bottom:20px;min-width:45%;">
+                                    <localize key="hierarchy.management.button.create"></localize>
+                                </button>
+                            </div>
+
+                            <li class="list-group-item graph-li-item"
+                                *ngFor="let type of typeByOrg.types; let i = index;" [id]="type.code"
+                                [ngClass]="{'primary active': (selection != null && selection.type != null && type.code === selection.type.code)}"
+                                (click)="handleTypeView(type)">
+                                {{type.label.localizedValue}}
+
+                                <div class="btn-group pull-right" dropdown [dropup]="true" container="body">
+                                    <a class="pull-right" dropdownToggle (click)="$event.stopPropagation();"
+                                        aria-controls="basic-link-dropdown">
+                                        <i class="fa fa-ellipsis-vertical clickable dropdown-toggle"></i>
+                                    </a>
+                                    <ul *dropdownMenu class="dropdown-menu" role="menu"
+                                        aria-labelledby="button-animated">
+                                        <ng-container *ngIf="isSRA">
+                                            <li role="menuitem">
+                                                <a class="dropdown-item" (click)="onDelete(type)">
+                                                    <localize key="button.delete.helptext"></localize>
+                                                </a>
+                                            </li>
+                                        </ng-container>
+                                        <li role="menuitem">
+                                            <a class="dropdown-item" (click)="onEdit(type)">
+                                                <localize
+                                                    [key]="isSRA ? 'button.edit.helptext' : 'button.view.helptext'">
+                                                </localize>
+                                            </a>
+                                        </li>
+                                        <li role="menuitem">
+                                            <a class="dropdown-item" (click)="onImportHistory(type)">
+                                                <localize key="modal.button.import.history"></localize>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                            </li>
+                        </div>
+                    </ul>
+                </div>
+            </accordion-group>
+        </accordion>
+    </nav>
+
+    <div class="col-md-10 hierarchy-content">
+        <div id="overflow-div">
+            <manage-business-edge-type *ngIf="selection != null" [isNew]="selection.isNew" [type]="selection.type"
+                [businessTypes]="businessTypes" [readOnly]="selection.readOnly" (typeChange)="handleTypeChange($event)"
+                (onCancel)="selection = null" (onError)="error($event)">
+            </manage-business-edge-type>
+
+        </div>
+    </div>
+</div>
