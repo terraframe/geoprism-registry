@@ -553,7 +553,7 @@ public class RelationshipVisualizationService
 
       bEdgeService.getAll().forEach(graphType -> {
         // Show all business objects which are related to a Geo-Object
-        if (this.bEdgeService.getParent(graphType).isGeoObjectType() || this.bEdgeService.getChild(graphType).isGeoObjectType())
+        if (graphType.getIsParentGeoObject() || graphType.getIsChildGeoObject())
         {
           try
           {

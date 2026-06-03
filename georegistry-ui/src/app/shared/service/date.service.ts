@@ -48,7 +48,7 @@ export class DateService {
         message: this.localizationService.decode("manage.versions.duplicateLabel.message"),
         type: ConflictType.MISSING_REFERENCE
     }
-    
+
     public outsideExistsMessage: ConflictMessage = {
         severity: "ERROR",
         message: this.localizationService.decode("manage.versions.outsideExists.message"),
@@ -100,7 +100,7 @@ export class DateService {
             return this.localizationService.localize("changeovertime", "present");
         }
 
-        if (date.valueOf() === 'number') {
+        if (typeof date === 'number') {
             date = new Date(date);
         }
 

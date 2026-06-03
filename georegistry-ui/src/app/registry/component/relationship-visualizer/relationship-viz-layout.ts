@@ -89,8 +89,6 @@ export class DagreNodesOnlyLayout implements Layout {
     this.createDagreGraph(graph);
     dagre.layout(this.dagreGraph);
 
-    console.log(graph);
-
     graph.edgeLabels = this.dagreGraph._edgeLabels;
 
     for (const dagreNodeId in this.dagreGraph._nodes) {
@@ -185,7 +183,7 @@ export class DagreNodesOnlyLayout implements Layout {
     });
 
     this.dagreEdges = graph.edges.map(l => {
-    let linkId: number = 1;
+      let linkId: number = 1;
       const newLink: any = Object.assign({}, l);
       if (!newLink.id) {
         newLink.id = linkId;

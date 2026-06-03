@@ -44,13 +44,11 @@
                   </div>
 
                   <div class="panel-body">
-                    <ng-container ng-switch="attributeType.type">
-                      <ng-container ng-switch-when="'date'">
-                        <date-text [date]="object.data[attributeType.code]"></date-text>
-                      </ng-container>
-                      <ng-container ng-switch-default>
-                        {{ object.data[attributeType.code] }}
-                      </ng-container>
+                    <ng-container *ngIf="attributeType.type === 'date'">
+                      <date-text [date]="object.data[attributeType.code]"></date-text>
+                    </ng-container>
+                    <ng-container *ngIf="attributeType.type !== 'date'">
+                      {{ object.data[attributeType.code] }}
                     </ng-container>
                   </div>
                 </div>
@@ -61,13 +59,13 @@
       </div>
     </fieldset>
   </form>
-<!--
+  <!--
 
   <div class="button-holder text-right" style="margin-bottom: 20px;">
     <button type="button" class="btn btn-default" (click)="onClose()">
       <localize key="modal.button.cancel"></localize>
     </button>
   </div>
--->  
+-->
 
 </div>

@@ -18,7 +18,7 @@
 ///
 
 /* eslint-disable indent */
-import { Component, OnInit, Output, EventEmitter, OnDestroy } from "@angular/core";
+import { Component, OnInit, Output, EventEmitter, OnDestroy, ViewChild } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalService } from "ngx-bootstrap/modal";
 
@@ -27,7 +27,7 @@ import { ErrorHandler } from "@shared/component";
 import { GeoObjectTypeCache } from "@registry/model/registry";
 import { Subject, Subscription } from "rxjs";
 import { RelationshipVisualizationService } from "@registry/service/relationship-visualization.service";
-import { Layout, Orientation, GraphModule } from "@swimlane/ngx-graph";
+import { Layout, Orientation, GraphModule, NgxGraphStateChangeEvent, NgxGraphStates, NgxGraphZoomOptions, GraphComponent } from "@swimlane/ngx-graph";
 
 import { DagreNodesOnlyLayout } from "./relationship-viz-layout";
 
@@ -92,9 +92,7 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
     public svgHeight: number = null;
     public svgWidth: number = null;
 
-    panToNode$: Subject<string> = new Subject();
-
-    update$: Subject<boolean> = new Subject();
+    zoomToFit$: Subject<NgxGraphZoomOptions> = new Subject();
 
     public layout: Layout = new DagreNodesOnlyLayout();
 
@@ -120,6 +118,15 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
     loading: boolean = true;
 
     restrictToMapBounds: boolean = false;
+
+    isLoading: boolean = false;
+
+    graphRef?: GraphComponent = undefined;
+
+    @ViewChild('graph')
+    set graphRefSetter(graphRef: GraphComponent | undefined) {
+        this.graphRef = graphRef;
+    }
 
     // eslint-disable-next-line no-useless-constructor
     constructor(private modalService: BsModalService,
@@ -269,19 +276,27 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
             this.vizService.tree(this.relationship.type, this.relationship.code, source, this.state.date, this.getBoundsAsWKT()).then(data => {
                 this.data = null;
 
-                console.log(data);
-
                 window.setTimeout(() => {
                     this.data = data;
                     this.resizeDimensions();
                     this.calculateTypeLegend(this.data.relatedTypes);
                     this.addLayers(this.data.relatedTypes);
+                    this.isLoading = true;
                 }, 0);
 
                 this.resizeDimensions();
             }).finally(() => {
                 this.spinner.hide(this.CONSTANTS.OVERLAY);
             });
+        }
+    }
+
+    handleStateChange(event: NgxGraphStateChangeEvent) {
+
+        // Zoom to fit when the data has been changed
+        if (this.isLoading && event.state === NgxGraphStates.Output && this.graphRef != undefined && this.graphRef.hasDims()) {
+            this.isLoading = false;
+            this.zoomToFit$.next({ autoCenter: true, force: true });
         }
     }
 
@@ -551,7 +566,7 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
 
             //     return DIMENSIONS.LABEL.WIDTH;
             // }
-                return DIMENSIONS.LABEL.WIDTH;
+            return DIMENSIONS.LABEL.WIDTH;
 
         } else {
             return DIMENSIONS.LABEL.WIDTH + DIMENSIONS.PADDING.NODE_LABEL;
