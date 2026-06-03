@@ -69,7 +69,9 @@
             <select id="parentTypeCode" name="parentTypeCode" class="select-area" [(ngModel)]="type.parentTypeCode"
               [disabled]="readOnly || !isNew" required>
               <option></option>
-              <option [value]="GEO_OBJECT_OPTION">Geo-Object</option>
+              <option [value]="GEO_OBJECT_OPTION">
+                <localize key="dropdown.select.geoobject.label"></localize>
+              </option>
               <option *ngFor="let businessType of businessTypes" [value]="businessType.code">
                 {{businessType.displayLabel.localizedValue}}
               </option>
@@ -84,7 +86,9 @@
             <select id="childTypeCode" name="childTypeCode" class="select-area" [(ngModel)]="type.childTypeCode"
               [disabled]="readOnly || !isNew" required>
               <option></option>
-              <option [value]="GEO_OBJECT_OPTION">Geo-Object</option>
+              <option [value]="GEO_OBJECT_OPTION">
+                <localize key="dropdown.select.geoobject.label"></localize>
+              </option>
               <option *ngFor="let businessType of businessTypes" [value]="businessType.code">
                 {{businessType.displayLabel.localizedValue}}
               </option>
