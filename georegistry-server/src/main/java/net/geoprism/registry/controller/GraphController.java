@@ -20,7 +20,9 @@ package net.geoprism.registry.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
+import org.commongeoregistry.adapter.metadata.GraphTypeDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,15 +55,13 @@ public class GraphController extends RunwaySpringController
   private EdgeImportService importService;
 
   @GetMapping("get")
-  public ResponseEntity<String> get(@RequestParam(name = "codes", required = false) String[] codes)
+  public ResponseEntity<List<GraphTypeDTO>> get(@RequestParam(name = "codes", required = false) String[] codes)
   {
-    final JsonArray graphTypes = new JsonArray();
-
-    graphTypeService.getGraphTypes(this.getSessionId(), codes).stream() //
+    List<GraphTypeDTO> types = graphTypeService.getGraphTypes(this.getSessionId(), codes).stream() //
         .sorted((a, b) -> a.getLabel().getValue().compareTo(b.getLabel().getValue())) //
-        .forEach(t -> graphTypes.add(t.toJSON()));
+        .toList();
 
-    return new ResponseEntity<String>(graphTypes.toString(), HttpStatus.OK);
+    return ResponseEntity.ok(types);
   }
 
   @PostMapping("get-json-import-config")

@@ -32,6 +32,7 @@ import { LocalizeComponent } from "../../../../shared/component/localize/localiz
 import { FormsModule } from "@angular/forms";
 import { NgIf, NgFor } from "@angular/common";
 import { BusinessEdgeType, BusinessType } from "@registry/model/business-type";
+import { GEO_OBJECT_OPTION } from "@registry/model/registry";
 
 @Component({
     selector: "manage-business-edge-type",
@@ -57,6 +58,7 @@ import { BusinessEdgeType, BusinessType } from "@registry/model/business-type";
     imports: [NgIf, FormsModule, LocalizeComponent, NgFor, ConvertKeyLabel, LocalizedTextComponent]
 })
 export class ManageBusinessEdgeTypeComponent implements OnInit {
+    GEO_OBJECT_OPTION = GEO_OBJECT_OPTION;
 
     @Input() type: BusinessEdgeType = null;
     @Input() businessTypes: BusinessType[] = [];

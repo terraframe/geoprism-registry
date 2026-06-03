@@ -204,7 +204,7 @@ public class RepoRDFExportBusinessService
     state.config = config;
     state.graphTypes = config.getGraphTypes().stream().map(ref -> (GraphType) graphTypeService.resolve(ref)).toList();
     state.gots = config.getTypeCodes().stream().map(code -> ServerGeoObjectType.get(code)).toList();
-    state.businessTypes = config.getBusinessTypeCodes().stream().map(code -> this.bTypeService.getByCode(code)).toList();
+    state.businessTypes = config.getBusinessTypeCodes().stream().map(code -> this.bTypeService.getByCodeOrThrow(code)).toList();
     state.businessEdgeTypes = config.getBusinessEdgeCodes().stream().map(code -> this.bEdgeService.getByCodeOrThrow(code)).toList();
     state.progressId = history.getOid();
     state.monitor = history;

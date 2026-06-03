@@ -138,7 +138,7 @@ public class ExcelBusinessService
     // Save the file to the file system
     try
     {
-      BusinessType businessType = this.bTypeService.getByCode(type);
+      BusinessType businessType = this.bTypeService.getByCodeOrThrow(type);
 
       VaultFile vf = VaultFile.createAndApply(fileName, fileStream);
 

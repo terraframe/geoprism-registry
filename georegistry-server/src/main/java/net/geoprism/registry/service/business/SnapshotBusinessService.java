@@ -482,17 +482,17 @@ public class SnapshotBusinessService
 
       return t;
     }).orElseGet(() -> {
-        BusinessEdgeTypeView dto = new BusinessEdgeTypeView();
-        dto.setCode(snapshot.getCode());
-        dto.setDescription(description);
-        dto.setLabel(label);
-        dto.setOrganizationCode(snapshot.getOrgCode());
-        dto.setOrigin(snapshot.getOrigin());
-        dto.setSeq(snapshot.getSequence());
-        dto.setChildTypeCode(snapshot.getIsChildGeoObject() ? BusinessEdgeTypeView.GEO_OBJECT_TYPE : snapshot.getChildType().getCode());
-        dto.setParentTypeCode(snapshot.getIsParentGeoObject() ? BusinessEdgeTypeView.GEO_OBJECT_TYPE : snapshot.getParentType().getCode());
+      BusinessEdgeTypeView dto = new BusinessEdgeTypeView();
+      dto.setCode(snapshot.getCode());
+      dto.setDescription(description);
+      dto.setLabel(label);
+      dto.setOrganizationCode(snapshot.getOrgCode());
+      dto.setOrigin(snapshot.getOrigin());
+      dto.setSeq(snapshot.getSequence());
+      dto.setChildTypeCode(snapshot.getIsChildGeoObject() ? BusinessEdgeTypeView.GEO_OBJECT_TYPE : snapshot.getChildType().getCode());
+      dto.setParentTypeCode(snapshot.getIsParentGeoObject() ? BusinessEdgeTypeView.GEO_OBJECT_TYPE : snapshot.getParentType().getCode());
 
-        return this.bEdgeService.create(dto);
+      return this.bEdgeService.create(dto);
     });
 
     return type;
@@ -600,7 +600,7 @@ public class SnapshotBusinessService
     JsonObject dto = snapshot.toJSON();
     dto.addProperty(BusinessType.ORGANIZATION, snapshot.getOrgCode());
 
-    BusinessType existing = this.bTypeService.getByCode(snapshot.getCode());
+    BusinessType existing = this.bTypeService.getByCode(snapshot.getCode()).orElse(null);
 
     if (existing == null || existing.getSequence() < snapshot.getSequence())
     {

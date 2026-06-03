@@ -369,7 +369,7 @@ public class CommitBusinessService implements CommitBusinessServiceIF
 
     // Publish snapshots for all business types participating in the graph
     configuration.getBusinessTypes().forEach(code -> {
-      this.snapshotService.createSnapshot(commit, this.bService.getByCode(code));
+      this.snapshotService.createSnapshot(commit, this.bService.getByCodeOrThrow(code));
     });
 
     // Publish snapshots for all abstract geo object types

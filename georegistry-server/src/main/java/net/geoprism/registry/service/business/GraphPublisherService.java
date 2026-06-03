@@ -314,7 +314,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
         // Publish the business objects
         for (BusinessTypeSnapshot snapshot : bSnapshots)
         {
-          BusinessType type = this.bTypeService.getByCode(snapshot.getCode());
+          BusinessType type = this.bTypeService.getByCodeOrThrow(snapshot.getCode());
 
           publish(state, type, snapshot, version);
 
@@ -586,7 +586,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
     });
 
     this.versionService.getBusinessTypes(version).forEach(snapshot -> {
-      BusinessType type = this.bTypeService.getByCode(snapshot.getCode());
+      BusinessType type = this.bTypeService.getByCodeOrThrow(snapshot.getCode());
       String key = type.getMdVertex().getDbClassName().toLowerCase();
 
       snapshotCache.put(key, new CachedBusinessSnapshot(type, snapshot));

@@ -28,136 +28,162 @@
     </p>
   </div>
   <!-- <div class="col-md-12 order-md-1"> -->
-    <!--
+  <!--
     <h3 class="mb-3">
       <localize key="shapefile.modal.heading"></localize>
       {{configuration.sheet.name}}
     </h3>
     -->
-    <form class="modal-form" #form="ngForm" *ngIf="configuration && initialized">
-      
-      <div class="form-group">
-        <div class="row-holder">
-          <div class="label-holder">
-            <label class=""><localize key="io.edge.sourceStrategy"></localize></label>
-          </div>
-          <div class="holder">
-            <select name="sourceStrategy" class="select-area"
-              [(ngModel)]="configuration.edgeSourceStrategy" [required]="true">
-              <option [ngValue]="'CODE'"><localize key="io.edge.codeStrategy"></localize></option>
-            </select>
-          </div>
-        </div>
+  <form class="modal-form" #form="ngForm" *ngIf="configuration && initialized">
 
-        <div class="row-holder">
-          <div class="label-holder">
-            <label class=""><localize key="io.edge.source"></localize></label>
-          </div>
-          <div class="holder">
-            <select name="source" class="select-area"
-              [(ngModel)]="configuration.edgeSource" [required]="true">
-              <option></option>
-              <option *ngFor="let attr of configuration.sheet.attributes['text']" value={{attr}}>{{attr}}</option>
-            </select>
-          </div>
+    <div class="form-group">
+      <div class="row-holder">
+        <div class="label-holder">
+          <label class="">
+            <localize key="io.edge.sourceStrategy"></localize>
+          </label>
         </div>
-
-        <div class="row-holder">
-          <div class="label-holder">
-            <label class=""><localize key="io.edge.sourceTypeStrategy"></localize></label>
-          </div>
-          <div class="holder">
-            <select name="sourceTypeStrategy" class="select-area"
-              [(ngModel)]="configuration.edgeSourceTypeStrategy" [required]="true">
-              <option value="CODE"><localize key="io.edge.codeStrategy"></localize></option>
-              <option value="FIXED-TYPE"><localize key="io.edge.fixedTypeStrategy"></localize></option>
-            </select>
-          </div>
-        </div>
-
-        <div class="row-holder">
-          <div class="label-holder">
-            <label class=""><localize key="io.edge.sourceType"></localize></label>
-          </div>
-          <div class="holder">
-            <select name="sourceType" class="select-area"
-              [(ngModel)]="configuration.edgeSourceType" [required]="true">
-              <option></option>
-              <option *ngFor="let type of getTypeOptions(configuration.edgeSourceTypeStrategy)" value={{type.code}}>{{type.label}}</option>
-            </select>
-          </div>
+        <div class="holder">
+          <select name="sourceStrategy" class="select-area" [(ngModel)]="configuration.edgeSourceStrategy"
+            [required]="true">
+            <option [ngValue]="'CODE'">
+              <localize key="io.edge.codeStrategy"></localize>
+            </option>
+          </select>
         </div>
       </div>
 
-      <hr />
-
-      <div class="form-group">
-        <div class="row-holder">
-          <div class="label-holder">
-            <label class=""><localize key="io.edge.targetStrategy"></localize></label>
-          </div>
-          <div class="holder">
-            <select name="targetStrategy" class="select-area"
-              [(ngModel)]="configuration.edgeTargetStrategy" [required]="true">
-              <option value="CODE"><localize key="io.edge.codeStrategy"></localize></option>
-            </select>
-          </div>
+      <div class="row-holder">
+        <div class="label-holder">
+          <label class="">
+            <localize key="io.edge.source"></localize>
+          </label>
         </div>
-
-        <div class="row-holder">
-          <div class="label-holder">
-            <label class=""><localize key="io.edge.target"></localize></label>
-          </div>
-          <div class="holder">
-            <select name="target" class="select-area"
-              [(ngModel)]="configuration.edgeTarget" [required]="true">
-              <option></option>
-              <option *ngFor="let attr of configuration.sheet.attributes['text']" value={{attr}}>{{attr}}</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="row-holder">
-          <div class="label-holder">
-            <label class=""><localize key="io.edge.targetTypeStrategy"></localize></label>
-          </div>
-          <div class="holder">
-            <select name="targetTypeStrategy" class="select-area"
-              [(ngModel)]="configuration.edgeTargetTypeStrategy" [required]="true">
-              <option value="CODE"><localize key="io.edge.codeStrategy"></localize></option>
-              <option value="FIXED-TYPE"><localize key="io.edge.fixedTypeStrategy"></localize></option>
-            </select>
-          </div>
-        </div>
-
-        <div class="row-holder">
-          <div class="label-holder">
-            <label class=""><localize key="io.edge.targetType"></localize></label>
-          </div>
-          <div class="holder">
-            <select name="targetType" class="select-area"
-              [(ngModel)]="configuration.edgeTargetType" [required]="true">
-              <option></option>
-              <option *ngFor="let type of getTypeOptions(configuration.edgeTargetTypeStrategy)" value={{type.code}}>{{type.label}}</option>
-            </select>
-          </div>
+        <div class="holder">
+          <select name="source" class="select-area" [(ngModel)]="configuration.edgeSource" [required]="true">
+            <option></option>
+            <option *ngFor="let attr of configuration.sheet.attributes['text']" [value]="attr">{{attr}}</option>
+          </select>
         </div>
       </div>
 
-
-      <div class="form-group">
-        <div class="row-holder">
-          <div class="button-holder">
-            <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
-                <localize key="io.cancel"></localize>
-            </button>
-            <button type="submit" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="form.invalid">
-                <localize *ngIf="!configuration.postalCode" key="io.submit"></localize>
-                <localize *ngIf="configuration.postalCode" key="io.ok"></localize>
-            </button>
-          </div>
+      <div class="row-holder">
+        <div class="label-holder">
+          <label class="">
+            <localize key="io.edge.sourceTypeStrategy"></localize>
+          </label>
+        </div>
+        <div class="holder">
+          <select name="sourceTypeStrategy" class="select-area" [(ngModel)]="configuration.edgeSourceTypeStrategy"
+            [required]="true">
+            <option value="CODE">
+              <localize key="io.edge.codeStrategy"></localize>
+            </option>
+            <option value="FIXED_TYPE">
+              <localize key="io.edge.fixedTypeStrategy"></localize>
+            </option>
+          </select>
         </div>
       </div>
-    </form>
+
+      <div class="row-holder">
+        <div class="label-holder">
+          <label class="">
+            <localize key="io.edge.sourceType"></localize>
+          </label>
+        </div>
+        <div class="holder">
+          <select name="sourceType" class="select-area" [(ngModel)]="configuration.edgeSourceType" [required]="true">
+            <option></option>
+            <option *ngFor="let type of getTypeOptions('SOURCE', configuration.edgeSourceTypeStrategy)"
+              [value]="type.code">{{type.label}}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <hr />
+
+    <div class="form-group">
+      <div class="row-holder">
+        <div class="label-holder">
+          <label class="">
+            <localize key="io.edge.targetStrategy"></localize>
+          </label>
+        </div>
+        <div class="holder">
+          <select name="targetStrategy" class="select-area" [(ngModel)]="configuration.edgeTargetStrategy"
+            [required]="true">
+            <option value="CODE">
+              <localize key="io.edge.codeStrategy"></localize>
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row-holder">
+        <div class="label-holder">
+          <label class="">
+            <localize key="io.edge.target"></localize>
+          </label>
+        </div>
+        <div class="holder">
+          <select name="target" class="select-area" [(ngModel)]="configuration.edgeTarget" [required]="true">
+            <option></option>
+            <option *ngFor="let attr of configuration.sheet.attributes['text']" [value]="attr">{{attr}}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row-holder">
+        <div class="label-holder">
+          <label class="">
+            <localize key="io.edge.targetTypeStrategy"></localize>
+          </label>
+        </div>
+        <div class="holder">
+          <select name="targetTypeStrategy" class="select-area" [(ngModel)]="configuration.edgeTargetTypeStrategy"
+            [required]="true">
+            <option value="CODE">
+              <localize key="io.edge.codeStrategy"></localize>
+            </option>
+            <option value="FIXED_TYPE">
+              <localize key="io.edge.fixedTypeStrategy"></localize>
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row-holder">
+        <div class="label-holder">
+          <label class="">
+            <localize key="io.edge.targetType"></localize>
+          </label>
+        </div>
+        <div class="holder">
+          <select name="targetType" class="select-area" [(ngModel)]="configuration.edgeTargetType" [required]="true">
+            <option></option>
+            <option *ngFor="let type of getTypeOptions('TARGET', configuration.edgeTargetTypeStrategy)"
+              [value]="type.code">{{type.label}}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="form-group">
+      <div class="row-holder">
+        <div class="button-holder">
+          <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
+            <localize key="io.cancel"></localize>
+          </button>
+          <button type="submit" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="form.invalid">
+            <localize *ngIf="!configuration.postalCode" key="io.submit"></localize>
+            <localize *ngIf="configuration.postalCode" key="io.ok"></localize>
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
   <!-- </div> -->
 </div>

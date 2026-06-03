@@ -69,7 +69,7 @@ public class GPRClassifierBusinessService extends ClassifierBusinessService
 
   public List<ValueObject> getBusinessClassifierSuggestions(String typeCode, String attributeCode, String text, Integer limit)
   {
-    BusinessType type = this.bService.getByCode(typeCode);
+    BusinessType type = this.bService.getByCodeOrThrow(typeCode);
     org.commongeoregistry.adapter.metadata.AttributeType attribute = type.getAttribute(attributeCode);
 
     if (attribute != null)

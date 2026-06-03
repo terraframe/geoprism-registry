@@ -26,7 +26,7 @@ import { Router } from '@angular/router';
 import { LocalizationService } from '@shared/service';
 import { ErrorHandler, SuccessModalComponent, ConfirmModalComponent } from '@shared/component';
 
-import { ImportConfiguration } from '@registry/model/io';
+import { EdgeImportConfiguration, ImportConfiguration } from '@registry/model/io';
 import { IOService } from '@registry/service';
 import { TermProblemPageComponent } from './term-problem-page.component';
 import { LocationProblemPageComponent } from './location-problem-page.component';
@@ -112,7 +112,9 @@ export class ImportModalComponent {
 
     handleSubmit(): void {
         this.message = null;
-        delete (this.configuration as any).allTypes;
+        
+        delete (this.configuration as EdgeImportConfiguration).sourceTypes;
+        delete (this.configuration as EdgeImportConfiguration).targetTypes;
 
         this.service.beginImport(this.configuration).then(config => {
 
@@ -128,12 +130,13 @@ export class ImportModalComponent {
                 this.bsModalRef.hide()
 
                 this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-animated: false, backdrop: true,
+                    animated: false,
+                    backdrop: true,
                     ignoreBackdropClick: true,
                 });
                 this.bsModalRef.content.message = this.localizeService.decode("data.import.go.to.scheduled.jobs.confirm.message");
                 this.bsModalRef.content.submitText = this.localizeService.decode("data.import.go.to.scheduled.jobs.button");
-                this.bsModalRef.content.cancelText = this.localizeService.decode( "modal.button.close" );
+                this.bsModalRef.content.cancelText = this.localizeService.decode("modal.button.close");
 
                 (<ConfirmModalComponent>this.bsModalRef.content).onConfirm.subscribe(data => {
                     this.router.navigate(['/registry/scheduled-jobs']);

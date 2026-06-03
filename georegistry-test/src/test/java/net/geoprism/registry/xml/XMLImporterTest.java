@@ -127,7 +127,7 @@ public class XMLImporterTest implements InstanceTestClassListener
 
     OrganizationDTO org = new OrganizationDTO("TEST_ORG", new LocalizedValue("Test Org"), new LocalizedValue(""), true, null, new LocalizedValue(""));
     ServerOrganization serverOrg = orgService.create(org);
-    
+
     ServiceFactory.getMetadataCache().addOrganization(serverOrg);
 
     try (InputStream istream = this.getClass().getResourceAsStream("/xml/test-domain.xml"))
@@ -250,7 +250,7 @@ public class XMLImporterTest implements InstanceTestClassListener
 
         Assert.assertEquals("TEST_VILLAGE", node.getGeoObjectType().getCode());
 
-        BusinessType businessType = bizService.getByCode(results.get(4).getCode());
+        BusinessType businessType = bizService.getByCodeOrThrow(results.get(4).getCode());
 
         Assert.assertEquals("BUSINESS_POP", businessType.getCode());
         Assert.assertEquals("Business Pop", businessType.getLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
@@ -266,7 +266,7 @@ public class XMLImporterTest implements InstanceTestClassListener
 
         BusinessEdgeType businessGeoEdge = bizEdgeService.getByCodeOrThrow(results.get(7).getCode());
         Assert.assertEquals("BUS_GEO_EDGE", businessGeoEdge.getCode());
-        
+
         XMLExporter exporter = new XMLExporter(serverOrg);
         exporter.build();
 

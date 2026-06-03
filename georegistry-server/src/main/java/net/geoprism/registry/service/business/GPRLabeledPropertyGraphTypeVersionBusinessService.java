@@ -192,7 +192,7 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
     // Publish snapshots for all business types participating in the graph
     for (String businessTypeCode : businessTypeCodes)
     {
-      BusinessType businessType = this.bTypeService.getByCode(businessTypeCode);
+      BusinessType businessType = this.bTypeService.getByCodeOrThrow(businessTypeCode);
 
       this.snapshotService.createSnapshot(version, businessType);
     }

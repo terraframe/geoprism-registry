@@ -31,7 +31,7 @@ import { ImportStrategy } from "@registry/model/constants";
 import { GraphTypeService } from "@registry/service/graph-type.service";
 
 import { environment } from 'src/environments/environment';
-import { GeoObjectType, GraphType } from "@registry/model/registry";
+import { GEO_OBJECT_OPTION, GeoObjectType, GraphType } from "@registry/model/registry";
 import { Source } from "@registry/model/source";
 import { SourceService } from "@registry/service/source.service";
 import { DateFieldComponent as DateFieldComponent_1 } from "../../../shared/component/form-fields/date-field/date-field.component";
@@ -39,6 +39,9 @@ import { FormsModule } from "@angular/forms";
 import { NgIf, NgFor } from "@angular/common";
 import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
 import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
+import { BusinessType } from "@registry/model/business-type";
+import { BusinessTypeService } from "@registry/service/business-type.service";
+import { EdgeImportConfiguration } from "@registry/model/io";
 
 @Component({
     selector: "edge-importer",
@@ -67,7 +70,9 @@ export class EdgeImporterComponent implements OnInit {
      */
     selectedGraphType: GraphType = null;
 
-    allTypes: GeoObjectType[];
+    geoObjectTypes: GeoObjectType[];
+
+    businessTypes: BusinessType[];
 
     sources: Source[];
 
@@ -114,6 +119,7 @@ export class EdgeImporterComponent implements OnInit {
         private sourceService: SourceService,
         private registryService: RegistryService,
         private edgeService: GraphTypeService,
+        private businessTypeService: BusinessTypeService,
         private changeDetectorRef: ChangeDetectorRef
     ) { }
 
@@ -129,10 +135,17 @@ export class EdgeImporterComponent implements OnInit {
         });
 
         this.registryService.getGeoObjectTypes().then(types => {
-            this.allTypes = types;
+            this.geoObjectTypes = types;
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
+
+        this.businessTypeService.getAll().then(types => {
+            this.businessTypes = types;
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
+
 
         let getUrl = environment.apiUrl + "/api/graph/get-json-import-config";
 
@@ -173,8 +186,29 @@ export class EdgeImporterComponent implements OnInit {
             this.eventService.complete();
         };
         this.uploader.onSuccessItem = (item: any, response: string, status: number, headers: any) => {
-            const configuration = JSON.parse(response);
-            configuration.allTypes = this.allTypes;
+            const geoObjectTypes = this.geoObjectTypes.map(t => { return { code: t.code, label: t.label.localizedValue } });
+
+            const configuration: EdgeImportConfiguration = JSON.parse(response);
+
+            if (this.selectedGraphType.typeCode === "BusinessEdgeType") {
+                console.log('Graph Type',this.selectedGraphType);
+
+                configuration.sourceTypes = this.selectedGraphType.parentType == GEO_OBJECT_OPTION ?
+                    geoObjectTypes :
+                    this.businessTypes //
+                        .filter(t => t.code === this.selectedGraphType.parentType) //
+                        .map(t => { return { code: t.code, label: t.displayLabel.localizedValue } });
+
+                configuration.targetTypes = this.selectedGraphType.childType == GEO_OBJECT_OPTION ?
+                    geoObjectTypes :
+                    this.businessTypes //
+                        .filter(t => t.code === this.selectedGraphType.childType) //
+                        .map(t => { return { code: t.code, label: t.displayLabel.localizedValue } });
+            }
+            else {
+                configuration.sourceTypes = geoObjectTypes;
+                configuration.targetTypes = geoObjectTypes;
+            }
 
             this.bsModalRef = this.modalService.show(ImportModalComponent, {
                 animated: false, backdrop: true,

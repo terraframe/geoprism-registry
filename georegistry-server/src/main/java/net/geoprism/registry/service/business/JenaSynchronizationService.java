@@ -335,7 +335,7 @@ public class JenaSynchronizationService
     final String code = event.getCode();
     final String typeCode = event.getType();
 
-    BusinessType type = this.bTypeService.getByCode(typeCode);
+    BusinessType type = this.bTypeService.getByCodeOrThrow(typeCode);
 
     JsonObject object = JsonParser.parseString(event.getObject()).getAsJsonObject();
     JsonObject data = object.get("data").getAsJsonObject();

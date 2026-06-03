@@ -183,7 +183,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
           Assert.assertNotNull(snapshot);
 
-          BusinessType type = this.bTypeService.getByCode(code);
+          BusinessType type = this.bTypeService.getByCodeOrThrow(code);
           Assert.assertEquals(type.getSequence(), snapshot.getSequence());
 
           businessTypes.add(snapshot.toJSON());

@@ -162,7 +162,7 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
 
       if (bType != null)
       {
-        this.bTypeService.delete(this.bTypeService.getByCode(bType.getCode()));
+        this.bTypeService.getByCode(bType.getCode()).ifPresent(this.bTypeService::delete);
       }
     }
     catch (Exception e)
@@ -266,7 +266,7 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
           dagType = this.dagTypeService.getByCode(dagType.getCode()).get();
           ugType = this.ugTypeService.getByCode(ugType.getCode()).get();
           bEdgeType = this.bEdgeService.getByCodeOrThrow(bEdgeType.getCode());
-          bType = this.bTypeService.getByCode(bType.getCode());
+          bType = this.bTypeService.getByCodeOrThrow(bType.getCode());
 
           testData.clearCachedData();
 
@@ -308,7 +308,7 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
           Assert.assertNotNull(boChild);
 
           // Validate Business Edges
-           List<VertexComponent> children = this.bObjectService.getChildren(boParent, bEdgeType, USATestData.DEFAULT_OVER_TIME_DATE);
+          List<VertexComponent> children = this.bObjectService.getChildren(boParent, bEdgeType, USATestData.DEFAULT_OVER_TIME_DATE);
 
           Assert.assertEquals(1, children.size());
           Assert.assertEquals(boChild.getCode(), children.get(0).getCode());

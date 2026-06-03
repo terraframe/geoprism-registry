@@ -79,7 +79,7 @@ public class BusinessObjectCache extends LRUCache<String, BusinessObject>
   public BusinessObject getOrFetchByCode(String code, String typeCode)
   {
     return this.get(typeCode, code).orElseGet(() -> {
-      BusinessType businessType = getTypeService().getByCode(typeCode);
+      BusinessType businessType = getTypeService().getByCodeOrThrow(typeCode);
 
       BusinessObject object = getObjectService().getByCode(businessType, code);
 

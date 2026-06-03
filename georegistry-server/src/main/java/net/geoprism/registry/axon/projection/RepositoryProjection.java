@@ -505,7 +505,7 @@ public class RepositoryProjection
   @Transaction
   public void handleApplyBusinessObject(BusinessObjectApplyEvent event)
   {
-    BusinessType type = this.bTypeService.getByCode(event.getType());
+    BusinessType type = this.bTypeService.getByCodeOrThrow(event.getType());
 
     JsonObject json = JsonParser.parseString(event.getObject()).getAsJsonObject();
 
@@ -553,7 +553,7 @@ public class RepositoryProjection
   @Transaction
   public void handleRemoteBusinessObject(RemoteBusinessObjectEvent event)
   {
-    BusinessType type = this.bTypeService.getByCode(event.getType());
+    BusinessType type = this.bTypeService.getByCodeOrThrow(event.getType());
 
     if (!GeoprismProperties.getOrigin().equals(type.getOrigin()))
     {
@@ -607,7 +607,7 @@ public class RepositoryProjection
 
   private Object getOrFetchBusinessRid(String code, String businessTypeCode)
   {
-    BusinessType businessType = this.bTypeService.getByCode(businessTypeCode);
+    BusinessType businessType = this.bTypeService.getByCodeOrThrow(businessTypeCode);
 
     String typeDbClassName = businessType.getMdVertexDAO().getDBClassName();
 
@@ -657,7 +657,7 @@ public class RepositoryProjection
 
   public void handleRemoveBusinessObjectEvent(RemoveBusinessObjectEvent event)
   {
-    BusinessType type = this.bTypeService.getByCode(event.getType());
+    BusinessType type = this.bTypeService.getByCodeOrThrow(event.getType());
 
     BusinessObject object = this.bObjectService.getByCode(type, event.getCode());
 
@@ -710,11 +710,11 @@ public class RepositoryProjection
 
     Object sourceRid = parentType.isGeoObjectType() ? //
         this.gObjectService.getGeoObjectByCode(event.getSourceCode(), event.getSourceType()).getVertex().getRID() : //
-        this.bObjectService.getByCode(this.bTypeService.getByCode(event.getSourceType()), event.getSourceCode()).getVertex().getRID();
+        this.bObjectService.getByCode(this.bTypeService.getByCodeOrThrow(event.getSourceType()), event.getSourceCode()).getVertex().getRID();
 
     Object targetRid = childType.isGeoObjectType() ? //
         this.gObjectService.getGeoObjectByCode(event.getTargetCode(), event.getTargetType()).getVertex().getRID() : //
-        this.bObjectService.getByCode(this.bTypeService.getByCode(event.getTargetType()), event.getTargetCode()).getVertex().getRID();
+        this.bObjectService.getByCode(this.bTypeService.getByCodeOrThrow(event.getTargetType()), event.getTargetCode()).getVertex().getRID();
 
     StringBuilder statement = new StringBuilder();
     statement.append("DELETE EDGE " + clazz);

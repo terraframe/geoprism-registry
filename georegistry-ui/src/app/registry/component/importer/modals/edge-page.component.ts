@@ -37,8 +37,10 @@ export class EdgePageComponent implements OnInit {
     @Output() configurationChange = new EventEmitter<ImportConfiguration>();
     @Output() stateChange = new EventEmitter<string>();
 
-    textAttrs: {code: string, label: string}[];
-    allTypes: {code: string, label: string}[];
+    textAttrs: { code: string, label: string }[];
+
+    sourceTypes: { code: string, label: string }[];
+    targetTypes: { code: string, label: string }[];
 
     public initialized: boolean = false;
 
@@ -47,35 +49,42 @@ export class EdgePageComponent implements OnInit {
 
     ngOnInit(): void {
         this.configuration.edgeSourceStrategy = 'CODE';
-        this.configuration.edgeSourceTypeStrategy = 'FIXED-TYPE';
+        this.configuration.edgeSourceTypeStrategy = 'FIXED_TYPE';
         this.configuration.edgeTargetStrategy = 'CODE';
-        this.configuration.edgeTargetTypeStrategy = 'FIXED-TYPE';
+        this.configuration.edgeTargetTypeStrategy = 'FIXED_TYPE';
 
-        this.allTypes = [
-            ...this.configuration.allTypes.map(t => ({code: t.code, label: t.label}))
+
+        console.log(this.configuration);
+
+        this.sourceTypes = [
+            ...this.configuration.sourceTypes
         ];
+
+        this.targetTypes = [
+            ...this.configuration.targetTypes
+        ];
+
         this.textAttrs = [
-            ...this.configuration.sheet.attributes['text'].map(a => ({code: a, label: a}))
+            ...this.configuration.sheet.attributes['text'].map(a => ({ code: a, label: a }))
         ];
 
         this.initialized = true;
-        console.log(this.configuration.allTypes);
     }
 
-    getTypeOptions(strategy: string) {
-        if (strategy === 'FIXED-TYPE') {
-            return this.allTypes;
+    getTypeOptions(field: string, strategy: string) {
+        if (strategy === 'FIXED_TYPE') {
+            return (field === "SOURCE") ? this.sourceTypes : this.targetTypes;
         } else {
             return this.textAttrs;
         }
     }
 
     onSubmit(): void {
-        this.configurationChange.emit( this.configuration );
-        this.stateChange.emit( 'NEXT' );
+        this.configurationChange.emit(this.configuration);
+        this.stateChange.emit('NEXT');
     }
 
     onCancel(): void {
-        this.stateChange.emit( 'CANCEL' );
+        this.stateChange.emit('CANCEL');
     }
 }

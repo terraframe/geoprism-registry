@@ -182,7 +182,7 @@ public class RelationshipVisualizationService
       // TODO: Figure this out
       if (relationshipType != null && relationshipType.equals(EdgeType.BUSINESS_EDGE_TYPE))
       {
-        final BusinessType type = this.bTypeService.getByCode(sourceView.getTypeCode());
+        final BusinessType type = this.bTypeService.getByCodeOrThrow(sourceView.getTypeCode());
 
         if (canReadBusinessData(type))
         {
@@ -312,7 +312,7 @@ public class RelationshipVisualizationService
     }
     else if (VertexView.ObjectType.BUSINESS.equals(sourceView.getObjectType()))
     {
-      final BusinessType type = this.bTypeService.getByCode(sourceView.getTypeCode());
+      final BusinessType type = this.bTypeService.getByCodeOrThrow(sourceView.getTypeCode());
 
       if (canReadBusinessData(type))
       {
@@ -575,7 +575,7 @@ public class RelationshipVisualizationService
     }
     else if (objectType.equals(VertexView.ObjectType.BUSINESS))
     {
-      BusinessType type = this.bTypeService.getByCode(typeCode);
+      BusinessType type = this.bTypeService.getByCodeOrThrow(typeCode);
 
       bEdgeService.getAll().forEach(graphType -> {
 

@@ -271,7 +271,7 @@ public class BusinessObjectImportConfiguration extends ImportConfiguration
     JSONObject type = config.getJSONObject(TYPE);
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
     String code = type.getString(GeoObjectType.JSON_CODE);
-    BusinessType businessType = this.typeService.getByCode(code);
+    BusinessType businessType = this.typeService.getByCodeOrThrow(code);
 
     this.setType(businessType);
 

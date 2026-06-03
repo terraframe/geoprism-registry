@@ -130,11 +130,15 @@ export interface AttributedType {
     attributes?: Array<AttributeType>;
 }
 
+export const GEO_OBJECT_OPTION: string = "~#GO#~";
+
 export class GraphType {
     code: string;
     typeCode: string;
     label: LocalizedValue;
     description?: LocalizedValue;
+    parentType?: string;
+    childType?: string;
 }
 
 export class GeoObjectType implements AttributedType {

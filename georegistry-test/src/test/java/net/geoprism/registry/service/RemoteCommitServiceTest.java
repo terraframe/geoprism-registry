@@ -156,7 +156,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
     });
 
     Arrays.asList("TEST_BUSINESS").forEach(code -> {
-      BusinessType type = this.bTypeService.getByCode(code);
+      BusinessType type = this.bTypeService.getByCodeOrThrow(code);
 
       if (type != null)
       {
@@ -222,7 +222,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
         Assert.assertEquals(Long.valueOf(20), snapshot.getSequence());
 
         // Assert the actual type was created
-        BusinessType type = this.bTypeService.getByCode(code);
+        BusinessType type = this.bTypeService.getByCodeOrThrow(code);
 
         Assert.assertNotNull(type);
         Assert.assertEquals(Long.valueOf(20), type.getSequence());
@@ -294,7 +294,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
       Assert.assertEquals(USATestData.SOURCE.getCode(), node.getSource().getCode());
       Assert.assertNotNull(node.getUid());
 
-      BusinessType bType = this.bTypeService.getByCode("TEST_BUSINESS");
+      BusinessType bType = this.bTypeService.getByCodeOrThrow("TEST_BUSINESS");
 
       BusinessObject bObject = this.bObjectService.getByCode(bType, "C_CODE");
 
@@ -348,7 +348,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
       });
 
       Arrays.asList("TEST_BUSINESS").forEach(code -> {
-        BusinessType type = this.bTypeService.getByCode(code);
+        BusinessType type = this.bTypeService.getByCodeOrThrow(code);
 
         Assert.assertNotNull(type);
         Assert.assertEquals(Long.valueOf(20), type.getSequence());
@@ -547,7 +547,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
           Assert.assertEquals(Long.valueOf(20), snapshot.getSequence());
 
           // Assert the actual type was created
-          BusinessType type = this.bTypeService.getByCode(code);
+          BusinessType type = this.bTypeService.getByCodeOrThrow(code);
 
           Assert.assertNotNull(type);
           Assert.assertEquals(Long.valueOf(20), type.getSequence());
@@ -618,7 +618,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
         Assert.assertEquals(USATestData.SOURCE.getCode(), node.getSource().getCode());
         Assert.assertNotNull(node.getUid());
 
-        BusinessType bType = this.bTypeService.getByCode("TEST_BUSINESS");
+        BusinessType bType = this.bTypeService.getByCodeOrThrow("TEST_BUSINESS");
 
         BusinessObject bObject = this.bObjectService.getByCode(bType, "C_CODE");
 

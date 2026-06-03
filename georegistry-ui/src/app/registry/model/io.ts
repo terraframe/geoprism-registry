@@ -100,7 +100,6 @@ export class ImportConfiguration {
 }
 
 export class EdgeImportConfiguration extends ImportConfiguration {
-    allTypes: any[];
     edgeSource: string;
     edgeSourceStrategy: string;
     edgeSourceType: string;
@@ -109,5 +108,7 @@ export class EdgeImportConfiguration extends ImportConfiguration {
     edgeTargetStrategy: string;
     edgeTargetType: string;
     edgeTargetTypeStrategy: string;
+    sourceTypes: { code: string, label: string }[];
+    targetTypes: { code: string, label: string }[];
 }
 

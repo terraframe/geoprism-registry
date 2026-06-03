@@ -327,7 +327,7 @@ public class RestoreService implements RestoreServiceIF
         String name = file.getName();
         String baseName = FilenameUtils.getBaseName(name);
 
-        BusinessType type = this.bTypeService.getByCode(baseName);
+        BusinessType type = this.bTypeService.getByCodeOrThrow(baseName);
 
         try (FileResource resource = new FileResource(file))
         {
