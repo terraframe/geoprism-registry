@@ -162,7 +162,7 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
     {
       logger.info("Begin rdf exporting " + state.total + " objects");
 
-      state.writer = StreamRDFWriter.getWriterStream(os, RDFFormat.TURTLE_BLOCKS);
+      state.writer = StreamRDFWriter.getWriterStream(os, RDFFormat.NQUADS);
 
       long skip = 0;
 
