@@ -17,4 +17,4 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-export const PRESENT: string = "5000-12-31";
+export const PRESENT: string = "4710-12-31";

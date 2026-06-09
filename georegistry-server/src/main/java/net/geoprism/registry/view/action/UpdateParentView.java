@@ -21,8 +21,9 @@ package net.geoprism.registry.view.action;
 import java.util.Date;
 import java.util.SortedSet;
 
+import org.commongeoregistry.adapter.dataaccess.ValueOverTimeDTO;
+
 import com.runwaysdk.business.graph.EdgeObject;
-import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 
 import net.geoprism.registry.action.InvalidChangeRequestException;
 import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
@@ -74,7 +75,7 @@ public class UpdateParentView extends UpdateChangeOverTimeAttributeView
       }
       if (endDate == null)
       {
-        edge.setValue(GeoVertex.END_DATE, ValueOverTime.INFINITY_END_DATE);
+        edge.setValue(GeoVertex.END_DATE, ValueOverTimeDTO.INFINITY_END_DATE);
       }
 
       if (endDate != null && startDate.after(endDate))

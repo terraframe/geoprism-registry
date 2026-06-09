@@ -3,6 +3,11 @@
  */
 package net.geoprism.registry.service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -17,10 +22,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.runwaysdk.dataaccess.graph.attributes.AttributeGraphRef.ID;
+import com.runwaysdk.dataaccess.BusinessDAOIF;
+import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.classification.ClassificationTypeTest;
@@ -29,6 +36,7 @@ import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
+import net.geoprism.registry.model.GeometryStateValue;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
@@ -148,20 +156,22 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
     double testDouble = 10.4D;
     ServerGeoObjectIF object = this.service.newInstance(type);
 
+    Set<String> geometryIds = new TreeSet<>();
+
+    object.setInvalid(false);
+    object.setCode(USATestData.USA.getCode());
+    object.setDisplayLabel(new LocalizedValue(USATestData.USA.getDisplayLabel()), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+    object.setExists(true, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+    object.setGeometry(USATestData.USA.getGeometry(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+    object.setValue(attributeFloat.getName(), testDouble, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+    object.setValue(attributeClassification.getName(), root.getVertex(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+    object.setValue(attributeTerm.getName(), classifier.getOid(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), source, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+
+    this.service.apply(object, false, false);
+
     try
     {
-      object.setInvalid(false);
-      object.setCode(USATestData.USA.getCode());
-      object.setDisplayLabel(new LocalizedValue(USATestData.USA.getDisplayLabel()), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
-      object.setExists(true, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
-      object.setGeometry(USATestData.USA.getGeometry(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
-      object.setValue(attributeFloat.getName(), testDouble, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
-      object.setValue(attributeClassification.getName(), root.getVertex(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
-      object.setValue(attributeTerm.getName(), classifier.getOid(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
-      object.setValue(DefaultAttribute.DATA_SOURCE.getName(), source, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
-
-      this.service.apply(object, false, false);
-
       ServerGeoObjectIF test = this.service.getGeoObject(object.getUid(), type.getCode());
 
       Assert.assertNotNull(test);
@@ -176,15 +186,101 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
       Classifier value = test.getValue(attributeTerm.getName(), USATestData.DEFAULT_OVER_TIME_DATE);
       Assert.assertEquals(term.getCode(), value.getClassifierId());
 
+      Geometry geometry = test.getGeometry(USATestData.DEFAULT_OVER_TIME_DATE);
+
+      Assert.assertNotNull(geometry);
+      Assert.assertEquals(object.getGeometry(USATestData.DEFAULT_OVER_TIME_DATE), geometry);
+
+      ValueOverTimeCollection vots = test.getValuesOverTime(DefaultAttribute.GEOMETRY.getName());
+
+      Assert.assertEquals(1, vots.size());
+      Assert.assertEquals(object.getGeometry(USATestData.DEFAULT_OVER_TIME_DATE), vots.get(0).getValue());
+
+      String geometryId = test.getValue(DefaultAttribute.GEOMETRY.getName(), USATestData.DEFAULT_OVER_TIME_DATE);
+
+      // Assert the values of the geometry table entry
+      Assert.assertNotNull(geometryId);
+
+      BusinessDAOIF entry = GeometryStateValue.getGeometryInstance(geometryId);
+
+      Assert.assertNotNull(entry);
+
+      geometryIds.add(geometryId);
+
+      // Test updating the object
+      object = this.service.getGeoObjectByCode(USATestData.USA.getCode(), type);
+      object.setGeometry(USATestData.COLORADO.getGeometry(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+      this.service.apply(object, false, false);
+
+      geometryIds.add(test.getValue(DefaultAttribute.GEOMETRY.getName(), USATestData.DEFAULT_OVER_TIME_DATE));
+
+      object = this.service.getGeoObjectByCode(USATestData.USA.getCode(), type);
+      geometryIds.add(test.getValue(DefaultAttribute.GEOMETRY.getName(), USATestData.DEFAULT_OVER_TIME_DATE));
+    }
+    finally
+    {
+      // Delete the object
+      this.service.getGeoObjectByCode(USATestData.USA.getCode(), type).delete();
+
+      // Make sure the entry was deleted
+
+      for (String geometryId : geometryIds)
+      {
+
+        try
+        {
+          GeometryStateValue.getGeometryInstance(geometryId);
+
+          Assert.fail("Able to find object that should be deleted");
+        }
+        catch (Exception e)
+        {
+          // This is expected
+        }
+      }
+    }
+  }
+
+  @Test
+  @Request
+  public void testUpdateGeoObject()
+  {
+    double testDouble = 10.4D;
+    ServerGeoObjectIF object = this.service.newInstance(type);
+
+    Set<String> geometryIds = new TreeSet<>();
+
+    object.setInvalid(false);
+    object.setCode(USATestData.USA.getCode());
+    object.setDisplayLabel(new LocalizedValue(USATestData.USA.getDisplayLabel()), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+    object.setExists(true, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+    object.setGeometry(USATestData.USA.getGeometry(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+    object.setValue(attributeFloat.getName(), testDouble, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+    object.setValue(attributeClassification.getName(), root.getVertex(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+    object.setValue(attributeTerm.getName(), classifier.getOid(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), source, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+
+    this.service.apply(object, false, false);
+
+    try
+    {
+      object = this.service.getGeoObject(object.getUid(), type.getCode());
+      object.setDisplayLabel(new LocalizedValue("Test"), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+
+      this.service.apply(object, false, false);
+
+      ServerGeoObjectIF test = this.service.getGeoObject(object.getUid(), type.getCode());
 
       Geometry geometry = test.getGeometry(USATestData.DEFAULT_OVER_TIME_DATE);
 
       Assert.assertNotNull(geometry);
       Assert.assertEquals(object.getGeometry(USATestData.DEFAULT_OVER_TIME_DATE), geometry);
+
     }
     finally
     {
-      object.delete();
+      // Delete the object
+      this.service.getGeoObjectByCode(USATestData.USA.getCode(), type).delete();
     }
   }
 }

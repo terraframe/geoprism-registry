@@ -221,7 +221,7 @@ public class RegistryVersionTest extends FastDatasetTest implements InstanceTest
 //      
 //      Assert.assertEquals(dto.get(2).getValue(), GeoObjectStatus.PENDING);
 //      Assert.assertEquals(dto.get(2).getStartDate(), dateFormat.parse("03-01-1990"));
-//      Assert.assertEquals(dto.get(2).getEndDate(), ValueOverTime.INFINITY_END_DATE);
+//      Assert.assertEquals(dto.get(2).getEndDate(), ValueOverTimeDTO.INFINITY_END_DATE);
 //    }
 //    catch (ParseException e)
 //    {

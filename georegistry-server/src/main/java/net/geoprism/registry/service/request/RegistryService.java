@@ -29,6 +29,7 @@ import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest.AuthenticationRequestBuilder;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.ValueOverTimeDTO;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyNode;
@@ -44,7 +45,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.json.RunwayJsonAdapters;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.localization.SupportedLocaleIF;
@@ -355,7 +355,7 @@ public class RegistryService implements RegistryServiceIF
 
     if (date == null)
     {
-      date = ValueOverTime.INFINITY_END_DATE;
+      date = ValueOverTimeDTO.INFINITY_END_DATE;
     }
 
     ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);

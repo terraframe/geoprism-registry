@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.dataaccess.ValueOverTimeDTO;
 import org.commongeoregistry.adapter.metadata.GraphTypeDTO;
 import org.junit.After;
 import org.junit.Assert;
@@ -20,7 +21,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.SchedulerManager;
@@ -32,12 +32,9 @@ import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.etl.upload.EdgeObjectImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
-import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.jobs.ImportHistory;
-import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerChildGraphNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.model.ServerGraphNode;
 import net.geoprism.registry.model.ServerParentGraphNode;
 import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.EdgeImportTestService;
@@ -167,7 +164,7 @@ public class DirectedAcyclicGraphTest extends FastDatasetTest implements Instanc
     provCentral.addGraphParent(cambodia, type, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource(), true);
     cambodia.addGraphParent(privateCentral, type, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource(), true);
     cambodia.addGraphParent(centralHospital, type, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource(), true);
-    distCentral.addGraphParent(provWestern, type, new Date(), ValueOverTime.INFINITY_END_DATE, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource(), true);
+    distCentral.addGraphParent(provWestern, type, new Date(), ValueOverTimeDTO.INFINITY_END_DATE, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource(), true);
 
     ServerParentGraphNode node = provWestern.getGraphParents(type, false, FastTestDataset.DEFAULT_OVER_TIME_DATE);
 

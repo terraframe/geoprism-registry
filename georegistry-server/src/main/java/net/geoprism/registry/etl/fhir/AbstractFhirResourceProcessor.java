@@ -23,6 +23,7 @@ import java.util.Base64;
 import java.util.Base64.Decoder;
 import java.util.Date;
 
+import org.commongeoregistry.adapter.dataaccess.ValueOverTimeDTO;
 import org.hl7.fhir.r4.model.Attachment;
 import org.hl7.fhir.r4.model.Extension;
 import org.hl7.fhir.r4.model.Identifier;
@@ -31,8 +32,6 @@ import org.hl7.fhir.r4.model.Organization;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.geojson.GeoJsonReader;
-
-import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 
 import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -125,7 +124,7 @@ public abstract class AbstractFhirResourceProcessor implements FhirResourceProce
 
       this.populate(geoObject, location, lastUpdated);
 
-      geoObject.setGeometry(geometry, lastUpdated, ValueOverTime.INFINITY_END_DATE);
+      geoObject.setGeometry(geometry, lastUpdated, ValueOverTimeDTO.INFINITY_END_DATE);
       
       this.service.apply(geoObject, true, true);
     }

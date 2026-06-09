@@ -82,7 +82,7 @@ describe("DateService", () => {
 	it('should get infinity Date adjusted to local offset', () => {
 		dateService = TestBed.inject(DateService);
 		
-		expect(dateService.getPresentDate()).toEqual(new Date(5000, 11, 31, 0, 0, 0));
+		expect(dateService.getPresentDate()).toEqual(new Date(4710, 11, 31, 0, 0, 0));
 	});
 	
 });

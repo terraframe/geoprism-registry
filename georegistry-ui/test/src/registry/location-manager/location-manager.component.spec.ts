@@ -65,7 +65,7 @@ describe("LocationManagerComponent", () => {
 			          params: of({
 				        geoobjectuid: 'test-oid',
 						geoobjecttypecode: "test-type-code",
-						datestr: "5000-12-31",
+						datestr: "4710-12-31",
 						hideSearchOptions: "false",
 						backReference: "test-back-reference"
 				      }),
@@ -116,7 +116,7 @@ describe("LocationManagerComponent", () => {
 		expect(component.data).toBeTruthy();
 		expect(component.map).toBeTruthy();
 		expect(component.bsModalRef).toBeFalsy();
-		expect(component.dateStr).toEqual('5000-12-31');
+		expect(component.dateStr).toEqual('4710-12-31');
 		expect(component.current).toBeFalsy();
 	}));
 	

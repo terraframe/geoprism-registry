@@ -530,7 +530,7 @@ public class BusinessTypeTest extends FastDatasetTest implements InstanceTestCla
     BusinessType type = this.typeService.apply(object);
     this.typeService.delete(type);
 
-    Assert.assertNull(this.typeService.getByCode(type.getCode()));
+    Assert.assertTrue(this.typeService.getByCode(type.getCode()).isEmpty());
   }
 
   @Test

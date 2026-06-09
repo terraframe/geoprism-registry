@@ -21,12 +21,7 @@ package net.geoprism.registry.etl;
 import java.util.Date;
 import java.util.List;
 
-import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
-import org.commongeoregistry.adapter.metadata.AttributeDateType;
-import org.commongeoregistry.adapter.metadata.AttributeFloatType;
-import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
-import org.commongeoregistry.adapter.metadata.AttributeLocalType;
+import org.commongeoregistry.adapter.dataaccess.ValueOverTimeDTO;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +30,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
-import com.runwaysdk.localization.LocalizationFacade;
 
 import net.geoprism.dhis2.dhis2adapter.response.model.Attribute;
 import net.geoprism.dhis2.dhis2adapter.response.model.ValueType;
@@ -83,7 +77,7 @@ abstract public class DHIS2VOTDateAttributeMapping extends DHIS2AttributeMapping
       }
     }
     
-    if (ValueOverTime.INFINITY_END_DATE.equals(result))
+    if (ValueOverTimeDTO.INFINITY_END_DATE.equals(result))
     {
       result = null;
     }

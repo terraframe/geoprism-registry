@@ -763,7 +763,7 @@ public class GeoObjectImporter implements ObjectImporterIF
               // ex.setStartDate(format.format(this.configuration.getStartDate()));
               //
               // if
-              // (ValueOverTime.INFINITY_END_DATE.equals(this.configuration.getEndDate()))
+              // (ValueOverTimeDTO.INFINITY_END_DATE.equals(this.configuration.getEndDate()))
               // {
               // ex.setEndDate(LocalizationFacade.localize("changeovertime.present"));
               // }

@@ -24,20 +24,20 @@ import java.util.Optional;
 
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.dataaccess.ValueOverTimeDTO;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Location;
 import org.hl7.fhir.r4.model.Location.LocationPositionComponent;
 import org.hl7.fhir.r4.model.Organization;
-
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
+
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -61,8 +61,8 @@ public class BasicFhirResourceProcessor extends AbstractFhirResourceProcessor im
     LocalizedValue value = LocalizedValue.createEmptyLocalizedValue();
     value.setValue(LocalizedValue.DEFAULT_LOCALE, location.getName());
 
-    geoObject.setDisplayLabel(value, lastUpdated, ValueOverTime.INFINITY_END_DATE);
-    geoObject.setExists(true, lastUpdated, ValueOverTime.INFINITY_END_DATE);
+    geoObject.setDisplayLabel(value, lastUpdated, ValueOverTimeDTO.INFINITY_END_DATE);
+    geoObject.setExists(true, lastUpdated, ValueOverTimeDTO.INFINITY_END_DATE);
   }
 
   @Override

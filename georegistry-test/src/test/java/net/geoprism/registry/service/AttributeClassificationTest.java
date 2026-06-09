@@ -6,6 +6,7 @@ package net.geoprism.registry.service;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.dataaccess.ValueOverTimeDTO;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.junit.After;
@@ -17,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
@@ -193,7 +193,7 @@ public class AttributeClassificationTest extends FastDatasetTest implements Inst
         TestDataSet.populateAdapterIds(user, client.getAdapter());
 
         GeoObjectOverTime object = TEST_GO.newGeoObjectOverTime(client.getAdapter());
-        object.setValue(testClassification.getName(), CODE, TEST_GO.getDate(), ValueOverTime.INFINITY_END_DATE);
+        object.setValue(testClassification.getName(), CODE, TEST_GO.getDate(), ValueOverTimeDTO.INFINITY_END_DATE);
 
         GeoObjectOverTime returned = client.createGeoObjectOverTime(object.toJSON().toString());
 

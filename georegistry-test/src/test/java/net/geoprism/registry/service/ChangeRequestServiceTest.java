@@ -123,7 +123,7 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
     BELIZE.apply();
 
     this.setUpTestInstanceData();
-    
+
     // Clear out the event table
     Database.deleteWhere("domainevententry", "true");
   }
@@ -959,7 +959,7 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
     ValueOverTime vot1 = votc.get(0);
 
     Assert.assertNotNull(vot1.getOid());
-//    Assert.assertEquals(oldOid, vot1.getOid());
+    // Assert.assertEquals(oldOid, vot1.getOid());
     Assert.assertEquals(newStartDate, vot1.getStartDate());
     Assert.assertEquals(newEndDate, vot1.getEndDate());
     Assert.assertTrue(vot1.getValue() instanceof Geometry);
@@ -1073,7 +1073,7 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
     ValueOverTime vot1 = votc.get(0);
 
     Assert.assertNotNull(vot1.getOid());
-//    Assert.assertEquals(oldOid, vot1.getOid());
+    // Assert.assertEquals(oldOid, vot1.getOid());
     Assert.assertEquals(newStartDate, vot1.getStartDate());
     Assert.assertEquals(newEndDate, vot1.getEndDate());
     Assert.assertEquals("localizeTest", cambodia.getDisplayLabel(newStartDate).getValue());
@@ -1185,7 +1185,7 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
     ValueOverTime vot1 = votc.get(0);
 
     Assert.assertNotNull(vot1.getOid());
-//    Assert.assertEquals(oldOid, vot1.getOid());
+    // Assert.assertEquals(oldOid, vot1.getOid());
     Assert.assertEquals(newStartDate, vot1.getStartDate());
     Assert.assertEquals(newEndDate, vot1.getEndDate());
 
@@ -1306,7 +1306,7 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
     ValueOverTime vot1 = votc.get(0);
 
     Assert.assertNotNull(vot1.getOid());
-//    Assert.assertEquals(oldOid, vot1.getOid());
+    // Assert.assertEquals(oldOid, vot1.getOid());
     Assert.assertEquals(newStartDate, vot1.getStartDate());
     Assert.assertEquals(newEndDate, vot1.getEndDate());
 

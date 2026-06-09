@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.commongeoregistry.adapter.dataaccess.ValueOverTimeDTO;
+
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 
@@ -72,7 +74,7 @@ public class UpdateChangeOverTimeAttributeView extends AbstractUpdateAttributeVi
       }
       if (vot.getEndDate() == null)
       {
-        vot.setEndDate(ValueOverTime.INFINITY_END_DATE);
+        vot.setEndDate(ValueOverTimeDTO.INFINITY_END_DATE);
       }
 
       if (vot.getStartDate().after(vot.getEndDate()))

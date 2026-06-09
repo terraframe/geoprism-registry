@@ -215,7 +215,7 @@ export class StabilityPeriodComponent implements OnInit, OnDestroy {
 
             startDay = this.dateService.getDateFromDateString(startDate).getTime() / (1000 * 60 * 60 * 24);
 
-            if (endDate === "5000-12-31") {
+            if (endDate === "4710-12-31") {
                 if (this.periods.length > 1) {
                     endDay = this.dateService.getDateFromDateString(this.periods[this.periods.length - 1].startDate).getTime() / (1000 * 60 * 60 * 24);
                     this.infinityDayPadding = (endDay - startDay) * 0.05;
@@ -255,7 +255,7 @@ export class StabilityPeriodComponent implements OnInit, OnDestroy {
 
             let startDay = start.getTime() / (1000 * 60 * 60 * 24);
             let endDay = end.getTime() / (1000 * 60 * 60 * 24);
-            if (period.endDate === "5000-12-31") {
+            if (period.endDate === "4710-12-31") {
                 endDay = startDay + this.infinityDayPadding;
             }
 

@@ -3,7 +3,6 @@
  */
 package net.geoprism.registry.service;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,7 +39,6 @@ import net.geoprism.registry.test.USATestData;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-
 @RunWith(SpringInstanceTestClassRunner.class)
 public class BasicGeoObjectTypeServiceTest implements InstanceTestClassListener
 {
@@ -98,6 +96,9 @@ public class BasicGeoObjectTypeServiceTest implements InstanceTestClassListener
 
     try
     {
+      Assert.assertNotNull(type.getMdVertex());
+      Assert.assertNotNull(type.getGeometryTable());
+      
       Map<String, AttributeType> attributes = type.getAttributeMap();
 
       Assert.assertTrue(attributes.size() > 0);
@@ -123,11 +124,11 @@ public class BasicGeoObjectTypeServiceTest implements InstanceTestClassListener
     try
     {
       Assert.assertEquals(Long.valueOf(0), type.getSequence());
-      
+
       AttributeCharacterType attributeDto = new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test Character"), false, false, false);
 
       attributeDto = (AttributeCharacterType) service.createAttributeType(type, attributeDto);
-      
+
       Assert.assertEquals(Long.valueOf(1), type.getSequence());
 
       Assert.assertNotNull(attributeDto);
@@ -310,6 +311,9 @@ public class BasicGeoObjectTypeServiceTest implements InstanceTestClassListener
 
       try
       {
+        Assert.assertNotNull(childType.getMdVertex());
+        Assert.assertNotNull(childType.getGeometryTable());
+
         Assert.assertEquals(parentType.getOid(), childType.getSuperType().getOid());
         Assert.assertTrue(childType.getAttribute(DefaultAttribute.INVALID.getName()).isPresent());
 
