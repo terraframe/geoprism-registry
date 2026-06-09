@@ -3,8 +3,6 @@
  */
 package net.geoprism.registry.service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -27,7 +25,6 @@ import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.classification.ClassificationTypeTest;
@@ -36,6 +33,7 @@ import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
+import net.geoprism.registry.model.EdgeType;
 import net.geoprism.registry.model.GeometryStateValue;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -194,16 +192,22 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
       ValueOverTimeCollection vots = test.getValuesOverTime(DefaultAttribute.GEOMETRY.getName());
 
       Assert.assertEquals(1, vots.size());
-      Assert.assertEquals(object.getGeometry(USATestData.DEFAULT_OVER_TIME_DATE), vots.get(0).getValue());
 
       String geometryId = test.getValue(DefaultAttribute.GEOMETRY.getName(), USATestData.DEFAULT_OVER_TIME_DATE);
 
       // Assert the values of the geometry table entry
+      Assert.assertEquals(object.getGeometry(USATestData.DEFAULT_OVER_TIME_DATE), vots.get(0).getValue());
       Assert.assertNotNull(geometryId);
 
       BusinessDAOIF entry = GeometryStateValue.getGeometryInstance(geometryId);
 
       Assert.assertNotNull(entry);
+
+      Assert.assertEquals(object.getCode(), entry.getValue(DefaultAttribute.CODE.getName()));
+      Assert.assertEquals(object.getDisplayLabel(USATestData.DEFAULT_OVER_TIME_DATE).getValue(), entry.getValue(DefaultAttribute.DISPLAY_LABEL.getName()));
+      Assert.assertEquals(object.getUid(), entry.getValue(DefaultAttribute.UID.getName()));
+      Assert.assertTrue(entry.getValue(EdgeType.START_DATE).length() > 0);
+      Assert.assertTrue(entry.getValue(EdgeType.END_DATE).length() > 0);
 
       geometryIds.add(geometryId);
 
