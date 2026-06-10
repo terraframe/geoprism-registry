@@ -4,20 +4,22 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service.business;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -38,6 +40,7 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Roles;
+import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdVertex;
 
 import net.geoprism.registry.ListType;
@@ -84,7 +87,7 @@ public class GPRGeoObjectTypeBusinessService extends GeoObjectTypeBusinessServic
 
     this.markAllAsInvalid(type);
   }
-  
+
   @Override
   public ServerGeoObjectType updateGeoObjectType(ServerGeoObjectType type, GeoObjectType dto)
   {
@@ -105,20 +108,23 @@ public class GPRGeoObjectTypeBusinessService extends GeoObjectTypeBusinessServic
 
     if (superType == null)
     {
-      MdVertex mdVertex = type.getType().getMdVertex();
       String organizationCode = type.getOrganizationCode();
 
-      assignSRAPermissions(mdVertex);
+      List<ComponentIF> components = Arrays.asList(type.getType().getMdVertex(), type.getType().getGeometryTable());
 
-      assignAll_RA_Permissions(mdVertex, organizationCode);
       create_RM_GeoObjectTypeRole(type, organizationCode, dto.getCode());
-      assign_RM_GeoObjectTypeRole(mdVertex, organizationCode, dto.getCode());
-
       create_RC_GeoObjectTypeRole(type, organizationCode, dto.getCode());
-      assign_RC_GeoObjectTypeRole(mdVertex, organizationCode, dto.getCode());
-
       create_AC_GeoObjectTypeRole(type, organizationCode, dto.getCode());
-      assign_AC_GeoObjectTypeRole(mdVertex, organizationCode, dto.getCode());
+
+      for (ComponentIF component : components)
+      {
+        assignSRAPermissions(component);
+
+        assignAll_RA_Permissions(component, organizationCode);
+        assign_RM_GeoObjectTypeRole(component, organizationCode, dto.getCode());
+        assign_RC_GeoObjectTypeRole(component, organizationCode, dto.getCode());
+        assign_AC_GeoObjectTypeRole(component, organizationCode, dto.getCode());
+      }
     }
 
     return type;
