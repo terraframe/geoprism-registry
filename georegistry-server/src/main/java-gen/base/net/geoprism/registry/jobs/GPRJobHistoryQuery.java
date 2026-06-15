@@ -1,6 +1,6 @@
 package net.geoprism.registry.jobs;
 
-@com.runwaysdk.business.ClassSignature(hash = -1882405417)
+@com.runwaysdk.business.ClassSignature(hash = -1853231033)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -188,6 +188,42 @@ public  class GPRJobHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
   }
 
 
+  public com.runwaysdk.query.Condition geometryTable()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery("net.geoprism.registry.geometry.JobHistoryGeometry");
+
+    return this.getBusinessQuery().isParentIn(relationshipQuery);
+  }
+
+
+  public com.runwaysdk.query.Condition SUBSELECT_geometryTable()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery("net.geoprism.registry.geometry.JobHistoryGeometry");
+
+    return this.getBusinessQuery().isParentIn_SUBSELECT(relationshipQuery);
+  }
+
+
+  public com.runwaysdk.query.Condition NOT_IN_geometryTable()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery("net.geoprism.registry.geometry.JobHistoryGeometry");
+
+    return this.getBusinessQuery().isNotParentIn(relationshipQuery);
+  }
+
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_geometryTable()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery("net.geoprism.registry.geometry.JobHistoryGeometry");
+
+    return this.getBusinessQuery().isNotParentIn_SUBSELECT(relationshipQuery);
+  }
+
+
 /**
  * Interface that masks all type unsafe query methods and defines all type safe methods.
  * This type is used when a join is performed on this class as a reference.
@@ -214,6 +250,18 @@ public  class GPRJobHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
     public com.runwaysdk.query.BasicCondition EQ(net.geoprism.registry.jobs.GPRJobHistory gPRJobHistory);
 
     public com.runwaysdk.query.BasicCondition NE(net.geoprism.registry.jobs.GPRJobHistory gPRJobHistory);
+
+
+  public com.runwaysdk.query.Condition geometryTable();
+
+
+  public com.runwaysdk.query.Condition SUBSELECT_geometryTable();
+
+
+  public com.runwaysdk.query.Condition NOT_IN_geometryTable();
+
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_geometryTable();
 
   }
 
@@ -330,6 +378,42 @@ public  class GPRJobHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
     return (net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF)this.get(net.geoprism.registry.jobs.GPRJobHistory.STAGE, alias, displayLabel);
 
   }
+
+  public com.runwaysdk.query.Condition geometryTable()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery("net.geoprism.registry.geometry.JobHistoryGeometry");
+
+    return this.isParentIn(relationshipQuery);
+  }
+
+
+  public com.runwaysdk.query.Condition SUBSELECT_geometryTable()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery("net.geoprism.registry.geometry.JobHistoryGeometry");
+
+    return this.isParentIn_SUBSELECT(relationshipQuery);
+  }
+
+
+  public com.runwaysdk.query.Condition NOT_IN_geometryTable()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery("net.geoprism.registry.geometry.JobHistoryGeometry");
+
+    return this.isNotParentIn(relationshipQuery);
+  }
+
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_geometryTable()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery("net.geoprism.registry.geometry.JobHistoryGeometry");
+
+    return this.isNotParentIn_SUBSELECT(relationshipQuery);
+  }
+
   protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
   {
     String name = mdAttributeIF.definesAttribute();

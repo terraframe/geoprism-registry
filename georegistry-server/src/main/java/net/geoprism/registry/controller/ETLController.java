@@ -25,7 +25,10 @@ import java.util.Date;
 import java.util.List;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -290,6 +293,20 @@ public class ETLController extends RunwaySpringController
     List<ImportHistoryView> response = this.service.getHistory(this.getSessionId(), classType, typeCode);
 
     return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/tile")
+  public ResponseEntity<InputStreamResource> tile( //
+      @RequestParam(name = "x") Integer x, //
+      @RequestParam(name = "y") Integer y, //
+      @RequestParam(name = "z") Integer z, //
+      @NotEmpty @RequestParam(name = "historyId") String historyId) throws JSONException
+  {
+    HttpHeaders headers = new HttpHeaders();
+    headers.set(HttpHeaders.CONTENT_TYPE, "application/x-protobuf");
+
+    InputStreamResource isr = new InputStreamResource(this.service.getTile(this.getSessionId(), historyId, x, y, z));
+    return new ResponseEntity<InputStreamResource>(isr, headers, HttpStatus.OK);
   }
 
 }

@@ -1,6 +1,6 @@
 package net.geoprism.registry.jobs;
 
-@com.runwaysdk.business.ClassSignature(hash = -1730414944)
+@com.runwaysdk.business.ClassSignature(hash = 410838096)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -17,7 +17,7 @@ public abstract class GPRJobHistoryBase extends com.runwaysdk.system.scheduler.J
   public final static java.lang.String ORGANIZATION = "organization";
   public final static java.lang.String STAGE = "stage";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = -1730414944;
+  private static final long serialVersionUID = 410838096;
   
   public GPRJobHistoryBase()
   {
@@ -208,6 +208,34 @@ public abstract class GPRJobHistoryBase extends com.runwaysdk.system.scheduler.J
     GPRJobHistoryQuery query = new GPRJobHistoryQuery(new com.runwaysdk.query.QueryFactory());
     com.runwaysdk.business.Entity.getAllInstances(query, sortAttribute, ascending, pageSize, pageNumber);
     return query;
+  }
+  
+  public com.runwaysdk.business.Relationship addGeometryTable(com.runwaysdk.business.Business geometryTable)
+  {
+    return (com.runwaysdk.business.Relationship) addChild(geometryTable, "net.geoprism.registry.geometry.JobHistoryGeometry");
+  }
+  
+  public void removeGeometryTable(com.runwaysdk.business.Business geometryTable)
+  {
+    removeAllChildren(geometryTable, "net.geoprism.registry.geometry.JobHistoryGeometry");
+  }
+  
+  @SuppressWarnings("unchecked")
+  public com.runwaysdk.query.OIterator<? extends com.runwaysdk.business.Business> getAllGeometryTable()
+  {
+    return (com.runwaysdk.query.OIterator<? extends com.runwaysdk.business.Business>) getChildren("net.geoprism.registry.geometry.JobHistoryGeometry");
+  }
+  
+  @SuppressWarnings("unchecked")
+  public com.runwaysdk.query.OIterator<? extends com.runwaysdk.business.Relationship> getAllGeometryTableRel()
+  {
+    return (com.runwaysdk.query.OIterator<? extends com.runwaysdk.business.Relationship>) getChildRelationships("net.geoprism.registry.geometry.JobHistoryGeometry");
+  }
+  
+  @SuppressWarnings("unchecked")
+  public com.runwaysdk.query.OIterator<? extends com.runwaysdk.business.Relationship> getGeometryTableRel(com.runwaysdk.business.Business geometryTable)
+  {
+    return (com.runwaysdk.query.OIterator<? extends com.runwaysdk.business.Relationship>) getRelationshipsWithChild(geometryTable, "net.geoprism.registry.geometry.JobHistoryGeometry");
   }
   
   public static GPRJobHistory get(String oid)

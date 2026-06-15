@@ -62,6 +62,7 @@ import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.MdAttributeClassificationDAOIF;
 import com.runwaysdk.dataaccess.MdClassificationDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.dataaccess.RelationshipDAO;
 import com.runwaysdk.dataaccess.graph.attributes.AttributeClassification;
 import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -78,6 +79,7 @@ import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.GeometrySizeException;
 import net.geoprism.registry.GeoregistryProperties;
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.etl.InvalidExternalIdException;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
@@ -855,6 +857,20 @@ public class GeoObjectImporter implements ObjectImporterIF
       if (problems.size() != 0)
       {
         throw new ProblemException(null, new LinkedList<ProblemIF>(problems));
+      }
+      else
+      {
+        ServerGeoObjectIF object = this.service.getGeoObjectByCode(code, configuration.getType());
+
+        if (object != null)
+        {
+          String geometryId = object.getValue(DefaultAttribute.GEOMETRY.getName(), configuration.getStartDate());
+
+          if (!StringUtils.isBlank(geometryId) && !StringUtils.isBlank(this.configuration.getHistoryId()))
+          {
+            RelationshipDAO.newInstance(this.configuration.getHistoryId(), geometryId, RegistryConstants.JOB_HISTORY_GEOMETRY).apply();
+          }
+        }
       }
     }
     catch (IgnoreRowException e)

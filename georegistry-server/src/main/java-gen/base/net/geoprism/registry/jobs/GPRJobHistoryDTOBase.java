@@ -1,11 +1,11 @@
 package net.geoprism.registry.jobs;
 
-@com.runwaysdk.business.ClassSignature(hash = -1305389024)
+@com.runwaysdk.business.ClassSignature(hash = 1649944016)
 public abstract class GPRJobHistoryDTOBase extends com.runwaysdk.system.scheduler.JobHistoryDTO
 {
   public final static String CLASS = "net.geoprism.registry.jobs.GPRJobHistory";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = -1305389024;
+  private static final long serialVersionUID = 1649944016;
   
   protected GPRJobHistoryDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {

@@ -20,6 +20,7 @@ package net.geoprism.registry.io;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -63,6 +64,8 @@ import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.permission.RolePermissionService;
+import net.geoprism.registry.view.TypeInfo;
+import net.geoprism.registry.view.TypeInfo.TypeClass;
 
 public class GeoObjectImportConfiguration extends ImportConfiguration
 {
@@ -308,6 +311,12 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
   public boolean hasExceptions()
   {
     return this.errors.size() > 0;
+  }
+
+  @Override
+  public List<TypeInfo> getTypes()
+  {
+    return Arrays.asList(new TypeInfo(TypeClass.GEO_OBJECT_TYPE, this.type.getCode()));
   }
 
   @Request

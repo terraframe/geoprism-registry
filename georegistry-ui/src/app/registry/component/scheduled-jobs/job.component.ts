@@ -45,13 +45,15 @@ import { DateTextComponent } from "../../../shared/component/date-text/date-text
 import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
 import { NgIf, NgFor } from "@angular/common";
 import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
+import { ScheduledJobMapComponent } from "./scheduled-job-map/scheduled-job-map.component";
+import { TabsModule } from "ngx-bootstrap/tabs";
 
 @Component({
     selector: "job",
     templateUrl: "./job.component.html",
     styleUrls: ["./scheduled-jobs.css"],
     standalone: true,
-    imports: [PageContainerComponent, NgIf, LocalizeComponent, DateTextComponent, NgFor, NgxPaginationModule]
+    imports: [PageContainerComponent, NgIf, LocalizeComponent, DateTextComponent, NgFor, NgxPaginationModule, ScheduledJobMapComponent, TabsModule]
 })
 export class JobComponent implements OnInit, OnDestroy {
 

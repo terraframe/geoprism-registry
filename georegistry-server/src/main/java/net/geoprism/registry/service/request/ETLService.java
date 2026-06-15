@@ -18,11 +18,13 @@
  */
 package net.geoprism.registry.service.request;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 
-import org.commongeoregistry.adapter.metadata.GraphTypeDTO;
+import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,8 +36,9 @@ import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
+import jakarta.validation.constraints.NotEmpty;
+import net.geoprism.registry.JobHistoryTileCache;
 import net.geoprism.registry.etl.EdgeJsonImporter;
-import net.geoprism.registry.etl.ObjectImporterFactory;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.ETLBusinessService;
@@ -152,4 +155,23 @@ public class ETLService
     return this.service.getHistory(classType, typeCode);
   }
 
+  @Request(RequestType.SESSION)
+  public InputStream getTile(String sessionId, @NotEmpty String historyId, Integer x, Integer y, Integer z)
+  {
+    try
+    {
+      byte[] bytes = JobHistoryTileCache.getTile(historyId, x, y, z);
+
+      if (bytes != null)
+      {
+        return new ByteArrayInputStream(bytes);
+      }
+
+      return new ByteArrayInputStream(new byte[] {});
+    }
+    catch (JSONException e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
+  }
 }

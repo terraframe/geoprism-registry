@@ -6,6 +6,8 @@ package net.geoprism.registry.etl;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -52,7 +54,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.constants.VaultProperties;
+import com.runwaysdk.dataaccess.MdRelationshipDAOIF;
 import com.runwaysdk.dataaccess.database.Database;
+import com.runwaysdk.dataaccess.metadata.MdRelationshipDAO;
 import com.runwaysdk.resource.CloseableFile;
 import com.runwaysdk.resource.StreamResource;
 import com.runwaysdk.session.Request;
@@ -65,6 +69,8 @@ import com.runwaysdk.system.scheduler.SchedulerManager;
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.JobHistoryTileCache;
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.config.TestApplication;
@@ -103,6 +109,7 @@ import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.USATestData;
+import net.geoprism.registry.tile.GeometryTableVectorTileBuilder;
 import net.geoprism.registry.view.ImportConfigurationView;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
@@ -315,7 +322,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
      * Build Config
      */
     JSONObject result = this.shapefileService.getShapefileConfiguration(testData.clientRequest.getSessionId(), "ntd_zam_operational_28082020.zip", istream, ImportConfigurationView.of(USATestData.STATE.getCode(), null, null, USATestData.SOURCE.getCode(), ImportStrategy.NEW_AND_UPDATE, false));
-    
+
     JSONObject type = result.getJSONObject(GeoObjectImportConfiguration.TYPE);
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 
@@ -461,6 +468,22 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
     Assert.assertEquals(131174431216L, object.getValue(testInteger.getName()));
   }
 
+  public long getJobHistoryGeometryCount(ImportHistory hist) throws SQLException
+  {
+    MdRelationshipDAOIF mdRelationship = MdRelationshipDAO.getMdRelationshipDAO(RegistryConstants.JOB_HISTORY_GEOMETRY);
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT COUNT(*) FROM " + mdRelationship.getTableName());
+    statement.append(" WHERE parent_oid = '" + hist.getOid() + "'");
+
+    try (ResultSet results = Database.query(statement.toString()))
+    {
+      results.next();
+
+      return results.getLong(1);
+    }
+  }
+
   @Test
   @Request
   public void testImportShapefileNullInteger() throws Throwable
@@ -489,6 +512,8 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
     row.put("ALAND", null);
     row.put("NAME", "Alabama2");
     row.put("GEOID", "01");
+
+    config.setHistoryId(hist.getOid());
 
     try (GeoObjectImporter importer = new GeoObjectImporter(config, new NullImportProgressListener()))
     {
@@ -532,6 +557,8 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
     row.put("ALAND", null);
     row.put("NAME", "Alabama2");
     row.put("GEOID", "01");
+
+    config.setHistoryId(hist.getOid());
 
     try (GeoObjectImporter importer = new GeoObjectImporter(config, new NullImportProgressListener()))
     {
@@ -1207,6 +1234,41 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
     Assert.assertNotNull(object);
     Assert.assertNotNull(object.getGeometry());
     Assert.assertEquals("Alabama", object.getLocalizedDisplayLabel());
+  }
+
+  @Test
+  @Request
+  public void testJobHistoryTileCache() throws Throwable
+  {
+    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
+
+    Assert.assertNotNull(istream);
+
+    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, null, ImportStrategy.NEW_AND_UPDATE);
+
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
+
+    config.setFunction(testInteger.getName(), new BasicColumnFunction("ALAND"));
+    config.setHierarchy(hierarchyType);
+
+    ImportHistory hist = mockImport(config);
+    Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
+
+    hist = ImportHistory.get(hist.getOid());
+
+    // Ensure that the geometries were associated with the import
+    Assert.assertEquals(56L, getJobHistoryGeometryCount(hist));
+
+    // Test generating a tile
+    GeometryTableVectorTileBuilder builder = new GeometryTableVectorTileBuilder(hist);
+
+    Assert.assertTrue(builder.write(2, 1, 1).length > 0);
+
+    // Generate a tile cache
+    byte[] tile = JobHistoryTileCache.getTile(hist.getOid(), 1, 1, 2);
+
+    Assert.assertNotNull(tile);
+    Assert.assertTrue(tile.length > 0);
   }
 
   private GeoObjectImportConfiguration getTestConfiguration(InputStream istream, AttributeTermType testTerm, ImportStrategy strategy) throws JSONException

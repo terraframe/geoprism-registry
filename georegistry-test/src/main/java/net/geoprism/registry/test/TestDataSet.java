@@ -515,7 +515,7 @@ abstract public class TestDataSet
 
       StringBuilder statement = new StringBuilder();
       statement.append("DELETE VERTEX FROM (");
-      statement.append(" TRAVERSE out('" + "', '" + "') FROM " + mdVertex.getDBClassName());
+      statement.append(" TRAVERSE out() FROM " + mdVertex.getDBClassName());
       statement.append(")");
 
       GraphDBService db = GraphDBService.getInstance();

@@ -1,21 +1,3 @@
-/**
- * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
 import java.util.concurrent.Callable;
@@ -38,17 +20,20 @@ import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionIF;
 
-import net.geoprism.registry.tile.PostgisVectorTileBuilder;
+import net.geoprism.registry.jobs.GPRJobHistory;
+import net.geoprism.registry.tile.GeometryTableVectorTileBuilder;
 
-public class ListTileCache extends ListTileCacheBase
+public class JobHistoryTileCache extends JobHistoryTileCacheBase
 {
-  public static final ExecutorService executor = Executors.newFixedThreadPool(5);
+  private static final long           serialVersionUID = 1L;
+
+  public static final ExecutorService executor         = Executors.newFixedThreadPool(5);
 
   private static class CacheCallable implements Callable<byte[]>
   {
     private ThreadTransactionState state;
 
-    private String                 versionId;
+    private String                 historyId;
 
     private int                    x;
 
@@ -56,11 +41,11 @@ public class ListTileCache extends ListTileCacheBase
 
     private int                    zoom;
 
-    public CacheCallable(ThreadTransactionState state, String versionId, int x, int y, int zoom)
+    public CacheCallable(ThreadTransactionState state, String historyId, int x, int y, int zoom)
     {
       super();
       this.state = state;
-      this.versionId = versionId;
+      this.historyId = historyId;
       this.x = x;
       this.y = y;
       this.zoom = zoom;
@@ -80,24 +65,16 @@ public class ListTileCache extends ListTileCacheBase
         /*
          * Re-check
          */
-        byte[] cached = getCachedTile(versionId, x, y, zoom);
+        byte[] cached = getCachedTile(historyId, x, y, zoom);
 
         if (cached != null)
         {
           return cached;
         }
-//
-//        Envelope envelope = PublisherUtil.getEnvelope(x, y, zoom);
-//        Envelope bounds = PublisherUtil.getTileBounds(envelope);
-//
-//        ListTypeVersion version = ListTypeVersion.get(this.versionId);
-//
-//        VectorTileBuilder builder = new VectorTileBuilder(version);
-//        byte[] tile = builder.writeVectorTiles(envelope, bounds);
-        
-        ListTypeVersion version = ListTypeVersion.get(this.versionId);
-        
-        PostgisVectorTileBuilder builder = new PostgisVectorTileBuilder(version);
+
+        GPRJobHistory history = GPRJobHistory.get(this.historyId);
+
+        GeometryTableVectorTileBuilder builder = new GeometryTableVectorTileBuilder(history);
         byte[] tile = builder.write(zoom, x, y);
 
         if (tile.length < MdAttributeBlobDAO.getMaxLength())
@@ -118,8 +95,8 @@ public class ListTileCache extends ListTileCacheBase
     @Transaction(TransactionType.THREAD)
     private void populateTile(ThreadTransactionState state, byte[] tile)
     {
-      ListTileCache cache = new ListTileCache();
-      cache.setVersionId(this.versionId);
+      JobHistoryTileCache cache = new JobHistoryTileCache();
+      cache.setHistoryId(this.historyId);
       cache.setX(this.x);
       cache.setY(this.y);
       cache.setZ(this.zoom);
@@ -128,27 +105,17 @@ public class ListTileCache extends ListTileCacheBase
     }
   }
 
-  private static final long serialVersionUID = -1074424078;
+  private static final long serialhistoryUID = -1074424078;
 
-  public ListTileCache()
+  public JobHistoryTileCache()
   {
     super();
   }
 
-  public static byte[] getTile(JSONObject object) throws JSONException
-  {
-    String versionId = object.getString("oid");
-    int x = object.getInt("x");
-    int y = object.getInt("y");
-    int zoom = object.getInt("z");
-
-    return getTile(versionId, x, y, zoom);
-  }
-
   @Transaction
-  private static byte[] getTile(String versionId, int x, int y, int zoom)
+  public static byte[] getTile(String historyId, int x, int y, int zoom)
   {
-    byte[] cached = getCachedTile(versionId, x, y, zoom);
+    byte[] cached = getCachedTile(historyId, x, y, zoom);
 
     if (cached != null)
     {
@@ -167,7 +134,7 @@ public class ListTileCache extends ListTileCacheBase
 
         try
         {
-          byte[] result = executor.submit(new CacheCallable(state, versionId, x, y, zoom)).get();
+          byte[] result = executor.submit(new CacheCallable(state, historyId, x, y, zoom)).get();
 
           return result;
         }
@@ -181,21 +148,21 @@ public class ListTileCache extends ListTileCacheBase
     }
   }
 
-  public static byte[] getCachedTile(String versionId, int x, int y, int zoom)
+  public static byte[] getCachedTile(String historyId, int x, int y, int zoom)
   {
-    ListTileCacheQuery query = new ListTileCacheQuery(new QueryFactory());
-    query.WHERE(query.getVersion().EQ(versionId));
+    JobHistoryTileCacheQuery query = new JobHistoryTileCacheQuery(new QueryFactory());
+    query.WHERE(query.getHistory().EQ(historyId));
     query.AND(query.getX().EQ(x));
     query.AND(query.getY().EQ(y));
     query.AND(query.getZ().EQ(zoom));
 
-    OIterator<? extends ListTileCache> it = query.getIterator();
+    OIterator<? extends JobHistoryTileCache> it = query.getIterator();
 
     try
     {
       if (it.hasNext())
       {
-        ListTileCache tile = it.next();
+        JobHistoryTileCache tile = it.next();
         return tile.getTile();
       }
 
@@ -207,12 +174,12 @@ public class ListTileCache extends ListTileCacheBase
     }
   }
 
-  public static void deleteTiles(ListTypeVersion version)
+  public static void deleteTiles(GPRJobHistory history)
   {
-    ListTileCacheQuery query = new ListTileCacheQuery(new QueryFactory());
-    query.WHERE(query.getVersion().EQ(version));
+    JobHistoryTileCacheQuery query = new JobHistoryTileCacheQuery(new QueryFactory());
+    query.WHERE(query.getHistory().EQ(history));
 
-    try (OIterator<? extends ListTileCache> it = query.getIterator())
+    try (OIterator<? extends JobHistoryTileCache> it = query.getIterator())
     {
       while (it.hasNext())
       {

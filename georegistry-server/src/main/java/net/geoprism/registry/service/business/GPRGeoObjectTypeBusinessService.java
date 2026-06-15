@@ -40,8 +40,6 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Roles;
-import com.runwaysdk.system.metadata.MdBusiness;
-import com.runwaysdk.system.metadata.MdVertex;
 
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.Organization;

@@ -7,3 +7,6 @@
 /vault/
 /${project.basedir}/
 /overlays/
+/real_property_20000.json
+/real_property_5000.json
+/real_property_50000.json

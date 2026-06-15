@@ -51,11 +51,12 @@ import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.Location;
 import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.model.EdgeType;
-import net.geoprism.registry.model.GraphType;
+import net.geoprism.registry.model.VertexComponentType;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.EdgeTypeBusinessServiceIF;
-import net.geoprism.registry.service.business.EdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
+import net.geoprism.registry.view.TypeInfo;
+import net.geoprism.registry.view.TypeInfo.TypeClass;
 
 public class EdgeObjectImportConfiguration extends ImportConfiguration
 {
@@ -350,6 +351,30 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
   public boolean hasExceptions()
   {
     return this.errors.size() > 0;
+  }
+
+  @Override
+  public List<TypeInfo> getTypes()
+  {
+    List<TypeInfo> types = new LinkedList<>();
+
+    if (this.edgeSourceStrategy.equals(ReferenceStrategy.FIXED_TYPE))
+    {
+      VertexComponentType sourceType = this.graphType.getSourceType();
+      TypeClass typeClass = sourceType.equals(VertexComponentType.GEO_OBJECT) ? TypeClass.GEO_OBJECT_TYPE : TypeClass.BUSINESS_TYPE;
+
+      types.add(new TypeInfo(typeClass, this.edgeSourceType));
+    }
+
+    if (this.edgeTargetStrategy.equals(ReferenceStrategy.FIXED_TYPE))
+    {
+      VertexComponentType sourceType = this.graphType.getTargetType();
+      TypeClass typeClass = sourceType.equals(VertexComponentType.GEO_OBJECT) ? TypeClass.GEO_OBJECT_TYPE : TypeClass.BUSINESS_TYPE;
+
+      types.add(new TypeInfo(typeClass, this.edgeTargetType));
+    }
+
+    return types;
   }
 
   @Request

@@ -18,13 +18,17 @@
  */
 package net.geoprism.registry.jobs;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.scheduler.AllJobStatus;
-import com.runwaysdk.system.scheduler.JobHistoryQuery;
 
+import net.geoprism.registry.JobHistoryTileCache;
 import net.geoprism.registry.RollbackCheckpoint;
-import net.geoprism.registry.etl.DuplicateJobException;
+import net.geoprism.registry.etl.upload.ImportConfiguration;
+import net.geoprism.registry.view.TypeInfo;
 
 public class GPRJobHistory extends GPRJobHistoryBase
 {
@@ -36,11 +40,18 @@ public class GPRJobHistory extends GPRJobHistoryBase
     super();
   }
 
+  public List<TypeInfo> getTypes()
+  {
+    return new LinkedList<>();
+  }
+
   @Override
   @Transaction
   public void delete()
   {
     RollbackCheckpoint.getAll(this).forEach(RollbackCheckpoint::delete);
+
+    JobHistoryTileCache.deleteTiles(this);
 
     super.delete();
   }

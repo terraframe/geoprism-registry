@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.etl.upload;
 
+import java.util.List;
 import java.util.Map;
 
 import org.json.JSONObject;
@@ -29,6 +30,7 @@ import net.geoprism.registry.etl.ObjectImporterFactory;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.jobs.ImportHistory;
+import net.geoprism.registry.view.TypeInfo;
 
 public abstract class ImportConfiguration
 {
@@ -103,6 +105,8 @@ public abstract class ImportConfiguration
   public abstract void enforceExecutePermissions();
 
   public abstract void populate(ImportHistory history);
+
+  public abstract List<TypeInfo> getTypes();
 
   public static ImportConfiguration build(String json)
   {
