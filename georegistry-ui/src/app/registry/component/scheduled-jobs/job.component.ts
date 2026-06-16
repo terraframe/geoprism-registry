@@ -47,13 +47,14 @@ import { NgIf, NgFor } from "@angular/common";
 import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
 import { ScheduledJobMapComponent } from "./scheduled-job-map/scheduled-job-map.component";
 import { TabsModule } from "ngx-bootstrap/tabs";
+import { LocalizePipe } from "@shared/pipe/localize.pipe";
 
 @Component({
     selector: "job",
     templateUrl: "./job.component.html",
     styleUrls: ["./scheduled-jobs.css"],
     standalone: true,
-    imports: [PageContainerComponent, NgIf, LocalizeComponent, DateTextComponent, NgFor, NgxPaginationModule, ScheduledJobMapComponent, TabsModule]
+    imports: [PageContainerComponent, NgIf, LocalizeComponent, DateTextComponent, NgFor, NgxPaginationModule, ScheduledJobMapComponent, TabsModule, LocalizePipe]
 })
 export class JobComponent implements OnInit, OnDestroy {
 

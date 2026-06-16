@@ -42,6 +42,35 @@
           <attribute name="defaultLocale" value="Child Type" />
         </attributeStruct>
       </object>          
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="job.configuration">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="job.configuration" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Configuration" />
+        </attributeStruct>
+      </object>          
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="job.report">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="job.report" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Download RDF Export" />
+        </attributeStruct>
+      </object>          
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="job.imported.data">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="job.imported.data" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="View Imported Data" />
+        </attributeStruct>
+      </object>          
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="job.problems">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="job.problems" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Problems" />
+        </attributeStruct>
+      </object>          
+      
     </createOrUpdate>
   </doIt>
   <undoIt>

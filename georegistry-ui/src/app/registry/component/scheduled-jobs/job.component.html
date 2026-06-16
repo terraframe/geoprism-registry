@@ -72,12 +72,12 @@
         *ngIf="job.configuration && job.configuration.objectType !== 'LPG' && job.configuration.objectType.indexOf('RDF') === -1"
         style="display:block; margin: 10px;text-align: right;">
         <button type="submit" (click)="onConfiguration()" class="btn btn-primary" role="button">
-          Configuration
+          <localize key="job.configuration"></localize>
         </button>
       </div>
       <div *ngIf="job.configuration && job.configuration.objectType.indexOf('RDF') !== -1">
         <button type="submit" (click)="downloadRdfExport()" class="btn btn-primary" role="button">
-          Download RDF Export
+          <localize key="job.report"></localize>
         </button>
       </div>
 
@@ -131,10 +131,10 @@
     <div class="col-md-12 order-md-1" *ngIf="job">
 
       <tabset [justified]="true">
-        <tab heading="View Imported Data">
+        <tab [heading]="'job.imported.data' | localize">
           <scheduled-job-map [historyId]="historyId"></scheduled-job-map>
         </tab>
-        <tab heading="Problems" [disabled]="!page || page.resultSet.length == 0">
+        <tab [heading]="'job.problems' | localize" [disabled]="!page || page.resultSet.length == 0">
 
           <ul class="list-group" *ngIf="page && page.resultSet.length > 0">
 
