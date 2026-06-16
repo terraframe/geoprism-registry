@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -118,6 +119,8 @@ import net.geoprism.registry.query.ServerSynonymRestriction;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
+import net.geoprism.registry.view.TypeInfo;
+import net.geoprism.registry.view.TypeInfo.TypeClass;
 
 public class GeoObjectImporter implements ObjectImporterIF
 {
@@ -340,7 +343,7 @@ public class GeoObjectImporter implements ObjectImporterIF
 
       return parents;
     }
-  };
+  }
 
   public FormatSpecificImporterIF getFormatSpecificImporter()
   {
@@ -871,6 +874,8 @@ public class GeoObjectImporter implements ObjectImporterIF
             RelationshipDAO.newInstance(this.configuration.getHistoryId(), geometryId, RegistryConstants.JOB_HISTORY_GEOMETRY).apply();
           }
         }
+
+        this.progressListener.add(new TypeInfo(TypeClass.GEO_OBJECT_TYPE, object.getType().getCode()));
       }
     }
     catch (IgnoreRowException e)

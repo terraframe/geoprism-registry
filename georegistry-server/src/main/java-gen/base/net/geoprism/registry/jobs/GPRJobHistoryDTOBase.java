@@ -1,11 +1,11 @@
 package net.geoprism.registry.jobs;
 
-@com.runwaysdk.business.ClassSignature(hash = 1649944016)
+@com.runwaysdk.business.ClassSignature(hash = 233815756)
 public abstract class GPRJobHistoryDTOBase extends com.runwaysdk.system.scheduler.JobHistoryDTO
 {
   public final static String CLASS = "net.geoprism.registry.jobs.GPRJobHistory";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = 1649944016;
+  private static final long serialVersionUID = 233815756;
   
   protected GPRJobHistoryDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -33,6 +33,7 @@ public abstract class GPRJobHistoryDTOBase extends com.runwaysdk.system.schedule
   public static java.lang.String GEOOBJECTTYPECODE = "geoObjectTypeCode";
   public static java.lang.String ORGANIZATION = "organization";
   public static java.lang.String STAGE = "stage";
+  public static java.lang.String TYPES = "types";
   public String getCompletedRowsJson()
   {
     return getValue(COMPLETEDROWSJSON);
@@ -203,6 +204,43 @@ public abstract class GPRJobHistoryDTOBase extends com.runwaysdk.system.schedule
   public final com.runwaysdk.transport.metadata.AttributeEnumerationMdDTO getStageMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeEnumerationMdDTO) getAttributeDTO(STAGE).getAttributeMdDTO();
+  }
+  
+  public String getTypes()
+  {
+    return getValue(TYPES);
+  }
+  
+  public void setTypes(String value)
+  {
+    if(value == null)
+    {
+      setValue(TYPES, "");
+    }
+    else
+    {
+      setValue(TYPES, value);
+    }
+  }
+  
+  public boolean isTypesWritable()
+  {
+    return isWritable(TYPES);
+  }
+  
+  public boolean isTypesReadable()
+  {
+    return isReadable(TYPES);
+  }
+  
+  public boolean isTypesModified()
+  {
+    return isModified(TYPES);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeJsonMdDTO getTypesMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeJsonMdDTO) getAttributeDTO(TYPES).getAttributeMdDTO();
   }
   
   public static net.geoprism.registry.jobs.GPRJobHistoryDTO get(com.runwaysdk.constants.ClientRequestIF clientRequest, String oid)

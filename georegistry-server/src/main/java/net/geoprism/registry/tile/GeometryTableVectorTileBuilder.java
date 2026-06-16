@@ -42,7 +42,7 @@ public class GeometryTableVectorTileBuilder
 
   public byte[] write(int zoom, int x, int y)
   {
-    List<String> geometryTables = history.getTypes().stream() //
+    List<String> geometryTables = history.getTypesAsList().stream() //
         .filter(t -> t.getTypeClass().equals(TypeClass.GEO_OBJECT_TYPE)) //
         .map(t -> ServerGeoObjectType.get(t.getTypeCode())) //
         .map(t -> t.getGeometryTable().getTableName()) //

@@ -16,17 +16,18 @@ import net.geoprism.registry.etl.upload.ImportProgressListenerIF;
 import net.geoprism.registry.etl.upload.ObjectImporterIF;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.jobs.ValidationProblem;
+import net.geoprism.registry.view.TypeInfo;
 
 public class ExcelRowCounter
 {
   public static class RowCounterListener implements ImportProgressListenerIF
   {
     private long workTotal;
-    
+
     private long completed;
-    
+
     private long imported;
-    
+
     @Override
     public void setWorkTotal(Long workTotal)
     {
@@ -78,7 +79,7 @@ public class ExcelRowCounter
     @Override
     public void recordError(Throwable ex, String objectJson, String objectType, long rowNum)
     {
-      
+
     }
 
     @Override
@@ -90,31 +91,31 @@ public class ExcelRowCounter
     @Override
     public void addReferenceProblem(ValidationProblem problem)
     {
-      
+
     }
 
     @Override
     public void addRowValidationProblem(ValidationProblem problem)
     {
-      
+
     }
 
     @Override
     public void applyValidationProblems()
     {
-      
+
     }
 
     @Override
     public void finalizeImport()
     {
-      
+
     }
 
     @Override
     public void incrementImportedRecords()
     {
-      
+
     }
 
     @Override
@@ -122,12 +123,18 @@ public class ExcelRowCounter
     {
       return false;
     }
+
+    @Override
+    public void add(TypeInfo type)
+    {
+
+    }
   }
-  
+
   public static class NullObjectImporter implements ObjectImporterIF
   {
     ImportProgressListenerIF monitor;
-    
+
     public NullObjectImporter(ImportProgressListenerIF monitor)
     {
       this.monitor = monitor;
@@ -142,13 +149,13 @@ public class ExcelRowCounter
     @Override
     public void importRow(FeatureRow simpleFeatureRow) throws InterruptedException
     {
-      
+
     }
 
     @Override
     public void setFormatSpecificImporter(FormatSpecificImporterIF formatImporter)
     {
-      
+
     }
 
     @Override
@@ -160,19 +167,19 @@ public class ExcelRowCounter
     @Override
     public void close()
     {
-      
+
     }
   }
-  
+
   public static void main(String[] args) throws InterruptedException
   {
     ImportProgressListenerIF monitor = new RowCounterListener();
     ImportConfiguration config = new GeoObjectImportConfiguration();
-    
+
     ExcelImporter importer = new ExcelImporter(new FileResource(new File("/home/rrowlands/Documents/cgr-staging-health-center-list.xlsx")), config, monitor);
     importer.setObjectImporter(new NullObjectImporter(monitor));
     importer.run(ImportStage.VALIDATE);
-    
+
     System.out.println("Run with total = " + monitor.getWorkTotal() + " progress = " + monitor.getWorkProgress());
   }
 }

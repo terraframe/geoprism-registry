@@ -1,6 +1,6 @@
 package net.geoprism.registry.jobs;
 
-@com.runwaysdk.business.ClassSignature(hash = -1853231033)
+@com.runwaysdk.business.ClassSignature(hash = -131311115)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -135,6 +135,23 @@ public  class GPRJobHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
     return (net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.jobs.GPRJobHistory.STAGE, mdAttributeIF, this, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getTypes()
+  {
+    return getTypes(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getTypes(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.jobs.GPRJobHistory.TYPES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getTypes(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.jobs.GPRJobHistory.TYPES, alias, displayLabel);
+
+  }
   protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
   {
     String name = mdAttributeIF.definesAttribute();
@@ -246,6 +263,9 @@ public  class GPRJobHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
   public net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF getStage();
   public net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF getStage(String alias);
   public net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF getStage(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getTypes();
+    public com.runwaysdk.query.SelectableChar getTypes(String alias);
+    public com.runwaysdk.query.SelectableChar getTypes(String alias, String displayLabel);
 
     public com.runwaysdk.query.BasicCondition EQ(net.geoprism.registry.jobs.GPRJobHistory gPRJobHistory);
 
@@ -378,6 +398,23 @@ public  class GPRJobHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
     return (net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF)this.get(net.geoprism.registry.jobs.GPRJobHistory.STAGE, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getTypes()
+  {
+    return getTypes(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getTypes(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.jobs.GPRJobHistory.TYPES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getTypes(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.jobs.GPRJobHistory.TYPES, alias, displayLabel);
+
+  }
 
   public com.runwaysdk.query.Condition geometryTable()
   {
@@ -466,6 +503,9 @@ public  class GPRJobHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
   public net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF getStage();
   public net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF getStage(String alias);
   public net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF getStage(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getTypes();
+    public com.runwaysdk.query.SelectableChar getTypes(String alias);
+    public com.runwaysdk.query.SelectableChar getTypes(String alias, String displayLabel);
 
     public com.runwaysdk.query.Condition containsAny(net.geoprism.registry.jobs.GPRJobHistory ... gPRJobHistory);
     public com.runwaysdk.query.Condition notContainsAny(net.geoprism.registry.jobs.GPRJobHistory ... gPRJobHistory);
@@ -633,6 +673,23 @@ public  class GPRJobHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
   public net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF getStage(String alias, String displayLabel)
   {
     return (net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF)this.get(net.geoprism.registry.jobs.GPRJobHistory.STAGE, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getTypes()
+  {
+    return getTypes(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getTypes(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.jobs.GPRJobHistory.TYPES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getTypes(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.jobs.GPRJobHistory.TYPES, alias, displayLabel);
 
   }
   protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)

@@ -71,6 +71,7 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.VertexComponentType;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
+import net.geoprism.registry.view.TypeInfo;
 
 public class EdgeObjectImporter implements ObjectImporterIF
 {
@@ -444,10 +445,20 @@ public class EdgeObjectImporter implements ObjectImporterIF
       {
         throw new ProblemException(null, new LinkedList<ProblemIF>(existingProblems));
       }
-      else if (! ( graphType instanceof BusinessEdgeType ))
+      else
       {
-        createImportHistoryRelationship(sourceTypeCode, sourceCode);
-        createImportHistoryRelationship(targetTypeCode, targetCode);
+        if (graphType.getSourceType().equals(VertexComponentType.GEO_OBJECT))
+        {
+          createImportHistoryRelationship(sourceTypeCode, sourceCode);
+        }
+
+        if (graphType.getTargetType().equals(VertexComponentType.GEO_OBJECT))
+        {
+          createImportHistoryRelationship(targetTypeCode, targetCode);
+        }
+
+        this.progressListener.add(new TypeInfo(graphType.getSourceType(), sourceTypeCode));
+        this.progressListener.add(new TypeInfo(graphType.getTargetType(), targetTypeCode));
       }
 
     }

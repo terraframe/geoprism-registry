@@ -131,7 +131,10 @@
     <div class="col-md-12 order-md-1" *ngIf="job">
 
       <tabset [justified]="true">
-        <tab heading="Problems" >
+        <tab heading="View Imported Data">
+          <scheduled-job-map [historyId]="historyId"></scheduled-job-map>
+        </tab>
+        <tab heading="Problems" [disabled]="!page || page.resultSet.length == 0">
 
           <ul class="list-group" *ngIf="page && page.resultSet.length > 0">
 
@@ -239,9 +242,6 @@
               </div>
             </div>
           </ul>
-        </tab>
-        <tab heading="View Imported Data">
-          <scheduled-job-map [historyId]="historyId"></scheduled-job-map>
         </tab>
       </tabset>
     </div>

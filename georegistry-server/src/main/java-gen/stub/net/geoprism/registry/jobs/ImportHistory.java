@@ -51,40 +51,40 @@ public class ImportHistory extends ImportHistoryBase
     return ImportConfiguration.build(this.getConfigJson());
   }
 
-  public List<TypeInfo> getTypes()
-  {
-
-    List<TypeInfo> types = new LinkedList<>();
-
-    JSONObject config = new JSONObject(this.getConfigJson());
-
-    String objectType = config.getString(ImportConfiguration.OBJECT_TYPE);
-
-    if (objectType.equals(ObjectImporterFactory.ObjectImportType.GEO_OBJECT.name()))
-    {
-      JSONObject type = config.getJSONObject(TYPE);
-      String code = type.getString(GeoObjectType.JSON_CODE);
-
-      types.add(new TypeInfo(TypeClass.GEO_OBJECT_TYPE, code));
-    }
-    else if (objectType.equals(ObjectImporterFactory.ObjectImportType.BUSINESS_OBJECT.name()))
-    {
-      JSONObject type = config.getJSONObject(TYPE);
-      String code = type.getString(GeoObjectType.JSON_CODE);
-
-      return Arrays.asList(new TypeInfo(TypeClass.GEO_OBJECT_TYPE, code));
-    }
-    else if (objectType.equals(ObjectImporterFactory.ObjectImportType.EDGE_OBJECT.name()))
-    {
-      return this.getConfiguration().getTypes();
-    }
-    else
-    {
-      throw new UnsupportedOperationException();
-    }
-
-    return types;
-  }
+//  public List<TypeInfo> getTypesAsList()
+//  {
+//
+//    List<TypeInfo> types = new LinkedList<>();
+//
+//    JSONObject config = new JSONObject(this.getConfigJson());
+//
+//    String objectType = config.getString(ImportConfiguration.OBJECT_TYPE);
+//
+//    if (objectType.equals(ObjectImporterFactory.ObjectImportType.GEO_OBJECT.name()))
+//    {
+//      JSONObject type = config.getJSONObject(TYPE);
+//      String code = type.getString(GeoObjectType.JSON_CODE);
+//
+//      types.add(new TypeInfo(TypeClass.GEO_OBJECT_TYPE, code));
+//    }
+//    else if (objectType.equals(ObjectImporterFactory.ObjectImportType.BUSINESS_OBJECT.name()))
+//    {
+//      JSONObject type = config.getJSONObject(TYPE);
+//      String code = type.getString(GeoObjectType.JSON_CODE);
+//
+//      return Arrays.asList(new TypeInfo(TypeClass.GEO_OBJECT_TYPE, code));
+//    }
+//    else if (objectType.equals(ObjectImporterFactory.ObjectImportType.EDGE_OBJECT.name()))
+//    {
+//      return this.getConfiguration().getTypes();
+//    }
+//    else
+//    {
+//      throw new UnsupportedOperationException();
+//    }
+//
+//    return types;
+//  }
 
   public boolean hasImportErrors()
   {

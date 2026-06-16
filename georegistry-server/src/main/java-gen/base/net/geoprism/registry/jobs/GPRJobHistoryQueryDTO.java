@@ -1,6 +1,6 @@
 package net.geoprism.registry.jobs;
 
-@com.runwaysdk.business.ClassSignature(hash = -1342854631)
+@com.runwaysdk.business.ClassSignature(hash = 840867043)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -11,7 +11,7 @@ package net.geoprism.registry.jobs;
 public class GPRJobHistoryQueryDTO extends com.runwaysdk.system.scheduler.JobHistoryQueryDTO
 {
 @SuppressWarnings("unused")
-private static final long serialVersionUID = -1342854631;
+private static final long serialVersionUID = 840867043;
 
   protected GPRJobHistoryQueryDTO(String type)
   {

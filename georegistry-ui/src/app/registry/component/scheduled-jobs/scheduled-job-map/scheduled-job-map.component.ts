@@ -37,10 +37,10 @@ import EnvironmentUtil from "@core/utility/environment-util";
  */
 export class ScheduledJobMapComponent implements OnInit, OnDestroy {
 
-    _mapHeight: number = 400;
+    _mapHeight: number = 600;
     // eslint-disable-next-line accessor-pairs
     @Input() set mapHeight(height: number) {
-        if (height > 400) {
+        if (height > 600) {
             this._mapHeight = height;
         }
     }

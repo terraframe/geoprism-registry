@@ -5,6 +5,7 @@ package net.geoprism.registry.etl;
 
 import net.geoprism.registry.etl.upload.ImportProgressListenerIF;
 import net.geoprism.registry.jobs.ValidationProblem;
+import net.geoprism.registry.view.TypeInfo;
 
 public class NullImportProgressListener implements ImportProgressListenerIF
 {
@@ -104,5 +105,12 @@ public class NullImportProgressListener implements ImportProgressListenerIF
   public boolean isComplete(Long rowNumber)
   {
     return false;
+  }
+
+  @Override
+  public void add(TypeInfo type)
+  {
+    // TODO Auto-generated method stub
+
   }
 }

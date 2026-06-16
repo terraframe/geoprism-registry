@@ -1,6 +1,6 @@
 package net.geoprism.registry.jobs;
 
-@com.runwaysdk.business.ClassSignature(hash = 410838096)
+@com.runwaysdk.business.ClassSignature(hash = -218369972)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -16,8 +16,9 @@ public abstract class GPRJobHistoryBase extends com.runwaysdk.system.scheduler.J
   public final static java.lang.String GEOOBJECTTYPECODE = "geoObjectTypeCode";
   public final static java.lang.String ORGANIZATION = "organization";
   public final static java.lang.String STAGE = "stage";
+  public final static java.lang.String TYPES = "types";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = 410838096;
+  private static final long serialVersionUID = -218369972;
   
   public GPRJobHistoryBase()
   {
@@ -196,6 +197,34 @@ public abstract class GPRJobHistoryBase extends com.runwaysdk.system.scheduler.J
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.jobs.GPRJobHistory.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeEnumerationDAOIF)mdClassIF.definesAttribute(STAGE);
+  }
+  
+  public String getTypes()
+  {
+    return getValue(TYPES);
+  }
+  
+  public void validateTypes()
+  {
+    this.validateAttribute(TYPES);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeJsonDAOIF getTypesMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.jobs.GPRJobHistory.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeJsonDAOIF)mdClassIF.definesAttribute(TYPES);
+  }
+  
+  public void setTypes(String value)
+  {
+    if(value == null)
+    {
+      setValue(TYPES, "");
+    }
+    else
+    {
+      setValue(TYPES, value);
+    }
   }
   
   protected String getDeclaredType()
