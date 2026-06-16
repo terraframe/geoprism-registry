@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.StringUtils;
 import org.axonframework.eventhandling.GenericEventMessage;
 import org.axonframework.eventhandling.gateway.EventGateway;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -39,6 +40,7 @@ import com.runwaysdk.ProblemException;
 import com.runwaysdk.ProblemIF;
 import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.dataaccess.RelationshipDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestState;
@@ -51,6 +53,7 @@ import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.GeoregistryProperties;
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.axon.event.repository.AbstractRepositoryEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEdgeEvent;
@@ -64,7 +67,9 @@ import net.geoprism.registry.io.RequiredMappingException;
 import net.geoprism.registry.jobs.RowValidationProblem;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.EdgeType;
+import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.VertexComponentType;
+import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 
 public class EdgeObjectImporter implements ObjectImporterIF
@@ -439,6 +444,12 @@ public class EdgeObjectImporter implements ObjectImporterIF
       {
         throw new ProblemException(null, new LinkedList<ProblemIF>(existingProblems));
       }
+      else if (! ( graphType instanceof BusinessEdgeType ))
+      {
+        createImportHistoryRelationship(sourceTypeCode, sourceCode);
+        createImportHistoryRelationship(targetTypeCode, targetCode);
+      }
+
     }
     catch (IgnoreRowException e)
     {
@@ -451,6 +462,21 @@ public class EdgeObjectImporter implements ObjectImporterIF
     }
 
     return imported;
+  }
+
+  public void createImportHistoryRelationship(String typeCode, String code)
+  {
+    ServerGeoObjectIF object = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class).getGeoObjectByCode(code, typeCode);
+
+    if (object != null)
+    {
+      String geometryId = object.getValue(DefaultAttribute.GEOMETRY.getName(), configuration.getStartDate());
+
+      if (!StringUtils.isBlank(geometryId) && !StringUtils.isBlank(this.configuration.getHistoryId()))
+      {
+        RelationshipDAO.newInstance(this.configuration.getHistoryId(), geometryId, RegistryConstants.JOB_HISTORY_GEOMETRY).apply();
+      }
+    }
   }
 
   protected String getValue(String attribute, FeatureRow row)

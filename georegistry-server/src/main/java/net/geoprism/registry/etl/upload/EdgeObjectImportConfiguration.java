@@ -358,7 +358,7 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
   {
     List<TypeInfo> types = new LinkedList<>();
 
-    if (this.edgeSourceStrategy.equals(ReferenceStrategy.FIXED_TYPE))
+    if (this.edgeSourceTypeStrategy.equals(ReferenceStrategy.FIXED_TYPE))
     {
       VertexComponentType sourceType = this.graphType.getSourceType();
       TypeClass typeClass = sourceType.equals(VertexComponentType.GEO_OBJECT) ? TypeClass.GEO_OBJECT_TYPE : TypeClass.BUSINESS_TYPE;
@@ -366,7 +366,7 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
       types.add(new TypeInfo(typeClass, this.edgeSourceType));
     }
 
-    if (this.edgeTargetStrategy.equals(ReferenceStrategy.FIXED_TYPE))
+    if (this.edgeTargetTypeStrategy.equals(ReferenceStrategy.FIXED_TYPE))
     {
       VertexComponentType sourceType = this.graphType.getTargetType();
       TypeClass typeClass = sourceType.equals(VertexComponentType.GEO_OBJECT) ? TypeClass.GEO_OBJECT_TYPE : TypeClass.BUSINESS_TYPE;

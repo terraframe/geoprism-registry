@@ -37,6 +37,7 @@ import com.runwaysdk.system.scheduler.JobHistoryRecord;
 import com.runwaysdk.system.scheduler.QuartzRunwayJob;
 import com.runwaysdk.system.scheduler.QueueingQuartzJob;
 
+import net.geoprism.registry.JobHistoryTileCache;
 import net.geoprism.registry.etl.upload.FormatSpecificImporterIF;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportHistoryProgressScribe;
@@ -282,6 +283,10 @@ public class DataImportJob extends DataImportJobBase
     if (stage.equals(ImportStage.IMPORT))
     {
       ServiceFactory.getBean(RollbackCheckpointBusinessService.class).create(history);
+
+      // If new data is being imported then delete the existing tiles, because
+      // new data may be added
+      JobHistoryTileCache.deleteTiles(history);
     }
 
     ImportHistoryProgressScribe progressListener = new ImportHistoryProgressScribe(history);

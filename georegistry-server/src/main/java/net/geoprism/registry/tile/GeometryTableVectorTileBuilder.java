@@ -42,18 +42,22 @@ public class GeometryTableVectorTileBuilder
 
   public byte[] write(int zoom, int x, int y)
   {
-    StringBuilder statement = new StringBuilder();
-
-    // Filter the data to remove entries which have points too close the poles
-    // Those points cannot be transformed
-    statement.append("WITH _fdata AS (" + "\n");
-
     List<String> geometryTables = history.getTypes().stream() //
         .filter(t -> t.getTypeClass().equals(TypeClass.GEO_OBJECT_TYPE)) //
         .map(t -> ServerGeoObjectType.get(t.getTypeCode())) //
         .map(t -> t.getGeometryTable().getTableName()) //
         .toList();
 
+    if (geometryTables.size() == 0)
+    {
+      return new byte[] {};
+    }
+
+    StringBuilder statement = new StringBuilder();
+
+    // Filter the data to remove entries which have points too close the poles
+    // Those points cannot be transformed
+    statement.append("WITH _fdata AS (" + "\n");
     statement.append(" SELECT geom_tab.* " + "\n");
     statement.append(" FROM job_history_geometry AS jhg " + "\n");
     statement.append(" JOIN ( " + "\n");
@@ -74,7 +78,8 @@ public class GeometryTableVectorTileBuilder
 
     statement.append("   ) AS geom_tab ON geom_tab.oid = jhg.child_oid \n");
 
-    statement.append(" WHERE (ST_XMax(geom_tab.geometry) BETWEEN -180 AND 180)" + "\n");
+    statement.append(" WHERE jhg.parent_oid = '" + history.getOid() + "'" + "\n");
+    statement.append(" AND (ST_XMax(geom_tab.geometry) BETWEEN -180 AND 180)" + "\n");
     statement.append(" AND (ST_YMax(geom_tab.geometry) BETWEEN -89.9 AND 89.9)" + "\n");
     statement.append(")," + "\n");
 
