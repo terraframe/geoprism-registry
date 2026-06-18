@@ -61,6 +61,7 @@ import com.runwaysdk.system.scheduler.JobHistoryRecord;
 import net.geoprism.GeoprismUser;
 import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.JobHistoryTileCache;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.etl.DataImportJob;
 import net.geoprism.registry.etl.ImportStage;
@@ -796,6 +797,12 @@ public class ETLBusinessService
     }
 
     return histories;
+  }
+
+  @Transaction
+  public void deleteJobHistoryTiles(Date time)
+  {
+    JobHistoryTileCache.deleteTilesBefore(time);
   }
 
 }

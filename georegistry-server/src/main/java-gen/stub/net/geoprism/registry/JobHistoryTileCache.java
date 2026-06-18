@@ -1,12 +1,10 @@
 package net.geoprism.registry;
 
+import java.util.Date;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.metadata.MdAttributeBlobDAO;
@@ -178,6 +176,20 @@ public class JobHistoryTileCache extends JobHistoryTileCacheBase
   {
     JobHistoryTileCacheQuery query = new JobHistoryTileCacheQuery(new QueryFactory());
     query.WHERE(query.getHistory().EQ(history));
+
+    try (OIterator<? extends JobHistoryTileCache> it = query.getIterator())
+    {
+      while (it.hasNext())
+      {
+        it.next().delete();
+      }
+    }
+  }
+
+  public static void deleteTilesBefore(Date date)
+  {
+    JobHistoryTileCacheQuery query = new JobHistoryTileCacheQuery(new QueryFactory());
+    query.WHERE(query.getCreateDate().LE(date));
 
     try (OIterator<? extends JobHistoryTileCache> it = query.getIterator())
     {

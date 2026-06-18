@@ -1269,6 +1269,12 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     Assert.assertNotNull(tile);
     Assert.assertTrue(tile.length > 0);
+
+    Assert.assertNotNull(JobHistoryTileCache.getCachedTile(hist.getOid(), 1, 1, 2));
+
+    JobHistoryTileCache.deleteTilesBefore(new Date());
+
+    Assert.assertNull(JobHistoryTileCache.getCachedTile(hist.getOid(), 1, 1, 2));
   }
 
   private GeoObjectImportConfiguration getTestConfiguration(InputStream istream, AttributeTermType testTerm, ImportStrategy strategy) throws JSONException
