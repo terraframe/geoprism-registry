@@ -50,7 +50,6 @@ import com.runwaysdk.session.SessionFacade;
 
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
-import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.RegistryConstants;
@@ -61,6 +60,7 @@ import net.geoprism.registry.cache.BusinessObjectCache;
 import net.geoprism.registry.cache.Cache;
 import net.geoprism.registry.cache.GeoObjectCache;
 import net.geoprism.registry.cache.LRUCache;
+import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.io.IgnoreRowException;
 import net.geoprism.registry.io.Location;
 import net.geoprism.registry.io.RequiredMappingException;

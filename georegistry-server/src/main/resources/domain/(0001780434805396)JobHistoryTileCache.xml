@@ -67,11 +67,35 @@
           <mdBusinessPermission type="net.geoprism.registry.JobHistoryTileCache">
             <operation name="ALL"/>
           </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.graph.BusinessType">
+            <operation name="ALL" />
+          </mdBusinessPermission>          
+          <mdBusinessPermission type="net.geoprism.registry.graph.BusinessEdgeType">
+            <operation name="ALL" />
+          </mdBusinessPermission>          
           <mdRelationshipPermission type="net.geoprism.registry.geometry.JobHistoryGeometry">
             <operation name="ALL"/>
           </mdRelationshipPermission>          
         </grant>
       </role>
+      <role roleName="cgr.RegistryContributor">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.JobHistoryTileCache">
+            <operation name="ALL"/>
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="net.geoprism.registry.geometry.JobHistoryGeometry">
+            <operation name="ALL"/>
+          </mdRelationshipPermission>          
+          <mdBusinessPermission type="net.geoprism.registry.graph.BusinessType">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.graph.BusinessEdgeType">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>          
+        </grant>
+      </role>      
       <role roleName="cgr.APIConsumer">
         <grant>
           <mdBusinessPermission type="net.geoprism.registry.JobHistoryTileCache">
@@ -80,9 +104,19 @@
           <mdRelationshipPermission type="net.geoprism.registry.geometry.JobHistoryGeometry">
             <operation name="ALL"/>
           </mdRelationshipPermission>          
+          <mdBusinessPermission type="net.geoprism.registry.graph.BusinessType">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.graph.BusinessEdgeType">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          
         </grant>
       </role>      
-    </permissions>
+    </permissions>    
+    
   </doIt>
   <undoIt>
     <delete>

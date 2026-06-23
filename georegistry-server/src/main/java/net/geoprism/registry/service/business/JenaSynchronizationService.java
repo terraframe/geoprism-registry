@@ -34,7 +34,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.Commit;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Publish;
@@ -47,6 +46,7 @@ import net.geoprism.registry.axon.event.remote.RemoteGeoObjectSetParentEvent;
 import net.geoprism.registry.etl.JenaExportConfig;
 import net.geoprism.registry.etl.export.ExportHistory;
 import net.geoprism.registry.etl.export.ExportStage;
+import net.geoprism.registry.graph.BusinessType;
 
 @Service
 public class JenaSynchronizationService

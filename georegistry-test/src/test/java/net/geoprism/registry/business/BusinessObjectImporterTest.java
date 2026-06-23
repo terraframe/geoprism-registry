@@ -37,8 +37,6 @@ import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutionContext;
 
 import net.geoprism.data.importer.BasicColumnFunction;
-import net.geoprism.registry.BusinessEdgeType;
-import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
@@ -56,7 +54,8 @@ import net.geoprism.registry.etl.upload.BusinessObjectRecordedErrorException;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.excel.MapFeatureRow;
-import net.geoprism.registry.io.ParentCodeException;
+import net.geoprism.registry.graph.BusinessEdgeType;
+import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.EdgeDirection;
@@ -530,7 +529,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
     hist.appLock();
     hist.setImportFileId(config.getVaultFileId());
     hist.setConfigJson(config.toJSON().toString());
-    hist.setOrganization(type.getOrganization());
+    hist.setOrganization(type.getOrganization().getOrganization());
     hist.setGeoObjectTypeCode(type.getCode());
     hist.apply();
 

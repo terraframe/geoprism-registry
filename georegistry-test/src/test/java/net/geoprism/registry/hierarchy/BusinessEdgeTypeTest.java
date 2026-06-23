@@ -17,12 +17,12 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.metadata.MdEdge;
 
-import net.geoprism.registry.BusinessEdgeType;
-import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.config.TestApplication;
+import net.geoprism.registry.graph.BusinessEdgeType;
+import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
@@ -106,8 +106,8 @@ public class BusinessEdgeTypeTest extends FastDatasetTest implements InstanceTes
     {
       Assert.assertNotNull(type);
       Assert.assertEquals(code, type.getCode());
-      Assert.assertEquals(label.getValue(), type.getDisplayLabel().getValue());
-      Assert.assertEquals(description.getValue(), type.getDescription().getValue());
+      Assert.assertEquals(label.getValue(), type.getLabel().getValue());
+      Assert.assertEquals(description.getValue(), type.getLocalizedDescription().getValue());
 
       MdEdge mdEdge = type.getMdEdge();
 
@@ -134,8 +134,8 @@ public class BusinessEdgeTypeTest extends FastDatasetTest implements InstanceTes
 
       this.bEdgeService.update(type, view);
 
-      Assert.assertEquals("Updated Label", type.getDisplayLabel().getValue());
-      Assert.assertEquals("Updated Description", type.getDescription().getValue());
+      Assert.assertEquals("Updated Label", type.getLabel().getValue());
+      Assert.assertEquals("Updated Description", type.getLocalizedDescription().getValue());
     }
     finally
     {

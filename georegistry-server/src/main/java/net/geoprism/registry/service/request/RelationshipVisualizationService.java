@@ -45,10 +45,10 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
-import net.geoprism.registry.BusinessEdgeType;
-import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.DirectedAcyclicGraphType;
 import net.geoprism.registry.UndirectedGraphType;
+import net.geoprism.registry.graph.BusinessEdgeType;
+import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.EdgeType;
@@ -71,7 +71,6 @@ import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessService
 import net.geoprism.registry.service.permission.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.service.permission.GeoObjectTypePermissionServiceIF;
 import net.geoprism.registry.service.permission.HierarchyTypePermissionServiceIF;
-import net.geoprism.registry.view.BusinessEdgeTypeView;
 import net.geoprism.registry.visualization.EdgeView;
 import net.geoprism.registry.visualization.VertexView;
 import net.geoprism.registry.visualization.VertexView.ObjectType;

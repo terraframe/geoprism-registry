@@ -21,13 +21,13 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.metadata.MdEdge;
 
-import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.EventDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.RollbackCheckpoint;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.config.TestApplication;
+import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.ServerChildGraphNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;

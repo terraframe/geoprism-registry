@@ -20,7 +20,7 @@ package net.geoprism.registry.cache;
 
 import java.util.Optional;
 
-import net.geoprism.registry.BusinessType;
+import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;

@@ -26,8 +26,8 @@ import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 
-import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.view.BusinessEdgeTypeView;
 
 @Service

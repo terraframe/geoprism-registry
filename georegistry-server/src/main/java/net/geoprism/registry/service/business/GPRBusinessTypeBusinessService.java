@@ -25,13 +25,12 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
-import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.system.Roles;
 
 import ca.uhn.fhir.rest.annotation.Transaction;
-import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.graph.BusinessType;
 
 @Service
 @Primary

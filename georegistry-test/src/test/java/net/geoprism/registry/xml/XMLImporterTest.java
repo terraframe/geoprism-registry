@@ -25,8 +25,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.runwaysdk.resource.StreamResource;
 import com.runwaysdk.session.Request;
 
-import net.geoprism.registry.BusinessEdgeType;
-import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.classification.ClassificationTypeTest;
@@ -34,6 +32,8 @@ import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.AttributeClassificationType;
 import net.geoprism.registry.graph.AttributeTermType;
 import net.geoprism.registry.graph.AttributeType;
+import net.geoprism.registry.graph.BusinessEdgeType;
+import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerElement;

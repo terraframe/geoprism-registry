@@ -26,8 +26,6 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.util.IDGenerator;
 
 import net.geoprism.configuration.GeoprismProperties;
-import net.geoprism.registry.BusinessEdgeType;
-import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.OriginException;
@@ -54,6 +52,8 @@ import net.geoprism.registry.cache.Cache;
 import net.geoprism.registry.cache.GeoObjectCache;
 import net.geoprism.registry.cache.LRUCache;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.graph.BusinessEdgeType;
+import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;

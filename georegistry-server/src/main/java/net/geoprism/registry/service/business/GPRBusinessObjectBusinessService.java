@@ -29,7 +29,7 @@ import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 
-import net.geoprism.registry.BusinessType;
+import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.model.BusinessObject;
 
 @Service

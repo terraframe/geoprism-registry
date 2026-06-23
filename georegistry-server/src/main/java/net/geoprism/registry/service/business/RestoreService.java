@@ -57,13 +57,13 @@ import com.runwaysdk.resource.FileResource;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.cache.Cache;
 import net.geoprism.registry.cache.LRUCache;
 import net.geoprism.registry.etl.BusinessEdgeJsonImporter;
 import net.geoprism.registry.etl.EdgeJsonImporter;
+import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.graph.transition.TransitionEvent;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.ServerGeoObjectIF;

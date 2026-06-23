@@ -39,9 +39,9 @@ import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.ClassifierIsARelationshipAllPathsTableQuery;
 import net.geoprism.ontology.ClassifierIsARelationshipQuery;
 import net.geoprism.ontology.ClassifierQuery;
-import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.graph.AttributeTermType;
 import net.geoprism.registry.graph.AttributeType;
+import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 
 @Service

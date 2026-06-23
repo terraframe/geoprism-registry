@@ -24,11 +24,11 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.configuration.GeoprismProperties;
-import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.config.TestApplication;
+import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
@@ -60,8 +60,8 @@ public class BusinessTypeTest extends FastDatasetTest implements InstanceTestCla
     try
     {
       Assert.assertEquals(code, type.getCode());
-      Assert.assertEquals(orgCode, type.getOrganization().getCode());
-      Assert.assertEquals(label, type.getDisplayLabel().getValue());
+      Assert.assertEquals(orgCode, type.getServerOrganization().getCode());
+      Assert.assertEquals(label, type.getLabel().getValue());
       Assert.assertNotNull(type.getMdVertex());
       Assert.assertEquals(type.getOrigin(), GeoprismProperties.getOrigin());
       Assert.assertEquals(Long.valueOf(0), type.getSequence());
@@ -120,8 +120,8 @@ public class BusinessTypeTest extends FastDatasetTest implements InstanceTestCla
       type = this.typeService.apply(json);
 
       Assert.assertEquals(code, type.getCode());
-      Assert.assertEquals(orgCode, type.getOrganization().getCode());
-      Assert.assertEquals(label, type.getDisplayLabel().getValue());
+      Assert.assertEquals(orgCode, type.getServerOrganization().getCode());
+      Assert.assertEquals(label, type.getLabel().getValue());
       Assert.assertNotNull(type.getMdVertex());
     }
     finally
@@ -493,7 +493,7 @@ public class BusinessTypeTest extends FastDatasetTest implements InstanceTestCla
       AttributeCharacterType expected = new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test True"), false, false, false);
 
       this.typeService.createAttributeType(type, expected);
-      
+
       Assert.assertEquals(Long.valueOf(1), type.getSequence());
 
       Map<String, AttributeType> attributeMap = type.getAttributeMap();

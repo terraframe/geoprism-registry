@@ -47,12 +47,12 @@ import com.runwaysdk.session.Request;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
-import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.Organization;
+import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.io.LocalizedValueFunction;
 import net.geoprism.registry.jobs.ImportHistory;
+import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
@@ -416,9 +416,9 @@ public class BusinessObjectImportConfiguration extends ImportConfiguration
   @Override
   public void populate(ImportHistory history)
   {
-    Organization org = type.getOrganization();
+    ServerOrganization org = ServerOrganization.getByGraphId(type.getValue(BusinessType.ORGANIZATION));
 
-    history.setOrganization(org);
+    history.setOrganization(org.getOrganization());
     history.setGeoObjectTypeCode(type.getCode());
   }
 }
