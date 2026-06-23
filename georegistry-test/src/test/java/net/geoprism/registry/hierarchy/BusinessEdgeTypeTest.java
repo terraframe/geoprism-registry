@@ -107,7 +107,7 @@ public class BusinessEdgeTypeTest extends FastDatasetTest implements InstanceTes
       Assert.assertNotNull(type);
       Assert.assertEquals(code, type.getCode());
       Assert.assertEquals(label.getValue(), type.getLabel().getValue());
-      Assert.assertEquals(description.getValue(), type.getLocalizedDescription().getValue());
+      Assert.assertEquals(description.getValue(), type.getDescriptionLV().getValue());
 
       MdEdge mdEdge = type.getMdEdge();
 
@@ -135,7 +135,7 @@ public class BusinessEdgeTypeTest extends FastDatasetTest implements InstanceTes
       this.bEdgeService.update(type, view);
 
       Assert.assertEquals("Updated Label", type.getLabel().getValue());
-      Assert.assertEquals("Updated Description", type.getLocalizedDescription().getValue());
+      Assert.assertEquals("Updated Description", type.getDescriptionLV().getValue());
     }
     finally
     {

@@ -14,15 +14,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.google.gson.JsonObject;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.metadata.MdEdge;
 
 import net.geoprism.registry.SpringInstanceTestClassRunner;
-import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.config.TestApplication;
+import net.geoprism.registry.graph.UndirectedGraphType;
 import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
@@ -47,8 +46,8 @@ public class UndirectedGraphTypeTest
     {
       Assert.assertNotNull(type);
       Assert.assertEquals(code, type.getCode());
-      Assert.assertEquals(label.getValue(), type.getDisplayLabel().getValue());
-      Assert.assertEquals(description.getValue(), type.getDescription().getValue());
+      Assert.assertEquals(label.getValue(), type.getLabel().getValue());
+      Assert.assertEquals(description.getValue(), type.getDescriptionLV().getValue());
 
       MdEdge mdEdge = type.getMdEdge();
 
@@ -80,8 +79,8 @@ public class UndirectedGraphTypeTest
 
       this.service.update(type, object);
 
-      Assert.assertEquals("Updated Label", type.getDisplayLabel().getValue());
-      Assert.assertEquals("Updated Description", type.getDescription().getValue());
+      Assert.assertEquals("Updated Label", type.getLabel().getValue());
+      Assert.assertEquals("Updated Description", type.getDescriptionLV().getValue());
     }
     finally
     {

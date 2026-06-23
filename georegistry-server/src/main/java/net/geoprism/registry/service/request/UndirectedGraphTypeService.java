@@ -28,9 +28,9 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
 import net.geoprism.registry.DataNotFoundException;
-import net.geoprism.registry.DirectedAcyclicGraphType;
-import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.etl.ObjectImporterFactory;
+import net.geoprism.registry.graph.DirectedAcyclicGraphType;
+import net.geoprism.registry.graph.UndirectedGraphType;
 import net.geoprism.registry.service.business.ETLBusinessService;
 import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
 import net.geoprism.registry.view.ImportHistoryView;

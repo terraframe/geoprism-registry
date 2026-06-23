@@ -626,38 +626,8 @@
           </mdBusinessPermission>
         </grant>
       </role>
-      <role roleName="cgr.RegistryMaintainer">
-        <grant>
-          <mdBusinessPermission type="net.geoprism.registry.DirectedAcyclicGraphType">
-            <operation name="ALL" />
-          </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.registry.UndirectedGraphType">
-            <operation name="ALL" />
-          </mdBusinessPermission>
-        </grant>
-      </role>
-      <role roleName="cgr.RegistryContributor">
-        <grant>
-          <mdBusinessPermission type="net.geoprism.registry.DirectedAcyclicGraphType">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-          </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.registry.UndirectedGraphType">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-          </mdBusinessPermission>
-        </grant>
-      </role>
       <role roleName="cgr.APIConsumer">
         <grant>
-          <mdBusinessPermission type="net.geoprism.registry.DirectedAcyclicGraphType">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-          </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.registry.UndirectedGraphType">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-          </mdBusinessPermission>
         </grant>
       </role>
       <role roleName="cgr.RegistryMaintainer">

@@ -6,9 +6,9 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.geoprism.graph.GraphTypeSnapshot;
-import net.geoprism.registry.DirectedAcyclicGraphType;
-import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.graph.DirectedAcyclicGraphType;
+import net.geoprism.registry.graph.UndirectedGraphType;
 import net.geoprism.registry.view.PublishDTO;
 
 public class GeoObjectApplyEdgeEvent extends AbstractGeoObjectEdgeEvent implements GeoObjectEvent

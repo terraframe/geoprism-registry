@@ -76,6 +76,13 @@
           <mdRelationshipPermission type="net.geoprism.registry.geometry.JobHistoryGeometry">
             <operation name="ALL"/>
           </mdRelationshipPermission>          
+          <mdBusinessPermission type="net.geoprism.registry.graph.DirectedAcyclicGraphType">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.graph.UndirectedGraphType">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          
         </grant>
       </role>
       <role roleName="cgr.RegistryContributor">
@@ -94,6 +101,15 @@
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>          
+          <mdBusinessPermission type="net.geoprism.registry.graph.DirectedAcyclicGraphType">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.graph.UndirectedGraphType">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          
         </grant>
       </role>      
       <role roleName="cgr.APIConsumer">
@@ -109,6 +125,14 @@
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>
           <mdBusinessPermission type="net.geoprism.registry.graph.BusinessEdgeType">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.graph.DirectedAcyclicGraphType">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.graph.UndirectedGraphType">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>

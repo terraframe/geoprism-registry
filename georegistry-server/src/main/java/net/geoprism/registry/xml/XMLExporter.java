@@ -62,11 +62,11 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.io.XMLException;
 import com.runwaysdk.system.metadata.MdAttribute;
 
-import net.geoprism.registry.DirectedAcyclicGraphType;
-import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.cache.ServerMetadataCache;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
+import net.geoprism.registry.graph.DirectedAcyclicGraphType;
+import net.geoprism.registry.graph.UndirectedGraphType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
@@ -209,7 +209,7 @@ public class XMLExporter
     Element element = document.createElement("undirected-graph");
     element.setAttribute("code", type.getCode());
     element.setAttribute("label", type.getLabel().getValue());
-    element.setAttribute("description", type.getDescription().getValue());
+    element.setAttribute("description", type.getDescriptionLV().getValue());
     this.root.appendChild(element);
   }
 
@@ -218,7 +218,7 @@ public class XMLExporter
     Element element = document.createElement("dag");
     element.setAttribute("code", type.getCode());
     element.setAttribute("label", type.getLabel().getValue());
-    element.setAttribute("description", type.getDescription().getValue());
+    element.setAttribute("description", type.getDescriptionLV().getValue());
     this.root.appendChild(element);
   }
 
@@ -247,7 +247,7 @@ public class XMLExporter
     Element element = document.createElement("business-edge");
     element.setAttribute("code", type.getCode());
     element.setAttribute("label", type.getLabel().getValue());
-    element.setAttribute("description", type.getLocalizedDescription().getValue());
+    element.setAttribute("description", type.getDescriptionLV().getValue());
     element.setAttribute("parentTypeCode", this.bEdgeService.getParent(type).getCode());
     element.setAttribute("childTypeCode", this.bEdgeService.getChild(type).getCode());
 

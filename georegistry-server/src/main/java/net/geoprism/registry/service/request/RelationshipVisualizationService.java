@@ -45,10 +45,10 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
-import net.geoprism.registry.DirectedAcyclicGraphType;
-import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
+import net.geoprism.registry.graph.DirectedAcyclicGraphType;
+import net.geoprism.registry.graph.UndirectedGraphType;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.EdgeType;
@@ -537,17 +537,37 @@ public class RelationshipVisualizationService
 
       // Non-hierarchy relationships
       this.undirectedService.getAll().forEach(graphType -> {
-        JsonObject jo = graphType.toJSON();
-        jo.addProperty("layout", "HORIZONTAL");
+        try
+        {
+          ObjectMapper mapper = new ObjectMapper();
+          String json = mapper.writeValueAsString(graphType.toDTO());
 
-        views.add(jo);
+          JsonObject jo = JsonParser.parseString(json).getAsJsonObject();
+          jo.addProperty("layout", "HORIZONTAL");
+
+          views.add(jo);
+        }
+        catch (JsonProcessingException e)
+        {
+          throw new ProgrammingErrorException(e);
+        }
       });
 
       this.dagService.getAll().forEach(graphType -> {
-        JsonObject jo = graphType.toJSON();
-        jo.addProperty("layout", "HORIZONTAL");
+        try
+        {
+          ObjectMapper mapper = new ObjectMapper();
+          String json = mapper.writeValueAsString(graphType.toDTO());
 
-        views.add(jo);
+          JsonObject jo = JsonParser.parseString(json).getAsJsonObject();
+          jo.addProperty("layout", "HORIZONTAL");
+
+          views.add(jo);
+        }
+        catch (JsonProcessingException e)
+        {
+          throw new ProgrammingErrorException(e);
+        }
       });
 
       bEdgeService.getAll().forEach(graphType -> {

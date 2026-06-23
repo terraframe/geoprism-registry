@@ -19,9 +19,9 @@ import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.metadata.MdEdge;
 
-import net.geoprism.registry.DirectedAcyclicGraphType;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.config.TestApplication;
+import net.geoprism.registry.graph.DirectedAcyclicGraphType;
 import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessServiceIF;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
@@ -46,8 +46,8 @@ public class DirectedAcyclicGraphTypeTest
     {
       Assert.assertNotNull(type);
       Assert.assertEquals(code, type.getCode());
-      Assert.assertEquals(label.getValue(), type.getDisplayLabel().getValue());
-      Assert.assertEquals(description.getValue(), type.getDescription().getValue());
+      Assert.assertEquals(label.getValue(), type.getLabel().getValue());
+      Assert.assertEquals(description.getValue(), type.getDescriptionLV().getValue());
 
       MdEdge mdEdge = type.getMdEdge();
 
@@ -79,8 +79,8 @@ public class DirectedAcyclicGraphTypeTest
 
       this.service.update(type, object);
 
-      Assert.assertEquals("Updated Label", type.getDisplayLabel().getValue());
-      Assert.assertEquals("Updated Description", type.getDescription().getValue());
+      Assert.assertEquals("Updated Label", type.getLabel().getValue());
+      Assert.assertEquals("Updated Description", type.getDescriptionLV().getValue());
     }
     finally
     {
