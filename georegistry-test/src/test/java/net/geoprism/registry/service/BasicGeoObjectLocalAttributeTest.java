@@ -111,7 +111,7 @@ public class BasicGeoObjectLocalAttributeTest implements InstanceTestClassListen
       object.setDisplayLabel(new LocalizedValue(USATestData.USA.getDisplayLabel()), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       object.setExists(true, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       object.setGeometry(USATestData.USA.getGeometry(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
-      object.setValue(attributeLocal.getName(), value, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+      object.setValue(attributeLocal.getCode(), value, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
 
       this.service.apply(object, false, false);
 
@@ -119,7 +119,7 @@ public class BasicGeoObjectLocalAttributeTest implements InstanceTestClassListen
 
       Assert.assertNotNull(test);
 
-      LocalizedValue testLocalValue = test.getValue(attributeLocal.getName(), USATestData.DEFAULT_OVER_TIME_DATE);
+      LocalizedValue testLocalValue = test.getValue(attributeLocal.getCode(), USATestData.DEFAULT_OVER_TIME_DATE);
 
       Assert.assertEquals(value.getValue(LocalizedValue.DEFAULT_LOCALE), testLocalValue.getValue(LocalizedValue.DEFAULT_LOCALE));
       Assert.assertEquals(value.getValue(testLocale), testLocalValue.getValue(testLocale));

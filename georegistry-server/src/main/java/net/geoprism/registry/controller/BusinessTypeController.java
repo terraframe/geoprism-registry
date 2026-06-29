@@ -32,8 +32,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import jakarta.validation.Valid;
@@ -41,8 +39,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import net.geoprism.registry.service.request.BusinessEdgeTypeServiceIF;
 import net.geoprism.registry.service.request.BusinessTypeService;
-import net.geoprism.registry.spring.JsonObjectDeserializer;
 import net.geoprism.registry.view.BusinessEdgeTypeView;
+import net.geoprism.registry.view.BusinessTypeDTO;
+import net.geoprism.registry.view.OrganizationGroup;
 
 @RestController
 @RequestMapping("api/business-type")
@@ -82,11 +81,10 @@ public class BusinessTypeController extends RunwaySpringController
   public static class AttributeTypeBody
   {
     @NotBlank
-    String     typeCode;
+    String        typeCode;
 
     @NotNull
-    @JsonDeserialize(using = JsonObjectDeserializer.class)
-    JsonObject attributeType;
+    AttributeType attributeType;
 
     public String getTypeCode()
     {
@@ -98,12 +96,12 @@ public class BusinessTypeController extends RunwaySpringController
       this.typeCode = typeCode;
     }
 
-    public JsonObject getAttributeType()
+    public AttributeType getAttributeType()
     {
       return attributeType;
     }
 
-    public void setAttributeType(JsonObject attributeType)
+    public void setAttributeType(AttributeType attributeType)
     {
       this.attributeType = attributeType;
     }
@@ -132,33 +130,35 @@ public class BusinessTypeController extends RunwaySpringController
   private BusinessEdgeTypeServiceIF edgeService;
 
   @GetMapping("/get-by-org")
-  public ResponseEntity<String> getByOrg()
+  public ResponseEntity<List<OrganizationGroup<BusinessTypeDTO>>> getByOrg()
   {
-    JsonArray response = service.listByOrg(this.getSessionId());
+    List<OrganizationGroup<BusinessTypeDTO>> response = service.listByOrg(this.getSessionId());
 
-    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+    return ResponseEntity.ok(response);
   }
 
   @GetMapping("/get-all")
-  public ResponseEntity<String> getAll()
+  public ResponseEntity<List<BusinessTypeDTO>> getAll()
   {
-    JsonArray response = service.getAll(this.getSessionId());
-    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+    List<BusinessTypeDTO> response = service.getAll(this.getSessionId());
+
+    return ResponseEntity.ok(response);
   }
 
   @GetMapping("/get")
-  public ResponseEntity<String> get(@NotBlank @RequestParam(name = "oid") String oid)
+  public ResponseEntity<BusinessTypeDTO> get(@NotBlank @RequestParam(name = "oid") String oid)
   {
-    JsonObject response = service.get(this.getSessionId(), oid);
-    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+    BusinessTypeDTO response = service.get(this.getSessionId(), oid);
+
+    return ResponseEntity.ok(response);
   }
 
   @PostMapping("/apply")
-  public ResponseEntity<String> apply(@RequestBody String type)
+  public ResponseEntity<BusinessTypeDTO> apply(@RequestBody BusinessTypeDTO type)
   {
-    JsonObject response = this.service.apply(this.getSessionId(), type);
+    BusinessTypeDTO response = this.service.apply(this.getSessionId(), type);
 
-    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+    return ResponseEntity.ok(response);
   }
 
   @PostMapping("/remove")
@@ -170,10 +170,11 @@ public class BusinessTypeController extends RunwaySpringController
   }
 
   @PostMapping("/edit")
-  public ResponseEntity<String> edit(@Valid @RequestBody OidBody body)
+  public ResponseEntity<BusinessTypeDTO> edit(@Valid @RequestBody OidBody body)
   {
-    JsonObject response = this.service.edit(this.getSessionId(), body.oid);
-    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+    BusinessTypeDTO response = this.service.edit(this.getSessionId(), body.oid);
+
+    return ResponseEntity.ok(response);
   }
 
   @PostMapping("/unlock")

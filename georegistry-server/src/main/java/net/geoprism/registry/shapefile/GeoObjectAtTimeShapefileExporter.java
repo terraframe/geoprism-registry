@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.shapefile;
 
@@ -44,12 +44,11 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
+import org.commongeoregistry.adapter.metadata.AttributeDataSourceType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
-import org.commongeoregistry.adapter.metadata.AttributeDataSourceType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.Transaction;
@@ -77,7 +76,6 @@ import org.slf4j.LoggerFactory;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.dataaccess.graph.attributes.AttributeGraphRef.ID;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Session;
 
@@ -116,7 +114,7 @@ public class GeoObjectAtTimeShapefileExporter
   {
     ImportAttributeSerializer serializer = new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, type.toDTO());
     serializer.getFilter().remove(DefaultAttribute.DATA_SOURCE.getName());
-    
+
     this.type = type;
     this.date = date;
     this.attributes = serializer.attributes(this.type.toDTO());
@@ -288,25 +286,21 @@ public class GeoObjectAtTimeShapefileExporter
           builder.set(GEOM, object.getGeometry());
 
           this.attributes.forEach(attribute -> {
-            String name = attribute.getName();
+            String name = attribute.getCode();
             String columnName = this.getColumnName(name);
             Object value = attribute.isChangeOverTime() ? object.getValue(name, this.date) : object.getValue(name);
 
-            if (attribute instanceof AttributeTermType)
-            {
-              builder.set(columnName, GeoObjectUtil.convertToTermString((AttributeTermType) attribute, value));
-            }
-            else if (attribute instanceof AttributeClassificationType)
+            if (attribute instanceof AttributeClassificationType)
             {
               builder.set(columnName, GeoObjectUtil.convertToTermString((AttributeClassificationType) attribute, value));
             }
             else if (attribute instanceof AttributeDataSourceType)
             {
-              DataSourceBusinessServiceIF service = ServiceFactory.getBean(DataSourceBusinessServiceIF.class);              
-              DataSource source = service.get(( (String) value ));
+              DataSourceBusinessServiceIF service = ServiceFactory.getBean(DataSourceBusinessServiceIF.class);
+              DataSource source = service.get( ( (String) value ));
 
               builder.set(columnName, source.getCode());
-            }            
+            }
             else if (attribute instanceof AttributeLocalType)
             {
               builder.set(columnName, ( (LocalizedValue) value ).getValue());
@@ -348,7 +342,7 @@ public class GeoObjectAtTimeShapefileExporter
     builder.add(GEOM, this.getShapefileType(this.type.getGeometryType()), 4326);
 
     this.attributes.forEach(attribute -> {
-      builder.add(generateColumnName(attribute.getName()), this.getShapefileType(attribute));
+      builder.add(generateColumnName(attribute.getCode()), this.getShapefileType(attribute));
     });
 
     net.geoprism.registry.graph.AttributeType attribute = this.getType().getAttribute(DefaultAttribute.DISPLAY_LABEL.getName()).get();
@@ -439,10 +433,6 @@ public class GeoObjectAtTimeShapefileExporter
     else if (attribute instanceof AttributeIntegerType)
     {
       return Long.class;
-    }
-    else if (attribute instanceof AttributeTermType)
-    {
-      return String.class;
     }
     else if (attribute instanceof AttributeClassificationType)
     {

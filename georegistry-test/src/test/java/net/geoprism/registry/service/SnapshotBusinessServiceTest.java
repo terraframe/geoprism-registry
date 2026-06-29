@@ -137,7 +137,7 @@ public class SnapshotBusinessServiceTest extends EventDatasetTest
       object.getAttributeMap().forEach((attributeName, attributeType) -> {
         if (!attributeName.equals(DefaultAttribute.GEOMETRY.getName()))
         {
-          Optional<AttributeType> optional = attributeTypes.stream().filter(a -> a.getName().equals(attributeName)).findFirst();
+          Optional<AttributeType> optional = attributeTypes.stream().filter(a -> a.getCode().equals(attributeName)).findFirst();
 
           Assert.assertTrue("Unable to find attribute " + attributeName, optional.isPresent());
         }
@@ -161,7 +161,7 @@ public class SnapshotBusinessServiceTest extends EventDatasetTest
     List<AttributeType> attributeTypes = snapshot.getAttributeTypes();
 
     btype.getAttributeMap().forEach((attributeName, attributeType) -> {
-      Optional<AttributeType> optional = attributeTypes.stream().filter(a -> a.getName().equals(attributeName)).findFirst();
+      Optional<AttributeType> optional = attributeTypes.stream().filter(a -> a.getCode().equals(attributeName)).findFirst();
 
       Assert.assertTrue("Unable to find attribute " + attributeName, optional.isPresent());
     });

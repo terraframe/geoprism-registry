@@ -25,11 +25,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.LocaleUtils;
-import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ValueOverTimeDTO;
@@ -39,7 +37,6 @@ import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,12 +57,10 @@ import com.runwaysdk.localization.LocalizationFacade;
 
 import net.geoprism.dhis2.dhis2adapter.response.model.Attribute;
 import net.geoprism.dhis2.dhis2adapter.response.model.DHIS2Locale;
-import net.geoprism.dhis2.dhis2adapter.response.model.Option;
 import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnit;
 import net.geoprism.dhis2.dhis2adapter.response.model.ValueType;
 import net.geoprism.registry.etl.export.dhis2.DHIS2GeoObjectJsonAdapters;
 import net.geoprism.registry.etl.export.dhis2.DHIS2OptionCache;
-import net.geoprism.registry.etl.export.dhis2.DHIS2OptionCache.IntegratedOptionSet;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
@@ -335,11 +330,11 @@ public class DHIS2AttributeMapping
   {
     if (date == null)
     {
-      return serverGo.getValue(attr.getName());
+      return serverGo.getValue(attr.getCode());
     }
     else
     {
-      return serverGo.getValue(attr.getName(), date);
+      return serverGo.getValue(attr.getCode(), date);
     }
   }
 
@@ -459,22 +454,6 @@ public class DHIS2AttributeMapping
 
     configInfo.add("dhis2Attrs", jaDhis2Attrs);
 
-    if (cgrAttr instanceof AttributeTermType)
-    {
-      JsonArray terms = new JsonArray();
-
-      List<Term> children = ( (AttributeTermType) cgrAttr ).getTerms();
-
-      for (Term child : children)
-      {
-        JsonObject joTerm = new JsonObject();
-        joTerm.addProperty("label", child.getLabel().getValue());
-        joTerm.addProperty("code", child.getCode());
-        terms.add(joTerm);
-      }
-
-      configInfo.add("terms", terms);
-    }
     
     return configInfo;
   }
@@ -509,27 +488,6 @@ public class DHIS2AttributeMapping
       else if (cgrAttr instanceof AttributeDateType && dhis2Attr.getOptionSetId() == null && ( dhis2Attr.getValueType().equals(ValueType.DATE) || dhis2Attr.getValueType().equals(ValueType.DATETIME) || dhis2Attr.getValueType().equals(ValueType.TIME) || dhis2Attr.getValueType().equals(ValueType.AGE) ))
       {
         valid = true;
-      }
-      else if (cgrAttr instanceof AttributeTermType && dhis2Attr.getOptionSetId() != null)
-      {
-        valid = true;
-
-        JsonArray jaDhis2Options = new JsonArray();
-
-        IntegratedOptionSet set = optionCache.getOptionSet(dhis2Attr.getOptionSetId());
-
-        SortedSet<Option> options = set.getOptions();
-
-        for (Option option : options)
-        {
-          JsonObject joDhis2Option = new JsonObject();
-          joDhis2Option.addProperty("code", option.getCode());
-          joDhis2Option.addProperty("name", option.getName());
-          joDhis2Option.addProperty("id", option.getName());
-          jaDhis2Options.add(joDhis2Option);
-        }
-
-        joDhis2Attr.add("options", jaDhis2Options);
       }
       else if ( ( cgrAttr instanceof AttributeCharacterType || cgrAttr instanceof AttributeLocalType ) && dhis2Attr.getOptionSetId() == null && ( dhis2Attr.getValueType().equals(ValueType.TEXT) || dhis2Attr.getValueType().equals(ValueType.LONG_TEXT) || dhis2Attr.getValueType().equals(ValueType.LETTER) || dhis2Attr.getValueType().equals(ValueType.PHONE_NUMBER) || dhis2Attr.getValueType().equals(ValueType.EMAIL) || dhis2Attr.getValueType().equals(ValueType.USERNAME) || dhis2Attr.getValueType().equals(ValueType.URL) ))
       {

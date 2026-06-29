@@ -13,7 +13,6 @@ import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.junit.Assert;
 
@@ -143,15 +142,6 @@ public class DHIS2PayloadValidator
         else if (attrDto instanceof AttributeBooleanType)
         {
           Assert.assertEquals(go.getServerObject().getValue(attr.getAttributeName()), attributeValue.get("value").getAsBoolean());
-        }
-        else if (attrDto instanceof AttributeTermType)
-        {
-          String dhis2Id = attributeValue.get("value").getAsString();
-
-          // Term term = (Term)
-          // go.getServerObject().getValue(attr.getAttributeName());
-
-          Assert.assertEquals("TEST_EXTERNAL_ID", dhis2Id);
         }
         else if (attrDto instanceof AttributeLocalType)
         {

@@ -282,13 +282,6 @@ public class RemoteDHIS2APITest implements InstanceTestClassListener
     exportCustomAttribute(AllAttributesDataset.GOT_BOOL, AllAttributesDataset.GO_BOOL, testData.AT_GO_BOOL, "HoRXtod7Z8W");
   }
 
-  @Test
-  @Request
-  public void testExportTermAttr() throws Exception
-  {
-    exportCustomAttribute(AllAttributesDataset.GOT_TERM, AllAttributesDataset.GO_TERM, testData.AT_GO_TERM, "Bp9g0VvC1fK");
-  }
-
   private OrganisationUnit getRemoteOrgUnitByCode(String code) throws Exception
   {
     MetadataGetResponse<OrganisationUnit> resp = dhis2.metadataGet(OrganisationUnit.class);
@@ -397,11 +390,6 @@ public class RemoteDHIS2APITest implements InstanceTestClassListener
     mappings.add(mapping);
     level3.setMappings(mappings);
 
-    Map<String, String> terms = new HashMap<String, String>();
-    terms.put(AllAttributesDataset.AT_GO_TERM.fetchRootAsClassifier().getClassifierId(), "HNaxl8GKadp");
-    terms.put(AllAttributesDataset.TERM_TERM_VAL1.fetchClassifier().getClassifierId(), "HNaxl8GKadp");
-    terms.put(AllAttributesDataset.TERM_TERM_VAL2.fetchClassifier().getClassifierId(), "fSdvGdkbjH2");
-    mapping.setTerms(terms);
 
     dhis2Config.setLevels(levels);
 

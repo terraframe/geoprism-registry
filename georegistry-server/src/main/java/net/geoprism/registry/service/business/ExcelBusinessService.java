@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.service.business;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -25,14 +26,16 @@ import java.util.Date;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.commongeoregistry.adapter.constants.GeometryType;
-import org.commongeoregistry.adapter.metadata.AttributeDataSourceType;
-import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParser;
 import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.SmartException;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
@@ -49,11 +52,13 @@ import net.geoprism.registry.etl.upload.BusinessObjectImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.excel.ExcelFieldContentsHandler;
+import net.geoprism.registry.graph.AttributeDataSourceType;
 import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.io.PostalCodeFactory;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.view.BusinessTypeDTO;
 import net.geoprism.registry.view.ImportConfigurationView;
 
 @Service
@@ -204,7 +209,7 @@ public class ExcelBusinessService
     for (int i = 0; i < attributes.length(); i++)
     {
       JSONObject attribute = attributes.getJSONObject(i);
-      String attributeType = attribute.getString(AttributeType.JSON_TYPE);
+      String attributeType = attribute.getString(org.commongeoregistry.adapter.metadata.AttributeType.JSON_TYPE);
 
       attribute.put(GeoObjectImportConfiguration.BASE_TYPE, GeoObjectImportConfiguration.getBaseType(attributeType));
     }
@@ -214,13 +219,16 @@ public class ExcelBusinessService
 
   private JSONObject getType(BusinessType pType)
   {
-    JSONObject type = new JSONObject(this.bTypeService.toJSON(pType, true, true, (attr) -> ! ( attr instanceof AttributeDataSourceType )).toString());
+    BusinessTypeDTO dto = this.bTypeService.toDTO(pType, true, true, (attr) -> ! ( attr instanceof AttributeDataSourceType ));
+    String json = BusinessTypeDTO.toJson(dto);
+
+    JSONObject type = new JSONObject(JsonParser.parseString(json).toString());
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 
     for (int i = 0; i < attributes.length(); i++)
     {
       JSONObject attribute = attributes.getJSONObject(i);
-      String attributeType = attribute.getString(AttributeType.JSON_TYPE);
+      String attributeType = attribute.getString(org.commongeoregistry.adapter.metadata.AttributeType.JSON_TYPE);
 
       attribute.put(BusinessObjectImportConfiguration.BASE_TYPE, BusinessObjectImportConfiguration.getBaseType(attributeType));
     }

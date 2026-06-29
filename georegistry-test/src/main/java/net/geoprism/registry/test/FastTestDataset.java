@@ -89,8 +89,6 @@ public class FastTestDataset extends TestDataSet
 
   public static final TestAttributeTypeInfo     AT_DATE_OF_FORMATION  = new TestAttributeTypeInfo("DateOfFormation", "Date Of Formation", COUNTRY, AttributeDateType.TYPE);
 
-  public static final TestAttributeTermTypeInfo AT_RELIGION           = new TestAttributeTermTypeInfo("Religion", "Religion", COUNTRY);
-
   public static final TestUserInfo              USER_CGOV_RA          = new TestUserInfo(TEST_DATA_KEY + "_" + "cgovra", "cgovra", TEST_DATA_KEY + "cgovra@noreply.com", new String[] { RegistryRole.Type.getRA_RoleName(ORG_CGOV.getCode()) });
 
   public static final TestUserInfo              USER_CGOV_RM          = new TestUserInfo(TEST_DATA_KEY + "_" + "cgovrm", "cgovrm", TEST_DATA_KEY + "cgovrm@noreply.com", new String[] { RegistryRole.Type.getRM_RoleName(ORG_CGOV.getCode(), COUNTRY.getCode()), RegistryRole.Type.getRM_RoleName(ORG_CGOV.getCode(), PROVINCE.getCode()) });
@@ -112,16 +110,6 @@ public class FastTestDataset extends TestDataSet
   public static final TestUserInfo              USER_CGOV_RC_PRIVATE  = new TestUserInfo(FastTestDataset.TEST_DATA_KEY + "_" + "cgovrcprivate", "cgovrcprivate", FastTestDataset.TEST_DATA_KEY + "cgovrcprivate@noreply.com", new String[] { RegistryRole.Type.getRC_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.COUNTRY.getCode()), RegistryRole.Type.getRC_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.PROVINCE_PRIVATE.getCode()) });
 
   public static final TestUserInfo              USER_CGOV_AC_PRIVATE  = new TestUserInfo(FastTestDataset.TEST_DATA_KEY + "_" + "cgovacprivate", "cgovacprivate", FastTestDataset.TEST_DATA_KEY + "cgovacprivate@noreply.com", new String[] { RegistryRole.Type.getAC_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.COUNTRY.getCode()), RegistryRole.Type.getAC_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.PROVINCE_PRIVATE.getCode()) });
-
-  public static final TestTermInfo              T_Religion            = new TestTermInfo("Religion", AT_RELIGION);
-
-  public static final TestTermInfo              T_Buddhism            = new TestTermInfo("Buddhism", AT_RELIGION);
-
-  public static final TestTermInfo              T_Islam               = new TestTermInfo("Islam", AT_RELIGION);
-
-  public static final TestTermInfo              T_Christianity        = new TestTermInfo("Chistianity", AT_RELIGION);
-
-  public static final TestTermInfo              T_Other               = new TestTermInfo("Other", AT_RELIGION);
 
   {
     managedSources.add(SOURCE);
@@ -159,12 +147,6 @@ public class FastTestDataset extends TestDataSet
     managedUsers.add(USER_CGOV_RM_PRIVATE);
     managedUsers.add(USER_CGOV_RC_PRIVATE);
     managedUsers.add(USER_CGOV_AC_PRIVATE);
-
-    AT_RELIGION.addManagedTerm(T_Religion);
-    AT_RELIGION.addManagedTerm(T_Buddhism);
-    AT_RELIGION.addManagedTerm(T_Islam);
-    AT_RELIGION.addManagedTerm(T_Christianity);
-    AT_RELIGION.addManagedTerm(T_Other);
   }
 
   public static FastTestDataset newTestData()
@@ -274,10 +256,6 @@ public class FastTestDataset extends TestDataSet
 
     AT_DATE_OF_FORMATION.apply();
     CAMBODIA.setDefaultValue(AT_DATE_OF_FORMATION.getAttributeName(), new Date()); // TODO
-
-    AT_RELIGION.apply();
-
-    CAMBODIA.setDefaultValue(AT_RELIGION.getAttributeName(), T_Buddhism.fetchTerm());
   }
 
   @Override

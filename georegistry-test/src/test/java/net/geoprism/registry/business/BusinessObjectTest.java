@@ -45,6 +45,7 @@ import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.view.BusinessEdgeTypeView;
 import net.geoprism.registry.view.BusinessGeoEdgeTypeView;
+import net.geoprism.registry.view.BusinessTypeDTO;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
@@ -57,6 +58,8 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
   private static BusinessType                 type;
 
   private static AttributeType                attribute;
+
+  private static AttributeType                attributeOverTime;
 
   private static AttributeClassificationType  attributeClassification;
 
@@ -110,18 +113,20 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     String orgCode = FastTestDataset.ORG_CGOV.getCode();
     String label = "Test Prog";
 
-    JsonObject object = new JsonObject();
-    object.addProperty(BusinessType.CODE, code);
-    object.addProperty(BusinessType.ORGANIZATION, orgCode);
-    object.add(BusinessType.DISPLAYLABEL, new LocalizedValue(label).toJSON());
+    BusinessTypeDTO object = new BusinessTypeDTO();
+    object.setCode(code);
+    object.setOrganization(orgCode);
+    object.setDisplayLabel(new LocalizedValue(label));
 
     type = this.bTypeService.apply(object);
 
-    attribute = this.bTypeService.createAttributeType(type, new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test True"), false, false, false));
+    attribute = this.bTypeService.createAttributeType(type, new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test True"), false, false, false, false));
+    attributeOverTime = this.bTypeService.createAttributeType(type, new AttributeCharacterType("testCharacter2", new LocalizedValue("Test Character 2"), new LocalizedValue("Test True"), false, false, false, true));
 
     attributeClassification = new AttributeClassificationType("testClassification", new LocalizedValue("Test Classification"), new LocalizedValue("Test Classification"), false, false, false);
     attributeClassification.setClassificationType(classificationType.getCode());
     attributeClassification.setRootTerm(root.toTerm());
+    attributeClassification.setChangeOverTime(false);
 
     attributeClassification = (AttributeClassificationType) this.bTypeService.createAttributeType(type, attributeClassification);
 
@@ -197,15 +202,17 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
   public void testSetGetValue()
   {
     BusinessObject object = this.bObjectService.newInstance(type);
-    object.setValue(attribute.getName(), "Test Text");
-    object.setValue(attributeClassification.getName(), root.getVertex());
+    object.setValue(attribute.getCode(), "Test Text");
+    object.setValue(attributeOverTime.getCode(), "Test Text 2", FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
+    object.setValue(attributeClassification.getCode(), root.getVertex());
     object.setValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.SOURCE.getDataSource());
     object.setCode(TEST_CODE);
     this.bObjectService.apply(object);
 
     try
     {
-      Assert.assertEquals("Test Text", object.getObjectValue(attribute.getName()));
+      Assert.assertEquals("Test Text", object.getValue(attribute.getCode()));
+      Assert.assertEquals("Test Text 2", object.getValue(attributeOverTime.getCode(), FastTestDataset.DEFAULT_OVER_TIME_DATE));
     }
     finally
     {
@@ -219,7 +226,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
   public void testGet()
   {
     BusinessObject object = this.bObjectService.newInstance(type);
-    object.setValue(attribute.getName(), "Test Text");
+    object.setValue(attribute.getCode(), "Test Text");
     object.setCode(TEST_CODE);
     object.setValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.SOURCE.getDataSource());
 
@@ -227,10 +234,10 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
     try
     {
-      BusinessObject result = this.bObjectService.get(type, attribute.getName(), object.getObjectValue(attribute.getName()));
+      BusinessObject result = this.bObjectService.get(type, attribute.getCode(), object.getValue(attribute.getCode()));
 
-      Assert.assertEquals((String) object.getObjectValue("oid"), (String) result.getObjectValue("oid"));
-      Assert.assertEquals(FastTestDataset.SOURCE.getDataSource().getOid(), (String) result.getObjectValue(DefaultAttribute.DATA_SOURCE.getName()));
+      Assert.assertEquals(object.getVertex().getOid(), result.getVertex().getOid());
+      Assert.assertEquals(FastTestDataset.SOURCE.getDataSource().getOid(), (String) result.getValue(DefaultAttribute.DATA_SOURCE.getName()));
     }
     finally
     {
@@ -243,7 +250,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
   public void testGetByCode()
   {
     BusinessObject object = this.bObjectService.newInstance(type);
-    object.setValue(attribute.getName(), "Test Text");
+    object.setValue(attribute.getCode(), "Test Text");
     object.setCode(TEST_CODE);
     this.bObjectService.apply(object);
 
@@ -251,7 +258,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     {
       BusinessObject result = this.bObjectService.getByCode(type, object.getCode());
 
-      Assert.assertEquals((String) object.getObjectValue("oid"), (String) result.getObjectValue("oid"));
+      Assert.assertEquals(object.getVertex().getOid(), result.getVertex().getOid());
     }
     finally
     {
@@ -266,7 +273,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     ServerGeoObjectIF serverObject = FastTestDataset.CENTRAL_HOSPITAL.getServerObject();
 
     BusinessObject object = this.bObjectService.newInstance(type);
-    object.setValue(attribute.getName(), "Test Text");
+    object.setValue(attribute.getCode(), "Test Text");
     object.setCode(TEST_CODE);
     object.setValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.SOURCE.getDataSource());
 
@@ -297,9 +304,10 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     String text = "Test Text";
 
     BusinessObject object = this.bObjectService.newInstance(type);
-    object.setValue(attribute.getName(), text);
+    object.setValue(attribute.getCode(), text);
     object.setCode(TEST_CODE);
-    object.setValue(attributeClassification.getName(), root.getVertex());
+    object.setValue(attributeClassification.getCode(), root.getVertex());
+    object.setValue(attributeOverTime.getCode(), text, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
     object.setValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.SOURCE.getDataSource());
 
     JsonObject json = this.bObjectService.toJSON(object);
@@ -320,8 +328,8 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
       JsonObject data = json.get("data").getAsJsonObject();
 
       Assert.assertEquals(FastTestDataset.SOURCE.getCode(), data.get(DefaultAttribute.DATA_SOURCE.getName()).getAsString());
-      Assert.assertEquals(text, data.get(attribute.getName()).getAsString());
-      Assert.assertEquals(root.getCode(), data.get(attributeClassification.getName()).getAsString());
+      Assert.assertEquals(text, data.get(attribute.getCode()).getAsString());
+      Assert.assertEquals(root.getCode(), data.get(attributeClassification.getCode()).getAsString());
     }
     finally
     {
@@ -336,7 +344,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     ServerGeoObjectIF serverObject = FastTestDataset.CENTRAL_HOSPITAL.getServerObject();
 
     BusinessObject object = this.bObjectService.newInstance(type);
-    object.setValue(attribute.getName(), "Test Text");
+    object.setValue(attribute.getCode(), "Test Text");
     object.setCode(TEST_CODE);
     this.bObjectService.apply(object);
 
@@ -360,7 +368,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     ServerGeoObjectIF serverObject = FastTestDataset.CENTRAL_HOSPITAL.getServerObject();
 
     BusinessObject object = this.bObjectService.newInstance(type);
-    object.setValue(attribute.getName(), "Test Text");
+    object.setValue(attribute.getCode(), "Test Text");
     object.setCode(TEST_CODE);
     this.bObjectService.apply(object);
 
@@ -392,7 +400,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     ServerGeoObjectIF serverObject = FastTestDataset.CENTRAL_HOSPITAL.getServerObject();
 
     BusinessObject object = this.bObjectService.newInstance(type);
-    object.setValue(attribute.getName(), "Test Text");
+    object.setValue(attribute.getCode(), "Test Text");
     object.setCode(TEST_CODE);
     this.bObjectService.apply(object);
 
@@ -421,7 +429,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     ServerGeoObjectIF serverObject = FastTestDataset.CENTRAL_HOSPITAL.getServerObject();
 
     BusinessObject object = this.bObjectService.newInstance(type);
-    object.setValue(attribute.getName(), "Test Text");
+    object.setValue(attribute.getCode(), "Test Text");
     object.setCode(TEST_CODE);
     this.bObjectService.apply(object);
 
@@ -448,14 +456,14 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
   public void testAddParent()
   {
     BusinessObject parent = this.bObjectService.newInstance(type);
-    parent.setValue(attribute.getName(), "Test Parnet");
+    parent.setValue(attribute.getCode(), "Test Parnet");
     parent.setCode("TEST_PARENT");
     this.bObjectService.apply(parent);
 
     try
     {
       BusinessObject child = this.bObjectService.newInstance(type);
-      child.setValue(attribute.getName(), "Test Child");
+      child.setValue(attribute.getCode(), "Test Child");
       child.setCode("TEST_CHILD");
       this.bObjectService.apply(child);
 
@@ -493,14 +501,14 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
   public void testRemoveParent()
   {
     BusinessObject parent = this.bObjectService.newInstance(type);
-    parent.setValue(attribute.getName(), "Test Parnet");
+    parent.setValue(attribute.getCode(), "Test Parnet");
     parent.setCode("TEST_PARENT");
     this.bObjectService.apply(parent);
 
     try
     {
       BusinessObject child = this.bObjectService.newInstance(type);
-      child.setValue(attribute.getName(), "Test Child");
+      child.setValue(attribute.getCode(), "Test Child");
       child.setCode("TEST_CHILD");
       this.bObjectService.apply(child);
 
@@ -528,14 +536,14 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
   public void testDuplicateParent()
   {
     BusinessObject parent = this.bObjectService.newInstance(type);
-    parent.setValue(attribute.getName(), "Test Parnet");
+    parent.setValue(attribute.getCode(), "Test Parnet");
     parent.setCode("TEST_PARENT");
     this.bObjectService.apply(parent);
 
     try
     {
       BusinessObject child = this.bObjectService.newInstance(type);
-      child.setValue(attribute.getName(), "Test Child");
+      child.setValue(attribute.getCode(), "Test Child");
       child.setCode("TEST_CHILD");
       this.bObjectService.apply(child);
 
@@ -571,14 +579,14 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
   public void testAddChildren()
   {
     BusinessObject parent = this.bObjectService.newInstance(type);
-    parent.setValue(attribute.getName(), "Test Parnet");
+    parent.setValue(attribute.getCode(), "Test Parnet");
     parent.setCode("TEST_PARENT");
     this.bObjectService.apply(parent);
 
     try
     {
       BusinessObject child = this.bObjectService.newInstance(type);
-      child.setValue(attribute.getName(), "Test Child");
+      child.setValue(attribute.getCode(), "Test Child");
       child.setCode("TEST_CHILD");
       this.bObjectService.apply(child);
 
@@ -616,14 +624,14 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
   public void testRemoveChildren()
   {
     BusinessObject parent = this.bObjectService.newInstance(type);
-    parent.setValue(attribute.getName(), "Test Parnet");
+    parent.setValue(attribute.getCode(), "Test Parnet");
     parent.setCode("TEST_PARENT");
     this.bObjectService.apply(parent);
 
     try
     {
       BusinessObject child = this.bObjectService.newInstance(type);
-      child.setValue(attribute.getName(), "Test Child");
+      child.setValue(attribute.getCode(), "Test Child");
       child.setCode("TEST_CHILD");
       this.bObjectService.apply(child);
 
@@ -651,14 +659,14 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
   public void testDuplicateChildren()
   {
     BusinessObject parent = this.bObjectService.newInstance(type);
-    parent.setValue(attribute.getName(), "Test Parnet");
+    parent.setValue(attribute.getCode(), "Test Parnet");
     parent.setCode("TEST_PARENT");
     this.bObjectService.apply(parent);
 
     try
     {
       BusinessObject child = this.bObjectService.newInstance(type);
-      child.setValue(attribute.getName(), "Test Child");
+      child.setValue(attribute.getCode(), "Test Child");
       child.setCode("TEST_CHILD");
       this.bObjectService.apply(child);
 

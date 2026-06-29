@@ -6,6 +6,7 @@ package net.geoprism.registry.service;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.axonframework.eventhandling.GenericEventMessage;
@@ -22,6 +23,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.graph.BusinessEdgeTypeSnapshot;
@@ -60,6 +63,7 @@ import net.geoprism.registry.service.business.HierarchyTypeSnapshotBusinessServi
 import net.geoprism.registry.service.business.PublishBusinessServiceIF;
 import net.geoprism.registry.service.business.PublishEventService;
 import net.geoprism.registry.test.USATestData;
+import net.geoprism.registry.view.BusinessTypeDTO;
 import net.geoprism.registry.view.PublishDTO;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
@@ -176,7 +180,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
           hierarchyTypes.add(this.hSnapshotService.toJSON(snapshot, root));
         });
 
-        JsonArray businessTypes = new JsonArray();
+        List<BusinessTypeDTO> businessTypes = new LinkedList<>();
 
         dto.getBusinessTypes().forEach(code -> {
           BusinessTypeSnapshot snapshot = this.bTypeSnapshotService.get(commit, code);
@@ -186,7 +190,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
           BusinessType type = this.bTypeService.getByCodeOrThrow(code);
           Assert.assertEquals(type.getSequence(), snapshot.getSequence());
 
-          businessTypes.add(snapshot.toJSON());
+          businessTypes.add(snapshot.toDTO());
         });
 
         JsonArray businessEdgeTypes = new JsonArray();
@@ -267,7 +271,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
           try (FileWriter writer = new FileWriter(new File(directory, "business-types.json")))
           {
-            gson.toJson(businessTypes, writer);
+            gson.toJson(JsonParser.parseString(BusinessTypeDTO.toJson(businessTypes)), writer);
           }
 
           try (FileWriter writer = new FileWriter(new File(directory, "business-edge-types.json")))

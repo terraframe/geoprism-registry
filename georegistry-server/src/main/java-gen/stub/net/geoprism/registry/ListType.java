@@ -28,7 +28,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
@@ -61,15 +60,12 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.configuration.GeoprismProperties;
-import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
-import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.etl.ListTypeJob;
 import net.geoprism.registry.etl.ListTypeJobQuery;
 import net.geoprism.registry.graph.AttributeBooleanType;
 import net.geoprism.registry.graph.AttributeClassificationType;
 import net.geoprism.registry.graph.AttributeDateType;
-import net.geoprism.registry.graph.AttributeTermType;
 import net.geoprism.registry.graph.AttributeType;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
@@ -84,10 +80,10 @@ import net.geoprism.registry.roles.CreateListPermissionException;
 import net.geoprism.registry.roles.UpdateListPermissionException;
 import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.permission.RolePermissionService;
 import net.geoprism.registry.service.request.LocaleSerializer;
 import net.geoprism.registry.service.request.SerializedListTypeCache;
-import net.geoprism.registry.service.business.ServiceFactory;
 
 public abstract class ListType extends ListTypeBase
 {
@@ -790,18 +786,6 @@ public abstract class ListType extends ListTypeBase
           Boolean bVal = Boolean.valueOf(value);
 
           restriction.add(new AttributeValueRestriction(mdAttribute, operation, bVal, forDate));
-        }
-        else if (attributeType instanceof AttributeTermType)
-        {
-          String code = filter.get("value").getAsString();
-
-          Classifier root = ( (AttributeTermType) attributeType ).getRootTerm();
-          String parent = TermConverter.buildClassifierKeyFromTermCode(root.getKey());
-
-          String classifierKey = Classifier.buildKey(parent, code);
-          Classifier classifier = Classifier.getByKey(classifierKey);
-
-          restriction.add(new AttributeValueRestriction(mdAttribute, operation, classifier.getOid(), forDate));
         }
         else if (attributeType instanceof AttributeClassificationType)
         {

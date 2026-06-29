@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.etl.upload;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -36,12 +37,14 @@ import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParser;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
 
@@ -56,6 +59,7 @@ import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
+import net.geoprism.registry.view.BusinessTypeDTO;
 import net.geoprism.registry.view.TypeInfo;
 import net.geoprism.registry.view.TypeInfo.TypeClass;
 
@@ -207,7 +211,11 @@ public class BusinessObjectImportConfiguration extends ImportConfiguration
     SimpleDateFormat format = new SimpleDateFormat(BusinessObjectImportConfiguration.DATE_FORMAT);
     format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
-    JSONObject type = new JSONObject(this.typeService.toJSON(this.type, true, true).toString());
+    BusinessTypeDTO dto = this.typeService.toDTO(this.type, true, true);
+
+    String json = BusinessTypeDTO.toJson(dto);
+
+    JSONObject type = new JSONObject(JsonParser.parseString(json).toString());
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 
     for (int i = 0; i < attributes.length(); i++)
@@ -365,7 +373,7 @@ public class BusinessObjectImportConfiguration extends ImportConfiguration
     {
       return AttributeBooleanType.TYPE;
     }
-    else if (attributeType.equals(AttributeClassificationType.TYPE) || attributeType.equals(AttributeTermType.TYPE) || attributeType.equals(AttributeCharacterType.TYPE) || attributeType.equals(AttributeLocalType.TYPE))
+    else if (attributeType.equals(AttributeClassificationType.TYPE) || attributeType.equals(AttributeCharacterType.TYPE) || attributeType.equals(AttributeLocalType.TYPE))
     {
       return BusinessObjectImportConfiguration.TEXT;
     }

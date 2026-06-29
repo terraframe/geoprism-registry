@@ -170,11 +170,11 @@ public class AttributeClassificationTest extends FastDatasetTest implements Inst
         TestDataSet.populateAdapterIds(user, client.getAdapter());
 
         GeoObject object = TEST_GO.newGeoObject(client.getAdapter());
-        object.setValue(testClassification.getName(), CODE);
+        object.setValue(testClassification.getCode(), CODE);
 
         GeoObject returned = client.createGeoObject(object.toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
-        Assert.assertEquals(CODE, returned.getAttribute(testClassification.getName()).getValue());
+        Assert.assertEquals(CODE, returned.getAttribute(testClassification.getCode()).getValue());
 
         TEST_GO.assertApplied();
         TEST_GO.delete();
@@ -193,11 +193,11 @@ public class AttributeClassificationTest extends FastDatasetTest implements Inst
         TestDataSet.populateAdapterIds(user, client.getAdapter());
 
         GeoObjectOverTime object = TEST_GO.newGeoObjectOverTime(client.getAdapter());
-        object.setValue(testClassification.getName(), CODE, TEST_GO.getDate(), ValueOverTimeDTO.INFINITY_END_DATE);
+        object.setValue(testClassification.getCode(), CODE, TEST_GO.getDate(), ValueOverTimeDTO.INFINITY_END_DATE);
 
         GeoObjectOverTime returned = client.createGeoObjectOverTime(object.toJSON().toString());
 
-        Assert.assertEquals(CODE, returned.getValue(testClassification.getName(), TEST_GO.getDate()));
+        Assert.assertEquals(CODE, returned.getValue(testClassification.getCode(), TEST_GO.getDate()));
 
         TEST_GO.assertApplied();
         TEST_GO.delete();

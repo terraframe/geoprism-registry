@@ -9,7 +9,6 @@ import java.util.List;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.junit.After;
 import org.junit.Assert;
@@ -80,8 +79,6 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
 
   private static ClassificationType           type;
 
-  private static AttributeTermType            testTerm;
-
   private static AttributeClassificationType  testClassification;
 
   @Autowired
@@ -94,8 +91,7 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
   private ClassificationBusinessServiceIF     cService;
 
   @Autowired
-  private GraphRepoServiceIF repService;
-
+  private GraphRepoServiceIF                  repService;
 
   @Override
   public void beforeClassSetup() throws Exception
@@ -133,10 +129,7 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
     ServerGeoObjectType got = USATestData.STATE.getServerObject();
     testClassification = (AttributeClassificationType) this.typeService.createAttributeType(got, testClassification);
 
-    testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, true);
-    testTerm = (AttributeTermType) this.typeService.createAttributeType(got, testTerm);
-
-    USATestData.COLORADO.setDefaultValue(testClassification.getName(), CODE);
+    USATestData.COLORADO.setDefaultValue(testClassification.getCode(), CODE);
 
     this.repService.refreshMetadataCache();
   }
@@ -147,7 +140,7 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
   {
     super.afterClassSetup();
 
-    USATestData.COLORADO.removeDefaultValue(testClassification.getName());
+    USATestData.COLORADO.removeDefaultValue(testClassification.getCode());
 
     if (type != null)
     {

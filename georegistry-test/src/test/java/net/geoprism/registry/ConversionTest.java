@@ -4,9 +4,7 @@
 package net.geoprism.registry;
 
 import java.util.Calendar;
-import java.util.Iterator;
 
-import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
@@ -14,7 +12,6 @@ import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.junit.After;
 import org.junit.Assert;
@@ -85,7 +82,7 @@ public class ConversionTest extends USADatasetTest implements InstanceTestClassL
     geoObj.setCode(testGo.getCode());
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(service.getUIDS(sessionId, 1)[0]);
-    geoObj.setValue(testDate.getName(), calendar.getTime());
+    geoObj.setValue(testDate.getCode(), calendar.getTime());
 
     service.createGeoObject(sessionId, geoObj.toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
@@ -93,7 +90,7 @@ public class ConversionTest extends USADatasetTest implements InstanceTestClassL
     GeoObject result = service.getGeoObjectByCode(sessionId, testGo.getCode(), USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertNotNull(result);
-    Assert.assertEquals(geoObj.getValue(testDate.getName()), result.getValue(testDate.getName()));
+    Assert.assertEquals(geoObj.getValue(testDate.getCode()), result.getValue(testDate.getCode()));
   }
 
   // Heads up: clean up
@@ -123,7 +120,7 @@ public class ConversionTest extends USADatasetTest implements InstanceTestClassL
   // geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
   // geoObj.setUid(service.getUIDS(sessionId,
   // 1)[0]);
-  // geoObj.setValue(testDate.getName(), calendar.getTime());
+  // geoObj.setValue(testDate.getCode(), calendar.getTime());
   //
   // service.createGeoObject(sessionId,
   // geoObj.toJSON().toString());
@@ -134,8 +131,8 @@ public class ConversionTest extends USADatasetTest implements InstanceTestClassL
   // testGo.getCode(), USATestData.DISTRICT.getCode());
   //
   // Assert.assertNotNull(result);
-  // Assert.assertEquals(geoObj.getValue(testDate.getName()),
-  // result.getValue(testDate.getName()));
+  // Assert.assertEquals(geoObj.getValue(testDate.getCode()),
+  // result.getValue(testDate.getCode()));
   // }
 
   @Test
@@ -152,7 +149,7 @@ public class ConversionTest extends USADatasetTest implements InstanceTestClassL
     geoObj.setCode(testGo.getCode());
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(service.getUIDS(sessionId, 1)[0]);
-    geoObj.setValue(testBoolean.getName(), Boolean.valueOf(true));
+    geoObj.setValue(testBoolean.getCode(), Boolean.valueOf(true));
 
     service.createGeoObject(sessionId, geoObj.toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
@@ -160,7 +157,7 @@ public class ConversionTest extends USADatasetTest implements InstanceTestClassL
     GeoObject result = service.getGeoObjectByCode(sessionId, testGo.getCode(), USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertNotNull(result);
-    Assert.assertEquals(geoObj.getValue(testBoolean.getName()), result.getValue(testBoolean.getName()));
+    Assert.assertEquals(geoObj.getValue(testBoolean.getCode()), result.getValue(testBoolean.getCode()));
   }
 
   // Heads up: clean up
@@ -186,7 +183,7 @@ public class ConversionTest extends USADatasetTest implements InstanceTestClassL
   // geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
   // geoObj.setUid(service.getUIDS(sessionId,
   // 1)[0]);
-  // geoObj.setValue(testBoolean.getName(), Boolean.valueOf(true));
+  // geoObj.setValue(testBoolean.getCode(), Boolean.valueOf(true));
   //
   // service.createGeoObject(sessionId,
   // geoObj.toJSON().toString());
@@ -197,8 +194,8 @@ public class ConversionTest extends USADatasetTest implements InstanceTestClassL
   // testGo.getCode(), USATestData.DISTRICT.getCode());
   //
   // Assert.assertNotNull(result);
-  // Assert.assertEquals(geoObj.getValue(testBoolean.getName()),
-  // result.getValue(testBoolean.getName()));
+  // Assert.assertEquals(geoObj.getValue(testBoolean.getCode()),
+  // result.getValue(testBoolean.getCode()));
   // }
 
   @Test
@@ -215,7 +212,7 @@ public class ConversionTest extends USADatasetTest implements InstanceTestClassL
     geoObj.setCode(testGo.getCode());
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(service.getUIDS(sessionId, 1)[0]);
-    geoObj.setValue(testFloat.getName(), Double.valueOf(234.2));
+    geoObj.setValue(testFloat.getCode(), Double.valueOf(234.2));
 
     service.createGeoObject(sessionId, geoObj.toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
@@ -223,7 +220,7 @@ public class ConversionTest extends USADatasetTest implements InstanceTestClassL
     GeoObject result = service.getGeoObjectByCode(sessionId, testGo.getCode(), USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertNotNull(result);
-    Assert.assertEquals(geoObj.getValue(testFloat.getName()), result.getValue(testFloat.getName()));
+    Assert.assertEquals(geoObj.getValue(testFloat.getCode()), result.getValue(testFloat.getCode()));
   }
 
   // Heads up: clean up
@@ -249,7 +246,7 @@ public class ConversionTest extends USADatasetTest implements InstanceTestClassL
   // geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
   // geoObj.setUid(service.getUIDS(sessionId,
   // 1)[0]);
-  // geoObj.setValue(testFloat.getName(), Double.valueOf(234.2));
+  // geoObj.setValue(testFloat.getCode(), Double.valueOf(234.2));
   //
   // service.createGeoObject(sessionId,
   // geoObj.toJSON().toString());
@@ -260,8 +257,8 @@ public class ConversionTest extends USADatasetTest implements InstanceTestClassL
   // testGo.getCode(), USATestData.DISTRICT.getCode());
   //
   // Assert.assertNotNull(result);
-  // Assert.assertEquals(geoObj.getValue(testFloat.getName()),
-  // result.getValue(testFloat.getName()));
+  // Assert.assertEquals(geoObj.getValue(testFloat.getCode()),
+  // result.getValue(testFloat.getCode()));
   // }
 
   @Test
@@ -278,7 +275,7 @@ public class ConversionTest extends USADatasetTest implements InstanceTestClassL
     geoObj.setCode(testGo.getCode());
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(service.getUIDS(sessionId, 1)[0]);
-    geoObj.setValue(testInteger.getName(), Long.valueOf(123));
+    geoObj.setValue(testInteger.getCode(), Long.valueOf(123));
 
     service.createGeoObject(sessionId, geoObj.toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
@@ -286,7 +283,7 @@ public class ConversionTest extends USADatasetTest implements InstanceTestClassL
     GeoObject result = service.getGeoObjectByCode(sessionId, testGo.getCode(), USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertNotNull(result);
-    Assert.assertEquals(geoObj.getValue(testInteger.getName()), result.getValue(testInteger.getName()));
+    Assert.assertEquals(geoObj.getValue(testInteger.getCode()), result.getValue(testInteger.getCode()));
   }
   //
   // @Test
@@ -311,7 +308,7 @@ public class ConversionTest extends USADatasetTest implements InstanceTestClassL
   // geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
   // geoObj.setUid(service.getUIDS(sessionId,
   // 1)[0]);
-  // geoObj.setValue(testInteger.getName(), Long.valueOf(234));
+  // geoObj.setValue(testInteger.getCode(), Long.valueOf(234));
   //
   // service.createGeoObject(sessionId,
   // geoObj.toJSON().toString());
@@ -322,8 +319,8 @@ public class ConversionTest extends USADatasetTest implements InstanceTestClassL
   // testGo.getCode(), USATestData.DISTRICT.getCode());
   //
   // Assert.assertNotNull(result);
-  // Assert.assertEquals(geoObj.getValue(testInteger.getName()),
-  // result.getValue(testInteger.getName()));
+  // Assert.assertEquals(geoObj.getValue(testInteger.getCode()),
+  // result.getValue(testInteger.getCode()));
   // }
 
   @Test
@@ -340,7 +337,7 @@ public class ConversionTest extends USADatasetTest implements InstanceTestClassL
     geoObj.setCode(testGo.getCode());
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(service.getUIDS(sessionId, 1)[0]);
-    geoObj.setValue(testCharacter.getName(), "ABC");
+    geoObj.setValue(testCharacter.getCode(), "ABC");
 
     service.createGeoObject(sessionId, geoObj.toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
@@ -348,7 +345,7 @@ public class ConversionTest extends USADatasetTest implements InstanceTestClassL
     GeoObject result = service.getGeoObjectByCode(sessionId, testGo.getCode(), USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertNotNull(result);
-    Assert.assertEquals(geoObj.getValue(testCharacter.getName()), result.getValue(testCharacter.getName()));
+    Assert.assertEquals(geoObj.getValue(testCharacter.getCode()), result.getValue(testCharacter.getCode()));
   }
 
   // Heads up: clean up
@@ -374,7 +371,7 @@ public class ConversionTest extends USADatasetTest implements InstanceTestClassL
   // geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
   // geoObj.setUid(service.getUIDS(sessionId,
   // 1)[0]);
-  // geoObj.setValue(testCharacter.getName(), "ABCZ");
+  // geoObj.setValue(testCharacter.getCode(), "ABCZ");
   //
   // service.createGeoObject(sessionId,
   // geoObj.toJSON().toString());
@@ -385,54 +382,10 @@ public class ConversionTest extends USADatasetTest implements InstanceTestClassL
   // testGo.getCode(), USATestData.DISTRICT.getCode());
   //
   // Assert.assertNotNull(result);
-  // Assert.assertEquals(geoObj.getValue(testCharacter.getName()),
-  // result.getValue(testCharacter.getName()));
+  // Assert.assertEquals(geoObj.getValue(testCharacter.getCode()),
+  // result.getValue(testCharacter.getCode()));
   // }
 
-  @Test
-  @SuppressWarnings("unchecked")
-  public void testAttributeTypeTermTree()
-  {
-    String sessionId = testData.clientRequest.getSessionId();
-
-    // Add a new custom attribute
-    AttributeTermType testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
-    testTerm = (AttributeTermType) service.createAttributeType(sessionId, USATestData.STATE.getCode(), testTerm.toJSON().toString());
-    Term rootTerm = testTerm.getRootTerm();
-
-    Term term2 = new Term("termValue2", new LocalizedValue("Term Value 2"), new LocalizedValue(""));
-    Term term = service.createTerm(sessionId, rootTerm.getCode(), term2.toJSON().toString());
-
-    TestDataSet.refreshTerms(testTerm);
-
-    try
-    {
-      // Create a new GeoObject with the custom attribute
-      GeoObject geoObj = service.newGeoObjectInstance(sessionId, USATestData.STATE.getCode());
-      geoObj.setCode(testGo.getCode());
-      geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
-      geoObj.setUid(service.getUIDS(sessionId, 1)[0]);
-      geoObj.setValue(testTerm.getName(), term.getCode());
-
-      service.createGeoObject(sessionId, geoObj.toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
-
-      // Get the object with the custom attribute
-      GeoObject result = service.getGeoObjectByCode(sessionId, testGo.getCode(), USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
-
-      Assert.assertNotNull(result);
-      Iterator<String> expected = (Iterator<String>) geoObj.getValue(testTerm.getName());
-      Iterator<String> test = (Iterator<String>) result.getValue(testTerm.getName());
-
-      Assert.assertTrue(expected.hasNext());
-      Assert.assertTrue(test.hasNext());
-
-      Assert.assertEquals(expected.next(), test.next());
-    }
-    finally
-    {
-      service.deleteTerm(sessionId, rootTerm.getCode(), term.getCode());
-    }
-  }
   // Heads up: clean up
   // @Test
   // public void testUpdateLeaf()
@@ -520,7 +473,7 @@ public class ConversionTest extends USADatasetTest implements InstanceTestClassL
   // geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
   // geoObj.setUid(service.getUIDS(sessionId,
   // 1)[0]);
-  // geoObj.setValue(testTerm.getName(), term.getCode());
+  // geoObj.setValue(testTerm.getCode(), term.getCode());
   //
   // service.createGeoObject(sessionId,
   // geoObj.toJSON().toString());
@@ -532,9 +485,9 @@ public class ConversionTest extends USADatasetTest implements InstanceTestClassL
   //
   // Assert.assertNotNull(result);
   // Iterator<String> expected = (Iterator<String>)
-  // geoObj.getValue(testTerm.getName());
+  // geoObj.getValue(testTerm.getCode());
   // Iterator<String> test = (Iterator<String>)
-  // result.getValue(testTerm.getName());
+  // result.getValue(testTerm.getCode());
   //
   // Assert.assertTrue(expected.hasNext());
   // Assert.assertTrue(test.hasNext());

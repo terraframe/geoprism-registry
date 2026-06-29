@@ -9,6 +9,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -80,6 +82,7 @@ import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
+import net.geoprism.registry.view.BusinessTypeDTO;
 
 public class Sandbox
 {
@@ -155,20 +158,11 @@ public class Sandbox
 
   public static void main(String[] args) throws Exception
   {
-    // SimpleDateFormat format = new SimpleDateFormat("dd/MM/yy");
-    // format.setLenient(false);
-    //
-    // System.out.println(format.parse("4/21/2021"));
-
-    // String url =
-    // "http://localhost:8082/gofr/fhir/Cgre9b41c35-7c85-46df-aeea-a4e8dbf0364e?_getpages=ee514824-fd7c-440e-b9ce-ec0c03a89179&_getpagesoffset=20&_count=20&_pretty=true&_include=Location%3Aorganization&_bundletype=searchset";
-    //
-    // String[] split = url.split("\\?");
-    //
-    // System.out.println("https://global/Cgre9b41c35-7c85-46df-aeea-a4e8dbf0364e"
-    // + "?" + split[1]);
-
-    test();
+    Path filePath = Path.of("test.json"); // Replace with your file path
+    String content = Files.readString(filePath); // Reads the entire file as a String
+    System.out.println(content);    
+    
+    BusinessTypeDTO.parseList(content);
 
   }
 

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -42,7 +42,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
-import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -53,7 +52,6 @@ import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.json.JSONArray;
@@ -127,7 +125,6 @@ import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.scheduler.ExecutableJob;
 
-import net.geoprism.ontology.Classifier;
 import net.geoprism.rbac.RoleConstants;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.etl.PublishMasterListVersionJob;
@@ -231,32 +228,32 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
 
   private boolean isValid(AttributeType attributeType)
   {
-    if (attributeType.getName().equals(DefaultAttribute.UID.getName()))
+    if (attributeType.getCode().equals(DefaultAttribute.UID.getName()))
     {
       return false;
     }
 
-    if (attributeType.getName().equals(DefaultAttribute.SEQUENCE.getName()))
+    if (attributeType.getCode().equals(DefaultAttribute.SEQUENCE.getName()))
     {
       return false;
     }
 
-    if (attributeType.getName().equals(DefaultAttribute.LAST_UPDATE_DATE.getName()))
+    if (attributeType.getCode().equals(DefaultAttribute.LAST_UPDATE_DATE.getName()))
     {
       return false;
     }
 
-    if (attributeType.getName().equals(DefaultAttribute.CREATE_DATE.getName()))
+    if (attributeType.getCode().equals(DefaultAttribute.CREATE_DATE.getName()))
     {
       return false;
     }
 
-    if (attributeType.getName().equals(DefaultAttribute.TYPE.getName()))
+    if (attributeType.getCode().equals(DefaultAttribute.TYPE.getName()))
     {
       return false;
     }
 
-    if (attributeType.getName().equals(DefaultAttribute.EXISTS.getName()))
+    if (attributeType.getCode().equals(DefaultAttribute.EXISTS.getName()))
     {
       return false;
     }
@@ -343,7 +340,7 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
   {
     MdBusiness mdBusiness = metadata.getMdBusiness();
 
-    if (! ( attributeType instanceof AttributeTermType || attributeType instanceof AttributeClassificationType || attributeType instanceof AttributeLocalType ))
+    if (! ( attributeType instanceof AttributeClassificationType || attributeType instanceof AttributeLocalType ))
     {
       MdAttributeConcrete mdAttribute = null;
 
@@ -378,7 +375,7 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
         throw new UnsupportedOperationException("Unsupported type [" + attributeType.getType() + "]");
       }
 
-      mdAttribute.setAttributeName(attributeType.getName());
+      mdAttribute.setAttributeName(attributeType.getCode());
 
       RegistryLocalizedValueConverter.populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
       RegistryLocalizedValueConverter.populate(mdAttribute.getDescription(), attributeType.getDescription());
@@ -386,10 +383,10 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
       mdAttribute.setDefiningMdClass(mdBusiness);
       mdAttribute.apply();
     }
-    else if (attributeType instanceof AttributeTermType || attributeType instanceof AttributeClassificationType)
+    else if (attributeType instanceof AttributeClassificationType)
     {
       MdAttributeCharacter cloneAttribute = new MdAttributeCharacter();
-      cloneAttribute.setValue(MdAttributeConcreteInfo.NAME, attributeType.getName());
+      cloneAttribute.setValue(MdAttributeConcreteInfo.NAME, attributeType.getCode());
       cloneAttribute.setValue(MdAttributeCharacterInfo.SIZE, "255");
       cloneAttribute.addIndexType(MdAttributeIndices.NON_UNIQUE_INDEX);
       RegistryLocalizedValueConverter.populate(cloneAttribute.getDisplayLabel(), attributeType.getLabel());
@@ -398,7 +395,7 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
       cloneAttribute.apply();
 
       MdAttributeCharacter mdAttributeDefaultLocale = new MdAttributeCharacter();
-      mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getName() + DEFAULT_LOCALE);
+      mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getCode() + DEFAULT_LOCALE);
       mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
       mdAttributeDefaultLocale.setDefiningMdClass(mdBusiness);
       RegistryLocalizedValueConverter.populate(mdAttributeDefaultLocale.getDisplayLabel(), attributeType.getLabel(), " (defaultLocale)");
@@ -408,7 +405,7 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
       for (Locale locale : locales)
       {
         MdAttributeCharacter mdAttributeLocale = new MdAttributeCharacter();
-        mdAttributeLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getName() + locale.toString());
+        mdAttributeLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getCode() + locale.toString());
         mdAttributeLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
         mdAttributeLocale.setDefiningMdClass(mdBusiness);
         RegistryLocalizedValueConverter.populate(mdAttributeLocale.getDisplayLabel(), attributeType.getLabel(), " (" + locale.toString() + ")");
@@ -418,7 +415,7 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
 
       // MdAttributeUUID mdAttributeOid = new MdAttributeUUID();
       // mdAttributeOid.setValue(MdAttributeConcreteInfo.NAME,
-      // attributeType.getName() + "Oid");
+      // attributeType.getCode() + "Oid");
       // AbstractBuilder.populate(mdAttributeOid.getDisplayLabel(),
       // attributeType.getLabel());
       // AbstractBuilder.populate(mdAttributeOid.getDescription(),
@@ -428,10 +425,10 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
     }
     else if (attributeType instanceof AttributeLocalType)
     {
-      boolean isDisplayLabel = attributeType.getName().equals(DefaultAttribute.DISPLAY_LABEL.getName());
+      boolean isDisplayLabel = attributeType.getCode().equals(DefaultAttribute.DISPLAY_LABEL.getName());
 
       MdAttributeCharacter mdAttributeDefaultLocale = new MdAttributeCharacter();
-      mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getName() + DEFAULT_LOCALE);
+      mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getCode() + DEFAULT_LOCALE);
       mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
       mdAttributeDefaultLocale.setDefiningMdClass(mdBusiness);
       RegistryLocalizedValueConverter.populate(mdAttributeDefaultLocale.getDisplayLabel(), isDisplayLabel ? type.getLabel() : attributeType.getLabel(), " (defaultLocale)");
@@ -441,7 +438,7 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
       for (Locale locale : locales)
       {
         MdAttributeCharacter mdAttributeLocale = new MdAttributeCharacter();
-        mdAttributeLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getName() + locale.toString());
+        mdAttributeLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getCode() + locale.toString());
         mdAttributeLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
         mdAttributeLocale.setDefiningMdClass(mdBusiness);
         RegistryLocalizedValueConverter.populate(mdAttributeLocale.getDisplayLabel(), isDisplayLabel ? type.getLabel() : attributeType.getLabel(), " (" + locale.toString() + ")");
@@ -908,7 +905,7 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
 
     for (AttributeType attribute : attributes)
     {
-      String name = attribute.getName();
+      String name = attribute.getCode();
 
       business.setValue(ORIGINAL_OID, go.getRunwayId());
 
@@ -927,22 +924,7 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
             hasData = true;
           }
 
-          if (attribute instanceof AttributeTermType)
-          {
-            Classifier classifier = (Classifier) value;
-
-            Term term = ( (AttributeTermType) attribute ).getTermByCode(classifier.getClassifierId()).get();
-            LocalizedValue label = term.getLabel();
-
-            this.setValue(business, name, term.getCode());
-            this.setValue(business, name + DEFAULT_LOCALE, label.getValue(LocalizedValue.DEFAULT_LOCALE));
-
-            for (Locale locale : locales)
-            {
-              this.setValue(business, name + locale.toString(), label.getValue(locale));
-            }
-          }
-          else if (attribute instanceof AttributeClassificationType)
+          if (attribute instanceof AttributeClassificationType)
           {
             String classificationType = ( (AttributeClassificationType) attribute ).getClassificationType();
             MdClassificationDAOIF mdClassificationDAO = MdClassificationDAO.getMdClassificationDAO(classificationType);
@@ -1432,27 +1414,27 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
 
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(metadata.getMdBusiness().getOid());
 
-    if (! ( attributeType instanceof AttributeTermType || attributeType instanceof AttributeClassificationType || attributeType instanceof AttributeLocalType ))
+    if (! ( attributeType instanceof AttributeClassificationType || attributeType instanceof AttributeLocalType ))
     {
-      removeAttribute(mdBusiness, attributeType.getName());
+      removeAttribute(mdBusiness, attributeType.getCode());
     }
-    else if (attributeType instanceof AttributeTermType || attributeType instanceof AttributeClassificationType)
+    else if (attributeType instanceof AttributeClassificationType)
     {
-      removeAttribute(mdBusiness, attributeType.getName());
-      removeAttribute(mdBusiness, attributeType.getName() + DEFAULT_LOCALE);
+      removeAttribute(mdBusiness, attributeType.getCode());
+      removeAttribute(mdBusiness, attributeType.getCode() + DEFAULT_LOCALE);
 
       for (Locale locale : locales)
       {
-        removeAttribute(mdBusiness, attributeType.getName() + locale.toString());
+        removeAttribute(mdBusiness, attributeType.getCode() + locale.toString());
       }
     }
     else if (attributeType instanceof AttributeLocalType)
     {
-      removeAttribute(mdBusiness, attributeType.getName() + DEFAULT_LOCALE);
+      removeAttribute(mdBusiness, attributeType.getCode() + DEFAULT_LOCALE);
 
       for (Locale locale : locales)
       {
-        removeAttribute(mdBusiness, attributeType.getName() + locale.toString());
+        removeAttribute(mdBusiness, attributeType.getCode() + locale.toString());
       }
     }
   }

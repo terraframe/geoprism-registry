@@ -40,7 +40,7 @@ public class MockRemoteClient implements RemoteClientIF
   public List<DataSourceDTO> getDataSources(String uid)
   {
     ObjectMapper mapper = new ObjectMapper();
-    ObjectReader reader = mapper.readerFor(mapper.getTypeFactory().constructCollectionLikeType(List.class, DataSourceDTO.class));
+    ObjectReader reader = mapper.readerForListOf(DataSourceDTO.class);
 
     try
     {
@@ -58,7 +58,7 @@ public class MockRemoteClient implements RemoteClientIF
     if (chunk == 0)
     {
       ObjectMapper mapper = new ObjectMapper();
-      ObjectReader reader = mapper.readerFor(mapper.getTypeFactory().constructCollectionLikeType(List.class, RemoteEvent.class));
+      ObjectReader reader = mapper.readerForListOf(RemoteEvent.class);
 
       try
       {

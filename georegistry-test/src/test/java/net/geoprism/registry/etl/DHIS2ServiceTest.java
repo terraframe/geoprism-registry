@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -553,40 +552,6 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
   public void testExportBoolAttr() throws Exception
   {
     exportCustomAttribute(AllAttributesDataset.GOT_BOOL, AllAttributesDataset.GO_BOOL, AllAttributesDataset.AT_GO_BOOL, null);
-  }
-
-  @Test
-  @Request
-  public void testExportTermAsOptionSet() throws Exception
-  {
-    DHIS2OptionSetAttributeMapping mapping = new DHIS2OptionSetAttributeMapping();
-    mapping.setAttributeMappingStrategy(DHIS2OptionSetAttributeMapping.class.getName());
-
-    Map<String, String> terms = new HashMap<String, String>();
-    terms.put(AllAttributesDataset.AT_GO_TERM.fetchRootAsClassifier().getClassifierId(), "TEST_EXTERNAL_ID");
-    terms.put(AllAttributesDataset.TERM_TERM_VAL1.fetchClassifier().getClassifierId(), "TEST_EXTERNAL_ID");
-    terms.put(AllAttributesDataset.TERM_TERM_VAL2.fetchClassifier().getClassifierId(), "TEST_EXTERNAL_ID");
-    mapping.setTerms(terms);
-
-    exportCustomAttribute(AllAttributesDataset.GOT_TERM, AllAttributesDataset.GO_TERM, AllAttributesDataset.AT_GO_TERM, mapping);
-  }
-
-  @Test
-  @Request
-  public void testExportTermAsOrgUnitGroup() throws Exception
-  {
-    DHIS2OrgUnitGroupAttributeMapping mapping = new DHIS2OrgUnitGroupAttributeMapping();
-    mapping.setAttributeMappingStrategy(DHIS2OrgUnitGroupAttributeMapping.class.getName());
-
-    Map<String, String> terms = new HashMap<String, String>();
-    // terms.put(AllAttributesDataset.AT_GO_TERM.fetchRootAsClassifier().getClassifierId(),
-    // "CXw2yu5fodb"); // Level 1 doesn't have a term mapping
-    terms.put(AllAttributesDataset.TERM_TERM_VAL1.fetchClassifier().getClassifierId(), "gzcv65VyaGq");
-    // terms.put(AllAttributesDataset.TERM_TERM_VAL2.fetchClassifier().getClassifierId(),
-    // "uYxK4wmcPqA"); // This term isn't used by any exported Geo-Objects
-    mapping.setTerms(terms);
-
-    exportCustomAttribute(AllAttributesDataset.GOT_TERM, AllAttributesDataset.GO_TERM, AllAttributesDataset.AT_GO_TERM, mapping);
   }
 
   // @Test

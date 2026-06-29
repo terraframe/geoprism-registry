@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.google.gson.JsonObject;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.metadata.MdEdge;
 
@@ -27,6 +26,7 @@ import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.view.BusinessEdgeTypeView;
+import net.geoprism.registry.view.BusinessTypeDTO;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
@@ -56,15 +56,15 @@ public class BusinessEdgeTypeTest extends FastDatasetTest implements InstanceTes
   {
     String orgCode = FastTestDataset.ORG_CGOV.getCode();
 
-    JsonObject parentObject = new JsonObject();
-    parentObject.addProperty(BusinessType.CODE, "TEST_PARENT");
-    parentObject.addProperty(BusinessType.ORGANIZATION, orgCode);
-    parentObject.add(BusinessType.DISPLAYLABEL, new LocalizedValue("TEST_PARENT").toJSON());
+    BusinessTypeDTO parentObject = new BusinessTypeDTO();
+    parentObject.setCode("TEST_PARENT");
+    parentObject.setOrganization(orgCode);
+    parentObject.setDisplayLabel(new LocalizedValue("TEST_PARENT"));
 
-    JsonObject childObject = new JsonObject();
-    childObject.addProperty(BusinessType.CODE, "TEST_CHILD");
-    childObject.addProperty(BusinessType.ORGANIZATION, orgCode);
-    childObject.add(BusinessType.DISPLAYLABEL, new LocalizedValue("TEST_CHILD").toJSON());
+    BusinessTypeDTO childObject = new BusinessTypeDTO();
+    childObject.setCode("TEST_CHILD");
+    childObject.setOrganization(orgCode);
+    childObject.setDisplayLabel(new LocalizedValue("TEST_CHILD"));
 
     parentType = this.bTypeService.apply(parentObject);
     childType = this.bTypeService.apply(childObject);

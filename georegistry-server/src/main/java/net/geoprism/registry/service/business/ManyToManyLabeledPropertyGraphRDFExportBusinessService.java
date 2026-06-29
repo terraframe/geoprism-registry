@@ -279,7 +279,7 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
         if (!got.isRoot())
         {
           got.getAttributeTypes().stream().filter(t -> t instanceof AttributeClassificationType).forEach(attribute -> {
-            statement.append(", " + attribute.getName() + ".displayLabel.defaultLocale as " + attribute.getName() + "_l");
+            statement.append(", " + attribute.getCode() + ".displayLabel.defaultLocale as " + attribute.getCode() + "_l");
           });
         }
       });
@@ -332,11 +332,11 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
         if (!got.isRoot())
         {
           got.getAttributeTypes().stream().filter(t -> t instanceof AttributeLocalType).forEach(attribute -> {
-            sb.append(", " + attribute.getName() + ".displayLabel.defaultLocale as " + attribute.getName() + "_l");
+            sb.append(", " + attribute.getCode() + ".displayLabel.defaultLocale as " + attribute.getCode() + "_l");
           });
 
           got.getAttributeTypes().stream().filter(t -> t instanceof AttributeDataSourceType).forEach(attribute -> {
-            sb.append(", " + attribute.getName() + ".code as " + attribute.getName() + "_c");
+            sb.append(", " + attribute.getCode() + ".code as " + attribute.getCode() + "_c");
           });
         }
       });
@@ -469,11 +469,11 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
 
   protected void exportObjectValue(State state, Map<String, Object> valueMap, final String code, final String typeCode, final String orgCode, AttributeType attribute)
   {
-    if (valueMap.containsKey(attribute.getName()))
+    if (valueMap.containsKey(attribute.getCode()))
     {
       if (attribute instanceof AttributeIntegerType)
       {
-        Object value = valueMap.get(attribute.getName());
+        Object value = valueMap.get(attribute.getCode());
 
         if (value != null)
         {
@@ -486,7 +486,7 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
       }
       else if (attribute instanceof AttributeFloatType)
       {
-        Object value = valueMap.get(attribute.getName());
+        Object value = valueMap.get(attribute.getCode());
 
         if (value != null)
         {
@@ -499,7 +499,7 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
       }
       else if (attribute instanceof AttributeDateType)
       {
-        Object value = valueMap.get(attribute.getName());
+        Object value = valueMap.get(attribute.getCode());
 
         if (value != null)
         {
@@ -512,7 +512,7 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
       }
       else if (attribute instanceof AttributeBooleanType)
       {
-        Object value = valueMap.get(attribute.getName());
+        Object value = valueMap.get(attribute.getCode());
 
         if (value != null)
         {
@@ -525,7 +525,7 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
       }
       else if (attribute instanceof AttributeDataSourceType)
       {
-        Object value = valueMap.get(attribute.getName() + "_c");
+        Object value = valueMap.get(attribute.getCode() + "_c");
 
         if (value != null)
         {
@@ -544,13 +544,13 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
 
         if (attribute instanceof AttributeLocalType)
         {
-          @SuppressWarnings("unchecked") Map<String, String> value = (Map<String, String>) valueMap.get(attribute.getName());
+          @SuppressWarnings("unchecked") Map<String, String> value = (Map<String, String>) valueMap.get(attribute.getCode());
 
           literal = value.get(MdAttributeLocalInfo.DEFAULT_LOCALE);
         }
         else if (attribute instanceof AttributeClassificationType)
         {
-          String value = (String) valueMap.get(attribute.getName() + "_l");
+          String value = (String) valueMap.get(attribute.getCode() + "_l");
 
           if (value != null)
           {
@@ -564,7 +564,7 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
         }
         else
         {
-          Object value = valueMap.get(attribute.getName());
+          Object value = valueMap.get(attribute.getCode());
 
           literal = value == null ? null : value.toString();
         }
@@ -724,17 +724,17 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
 
   protected String buildAttributeUri(State state, final String typeCode, final String orgCode, AttributeType attribute)
   {
-    if (attribute.getIsDefault())
+    if (attribute.isDefault())
     {
-      if (attribute.getName().equals(DefaultAttribute.DISPLAY_LABEL.getName()))
+      if (attribute.getCode().equals(DefaultAttribute.DISPLAY_LABEL.getName()))
       {
         return state.prefixes.get(RDFS) + "label";
       }
 
-      return state.prefixes.get(LPGS) + "GeoObject-" + attribute.getName();
+      return state.prefixes.get(LPGS) + "GeoObject-" + attribute.getCode();
     }
 
-    return state.prefixes.get(LPGVS) + typeCode + "-" + attribute.getName();
+    return state.prefixes.get(LPGVS) + typeCode + "-" + attribute.getCode();
   }
 
   protected String buildAttributeUri(State state, final GeoObjectTypeSnapshot type, final String orgCode, AttributeType attribute)

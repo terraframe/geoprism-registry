@@ -171,7 +171,7 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
     BusinessObject test = this.bObjectService.getByCode(btype, pObject.getCode());
 
     Assert.assertNotNull(test);
-    Assert.assertEquals(false, test.getObjectValue("testBoolean"));
+    Assert.assertEquals(false, test.getValue("testBoolean"));
 
     Assert.assertEquals(Long.valueOf(1), this.store.size());
   }

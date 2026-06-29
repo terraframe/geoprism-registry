@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service.business;
 
@@ -57,14 +57,15 @@ import net.geoprism.graph.LabeledPropertyGraphType;
 import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
 import net.geoprism.registry.InvalidMasterListException;
 import net.geoprism.registry.etl.ImportStage;
+import net.geoprism.registry.graph.BaseGeoObjectType;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
+import net.geoprism.registry.graph.ObjectClass;
 import net.geoprism.registry.lpg.LPGPublishProgressMonitorIF;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.graph.EdgeVertexType;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
@@ -211,9 +212,9 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
     }
   }
 
-  public static final long                                 BLOCK_SIZE_YES_GEOMS = 1000;
+  public static final Integer                              BLOCK_SIZE_YES_GEOMS = 1000;
 
-  public static final long                                 BLOCK_SIZE_NO_GEOMS  = 4000;
+  public static final Integer                              BLOCK_SIZE_NO_GEOMS  = 4000;
 
   private static final Logger                              logger               = LoggerFactory.getLogger(GraphPublisherService.class);
 
@@ -227,7 +228,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
   protected ClassificationTypeBusinessServiceIF            cTypeService;
 
   @Autowired
-  private BusinessObjectBusinessServiceIF                  bObjectService;
+  private GPRBusinessObjectBusinessService                 bObjectService;
 
   @Autowired
   private BusinessTypeBusinessServiceIF                    bTypeService;
@@ -242,7 +243,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
   private LabeledPropertyGraphTypeVersionBusinessServiceIF versionService;
 
   @Autowired
-  private EdgeTypeBusinessServiceIF                       graphTypeService;
+  private EdgeTypeBusinessServiceIF                        graphTypeService;
 
   /*
    * 
@@ -254,7 +255,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
    */
   private Map<String, CachedSnapshot>                      snapshotCache;
 
-  private long                                             BLOCK_SIZE;
+  private Integer                                          BLOCK_SIZE;
 
   protected long                                           count                = 0;
 
@@ -395,8 +396,8 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
     final String dbClass = type.getMdEdgeDAO().getDBClassName();
     final MdEdge snapshotMdEdge = snapshot.getGraphMdEdge();
 
-    EdgeVertexType parentType = this.bEdgeTypeService.getParent(type);
-    EdgeVertexType childType = this.bEdgeTypeService.getChild(type);
+    ObjectClass parentType = this.bEdgeTypeService.getParent(type);
+    ObjectClass childType = this.bEdgeTypeService.getChild(type);
 
     long skip = 0;
     boolean hasMoreData = true;
@@ -421,9 +422,9 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
 
         if (inGotCached != null && outGotCached != null)
         {
-          final String inRid = childType.isGeoObjectType() ? getRid(state, inGotCached.getGraphMdVertex(), child.getObjectValue(DefaultAttribute.UID.getName())) : getBusinessRid(state, inGotCached.getGraphMdVertex(), child.getObjectValue(DefaultAttribute.CODE.getName()));
+          final String inRid = ( childType instanceof BaseGeoObjectType ) ? getRid(state, inGotCached.getGraphMdVertex(), child.getObjectValue(DefaultAttribute.UID.getName())) : getBusinessRid(state, inGotCached.getGraphMdVertex(), child.getObjectValue(DefaultAttribute.CODE.getName()));
 
-          final String outRid = parentType.isGeoObjectType() ? getRid(state, outGotCached.getGraphMdVertex(), parent.getObjectValue(DefaultAttribute.UID.getName())) : getBusinessRid(state, outGotCached.getGraphMdVertex(), parent.getObjectValue(DefaultAttribute.CODE.getName()));
+          final String outRid = ( parentType instanceof BaseGeoObjectType ) ? getRid(state, outGotCached.getGraphMdVertex(), parent.getObjectValue(DefaultAttribute.UID.getName())) : getBusinessRid(state, outGotCached.getGraphMdVertex(), parent.getObjectValue(DefaultAttribute.CODE.getName()));
 
           createEdge(outRid, inRid, snapshotMdEdge);
         }
@@ -448,23 +449,18 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
     boolean hasMoreData = true;
 
     long total = new GraphQuery<Long>("SELECT COUNT(*) FROM " + dbClass).getSingleResult();
+
     logger.info("Beginning publishing " + total + " records of BusinessType " + dbClass);
 
     while (hasMoreData)
     {
       logger.info("Publishing block " + skip + " through " + Math.min(skip + BLOCK_SIZE, total) + " of total " + total);
 
-      StringBuilder statement = new StringBuilder();
-      statement.append("SELECT FROM " + dbClass);
-      statement.append(" SKIP " + skip + " LIMIT " + BLOCK_SIZE);
+      List<BusinessObject> results = this.bObjectService.getAll(type, skip, BLOCK_SIZE);
 
-      GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
-
-      List<VertexObject> results = query.getResults();
-
-      for (VertexObject vertex : results)
+      for (BusinessObject vertex : results)
       {
-        JsonObject dto = this.bObjectService.toJSON(new BusinessObject(vertex, type));
+        JsonObject dto = this.bObjectService.toJSON(vertex);
 
         super.publishBusiness(state, MdVertexDAO.get(snapshot.getGraphMdVertexOid()), dto);
 

@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.graph.Node;
@@ -34,7 +35,6 @@ import org.apache.jena.sparql.core.Quad;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.simplify.TopologyPreservingSimplifier;
@@ -44,7 +44,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.runwaysdk.business.graph.GraphQuery;
-import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.system.metadata.MdVertex;
 
 import net.geoprism.configuration.GeoprismProperties;
@@ -179,7 +178,7 @@ public class RepoRDFExportBusinessService
 
   public static final String                SF         = "sf";
 
-  public static final long                  BLOCK_SIZE = 1000;
+  public static final Integer               BLOCK_SIZE = 1000;
 
   private static final Logger               logger     = LoggerFactory.getLogger(RepoRDFExportBusinessService.class);
 
@@ -191,6 +190,9 @@ public class RepoRDFExportBusinessService
 
   @Autowired
   private BusinessEdgeTypeBusinessServiceIF bEdgeService;
+
+  @Autowired
+  private GPRBusinessObjectBusinessService  bObjectService;
 
   @Autowired
   private BusinessTypeBusinessServiceIF     bTypeService;
@@ -349,30 +351,7 @@ public class RepoRDFExportBusinessService
     attributes.forEach((attributeName, attribute) -> {
       String literal = null;
 
-      if (attribute instanceof AttributeTermType)
-      {
-        // Iterator<String> it = (Iterator<String>)
-        // geoObject.getValue(attributeName);
-        //
-        // if (it.hasNext())
-        // {
-        // String code = it.next();
-        //
-        // Term root = ( (AttributeTermType) attribute ).getRootTerm();
-        // String parent =
-        // TermConverter.buildClassifierKeyFromTermCode(root.getCode());
-        //
-        // String classifierKey = Classifier.buildKey(parent, code);
-        // Classifier classifier = Classifier.getByKey(classifierKey);
-        //
-        // node.setValue(attributeName, classifier.getOid());
-        // }
-        // else
-        // {
-        // node.setValue(attributeName, (String) null);
-        // }
-      }
-      else if (attribute instanceof AttributeClassificationType)
+      if (attribute instanceof AttributeClassificationType)
       {
         String value = (String) go.getValue(attributeName);
 
@@ -488,37 +467,14 @@ public class RepoRDFExportBusinessService
     final String code = type.getCode();
     final String orgCode = type.getOrganization().getCode();
 
-    Map<String, AttributeType> attributes = type.getAttributeMap();
+    Map<String, AttributeType> attributes = type.getAttributes().stream().map(t -> t.toDTO()).collect(Collectors.toMap(t -> t.getCode(), t -> t));
 
     attributes.forEach((attributeName, attribute) -> {
       String literal = null;
 
-      if (attribute instanceof AttributeTermType)
+      if (attribute instanceof AttributeClassificationType)
       {
-        // Iterator<String> it = (Iterator<String>)
-        // geoObject.getValue(attributeName);
-        //
-        // if (it.hasNext())
-        // {
-        // String code = it.next();
-        //
-        // Term root = ( (AttributeTermType) attribute ).getRootTerm();
-        // String parent =
-        // TermConverter.buildClassifierKeyFromTermCode(root.getCode());
-        //
-        // String classifierKey = Classifier.buildKey(parent, code);
-        // Classifier classifier = Classifier.getByKey(classifierKey);
-        //
-        // node.setValue(attributeName, classifier.getOid());
-        // }
-        // else
-        // {
-        // node.setValue(attributeName, (String) null);
-        // }
-      }
-      else if (attribute instanceof AttributeClassificationType)
-      {
-        String value = (String) object.getObjectValue(attributeName);
+        String value = (String) object.getValue(attributeName);
 
         if (value != null)
         {
@@ -533,7 +489,7 @@ public class RepoRDFExportBusinessService
       }
       else
       {
-        Object value = object.getObjectValue(attributeName);
+        Object value = object.getValue(attributeName);
 
         if (value instanceof LocalizedValue)
         {
@@ -640,8 +596,6 @@ public class RepoRDFExportBusinessService
 
   protected void exportBusinessType(State state, BusinessType type)
   {
-    final String dbClass = type.getMdVertex().getDbClassName();
-
     long skip = 0;
     boolean hasMoreData = true;
 
@@ -649,18 +603,10 @@ public class RepoRDFExportBusinessService
     {
       logger.info("Exporting " + type.getCode() + " block " + skip + " through " + ( skip + BLOCK_SIZE ));
 
-      StringBuilder statement = new StringBuilder();
-      statement.append("SELECT FROM " + dbClass);
-      statement.append(" SKIP " + skip + " LIMIT " + BLOCK_SIZE);
+      List<BusinessObject> results = this.bObjectService.getAll(type, skip, BLOCK_SIZE);
 
-      GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
-
-      List<VertexObject> results = query.getResults();
-
-      for (VertexObject vertex : results)
+      for (BusinessObject object : results)
       {
-        BusinessObject object = new BusinessObject(vertex, type);
-
         this.exportBusinessObject(state, type, object);
 
         state.count++;
@@ -669,7 +615,6 @@ public class RepoRDFExportBusinessService
         {
           updateProgress(state);
         }
-
       }
 
       skip += BLOCK_SIZE;
@@ -743,17 +688,17 @@ public class RepoRDFExportBusinessService
 
   protected String buildAttributeUri(State state, String typeCode, AttributeType attribute)
   {
-    if (attribute.getIsDefault())
+    if (attribute.isDefault())
     {
-      if (attribute.getName().equals(DefaultAttribute.DISPLAY_LABEL.getName()))
+      if (attribute.getCode().equals(DefaultAttribute.DISPLAY_LABEL.getName()))
       {
         return state.prefixes.get(RDFS) + "label";
       }
 
-      return state.graphMetadataNamespace + "GeoObject-" + attribute.getName();
+      return state.graphMetadataNamespace + "GeoObject-" + attribute.getCode();
     }
 
-    return state.graphMetadataNamespace + typeCode + "-" + attribute.getName();
+    return state.graphMetadataNamespace + typeCode + "-" + attribute.getCode();
   }
 
   protected String buildGraphTypeUri(State state, final String orgCode, GraphType graphType)

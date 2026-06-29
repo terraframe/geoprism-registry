@@ -16,14 +16,12 @@ import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeGeometryType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.google.gson.JsonObject;
 import com.runwaysdk.ComponentIF;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.rbac.Operation;
@@ -52,7 +50,6 @@ import net.geoprism.graph.AttributeDoubleTypeSnapshot;
 import net.geoprism.graph.AttributeGeometryTypeSnapshot;
 import net.geoprism.graph.AttributeLocalTypeSnapshot;
 import net.geoprism.graph.AttributeLongTypeSnapshot;
-import net.geoprism.graph.AttributeTermTypeSnapshot;
 import net.geoprism.graph.AttributeTypeSnapshot;
 import net.geoprism.graph.BusinessEdgeTypeSnapshot;
 import net.geoprism.graph.BusinessTypeSnapshot;
@@ -72,17 +69,19 @@ import net.geoprism.registry.CommitHasSnapshotQuery;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
+import net.geoprism.registry.graph.BaseGeoObjectType;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.graph.DirectedAcyclicGraphType;
 import net.geoprism.registry.graph.GeoObjectTypeAlreadyInHierarchyException;
+import net.geoprism.registry.graph.ObjectClass;
 import net.geoprism.registry.graph.UndirectedGraphType;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.SnapshotContainer;
-import net.geoprism.registry.model.graph.EdgeVertexType;
 import net.geoprism.registry.view.BusinessEdgeTypeView;
+import net.geoprism.registry.view.BusinessTypeDTO;
 
 @Service
 public class SnapshotBusinessService
@@ -187,11 +186,14 @@ public class SnapshotBusinessService
 
   public BusinessEdgeTypeSnapshot createSnapshot(SnapshotContainer<?> version, BusinessEdgeType edgeType, GeoObjectTypeSnapshot root)
   {
-    EdgeVertexType parent = this.bEdgeService.getParent(edgeType);
-    EdgeVertexType child = this.bEdgeService.getChild(edgeType);
+    ObjectClass parent = this.bEdgeService.getParent(edgeType);
+    ObjectClass child = this.bEdgeService.getChild(edgeType);
 
-    ObjectTypeSnapshot pSnapshot = parent.isGeoObjectType() ? root : this.getBusinessType(version, parent.getCode());
-    ObjectTypeSnapshot cSnapshot = child.isGeoObjectType() ? root : this.getBusinessType(version, child.getCode());
+    boolean parentIsGeoObject = parent instanceof BaseGeoObjectType;
+    boolean childIsGeoObject = child instanceof BaseGeoObjectType;
+
+    ObjectTypeSnapshot pSnapshot = parentIsGeoObject ? root : this.getBusinessType(version, parent.getCode());
+    ObjectTypeSnapshot cSnapshot = childIsGeoObject ? root : this.getBusinessType(version, child.getCode());
 
     MdEdge mdEdge = null;
 
@@ -220,11 +222,9 @@ public class SnapshotBusinessService
     snapshot.setOrgCode(edgeType.getOrganization().getCode());
     snapshot.setOrigin(edgeType.getOrigin());
     snapshot.setSequence(edgeType.getSequence());
-    snapshot.setIsChildGeoObject(child.isGeoObjectType());
-    snapshot.setIsChildGeoObject(child.isGeoObjectType());
-    snapshot.setIsParentGeoObject(parent.isGeoObjectType());
+    snapshot.setIsChildGeoObject(childIsGeoObject);
+    snapshot.setIsParentGeoObject(parentIsGeoObject);
     snapshot.setParentType(pSnapshot);
-    snapshot.setIsParentGeoObject(parent.isGeoObjectType());
     snapshot.setChildType(cSnapshot);
     LocalizedValueConverter.populate(snapshot.getDisplayLabel(), edgeType.getLabel());
     snapshot.apply();
@@ -330,8 +330,7 @@ public class SnapshotBusinessService
       type.getAttributeMap().values().stream() //
           .map(a -> a.toDTO()) //
           .filter(a -> ! ( a instanceof AttributeGeometryType )) //
-          .filter(a -> ! ( a instanceof AttributeTermType )) //
-          .filter(a -> !existingAttributes.contains(a.getName())) //
+          .filter(a -> !existingAttributes.contains(a.getCode())) //
           .forEach(attributeType -> {
             this.oSnapshotService.createMdAttributeFromAttributeType(mdVertex, attributeType);
           });
@@ -366,7 +365,6 @@ public class SnapshotBusinessService
     type.getAttributeMap().values().stream() //
         .map(a -> a.toDTO()) //
         .filter(a -> ! ( a instanceof AttributeGeometryType )) //
-        .filter(a -> ! ( a instanceof AttributeTermType )) //
         .forEach(attributeType -> {
           this.oSnapshotService.createAttributeTypeSnapshot(snapshot, attributeType);
         });
@@ -398,9 +396,9 @@ public class SnapshotBusinessService
       List<String> existingAttributes = mdVertexDAO.getAllDefinedMdAttributes().stream().map(attribute -> attribute.definesAttribute()).collect(Collectors.toList());
 
       type.getAttributeMap().values().stream() //
+          .map(t -> t.toDTO()) //
           .filter(a -> ! ( a instanceof AttributeGeometryType )) //
-          .filter(a -> ! ( a instanceof AttributeTermType )) //
-          .filter(a -> !existingAttributes.contains(a.getName())) //
+          .filter(a -> !existingAttributes.contains(a.getCode())) //
           .forEach(attributeType -> {
             this.bTypeSnapshotService.createMdAttributeFromAttributeType(mdVertex, attributeType);
           });
@@ -422,8 +420,8 @@ public class SnapshotBusinessService
     version.addSnapshot(snapshot).apply();
 
     type.getAttributeMap().values().stream() //
+        .map(t -> t.toDTO()) //
         .filter(a -> ! ( a instanceof AttributeGeometryType )) //
-        .filter(a -> ! ( a instanceof AttributeTermType )) //
         .forEach(attributeType -> {
           this.bTypeSnapshotService.createAttributeTypeSnapshot(snapshot, attributeType);
         });
@@ -583,8 +581,7 @@ public class SnapshotBusinessService
     attributeTypeSnapshots.stream() //
         .filter(aSnapshot -> !aSnapshot.getIsDefault())//
         .filter(aSnapshot -> !attributeMap.containsKey(aSnapshot.getCode()))//
-        .filter(aSnapshot -> ! ( aSnapshot instanceof AttributeGeometryTypeSnapshot ))//
-        .filter(aSnapshot -> ! ( aSnapshot instanceof AttributeTermTypeSnapshot ))//
+        .filter(aSnapshot -> ! ( aSnapshot instanceof AttributeGeometryTypeSnapshot )) //
         .forEach(attribute -> {
           AttributeType attributeType = createType(attribute);
 
@@ -597,8 +594,8 @@ public class SnapshotBusinessService
   @Transaction
   public BusinessType createType(BusinessTypeSnapshot snapshot)
   {
-    JsonObject dto = snapshot.toJSON();
-    dto.addProperty(BusinessType.ORGANIZATION, snapshot.getOrgCode());
+    BusinessTypeDTO dto = snapshot.toDTO();
+    dto.setOrganization(snapshot.getOrgCode());
 
     BusinessType existing = this.bTypeService.getByCode(snapshot.getCode()).orElse(null);
 
@@ -606,20 +603,19 @@ public class SnapshotBusinessService
     {
       if (existing != null)
       {
-        dto.addProperty(BusinessType.OID, existing.getOid());
+        dto.setOid(existing.getOid());
       }
 
       final BusinessType type = this.bTypeService.apply(dto);
 
-      Map<String, AttributeType> attributeMap = type.getAttributeMap();
+      Map<String, net.geoprism.registry.graph.AttributeType> attributeMap = type.getAttributeMap();
 
       List<AttributeTypeSnapshot> attributeTypeSnapshots = this.bTypeSnapshotService.getAttributeTypes(snapshot);
 
       attributeTypeSnapshots.stream() //
           .filter(aSnapshot -> !aSnapshot.getIsDefault())//
           .filter(aSnapshot -> !attributeMap.containsKey(aSnapshot.getCode()))//
-          .filter(aSnapshot -> ! ( aSnapshot instanceof AttributeGeometryTypeSnapshot ))//
-          .filter(aSnapshot -> ! ( aSnapshot instanceof AttributeTermTypeSnapshot ))//
+          .filter(aSnapshot -> ! ( aSnapshot instanceof AttributeGeometryTypeSnapshot )) //
           .forEach(attribute -> {
             AttributeType attributeType = createType(attribute);
 
@@ -642,27 +638,27 @@ public class SnapshotBusinessService
     if (attribute instanceof AttributeCharacterTypeSnapshot)
     {
       attributeType = new AttributeCharacterType(attribute.getCode(), attributeLabel, attributeDescription, attribute.getIsDefault(), attribute.getIsRequired(), attribute.getIsUnique());
-      attributeType.setIsChangeOverTime(attribute.getIsChangeOverTime());
+      attributeType.setChangeOverTime(attribute.getIsChangeOverTime());
     }
     else if (attribute instanceof AttributeDateTypeSnapshot)
     {
       attributeType = new AttributeDateType(attribute.getCode(), attributeLabel, attributeDescription, attribute.getIsDefault(), attribute.getIsRequired(), attribute.getIsUnique());
-      attributeType.setIsChangeOverTime(attribute.getIsChangeOverTime());
+      attributeType.setChangeOverTime(attribute.getIsChangeOverTime());
     }
     else if (attribute instanceof AttributeLongTypeSnapshot)
     {
       attributeType = new AttributeIntegerType(attribute.getCode(), attributeLabel, attributeDescription, attribute.getIsDefault(), attribute.getIsRequired(), attribute.getIsUnique());
-      attributeType.setIsChangeOverTime(attribute.getIsChangeOverTime());
+      attributeType.setChangeOverTime(attribute.getIsChangeOverTime());
     }
     else if (attribute instanceof AttributeDataSourceTypeSnapshot)
     {
       attributeType = new AttributeDataSourceType(attribute.getCode(), attributeLabel, attributeDescription, attribute.getIsDefault(), attribute.getIsRequired(), attribute.getIsUnique());
-      attributeType.setIsChangeOverTime(attribute.getIsChangeOverTime());
+      attributeType.setChangeOverTime(attribute.getIsChangeOverTime());
     }
     else if (attribute instanceof AttributeDoubleTypeSnapshot)
     {
       AttributeFloatType attributeFloatType = new AttributeFloatType(attribute.getCode(), attributeLabel, attributeDescription, attribute.getIsDefault(), attribute.getIsRequired(), attribute.getIsUnique());
-      attributeFloatType.setIsChangeOverTime(attribute.getIsChangeOverTime());
+      attributeFloatType.setChangeOverTime(attribute.getIsChangeOverTime());
       attributeFloatType.setPrecision( ( (AttributeDoubleTypeSnapshot) attribute ).getPrecision());
       attributeFloatType.setScale( ( (AttributeDoubleTypeSnapshot) attribute ).getScale());
 
@@ -671,7 +667,7 @@ public class SnapshotBusinessService
     else if (attribute instanceof AttributeClassificationTypeSnapshot)
     {
       AttributeClassificationType attributeClassificationType = new AttributeClassificationType(attribute.getCode(), attributeLabel, attributeDescription, attribute.getIsDefault(), attribute.getIsRequired(), attribute.getIsUnique());
-      attributeClassificationType.setIsChangeOverTime(attribute.getIsChangeOverTime());
+      attributeClassificationType.setChangeOverTime(attribute.getIsChangeOverTime());
       attributeClassificationType.setClassificationType( ( (AttributeClassificationTypeSnapshot) attribute ).getClassificationType());
       attributeClassificationType.setRootTerm(new Term( ( (AttributeClassificationTypeSnapshot) attribute ).getRootTerm(), attributeLabel, attributeDescription));
 
@@ -680,12 +676,12 @@ public class SnapshotBusinessService
     else if (attribute instanceof AttributeBooleanTypeSnapshot)
     {
       attributeType = new AttributeBooleanType(attribute.getCode(), attributeLabel, attributeDescription, attribute.getIsDefault(), attribute.getIsRequired(), attribute.getIsUnique());
-      attributeType.setIsChangeOverTime(attribute.getIsChangeOverTime());
+      attributeType.setChangeOverTime(attribute.getIsChangeOverTime());
     }
     else if (attribute instanceof AttributeLocalTypeSnapshot)
     {
       attributeType = new AttributeLocalType(attribute.getCode(), attributeLabel, attributeDescription, attribute.getIsDefault(), attribute.getIsRequired(), attribute.getIsUnique());
-      attributeType.setIsChangeOverTime(attribute.getIsChangeOverTime());
+      attributeType.setChangeOverTime(attribute.getIsChangeOverTime());
     }
     else
     {

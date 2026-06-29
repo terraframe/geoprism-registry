@@ -48,6 +48,7 @@ import com.runwaysdk.session.RequestType;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.graph.DirectedAcyclicGraphType;
+import net.geoprism.registry.graph.ObjectClass;
 import net.geoprism.registry.graph.UndirectedGraphType;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.EdgeDirection;
@@ -57,7 +58,6 @@ import net.geoprism.registry.model.ServerChildGraphNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerParentGraphNode;
-import net.geoprism.registry.model.graph.EdgeVertexType;
 import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
@@ -257,9 +257,9 @@ public class RelationshipVisualizationService
         {
           BusinessEdgeType edgeType = this.bEdgeService.getByCodeOrThrow(graphTypeCode);
 
-          EdgeVertexType parentType = this.bEdgeService.getParent(edgeType);
+          ObjectClass parentType = this.bEdgeService.getParent(edgeType);
 
-          EdgeDirection direction = parentType.isBusinessType() ? EdgeDirection.PARENT : EdgeDirection.CHILD;
+          EdgeDirection direction = ( parentType instanceof BusinessType ) ? EdgeDirection.PARENT : EdgeDirection.CHILD;
 
           List<BusinessObject> objects = this.objectService.getBusinessObjects(selected, edgeType, direction);
 
@@ -322,8 +322,8 @@ public class RelationshipVisualizationService
 
         BusinessEdgeType edgeType = this.bEdgeService.getByCodeOrThrow(graphTypeCode);
 
-        EdgeVertexType parentType = this.bEdgeService.getParent(edgeType);
-        EdgeVertexType childType = this.bEdgeService.getChild(edgeType);
+        ObjectClass parentType = this.bEdgeService.getParent(edgeType);
+        ObjectClass childType = this.bEdgeService.getChild(edgeType);
 
         List<VertexComponent> objects = this.bObjectService.getParents(selected, edgeType, date);
 

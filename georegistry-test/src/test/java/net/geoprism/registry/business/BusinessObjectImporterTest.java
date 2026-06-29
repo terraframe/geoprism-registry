@@ -25,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.google.gson.JsonObject;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.dataaccess.DuplicateDataException;
@@ -70,6 +69,7 @@ import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.BusinessGeoEdgeTypeView;
+import net.geoprism.registry.view.BusinessTypeDTO;
 import net.geoprism.registry.view.ImportHistoryView;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
@@ -128,14 +128,14 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
     String orgCode = FastTestDataset.ORG_CGOV.getCode();
     String label = "Test Prog";
 
-    JsonObject object = new JsonObject();
-    object.addProperty(BusinessType.CODE, code);
-    object.addProperty(BusinessType.ORGANIZATION, orgCode);
-    object.add(BusinessType.DISPLAYLABEL, new LocalizedValue(label).toJSON());
+    BusinessTypeDTO object = new BusinessTypeDTO();
+    object.setCode(code);
+    object.setOrganization(orgCode);
+    object.setDisplayLabel(new LocalizedValue(label));
 
     type = this.bTypeService.apply(object);
 
-    attributeType = this.bTypeService.createAttributeType(type, new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test True"), false, false, false));
+    attributeType = this.bTypeService.createAttributeType(type, new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test True"), false, false, false, false));
 
     bGeoEdgeType = this.bEdgeService.create(BusinessGeoEdgeTypeView.build(FastTestDataset.ORG_CGOV.getCode(), "GEO_EDGE", new LocalizedValue("Geo Edge"), new LocalizedValue("Geo Edge"), type.getCode(), EdgeDirection.PARENT));
   }
@@ -190,7 +190,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
       configuration.setType(type);
       configuration.setDate(FastTestDataset.DEFAULT_END_TIME_DATE);
       configuration.setCopyBlank(false);
-      configuration.setFunction(attributeType.getName(), new BasicColumnFunction(rowAttribute));
+      configuration.setFunction(attributeType.getCode(), new BasicColumnFunction(rowAttribute));
       configuration.setFunction(BusinessObject.CODE, new BasicColumnFunction(BusinessObject.CODE));
 
       try (BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener()))
@@ -198,7 +198,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
         importer.importRow(new MapFeatureRow(row, 0L));
       }
 
-      BusinessObject result = this.bObjectService.get(type, attributeType.getName(), value);
+      BusinessObject result = this.bObjectService.get(type, attributeType.getCode(), value);
 
       try
       {
@@ -261,7 +261,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
       configuration.setType(type);
       configuration.setDate(FastTestDataset.DEFAULT_END_TIME_DATE);
       configuration.setCopyBlank(false);
-      configuration.setFunction(attributeType.getName(), new BasicColumnFunction(rowAttribute));
+      configuration.setFunction(attributeType.getCode(), new BasicColumnFunction(rowAttribute));
       configuration.setFunction(BusinessObject.CODE, new BasicColumnFunction(BusinessObject.CODE));
 
       try (BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener()))
@@ -269,7 +269,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
         importer.importRow(new MapFeatureRow(row, 0L));
       }
 
-      BusinessObject result = this.bObjectService.get(type, attributeType.getName(), value);
+      BusinessObject result = this.bObjectService.get(type, attributeType.getCode(), value);
 
       try
       {
@@ -308,7 +308,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
         configuration.setType(type);
         configuration.setDate(FastTestDataset.DEFAULT_END_TIME_DATE);
         configuration.setCopyBlank(false);
-        configuration.setFunction(attributeType.getName(), new BasicColumnFunction(rowAttribute));
+        configuration.setFunction(attributeType.getCode(), new BasicColumnFunction(rowAttribute));
         configuration.setFunction(BusinessObject.CODE, new BasicColumnFunction(BusinessObject.CODE));
 
         try (BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener()))
@@ -320,7 +320,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
 
         BusinessObject result = this.bObjectService.getByCode(type, TEST_CODE);
 
-        Assert.assertEquals(result.getObjectValue(attributeType.getName()), value);
+        Assert.assertEquals(result.getValue(attributeType.getCode()), value);
       }
       finally
       {
@@ -355,7 +355,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
         configuration.setType(type);
         configuration.setDate(FastTestDataset.DEFAULT_END_TIME_DATE);
         configuration.setCopyBlank(false);
-        configuration.setFunction(attributeType.getName(), new BasicColumnFunction(rowAttribute));
+        configuration.setFunction(attributeType.getCode(), new BasicColumnFunction(rowAttribute));
         configuration.setFunction(BusinessObject.CODE, new BasicColumnFunction(BusinessObject.CODE));
 
         try (BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener()))
@@ -405,7 +405,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
       configuration.setType(type);
       configuration.setDate(FastTestDataset.DEFAULT_END_TIME_DATE);
       configuration.setCopyBlank(false);
-      configuration.setFunction(attributeType.getName(), new BasicColumnFunction(rowAttribute));
+      configuration.setFunction(attributeType.getCode(), new BasicColumnFunction(rowAttribute));
       configuration.setFunction(BusinessObject.CODE, new BasicColumnFunction(BusinessObject.CODE));
       configuration.setDataSource(FastTestDataset.SOURCE.getDataSource());
 
@@ -414,7 +414,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
         importer.importRow(new MapFeatureRow(row, 0L));
       }
 
-      BusinessObject result = this.bObjectService.get(type, attributeType.getName(), value);
+      BusinessObject result = this.bObjectService.get(type, attributeType.getCode(), value);
 
       try
       {
@@ -455,8 +455,8 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
         Assert.assertEquals(Long.valueOf(2), hist.getImportedRecords());
         Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-        assertAndDelete(this.bObjectService.get(type, attributeType.getName(), "0001"));
-        assertAndDelete(this.bObjectService.get(type, attributeType.getName(), "0002"));
+        assertAndDelete(this.bObjectService.get(type, attributeType.getCode(), "0001"));
+        assertAndDelete(this.bObjectService.get(type, attributeType.getCode(), "0002"));
       }
       finally
       {
@@ -471,7 +471,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
     try
     {
       Assert.assertNotNull(o1);
-      Assert.assertNotNull(o1.getObjectValue(DefaultAttribute.DATA_SOURCE.getName()));
+      Assert.assertNotNull(o1.getValue(DefaultAttribute.DATA_SOURCE.getName()));
     }
     finally
     {
@@ -494,7 +494,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
 
       String attributeName = attribute.getString(AttributeType.JSON_CODE);
 
-      if (attributeName.equals(attributeType.getName()) || attributeName.equals(BusinessObject.CODE))
+      if (attributeName.equals(attributeType.getCode()) || attributeName.equals(BusinessObject.CODE))
       {
         attribute.put(BusinessObjectImportConfiguration.TARGET, "Code");
       }

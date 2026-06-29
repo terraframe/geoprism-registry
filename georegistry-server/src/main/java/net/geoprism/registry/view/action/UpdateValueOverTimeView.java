@@ -24,23 +24,20 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 
-import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
+import org.commongeoregistry.adapter.metadata.AttributeDataSourceType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
-import org.commongeoregistry.adapter.metadata.AttributeDataSourceType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.geojson.GeoJsonReader;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.JsonAdapter;
@@ -49,18 +46,16 @@ import com.runwaysdk.dataaccess.graph.attributes.AttributeGraphRef;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.localization.LocalizationFacade;
 
-import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
 import net.geoprism.registry.action.InvalidChangeRequestException;
 import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
-import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
-import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.view.RegistryJsonTimeFormatter;
 
 public class UpdateValueOverTimeView
@@ -326,23 +321,6 @@ public class UpdateValueOverTimeView
             long epoch = this.newValue.getAsLong();
 
             convertedValue = new Date(epoch);
-          }
-          else if (attype instanceof AttributeTermType)
-          {
-            JsonArray ja = this.newValue.getAsJsonArray();
-
-            if (ja.size() > 0)
-            {
-              String code = ja.get(0).getAsString();
-
-              Term root = ( (AttributeTermType) attype ).getRootTerm();
-              String parent = TermConverter.buildClassifierKeyFromTermCode(root.getCode());
-
-              String classifierKey = Classifier.buildKey(parent, code);
-              Classifier classifier = Classifier.getByKey(classifierKey);
-
-              convertedValue = classifier.getOid();
-            }
           }
           else if (attype instanceof AttributeDataSourceType)
           {

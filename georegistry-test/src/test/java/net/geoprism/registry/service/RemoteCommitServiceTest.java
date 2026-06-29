@@ -299,7 +299,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
       BusinessObject bObject = this.bObjectService.getByCode(bType, "C_CODE");
 
       Assert.assertNotNull(bObject);
-      Assert.assertNotNull(bObject.getObjectValue(DefaultAttribute.DATA_SOURCE.getName()));
+      Assert.assertNotNull(bObject.getValue(DefaultAttribute.DATA_SOURCE.getName()));
 
       BusinessEdgeType bEdgeType = this.bEdgeService.getByCode("TEST_B_EDGE").get();
       BusinessEdgeType bGeoEdgeType = this.bEdgeService.getByCode("TEST_GEO_EDGE").get();
@@ -623,7 +623,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
         BusinessObject bObject = this.bObjectService.getByCode(bType, "C_CODE");
 
         Assert.assertNotNull(bObject);
-        Assert.assertNotNull(bObject.getObjectValue(DefaultAttribute.DATA_SOURCE.getName()));
+        Assert.assertNotNull(bObject.getValue(DefaultAttribute.DATA_SOURCE.getName()));
 
         BusinessEdgeType bEdgeType = this.bEdgeService.getByCode("TEST_B_EDGE").get();
         BusinessEdgeType bGeoEdgeType = this.bEdgeService.getByCode("TEST_GEO_EDGE").get();

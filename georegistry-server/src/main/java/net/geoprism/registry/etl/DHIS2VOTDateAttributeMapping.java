@@ -56,7 +56,7 @@ abstract public class DHIS2VOTDateAttributeMapping extends DHIS2AttributeMapping
     
     if (date == null)
     {
-      ValueOverTimeCollection votc = serverGo.getValuesOverTime(attr.getName());
+      ValueOverTimeCollection votc = serverGo.getValuesOverTime(attr.getCode());
 
       if (votc.size() > 0)
       {
@@ -65,7 +65,7 @@ abstract public class DHIS2VOTDateAttributeMapping extends DHIS2AttributeMapping
     }
     else
     {
-      ValueOverTimeCollection votc = serverGo.getValuesOverTime(attr.getName());
+      ValueOverTimeCollection votc = serverGo.getValuesOverTime(attr.getCode());
       
       for (ValueOverTime vot : votc)
       {

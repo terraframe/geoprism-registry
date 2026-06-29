@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.google.gson.JsonObject;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.SpringInstanceTestClassRunner;
@@ -56,6 +55,7 @@ import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.BusinessEdgeTypeView;
 import net.geoprism.registry.view.BusinessGeoEdgeTypeView;
+import net.geoprism.registry.view.BusinessTypeDTO;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
@@ -117,10 +117,10 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
     dagType = this.dagTypeService.create("TEST_DAG", new LocalizedValue("TEST_DAG"), new LocalizedValue("TEST_DAG"), 0L);
     ugType = this.ugTypeService.create("TEST_UG", new LocalizedValue("TEST_UG"), new LocalizedValue("TEST_UG"), 0L);
 
-    JsonObject object = new JsonObject();
-    object.addProperty(BusinessType.CODE, "TEST_BO");
-    object.addProperty(BusinessType.ORGANIZATION, USATestData.ORG_NPS.getCode());
-    object.add(BusinessType.DISPLAYLABEL, new LocalizedValue("TEST_BO").toJSON());
+    BusinessTypeDTO object = new BusinessTypeDTO();
+    object.setCode("TEST_BO");
+    object.setOrganization(USATestData.ORG_NPS.getCode());
+    object.setDisplayLabel(new LocalizedValue("TEST_BO"));
 
     bType = this.bTypeService.apply(object);
 

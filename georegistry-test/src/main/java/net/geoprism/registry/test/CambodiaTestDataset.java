@@ -98,17 +98,6 @@ public class CambodiaTestDataset extends TestDataSet
 
   public static final TestAttributeTypeInfo     AT_DATE_OF_FORMATION    = new TestAttributeTypeInfo("DateOfFormation", "Date Of Formation", GOT_Country, AttributeDateType.TYPE);
 
-  public static final TestAttributeTermTypeInfo AT_RELIGION             = new TestAttributeTermTypeInfo("Religion", "Religion", GOT_Country);
-
-  public static final TestTermInfo              T_Religion              = new TestTermInfo("Religion", AT_RELIGION);
-
-  public static final TestTermInfo              T_Buddhism              = new TestTermInfo("Buddhism", AT_RELIGION);
-
-  public static final TestTermInfo              T_Islam                 = new TestTermInfo("Islam", AT_RELIGION);
-
-  public static final TestTermInfo              T_Christianity          = new TestTermInfo("Chistianity", AT_RELIGION);
-
-  public static final TestTermInfo              T_Other                 = new TestTermInfo("Other", AT_RELIGION);
 
   {
     managedSources.add(SOURCE);
@@ -151,12 +140,6 @@ public class CambodiaTestDataset extends TestDataSet
     managedUsers.add(USER_MOHA_RM);
     managedUsers.add(USER_MOHA_RC);
     managedUsers.add(USER_MOHA_AC);
-
-    AT_RELIGION.addManagedTerm(T_Religion);
-    AT_RELIGION.addManagedTerm(T_Buddhism);
-    AT_RELIGION.addManagedTerm(T_Islam);
-    AT_RELIGION.addManagedTerm(T_Christianity);
-    AT_RELIGION.addManagedTerm(T_Other);
   }
 
   public static void main(String[] args) {
@@ -242,9 +225,6 @@ public class CambodiaTestDataset extends TestDataSet
     AT_DATE_OF_FORMATION.apply();
     GO_Cambodia.setDefaultValue(AT_DATE_OF_FORMATION.getAttributeName(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-    AT_RELIGION.apply();
-
-    GO_Cambodia.setDefaultValue(AT_RELIGION.getAttributeName(), T_Buddhism.fetchTerm());
   }
 
   @Override

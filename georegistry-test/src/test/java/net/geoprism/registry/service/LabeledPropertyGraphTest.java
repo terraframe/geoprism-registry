@@ -6,11 +6,9 @@ package net.geoprism.registry.service;
 import java.util.List;
 import java.util.UUID;
 
-import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.junit.After;
 import org.junit.Assert;
@@ -52,7 +50,6 @@ import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
 import net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJob;
 import net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJobQuery;
 import net.geoprism.graph.SingleLabeledPropertyGraphType;
-import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.LabeledPropertyGraphTypeBuilder;
@@ -62,7 +59,6 @@ import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.config.TestApplication;
-import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.graph.DirectedAcyclicGraphType;
@@ -104,6 +100,7 @@ import net.geoprism.registry.test.TestHierarchyTypeInfo;
 import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.BusinessEdgeTypeView;
 import net.geoprism.registry.view.BusinessGeoEdgeTypeView;
+import net.geoprism.registry.view.BusinessTypeDTO;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
@@ -119,8 +116,6 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
   private static BusinessEdgeType                              bEdgeType;
 
   private static BusinessEdgeType                              bGeoEdgeType;
-
-  private static AttributeTermType                             testTerm;
 
   private static AttributeClassificationType                   testClassification;
 
@@ -218,21 +213,12 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
     ServerGeoObjectType got = ServerGeoObjectType.get(USATestData.STATE.getCode());
     testClassification = (AttributeClassificationType) this.oTypeService.createAttributeType(got, testClassification.toJSON().toString());
 
-    testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, true);
-    testTerm = (AttributeTermType) this.oTypeService.createAttributeType(got, testTerm.toJSON().toString());
+    USATestData.COLORADO.setDefaultValue(testClassification.getCode(), CODE);
 
-    Term term = new Term("TERM_1", new LocalizedValue("Term 1"), new LocalizedValue("Term 1"));
-
-    Classifier classifier = TermConverter.createClassifierFromTerm(testTerm.getRootTerm().getCode(), term);
-    term = TermConverter.buildTermFromClassifier(classifier);
-
-    USATestData.COLORADO.setDefaultValue(testClassification.getName(), CODE);
-    USATestData.COLORADO.setDefaultValue(testTerm.getName(), term);
-
-    JsonObject object = new JsonObject();
-    object.addProperty(BusinessType.CODE, "TEST_BUSINESS");
-    object.addProperty(BusinessType.ORGANIZATION, USATestData.ORG_PPP.getCode());
-    object.add(BusinessType.DISPLAYLABEL, new LocalizedValue("Test Business").toJSON());
+    BusinessTypeDTO object = new BusinessTypeDTO();
+    object.setCode("TEST_BUSINESS");
+    object.setOrganization(USATestData.ORG_PPP.getCode());
+    object.setDisplayLabel(new LocalizedValue("Test Business"));
 
     btype = this.bTypeService.apply(object);
 
@@ -264,8 +250,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
 
     super.afterClassSetup();
 
-    USATestData.COLORADO.removeDefaultValue(testClassification.getName());
-    USATestData.COLORADO.removeDefaultValue(testTerm.getName());
+    USATestData.COLORADO.removeDefaultValue(testClassification.getCode());
 
     if (type != null)
     {
@@ -682,7 +667,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
         if (code.equals(USATestData.COLORADO.getCode()))
         {
           Assert.assertNotNull(child.getObjectValue(DefaultAttribute.GEOMETRY.getName()));
-          Assert.assertNotNull(child.getObjectValue(testClassification.getName()));
+          Assert.assertNotNull(child.getObjectValue(testClassification.getCode()));
         }
       });
     }

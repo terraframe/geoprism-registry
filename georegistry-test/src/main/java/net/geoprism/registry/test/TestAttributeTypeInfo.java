@@ -3,9 +3,6 @@
  */
 package net.geoprism.registry.test;
 
-import org.commongeoregistry.adapter.Term;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
-
 import net.geoprism.registry.graph.AttributeType;
 
 public class TestAttributeTypeInfo
@@ -28,7 +25,7 @@ public class TestAttributeTypeInfo
 
   public TestAttributeTypeInfo(org.commongeoregistry.adapter.metadata.AttributeType dto, TestGeoObjectTypeInfo got)
   {
-    this.name = dto.getName();
+    this.name = dto.getCode();
     this.got = got;
     this.type = dto.getType();
   }
@@ -70,22 +67,7 @@ public class TestAttributeTypeInfo
   {
     if (this.fetchDTO() == null)
     {
-      if (this.type.equals(org.commongeoregistry.adapter.metadata.AttributeTermType.TYPE))
-      {
-        TestDataSet.createTermAttribute(name, label, got, null);
-      }
-      else
-      {
-        TestDataSet.createAttribute(this.name, this.label, this.got, this.type);
-      }
-    }
-  }
-
-  public void applyTerm(Term attrRoot)
-  {
-    if (this.fetchDTO() == null)
-    {
-      TestDataSet.createTermAttribute(this.name, this.label, this.got, attrRoot);
+      TestDataSet.createAttribute(this.name, this.label, this.got, this.type);
     }
   }
 

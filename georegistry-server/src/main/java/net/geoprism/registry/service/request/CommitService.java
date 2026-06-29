@@ -24,6 +24,7 @@ import net.geoprism.registry.service.business.CommitBusinessServiceIF;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.PublishBusinessServiceIF;
+import net.geoprism.registry.view.BusinessTypeDTO;
 import net.geoprism.registry.view.CommitDTO;
 
 @Service
@@ -63,11 +64,11 @@ public class CommitService
   }
 
   @Request(RequestType.SESSION)
-  public JsonArray getBusinessTypes(String sessionId, String uid)
+  public List<BusinessTypeDTO> getBusinessTypes(String sessionId, String uid)
   {
     Commit commit = this.service.getOrThrow(uid);
 
-    return this.service.getBusinessTypes(commit).stream().map(type -> type.toJSON()).collect(JsonCollectors.toJsonArray());
+    return this.service.getBusinessTypes(commit).stream().map(type -> type.toDTO()).toList();
   }
 
   @Request(RequestType.SESSION)

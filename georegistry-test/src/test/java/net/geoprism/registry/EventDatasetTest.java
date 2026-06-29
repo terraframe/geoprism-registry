@@ -11,7 +11,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.google.gson.JsonObject;
 import com.runwaysdk.Pair;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.scheduler.SchedulerManager;
@@ -35,6 +34,7 @@ import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.BusinessEdgeTypeView;
 import net.geoprism.registry.view.BusinessGeoEdgeTypeView;
+import net.geoprism.registry.view.BusinessTypeDTO;
 import net.geoprism.registry.view.PublishDTO;
 
 public abstract class EventDatasetTest extends USADatasetTest implements InstanceTestClassListener
@@ -84,14 +84,14 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
   @Request
   private void setUpInReq()
   {
-    JsonObject object = new JsonObject();
-    object.addProperty(BusinessType.CODE, "TEST_BUSINESS");
-    object.addProperty(BusinessType.ORGANIZATION, USATestData.ORG_PPP.getCode());
-    object.add(BusinessType.DISPLAYLABEL, new LocalizedValue("Test Business").toJSON());
+    BusinessTypeDTO object = new BusinessTypeDTO();
+    object.setCode("TEST_BUSINESS");
+    object.setOrganization(USATestData.ORG_PPP.getCode());
+    object.setDisplayLabel(new LocalizedValue("Test Business"));
 
     btype = this.bTypeService.apply(object);
 
-    this.bTypeService.createAttributeType(btype, new AttributeBooleanType("testBoolean", new LocalizedValue("Test Boolean"), new LocalizedValue("Test Boolean"), false, false, false));
+    this.bTypeService.createAttributeType(btype, new AttributeBooleanType("testBoolean", new LocalizedValue("Test Boolean"), new LocalizedValue("Test Boolean"), false, false, false, false));
 
     bEdgeType = this.bEdgeService.create(BusinessEdgeTypeView.build(USATestData.ORG_PPP.getCode(), "TEST_B_EDGE", new LocalizedValue("TEST_B_EDGE"), new LocalizedValue("TEST_B_EDGE"), btype.getCode(), btype.getCode()));
 

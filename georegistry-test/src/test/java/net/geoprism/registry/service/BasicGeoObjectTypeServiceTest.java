@@ -12,7 +12,6 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.junit.Assert;
 import org.junit.Test;
@@ -133,11 +132,11 @@ public class BasicGeoObjectTypeServiceTest implements InstanceTestClassListener
 
       Assert.assertNotNull(attributeDto);
 
-      Assert.assertTrue(type.getAttribute(attributeDto.getName()).isPresent());
+      Assert.assertTrue(type.getAttribute(attributeDto.getCode()).isPresent());
 
-      service.deleteAttributeType(type, attributeDto.getName());
+      service.deleteAttributeType(type, attributeDto.getCode());
 
-      Assert.assertFalse(type.getAttribute(attributeDto.getName()).isPresent());
+      Assert.assertFalse(type.getAttribute(attributeDto.getCode()).isPresent());
     }
     finally
     {
@@ -184,16 +183,16 @@ public class BasicGeoObjectTypeServiceTest implements InstanceTestClassListener
 
       Assert.assertNotNull(attributeDto);
 
-      Assert.assertTrue(type.getAttribute(attributeDto.getName()).isPresent());
+      Assert.assertTrue(type.getAttribute(attributeDto.getCode()).isPresent());
 
       attributeDto.setPrecision(32);
       attributeDto.setScale(2);
 
       attributeDto = (AttributeFloatType) service.updateAttributeType(type, attributeDto);
 
-      service.deleteAttributeType(type, attributeDto.getName());
+      service.deleteAttributeType(type, attributeDto.getCode());
 
-      Assert.assertFalse(type.getAttribute(attributeDto.getName()).isPresent());
+      Assert.assertFalse(type.getAttribute(attributeDto.getCode()).isPresent());
     }
     finally
     {
@@ -219,7 +218,7 @@ public class BasicGeoObjectTypeServiceTest implements InstanceTestClassListener
 
       Assert.assertNotNull(attribute1Dto);
 
-      Assert.assertTrue(type.getAttribute(attribute1Dto.getName()).isPresent());
+      Assert.assertTrue(type.getAttribute(attribute1Dto.getCode()).isPresent());
 
       AttributeFloatType attribute2Dto = new AttributeFloatType("testDouble", new LocalizedValue("Test Double"), new LocalizedValue("Test Double"), false, false, false);
 
@@ -227,7 +226,7 @@ public class BasicGeoObjectTypeServiceTest implements InstanceTestClassListener
 
       Assert.assertNotNull(attribute2Dto);
 
-      Assert.assertTrue(type.getAttribute(attribute2Dto.getName()).isPresent());
+      Assert.assertTrue(type.getAttribute(attribute2Dto.getCode()).isPresent());
     }
     finally
     {
@@ -253,39 +252,11 @@ public class BasicGeoObjectTypeServiceTest implements InstanceTestClassListener
 
       Assert.assertNotNull(attributeDto);
 
-      Assert.assertTrue(type.getAttribute(attributeDto.getName()).isPresent());
+      Assert.assertTrue(type.getAttribute(attributeDto.getCode()).isPresent());
 
-      service.deleteAttributeType(type, attributeDto.getName());
+      service.deleteAttributeType(type, attributeDto.getCode());
 
-      Assert.assertFalse(type.getAttribute(attributeDto.getName()).isPresent());
-    }
-    finally
-    {
-      this.service.deleteGeoObjectType(type.getCode());
-    }
-  }
-
-  @Test
-  @Request
-  public void testTermAttribute()
-  {
-    GeoObjectType dto = USATestData.COUNTRY.toDTO();
-
-    ServerGeoObjectType type = this.service.create(dto);
-
-    try
-    {
-      AttributeTermType attributeDto = new AttributeTermType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test Character"), false, false, false);
-
-      attributeDto = (AttributeTermType) service.createAttributeType(type, attributeDto);
-
-      Assert.assertNotNull(attributeDto);
-
-      Assert.assertTrue(type.getAttribute(attributeDto.getName()).isPresent());
-
-      service.deleteAttributeType(type, attributeDto.getName());
-
-      Assert.assertFalse(type.getAttribute(attributeDto.getName()).isPresent());
+      Assert.assertFalse(type.getAttribute(attributeDto.getCode()).isPresent());
     }
     finally
     {

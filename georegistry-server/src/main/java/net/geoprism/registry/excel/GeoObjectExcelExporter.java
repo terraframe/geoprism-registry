@@ -46,14 +46,12 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeDataSourceType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.locationtech.jts.geom.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.constants.MdAttributeLocalInfo;
-import com.runwaysdk.dataaccess.graph.attributes.AttributeGraphRef.ID;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Session;
 
@@ -165,7 +163,7 @@ public class GeoObjectExcelExporter
     // Write the row
     for (AttributeType attribute : attributes)
     {
-      String name = attribute.getName();
+      String name = attribute.getCode();
       Cell cell = row.createCell(col++);
 
       if (name.equals(GeoObjectImportConfiguration.LATITUDE))
@@ -191,11 +189,7 @@ public class GeoObjectExcelExporter
 
         if (value != null)
         {
-          if (attribute instanceof AttributeTermType)
-          {
-            cell.setCellValue(GeoObjectUtil.convertToTermString((AttributeTermType) attribute, value));
-          }
-          else if (attribute instanceof AttributeClassificationType)
+          if (attribute instanceof AttributeClassificationType)
           {
             cell.setCellValue(GeoObjectUtil.convertToTermString((AttributeClassificationType) attribute, value));
           }

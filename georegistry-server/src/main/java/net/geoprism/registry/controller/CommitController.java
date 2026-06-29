@@ -35,6 +35,7 @@ import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
 import net.geoprism.registry.model.DataSourceDTO;
 import net.geoprism.registry.service.request.CommitService;
+import net.geoprism.registry.view.BusinessTypeDTO;
 import net.geoprism.registry.view.CommitDTO;
 
 @RestController
@@ -70,11 +71,11 @@ public class CommitController extends RunwaySpringController
   }
 
   @GetMapping("/business-types")
-  public ResponseEntity<String> getBusinessTypes(@RequestParam(name = "uid") String uid)
+  public ResponseEntity<List<BusinessTypeDTO>> getBusinessTypes(@RequestParam(name = "uid") String uid)
   {
-    JsonArray response = this.service.getBusinessTypes(this.getSessionId(), uid);
+     List<BusinessTypeDTO> response = this.service.getBusinessTypes(this.getSessionId(), uid);
 
-    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+     return ResponseEntity.ok(response);
   }
 
   @GetMapping("/geo-object-types")

@@ -22,7 +22,6 @@ import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeGeometryType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.locationtech.jts.geom.Geometry;
 import org.slf4j.Logger;
@@ -220,7 +219,7 @@ public class JenaSynchronizationService
 
       Object literal = null;
 
-      if (attribute instanceof AttributeTermType || attribute instanceof AttributeGeometryType)
+      if (attribute instanceof AttributeGeometryType)
       {
         // SKIP
       }
@@ -340,11 +339,11 @@ public class JenaSynchronizationService
     JsonObject object = JsonParser.parseString(event.getObject()).getAsJsonObject();
     JsonObject data = object.get("data").getAsJsonObject();
 
-    Map<String, AttributeType> attributes = type.getAttributeMap();
+    Map<String, AttributeType> attributes = type.getAttributeMapAsDTO();
 
     attributes.values().stream() //
-        .filter(a -> data.has(a.getName()) && !data.get(a.getName()).isJsonNull()) //
-        .filter(a -> ! ( a instanceof AttributeTermType || a instanceof AttributeGeometryType )) //
+        .filter(a -> data.has(a.getCode()) && !data.get(a.getCode()).isJsonNull()) //
+        .filter(a -> ! ( a instanceof AttributeGeometryType )) //
         .forEach(attribute -> {
           Object literal = null;
 
@@ -353,7 +352,7 @@ public class JenaSynchronizationService
 
           statements.add("DELETE WHERE { GRAPH <" + config.getGraph() + "> { <" + subjectUri + "> <" + attributeUri + "> ?obj}}");
 
-          JsonElement element = data.get(attribute.getName());
+          JsonElement element = data.get(attribute.getCode());
 
           if (attribute instanceof AttributeLocalType)
           {
@@ -434,17 +433,17 @@ public class JenaSynchronizationService
 
   protected String buildAttributeUri(JenaExportConfig config, String typeCode, AttributeType attribute)
   {
-    if (attribute.getIsDefault())
+    if (attribute.isDefault())
     {
-      if (attribute.getName().equals(DefaultAttribute.DISPLAY_LABEL.getName()))
+      if (attribute.getCode().equals(DefaultAttribute.DISPLAY_LABEL.getName()))
       {
         return org.apache.jena.vocabulary.RDFS.label.getURI();
       }
 
-      return config.getNamespace() + "#" + "GeoObject-" + attribute.getName();
+      return config.getNamespace() + "#" + "GeoObject-" + attribute.getCode();
     }
 
-    return config.getNamespace() + "#" + typeCode + "-" + attribute.getName();
+    return config.getNamespace() + "#" + typeCode + "-" + attribute.getCode();
   }
 
   protected String buildHasGeometryPredicate()

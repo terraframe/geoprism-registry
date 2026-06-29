@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package com.runwaysdk.build.domain;
 
@@ -25,7 +25,6 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 
 import com.google.gson.JsonArray;
@@ -95,12 +94,12 @@ public class PatchListGroupMetadata
 
     for (AttributeType attribute : attributes)
     {
-      String name = attribute.getName();
+      String name = attribute.getCode();
 
       if (this.isValid(attribute))
       {
 
-        if (attribute instanceof AttributeTermType || attribute instanceof AttributeClassificationType)
+        if (attribute instanceof AttributeClassificationType)
         {
           AttributeGroup attributeGroup = metadata.getRoot().addChild(new AttributeGroup(attribute));
 
@@ -141,7 +140,7 @@ public class PatchListGroupMetadata
           }
 
         }
-        else if (! ( attribute.getName().equals(DefaultAttribute.UID.getName()) || attribute.getName().equals(DefaultAttribute.INVALID.getName()) ))
+        else if (! ( attribute.getCode().equals(DefaultAttribute.UID.getName()) || attribute.getCode().equals(DefaultAttribute.INVALID.getName()) ))
         {
           MdAttributeConcreteDAOIF mdAttribute = mdBusiness.definesAttribute(name);
 
@@ -276,32 +275,32 @@ public class PatchListGroupMetadata
 
   private boolean isValid(AttributeType attributeType)
   {
-    if (attributeType.getName().equals(DefaultAttribute.UID.getName()))
+    if (attributeType.getCode().equals(DefaultAttribute.UID.getName()))
     {
       return true;
     }
 
-    if (attributeType.getName().equals(DefaultAttribute.SEQUENCE.getName()))
+    if (attributeType.getCode().equals(DefaultAttribute.SEQUENCE.getName()))
     {
       return false;
     }
 
-    if (attributeType.getName().equals(DefaultAttribute.LAST_UPDATE_DATE.getName()))
+    if (attributeType.getCode().equals(DefaultAttribute.LAST_UPDATE_DATE.getName()))
     {
       return false;
     }
 
-    if (attributeType.getName().equals(DefaultAttribute.CREATE_DATE.getName()))
+    if (attributeType.getCode().equals(DefaultAttribute.CREATE_DATE.getName()))
     {
       return false;
     }
 
-    if (attributeType.getName().equals(DefaultAttribute.TYPE.getName()))
+    if (attributeType.getCode().equals(DefaultAttribute.TYPE.getName()))
     {
       return false;
     }
 
-    if (attributeType.getName().equals(DefaultAttribute.EXISTS.getName()))
+    if (attributeType.getCode().equals(DefaultAttribute.EXISTS.getName()))
     {
       return false;
     }

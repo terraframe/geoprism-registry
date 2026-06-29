@@ -13,7 +13,6 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONArray;
@@ -264,7 +263,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
-    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
+    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, ImportStrategy.NEW_AND_UPDATE);
     config.setHierarchy(hierarchyType);
 
     ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), config.toJSON().toString());
@@ -320,7 +319,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
-    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.UPDATE_ONLY);
+    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, ImportStrategy.UPDATE_ONLY);
     config.setHierarchy(hierarchyType);
 
     ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), config.toJSON().toString());
@@ -377,7 +376,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
-    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_ONLY);
+    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, ImportStrategy.NEW_ONLY);
     config.setHierarchy(hierarchyType);
 
     // First, import the spreadsheet. It should be succesful
@@ -393,7 +392,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
 
     // Import a second spreadsheet, which should have a few duplicate records.
     InputStream istream2 = this.getClass().getResourceAsStream("/test-spreadsheet4.xlsx");
-    GeoObjectImportConfiguration config2 = this.getTestConfiguration(istream2, service, null, ImportStrategy.NEW_ONLY);
+    GeoObjectImportConfiguration config2 = this.getTestConfiguration(istream2, service, ImportStrategy.NEW_ONLY);
     config2.setHierarchy(hierarchyType);
     ImportHistory hist2 = importExcelFile(testData.clientRequest.getSessionId(), config2.toJSON().toString());
 
@@ -422,7 +421,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
-    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_ONLY);
+    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, ImportStrategy.NEW_ONLY);
     config.setHierarchy(hierarchyType);
 
     Assert.assertNotNull(config.getDataSource());
@@ -492,7 +491,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
-    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_ONLY);
+    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, ImportStrategy.NEW_ONLY);
     config.setHierarchy(hierarchyType);
     config.addParent(new Location(USATestData.COUNTRY.getServerObject(), hierarchyType, new BasicColumnFunction("Parent Country"), ParentMatchStrategy.ALL));
     config.addParent(new Location(USATestData.STATE.getServerObject(), hierarchyType, new BasicColumnFunction("Parent State"), ParentMatchStrategy.ALL));
@@ -585,7 +584,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
-    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_ONLY);
+    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, ImportStrategy.NEW_ONLY);
     config.setHierarchy(hierarchyType);
 
     Date startDate = new Date();
@@ -616,7 +615,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     Assert.assertEquals(1, results.length());
   }
 
-  private GeoObjectImportConfiguration getTestConfiguration(InputStream istream, ExcelService service, AttributeTermType attributeTerm, ImportStrategy strategy) throws JSONException
+  private GeoObjectImportConfiguration getTestConfiguration(InputStream istream, ExcelService service, ImportStrategy strategy) throws JSONException
   {
     JSONObject result = service.getExcelConfiguration(testData.clientRequest.getSessionId(), "test-spreadsheet.xlsx", istream, ImportConfigurationView.of(USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getCode(), strategy, false));
 
@@ -644,10 +643,6 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
       else if (attributeName.equals(GeoObjectImportConfiguration.LONGITUDE))
       {
         attribute.put(GeoObjectImportConfiguration.TARGET, "Longitude");
-      }
-      else if (attributeTerm != null && attributeName.equals(attributeTerm.getName()))
-      {
-        attribute.put(GeoObjectImportConfiguration.TARGET, "Term");
       }
     }
 

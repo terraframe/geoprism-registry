@@ -3,8 +3,6 @@
  */
 package net.geoprism.registry.hierarchy;
 
-import java.util.List;
-
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -13,7 +11,6 @@ import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.MetadataFactory;
@@ -25,8 +22,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -41,12 +36,10 @@ import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.config.TestApplication;
-import net.geoprism.registry.config.TestConfig;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
 import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
@@ -155,13 +148,13 @@ public class AttributeTypeServiceTest extends FastDatasetTest implements Instanc
     String attributeTypeJSON = testChar.toJSON().toString();
     testChar = this.client.createAttributeType(geoObjectTypeCode, attributeTypeJSON);
 
-    net.geoprism.registry.graph.AttributeType mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), testChar.getName());
+    net.geoprism.registry.graph.AttributeType mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), testChar.getCode());
 
-    Assert.assertNotNull("A GeoObjectType did not define the attribute: " + testChar.getName(), mdAttributeConcreteDAOIF);
+    Assert.assertNotNull("A GeoObjectType did not define the attribute: " + testChar.getCode(), mdAttributeConcreteDAOIF);
     Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof net.geoprism.registry.graph.AttributeCharacterType);
 
-    testChar.setLabel(MdAttributeLocalInfo.DEFAULT_LOCALE, "testCharLocalName-Update");
-    testChar.setDescription(MdAttributeLocalInfo.DEFAULT_LOCALE, "testCharLocalDescrip-Update");
+    testChar.setLabel( new LocalizedValue("testCharLocalName-Update"));
+    testChar.setDescription( new LocalizedValue("testCharLocalDescrip-Update"));
     attributeTypeJSON = testChar.toJSON().toString();
     testChar = this.client.updateAttributeType(geoObjectTypeCode, attributeTypeJSON);
 
@@ -186,9 +179,9 @@ public class AttributeTypeServiceTest extends FastDatasetTest implements Instanc
     String attributeTypeJSON = testDate.toJSON().toString();
     testDate = this.client.createAttributeType(geoObjectTypeCode, attributeTypeJSON);
 
-    net.geoprism.registry.graph.AttributeType mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), testDate.getName());
+    net.geoprism.registry.graph.AttributeType mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), testDate.getCode());
 
-    Assert.assertNotNull("A GeoObjectType did not define the attribute: " + testDate.getName(), mdAttributeConcreteDAOIF);
+    Assert.assertNotNull("A GeoObjectType did not define the attribute: " + testDate.getCode(), mdAttributeConcreteDAOIF);
     Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof net.geoprism.registry.graph.AttributeDateType);
   }
 
@@ -209,9 +202,9 @@ public class AttributeTypeServiceTest extends FastDatasetTest implements Instanc
     String attributeTypeJSON = testInteger.toJSON().toString();
     testInteger = this.client.createAttributeType(geoObjectTypeCode, attributeTypeJSON);
 
-    net.geoprism.registry.graph.AttributeType mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), testInteger.getName());
+    net.geoprism.registry.graph.AttributeType mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), testInteger.getCode());
 
-    Assert.assertNotNull("A GeoObjectType did not define the attribute: " + testInteger.getName(), mdAttributeConcreteDAOIF);
+    Assert.assertNotNull("A GeoObjectType did not define the attribute: " + testInteger.getCode(), mdAttributeConcreteDAOIF);
     Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof net.geoprism.registry.graph.AttributeLongType);
   }
 
@@ -232,82 +225,12 @@ public class AttributeTypeServiceTest extends FastDatasetTest implements Instanc
     String attributeTypeJSON = testBoolean.toJSON().toString();
     testBoolean = this.client.createAttributeType(geoObjectTypeCode, attributeTypeJSON);
 
-    net.geoprism.registry.graph.AttributeType mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), testBoolean.getName());
+    net.geoprism.registry.graph.AttributeType mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), testBoolean.getCode());
 
-    Assert.assertNotNull("A GeoObjectType did not define the attribute: " + testBoolean.getName(), mdAttributeConcreteDAOIF);
+    Assert.assertNotNull("A GeoObjectType did not define the attribute: " + testBoolean.getCode(), mdAttributeConcreteDAOIF);
     Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof net.geoprism.registry.graph.AttributeBooleanType);
   }
 
-  @Test
-  public void testCreateGeoObjectTypeTerm()
-  {
-    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
-
-    GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, client.getAdapter());
-
-    String geoObjectTypeCode = province.getCode();
-
-    AttributeTermType attributeTermType = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("Test Term Name"), new LocalizedValue("Test Term Description"), AttributeTermType.TYPE, false, false, false);
-    Term term = new Term(TEST_GOT.getCode() + "_" + "testTerm", new LocalizedValue("Test Term Name"), new LocalizedValue("Test Term Description"));
-    attributeTermType.setRootTerm(term);
-
-    province.addAttribute(attributeTermType);
-
-    String gtJSON = province.toJSON().toString();
-
-    this.client.createGeoObjectType(gtJSON);
-
-    String attributeTypeJSON = attributeTermType.toJSON().toString();
-    attributeTermType = (AttributeTermType) this.client.createAttributeType(geoObjectTypeCode, attributeTypeJSON);
-
-    net.geoprism.registry.graph.AttributeType mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), attributeTermType.getName());
-
-    Assert.assertNotNull("A GeoObjectType did not define the attribute: " + attributeTermType.getName(), mdAttributeConcreteDAOIF);
-    Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof net.geoprism.registry.graph.AttributeTermType);
-
-    Term rootTerm = attributeTermType.getRootTerm();
-
-    Term childTerm1 = new Term("termValue1", new LocalizedValue("Term Value 1"), new LocalizedValue(""));
-    Term childTerm2 = new Term("termValue2", new LocalizedValue("Term Value 2"), new LocalizedValue(""));
-
-    this.client.createTerm(rootTerm.getCode(), childTerm1.toJSON().toString());
-    this.client.createTerm(rootTerm.getCode(), childTerm2.toJSON().toString());
-
-    province = this.client.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, PermissionContext.READ)[0];
-    AttributeTermType attributeTermType2 = (AttributeTermType) province.getAttribute("testTerm").get();
-
-    // Check to see if the cache was updated.
-    checkTermsCreate(attributeTermType2);
-
-    attributeTermType.setLabel(MdAttributeLocalInfo.DEFAULT_LOCALE, "Test Term Name Update");
-    attributeTermType.setDescription(MdAttributeLocalInfo.DEFAULT_LOCALE, "Test Term Description Update");
-
-    attributeTermType = (AttributeTermType) this.client.updateAttributeType(geoObjectTypeCode, attributeTermType.toJSON().toString());
-
-    Assert.assertEquals(attributeTermType.getLabel().getValue(), "Test Term Name Update");
-    Assert.assertEquals(attributeTermType.getDescription().getValue(), "Test Term Description Update");
-
-    checkTermsCreate(attributeTermType);
-
-    // Test updating the term
-    childTerm2 = new Term("termValue2", new LocalizedValue("Term Value 2a"), new LocalizedValue(""));
-
-    this.client.updateTerm(rootTerm.getCode(), childTerm2.toJSON().toString());
-
-    province = this.client.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, PermissionContext.READ)[0];
-    AttributeTermType attributeTermType3 = (AttributeTermType) province.getAttribute("testTerm").get();
-
-    checkTermsUpdate(attributeTermType3);
-
-    this.client.deleteTerm(rootTerm.getCode(), "termValue2");
-
-    province = this.client.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, PermissionContext.READ)[0];
-    attributeTermType3 = (AttributeTermType) province.getAttribute("testTerm").get();
-
-    System.out.println(attributeTermType3.getRootTerm().toString());
-
-    checkTermsDelete(attributeTermType3);
-  }
 
   @Test
   public void testClassifierToTerm()
@@ -354,14 +277,14 @@ public class AttributeTypeServiceTest extends FastDatasetTest implements Instanc
     String attributeTypeJSON = attributeClassificationType.toJSON().toString();
     attributeClassificationType = (AttributeClassificationType) this.client.createAttributeType(geoObjectTypeCode, attributeTypeJSON);
 
-    net.geoprism.registry.graph.AttributeType mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), attributeClassificationType.getName());
+    net.geoprism.registry.graph.AttributeType mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), attributeClassificationType.getCode());
 
-    Assert.assertNotNull("A GeoObjectType did not define the attribute: " + attributeClassificationType.getName(), mdAttributeConcreteDAOIF);
+    Assert.assertNotNull("A GeoObjectType did not define the attribute: " + attributeClassificationType.getCode(), mdAttributeConcreteDAOIF);
     Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof net.geoprism.registry.graph.AttributeClassificationType);
 
     Term rootTerm = attributeClassificationType.getRootTerm();
 
-    Assert.assertNotNull("AttributeClassification root term not set correctly: " + attributeClassificationType.getName(), rootTerm);
+    Assert.assertNotNull("AttributeClassification root term not set correctly: " + attributeClassificationType.getCode(), rootTerm);
   }
 
   // @Request
@@ -470,82 +393,4 @@ public class AttributeTypeServiceTest extends FastDatasetTest implements Instanc
     return classifier;
   }
 
-  /**
-   * Method for checking the state of the {@link Term}s on an
-   * {@link AttributeTermType}
-   * 
-   * @param attributeTermType
-   */
-  private void checkTermsCreate(AttributeTermType attributeTermType)
-  {
-    Term rootTerm;
-    Term childTerm1;
-    Term childTerm2;
-
-    rootTerm = attributeTermType.getRootTerm();
-
-    List<Term> childTerms = rootTerm.getChildren();
-
-    Assert.assertEquals(2, childTerms.size());
-
-    childTerm1 = childTerms.get(0);
-    childTerm2 = childTerms.get(1);
-
-    Assert.assertEquals(childTerm1.getCode(), "termValue1");
-    Assert.assertEquals(childTerm1.getLabel().getValue(), "Term Value 1");
-
-    Assert.assertEquals(childTerm2.getCode(), "termValue2");
-    Assert.assertEquals(childTerm2.getLabel().getValue(), "Term Value 2");
-  }
-
-  /**
-   * Method for checking the state of the {@link Term}s on an
-   * {@link AttributeTermType}
-   * 
-   * @param attributeTermType
-   */
-  private void checkTermsUpdate(AttributeTermType attributeTermType)
-  {
-    Term rootTerm;
-    Term childTerm1;
-    Term childTerm2;
-
-    rootTerm = attributeTermType.getRootTerm();
-
-    List<Term> childTerms = rootTerm.getChildren();
-
-    Assert.assertEquals(2, childTerms.size());
-
-    childTerm1 = childTerms.get(0);
-    childTerm2 = childTerms.get(1);
-
-    Assert.assertEquals(childTerm1.getCode(), "termValue1");
-    Assert.assertEquals(childTerm1.getLabel().getValue(), "Term Value 1");
-
-    Assert.assertEquals(childTerm2.getCode(), "termValue2");
-    Assert.assertEquals(childTerm2.getLabel().getValue(), "Term Value 2a");
-  }
-
-  /**
-   * Method for checking the state of the {@link Term}s on an
-   * {@link AttributeTermType}
-   * 
-   * @param attributeTermType
-   */
-  private void checkTermsDelete(AttributeTermType attributeTermType)
-  {
-    Term rootTerm;
-    Term childTerm1;
-
-    rootTerm = attributeTermType.getRootTerm();
-
-    List<Term> childTerms = rootTerm.getChildren();
-
-    Assert.assertEquals(1, childTerms.size());
-
-    childTerm1 = childTerms.get(0);
-
-    Assert.assertEquals(childTerm1.getCode(), "termValue1");
-    Assert.assertEquals(childTerm1.getLabel().getValue(), "Term Value 1");
-  }
 }

@@ -16,7 +16,6 @@ import java.util.Set;
 
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
@@ -65,7 +64,6 @@ import com.runwaysdk.system.scheduler.JobHistoryQuery;
 import net.geoprism.GeoprismUser;
 import net.geoprism.GeoprismUserQuery;
 import net.geoprism.ontology.Classifier;
-import net.geoprism.ontology.ClassifierIsARelationship;
 import net.geoprism.ontology.ClassifierQuery;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.IdRecord;
@@ -1056,12 +1054,6 @@ abstract public class TestDataSet
     // }
   }
 
-  @Request
-  public static void refreshTerms(AttributeTermType attribute)
-  {
-    attribute.setRootTerm(new TermConverter(TermConverter.buildClassifierKeyFromTermCode(attribute.getRootTerm().getCode())).build());
-  }
-
   public static TestAttributeTypeInfo createAttribute(String name, String label, TestGeoObjectTypeInfo got, String type)
   {
     GeoObjectTypeBusinessServiceIF service = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
@@ -1073,45 +1065,6 @@ abstract public class TestDataSet
     at = service.createAttributeType(got.getServerObject(), attributeTypeJSON);
 
     return new TestAttributeTypeInfo(at, got);
-  }
-
-  public static TestAttributeTermTypeInfo createTermAttribute(String name, String label, TestGeoObjectTypeInfo got, Term attrRoot)
-  {
-    GeoObjectTypeBusinessServiceIF service = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
-
-    final String type = AttributeTermType.TYPE;
-
-    AttributeTermType att = (AttributeTermType) AttributeType.factory(name, new LocalizedValue(label), new LocalizedValue("Description for " + name), type, false, false, true);
-
-    if (attrRoot != null)
-    {
-      att.setRootTerm(attrRoot);
-    }
-
-    String attributeTypeJSON = att.toJSON().toString();
-
-    att = (AttributeTermType) service.createAttributeType(got.getServerObject(), attributeTypeJSON);
-
-    return new TestAttributeTermTypeInfo(att, got);
-  }
-
-  public static Term createTerm(TestAttributeTermTypeInfo termAttr, String classifierId, String displayLabel)
-  {
-    Classifier parentTerm = termAttr.fetchRootAsClassifier();
-
-    Classifier child = Classifier.findClassifier(parentTerm.getKey(), classifierId);
-    if (child == null)
-    {
-      child = new Classifier();
-      child.setClassifierId(classifierId);
-      child.setClassifierPackage(parentTerm.getKey());
-      child.getDisplayLabel().setDefaultValue(displayLabel);
-      child.apply();
-
-      child.addLink(parentTerm, ClassifierIsARelationship.CLASS).apply();
-    }
-
-    return new TermConverter(child.getKeyName()).build();
   }
 
   public static Term createAttributeRootTerm(TestGeoObjectTypeInfo gTypeInfo, TestAttributeTypeInfo aTypeInfo)

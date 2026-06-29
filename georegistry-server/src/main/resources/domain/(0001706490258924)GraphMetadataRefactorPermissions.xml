@@ -98,9 +98,6 @@
           <mdBusinessPermission type="net.geoprism.registry.graph.AttributeLocalType">
             <operation name="ALL" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.registry.graph.AttributeTermType">
-            <operation name="ALL" />
-          </mdBusinessPermission>
           <mdBusinessPermission type="net.geoprism.registry.graph.AttributeClassificationType">
             <operation name="ALL" />
           </mdBusinessPermission>
@@ -126,9 +123,6 @@
             <operation name="ALL" />
           </mdBusinessPermission>
           <mdBusinessPermission type="net.geoprism.registry.graph.AttributeLocalValue">
-            <operation name="ALL" />
-          </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.registry.graph.AttributeTermValue">
             <operation name="ALL" />
           </mdBusinessPermission>
           <mdBusinessPermission type="net.geoprism.registry.graph.AttributeGeometryValue">
@@ -204,10 +198,6 @@
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.registry.graph.AttributeTermType">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-          </mdBusinessPermission>
           <mdBusinessPermission type="net.geoprism.registry.graph.AttributeClassificationType">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
@@ -241,10 +231,6 @@
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>
           <mdBusinessPermission type="net.geoprism.registry.graph.AttributeLocalValue">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-          </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.registry.graph.AttributeTermValue">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>
@@ -325,10 +311,6 @@
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.registry.graph.AttributeTermType">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-          </mdBusinessPermission>
           <mdBusinessPermission type="net.geoprism.registry.graph.AttributeClassificationType">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
@@ -362,10 +344,6 @@
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>
           <mdBusinessPermission type="net.geoprism.registry.graph.AttributeLocalValue">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-          </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.registry.graph.AttributeTermValue">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>

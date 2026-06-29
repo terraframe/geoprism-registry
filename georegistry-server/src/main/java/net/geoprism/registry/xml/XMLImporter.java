@@ -43,7 +43,6 @@ import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.w3c.dom.Document;
@@ -52,7 +51,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.google.gson.JsonObject;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.resource.ApplicationResource;
@@ -79,6 +77,7 @@ import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
 import net.geoprism.registry.view.BusinessEdgeTypeView;
 import net.geoprism.registry.view.BusinessGeoEdgeTypeView;
+import net.geoprism.registry.view.BusinessTypeDTO;
 
 public class XMLImporter
 {
@@ -405,15 +404,6 @@ public class XMLImporter
           {
             this.typeService.createAttributeType(type, new AttributeDateType(code, label, description, false, false, false));
           }
-          else if (elem.getTagName().equals("term"))
-          {
-            AttributeTermType attributeType = new AttributeTermType(code, label, description, false, false, false);
-            attributeType = (AttributeTermType) this.typeService.createAttributeType(type, attributeType);
-
-            Term rootTerm = attributeType.getRootTerm();
-
-            this.createTermOptions(elem, rootTerm);
-          }
           else if (elem.getTagName().equals("classification"))
           {
             String rootCode = elem.getAttribute("root");
@@ -452,19 +442,19 @@ public class XMLImporter
 
           if (elem.getTagName().equals("text"))
           {
-            this.bTypeService.createAttributeType(type, new AttributeCharacterType(code, label, description, false, false, false));
+            this.bTypeService.createAttributeType(type, new AttributeCharacterType(code, label, description, false, false, false, false));
           }
           else if (elem.getTagName().equals("boolean"))
           {
-            this.bTypeService.createAttributeType(type, new AttributeBooleanType(code, label, description, false, false, false));
+            this.bTypeService.createAttributeType(type, new AttributeBooleanType(code, label, description, false, false, false, false));
           }
           else if (elem.getTagName().equals("integer"))
           {
-            this.bTypeService.createAttributeType(type, new AttributeIntegerType(code, label, description, false, false, false));
+            this.bTypeService.createAttributeType(type, new AttributeIntegerType(code, label, description, false, false, false, false));
           }
           else if (elem.getTagName().equals("decimal"))
           {
-            AttributeFloatType attributeType = new AttributeFloatType(code, label, description, false, false, false);
+            AttributeFloatType attributeType = new AttributeFloatType(code, label, description, false, false, false, false);
             attributeType.setPrecision(this.getPrecision(elem));
             attributeType.setScale(this.getScale(elem));
 
@@ -472,23 +462,14 @@ public class XMLImporter
           }
           else if (elem.getTagName().equals("date"))
           {
-            this.bTypeService.createAttributeType(type, new AttributeDateType(code, label, description, false, false, false));
-          }
-          else if (elem.getTagName().equals("term"))
-          {
-            AttributeTermType attributeType = new AttributeTermType(code, label, description, false, false, false);
-            attributeType = (AttributeTermType) this.bTypeService.createAttributeType(type, attributeType);
-
-            Term rootTerm = attributeType.getRootTerm();
-
-            this.createTermOptions(elem, rootTerm);
+            this.bTypeService.createAttributeType(type, new AttributeDateType(code, label, description, false, false, false, false));
           }
           else if (elem.getTagName().equals("classification"))
           {
             String rootCode = elem.getAttribute("root");
             String classificationType = elem.getAttribute("classificationType");
 
-            AttributeClassificationType attributeType = new AttributeClassificationType(code, label, description, false, false, false);
+            AttributeClassificationType attributeType = new AttributeClassificationType(code, label, description, false, false, false, false);
             attributeType.setRootTerm(new Term(rootCode, new LocalizedValue(""), new LocalizedValue("")));
             attributeType.setClassificationType(classificationType);
 
@@ -750,10 +731,10 @@ public class XMLImporter
 
       ServiceFactory.getGeoObjectTypePermissionService().enforceCanCreate(organization.getCode(), false);
 
-      JsonObject object = new JsonObject();
-      object.addProperty(BusinessType.CODE, code);
-      object.addProperty(BusinessType.ORGANIZATION, organization.getCode());
-      object.add(BusinessType.DISPLAYLABEL, label.toJSON());
+      BusinessTypeDTO object = new BusinessTypeDTO();
+      object.setCode(code);
+      object.setOrganization(organization.getCode());
+      object.setDisplayLabel(label);
 
       BusinessType type = this.bTypeService.apply(object);
 

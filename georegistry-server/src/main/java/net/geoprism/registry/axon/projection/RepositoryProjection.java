@@ -52,18 +52,19 @@ import net.geoprism.registry.cache.Cache;
 import net.geoprism.registry.cache.GeoObjectCache;
 import net.geoprism.registry.cache.LRUCache;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.graph.BaseGeoObjectType;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
+import net.geoprism.registry.graph.ObjectClass;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.EdgeType;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.model.graph.EdgeVertexType;
 import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
@@ -703,16 +704,16 @@ public class RepositoryProjection
   public void handleRemoveBusinessObjectEvent(RemoveBusinessObjectEdgeEvent event)
   {
     BusinessEdgeType edgeType = this.edgeService.getByCodeOrThrow(event.getEdgeTypeCode());
-    EdgeVertexType parentType = this.edgeService.getParent(edgeType);
-    EdgeVertexType childType = this.edgeService.getChild(edgeType);
+    ObjectClass parentType = this.edgeService.getParent(edgeType);
+    ObjectClass childType = this.edgeService.getChild(edgeType);
 
     String clazz = edgeType.getMdEdgeDAO().getDBClassName();
 
-    Object sourceRid = parentType.isGeoObjectType() ? //
+    Object sourceRid = ( parentType instanceof BaseGeoObjectType ) ? //
         this.gObjectService.getGeoObjectByCode(event.getSourceCode(), event.getSourceType()).getVertex().getRID() : //
         this.bObjectService.getByCode(this.bTypeService.getByCodeOrThrow(event.getSourceType()), event.getSourceCode()).getVertex().getRID();
 
-    Object targetRid = childType.isGeoObjectType() ? //
+    Object targetRid = ( childType instanceof BaseGeoObjectType ) ? //
         this.gObjectService.getGeoObjectByCode(event.getTargetCode(), event.getTargetType()).getVertex().getRID() : //
         this.bObjectService.getByCode(this.bTypeService.getByCodeOrThrow(event.getTargetType()), event.getTargetCode()).getVertex().getRID();
 

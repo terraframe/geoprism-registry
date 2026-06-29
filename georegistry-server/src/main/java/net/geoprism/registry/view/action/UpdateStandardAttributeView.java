@@ -54,7 +54,7 @@ public class UpdateStandardAttributeView extends AbstractUpdateAttributeView
     {
       Object converted;
       
-      if (attr.getName().equals(DefaultAttribute.ALT_IDS.getName()))
+      if (attr.getCode().equals(DefaultAttribute.ALT_IDS.getName()))
       {
         JsonArray ja = newValue.getAsJsonArray();
         List<AlternateId> ids = new ArrayList<AlternateId>();

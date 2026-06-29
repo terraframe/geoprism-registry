@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.google.gson.JsonObject;
 import com.runwaysdk.Pair;
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.session.Request;
@@ -56,6 +55,7 @@ import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.view.BusinessEdgeTypeView;
 import net.geoprism.registry.view.BusinessGeoEdgeTypeView;
+import net.geoprism.registry.view.BusinessTypeDTO;
 import net.geoprism.registry.view.ImportHistoryView;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
@@ -109,14 +109,14 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
   @Request
   private void setUpInReq()
   {
-    JsonObject object = new JsonObject();
-    object.addProperty(BusinessType.CODE, "TEST_BUSINESS");
-    object.addProperty(BusinessType.ORGANIZATION, FastTestDataset.ORG_CGOV.getCode());
-    object.add(BusinessType.DISPLAYLABEL, new LocalizedValue("Test Business").toJSON());
+    BusinessTypeDTO object = new BusinessTypeDTO();
+    object.setCode("TEST_BUSINESS");
+    object.setOrganization(FastTestDataset.ORG_CGOV.getCode());
+    object.setDisplayLabel(new LocalizedValue("Test Business"));
 
     btype = this.bTypeService.apply(object);
 
-    this.bTypeService.createAttributeType(btype, new AttributeBooleanType("testBoolean", new LocalizedValue("Test Boolean"), new LocalizedValue("Test Boolean"), false, false, false));
+    this.bTypeService.createAttributeType(btype, new AttributeBooleanType("testBoolean", new LocalizedValue("Test Boolean"), new LocalizedValue("Test Boolean"), false, false, false, false));
 
     bEdgeType = this.bEdgeService.create(BusinessEdgeTypeView.build(FastTestDataset.ORG_CGOV.getCode(), "TEST_B_EDGE", new LocalizedValue("TEST_B_EDGE"), new LocalizedValue("TEST_B_EDGE"), btype.getCode(), btype.getCode()));
 

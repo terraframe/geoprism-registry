@@ -28,7 +28,6 @@ import java.util.Map;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,8 +48,6 @@ import net.geoprism.dhis2.dhis2adapter.response.model.Attribute;
 import net.geoprism.dhis2.dhis2adapter.response.model.ValueType;
 import net.geoprism.registry.etl.DHIS2AttributeMapping;
 import net.geoprism.registry.etl.DHIS2EndDateAttributeMapping;
-import net.geoprism.registry.etl.DHIS2OptionSetAttributeMapping;
-import net.geoprism.registry.etl.DHIS2OrgUnitGroupAttributeMapping;
 import net.geoprism.registry.etl.DHIS2StartDateAttributeMapping;
 import net.geoprism.registry.etl.export.ExportRemoteException;
 import net.geoprism.registry.etl.export.HttpError;
@@ -104,12 +101,7 @@ public class DHIS2FeatureService
   {
     List<DHIS2AttributeMapping> strategies = new ArrayList<DHIS2AttributeMapping>();
 
-    if (type.getType().equals(AttributeTermType.TYPE))
-    {
-      strategies.add(new DHIS2OptionSetAttributeMapping());
-      strategies.add(new DHIS2OrgUnitGroupAttributeMapping());
-    }
-    else if (type.getName().equals(DefaultAttribute.EXISTS.getName()))
+    if (type.getCode().equals(DefaultAttribute.EXISTS.getName()))
     {
       strategies.add(new DHIS2AttributeMapping(DefaultAttribute.EXISTS.getName()));
       strategies.add(new DHIS2StartDateAttributeMapping());
@@ -158,12 +150,12 @@ public class DHIS2FeatureService
 
     for (AttributeType cgrAttr : cgrAttrs.values())
     {
-      if (!ArrayUtils.contains(skipAttrs, cgrAttr.getName()))
+      if (!ArrayUtils.contains(skipAttrs, cgrAttr.getCode()))
       {
         JsonObject joAttr = new JsonObject();
 
         JsonObject joCgrAttr = new JsonObject();
-        joCgrAttr.addProperty("name", cgrAttr.getName());
+        joCgrAttr.addProperty("name", cgrAttr.getCode());
         joCgrAttr.addProperty("label", cgrAttr.getLabel().getValue());
         joCgrAttr.addProperty("type", cgrAttr.getType());
         joCgrAttr.addProperty("typeLabel", AttributeTypeMetadata.get().getTypeEnumDisplayLabel(cgrAttr.getType()));

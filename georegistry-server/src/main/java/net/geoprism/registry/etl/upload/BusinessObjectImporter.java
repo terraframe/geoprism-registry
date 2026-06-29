@@ -31,17 +31,10 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.StringUtils;
 import org.axonframework.eventhandling.GenericEventMessage;
 import org.axonframework.eventhandling.gateway.EventGateway;
-import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
-import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
-import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
-import org.commongeoregistry.adapter.metadata.AttributeFloatType;
-import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
-import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +45,6 @@ import com.runwaysdk.ProblemIF;
 import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.MdAttributeClassificationDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -65,16 +57,19 @@ import com.runwaysdk.system.AbstractClassification;
 
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
-import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.axon.event.repository.BusinessObjectEventBuilder;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.graph.AttributeCharacterType;
+import net.geoprism.registry.graph.AttributeClassificationType;
+import net.geoprism.registry.graph.AttributeDoubleType;
+import net.geoprism.registry.graph.AttributeLongType;
+import net.geoprism.registry.graph.AttributeType;
 import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.io.IgnoreRowException;
 import net.geoprism.registry.io.RequiredMappingException;
 import net.geoprism.registry.io.TermValueException;
 import net.geoprism.registry.jobs.RowValidationProblem;
-import net.geoprism.registry.jobs.TermReferenceProblem;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.GeoObjectMetadata;
 import net.geoprism.registry.model.GeoObjectTypeMetadata;
@@ -543,7 +538,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
     if (function == null)
     {
       RequiredMappingException ex = new RequiredMappingException();
-      ex.setAttributeLabel(this.configuration.getType().getAttribute(BusinessObject.CODE).getLabel().getValue());
+      ex.setAttributeLabel(this.configuration.getType().getAttribute(BusinessObject.CODE).get().getLocalizedLabel().getValue());
       throw ex;
     }
 
@@ -555,45 +550,6 @@ public class BusinessObjectImporter implements ObjectImporterIF
     }
 
     return null;
-  }
-
-  protected void setTermValue(BusinessObject entity, AttributeType attributeType, String attributeName, Object value, FeatureRow row)
-  {
-    if (!this.configuration.isExclusion(attributeName, value.toString()))
-    {
-      try
-      {
-        BusinessType type = this.configuration.getType();
-        MdVertexDAOIF mdBusiness = type.getMdVertexDAO();
-        MdAttributeTermDAOIF mdAttribute = (MdAttributeTermDAOIF) mdBusiness.definesAttribute(attributeName);
-
-        Classifier classifier = Classifier.findMatchingTerm(value.toString().trim(), mdAttribute);
-
-        if (classifier == null)
-        {
-          Term rootTerm = ( (AttributeTermType) attributeType ).getRootTerm();
-
-          TermReferenceProblem trp = new TermReferenceProblem(value.toString(), rootTerm.getCode(), type.getCode(), attributeName, attributeType.getLabel().getValue());
-          trp.setImportType("BUSINESS");
-          trp.addAffectedRowNumber(row.getRowNumber());
-          trp.setHistoryId(this.configuration.getHistoryId());
-
-          this.progressListener.addReferenceProblem(trp);
-        }
-        else
-        {
-          entity.setValue(attributeName, classifier.getOid());
-        }
-      }
-      catch (UnknownTermException e)
-      {
-        TermValueException ex = new TermValueException();
-        ex.setAttributeLabel(e.getAttribute().getLabel().getValue());
-        ex.setCode(e.getCode());
-
-        throw e;
-      }
-    }
   }
 
   protected void setClassificationValue(BusinessObject entity, AttributeType attributeType, String attributeName, Object value)
@@ -610,7 +566,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
 
         if (classifier == null)
         {
-          throw new UnknownTermException(value.toString().trim(), attributeType);
+          throw new UnknownTermException(value.toString().trim(), attributeType.toDTO());
         }
         else
         {
@@ -641,18 +597,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
         entity.setValue(attributeName, null);
       }
     }
-    else if (attributeType instanceof AttributeTermType)
-    {
-      if (value != null)
-      {
-        this.setTermValue(entity, attributeType, attributeName, value, row);
-      }
-      else
-      {
-        entity.setValue(attributeName, null);
-      }
-    }
-    else if (attributeType instanceof AttributeIntegerType)
+    else if (attributeType instanceof AttributeLongType)
     {
       if (value == null)
       {
@@ -671,7 +616,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
         throw new UnsupportedOperationException();
       }
     }
-    else if (attributeType instanceof AttributeFloatType)
+    else if (attributeType instanceof AttributeDoubleType)
     {
       if (value == null)
       {

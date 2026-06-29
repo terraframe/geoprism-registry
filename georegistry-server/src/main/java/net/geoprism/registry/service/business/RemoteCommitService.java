@@ -1,5 +1,6 @@
 package net.geoprism.registry.service.business;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -9,6 +10,8 @@ import org.axonframework.eventhandling.gateway.EventGateway;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.GsonBuilder;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
 
@@ -23,6 +26,7 @@ import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Publish;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
 import net.geoprism.registry.graph.DataSource;
+import net.geoprism.registry.view.BusinessTypeDTO;
 import net.geoprism.registry.view.CommitDTO;
 import net.geoprism.registry.view.PublishDTO;
 import net.geoprism.registry.view.TypeAndCode;
@@ -120,7 +124,9 @@ public class RemoteCommitService
       GeoObjectTypeSnapshot root = this.snapshotService.createRoot(commit);
 
       client.getBusinessTypes(commit.getUid()).forEach(element -> {
-        BusinessTypeSnapshot snapshot = this.bTypeService.create(commit, element.getAsJsonObject());
+        BusinessTypeDTO dto = BusinessTypeDTO.parseJson(element.toString());
+
+        BusinessTypeSnapshot snapshot = this.bTypeService.create(commit, dto);
 
         this.snapshotService.createType(snapshot);
       });

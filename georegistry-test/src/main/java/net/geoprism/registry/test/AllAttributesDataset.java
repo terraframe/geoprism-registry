@@ -28,93 +28,79 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
  */
 public class AllAttributesDataset extends TestDataSet
 {
-  public static final String                    TEST_DATA_KEY                = "AllAttr";
+  public static final String                TEST_DATA_KEY                = "AllAttr";
 
-  public static final TestSourceInfo            SOURCE                       = new TestSourceInfo("AllSource");
+  public static final TestSourceInfo        SOURCE                       = new TestSourceInfo("AllSource");
 
-  public static final TestOrganizationInfo      ORG                          = new TestOrganizationInfo(TEST_DATA_KEY + "Org");
+  public static final TestOrganizationInfo  ORG                          = new TestOrganizationInfo(TEST_DATA_KEY + "Org");
 
-  public static final TestUserInfo              USER_ORG_RA                  = new TestUserInfo(TEST_DATA_KEY + "_" + "ra", "ra", TEST_DATA_KEY + "@noreply.com", new String[] { RegistryRole.Type.getRA_RoleName(ORG.getCode()) });
+  public static final TestUserInfo          USER_ORG_RA                  = new TestUserInfo(TEST_DATA_KEY + "_" + "ra", "ra", TEST_DATA_KEY + "@noreply.com", new String[] { RegistryRole.Type.getRA_RoleName(ORG.getCode()) });
 
-  public static final TestHierarchyTypeInfo     HIER                         = new TestHierarchyTypeInfo(TEST_DATA_KEY + "Hier", ORG);
+  public static final TestHierarchyTypeInfo HIER                         = new TestHierarchyTypeInfo(TEST_DATA_KEY + "Hier", ORG);
 
-  public static final TestGeoObjectTypeInfo     GOT_ALL                      = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "All", GeometryType.MULTIPOLYGON, ORG);
+  public static final TestGeoObjectTypeInfo GOT_ALL                      = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "All", GeometryType.MULTIPOLYGON, ORG);
 
-  public static final TestGeoObjectTypeInfo     GOT_CHAR                     = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "CHAR", GeometryType.MULTIPOLYGON, ORG);
+  public static final TestGeoObjectTypeInfo GOT_CHAR                     = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "CHAR", GeometryType.MULTIPOLYGON, ORG);
 
-  public static final TestGeoObjectTypeInfo     GOT_LOCAL                    = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "LOCAL", GeometryType.MULTIPOLYGON, ORG);
+  public static final TestGeoObjectTypeInfo GOT_LOCAL                    = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "LOCAL", GeometryType.MULTIPOLYGON, ORG);
 
-  public static final TestGeoObjectTypeInfo     GOT_INT                      = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "INT", GeometryType.MULTIPOLYGON, ORG);
+  public static final TestGeoObjectTypeInfo GOT_INT                      = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "INT", GeometryType.MULTIPOLYGON, ORG);
 
-  public static final TestGeoObjectTypeInfo     GOT_FLOAT                    = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "FLOAT", GeometryType.MULTIPOLYGON, ORG);
+  public static final TestGeoObjectTypeInfo GOT_FLOAT                    = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "FLOAT", GeometryType.MULTIPOLYGON, ORG);
 
-  public static final TestGeoObjectTypeInfo     GOT_BOOL                     = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "BOOL", GeometryType.MULTIPOLYGON, ORG);
+  public static final TestGeoObjectTypeInfo GOT_BOOL                     = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "BOOL", GeometryType.MULTIPOLYGON, ORG);
 
-  public static final TestGeoObjectTypeInfo     GOT_DATE                     = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "DATE", GeometryType.MULTIPOLYGON, ORG);
+  public static final TestGeoObjectTypeInfo GOT_DATE                     = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "DATE", GeometryType.MULTIPOLYGON, ORG);
 
-  public static final TestGeoObjectTypeInfo     GOT_TERM                     = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "TERM", GeometryType.MULTIPOLYGON, ORG);
+  public static final TestGeoObjectTypeInfo GOT_TERM                     = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "TERM", GeometryType.MULTIPOLYGON, ORG);
 
-  public static final TestGeoObjectInfo         GO_ALL                       = new TestGeoObjectInfo(TEST_DATA_KEY + "GO_ALL", GOT_ALL, SOURCE);
+  public static final TestGeoObjectInfo     GO_ALL                       = new TestGeoObjectInfo(TEST_DATA_KEY + "GO_ALL", GOT_ALL, SOURCE);
 
-  public static final TestGeoObjectInfo         GO_CHAR                      = new TestGeoObjectInfo(TEST_DATA_KEY + "GO_CHAR", GOT_CHAR, SOURCE);
+  public static final TestGeoObjectInfo     GO_CHAR                      = new TestGeoObjectInfo(TEST_DATA_KEY + "GO_CHAR", GOT_CHAR, SOURCE);
 
-  public static final TestGeoObjectInfo         GO_LOCAL                     = new TestGeoObjectInfo(TEST_DATA_KEY + "GO_LOCAL", GOT_LOCAL, SOURCE);
+  public static final TestGeoObjectInfo     GO_LOCAL                     = new TestGeoObjectInfo(TEST_DATA_KEY + "GO_LOCAL", GOT_LOCAL, SOURCE);
 
-  public static final TestGeoObjectInfo         GO_INT                       = new TestGeoObjectInfo(TEST_DATA_KEY + "GO_INT", GOT_INT, SOURCE);
+  public static final TestGeoObjectInfo     GO_INT                       = new TestGeoObjectInfo(TEST_DATA_KEY + "GO_INT", GOT_INT, SOURCE);
 
-  public static final TestGeoObjectInfo         GO_FLOAT                     = new TestGeoObjectInfo(TEST_DATA_KEY + "GO_FLOAT", GOT_FLOAT, SOURCE);
+  public static final TestGeoObjectInfo     GO_FLOAT                     = new TestGeoObjectInfo(TEST_DATA_KEY + "GO_FLOAT", GOT_FLOAT, SOURCE);
 
-  public static final TestGeoObjectInfo         GO_BOOL                      = new TestGeoObjectInfo(TEST_DATA_KEY + "GO_BOOL", GOT_BOOL, SOURCE);
+  public static final TestGeoObjectInfo     GO_BOOL                      = new TestGeoObjectInfo(TEST_DATA_KEY + "GO_BOOL", GOT_BOOL, SOURCE);
 
-  public static final TestGeoObjectInfo         GO_DATE                      = new TestGeoObjectInfo(TEST_DATA_KEY + "GO_DATE", GOT_DATE, SOURCE);
+  public static final TestGeoObjectInfo     GO_DATE                      = new TestGeoObjectInfo(TEST_DATA_KEY + "GO_DATE", GOT_DATE, SOURCE);
 
-  public static final TestGeoObjectInfo         GO_TERM                      = new TestGeoObjectInfo(TEST_DATA_KEY + "GO_TERM", GOT_TERM, SOURCE);
+  public static final TestGeoObjectInfo     GO_TERM                      = new TestGeoObjectInfo(TEST_DATA_KEY + "GO_TERM", GOT_TERM, SOURCE);
 
-  public static final TestAttributeTypeInfo     AT_ALL_CHAR                  = new TestAttributeTypeInfo("testcharacterall", "testcharacterall", GOT_ALL, AttributeCharacterType.TYPE);
+  public static final TestAttributeTypeInfo AT_ALL_CHAR                  = new TestAttributeTypeInfo("testcharacterall", "testcharacterall", GOT_ALL, AttributeCharacterType.TYPE);
 
-  public static final TestAttributeTypeInfo     AT_GO_CHAR                   = new TestAttributeTypeInfo("testcharacter", "testcharacter", GOT_CHAR, AttributeCharacterType.TYPE);
+  public static final TestAttributeTypeInfo AT_GO_CHAR                   = new TestAttributeTypeInfo("testcharacter", "testcharacter", GOT_CHAR, AttributeCharacterType.TYPE);
 
-  public static final TestAttributeTypeInfo     AT_ALL_LOCAL                 = new TestAttributeTypeInfo("testlocalall", "testlocalall", GOT_ALL, AttributeLocalType.TYPE);
+  public static final TestAttributeTypeInfo AT_ALL_LOCAL                 = new TestAttributeTypeInfo("testlocalall", "testlocalall", GOT_ALL, AttributeLocalType.TYPE);
 
-  public static final TestAttributeTypeInfo     AT_GO_LOCAL                  = new TestAttributeTypeInfo("testlocal", "testlocal", GOT_LOCAL, AttributeLocalType.TYPE);
+  public static final TestAttributeTypeInfo AT_GO_LOCAL                  = new TestAttributeTypeInfo("testlocal", "testlocal", GOT_LOCAL, AttributeLocalType.TYPE);
 
-  public static final TestAttributeTypeInfo     AT_ALL_INT                   = new TestAttributeTypeInfo("testintegerall", "testintegerall", GOT_ALL, AttributeIntegerType.TYPE);
+  public static final TestAttributeTypeInfo AT_ALL_INT                   = new TestAttributeTypeInfo("testintegerall", "testintegerall", GOT_ALL, AttributeIntegerType.TYPE);
 
-  public static final TestAttributeTypeInfo     AT_GO_INT                    = new TestAttributeTypeInfo("testinteger", "testinteger", GOT_INT, AttributeIntegerType.TYPE);
+  public static final TestAttributeTypeInfo AT_GO_INT                    = new TestAttributeTypeInfo("testinteger", "testinteger", GOT_INT, AttributeIntegerType.TYPE);
 
-  public static final TestAttributeTypeInfo     AT_ALL_FLOAT                 = new TestAttributeTypeInfo("testfloatall", "testfloatall", GOT_ALL, AttributeFloatType.TYPE);
+  public static final TestAttributeTypeInfo AT_ALL_FLOAT                 = new TestAttributeTypeInfo("testfloatall", "testfloatall", GOT_ALL, AttributeFloatType.TYPE);
 
-  public static final TestAttributeTypeInfo     AT_GO_FLOAT                  = new TestAttributeTypeInfo("testfloat", "testfloat", GOT_FLOAT, AttributeFloatType.TYPE);
+  public static final TestAttributeTypeInfo AT_GO_FLOAT                  = new TestAttributeTypeInfo("testfloat", "testfloat", GOT_FLOAT, AttributeFloatType.TYPE);
 
-  public static final TestAttributeTypeInfo     AT_ALL_BOOL                  = new TestAttributeTypeInfo("testbooleanall", "testbooleanall", GOT_ALL, AttributeBooleanType.TYPE);
+  public static final TestAttributeTypeInfo AT_ALL_BOOL                  = new TestAttributeTypeInfo("testbooleanall", "testbooleanall", GOT_ALL, AttributeBooleanType.TYPE);
 
-  public static final TestAttributeTypeInfo     AT_GO_BOOL                   = new TestAttributeTypeInfo("testboolean", "testboolean", GOT_BOOL, AttributeBooleanType.TYPE);
+  public static final TestAttributeTypeInfo AT_GO_BOOL                   = new TestAttributeTypeInfo("testboolean", "testboolean", GOT_BOOL, AttributeBooleanType.TYPE);
 
-  public static final TestAttributeTypeInfo     AT_ALL_DATE                  = new TestAttributeTypeInfo("testdateall", "testdateall", GOT_ALL, AttributeDateType.TYPE);
+  public static final TestAttributeTypeInfo AT_ALL_DATE                  = new TestAttributeTypeInfo("testdateall", "testdateall", GOT_ALL, AttributeDateType.TYPE);
 
-  public static final TestAttributeTypeInfo     AT_GO_DATE                   = new TestAttributeTypeInfo("testdate", "testdate", GOT_DATE, AttributeDateType.TYPE);
+  public static final TestAttributeTypeInfo AT_GO_DATE                   = new TestAttributeTypeInfo("testdate", "testdate", GOT_DATE, AttributeDateType.TYPE);
 
-  public static final TestAttributeTermTypeInfo AT_ALL_TERM                  = new TestAttributeTermTypeInfo("testtermall", "testtermall", GOT_ALL);
+  private final static String               ROOT_TEST_TERM_CLASSIFIER_ID = TEST_DATA_KEY + "_ROOT";
 
-  public static final TestAttributeTermTypeInfo AT_GO_TERM                   = new TestAttributeTermTypeInfo("testterm", "testterm", GOT_TERM);
-
-  // Terms for the ALL GOT
-  public static final TestTermInfo              TERM_ALL_VAL1                = new TestTermInfo(TEST_DATA_KEY + "ALL_VAL1", AT_ALL_TERM);
-
-  public static final TestTermInfo              TERM_ALL_VAL2                = new TestTermInfo(TEST_DATA_KEY + "ALL_VAL2", AT_ALL_TERM);
-
-  // Terms for the Term GOT
-  public static final TestTermInfo              TERM_TERM_VAL1               = new TestTermInfo(TEST_DATA_KEY + "GO_VAL1", AT_GO_TERM);
-
-  public static final TestTermInfo              TERM_TERM_VAL2               = new TestTermInfo(TEST_DATA_KEY + "GO_VAL2", AT_GO_TERM);
-
-  private final static String                   ROOT_TEST_TERM_CLASSIFIER_ID = TEST_DATA_KEY + "_ROOT";
-
-  public static final Date                      GO_DATE_VALUE                = new Date();
+  public static final Date                  GO_DATE_VALUE                = new Date();
 
   {
     managedSources.add(SOURCE);
-    
+
     managedOrganizationInfos.add(ORG);
 
     managedHierarchyTypeInfos.add(HIER);
@@ -138,11 +124,6 @@ public class AllAttributesDataset extends TestDataSet
     managedGeoObjectInfos.add(GO_TERM);
 
     managedUsers.add(USER_ORG_RA);
-
-    AT_ALL_TERM.addManagedTerm(TERM_ALL_VAL1);
-    AT_ALL_TERM.addManagedTerm(TERM_ALL_VAL2);
-    AT_GO_TERM.addManagedTerm(TERM_TERM_VAL1);
-    AT_GO_TERM.addManagedTerm(TERM_TERM_VAL2);
   }
 
   public static AllAttributesDataset newTestData()
@@ -185,12 +166,6 @@ public class AllAttributesDataset extends TestDataSet
     GO_ALL.setDefaultValue(AT_ALL_DATE.getAttributeName(), GO_DATE_VALUE);
     AT_GO_DATE.apply();
     GO_DATE.setDefaultValue(AT_GO_DATE.getAttributeName(), GO_DATE_VALUE);
-
-    AT_ALL_TERM.apply();
-    AT_GO_TERM.apply();
-
-    GO_ALL.setDefaultValue(AT_ALL_TERM.getAttributeName(), TERM_ALL_VAL1.fetchTerm());
-    GO_TERM.setDefaultValue(AT_GO_TERM.getAttributeName(), TERM_TERM_VAL1.fetchTerm());
   }
 
   @Transaction

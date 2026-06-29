@@ -71,7 +71,7 @@ public class ImportAttributeSerializer extends LocaleSerializer implements Custo
     {
       if (attr instanceof AttributeLocalType)
       {
-        this.filter.add(attr.getName());
+        this.filter.add(attr.getCode());
       }
     }
 
@@ -121,7 +121,7 @@ public class ImportAttributeSerializer extends LocaleSerializer implements Custo
   {
     JsonObject attribute = displayLabel.toJSON(this);
     attribute.addProperty("locale", key);
-    attribute.addProperty(AttributeType.JSON_CODE, displayLabel.getName());
+    attribute.addProperty(AttributeType.JSON_CODE, displayLabel.getCode());
     // attribute.addProperty(AttributeType.JSON_REQUIRED,
     // key.equals(LocalizedValue.DEFAULT_LOCALE));
 
@@ -137,7 +137,7 @@ public class ImportAttributeSerializer extends LocaleSerializer implements Custo
   public Collection<AttributeType> attributes(GeoObjectType type)
   {
     List<AttributeType> attributes = type.getAttributeMap().values().stream() //
-        .filter(attributeType -> !this.filter.contains(attributeType.getName())) //
+        .filter(attributeType -> !this.filter.contains(attributeType.getCode())) //
         .collect(Collectors.toList());
 
     if (this.includeCoordinates)

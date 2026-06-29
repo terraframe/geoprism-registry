@@ -19,10 +19,6 @@
 package net.geoprism.registry.service.request;
 
 import org.commongeoregistry.adapter.Term;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
-
-import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.conversion.TermConverter;
 
 public class ConversionService
 {
@@ -85,15 +81,4 @@ public class ConversionService
   //
   //
   // }
-
-  public Classifier termToClassifier(AttributeTermType attr, Term term)
-  {
-    Term root = attr.getRootTerm();
-    String parent = TermConverter.buildClassifierKeyFromTermCode(root.getCode());
-
-    String classifierKey = Classifier.buildKey(parent, term.getCode());
-    Classifier classifier = Classifier.getByKey(classifierKey);
-
-    return classifier;
-  }
 }

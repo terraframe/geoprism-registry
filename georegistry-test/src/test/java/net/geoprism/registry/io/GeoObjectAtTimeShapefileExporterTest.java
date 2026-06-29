@@ -14,7 +14,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
@@ -140,16 +139,12 @@ public class GeoObjectAtTimeShapefileExporterTest extends FastDatasetTest implem
 
         for (AttributeType attribute : attributes)
         {
-          String attributeName = attribute.getName();
+          String attributeName = attribute.getCode();
 
           Object oValue = object.getValue(attributeName);
           Object fValue = feature.getAttribute(exporter.getColumnName(attributeName));
 
-          if (attribute instanceof AttributeTermType)
-          {
-            Assert.assertEquals("Attributes not equal [" + attributeName + "]", GeoObjectUtil.convertToTermString((AttributeTermType) attribute, oValue), fValue);
-          }
-          else if (attribute instanceof AttributeLocalType)
+          if (attribute instanceof AttributeLocalType)
           {
             Assert.assertEquals("Attributes not equal [" + attributeName + "]", ( (LocalizedValue) oValue ).getValue(), fValue);
           }

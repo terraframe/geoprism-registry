@@ -50,7 +50,6 @@ import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.HierarchyNode;
 import org.slf4j.Logger;
@@ -358,7 +357,7 @@ public class XMLExporter
 
     List<String> attributeNames = Arrays.asList(DefaultAttribute.values()).stream().map(attr -> attr.getName()).collect(Collectors.toList());
 
-    return !attributeNames.contains(attributeType.getName());
+    return !attributeNames.contains(attributeType.getCode());
   }
 
   private Element exportGroupItem(ServerGeoObjectType subtype)
@@ -399,21 +398,6 @@ public class XMLExporter
       attribute.setAttribute("precision", Integer.toString(type.getPrecision()));
       attribute.setAttribute("scale", Integer.toString(type.getScale()));
     }
-    else if (attributeType instanceof AttributeTermType)
-    {
-      AttributeTermType type = (AttributeTermType) attributeType;
-
-      attribute = document.createElement("term");
-
-      List<Term> terms = type.getTerms();
-
-      for (Term term : terms)
-      {
-        Element element = this.exportTerm(term);
-
-        attribute.appendChild(element);
-      }
-    }
     else if (attributeType instanceof AttributeClassificationType)
     {
       AttributeClassificationType type = (AttributeClassificationType) attributeType;
@@ -423,7 +407,7 @@ public class XMLExporter
       attribute.setAttribute("classificationType", type.getClassificationType());
     }
 
-    attribute.setAttribute("code", attributeType.getName());
+    attribute.setAttribute("code", attributeType.getCode());
     attribute.setAttribute("label", attributeType.getLabel().getValue());
     attribute.setAttribute("description", attributeType.getDescription().getValue());
 

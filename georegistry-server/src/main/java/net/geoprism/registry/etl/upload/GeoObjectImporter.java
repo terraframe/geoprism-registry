@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -77,7 +76,6 @@ import com.runwaysdk.system.AbstractClassification;
 
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
-import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.GeometrySizeException;
 import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.RegistryConstants;
@@ -88,7 +86,6 @@ import net.geoprism.registry.graph.AttributeCharacterType;
 import net.geoprism.registry.graph.AttributeClassificationType;
 import net.geoprism.registry.graph.AttributeDoubleType;
 import net.geoprism.registry.graph.AttributeLongType;
-import net.geoprism.registry.graph.AttributeTermType;
 import net.geoprism.registry.graph.AttributeType;
 import net.geoprism.registry.io.AmbiguousParentException;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
@@ -105,7 +102,6 @@ import net.geoprism.registry.io.SridException;
 import net.geoprism.registry.io.TermValueException;
 import net.geoprism.registry.jobs.ParentReferenceProblem;
 import net.geoprism.registry.jobs.RowValidationProblem;
-import net.geoprism.registry.jobs.TermReferenceProblem;
 import net.geoprism.registry.model.GeoObjectMetadata;
 import net.geoprism.registry.model.GeoObjectTypeMetadata;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -1279,42 +1275,6 @@ public class GeoObjectImporter implements ObjectImporterIF
     return null;
   }
 
-  protected void setTermValue(ServerGeoObjectIF entity, AttributeType attributeType, String attributeName, Object value, Date startDate, Date endDate, FeatureRow feature)
-  {
-    if (!this.configuration.isExclusion(attributeName, value.toString()))
-    {
-      try
-      {
-        AttributeTermType attributeTermType = (AttributeTermType) attributeType;
-        Classifier classifier = Classifier.findMatchingTerm(value.toString().trim(), attributeTermType.getRootTermOid());
-
-        if (classifier == null)
-        {
-          Classifier rootTerm = attributeTermType.getRootTerm();
-
-          TermReferenceProblem trp = new TermReferenceProblem(value.toString(), rootTerm.getClassifierId(), entity.getType().getCode(), attributeName, attributeType.getLocalizedLabel().getValue());
-          trp.setImportType("GEOOBJECT");
-          trp.addAffectedRowNumber(feature.getRowNumber());
-          trp.setHistoryId(this.configuration.getHistoryId());
-
-          this.progressListener.addReferenceProblem(trp);
-        }
-        else
-        {
-          entity.setValue(attributeName, classifier.getOid(), startDate, endDate);
-        }
-      }
-      catch (UnknownTermException e)
-      {
-        TermValueException ex = new TermValueException();
-        ex.setAttributeLabel(e.getAttribute().getLabel().getValue());
-        ex.setCode(e.getCode());
-
-        throw e;
-      }
-    }
-  }
-
   protected void setClassificationValue(ServerGeoObjectIF entity, AttributeType attributeType, String attributeName, Object value, Date startDate, Date endDate)
   {
     if (!this.configuration.isExclusion(attributeName, value.toString()))
@@ -1403,17 +1363,6 @@ public class GeoObjectImporter implements ObjectImporterIF
       if (value != null)
       {
         this.setClassificationValue(entity, attributeType, attributeName, value, this.configuration.getStartDate(), this.configuration.getEndDate());
-      }
-      else
-      {
-        entity.setValue(attributeName, null, this.configuration.getStartDate(), this.configuration.getEndDate());
-      }
-    }
-    else if (attributeType instanceof AttributeTermType)
-    {
-      if (value != null)
-      {
-        this.setTermValue(entity, attributeType, attributeName, value, this.configuration.getStartDate(), this.configuration.getEndDate(), row);
       }
       else
       {

@@ -1,10 +1,10 @@
 [
   {
     "code": "TEST_BUSINESS",
-    "orgCode": "USATestDataPPP",
+    "organization": "USATestDataPPP",
+    "labelAttribute": "",
     "origin": "terraframe.com",
     "sequence": 1,
-    "labelAttribute": "",
     "displayLabel": {
       "localizedValue": "Test Business",
       "localeValues": [
@@ -16,8 +16,8 @@
     },
     "attributes": [
       {
-        "code": "testBoolean",
         "type": "boolean",
+        "code": "testBoolean",
         "label": {
           "localizedValue": "Test Boolean",
           "localeValues": [
@@ -36,14 +36,14 @@
             }
           ]
         },
-        "isDefault": false,
         "required": false,
         "unique": false,
-        "isChangeOverTime": true
+        "default": false,
+        "changeOverTime": true
       },
       {
-        "code": "code",
         "type": "character",
+        "code": "code",
         "label": {
           "localizedValue": "Code",
           "localeValues": [
@@ -62,14 +62,14 @@
             }
           ]
         },
-        "isDefault": true,
         "required": true,
         "unique": true,
-        "isChangeOverTime": false
+        "default": true,
+        "changeOverTime": false
       },
       {
-        "code": "dataSource",
         "type": "source",
+        "code": "dataSource",
         "label": {
           "localizedValue": "Data Source",
           "localeValues": [
@@ -88,10 +88,10 @@
             }
           ]
         },
-        "isDefault": true,
         "required": false,
         "unique": false,
-        "isChangeOverTime": true
+        "default": true,
+        "changeOverTime": true
       }
     ]
   }

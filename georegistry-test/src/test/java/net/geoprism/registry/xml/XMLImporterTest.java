@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
-import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.HierarchyNode;
@@ -30,7 +29,6 @@ import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.AttributeClassificationType;
-import net.geoprism.registry.graph.AttributeTermType;
 import net.geoprism.registry.graph.AttributeType;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
@@ -191,18 +189,6 @@ public class XMLImporterTest implements InstanceTestClassListener
         Assert.assertEquals("Test Decimal", attributeType.getLocalizedLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
         Assert.assertEquals("Test Decimal Description", attributeType.getLocalizedDescription().getValue(LocalizedValue.DEFAULT_LOCALE));
 
-        oattribute = type.getAttribute("TEST_TERM");
-
-        Assert.assertTrue(oattribute.isPresent());
-
-        attributeType = oattribute.get();
-        Assert.assertEquals("Test Term", attributeType.getLocalizedLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
-        Assert.assertEquals("Test Term Description", attributeType.getLocalizedDescription().getValue(LocalizedValue.DEFAULT_LOCALE));
-
-        List<Term> terms = ( (AttributeTermType) attributeType ).getTerms();
-
-        Assert.assertEquals(3, terms.size());
-
         oattribute = type.getAttribute("TEST_CLASSIFICATION");
 
         Assert.assertTrue(oattribute.isPresent());
@@ -256,7 +242,7 @@ public class XMLImporterTest implements InstanceTestClassListener
         Assert.assertEquals("Business Pop", businessType.getLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
         Assert.assertEquals("TEST_TEXT", businessType.getLabelAttribute().getAttributeName());
 
-        org.commongeoregistry.adapter.metadata.AttributeType businessAttribute = businessType.getAttribute("TEST_TEXT");
+        AttributeType businessAttribute = businessType.getAttribute("TEST_TEXT").orElseThrow();
 
         Assert.assertEquals("Test Text", businessAttribute.getLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
         Assert.assertEquals("Test Text Description", businessAttribute.getDescription().getValue(LocalizedValue.DEFAULT_LOCALE));
