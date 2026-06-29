@@ -22,8 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
-import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.model.ServerOrganization;
+import net.geoprism.registry.model.graph.ObjectClassIF;
 
 @Service
 @Primary
@@ -33,17 +33,17 @@ public class GPRPermissionService extends PermissionService implements Permissio
   private RolePermissionService rolePermissions;
 
   @Override
-  public boolean canWrite(BusinessType type)
+  public boolean canWrite(ObjectClassIF type)
   {
-    ServerOrganization organization = ServerOrganization.getByGraphId(type.getObjectValue(BusinessType.ORGANIZATION));
+    ServerOrganization organization = type.getServerOrganization();
 
     return rolePermissions.isRA(organization.getCode()) || rolePermissions.isSRA();
   }
 
   @Override
-  public boolean canRead(BusinessType type)
+  public boolean canRead(ObjectClassIF type)
   {
-    ServerOrganization organization = ServerOrganization.getByGraphId(type.getObjectValue(BusinessType.ORGANIZATION));
+    ServerOrganization organization = type.getServerOrganization();
 
     return ServerOrganization.isMember(organization) || rolePermissions.isSRA();
   }
