@@ -37,8 +37,8 @@
         },
         "required": false,
         "unique": false,
-        "default": false,
-        "changeOverTime": true
+        "isDefault": false,
+        "isChangeOverTime": true
       },
       {
         "type": "character",
@@ -63,8 +63,8 @@
         },
         "required": true,
         "unique": true,
-        "default": true,
-        "changeOverTime": false
+        "isDefault": true,
+        "isChangeOverTime": false
       },
       {
         "type": "source",
@@ -89,8 +89,8 @@
         },
         "required": false,
         "unique": false,
-        "default": true,
-        "changeOverTime": true
+        "isDefault": true,
+        "isChangeOverTime": true
       }
     ],
     "labelAttribute": "",

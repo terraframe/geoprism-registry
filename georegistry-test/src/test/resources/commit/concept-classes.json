@@ -3,7 +3,7 @@
     "code": "TEST_CONCEPT",
     "organization": "USATestDataPPP",
     "origin": "terraframe.com",
-    "sequence": 0,
+    "sequence": 1,
     "displayLabel": {
       "localizedValue": "Test Concept",
       "localeValues": [
@@ -14,6 +14,32 @@
       ]
     },
     "attributes": [
+      {
+        "type": "boolean",
+        "code": "testBoolean",
+        "label": {
+          "localizedValue": "Test Boolean",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Test Boolean"
+            }
+          ]
+        },
+        "description": {
+          "localizedValue": "Test Boolean",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Test Boolean"
+            }
+          ]
+        },
+        "required": false,
+        "unique": false,
+        "isDefault": false,
+        "isChangeOverTime": true
+      },
       {
         "type": "character",
         "code": "code",
@@ -37,8 +63,8 @@
         },
         "required": true,
         "unique": true,
-        "default": true,
-        "changeOverTime": false
+        "isDefault": true,
+        "isChangeOverTime": false
       },
       {
         "type": "source",
@@ -63,8 +89,8 @@
         },
         "required": false,
         "unique": false,
-        "default": true,
-        "changeOverTime": true
+        "isDefault": true,
+        "isChangeOverTime": true
       }
     ],
     "type": "concept-class"
