@@ -59,7 +59,8 @@ export class CreateConceptClassComponent implements OnInit {
             displayLabel: this.lService.create(),
             description: this.lService.create(),
             attributes: [],
-            organizationLabel: ""
+            organizationLabel: "",
+            type: "concept-class"
         };
 
         this.type.organization = this.organization.code;

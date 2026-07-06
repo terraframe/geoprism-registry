@@ -44,6 +44,8 @@ export class BusinessTableComponent implements OnInit {
     config: GenericTableConfig = null;
     setup: TableColumnSetup = null;
 
+    date: string;
+
     constructor(private service: BusinessTypeService, private localizationService: LocalizationService, private route: ActivatedRoute) { }
 
     ngOnInit(): void {

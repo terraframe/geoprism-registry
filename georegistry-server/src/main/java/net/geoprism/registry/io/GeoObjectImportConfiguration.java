@@ -18,7 +18,6 @@
  */
 package net.geoprism.registry.io;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -44,7 +43,6 @@ import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
@@ -54,12 +52,10 @@ import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.etl.upload.GeoObjectRecordedErrorException;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
-import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
-import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.permission.RolePermissionService;
@@ -71,10 +67,6 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
   public static final String                          PARENT_EXCLUSION       = "##PARENT##";
 
   public static final String                          DATA_SOURCE            = "dataSource";
-
-  public static final String                          START_DATE             = "startDate";
-
-  public static final String                          END_DATE               = "endDate";
 
   public static final String                          TARGET                 = "target";
 
@@ -118,8 +110,6 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
 
   private String                                      revealGeometryColumn;
 
-  private DataSource                                  dataSource;
-
   private ServerGeoObjectType                         type;
 
   private GeoObject                                   root;
@@ -134,22 +124,15 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
 
   private Boolean                                     postalCode;
 
-  private Date                                        startDate;
-
-  private Date                                        endDate;
-
   private LinkedList<GeoObjectRecordedErrorException> errors                 = new LinkedList<GeoObjectRecordedErrorException>();
 
   private GeoObjectTypeBusinessServiceIF              typeService;
-
-  private DataSourceBusinessServiceIF                 sourceService;
 
   private RolePermissionService                       permissions;
 
   public GeoObjectImportConfiguration()
   {
     this.typeService = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
-    this.sourceService = ServiceFactory.getBean(DataSourceBusinessServiceIF.class);
     this.permissions = ServiceFactory.getBean(RolePermissionService.class);
 
     this.includeCoordinates = false;
@@ -177,36 +160,6 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
   public void setType(ServerGeoObjectType type)
   {
     this.type = type;
-  }
-
-  public Date getStartDate()
-  {
-    return startDate;
-  }
-
-  public void setStartDate(Date startDate)
-  {
-    this.startDate = startDate;
-  }
-
-  public Date getEndDate()
-  {
-    return endDate;
-  }
-
-  public void setEndDate(Date endDate)
-  {
-    this.endDate = endDate;
-  }
-
-  public DataSource getDataSource()
-  {
-    return dataSource;
-  }
-
-  public void setDataSource(DataSource dataSource)
-  {
-    this.dataSource = dataSource;
   }
 
   public GeoObject getRoot()
@@ -326,9 +279,6 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
 
     super.toJSON(config);
 
-    SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
-    format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
-
     JSONObject type = new JSONObject(this.type.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), this.includeCoordinates, false, this.type.toDTO())).toString());
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 
@@ -371,21 +321,6 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     config.put(GeoObjectImportConfiguration.TYPE, type);
     config.put(GeoObjectImportConfiguration.LOCATIONS, locations);
     config.put(GeoObjectImportConfiguration.POSTAL_CODE, this.isPostalCode());
-
-    if (this.getDataSource() != null)
-    {
-      config.put(GeoObjectImportConfiguration.DATA_SOURCE, dataSource.getCode());
-    }
-
-    if (this.getStartDate() != null)
-    {
-      config.put(GeoObjectImportConfiguration.START_DATE, format.format(this.getStartDate()));
-    }
-
-    if (this.getEndDate() != null)
-    {
-      config.put(GeoObjectImportConfiguration.END_DATE, format.format(this.getEndDate()));
-    }
 
     if (this.hierarchy != null)
     {
@@ -439,30 +374,6 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     if (config.has(code) && config.has(REVEAL_GEOMETRY_COLUMN))
     {
       this.setRevealGeometryColumn(config.getString(REVEAL_GEOMETRY_COLUMN));
-    }
-
-    if (config.has(DATA_SOURCE))
-    {
-      this.sourceService.getByCode(config.getString(DATA_SOURCE)).ifPresent(source -> {
-        this.setDataSource(source);
-      });
-    }
-
-    try
-    {
-      if (config.has(GeoObjectImportConfiguration.START_DATE))
-      {
-        this.setStartDate(format.parse(config.getString(GeoObjectImportConfiguration.START_DATE)));
-      }
-
-      if (config.has(GeoObjectImportConfiguration.END_DATE))
-      {
-        this.setEndDate(format.parse(config.getString(GeoObjectImportConfiguration.END_DATE)));
-      }
-    }
-    catch (ParseException e)
-    {
-      throw new ProgrammingErrorException(e);
     }
 
     if (config.has(HIERARCHY))

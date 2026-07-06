@@ -70,9 +70,8 @@
 
                 <fieldset>
 
-                    <attribute-input [isNew]="false"
-                        [excludeDescription]="attribute.type === 'term' ? true : false" [type]="attribute.type"
-                        [(attribute)]="attribute">
+                    <attribute-input [isNew]="false" [excludeDescription]="attribute.type === 'term' ? true : false"
+                        [type]="attribute.type" [(attribute)]="attribute" [manageChangeOverTime]="manageChangeOverTime">
                     </attribute-input>
 
                     <!-- *ngIf="attribute.type === 'term' && isFormValid()" -->

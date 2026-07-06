@@ -17,18 +17,16 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, Input, ViewChild, ElementRef } from "@angular/core";
+import { Component, OnInit, Input, ViewChild, ElementRef, ChangeDetectorRef, ViewChildren, QueryList } from "@angular/core";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import { FileUploader, FileUploaderOptions, FileUploadModule } from "ng2-file-upload";
 import { HttpErrorResponse } from "@angular/common/http";
 
 import { ErrorHandler } from "@shared/component";
 import { LocalizationService, EventService } from "@shared/service";
-import { HierarchyService } from "@registry/service";
 
 import { ImportModalComponent } from "@registry/component/importer/modals/import-modal.component";
 import { ImportStrategy } from "@registry/model/constants";
-import { HierarchyGroupedTypeView, TypeGroupedHierachyView } from "@registry/model/hierarchy";
 import { BusinessType } from "@registry/model/object-class";
 import { BusinessTypeService } from "@registry/service/business-type.service";
 
@@ -50,6 +48,8 @@ import { PageContainerComponent } from "../../../shared/component/page-container
     imports: [PageContainerComponent, LocalizeComponent, NgIf, FormsModule, NgFor, DateFieldComponent, BooleanFieldComponent, FileUploadModule]
 })
 export class BusinessImporterComponent implements OnInit {
+
+    @ViewChildren("dateFieldComponents") dateFieldComponentsArray: QueryList<DateFieldComponent>;
 
     currentDate: Date = new Date();
 
@@ -80,9 +80,14 @@ export class BusinessImporterComponent implements OnInit {
     typeCode: string = null;
 
     /*
-     * Date
+     * Start date
      */
-    date: string = null;
+    startDate: string = null;
+
+    /*
+     * End date
+     */
+    endDate: string = null;
 
     /*
      * Reference to the modal current showing
@@ -120,7 +125,8 @@ export class BusinessImporterComponent implements OnInit {
         private modalService: BsModalService,
         private sourceService: SourceService,
         private localizationService: LocalizationService,
-        private businessService: BusinessTypeService
+        private businessService: BusinessTypeService,
+        private changeDetectorRef: ChangeDetectorRef
     ) { }
 
     ngOnInit(): void {
@@ -150,9 +156,13 @@ export class BusinessImporterComponent implements OnInit {
             form.append("copyBlank", this.copyBlank);
             form.append("dataSource", this.dataSource);
 
-            if (this.date != null) {
-                form.append("date", this.date);
+            if (this.startDate != null) {
+                form.append("date", this.startDate);
             }
+            if (this.endDate != null) {
+                form.append("endDate", this.endDate);
+            }
+
             if (this.importStrategy) {
                 form.append("strategy", this.importStrategy);
             }
@@ -191,6 +201,39 @@ export class BusinessImporterComponent implements OnInit {
             });
         }
     }
+
+    checkDates(): any {
+        setTimeout(() => {
+            this.isValid = this.checkDateFieldValidity();
+        }, 0);
+    }
+
+    checkDateFieldValidity(): boolean {
+        let dateFields = this.dateFieldComponentsArray.toArray();
+
+        let startDateField: DateFieldComponent;
+        for (let i = 0; i < dateFields.length; i++) {
+            let field = dateFields[i];
+
+            if (field.inputName === "startDate") {
+                // set startDateField so we can use it in the next check
+                startDateField = field;
+            }
+
+            if (!field.valid) {
+                return false;
+            }
+        }
+
+        if (this.startDate > this.endDate) {
+            startDateField.setInvalid(this.localizationService.decode("date.input.startdate.after.enddate.error.message"));
+
+            this.changeDetectorRef.detectChanges();
+        }
+
+        return true;
+    }
+
 
     public error(err: any): void {
         this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);

@@ -573,7 +573,14 @@ public class BusinessObjectImporter implements ObjectImporterIF
         }
         else
         {
-          entity.setValue(attributeName, classifier.getOid());
+          if (attributeType.getIsChangeOverTime())
+          {
+            entity.setValue(attributeName, classifier.getOid(), configuration.getStartDate(), configuration.getEndDate());
+          }
+          else
+          {
+            entity.setValue(attributeName, classifier.getOid());
+          }
         }
       }
       catch (UnknownTermException e)
@@ -589,69 +596,55 @@ public class BusinessObjectImporter implements ObjectImporterIF
 
   protected void setValue(BusinessObject entity, AttributeType attributeType, String attributeName, Object value, FeatureRow row)
   {
-    if (attributeType instanceof AttributeClassificationType)
+    if (value != null && attributeType instanceof AttributeClassificationType)
     {
-      if (value != null)
-      {
-        this.setClassificationValue(entity, attributeType, attributeName, value);
-      }
-      else
-      {
-        entity.setValue(attributeName, null);
-      }
-    }
-    else if (attributeType instanceof AttributeLongType)
-    {
-      if (value == null)
-      {
-        entity.setValue(attributeName, null);
-      }
-      else if (value instanceof String)
-      {
-        entity.setValue(attributeName, Long.valueOf((String) value));
-      }
-      else if (value instanceof Number)
-      {
-        entity.setValue(attributeName, ( (Number) value ).longValue());
-      }
-      else
-      {
-        throw new UnsupportedOperationException();
-      }
-    }
-    else if (attributeType instanceof AttributeDoubleType)
-    {
-      if (value == null)
-      {
-        entity.setValue(attributeName, null);
-      }
-      else if (value instanceof String)
-      {
-        entity.setValue(attributeName, Double.valueOf((String) value));
-      }
-      else if (value instanceof Number)
-      {
-        entity.setValue(attributeName, ( (Number) value ).doubleValue());
-      }
-      else
-      {
-        throw new UnsupportedOperationException();
-      }
-    }
-    else if (attributeType instanceof AttributeCharacterType)
-    {
-      if (value == null)
-      {
-        entity.setValue(attributeName, null);
-      }
-      else
-      {
-        entity.setValue(attributeName, value.toString());
-      }
+      this.setClassificationValue(entity, attributeType, attributeName, value);
     }
     else
     {
-      entity.setValue(attributeName, value);
+      if (value != null && attributeType instanceof AttributeLongType)
+      {
+        if (value instanceof String)
+        {
+          value = Long.valueOf((String) value);
+        }
+        else if (value instanceof Number)
+        {
+          value = ( (Number) value ).longValue();
+        }
+        else
+        {
+          throw new UnsupportedOperationException();
+        }
+      }
+      else if (value != null && attributeType instanceof AttributeDoubleType)
+      {
+        if (value instanceof String)
+        {
+          value = Double.valueOf((String) value);
+        }
+        else if (value instanceof Number)
+        {
+          value = ( (Number) value ).doubleValue();
+        }
+        else
+        {
+          throw new UnsupportedOperationException();
+        }
+      }
+      else if (value != null && attributeType instanceof AttributeCharacterType)
+      {
+        value = value.toString();
+      }
+
+      if (attributeType.getIsChangeOverTime())
+      {
+        entity.setValue(attributeName, value, this.configuration.getStartDate(), this.configuration.getEndDate());
+      }
+      else
+      {
+        entity.setValue(attributeName, value);
+      }
     }
   }
 

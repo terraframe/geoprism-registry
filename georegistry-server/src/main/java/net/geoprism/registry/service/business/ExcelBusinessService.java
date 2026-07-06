@@ -18,7 +18,6 @@
  */
 package net.geoprism.registry.service.business;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -32,9 +31,6 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
 import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.SmartException;
@@ -171,11 +167,6 @@ public class ExcelBusinessService
         if (dataSource != null)
         {
           object.put(BusinessObjectImportConfiguration.DATA_SOURCE, dataSource);
-        }
-
-        if (date != null)
-        {
-          object.put(BusinessObjectImportConfiguration.DATE, format.format(date));
         }
 
         return object;

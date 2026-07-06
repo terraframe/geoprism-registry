@@ -74,14 +74,30 @@
                                 <div class="col-md-2"></div>
                             </div>
                             <div class="form-group row">
-                                <label class="col-md-2 text-right" for="date">Date</label>
+                                <label class="col-md-2 text-right" for="startDate">
+                                    <localize key="io.startDate"></localize>
+                                </label>
                                 <div class="col-md-8">
-                                    <date-field #dateFieldComponents [(value)]="date" label="" [inputName]="'date'"
-                                        [allowFutureDates]="false"></date-field>
+                                    <date-field #dateFieldComponents [(value)]="startDate" label=""
+                                        [inputName]="'startDate'" (change)="checkDates()"
+                                        [allowFutureDates]="true"></date-field>
                                 </div>
 
                                 <div class="col-md-2"></div>
                             </div>
+                            <div class="form-group row">
+                                <label class="col-md-2 text-right" for="endDate">
+                                    <localize key="io.endDate"></localize>
+                                </label>
+                                <div class="col-md-8">
+                                    <date-field #dateFieldComponents [(value)]="endDate" label=""
+                                        [inputName]="'endDate'" (change)="checkDates()" [allowInfinity]="true"
+                                        [allowFutureDates]="true" [required]="true"></date-field>
+                                </div>
+
+                                <div class="col-md-2"></div>
+                            </div>
+
                             <div class="form-group row">
 
                                 <label class="col-md-2 text-right" for="copyBlank">

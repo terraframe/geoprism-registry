@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.etl.upload;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -25,11 +26,15 @@ import org.json.JSONObject;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ObjectImporterFactory;
+import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.jobs.ImportHistory;
+import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.view.TypeInfo;
 
 public abstract class ImportConfiguration
@@ -65,6 +70,12 @@ public abstract class ImportConfiguration
 
   public static final String               DESCRIPTION                  = "description";
 
+  public static final String               START_DATE                   = "startDate";
+
+  public static final String               END_DATE                     = "endDate";
+
+  public static final String               DATA_SOURCE                  = "dataSource";
+
   protected String                         formatType;
 
   protected String                         objectType;
@@ -95,9 +106,17 @@ public abstract class ImportConfiguration
 
   protected ImportStrategy                 importStrategy;
 
+  private DataSource                       dataSource;
+
+  private Date                             startDate;
+
+  private Date                             endDate;
+
+  private DataSourceBusinessServiceIF      sourceService;
+
   public ImportConfiguration()
   {
-
+    this.sourceService = ServiceFactory.getBean(DataSourceBusinessServiceIF.class);
   }
 
   public abstract void enforceCreatePermissions();
@@ -273,90 +292,152 @@ public abstract class ImportConfiguration
     return this.externalIdFunction;
   }
 
+  public DataSource getDataSource()
+  {
+    return dataSource;
+  }
+
+  public void setDataSource(DataSource dataSource)
+  {
+    this.dataSource = dataSource;
+  }
+
+  public Date getStartDate()
+  {
+    return startDate;
+  }
+
+  public void setStartDate(Date startDate)
+  {
+    this.startDate = startDate;
+  }
+
+  public Date getEndDate()
+  {
+    return endDate;
+  }
+
+  public void setEndDate(Date endDate)
+  {
+    this.endDate = endDate;
+  }
+
   public void fromJSON(String json)
   {
-    JSONObject jo = new JSONObject(json);
+    JSONObject config = new JSONObject(json);
 
-    this.objectType = jo.getString(OBJECT_TYPE);
-    this.formatType = jo.getString(FORMAT_TYPE);
+    this.objectType = config.getString(OBJECT_TYPE);
+    this.formatType = config.getString(FORMAT_TYPE);
 
-    if (jo.has(DESCRIPTION))
+    if (config.has(DESCRIPTION))
     {
-      this.description = jo.getString(DESCRIPTION);
+      this.description = config.getString(DESCRIPTION);
     }
 
-    if (jo.has(HISTORY_ID))
+    if (config.has(HISTORY_ID))
     {
-      this.historyId = jo.getString(HISTORY_ID);
+      this.historyId = config.getString(HISTORY_ID);
     }
 
-    if (jo.has(JOB_ID))
+    if (config.has(JOB_ID))
     {
-      this.jobId = jo.getString(JOB_ID);
+      this.jobId = config.getString(JOB_ID);
     }
 
-    this.vaultFileId = jo.getString(VAULT_FILE_ID);
+    this.vaultFileId = config.getString(VAULT_FILE_ID);
 
-    if (jo.has(IMPORT_STRATEGY))
+    if (config.has(IMPORT_STRATEGY))
     {
-      this.importStrategy = ImportStrategy.valueOf(jo.getString(IMPORT_STRATEGY));
+      this.importStrategy = ImportStrategy.valueOf(config.getString(IMPORT_STRATEGY));
     }
 
-    this.fileName = jo.getString(FILE_NAME);
+    this.fileName = config.getString(FILE_NAME);
 
-    if (jo.has(EXTERNAL_SYSTEM_ID))
+    if (config.has(EXTERNAL_SYSTEM_ID))
     {
-      this.externalSystemId = jo.getString(EXTERNAL_SYSTEM_ID);
+      this.externalSystemId = config.getString(EXTERNAL_SYSTEM_ID);
     }
 
-    if (jo.has(IS_EXTERNAL))
+    if (config.has(IS_EXTERNAL))
     {
-      this.isExternal = jo.getBoolean(IS_EXTERNAL);
+      this.isExternal = config.getBoolean(IS_EXTERNAL);
     }
 
-    if (jo.has(COPY_BLANK))
+    if (config.has(COPY_BLANK))
     {
-      this.copyBlank = jo.getBoolean(COPY_BLANK);
+      this.copyBlank = config.getBoolean(COPY_BLANK);
     }
 
-    if (jo.has(IGNORE_PROJECTION))
+    if (config.has(IGNORE_PROJECTION))
     {
-      this.ignoreProjection = jo.getBoolean(IGNORE_PROJECTION);
+      this.ignoreProjection = config.getBoolean(IGNORE_PROJECTION);
     }
 
-    if (jo.has(EXTERNAL_ID_ATTRIBUTE_TARGET))
+    if (config.has(EXTERNAL_ID_ATTRIBUTE_TARGET))
     {
-      this.externalIdFunction = new BasicColumnFunction(jo.getString(EXTERNAL_ID_ATTRIBUTE_TARGET));
+      this.externalIdFunction = new BasicColumnFunction(config.getString(EXTERNAL_ID_ATTRIBUTE_TARGET));
+    }
+
+    if (config.has(GeoObjectImportConfiguration.START_DATE))
+    {
+      this.setStartDate(GeoRegistryUtil.parseDate(config.getString(GeoObjectImportConfiguration.START_DATE)));
+    }
+
+    if (config.has(GeoObjectImportConfiguration.END_DATE))
+    {
+      this.setEndDate(GeoRegistryUtil.parseDate(config.getString(GeoObjectImportConfiguration.END_DATE)));
+    }
+
+    if (config.has(DATA_SOURCE))
+    {
+      this.sourceService.getByCode(config.getString(DATA_SOURCE)).ifPresent(source -> {
+        this.setDataSource(source);
+      });
     }
   }
 
-  protected void toJSON(JSONObject jo)
+  protected void toJSON(JSONObject config)
   {
-    jo.put(OBJECT_TYPE, this.objectType);
-    jo.put(FORMAT_TYPE, this.formatType);
-    jo.put(HISTORY_ID, this.historyId);
-    jo.put(JOB_ID, this.jobId);
-    jo.put(VAULT_FILE_ID, this.vaultFileId);
-    jo.put(FILE_NAME, this.fileName);
-    jo.put(EXTERNAL_SYSTEM_ID, this.externalSystemId);
-    jo.put(IS_EXTERNAL, this.isExternal);
-    jo.put(COPY_BLANK, this.copyBlank);
-    jo.put(IGNORE_PROJECTION, this.ignoreProjection);
+    config.put(OBJECT_TYPE, this.objectType);
+    config.put(FORMAT_TYPE, this.formatType);
+    config.put(HISTORY_ID, this.historyId);
+    config.put(JOB_ID, this.jobId);
+    config.put(VAULT_FILE_ID, this.vaultFileId);
+    config.put(FILE_NAME, this.fileName);
+    config.put(EXTERNAL_SYSTEM_ID, this.externalSystemId);
+    config.put(IS_EXTERNAL, this.isExternal);
+    config.put(COPY_BLANK, this.copyBlank);
+    config.put(IGNORE_PROJECTION, this.ignoreProjection);
 
     if (this.importStrategy != null)
     {
-      jo.put(IMPORT_STRATEGY, this.importStrategy.name());
+      config.put(IMPORT_STRATEGY, this.importStrategy.name());
     }
 
     if (this.description != null)
     {
-      jo.put(DESCRIPTION, this.description);
+      config.put(DESCRIPTION, this.description);
     }
 
     if (this.externalIdFunction != null)
     {
-      jo.put(EXTERNAL_ID_ATTRIBUTE_TARGET, this.externalIdFunction.toJson());
+      config.put(EXTERNAL_ID_ATTRIBUTE_TARGET, this.externalIdFunction.toJson());
     }
+
+    if (this.getStartDate() != null)
+    {
+      config.put(EdgeObjectImportConfiguration.START_DATE, GeoRegistryUtil.formatDate(this.getStartDate(), false));
+    }
+    if (this.getEndDate() != null)
+    {
+      config.put(EdgeObjectImportConfiguration.END_DATE, GeoRegistryUtil.formatDate(this.getEndDate(), false));
+    }
+
+    if (this.getDataSource() != null)
+    {
+      config.put(GeoObjectImportConfiguration.DATA_SOURCE, dataSource.getCode());
+    }
+
   }
 
   abstract public JSONObject toJSON();

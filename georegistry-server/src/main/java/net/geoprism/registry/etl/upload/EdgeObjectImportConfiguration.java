@@ -45,8 +45,6 @@ import com.runwaysdk.session.Request;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.etl.upload.EdgeObjectImporter.ReferenceStrategy;
-import net.geoprism.registry.graph.DataSource;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.Location;
 import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.model.EdgeType;
@@ -59,12 +57,6 @@ import net.geoprism.registry.view.TypeInfo;
 public class EdgeObjectImportConfiguration extends ImportConfiguration
 {
   public static final String                           PARENT_EXCLUSION          = "##PARENT##";
-
-  public static final String                           DATA_SOURCE               = "dataSource";
-
-  public static final String                           START_DATE                = "startDate";
-
-  public static final String                           END_DATE                  = "endDate";
 
   public static final String                           TARGET                    = "target";
 
@@ -132,13 +124,7 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
 
   private List<Location>                               locations;
 
-  private DataSource                                   dataSource;
-
   private EdgeType                                     graphType;
-
-  private Date                                         startDate;
-
-  private Date                                         endDate;
 
   private boolean                                      validate;
 
@@ -156,36 +142,6 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
     this.functions = new HashMap<String, ShapefileFunction>();
     this.locations = new LinkedList<Location>();
     this.exclusions = new HashMap<String, Set<String>>();
-  }
-
-  public DataSource getDataSource()
-  {
-    return dataSource;
-  }
-
-  public void setDataSource(DataSource dataSource)
-  {
-    this.dataSource = dataSource;
-  }
-
-  public Date getStartDate()
-  {
-    return startDate;
-  }
-
-  public void setStartDate(Date startDate)
-  {
-    this.startDate = startDate;
-  }
-
-  public Date getEndDate()
-  {
-    return endDate;
-  }
-
-  public void setEndDate(Date endDate)
-  {
-    this.endDate = endDate;
   }
 
   public String getEdgeSource()
@@ -431,15 +387,6 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
       config.put(EdgeObjectImportConfiguration.GRAPH_TYPE_CLASS, EdgeType.getTypeCode(this.getGraphType()));
     }
 
-    if (this.getStartDate() != null)
-    {
-      config.put(EdgeObjectImportConfiguration.START_DATE, format.format(this.getStartDate()));
-    }
-    if (this.getEndDate() != null)
-    {
-      config.put(EdgeObjectImportConfiguration.END_DATE, format.format(this.getEndDate()));
-    }
-
     config.put(EdgeObjectImportConfiguration.VALIDATE, this.isValidate());
 
     if (this.exclusions.size() > 0)
@@ -457,11 +404,6 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
       });
 
       config.put(EXCLUSIONS, exclusions);
-    }
-
-    if (this.getDataSource() != null)
-    {
-      config.put(GeoObjectImportConfiguration.DATA_SOURCE, dataSource.getCode());
     }
 
     config.put(EDGE_SOURCE, edgeSource);

@@ -36,6 +36,7 @@ import { LocalizedInputComponent } from "../../form-fields/localized-input/local
 import { GeoObjectAttributeCodeValidator } from "../../../factory/form-validation.factory";
 import { FormsModule } from "@angular/forms";
 import { LocalizeComponent } from "@shared/component/localize/localize.component";
+import { BooleanFieldComponent } from "@shared/component/form-fields/boolean-field/boolean-field.component";
 
 @Component({
     selector: "attribute-input",
@@ -50,16 +51,17 @@ import { LocalizeComponent } from "@shared/component/localize/localize.component
         ])
     ],
     standalone: true,
-    imports: [LocalizeComponent, FormsModule, GeoObjectAttributeCodeValidator, LocalizedInputComponent, NgIf, LocalizedTextComponent, NgFor, ClassificationFieldComponent]
+    imports: [LocalizeComponent, FormsModule, GeoObjectAttributeCodeValidator, LocalizedInputComponent, NgIf, LocalizedTextComponent, NgFor, ClassificationFieldComponent, BooleanFieldComponent]
 })
 export class AttributeInputComponent implements OnChanges {
 
     @Input() isNew: boolean = false;
     @Input() excludeDescription: boolean = false;
     @Input() type: string = null;
-    @Input() geoObjectType: GeoObjectType;
     @Input() attribute: AttributeType;
+    @Input() manageChangeOverTime: boolean = false;
     @Output() attributeChange = new EventEmitter<AttributeType>();
+
     message: string = null;
 
     state: string = "none";

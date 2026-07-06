@@ -125,12 +125,13 @@
   </ng-container>
 
   <define-attribute-modal-content *ngIf="modalState.state === 'DEFINE-ATTRIBUTE'" [geoObjectType]="type"
-    [service]="service" (geoObjectTypeChange)="onTypeChange()" (stateChange)="onModalStateChange($event)">
+    [service]="service" (geoObjectTypeChange)="onTypeChange()" (stateChange)="onModalStateChange($event)"
+    [manageChangeOverTime]="true">
   </define-attribute-modal-content>
 
   <edit-attribute-modal-content *ngIf="modalState.state === 'EDIT-ATTRIBUTE'" [geoObjectType]="type"
     [attribute]="modalState.attribute" [service]="service" (geoObjectTypeChange)="onTypeChange()"
-    (stateChange)="onModalStateChange($event)">
+    (stateChange)="onModalStateChange($event)" [manageChangeOverTime]="true">
   </edit-attribute-modal-content>
 
   <manage-term-options *ngIf="modalState.state === 'MANAGE-TERM-OPTION'" [attribute]="modalState.attribute"

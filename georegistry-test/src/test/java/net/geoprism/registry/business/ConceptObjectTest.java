@@ -194,6 +194,7 @@ public class ConceptObjectTest extends FastDatasetTest implements InstanceTestCl
     object.setValue(attribute.getCode(), "Test Text");
     object.setCode(TEST_CODE);
     object.setValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.SOURCE.getDataSource());
+    object.setValue(attributeOverTime.getCode(), "Test Text 2", FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
 
     this.cObjectService.apply(object);
 
@@ -203,6 +204,8 @@ public class ConceptObjectTest extends FastDatasetTest implements InstanceTestCl
 
       Assert.assertEquals(object.getVertex().getOid(), result.getVertex().getOid());
       Assert.assertEquals(FastTestDataset.SOURCE.getDataSource().getOid(), (String) result.getValue(DefaultAttribute.DATA_SOURCE.getName()));
+      Assert.assertEquals("Test Text 2", result.getValue(attributeOverTime.getCode(), FastTestDataset.DEFAULT_OVER_TIME_DATE));
+      Assert.assertEquals("Test Text", result.getValue(attribute.getCode()));      
     }
     finally
     {

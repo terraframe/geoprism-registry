@@ -18,7 +18,6 @@
  */
 package net.geoprism.registry.etl.upload;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -42,14 +41,12 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.google.gson.JsonParser;
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.graph.BusinessType;
-import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.io.LocalizedValueFunction;
 import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.model.ServerOrganization;
@@ -63,10 +60,6 @@ import net.geoprism.registry.view.TypeInfo;
 public class BusinessObjectImportConfiguration extends ImportConfiguration
 {
   public static final String                               PARENT_EXCLUSION = "##PARENT##";
-
-  public static final String                               DATE             = "date";
-
-  public static final String                               DATA_SOURCE      = "dataSource";
 
   public static final String                               TARGET           = "target";
 
@@ -90,11 +83,7 @@ public class BusinessObjectImportConfiguration extends ImportConfiguration
 
   private BusinessType                                     type;
 
-  private DataSource                                       dataSource;
-
   private Map<String, Set<String>>                         exclusions;
-
-  private Date                                             date;
 
   private LinkedList<BusinessObjectRecordedErrorException> errors           = new LinkedList<BusinessObjectRecordedErrorException>();
 
@@ -116,26 +105,6 @@ public class BusinessObjectImportConfiguration extends ImportConfiguration
   public void setType(BusinessType type)
   {
     this.type = type;
-  }
-
-  public Date getDate()
-  {
-    return date;
-  }
-
-  public void setDate(Date date)
-  {
-    this.date = date;
-  }
-
-  public DataSource getDataSource()
-  {
-    return dataSource;
-  }
-
-  public void setDataSource(DataSource dataSource)
-  {
-    this.dataSource = dataSource;
   }
 
   public Map<String, Set<String>> getExclusions()
@@ -244,16 +213,6 @@ public class BusinessObjectImportConfiguration extends ImportConfiguration
 
     config.put(BusinessObjectImportConfiguration.TYPE, type);
 
-    if (this.getDate() != null)
-    {
-      config.put(BusinessObjectImportConfiguration.DATE, format.format(this.getDate()));
-    }
-
-    if (this.getDataSource() != null)
-    {
-      config.put(BusinessObjectImportConfiguration.DATA_SOURCE, dataSource.getCode());
-    }
-
     if (this.exclusions.size() > 0)
     {
       JSONArray exclusions = new JSONArray();
@@ -297,18 +256,6 @@ public class BusinessObjectImportConfiguration extends ImportConfiguration
       sourceService.getByCode(config.getString(DATA_SOURCE)).ifPresent(source -> {
         this.setDataSource(source);
       });
-    }
-
-    try
-    {
-      if (config.has(BusinessObjectImportConfiguration.DATE))
-      {
-        this.setDate(format.parse(config.getString(BusinessObjectImportConfiguration.DATE)));
-      }
-    }
-    catch (ParseException e)
-    {
-      throw new ProgrammingErrorException(e);
     }
 
     if (config.has(EXCLUSIONS))
@@ -421,7 +368,7 @@ public class BusinessObjectImportConfiguration extends ImportConfiguration
   @Override
   public void populate(ImportHistory history)
   {
-    ServerOrganization org = ServerOrganization.getByGraphId(type.getValue(BusinessType.ORGANIZATION));
+    ServerOrganization org = type.getServerOrganization();
 
     history.setOrganization(org.getOrganization());
     history.setGeoObjectTypeCode(type.getCode());

@@ -34,9 +34,18 @@
   </div>
 
   <localized-input [(value)]="attribute.label" key="data.property.label.label"></localized-input>
+
   <localized-text *ngIf="!excludeDescription" [(value)]="attribute.description" key="data.property.label.description">
   </localized-text>
 
+  <div class="row-holder" *ngIf="manageChangeOverTime">
+    <div class="label-holder">
+    </div>
+    <div class="holder">
+      <boolean-field label="Is change over time" [(value)]="attribute.isChangeOverTime"
+        [disable]="!isNew"></boolean-field>
+    </div>
+  </div>
 
   <div class="row-holder" *ngIf="type === 'float'">
     <div class="label-holder">
@@ -82,20 +91,17 @@
       </div>
     </div>
 
-    <div class="row-holder" style="overflow: initial;" *ngIf="attribute.classificationType != null && attribute.classificationType.length > 0">
+    <div class="row-holder" style="overflow: initial;"
+      *ngIf="attribute.classificationType != null && attribute.classificationType.length > 0">
       <div class="label-holder">
         <label>
           Root Term
         </label>
       </div>
       <div class="holder">
-        <classification-field
-        [classificationType]="attribute.classificationType"
-        name="classification-root"
-        container="body"
-        [(value)]="attribute.rootTerm" 
-        [disabled]="!isNew">
-       </classification-field>
+        <classification-field [classificationType]="attribute.classificationType" name="classification-root"
+          container="body" [(value)]="attribute.rootTerm" [disabled]="!isNew">
+        </classification-field>
       </div>
     </div>
 

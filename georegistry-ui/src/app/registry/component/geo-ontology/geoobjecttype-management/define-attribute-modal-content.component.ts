@@ -44,6 +44,7 @@ export class DefineAttributeModalContentComponent implements OnInit {
 
     @Input() geoObjectType: AttributedType;
     @Input() service: AttributeTypeService;
+    @Input() manageChangeOverTime: boolean = false;
 
     @Output() stateChange: EventEmitter<ManageGeoObjectTypeModalState> = new EventEmitter<ManageGeoObjectTypeModalState>();
     @Output() geoObjectTypeChange: EventEmitter<AttributedType> = new EventEmitter<AttributedType>();

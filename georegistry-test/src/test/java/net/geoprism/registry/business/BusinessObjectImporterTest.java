@@ -4,7 +4,6 @@
 package net.geoprism.registry.business;
 
 import java.io.InputStream;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -81,6 +80,8 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
 
   private static AttributeType              attributeType;
 
+  private static AttributeType              attributeTypeOverTime;
+
   private static String                     TEST_CODE = "testCode";
 
   private static BusinessEdgeType           bGeoEdgeType;
@@ -136,6 +137,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
     type = this.bTypeService.apply(object);
 
     attributeType = this.bTypeService.createAttributeType(type, new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test True"), false, false, false, false));
+    attributeTypeOverTime = this.bTypeService.createAttributeType(type, new AttributeCharacterType("testMulti", new LocalizedValue("Test Multi"), new LocalizedValue("Test Multi"), false, false, false, true));
 
     bGeoEdgeType = this.bEdgeService.create(BusinessGeoEdgeTypeView.build(FastTestDataset.ORG_CGOV.getCode(), "GEO_EDGE", new LocalizedValue("Geo Edge"), new LocalizedValue("Geo Edge"), type.getCode(), EdgeDirection.PARENT));
   }
@@ -178,19 +180,25 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
   public void testImportValueNewOnly()
   {
     TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
-      String value = "Test Text";
-      String rowAttribute = "Bad";
+      String basicValue = "Test Text";
+      String multiValue = "Test Mutli";
+
+      String basicColumn = "Basic";
+      String multiColumn = "Multi";
 
       HashMap<String, Object> row = new HashMap<String, Object>();
-      row.put(rowAttribute, value);
+      row.put(basicColumn, basicValue);
+      row.put(multiColumn, multiValue);
       row.put(BusinessObject.CODE, TEST_CODE);
 
       BusinessObjectImportConfiguration configuration = new BusinessObjectImportConfiguration();
       configuration.setImportStrategy(ImportStrategy.NEW_ONLY);
       configuration.setType(type);
-      configuration.setDate(FastTestDataset.DEFAULT_END_TIME_DATE);
+      configuration.setStartDate(FastTestDataset.DEFAULT_OVER_TIME_DATE);
+      configuration.setEndDate(FastTestDataset.DEFAULT_END_TIME_DATE);
       configuration.setCopyBlank(false);
-      configuration.setFunction(attributeType.getCode(), new BasicColumnFunction(rowAttribute));
+      configuration.setFunction(attributeType.getCode(), new BasicColumnFunction(basicColumn));
+      configuration.setFunction(attributeTypeOverTime.getCode(), new BasicColumnFunction(multiColumn));
       configuration.setFunction(BusinessObject.CODE, new BasicColumnFunction(BusinessObject.CODE));
 
       try (BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener()))
@@ -198,11 +206,13 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
         importer.importRow(new MapFeatureRow(row, 0L));
       }
 
-      BusinessObject result = this.bObjectService.get(type, attributeType.getCode(), value);
+      BusinessObject result = this.bObjectService.get(type, attributeType.getCode(), basicValue);
 
       try
       {
         Assert.assertNotNull(result);
+
+        Assert.assertEquals(multiValue, result.getValue(attributeTypeOverTime.getCode(), FastTestDataset.DEFAULT_OVER_TIME_DATE));
       }
       finally
       {
@@ -259,7 +269,8 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
       BusinessObjectImportConfiguration configuration = new BusinessObjectImportConfiguration();
       configuration.setImportStrategy(ImportStrategy.NEW_AND_UPDATE);
       configuration.setType(type);
-      configuration.setDate(FastTestDataset.DEFAULT_END_TIME_DATE);
+      configuration.setStartDate(FastTestDataset.DEFAULT_OVER_TIME_DATE);
+      configuration.setEndDate(FastTestDataset.DEFAULT_END_TIME_DATE);
       configuration.setCopyBlank(false);
       configuration.setFunction(attributeType.getCode(), new BasicColumnFunction(rowAttribute));
       configuration.setFunction(BusinessObject.CODE, new BasicColumnFunction(BusinessObject.CODE));
@@ -306,7 +317,8 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
         BusinessObjectImportConfiguration configuration = new BusinessObjectImportConfiguration();
         configuration.setImportStrategy(ImportStrategy.UPDATE_ONLY);
         configuration.setType(type);
-        configuration.setDate(FastTestDataset.DEFAULT_END_TIME_DATE);
+        configuration.setStartDate(FastTestDataset.DEFAULT_OVER_TIME_DATE);
+        configuration.setEndDate(FastTestDataset.DEFAULT_END_TIME_DATE);
         configuration.setCopyBlank(false);
         configuration.setFunction(attributeType.getCode(), new BasicColumnFunction(rowAttribute));
         configuration.setFunction(BusinessObject.CODE, new BasicColumnFunction(BusinessObject.CODE));
@@ -353,7 +365,8 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
         BusinessObjectImportConfiguration configuration = new BusinessObjectImportConfiguration();
         configuration.setImportStrategy(ImportStrategy.NEW_ONLY);
         configuration.setType(type);
-        configuration.setDate(FastTestDataset.DEFAULT_END_TIME_DATE);
+        configuration.setStartDate(FastTestDataset.DEFAULT_OVER_TIME_DATE);
+        configuration.setEndDate(FastTestDataset.DEFAULT_END_TIME_DATE);
         configuration.setCopyBlank(false);
         configuration.setFunction(attributeType.getCode(), new BasicColumnFunction(rowAttribute));
         configuration.setFunction(BusinessObject.CODE, new BasicColumnFunction(BusinessObject.CODE));
@@ -403,7 +416,8 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
       BusinessObjectImportConfiguration configuration = new BusinessObjectImportConfiguration();
       configuration.setImportStrategy(ImportStrategy.NEW_ONLY);
       configuration.setType(type);
-      configuration.setDate(FastTestDataset.DEFAULT_END_TIME_DATE);
+      configuration.setStartDate(FastTestDataset.DEFAULT_OVER_TIME_DATE);
+      configuration.setEndDate(FastTestDataset.DEFAULT_END_TIME_DATE);
       configuration.setCopyBlank(false);
       configuration.setFunction(attributeType.getCode(), new BasicColumnFunction(rowAttribute));
       configuration.setFunction(BusinessObject.CODE, new BasicColumnFunction(BusinessObject.CODE));
@@ -510,11 +524,6 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
 
   private ImportHistory mockImport(BusinessObjectImportConfiguration config) throws Throwable
   {
-    if (config.getDate() == null)
-    {
-      config.setDate(new Date());
-    }
-
     config.setImportStrategy(ImportStrategy.NEW_AND_UPDATE);
 
     DataImportJob job = new DataImportJob();

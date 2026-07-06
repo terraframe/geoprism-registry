@@ -62,7 +62,8 @@ export class CreateBusinessTypeComponent implements OnInit {
             description: this.lService.create(),
             attributes: [],
             labelAttribute: "",
-            organizationLabel: ""
+            organizationLabel: "",
+            type: "business-type"
         };
 
         this.type.organization = this.organization.code;

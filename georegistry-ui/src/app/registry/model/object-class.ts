@@ -22,17 +22,17 @@ import { AttributedType, AttributeType } from "./registry";
 
 export class ObjectClass {
     oid?: string;
-}
-
-export class ConceptClass extends ObjectClass implements AttributedType {
-
-    oid?: string;
+    type: "business-type" | "concept-class";
     code: string;
     organization: string;
     organizationLabel?: string;
     displayLabel: LocalizedValue;
     description: LocalizedValue;
     attributes?: Array<AttributeType>;
+}
+
+export class ConceptClass extends ObjectClass implements AttributedType {
+
 }
 
 
@@ -45,16 +45,7 @@ export class ConceptObject {
 }
 
 export class BusinessType extends ObjectClass implements AttributedType {
-
-    oid?: string;
-    code: string;
-    organization: string;
-    organizationLabel?: string;
-    displayLabel: LocalizedValue;
-    description: LocalizedValue;
-    attributes?: Array<AttributeType>;
     labelAttribute?: string;
-
 }
 
 export class BusinessEdgeType {

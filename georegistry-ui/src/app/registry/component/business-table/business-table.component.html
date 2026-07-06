@@ -22,6 +22,7 @@
     <ng-container *ngIf="businessType != null">
         <h2>{{businessType.displayLabel.localizedValue}}</h2>
         <generic-table [setup]="setup" [config]="config" [pageConfig]="{typeCode: businessType.code}"
-            (click)="onClick($event)"></generic-table>
+            (click)="onClick($event)">
+        </generic-table>
     </ng-container>
 </page-container>
