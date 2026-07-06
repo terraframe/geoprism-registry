@@ -89,6 +89,13 @@ export class HubService {
                     key: 'business.data.type'
                 },
                 {
+                    id: 'CONCEPT-CLASSES',
+                    description: "nav.concept.class.description",
+                    link: '/registry/concept-classes',
+                    icon: 'fa-solid fa-info',
+                    key: 'concept.data.type'
+                },
+                {
                     id: 'DATA_SOURCE',
                     description: "nav.datasource.description",
                     link: '/registry/sources',

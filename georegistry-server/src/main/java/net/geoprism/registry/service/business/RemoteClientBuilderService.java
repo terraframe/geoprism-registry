@@ -10,7 +10,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.google.gson.JsonArray;
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
 import net.geoprism.registry.etl.RemoteConnectionException;
@@ -19,7 +18,9 @@ import net.geoprism.registry.lpg.adapter.RegistryConnectorFactory;
 import net.geoprism.registry.lpg.adapter.RegistryConnectorIF;
 import net.geoprism.registry.lpg.adapter.response.RegistryResponse;
 import net.geoprism.registry.model.DataSourceDTO;
+import net.geoprism.registry.view.BusinessTypeDTO;
 import net.geoprism.registry.view.CommitDTO;
+import net.geoprism.registry.view.ConceptClassDTO;
 import net.geoprism.registry.view.PublishDTO;
 
 @Service
@@ -159,13 +160,48 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
     }
 
     @Override
-    public JsonArray getBusinessTypes(String uid)
+    public List<BusinessTypeDTO> getBusinessTypes(String uid)
     {
       RegistryResponse response = this.apiGet(COMMIT_API_PATH + "/business-types", new BasicNameValuePair("uid", uid));
 
       if (response.isSuccess())
       {
-        return response.getJsonArray();
+        ObjectMapper mapper = new ObjectMapper();
+
+        try
+        {
+          ObjectReader reader = mapper.readerForListOf(BusinessTypeDTO.class);
+
+          return reader.readValue(response.getResponse());
+        }
+        catch (JsonProcessingException e)
+        {
+          throw new RemoteConnectionException(e);
+        }
+      }
+
+      throw new RemoteConnectionException(response.getMessage());
+    }
+    
+    @Override
+    public List<ConceptClassDTO> getConceptClasses(String uid)
+    {
+      RegistryResponse response = this.apiGet(COMMIT_API_PATH + "/concept-classes", new BasicNameValuePair("uid", uid));
+
+      if (response.isSuccess())
+      {
+        ObjectMapper mapper = new ObjectMapper();
+
+        try
+        {
+          ObjectReader reader = mapper.readerForListOf(ConceptClassDTO.class);
+
+          return reader.readValue(response.getResponse());
+        }
+        catch (JsonProcessingException e)
+        {
+          throw new RemoteConnectionException(e);
+        }
       }
 
       throw new RemoteConnectionException(response.getMessage());

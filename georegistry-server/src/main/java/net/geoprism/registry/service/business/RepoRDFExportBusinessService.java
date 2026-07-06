@@ -192,7 +192,7 @@ public class RepoRDFExportBusinessService
   private BusinessEdgeTypeBusinessServiceIF bEdgeService;
 
   @Autowired
-  private GPRBusinessObjectBusinessService  bObjectService;
+  private BusinessObjectBusinessServiceIF   bObjectService;
 
   @Autowired
   private BusinessTypeBusinessServiceIF     bTypeService;
@@ -738,7 +738,7 @@ public class RepoRDFExportBusinessService
 
     for (ServerGeoObjectType got : state.gots)
     {
-      final String dbClassName = got.getMdVertex().getDBClassName();
+      final String dbClassName = got.getMdVertexDAO().getDBClassName();
 
       final String sql = "SELECT COUNT(*) FROM " + dbClassName;
 

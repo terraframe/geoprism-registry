@@ -29,12 +29,12 @@ import { Organization } from "@shared/model/core";
 import Utils from "@registry/utility/Utils";
 import { TabsModule } from "ngx-bootstrap/tabs";
 import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
-import { BusinessType } from "@registry/model/business-type";
 import { BusinessTypeService } from "@registry/service/business-type.service";
 import { RegistryService } from "@registry/service";
 import { BusinessTypePageComponent } from "./business-type-page/business-type-page.component";
 import { BusinessEdgeTypePageComponent } from "./business-edge-type-page/business-edge-type-page.component";
 import { LocalizePipe } from "@shared/pipe/localize.pipe";
+import { BusinessType } from "@registry/model/object-class";
 
 
 @Component({

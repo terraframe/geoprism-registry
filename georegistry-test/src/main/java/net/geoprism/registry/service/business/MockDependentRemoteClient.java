@@ -8,7 +8,9 @@ import java.util.Optional;
 import com.google.gson.JsonArray;
 
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
+import net.geoprism.registry.view.BusinessTypeDTO;
 import net.geoprism.registry.view.CommitDTO;
+import net.geoprism.registry.view.ConceptClassDTO;
 import net.geoprism.registry.view.PublishDTO;
 
 public class MockDependentRemoteClient extends MockRemoteClient
@@ -83,14 +85,25 @@ public class MockDependentRemoteClient extends MockRemoteClient
   }
 
   @Override
-  public JsonArray getBusinessTypes(String uid)
+  public List<BusinessTypeDTO> getBusinessTypes(String uid)
   {
     if (uid.equals(DEPENDENT))
     {
       return super.getBusinessTypes(uid);
     }
 
-    return new JsonArray();
+    return new LinkedList<>();
+  }
+
+  @Override
+  public List<ConceptClassDTO> getConceptClasses(String uid)
+  {
+    if (uid.equals(DEPENDENT))
+    {
+      return super.getConceptClasses(uid);
+    }
+
+    return new LinkedList<>();
   }
 
   @Override

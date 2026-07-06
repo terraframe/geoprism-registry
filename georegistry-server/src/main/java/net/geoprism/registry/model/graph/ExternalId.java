@@ -59,7 +59,7 @@ public class ExternalId
   
   public String buildKey()
   {
-    return this.getExternalId() + KEY_SEPARATOR + this.getParent().getOid() + KEY_SEPARATOR + this.getChild().getType().getMdVertex().getDBClassName();
+    return this.getExternalId() + KEY_SEPARATOR + this.getParent().getOid() + KEY_SEPARATOR + this.getChild().getType().getMdVertexDAO().getDBClassName();
   }
   
   public VertexServerGeoObject getChild()

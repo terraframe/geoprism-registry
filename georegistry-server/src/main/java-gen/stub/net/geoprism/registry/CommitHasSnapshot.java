@@ -10,7 +10,7 @@ public class CommitHasSnapshot extends CommitHasSnapshotBase
     super(parentOid, childOid);
   }
   
-  public CommitHasSnapshot(net.geoprism.registry.Commit parent, net.geoprism.graph.MetadataSnapshot child)
+  public CommitHasSnapshot(net.geoprism.registry.Commit parent, net.geoprism.graph.SchemaElementSnapshot child)
   {
     this(parent.getOid(), child.getOid());
   }

@@ -35,6 +35,8 @@ public class LabeledPropertyGraphTypeBuilder
 
   private String[]              businessEdgeCodes;
 
+  private String[]              conceptClassCodes;
+
   public LabeledPropertyGraphTypeBuilder()
   {
     this.code = "TEST_CODE";
@@ -117,6 +119,16 @@ public class LabeledPropertyGraphTypeBuilder
   {
     this.businessEdgeCodes = businessEdgeCodes;
   }
+  
+  public String[] getConceptClassCodes()
+  {
+    return conceptClassCodes;
+  }
+  
+  public void setConceptClassCodes(String[] conceptClassCodes)
+  {
+    this.conceptClassCodes = conceptClassCodes;
+  }
 
   @Request
   public JsonObject buildJSON()
@@ -133,6 +145,7 @@ public class LabeledPropertyGraphTypeBuilder
     graph.setGeoObjectTypeCodesList(this.geoObjectTypeCodes);
     graph.setBusinessTypeCodesList(this.businessTypeCodes);
     graph.setBusinessEdgeCodesList(this.businessEdgeCodes);
+    graph.setConceptClassCodesList(this.conceptClassCodes);
 
     if (organization != null)
     {

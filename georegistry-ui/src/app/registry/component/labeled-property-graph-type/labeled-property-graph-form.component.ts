@@ -32,7 +32,7 @@ import Utils from "@registry/utility/Utils";
 import { PRESENT } from "@shared/model/date";
 import { HierarchyNode, HierarchyType } from "@registry/model/hierarchy";
 import { TypeaheadMatch, TypeaheadModule } from "ngx-bootstrap/typeahead";
-import { BusinessEdgeType, BusinessType } from "@registry/model/business-type";
+import { BusinessEdgeType, BusinessType } from "@registry/model/object-class";
 import { BusinessTypeService } from "@registry/service/business-type.service";
 import { LocalizePipe } from "../../../shared/pipe/localize.pipe";
 import { BsDropdownModule } from "ngx-bootstrap/dropdown";

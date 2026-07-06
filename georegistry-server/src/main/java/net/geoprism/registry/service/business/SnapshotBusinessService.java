@@ -54,14 +54,15 @@ import net.geoprism.graph.AttributeTypeSnapshot;
 import net.geoprism.graph.BusinessEdgeTypeSnapshot;
 import net.geoprism.graph.BusinessTypeSnapshot;
 import net.geoprism.graph.BusinessTypeSnapshotQuery;
+import net.geoprism.graph.ConceptClassSnapshot;
 import net.geoprism.graph.DirectedAcyclicGraphTypeSnapshot;
 import net.geoprism.graph.GeoObjectTypeSnapshot;
 import net.geoprism.graph.GraphTypeReference;
 import net.geoprism.graph.GraphTypeSnapshot;
 import net.geoprism.graph.HierarchyTypeSnapshot;
 import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
-import net.geoprism.graph.MetadataSnapshot;
 import net.geoprism.graph.ObjectTypeSnapshot;
+import net.geoprism.graph.SchemaElementSnapshot;
 import net.geoprism.graph.UndirectedGraphTypeSnapshot;
 import net.geoprism.rbac.RoleConstants;
 import net.geoprism.registry.Commit;
@@ -72,6 +73,7 @@ import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.graph.BaseGeoObjectType;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
+import net.geoprism.registry.graph.ConceptClass;
 import net.geoprism.registry.graph.DirectedAcyclicGraphType;
 import net.geoprism.registry.graph.GeoObjectTypeAlreadyInHierarchyException;
 import net.geoprism.registry.graph.ObjectClass;
@@ -82,6 +84,8 @@ import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.SnapshotContainer;
 import net.geoprism.registry.view.BusinessEdgeTypeView;
 import net.geoprism.registry.view.BusinessTypeDTO;
+import net.geoprism.registry.view.ConceptClassDTO;
+import net.geoprism.registry.view.TypeClass;
 
 @Service
 public class SnapshotBusinessService
@@ -94,6 +98,9 @@ public class SnapshotBusinessService
 
   @Autowired
   private BusinessTypeSnapshotBusinessServiceIF     bTypeSnapshotService;
+
+  @Autowired
+  private ConceptClassSnapshotBusinessServiceIF     cClassSnapshotService;
 
   @Autowired
   private BusinessEdgeTypeBusinessServiceIF         bEdgeService;
@@ -112,6 +119,9 @@ public class SnapshotBusinessService
 
   @Autowired
   private BusinessTypeBusinessServiceIF             bTypeService;
+
+  @Autowired
+  private ConceptClassBusinessServiceIF             cClassService;
 
   @Autowired
   private EdgeTypeBusinessServiceIF                 graphTypeService;
@@ -142,9 +152,9 @@ public class SnapshotBusinessService
       this.assignPermissions(mdEdge);
     }
 
-    MetadataSnapshot snapshot;
+    SchemaElementSnapshot snapshot;
 
-    if (gtr.typeCode.equals(GraphTypeSnapshot.DIRECTED_ACYCLIC_GRAPH_TYPE))
+    if (gtr.typeCode.equals(TypeClass.DAG.getCode()))
     {
       DirectedAcyclicGraphTypeSnapshot htsnapshot = new DirectedAcyclicGraphTypeSnapshot();
       htsnapshot.setGraphMdEdge(mdEdge);
@@ -157,7 +167,7 @@ public class SnapshotBusinessService
 
       snapshot = htsnapshot;
     }
-    else if (gtr.typeCode.equals(GraphTypeSnapshot.UNDIRECTED_GRAPH_TYPE))
+    else if (gtr.typeCode.equals(TypeClass.UNDIRECTED_GRAPH.getCode()))
     {
       UndirectedGraphTypeSnapshot htsnapshot = new UndirectedGraphTypeSnapshot();
       htsnapshot.setGraphMdEdge(mdEdge);
@@ -170,7 +180,7 @@ public class SnapshotBusinessService
 
       snapshot = htsnapshot;
     }
-    else if (gtr.typeCode.equals(GraphTypeSnapshot.HIERARCHY_TYPE))
+    else if (gtr.typeCode.equals(TypeClass.HIERARCHY.getCode()))
     {
       snapshot = this.createSnapshot(version, (ServerHierarchyType) graphType, root);
     }
@@ -303,7 +313,7 @@ public class SnapshotBusinessService
 
     if (version.createTablesWithSnapshot())
     {
-      String viewName = this.oSnapshotService.getTableName(type.getMdVertex().getDBClassName());
+      String viewName = this.oSnapshotService.getTableName(type.getMdVertexDAO().getDBClassName());
 
       // Create the MdTable
       MdVertexDAO mdVertexDAO = MdVertexDAO.newInstance();
@@ -424,6 +434,63 @@ public class SnapshotBusinessService
         .filter(a -> ! ( a instanceof AttributeGeometryType )) //
         .forEach(attributeType -> {
           this.bTypeSnapshotService.createAttributeTypeSnapshot(snapshot, attributeType);
+        });
+
+    return snapshot;
+  }
+
+  @Transaction
+  public ConceptClassSnapshot createSnapshot(SnapshotContainer<?> version, ConceptClass type)
+  {
+    MdVertex graphMdVertex = null;
+
+    if (version.createTablesWithSnapshot())
+    {
+      String viewName = this.oSnapshotService.getTableName(type.getMdVertex().getDbClassName());
+
+      // Create the MdTable
+      MdVertexDAO mdVertexDAO = MdVertexDAO.newInstance();
+      mdVertexDAO.setValue(MdVertexInfo.NAME, viewName);
+      mdVertexDAO.setValue(MdVertexInfo.PACKAGE, RegistryConstants.TABLE_PACKAGE);
+      RegistryLocalizedValueConverter.populate(mdVertexDAO, MdVertexInfo.DISPLAY_LABEL, type.getLabel());
+      mdVertexDAO.setValue(MdVertexInfo.DB_CLASS_NAME, viewName);
+      mdVertexDAO.setValue(MdVertexInfo.GENERATE_SOURCE, MdAttributeBooleanInfo.FALSE);
+      mdVertexDAO.setValue(MdVertexInfo.ENABLE_CHANGE_OVER_TIME, MdAttributeBooleanInfo.FALSE);
+      mdVertexDAO.apply();
+
+      final MdVertex mdVertex = (MdVertex) BusinessFacade.get(mdVertexDAO);
+
+      List<String> existingAttributes = mdVertexDAO.getAllDefinedMdAttributes().stream().map(attribute -> attribute.definesAttribute()).collect(Collectors.toList());
+
+      type.getAttributeMap().values().stream() //
+          .map(t -> t.toDTO()) //
+          .filter(a -> ! ( a instanceof AttributeGeometryType )) //
+          .filter(a -> !existingAttributes.contains(a.getCode())) //
+          .forEach(attributeType -> {
+            this.bTypeSnapshotService.createMdAttributeFromAttributeType(mdVertex, attributeType);
+          });
+
+      graphMdVertex = mdVertex;
+
+      assignPermissions(mdVertexDAO);
+    }
+
+    ConceptClassSnapshot snapshot = new ConceptClassSnapshot();
+    snapshot.setGraphMdVertex(graphMdVertex);
+    snapshot.setCode(type.getCode());
+    snapshot.setOrgCode(type.getServerOrganization().getCode());
+    snapshot.setOrigin(type.getOrigin());
+    snapshot.setSequence(type.getSequence());
+    RegistryLocalizedValueConverter.populate(snapshot.getDisplayLabel(), type.getLabel());
+    snapshot.apply();
+
+    version.addSnapshot(snapshot).apply();
+
+    type.getAttributeMap().values().stream() //
+        .map(t -> t.toDTO()) //
+        .filter(a -> ! ( a instanceof AttributeGeometryType )) //
+        .forEach(attributeType -> {
+          this.cClassSnapshotService.createAttributeTypeSnapshot(snapshot, attributeType);
         });
 
     return snapshot;
@@ -620,6 +687,43 @@ public class SnapshotBusinessService
             AttributeType attributeType = createType(attribute);
 
             this.bTypeService.createAttributeType(type, attributeType);
+          });
+
+      return type;
+    }
+
+    return existing;
+  }
+
+  @Transaction
+  public ConceptClass createType(ConceptClassSnapshot snapshot)
+  {
+    ConceptClassDTO dto = snapshot.toDTO();
+    dto.setOrganization(snapshot.getOrgCode());
+
+    ConceptClass existing = this.cClassService.getByCode(snapshot.getCode()).orElse(null);
+
+    if (existing == null || existing.getSequence() < snapshot.getSequence())
+    {
+      if (existing != null)
+      {
+        dto.setOid(existing.getOid());
+      }
+
+      final ConceptClass type = this.cClassService.apply(dto);
+
+      Map<String, net.geoprism.registry.graph.AttributeType> attributeMap = type.getAttributeMap();
+
+      List<AttributeTypeSnapshot> attributeTypeSnapshots = this.cClassSnapshotService.getAttributeTypes(snapshot);
+
+      attributeTypeSnapshots.stream() //
+          .filter(aSnapshot -> !aSnapshot.getIsDefault())//
+          .filter(aSnapshot -> !attributeMap.containsKey(aSnapshot.getCode()))//
+          .filter(aSnapshot -> ! ( aSnapshot instanceof AttributeGeometryTypeSnapshot )) //
+          .forEach(attribute -> {
+            AttributeType attributeType = createType(attribute);
+
+            this.cClassService.createAttributeType(type, attributeType);
           });
 
       return type;

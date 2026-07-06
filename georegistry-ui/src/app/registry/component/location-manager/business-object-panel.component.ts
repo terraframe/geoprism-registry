@@ -18,7 +18,7 @@
 ///
 
 import { Component, Input, Output, EventEmitter } from "@angular/core";
-import { BusinessObject, BusinessType } from "@registry/model/business-type";
+import { BusinessObject, BusinessType } from "@registry/model/object-class";
 import { DateTextComponent } from "../../../shared/component/date-text/date-text.component";
 import { NgFor, NgIf } from "@angular/common";
 import { FormsModule } from "@angular/forms";

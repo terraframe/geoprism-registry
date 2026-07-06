@@ -35,7 +35,7 @@ import { NgIf, NgFor } from "@angular/common";
 import { LocalizedInputComponent } from "../../form-fields/localized-input/localized-input.component";
 import { GeoObjectAttributeCodeValidator } from "../../../factory/form-validation.factory";
 import { FormsModule } from "@angular/forms";
-import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { LocalizeComponent } from "@shared/component/localize/localize.component";
 
 @Component({
     selector: "attribute-input",

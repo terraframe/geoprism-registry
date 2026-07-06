@@ -360,9 +360,9 @@ public abstract class CommitHasSnapshotBase extends com.runwaysdk.business.Relat
     return (net.geoprism.registry.Commit) super.getParent();
   }
   
-  public net.geoprism.graph.MetadataSnapshot getChild()
+  public net.geoprism.graph.SchemaElementSnapshot getChild()
   {
-    return (net.geoprism.graph.MetadataSnapshot) super.getChild();
+    return (net.geoprism.graph.SchemaElementSnapshot) super.getChild();
   }
   
   public static CommitHasSnapshot get(String oid)

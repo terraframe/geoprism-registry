@@ -31,7 +31,7 @@ import { ErrorHandler } from "@shared/component";
 import { Source } from "@registry/model/source";
 import { SourceService } from "@registry/service/source.service";
 import { LocalizationService } from "@shared/service/localization.service";
-import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { FormsModule } from "@angular/forms";
 import { NgIf } from "@angular/common";
 

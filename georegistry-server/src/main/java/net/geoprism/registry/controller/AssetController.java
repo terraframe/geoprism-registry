@@ -21,9 +21,6 @@ package net.geoprism.registry.controller;
 import java.io.IOException;
 import java.io.InputStream;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-
 import org.apache.commons.io.FilenameUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,8 +41,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.runwaysdk.Pair;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.controller.BusinessTypeController.OidBody;
+import net.geoprism.registry.controller.ObjectClassController.OidBody;
 import net.geoprism.registry.service.request.AssetService;
 
 @RestController

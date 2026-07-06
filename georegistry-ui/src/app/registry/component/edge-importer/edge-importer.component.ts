@@ -39,7 +39,7 @@ import { FormsModule } from "@angular/forms";
 import { NgIf, NgFor } from "@angular/common";
 import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
 import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
-import { BusinessType } from "@registry/model/business-type";
+import { BusinessType } from "@registry/model/object-class";
 import { BusinessTypeService } from "@registry/service/business-type.service";
 import { EdgeImportConfiguration } from "@registry/model/io";
 

@@ -5,11 +5,11 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import net.geoprism.graph.GraphTypeSnapshot;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.DirectedAcyclicGraphType;
 import net.geoprism.registry.graph.UndirectedGraphType;
 import net.geoprism.registry.view.PublishDTO;
+import net.geoprism.registry.view.TypeClass;
 
 public class GeoObjectApplyEdgeEvent extends AbstractGeoObjectEdgeEvent implements GeoObjectEvent
 {
@@ -191,12 +191,12 @@ public class GeoObjectApplyEdgeEvent extends AbstractGeoObjectEdgeEvent implemen
   {
     String edgeType = this.getEdgeType();
 
-    if ( ( edgeType.equals(GraphTypeSnapshot.DIRECTED_ACYCLIC_GRAPH_TYPE) || edgeType.equals(DirectedAcyclicGraphType.class.getName()) ) && !dto.getDagTypes().anyMatch(this.getEdgeTypeCode()::equals))
+    if ( ( edgeType.equals(TypeClass.DAG.getCode()) || edgeType.equals(DirectedAcyclicGraphType.class.getName()) ) && !dto.getDagTypes().anyMatch(this.getEdgeTypeCode()::equals))
     {
       return false;
     }
 
-    if ( ( edgeType.equals(GraphTypeSnapshot.UNDIRECTED_GRAPH_TYPE) || edgeType.equals(UndirectedGraphType.class.getName()) ) && !dto.getUndirectedTypes().anyMatch(this.getEdgeTypeCode()::equals))
+    if ( ( edgeType.equals(TypeClass.UNDIRECTED_GRAPH.getCode()) || edgeType.equals(UndirectedGraphType.class.getName()) ) && !dto.getUndirectedTypes().anyMatch(this.getEdgeTypeCode()::equals))
     {
       return false;
     }
@@ -219,8 +219,8 @@ public class GeoObjectApplyEdgeEvent extends AbstractGeoObjectEdgeEvent implemen
   @JsonIgnore
   public String getBaseObjectId()
   {
-    String delimeter = this.edgeType.equals(GraphTypeSnapshot.HIERARCHY_TYPE) ? "_H_" //
-        : this.edgeType.equals(GraphTypeSnapshot.DIRECTED_ACYCLIC_GRAPH_TYPE) ? "_D_" : "_U_";
+    String delimeter = this.edgeType.equals(TypeClass.HIERARCHY.getCode()) ? "_H_" //
+        : this.edgeType.equals(TypeClass.DAG.getCode()) ? "_D_" : "_U_";
 
     return this.sourceCode + "#" + this.sourceType + delimeter + this.edgeTypeCode + this.targetCode + "#" + this.targetType;
   }

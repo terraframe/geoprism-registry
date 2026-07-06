@@ -27,12 +27,12 @@ import {
 import { HttpErrorResponse } from "@angular/common/http";
 import { BusinessEdgeTypeService } from "@registry/service/business-edge-type.service";
 import { LocalizedTextComponent } from "../../form-fields/localized-text/localized-text.component";
-import { ConvertKeyLabel } from "../../../../shared/component/localize/convert-key-label.component";
-import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { ConvertKeyLabel } from "@shared/component/localize/convert-key-label.component";
+import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { FormsModule } from "@angular/forms";
 import { NgIf, NgFor } from "@angular/common";
-import { BusinessEdgeType, BusinessType } from "@registry/model/business-type";
 import { GEO_OBJECT_OPTION } from "@registry/model/registry";
+import { BusinessEdgeType, BusinessType } from "@registry/model/object-class";
 
 @Component({
     selector: "manage-business-edge-type",

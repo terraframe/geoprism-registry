@@ -28,12 +28,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 
 import jakarta.validation.constraints.NotBlank;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.BusinessObjectService;
+import net.geoprism.registry.view.ObjectOverTimeDTO;
+import net.geoprism.registry.view.ObjectAndTypeDTO;
 
 @RestController
 @Validated
@@ -44,23 +45,23 @@ public class BusinessObjectController extends RunwaySpringController
   private BusinessObjectService service;
 
   @GetMapping("/get")
-  public ResponseEntity<String> get( //
+  public ResponseEntity<ObjectOverTimeDTO> get( //
       @NotBlank @RequestParam(name = "businessTypeCode") String businessTypeCode, //
       @NotBlank @RequestParam(name = "code") String code)
   {
-    JsonObject response = service.get(this.getSessionId(), businessTypeCode, code);
+    ObjectOverTimeDTO response = service.get(this.getSessionId(), businessTypeCode, code);
 
-    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+    return ResponseEntity.ok(response);
   }
 
   @GetMapping("/get-type-and-object")
-  public ResponseEntity<String> getTypeAndObject( //
+  public ResponseEntity<ObjectAndTypeDTO> getTypeAndObject( //
       @NotBlank @RequestParam(name = "businessTypeCode") String businessTypeCode, //
       @NotBlank @RequestParam(name = "code") String code)
   {
-    JsonObject response = service.getTypeAndObject(this.getSessionId(), businessTypeCode, code);
+    ObjectAndTypeDTO response = service.getTypeAndObject(this.getSessionId(), businessTypeCode, code);
 
-    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+    return ResponseEntity.ok(response);
   }
 
   @GetMapping("/get-parents")

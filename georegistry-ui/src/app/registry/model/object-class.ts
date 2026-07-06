@@ -20,7 +20,31 @@
 import { LocalizedValue } from "@core/model/core";
 import { AttributedType, AttributeType } from "./registry";
 
-export class BusinessType implements AttributedType {
+export class ObjectClass {
+    oid?: string;
+}
+
+export class ConceptClass extends ObjectClass implements AttributedType {
+
+    oid?: string;
+    code: string;
+    organization: string;
+    organizationLabel?: string;
+    displayLabel: LocalizedValue;
+    description: LocalizedValue;
+    attributes?: Array<AttributeType>;
+}
+
+
+export class ConceptObject {
+
+    code: string;
+    data: {
+        [key: string]: string | number;
+    }
+}
+
+export class BusinessType extends ObjectClass implements AttributedType {
 
     oid?: string;
     code: string;
@@ -53,3 +77,4 @@ export class BusinessObject {
     }
 
 }
+

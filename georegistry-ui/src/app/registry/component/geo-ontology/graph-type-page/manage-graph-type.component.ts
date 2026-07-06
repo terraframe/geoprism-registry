@@ -28,8 +28,8 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { GraphType } from "@registry/model/registry";
 import { GraphTypeService } from "@registry/service/graph-type.service";
 import { LocalizedTextComponent } from "../../form-fields/localized-text/localized-text.component";
-import { ConvertKeyLabel } from "../../../../shared/component/localize/convert-key-label.component";
-import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { ConvertKeyLabel } from "@shared/component/localize/convert-key-label.component";
+import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { FormsModule } from "@angular/forms";
 import { NgIf, NgFor } from "@angular/common";
 

@@ -7,7 +7,9 @@ import com.google.gson.JsonArray;
 
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
 import net.geoprism.registry.model.DataSourceDTO;
+import net.geoprism.registry.view.BusinessTypeDTO;
 import net.geoprism.registry.view.CommitDTO;
+import net.geoprism.registry.view.ConceptClassDTO;
 import net.geoprism.registry.view.PublishDTO;
 
 public interface RemoteClientIF extends AutoCloseable
@@ -22,7 +24,9 @@ public interface RemoteClientIF extends AutoCloseable
 
   public List<CommitDTO> getDependencies(String commitId);
 
-  public JsonArray getBusinessTypes(String commitId);
+  public List<BusinessTypeDTO> getBusinessTypes(String commitId);
+
+  public List<ConceptClassDTO> getConceptClasses(String commitId);
 
   public JsonArray getGeoObjectTypes(String commitId);
 

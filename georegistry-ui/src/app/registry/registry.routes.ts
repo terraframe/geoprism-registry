@@ -45,6 +45,7 @@ import { EdgeImporterComponent } from "./component/edge-importer/edge-importer.c
 import { PublishManagerComponent } from "./component/publish-events/publish-manager.component";
 import { RollbackCheckpointManagerComponent } from "./component/rollback-checkpoint/rollback-checkpoint-manager.component";
 import { BusinessOntologyComponent } from "./component/business-ontology/business-ontology.component";
+import { ConceptOntologyComponent } from "./component/concept-ontology/concept-ontology.component";
 
 export const routes: Routes = [
     {
@@ -135,6 +136,11 @@ export const routes: Routes = [
     {
         path: "business-types",
         component: BusinessOntologyComponent,
+        canActivate: [AuthGuard, BusinessDataGuard]
+    },
+    {
+        path: "concept-classes",
+        component: ConceptOntologyComponent,
         canActivate: [AuthGuard, BusinessDataGuard]
     },
     {

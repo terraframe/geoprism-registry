@@ -14,6 +14,7 @@ import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.axon.event.repository.AbstractBusinessObjectEdgeEvent;
 import net.geoprism.registry.axon.event.repository.AbstractGeoObjectEdgeEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEvent;
+import net.geoprism.registry.axon.event.repository.ConceptObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.EventPhase;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectCreateParentEvent;
@@ -21,11 +22,13 @@ import net.geoprism.registry.axon.event.repository.GeoObjectRemoveParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectUpdateParentEvent;
 import net.geoprism.registry.axon.event.repository.RemoveBusinessObjectEdgeEvent;
 import net.geoprism.registry.axon.event.repository.RemoveBusinessObjectEvent;
+import net.geoprism.registry.axon.event.repository.RemoveConceptObjectEvent;
 import net.geoprism.registry.axon.event.repository.RemoveGeoObjectEdgeEvent;
 import net.geoprism.registry.axon.event.repository.RemoveGeoObjectEvent;
 import net.geoprism.registry.axon.event.repository.RepositoryEvent;
 import net.geoprism.registry.axon.event.rollback.RollbackBusinessObjectEdgeEventBuilder;
 import net.geoprism.registry.axon.event.rollback.RollbackBusinessObjectEventBuilder;
+import net.geoprism.registry.axon.event.rollback.RollbackConceptObjectEventBuilder;
 import net.geoprism.registry.axon.event.rollback.RollbackEventBuilder;
 import net.geoprism.registry.axon.event.rollback.RollbackGeoObjectEdgeEventBuilder;
 import net.geoprism.registry.axon.event.rollback.RollbackGeoObjectEventBuilder;
@@ -116,6 +119,10 @@ public class RollbackEventService
       {
         this.projection.handleRemoveBusinessObjectEvent((RemoveBusinessObjectEvent) event);
       }
+      else if (event instanceof RemoveConceptObjectEvent)
+      {
+        this.projection.handleRemoveConceptObjectEvent((RemoveConceptObjectEvent) event);
+      }
       else if (event instanceof RemoveBusinessObjectEdgeEvent)
       {
         this.projection.handleRemoveBusinessObjectEvent((RemoveBusinessObjectEdgeEvent) event);
@@ -178,6 +185,10 @@ public class RollbackEventService
     else if (event instanceof BusinessObjectApplyEvent && phase.equals(EventPhase.OBJECT))
     {
       return new RollbackBusinessObjectEventBuilder((BusinessObjectApplyEvent) event);
+    }
+    else if (event instanceof ConceptObjectApplyEvent && phase.equals(EventPhase.OBJECT))
+    {
+      return new RollbackConceptObjectEventBuilder((ConceptObjectApplyEvent) event);
     }
     else if (event instanceof AbstractGeoObjectEdgeEvent && phase.equals(EventPhase.EDGE))
     {

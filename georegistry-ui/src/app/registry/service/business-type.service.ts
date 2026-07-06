@@ -18,44 +18,27 @@
 ///
 
 import { Injectable } from "@angular/core";
-import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
-import { finalize } from "rxjs/operators";
+import { HttpClient, HttpParams } from "@angular/common/http";
 
 import { EventService } from "@shared/service";
-import { BusinessEdgeType, BusinessType } from "@registry/model/business-type";
-import { AttributeType } from "@registry/model/registry";
 import { GenericTableService } from "@shared/model/generic-table";
-import { OrganizationGroup, PageResult } from "@shared/model/core";
+import { PageResult } from "@shared/model/core";
 
 import { environment } from 'src/environments/environment';
-import { firstValueFrom } from "rxjs";
+import { finalize, firstValueFrom } from "rxjs";
+import { ObjectClassService } from "./object-class.service";
+import { BusinessEdgeType, BusinessType } from "@registry/model/object-class";
 
 @Injectable({ providedIn: 'root' })
-export class BusinessTypeService implements GenericTableService {
+export class BusinessTypeService extends ObjectClassService<BusinessType> implements GenericTableService {
 
     // eslint-disable-next-line no-useless-constructor
-    constructor(private http: HttpClient, private eventService: EventService) { }
-
-    getByOrganization(): Promise<OrganizationGroup<BusinessType>[]> {
-        let params: HttpParams = new HttpParams();
-
-        this.eventService.start();
-
-        return firstValueFrom(this.http.get<OrganizationGroup<BusinessType>[]>(environment.apiUrl + "/api/business-type/get-by-org", { params: params })
-            .pipe(finalize(() => {
-                this.eventService.complete();
-            })));
+    constructor(public http: HttpClient, public eventService: EventService) {
+        super(http, eventService);
     }
 
-    getAll(): Promise<BusinessType[]> {
-        let params: HttpParams = new HttpParams();
-
-        this.eventService.start();
-
-        return firstValueFrom(this.http.get<BusinessType[]>(environment.apiUrl + "/api/business-type/get-all", { params: params })
-            .pipe(finalize(() => {
-                this.eventService.complete();
-            })))
+    getController(): string {
+        return "/api/business-type";
     }
 
     getEdges(): Promise<BusinessEdgeType[]> {
@@ -67,119 +50,6 @@ export class BusinessTypeService implements GenericTableService {
             .pipe(finalize(() => {
                 this.eventService.complete();
             })))
-    }
-
-
-
-    get(oid: string): Promise<BusinessType> {
-        let params: HttpParams = new HttpParams();
-        params = params.append("oid", oid);
-
-        this.eventService.start();
-
-        return firstValueFrom(this.http.get<BusinessType>(environment.apiUrl + "/api/business-type/get", { params: params })
-            .pipe(finalize(() => {
-                this.eventService.complete();
-            }))
-        );
-    }
-
-    apply(type: BusinessType): Promise<BusinessType> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        this.eventService.start();
-
-        return firstValueFrom(this.http
-            .post<BusinessType>(environment.apiUrl + "/api/business-type/apply", JSON.stringify({ type: type }), { headers: headers })
-            .pipe(finalize(() => {
-                this.eventService.complete();
-            })));
-    }
-
-    remove(type: BusinessType): Promise<BusinessType> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        this.eventService.start();
-
-        return firstValueFrom(this.http
-            .post<BusinessType>(environment.apiUrl + "/api/business-type/remove", JSON.stringify({ oid: type.oid }), { headers: headers })
-            .pipe(finalize(() => {
-                this.eventService.complete();
-            })));
-    }
-
-    edit(oid: string): Promise<BusinessType> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        this.eventService.start();
-
-        return firstValueFrom(this.http
-            .post<BusinessType>(environment.apiUrl + "/api/business-type/edit", JSON.stringify({ oid: oid }), { headers: headers })
-            .pipe(finalize(() => {
-                this.eventService.complete();
-            })));
-    }
-
-    unlock(oid: string): Promise<BusinessType> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        this.eventService.start();
-
-        return firstValueFrom(this.http
-            .post<BusinessType>(environment.apiUrl + "/api/business-type/unlock", JSON.stringify({ oid: oid }), { headers: headers })
-            .pipe(finalize(() => {
-                this.eventService.complete();
-            })));
-    }
-
-    addAttributeType(typeCode: string, attribute: AttributeType): Promise<AttributeType> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        this.eventService.start();
-
-        return firstValueFrom(this.http
-            .post<AttributeType>(environment.apiUrl + "/api/business-type/add-attribute", JSON.stringify({ typeCode: typeCode, attributeType: attribute }), { headers: headers })
-            .pipe(finalize(() => {
-                this.eventService.complete();
-            })));
-    }
-
-    updateAttributeType(typeCode: string, attribute: AttributeType): Promise<AttributeType> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        this.eventService.start();
-
-        return firstValueFrom(this.http
-            .post<AttributeType>(environment.apiUrl + "/api/business-type/update-attribute", JSON.stringify({ typeCode: typeCode, attributeType: attribute }), { headers: headers })
-            .pipe(finalize(() => {
-                this.eventService.complete();
-            })));
-    }
-
-    deleteAttributeType(typeCode: string, attributeName: string): Promise<boolean> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        this.eventService.start();
-
-        return firstValueFrom(this.http
-            .post<boolean>(environment.apiUrl + "/api/business-type/remove-attribute", JSON.stringify({ typeCode: typeCode, attributeName: attributeName }), { headers: headers })
-            .pipe(finalize(() => {
-                this.eventService.complete();
-            })));
     }
 
     page(criteria: Object, pageConfig: any): Promise<PageResult<Object>> {

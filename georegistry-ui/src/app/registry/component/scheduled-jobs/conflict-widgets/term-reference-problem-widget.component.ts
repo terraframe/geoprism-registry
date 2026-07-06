@@ -30,8 +30,8 @@ import { DateService } from "@shared/service/date.service";
 import { LocalizationService } from "@shared/service/localization.service";
 import { ErrorHandler } from "@shared/component";
 import { FormsModule } from "@angular/forms";
-import { DateTextComponent } from "../../../../shared/component/date-text/date-text.component";
-import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { DateTextComponent } from "@shared/component/date-text/date-text.component";
+import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { NgIf } from "@angular/common";
 
 @Component({

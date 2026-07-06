@@ -34,12 +34,12 @@ import { LocalizationService, ModalStepIndicatorService } from "@shared/service"
 import { GeoObjectType, ManageGeoObjectTypeModalState, AttributeType } from "@registry/model/registry";
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
 import { RegistryService } from "@registry/service";
-import { LocalizePipe } from "../../../../shared/pipe/localize.pipe";
+import { LocalizePipe } from "@shared/pipe/localize.pipe";
 import { RouterLink } from "@angular/router";
-import { BooleanFieldComponent } from "../../../../shared/component/form-fields/boolean-field/boolean-field.component";
+import { BooleanFieldComponent } from "@shared/component/form-fields/boolean-field/boolean-field.component";
 import { LocalizedTextComponent } from "../../form-fields/localized-text/localized-text.component";
 import { LocalizedInputComponent } from "../../form-fields/localized-input/localized-input.component";
-import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { FormsModule } from "@angular/forms";
 import { NgIf, NgFor } from "@angular/common";
 

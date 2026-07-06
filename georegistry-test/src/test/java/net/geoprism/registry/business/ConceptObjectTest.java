@@ -3,6 +3,8 @@
  */
 package net.geoprism.registry.business;
 
+import java.util.List;
+
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
@@ -15,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.google.gson.JsonObject;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.FastDatasetTest;
@@ -32,7 +33,9 @@ import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceI
 import net.geoprism.registry.service.business.ConceptClassBusinessServiceIF;
 import net.geoprism.registry.service.business.ConceptObjectBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
+import net.geoprism.registry.view.ObjectOverTimeDTO;
 import net.geoprism.registry.view.ConceptClassDTO;
+import net.geoprism.registry.view.ValueOverTimeEntryDTO;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
@@ -237,30 +240,37 @@ public class ConceptObjectTest extends FastDatasetTest implements InstanceTestCl
     ConceptObject object = this.cObjectService.newInstance(type);
     object.setValue(attribute.getCode(), text);
     object.setCode(TEST_CODE);
-    object.setValue(attributeClassification.getCode(), root.getVertex());
+    // object.setValue(attributeClassification.getCode(), root.getVertex());
     object.setValue(attributeOverTime.getCode(), text, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
     object.setValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.SOURCE.getDataSource());
 
-    JsonObject json = this.cObjectService.toJSON(object);
+    ObjectOverTimeDTO dto = this.cObjectService.toDTO(object);
 
     object = this.cObjectService.newInstance(type);
 
-    this.cObjectService.populate(object, json);
+    this.cObjectService.populate(object, dto);
 
     this.cObjectService.apply(object);
 
     try
     {
-      json = this.cObjectService.toJSON(object);
+      dto = this.cObjectService.toDTO(object);
 
-      Assert.assertNotNull(json);
-      Assert.assertEquals(TEST_CODE, json.get("code").getAsString());
+      Assert.assertNotNull(dto);
+      Assert.assertEquals(TEST_CODE, dto.getCode());
 
-      JsonObject data = json.get("data").getAsJsonObject();
+      Assert.assertEquals(FastTestDataset.SOURCE.getCode(), dto.getValue(DefaultAttribute.DATA_SOURCE.getName()));
+      Assert.assertEquals(text, dto.getValue(attribute.getCode()));
 
-      Assert.assertEquals(FastTestDataset.SOURCE.getCode(), data.get(DefaultAttribute.DATA_SOURCE.getName()).getAsString());
-      Assert.assertEquals(text, data.get(attribute.getCode()).getAsString());
-      Assert.assertEquals(root.getCode(), data.get(attributeClassification.getCode()).getAsString());
+      List<ValueOverTimeEntryDTO> valuesOverTime = dto.getValuesOverTime(attributeOverTime.getCode());
+
+      Assert.assertEquals(1, valuesOverTime.size());
+
+      ValueOverTimeEntryDTO ValueOverTimeEntryDTO = valuesOverTime.get(0);
+
+      Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, ValueOverTimeEntryDTO.getStartDate());
+      Assert.assertEquals(FastTestDataset.DEFAULT_END_TIME_DATE, ValueOverTimeEntryDTO.getEndDate());
+      Assert.assertEquals(text, ValueOverTimeEntryDTO.getValue());
     }
     finally
     {

@@ -19,8 +19,6 @@ import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 
 import net.geoprism.registry.Commit;
@@ -28,12 +26,14 @@ import net.geoprism.registry.Publish;
 import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectEvent;
+import net.geoprism.registry.axon.event.remote.RemoteConceptObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectSetParentEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEvent;
+import net.geoprism.registry.axon.event.repository.ConceptObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.EventPhase;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEvent;
@@ -44,6 +44,7 @@ import net.geoprism.registry.axon.event.repository.InMemoryEventMerger;
 import net.geoprism.registry.axon.event.repository.RepositoryEvent;
 import net.geoprism.registry.event.EmptyPublishException;
 import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.view.ObjectOverTimeDTO;
 import net.geoprism.registry.view.PublishDTO;
 
 @Service
@@ -247,22 +248,34 @@ public class PublishEventService
     }
     else if (event instanceof BusinessObjectApplyEvent)
     {
-      String oJson = ( (BusinessObjectApplyEvent) event ).getObject();
+      ObjectOverTimeDTO dto = ( (BusinessObjectApplyEvent) event ).getObject();
       String code = ( (BusinessObjectApplyEvent) event ).getCode();
       String type = ( (BusinessObjectApplyEvent) event ).getType();
 
       // TODO: Use business object service to get the data source??
-      JsonObject object = JsonParser.parseString(oJson).getAsJsonObject();
-      JsonObject data = object.get("data").getAsJsonObject();
-
-      String dataSource = data.has(DefaultAttribute.DATA_SOURCE.getName()) ? data.get(DefaultAttribute.DATA_SOURCE.getName()).getAsString() : null;
+      String dataSource = dto.has(DefaultAttribute.DATA_SOURCE.getName()) ? dto.getValue(DefaultAttribute.DATA_SOURCE.getName()) : null;
 
       if (!StringUtils.isBlank(dataSource))
       {
         sources.add(dataSource);
       }
 
-      return new RemoteBusinessObjectEvent(commit.getUid(), code, type, oJson);
+      return new RemoteBusinessObjectEvent(commit.getUid(), code, type, dto.toDate(publish.getForDate()), publish.getStartDate(), publish.getEndDate());
+    }
+    else if (event instanceof ConceptObjectApplyEvent)
+    {
+      ObjectOverTimeDTO dto = ( (ConceptObjectApplyEvent) event ).getObject();
+      String code = ( (ConceptObjectApplyEvent) event ).getCode();
+      String type = ( (ConceptObjectApplyEvent) event ).getType();
+
+      String dataSource = dto.has(DefaultAttribute.DATA_SOURCE.getName()) ? dto.getValue(DefaultAttribute.DATA_SOURCE.getName()) : null;
+
+      if (!StringUtils.isBlank(dataSource))
+      {
+        sources.add(dataSource);
+      }
+
+      return new RemoteConceptObjectEvent(commit.getUid(), code, type, dto.toDate(publish.getForDate()), publish.getStartDate(), publish.getEndDate());
     }
     else if (event instanceof BusinessObjectApplyEdgeEvent)
     {

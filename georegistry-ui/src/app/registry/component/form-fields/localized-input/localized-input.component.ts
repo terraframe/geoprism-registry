@@ -20,8 +20,8 @@
 import { Component, Input, Output, EventEmitter } from "@angular/core";
 import { LocalizedValue } from "@core/model/core";
 import { FormsModule } from "@angular/forms";
-import { ConvertKeyLabel } from "../../../../shared/component/localize/convert-key-label.component";
-import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { ConvertKeyLabel } from "@shared/component/localize/convert-key-label.component";
+import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { NgFor } from "@angular/common";
 
 @Component({

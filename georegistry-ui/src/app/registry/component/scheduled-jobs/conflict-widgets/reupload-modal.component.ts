@@ -29,7 +29,7 @@ import { ErrorHandler } from "@shared/component";
 import { ScheduledJob } from "@registry/model/registry";
 
 import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
-import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { FormsModule } from "@angular/forms";
 import { NgIf, NgClass } from "@angular/common";
 

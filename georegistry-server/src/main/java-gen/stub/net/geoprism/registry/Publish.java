@@ -5,7 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import net.geoprism.registry.view.PublishDTO;
-import net.geoprism.registry.view.TypeAndCode.Type;
+import net.geoprism.registry.view.TypeClass;
 
 public class Publish extends PublishBase
 {
@@ -27,23 +27,23 @@ public class Publish extends PublishBase
     types.forEach(element -> {
       JsonObject object = element.getAsJsonObject();
 
-      Type type = Type.valueOf(object.get("type").getAsString());
+      TypeClass type = TypeClass.getByCode(object.get("type").getAsString());
       String code = object.get("code").getAsString();
 
       configuration.addType(type, code);
     });
 
     JsonArray exclusions = JsonParser.parseString(this.getExclusions()).getAsJsonArray();
-    
+
     exclusions.forEach(element -> {
       JsonObject object = element.getAsJsonObject();
-      
-      Type type = Type.valueOf(object.get("type").getAsString());
+
+      TypeClass type = TypeClass.getByCode(object.get("type").getAsString());
       String code = object.get("code").getAsString();
-      
+
       configuration.addExclusions(type, code);
     });
-    
+
     return configuration;
   }
 

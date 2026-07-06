@@ -208,7 +208,7 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
 
     if (type != null)
     {
-      statement.append(") WHERE @class='" + type.getMdVertex().getDBClassName() + "'");
+      statement.append(") WHERE @class='" + type.getMdVertexDAO().getDBClassName() + "'");
     }
 
     GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());

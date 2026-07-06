@@ -46,7 +46,7 @@ import { ModalTypes } from "@shared/model/modal";
 import { FeaturePanelComponent } from "./feature-panel.component";
 import { RegistryCacheService } from "@registry/service/registry-cache.service";
 import { GEO_OBJECT_DATA_SOURCE_TYPE, Layer, ListVectorLayerDataSource, SearchLayerDataSource, LIST_VECTOR_SOURCE_TYPE, SEARCH_DATASOURCE_TYPE, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE, GeoObjectLayerDataSource, ValueOverTimeDataSource, RelationshipVisualizionDataSource } from "@registry/service/layer-data-source";
-import { BusinessObject, BusinessType } from "@registry/model/business-type";
+import { BusinessObject, BusinessType } from "@registry/model/object-class";
 import { BusinessObjectService } from "@registry/service/business-object.service";
 import { Vertex } from "@registry/model/graph";
 import { LocationManagerStateService } from "@registry/service/location-manager.service";

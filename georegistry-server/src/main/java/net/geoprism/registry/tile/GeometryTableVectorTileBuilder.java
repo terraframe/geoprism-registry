@@ -29,7 +29,7 @@ import com.runwaysdk.system.gis.geo.GeoEntity;
 
 import net.geoprism.registry.jobs.GPRJobHistory;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.view.TypeInfo.TypeClass;
+import net.geoprism.registry.view.TypeClass;
 
 public class GeometryTableVectorTileBuilder
 {

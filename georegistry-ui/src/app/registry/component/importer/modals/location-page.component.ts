@@ -23,7 +23,7 @@ import { ImportConfiguration } from '@registry/model/io';
 
 import { IOService } from '@registry/service';
 import { NgFor, NgIf } from '@angular/common';
-import { LocalizeComponent } from '../../../../shared/component/localize/localize.component';
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
 import { FormsModule } from '@angular/forms';
 
 @Component({

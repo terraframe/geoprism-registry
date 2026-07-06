@@ -27,7 +27,7 @@ import { PublishService } from "@registry/service/publish.service";
 import { GeoObjectType, GraphType } from "@registry/model/registry";
 import { HierarchyType } from "@registry/model/hierarchy";
 import { Organization } from "@shared/model/core";
-import { BusinessEdgeType, BusinessType } from "@registry/model/business-type";
+import { BusinessEdgeType, BusinessType } from "@registry/model/object-class";
 import { RegistryService } from "@registry/service";
 import { BusinessTypeService } from "@registry/service/business-type.service";
 import { BsModalRef } from "ngx-bootstrap/modal";

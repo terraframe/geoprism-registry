@@ -115,8 +115,8 @@ import net.geoprism.registry.query.ServerSynonymRestriction;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
+import net.geoprism.registry.view.TypeClass;
 import net.geoprism.registry.view.TypeInfo;
-import net.geoprism.registry.view.TypeInfo.TypeClass;
 
 public class GeoObjectImporter implements ObjectImporterIF
 {

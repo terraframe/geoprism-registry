@@ -5,8 +5,8 @@ import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.geoprism.registry.view.PublishDTO;
-import net.geoprism.registry.view.TypeAndCode;
-import net.geoprism.registry.view.TypeAndCode.Type;
+import net.geoprism.registry.view.TypeClass;
+import net.geoprism.registry.view.TypeInfo;
 
 public class RemoteBusinessObjectApplyEdgeEvent implements RemoteEvent
 {
@@ -170,7 +170,7 @@ public class RemoteBusinessObjectApplyEdgeEvent implements RemoteEvent
   @Override
   public boolean isValid(PublishDTO dto)
   {
-    return !dto.getExclusions().contains(TypeAndCode.build(edgeType, Type.BUSINESS_EDGE));
+    return !dto.getExclusions().contains(TypeInfo.build(edgeType, TypeClass.BUSINESS_EDGE));
   }
 
   @Override

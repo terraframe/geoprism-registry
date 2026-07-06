@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.controller.BusinessTypeController.OidBody;
+import net.geoprism.registry.controller.ObjectClassController.OidBody;
 import net.geoprism.registry.service.request.RollbackCheckpointService;
 import net.geoprism.registry.view.BasicPage;
 import net.geoprism.registry.view.RollbackCheckpointDTO;

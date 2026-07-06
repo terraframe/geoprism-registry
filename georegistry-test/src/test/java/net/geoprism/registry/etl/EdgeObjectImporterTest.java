@@ -42,7 +42,6 @@ import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.EdgeDirection;
-import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
@@ -57,6 +56,7 @@ import net.geoprism.registry.view.BusinessEdgeTypeView;
 import net.geoprism.registry.view.BusinessGeoEdgeTypeView;
 import net.geoprism.registry.view.BusinessTypeDTO;
 import net.geoprism.registry.view.ImportHistoryView;
+import net.geoprism.registry.view.TypeClass;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
@@ -267,7 +267,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
   // Assert.assertNotNull(istream);
   //
   // EdgeObjectImportConfiguration config =
-  // this.etlService.getTestConfiguration(GraphTypeSnapshot.HIERARCHY_TYPE,
+  // this.etlService.getTestConfiguration(TypeClass.HIERARCHY.getCode(),
   // FastTestDataset.HIER_ADMIN.getCode(), istream,
   // ImportStrategy.NEW_AND_UPDATE);
   //
@@ -287,7 +287,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
   // Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
   //
   // GraphType hierarchyType =
-  // this.typeService.getByCode(GraphTypeSnapshot.HIERARCHY_TYPE,
+  // this.typeService.getByCode(TypeClass.HIERARCHY.getCode(),
   // FastTestDataset.HIER_ADMIN.getCode());
   // ServerGeoObjectIF dist1 = this.objectService.getGeoObjectByCode("1",
   // FastTestDataset.DISTRICT.getCode());
@@ -300,7 +300,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
   // parent.getDisplayLabel(TestDataSet.DEFAULT_OVER_TIME_DATE).getValue());
   //
   // List<ImportHistoryView> histories =
-  // this.etlBusinessService.getHistory(GraphTypeSnapshot.HIERARCHY_TYPE,
+  // this.etlBusinessService.getHistory(TypeClass.HIERARCHY.getCode(),
   // FastTestDataset.HIER_ADMIN.getCode());
   //
   // Assert.assertEquals(1, histories.size());
@@ -316,7 +316,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
 
       Assert.assertNotNull(istream);
 
-      EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(GraphType.BUSINESS_EDGE_TYPE, bEdgeType.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
+      EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(TypeClass.BUSINESS_EDGE.getCode(), bEdgeType.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
 
       long start = System.nanoTime();
 
@@ -335,7 +335,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
 
       Assert.assertEquals(1, tagets.size());
 
-      List<ImportHistoryView> histories = this.etlBusinessService.getHistory(GraphType.BUSINESS_EDGE_TYPE, bEdgeType.getCode());
+      List<ImportHistoryView> histories = this.etlBusinessService.getHistory(TypeClass.BUSINESS_EDGE.getCode(), bEdgeType.getCode());
 
       Assert.assertEquals(1, histories.size());
     });
@@ -350,7 +350,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
 
       Assert.assertNotNull(istream);
 
-      EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(GraphType.BUSINESS_EDGE_TYPE, bGeoEdgeType.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
+      EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(TypeClass.BUSINESS_EDGE.getCode(), bGeoEdgeType.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
 
       long start = System.nanoTime();
 
@@ -369,7 +369,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
 
       Assert.assertEquals(1, tagets.size());
 
-      List<ImportHistoryView> histories = this.etlBusinessService.getHistory(GraphType.BUSINESS_EDGE_TYPE, bGeoEdgeType.getCode());
+      List<ImportHistoryView> histories = this.etlBusinessService.getHistory(TypeClass.BUSINESS_EDGE.getCode(), bGeoEdgeType.getCode());
 
       Assert.assertEquals(1, histories.size());
     });

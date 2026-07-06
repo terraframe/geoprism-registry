@@ -52,7 +52,6 @@ import net.geoprism.registry.graph.ObjectClass;
 import net.geoprism.registry.graph.UndirectedGraphType;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.EdgeDirection;
-import net.geoprism.registry.model.EdgeType;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerChildGraphNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -71,6 +70,7 @@ import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessService
 import net.geoprism.registry.service.permission.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.service.permission.GeoObjectTypePermissionServiceIF;
 import net.geoprism.registry.service.permission.HierarchyTypePermissionServiceIF;
+import net.geoprism.registry.view.TypeClass;
 import net.geoprism.registry.visualization.EdgeView;
 import net.geoprism.registry.visualization.VertexView;
 import net.geoprism.registry.visualization.VertexView.ObjectType;
@@ -179,7 +179,7 @@ public class RelationshipVisualizationService
     else if (VertexView.ObjectType.BUSINESS.equals(sourceView.getObjectType()))
     {
       // TODO: Figure this out
-      if (relationshipType != null && relationshipType.equals(EdgeType.BUSINESS_EDGE_TYPE))
+      if (relationshipType != null && relationshipType.equals(TypeClass.BUSINESS_EDGE.getCode()))
       {
         final BusinessType type = this.bTypeService.getByCodeOrThrow(sourceView.getTypeCode());
 

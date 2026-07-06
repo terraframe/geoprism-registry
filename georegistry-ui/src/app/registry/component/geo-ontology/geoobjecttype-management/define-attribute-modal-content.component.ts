@@ -29,7 +29,7 @@ import { AttributeType, ManageGeoObjectTypeModalState, AttributedType } from "@r
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
 import { AttributeTypeService } from "@registry/service";
 import { AttributeInputComponent } from "./attribute-input.component";
-import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { NgIf, NgClass } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 

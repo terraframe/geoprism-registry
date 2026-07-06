@@ -95,7 +95,7 @@ public class BasicGeoObjectTypeServiceTest implements InstanceTestClassListener
 
     try
     {
-      Assert.assertNotNull(type.getMdVertex());
+      Assert.assertNotNull(type.getMdVertexDAO());
       Assert.assertNotNull(type.getGeometryTable());
       
       Map<String, AttributeType> attributes = type.getAttributeMap();
@@ -282,7 +282,7 @@ public class BasicGeoObjectTypeServiceTest implements InstanceTestClassListener
 
       try
       {
-        Assert.assertNotNull(childType.getMdVertex());
+        Assert.assertNotNull(childType.getMdVertexDAO());
         Assert.assertNotNull(childType.getGeometryTable());
 
         Assert.assertEquals(parentType.getOid(), childType.getSuperType().getOid());

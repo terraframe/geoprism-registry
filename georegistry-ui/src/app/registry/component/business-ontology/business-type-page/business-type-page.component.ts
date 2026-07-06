@@ -33,12 +33,12 @@ import { ManageBusinessTypeComponent } from "./manage-business-type.component";
 import { CreateBusinessTypeComponent } from "./create-business-type.component";
 import { BsDropdownModule } from "ngx-bootstrap/dropdown";
 import { NgFor, NgIf, NgClass } from "@angular/common";
-import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { AccordionModule } from "ngx-bootstrap/accordion";
 import { FormsModule } from "@angular/forms";
-import { BusinessType } from "@registry/model/business-type";
 import { BusinessTypeService } from "@registry/service/business-type.service";
 import { RouterLink } from "@angular/router";
+import { BusinessType } from "@registry/model/object-class";
 
 enum Action {
     VIEW = 0, CREATE = 1, EDIT = 2

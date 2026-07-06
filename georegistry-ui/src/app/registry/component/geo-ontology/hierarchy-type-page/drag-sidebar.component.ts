@@ -24,7 +24,7 @@ import * as d3 from "d3";
 import { GeoObjectType } from "@registry/model/registry";
 import { Organization } from "@shared/model/core";
 import { NgFor, NgClass } from "@angular/common";
-import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { AccordionModule } from "ngx-bootstrap/accordion";
 
 @Component({

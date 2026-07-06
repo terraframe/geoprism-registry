@@ -768,7 +768,7 @@ public abstract class ListType extends ListTypeBase
         String operation = filter.get("operation").getAsString();
 
         AttributeType attributeType = type.getAttribute(attributeName).get();
-        MdAttributeDAOIF mdAttribute = type.getMdVertex().definesAttribute(attributeName);
+        MdAttributeDAOIF mdAttribute = type.getMdVertexDAO().definesAttribute(attributeName);
 
         if (attributeType instanceof AttributeDateType)
         {

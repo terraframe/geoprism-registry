@@ -26,7 +26,7 @@ import { ErrorHandler } from "@shared/component";
 import { HierarchyType, HierarchyNode } from "@registry/model/hierarchy";
 import { GeoObjectType } from "@registry/model/registry";
 import { HierarchyService } from "@registry/service";
-import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { NgIf, NgFor } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 

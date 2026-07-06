@@ -22,7 +22,7 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { finalize } from "rxjs/operators";
 
 import { EventService } from "@shared/service";
-import { BusinessObject, BusinessType } from "@registry/model/business-type";
+import { BusinessObject, BusinessType } from "@registry/model/object-class";
 import { GeoRegistryConfiguration } from "@core/model/core";
 
 import { environment } from 'src/environments/environment';

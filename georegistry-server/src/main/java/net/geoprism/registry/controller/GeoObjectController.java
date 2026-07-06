@@ -23,17 +23,11 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-
 import org.commongeoregistry.adapter.constants.RegistryUrls;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.dataaccess.TreeNode;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
-
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,12 +44,18 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.GeoObjectServiceIF;
 import net.geoprism.registry.service.request.HierarchyTypeServiceIF;
 import net.geoprism.registry.service.request.RegistryComponentService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
 import net.geoprism.registry.spring.NullableDateDeserializer;
+import net.geoprism.registry.view.ObjectAtTimeDTO;
 
 @RestController
 @Validated
@@ -356,15 +356,16 @@ public class GeoObjectController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/business-objects")
-  public ResponseEntity<String> getBusinessObjects( //
+  public ResponseEntity<List<ObjectAtTimeDTO>> getBusinessObjects( //
       @NotEmpty @RequestParam(name = "code") String code, //
       @NotEmpty @RequestParam(name = "typeCode") String typeCode, //
       @NotEmpty @RequestParam(name = "edgeTypeCode") String edgeTypeCode, //
-      @NotEmpty @RequestParam(name = "direction") String direction)
+      @NotEmpty @RequestParam(name = "direction") String direction, //
+      @NotBlank @RequestParam(name = "date") String date)
   {
-    JsonArray objects = this.objectService.getBusinessObjects(this.getSessionId(), typeCode, code, edgeTypeCode, direction);
+    List<ObjectAtTimeDTO> response = this.objectService.getBusinessObjects(this.getSessionId(), typeCode, code, edgeTypeCode, direction, GeoRegistryUtil.parseDate(date));
 
-    return new ResponseEntity<String>(objects.toString(), HttpStatus.OK);
+    return ResponseEntity.ok(response);
   }
 
   /**

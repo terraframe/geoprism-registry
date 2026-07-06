@@ -23,8 +23,8 @@ import { Observable } from 'rxjs';
 
 import { ImportConfiguration, LocationProblem } from '@registry/model/io';
 import { IOService } from '@registry/service';
-import { LocalizePipe } from '../../../../shared/pipe/localize.pipe';
-import { LocalizeComponent } from '../../../../shared/component/localize/localize.component';
+import { LocalizePipe } from '@shared/pipe/localize.pipe';
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
 import { NgIf, NgFor, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 

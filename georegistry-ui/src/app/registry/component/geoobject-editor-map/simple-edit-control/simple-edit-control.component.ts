@@ -19,8 +19,8 @@
 
 
 import { Component, ElementRef, Input, Output, EventEmitter } from "@angular/core";
-import { LocalizePipe } from "../../../../shared/pipe/localize.pipe";
-import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { LocalizePipe } from "@shared/pipe/localize.pipe";
+import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { NgIf, NgClass } from "@angular/common";
 
 @Component({

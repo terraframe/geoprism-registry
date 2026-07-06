@@ -22,7 +22,7 @@ import { ImportConfiguration, TermProblem } from '@registry/model/io';
 import { TermProblemComponent } from './term-problem.component';
 import { FormsModule } from '@angular/forms';
 import { NgIf, NgFor } from '@angular/common';
-import { LocalizeComponent } from '../../../../shared/component/localize/localize.component';
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
 
 @Component({
     selector: 'term-problem-page',

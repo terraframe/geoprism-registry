@@ -83,7 +83,6 @@ import net.geoprism.registry.jobs.TermReferenceProblem;
 import net.geoprism.registry.jobs.ValidationProblem;
 import net.geoprism.registry.jobs.ValidationProblem.ValidationResolution;
 import net.geoprism.registry.jobs.ValidationProblemQuery;
-import net.geoprism.registry.model.EdgeType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.permission.RolePermissionService;
@@ -91,6 +90,7 @@ import net.geoprism.registry.view.ImportHistoryView;
 import net.geoprism.registry.view.JsonWrapper;
 import net.geoprism.registry.view.Page;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
+import net.geoprism.registry.view.TypeClass;
 
 @Service
 public class ETLBusinessService
@@ -752,10 +752,10 @@ public class ETLBusinessService
       statement.append(" WHERE " + attribute.getColumnName() + "->>'objectType' = '" + ObjectImporterFactory.ObjectImportType.BUSINESS_OBJECT.name() + "'");
       statement.append(" AND " + attribute.getColumnName() + "->'type'->>'code' = '" + typeCode + "'");
     }
-    else if (classType.equals(EdgeType.DIRECTED_ACYCLIC_GRAPH_TYPE) //
-        || classType.equals(EdgeType.UNDIRECTED_GRAPH_TYPE) //
-        || classType.equals(EdgeType.BUSINESS_EDGE_TYPE) //
-        || classType.equals(EdgeType.HIERARCHY_TYPE))
+    else if (classType.equals(TypeClass.DAG.getCode()) //
+        || classType.equals(TypeClass.UNDIRECTED_GRAPH.getCode()) //
+        || classType.equals(TypeClass.BUSINESS_EDGE.getCode()) //
+        || classType.equals(TypeClass.HIERARCHY.getCode()))
     {
       // Ensure the type code is valid
       if (this.graphTypeService.getByCode(classType, typeCode) == null)

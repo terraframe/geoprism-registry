@@ -22,7 +22,7 @@ import java.util.Date;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import net.geoprism.registry.spring.DateTimeSerializer;
+import net.geoprism.registry.view.serialization.DateTimeSerializer;
 
 public class ImportHistoryView
 {

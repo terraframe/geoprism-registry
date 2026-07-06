@@ -23,15 +23,14 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.graph.BusinessEdgeTypeSnapshot;
 import net.geoprism.graph.BusinessTypeSnapshot;
+import net.geoprism.graph.ConceptClassSnapshot;
 import net.geoprism.graph.DirectedAcyclicGraphTypeSnapshot;
 import net.geoprism.graph.GeoObjectTypeSnapshot;
-import net.geoprism.graph.GraphTypeSnapshot;
 import net.geoprism.graph.HierarchyTypeSnapshot;
 import net.geoprism.graph.UndirectedGraphTypeSnapshot;
 import net.geoprism.registry.Commit;
@@ -45,6 +44,7 @@ import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
+import net.geoprism.registry.graph.ConceptClass;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.graph.DirectedAcyclicGraphType;
 import net.geoprism.registry.graph.UndirectedGraphType;
@@ -56,6 +56,8 @@ import net.geoprism.registry.service.business.BusinessEdgeTypeSnapshotBusinessSe
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.CommitBusinessServiceIF;
+import net.geoprism.registry.service.business.ConceptClassBusinessServiceIF;
+import net.geoprism.registry.service.business.ConceptClassSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.GraphTypeSnapshotBusinessServiceIF;
@@ -64,7 +66,9 @@ import net.geoprism.registry.service.business.PublishBusinessServiceIF;
 import net.geoprism.registry.service.business.PublishEventService;
 import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.BusinessTypeDTO;
+import net.geoprism.registry.view.ConceptClassDTO;
 import net.geoprism.registry.view.PublishDTO;
+import net.geoprism.registry.view.TypeClass;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
@@ -88,6 +92,12 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
   @Autowired
   private GraphTypeSnapshotBusinessServiceIF        graphSnapshotService;
+
+  @Autowired
+  private ConceptClassBusinessServiceIF             ccService;
+
+  @Autowired
+  private ConceptClassSnapshotBusinessServiceIF     cSnapshotService;
 
   @Autowired
   private BusinessTypeBusinessServiceIF             bTypeService;
@@ -119,7 +129,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
     System.out.println("");
     System.out.println("");
 
-    Assert.assertEquals(Long.valueOf(47L), this.store.size());
+    Assert.assertEquals(Long.valueOf(48L), this.store.size());
 
     String directory = "src/test/resources/commit";
 
@@ -193,6 +203,19 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
           businessTypes.add(snapshot.toDTO());
         });
 
+        List<ConceptClassDTO> conceptClasses = new LinkedList<>();
+
+        dto.getConceptClasses().forEach(code -> {
+          ConceptClassSnapshot snapshot = this.cSnapshotService.get(commit, code);
+
+          Assert.assertNotNull(snapshot);
+
+          ConceptClass type = this.ccService.getByCodeOrThrow(code);
+          Assert.assertEquals(type.getSequence(), snapshot.getSequence());
+
+          conceptClasses.add(snapshot.toDTO());
+        });
+
         JsonArray businessEdgeTypes = new JsonArray();
 
         dto.getBusinessEdgeTypes().forEach(code -> {
@@ -209,7 +232,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
         JsonArray dagTypes = new JsonArray();
 
         dto.getDagTypes().forEach(code -> {
-          DirectedAcyclicGraphTypeSnapshot snapshot = (DirectedAcyclicGraphTypeSnapshot) this.graphSnapshotService.get(commit, GraphTypeSnapshot.DIRECTED_ACYCLIC_GRAPH_TYPE, code);
+          DirectedAcyclicGraphTypeSnapshot snapshot = (DirectedAcyclicGraphTypeSnapshot) this.graphSnapshotService.get(commit, TypeClass.DAG.getCode(), code);
 
           Assert.assertNotNull(snapshot);
 
@@ -222,7 +245,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
         JsonArray undirectedGraphTypes = new JsonArray();
 
         dto.getUndirectedTypes().forEach(code -> {
-          UndirectedGraphTypeSnapshot snapshot = (UndirectedGraphTypeSnapshot) this.graphSnapshotService.get(commit, GraphTypeSnapshot.UNDIRECTED_GRAPH_TYPE, code);
+          UndirectedGraphTypeSnapshot snapshot = (UndirectedGraphTypeSnapshot) this.graphSnapshotService.get(commit, TypeClass.UNDIRECTED_GRAPH.getCode(), code);
 
           Assert.assertNotNull(snapshot);
 
@@ -242,16 +265,16 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
         Assert.assertEquals(1, sources.size());
         Assert.assertEquals(USATestData.SOURCE.getCode(), sources.get(0).getCode());
 
-        Assert.assertEquals(Long.valueOf(94L), this.store.size());
+        Assert.assertEquals(Long.valueOf(96L), this.store.size());
 
         List<RemoteEvent> events = this.cService.getRemoteEvents(commit).toList();
 
-        if (events.size() != 47)
+        if (events.size() != 48)
         {
           System.out.println("BAD");
         }
 
-        Assert.assertEquals(47, events.size());
+        Assert.assertEquals(48, events.size());
 
         if (WRITE_FILES)
         {
@@ -267,6 +290,11 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
           try (FileWriter writer = new FileWriter(new File(directory, "hierarchy-types.json")))
           {
             gson.toJson(hierarchyTypes, writer);
+          }
+
+          try (FileWriter writer = new FileWriter(new File(directory, "concept-classes.json")))
+          {
+            gson.toJson(JsonParser.parseString(ConceptClassDTO.toJson(conceptClasses)), writer);
           }
 
           try (FileWriter writer = new FileWriter(new File(directory, "business-types.json")))
@@ -315,7 +343,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
     try
     {
-      Assert.assertEquals(Long.valueOf(47L), this.store.size());
+      Assert.assertEquals(Long.valueOf(48L), this.store.size());
 
       PublishDTO dto = new PublishDTO("USA Geospatial Graph", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       dto.addHierarchyType(testData.getManagedHierarchyTypes().stream().map(t -> t.getCode()).toArray(s -> new String[s]));
@@ -398,8 +426,8 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
         Commit commit = commits.get(0);
 
-        Assert.assertEquals(47, this.cService.getRemoteEvents(commit).toList().size());
-        Assert.assertEquals(Long.valueOf(94), this.store.size());
+        Assert.assertEquals(48, this.cService.getRemoteEvents(commit).toList().size());
+        Assert.assertEquals(Long.valueOf(96), this.store.size());
 
         // Update a geo object
         ServerGeoObjectIF object = USATestData.COLORADO.getServerObject();
@@ -411,7 +439,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
         gateway.publish(builder.build().stream().map(GenericEventMessage::asEventMessage).toList());
 
-        Assert.assertEquals(Long.valueOf(95), this.store.size());
+        Assert.assertEquals(Long.valueOf(97), this.store.size());
 
         // Create a new commit with the new change
         Commit commit2 = this.service.createNewCommit(publish);

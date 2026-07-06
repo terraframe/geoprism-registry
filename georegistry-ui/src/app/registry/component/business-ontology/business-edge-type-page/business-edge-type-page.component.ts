@@ -27,15 +27,15 @@ import { LocalizationService } from "@shared/service/localization.service";
 import { AuthService } from "@shared/service";
 import { ManageBusinessEdgeTypeComponent } from "./manage-business-edge-type.component";
 import { BsDropdownModule } from "ngx-bootstrap/dropdown";
-import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { NgIf, NgFor, NgClass } from "@angular/common";
 import { AccordionModule } from "ngx-bootstrap/accordion";
 import { ModalTypes } from "@shared/model/modal";
-import { BusinessEdgeType, BusinessType } from "@registry/model/business-type";
 import { BusinessEdgeTypeService } from "@registry/service/business-edge-type.service";
 import { Organization } from "@shared/model/core";
 import { ImportHistoryModalComponent } from "@registry/component/import-history/modals/import-history-modal.component";
 import { RegistryService } from "@registry/service";
+import { BusinessEdgeType, BusinessType } from "@registry/model/object-class";
 
 enum Action {
     VIEW = 0, CREATE = 1, EDIT = 2

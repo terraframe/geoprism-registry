@@ -29,6 +29,7 @@ import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.model.BusinessObject;
+import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.model.ServerChildGraphNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.service.business.RollbackEventService;
@@ -176,6 +177,56 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
     Assert.assertEquals(Long.valueOf(1), this.store.size());
   }
 
+  @Test
+  @Request
+  public void testRollbackCreateConceptObject()
+  {
+    // Index before the import
+    concept = createConceptObject("CONCEPT");
+    
+    Assert.assertNotNull(this.cObjectService.getByCode(cClass, concept.getCode()));
+    Assert.assertEquals(Long.valueOf(1), this.store.size());
+    
+    RollbackCheckpoint dto = new RollbackCheckpoint();
+    dto.setGlobalIndex(this.store.createTailToken().position().getAsLong());
+    
+    this.service.rollback(dto);
+    
+    Assert.assertNull(this.cObjectService.getByCode(cClass, concept.getCode()));
+    
+    Assert.assertEquals(Long.valueOf(0), this.store.size());
+  }
+  
+  @Test
+  @Request
+  public void testRollbackUpdatedConceptObject()
+  {
+    concept = createConceptObject("CONCEPT");
+    
+    long startIndex = this.store.createHeadToken().position().getAsLong();
+    
+    Assert.assertEquals(Long.valueOf(1), this.store.size());
+    
+    concept.setValue("testBoolean", true);
+    
+    applyConceptObject(concept, false);
+    
+    Assert.assertEquals(Long.valueOf(2), this.store.size());
+    
+    // Rollback the last event
+    RollbackCheckpoint dto = new RollbackCheckpoint();
+    dto.setGlobalIndex(startIndex);
+    
+    this.service.rollback(dto);
+    
+    ConceptObject test = this.cObjectService.getByCode(cClass, concept.getCode());
+    
+    Assert.assertNotNull(test);
+    Assert.assertEquals(false, test.getValue("testBoolean"));
+    
+    Assert.assertEquals(Long.valueOf(1), this.store.size());
+  }
+  
   @Test
   @Request
   public void testRollbackCreateParentEvent()

@@ -523,20 +523,20 @@ public abstract class CommitBase extends com.runwaysdk.business.Business
     return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.CommitHasDependency>) getRelationshipsWithChild(commit, net.geoprism.registry.CommitHasDependency.CLASS);
   }
   
-  public net.geoprism.registry.CommitHasSnapshot addSnapshot(net.geoprism.graph.MetadataSnapshot metadataSnapshot)
+  public net.geoprism.registry.CommitHasSnapshot addSnapshot(net.geoprism.graph.SchemaElementSnapshot SchemaElementSnapshot)
   {
-    return (net.geoprism.registry.CommitHasSnapshot) addChild(metadataSnapshot, net.geoprism.registry.CommitHasSnapshot.CLASS);
+    return (net.geoprism.registry.CommitHasSnapshot) addChild(SchemaElementSnapshot, net.geoprism.registry.CommitHasSnapshot.CLASS);
   }
   
-  public void removeSnapshot(net.geoprism.graph.MetadataSnapshot metadataSnapshot)
+  public void removeSnapshot(net.geoprism.graph.SchemaElementSnapshot SchemaElementSnapshot)
   {
-    removeAllChildren(metadataSnapshot, net.geoprism.registry.CommitHasSnapshot.CLASS);
+    removeAllChildren(SchemaElementSnapshot, net.geoprism.registry.CommitHasSnapshot.CLASS);
   }
   
   @SuppressWarnings("unchecked")
-  public com.runwaysdk.query.OIterator<? extends net.geoprism.graph.MetadataSnapshot> getAllSnapshot()
+  public com.runwaysdk.query.OIterator<? extends net.geoprism.graph.SchemaElementSnapshot> getAllSnapshot()
   {
-    return (com.runwaysdk.query.OIterator<? extends net.geoprism.graph.MetadataSnapshot>) getChildren(net.geoprism.registry.CommitHasSnapshot.CLASS);
+    return (com.runwaysdk.query.OIterator<? extends net.geoprism.graph.SchemaElementSnapshot>) getChildren(net.geoprism.registry.CommitHasSnapshot.CLASS);
   }
   
   @SuppressWarnings("unchecked")
@@ -546,9 +546,9 @@ public abstract class CommitBase extends com.runwaysdk.business.Business
   }
   
   @SuppressWarnings("unchecked")
-  public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.CommitHasSnapshot> getSnapshotRel(net.geoprism.graph.MetadataSnapshot metadataSnapshot)
+  public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.CommitHasSnapshot> getSnapshotRel(net.geoprism.graph.SchemaElementSnapshot SchemaElementSnapshot)
   {
-    return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.CommitHasSnapshot>) getRelationshipsWithChild(metadataSnapshot, net.geoprism.registry.CommitHasSnapshot.CLASS);
+    return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.CommitHasSnapshot>) getRelationshipsWithChild(SchemaElementSnapshot, net.geoprism.registry.CommitHasSnapshot.CLASS);
   }
   
   public net.geoprism.registry.CommitHasDependency addDependency(net.geoprism.registry.Commit commit)

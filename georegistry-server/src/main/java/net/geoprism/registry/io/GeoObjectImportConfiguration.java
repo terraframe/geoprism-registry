@@ -63,8 +63,8 @@ import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.permission.RolePermissionService;
+import net.geoprism.registry.view.TypeClass;
 import net.geoprism.registry.view.TypeInfo;
-import net.geoprism.registry.view.TypeInfo.TypeClass;
 
 public class GeoObjectImportConfiguration extends ImportConfiguration
 {

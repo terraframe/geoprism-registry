@@ -25,7 +25,7 @@ import { EventService } from "@shared/service";
 
 import { environment } from 'src/environments/environment';
 import { firstValueFrom } from "rxjs";
-import { BusinessEdgeType } from "@registry/model/business-type";
+import { BusinessEdgeType } from "@registry/model/object-class";
 
 @Injectable({ providedIn: 'root' })
 export class BusinessEdgeTypeService {

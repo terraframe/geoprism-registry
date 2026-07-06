@@ -19,10 +19,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.graph.BusinessTypeSnapshot;
+import net.geoprism.graph.ConceptClassSnapshot;
 import net.geoprism.graph.DirectedAcyclicGraphTypeSnapshot;
 import net.geoprism.graph.GeoObjectTypeSnapshot;
 import net.geoprism.graph.GraphTypeReference;
-import net.geoprism.graph.GraphTypeSnapshot;
 import net.geoprism.graph.HierarchyTypeSnapshot;
 import net.geoprism.graph.UndirectedGraphTypeSnapshot;
 import net.geoprism.registry.Commit;
@@ -39,6 +39,7 @@ import net.geoprism.registry.service.business.SnapshotBusinessService;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.CommitDTO;
+import net.geoprism.registry.view.TypeClass;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
@@ -169,9 +170,31 @@ public class SnapshotBusinessServiceTest extends EventDatasetTest
 
   @Test
   @Request
+  public void testCreateConceptObjectSnapshot()
+  {
+    ConceptClassSnapshot snapshot = this.service.createSnapshot(commit, cClass);
+
+    Assert.assertNotNull(snapshot);
+    Assert.assertEquals(cClass.getCode(), snapshot.getCode());
+    Assert.assertEquals(cClass.getLabel().getValue(), snapshot.getDisplayLabel().getValue());
+    Assert.assertEquals(cClass.getOrganization().getCode(), snapshot.getOrgCode());
+    Assert.assertEquals(cClass.getOrigin(), snapshot.getOrigin());
+    Assert.assertEquals(cClass.getSequence(), snapshot.getSequence());
+
+    List<AttributeType> attributeTypes = snapshot.getAttributeTypes();
+
+    cClass.getAttributeMap().forEach((attributeName, attributeType) -> {
+      Optional<AttributeType> optional = attributeTypes.stream().filter(a -> a.getCode().equals(attributeName)).findFirst();
+
+      Assert.assertTrue("Unable to find attribute " + attributeName, optional.isPresent());
+    });
+  }
+
+  @Test
+  @Request
   public void testCreateDirectedAcyclicGraphTypeSnapshot()
   {
-    DirectedAcyclicGraphTypeSnapshot snapshot = (DirectedAcyclicGraphTypeSnapshot) this.service.createSnapshot(commit, new GraphTypeReference(GraphTypeSnapshot.DIRECTED_ACYCLIC_GRAPH_TYPE, dagType.getCode()), null);
+    DirectedAcyclicGraphTypeSnapshot snapshot = (DirectedAcyclicGraphTypeSnapshot) this.service.createSnapshot(commit, new GraphTypeReference(TypeClass.DAG.getCode(), dagType.getCode()), null);
 
     Assert.assertNotNull(snapshot);
     Assert.assertEquals(dagType.getCode(), snapshot.getCode());
@@ -184,7 +207,7 @@ public class SnapshotBusinessServiceTest extends EventDatasetTest
   @Request
   public void testCreateUndirectedGraphTypeSnapshot()
   {
-    UndirectedGraphTypeSnapshot snapshot = (UndirectedGraphTypeSnapshot) this.service.createSnapshot(commit, new GraphTypeReference(GraphTypeSnapshot.UNDIRECTED_GRAPH_TYPE, undirectedType.getCode()), null);
+    UndirectedGraphTypeSnapshot snapshot = (UndirectedGraphTypeSnapshot) this.service.createSnapshot(commit, new GraphTypeReference(TypeClass.UNDIRECTED_GRAPH.getCode(), undirectedType.getCode()), null);
 
     Assert.assertNotNull(snapshot);
     Assert.assertEquals(undirectedType.getCode(), snapshot.getCode());

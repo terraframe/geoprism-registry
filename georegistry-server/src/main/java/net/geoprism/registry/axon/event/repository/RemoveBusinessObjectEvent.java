@@ -1,60 +1,16 @@
 package net.geoprism.registry.axon.event.repository;
 
-import java.util.UUID;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import net.geoprism.registry.view.PublishDTO;
 
-public class RemoveBusinessObjectEvent extends AbstractRepositoryEvent implements BusinessObjectEvent
+public class RemoveBusinessObjectEvent extends RemoveObjectEvent implements BusinessObjectEvent
 {
-  private String code;
-
-  private String type;
-
   public RemoveBusinessObjectEvent()
   {
   }
 
   public RemoveBusinessObjectEvent(String code, String type)
   {
-    super(UUID.randomUUID().toString());
-    this.code = code;
-    this.type = type;
-  }
-
-  public String getCode()
-  {
-    return code;
-  }
-
-  public void setCode(String code)
-  {
-    this.code = code;
-  }
-
-  public String getType()
-  {
-    return type;
-  }
-
-  public void setType(String type)
-  {
-    this.type = type;
-  }
-
-  @Override
-  @JsonIgnore
-  public String getBaseObjectId()
-  {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  @JsonIgnore
-  public EventPhase getEventPhase()
-  {
-    return EventPhase.OBJECT;
+    super(code, type);
   }
 
   @Override

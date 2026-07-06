@@ -672,7 +672,7 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
     // DefaultAttribute.CODE - defined by GeoEntity geoId
     Assert.assertTrue(type.getAttribute(DefaultAttribute.CODE.getName()).isPresent());
     
-    MdVertexDAOIF mdGraphClassDAOIF = type.getMdVertex();
+    MdVertexDAOIF mdGraphClassDAOIF = type.getMdVertexDAO();
 
     // DefaultAttribute.CREATED_DATE - The create data on the GeoObject?
     try

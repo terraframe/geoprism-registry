@@ -39,7 +39,7 @@ import { AttributeTypeService, RegistryService } from "@registry/service";
 
 import { AttributeInputComponent } from "./attribute-input.component";
 import { TermOptionWidgetComponent } from "./term-option-widget.component";
-import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { NgIf } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 

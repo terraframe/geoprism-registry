@@ -31,7 +31,7 @@ import { BsModalRef } from "ngx-bootstrap/modal";
 import { AttributeType, ManageGeoObjectTypeModalState } from "@registry/model/registry";
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
 import { NgFor } from "@angular/common";
-import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { LocalizeComponent } from "@shared/component/localize/localize.component";
 
 @Component({
     selector: "term-option-widget",

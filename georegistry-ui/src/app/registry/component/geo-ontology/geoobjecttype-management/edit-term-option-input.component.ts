@@ -35,7 +35,7 @@ import { Term, ManageGeoObjectTypeModalState, AttributeType } from "@registry/mo
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
 import { RegistryService } from "@registry/service";
 import { LocalizedInputComponent } from "../../form-fields/localized-input/localized-input.component";
-import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { FormsModule } from "@angular/forms";
 import { NgIf } from "@angular/common";
 

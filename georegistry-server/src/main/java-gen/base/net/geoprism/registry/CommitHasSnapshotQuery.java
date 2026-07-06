@@ -39,21 +39,21 @@ public  class CommitHasSnapshotQuery extends com.runwaysdk.query.GeneratedRelati
   }
   /**
    * Restricts the query to include objects that are children in this relationship.
-   * @param metadataSnapshotQuery
+   * @param SchemaElementSnapshotQuery
    * @return Condition restricting objects that are children in this relationship.
    */
-   public com.runwaysdk.query.Condition hasChild(net.geoprism.graph.MetadataSnapshotQuery metadataSnapshotQuery)
+   public com.runwaysdk.query.Condition hasChild(net.geoprism.graph.SchemaElementSnapshotQuery SchemaElementSnapshotQuery)
    {
-     return this.getRelationshipQuery().hasChild(metadataSnapshotQuery);
+     return this.getRelationshipQuery().hasChild(SchemaElementSnapshotQuery);
    }
   /**
    * Restricts the query to include objects that are children in this relationship.
-   * @param metadataSnapshotQuery
+   * @param SchemaElementSnapshotQuery
    * @return Condition restricting objects that are children in this relationship.
    */
-   public com.runwaysdk.query.Condition doesNotHaveChild(net.geoprism.graph.MetadataSnapshotQuery metadataSnapshotQuery)
+   public com.runwaysdk.query.Condition doesNotHaveChild(net.geoprism.graph.SchemaElementSnapshotQuery SchemaElementSnapshotQuery)
    {
-     return this.getRelationshipQuery().doesNotHaveChild(metadataSnapshotQuery);
+     return this.getRelationshipQuery().doesNotHaveChild(SchemaElementSnapshotQuery);
    }
   /**
    * Restricts the query to include objects that are parents in this relationship.

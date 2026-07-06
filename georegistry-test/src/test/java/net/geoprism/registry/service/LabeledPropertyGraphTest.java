@@ -37,6 +37,7 @@ import com.runwaysdk.system.scheduler.SchedulerManager;
 import net.geoprism.graph.BusinessEdgeTypeSnapshot;
 import net.geoprism.graph.BusinessTypeSnapshot;
 import net.geoprism.graph.ChangeFrequency;
+import net.geoprism.graph.ConceptClassSnapshot;
 import net.geoprism.graph.GeoObjectTypeSnapshot;
 import net.geoprism.graph.GraphTypeReference;
 import net.geoprism.graph.GraphTypeSnapshot;
@@ -61,6 +62,7 @@ import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
+import net.geoprism.registry.graph.ConceptClass;
 import net.geoprism.registry.graph.DirectedAcyclicGraphType;
 import net.geoprism.registry.lpg.LPGPublishProgressMonitorNoOp;
 import net.geoprism.registry.lpg.TreeStrategyConfiguration;
@@ -68,6 +70,7 @@ import net.geoprism.registry.lpg.adapter.RegistryConnectorFactory;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
+import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.EdgeType;
 import net.geoprism.registry.model.GraphType;
@@ -80,6 +83,8 @@ import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
 import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.ConceptClassBusinessServiceIF;
+import net.geoprism.registry.service.business.ConceptObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeSnapshotBusinessServiceIF;
@@ -101,6 +106,7 @@ import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.BusinessEdgeTypeView;
 import net.geoprism.registry.view.BusinessGeoEdgeTypeView;
 import net.geoprism.registry.view.BusinessTypeDTO;
+import net.geoprism.registry.view.ConceptClassDTO;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
@@ -110,6 +116,8 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
   private static String                                        CODE = "Test Term";
 
   private static ClassificationType                            type;
+
+  private static ConceptClass                                  cClass;
 
   private static BusinessType                                  btype;
 
@@ -122,6 +130,8 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
   private BusinessObject                                       pObject;
 
   private BusinessObject                                       cObject;
+
+  private ConceptObject                                        concept;
 
   @Autowired
   private LabeledPropertyGraphTypeServiceIF                    service;
@@ -169,6 +179,9 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
   private ClassificationBusinessServiceIF                      cService;
 
   @Autowired
+  private ConceptClassBusinessServiceIF                        cClassService;
+
+  @Autowired
   private BusinessTypeBusinessServiceIF                        bTypeService;
 
   @Autowired
@@ -182,6 +195,9 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
 
   @Autowired
   private BusinessObjectBusinessServiceIF                      bObjectService;
+
+  @Autowired
+  private ConceptObjectBusinessServiceIF                       cObjectService;
 
   @Override
   public void beforeClassSetup() throws Exception
@@ -222,6 +238,13 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
 
     btype = this.bTypeService.apply(object);
 
+    ConceptClassDTO concept = new ConceptClassDTO();
+    concept.setCode("TEST_CONCEPT");
+    concept.setOrganization(USATestData.ORG_PPP.getCode());
+    concept.setDisplayLabel(new LocalizedValue("Test Concept"));
+
+    cClass = this.cClassService.apply(concept);
+
     bEdgeType = this.bEdgeService.create(BusinessEdgeTypeView.build(USATestData.ORG_PPP.getCode(), "TEST_B_EDGE", new LocalizedValue("TEST_B_EDGE"), new LocalizedValue("TEST_B_EDGE"), btype.getCode(), btype.getCode()));
 
     bGeoEdgeType = this.bEdgeService.create(BusinessGeoEdgeTypeView.build(USATestData.ORG_PPP.getCode(), "TEST_GEO_EDGE", new LocalizedValue("TEST_GEO_EDGE"), new LocalizedValue("TEST_GEO_EDGE"), btype.getCode(), EdgeDirection.PARENT));
@@ -248,6 +271,11 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
       this.bTypeService.delete(btype);
     }
 
+    if (cClass != null)
+    {
+      this.cClassService.delete(cClass);
+    }
+
     super.afterClassSetup();
 
     USATestData.COLORADO.removeDefaultValue(testClassification.getCode());
@@ -267,6 +295,11 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
     testData.setUpInstanceData();
 
     testData.logIn(USATestData.USER_NPS_RA);
+
+    concept = this.cObjectService.newInstance(cClass);
+    concept.setCode("P_CODE");
+
+    this.cObjectService.apply(concept);
 
     pObject = this.bObjectService.newInstance(btype);
     pObject.setCode("P_CODE");
@@ -294,6 +327,11 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
     if (pObject != null)
     {
       this.bObjectService.delete(pObject);
+    }
+
+    if (concept != null)
+    {
+      this.cObjectService.delete(concept);
     }
 
     testData.logOut();
@@ -700,7 +738,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
   @Request
   public void testJsonExportAndImport()
   {
-    JsonObject json = getJson(USATestData.USA, USATestData.HIER_ADMIN, new String[] { btype.getCode() }, new String[] { bEdgeType.getCode(), bGeoEdgeType.getCode() });
+    JsonObject json = getJson(USATestData.USA, USATestData.HIER_ADMIN, new String[] { btype.getCode() }, new String[] { bEdgeType.getCode(), bGeoEdgeType.getCode() }, new String[] { cClass.getCode() });
 
     LabeledPropertyGraphType test1 = this.typeService.apply(json);
 
@@ -747,6 +785,10 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
       List<BusinessEdgeTypeSnapshot> bEdges = this.versionService.getBusinessEdgeTypes(version);
 
       Assert.assertEquals(2, bEdges.size());
+
+      List<ConceptClassSnapshot> conceptClasses = this.versionService.getConceptClasses(version);
+
+      Assert.assertEquals(1, conceptClasses.size());
 
       this.entryService.delete(entry);
     }
@@ -836,16 +878,17 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
   @Request
   public static JsonObject getJson(TestGeoObjectInfo root, TestHierarchyTypeInfo ht)
   {
-    return getJson(root, ht, new String[] {}, new String[] {});
+    return getJson(root, ht, new String[] {}, new String[] {}, new String[] {});
   }
 
-  public static JsonObject getJson(TestGeoObjectInfo root, TestHierarchyTypeInfo ht, String[] businessTypeCodes, String[] businessEdgeCodes)
+  public static JsonObject getJson(TestGeoObjectInfo root, TestHierarchyTypeInfo ht, String[] businessTypeCodes, String[] businessEdgeCodes, String[] conceptClassCodes)
   {
     LabeledPropertyGraphTypeBuilder builder = new LabeledPropertyGraphTypeBuilder();
     builder.setHt(ht);
     builder.setConfiguration(new TreeStrategyConfiguration(root.getCode(), root.getGeoObjectType().getCode()));
     builder.setBusinessTypeCodes(businessTypeCodes);
     builder.setBusinessEdgeCodes(businessEdgeCodes);
+    builder.setConceptClassCodes(conceptClassCodes);
 
     return builder.buildJSON();
   }

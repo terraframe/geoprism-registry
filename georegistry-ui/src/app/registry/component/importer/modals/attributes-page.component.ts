@@ -22,7 +22,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { ImportConfiguration } from '@registry/model/io';
 import { NgFor, NgIf, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LocalizeComponent } from '../../../../shared/component/localize/localize.component';
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
 
 @Component({
     selector: 'attributes-page',

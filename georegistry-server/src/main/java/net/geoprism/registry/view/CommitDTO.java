@@ -6,8 +6,8 @@ import java.util.UUID;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import net.geoprism.registry.spring.DateTimeDeserializer;
-import net.geoprism.registry.spring.DateTimeSerializer;
+import net.geoprism.registry.view.serialization.DateTimeDeserializer;
+import net.geoprism.registry.view.serialization.DateTimeSerializer;
 
 public class CommitDTO
 {

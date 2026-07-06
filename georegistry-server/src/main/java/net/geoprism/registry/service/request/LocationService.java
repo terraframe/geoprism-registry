@@ -246,7 +246,7 @@ public class LocationService
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
 
-    MdVertexDAOIF mdVertex = type.getMdVertex();
+    MdVertexDAOIF mdVertex = type.getMdVertexDAO();
 
     StringBuilder statement = new StringBuilder();
     statement.append("SELECT FROM " + mdVertex.getDBClassName());

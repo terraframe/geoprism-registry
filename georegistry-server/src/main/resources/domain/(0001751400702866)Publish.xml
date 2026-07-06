@@ -76,7 +76,7 @@
           method="Commit" />
         <child
           cardinality="*"
-          name="net.geoprism.graph.MetadataSnapshot"
+          name="net.geoprism.graph.SchemaElementSnapshot"
           method="Snapshot" />
       </mdRelationship>
 

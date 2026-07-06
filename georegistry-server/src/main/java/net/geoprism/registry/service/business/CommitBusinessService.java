@@ -65,11 +65,15 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.view.CommitDTO;
 import net.geoprism.registry.view.PublishDTO;
+import net.geoprism.registry.view.TypeClass;
 
 @Service
 public class CommitBusinessService implements CommitBusinessServiceIF
 {
   public static final int                           BATCH_SIZE = 5;
+
+  @Autowired
+  private ConceptClassBusinessServiceIF             cService;
 
   @Autowired
   private BusinessTypeBusinessServiceIF             bService;
@@ -368,6 +372,10 @@ public class CommitBusinessService implements CommitBusinessServiceIF
     GeoObjectTypeSnapshot root = this.snapshotService.createRoot(commit);
 
     // Publish snapshots for all business types participating in the graph
+    configuration.getConceptClasses().forEach(code -> {
+      this.snapshotService.createSnapshot(commit, this.cService.getByCodeOrThrow(code));
+    });
+
     configuration.getBusinessTypes().forEach(code -> {
       this.snapshotService.createSnapshot(commit, this.bService.getByCodeOrThrow(code));
     });
@@ -387,11 +395,11 @@ public class CommitBusinessService implements CommitBusinessServiceIF
     });
 
     configuration.getDagTypes().forEach(code -> {
-      this.snapshotService.createSnapshot(commit, new GraphTypeReference(GraphTypeSnapshot.DIRECTED_ACYCLIC_GRAPH_TYPE, code), root);
+      this.snapshotService.createSnapshot(commit, new GraphTypeReference(TypeClass.DAG.getCode(), code), root);
     });
 
     configuration.getUndirectedTypes().forEach(code -> {
-      this.snapshotService.createSnapshot(commit, new GraphTypeReference(GraphTypeSnapshot.UNDIRECTED_GRAPH_TYPE, code), root);
+      this.snapshotService.createSnapshot(commit, new GraphTypeReference(TypeClass.UNDIRECTED_GRAPH.getCode(), code), root);
     });
 
     configuration.getBusinessEdgeTypes().forEach(code -> {

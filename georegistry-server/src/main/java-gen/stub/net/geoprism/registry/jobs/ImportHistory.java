@@ -18,23 +18,13 @@
  */
 package net.geoprism.registry.jobs;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.json.JSONObject;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 
-import net.geoprism.registry.etl.ObjectImporterFactory;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.view.TypeInfo;
-import net.geoprism.registry.view.TypeInfo.TypeClass;
 
 public class ImportHistory extends ImportHistoryBase
 {

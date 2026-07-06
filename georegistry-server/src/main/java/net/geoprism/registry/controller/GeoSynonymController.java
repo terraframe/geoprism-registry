@@ -18,9 +18,6 @@
  */
 package net.geoprism.registry.controller;
 
-import jakarta.validation.Valid;
-
-import jakarta.validation.constraints.NotEmpty;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,8 +27,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.controller.BusinessTypeController.OidBody;
+import net.geoprism.registry.controller.ObjectClassController.OidBody;
 import net.geoprism.registry.service.request.GeoSynonymService;
 
 @RestController

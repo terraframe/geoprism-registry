@@ -49,6 +49,7 @@ import com.runwaysdk.util.IDGenerator;
 
 import net.geoprism.graph.BusinessEdgeTypeSnapshot;
 import net.geoprism.graph.BusinessTypeSnapshot;
+import net.geoprism.graph.ConceptClassSnapshot;
 import net.geoprism.graph.GeoObjectTypeSnapshot;
 import net.geoprism.graph.GraphTypeReference;
 import net.geoprism.graph.GraphTypeSnapshot;
@@ -60,15 +61,18 @@ import net.geoprism.registry.etl.ImportStage;
 import net.geoprism.registry.graph.BaseGeoObjectType;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
+import net.geoprism.registry.graph.ConceptClass;
 import net.geoprism.registry.graph.ObjectClass;
 import net.geoprism.registry.lpg.LPGPublishProgressMonitorIF;
 import net.geoprism.registry.model.BusinessObject;
+import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
+import net.geoprism.registry.view.ObjectAtTimeDTO;
 
 @Service
 public class GraphPublisherService extends AbstractGraphVersionPublisherService
@@ -228,10 +232,16 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
   protected ClassificationTypeBusinessServiceIF            cTypeService;
 
   @Autowired
-  private GPRBusinessObjectBusinessService                 bObjectService;
+  private BusinessObjectBusinessServiceIF                  bObjectService;
 
   @Autowired
   private BusinessTypeBusinessServiceIF                    bTypeService;
+
+  @Autowired
+  private ConceptClassBusinessServiceIF                    cClassService;
+
+  @Autowired
+  private ConceptObjectBusinessServiceIF                   cObjectService;
 
   @Autowired
   private BusinessEdgeTypeBusinessServiceIF                bEdgeTypeService;
@@ -294,6 +304,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
 
         List<CachedGOTSnapshot> publishedTypes = snapshotCache.values().stream().map(gs -> gs.toType()).filter(gs -> gs != null && !gs.type.isRoot()).collect(Collectors.toList());
         List<BusinessTypeSnapshot> bSnapshots = this.versionService.getBusinessTypes(version);
+        List<ConceptClassSnapshot> cClassSnapshots = this.versionService.getConceptClasses(version);
         List<BusinessEdgeTypeSnapshot> bEdgeSnapshots = this.versionService.getBusinessEdgeTypes(version);
         List<GraphTypeReference> gtrs = lpgt.getGraphTypeReferences();
 
@@ -302,6 +313,17 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
         ProgressService.put(lpgt.getOid(), new Progress(0L, totalWork, version.getOid()));
 
         beginWork(totalWork, ImportStage.IMPORT);
+
+        // Publish the concept objects
+        for (ConceptClassSnapshot snapshot : cClassSnapshots)
+        {
+          ConceptClass type = this.cClassService.getByCodeOrThrow(snapshot.getCode());
+
+          publish(state, type, snapshot, version);
+
+          ProgressService.put(lpgt.getOid(), new Progress(count, totalWork, version.getOid()));
+          recordProgress(count, ImportStage.IMPORT);
+        }
 
         // Publish all the GeoObjectTypes
         for (CachedGOTSnapshot gotSnap : publishedTypes)
@@ -460,9 +482,9 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
 
       for (BusinessObject vertex : results)
       {
-        JsonObject dto = this.bObjectService.toJSON(vertex);
+        ObjectAtTimeDTO dto = this.bObjectService.toDTO(vertex, version.getForDate());
 
-        super.publishBusiness(state, MdVertexDAO.get(snapshot.getGraphMdVertexOid()), dto);
+        super.publishObject(state, MdVertexDAO.get(snapshot.getGraphMdVertexOid()), dto);
 
         count++;
       }
@@ -472,6 +494,40 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
       hasMoreData = results.size() > 0;
       results = null; // Explicitly drop all references to the old data so that
                       // it can be GC'd
+    }
+  }
+
+  protected void publish(TraversalState state, ConceptClass type, ConceptClassSnapshot snapshot, LabeledPropertyGraphTypeVersion version)
+  {
+    final String dbClass = type.getMdVertex().getDbClassName();
+
+    long skip = 0;
+    boolean hasMoreData = true;
+
+    long total = new GraphQuery<Long>("SELECT COUNT(*) FROM " + dbClass).getSingleResult();
+
+    logger.info("Beginning publishing " + total + " records of BusinessType " + dbClass);
+
+    while (hasMoreData)
+    {
+      logger.info("Publishing block " + skip + " through " + Math.min(skip + BLOCK_SIZE, total) + " of total " + total);
+
+      List<ConceptObject> results = this.cObjectService.getAll(type, skip, BLOCK_SIZE);
+
+      for (ConceptObject vertex : results)
+      {
+        ObjectAtTimeDTO dto = this.cObjectService.toDTO(vertex, version.getForDate());
+
+        super.publishObject(state, MdVertexDAO.get(snapshot.getGraphMdVertexOid()), dto);
+
+        count++;
+      }
+
+      skip += BLOCK_SIZE;
+
+      hasMoreData = results.size() > 0;
+      results = null; // Explicitly drop all references to the old data so that
+      // it can be GC'd
     }
   }
 
@@ -575,7 +631,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
       if (!snapshot.isRoot())
       {
         ServerGeoObjectType type = ServerGeoObjectType.get(snapshot.getCode());
-        String key = type.getMdVertex().getDBClassName().toLowerCase();
+        String key = type.getMdVertexDAO().getDBClassName().toLowerCase();
 
         snapshotCache.put(key, new CachedGOTSnapshot(type, snapshot));
       }

@@ -23,7 +23,7 @@ import { ErrorHandler } from '@shared/component';
 import { LocationProblemComponent } from './location-problem.component';
 import { FormsModule } from '@angular/forms';
 import { NgIf, NgFor } from '@angular/common';
-import { LocalizeComponent } from '../../../../shared/component/localize/localize.component';
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
 
 @Component({
     selector: 'location-problem-page',

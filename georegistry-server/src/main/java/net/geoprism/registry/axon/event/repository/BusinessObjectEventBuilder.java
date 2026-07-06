@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import com.google.gson.JsonObject;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
@@ -14,6 +13,7 @@ import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
+import net.geoprism.registry.view.ObjectOverTimeDTO;
 
 public class BusinessObjectEventBuilder
 {
@@ -142,9 +142,9 @@ public class BusinessObjectEventBuilder
 
     if (this.attributeUpdate || this.isNew)
     {
-      JsonObject dto = service.toJSON(object);
+      ObjectOverTimeDTO dto = service.toDTO(object);
 
-      list.add(new BusinessObjectApplyEvent(object.getCode(), object.getType().getCode(), dto.toString(), isNew));
+      list.add(new BusinessObjectApplyEvent(object.getCode(), object.getType().getCode(), dto, isNew));
     }
 
     list.addAll(events);

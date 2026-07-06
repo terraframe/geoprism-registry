@@ -37,6 +37,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonWriter;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
@@ -61,6 +62,7 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.query.graph.BasicVertexQuery;
+import net.geoprism.registry.view.ObjectOverTimeDTO;
 import net.geoprism.registry.view.Page;
 import net.geoprism.registry.xml.XMLExporter;
 
@@ -74,7 +76,7 @@ public class BackupService implements BackupServiceIF
   private BusinessEdgeTypeBusinessServiceIF         bEdgeTypeService;
 
   @Autowired
-  private GPRBusinessObjectBusinessService          bService;
+  private BusinessObjectBusinessServiceIF           bService;
 
   @Autowired
   private GeoObjectBusinessServiceIF                gService;
@@ -502,9 +504,9 @@ public class BackupService implements BackupServiceIF
 
         for (BusinessObject result : results)
         {
-          JsonObject json = this.bService.toJSON(result);
+          ObjectOverTimeDTO dto = this.bService.toDTO(result);
 
-          gson.toJson(json, writer);
+          gson.toJson(JsonParser.parseString(ObjectOverTimeDTO.toJson(dto)), writer);
         }
 
         skip += pageSize;

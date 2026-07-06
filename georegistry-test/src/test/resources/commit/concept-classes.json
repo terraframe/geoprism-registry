@@ -1,0 +1,72 @@
+[
+  {
+    "code": "TEST_CONCEPT",
+    "organization": "USATestDataPPP",
+    "origin": "terraframe.com",
+    "sequence": 0,
+    "displayLabel": {
+      "localizedValue": "Test Concept",
+      "localeValues": [
+        {
+          "locale": "defaultLocale",
+          "value": "Test Concept"
+        }
+      ]
+    },
+    "attributes": [
+      {
+        "type": "character",
+        "code": "code",
+        "label": {
+          "localizedValue": "Code",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Code"
+            }
+          ]
+        },
+        "description": {
+          "localizedValue": "Human readable unique identified",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Human readable unique identified"
+            }
+          ]
+        },
+        "required": true,
+        "unique": true,
+        "default": true,
+        "changeOverTime": false
+      },
+      {
+        "type": "source",
+        "code": "dataSource",
+        "label": {
+          "localizedValue": "Data Source",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Data Source"
+            }
+          ]
+        },
+        "description": {
+          "localizedValue": "Source of the data",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Source of the data"
+            }
+          ]
+        },
+        "required": false,
+        "unique": false,
+        "default": true,
+        "changeOverTime": true
+      }
+    ],
+    "type": "concept-class"
+  }
+]

@@ -1,0 +1,127 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<div>
+
+
+  <ng-container *ngIf="modalState.state === 'MANAGE-GEO-OBJECT-TYPE'">
+
+    <form #form="ngForm" *ngIf="type" class="modal-form" (ngSubmit)="form.valid">
+      <fieldset>
+        <div class="row-holder">
+          <div class="label-holder">
+            <label>
+              <localize key="data.property.label.code"></localize>
+            </label>
+          </div>
+          <div class="holder">
+            <span class="text"> <input type="text" [(ngModel)]="type.code" name="code" disabled required>
+            </span>
+          </div>
+        </div>
+
+        <localized-input [disabled]="readOnly" [(value)]="type.displayLabel" key="data.property.label.label">
+        </localized-input>
+
+        <div class="row-holder">
+          <div class="label-holder">
+            <label>
+              <localize key="attribute.organization.label"></localize>
+            </label>
+          </div>
+          <div class="holder">
+            <span class="text">
+              <input type="text" [(ngModel)]="type.organizationLabel" name="organization" disabled required>
+            </span>
+          </div>
+        </div>
+
+        <div class="row-holder">
+          <div class="label-holder">
+            <label>
+              <localize key="hierarchy.management.manage.attributes.label.displayAttributes"></localize>
+            </label>
+          </div>
+          <div class="holder">
+            <div class="panel panel-default">
+              <div class="panel-body">
+
+                <div class="table-responsive">
+                  <table class="table">
+                    <tbody>
+                      <tr *ngFor="let attr of type.attributes">
+                        <td>{{attr.label.localizedValue}}</td>
+                        <td class="button-column" style="width: 60px;">
+                          <ng-container *ngIf="!readOnly && !attr.isDefault">
+                            <a class="fa fa-pencil ico-edit" [routerLink]="" (click)="editAttribute(attr, $event)"
+                              [title]="'modal.button.edit' | localize"></a>
+                            <a class="fa fa-trash-o ico-remove" [routerLink]=""
+                              (click)="removeAttributeType(attr, $event)"
+                              [title]="'modal.button.remove' | localize"></a>
+                          </ng-container>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <span *ngIf="!readOnly" class="clickable" (click)="createAttribute()">
+                  <i class="fa fa-plus" style="font-size:20px;margin:10px 0 10px 0;" aria-hidden="true">
+                  </i>
+                  <localize key="modal.button.add"></localize>
+                </span>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row-holder">
+          <div class="button-holder">
+            <button type="button" class="btn btn-default" (click)="close()">
+              <localize key="modal.button.cancel"></localize>
+            </button>
+            <button *ngIf="!readOnly" type="button" class="btn btn-primary" [disabled]="form.invalid"
+              (click)="update()">
+              <localize key="modal.button.submit"></localize>
+            </button>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </ng-container>
+
+  <define-attribute-modal-content *ngIf="modalState.state === 'DEFINE-ATTRIBUTE'" [geoObjectType]="type"
+    [service]="service" (geoObjectTypeChange)="onTypeChange()" (stateChange)="onModalStateChange($event)">
+  </define-attribute-modal-content>
+
+  <edit-attribute-modal-content *ngIf="modalState.state === 'EDIT-ATTRIBUTE'" [geoObjectType]="type"
+    [attribute]="modalState.attribute" [service]="service" (geoObjectTypeChange)="onTypeChange()"
+    (stateChange)="onModalStateChange($event)">
+  </edit-attribute-modal-content>
+
+  <manage-term-options *ngIf="modalState.state === 'MANAGE-TERM-OPTION'" [attribute]="modalState.attribute"
+    (stateChange)="onModalStateChange($event)"></manage-term-options>
+
+  <edit-term-option-input *ngIf="modalState.state === 'EDIT-TERM-OPTION'" [attribute]="modalState.attribute"
+    [termOption]="modalState.termOption" (stateChange)="onModalStateChange($event)">
+  </edit-term-option-input>
+
+</div>

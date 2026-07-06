@@ -12,26 +12,37 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.runwaysdk.Pair;
 
 import net.geoprism.registry.axon.event.repository.BusinessObjectEventBuilder;
+import net.geoprism.registry.axon.event.repository.ConceptObjectEventBuilder;
 import net.geoprism.registry.axon.event.repository.GeoObjectEventBuilder;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
+import net.geoprism.registry.graph.ConceptClass;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.model.BusinessObject;
+import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.ConceptClassBusinessServiceIF;
+import net.geoprism.registry.service.business.ConceptObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 
 public abstract class DatasetTest
 {
 
   @Autowired
+  protected ConceptClassBusinessServiceIF     cClassService;
+
+  @Autowired
   protected BusinessTypeBusinessServiceIF     bTypeService;
 
   @Autowired
   protected BusinessEdgeTypeBusinessServiceIF bEdgeService;
+
+  @Autowired
+  protected ConceptObjectBusinessServiceIF    cObjectService;
 
   @Autowired
   protected BusinessObjectBusinessServiceIF   bObjectService;
@@ -41,6 +52,28 @@ public abstract class DatasetTest
 
   @Autowired
   protected EventGateway                      gateway;
+
+  protected ConceptObject createConceptObject(String code, ConceptClass type, DataSource dataSource)
+  {
+    ConceptObject object = this.cObjectService.newInstance(type);
+    object.setCode(code);
+    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), dataSource);
+
+    return applyConceptObject(object, true);
+  }
+
+  protected ConceptObject applyConceptObject(ConceptObject object, boolean isNew)
+  {
+    ConceptObjectEventBuilder builder = new ConceptObjectEventBuilder(cObjectService);
+    builder.setObject(object, isNew);
+    builder.setAttributeUpdate(true);
+
+    builder.build().stream().forEach(event -> {
+      gateway.publish(GenericEventMessage.asEventMessage(event));
+    });
+
+    return this.cObjectService.getByCode(object.getType(), builder.getCode());
+  }
 
   protected BusinessObject createBusinessObject(String code, BusinessType type, DataSource dataSource)
   {

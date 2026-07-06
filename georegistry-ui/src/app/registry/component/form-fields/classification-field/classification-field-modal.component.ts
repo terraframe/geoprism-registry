@@ -28,7 +28,7 @@ import { Classification, ClassificationNode } from "@registry/model/classificati
 import { ClassificationService } from "@registry/service/classification.service";
 import { PageResult } from "@shared/model/core";
 import { BsModalRef } from "ngx-bootstrap/modal";
-import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { FormsModule } from "@angular/forms";
 
 const PAGE_SIZE: number = 100;

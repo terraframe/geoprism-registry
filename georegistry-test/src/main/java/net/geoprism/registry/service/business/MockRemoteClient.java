@@ -17,7 +17,9 @@ import com.google.gson.JsonParser;
 import net.geoprism.graph.GeoObjectTypeSnapshot;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
 import net.geoprism.registry.model.DataSourceDTO;
+import net.geoprism.registry.view.BusinessTypeDTO;
 import net.geoprism.registry.view.CommitDTO;
+import net.geoprism.registry.view.ConceptClassDTO;
 import net.geoprism.registry.view.PublishDTO;
 
 public class MockRemoteClient implements RemoteClientIF
@@ -35,7 +37,7 @@ public class MockRemoteClient implements RemoteClientIF
   {
     return new LinkedList<>();
   }
-  
+
   @Override
   public List<DataSourceDTO> getDataSources(String uid)
   {
@@ -149,11 +151,44 @@ public class MockRemoteClient implements RemoteClientIF
   }
 
   @Override
-  public JsonArray getBusinessTypes(String commitId)
+  public List<BusinessTypeDTO> getBusinessTypes(String commitId)
   {
-    try (InputStream stream = this.getClass().getResourceAsStream("/commit/business-types.json"))
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectReader reader = mapper.readerForListOf(BusinessTypeDTO.class);
+
+    try
     {
-      return process(stream);
+      List<BusinessTypeDTO> value = reader.readValue(this.getClass().getResourceAsStream("/commit/business-types.json"));
+
+      value.stream().forEach(t -> {
+        t.setOrigin(REMOTE_ORIGIN);
+        t.setSequence(20L);
+      });
+
+      return value;
+    }
+    catch (IOException e)
+    {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override
+  public List<ConceptClassDTO> getConceptClasses(String commitId)
+  {
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectReader reader = mapper.readerForListOf(ConceptClassDTO.class);
+
+    try
+    {
+      List<ConceptClassDTO> value = reader.readValue(this.getClass().getResourceAsStream("/commit/concept-classes.json"));
+
+      value.stream().forEach(t -> {
+        t.setOrigin(REMOTE_ORIGIN);
+        t.setSequence(20L);
+      });
+
+      return value;
     }
     catch (IOException e)
     {

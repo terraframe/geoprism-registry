@@ -27,22 +27,22 @@ import {
 import { BsModalService } from "ngx-bootstrap/modal";
 import { HttpErrorResponse } from "@angular/common/http";
 import { ConfirmModalComponent } from "@shared/component";
-import { BusinessType } from "@registry/model/business-type";
 import { AttributeType, ManageGeoObjectTypeModalState } from "@registry/model/registry";
 import { BusinessTypeService } from "@registry/service/business-type.service";
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
 import { ModalTypes } from "@shared/model/modal";
 import { LocalizationService } from "@shared/service/localization.service";
-import { LocalizePipe } from "../../../../shared/pipe/localize.pipe";
+import { LocalizePipe } from "@shared/pipe/localize.pipe";
 import { EditTermOptionInputComponent } from "../../geo-ontology/geoobjecttype-management/edit-term-option-input.component";
 import { ManageTermOptionsComponent } from "../../geo-ontology/geoobjecttype-management/manage-term-options.component";
 import { EditAttributeModalContentComponent } from "../../geo-ontology/geoobjecttype-management/edit-attribute-modal-content.component";
 import { DefineAttributeModalContentComponent } from "../../geo-ontology/geoobjecttype-management/define-attribute-modal-content.component";
 import { RouterLink } from "@angular/router";
 import { LocalizedInputComponent } from "../../form-fields/localized-input/localized-input.component";
-import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { FormsModule } from "@angular/forms";
 import { NgIf, NgFor } from "@angular/common";
+import { BusinessType } from "@registry/model/object-class";
 
 @Component({
     selector: "manage-business-type",

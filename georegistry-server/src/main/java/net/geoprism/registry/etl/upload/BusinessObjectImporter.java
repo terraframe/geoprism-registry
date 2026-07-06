@@ -75,8 +75,9 @@ import net.geoprism.registry.model.GeoObjectMetadata;
 import net.geoprism.registry.model.GeoObjectTypeMetadata;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
+import net.geoprism.registry.view.ObjectOverTimeDTO;
+import net.geoprism.registry.view.TypeClass;
 import net.geoprism.registry.view.TypeInfo;
-import net.geoprism.registry.view.TypeInfo.TypeClass;
 
 public class BusinessObjectImporter implements ObjectImporterIF
 {
@@ -468,7 +469,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
         throw new RuntimeException("Did not expect to encounter validation problems during import.");
       }
 
-      data.setGoJson(this.bObjectService.toJSON(businessObject).toString());
+      data.setGoJson(ObjectOverTimeDTO.toJson(this.bObjectService.toDTO(businessObject)));
       data.setNew(isNew);
 
       BusinessObjectEventBuilder eventBuilder = new BusinessObjectEventBuilder(this.bObjectService);
@@ -500,7 +501,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
     }
     catch (Throwable t)
     {
-      buildRecordException(this.bObjectService.toJSON(businessObject).toString(), isNew, t);
+      buildRecordException(ObjectOverTimeDTO.toJson(this.bObjectService.toDTO(businessObject)), isNew, t);
     }
 
     return imported;

@@ -19,12 +19,9 @@
 package net.geoprism.registry.controller;
 
 import javax.annotation.Nullable;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
-import jakarta.validation.constraints.NotEmpty;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -43,9 +40,12 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import net.geoprism.GeoprismUserDTO;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.controller.BusinessTypeController.OidBody;
+import net.geoprism.registry.controller.ObjectClassController.OidBody;
 import net.geoprism.registry.service.request.AccountService;
 import net.geoprism.registry.spring.JsonArrayDeserializer;
 import net.geoprism.registry.spring.JsonObjectDeserializer;

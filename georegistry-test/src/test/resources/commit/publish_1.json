@@ -6,47 +6,47 @@
   "endDate" : "2021-04-04",
   "origin" : "TESTABC",
   "types" : [ {
-    "code" : "USATestDataCountry",
-    "type" : "GEO_OBJECT"
+    "typeCode" : "USATestDataCountry",
+    "typeClass" : "GEO_OBJECT_TYPE"
   }, {
-    "code" : "USATestDataState",
-    "type" : "GEO_OBJECT"
+    "typeCode" : "USATestDataState",
+    "typeClass" : "GEO_OBJECT_TYPE"
   }, {
-    "code" : "USATestDataDistrict",
-    "type" : "GEO_OBJECT"
+    "typeCode" : "USATestDataDistrict",
+    "typeClass" : "GEO_OBJECT_TYPE"
   }, {
-    "code" : "USATestDataCounty",
-    "type" : "GEO_OBJECT"
+    "typeCode" : "USATestDataCounty",
+    "typeClass" : "GEO_OBJECT_TYPE"
   }, {
-    "code" : "USATestDataArea",
-    "type" : "GEO_OBJECT"
+    "typeCode" : "USATestDataArea",
+    "typeClass" : "GEO_OBJECT_TYPE"
   }, {
-    "code" : "USATestDataSchoolZone",
-    "type" : "GEO_OBJECT"
+    "typeCode" : "USATestDataSchoolZone",
+    "typeClass" : "GEO_OBJECT_TYPE"
   }, {
-    "code" : "USATestDataHealthFacility",
-    "type" : "GEO_OBJECT"
+    "typeCode" : "USATestDataHealthFacility",
+    "typeClass" : "GEO_OBJECT_TYPE"
   }, {
-    "code" : "USATestDataHealthPost",
-    "type" : "GEO_OBJECT"
+    "typeCode" : "USATestDataHealthPost",
+    "typeClass" : "GEO_OBJECT_TYPE"
   }, {
-    "code" : "USATestDataHealthStop",
-    "type" : "GEO_OBJECT"
+    "typeCode" : "USATestDataHealthStop",
+    "typeClass" : "GEO_OBJECT_TYPE"
   }, {
-    "code" : "USATestDataMexico_State_GOT",
-    "type" : "GEO_OBJECT"
+    "typeCode" : "USATestDataMexico_State_GOT",
+    "typeClass" : "GEO_OBJECT_TYPE"
   }, {
-    "code" : "USATestDataMexico_City_GOT",
-    "type" : "GEO_OBJECT"
+    "typeCode" : "USATestDataMexico_City_GOT",
+    "typeClass" : "GEO_OBJECT_TYPE"
   }, {
-    "code" : "USATestDataAdminCode",
-    "type" : "HIERARCHY"
+    "typeCode" : "USATestDataAdminCode",
+    "typeClass" : "HIERARCHY"
   }, {
-    "code" : "USATestDataSchoolCode",
-    "type" : "HIERARCHY"
+    "typeCode" : "USATestDataSchoolCode",
+    "typeClass" : "HIERARCHY"
   }, {
-    "code" : "USATestDataReportsToCode",
-    "type" : "HIERARCHY"
+    "typeCode" : "USATestDataReportsToCode",
+    "typeClass" : "HIERARCHY"
   }],
   "exclusions" : [ ]
 

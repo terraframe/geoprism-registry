@@ -15,8 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
@@ -32,11 +30,13 @@ import net.geoprism.registry.OriginException;
 import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
 import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectEvent;
+import net.geoprism.registry.axon.event.remote.RemoteConceptObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectSetParentEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEvent;
+import net.geoprism.registry.axon.event.repository.ConceptObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectCreateParentEvent;
@@ -45,6 +45,7 @@ import net.geoprism.registry.axon.event.repository.GeoObjectSetExternalIdEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectUpdateParentEvent;
 import net.geoprism.registry.axon.event.repository.RemoveBusinessObjectEdgeEvent;
 import net.geoprism.registry.axon.event.repository.RemoveBusinessObjectEvent;
+import net.geoprism.registry.axon.event.repository.RemoveConceptObjectEvent;
 import net.geoprism.registry.axon.event.repository.RemoveGeoObjectEdgeEvent;
 import net.geoprism.registry.axon.event.repository.RemoveGeoObjectEvent;
 import net.geoprism.registry.cache.BusinessObjectCache;
@@ -55,11 +56,13 @@ import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.BaseGeoObjectType;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
+import net.geoprism.registry.graph.ConceptClass;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.graph.ObjectClass;
 import net.geoprism.registry.model.BusinessObject;
+import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.model.EdgeType;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -69,12 +72,16 @@ import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
+import net.geoprism.registry.service.business.ConceptClassBusinessServiceIF;
+import net.geoprism.registry.service.business.ConceptObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.EdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GPRBusinessTypeBusinessService;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
+import net.geoprism.registry.view.ObjectAtTimeDTO;
+import net.geoprism.registry.view.ObjectOverTimeDTO;
 
 @Service
 public class RepositoryProjection
@@ -101,6 +108,12 @@ public class RepositoryProjection
 
   @Autowired
   private EdgeTypeBusinessServiceIF         graphTypeService;
+
+  @Autowired
+  private ConceptClassBusinessServiceIF     cClassService;
+
+  @Autowired
+  private ConceptObjectBusinessServiceIF    cObjectService;
 
   private final GeoObjectCache              goCache;
 
@@ -504,15 +517,30 @@ public class RepositoryProjection
 
   @EventHandler
   @Transaction
+  public void handleApplyConceptObject(ConceptObjectApplyEvent event)
+  {
+    ConceptClass type = this.cClassService.getByCodeOrThrow(event.getType());
+
+    ObjectOverTimeDTO dto = event.getObject();
+
+    ConceptObject object = event.getIsNew() ? this.cObjectService.newInstance(type) : this.cObjectService.getByCode(type, event.getCode());
+
+    this.cObjectService.populate(object, dto);
+
+    this.cObjectService.apply(object);
+  }
+
+  @EventHandler
+  @Transaction
   public void handleApplyBusinessObject(BusinessObjectApplyEvent event)
   {
     BusinessType type = this.bTypeService.getByCodeOrThrow(event.getType());
 
-    JsonObject json = JsonParser.parseString(event.getObject()).getAsJsonObject();
+    ObjectOverTimeDTO dto = event.getObject();
 
     BusinessObject object = event.getIsNew() ? this.bObjectService.newInstance(type) : this.bObjectService.getByCode(type, event.getCode());
 
-    this.bObjectService.populate(object, json);
+    this.bObjectService.populate(object, dto);
 
     this.bObjectService.apply(object);
   }
@@ -558,7 +586,7 @@ public class RepositoryProjection
 
     if (!GeoprismProperties.getOrigin().equals(type.getOrigin()))
     {
-      JsonObject json = JsonParser.parseString(event.getObject()).getAsJsonObject();
+      ObjectAtTimeDTO dto = event.getObject();
 
       BusinessObject object = this.bObjectService.getByCode(type, event.getCode());
 
@@ -567,9 +595,36 @@ public class RepositoryProjection
         object = this.bObjectService.newInstance(type);
       }
 
-      this.bObjectService.populate(object, json);
+      this.bObjectService.populate(object, dto, event.getStartDate(), event.getEndDate());
 
       this.bObjectService.apply(object, false);
+    }
+    else
+    {
+      logger.info("Skipping remote business object: [" + event.getType() + "][" + event.getCode() + "]");
+    }
+  }
+
+  @EventHandler
+  @Transaction
+  public void handleRemoteConceptObject(RemoteConceptObjectEvent event)
+  {
+    ConceptClass type = this.cClassService.getByCodeOrThrow(event.getType());
+
+    if (!GeoprismProperties.getOrigin().equals(type.getOrigin()))
+    {
+      ObjectAtTimeDTO dto = event.getObject();
+
+      ConceptObject object = this.cObjectService.getByCode(type, event.getCode());
+
+      if (object == null)
+      {
+        object = this.cObjectService.newInstance(type);
+      }
+
+      this.cObjectService.populate(object, dto, event.getStartDate(), event.getEndDate());
+
+      this.cObjectService.apply(object, false);
     }
     else
     {
@@ -622,7 +677,7 @@ public class RepositoryProjection
 
       if (rid == null)
       {
-        throw new DataNotFoundException("Could not find Geo-Object with code " + code + " on table " + typeDbClassName);
+        throw new DataNotFoundException("Could not find Business-Object with code " + code + " on table " + typeDbClassName);
       }
 
       this.goRidCache.put(businessType.getCode() + "$#!" + code, rid);
@@ -665,6 +720,18 @@ public class RepositoryProjection
     if (object != null)
     {
       this.bObjectService.delete(object);
+    }
+  }
+
+  public void handleRemoveConceptObjectEvent(RemoveConceptObjectEvent event)
+  {
+    ConceptClass type = this.cClassService.getByCodeOrThrow(event.getType());
+
+    ConceptObject object = this.cObjectService.getByCode(type, event.getCode());
+
+    if (object != null)
+    {
+      this.cObjectService.delete(object);
     }
   }
 

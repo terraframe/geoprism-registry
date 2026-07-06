@@ -6,11 +6,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import net.geoprism.registry.spring.DateDeserializer;
-import net.geoprism.registry.spring.DateSerializer;
+import net.geoprism.registry.view.serialization.DateDeserializer;
+import net.geoprism.registry.view.serialization.DateSerializer;
 import net.geoprism.registry.view.PublishDTO;
-import net.geoprism.registry.view.TypeAndCode;
-import net.geoprism.registry.view.TypeAndCode.Type;
+import net.geoprism.registry.view.TypeClass;
+import net.geoprism.registry.view.TypeInfo;
 
 public class RemoteGeoObjectSetParentEvent implements RemoteEvent
 {
@@ -167,7 +167,7 @@ public class RemoteGeoObjectSetParentEvent implements RemoteEvent
   @Override
   public boolean isValid(PublishDTO dto)
   {
-    return !dto.getExclusions().contains(TypeAndCode.build(edgeType, Type.HIERARCHY));
+    return !dto.getExclusions().contains(TypeInfo.build(edgeType, TypeClass.HIERARCHY));
   }
 
 }

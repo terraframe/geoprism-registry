@@ -781,33 +781,33 @@ public  class CommitQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     return this.getBusinessQuery().isParentIn_SUBSELECT(commitHasSnapshotQuery);
   }
 
-  public com.runwaysdk.query.Condition snapshot(net.geoprism.graph.MetadataSnapshotQuery metadataSnapshotQuery)
+  public com.runwaysdk.query.Condition snapshot(net.geoprism.graph.SchemaElementSnapshotQuery SchemaElementSnapshotQuery)
   {
     com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
     com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasSnapshot.CLASS);
-    relationshipQuery.AND(relationshipQuery.hasChild(metadataSnapshotQuery));
+    relationshipQuery.AND(relationshipQuery.hasChild(SchemaElementSnapshotQuery));
 
     return this.getBusinessQuery().isParentIn(relationshipQuery);
   }
 
-  public com.runwaysdk.query.Condition SUBSELECT_snapshot(net.geoprism.graph.MetadataSnapshotQuery metadataSnapshotQuery)
+  public com.runwaysdk.query.Condition SUBSELECT_snapshot(net.geoprism.graph.SchemaElementSnapshotQuery SchemaElementSnapshotQuery)
   {
     com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
     com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasSnapshot.CLASS);
-    relationshipQuery.AND(relationshipQuery.hasChild(metadataSnapshotQuery));
+    relationshipQuery.AND(relationshipQuery.hasChild(SchemaElementSnapshotQuery));
 
     return this.getBusinessQuery().isParentIn_SUBSELECT(relationshipQuery);
   }
 
-  public com.runwaysdk.query.Condition snapshot(net.geoprism.graph.MetadataSnapshotQuery metadataSnapshotQuery, net.geoprism.registry.CommitHasSnapshotQuery commitHasSnapshotQuery)
+  public com.runwaysdk.query.Condition snapshot(net.geoprism.graph.SchemaElementSnapshotQuery SchemaElementSnapshotQuery, net.geoprism.registry.CommitHasSnapshotQuery commitHasSnapshotQuery)
   {
-    commitHasSnapshotQuery.AND(commitHasSnapshotQuery.hasChild(metadataSnapshotQuery));
+    commitHasSnapshotQuery.AND(commitHasSnapshotQuery.hasChild(SchemaElementSnapshotQuery));
     return this.getBusinessQuery().isParentIn(commitHasSnapshotQuery);
   }
 
-  public com.runwaysdk.query.Condition SUBSELECT_snapshot(net.geoprism.graph.MetadataSnapshotQuery metadataSnapshotQuery, net.geoprism.registry.CommitHasSnapshotQuery commitHasSnapshotQuery)
+  public com.runwaysdk.query.Condition SUBSELECT_snapshot(net.geoprism.graph.SchemaElementSnapshotQuery SchemaElementSnapshotQuery, net.geoprism.registry.CommitHasSnapshotQuery commitHasSnapshotQuery)
   {
-    commitHasSnapshotQuery.AND(commitHasSnapshotQuery.hasChild(metadataSnapshotQuery));
+    commitHasSnapshotQuery.AND(commitHasSnapshotQuery.hasChild(SchemaElementSnapshotQuery));
     return this.getBusinessQuery().isParentIn_SUBSELECT(commitHasSnapshotQuery);
   }
 
@@ -839,33 +839,33 @@ public  class CommitQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     return this.getBusinessQuery().isNotParentIn_SUBSELECT(commitHasSnapshotQuery);
   }
 
-  public com.runwaysdk.query.Condition NOT_IN_snapshot(net.geoprism.graph.MetadataSnapshotQuery metadataSnapshotQuery)
+  public com.runwaysdk.query.Condition NOT_IN_snapshot(net.geoprism.graph.SchemaElementSnapshotQuery SchemaElementSnapshotQuery)
   {
     com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
     com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasSnapshot.CLASS);
-    relationshipQuery.AND(relationshipQuery.hasChild(metadataSnapshotQuery));
+    relationshipQuery.AND(relationshipQuery.hasChild(SchemaElementSnapshotQuery));
 
     return this.getBusinessQuery().isNotParentIn(relationshipQuery);
   }
 
-  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_snapshot(net.geoprism.graph.MetadataSnapshotQuery metadataSnapshotQuery)
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_snapshot(net.geoprism.graph.SchemaElementSnapshotQuery SchemaElementSnapshotQuery)
   {
     com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
     com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasSnapshot.CLASS);
-    relationshipQuery.AND(relationshipQuery.hasChild(metadataSnapshotQuery));
+    relationshipQuery.AND(relationshipQuery.hasChild(SchemaElementSnapshotQuery));
 
     return this.getBusinessQuery().isNotParentIn_SUBSELECT(relationshipQuery);
   }
 
-  public com.runwaysdk.query.Condition NOT_IN_snapshot(net.geoprism.graph.MetadataSnapshotQuery metadataSnapshotQuery, net.geoprism.registry.CommitHasSnapshotQuery commitHasSnapshotQuery)
+  public com.runwaysdk.query.Condition NOT_IN_snapshot(net.geoprism.graph.SchemaElementSnapshotQuery SchemaElementSnapshotQuery, net.geoprism.registry.CommitHasSnapshotQuery commitHasSnapshotQuery)
   {
-    commitHasSnapshotQuery.AND(commitHasSnapshotQuery.hasChild(metadataSnapshotQuery));
+    commitHasSnapshotQuery.AND(commitHasSnapshotQuery.hasChild(SchemaElementSnapshotQuery));
     return this.getBusinessQuery().isNotParentIn(commitHasSnapshotQuery);
   }
 
-  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_snapshot(net.geoprism.graph.MetadataSnapshotQuery metadataSnapshotQuery, net.geoprism.registry.CommitHasSnapshotQuery commitHasSnapshotQuery)
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_snapshot(net.geoprism.graph.SchemaElementSnapshotQuery SchemaElementSnapshotQuery, net.geoprism.registry.CommitHasSnapshotQuery commitHasSnapshotQuery)
   {
-    commitHasSnapshotQuery.AND(commitHasSnapshotQuery.hasChild(metadataSnapshotQuery));
+    commitHasSnapshotQuery.AND(commitHasSnapshotQuery.hasChild(SchemaElementSnapshotQuery));
     return this.getBusinessQuery().isNotParentIn_SUBSELECT(commitHasSnapshotQuery);
   }
 
@@ -947,16 +947,16 @@ public  class CommitQuery extends com.runwaysdk.query.GeneratedBusinessQuery
 
   public com.runwaysdk.query.Condition snapshot();
 
-  public com.runwaysdk.query.Condition snapshot(net.geoprism.graph.MetadataSnapshotQuery metadataSnapshotQuery);
+  public com.runwaysdk.query.Condition snapshot(net.geoprism.graph.SchemaElementSnapshotQuery SchemaElementSnapshotQuery);
 
-  public com.runwaysdk.query.Condition snapshot(net.geoprism.graph.MetadataSnapshotQuery metadataSnapshotQuery, net.geoprism.registry.CommitHasSnapshotQuery commitHasSnapshotQuery);
+  public com.runwaysdk.query.Condition snapshot(net.geoprism.graph.SchemaElementSnapshotQuery SchemaElementSnapshotQuery, net.geoprism.registry.CommitHasSnapshotQuery commitHasSnapshotQuery);
 
 
   public com.runwaysdk.query.Condition SUBSELECT_snapshot();
 
-  public com.runwaysdk.query.Condition SUBSELECT_snapshot(net.geoprism.graph.MetadataSnapshotQuery metadataSnapshotQuery);
+  public com.runwaysdk.query.Condition SUBSELECT_snapshot(net.geoprism.graph.SchemaElementSnapshotQuery SchemaElementSnapshotQuery);
 
-  public com.runwaysdk.query.Condition SUBSELECT_snapshot(net.geoprism.graph.MetadataSnapshotQuery metadataSnapshotQuery, net.geoprism.registry.CommitHasSnapshotQuery commitHasSnapshotQuery);
+  public com.runwaysdk.query.Condition SUBSELECT_snapshot(net.geoprism.graph.SchemaElementSnapshotQuery SchemaElementSnapshotQuery, net.geoprism.registry.CommitHasSnapshotQuery commitHasSnapshotQuery);
 
 
   public com.runwaysdk.query.Condition NOT_IN_dependent();
@@ -975,16 +975,16 @@ public  class CommitQuery extends com.runwaysdk.query.GeneratedBusinessQuery
 
   public com.runwaysdk.query.Condition NOT_IN_snapshot();
 
-  public com.runwaysdk.query.Condition NOT_IN_snapshot(net.geoprism.graph.MetadataSnapshotQuery metadataSnapshotQuery);
+  public com.runwaysdk.query.Condition NOT_IN_snapshot(net.geoprism.graph.SchemaElementSnapshotQuery SchemaElementSnapshotQuery);
 
-  public com.runwaysdk.query.Condition NOT_IN_snapshot(net.geoprism.graph.MetadataSnapshotQuery metadataSnapshotQuery, net.geoprism.registry.CommitHasSnapshotQuery commitHasSnapshotQuery);
+  public com.runwaysdk.query.Condition NOT_IN_snapshot(net.geoprism.graph.SchemaElementSnapshotQuery SchemaElementSnapshotQuery, net.geoprism.registry.CommitHasSnapshotQuery commitHasSnapshotQuery);
 
 
   public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_snapshot();
 
-  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_snapshot(net.geoprism.graph.MetadataSnapshotQuery metadataSnapshotQuery);
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_snapshot(net.geoprism.graph.SchemaElementSnapshotQuery SchemaElementSnapshotQuery);
 
-  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_snapshot(net.geoprism.graph.MetadataSnapshotQuery metadataSnapshotQuery, net.geoprism.registry.CommitHasSnapshotQuery commitHasSnapshotQuery);
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_snapshot(net.geoprism.graph.SchemaElementSnapshotQuery SchemaElementSnapshotQuery, net.geoprism.registry.CommitHasSnapshotQuery commitHasSnapshotQuery);
 
 
   public com.runwaysdk.query.Condition dependency();
@@ -1422,33 +1422,33 @@ public  class CommitQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     return this.isParentIn_SUBSELECT(commitHasSnapshotQuery);
   }
 
-  public com.runwaysdk.query.Condition snapshot(net.geoprism.graph.MetadataSnapshotQuery metadataSnapshotQuery)
+  public com.runwaysdk.query.Condition snapshot(net.geoprism.graph.SchemaElementSnapshotQuery SchemaElementSnapshotQuery)
   {
     com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
     com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasSnapshot.CLASS);
-    relationshipQuery.AND(relationshipQuery.hasChild(metadataSnapshotQuery));
+    relationshipQuery.AND(relationshipQuery.hasChild(SchemaElementSnapshotQuery));
 
     return this.isParentIn(relationshipQuery);
   }
 
-  public com.runwaysdk.query.Condition SUBSELECT_snapshot(net.geoprism.graph.MetadataSnapshotQuery metadataSnapshotQuery)
+  public com.runwaysdk.query.Condition SUBSELECT_snapshot(net.geoprism.graph.SchemaElementSnapshotQuery SchemaElementSnapshotQuery)
   {
     com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
     com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasSnapshot.CLASS);
-    relationshipQuery.AND(relationshipQuery.hasChild(metadataSnapshotQuery));
+    relationshipQuery.AND(relationshipQuery.hasChild(SchemaElementSnapshotQuery));
 
     return this.isParentIn_SUBSELECT(relationshipQuery);
   }
 
-  public com.runwaysdk.query.Condition snapshot(net.geoprism.graph.MetadataSnapshotQuery metadataSnapshotQuery, net.geoprism.registry.CommitHasSnapshotQuery commitHasSnapshotQuery)
+  public com.runwaysdk.query.Condition snapshot(net.geoprism.graph.SchemaElementSnapshotQuery SchemaElementSnapshotQuery, net.geoprism.registry.CommitHasSnapshotQuery commitHasSnapshotQuery)
   {
-    commitHasSnapshotQuery.AND(commitHasSnapshotQuery.hasChild(metadataSnapshotQuery));
+    commitHasSnapshotQuery.AND(commitHasSnapshotQuery.hasChild(SchemaElementSnapshotQuery));
     return this.isParentIn(commitHasSnapshotQuery);
   }
 
-  public com.runwaysdk.query.Condition SUBSELECT_snapshot(net.geoprism.graph.MetadataSnapshotQuery metadataSnapshotQuery, net.geoprism.registry.CommitHasSnapshotQuery commitHasSnapshotQuery)
+  public com.runwaysdk.query.Condition SUBSELECT_snapshot(net.geoprism.graph.SchemaElementSnapshotQuery SchemaElementSnapshotQuery, net.geoprism.registry.CommitHasSnapshotQuery commitHasSnapshotQuery)
   {
-    commitHasSnapshotQuery.AND(commitHasSnapshotQuery.hasChild(metadataSnapshotQuery));
+    commitHasSnapshotQuery.AND(commitHasSnapshotQuery.hasChild(SchemaElementSnapshotQuery));
     return this.isParentIn_SUBSELECT(commitHasSnapshotQuery);
   }
 
@@ -1538,33 +1538,33 @@ public  class CommitQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     return this.isNotParentIn_SUBSELECT(commitHasSnapshotQuery);
   }
 
-  public com.runwaysdk.query.Condition NOT_IN_snapshot(net.geoprism.graph.MetadataSnapshotQuery metadataSnapshotQuery)
+  public com.runwaysdk.query.Condition NOT_IN_snapshot(net.geoprism.graph.SchemaElementSnapshotQuery SchemaElementSnapshotQuery)
   {
     com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
     com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasSnapshot.CLASS);
-    relationshipQuery.AND(relationshipQuery.hasChild(metadataSnapshotQuery));
+    relationshipQuery.AND(relationshipQuery.hasChild(SchemaElementSnapshotQuery));
 
     return this.isNotParentIn(relationshipQuery);
   }
 
-  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_snapshot(net.geoprism.graph.MetadataSnapshotQuery metadataSnapshotQuery)
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_snapshot(net.geoprism.graph.SchemaElementSnapshotQuery SchemaElementSnapshotQuery)
   {
     com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
     com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.CommitHasSnapshot.CLASS);
-    relationshipQuery.AND(relationshipQuery.hasChild(metadataSnapshotQuery));
+    relationshipQuery.AND(relationshipQuery.hasChild(SchemaElementSnapshotQuery));
 
     return this.isNotParentIn_SUBSELECT(relationshipQuery);
   }
 
-  public com.runwaysdk.query.Condition NOT_IN_snapshot(net.geoprism.graph.MetadataSnapshotQuery metadataSnapshotQuery, net.geoprism.registry.CommitHasSnapshotQuery commitHasSnapshotQuery)
+  public com.runwaysdk.query.Condition NOT_IN_snapshot(net.geoprism.graph.SchemaElementSnapshotQuery SchemaElementSnapshotQuery, net.geoprism.registry.CommitHasSnapshotQuery commitHasSnapshotQuery)
   {
-    commitHasSnapshotQuery.AND(commitHasSnapshotQuery.hasChild(metadataSnapshotQuery));
+    commitHasSnapshotQuery.AND(commitHasSnapshotQuery.hasChild(SchemaElementSnapshotQuery));
     return this.isNotParentIn(commitHasSnapshotQuery);
   }
 
-  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_snapshot(net.geoprism.graph.MetadataSnapshotQuery metadataSnapshotQuery, net.geoprism.registry.CommitHasSnapshotQuery commitHasSnapshotQuery)
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_snapshot(net.geoprism.graph.SchemaElementSnapshotQuery SchemaElementSnapshotQuery, net.geoprism.registry.CommitHasSnapshotQuery commitHasSnapshotQuery)
   {
-    commitHasSnapshotQuery.AND(commitHasSnapshotQuery.hasChild(metadataSnapshotQuery));
+    commitHasSnapshotQuery.AND(commitHasSnapshotQuery.hasChild(SchemaElementSnapshotQuery));
     return this.isNotParentIn_SUBSELECT(commitHasSnapshotQuery);
   }
 

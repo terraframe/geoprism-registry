@@ -509,7 +509,7 @@ abstract public class TestDataSet
       }
 
       // THIS circumvents the abstraction for better performance
-      MdVertexDAOIF mdVertex = got.getMdVertex();
+      MdVertexDAOIF mdVertex = got.getMdVertexDAO();
 
       StringBuilder statement = new StringBuilder();
       statement.append("DELETE VERTEX FROM (");

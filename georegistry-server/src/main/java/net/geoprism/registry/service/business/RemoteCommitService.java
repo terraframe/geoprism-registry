@@ -1,6 +1,5 @@
 package net.geoprism.registry.service.business;
 
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -10,13 +9,11 @@ import org.axonframework.eventhandling.gateway.EventGateway;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.GsonBuilder;
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.graph.BusinessEdgeTypeSnapshot;
 import net.geoprism.graph.BusinessTypeSnapshot;
+import net.geoprism.graph.ConceptClassSnapshot;
 import net.geoprism.graph.DirectedAcyclicGraphTypeSnapshot;
 import net.geoprism.graph.GeoObjectTypeSnapshot;
 import net.geoprism.graph.HierarchyTypeSnapshot;
@@ -26,10 +23,9 @@ import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Publish;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
 import net.geoprism.registry.graph.DataSource;
-import net.geoprism.registry.view.BusinessTypeDTO;
 import net.geoprism.registry.view.CommitDTO;
 import net.geoprism.registry.view.PublishDTO;
-import net.geoprism.registry.view.TypeAndCode;
+import net.geoprism.registry.view.TypeInfo;
 
 @Service
 public class RemoteCommitService
@@ -53,6 +49,9 @@ public class RemoteCommitService
   private BusinessTypeSnapshotBusinessServiceIF     bTypeService;
 
   @Autowired
+  private ConceptClassSnapshotBusinessServiceIF     cClassService;
+
+  @Autowired
   private GraphTypeSnapshotBusinessServiceIF        graphTypeService;
 
   @Autowired
@@ -68,7 +67,7 @@ public class RemoteCommitService
   private GraphRepoServiceIF                        metadataService;
 
   @Request
-  public Commit pull(String source, String publishId, List<TypeAndCode> exclusions)
+  public Commit pull(String source, String publishId, List<TypeInfo> exclusions)
   {
     try (RemoteClientIF client = service.open(source))
     {
@@ -83,7 +82,7 @@ public class RemoteCommitService
 
   // TODO: Should this be in a transaction??
   @Request
-  public Commit pull(RemoteClientIF client, CommitDTO remoteCommit, List<TypeAndCode> exclusions)
+  public Commit pull(RemoteClientIF client, CommitDTO remoteCommit, List<TypeInfo> exclusions)
   {
     Publish publish = getOrCreate(client, remoteCommit.getPublishId(), exclusions);
 
@@ -123,8 +122,14 @@ public class RemoteCommitService
       // Copy the metadata for the remote types
       GeoObjectTypeSnapshot root = this.snapshotService.createRoot(commit);
 
-      client.getBusinessTypes(commit.getUid()).forEach(element -> {
-        BusinessTypeDTO dto = BusinessTypeDTO.parseJson(element.toString());
+      client.getConceptClasses(commit.getUid()).forEach(dto -> {
+
+        ConceptClassSnapshot snapshot = this.cClassService.create(commit, dto);
+
+        this.snapshotService.createType(snapshot);
+      });
+
+      client.getBusinessTypes(commit.getUid()).forEach(dto -> {
 
         BusinessTypeSnapshot snapshot = this.bTypeService.create(commit, dto);
 
@@ -189,7 +194,7 @@ public class RemoteCommitService
 
   }
 
-  protected Publish getOrCreate(RemoteClientIF client, final String publishId, List<TypeAndCode> exclusions)
+  protected Publish getOrCreate(RemoteClientIF client, final String publishId, List<TypeInfo> exclusions)
   {
     return this.publishService.getByUid(publishId).orElseGet(() -> {
       PublishDTO dto = client.getPublish(publishId).orElseThrow(() -> {

@@ -30,7 +30,7 @@ import { TermReferenceProblemWidgetComponent } from "./term-reference-problem-wi
 import { ParentReferenceProblemWidgetComponent } from "./parent-reference-problem-widget.component";
 import { ImportProblemWidgetComponent } from "./import-problem-widget.component";
 import { FormsModule } from "@angular/forms";
-import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { NgIf } from "@angular/common";
 
 @Component({

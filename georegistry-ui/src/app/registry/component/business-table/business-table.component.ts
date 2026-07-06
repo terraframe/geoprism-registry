@@ -22,7 +22,7 @@ import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { GenericTableConfig, TableColumnSetup, TableEvent } from "@shared/model/generic-table";
 import { BusinessTypeService } from "@registry/service/business-type.service";
-import { BusinessType } from "@registry/model/business-type";
+import { BusinessType } from "@registry/model/object-class";
 import { LocalizationService } from "@shared/service/localization.service";
 import { GenericTableComponent } from "../../../shared/component/generic-table/generic-table.component";
 import { NgIf } from "@angular/common";

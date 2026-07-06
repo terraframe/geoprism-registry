@@ -18,7 +18,6 @@
  */
 package net.geoprism.registry.etl.upload;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -42,8 +41,6 @@ import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
@@ -60,8 +57,8 @@ import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.view.BusinessTypeDTO;
+import net.geoprism.registry.view.TypeClass;
 import net.geoprism.registry.view.TypeInfo;
-import net.geoprism.registry.view.TypeInfo.TypeClass;
 
 public class BusinessObjectImportConfiguration extends ImportConfiguration
 {

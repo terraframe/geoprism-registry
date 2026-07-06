@@ -29,7 +29,7 @@ import { HierarchyService } from "@registry/service";
 import { ImportModalComponent } from "@registry/component/importer/modals/import-modal.component";
 import { ImportStrategy } from "@registry/model/constants";
 import { HierarchyGroupedTypeView, TypeGroupedHierachyView } from "@registry/model/hierarchy";
-import { BusinessType } from "@registry/model/business-type";
+import { BusinessType } from "@registry/model/object-class";
 import { BusinessTypeService } from "@registry/service/business-type.service";
 
 import { environment } from 'src/environments/environment';

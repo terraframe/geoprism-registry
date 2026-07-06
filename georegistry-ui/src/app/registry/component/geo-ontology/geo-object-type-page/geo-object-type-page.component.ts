@@ -30,12 +30,12 @@ import { GeoObjectType } from "@registry/model/registry";
 import { Organization } from "@shared/model/core";
 import { RegistryService } from "@registry/service";
 import { ImportHistoryModalComponent } from "@registry/component/import-history/modals/import-history-modal.component";
-import { LocalizePipe } from "../../../../shared/pipe/localize.pipe";
+import { LocalizePipe } from "@shared/pipe/localize.pipe";
 import { ManageGeoObjectTypeComponent } from "./manage-geo-object-type.component";
 import { CreateGeoObjectTypeComponent } from "./create-geo-object-type.component";
 import { BsDropdownModule } from "ngx-bootstrap/dropdown";
 import { NgFor, NgIf, NgClass } from "@angular/common";
-import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { AccordionModule } from "ngx-bootstrap/accordion";
 import { FormsModule } from "@angular/forms";
 

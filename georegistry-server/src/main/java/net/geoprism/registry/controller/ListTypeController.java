@@ -20,11 +20,7 @@ package net.geoprism.registry.controller;
 
 import java.text.ParseException;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-
 import org.apache.commons.lang3.StringUtils;
-import jakarta.validation.constraints.NotEmpty;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,10 +41,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.controller.BusinessTypeController.OidBody;
+import net.geoprism.registry.controller.ObjectClassController.OidBody;
 import net.geoprism.registry.etl.ListTypeJob;
 import net.geoprism.registry.service.request.ListTypeService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;

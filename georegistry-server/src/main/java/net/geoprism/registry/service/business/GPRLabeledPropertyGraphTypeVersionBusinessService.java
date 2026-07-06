@@ -46,6 +46,7 @@ import net.geoprism.graph.SnapshotHierarchy;
 import net.geoprism.registry.etl.DuplicateJobException;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
+import net.geoprism.registry.graph.ConceptClass;
 import net.geoprism.registry.lpg.LPGPublishProgressMonitorIF;
 import net.geoprism.registry.lpg.StrategyConfiguration;
 import net.geoprism.registry.lpg.TreeStrategyConfiguration;
@@ -78,6 +79,9 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
 
   @Autowired
   private GeoObjectTypeBusinessServiceIF    typeService;
+
+  @Autowired
+  private ConceptClassBusinessServiceIF     cClassService;
 
   @Autowired
   private BusinessTypeBusinessServiceIF     bTypeService;
@@ -188,6 +192,15 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
 
     List<String> businessTypeCodes = lpgt.getBusinessTypeCodesList();
     List<String> businessEdgeCodesList = lpgt.getBusinessEdgeCodesList();
+    List<String> conceptClassCodesList = lpgt.getConceptClassCodesList();
+
+    // Publish snapshots for all concept classes participating in the graph
+    for (String conceptClassCode : conceptClassCodesList)
+    {
+      ConceptClass conceptClass = this.cClassService.getByCodeOrThrow(conceptClassCode);
+
+      this.snapshotService.createSnapshot(version, conceptClass);
+    }
 
     // Publish snapshots for all business types participating in the graph
     for (String businessTypeCode : businessTypeCodes)

@@ -25,9 +25,9 @@ import { RegistryService, HierarchyService } from "@registry/service";
 import { AuthService } from "@shared/service";
 import { NgForm, FormsModule } from "@angular/forms";
 import { LocalizedTextComponent } from "../../form-fields/localized-text/localized-text.component";
-import { ConvertKeyLabel } from "../../../../shared/component/localize/convert-key-label.component";
+import { ConvertKeyLabel } from "@shared/component/localize/convert-key-label.component";
 import { NgIf, NgFor } from "@angular/common";
-import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { LocalizeComponent } from "@shared/component/localize/localize.component";
 
 @Component({
     selector: "hierarchy-type",

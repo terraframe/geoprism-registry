@@ -2,7 +2,6 @@
   {
     "code": "TEST_BUSINESS",
     "organization": "USATestDataPPP",
-    "labelAttribute": "",
     "origin": "terraframe.com",
     "sequence": 1,
     "displayLabel": {
@@ -93,6 +92,8 @@
         "default": true,
         "changeOverTime": true
       }
-    ]
+    ],
+    "labelAttribute": "",
+    "type": "business-type"
   }
 ]

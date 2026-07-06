@@ -22,6 +22,7 @@ import com.runwaysdk.session.Request;
 
 import net.geoprism.graph.BusinessEdgeTypeSnapshot;
 import net.geoprism.graph.BusinessTypeSnapshot;
+import net.geoprism.graph.ConceptClassSnapshot;
 import net.geoprism.graph.GeoObjectTypeSnapshot;
 import net.geoprism.graph.GraphTypeSnapshot;
 import net.geoprism.graph.HierarchyTypeSnapshot;
@@ -33,10 +34,12 @@ import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
+import net.geoprism.registry.graph.ConceptClass;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.graph.DirectedAcyclicGraphType;
 import net.geoprism.registry.graph.UndirectedGraphType;
 import net.geoprism.registry.model.BusinessObject;
+import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -47,6 +50,9 @@ import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.CommitBusinessServiceIF;
+import net.geoprism.registry.service.business.ConceptClassBusinessServiceIF;
+import net.geoprism.registry.service.business.ConceptClassSnapshotBusinessServiceIF;
+import net.geoprism.registry.service.business.ConceptObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeSnapshotBusinessServiceIF;
@@ -58,8 +64,8 @@ import net.geoprism.registry.service.business.PublishBusinessServiceIF;
 import net.geoprism.registry.service.business.RemoteCommitService;
 import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
 import net.geoprism.registry.test.USATestData;
-import net.geoprism.registry.view.TypeAndCode;
-import net.geoprism.registry.view.TypeAndCode.Type;
+import net.geoprism.registry.view.TypeClass;
+import net.geoprism.registry.view.TypeInfo;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
@@ -74,6 +80,9 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
 
   @Autowired
   private HierarchyTypeSnapshotBusinessServiceIF    hSnapshotService;
+
+  @Autowired
+  private ConceptClassSnapshotBusinessServiceIF     cClassSnapshotService;
 
   @Autowired
   private BusinessTypeSnapshotBusinessServiceIF     bTypeSnapshotService;
@@ -91,6 +100,9 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
   private BusinessEdgeTypeBusinessServiceIF         bEdgeService;
 
   @Autowired
+  private ConceptClassBusinessServiceIF             cClassService;
+
+  @Autowired
   private BusinessTypeBusinessServiceIF             bTypeService;
 
   @Autowired
@@ -104,6 +116,9 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
 
   @Autowired
   private BusinessObjectBusinessServiceIF           bObjectService;
+
+  @Autowired
+  private ConceptObjectBusinessServiceIF            cObjectService;
 
   @Autowired
   private RemoteCommitService                       service;
@@ -161,6 +176,15 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
       if (type != null)
       {
         this.bTypeService.delete(type);
+      }
+    });
+
+    Arrays.asList("TEST_CONCEPT").forEach(code -> {
+      ConceptClass type = this.cClassService.getByCodeOrThrow(code);
+
+      if (type != null)
+      {
+        this.cClassService.delete(type);
       }
     });
 
@@ -228,6 +252,19 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
         Assert.assertEquals(Long.valueOf(20), type.getSequence());
       });
 
+      Arrays.asList("TEST_CONCEPT").forEach(code -> {
+        ConceptClassSnapshot snapshot = this.cClassSnapshotService.get(commit, code);
+
+        Assert.assertNotNull(snapshot);
+        Assert.assertEquals(Long.valueOf(20), snapshot.getSequence());
+
+        // Assert the actual type was created
+        ConceptClass type = this.cClassService.getByCodeOrThrow(code);
+
+        Assert.assertNotNull(type);
+        Assert.assertEquals(Long.valueOf(20), type.getSequence());
+      });
+
       Arrays.asList("TEST_B_EDGE", "TEST_GEO_EDGE").forEach(code -> {
         BusinessEdgeTypeSnapshot snapshot = this.bEdgeSnapshotService.get(commit, code);
 
@@ -244,7 +281,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
       });
 
       Arrays.asList("TEST_DAG").forEach(code -> {
-        GraphTypeSnapshot snapshot = this.graphTypeSnapshotBusinessService.get(commit, GraphTypeSnapshot.DIRECTED_ACYCLIC_GRAPH_TYPE, code);
+        GraphTypeSnapshot snapshot = this.graphTypeSnapshotBusinessService.get(commit, TypeClass.DAG.getCode(), code);
 
         Assert.assertNotNull(snapshot);
         Assert.assertEquals(Long.valueOf(20), snapshot.getSequence());
@@ -259,7 +296,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
       });
 
       Arrays.asList("TEST_UN").forEach(code -> {
-        GraphTypeSnapshot snapshot = this.graphTypeSnapshotBusinessService.get(commit, GraphTypeSnapshot.UNDIRECTED_GRAPH_TYPE, code);
+        GraphTypeSnapshot snapshot = this.graphTypeSnapshotBusinessService.get(commit, TypeClass.UNDIRECTED_GRAPH.getCode(), code);
 
         Assert.assertNotNull(snapshot);
         Assert.assertEquals(Long.valueOf(20), snapshot.getSequence());
@@ -273,7 +310,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
         Assert.assertEquals(Long.valueOf(20), type.getSequence());
       });
 
-      Assert.assertEquals(Long.valueOf(47), this.store.size());
+      Assert.assertEquals(Long.valueOf(48), this.store.size());
 
       // Test Object values
 
@@ -306,6 +343,13 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
 
       Assert.assertEquals(1, this.bObjectService.getParents(bObject, bEdgeType, USATestData.DEFAULT_OVER_TIME_DATE).size());
       Assert.assertEquals(1, this.bObjectService.getParents(bObject, bGeoEdgeType, USATestData.DEFAULT_OVER_TIME_DATE).size());
+
+      ConceptClass conceptClass = this.cClassService.getByCodeOrThrow("TEST_CONCEPT");
+      ConceptObject concept = this.cObjectService.getByCode(conceptClass, "CONCEPT");
+
+      Assert.assertNotNull(concept);
+      Assert.assertNotNull(concept.getValue(DefaultAttribute.DATA_SOURCE.getName()));
+
     }
     finally
     {
@@ -385,7 +429,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
         Assert.assertNotEquals(MockRemoteClientBuilderService.STALE_SOURCE, type.getLabel().getValue());
       });
 
-      Assert.assertEquals(Long.valueOf(94), this.store.size());
+      Assert.assertEquals(Long.valueOf(96), this.store.size());
     }
     finally
     {
@@ -422,6 +466,10 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
           Assert.assertNotNull(ServerHierarchyType.get(code, true));
         });
 
+        Arrays.asList("TEST_CONCEPT").forEach(code -> {
+          Assert.assertNotNull(this.cClassService.getByCode(code));
+        });
+
         Arrays.asList("TEST_BUSINESS").forEach(code -> {
           Assert.assertNotNull(this.bTypeService.getByCode(code));
         });
@@ -438,7 +486,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
           Assert.assertTrue(this.undirectedTypeService.getByCode(code).isPresent());
         });
 
-        Assert.assertEquals(Long.valueOf(47), this.store.size());
+        Assert.assertEquals(Long.valueOf(48), this.store.size());
       }
       finally
       {
@@ -458,14 +506,14 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
   {
     Assert.assertEquals(Long.valueOf(0), this.store.size());
 
-    List<TypeAndCode> exclusions = Arrays.asList(TypeAndCode.build("TEST_UN", Type.UNDIRECTED));
+    List<TypeInfo> exclusions = Arrays.asList(TypeInfo.build("TEST_UN", TypeClass.UNDIRECTED_GRAPH));
 
     Commit commit = this.service.pull(MockRemoteClientBuilderService.SOURCE, "mock", exclusions);
 
     try
     {
       // Ensure that events for excluded types are not executed
-      Assert.assertEquals(Long.valueOf(46), this.store.size());
+      Assert.assertEquals(Long.valueOf(47), this.store.size());
     }
     finally
     {
@@ -569,7 +617,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
         });
 
         Arrays.asList("TEST_DAG").forEach(code -> {
-          GraphTypeSnapshot snapshot = this.graphTypeSnapshotBusinessService.get(commit, GraphTypeSnapshot.DIRECTED_ACYCLIC_GRAPH_TYPE, code);
+          GraphTypeSnapshot snapshot = this.graphTypeSnapshotBusinessService.get(commit, TypeClass.DAG.getCode(), code);
 
           Assert.assertNotNull(snapshot);
           Assert.assertEquals(Long.valueOf(20), snapshot.getSequence());
@@ -584,7 +632,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
         });
 
         Arrays.asList("TEST_UN").forEach(code -> {
-          GraphTypeSnapshot snapshot = this.graphTypeSnapshotBusinessService.get(commit, GraphTypeSnapshot.UNDIRECTED_GRAPH_TYPE, code);
+          GraphTypeSnapshot snapshot = this.graphTypeSnapshotBusinessService.get(commit, TypeClass.UNDIRECTED_GRAPH.getCode(), code);
 
           Assert.assertNotNull(snapshot);
           Assert.assertEquals(Long.valueOf(20), snapshot.getSequence());
@@ -598,7 +646,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
           Assert.assertEquals(Long.valueOf(20), type.getSequence());
         });
 
-        Assert.assertEquals(Long.valueOf(47), this.store.size());
+        Assert.assertEquals(Long.valueOf(48), this.store.size());
 
         // Test Object values
         ServerGeoObjectIF object = this.gObjectService.getGeoObjectByCode(USATestData.COLORADO.getCode(), USATestData.STATE.getCode());

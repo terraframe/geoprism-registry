@@ -30,9 +30,9 @@ import { GeoObjectType, AttributeType, ManageGeoObjectTypeModalState } from "@re
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
 
 import { RegistryService } from "@registry/service";
-import { LocalizePipe } from "../../../../shared/pipe/localize.pipe";
+import { LocalizePipe } from "@shared/pipe/localize.pipe";
 import { RouterLink } from "@angular/router";
-import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { FormsModule } from "@angular/forms";
 import { NgIf, NgFor } from "@angular/common";
 

@@ -21,9 +21,11 @@ import net.geoprism.registry.axon.projection.RepositoryProjection;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
+import net.geoprism.registry.graph.ConceptClass;
 import net.geoprism.registry.graph.DirectedAcyclicGraphType;
 import net.geoprism.registry.graph.UndirectedGraphType;
 import net.geoprism.registry.model.BusinessObject;
+import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessServiceIF;
@@ -35,6 +37,7 @@ import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.BusinessEdgeTypeView;
 import net.geoprism.registry.view.BusinessGeoEdgeTypeView;
 import net.geoprism.registry.view.BusinessTypeDTO;
+import net.geoprism.registry.view.ConceptClassDTO;
 import net.geoprism.registry.view.PublishDTO;
 
 public abstract class EventDatasetTest extends USADatasetTest implements InstanceTestClassListener
@@ -54,6 +57,8 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
   @Autowired
   protected RepositoryProjection                      projection;
 
+  protected static ConceptClass                       cClass;
+
   protected static BusinessType                       btype;
 
   protected static BusinessEdgeType                   bEdgeType;
@@ -67,6 +72,8 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
   protected static BusinessObject                     pObject;
 
   protected static BusinessObject                     cObject;
+
+  protected static ConceptObject                      concept;
 
   @Override
   public void beforeClassSetup() throws Exception
@@ -84,6 +91,15 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
   @Request
   private void setUpInReq()
   {
+    ConceptClassDTO concept = new ConceptClassDTO();
+    concept.setCode("TEST_CONCEPT");
+    concept.setOrganization(USATestData.ORG_PPP.getCode());
+    concept.setDisplayLabel(new LocalizedValue("Test Concept"));
+
+    cClass = this.cClassService.apply(concept);
+
+    this.cClassService.createAttributeType(cClass, new AttributeBooleanType("testBoolean", new LocalizedValue("Test Boolean"), new LocalizedValue("Test Boolean"), false, false, false, false));
+
     BusinessTypeDTO object = new BusinessTypeDTO();
     object.setCode("TEST_BUSINESS");
     object.setOrganization(USATestData.ORG_PPP.getCode());
@@ -133,6 +149,11 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
       this.undirectedService.delete(undirectedType);
     }
 
+    if (cClass != null)
+    {
+      this.cClassService.delete(cClass);
+    }
+
     super.afterClassSetup();
   }
 
@@ -145,6 +166,8 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
     testData.setUpInstanceData();
 
     testData.logIn(USATestData.USER_NPS_RA);
+
+    concept = createConceptObject("CONCEPT");
 
     pObject = createBusinessObject("P_CODE");
     cObject = createBusinessObject("C_CODE");
@@ -207,6 +230,11 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
     return createBusinessObject(code, btype, USATestData.SOURCE.getDataSource());
   }
 
+  protected ConceptObject createConceptObject(String code)
+  {
+    return createConceptObject(code, cClass, USATestData.SOURCE.getDataSource());
+  }
+
   @After
   @Request
   public void tearDown()
@@ -223,6 +251,13 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
       this.bObjectService.delete(pObject);
 
       pObject = null;
+    }
+
+    if (concept != null)
+    {
+      this.cObjectService.delete(concept);
+
+      concept = null;
     }
 
     testData.logOut();
@@ -251,6 +286,8 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
     dto.addBusinessEdgeType(bEdgeType.getCode(), bGeoEdgeType.getCode());
     dto.addDagType(dagType.getCode());
     dto.addUndirectedType(undirectedType.getCode());
+    dto.addConceptClass(cClass.getCode());
+
     return dto;
   }
 

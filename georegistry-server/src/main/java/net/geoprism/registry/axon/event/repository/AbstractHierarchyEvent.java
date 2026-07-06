@@ -4,8 +4,8 @@ import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import net.geoprism.graph.GraphTypeSnapshot;
 import net.geoprism.registry.view.PublishDTO;
+import net.geoprism.registry.view.TypeClass;
 
 public abstract class AbstractHierarchyEvent extends AbstractGeoObjectEdgeEvent implements GeoObjectEvent
 {
@@ -31,7 +31,7 @@ public abstract class AbstractHierarchyEvent extends AbstractGeoObjectEdgeEvent 
   @Override
   public String getEdgeClassType()
   {
-    return GraphTypeSnapshot.HIERARCHY_TYPE;
+    return TypeClass.HIERARCHY.getCode();
   }
 
   @Override

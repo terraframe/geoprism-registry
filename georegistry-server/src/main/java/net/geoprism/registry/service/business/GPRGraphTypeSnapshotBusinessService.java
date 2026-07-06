@@ -13,6 +13,7 @@ import net.geoprism.graph.UndirectedGraphTypeSnapshotQuery;
 import net.geoprism.registry.Commit;
 import net.geoprism.registry.CommitHasSnapshotQuery;
 import net.geoprism.registry.model.SnapshotContainer;
+import net.geoprism.registry.view.TypeClass;
 
 @Service
 @Primary
@@ -26,7 +27,7 @@ public class GPRGraphTypeSnapshotBusinessService extends GraphTypeSnapshotBusine
   {
     if (version instanceof Commit)
     {
-      if (GraphTypeSnapshot.DIRECTED_ACYCLIC_GRAPH_TYPE.equals(typeCode))
+      if (TypeClass.DAG.getCode().equals(typeCode))
       {
         QueryFactory factory = new QueryFactory();
 
@@ -45,11 +46,11 @@ public class GPRGraphTypeSnapshotBusinessService extends GraphTypeSnapshotBusine
           }
         }
       }
-      else if (GraphTypeSnapshot.HIERARCHY_TYPE.equals(typeCode))
+      else if (TypeClass.HIERARCHY.getCode().equals(typeCode))
       {
         return this.hService.get(version, code);
       }
-      else if (GraphTypeSnapshot.UNDIRECTED_GRAPH_TYPE.equals(typeCode))
+      else if (TypeClass.UNDIRECTED_GRAPH.getCode().equals(typeCode))
       {
         QueryFactory factory = new QueryFactory();
 

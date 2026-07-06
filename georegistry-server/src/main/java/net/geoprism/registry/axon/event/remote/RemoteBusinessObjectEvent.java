@@ -1,103 +1,42 @@
 package net.geoprism.registry.axon.event.remote;
 
+import java.util.Date;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import net.geoprism.registry.view.ObjectAtTimeDTO;
 import net.geoprism.registry.view.PublishDTO;
-import net.geoprism.registry.view.TypeAndCode;
-import net.geoprism.registry.view.TypeAndCode.Type;
+import net.geoprism.registry.view.TypeClass;
+import net.geoprism.registry.view.TypeInfo;
 
-public class RemoteBusinessObjectEvent implements RemoteEvent
+public class RemoteBusinessObjectEvent extends RemoteObjectEvent implements RemoteEvent
 {
-  private String  commitId;
-
-  private String  key;
-
-  private String  code;
-
-  private String  type;
-
-  private String  object;
 
   public RemoteBusinessObjectEvent()
   {
-  }
-
-  public RemoteBusinessObjectEvent(String commitId, String code, String type, String object)
-  {
-    this(commitId, code + "#" + type, code, type, object);
-  }
-
-  public RemoteBusinessObjectEvent(String commitId, String key, String code, String type, String object)
-  {
     super();
-
-    this.key = key;
-    this.commitId = commitId;
-    this.code = code;
-    this.type = type;
-    this.object = object;
   }
 
-  public String getCommitId()
+  public RemoteBusinessObjectEvent(String commitId, String code, String type, ObjectAtTimeDTO object, Date startDate, Date endDate)
   {
-    return commitId;
+    super(commitId, code, type, object, startDate, endDate);
   }
 
-  public void setCommitId(String commitId)
+  public RemoteBusinessObjectEvent(String commitId, String key, String code, String type, ObjectAtTimeDTO object, Date startDate, Date endDate)
   {
-    this.commitId = commitId;
+    super(commitId, key, code, type, object, startDate, endDate);
   }
 
-  public String getKey()
-  {
-    return key;
-  }
-
-  public void setKey(String key)
-  {
-    this.key = key;
-  }
-
-  public String getType()
-  {
-    return type;
-  }
-
-  public void setType(String type)
-  {
-    this.type = type;
-  }
-
-  public String getCode()
-  {
-    return code;
-  }
-
-  public void setCode(String code)
-  {
-    this.code = code;
-  }
-
-  public String getObject()
-  {
-    return object;
-  }
-
-  public void setObject(String object)
-  {
-    this.object = object;
-  }
-  
   @Override
   @JsonIgnore
   public String getBaseObjectId()
   {
-    return this.code + "#" + this.type + "#B";
+    return this.getCode() + "#" + this.getType() + "#B";
   }
-  
+
   @Override
   public boolean isValid(PublishDTO dto)
   {
-    return !dto.getExclusions().contains(TypeAndCode.build(type, Type.BUSINESS));
+    return !dto.getExclusions().contains(TypeInfo.build(this.getType(), TypeClass.BUSINESS_TYPE));
   }
 }

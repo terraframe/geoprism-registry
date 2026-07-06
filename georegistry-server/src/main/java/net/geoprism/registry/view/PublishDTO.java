@@ -19,38 +19,37 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.registry.JsonCollectors;
-import net.geoprism.registry.spring.DateDeserializer;
-import net.geoprism.registry.spring.DateSerializer;
-import net.geoprism.registry.view.TypeAndCode.Type;
+import net.geoprism.registry.view.serialization.DateDeserializer;
+import net.geoprism.registry.view.serialization.DateSerializer;
 
 public class PublishDTO
 {
 
-  private String            uid;
+  private String         uid;
 
   @NotBlank
-  private String            label;
+  private String         label;
 
   @NotNull
   @JsonSerialize(using = DateSerializer.class)
   @JsonDeserialize(using = DateDeserializer.class)
-  private Date              date;
+  private Date           date;
 
   @NotNull
   @JsonSerialize(using = DateSerializer.class)
   @JsonDeserialize(using = DateDeserializer.class)
-  private Date              startDate;
+  private Date           startDate;
 
   @NotNull
   @JsonSerialize(using = DateSerializer.class)
   @JsonDeserialize(using = DateDeserializer.class)
-  private Date              endDate;
+  private Date           endDate;
 
-  private String            origin;
+  private String         origin;
 
-  private List<TypeAndCode> types;
+  private List<TypeInfo> types;
 
-  private List<TypeAndCode> exclusions;
+  private List<TypeInfo> exclusions;
 
   public PublishDTO()
   {
@@ -131,42 +130,42 @@ public class PublishDTO
     this.endDate = endDate;
   }
 
-  public List<TypeAndCode> getTypes()
+  public List<TypeInfo> getTypes()
   {
     return types;
   }
 
-  public void setTypes(List<TypeAndCode> types)
+  public void setTypes(List<TypeInfo> types)
   {
     this.types = types;
   }
 
-  public List<TypeAndCode> getExclusions()
+  public List<TypeInfo> getExclusions()
   {
     return exclusions;
   }
 
-  public void setExclusions(List<TypeAndCode> exclusions)
+  public void setExclusions(List<TypeInfo> exclusions)
   {
     this.exclusions = exclusions;
   }
 
-  public void addExclusions(Type type, String... codes)
+  public void addExclusions(TypeClass type, String... codes)
   {
-    Arrays.stream(codes).map(code -> TypeAndCode.build(code, type)).forEach(this.exclusions::add);
+    Arrays.stream(codes).map(code -> TypeInfo.build(code, type)).forEach(this.exclusions::add);
   }
 
-  public Stream<String> asStream(Type type)
+  public Stream<String> asStream(TypeClass type)
   {
     return this.types.stream() //
-        .filter(t -> t.getType().equals(type)) //
+        .filter(t -> t.getTypeClass().equals(type)) //
         .filter(t -> !this.exclusions.contains(t)) //
-        .map(t -> t.getCode());
+        .map(t -> t.getTypeCode());
   }
 
-  public void addType(Type type, String... codes)
+  public void addType(TypeClass type, String... codes)
   {
-    Arrays.stream(codes).map(code -> TypeAndCode.build(code, type)) //
+    Arrays.stream(codes).map(code -> TypeInfo.build(code, type)) //
         .filter(tac -> !this.types.contains(tac)) //
         .forEach(this.types::add);
   }
@@ -174,67 +173,78 @@ public class PublishDTO
   @JsonIgnore
   public Stream<String> getGeoObjectTypes()
   {
-    return this.asStream(Type.GEO_OBJECT);
+    return this.asStream(TypeClass.GEO_OBJECT_TYPE);
   }
 
   public void addGeoObjectType(String... geoObjectTypes)
   {
-    this.addType(Type.GEO_OBJECT, geoObjectTypes);
-  }
-
-  @JsonIgnore
-  public Stream<String> getHierarchyTypes()
-  {
-    return this.asStream(Type.HIERARCHY);
-  }
-
-  public void addHierarchyType(String... hierarchyTypes)
-  {
-    this.addType(Type.HIERARCHY, hierarchyTypes);
-  }
-
-  @JsonIgnore
-  public Stream<String> getDagTypes()
-  {
-    return this.asStream(Type.DAG);
-  }
-
-  public void addDagType(String... dagTypes)
-  {
-    this.addType(Type.DAG, dagTypes);
-  }
-
-  @JsonIgnore
-  public Stream<String> getUndirectedTypes()
-  {
-    return this.asStream(Type.UNDIRECTED);
-  }
-
-  public void addUndirectedType(String... undirectedTypes)
-  {
-    this.addType(Type.UNDIRECTED, undirectedTypes);
+    this.addType(TypeClass.GEO_OBJECT_TYPE, geoObjectTypes);
   }
 
   @JsonIgnore
   public Stream<String> getBusinessTypes()
   {
-    return this.asStream(Type.BUSINESS);
+    return this.asStream(TypeClass.BUSINESS_TYPE);
   }
 
   public void addBusinessType(String... businessTypes)
   {
-    this.addType(Type.BUSINESS, businessTypes);
+    this.addType(TypeClass.BUSINESS_TYPE, businessTypes);
+  }
+
+  @JsonIgnore
+  public Stream<String> getConceptClasses()
+  {
+    return this.asStream(TypeClass.CONCEPT_CLASS);
+  }
+
+  public void addConceptClass(String... conceptClasses)
+  {
+    this.addType(TypeClass.CONCEPT_CLASS, conceptClasses);
+  }
+
+  @JsonIgnore
+  public Stream<String> getHierarchyTypes()
+  {
+    return this.asStream(TypeClass.HIERARCHY);
+  }
+
+  public void addHierarchyType(String... hierarchyTypes)
+  {
+    this.addType(TypeClass.HIERARCHY, hierarchyTypes);
+  }
+
+  @JsonIgnore
+  public Stream<String> getDagTypes()
+  {
+    return this.asStream(TypeClass.DAG);
+  }
+
+  public void addDagType(String... dagTypes)
+  {
+    this.addType(TypeClass.DAG, dagTypes);
+  }
+
+  @JsonIgnore
+  public Stream<String> getUndirectedTypes()
+  {
+    return this.asStream(TypeClass.UNDIRECTED_GRAPH);
+  }
+
+  public void addUndirectedType(String... undirectedTypes)
+  {
+    this.addType(TypeClass.UNDIRECTED_GRAPH, undirectedTypes);
   }
 
   @JsonIgnore
   public Stream<String> getBusinessEdgeTypes()
   {
-    return this.asStream(Type.BUSINESS_EDGE);
+    return this.asStream(TypeClass.BUSINESS_EDGE);
   }
 
   public void addBusinessEdgeType(String... businessEdgeTypes)
   {
-    this.addType(Type.BUSINESS_EDGE, businessEdgeTypes);
+    this.addType(TypeClass.BUSINESS_EDGE, businessEdgeTypes);
   }
 
   public JsonArray toTypeJson()
@@ -247,14 +257,14 @@ public class PublishDTO
     return toJson(this.exclusions);
   }
 
-  protected JsonArray toJson(List<TypeAndCode> list)
+  protected JsonArray toJson(List<TypeInfo> list)
   {
     return list.stream() //
-        .sorted((a, b) -> a.getType().compareTo(b.getType())) //
+        .sorted((a, b) -> a.getTypeClass().compareTo(b.getTypeClass())) //
         .map(typeCode -> {
           JsonObject object = new JsonObject();
-          object.addProperty("type", typeCode.getType().name());
-          object.addProperty("code", typeCode.getCode());
+          object.addProperty("type", typeCode.getTypeClass().getCode());
+          object.addProperty("code", typeCode.getTypeCode());
 
           return object;
         }).collect(JsonCollectors.toJsonArray());
@@ -263,12 +273,13 @@ public class PublishDTO
   public boolean hasSameTypes(PublishDTO configuration)
   {
     boolean overlaps = false;
-    overlaps = overlaps || overlaps(configuration.getBusinessEdgeTypes(), this.getBusinessEdgeTypes());
+    overlaps = overlaps || overlaps(configuration.getGeoObjectTypes(), this.getGeoObjectTypes());
+    overlaps = overlaps || overlaps(configuration.getConceptClasses(), this.getConceptClasses());
     overlaps = overlaps || overlaps(configuration.getBusinessTypes(), this.getBusinessTypes());
     overlaps = overlaps || overlaps(configuration.getDagTypes(), this.getDagTypes());
-    overlaps = overlaps || overlaps(configuration.getGeoObjectTypes(), this.getGeoObjectTypes());
     overlaps = overlaps || overlaps(configuration.getHierarchyTypes(), this.getHierarchyTypes());
     overlaps = overlaps || overlaps(configuration.getUndirectedTypes(), this.getUndirectedTypes());
+    overlaps = overlaps || overlaps(configuration.getBusinessEdgeTypes(), this.getBusinessEdgeTypes());
 
     return overlaps;
   }

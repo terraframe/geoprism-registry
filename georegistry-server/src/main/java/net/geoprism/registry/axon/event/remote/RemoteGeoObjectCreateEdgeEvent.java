@@ -8,10 +8,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import net.geoprism.registry.spring.DateDeserializer;
-import net.geoprism.registry.spring.DateSerializer;
+import net.geoprism.registry.view.serialization.DateDeserializer;
+import net.geoprism.registry.view.serialization.DateSerializer;
 import net.geoprism.registry.view.PublishDTO;
-import net.geoprism.registry.view.TypeAndCode;
+import net.geoprism.registry.view.TypeInfo;
 
 public class RemoteGeoObjectCreateEdgeEvent implements RemoteEvent
 {
@@ -200,7 +200,7 @@ public class RemoteGeoObjectCreateEdgeEvent implements RemoteEvent
   @Override
   public boolean isValid(PublishDTO dto)
   {
-    return !dto.getExclusions().contains(TypeAndCode.build(edgeTypeCode, edgeType));
+    return !dto.getExclusions().contains(TypeInfo.build(edgeTypeCode, edgeType));
   }
 
 }

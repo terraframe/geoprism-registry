@@ -37,8 +37,8 @@ import { RegistryService } from "@registry/service";
 import { Term, ManageGeoObjectTypeModalState, AttributeType } from "@registry/model/registry";
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
 import { RouterLink } from "@angular/router";
-import { ConvertKeyLabel } from "../../../../shared/component/localize/convert-key-label.component";
-import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { ConvertKeyLabel } from "@shared/component/localize/convert-key-label.component";
+import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { NgIf, NgFor } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 

@@ -22,7 +22,7 @@ import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { EdgeImportConfiguration, ImportConfiguration } from '@registry/model/io';
 import { FormsModule } from '@angular/forms';
 import { NgIf, NgFor } from '@angular/common';
-import { LocalizeComponent } from '../../../../shared/component/localize/localize.component';
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
 
 @Component({
     selector: 'edge-page',

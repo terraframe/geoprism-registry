@@ -24,8 +24,8 @@ import { v4 as uuid } from 'uuid';
 
 import { ImportConfiguration, TermProblem } from '@registry/model/io';
 import { IOService } from '@registry/service';
-import { LocalizePipe } from '../../../../shared/pipe/localize.pipe';
-import { LocalizeComponent } from '../../../../shared/component/localize/localize.component';
+import { LocalizePipe } from '@shared/pipe/localize.pipe';
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
 import { NgIf, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 

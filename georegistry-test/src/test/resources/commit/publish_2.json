@@ -6,20 +6,23 @@
   "endDate" : "2021-04-04",
   "origin" : "TESTABC",
   "types" : [ {
-    "code" : "TEST_BUSINESS",
-    "type" : "BUSINESS"
+    "typeCode" : "TEST_BUSINESS",
+    "typeClass" : "BUSINESS_TYPE"
   }, {
-    "code" : "TEST_B_EDGE",
-    "type" : "BUSINESS_EDGE"
+    "typeCode" : "TEST_CONCEPT",
+    "typeClass" : "CONCEPT_CLASS"
   }, {
-    "code" : "TEST_GEO_EDGE",
-    "type" : "BUSINESS_EDGE"
+    "typeCode" : "TEST_B_EDGE",
+    "typeClass" : "BUSINESS_EDGE"
   }, {
-    "code" : "TEST_DAG",
-    "type" : "DAG"
+    "typeCode" : "TEST_GEO_EDGE",
+    "typeClass" : "BUSINESS_EDGE"
   }, {
-    "code" : "TEST_UN",
-    "type" : "UNDIRECTED"
+    "typeCode" : "TEST_DAG",
+    "typeClass" : "DAG"
+  }, {
+    "typeCode" : "TEST_UN",
+    "typeClass" : "UNDIRECTED_GRAPH"
   } ],
   "exclusions" : [ ]
 

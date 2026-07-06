@@ -68,9 +68,9 @@ import net.geoprism.registry.jobs.RowValidationProblem;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.EdgeType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.model.VertexComponentType;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
+import net.geoprism.registry.view.TypeClass;
 import net.geoprism.registry.view.TypeInfo;
 
 public class EdgeObjectImporter implements ObjectImporterIF
@@ -290,13 +290,13 @@ public class EdgeObjectImporter implements ObjectImporterIF
     }
   }
 
-  public void validateObject(VertexComponentType type, String code, String typeCode)
+  public void validateObject(TypeClass type, String code, String typeCode)
   {
-    if (type.equals(VertexComponentType.GEO_OBJECT))
+    if (type.equals(TypeClass.GEO_OBJECT_TYPE))
     {
       goCache.getOrFetchByCode(code, typeCode);
     }
-    else if (type.equals(VertexComponentType.BUSINESS))
+    else if (type.equals(TypeClass.BUSINESS_TYPE))
     {
       BusinessObject business = boCache.getOrFetchByCode(code, typeCode);
 
@@ -447,12 +447,12 @@ public class EdgeObjectImporter implements ObjectImporterIF
       }
       else
       {
-        if (graphType.getSourceType().equals(VertexComponentType.GEO_OBJECT))
+        if (graphType.getSourceType().equals(TypeClass.GEO_OBJECT_TYPE))
         {
           createImportHistoryRelationship(sourceTypeCode, sourceCode);
         }
 
-        if (graphType.getTargetType().equals(VertexComponentType.GEO_OBJECT))
+        if (graphType.getTargetType().equals(TypeClass.GEO_OBJECT_TYPE))
         {
           createImportHistoryRelationship(targetTypeCode, targetCode);
         }

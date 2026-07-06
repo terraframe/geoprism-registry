@@ -31,7 +31,7 @@ import { ImportHistoryModalComponent } from "@registry/component/import-history/
 import { AuthService } from "@shared/service";
 import { ManageGraphTypeComponent } from "./manage-graph-type.component";
 import { BsDropdownModule } from "ngx-bootstrap/dropdown";
-import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { NgIf, NgFor, NgClass } from "@angular/common";
 import { AccordionModule } from "ngx-bootstrap/accordion";
 import { ModalTypes } from "@shared/model/modal";

@@ -1,67 +1,70 @@
 {
-  "uid" : "870afe98-ef4f-4270-9904-8911ccfa9cb6",
+  "uid" : "f1d64367-caf7-4616-a1e4-d982215cf1d1",
   "label" : "USA Geospatial Graph",
   "date" : "2020-04-04",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04",
   "origin" : "terraframe.com",
   "types" : [ {
-    "code" : "USATestDataCountry",
-    "type" : "GEO_OBJECT"
+    "typeClass" : "GEO_OBJECT_TYPE",
+    "typeCode" : "USATestDataCountry"
   }, {
-    "code" : "USATestDataState",
-    "type" : "GEO_OBJECT"
+    "typeClass" : "GEO_OBJECT_TYPE",
+    "typeCode" : "USATestDataState"
   }, {
-    "code" : "USATestDataDistrict",
-    "type" : "GEO_OBJECT"
+    "typeClass" : "GEO_OBJECT_TYPE",
+    "typeCode" : "USATestDataDistrict"
   }, {
-    "code" : "USATestDataCounty",
-    "type" : "GEO_OBJECT"
+    "typeClass" : "GEO_OBJECT_TYPE",
+    "typeCode" : "USATestDataCounty"
   }, {
-    "code" : "USATestDataArea",
-    "type" : "GEO_OBJECT"
+    "typeClass" : "GEO_OBJECT_TYPE",
+    "typeCode" : "USATestDataArea"
   }, {
-    "code" : "USATestDataSchoolZone",
-    "type" : "GEO_OBJECT"
+    "typeClass" : "GEO_OBJECT_TYPE",
+    "typeCode" : "USATestDataSchoolZone"
   }, {
-    "code" : "USATestDataHealthFacility",
-    "type" : "GEO_OBJECT"
+    "typeClass" : "GEO_OBJECT_TYPE",
+    "typeCode" : "USATestDataHealthFacility"
   }, {
-    "code" : "USATestDataHealthPost",
-    "type" : "GEO_OBJECT"
+    "typeClass" : "GEO_OBJECT_TYPE",
+    "typeCode" : "USATestDataHealthPost"
   }, {
-    "code" : "USATestDataHealthStop",
-    "type" : "GEO_OBJECT"
+    "typeClass" : "GEO_OBJECT_TYPE",
+    "typeCode" : "USATestDataHealthStop"
   }, {
-    "code" : "USATestDataMexico_State_GOT",
-    "type" : "GEO_OBJECT"
+    "typeClass" : "GEO_OBJECT_TYPE",
+    "typeCode" : "USATestDataMexico_State_GOT"
   }, {
-    "code" : "USATestDataMexico_City_GOT",
-    "type" : "GEO_OBJECT"
+    "typeClass" : "GEO_OBJECT_TYPE",
+    "typeCode" : "USATestDataMexico_City_GOT"
   }, {
-    "code" : "USATestDataAdminCode",
-    "type" : "HIERARCHY"
+    "typeClass" : "HIERARCHY",
+    "typeCode" : "USATestDataAdminCode"
   }, {
-    "code" : "USATestDataSchoolCode",
-    "type" : "HIERARCHY"
+    "typeClass" : "HIERARCHY",
+    "typeCode" : "USATestDataSchoolCode"
   }, {
-    "code" : "USATestDataReportsToCode",
-    "type" : "HIERARCHY"
+    "typeClass" : "HIERARCHY",
+    "typeCode" : "USATestDataReportsToCode"
   }, {
-    "code" : "TEST_BUSINESS",
-    "type" : "BUSINESS"
+    "typeClass" : "BUSINESS_TYPE",
+    "typeCode" : "TEST_BUSINESS"
   }, {
-    "code" : "TEST_B_EDGE",
-    "type" : "BUSINESS_EDGE"
+    "typeClass" : "BUSINESS_EDGE",
+    "typeCode" : "TEST_B_EDGE"
   }, {
-    "code" : "TEST_GEO_EDGE",
-    "type" : "BUSINESS_EDGE"
+    "typeClass" : "BUSINESS_EDGE",
+    "typeCode" : "TEST_GEO_EDGE"
   }, {
-    "code" : "TEST_DAG",
-    "type" : "DAG"
+    "typeClass" : "DAG",
+    "typeCode" : "TEST_DAG"
   }, {
-    "code" : "TEST_UN",
-    "type" : "UNDIRECTED"
+    "typeClass" : "UNDIRECTED_GRAPH",
+    "typeCode" : "TEST_UN"
+  }, {
+    "typeClass" : "CONCEPT_CLASS",
+    "typeCode" : "TEST_CONCEPT"
   } ],
   "exclusions" : [ ]
 }

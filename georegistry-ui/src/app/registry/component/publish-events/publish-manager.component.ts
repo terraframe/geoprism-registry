@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnDestroy, OnInit, ViewChildren, QueryList } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Params, Router, RouterLinkActive, RouterLink } from "@angular/router";
 import { HttpErrorResponse } from "@angular/common/http";
 
@@ -31,11 +31,11 @@ import { PublishService } from "@registry/service/publish.service";
 import { PublishEventsModalComponent } from "./publish-events-modal.component";
 import { BusinessTypeService } from "@registry/service/business-type.service";
 import { RegistryService } from "@registry/service";
-import { LocalizePipe } from "../../../shared/pipe/localize.pipe";
+import { LocalizePipe } from "@shared//pipe/localize.pipe";
 import { PublishEventsComponent } from "./publish-events.component";
 import { NgFor, NgIf } from "@angular/common";
-import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
-import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
+import { LocalizeComponent } from "@shared/component/localize/localize.component";
+import { PageContainerComponent } from "@shared/component/page-container/page-container.component";
 import { ModalTypes } from "@shared/model/modal";
 
 @Component({

@@ -29,8 +29,8 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { ErrorHandler } from "@shared/component";
 import { ImportHistory } from "@registry/model/registry";
 import { LocalizedValue } from "@core/model/core";
-import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
-import { DateTextComponent } from "../../../../shared/component/date-text/date-text.component";
+import { LocalizeComponent } from "@shared/component/localize/localize.component";
+import { DateTextComponent } from "@shared/component/date-text/date-text.component";
 import { RouterLink } from "@angular/router";
 import { NgIf, NgFor } from "@angular/common";
 

@@ -27,7 +27,7 @@ import { EventService, LocalizationService } from "@shared/service";
 
 import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
 import { FormsModule } from "@angular/forms";
-import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { NgIf, NgFor } from "@angular/common";
 
 @Component({

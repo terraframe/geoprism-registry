@@ -738,7 +738,7 @@ public class DHIS2SynchronizationManager
   {
     final Map<String, Object> params = new HashMap<String, Object>();
 
-    MdVertexDAOIF mdVertex = got.getMdVertex();
+    MdVertexDAOIF mdVertex = got.getMdVertexDAO();
 
     StringBuilder statement = new StringBuilder();
     statement.append("SELECT COUNT(*) FROM " + mdVertex.getDBClassName());
@@ -752,7 +752,7 @@ public class DHIS2SynchronizationManager
   {
     final Map<String, Object> params = new HashMap<String, Object>();
 
-    MdVertexDAOIF mdVertex = got.getMdVertex();
+    MdVertexDAOIF mdVertex = got.getMdVertexDAO();
     MdAttributeDAOIF mdAttribute = MdAttributeDAO.getByKey(GeoVertex.CLASS + "." + GeoVertex.LASTUPDATEDATE);
 
     StringBuilder statement = new StringBuilder();

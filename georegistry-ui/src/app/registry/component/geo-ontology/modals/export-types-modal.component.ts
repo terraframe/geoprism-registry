@@ -23,7 +23,7 @@ import { Subject } from "rxjs";
 import { Organization } from "@shared/model/core";
 import { NgFor } from "@angular/common";
 import { FormsModule } from "@angular/forms";
-import { LocalizeComponent } from "../../../../shared/component/localize/localize.component";
+import { LocalizeComponent } from "@shared/component/localize/localize.component";
 
 @Component({
     selector: "export-types-modal",

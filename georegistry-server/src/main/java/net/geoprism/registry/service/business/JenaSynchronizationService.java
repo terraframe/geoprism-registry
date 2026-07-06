@@ -29,23 +29,24 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
 import net.geoprism.registry.Commit;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Publish;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectEvent;
+import net.geoprism.registry.axon.event.remote.RemoteConceptObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectSetParentEvent;
+import net.geoprism.registry.axon.event.remote.RemoteObjectEvent;
 import net.geoprism.registry.etl.JenaExportConfig;
 import net.geoprism.registry.etl.export.ExportHistory;
 import net.geoprism.registry.etl.export.ExportStage;
 import net.geoprism.registry.graph.BusinessType;
+import net.geoprism.registry.graph.ConceptClass;
+import net.geoprism.registry.graph.ObjectClass;
+import net.geoprism.registry.view.ObjectAtTimeDTO;
 
 @Service
 public class JenaSynchronizationService
@@ -60,6 +61,9 @@ public class JenaSynchronizationService
 
   @Autowired
   private BusinessTypeBusinessServiceIF                      bTypeService;
+
+  @Autowired
+  private ConceptClassBusinessServiceIF                      cClassService;
 
   @Autowired
   private RemoteJenaServiceIF                                service;
@@ -136,6 +140,10 @@ public class JenaSynchronizationService
         else if (event instanceof RemoteBusinessObjectEvent)
         {
           this.handleRemoteBusinessObject(commit, (RemoteBusinessObjectEvent) event, config, model.get());
+        }
+        else if (event instanceof RemoteConceptObjectEvent)
+        {
+          this.handleRemoteConceptObject(commit, (RemoteConceptObjectEvent) event, config, model.get());
         }
         else if (event instanceof RemoteBusinessObjectApplyEdgeEvent)
         {
@@ -329,20 +337,32 @@ public class JenaSynchronizationService
   {
     logger.trace("Jena Projection - Handling remote business object");
 
+    BusinessType type = this.bTypeService.getByCodeOrThrow(event.getType());
+
+    handleRemoteObject(commit, event, config, model, type);
+  }
+
+  public void handleRemoteConceptObject(Commit commit, RemoteConceptObjectEvent event, JenaExportConfig config, Model model)
+  {
+    logger.trace("Jena Projection - Handling remote concept object");
+
+    ConceptClass type = this.cClassService.getByCodeOrThrow(event.getType());
+
+    handleRemoteObject(commit, event, config, model, type);
+  }
+
+  public void handleRemoteObject(Commit commit, RemoteObjectEvent event, JenaExportConfig config, Model model, ObjectClass type)
+  {
     List<String> statements = new LinkedList<>();
 
-    final String code = event.getCode();
     final String typeCode = event.getType();
-
-    BusinessType type = this.bTypeService.getByCodeOrThrow(typeCode);
-
-    JsonObject object = JsonParser.parseString(event.getObject()).getAsJsonObject();
-    JsonObject data = object.get("data").getAsJsonObject();
+    final String code = event.getCode();
+    ObjectAtTimeDTO dto = event.getObject();
 
     Map<String, AttributeType> attributes = type.getAttributeMapAsDTO();
 
     attributes.values().stream() //
-        .filter(a -> data.has(a.getCode()) && !data.get(a.getCode()).isJsonNull()) //
+        .filter(a -> dto.has(a.getCode())) //
         .filter(a -> ! ( a instanceof AttributeGeometryType )) //
         .forEach(attribute -> {
           Object literal = null;
@@ -352,33 +372,31 @@ public class JenaSynchronizationService
 
           statements.add("DELETE WHERE { GRAPH <" + config.getGraph() + "> { <" + subjectUri + "> <" + attributeUri + "> ?obj}}");
 
-          JsonElement element = data.get(attribute.getCode());
+          Object value = dto.getValue(attribute.getCode());
 
           if (attribute instanceof AttributeLocalType)
           {
-            LocalizedValue value = LocalizedValue.fromJSON(element.getAsJsonObject());
-
             literal = ( (LocalizedValue) value ).getValue();
           }
           else if (attribute instanceof AttributeIntegerType)
           {
-            literal = element.getAsLong();
+            literal = (Long) value;
           }
           else if (attribute instanceof AttributeFloatType)
           {
-            literal = element.getAsDouble();
+            literal = (Double) value;
           }
           else if (attribute instanceof AttributeDateType)
           {
-            literal = GeoRegistryUtil.parseDate(element.getAsString());
+            literal = GeoRegistryUtil.parseDate((String) value);
           }
           else if (attribute instanceof AttributeBooleanType)
           {
-            literal = element.getAsBoolean();
+            literal = (Boolean) value;
           }
           else
           {
-            literal = element.getAsString();
+            literal = value.toString();
           }
 
           if (literal != null)
