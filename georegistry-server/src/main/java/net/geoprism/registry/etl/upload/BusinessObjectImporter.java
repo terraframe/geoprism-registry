@@ -39,6 +39,8 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.runwaysdk.ProblemException;
 import com.runwaysdk.ProblemIF;
@@ -132,11 +134,11 @@ public class BusinessObjectImporter implements ObjectImporterIF
 
   private static class RowData
   {
-    private String  goJson;
+    private ObjectOverTimeDTO goJson;
 
-    private boolean isNew;
+    private boolean           isNew;
 
-    public void setGoJson(String goJson)
+    public void setGoJson(ObjectOverTimeDTO goJson)
     {
       this.goJson = goJson;
     }
@@ -469,7 +471,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
         throw new RuntimeException("Did not expect to encounter validation problems during import.");
       }
 
-      data.setGoJson(ObjectOverTimeDTO.toJson(this.bObjectService.toDTO(businessObject)));
+      data.setGoJson(this.bObjectService.toDTO(businessObject));
       data.setNew(isNew);
 
       BusinessObjectEventBuilder eventBuilder = new BusinessObjectEventBuilder(this.bObjectService);
@@ -501,22 +503,22 @@ public class BusinessObjectImporter implements ObjectImporterIF
     }
     catch (Throwable t)
     {
-      buildRecordException(ObjectOverTimeDTO.toJson(this.bObjectService.toDTO(businessObject)), isNew, t);
+      buildRecordException(this.bObjectService.toDTO(businessObject), isNew, t);
     }
 
     return imported;
   }
 
-  private void buildRecordException(String goJson, boolean isNew, Throwable t)
+  private void buildRecordException(ObjectOverTimeDTO dto, boolean isNew, Throwable t)
   {
-    JSONObject obj = new JSONObject();
+    JsonObject obj = new JsonObject();
 
-    if (goJson != null)
+    if (dto != null)
     {
-      obj.put("geoObject", new JSONObject(goJson));
+      obj.add("geoObject", JsonParser.parseString(ObjectOverTimeDTO.toJson(dto)));
     }
 
-    obj.put("isNew", isNew);
+    obj.addProperty("isNew", isNew);
 
     BusinessObjectRecordedErrorException re = new BusinessObjectRecordedErrorException();
     re.setError(t);

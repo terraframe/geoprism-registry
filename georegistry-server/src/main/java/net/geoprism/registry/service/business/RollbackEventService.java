@@ -115,6 +115,10 @@ public class RollbackEventService
       {
         this.projection.handleApplyBusinessObject((BusinessObjectApplyEvent) event);
       }
+      else if (event instanceof ConceptObjectApplyEvent)
+      {
+        this.projection.handleApplyConceptObject((ConceptObjectApplyEvent) event);
+      }
       else if (event instanceof RemoveBusinessObjectEvent)
       {
         this.projection.handleRemoveBusinessObjectEvent((RemoveBusinessObjectEvent) event);

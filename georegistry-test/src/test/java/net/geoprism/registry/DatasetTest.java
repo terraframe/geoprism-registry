@@ -58,7 +58,6 @@ public abstract class DatasetTest
     ConceptObject object = this.cObjectService.newInstance(type);
     object.setCode(code);
     object.setValue(DefaultAttribute.DATA_SOURCE.getName(), dataSource);
-
     return applyConceptObject(object, true);
   }
 
