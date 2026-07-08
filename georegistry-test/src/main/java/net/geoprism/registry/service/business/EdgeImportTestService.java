@@ -9,10 +9,8 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
-import net.geoprism.registry.etl.ObjectImporterFactory.ObjectImportType;
+import net.geoprism.registry.etl.ObjectImporterFactory.JobHistoryType;
 import net.geoprism.registry.etl.upload.EdgeObjectImportConfiguration;
 import net.geoprism.registry.etl.upload.EdgeObjectImporter.ReferenceStrategy;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
@@ -21,6 +19,8 @@ import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.view.EdgeImportConfigurationView;
+import net.geoprism.registry.view.EdgeObjectImportConfigurationDTO;
+import net.geoprism.registry.view.ImportConfigurationDTO;
 import net.geoprism.registry.view.ImportHistoryView;
 
 @Service
@@ -37,9 +37,9 @@ public class EdgeImportTestService
     return this.etlService.getHistory(classType, typeCode);
   }
 
-  public ImportHistory importJsonFile(String config) throws InterruptedException
+  public ImportHistory importJsonFile(ImportConfigurationDTO dto) throws InterruptedException
   {
-    String retConfig = this.etlService.doImport(config).toString();
+    ImportConfigurationDTO retConfig = this.etlService.doImport(dto);
 
     EdgeObjectImportConfiguration configuration = (EdgeObjectImportConfiguration) ImportConfiguration.build(retConfig, true);
 
@@ -52,21 +52,21 @@ public class EdgeImportTestService
 
   public EdgeObjectImportConfiguration getTestConfiguration(String graphTypeClass, String graphTypeCode, InputStream istream, ImportStrategy strategy)
   {
-    ObjectNode result = service.getJsonImportConfiguration("test.json", istream, EdgeImportConfigurationView.of(graphTypeClass, graphTypeCode, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, null, strategy));
+    EdgeObjectImportConfigurationDTO dto = service.getJsonImportConfiguration("test.json", istream, EdgeImportConfigurationView.of(graphTypeClass, graphTypeCode, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, null, strategy));
 
-    result.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.JSON.name());
-    result.put(ImportConfiguration.OBJECT_TYPE, ObjectImportType.EDGE_OBJECT.name());
+    dto.setFormatType(FormatImporterType.JSON);
+    dto.setObjectType(JobHistoryType.EDGE_OBJECT);
 
-    result.put(EdgeObjectImportConfiguration.EDGE_SOURCE, "source");
-    result.put(EdgeObjectImportConfiguration.EDGE_SOURCE_STRATEGY, ReferenceStrategy.CODE.name());
-    result.put(EdgeObjectImportConfiguration.EDGE_SOURCE_TYPE, "sourceType");
-    result.put(EdgeObjectImportConfiguration.EDGE_SOURCE_TYPE_STRATEGY, ReferenceStrategy.CODE.name());
-    result.put(EdgeObjectImportConfiguration.EDGE_TARGET, "target");
-    result.put(EdgeObjectImportConfiguration.EDGE_TARGET_STRATEGY, ReferenceStrategy.CODE.name());
-    result.put(EdgeObjectImportConfiguration.EDGE_TARGET_TYPE, "targetType");
-    result.put(EdgeObjectImportConfiguration.EDGE_TARGET_TYPE_STRATEGY, ReferenceStrategy.CODE.name());
+    dto.setEdgeSource("source");
+    dto.setEdgeSourceStrategy(ReferenceStrategy.CODE);
+    dto.setEdgeSourceType("sourceType");
+    dto.setEdgeSourceTypeStrategy(ReferenceStrategy.CODE);
+    dto.setEdgeTarget("target");
+    dto.setEdgeTargetStrategy(ReferenceStrategy.CODE);
+    dto.setEdgeTargetType("targetType");
+    dto.setEdgeTargetTypeStrategy(ReferenceStrategy.CODE);
 
-    EdgeObjectImportConfiguration configuration = (EdgeObjectImportConfiguration) ImportConfiguration.build(result.toString(), true);
+    EdgeObjectImportConfiguration configuration = (EdgeObjectImportConfiguration) ImportConfiguration.build(dto, true);
 
     return configuration;
   }

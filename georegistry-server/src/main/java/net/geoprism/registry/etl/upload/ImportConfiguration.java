@@ -18,23 +18,49 @@
  */
 package net.geoprism.registry.etl.upload;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.json.JSONObject;
+import org.apache.commons.lang3.StringUtils;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
+import org.commongeoregistry.adapter.metadata.AttributeDateType;
+
+import com.runwaysdk.localization.LocalizationFacade;
+import com.runwaysdk.localization.SupportedLocaleIF;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
-import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ObjectImporterFactory;
+import net.geoprism.registry.etl.ObjectImporterFactory.JobHistoryType;
+import net.geoprism.registry.graph.AttributeDataSourceType;
+import net.geoprism.registry.graph.AttributeGeometryType;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.graph.ExternalSystem;
+import net.geoprism.registry.io.ConstantShapefileFunction;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.io.LocalizedValueFunction;
 import net.geoprism.registry.jobs.ImportHistory;
+import net.geoprism.registry.model.graph.ObjectClassIF;
+import net.geoprism.registry.model.localization.DefaultLocaleView;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
+import net.geoprism.registry.view.BasicColumnFunctionDTO;
+import net.geoprism.registry.view.BusinessObjectImportConfigurationDTO;
+import net.geoprism.registry.view.ColumnFunctionDTO;
+import net.geoprism.registry.view.ConceptObjectImportConfigurationDTO;
+import net.geoprism.registry.view.ConstantFunctionDTO;
+import net.geoprism.registry.view.EdgeObjectImportConfigurationDTO;
+import net.geoprism.registry.view.GeoObjectImportConfigurationDTO;
+import net.geoprism.registry.view.ImportColumnDTO;
+import net.geoprism.registry.view.ImportConfigurationDTO;
+import net.geoprism.registry.view.ImportTypeDTO;
+import net.geoprism.registry.view.LocalizedValueFunctionDTO;
 import net.geoprism.registry.view.TypeInfo;
 
 public abstract class ImportConfiguration
@@ -44,37 +70,9 @@ public abstract class ImportConfiguration
     // DELETE
   }
 
-  public static final String               FORMAT_TYPE                  = "formatType";
+  public static final String               TEXT               = "text";
 
-  public static final String               OBJECT_TYPE                  = "objectType";
-
-  public static final String               HISTORY_ID                   = "historyId";
-
-  public static final String               JOB_ID                       = "jobId";
-
-  public static final String               VAULT_FILE_ID                = "vaultFileId";
-
-  public static final String               FILE_NAME                    = "fileName";
-
-  public static final String               IMPORT_STRATEGY              = "importStrategy";
-
-  public static final String               EXTERNAL_SYSTEM_ID           = "externalSystemId";
-
-  private static final String              IS_EXTERNAL                  = "isExternal";
-
-  public static final String               EXTERNAL_ID_ATTRIBUTE_TARGET = "externalIdAttributeTarget";
-
-  public static final String               COPY_BLANK                   = "copyBlank";
-
-  public static final String               IGNORE_PROJECTION            = "ignoreProjection";
-
-  public static final String               DESCRIPTION                  = "description";
-
-  public static final String               START_DATE                   = "startDate";
-
-  public static final String               END_DATE                     = "endDate";
-
-  public static final String               DATA_SOURCE                  = "dataSource";
+  public static final String               NUMERIC            = "numeric";
 
   protected String                         formatType;
 
@@ -88,19 +86,19 @@ public abstract class ImportConfiguration
 
   protected String                         fileName;
 
-  protected Boolean                        isExternal                   = false;
+  protected Boolean                        isExternal         = false;
 
-  protected Boolean                        copyBlank                    = true;
+  protected Boolean                        copyBlank          = true;
 
-  protected Boolean                        ignoreProjection             = false;
+  protected Boolean                        ignoreProjection   = false;
 
-  protected String                         externalSystemId             = null;
+  protected String                         externalSystemId   = null;
 
-  protected String                         description                  = null;
+  protected String                         description        = null;
 
-  protected ExternalSystem                 externalSystem               = null;
+  protected ExternalSystem                 externalSystem     = null;
 
-  protected ShapefileFunction              externalIdFunction           = null;
+  protected ShapefileFunction              externalIdFunction = null;
 
   protected Map<String, ShapefileFunction> functions;
 
@@ -116,6 +114,8 @@ public abstract class ImportConfiguration
 
   public ImportConfiguration()
   {
+    this.functions = new HashMap<String, ShapefileFunction>();
+
     this.sourceService = ServiceFactory.getBean(DataSourceBusinessServiceIF.class);
   }
 
@@ -127,49 +127,9 @@ public abstract class ImportConfiguration
 
   public abstract List<TypeInfo> getTypes();
 
-  public static ImportConfiguration build(String json)
-  {
-    JSONObject jo = new JSONObject(json);
+  abstract public ImportConfigurationDTO toDTO();
 
-    boolean includeCoordinates = false;
-
-    if (jo.has(FORMAT_TYPE) && jo.get(FORMAT_TYPE).equals(FormatImporterType.EXCEL.name()))
-    {
-      includeCoordinates = true;
-    }
-
-    return ImportConfiguration.build(json, includeCoordinates);
-  }
-
-  public static ImportConfiguration build(String json, boolean includeCoordinates)
-  {
-    JSONObject jo = new JSONObject(json);
-
-    String objectType = jo.getString(OBJECT_TYPE);
-
-    if (objectType.equals(ObjectImporterFactory.ObjectImportType.GEO_OBJECT.name()))
-    {
-      GeoObjectImportConfiguration config = new GeoObjectImportConfiguration();
-      config.fromJSON(json, includeCoordinates);
-      return config;
-    }
-    else if (objectType.equals(ObjectImporterFactory.ObjectImportType.BUSINESS_OBJECT.name()))
-    {
-      BusinessObjectImportConfiguration config = new BusinessObjectImportConfiguration();
-      config.fromJSON(json, false);
-      return config;
-    }
-    else if (objectType.equals(ObjectImporterFactory.ObjectImportType.EDGE_OBJECT.name()))
-    {
-      EdgeObjectImportConfiguration config = new EdgeObjectImportConfiguration();
-      config.fromJSON(json, false);
-      return config;
-    }
-    else
-    {
-      throw new UnsupportedOperationException();
-    }
-  }
+  public abstract boolean hasExceptions();
 
   public ImportStrategy getImportStrategy()
   {
@@ -292,6 +252,21 @@ public abstract class ImportConfiguration
     return this.externalIdFunction;
   }
 
+  public void setExternalIdFunction(ShapefileFunction externalIdFunction)
+  {
+    this.externalIdFunction = externalIdFunction;
+  }
+
+  public Boolean getIsExternal()
+  {
+    return isExternal;
+  }
+
+  public void setIsExternal(Boolean isExternal)
+  {
+    this.isExternal = isExternal;
+  }
+
   public DataSource getDataSource()
   {
     return dataSource;
@@ -322,127 +297,97 @@ public abstract class ImportConfiguration
     this.endDate = endDate;
   }
 
-  public void fromJSON(String json)
+  public ImportConfiguration fromDTO(ImportConfigurationDTO dto)
   {
-    JSONObject config = new JSONObject(json);
+    this.setObjectType(dto.getObjectType().name());
+    this.setFormatType(dto.getFormatType().name());
+    this.setDescription(dto.getDescription());
+    this.setHistoryId(dto.getHistoryId());
+    this.setJobId(dto.getJobId());
+    this.setVaultFileId(dto.getVaultFileId());
+    this.setImportStrategy(dto.getImportStrategy());
+    this.setFileName(dto.getFileName());
+    this.setExternalSystemId(dto.getExternalSystemId());
+    this.setIsExternal(dto.getIsExternal());
+    this.setCopyBlank(dto.getCopyBlank());
+    this.setIgnoreProjection(dto.getIgnoreProjection());
+    this.setExternalIdFunction(this.fromDTO(dto.getExternalIdAttributeTarget()));
+    this.setStartDate(dto.getStartDate());
+    this.setEndDate(dto.getEndDate());
 
-    this.objectType = config.getString(OBJECT_TYPE);
-    this.formatType = config.getString(FORMAT_TYPE);
-
-    if (config.has(DESCRIPTION))
+    if (!StringUtils.isBlank(dto.getDataSource()))
     {
-      this.description = config.getString(DESCRIPTION);
-    }
-
-    if (config.has(HISTORY_ID))
-    {
-      this.historyId = config.getString(HISTORY_ID);
-    }
-
-    if (config.has(JOB_ID))
-    {
-      this.jobId = config.getString(JOB_ID);
-    }
-
-    this.vaultFileId = config.getString(VAULT_FILE_ID);
-
-    if (config.has(IMPORT_STRATEGY))
-    {
-      this.importStrategy = ImportStrategy.valueOf(config.getString(IMPORT_STRATEGY));
-    }
-
-    this.fileName = config.getString(FILE_NAME);
-
-    if (config.has(EXTERNAL_SYSTEM_ID))
-    {
-      this.externalSystemId = config.getString(EXTERNAL_SYSTEM_ID);
-    }
-
-    if (config.has(IS_EXTERNAL))
-    {
-      this.isExternal = config.getBoolean(IS_EXTERNAL);
-    }
-
-    if (config.has(COPY_BLANK))
-    {
-      this.copyBlank = config.getBoolean(COPY_BLANK);
-    }
-
-    if (config.has(IGNORE_PROJECTION))
-    {
-      this.ignoreProjection = config.getBoolean(IGNORE_PROJECTION);
-    }
-
-    if (config.has(EXTERNAL_ID_ATTRIBUTE_TARGET))
-    {
-      this.externalIdFunction = new BasicColumnFunction(config.getString(EXTERNAL_ID_ATTRIBUTE_TARGET));
-    }
-
-    if (config.has(GeoObjectImportConfiguration.START_DATE))
-    {
-      this.setStartDate(GeoRegistryUtil.parseDate(config.getString(GeoObjectImportConfiguration.START_DATE)));
-    }
-
-    if (config.has(GeoObjectImportConfiguration.END_DATE))
-    {
-      this.setEndDate(GeoRegistryUtil.parseDate(config.getString(GeoObjectImportConfiguration.END_DATE)));
-    }
-
-    if (config.has(DATA_SOURCE))
-    {
-      this.sourceService.getByCode(config.getString(DATA_SOURCE)).ifPresent(source -> {
+      this.sourceService.getByCode(dto.getDataSource()).ifPresent(source -> {
         this.setDataSource(source);
       });
     }
+
+    return this;
   }
 
-  protected void toJSON(JSONObject config)
+  protected ShapefileFunction fromDTO(ColumnFunctionDTO dto)
   {
-    config.put(OBJECT_TYPE, this.objectType);
-    config.put(FORMAT_TYPE, this.formatType);
-    config.put(HISTORY_ID, this.historyId);
-    config.put(JOB_ID, this.jobId);
-    config.put(VAULT_FILE_ID, this.vaultFileId);
-    config.put(FILE_NAME, this.fileName);
-    config.put(EXTERNAL_SYSTEM_ID, this.externalSystemId);
-    config.put(IS_EXTERNAL, this.isExternal);
-    config.put(COPY_BLANK, this.copyBlank);
-    config.put(IGNORE_PROJECTION, this.ignoreProjection);
+    if (dto != null)
+    {
+
+      if (dto instanceof BasicColumnFunctionDTO)
+      {
+        return new BasicColumnFunction( ( (BasicColumnFunctionDTO) dto ).getAttributeName());
+      }
+      else if (dto instanceof ConstantFunctionDTO)
+      {
+        return new ConstantShapefileFunction( ( (ConstantFunctionDTO) dto ).getValue());
+      }
+      else if (dto instanceof LocalizedValueFunctionDTO)
+      {
+        LocalizedValueFunction function = new LocalizedValueFunction();
+
+        ( (LocalizedValueFunctionDTO) dto ).getMap().forEach((k, f) -> function.add(k, this.fromDTO(f)));
+
+        return function;
+      }
+
+      throw new UnsupportedOperationException();
+    }
+
+    return null;
+  }
+
+  protected void toDTO(ImportConfigurationDTO dto)
+  {
+    dto.setObjectType(JobHistoryType.valueOf(this.objectType));
+    dto.setFormatType(FormatImporterType.valueOf(this.formatType));
+    dto.setHistoryId(this.historyId);
+    dto.setJobId(this.jobId);
+    dto.setVaultFileId(this.vaultFileId);
+    dto.setFileName(this.fileName);
+    dto.setExternalSystemId(this.externalSystemId);
+    dto.setIsExternal(this.isExternal);
+    dto.setCopyBlank(this.copyBlank);
+    dto.setIgnoreProjection(this.ignoreProjection);
+    dto.setStartDate(this.getStartDate());
+    dto.setEndDate(this.getEndDate());
 
     if (this.importStrategy != null)
     {
-      config.put(IMPORT_STRATEGY, this.importStrategy.name());
+      dto.setImportStrategy(this.importStrategy);
     }
 
     if (this.description != null)
     {
-      config.put(DESCRIPTION, this.description);
+      dto.setDescription(this.description);
     }
 
     if (this.externalIdFunction != null)
     {
-      config.put(EXTERNAL_ID_ATTRIBUTE_TARGET, this.externalIdFunction.toJson());
-    }
-
-    if (this.getStartDate() != null)
-    {
-      config.put(EdgeObjectImportConfiguration.START_DATE, GeoRegistryUtil.formatDate(this.getStartDate(), false));
-    }
-    if (this.getEndDate() != null)
-    {
-      config.put(EdgeObjectImportConfiguration.END_DATE, GeoRegistryUtil.formatDate(this.getEndDate(), false));
+      dto.setExternalIdAttributeTarget(toDTO(this.externalIdFunction));
     }
 
     if (this.getDataSource() != null)
     {
-      config.put(GeoObjectImportConfiguration.DATA_SOURCE, dataSource.getCode());
+      dto.setDataSource(dataSource.getCode());
     }
-
   }
-
-  abstract public JSONObject toJSON();
-
-  public abstract boolean hasExceptions();
 
   public String getFileName()
   {
@@ -485,6 +430,283 @@ public abstract class ImportConfiguration
     {
       throw new RuntimeException("Import strategy is required");
     }
+  }
+
+  // public static ImportConfiguration build(String json)
+  // {
+  // JSONObject jo = new JSONObject(json);
+  //
+  // boolean includeCoordinates = false;
+  //
+  // if (jo.has(FORMAT_TYPE) &&
+  // jo.get(FORMAT_TYPE).equals(FormatImporterType.EXCEL.name()))
+  // {
+  // includeCoordinates = true;
+  // }
+  //
+  // return ImportConfiguration.build(json, includeCoordinates);
+  // }
+  //
+  // public static ImportConfiguration build(String json, boolean
+  // includeCoordinates)
+  // {
+  // JSONObject jo = new JSONObject(json);
+  //
+  // String objectType = jo.getString(OBJECT_TYPE);
+  //
+  // if
+  // (objectType.equals(ObjectImporterFactory.JobHistoryType.GEO_OBJECT.name()))
+  // {
+  // GeoObjectImportConfiguration config = new GeoObjectImportConfiguration();
+  // config.fromJSON(json, includeCoordinates);
+  // return config;
+  // }
+  // else if
+  // (objectType.equals(ObjectImporterFactory.JobHistoryType.BUSINESS_OBJECT.name()))
+  // {
+  // BusinessObjectImportConfiguration config = new
+  // BusinessObjectImportConfiguration();
+  // config.fromJSON(json, false);
+  // return config;
+  // }
+  // else if
+  // (objectType.equals(ObjectImporterFactory.JobHistoryType.EDGE_OBJECT.name()))
+  // {
+  // EdgeObjectImportConfiguration config = new EdgeObjectImportConfiguration();
+  // config.fromJSON(json, false);
+  // return config;
+  // }
+  // else
+  // {
+  // throw new UnsupportedOperationException();
+  // }
+  // }
+
+  public static String getBaseType(net.geoprism.registry.graph.AttributeType type)
+  {
+    if (type instanceof net.geoprism.registry.graph.AttributeBooleanType)
+    {
+      return AttributeBooleanType.TYPE;
+    }
+    else if (type instanceof net.geoprism.registry.graph.AttributeClassificationType || type instanceof net.geoprism.registry.graph.AttributeCharacterType || type instanceof net.geoprism.registry.graph.AttributeLocalType)
+    {
+      return BusinessObjectImportConfiguration.TEXT;
+    }
+    else if (type instanceof net.geoprism.registry.graph.AttributeDoubleType || type instanceof net.geoprism.registry.graph.AttributeLongType)
+    {
+      return BusinessObjectImportConfiguration.NUMERIC;
+    }
+
+    return AttributeDateType.TYPE;
+  }
+
+  public static String getBaseType(org.opengis.feature.type.AttributeType type)
+  {
+    Class<?> clazz = type.getBinding();
+
+    if (Boolean.class.isAssignableFrom(clazz))
+    {
+      return AttributeBooleanType.TYPE;
+    }
+    else if (String.class.isAssignableFrom(clazz))
+    {
+      return ImportConfiguration.TEXT;
+    }
+    else if (Number.class.isAssignableFrom(clazz))
+    {
+      return ImportConfiguration.NUMERIC;
+    }
+    else if (Date.class.isAssignableFrom(clazz))
+    {
+      return AttributeDateType.TYPE;
+    }
+
+    throw new UnsupportedOperationException("Unsupported type [" + type.getBinding().getName() + "]");
+  }
+
+  public static ImportConfiguration build(ImportConfigurationDTO dto)
+  {
+    return ImportConfiguration.build(dto, dto.getFormatType().equals(FormatImporterType.EXCEL));
+  }
+
+  public static ImportConfiguration build(ImportConfigurationDTO dto, boolean includeCoordinates)
+  {
+
+    if (dto.getObjectType().equals(ObjectImporterFactory.JobHistoryType.BUSINESS_OBJECT))
+    {
+      BusinessObjectImportConfiguration config = new BusinessObjectImportConfiguration();
+      config.fromDTO((BusinessObjectImportConfigurationDTO) dto, false);
+      return config;
+    }
+    else if (dto.getObjectType().equals(ObjectImporterFactory.JobHistoryType.CONCEPT_OBJECT))
+    {
+      ConceptObjectImportConfiguration config = new ConceptObjectImportConfiguration();
+      config.fromDTO((ConceptObjectImportConfigurationDTO) dto, false);
+      return config;
+    }
+    else if (dto.getObjectType().equals(ObjectImporterFactory.JobHistoryType.GEO_OBJECT))
+    {
+      GeoObjectImportConfiguration config = new GeoObjectImportConfiguration();
+      config.fromDTO((GeoObjectImportConfigurationDTO) dto, includeCoordinates);
+      return config;
+    }
+    else if (dto.getObjectType().equals(ObjectImporterFactory.JobHistoryType.EDGE_OBJECT))
+    {
+      EdgeObjectImportConfiguration config = new EdgeObjectImportConfiguration();
+      config.fromDTO((EdgeObjectImportConfigurationDTO) dto, false);
+      return config;
+    }
+    throw new UnsupportedOperationException();
+  }
+
+  public static ColumnFunctionDTO toDTO(ShapefileFunction function)
+  {
+    if (function instanceof BasicColumnFunction)
+    {
+      return new BasicColumnFunctionDTO( ( (BasicColumnFunction) function ).getAttributeName());
+    }
+    else if (function instanceof ConstantShapefileFunction)
+    {
+      return new ConstantFunctionDTO( ( (ConstantShapefileFunction) function ).getConstant());
+    }
+    else if (function instanceof LocalizedValueFunction)
+    {
+      LocalizedValueFunctionDTO dto = new LocalizedValueFunctionDTO();
+
+      LocalizedValueFunction func = (LocalizedValueFunction) function;
+
+      func.getEntries().forEach(entry -> dto.put(entry.getKey(), toDTO(entry.getValue())));
+
+      return dto;
+    }
+
+    throw new UnsupportedOperationException();
+  }
+
+  public static ImportTypeDTO toTypeDTO(ObjectClassIF type, Map<String, ShapefileFunction> functions)
+  {
+    TypeInfo typeInfo = type.getTypeInfo();
+
+    ImportTypeDTO dto = new ImportTypeDTO();
+    dto.setCode(typeInfo.getTypeCode());
+    dto.setType(typeInfo.getTypeClass().getCode());
+    dto.setLabel(type.getLabel());
+
+    type.getAttributes().stream() //
+        .filter(a -> ! ( a instanceof AttributeGeometryType )) //
+        .filter(a -> ! ( a instanceof AttributeDataSourceType )) //
+        .filter(a -> !a.getCode().equals(DefaultAttribute.UID.getName())) //
+        .filter(a -> !a.getCode().equals(DefaultAttribute.INVALID.getName())) //
+        .filter(a -> !a.getCode().equals(DefaultAttribute.EXISTS.getName())) //
+        .forEach(attribute -> {
+
+          if (attribute instanceof net.geoprism.registry.graph.AttributeLocalType)
+          {
+            LocalizedValueFunction function = (LocalizedValueFunction) functions.getOrDefault(attribute.getCode(), new LocalizedValueFunction());
+
+            ImportColumnDTO base = new ImportColumnDTO();
+            base.setCode(attribute.getCode());
+            base.setBaseType(getBaseType(attribute));
+            base.setLocale(LocalizedValue.DEFAULT_LOCALE);
+            base.setLabel(attribute.getLocalizedLabel().appendLocalizedValue(" (" + LocalizationFacade.localize(DefaultLocaleView.LABEL) + ")"));
+            base.setRequired(attribute.getRequired());
+
+            if (function.has(LocalizedValue.DEFAULT_LOCALE))
+            {
+              base.setTarget(function.getFunction(LocalizedValue.DEFAULT_LOCALE).toJson());
+            }
+
+            dto.addAttribute(base);
+
+            for (SupportedLocaleIF locale : LocalizationFacade.getSupportedLocales())
+            {
+              String localeCode = locale.getLocale().toString();
+
+              ImportColumnDTO aDto = new ImportColumnDTO();
+              aDto.setCode(attribute.getCode());
+              aDto.setBaseType(getBaseType(attribute));
+              aDto.setLocale(localeCode);
+              aDto.setLabel(attribute.getLocalizedLabel().appendLocalizedValue(" (" + locale.getDisplayLabel().getValue() + ")"));
+
+              if (function.has(localeCode))
+              {
+                aDto.setTarget(function.getFunction(localeCode).toJson());
+              }
+
+              dto.addAttribute(aDto);
+            }
+          }
+          else
+          {
+            String attributeName = attribute.getCode();
+
+            ImportColumnDTO column = new ImportColumnDTO();
+            column.setCode(attributeName);
+            column.setBaseType(getBaseType(attribute));
+            column.setLabel(attribute.getLocalizedLabel());
+            column.setRequired(attribute.getRequired());
+
+            if (functions.containsKey(attributeName))
+            {
+              ShapefileFunction function = functions.get(attributeName);
+
+              if (function instanceof BasicColumnFunction)
+              {
+                column.setTarget( ( (BasicColumnFunction) function ).getAttributeName());
+              }
+              else
+              {
+                column.setFunction(toDTO(function));
+              }
+            }
+
+            dto.addAttribute(column);
+          }
+        });
+
+    // Add attributes for all functions that are not part of the type attributes
+    functions.entrySet().stream() //
+        .filter(e -> dto.getAttributes().stream().filter(t -> t.getCode().equals(e.getKey())).findAny().isEmpty()) //
+        .forEach(e -> {
+          String code = e.getKey();
+          String baseType = GeoObjectImportConfiguration.TEXT;
+          LocalizedValue label = new LocalizedValue(code);
+
+          // Hard-coded entries for coordinate columns
+          if (code.equals(GeoObjectImportConfiguration.LATITUDE_KEY))
+          {
+            baseType = GeoObjectImportConfiguration.NUMERIC;
+            label = new LocalizedValue(LocalizationFacade.localize(GeoObjectImportConfiguration.LATITUDE_KEY));
+          }
+          else if (code.equals(GeoObjectImportConfiguration.LONGITUDE_KEY))
+          {
+            baseType = GeoObjectImportConfiguration.NUMERIC;
+            label = new LocalizedValue(LocalizationFacade.localize(GeoObjectImportConfiguration.LONGITUDE_KEY));
+          }
+
+          ImportColumnDTO column = new ImportColumnDTO();
+          column.setCode(code);
+          column.setBaseType(baseType);
+          column.setLabel(label);
+
+          ShapefileFunction function = e.getValue();
+
+          if (function instanceof BasicColumnFunction)
+          {
+            column.setTarget( ( (BasicColumnFunction) function ).getAttributeName());
+          }
+          else
+          {
+            column.setFunction(toDTO(function));
+          }
+
+          dto.getAttributes().add(column);
+
+        });
+    
+    Collections.sort(dto.getAttributes(), (a, b) -> a.getCode().compareTo(b.getCode()));
+
+    return dto;
   }
 
 }

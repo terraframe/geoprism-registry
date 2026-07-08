@@ -34,6 +34,7 @@ import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.jobs.GPRJobHistory;
 import net.geoprism.registry.service.business.RollbackCheckpointBusinessService;
 import net.geoprism.registry.view.BasicPage;
+import net.geoprism.registry.view.ImportConfigurationDTO;
 import net.geoprism.registry.view.RollbackCheckpointDTO;
 
 @Service
@@ -79,17 +80,10 @@ public class RollbackCheckpointService
 
     if (StringUtils.isNotBlank(history.getConfigJson()) && history.getConfigJson().startsWith("{"))
     {
-      JsonObject config = JsonParser.parseString(history.getConfigJson()).getAsJsonObject();
+      ImportConfigurationDTO config = ImportConfigurationDTO.parseJson(history.getConfigJson());
 
-      if (config.has(ImportConfiguration.FILE_NAME))
-      {
-        dto.setFilename(config.get(ImportConfiguration.FILE_NAME).getAsString());
-      }
-
-      if (config.has(ImportConfiguration.DESCRIPTION))
-      {
-        dto.setDescription(config.get(ImportConfiguration.DESCRIPTION).getAsString());
-      }
+      dto.setFilename(config.getFileName());
+      dto.setDescription(config.getDescription());
     }
 
     return dto;

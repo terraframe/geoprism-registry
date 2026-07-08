@@ -310,7 +310,7 @@ public class DirectedAcyclicGraphTest extends FastDatasetTest implements Instanc
 
       EdgeObjectImportConfiguration config = this.importService.getTestConfiguration(GraphTypeDTO.DIRECTED_ACYCLIC_GRAPH_TYPE, type.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
 
-      ImportHistory hist = this.importService.importJsonFile(config.toJSON().toString());
+      ImportHistory hist = this.importService.importJsonFile(config.toDTO());
 
       try
       {

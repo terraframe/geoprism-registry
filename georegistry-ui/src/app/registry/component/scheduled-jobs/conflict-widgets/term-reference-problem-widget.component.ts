@@ -23,7 +23,7 @@ import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 import { Observable } from "rxjs";
 import { TypeaheadMatch, TypeaheadModule } from "ngx-bootstrap/typeahead";
 
-import { ScheduledJob } from "@registry/model/registry";
+import { ScheduledJob, ValidationResolve } from "@registry/model/registry";
 import { RegistryService, IOService } from "@registry/service";
 import { DateService } from "@shared/service/date.service";
 
@@ -81,7 +81,7 @@ export class TermReferenceProblemWidgetComponent implements OnInit {
     }
 
     onIgnore(): void {
-        let cfg = {
+        const cfg: ValidationResolve = {
             resolution: "IGNORE",
             validationProblemId: this.problem.id
         };
@@ -96,7 +96,7 @@ export class TermReferenceProblemWidgetComponent implements OnInit {
     }
 
     onCreateSynonym(): void {
-        let cfg = {
+        const cfg: ValidationResolve = {
             validationProblemId: this.problem.id,
             resolution: "SYNONYM",
             classifierId: this.termId,

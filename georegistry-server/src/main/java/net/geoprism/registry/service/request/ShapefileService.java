@@ -20,7 +20,6 @@ package net.geoprism.registry.service.request;
 
 import java.io.InputStream;
 
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +28,8 @@ import com.runwaysdk.session.RequestType;
 
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.service.business.ShapefileBusinessService;
+import net.geoprism.registry.view.GeoObjectImportConfigurationDTO;
+import net.geoprism.registry.view.ImportConfigurationDTO;
 import net.geoprism.registry.view.ImportConfigurationView;
 
 @Service
@@ -38,15 +39,15 @@ public class ShapefileService
   private ShapefileBusinessService service;
 
   @Request(RequestType.SESSION)
-  public JSONObject getShapefileConfiguration(String sessionId, String fileName, InputStream fileStream, ImportConfigurationView view)
+  public GeoObjectImportConfigurationDTO getShapefileConfiguration(String sessionId, String fileName, InputStream fileStream, ImportConfigurationView view)
   {
     return this.service.getShapefileConfiguration(fileName, fileStream, view, false);
   }
 
   @Request(RequestType.SESSION)
-  public void cancelImport(String sessionId, String json)
+  public void cancelImport(String sessionId, ImportConfigurationDTO dto)
   {
-    this.service.cancelImport(json);
+    this.service.cancelImport(dto);
   }
 
   @Request(RequestType.SESSION)

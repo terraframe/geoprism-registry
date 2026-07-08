@@ -342,6 +342,24 @@ export class AbstractScheduledJob {
     }
 }
 
+export class ValidationResolve {
+    resolution: "IGNORE" | "SYNONYM" | "UNRESOLVED";
+    validationProblemId: string;
+    label?: string;
+    typeCode?: string;
+    code?: string;
+    classifierId?: string;
+}
+
+export class ErrorResolve {
+    resolution: "IGNORE" | "APPLY_GEO_OBJECT" | "UNRESOLVED";
+    historyId: string;
+    importErrorId: string;
+    parentTreeNode?: any;
+    geoObject?: any;
+    isNew: boolean;
+}
+
 export class ScheduledJob extends AbstractScheduledJob {
     importedRecords: number;
     exportedRecords: number;

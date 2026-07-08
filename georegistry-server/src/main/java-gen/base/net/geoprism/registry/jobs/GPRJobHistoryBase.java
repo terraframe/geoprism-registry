@@ -69,7 +69,7 @@ public abstract class GPRJobHistoryBase extends com.runwaysdk.system.scheduler.J
     return (com.runwaysdk.dataaccess.MdAttributeJsonDAOIF)mdClassIF.definesAttribute(CONFIGJSON);
   }
   
-  public void setConfigJson(String value)
+  protected void setConfigJson(String value)
   {
     if(value == null)
     {

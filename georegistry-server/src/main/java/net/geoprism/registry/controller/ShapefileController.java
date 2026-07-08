@@ -21,9 +21,7 @@ package net.geoprism.registry.controller;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.ShapefileService;
+import net.geoprism.registry.view.GeoObjectImportConfigurationDTO;
 import net.geoprism.registry.view.ImportConfigurationView;
 
 @RestController
@@ -44,7 +43,7 @@ public class ShapefileController extends RunwaySpringController
   private ShapefileService   service;
 
   @PostMapping(API_PATH + "/get-shapefile-configuration")
-  public ResponseEntity<String> getShapefileConfiguration(@Valid @ModelAttribute ImportConfigurationView input) throws IOException
+  public ResponseEntity<GeoObjectImportConfigurationDTO> getShapefileConfiguration(@Valid @ModelAttribute ImportConfigurationView input) throws IOException
   {
     String sessionId = this.getSessionId();
 
@@ -52,9 +51,9 @@ public class ShapefileController extends RunwaySpringController
     {
       String fileName = input.getFile().getOriginalFilename();
 
-      JSONObject configuration = service.getShapefileConfiguration(sessionId, fileName, stream, input);
+      GeoObjectImportConfigurationDTO configuration = service.getShapefileConfiguration(sessionId, fileName, stream, input);
 
-      return new ResponseEntity<String>(configuration.toString(), HttpStatus.OK);
+      return ResponseEntity.ok(configuration);
     }
   }
 }

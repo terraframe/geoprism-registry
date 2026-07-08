@@ -20,22 +20,14 @@ package net.geoprism.registry.service.business;
 
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.commongeoregistry.adapter.constants.GeometryType;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.google.gson.JsonParser;
 import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.SmartException;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.session.Session;
 import com.runwaysdk.system.VaultFile;
 
 import net.geoprism.data.etl.excel.ExcelDataFormatter;
@@ -44,26 +36,29 @@ import net.geoprism.data.etl.excel.InvalidExcelFileException;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ObjectImporterFactory;
-import net.geoprism.registry.etl.upload.BusinessObjectImportConfiguration;
-import net.geoprism.registry.etl.upload.ImportConfiguration;
-import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.excel.ExcelFieldContentsHandler;
-import net.geoprism.registry.graph.AttributeDataSourceType;
 import net.geoprism.registry.graph.BusinessType;
+import net.geoprism.registry.graph.ConceptClass;
+import net.geoprism.registry.graph.ObjectClass;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.io.PostalCodeFactory;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.view.BusinessTypeDTO;
+import net.geoprism.registry.view.BusinessObjectImportConfigurationDTO;
+import net.geoprism.registry.view.ConceptObjectImportConfigurationDTO;
+import net.geoprism.registry.view.GeoObjectImportConfigurationDTO;
 import net.geoprism.registry.view.ImportConfigurationView;
+import net.geoprism.registry.view.TypedObjectImportConfigurationDTO;
 
 @Service
-public class ExcelBusinessService
+public class ExcelBusinessService extends DataImportBusinessService
 {
   @Autowired
   private BusinessTypeBusinessServiceIF bTypeService;
 
-  public JSONObject getExcelConfiguration(String fileName, InputStream fileStream, ImportConfigurationView view)
+  @Autowired
+  private ConceptClassBusinessServiceIF cClassService;
+
+  public GeoObjectImportConfigurationDTO getExcelConfiguration(String fileName, InputStream fileStream, ImportConfigurationView view)
   {
     // Save the file to the file system
     try
@@ -83,38 +78,22 @@ public class ExcelBusinessService
         ExcelSheetReader reader = new ExcelSheetReader(handler, formatter);
         reader.process(is);
 
-        JSONObject object = new JSONObject();
-        object.put(GeoObjectImportConfiguration.TYPE, this.getType(geoObjectType));
-        object.put(GeoObjectImportConfiguration.SHEET, handler.getSheets().getJSONObject(0));
-        object.put(ImportConfiguration.VAULT_FILE_ID, vf.getOid());
-        object.put(ImportConfiguration.FILE_NAME, fileName);
-        object.put(GeoObjectImportConfiguration.HAS_POSTAL_CODE, PostalCodeFactory.isAvailable(geoObjectType));
-        object.put(ImportConfiguration.IMPORT_STRATEGY, view.getStrategy().name());
-        object.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.EXCEL.name());
-        object.put(ImportConfiguration.OBJECT_TYPE, ObjectImporterFactory.ObjectImportType.GEO_OBJECT.name());
-        object.put(ImportConfiguration.COPY_BLANK, view.getCopyBlank());
+        GeoObjectImportConfigurationDTO dto = new GeoObjectImportConfigurationDTO();
+        dto.setType(this.getType(geoObjectType));
+        dto.setVaultFileId(vf.getOid());
+        dto.setFileName(fileName);
+        dto.setImportStrategy(view.getStrategy());
+        dto.setFormatType(FormatImporterType.EXCEL);
+        dto.setObjectType(ObjectImporterFactory.JobHistoryType.BUSINESS_OBJECT);
+        dto.setCopyBlank(view.getCopyBlank());
+        dto.setSheet(handler.getSheets().get(0));
+        dto.setPostalCode(PostalCodeFactory.isAvailable(geoObjectType));
+        dto.setDataSource(view.getDataSource());
+        dto.setDescription(view.getDescription());
+        dto.setStartDate(view.getStartDate());
+        dto.setEndDate(view.getEndDate());
 
-        if (!StringUtils.isEmpty(view.getDataSource()))
-        {
-          object.put(GeoObjectImportConfiguration.DATA_SOURCE, view.getDataSource());
-        }
-
-        if (!StringUtils.isBlank(view.getDescription()))
-        {
-          object.put(GeoObjectImportConfiguration.DESCRIPTION, view.getDescription());
-        }
-
-        if (view.getStartDate() != null)
-        {
-          object.put(GeoObjectImportConfiguration.START_DATE, format.format(view.getStartDate()));
-        }
-
-        if (view.getEndDate() != null)
-        {
-          object.put(GeoObjectImportConfiguration.END_DATE, format.format(view.getEndDate()));
-        }
-
-        return object;
+        return dto;
       }
     }
     catch (InvalidFormatException e)
@@ -134,42 +113,50 @@ public class ExcelBusinessService
     }
   }
 
-  public JSONObject getBusinessTypeConfiguration(String type, Date date, String dataSource, String fileName, InputStream fileStream, ImportStrategy strategy, Boolean copyBlank)
+  public BusinessObjectImportConfigurationDTO getBusinessTypeConfiguration(String fileName, InputStream fileStream, ImportConfigurationView view)
+  {
+    BusinessType type = this.bTypeService.getByCodeOrThrow(view.getType());
+    BusinessObjectImportConfigurationDTO dto = new BusinessObjectImportConfigurationDTO();
+
+    return (BusinessObjectImportConfigurationDTO) getTypedConfiguration(fileName, fileStream, view, type, dto);
+  }
+
+  public ConceptObjectImportConfigurationDTO getConceptClassConfiguration(String fileName, InputStream fileStream, ImportConfigurationView view)
+  {
+    ConceptClass type = this.cClassService.getByCodeOrThrow(view.getType());
+    ConceptObjectImportConfigurationDTO dto = new ConceptObjectImportConfigurationDTO();
+
+    return (ConceptObjectImportConfigurationDTO) getTypedConfiguration(fileName, fileStream, view, type, dto);
+  }
+
+  public TypedObjectImportConfigurationDTO getTypedConfiguration(String fileName, InputStream fileStream, ImportConfigurationView view, ObjectClass businessType, TypedObjectImportConfigurationDTO dto)
   {
     // Save the file to the file system
     try
     {
-      BusinessType businessType = this.bTypeService.getByCodeOrThrow(type);
-
       VaultFile vf = VaultFile.createAndApply(fileName, fileStream);
 
       try (InputStream is = vf.openNewStream())
       {
-        SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
-        format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
-
         ExcelFieldContentsHandler handler = new ExcelFieldContentsHandler();
         ExcelDataFormatter formatter = new ExcelDataFormatter();
 
         ExcelSheetReader reader = new ExcelSheetReader(handler, formatter);
         reader.process(is);
 
-        JSONObject object = new JSONObject();
-        object.put(BusinessObjectImportConfiguration.TYPE, this.getType(businessType));
-        object.put(BusinessObjectImportConfiguration.SHEET, handler.getSheets().getJSONObject(0));
-        object.put(BusinessObjectImportConfiguration.VAULT_FILE_ID, vf.getOid());
-        object.put(BusinessObjectImportConfiguration.FILE_NAME, fileName);
-        object.put(BusinessObjectImportConfiguration.IMPORT_STRATEGY, strategy.name());
-        object.put(BusinessObjectImportConfiguration.FORMAT_TYPE, FormatImporterType.EXCEL.name());
-        object.put(BusinessObjectImportConfiguration.OBJECT_TYPE, ObjectImporterFactory.ObjectImportType.BUSINESS_OBJECT.name());
-        object.put(BusinessObjectImportConfiguration.COPY_BLANK, copyBlank);
+        dto.setType(this.getType(businessType));
+        dto.setVaultFileId(vf.getOid());
+        dto.setFileName(fileName);
+        dto.setImportStrategy(view.getStrategy());
+        dto.setFormatType(FormatImporterType.EXCEL);
+        dto.setCopyBlank(view.getCopyBlank());
+        dto.setSheet(handler.getSheets().get(0));
+        dto.setDataSource(view.getDataSource());
+        dto.setDescription(view.getDescription());
+        dto.setStartDate(view.getStartDate());
+        dto.setEndDate(view.getEndDate());
 
-        if (dataSource != null)
-        {
-          object.put(BusinessObjectImportConfiguration.DATA_SOURCE, dataSource);
-        }
-
-        return object;
+        return dto;
       }
     }
     catch (InvalidFormatException e)
@@ -187,44 +174,6 @@ public class ExcelBusinessService
     {
       throw new ProgrammingErrorException(e);
     }
-  }
-
-  private JSONObject getType(ServerGeoObjectType geoObjectType)
-  {
-    final boolean includeCoordinates = geoObjectType.getGeometryType().equals(GeometryType.POINT) || geoObjectType.getGeometryType().equals(GeometryType.MULTIPOINT) || geoObjectType.getGeometryType().equals(GeometryType.MIXED);
-    final ImportAttributeSerializer serializer = new ImportAttributeSerializer(Session.getCurrentLocale(), includeCoordinates, false, geoObjectType.toDTO());
-
-    JSONObject type = new JSONObject(geoObjectType.toJSON(serializer).toString());
-    JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
-
-    for (int i = 0; i < attributes.length(); i++)
-    {
-      JSONObject attribute = attributes.getJSONObject(i);
-      String attributeType = attribute.getString(org.commongeoregistry.adapter.metadata.AttributeType.JSON_TYPE);
-
-      attribute.put(GeoObjectImportConfiguration.BASE_TYPE, GeoObjectImportConfiguration.getBaseType(attributeType));
-    }
-
-    return type;
-  }
-
-  private JSONObject getType(BusinessType pType)
-  {
-    BusinessTypeDTO dto = this.bTypeService.toDTO(pType, true, true, (attr) -> ! ( attr instanceof AttributeDataSourceType ));
-    String json = BusinessTypeDTO.toJson(dto);
-
-    JSONObject type = new JSONObject(JsonParser.parseString(json).toString());
-    JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
-
-    for (int i = 0; i < attributes.length(); i++)
-    {
-      JSONObject attribute = attributes.getJSONObject(i);
-      String attributeType = attribute.getString(org.commongeoregistry.adapter.metadata.AttributeType.JSON_TYPE);
-
-      attribute.put(BusinessObjectImportConfiguration.BASE_TYPE, BusinessObjectImportConfiguration.getBaseType(attributeType));
-    }
-
-    return type;
   }
 
   public InputStream exportSpreadsheet(String code, String hierarchyCode)

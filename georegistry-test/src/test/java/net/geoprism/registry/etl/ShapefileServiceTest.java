@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 
 import org.apache.commons.io.FileUtils;
@@ -22,7 +23,6 @@ import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
-import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;
@@ -73,13 +73,14 @@ import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
-import net.geoprism.registry.etl.ObjectImporterFactory.ObjectImportType;
+import net.geoprism.registry.etl.ObjectImporterFactory.JobHistoryType;
 import net.geoprism.registry.etl.upload.GeoObjectImporter;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.etl.upload.ImportHistoryProgressScribe.Range;
 import net.geoprism.registry.etl.upload.ShapefileImporter;
 import net.geoprism.registry.excel.MapFeatureRow;
+import net.geoprism.registry.excel.SheetDTO;
 import net.geoprism.registry.io.ConstantShapefileFunction;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.Location;
@@ -107,26 +108,31 @@ import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.tile.GeometryTableVectorTileBuilder;
+import net.geoprism.registry.view.GeoObjectImportConfigurationDTO;
+import net.geoprism.registry.view.ImportColumnDTO;
+import net.geoprism.registry.view.ImportConfigurationDTO;
 import net.geoprism.registry.view.ImportConfigurationView;
+import net.geoprism.registry.view.ImportTypeDTO;
+import net.geoprism.registry.view.ValidationResolveDTO;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
 @RunWith(SpringInstanceTestClassRunner.class)
 public class ShapefileServiceTest extends USADatasetTest implements InstanceTestClassListener
 {
-  private static TestAttributeTypeInfo     testInteger = new TestAttributeTypeInfo("testInteger", "testIntegerLocalName", USATestData.STATE, AttributeIntegerType.TYPE);
+  private static TestAttributeTypeInfo testInteger = new TestAttributeTypeInfo("testInteger", "testIntegerLocalName", USATestData.STATE, AttributeIntegerType.TYPE);
 
   @Autowired
-  private RegistryComponentService         service;
+  private RegistryComponentService     service;
 
   @Autowired
-  private GeoObjectBusinessServiceIF       objectService;
+  private GeoObjectBusinessServiceIF   objectService;
 
   @Autowired
-  private ETLService                       etlService;
+  private ETLService                   etlService;
 
   @Autowired
-  private ShapefileService                 shapefileService;
+  private ShapefileService             shapefileService;
 
   @Override
   @Request
@@ -229,52 +235,52 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     Assert.assertNotNull(istream);
 
-    JSONObject result = this.shapefileService.getShapefileConfiguration(testData.clientRequest.getSessionId(), "cb_2017_us_state_500k.zip", istream, ImportConfigurationView.of(USATestData.STATE.getCode(), null, null, USATestData.SOURCE.getCode(), ImportStrategy.NEW_AND_UPDATE, false));
+    GeoObjectImportConfigurationDTO dto = this.shapefileService.getShapefileConfiguration(testData.clientRequest.getSessionId(), "cb_2017_us_state_500k.zip", istream, ImportConfigurationView.of(USATestData.STATE.getCode(), null, null, USATestData.SOURCE.getCode(), ImportStrategy.NEW_AND_UPDATE, false));
 
-    Assert.assertFalse(result.getBoolean(GeoObjectImportConfiguration.HAS_POSTAL_CODE));
+    Assert.assertFalse(dto.getPostalCode());
 
-    JSONObject type = result.getJSONObject(GeoObjectImportConfiguration.TYPE);
+    ImportTypeDTO type = dto.getType();
 
     Assert.assertNotNull(type);
 
-    JSONArray tAttributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
+    List<ImportColumnDTO> tAttributes = type.getAttributes();
 
-    Assert.assertEquals(3, tAttributes.length());
+    Assert.assertEquals(3, tAttributes.size());
 
     boolean hasCode = false;
 
-    for (int i = 0; i < tAttributes.length(); i++)
+    for (int i = 0; i < tAttributes.size(); i++)
     {
-      JSONObject tAttribute = tAttributes.getJSONObject(i);
-      String code = tAttribute.getString(AttributeType.JSON_CODE);
+      ImportColumnDTO tAttribute = tAttributes.get(i);
+      String code = tAttribute.getCode();
 
       if (code.equals(GeoObjectType.JSON_CODE))
       {
         hasCode = true;
-        Assert.assertTrue(tAttribute.has("required"));
-        Assert.assertTrue(tAttribute.getBoolean("required"));
+        Assert.assertNotNull(tAttribute.getRequired());
+        Assert.assertTrue(tAttribute.getRequired());
       }
     }
 
     Assert.assertTrue(hasCode);
 
-    JSONObject sheet = result.getJSONObject("sheet");
+    SheetDTO sheet = dto.getSheet();
 
     Assert.assertNotNull(sheet);
-    Assert.assertEquals("cb_2017_us_state_500k_4326", sheet.getString("name"));
+    Assert.assertEquals("cb_2017_us_state_500k_4326", sheet.getName());
 
-    JSONObject attributes = sheet.getJSONObject("attributes");
+    Map<String, List<String>> attributes = sheet.getAttributes();
 
     Assert.assertNotNull(attributes);
 
-    JSONArray fields = attributes.getJSONArray(GeoObjectImportConfiguration.TEXT);
+    List<String> fields = attributes.get(GeoObjectImportConfiguration.TEXT);
 
-    Assert.assertEquals(9, fields.length());
-    Assert.assertEquals("STATEFP", fields.getString(0));
+    Assert.assertEquals(9, fields.size());
+    Assert.assertEquals("STATEFP", fields.get(0));
 
-    Assert.assertEquals(2, attributes.getJSONArray(GeoObjectImportConfiguration.NUMERIC).length());
-    Assert.assertEquals(0, attributes.getJSONArray(AttributeBooleanType.TYPE).length());
-    Assert.assertEquals(0, attributes.getJSONArray(AttributeDateType.TYPE).length());
+    Assert.assertEquals(2, attributes.get(GeoObjectImportConfiguration.NUMERIC).size());
+    Assert.assertEquals(0, attributes.get(AttributeBooleanType.TYPE).size());
+    Assert.assertEquals(0, attributes.get(AttributeDateType.TYPE).size());
   }
 
   @Test
@@ -296,9 +302,9 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     Assert.assertNotNull(istream);
 
-    JSONObject result = this.shapefileService.getShapefileConfiguration(testData.clientRequest.getSessionId(), "cb_2017_us_state_500k.zip", istream, ImportConfigurationView.of(USATestData.STATE.getCode(), null, null, USATestData.SOURCE.getCode(), ImportStrategy.NEW_AND_UPDATE, false));
+    GeoObjectImportConfigurationDTO dto = this.shapefileService.getShapefileConfiguration(testData.clientRequest.getSessionId(), "cb_2017_us_state_500k.zip", istream, ImportConfigurationView.of(USATestData.STATE.getCode(), null, null, USATestData.SOURCE.getCode(), ImportStrategy.NEW_AND_UPDATE, false));
 
-    Assert.assertTrue(result.getBoolean(GeoObjectImportConfiguration.HAS_POSTAL_CODE));
+    Assert.assertTrue(dto.getPostalCode());
   }
 
   @Test
@@ -314,32 +320,24 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
     /*
      * Build Config
      */
-    JSONObject result = this.shapefileService.getShapefileConfiguration(testData.clientRequest.getSessionId(), "ntd_zam_operational_28082020.zip", istream, ImportConfigurationView.of(USATestData.STATE.getCode(), null, null, USATestData.SOURCE.getCode(), ImportStrategy.NEW_AND_UPDATE, false));
+    GeoObjectImportConfigurationDTO dto = this.shapefileService.getShapefileConfiguration(testData.clientRequest.getSessionId(), "ntd_zam_operational_28082020.zip", istream, ImportConfigurationView.of(USATestData.STATE.getCode(), null, null, USATestData.SOURCE.getCode(), ImportStrategy.NEW_AND_UPDATE, false));
+    dto.setFormatType(FormatImporterType.SHAPEFILE);
+    dto.setObjectType(JobHistoryType.GEO_OBJECT);
 
-    JSONObject type = result.getJSONObject(GeoObjectImportConfiguration.TYPE);
-    JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
-
-    for (int i = 0; i < attributes.length(); i++)
-    {
-      JSONObject attribute = attributes.getJSONObject(i);
-
-      String attributeName = attribute.getString(AttributeType.JSON_CODE);
+    dto.getType().getAttributes().forEach(attribute -> {
+      String attributeName = attribute.getCode();
 
       if (attributeName.equals(GeoObject.DISPLAY_LABEL))
       {
-        attribute.put(GeoObjectImportConfiguration.TARGET, "name");
+        attribute.setTarget("name");
       }
       else if (attributeName.equals(GeoObject.CODE))
       {
-        attribute.put(GeoObjectImportConfiguration.TARGET, "id");
+        attribute.setTarget("id");
       }
+    });
 
-    }
-
-    result.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.SHAPEFILE);
-    result.put(ImportConfiguration.OBJECT_TYPE, ObjectImportType.GEO_OBJECT);
-
-    GeoObjectImportConfiguration config = (GeoObjectImportConfiguration) ImportConfiguration.build(result.toString(), true);
+    GeoObjectImportConfiguration config = (GeoObjectImportConfiguration) ImportConfiguration.build(dto, true);
     config.setHierarchy(hierarchyType);
 
     ImportHistory hist = mockImport(config);
@@ -407,10 +405,10 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
     /*
      * Import the shapefile twice
      */
-    JSONObject config2 = new JSONObject(hist.getConfigJson());
-    config2.remove("historyId");
+    GeoObjectImportConfigurationDTO config2 = (GeoObjectImportConfigurationDTO) hist.getConfigurationDTO();
+    config2.setHistoryId(null);
 
-    ImportHistory hist2 = mockImport((GeoObjectImportConfiguration) GeoObjectImportConfiguration.build(config2.toString()));
+    ImportHistory hist2 = mockImport((GeoObjectImportConfiguration) GeoObjectImportConfiguration.build(config2));
     Assert.assertTrue(hist2.getStatus().get(0).equals(AllJobStatus.SUCCESS));
 
     Assert.assertNotSame(hist.getOid(), hist2.getOid());
@@ -645,7 +643,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
     final GeoObjectImportConfiguration test = new GeoObjectImportConfiguration();
-    test.fromJSON(hist.getConfigJson(), false);
+    test.fromDTO(hist.getConfigurationDTO(), false);
 
     // TODO
     // Assert.assertEquals(config.getParentLookupType(),
@@ -696,7 +694,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
 
     final GeoObjectImportConfiguration test = new GeoObjectImportConfiguration();
-    test.fromJSON(hist.getConfigJson(), false);
+    test.fromDTO(hist.getConfigurationDTO(), false);
 
     // TODO
     // Assert.assertEquals(config.getParentLookupType(),
@@ -796,8 +794,8 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     config.setHierarchy(hierarchyType);
 
-    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
-    ImportHistory hist2 = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
+    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toDTO());
+    ImportHistory hist2 = importShapefile(testData.clientRequest.getSessionId(), config.toDTO());
 
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.RUNNING);
 
@@ -832,9 +830,9 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
     Assert.assertEquals(ImportStage.COMPLETE, hist2.getStage().get(0));
   }
 
-  private ImportHistory importShapefile(String sessionId, String config) throws InterruptedException
+  private ImportHistory importShapefile(String sessionId, GeoObjectImportConfigurationDTO dto) throws InterruptedException
   {
-    String retConfig = this.etlService.doImport(sessionId, config).toString();
+    ImportConfigurationDTO retConfig = this.etlService.doImport(sessionId, dto);
 
     GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(retConfig, true);
 
@@ -870,7 +868,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     hist.appLock();
     hist.setImportFileId(config.getVaultFileId());
-    hist.setConfigJson(config.toJSON().toString());
+    hist.setConfiguration(config.toDTO());
     hist.setOrganization(type.getOrganization().getOrganization());
     hist.setGeoObjectTypeCode(type.getCode());
     hist.apply();
@@ -900,7 +898,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
     // ImportHistory hist = mockImport(config);
     // Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.FEEDBACK));
 
-    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
+    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toDTO());
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FEEDBACK);
 
     hist = ImportHistory.get(hist.getOid());
@@ -927,20 +925,20 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     ServerGeoObjectIF serverGo = this.objectService.apply(geoObj, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, true, false, false);
 
-    JSONObject valRes = new JSONObject();
-    valRes.put("validationProblemId", results.getJSONObject(0).getString("id"));
-    valRes.put("resolution", ValidationResolution.SYNONYM);
-    valRes.put("code", serverGo.getCode());
-    valRes.put("typeCode", serverGo.getType().getCode());
-    valRes.put("label", "00");
+    ValidationResolveDTO valRes = new ValidationResolveDTO();
+    valRes.setValidationProblemId(results.getJSONObject(0).getString("id"));
+    valRes.setResolution(ValidationResolution.SYNONYM);
+    valRes.setCode(serverGo.getCode());
+    valRes.setTypeCode(serverGo.getType().getCode());
+    valRes.setLabel("00");
 
-    this.etlService.submitValidationProblemResolution(testData.clientRequest.getSessionId(), valRes.toString());
+    this.etlService.submitValidationProblemResolution(testData.clientRequest.getSessionId(), valRes);
 
     ValidationProblem vp = ValidationProblem.get(results.getJSONObject(0).getString("id"));
     Assert.assertEquals(ValidationResolution.SYNONYM.name(), vp.getResolution());
     Assert.assertEquals(ParentReferenceProblem.DEFAULT_SEVERITY, vp.getSeverity());
 
-    ImportHistory hist2 = importShapefile(testData.clientRequest.getSessionId(), hist.getConfigJson());
+    ImportHistory hist2 = importShapefile(testData.clientRequest.getSessionId(), hist.getConfigurationDTO());
     Assert.assertEquals(hist.getOid(), hist2.getOid());
 
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.RUNNING, 2000);
@@ -1056,11 +1054,11 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
     config.addParent(new Location(USATestData.COUNTRY.getServerObject(), hierarchyType, new BasicColumnFunction("LSAD"), ParentMatchStrategy.ALL));
 
     fakeImportHistory.appLock();
-    fakeImportHistory.setConfigJson(config.toJSON().toString());
+    fakeImportHistory.setConfiguration(config.toDTO());
     fakeImportHistory.setImportFileId(config.getVaultFileId());
     fakeImportHistory.apply();
 
-    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
+    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toDTO());
 
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
 
@@ -1193,33 +1191,25 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
   private GeoObjectImportConfiguration getTestConfiguration(InputStream istream, ImportStrategy strategy, TestGeoObjectTypeInfo info) throws JSONException
   {
-    JSONObject result = this.shapefileService.getShapefileConfiguration(testData.clientRequest.getSessionId(), "cb_2017_us_state_500k.zip", istream, ImportConfigurationView.of(info.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getCode(), strategy, false));
+    GeoObjectImportConfigurationDTO dto = this.shapefileService.getShapefileConfiguration(testData.clientRequest.getSessionId(), "cb_2017_us_state_500k.zip", istream, ImportConfigurationView.of(info.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getCode(), strategy, false));
+    dto.setFormatType(FormatImporterType.SHAPEFILE);
+    dto.setObjectType(JobHistoryType.GEO_OBJECT);
+    dto.setPostalCode(false);
 
-    JSONObject type = result.getJSONObject(GeoObjectImportConfiguration.TYPE);
-    JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
-
-    for (int i = 0; i < attributes.length(); i++)
-    {
-      JSONObject attribute = attributes.getJSONObject(i);
-
-      String attributeName = attribute.getString(AttributeType.JSON_CODE);
+    dto.getType().getAttributes().forEach(attribute -> {
+      String attributeName = attribute.getCode();
 
       if (attributeName.equals(GeoObject.DISPLAY_LABEL))
       {
-        attribute.put(GeoObjectImportConfiguration.TARGET, "NAME");
+        attribute.setTarget("NAME");
       }
       else if (attributeName.equals(GeoObject.CODE))
       {
-        attribute.put(GeoObjectImportConfiguration.TARGET, "GEOID");
+        attribute.setTarget("GEOID");
       }
+    });
 
-    }
-
-    result.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.SHAPEFILE);
-    result.put(ImportConfiguration.OBJECT_TYPE, ObjectImportType.GEO_OBJECT);
-
-    GeoObjectImportConfiguration config = (GeoObjectImportConfiguration) ImportConfiguration.build(result.toString(), true);
-
+    GeoObjectImportConfiguration config = (GeoObjectImportConfiguration) ImportConfiguration.build(dto, true);
     config.setStartDate(USATestData.DEFAULT_OVER_TIME_DATE);
     config.setEndDate(USATestData.DEFAULT_END_TIME_DATE);
     config.setImportStrategy(strategy);

@@ -24,16 +24,9 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
-import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
-import org.commongeoregistry.adapter.metadata.AttributeDateType;
-import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.referencing.CRS;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -46,7 +39,6 @@ import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.SmartException;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.resource.CloseableFile;
-import com.runwaysdk.session.Session;
 import com.runwaysdk.system.VaultFile;
 
 import net.geoprism.registry.GeoRegistryUtil;
@@ -57,17 +49,19 @@ import net.geoprism.registry.etl.ObjectImporterFactory;
 import net.geoprism.registry.etl.ShapefileFormatException;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ShapefileImporter;
+import net.geoprism.registry.excel.SheetDTO;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.io.PostalCodeFactory;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.view.GeoObjectImportConfigurationDTO;
+import net.geoprism.registry.view.ImportConfigurationDTO;
 import net.geoprism.registry.view.ImportConfigurationView;
 
 @Service
-public class ShapefileBusinessService
+public class ShapefileBusinessService extends DataImportBusinessService
 {
 
-  public JSONObject getShapefileConfiguration(String fileName, InputStream fileStream, ImportConfigurationView view, boolean ignoreProjection)
+  public GeoObjectImportConfigurationDTO getShapefileConfiguration(String fileName, InputStream fileStream, ImportConfigurationView view, boolean ignoreProjection)
   {
     // Save the file to the file system
     try
@@ -81,39 +75,23 @@ public class ShapefileBusinessService
         SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
         format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
-        JSONObject object = new JSONObject();
-        object.put(GeoObjectImportConfiguration.TYPE, this.getType(geoObjectType));
-        object.put(GeoObjectImportConfiguration.SHEET, this.getSheetInformation(dbf, ignoreProjection));
-        object.put(ImportConfiguration.VAULT_FILE_ID, vf.getOid());
-        object.put(ImportConfiguration.FILE_NAME, fileName);
-        object.put(GeoObjectImportConfiguration.HAS_POSTAL_CODE, PostalCodeFactory.isAvailable(geoObjectType));
-        object.put(ImportConfiguration.IMPORT_STRATEGY, view.getStrategy().name());
-        object.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.SHAPEFILE.name());
-        object.put(ImportConfiguration.OBJECT_TYPE, ObjectImporterFactory.ObjectImportType.GEO_OBJECT.name());
-        object.put(ImportConfiguration.COPY_BLANK, view.getCopyBlank());
-        object.put(ImportConfiguration.IGNORE_PROJECTION, ignoreProjection);
+        GeoObjectImportConfigurationDTO dto = new GeoObjectImportConfigurationDTO();
+        dto.setType(this.getType(geoObjectType, false));
+        dto.setVaultFileId(vf.getOid());
+        dto.setFileName(fileName);
+        dto.setImportStrategy(view.getStrategy());
+        dto.setFormatType(FormatImporterType.SHAPEFILE);
+        dto.setObjectType(ObjectImporterFactory.JobHistoryType.GEO_OBJECT);
+        dto.setCopyBlank(view.getCopyBlank());
+        dto.setSheet(this.getSheetInformation(dbf, ignoreProjection));
+        dto.setPostalCode(PostalCodeFactory.isAvailable(geoObjectType));
+        dto.setDataSource(view.getDataSource());
+        dto.setDescription(view.getDescription());
+        dto.setStartDate(view.getStartDate());
+        dto.setEndDate(view.getEndDate());
+        dto.setIgnoreProjection(ignoreProjection);
 
-        if (!StringUtils.isBlank(view.getDataSource()))
-        {
-          object.put(GeoObjectImportConfiguration.DATA_SOURCE, view.getDataSource());
-        }
-
-        if (!StringUtils.isBlank(view.getDescription()))
-        {
-          object.put(GeoObjectImportConfiguration.DESCRIPTION, view.getDescription());
-        }
-
-        if (view.getStartDate() != null)
-        {
-          object.put(GeoObjectImportConfiguration.START_DATE, format.format(view.getStartDate()));
-        }
-
-        if (view.getEndDate() != null)
-        {
-          object.put(GeoObjectImportConfiguration.END_DATE, format.format(view.getEndDate()));
-        }
-
-        return object;
+        return dto;
       }
     }
     catch (RunwayException | SmartException e)
@@ -126,23 +104,7 @@ public class ShapefileBusinessService
     }
   }
 
-  private JSONObject getType(ServerGeoObjectType geoObjectType)
-  {
-    JSONObject type = new JSONObject(geoObjectType.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, geoObjectType.toDTO())).toString());
-    JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
-
-    for (int i = 0; i < attributes.length(); i++)
-    {
-      JSONObject attribute = attributes.getJSONObject(i);
-      String attributeType = attribute.getString(AttributeType.JSON_TYPE);
-
-      attribute.put(GeoObjectImportConfiguration.BASE_TYPE, GeoObjectImportConfiguration.getBaseType(attributeType));
-    }
-
-    return type;
-  }
-
-  private JSONObject getSheetInformation(File dbf, boolean ignoreProjection)
+  private SheetDTO getSheetInformation(File dbf, boolean ignoreProjection)
   {
     try
     {
@@ -189,11 +151,8 @@ public class ShapefileBusinessService
 
           List<AttributeDescriptor> descriptors = schema.getAttributeDescriptors();
 
-          JSONObject attributes = new JSONObject();
-          attributes.put(AttributeBooleanType.TYPE, new JSONArray());
-          attributes.put(GeoObjectImportConfiguration.TEXT, new JSONArray());
-          attributes.put(GeoObjectImportConfiguration.NUMERIC, new JSONArray());
-          attributes.put(AttributeDateType.TYPE, new JSONArray());
+          SheetDTO sheet = new SheetDTO();
+          sheet.setName(typeName);
 
           for (AttributeDescriptor descriptor : descriptors)
           {
@@ -202,18 +161,14 @@ public class ShapefileBusinessService
               String name = descriptor.getName().getLocalPart();
               String baseType = GeoObjectImportConfiguration.getBaseType(descriptor.getType());
 
-              attributes.getJSONArray(baseType).put(name);
+              sheet.put(baseType, name);
 
               if (baseType.equals(GeoObjectImportConfiguration.NUMERIC))
               {
-                attributes.getJSONArray(GeoObjectImportConfiguration.TEXT).put(name);
+                sheet.put(GeoObjectImportConfiguration.TEXT, name);
               }
             }
           }
-
-          JSONObject sheet = new JSONObject();
-          sheet.put("name", typeName);
-          sheet.put("attributes", attributes);
 
           return sheet;
         }
@@ -245,9 +200,9 @@ public class ShapefileBusinessService
     }
   }
 
-  public void cancelImport(String json)
+  public void cancelImport(ImportConfigurationDTO dto)
   {
-    ImportConfiguration config = ImportConfiguration.build(json);
+    ImportConfiguration config = ImportConfiguration.build(dto);
 
     String id = config.getVaultFileId();
 

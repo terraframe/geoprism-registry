@@ -1218,30 +1218,33 @@ public class GeoObjectImporter implements ObjectImporterIF
     LocationBuilder builder = PostalCodeFactory.get(this.configuration.getType());
     Location location = builder.build(this.configuration.getFunction(GeoObject.CODE));
 
-    ShapefileFunction function = location.getFunction();
-    String code = (String) function.getValue(feature);
-
-    if (code != null)
+    if (location != null)
     {
-      // Search
-      ServerGeoObjectQuery query = this.service.createQuery(location.getType(), this.configuration.getStartDate());
-      query.setRestriction(new ServerCodeRestriction(location.getType(), code));
+      ShapefileFunction function = location.getFunction();
+      String code = (String) function.getValue(feature);
 
-      // Assert.assertNull(query.getSingleResult());
-
-      ServerGeoObjectIF result = query.getSingleResult();
-
-      if (result != null)
+      if (code != null)
       {
-        return result;
-      }
-      else
-      {
-        PostalCodeLocationException e = new PostalCodeLocationException();
-        e.setCode(code);
-        e.setTypeLabel(location.getType().getLabel().getValue());
+        // Search
+        ServerGeoObjectQuery query = this.service.createQuery(location.getType(), this.configuration.getStartDate());
+        query.setRestriction(new ServerCodeRestriction(location.getType(), code));
 
-        throw e;
+        // Assert.assertNull(query.getSingleResult());
+
+        ServerGeoObjectIF result = query.getSingleResult();
+
+        if (result != null)
+        {
+          return result;
+        }
+        else
+        {
+          PostalCodeLocationException e = new PostalCodeLocationException();
+          e.setCode(code);
+          e.setTypeLabel(location.getType().getLabel().getValue());
+
+          throw e;
+        }
       }
     }
 

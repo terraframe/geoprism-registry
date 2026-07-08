@@ -13,8 +13,6 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
-import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,7 +47,7 @@ import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
-import net.geoprism.registry.etl.ObjectImporterFactory.ObjectImportType;
+import net.geoprism.registry.etl.ObjectImporterFactory.JobHistoryType;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
@@ -69,6 +67,9 @@ import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.USATestData;
+import net.geoprism.registry.view.ErrorResolveDTO;
+import net.geoprism.registry.view.GeoObjectImportConfigurationDTO;
+import net.geoprism.registry.view.ImportConfigurationDTO;
 import net.geoprism.registry.view.ImportConfigurationView;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
@@ -125,7 +126,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     FileUtils.deleteDirectory(new File(VaultProperties.getPath("vault.default"), "files"));
 
     clearData();
-    
+
   }
 
   @Request
@@ -143,9 +144,9 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     this.store.truncate();
   }
 
-  private ImportHistory importExcelFile(String sessionId, String config) throws InterruptedException
+  private ImportHistory importExcelFile(String sessionId, ImportConfigurationDTO dto) throws InterruptedException
   {
-    String retConfig = this.etlService.doImport(sessionId, config).toString();
+    ImportConfigurationDTO retConfig = this.etlService.doImport(sessionId, dto);
 
     GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(retConfig, true);
 
@@ -244,7 +245,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
   // config) throws InterruptedException
   // {
   // ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(),
-  // config.toJSON().toString());
+  // config.toDTO());
   //
   // // We have to wait until the job is running so that it will run with the
   // session time.
@@ -266,7 +267,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, ImportStrategy.NEW_AND_UPDATE);
     config.setHierarchy(hierarchyType);
 
-    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), config.toJSON().toString());
+    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), config.toDTO());
 
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
 
@@ -322,7 +323,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, ImportStrategy.UPDATE_ONLY);
     config.setHierarchy(hierarchyType);
 
-    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), config.toJSON().toString());
+    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), config.toDTO());
 
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FEEDBACK);
 
@@ -380,7 +381,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     config.setHierarchy(hierarchyType);
 
     // First, import the spreadsheet. It should be succesful
-    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), config.toJSON().toString());
+    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), config.toDTO());
 
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
 
@@ -394,7 +395,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     InputStream istream2 = this.getClass().getResourceAsStream("/test-spreadsheet4.xlsx");
     GeoObjectImportConfiguration config2 = this.getTestConfiguration(istream2, service, ImportStrategy.NEW_ONLY);
     config2.setHierarchy(hierarchyType);
-    ImportHistory hist2 = importExcelFile(testData.clientRequest.getSessionId(), config2.toJSON().toString());
+    ImportHistory hist2 = importExcelFile(testData.clientRequest.getSessionId(), config2.toDTO());
 
     SchedulerTestUtils.waitUntilStatus(hist2.getOid(), AllJobStatus.FEEDBACK);
 
@@ -426,7 +427,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
 
     Assert.assertNotNull(config.getDataSource());
 
-    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), config.toJSON().toString());
+    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), config.toDTO());
 
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FEEDBACK);
 
@@ -456,11 +457,11 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     ServerGeoObjectIF coloradoDistOne = this.objectService.getGeoObjectByCode(USATestData.CO_D_ONE.getCode(), USATestData.DISTRICT.getCode());
 
     GeometryFactory cd1_factory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 4326);
-    
+
     MultiPoint cd1_expected = new MultiPoint(new Point[] { //
         cd1_factory.createPoint(new Coordinate(Double.valueOf(110), Double.valueOf(80))), //
         cd1_factory.createPoint(new Coordinate(Double.valueOf(120), Double.valueOf(70))) //
-    }, cd1_factory); 
+    }, cd1_factory);
 
     Geometry cd1_geometry = coloradoDistOne.getGeometry();
     Assert.assertEquals(cd1_expected, cd1_geometry);
@@ -498,7 +499,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     config.setStartDate(new Date());
     config.setEndDate(new Date());
 
-    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), config.toJSON().toString());
+    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), config.toDTO());
 
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FEEDBACK);
 
@@ -545,12 +546,12 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     Assert.assertEquals(1, ieq.getCount());
     Assert.assertEquals(ErrorResolution.UNRESOLVED.name(), ieq.getIterator().next().getResolution());
 
-    JSONObject resolution = new JSONObject();
-    resolution.put("importErrorId", error.get("id"));
-    resolution.put("resolution", ErrorResolution.IGNORE);
-    resolution.put("historyId", hist.getOid());
+    ErrorResolveDTO resolution = new ErrorResolveDTO();
+    resolution.setImportErrorId(error.getString("id"));
+    resolution.setResolution(ErrorResolution.IGNORE);
+    resolution.setHistoryId(hist.getOid());
 
-    this.etlService.submitImportErrorResolution(testData.clientRequest.getSessionId(), resolution.toString());
+    this.etlService.submitImportErrorResolution(testData.clientRequest.getSessionId(), resolution);
 
     Assert.assertEquals(ErrorResolution.IGNORE.name(), ieq.getIterator().next().getResolution());
 
@@ -592,7 +593,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     config.setStartDate(startDate);
     config.setEndDate(endDate);
 
-    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), config.toJSON().toString());
+    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), config.toDTO());
 
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FEEDBACK);
 
@@ -617,40 +618,33 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
 
   private GeoObjectImportConfiguration getTestConfiguration(InputStream istream, ExcelService service, ImportStrategy strategy) throws JSONException
   {
-    JSONObject result = service.getExcelConfiguration(testData.clientRequest.getSessionId(), "test-spreadsheet.xlsx", istream, ImportConfigurationView.of(USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getCode(), strategy, false));
+    GeoObjectImportConfigurationDTO dto = service.getExcelConfiguration(testData.clientRequest.getSessionId(), "test-spreadsheet.xlsx", istream, ImportConfigurationView.of(USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getCode(), strategy, false));
+    dto.setFormatType(FormatImporterType.EXCEL);
+    dto.setObjectType(JobHistoryType.GEO_OBJECT);
+    dto.setDataSource(USATestData.SOURCE.getCode());
 
-    JSONObject type = result.getJSONObject(GeoObjectImportConfiguration.TYPE);
-    JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
-
-    for (int i = 0; i < attributes.length(); i++)
-    {
-      JSONObject attribute = attributes.getJSONObject(i);
-
-      String attributeName = attribute.getString(AttributeType.JSON_CODE);
+    dto.getType().getAttributes().forEach(attribute -> {
+      String attributeName = attribute.getCode();
 
       if (attributeName.equals(GeoObject.DISPLAY_LABEL))
       {
-        attribute.put(GeoObjectImportConfiguration.TARGET, "Name");
+        attribute.setTarget("Name");
       }
       else if (attributeName.equals(GeoObject.CODE))
       {
-        attribute.put(GeoObjectImportConfiguration.TARGET, "Code");
+        attribute.setTarget("Code");
       }
       else if (attributeName.equals(GeoObjectImportConfiguration.LATITUDE))
       {
-        attribute.put(GeoObjectImportConfiguration.TARGET, "Latitude");
+        attribute.setTarget("Latitude");
       }
       else if (attributeName.equals(GeoObjectImportConfiguration.LONGITUDE))
       {
-        attribute.put(GeoObjectImportConfiguration.TARGET, "Longitude");
+        attribute.setTarget("Longitude");
       }
-    }
+    });
 
-    result.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.EXCEL);
-    result.put(ImportConfiguration.OBJECT_TYPE, ObjectImportType.GEO_OBJECT);
-    result.put(GeoObjectImportConfiguration.DATA_SOURCE, USATestData.SOURCE.getCode());
-
-    GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(result.toString(), true);
+    GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(dto, true);
 
     return configuration;
   }

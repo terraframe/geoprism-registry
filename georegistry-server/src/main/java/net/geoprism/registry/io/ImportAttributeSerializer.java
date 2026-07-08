@@ -142,8 +142,8 @@ public class ImportAttributeSerializer extends LocaleSerializer implements Custo
 
     if (this.includeCoordinates)
     {
-      attributes.add(0, GeoObjectImportConfiguration.latitude());
-      attributes.add(0, GeoObjectImportConfiguration.longitude());
+//      attributes.add(0, GeoObjectImportConfiguration.latitude());
+//      attributes.add(0, GeoObjectImportConfiguration.longitude());
     }
 
     return attributes;

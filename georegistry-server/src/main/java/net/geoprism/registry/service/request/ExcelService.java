@@ -19,9 +19,7 @@
 package net.geoprism.registry.service.request;
 
 import java.io.InputStream;
-import java.util.Date;
 
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,8 +27,10 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
 import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.service.business.ExcelBusinessService;
+import net.geoprism.registry.view.BusinessObjectImportConfigurationDTO;
+import net.geoprism.registry.view.ConceptObjectImportConfigurationDTO;
+import net.geoprism.registry.view.GeoObjectImportConfigurationDTO;
 import net.geoprism.registry.view.ImportConfigurationView;
 
 @Service
@@ -40,15 +40,21 @@ public class ExcelService
   private ExcelBusinessService service;
 
   @Request(RequestType.SESSION)
-  public JSONObject getExcelConfiguration(String sessionId, String fileName, InputStream fileStream, ImportConfigurationView view)
+  public GeoObjectImportConfigurationDTO getExcelConfiguration(String sessionId, String fileName, InputStream fileStream, ImportConfigurationView view)
   {
     return this.service.getExcelConfiguration(fileName, fileStream, view);
   }
 
   @Request(RequestType.SESSION)
-  public JSONObject getBusinessTypeConfiguration(String sessionId, String type, Date date, String dataSource, String fileName, InputStream fileStream, ImportStrategy strategy, Boolean copyBlank)
+  public BusinessObjectImportConfigurationDTO getBusinessTypeConfiguration(String sessionId, String fileName, InputStream fileStream, ImportConfigurationView view)
   {
-    return this.service.getBusinessTypeConfiguration(type, date, dataSource, fileName, fileStream, strategy, copyBlank);
+    return this.service.getBusinessTypeConfiguration(fileName, fileStream, view);
+  }
+
+  @Request(RequestType.SESSION)
+  public ConceptObjectImportConfigurationDTO getConceptClassConfiguration(String sessionId, String fileName, InputStream fileStream, ImportConfigurationView view)
+  {
+    return this.service.getConceptClassConfiguration(fileName, fileStream, view);
   }
 
   @Request(RequestType.SESSION)

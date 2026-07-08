@@ -320,7 +320,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
 
       long start = System.nanoTime();
 
-      ImportHistory hist = this.etlService.importJsonFile(config.toJSON().toString());
+      ImportHistory hist = this.etlService.importJsonFile(config.toDTO());
 
       SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
       System.out.println("Elapsed: " + ( System.nanoTime() - start ) / 1_000_000_000.0 + " s");
@@ -354,7 +354,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
 
       long start = System.nanoTime();
 
-      ImportHistory hist = this.etlService.importJsonFile(config.toJSON().toString());
+      ImportHistory hist = this.etlService.importJsonFile(config.toDTO());
 
       SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
       System.out.println("Elapsed: " + ( System.nanoTime() - start ) / 1_000_000_000.0 + " s");

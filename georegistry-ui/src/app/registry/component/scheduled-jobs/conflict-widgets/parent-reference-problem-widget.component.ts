@@ -25,7 +25,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 
 import { TypeaheadMatch, TypeaheadModule } from "ngx-bootstrap/typeahead";
 
-import { ScheduledJob } from "@registry/model/registry";
+import { ScheduledJob, ValidationResolve } from "@registry/model/registry";
 import { RegistryService, IOService } from "@registry/service";
 import { DateService } from "@shared/service/date.service";
 
@@ -106,7 +106,7 @@ export class ParentReferenceProblemWidgetComponent implements OnInit {
     }
 
     onIgnore(): void {
-        let cfg = {
+        const cfg: ValidationResolve = {
             resolution: "IGNORE",
             validationProblemId: this.problem.id
         };
@@ -121,7 +121,7 @@ export class ParentReferenceProblemWidgetComponent implements OnInit {
     }
 
     onCreateSynonym(): void {
-        let cfg = {
+        const cfg: ValidationResolve = {
             validationProblemId: this.problem.id,
             resolution: "SYNONYM",
             code: this.problem.parent.properties.code,

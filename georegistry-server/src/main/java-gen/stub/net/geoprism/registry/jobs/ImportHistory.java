@@ -18,13 +18,14 @@
  */
 package net.geoprism.registry.jobs;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 
+import net.geoprism.registry.etl.ObjectImporterFactory.JobHistoryType;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.view.ExportConfigurationDTO;
+import net.geoprism.registry.view.ImportConfigurationDTO;
 
 public class ImportHistory extends ImportHistoryBase
 {
@@ -36,45 +37,64 @@ public class ImportHistory extends ImportHistoryBase
     super();
   }
 
-  public ImportConfiguration getConfiguration()
+  public void setConfiguration(ExportConfigurationDTO dto)
   {
-    return ImportConfiguration.build(this.getConfigJson());
+    this.setConfigJson(ExportConfigurationDTO.toJson(dto));
   }
 
-//  public List<TypeInfo> getTypesAsList()
-//  {
-//
-//    List<TypeInfo> types = new LinkedList<>();
-//
-//    JSONObject config = new JSONObject(this.getConfigJson());
-//
-//    String objectType = config.getString(ImportConfiguration.OBJECT_TYPE);
-//
-//    if (objectType.equals(ObjectImporterFactory.ObjectImportType.GEO_OBJECT.name()))
-//    {
-//      JSONObject type = config.getJSONObject(TYPE);
-//      String code = type.getString(GeoObjectType.JSON_CODE);
-//
-//      types.add(new TypeInfo(TypeClass.GEO_OBJECT_TYPE, code));
-//    }
-//    else if (objectType.equals(ObjectImporterFactory.ObjectImportType.BUSINESS_OBJECT.name()))
-//    {
-//      JSONObject type = config.getJSONObject(TYPE);
-//      String code = type.getString(GeoObjectType.JSON_CODE);
-//
-//      return Arrays.asList(new TypeInfo(TypeClass.GEO_OBJECT_TYPE, code));
-//    }
-//    else if (objectType.equals(ObjectImporterFactory.ObjectImportType.EDGE_OBJECT.name()))
-//    {
-//      return this.getConfiguration().getTypes();
-//    }
-//    else
-//    {
-//      throw new UnsupportedOperationException();
-//    }
-//
-//    return types;
-//  }
+  public void setConfiguration(ImportConfigurationDTO configuration)
+  {
+    this.setConfigJson(ImportConfigurationDTO.toJson(configuration));
+  }
+
+  public ImportConfiguration getConfiguration()
+  {
+    return ImportConfiguration.build(getConfigurationDTO());
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T extends ImportConfigurationDTO> T getConfigurationDTO()
+  {
+    return (T) ImportConfigurationDTO.parseJson(this.getConfigJson());
+  }
+
+  // public List<TypeInfo> getTypesAsList()
+  // {
+  //
+  // List<TypeInfo> types = new LinkedList<>();
+  //
+  // JSONObject config = new JSONObject(this.getConfigJson());
+  //
+  // String objectType = config.getString(ImportConfiguration.OBJECT_TYPE);
+  //
+  // if
+  // (objectType.equals(ObjectImporterFactory.JobHistoryType.GEO_OBJECT.name()))
+  // {
+  // JSONObject type = config.getJSONObject(TYPE);
+  // String code = type.getString(GeoObjectType.JSON_CODE);
+  //
+  // types.add(new TypeInfo(TypeClass.GEO_OBJECT_TYPE, code));
+  // }
+  // else if
+  // (objectType.equals(ObjectImporterFactory.JobHistoryType.BUSINESS_OBJECT.name()))
+  // {
+  // JSONObject type = config.getJSONObject(TYPE);
+  // String code = type.getString(GeoObjectType.JSON_CODE);
+  //
+  // return Arrays.asList(new TypeInfo(TypeClass.GEO_OBJECT_TYPE, code));
+  // }
+  // else if
+  // (objectType.equals(ObjectImporterFactory.JobHistoryType.EDGE_OBJECT.name()))
+  // {
+  // return this.getConfiguration().getTypes();
+  // }
+  // else
+  // {
+  // throw new UnsupportedOperationException();
+  // }
+  //
+  // return types;
+  // }
 
   public boolean hasImportErrors()
   {
@@ -101,11 +121,6 @@ public class ImportHistory extends ImportHistoryBase
     {
       it.close();
     }
-  }
-
-  public ImportConfiguration getConfig()
-  {
-    return ImportConfiguration.build(this.getConfigJson());
   }
 
   public void deleteAllValidationProblems()
@@ -145,8 +160,12 @@ public class ImportHistory extends ImportHistoryBase
 
   public void enforceExecutePermissions()
   {
-    JsonObject jo = JsonParser.parseString(this.getConfigJson()).getAsJsonObject();
-    if (jo.has(ImportConfiguration.OBJECT_TYPE) && !jo.get(ImportConfiguration.OBJECT_TYPE).getAsString().equals("LPG") && !jo.get(ImportConfiguration.OBJECT_TYPE).getAsString().contains("RDF"))
-      getConfig().enforceExecutePermissions();
+//    ImportConfigurationDTO dto = this.getConfigurationDTO();
+//
+//    if (!dto.getObjectType().equals(JobHistoryType.LPG) && !dto.getObjectType().equals(JobHistoryType.RDF))
+//    {
+      getConfiguration().enforceExecutePermissions();
+//    }
   }
+
 }

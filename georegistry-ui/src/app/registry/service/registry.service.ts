@@ -25,7 +25,9 @@ import { finalize } from "rxjs/operators";
 import {
     GeoObject, GeoObjectType, AttributeType, Term, ParentTreeNode,
     ChildTreeNode, GeoObjectOverTime, HierarchyOverTime, ScheduledJob, GraphType,
-    ImportHistory
+    ImportHistory,
+    ValidationResolve,
+    ErrorResolve
 } from "@registry/model/registry";
 
 import { HierarchyType } from "@registry/model/hierarchy";
@@ -503,34 +505,32 @@ export class RegistryService implements AttributeTypeService {
             .toPromise();
     }
 
-    submitValidationResolve(config: any): Promise<any> {
+    submitValidationResolve(config: ValidationResolve): Promise<void> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
         });
 
         this.eventService.start();
 
-        return this.http
-            .post<any>(environment.apiUrl + "/api/etl/validation-resolve", JSON.stringify({ config: config }), { headers: headers })
+        return firstValueFrom(this.http
+            .post<void>(environment.apiUrl + "/api/etl/validation-resolve", JSON.stringify(config), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
-            }))
-            .toPromise();
+            })));
     }
 
-    submitErrorResolve(config: any): Promise<any> {
+    submitErrorResolve(config: ErrorResolve): Promise<void> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
         });
 
         this.eventService.start();
 
-        return this.http
-            .post<any>(environment.apiUrl + "/api/etl/error-resolve", JSON.stringify({ config: config }), { headers: headers })
+        return firstValueFrom(this.http
+            .post<void>(environment.apiUrl + "/api/etl/error-resolve", JSON.stringify(config), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
-            }))
-            .toPromise();
+            })));
     }
 
     getLocales(): Promise<LocaleView[]> {

@@ -52,7 +52,7 @@ public class PatchGotIntoImportHistory
       {
         try
         {
-          ImportConfiguration config = hist.getConfig();
+          ImportConfiguration config = hist.getConfiguration();
           
           if (config instanceof GeoObjectImportConfiguration)
           {

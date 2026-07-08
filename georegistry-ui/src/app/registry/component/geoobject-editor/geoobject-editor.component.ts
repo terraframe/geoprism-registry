@@ -28,7 +28,7 @@ import { ErrorHandler } from "@shared/component";
 import { RegistryService } from "@registry/service";
 import { LocalizationService, AuthService } from "@shared/service";
 
-import { GeoObjectType, GeoObjectOverTime, HierarchyOverTime, ParentTreeNode, ImportError, ValueOverTime } from "@registry/model/registry";
+import { GeoObjectType, GeoObjectOverTime, HierarchyOverTime, ParentTreeNode, ImportError, ValueOverTime, ErrorResolve } from "@registry/model/registry";
 
 import { Observable } from "rxjs";
 import { TypeaheadMatch } from "ngx-bootstrap/typeahead";
@@ -153,7 +153,7 @@ export class GeoObjectEditorComponent implements OnInit {
         this.geoObject = new GeoObjectOverTime(this.geoObjectType, importError.object.geoObject.attributes);
 
         this.submitFunction = (geoObject, hierarchies, attributeEditor) => {
-            let config = {
+            const config: ErrorResolve = {
                 historyId: historyId,
                 importErrorId: importError.id,
                 resolution: "APPLY_GEO_OBJECT",

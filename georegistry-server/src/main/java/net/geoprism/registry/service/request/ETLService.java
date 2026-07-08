@@ -36,13 +36,18 @@ import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import net.geoprism.registry.JobHistoryTileCache;
 import net.geoprism.registry.etl.EdgeJsonImporter;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.ETLBusinessService;
+import net.geoprism.registry.view.ErrorResolveDTO;
+import net.geoprism.registry.view.ImportConfigurationDTO;
 import net.geoprism.registry.view.ImportHistoryView;
+import net.geoprism.registry.view.ValidationResolveDTO;
 
 @Service
 public class ETLService
@@ -54,23 +59,23 @@ public class ETLService
   protected DataSourceBusinessServiceIF sourceService;
 
   @Request(RequestType.SESSION)
-  public void cancelImport(String sessionId, String json)
+  public void cancelImport(String sessionId, ImportConfigurationDTO dto)
   {
-    this.service.cancelImport(json);
+    this.service.cancelImport(dto);
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject reImport(String sessionId, MultipartFile file, String json)
+  public ImportConfigurationDTO reImport(String sessionId, MultipartFile file, ImportConfigurationDTO dto)
   {
-    this.service.reImport(file, json);
+    this.service.reImport(file, dto);
 
-    return this.service.doImport(json);
+    return this.service.doImport(dto);
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject doImport(String sessionId, String json)
+  public ImportConfigurationDTO doImport(String sessionId, ImportConfigurationDTO configuration)
   {
-    return this.service.doImport(json);
+    return this.service.doImport(configuration);
   }
 
   @Request(RequestType.SESSION)
@@ -116,15 +121,15 @@ public class ETLService
   }
 
   @Request(RequestType.SESSION)
-  public void submitImportErrorResolution(String sessionId, String json)
+  public void submitImportErrorResolution(String sessionId, ErrorResolveDTO config)
   {
-    this.service.submitImportErrorResolution(json);
+    this.service.submitImportErrorResolution(config);
   }
 
   @Request(RequestType.SESSION)
-  public void submitValidationProblemResolution(String sessionId, String json)
+  public void submitValidationProblemResolution(String sessionId, ValidationResolveDTO dto)
   {
-    this.service.submitValidationProblemResolution(json);
+    this.service.submitValidationProblemResolution(dto);
   }
 
   @Request(RequestType.SESSION)

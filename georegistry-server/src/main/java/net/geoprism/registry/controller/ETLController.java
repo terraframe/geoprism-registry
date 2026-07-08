@@ -25,7 +25,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -50,9 +49,11 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import net.geoprism.registry.service.request.ETLService;
-import net.geoprism.registry.spring.JsonObjectDeserializer;
 import net.geoprism.registry.spring.NullableDateDeserializer;
+import net.geoprism.registry.view.ErrorResolveDTO;
+import net.geoprism.registry.view.ImportConfigurationDTO;
 import net.geoprism.registry.view.ImportHistoryView;
+import net.geoprism.registry.view.ValidationResolveDTO;
 
 @RestController
 @RequestMapping("api/etl")
@@ -78,15 +79,14 @@ public class ETLController extends RunwaySpringController
   public static class ConfigBody
   {
     @NotNull
-    @JsonDeserialize(using = JsonObjectDeserializer.class)
-    JsonObject config;
+    ImportConfigurationDTO config;
 
-    public JsonObject getConfig()
+    public ImportConfigurationDTO getConfig()
     {
       return config;
     }
 
-    public void setConfig(JsonObject config)
+    public void setConfig(ImportConfigurationDTO config)
     {
       this.config = config;
     }
@@ -94,10 +94,10 @@ public class ETLController extends RunwaySpringController
 
   public static class ReImportConfigBody
   {
-    @NotEmpty
-    String                config;
+    @NotNull
+    ImportConfigurationDTO config;
 
-    private MultipartFile file;
+    private MultipartFile  file;
 
     public MultipartFile getFile()
     {
@@ -109,12 +109,12 @@ public class ETLController extends RunwaySpringController
       this.file = file;
     }
 
-    public String getConfig()
+    public ImportConfigurationDTO getConfig()
     {
       return config;
     }
 
-    public void setConfig(String config)
+    public void setConfig(ImportConfigurationDTO config)
     {
       this.config = config;
     }
@@ -147,33 +147,33 @@ public class ETLController extends RunwaySpringController
   protected ETLService service;
 
   @PostMapping("/reimport")
-  public ResponseEntity<String> doReImport(@Valid @ModelAttribute ReImportConfigBody body)
+  public ResponseEntity<ImportConfigurationDTO> doReImport(@Valid @ModelAttribute ReImportConfigBody body)
   {
-    JsonObject config = this.service.reImport(this.getSessionId(), body.file, body.config);
+    ImportConfigurationDTO config = this.service.reImport(this.getSessionId(), body.file, body.config);
 
-    return new ResponseEntity<String>(config.toString(), HttpStatus.OK);
+    return ResponseEntity.ok(config);
   }
 
   @PostMapping("/import")
-  public ResponseEntity<String> doImport(@Valid @RequestBody ConfigBody body)
+  public ResponseEntity<ImportConfigurationDTO> doImport(@Valid @RequestBody ConfigBody body)
   {
-    JsonObject config = this.service.doImport(this.getSessionId(), body.config.toString());
+    ImportConfigurationDTO config = this.service.doImport(this.getSessionId(), body.config);
 
-    return new ResponseEntity<String>(config.toString(), HttpStatus.OK);
+    return ResponseEntity.ok(config);
   }
 
   @PostMapping("/validation-resolve")
-  public ResponseEntity<Void> submitValidationProblemResolution(@Valid @RequestBody ConfigBody body)
+  public ResponseEntity<Void> submitValidationProblemResolution(@Valid @RequestBody ValidationResolveDTO dto)
   {
-    this.service.submitValidationProblemResolution(this.getSessionId(), body.config.toString());
+    this.service.submitValidationProblemResolution(this.getSessionId(), dto);
 
     return new ResponseEntity<Void>(HttpStatus.OK);
   }
 
   @PostMapping("/error-resolve")
-  public ResponseEntity<Void> submitImportErrorResolution(@Valid @RequestBody ConfigBody body)
+  public ResponseEntity<Void> submitImportErrorResolution(@Valid @RequestBody ErrorResolveDTO dto)
   {
-    this.service.submitImportErrorResolution(this.getSessionId(), body.config.toString());
+    this.service.submitImportErrorResolution(this.getSessionId(), dto);
 
     return new ResponseEntity<Void>(HttpStatus.OK);
   }
@@ -257,7 +257,7 @@ public class ETLController extends RunwaySpringController
   @PostMapping("/cancel-import")
   public ResponseEntity<Void> cancelImport(@Valid @RequestBody ConfigBody body)
   {
-    this.service.cancelImport(this.getSessionId(), body.config.toString());
+    this.service.cancelImport(this.getSessionId(), body.config);
 
     return new ResponseEntity<Void>(HttpStatus.OK);
   }

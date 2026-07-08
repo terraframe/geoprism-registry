@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.graph;
 
@@ -26,7 +26,6 @@ import java.util.Date;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import com.google.gson.JsonObject;
 import com.runwaysdk.resource.CloseableFile;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.VaultFile;
@@ -36,11 +35,12 @@ import com.runwaysdk.system.scheduler.JobHistory;
 
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.etl.ImportStage;
-import net.geoprism.registry.etl.upload.ImportConfiguration;
+import net.geoprism.registry.etl.ObjectImporterFactory.JobHistoryType;
 import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessServiceIF;
 import net.geoprism.registry.service.business.LabeledPropertyGraphRDFExportBusinessServiceIF.GeometryExportType;
 import net.geoprism.registry.service.business.ServiceFactory;
+import net.geoprism.registry.view.ExportConfigurationDTO;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;
@@ -64,12 +64,12 @@ public class RDFExportJob extends RDFExportJobBase
     LabeledPropertyGraphType type = version.getGraphType();
     GeometryExportType geomType = GeometryExportType.valueOf(this.getGeometryExportType());
 
-    JsonObject config = new JsonObject();
-    config.addProperty(ImportConfiguration.FILE_NAME, "Export RDF from LPG [" + type.getDisplayLabel().getValue() + "] for [" + GeoRegistryUtil.formatDate(version.getForDate(), false) + "]");
-    config.addProperty(ImportConfiguration.OBJECT_TYPE, "RDF-LPG");
+    ExportConfigurationDTO dto = new ExportConfigurationDTO();
+    dto.setFileName("Export RDF from LPG [" + type.getDisplayLabel().getValue() + "] for [" + GeoRegistryUtil.formatDate(version.getForDate(), false) + "]");
+    dto.setObjectType(JobHistoryType.RDF_LPG);
 
     history.appLock();
-    history.setConfigJson(config.toString());
+    history.setConfiguration(dto);
     history.apply();
 
     String progressId = history.getOid();

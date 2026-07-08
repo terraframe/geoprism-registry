@@ -24,7 +24,6 @@ import java.util.List;
 
 import org.commongeoregistry.adapter.metadata.GraphTypeDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,14 +33,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.gson.JsonArray;
-
 import jakarta.validation.Valid;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.EdgeImportService;
 import net.geoprism.registry.service.request.GraphTypeService;
 import net.geoprism.registry.view.EdgeImportConfigurationView;
+import net.geoprism.registry.view.EdgeObjectImportConfigurationDTO;
 
 @RestController
 @Validated
@@ -65,7 +62,7 @@ public class GraphController extends RunwaySpringController
   }
 
   @PostMapping("get-json-import-config")
-  public ResponseEntity<String> getJsonImportConfig(@Valid @ModelAttribute EdgeImportConfigurationView body) throws IOException
+  public ResponseEntity<EdgeObjectImportConfigurationDTO> getJsonImportConfig(@Valid @ModelAttribute EdgeImportConfigurationView body) throws IOException
   {
     String sessionId = this.getSessionId();
 
@@ -73,9 +70,9 @@ public class GraphController extends RunwaySpringController
     {
       String fileName = body.getFile().getOriginalFilename();
 
-      ObjectNode configuration = importService.getJsonImportConfiguration(sessionId, fileName, stream, body);
+      EdgeObjectImportConfigurationDTO configuration = importService.getJsonImportConfiguration(sessionId, fileName, stream, body);
 
-      return new ResponseEntity<String>(configuration.toString(), HttpStatus.OK);
+      return ResponseEntity.ok(configuration);
     }
   }
 }

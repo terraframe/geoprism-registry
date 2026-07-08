@@ -4,23 +4,25 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.excel;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -241,11 +243,11 @@ public class ExcelFieldContentsHandler implements SheetHandler
   /**
    * JsonArray containing attribute information for all of the sheets.
    */
-  private JSONArray           sheets;
+  private List<SheetDTO>      sheets;
 
   public ExcelFieldContentsHandler()
   {
-    this.sheets = new JSONArray();
+    this.sheets = new LinkedList<>();
   }
 
   public Field createField(Integer column)
@@ -265,9 +267,9 @@ public class ExcelFieldContentsHandler implements SheetHandler
     return reference.getCol();
   }
 
-  public JSONArray getSheets()
+  public List<SheetDTO> getSheets()
   {
-    return this.sheets;
+    return sheets;
   }
 
   @Override
@@ -298,11 +300,8 @@ public class ExcelFieldContentsHandler implements SheetHandler
   {
     try
     {
-      JSONObject attributes = new JSONObject();
-      attributes.put(AttributeBooleanType.TYPE, new JSONArray());
-      attributes.put(GeoObjectImportConfiguration.TEXT, new JSONArray());
-      attributes.put(GeoObjectImportConfiguration.NUMERIC, new JSONArray());
-      attributes.put(AttributeDateType.TYPE, new JSONArray());
+      SheetDTO sheet = new SheetDTO();
+      sheet.setName(this.sheetName);
 
       Set<Entry<Integer, Field>> entrySet = this.map.entrySet();
 
@@ -314,19 +313,15 @@ public class ExcelFieldContentsHandler implements SheetHandler
         String name = field.getName();
         String baseType = field.getBaseType();
 
-        attributes.getJSONArray(baseType).put(name);
+        sheet.put(baseType, name);
 
         if (baseType.equals(GeoObjectImportConfiguration.NUMERIC))
         {
-          attributes.getJSONArray(GeoObjectImportConfiguration.TEXT).put(name);
+          sheet.put(GeoObjectImportConfiguration.TEXT, name);
         }
       }
 
-      JSONObject sheet = new JSONObject();
-      sheet.put("name", this.sheetName);
-      sheet.put("attributes", attributes);
-
-      this.sheets.put(sheet);
+      this.sheets.add(sheet);
     }
     catch (JSONException e)
     {

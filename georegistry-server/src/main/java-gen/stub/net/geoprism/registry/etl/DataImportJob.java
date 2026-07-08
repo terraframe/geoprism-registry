@@ -48,6 +48,7 @@ import net.geoprism.registry.jobs.ValidationProblem;
 import net.geoprism.registry.jobs.ValidationProblemQuery;
 import net.geoprism.registry.service.business.RollbackCheckpointBusinessService;
 import net.geoprism.registry.service.business.ServiceFactory;
+import net.geoprism.registry.view.ImportConfigurationDTO;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;
@@ -94,7 +95,7 @@ public class DataImportJob extends DataImportJobBase
     configuration.setJobId(this.getOid());
 
     history.appLock();
-    history.setConfigJson(configuration.toJSON().toString());
+    history.setConfiguration(configuration.toDTO());
     history.setImportFileId(configuration.getVaultFileId());
 
     configuration.populate(history);
@@ -139,7 +140,7 @@ public class DataImportJob extends DataImportJobBase
 
       ImportHistory history = (ImportHistory) executionContext.getJobHistoryRecord().getChild();
       ImportStage stage = history.getStage().get(0);
-      ImportConfiguration config = ImportConfiguration.build(history.getConfigJson());
+      ImportConfiguration config = ImportConfiguration.build(ImportConfigurationDTO.parseJson(history.getConfigJson()));
 
       long startTime = System.currentTimeMillis();
 
@@ -185,7 +186,7 @@ public class DataImportJob extends DataImportJobBase
         history.appLock();
         history.clearStage();
         history.addStage(ImportStage.VALIDATION_RESOLVE);
-        history.setConfigJson(config.toJSON().toString());
+        history.setConfiguration(config.toDTO());
         history.apply();
 
         NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE, null));
@@ -195,7 +196,7 @@ public class DataImportJob extends DataImportJobBase
         history.appLock();
         history.clearStage();
         history.addStage(ImportStage.IMPORT);
-        history.setConfigJson(config.toJSON().toString());
+        history.setConfiguration(config.toDTO());
         history.setWorkProgress(0L);
         history.setCompletedRowsJson("");
         history.setImportedRecords(0L);
@@ -224,7 +225,7 @@ public class DataImportJob extends DataImportJobBase
         history.appLock();
         history.clearStage();
         history.addStage(ImportStage.IMPORT_RESOLVE);
-        history.setConfigJson(config.toJSON().toString());
+        history.setConfiguration(config.toDTO());
         history.apply();
 
         executionContext.setStatus(AllJobStatus.FEEDBACK);
@@ -234,7 +235,7 @@ public class DataImportJob extends DataImportJobBase
         history.appLock();
         history.clearStage();
         history.addStage(ImportStage.COMPLETE);
-        history.setConfigJson(config.toJSON().toString());
+        history.setConfiguration(config.toDTO());
         history.apply();
       }
 
@@ -251,7 +252,7 @@ public class DataImportJob extends DataImportJobBase
         history.appLock();
         history.clearStage();
         history.addStage(ImportStage.IMPORT_RESOLVE);
-        history.setConfigJson(config.toJSON().toString());
+        history.setConfiguration(config.toDTO());
         history.apply();
 
         executionContext.setStatus(AllJobStatus.FEEDBACK);
@@ -261,7 +262,7 @@ public class DataImportJob extends DataImportJobBase
         history.appLock();
         history.clearStage();
         history.addStage(ImportStage.COMPLETE);
-        history.setConfigJson(config.toJSON().toString());
+        history.setConfiguration(config.toDTO());
         history.apply();
       }
 

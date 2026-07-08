@@ -36,7 +36,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.business.rbac.RoleDAOIF;
@@ -71,7 +70,6 @@ import net.geoprism.registry.etl.export.ExportError;
 import net.geoprism.registry.etl.export.ExportErrorQuery;
 import net.geoprism.registry.etl.export.ExportHistory;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.jobs.GPRJobHistory;
 import net.geoprism.registry.jobs.ImportError;
 import net.geoprism.registry.jobs.ImportError.ErrorResolution;
@@ -86,11 +84,14 @@ import net.geoprism.registry.jobs.ValidationProblemQuery;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.permission.RolePermissionService;
+import net.geoprism.registry.view.ErrorResolveDTO;
+import net.geoprism.registry.view.ImportConfigurationDTO;
 import net.geoprism.registry.view.ImportHistoryView;
 import net.geoprism.registry.view.JsonWrapper;
 import net.geoprism.registry.view.Page;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 import net.geoprism.registry.view.TypeClass;
+import net.geoprism.registry.view.ValidationResolveDTO;
 
 @Service
 public class ETLBusinessService
@@ -117,11 +118,14 @@ public class ETLBusinessService
   protected BusinessTypeBusinessServiceIF  businessTypeService;
 
   @Autowired
+  protected ConceptClassBusinessServiceIF  conceptClassService;
+
+  @Autowired
   protected GeoObjectEditorBusinessService editorService;
 
-  public JsonObject doImport(String json)
+  public ImportConfigurationDTO doImport(ImportConfigurationDTO dto)
   {
-    ImportConfiguration config = ImportConfiguration.build(json);
+    ImportConfiguration config = ImportConfiguration.build(dto);
     config.enforceExecutePermissions();
 
     ImportHistory hist;
@@ -145,16 +149,16 @@ public class ETLBusinessService
       hist = job.start(config);
     }
 
-    return JsonParser.parseString(hist.getConfigJson()).getAsJsonObject();
+    return ImportConfigurationDTO.parseJson(hist.getConfigJson());
   }
 
   @Transaction
-  public void reImport(MultipartFile file, String json)
+  public void reImport(MultipartFile file, ImportConfigurationDTO dto)
   {
-    ImportConfiguration config = ImportConfiguration.build(json);
+    ImportConfiguration config = ImportConfiguration.build(dto);
 
     ImportHistory hist = ImportHistory.get(config.getHistoryId());
-    hist.getConfig().enforceExecutePermissions();
+    hist.getConfiguration().enforceExecutePermissions();
 
     VaultFile vf = VaultFile.get(config.getVaultFileId());
     vf.delete();
@@ -174,7 +178,7 @@ public class ETLBusinessService
 
     hist = ImportHistory.lock(config.getHistoryId());
     hist.setImportFile(vf2);
-    hist.setConfigJson(config.toJSON().toString());
+    hist.setConfiguration(config.toDTO());
     hist.apply();
   }
 
@@ -289,7 +293,7 @@ public class ETLBusinessService
   }
 
   @Transaction
-  public void cancelImport(String json)
+  public void cancelImport(ImportConfigurationDTO configuration)
   {
     // This code can fail if it references a GeoObjectType which no longer
     // exists
@@ -297,9 +301,8 @@ public class ETLBusinessService
     // final String vaultId = config.getVaultFileId();
     // final String historyId = config.getHistoryId();
 
-    JsonObject jo = JsonParser.parseString(json).getAsJsonObject();
-    final String vaultId = jo.has(GeoObjectImportConfiguration.VAULT_FILE_ID) ? jo.get(GeoObjectImportConfiguration.VAULT_FILE_ID).getAsString() : null;
-    final String historyId = jo.has(GeoObjectImportConfiguration.HISTORY_ID) ? jo.get(GeoObjectImportConfiguration.HISTORY_ID).getAsString() : null;
+    final String vaultId = configuration.getVaultFileId();
+    final String historyId = configuration.getHistoryId();
 
     if (StringUtils.isNotEmpty(vaultId))
     {
@@ -314,7 +317,7 @@ public class ETLBusinessService
 
       try
       {
-        hist.getConfig().enforceExecutePermissions();
+        hist.getConfiguration().enforceExecutePermissions();
       }
       catch (net.geoprism.registry.DataNotFoundException ex)
       {
@@ -354,8 +357,6 @@ public class ETLBusinessService
 
   public JsonObject getActiveImports(int pageSize, int pageNumber, String sortAttr, boolean isAscending)
   {
-    JsonArray ja = new JsonArray();
-
     QueryFactory qf = new QueryFactory();
     ImportHistoryQuery ihq = new ImportHistoryQuery(qf);
     ihq.WHERE(ihq.getStatus().containsExactly(AllJobStatus.RUNNING).OR(ihq.getStatus().containsExactly(AllJobStatus.NEW)).OR(ihq.getStatus().containsExactly(AllJobStatus.QUEUED)).OR(ihq.getStatus().containsExactly(AllJobStatus.FEEDBACK)));
@@ -426,9 +427,10 @@ public class ETLBusinessService
 
       if (StringUtils.isNotBlank(iHist.getConfigJson()) && iHist.getConfigJson().startsWith("{"))
       {
-        JsonObject config = JsonParser.parseString(iHist.getConfigJson()).getAsJsonObject();
-        jo.addProperty("fileName", config.get(ImportConfiguration.FILE_NAME).getAsString());
-        jo.add("configuration", JsonParser.parseString(config.toString()));
+        ImportConfigurationDTO configuration = iHist.getConfigurationDTO();
+
+        jo.addProperty("fileName", configuration.getFileName());
+        jo.add("configuration", JsonParser.parseString(ImportConfigurationDTO.toJson(configuration)));
       }
     }
     else if (hist instanceof ExportHistory)
@@ -503,6 +505,7 @@ public class ETLBusinessService
   {
     ImportHistory hist = ImportHistory.get(historyId);
     var job = hist.getAllJob().getAll().get(0);
+
     GeoprismUser user = ( job.getRunAsUser() == null ) ? null : GeoprismUser.get(job.getRunAsUser().getOid());
     hist.enforceExecutePermissions();
 
@@ -534,22 +537,20 @@ public class ETLBusinessService
   }
 
   @Transaction
-  public void submitImportErrorResolution(String json)
+  public void submitImportErrorResolution(ErrorResolveDTO config)
   {
-    JsonObject config = JsonParser.parseString(json).getAsJsonObject();
+    ImportHistory hist = ImportHistory.get(config.getHistoryId());
+    hist.getConfiguration().enforceExecutePermissions();
 
-    ImportHistory hist = ImportHistory.get(config.get("historyId").getAsString());
-    hist.getConfig().enforceExecutePermissions();
+    ImportError err = ImportError.get(config.getImportErrorId());
 
-    ImportError err = ImportError.get(config.get("importErrorId").getAsString());
+    ErrorResolution resolution = config.getResolution();
 
-    String resolution = config.get("resolution").getAsString();
-
-    if (resolution.equals(ErrorResolution.APPLY_GEO_OBJECT.name()))
+    if (resolution.equals(ErrorResolution.APPLY_GEO_OBJECT))
     {
-      String parentTreeNode = config.get("parentTreeNode").toString();
-      String geoObject = config.get("geoObject").toString();
-      Boolean isNew = config.get("isNew").getAsBoolean();
+      String parentTreeNode = config.getParentTreeNode().toString();
+      String geoObject = config.getGeoObject().toString();
+      Boolean isNew = config.getIsNew();
 
       GeoObjectOverTime go = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), geoObject);
 
@@ -571,17 +572,17 @@ public class ETLBusinessService
       }
 
       err.appLock();
-      err.setResolution(resolution);
+      err.setResolution(resolution.name());
       err.apply();
 
       hist.appLock();
       hist.setImportedRecords(hist.getImportedRecords() + 1);
       hist.apply();
     }
-    else if (resolution.equals(ErrorResolution.IGNORE.name()))
+    else if (resolution.equals(ErrorResolution.IGNORE))
     {
       err.appLock();
-      err.setResolution(resolution);
+      err.setResolution(resolution.name());
       err.apply();
     }
     else
@@ -591,77 +592,51 @@ public class ETLBusinessService
   }
 
   @Transaction
-  public JsonObject submitValidationProblemResolution(String json)
+  public void submitValidationProblemResolution(ValidationResolveDTO dto)
   {
-    JsonObject response = new JsonObject();
-
-    JsonObject config = JsonParser.parseString(json).getAsJsonObject();
-
-    ValidationProblem problem = ValidationProblem.get(config.get("validationProblemId").getAsString());
+    ValidationProblem problem = ValidationProblem.get(dto.getValidationProblemId());
 
     ImportHistory hist = problem.getHistory();
-    hist.getConfig().enforceExecutePermissions();
+    hist.getConfiguration().enforceExecutePermissions();
 
-    String resolution = config.get("resolution").getAsString();
-
-    if (resolution.equals(ValidationResolution.SYNONYM.name()))
+    if (dto.getResolution().equals(ValidationResolution.SYNONYM))
     {
       if (problem instanceof TermReferenceProblem)
       {
-        String classifierId = config.get("classifierId").getAsString();
-        String label = config.get("label").getAsString();
+        String classifierId = dto.getClassifierId();
+        String label = dto.getLabel();
 
-        response = JsonParser.parseString(this.classifierService.createSynonym(classifierId, label)).getAsJsonObject();
+        this.classifierService.createSynonym(classifierId, label);
       }
       else if (problem instanceof ParentReferenceProblem)
       {
-        String code = config.get("code").getAsString();
-        String typeCode = config.get("typeCode").getAsString();
-        String label = config.get("label").getAsString();
+        String code = dto.getCode();
+        String typeCode = dto.getTypeCode();
+        String label = dto.getLabel();
 
         ServerGeoObjectIF go = this.objectService.getGeoObjectByCode(code, typeCode);
 
-        response = JsonParser.parseString(this.geoSynonymService.createGeoEntitySynonym(typeCode, go.getCode(), label).toString()).getAsJsonObject();
+        this.geoSynonymService.createGeoEntitySynonym(typeCode, go.getCode(), label);
       }
 
       problem.appLock();
-      problem.setResolution(resolution);
+      problem.setResolution(dto.getResolution().name());
       problem.apply();
 
       // hist.appLock();
       // hist.setErrorResolvedCount(hist.getErrorResolvedCount() + 1);
       // hist.apply();
     }
-    else if (resolution.equals(ValidationResolution.IGNORE.name()))
+    else if (dto.getResolution().equals(ValidationResolution.IGNORE))
     {
       problem.appLock();
-      problem.setResolution(resolution);
-      problem.apply();
-    }
-    else if (resolution.equals(ValidationResolution.CREATE.name()))
-    {
-      if (problem instanceof TermReferenceProblem)
-      {
-        String parentTermCode = config.get("parentTermCode").getAsString();
-        String termJSON = config.get("termJSON").toString();
-
-        response = this.termService.createTerm(parentTermCode, termJSON).toJSON();
-      }
-      else if (problem instanceof ParentReferenceProblem)
-      {
-        // TODO
-      }
-
-      problem.appLock();
-      problem.setResolution(resolution);
+      problem.setResolution(dto.getResolution().name());
       problem.apply();
     }
     else
     {
-      throw new UnsupportedOperationException("Invalid import resolution [" + resolution + "].");
+      throw new UnsupportedOperationException("Invalid import resolution [" + dto.getResolution().name() + "].");
     }
-
-    return response;
   }
 
   public void resolveImport(String historyId)
@@ -675,7 +650,7 @@ public class ETLBusinessService
     }
     else if (hist.getStage().get(0).equals(ImportStage.VALIDATION_RESOLVE))
     {
-      this.doImport(hist.getConfigJson());
+      this.doImport(ImportConfigurationDTO.parseJson(hist.getConfigJson()));
     }
   }
 
@@ -733,15 +708,15 @@ public class ETLBusinessService
     statement.append(" FROM " + mdClass.getTableName());
     statement.append(" NATURAL JOIN " + jobHistory.getTableName());
 
-    if (classType.equals(ObjectImporterFactory.ObjectImportType.GEO_OBJECT.name()))
+    if (classType.equals(ObjectImporterFactory.JobHistoryType.GEO_OBJECT.name()))
     {
       // Ensure the type code is valid
       ServerGeoObjectType.get(typeCode);
 
-      statement.append(" WHERE " + attribute.getColumnName() + "->>'objectType' = '" + ObjectImporterFactory.ObjectImportType.GEO_OBJECT.name() + "'");
+      statement.append(" WHERE " + attribute.getColumnName() + "->>'objectType' = '" + ObjectImporterFactory.JobHistoryType.GEO_OBJECT.name() + "'");
       statement.append(" AND " + attribute.getColumnName() + "->'type'->>'code' = '" + typeCode + "'");
     }
-    else if (classType.equals(ObjectImporterFactory.ObjectImportType.BUSINESS_OBJECT.name()))
+    else if (classType.equals(ObjectImporterFactory.JobHistoryType.BUSINESS_OBJECT.name()))
     {
       // Ensure the type code is valid
       if (this.businessTypeService.getByCode(typeCode) == null)
@@ -749,7 +724,18 @@ public class ETLBusinessService
         throw new DataNotFoundException();
       }
 
-      statement.append(" WHERE " + attribute.getColumnName() + "->>'objectType' = '" + ObjectImporterFactory.ObjectImportType.BUSINESS_OBJECT.name() + "'");
+      statement.append(" WHERE " + attribute.getColumnName() + "->>'objectType' = '" + ObjectImporterFactory.JobHistoryType.BUSINESS_OBJECT.name() + "'");
+      statement.append(" AND " + attribute.getColumnName() + "->'type'->>'code' = '" + typeCode + "'");
+    }
+    else if (classType.equals(ObjectImporterFactory.JobHistoryType.CONCEPT_OBJECT.name()))
+    {
+      // Ensure the type code is valid
+      if (this.conceptClassService.getByCode(typeCode) == null)
+      {
+        throw new DataNotFoundException();
+      }
+
+      statement.append(" WHERE " + attribute.getColumnName() + "->>'objectType' = '" + ObjectImporterFactory.JobHistoryType.CONCEPT_OBJECT.name() + "'");
       statement.append(" AND " + attribute.getColumnName() + "->'type'->>'code' = '" + typeCode + "'");
     }
     else if (classType.equals(TypeClass.DAG.getCode()) //
@@ -763,7 +749,7 @@ public class ETLBusinessService
         throw new DataNotFoundException();
       }
 
-      statement.append(" WHERE " + attribute.getColumnName() + "->>'objectType' = '" + ObjectImporterFactory.ObjectImportType.EDGE_OBJECT.name() + "'");
+      statement.append(" WHERE " + attribute.getColumnName() + "->>'objectType' = '" + ObjectImporterFactory.JobHistoryType.EDGE_OBJECT.name() + "'");
       statement.append(" AND " + attribute.getColumnName() + "->>'graphTypeClass' = '" + classType + "'");
       statement.append(" AND " + attribute.getColumnName() + "->>'graphTypeCode' = '" + typeCode + "'");
     }

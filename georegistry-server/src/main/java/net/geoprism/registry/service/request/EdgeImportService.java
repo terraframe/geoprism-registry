@@ -5,12 +5,12 @@ import java.io.InputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
 import net.geoprism.registry.service.business.GraphBusinessService;
 import net.geoprism.registry.view.EdgeImportConfigurationView;
+import net.geoprism.registry.view.EdgeObjectImportConfigurationDTO;
 
 @Service
 public class EdgeImportService
@@ -19,7 +19,7 @@ public class EdgeImportService
   private GraphBusinessService bizService;
 
   @Request(RequestType.SESSION)
-  public ObjectNode getJsonImportConfiguration(String sessionId, String fileName, InputStream fileStream, EdgeImportConfigurationView view)
+  public EdgeObjectImportConfigurationDTO getJsonImportConfiguration(String sessionId, String fileName, InputStream fileStream, EdgeImportConfigurationView view)
   {
     return bizService.getJsonImportConfiguration(fileName, fileStream, view);
   }

@@ -19,7 +19,6 @@
 package net.geoprism.registry.service.business;
 
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -35,26 +34,23 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.SmartException;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.system.VaultFile;
 
-import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.JSONFormatException;
 import net.geoprism.registry.etl.ObjectImporterFactory;
-import net.geoprism.registry.etl.upload.EdgeObjectImportConfiguration;
-import net.geoprism.registry.etl.upload.ImportConfiguration;
+import net.geoprism.registry.excel.SheetDTO;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.view.EdgeImportConfigurationView;
+import net.geoprism.registry.view.EdgeObjectImportConfigurationDTO;
 
 @Service
 public class GraphBusinessService
 {
-  public ObjectNode getJsonImportConfiguration(String fileName, InputStream fileStream, EdgeImportConfigurationView view)
+  public EdgeObjectImportConfigurationDTO getJsonImportConfiguration(String fileName, InputStream fileStream, EdgeImportConfigurationView view)
   {
     // Save the file to the file system
     try
@@ -65,40 +61,34 @@ public class GraphBusinessService
 
       try (InputStream is = vf.openNewStream())
       {
-        SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
-        format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
-
-        ObjectMapper mapper = new ObjectMapper();
-        // JsonNode root = mapper.readTree(is);
-
-        ObjectNode obj = mapper.createObjectNode();
-        obj.put(EdgeObjectImportConfiguration.GRAPH_TYPE_CLASS, view.getGraphTypeClass());
-        obj.put(EdgeObjectImportConfiguration.GRAPH_TYPE_CODE, view.getGraphTypeCode());
-        obj.set(GeoObjectImportConfiguration.SHEET, this.getSheetInformationJson(is));
-        obj.put(ImportConfiguration.VAULT_FILE_ID, vf.getOid());
-        obj.put(ImportConfiguration.FILE_NAME, fileName);
-        obj.put(ImportConfiguration.IMPORT_STRATEGY, view.getStrategy().name());
-        obj.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.JSON.name());
-        obj.put(ImportConfiguration.OBJECT_TYPE, ObjectImporterFactory.ObjectImportType.EDGE_OBJECT.name());
+        EdgeObjectImportConfigurationDTO dto = new EdgeObjectImportConfigurationDTO();
+        dto.setGraphTypeClass(view.getGraphTypeClass());
+        dto.setGraphTypeCode(view.getGraphTypeCode());
+        dto.setSheet(this.getSheetInformationJson(is));
+        dto.setVaultFileId(vf.getOid());
+        dto.setFileName(fileName);
+        dto.setImportStrategy(view.getStrategy());
+        dto.setFormatType(FormatImporterType.JSON);
+        dto.setObjectType(ObjectImporterFactory.JobHistoryType.EDGE_OBJECT);
 
         if (view.getDataSource() != null)
         {
-          obj.put(GeoObjectImportConfiguration.DATA_SOURCE, view.getDataSource());
+          dto.setDataSource(view.getDataSource());
         }
         if (view.getDescription() != null)
         {
-          obj.put(GeoObjectImportConfiguration.DESCRIPTION, view.getDescription());
+          dto.setDescription(view.getDescription());
         }
         if (view.getStartDate() != null)
         {
-          obj.put(GeoObjectImportConfiguration.START_DATE, format.format(view.getStartDate()));
+          dto.setStartDate(view.getStartDate());
         }
         if (view.getEndDate() != null)
         {
-          obj.put(GeoObjectImportConfiguration.END_DATE, format.format(view.getStartDate()));
+          dto.setEndDate(view.getEndDate());
         }
 
-        return obj;
+        return dto;
       }
     }
     catch (RunwayException | SmartException e)
@@ -147,7 +137,7 @@ public class GraphBusinessService
    * "text": [...], "numeric": [...], "date": [...] } } - Numeric keys are also
    * added to TEXT (to match your original behavior).
    */
-  private ObjectNode getSheetInformationJson(InputStream jsonStream)
+  private SheetDTO getSheetInformationJson(InputStream jsonStream)
   {
     try
     {
@@ -189,12 +179,9 @@ public class GraphBusinessService
         });
       }
 
-      // Build attributes buckets
-      ObjectNode attributes = mapper.createObjectNode();
-      ArrayNode boolArr = attributes.putArray(AttributeBooleanType.TYPE); // "boolean"
-      ArrayNode textArr = attributes.putArray(GeoObjectImportConfiguration.TEXT); // "text"
-      ArrayNode numArr = attributes.putArray(GeoObjectImportConfiguration.NUMERIC); // "numeric"
-      ArrayNode dateArr = attributes.putArray(AttributeDateType.TYPE); // "date"
+      SheetDTO sheet = new SheetDTO();
+      sheet.setName("json"); // analogous to shapefile layer name; adjust if you
+                             // have a better source
 
       // Fill buckets; numeric also goes into text (to mirror your original
       // behavior)
@@ -203,26 +190,22 @@ public class GraphBusinessService
         switch (e.getValue())
         {
           case BOOLEAN:
-            boolArr.add(key);
+            sheet.put(AttributeBooleanType.TYPE, key);
             break;
           case NUMERIC:
-            numArr.add(key);
-            textArr.add(key); // include numeric in text as well
+            sheet.put(GeoObjectImportConfiguration.TEXT, key);
+            sheet.put(GeoObjectImportConfiguration.NUMERIC, key);
             break;
           case DATE:
-            dateArr.add(key);
+            sheet.put(AttributeDateType.TYPE, key);
             break;
           case TEXT:
           default:
-            textArr.add(key);
+            sheet.put(GeoObjectImportConfiguration.TEXT, key);
             break;
         }
       });
 
-      ObjectNode sheet = mapper.createObjectNode();
-      sheet.put("name", "json"); // analogous to shapefile layer name; adjust if
-                                 // you have a better source
-      sheet.set("attributes", attributes);
       return sheet;
 
     }

@@ -96,7 +96,7 @@ public class DirectedAcyclicGraphTypeService
   @Request(RequestType.SESSION)
   public List<ImportHistoryView> getHistory(String sessionId, String code)
   {
-    return this.etlBusinessService.getHistory(ObjectImporterFactory.ObjectImportType.EDGE_OBJECT.name(), code);
+    return this.etlBusinessService.getHistory(ObjectImporterFactory.JobHistoryType.EDGE_OBJECT.name(), code);
   }
 
 }

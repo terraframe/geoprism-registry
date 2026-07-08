@@ -32,7 +32,7 @@ public abstract class ValidationProblem extends ValidationProblemBase implements
   private static final long serialVersionUID = 681333878;
   
   public static enum ValidationResolution {
-    IGNORE, SYNONYM, CREATE, UNRESOLVED
+    IGNORE, SYNONYM, UNRESOLVED
   }
 
   public ValidationProblem()
