@@ -10,6 +10,9 @@ More information about this project can be found on the [Wiki](https://github.co
 ## Project Website
 * <a href="https://geoprismregistry.com/" target="_blank">geoprismregistry.com</a>
 
+## Contributing 
+For information about contributing (tickets or code) to this project first see the [contributing section](https://github.com/terraframe/geoprism-registry/wiki/Contribution-Guidelines)
+
 ## Documentation & Resources
 
 ### User Documentation
@@ -21,18 +24,10 @@ More information about this project can be found on the [Wiki](https://github.co
 ### Installation Documentation with Docker
 * <a href="https://hub.docker.com/r/terraframe/geoprism-registry" target="_blank">GeoPrism Registry on Docker Hub</a>
 
-
-## Contributing 
-For information about contributing (tickets or code) to this project first see the [contributing section](https://github.com/terraframe/geoprism-registry/blob/master/contributing.md)
-
-To get started setting up a development environment see the [developer docs in this repos wiki](https://github.com/terraframe/geoprism-registry/wiki).
-
-
-## Latest Unit Test Results
+### Latest Unit Test Results
 https://s3-us-west-2.amazonaws.com/terraframe-sites/cgr-site/surefire-report.html
 
-
-## Artifacts
+### Artifacts
 
 [![Hosted By: Cloudsmith](https://img.shields.io/badge/OSS%20hosting%20by-cloudsmith-blue?logo=cloudsmith&style=for-the-badge)](https://cloudsmith.io/~terraframe/repos/geoprism-registry/packages/)
 
