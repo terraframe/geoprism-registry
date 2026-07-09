@@ -2,22 +2,12 @@
 
 
 ## About
-Geoprism Registry is the first implementation of <a href="https://github.com/terraframe/common-geo-registry-specification" target="_blank">the Common Geo-Registry (CGR) specification </a>.
+More information about this project can be found on the [Wiki](https://github.com/terraframe/geoprism-registry/wiki)
 
-## Organizations Involved
-There are numerous organizations involved with designing, building, and testing the Geoprism Registry. The primary contributors are:
-* <a href="https://healthgeolab.net/" target="_blank">Health GeoLab Collaborative</a>
-* <a href="http://vitalwave.com/" target="_blank">Vital Wave</a>
-* <a href="http://terraframe.com/" target="_blank">TerraFrame</a>
-* <a href="https://clintonhealthaccess.org/" target="_blank">Clinton Health Access Initiative (CHAI)</a>
-* <a href="http://dsme.community/" target="_blank">Digital Solutions For Malaria Elimination (DSME)</a>
-
-## A more comprehensive ticket system can be found in the repositories Projects section:
+## Comprehensive ticket system
 *  <a href="https://github.com/orgs/terraframe/projects/2" target="_blank">Software Development Tickets on GitHub Projects</a>
 
-NOTE: This is synchronized with GitHub so it is as current as GitHub. This sytem simply adds some more higher level roadmap features on top of GitHub.
-
-## Project Website (including roadmap)
+## Project Website
 * <a href="https://geoprismregistry.com/" target="_blank">geoprismregistry.com</a>
 
 ## Documentation & Resources
