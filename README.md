@@ -18,32 +18,15 @@ GeoPrism Registry is the first implementation of a Common Geo-Registry (CGR) but
 ## Learn More
 
 * **Website:** https://geoprismregistry.com
-* **Documentation:** https://docs.geoprismregistry.com
-* **Developer Wiki:** Repository Wiki
-* **Contributing:** CONTRIBUTING.md
-* **Report Issues:** GitHub Issues
+* **User Documentation:** https://docs.geoprismregistry.com
+* **API Documentation:** https://api.geoprismregistry.com/
+* **Comprehensive Project Info:** [Repository Wiki](https://github.com/terraframe/geoprism-registry/wiki)
+  * **Contributing:** [Contributing section](https://github.com/terraframe/geoprism-registry/wiki/Contribution-Guidelines)
+  * **Governance:** [Governance section](https://github.com/terraframe/geoprism-registry/wiki/Governance)
+* **Report Issues:** [GitHub Tickets](https://github.com/orgs/terraframe/projects/2)
 
 More comprehensive information can be found on the [Wiki](https://github.com/terraframe/geoprism-registry/wiki) including important context concerning project [governance](https://github.com/terraframe/geoprism-registry/wiki/Governance).
 
-## Comprehensive ticket system
-*  <a href="https://github.com/orgs/terraframe/projects/2" target="_blank">Software Development Tickets on GitHub Projects</a>
-
-## Project Website
-* <a href="https://geoprismregistry.com/" target="_blank">geoprismregistry.com</a>
-
-## Contributing 
-For information about contributing (tickets or code) to this project first see the [contributing section](https://github.com/terraframe/geoprism-registry/wiki/Contribution-Guidelines)
-
-## Documentation & Resources
-
-### User Documentation
-* <a href="https://docs.geoprismregistry.com/" target="_blank">User Documentation</a>
-
-### REST API Documentation
-* <a href="https://api.geoprismregistry.com/" target="_blank">REST API Documentation</a>
-
-### Installation Documentation with Docker
-* <a href="https://hub.docker.com/r/terraframe/geoprism-registry" target="_blank">GeoPrism Registry on Docker Hub</a>
 
 ### Latest Unit Test Results
 https://s3-us-west-2.amazonaws.com/terraframe-sites/cgr-site/surefire-report.html
