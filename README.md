@@ -25,7 +25,7 @@ GeoPrism Registry is the first implementation of a Common Geo-Registry (CGR) but
   * **Governance:** [Governance section](https://github.com/terraframe/geoprism-registry/wiki/Governance)
 * **Report Issues:** [GitHub Tickets](https://github.com/orgs/terraframe/projects/2)
 
-More comprehensive information can be found on the [Wiki](https://github.com/terraframe/geoprism-registry/wiki) including important context concerning project [governance](https://github.com/terraframe/geoprism-registry/wiki/Governance).
+More comprehensive information can be found on the [Wiki](https://github.com/terraframe/geoprism-registry/wiki).
 
 
 ### Latest Unit Test Results
