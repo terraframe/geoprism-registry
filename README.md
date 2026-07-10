@@ -2,7 +2,7 @@
 
 
 ## About
-More comprehensive information about this project can be found on the [Wiki](https://github.com/terraframe/geoprism-registry/wiki).
+More comprehensive information about this project can be found on the [Wiki](https://github.com/terraframe/geoprism-registry/wiki) including important context concerning project [governance](https://github.com/terraframe/geoprism-registry/wiki/Governance).
 
 ## Comprehensive ticket system
 *  <a href="https://github.com/orgs/terraframe/projects/2" target="_blank">Software Development Tickets on GitHub Projects</a>
