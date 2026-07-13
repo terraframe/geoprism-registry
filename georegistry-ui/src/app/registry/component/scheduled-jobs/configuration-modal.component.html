@@ -39,12 +39,12 @@
       </div>
 
 
-      <div class="form-group row" *ngIf="type != null">
+      <div class="form-group row">
         <label class="col-md-2 text-right" for="code">
-          <localize key="io.geoObjectType"></localize>
+          Type
         </label>
         <div class="col-md-8">
-          {{type.label.localizedValue}}
+          {{configuration.type.label.localizedValue}}
         </div>
         <div class="col-md-2"></div>
       </div>
@@ -70,6 +70,7 @@
 
         <div class="col-md-2"></div>
       </div>
+
       <div class="form-group row">
         <label class="col-md-2 text-right" for="endDate">
           <localize key="io.endDate"></localize>
@@ -80,6 +81,37 @@
 
         <div class="col-md-2"></div>
       </div>
+
+      <div class="form-group row">
+        <label class="col-md-2 text-right" for="copyBlank">
+          <localize key="dataimporter.importblankcells"></localize>
+        </label>
+        <div class="col-md-8">
+          <boolean-field [(value)]="configuration.copyBlank" label="" [disable]="true"></boolean-field>
+        </div>
+        <div class="col-md-2"></div>
+      </div>
+
+      <div class="form-group row">
+        <label class="col-md-2 text-right" for="dataSource">
+            Data Source
+        </label>
+        <div class="col-md-8">
+          {{configuration.dataSource}}
+        </div>
+        <div class="col-md-2"></div>
+    </div>
+
+    <div class="form-group row">
+        <label class="col-md-2 text-right" for="description">
+            <localize key="transition.event.description"></localize>                    
+        </label>
+        <div class="col-md-8">
+            <textarea style="width:100%;" [(ngModel)]="configuration.description" name="description" [disabled]="true"></textarea>
+        </div>
+        <div class="col-md-2"></div>
+    </div>
+
 
       <ng-container *ngIf="configuration.type && configuration.type.attributes">
         <hr>

@@ -35,15 +35,6 @@ export class ConceptClass extends ObjectClass implements AttributedType {
 
 }
 
-
-export class ConceptObject {
-
-    code: string;
-    data: {
-        [key: string]: string | number;
-    }
-}
-
 export class BusinessType extends ObjectClass implements AttributedType {
     labelAttribute?: string;
 }
@@ -59,10 +50,31 @@ export class BusinessEdgeType {
     direction?: string;
 }
 
-export class BusinessObject {
-
+export class ObjectOverTime {
+    type: {
+        typeCode: string;
+        typeClass: string;
+    }
+    label?: string;
     code: string;
-    label: string;
+    data: {
+        [key: string]: {
+            type: 'single' | 'multi'
+            value?: string | number;
+            values?: {
+                startDate: string;
+                endDate: string;
+                oid: string;
+                value: string | number;
+            }[]
+        }
+    }
+
+}
+
+export class ObjectAtTime {
+    label?: string;
+    code: string;
     data: {
         [key: string]: string | number;
     }

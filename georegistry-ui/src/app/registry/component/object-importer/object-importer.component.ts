@@ -27,27 +27,29 @@ import { LocalizationService, EventService } from "@shared/service";
 
 import { ImportModalComponent } from "@registry/component/importer/modals/import-modal.component";
 import { ImportStrategy } from "@registry/model/constants";
-import { BusinessType } from "@registry/model/object-class";
+import { ObjectClass } from "@registry/model/object-class";
 import { BusinessTypeService } from "@registry/service/business-type.service";
+import { ConceptClassService } from "@registry/service/concept-class.service";
 
 import { environment } from 'src/environments/environment';
 import { Source } from "@registry/model/source";
 import { SourceService } from "@registry/service/source.service";
-import { BooleanFieldComponent } from "../../../shared/component/form-fields/boolean-field/boolean-field.component";
-import { DateFieldComponent } from "../../../shared/component/form-fields/date-field/date-field.component";
+import { BooleanFieldComponent } from "@shared/component/form-fields/boolean-field/boolean-field.component";
+import { DateFieldComponent } from "@shared/component/form-fields/date-field/date-field.component";
 import { FormsModule } from "@angular/forms";
 import { NgIf, NgFor } from "@angular/common";
-import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
-import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
+import { LocalizeComponent } from "@shared/component/localize/localize.component";
+import { PageContainerComponent } from "@shared/component/page-container/page-container.component";
+import { ImportConfiguration, ImportConfigurationView } from "@registry/model/io";
 
 @Component({
-    selector: "business-importer",
-    templateUrl: "./business-importer.component.html",
-    styleUrls: ["./business-importer.css"],
+    selector: "object-importer",
+    templateUrl: "./object-importer.component.html",
+    styleUrls: ["./object-importer.css"],
     standalone: true,
     imports: [PageContainerComponent, LocalizeComponent, NgIf, FormsModule, NgFor, DateFieldComponent, BooleanFieldComponent, FileUploadModule]
 })
-export class BusinessImporterComponent implements OnInit {
+export class ObjectImporterComponent implements OnInit {
 
     @ViewChildren("dateFieldComponents") dateFieldComponentsArray: QueryList<DateFieldComponent>;
 
@@ -58,41 +60,26 @@ export class BusinessImporterComponent implements OnInit {
     isValid: boolean = false;
 
     /*
-    * Business Types
+    * Types
     */
-    businessTypes: BusinessType[] = [];
+    types: ObjectClass[] = [];
 
-    /*
-     * Code of the currently selected Business Type
-     */
-    businessTypeCode: string = null;
-
-    importStrategy: ImportStrategy;
     importStrategies: any[] = [
         { strategy: ImportStrategy.NEW_AND_UPDATE, label: this.localizationService.decode("etl.import.ImportStrategy.NEW_AND_UPDATE") },
         { strategy: ImportStrategy.NEW_ONLY, label: this.localizationService.decode("etl.import.ImportStrategy.NEW_ONLY") },
         { strategy: ImportStrategy.UPDATE_ONLY, label: this.localizationService.decode("etl.import.ImportStrategy.UPDATE_ONLY") }
     ]
 
-    /*
-     * Code of the currently selected GeoObjectType
-     */
-    typeCode: string = null;
-
-    /*
-     * Start date
-     */
-    startDate: string = null;
-
-    /*
-     * End date
-     */
-    endDate: string = null;
-
-    /*
-     * Reference to the modal current showing
-     */
-    bsModalRef: BsModalRef;
+    config: ImportConfigurationView = {
+        objectType: "BUSINESS_OBJECT",
+        type: null,
+        startDate: null,
+        endDate: null,
+        copyBlank: true,
+        dataSource: null,
+        description: null,
+        strategy: null
+    }
 
     /*
      * File uploader
@@ -104,13 +91,6 @@ export class BusinessImporterComponent implements OnInit {
 
     @Input()
     format: string = "EXCEL";
-
-    /*
-     * currently selected external system.
-     */
-    externalSystemId: string;
-
-    copyBlank: boolean = true;
 
     /*
      * Hierarchies grouped by GeoObjectType
@@ -126,6 +106,7 @@ export class BusinessImporterComponent implements OnInit {
         private sourceService: SourceService,
         private localizationService: LocalizationService,
         private businessService: BusinessTypeService,
+        private conceptService: ConceptClassService,
         private changeDetectorRef: ChangeDetectorRef
     ) { }
 
@@ -136,11 +117,7 @@ export class BusinessImporterComponent implements OnInit {
             this.error(err);
         });
 
-        this.businessService.getAll().then(businessTypes => {
-            this.businessTypes = businessTypes;
-        });
-
-        let getUrl = environment.apiUrl + "/api/excel/get-business-config";
+        let getUrl = environment.apiUrl + "/api/excel/get-import-config";
 
         let options: FileUploaderOptions = {
             queueLimit: 1,
@@ -152,19 +129,21 @@ export class BusinessImporterComponent implements OnInit {
 
         this.uploader.onBuildItemForm = (fileItem: any, form: any) => {
 
-            form.append("type", this.businessTypeCode);
-            form.append("copyBlank", this.copyBlank);
-            form.append("dataSource", this.dataSource);
+            form.append("type", this.config.type);
+            form.append("copyBlank", this.config.copyBlank);
+            form.append("dataSource", this.config.dataSource);
+            form.append("objectType", this.config.objectType);
+            form.append("description", this.config.description);
 
-            if (this.startDate != null) {
-                form.append("date", this.startDate);
+            if (this.config.startDate != null) {
+                form.append("startDate", this.config.startDate);
             }
-            if (this.endDate != null) {
-                form.append("endDate", this.endDate);
+            if (this.config.endDate != null) {
+                form.append("endDate", this.config.endDate);
             }
 
-            if (this.importStrategy) {
-                form.append("strategy", this.importStrategy);
+            if (this.config.strategy) {
+                form.append("strategy", this.config.strategy);
             }
         };
         this.uploader.onBeforeUploadItem = (fileItem: any) => {
@@ -175,20 +154,22 @@ export class BusinessImporterComponent implements OnInit {
             this.eventService.complete();
         };
         this.uploader.onSuccessItem = (item: any, response: string, status: number, headers: any) => {
-            const configuration = JSON.parse(response);
+            const configuration: ImportConfiguration = JSON.parse(response);
 
 
-            this.bsModalRef = this.modalService.show(ImportModalComponent, {
+            const bsModalRef = this.modalService.show(ImportModalComponent, {
                 animated: false, backdrop: true,
                 ignoreBackdropClick: true
             });
-            this.bsModalRef.content.init(configuration, "geoObjectType", true);
+            bsModalRef.content.init(configuration, "geoObjectType", true);
         };
         this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {
             const error = JSON.parse(response);
 
             this.error({ error: error });
         };
+
+        this.handObjectTypeChange();
     }
 
     onClick(): void {
@@ -225,7 +206,7 @@ export class BusinessImporterComponent implements OnInit {
             }
         }
 
-        if (this.startDate > this.endDate) {
+        if (this.config.startDate > this.config.endDate) {
             startDateField.setInvalid(this.localizationService.decode("date.input.startdate.after.enddate.error.message"));
 
             this.changeDetectorRef.detectChanges();
@@ -234,9 +215,26 @@ export class BusinessImporterComponent implements OnInit {
         return true;
     }
 
+    handObjectTypeChange(): void {
+
+        this.types = [];
+        this.config.type = null;
+
+        if (this.config.objectType != null && this.config.objectType === "BUSINESS_OBJECT") {
+            this.businessService.getAll().then(types => {
+                this.types = types;
+            });
+        }
+        else if (this.config.objectType != null && this.config.objectType === "CONCEPT_OBJECT") {
+            this.conceptService.getAll().then(types => {
+                this.types = types;
+            });
+        }
+    }
+
 
     public error(err: any): void {
-        this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
+        ErrorHandler.showErrorAsDialog(err, this.modalService);
     }
 
 }

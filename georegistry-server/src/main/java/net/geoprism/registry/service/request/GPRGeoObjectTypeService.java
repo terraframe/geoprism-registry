@@ -19,8 +19,6 @@
 package net.geoprism.registry.service.request;
 
 import java.io.InputStream;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -23,54 +23,24 @@ import java.util.List;
 
 import net.geoprism.registry.etl.ObjectImporterFactory.JobHistoryType;
 
-public class GeoObjectImportConfigurationDTO extends ImportConfigurationDTO
+public class GeoObjectImportConfigurationDTO extends TypedObjectImportConfigurationDTO
 {
-  private ImportTypeDTO      type;
+  private List<LocationDTO> locations;
 
-  private List<ExclusionDTO> exclusions;
+  private Boolean           postalCode;
 
-  private List<LocationDTO>  locations;
+  private String            hierarchy;
 
-  private Boolean            postalCode;
-
-  private String             hierarchy;
-
-  private String             revealGeometryColumn;
+  private String            revealGeometryColumn;
 
   public GeoObjectImportConfigurationDTO()
   {
     super();
 
-    this.exclusions = new LinkedList<ExclusionDTO>();
     this.locations = new LinkedList<LocationDTO>();
 
     this.setObjectType(JobHistoryType.GEO_OBJECT);
     this.postalCode = false;
-  }
-
-  public ImportTypeDTO getType()
-  {
-    return type;
-  }
-
-  public void setType(ImportTypeDTO type)
-  {
-    this.type = type;
-  }
-
-  public List<ExclusionDTO> getExclusions()
-  {
-    return exclusions;
-  }
-
-  public void setExclusions(List<ExclusionDTO> exclusions)
-  {
-    this.exclusions = exclusions;
-  }
-
-  public void addExclusion(ExclusionDTO exclusion)
-  {
-    this.exclusions.add(exclusion);
   }
 
   public List<LocationDTO> getLocations()

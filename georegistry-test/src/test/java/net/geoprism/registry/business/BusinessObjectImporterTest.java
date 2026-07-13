@@ -43,6 +43,7 @@ import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterTyp
 import net.geoprism.registry.etl.ImportStage;
 import net.geoprism.registry.etl.NullImportProgressListener;
 import net.geoprism.registry.etl.ObjectImporterFactory;
+import net.geoprism.registry.etl.ObjectImporterFactory.JobHistoryType;
 import net.geoprism.registry.etl.upload.BusinessObjectImportConfiguration;
 import net.geoprism.registry.etl.upload.BusinessObjectImporter;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
@@ -432,9 +433,9 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
 
   private BusinessObjectImportConfigurationDTO getTestConfiguration(InputStream istream, ImportStrategy strategy) throws JSONException
   {
-    ImportConfigurationView view = ImportConfigurationView.of(type.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, FastTestDataset.SOURCE.getCode(), strategy, false);
+    ImportConfigurationView view = ImportConfigurationView.of(JobHistoryType.BUSINESS_OBJECT, type.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, FastTestDataset.SOURCE.getCode(), strategy, false);
 
-    BusinessObjectImportConfigurationDTO configuration = this.excelService.getBusinessTypeConfiguration(Session.getCurrentSession().getOid(), "business-spreadsheet.xlsx", istream, view);
+    BusinessObjectImportConfigurationDTO configuration = this.excelService.getImportConfiguration(Session.getCurrentSession().getOid(), "business-spreadsheet.xlsx", istream, view);
     configuration.setFormatType(FormatImporterType.EXCEL);
 
     configuration.getType().getAttributes().stream() //

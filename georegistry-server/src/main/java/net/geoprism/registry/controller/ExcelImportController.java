@@ -41,10 +41,9 @@ import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.service.request.ExcelService;
-import net.geoprism.registry.view.BusinessObjectImportConfigurationDTO;
-import net.geoprism.registry.view.ConceptObjectImportConfigurationDTO;
 import net.geoprism.registry.view.GeoObjectImportConfigurationDTO;
 import net.geoprism.registry.view.ImportConfigurationView;
+import net.geoprism.registry.view.TypedObjectImportConfigurationDTO;
 
 @RestController
 @Validated
@@ -63,7 +62,10 @@ public class ExcelImportController extends RunwaySpringController
     {
       String fileName = body.getFile().getOriginalFilename();
 
-      GeoObjectImportConfigurationDTO configuration = service.getExcelConfiguration(sessionId, fileName, stream, body);
+      // GeoObjectImportConfigurationDTO configuration =
+      // service.getExcelConfiguration(sessionId, fileName, stream, body);
+
+      GeoObjectImportConfigurationDTO configuration = service.getImportConfiguration(sessionId, fileName, stream, body);
 
       return ResponseEntity.ok(configuration);
     }
@@ -80,36 +82,16 @@ public class ExcelImportController extends RunwaySpringController
     return new ResponseEntity<InputStreamResource>(isr, headers, HttpStatus.OK);
   }
 
-  @PostMapping("/get-business-config")
-  public ResponseEntity<BusinessObjectImportConfigurationDTO> getBusinessConfiguration(@Valid @ModelAttribute ImportConfigurationView body) throws IOException
+  @PostMapping("/get-import-config")
+  public ResponseEntity<TypedObjectImportConfigurationDTO> getImportConfiguration(@Valid @ModelAttribute ImportConfigurationView body) throws IOException
   {
     try (InputStream stream = body.getFile().getInputStream())
     {
       String fileName = body.getFile().getOriginalFilename();
 
-      SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
-      format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
-
-      BusinessObjectImportConfigurationDTO configuration = service.getBusinessTypeConfiguration(this.getSessionId(), fileName, stream, body);
+      TypedObjectImportConfigurationDTO configuration = service.getImportConfiguration(this.getSessionId(), fileName, stream, body);
 
       return ResponseEntity.ok(configuration);
     }
   }
-
-  @PostMapping("/get-concept-config")
-  public ResponseEntity<ConceptObjectImportConfigurationDTO> getConceptConfiguration(@Valid @ModelAttribute ImportConfigurationView body) throws IOException
-  {
-    try (InputStream stream = body.getFile().getInputStream())
-    {
-      String fileName = body.getFile().getOriginalFilename();
-
-      SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
-      format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
-
-      ConceptObjectImportConfigurationDTO configuration = service.getConceptClassConfiguration(this.getSessionId(), fileName, stream, body);
-
-      return ResponseEntity.ok(configuration);
-    }
-  }
-
 }

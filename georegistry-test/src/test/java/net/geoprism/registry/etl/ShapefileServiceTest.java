@@ -235,7 +235,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     Assert.assertNotNull(istream);
 
-    GeoObjectImportConfigurationDTO dto = this.shapefileService.getShapefileConfiguration(testData.clientRequest.getSessionId(), "cb_2017_us_state_500k.zip", istream, ImportConfigurationView.of(USATestData.STATE.getCode(), null, null, USATestData.SOURCE.getCode(), ImportStrategy.NEW_AND_UPDATE, false));
+    GeoObjectImportConfigurationDTO dto = this.shapefileService.getShapefileConfiguration(testData.clientRequest.getSessionId(), "cb_2017_us_state_500k.zip", istream, ImportConfigurationView.of(JobHistoryType.GEO_OBJECT, USATestData.STATE.getCode(), null, null, USATestData.SOURCE.getCode(), ImportStrategy.NEW_AND_UPDATE, false));
 
     Assert.assertFalse(dto.getPostalCode());
 
@@ -302,7 +302,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     Assert.assertNotNull(istream);
 
-    GeoObjectImportConfigurationDTO dto = this.shapefileService.getShapefileConfiguration(testData.clientRequest.getSessionId(), "cb_2017_us_state_500k.zip", istream, ImportConfigurationView.of(USATestData.STATE.getCode(), null, null, USATestData.SOURCE.getCode(), ImportStrategy.NEW_AND_UPDATE, false));
+    GeoObjectImportConfigurationDTO dto = this.shapefileService.getShapefileConfiguration(testData.clientRequest.getSessionId(), "cb_2017_us_state_500k.zip", istream, ImportConfigurationView.of(JobHistoryType.GEO_OBJECT, USATestData.STATE.getCode(), null, null, USATestData.SOURCE.getCode(), ImportStrategy.NEW_AND_UPDATE, false));
 
     Assert.assertTrue(dto.getPostalCode());
   }
@@ -320,7 +320,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
     /*
      * Build Config
      */
-    GeoObjectImportConfigurationDTO dto = this.shapefileService.getShapefileConfiguration(testData.clientRequest.getSessionId(), "ntd_zam_operational_28082020.zip", istream, ImportConfigurationView.of(USATestData.STATE.getCode(), null, null, USATestData.SOURCE.getCode(), ImportStrategy.NEW_AND_UPDATE, false));
+    GeoObjectImportConfigurationDTO dto = this.shapefileService.getShapefileConfiguration(testData.clientRequest.getSessionId(), "ntd_zam_operational_28082020.zip", istream, ImportConfigurationView.of(JobHistoryType.GEO_OBJECT, USATestData.STATE.getCode(), null, null, USATestData.SOURCE.getCode(), ImportStrategy.NEW_AND_UPDATE, false));
     dto.setFormatType(FormatImporterType.SHAPEFILE);
     dto.setObjectType(JobHistoryType.GEO_OBJECT);
 
@@ -1191,7 +1191,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
   private GeoObjectImportConfiguration getTestConfiguration(InputStream istream, ImportStrategy strategy, TestGeoObjectTypeInfo info) throws JSONException
   {
-    GeoObjectImportConfigurationDTO dto = this.shapefileService.getShapefileConfiguration(testData.clientRequest.getSessionId(), "cb_2017_us_state_500k.zip", istream, ImportConfigurationView.of(info.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getCode(), strategy, false));
+    GeoObjectImportConfigurationDTO dto = this.shapefileService.getShapefileConfiguration(testData.clientRequest.getSessionId(), "cb_2017_us_state_500k.zip", istream, ImportConfigurationView.of(JobHistoryType.GEO_OBJECT, info.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getCode(), strategy, false));
     dto.setFormatType(FormatImporterType.SHAPEFILE);
     dto.setObjectType(JobHistoryType.GEO_OBJECT);
     dto.setPostalCode(false);

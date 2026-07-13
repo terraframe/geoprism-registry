@@ -1,6 +1,7 @@
 package net.geoprism.registry;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -167,10 +168,10 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
 
     testData.logIn(USATestData.USER_NPS_RA);
 
-    concept = createConceptObject("CONCEPT");
+    concept = createConceptObject("CONCEPT", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
 
-    pObject = createBusinessObject("P_CODE");
-    cObject = createBusinessObject("C_CODE");
+    pObject = createBusinessObject("P_CODE", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+    cObject = createBusinessObject("C_CODE", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
 
     addBusinessEdge();
     addDirectedAcyclicEdge();
@@ -225,14 +226,14 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
     createBusinessEdges(cObject, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getDataSource(), targets);
   }
 
-  protected BusinessObject createBusinessObject(String code)
+  protected BusinessObject createBusinessObject(String code, Date startDate, Date endDate)
   {
-    return createBusinessObject(code, btype, USATestData.SOURCE.getDataSource());
+    return createBusinessObject(code, btype, USATestData.SOURCE.getDataSource(), startDate, endDate);
   }
 
-  protected ConceptObject createConceptObject(String code)
+  protected ConceptObject createConceptObject(String code, Date startDate, Date endDate)
   {
-    return createConceptObject(code, cClass, USATestData.SOURCE.getDataSource());
+    return createConceptObject(code, cClass, USATestData.SOURCE.getDataSource(), startDate, endDate);
   }
 
   @After

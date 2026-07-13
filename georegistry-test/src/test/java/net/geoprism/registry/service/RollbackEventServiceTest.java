@@ -33,6 +33,7 @@ import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.model.ServerChildGraphNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.service.business.RollbackEventService;
+import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
@@ -132,7 +133,7 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
   public void testRollbackCreateBusinessObject()
   {
     // Index before the import
-    pObject = createBusinessObject("P_CODE");
+    pObject = createBusinessObject("P_CODE", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
     Assert.assertNotNull(this.bObjectService.getByCode(btype, pObject.getCode()));
     Assert.assertEquals(Long.valueOf(1), this.store.size());
@@ -151,7 +152,7 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
   @Request
   public void testRollbackUpdatedBusinessObject()
   {
-    pObject = createBusinessObject("P_CODE");
+    pObject = createBusinessObject("P_CODE", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
     long startIndex = this.store.createHeadToken().position().getAsLong();
 
@@ -182,7 +183,7 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
   public void testRollbackCreateConceptObject()
   {
     // Index before the import
-    concept = createConceptObject("CONCEPT");
+    concept = createConceptObject("CONCEPT", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
     Assert.assertNotNull(this.cObjectService.getByCode(cClass, concept.getCode()));
     Assert.assertEquals(Long.valueOf(1), this.store.size());
@@ -201,7 +202,7 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
   @Request
   public void testRollbackUpdatedConceptObject()
   {
-    concept = createConceptObject("CONCEPT");
+    concept = createConceptObject("CONCEPT", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
     long startIndex = this.store.createHeadToken().position().getAsLong();
 
@@ -364,8 +365,8 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
   @Request
   public void testRollbackBusinessObjectCreateEdgeEvent()
   {
-    pObject = createBusinessObject("P_CODE");
-    cObject = createBusinessObject("C_CODE");
+    pObject = createBusinessObject("P_CODE", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+    cObject = createBusinessObject("C_CODE", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
     USATestData.COLORADO.apply();
 
     long startIndex = this.store.createHeadToken().position().getAsLong();
@@ -397,7 +398,7 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
     {
       this.store.setLock(true);
 
-      pObject = createBusinessObject("P_CODE");
+      pObject = createBusinessObject("P_CODE", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
     }
     finally
     {

@@ -458,7 +458,7 @@ public abstract class ObjectImporter<V extends ServerObjectVertex, T extends Obj
         }
       }
 
-      businessObject.setValue(DefaultAttribute.DATA_SOURCE.getName(), configuration.getDataSource());
+      businessObject.setValue(DefaultAttribute.DATA_SOURCE.getName(), configuration.getDataSource(), configuration.getStartDate(), configuration.getEndDate());
 
       if (this.progressListener.hasValidationProblems())
       {

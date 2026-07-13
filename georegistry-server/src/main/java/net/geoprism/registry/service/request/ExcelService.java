@@ -28,10 +28,9 @@ import com.runwaysdk.session.RequestType;
 
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.service.business.ExcelBusinessService;
-import net.geoprism.registry.view.BusinessObjectImportConfigurationDTO;
-import net.geoprism.registry.view.ConceptObjectImportConfigurationDTO;
 import net.geoprism.registry.view.GeoObjectImportConfigurationDTO;
 import net.geoprism.registry.view.ImportConfigurationView;
+import net.geoprism.registry.view.TypedObjectImportConfigurationDTO;
 
 @Service
 public class ExcelService
@@ -45,16 +44,11 @@ public class ExcelService
     return this.service.getExcelConfiguration(fileName, fileStream, view);
   }
 
+  @SuppressWarnings("unchecked")
   @Request(RequestType.SESSION)
-  public BusinessObjectImportConfigurationDTO getBusinessTypeConfiguration(String sessionId, String fileName, InputStream fileStream, ImportConfigurationView view)
+  public <T extends TypedObjectImportConfigurationDTO> T getImportConfiguration(String sessionId, String fileName, InputStream fileStream, ImportConfigurationView view)
   {
-    return this.service.getBusinessTypeConfiguration(fileName, fileStream, view);
-  }
-
-  @Request(RequestType.SESSION)
-  public ConceptObjectImportConfigurationDTO getConceptClassConfiguration(String sessionId, String fileName, InputStream fileStream, ImportConfigurationView view)
-  {
-    return this.service.getConceptClassConfiguration(fileName, fileStream, view);
+    return (T) this.service.getImportConfiguration(fileName, fileStream, view);
   }
 
   @Request(RequestType.SESSION)

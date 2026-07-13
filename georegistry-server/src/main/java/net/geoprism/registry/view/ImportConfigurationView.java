@@ -8,11 +8,14 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import net.geoprism.registry.etl.ObjectImporterFactory.JobHistoryType;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.spring.NullableDateDeserializer;
 
 public class ImportConfigurationView
 {
+  private JobHistoryType objectType;
+
   @NotEmpty(message = "Import type requires a value")
   private String         type;
 
@@ -34,6 +37,11 @@ public class ImportConfigurationView
   private String         dataSource;
 
   private String         description;
+
+  public ImportConfigurationView()
+  {
+    this.objectType = JobHistoryType.GEO_OBJECT;
+  }
 
   public String getType()
   {
@@ -115,7 +123,17 @@ public class ImportConfigurationView
     this.description = description;
   }
 
-  public static ImportConfigurationView of(String type, Date startDate, Date endDate, String dataSource, ImportStrategy strategy, Boolean copyBlank)
+  public JobHistoryType getObjectType()
+  {
+    return objectType;
+  }
+
+  public void setObjectType(JobHistoryType objectType)
+  {
+    this.objectType = objectType;
+  }
+
+  public static ImportConfigurationView of(JobHistoryType objectType, String type, Date startDate, Date endDate, String dataSource, ImportStrategy strategy, Boolean copyBlank)
   {
     ImportConfigurationView view = new ImportConfigurationView();
     view.setType(type);
@@ -124,6 +142,7 @@ public class ImportConfigurationView
     view.setDataSource(dataSource);
     view.setStrategy(strategy);
     view.setCopyBlank(copyBlank);
+    view.setObjectType(objectType);
 
     return view;
   }

@@ -144,7 +144,11 @@ export class ScheduledJobsComponent implements OnInit {
     }
 
     isBasicJob(job: ScheduledJobOverview): boolean {
-        return (job.configuration == null || job.configuration.objectType.indexOf('RDF') === -1);
+        return (
+            job.configuration == null || !(
+            job.configuration.objectType === "RDF_LPG" ||
+            job.configuration.objectType === "RDF_REPO")
+        );
     }
 
     formatStepConfig(page: PageResult<any>): void {

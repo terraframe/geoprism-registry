@@ -46,7 +46,7 @@ import { ModalTypes } from "@shared/model/modal";
 import { FeaturePanelComponent } from "./feature-panel.component";
 import { RegistryCacheService } from "@registry/service/registry-cache.service";
 import { GEO_OBJECT_DATA_SOURCE_TYPE, Layer, ListVectorLayerDataSource, SearchLayerDataSource, LIST_VECTOR_SOURCE_TYPE, SEARCH_DATASOURCE_TYPE, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE, GeoObjectLayerDataSource, ValueOverTimeDataSource, RelationshipVisualizionDataSource } from "@registry/service/layer-data-source";
-import { BusinessObject, BusinessType } from "@registry/model/object-class";
+import { ObjectOverTime, BusinessType } from "@registry/model/object-class";
 import { BusinessObjectService } from "@registry/service/business-object.service";
 import { Vertex } from "@registry/model/graph";
 import { LocationManagerStateService } from "@registry/service/location-manager.service";
@@ -60,7 +60,7 @@ import { ListRowComponent } from "./list-row.component";
 import { ListPanelComponent } from "./list-panel.component";
 import { LayerPanelComponent } from "./layer-panel.component";
 import { RelationshipVisualizerComponent } from "../relationship-visualizer/relationship-visualizer.component";
-import { BusinessObjectPanelComponent } from "./business-object-panel.component";
+import { ObjectPanelComponent } from "../object-table/object-panel.component";
 import { FormsModule } from "@angular/forms";
 import { DateFieldComponent } from "../../../shared/component/form-fields/date-field/date-field.component";
 import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
@@ -77,7 +77,7 @@ class SelectedObject {
     forDate?: string;
 
     // If business object
-    businessObject?: BusinessObject;
+    businessObject?: ObjectOverTime;
     businessType?: BusinessType;
 
     // If list record
@@ -116,7 +116,7 @@ export interface LocationManagerState {
     templateUrl: "./location-manager.component.html",
     styleUrls: ["./location-manager.css"],
     standalone: true,
-    imports: [NgIf, LocalizeComponent, PageContainerComponent, NgClass, NgxSpinnerModule, DateFieldComponent, FormsModule, NgFor, FeaturePanelComponent, BusinessObjectPanelComponent, RelationshipVisualizerComponent, NgStyle, LayerPanelComponent, ListPanelComponent, ListRowComponent, LocalizePipe]
+    imports: [NgIf, LocalizeComponent, PageContainerComponent, NgClass, NgxSpinnerModule, DateFieldComponent, FormsModule, NgFor, FeaturePanelComponent, ObjectPanelComponent, RelationshipVisualizerComponent, NgStyle, LayerPanelComponent, ListPanelComponent, ListRowComponent, LocalizePipe]
 })
 export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestroy {
 

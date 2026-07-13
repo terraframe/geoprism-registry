@@ -11,6 +11,7 @@ import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.graph.ObjectClass;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.graph.ObjectClassIF;
 import net.geoprism.registry.view.ImportColumnDTO;
 import net.geoprism.registry.view.ImportTypeDTO;
 
@@ -18,7 +19,9 @@ public abstract class DataImportBusinessService
 {
   protected ImportTypeDTO getType(ServerGeoObjectType geoObjectType)
   {
-    final boolean includeCoordinates = geoObjectType.getGeometryType().equals(GeometryType.POINT) || geoObjectType.getGeometryType().equals(GeometryType.MULTIPOINT) || geoObjectType.getGeometryType().equals(GeometryType.MIXED);
+    final boolean includeCoordinates = geoObjectType.getGeometryType().equals(GeometryType.POINT) //
+        || geoObjectType.getGeometryType().equals(GeometryType.MULTIPOINT) //
+        || geoObjectType.getGeometryType().equals(GeometryType.MIXED);
 
     return getType(geoObjectType, includeCoordinates);
 
@@ -47,9 +50,18 @@ public abstract class DataImportBusinessService
     return type;
   }
 
-  protected ImportTypeDTO getType(ObjectClass pType)
+  protected ImportTypeDTO getType(ObjectClass type)
   {
-    return ImportConfiguration.toTypeDTO(pType, new HashMap<>());
+    return ImportConfiguration.toTypeDTO(type, new HashMap<>());
   }
 
+  protected ImportTypeDTO getType(ObjectClassIF type)
+  {
+    if (type instanceof ServerGeoObjectType)
+    {
+      return this.getType((ServerGeoObjectType) type);
+    }
+
+    return this.getType((ObjectClass) type);
+  }
 }

@@ -1,0 +1,67 @@
+/**
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+ *
+ * This file is part of Geoprism Registry(tm).
+ *
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ */
+#hierarchy-tree-container {
+	height: calc(100vh - 429px);
+    overflow-y: auto;
+}
+
+.location-management-widget-section {
+	margin: 5px 0;
+}
+.location-management-widget-section > select {
+	float: none !important;
+}
+
+.list-group-item {
+	border: none;
+	border-bottom: 1px solid #ddd;
+	margin-bottom: 0;
+}
+.list-group-item input {
+	height: auto;
+}
+
+.breadcrumb{
+	padding: 10px 0;
+	background-color: white;
+	margin:0;
+}
+
+.layer-toggle {
+	cursor: pointer; 
+	background: #fff; 
+	padding: 8px; 
+	border-radius: 4px;
+	width: fit-content;
+}
+
+.layer-toggle input {
+	height: auto;
+}
+.layer-toggle label {
+	margin-left: 5px;
+}
+
+#attributes-header {
+	background: #adadad;
+  padding: 2px 15px;
+  margin: 10px 0;
+  color: white;
+  border-radius: 3px;
+}

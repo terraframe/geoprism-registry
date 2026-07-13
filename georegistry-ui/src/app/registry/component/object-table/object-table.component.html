@@ -19,10 +19,18 @@
 
 -->
 <page-container>
-    <ng-container *ngIf="businessType != null">
-        <h2>{{businessType.displayLabel.localizedValue}}</h2>
-        <generic-table [setup]="setup" [config]="config" [pageConfig]="{typeCode: businessType.code}"
-            (click)="onClick($event)">
-        </generic-table>
+    <ng-container *ngIf="type != null">
+        <div class="row">
+            <div *ngIf="object != null" class="col-md-4">
+                <object-panel [type]="type" [object]="object" (close)="object = null">
+                </object-panel>
+            </div>
+            <div [ngClass]="{'col-md-8': object != null,'col-md-12': object == null}">
+                <h2>{{type.displayLabel.localizedValue}}</h2>
+                <generic-table [setup]="setup" [config]="config" [pageConfig]="{typeCode: type.code}"
+                    (click)="onClick($event)">
+                </generic-table>
+            </div>
+        </div>
     </ng-container>
 </page-container>

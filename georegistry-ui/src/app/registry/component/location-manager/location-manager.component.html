@@ -112,9 +112,9 @@
                     (panelCancel)="clearRecord()" (panelSubmit)="onPanelSubmit($event)">
                   </feature-panel>
 
-                  <business-object-panel *ngIf="current.objectType === 'BUSINESS'" [type]="current.businessType"
+                  <object-panel *ngIf="current.objectType === 'BUSINESS'" [type]="current.businessType"
                     [object]="current.businessObject" (close)="mode = MODE.VIEW">
-                  </business-object-panel>
+                  </object-panel>
                 </div>
               </div>
             </ng-container>

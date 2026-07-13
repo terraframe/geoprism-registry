@@ -53,11 +53,11 @@ public abstract class DatasetTest
   @Autowired
   protected EventGateway                      gateway;
 
-  protected ConceptObject createConceptObject(String code, ConceptClass type, DataSource dataSource)
+  protected ConceptObject createConceptObject(String code, ConceptClass type, DataSource dataSource, Date startDate, Date endDate)
   {
     ConceptObject object = this.cObjectService.newInstance(type);
     object.setCode(code);
-    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), dataSource);
+    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), dataSource, startDate, endDate);
     return applyConceptObject(object, true);
   }
 
@@ -74,12 +74,12 @@ public abstract class DatasetTest
     return this.cObjectService.getByCode(object.getType(), builder.getCode());
   }
 
-  protected BusinessObject createBusinessObject(String code, BusinessType type, DataSource dataSource)
+  protected BusinessObject createBusinessObject(String code, BusinessType type, DataSource dataSource, Date startDate, Date endDate)
   {
     BusinessObject object = this.bObjectService.newInstance(type);
     object.setCode(code);
     object.setValue("testBoolean", false);
-    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), dataSource);
+    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), dataSource, startDate, endDate);
 
     return applyBusinessObject(object, true);
   }

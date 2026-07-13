@@ -131,7 +131,7 @@
     <div class="col-md-12 order-md-1" *ngIf="job">
 
       <tabset [justified]="true">
-        <tab [heading]="'job.imported.data' | localize">
+        <tab *ngIf="job.configuration && (job.configuration.objectType === 'GEO_OBJECT' || job.configuration.objectType === 'EDGE_OBJECT')" [heading]="'job.imported.data' | localize">
           <scheduled-job-map [historyId]="historyId"></scheduled-job-map>
         </tab>
         <tab [heading]="'job.problems' | localize" [disabled]="!page || page.resultSet.length == 0">

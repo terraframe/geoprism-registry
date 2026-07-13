@@ -32,12 +32,11 @@ import { SyncDetailsComponent } from "./component/synchronization-config/details
 import { LocationManagerComponent } from "./component/location-manager/location-manager.component";
 
 import { MaintainerGuard, ContributerGuard, AuthGuard, LabeledPropertyGraphGuard, BusinessDataGuard } from "../shared/service/guard.service";
-import { BusinessImporterComponent } from "./component/business-importer/business-importer.component";
+import { ObjectImporterComponent } from "./component/object-importer/object-importer.component";
 import { HistoricalEventModuleComponent } from "./component/historical-event-module/historical-event-module.component";
 import { ListTypeManagerComponent } from "./component/list-type/list-type-manager.component";
 import { ListComponent } from "./component/list-type/list.component";
 import { CurationJobComponent } from "./component/curation/curation-job.component";
-import { BusinessTableComponent } from "./component/business-table/business-table.component";
 import { ClassificationTypeManagerComponent } from "./component/classification-type/classification-type-manager.component";
 import { LabeledPropertyGraphTypeManagerComponent } from "./component/labeled-property-graph-type/labeled-property-graph-type-manager.component";
 import { SourceManagerComponent } from "./component/source/source-manager.component";
@@ -46,6 +45,7 @@ import { PublishManagerComponent } from "./component/publish-events/publish-mana
 import { RollbackCheckpointManagerComponent } from "./component/rollback-checkpoint/rollback-checkpoint-manager.component";
 import { BusinessOntologyComponent } from "./component/business-ontology/business-ontology.component";
 import { ConceptOntologyComponent } from "./component/concept-ontology/concept-ontology.component";
+import { ObjectTableComponent } from "./component/object-table/object-table.component";
 
 export const routes: Routes = [
     {
@@ -144,13 +144,13 @@ export const routes: Routes = [
         canActivate: [AuthGuard, BusinessDataGuard]
     },
     {
-        path: "business-importer",
-        component: BusinessImporterComponent,
+        path: "object-importer",
+        component: ObjectImporterComponent,
         canActivate: [AuthGuard, BusinessDataGuard]
     },
     {
-        path: "business-type/:oid",
-        component: BusinessTableComponent,
+        path: "object/:objectType/:oid",
+        component: ObjectTableComponent,
         canActivate: [AuthGuard, BusinessDataGuard]
     },
     {

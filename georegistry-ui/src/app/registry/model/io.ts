@@ -18,6 +18,7 @@
 ///
 
 /* eslint-disable padded-blocks */
+import { ImportStrategy } from "./constants";
 import { GeoObjectType } from "./registry";
 
 export class ImportSheet {
@@ -74,17 +75,26 @@ export class Synonym {
     vOid?: string;
 }
 
+export class ImportConfigurationView {
+    objectType: "GEO_OBJECT" | "BUSINESS_OBJECT" | "CONCEPT_OBJECT" | "EDGE_OBJECT" | "LPG" | "RDF_LPG" | "RDF_REPO";
+    type: string;
+    startDate: string;
+    endDate: string;
+    strategy: ImportStrategy;
+    copyBlank: boolean;
+    dataSource: string;
+    description: string;
+}
+
 export class ImportConfiguration {
     type: GeoObjectType;
     sheet: ImportSheet;
     directory: string;
-    filename: string;
+    fileName: string;
     hierarchy?: string;
-    postalCode: boolean;
-    hasPostalCode: boolean;
     locations?: Location[];
     formatType: string;
-    objectType: string;
+    objectType: "GEO_OBJECT" | "BUSINESS_OBJECT" | "CONCEPT_OBJECT" | "EDGE_OBJECT" | "LPG" | "RDF_LPG" | "RDF_REPO";
     locationProblems: LocationProblem[];
     termProblems: TermProblem[];
     exclusions: Exclusion[];
@@ -97,6 +107,12 @@ export class ImportConfiguration {
     revealGeometryColumn?: any;
     onValidChange: any;
     externalIdAttributeTarget: string;
+    importStrategy?: ImportStrategy;
+    description?: string;
+    dataSource?: string;
+    copyBlank?: boolean;
+    postalCode: boolean;
+    hasPostalCode: boolean;
 }
 
 export class EdgeImportConfiguration extends ImportConfiguration {

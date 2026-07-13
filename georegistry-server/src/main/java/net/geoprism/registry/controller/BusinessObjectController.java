@@ -18,7 +18,6 @@
  */
 package net.geoprism.registry.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -32,58 +31,47 @@ import com.google.gson.JsonArray;
 import jakarta.validation.constraints.NotBlank;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.graph.BusinessType;
+import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.service.request.BusinessObjectService;
-import net.geoprism.registry.view.ObjectOverTimeDTO;
-import net.geoprism.registry.view.ObjectAndTypeDTO;
+import net.geoprism.registry.view.BusinessTypeDTO;
 
 @RestController
 @Validated
 @RequestMapping(RegistryConstants.CONTROLLER_ROOT + "business-object")
-public class BusinessObjectController extends RunwaySpringController
+public class BusinessObjectController extends ObjectController<BusinessObject, BusinessType, BusinessTypeDTO>
 {
-  @Autowired
-  private BusinessObjectService service;
-
-  @GetMapping("/get")
-  public ResponseEntity<ObjectOverTimeDTO> get( //
-      @NotBlank @RequestParam(name = "businessTypeCode") String businessTypeCode, //
-      @NotBlank @RequestParam(name = "code") String code)
+  public BusinessObjectController(BusinessObjectService service)
   {
-    ObjectOverTimeDTO response = service.get(this.getSessionId(), businessTypeCode, code);
-
-    return ResponseEntity.ok(response);
+    super(service);
   }
 
-  @GetMapping("/get-type-and-object")
-  public ResponseEntity<ObjectAndTypeDTO> getTypeAndObject( //
-      @NotBlank @RequestParam(name = "businessTypeCode") String businessTypeCode, //
-      @NotBlank @RequestParam(name = "code") String code)
+  @Override
+  protected BusinessObjectService getService()
   {
-    ObjectAndTypeDTO response = service.getTypeAndObject(this.getSessionId(), businessTypeCode, code);
-
-    return ResponseEntity.ok(response);
+    return (BusinessObjectService) super.getService();
   }
 
   @GetMapping("/get-parents")
   public ResponseEntity<String> getParents( //
-      @NotBlank @RequestParam(name = "businessTypeCode") String businessTypeCode, //
+      @NotBlank @RequestParam(name = "typeCode") String typeCode, //
       @NotBlank @RequestParam(name = "code") String code, //
-      @NotBlank @RequestParam(name = "businessEdgeTypeCode") String businessEdgeTypeCode, //
+      @NotBlank @RequestParam(name = "edgeTypeCode") String edgeTypeCode, //
       @NotBlank @RequestParam(name = "date") String date)
   {
-    JsonArray parents = this.service.getParents(this.getSessionId(), businessTypeCode, code, businessEdgeTypeCode, GeoRegistryUtil.parseDate(date, true));
+    JsonArray parents = this.getService().getParents(this.getSessionId(), typeCode, code, edgeTypeCode, GeoRegistryUtil.parseDate(date, true));
 
     return new ResponseEntity<String>(parents.toString(), HttpStatus.OK);
   }
 
   @GetMapping("/get-children")
   public ResponseEntity<String> getChildren( //
-      @NotBlank @RequestParam(name = "businessTypeCode") String businessTypeCode, //
+      @NotBlank @RequestParam(name = "typeCode") String typeCode, //
       @NotBlank @RequestParam(name = "code") String code, //
-      @NotBlank @RequestParam(name = "businessEdgeTypeCode") String businessEdgeTypeCode, //
+      @NotBlank @RequestParam(name = "edgeTypeCode") String edgeTypeCode, //
       @NotBlank @RequestParam(name = "date") String date)
   {
-    JsonArray parents = this.service.getChildren(this.getSessionId(), businessTypeCode, code, businessEdgeTypeCode, GeoRegistryUtil.parseDate(date, true));
+    JsonArray parents = this.getService().getChildren(this.getSessionId(), typeCode, code, edgeTypeCode, GeoRegistryUtil.parseDate(date, true));
 
     return new ResponseEntity<String>(parents.toString(), HttpStatus.OK);
   }

@@ -1,0 +1,162 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<ng-template #localField let-value="value" let-entry="entry">
+  <tr *ngFor="let loc of value.localeValues; let idx = index;" class="attribute-value-row">
+    <td colspan="2">
+      <h5><convert-key-label [key]="loc.locale"></convert-key-label></h5>
+
+      <input [disabled]="true" class="form-control" [name]="'loc-val-' + entry + '-' + idx" [(ngModel)]="loc.value"
+        [required]="loc.locale === 'defaultLocale'">
+    </td>
+  </tr>
+</ng-template>
+
+<ng-template #basicField let-value="value" let-entry="entry">
+  {{value}}
+</ng-template>
+
+
+<ng-template #versionDetail let-attributeType='attributeType' let-values="values">
+  <div class="row">
+    <div class="col">
+      <div class="attribute-version-wrapper">
+        <ul class="list-group">
+          <li class="list-group-item" style="text-align:left;padding:0;">
+            <div>
+              <table class="table table-striped" *ngFor="let vot of values; let i = index;" class="version-row">
+                <tbody class="attribute-element-wrapper">
+                  <p class="message" *ngIf="values.length === 0">
+                    <localize key="changeovertime.manageVersions.no.versions.message"></localize>
+                  </p>
+
+                  <ng-container>
+                    <tr>
+                      <td class="version-column-wrapper">
+                        <table>
+                          <ng-container *ngIf="vot.value" [ngSwitch]="attributeType.type">
+                            <ng-container *ngIf="'local'" [ngTemplateOutlet]="localField"
+                              [ngTemplateOutletContext]="{value:vot.value, entry: i}">
+                            </ng-container>
+                            <ng-container *ngSwitchDefault [ngTemplateOutlet]="basicField"
+                              [ngTemplateOutletContext]="{value:vot.value, entry: i}">
+                            </ng-container>
+                          </ng-container>
+                        </table>
+                      </td>
+                    </tr>
+                    <tr class="attribute-date-input-row">
+                      <td>
+                        <h5>
+                          <localize key="changeovertime.manageVersions.tableHeader.label.startDate">
+                          </localize>
+                        </h5>
+
+                        <date-field #dateFieldComponents [(value)]="vot.startDate" [inputName]="'startDate_' + i"
+                          allowFutureDates]="true" [required]="true" [disable]="true"></date-field>
+                      </td>
+                      <td>
+                        <div class="version-edit-date-container">
+                          <h5>
+                            <localize key="changeovertime.manageVersions.tableHeader.label.endDate">
+                            </localize>
+                          </h5>
+
+                          <date-field #dateFieldComponents [(value)]="vot.endDate" [inputName]="'endDate_' + i"
+                            [allowFutureDates]="true" [required]="true" [placement]="'bottom'"
+                            [disable]="true"></date-field>
+                        </div>
+                      </td>
+                    </tr>
+
+                  </ng-container>
+                </tbody>
+              </table>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+
+
+
+<div>
+  <div class="row">
+    <div class="col-md-12">
+      <h3> {{type.displayLabel.localizedValue}} </h3>
+    </div>
+  </div>
+
+  <form class="modal-form" name="geobject-shared-attribute-editor" #attributeForm="ngForm">
+    <fieldset>
+      <div class="row">
+        <div class="col-md-12">
+          <span class="text"></span>
+          <ul class="list-group">
+            <ng-container *ngFor="let attributeType of type.attributes">
+              <li class="list-group-item" style="text-align:left;border:none;padding:0;">
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h4 style="margin:0;">
+                      <span>
+                        {{attributeType.label.localizedValue}}
+                      </span>
+                    </h4>
+                  </div>
+
+                  <div class="panel-body">
+                    <ng-container *ngIf="object.data[attributeType.code] != null">
+                      <ng-container *ngIf="attributeType.isChangeOverTime">
+                        <ng-container [ngTemplateOutlet]="versionDetail"
+                          [ngTemplateOutletContext]="{values:object.data[attributeType.code]!.values, attributeType:attributeType}">
+                        </ng-container>
+                      </ng-container>
+                      <ng-container *ngIf="!attributeType.isChangeOverTime">
+                        <ng-container *ngIf="attributeType.type === 'date'">
+                          <date-text [date]="object.data[attributeType.code]!.value"></date-text>
+                        </ng-container>
+                        <ng-container *ngIf="attributeType.type !== 'date'">
+                          {{ object.data[attributeType.code]!.value }}
+                        </ng-container>
+                      </ng-container>
+                    </ng-container>
+                  </div>
+                </div>
+              </li>
+            </ng-container>
+          </ul>
+        </div>
+      </div>
+    </fieldset>
+  </form>
+  <!--
+
+  <div class="button-holder text-right" style="margin-bottom: 20px;">
+    <button type="button" class="btn btn-default" (click)="onClose()">
+      <localize key="modal.button.cancel"></localize>
+    </button>
+  </div>
+-->
+
+</div>

@@ -36,19 +36,18 @@ import { DateTextComponent } from '../../../shared/component/date-text/date-text
 import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
 import { NgIf, NgFor } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { BooleanFieldComponent } from '@shared/component/form-fields/boolean-field/boolean-field.component';
 
 @Component({
     selector: 'configuration-modal',
     templateUrl: './configuration-modal.component.html',
     styleUrls: [],
     standalone: true,
-    imports: [FormsModule, NgIf, LocalizeComponent, DateTextComponent, NgFor]
+    imports: [FormsModule, NgIf, LocalizeComponent, DateTextComponent, NgFor, BooleanFieldComponent]
 })
 export class ConfigurationModalComponent implements OnInit {
 
-    configuration: any;
-
-    type: GeoObjectType;
+    configuration: ImportConfiguration;
 
     strategy: any;
 
@@ -60,7 +59,7 @@ export class ConfigurationModalComponent implements OnInit {
     ngOnInit(): void {
     }
 
-    init(configuration: any): void {
+    init(configuration: ImportConfiguration): void {
         this.configuration = configuration;
 
         if (this.configuration.importStrategy && this.configuration.importStrategy.length > 0) {
@@ -72,16 +71,5 @@ export class ConfigurationModalComponent implements OnInit {
 
             this.strategy = strategies.find(s => s.strategy === this.configuration.importStrategy);
         }
-
-        if (configuration.type && configuration.type.code) {
-            this.cacheService.getTypeCache().waitOnTypes().then((types: GeoObjectType[]) => {
-                const index = types.findIndex(t => t.code === configuration.type.code);
-
-                if(index != null) {
-                    this.type = types[index];
-                }
-            });
-        }
-
     }
 }

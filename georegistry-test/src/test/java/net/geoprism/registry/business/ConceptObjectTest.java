@@ -170,7 +170,7 @@ public class ConceptObjectTest extends FastDatasetTest implements InstanceTestCl
     object.setValue(attribute.getCode(), "Test Text");
     object.setValue(attributeOverTime.getCode(), "Test Text 2", FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
     object.setValue(attributeClassification.getCode(), root.getVertex());
-    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.SOURCE.getDataSource());
+    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.SOURCE.getDataSource(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
     object.setCode(TEST_CODE);
     this.cObjectService.apply(object);
 
@@ -193,7 +193,7 @@ public class ConceptObjectTest extends FastDatasetTest implements InstanceTestCl
     ConceptObject object = this.cObjectService.newInstance(type);
     object.setValue(attribute.getCode(), "Test Text");
     object.setCode(TEST_CODE);
-    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.SOURCE.getDataSource());
+    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.SOURCE.getDataSource(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
     object.setValue(attributeOverTime.getCode(), "Test Text 2", FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
 
     this.cObjectService.apply(object);
@@ -205,7 +205,7 @@ public class ConceptObjectTest extends FastDatasetTest implements InstanceTestCl
       Assert.assertEquals(object.getVertex().getOid(), result.getVertex().getOid());
       Assert.assertEquals(FastTestDataset.SOURCE.getDataSource().getOid(), (String) result.getValue(DefaultAttribute.DATA_SOURCE.getName()));
       Assert.assertEquals("Test Text 2", result.getValue(attributeOverTime.getCode(), FastTestDataset.DEFAULT_OVER_TIME_DATE));
-      Assert.assertEquals("Test Text", result.getValue(attribute.getCode()));      
+      Assert.assertEquals("Test Text", result.getValue(attribute.getCode()));
     }
     finally
     {
@@ -245,7 +245,7 @@ public class ConceptObjectTest extends FastDatasetTest implements InstanceTestCl
     object.setCode(TEST_CODE);
     // object.setValue(attributeClassification.getCode(), root.getVertex());
     object.setValue(attributeOverTime.getCode(), text, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
-    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.SOURCE.getDataSource());
+    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.SOURCE.getDataSource(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
 
     ObjectOverTimeDTO dto = this.cObjectService.toDTO(object);
 
@@ -262,18 +262,18 @@ public class ConceptObjectTest extends FastDatasetTest implements InstanceTestCl
       Assert.assertNotNull(dto);
       Assert.assertEquals(TEST_CODE, dto.getCode());
 
-      Assert.assertEquals(FastTestDataset.SOURCE.getCode(), dto.getValue(DefaultAttribute.DATA_SOURCE.getName()));
+      Assert.assertEquals(FastTestDataset.SOURCE.getCode(), dto.getValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.DEFAULT_OVER_TIME_DATE).get());
       Assert.assertEquals(text, dto.getValue(attribute.getCode()));
 
-      List<ValueOverTimeEntryDTO> valuesOverTime = dto.getValuesOverTime(attributeOverTime.getCode());
+      List<ValueOverTimeEntryDTO<String>> valuesOverTime = dto.getValuesOverTime(attributeOverTime.getCode());
 
       Assert.assertEquals(1, valuesOverTime.size());
 
-      ValueOverTimeEntryDTO ValueOverTimeEntryDTO = valuesOverTime.get(0);
+      ValueOverTimeEntryDTO<String> entry = valuesOverTime.get(0);
 
-      Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, ValueOverTimeEntryDTO.getStartDate());
-      Assert.assertEquals(FastTestDataset.DEFAULT_END_TIME_DATE, ValueOverTimeEntryDTO.getEndDate());
-      Assert.assertEquals(text, ValueOverTimeEntryDTO.getValue());
+      Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, entry.getStartDate());
+      Assert.assertEquals(FastTestDataset.DEFAULT_END_TIME_DATE, entry.getEndDate());
+      Assert.assertEquals(text, entry.getValue());
     }
     finally
     {

@@ -10,6 +10,7 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
+import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.junit.Assert;
 import org.junit.Test;
@@ -122,7 +123,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     type = this.bTypeService.apply(object);
 
     attribute = this.bTypeService.createAttributeType(type, new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test True"), false, false, false, false));
-    attributeOverTime = this.bTypeService.createAttributeType(type, new AttributeCharacterType("testCharacter2", new LocalizedValue("Test Character 2"), new LocalizedValue("Test True"), false, false, false, true));
+    attributeOverTime = this.bTypeService.createAttributeType(type, new AttributeLocalType("testCharacter2", new LocalizedValue("Test Character 2"), new LocalizedValue("Test True"), false, false, false, true));
 
     attributeClassification = new AttributeClassificationType("testClassification", new LocalizedValue("Test Classification"), new LocalizedValue("Test Classification"), false, false, false);
     attributeClassification.setClassificationType(classificationType.getCode());
@@ -204,17 +205,17 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
   {
     BusinessObject object = this.bObjectService.newInstance(type);
     object.setValue(attribute.getCode(), "Test Text");
-    object.setValue(attributeOverTime.getCode(), "Test Text 2", FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
+    object.setValue(attributeOverTime.getCode(), new LocalizedValue("Test Text 2"), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
     object.setValue(attributeClassification.getCode(), root.getVertex());
-    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.SOURCE.getDataSource());
+    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.SOURCE.getDataSource(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
     object.setCode(TEST_CODE);
-    
+
     this.bObjectService.apply(object);
 
     try
     {
       Assert.assertEquals("Test Text", object.getValue(attribute.getCode()));
-      Assert.assertEquals("Test Text 2", object.getValue(attributeOverTime.getCode(), FastTestDataset.DEFAULT_OVER_TIME_DATE));
+      Assert.assertEquals("Test Text 2", ( (LocalizedValue) object.getValue(attributeOverTime.getCode(), FastTestDataset.DEFAULT_OVER_TIME_DATE) ).getLocalizedValue());
     }
     finally
     {
@@ -229,9 +230,9 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
   {
     BusinessObject object = this.bObjectService.newInstance(type);
     object.setValue(attribute.getCode(), "Test Text");
-    object.setValue(attributeOverTime.getCode(), "Test Text 2", FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
+    object.setValue(attributeOverTime.getCode(), new LocalizedValue("Test Text 2"), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
     object.setCode(TEST_CODE);
-    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.SOURCE.getDataSource());
+    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.SOURCE.getDataSource(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
 
     this.bObjectService.apply(object);
 
@@ -241,7 +242,8 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
       Assert.assertEquals(object.getVertex().getOid(), result.getVertex().getOid());
       Assert.assertEquals(FastTestDataset.SOURCE.getDataSource().getOid(), (String) result.getValue(DefaultAttribute.DATA_SOURCE.getName()));
-      Assert.assertEquals("Test Text 2", result.getValue(attributeOverTime.getCode(), FastTestDataset.DEFAULT_OVER_TIME_DATE));
+
+      Assert.assertEquals("Test Text 2", ( (LocalizedValue) result.getValue(attributeOverTime.getCode(), FastTestDataset.DEFAULT_OVER_TIME_DATE) ).getLocalizedValue());
       Assert.assertEquals("Test Text", result.getValue(attribute.getCode()));
     }
     finally
@@ -280,7 +282,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     BusinessObject object = this.bObjectService.newInstance(type);
     object.setValue(attribute.getCode(), "Test Text");
     object.setCode(TEST_CODE);
-    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.SOURCE.getDataSource());
+    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.SOURCE.getDataSource(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
 
     this.bObjectService.apply(object);
 
@@ -312,8 +314,8 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     object.setValue(attribute.getCode(), text);
     object.setCode(TEST_CODE);
     // object.setValue(attributeClassification.getCode(), root.getVertex());
-    object.setValue(attributeOverTime.getCode(), text, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
-    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.SOURCE.getDataSource());
+    object.setValue(attributeOverTime.getCode(), new LocalizedValue("Test Text"), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
+    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.SOURCE.getDataSource(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
 
     ObjectOverTimeDTO dto = this.bObjectService.toDTO(object);
 
@@ -327,20 +329,22 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     {
       dto = this.bObjectService.toDTO(object);
 
+      dto = ObjectOverTimeDTO.parseJson(ObjectOverTimeDTO.toJson(dto));
+
       Assert.assertNotNull(dto);
       Assert.assertEquals(TEST_CODE, dto.getCode());
-      Assert.assertEquals(FastTestDataset.SOURCE.getCode(), dto.getValue(DefaultAttribute.DATA_SOURCE.getName()));
+      Assert.assertEquals(FastTestDataset.SOURCE.getCode(), dto.getValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.DEFAULT_OVER_TIME_DATE).orElseThrow());
       Assert.assertEquals(text, dto.getValue(attribute.getCode()));
 
-      List<ValueOverTimeEntryDTO> valuesOverTime = dto.getValuesOverTime(attributeOverTime.getCode());
+      List<ValueOverTimeEntryDTO<LocalizedValue>> valuesOverTime = dto.getValuesOverTime(attributeOverTime.getCode());
 
       Assert.assertEquals(1, valuesOverTime.size());
 
-      ValueOverTimeEntryDTO ValueOverTimeEntryDTO = valuesOverTime.get(0);
+      ValueOverTimeEntryDTO<LocalizedValue> entry = valuesOverTime.get(0);
 
-      Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, ValueOverTimeEntryDTO.getStartDate());
-      Assert.assertEquals(FastTestDataset.DEFAULT_END_TIME_DATE, ValueOverTimeEntryDTO.getEndDate());
-      Assert.assertEquals(text, ValueOverTimeEntryDTO.getValue());
+      Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, entry.getStartDate());
+      Assert.assertEquals(FastTestDataset.DEFAULT_END_TIME_DATE, entry.getEndDate());
+      Assert.assertEquals(text, entry.getValue().getLocalizedValue());
     }
     finally
     {

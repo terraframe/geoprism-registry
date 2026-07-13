@@ -205,6 +205,7 @@ export class JobComponent implements OnInit, OnDestroy {
 
         this.service.getScheduledJob(this.historyId, this.page.pageSize, pageNumber, true).then(response => {
             this.job = response;
+            console.log(this.job);
 
             if (this.job.stage === "IMPORT_RESOLVE") {
                 this.page = this.job.importErrors;

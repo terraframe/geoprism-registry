@@ -17,28 +17,21 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input, Output, EventEmitter } from "@angular/core";
-import { BusinessObject, BusinessType } from "@registry/model/object-class";
-import { DateTextComponent } from "../../../shared/component/date-text/date-text.component";
-import { NgFor, NgIf } from "@angular/common";
-import { FormsModule } from "@angular/forms";
+import { Injectable } from "@angular/core";
+import { HttpClient } from "@angular/common/http";
 
-@Component({
-    selector: "business-object-panel",
-    templateUrl: "./business-object-panel.component.html",
-    styleUrls: ["./dataset-location-manager.css"],
-    standalone: true,
-    imports: [FormsModule, NgFor, NgIf, DateTextComponent]
-})
-export class BusinessObjectPanelComponent {
+import { EventService } from "@shared/service";
+import { ObjectService } from "./object.service";
 
-    @Input() type: BusinessType;
-    @Input() object: BusinessObject;
+@Injectable({ providedIn: 'root' })
+export class ConceptObjectService extends ObjectService {
 
-    @Output() close = new EventEmitter<void>();
-
-    onClose(): void {
-        this.close.emit();
+    // eslint-disable-next-line no-useless-constructor
+    constructor(protected http: HttpClient, protected eventService: EventService) {
+        super(http, eventService);
     }
 
+    controller() {
+        return "/api/concept-object";
+    }
 }

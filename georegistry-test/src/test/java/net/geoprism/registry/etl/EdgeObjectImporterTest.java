@@ -52,6 +52,7 @@ import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
+import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.BusinessEdgeTypeView;
 import net.geoprism.registry.view.BusinessGeoEdgeTypeView;
 import net.geoprism.registry.view.BusinessTypeDTO;
@@ -157,8 +158,8 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
 
     testData.logIn();
 
-    pObject = createBusinessObject("P_CODE", btype, null);
-    cObject = createBusinessObject("C_CODE", btype, null);
+    pObject = createBusinessObject("P_CODE", btype, FastTestDataset.SOURCE.getDataSource(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+    cObject = createBusinessObject("C_CODE", btype, FastTestDataset.SOURCE.getDataSource(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
     addBusinessEdge();
   }

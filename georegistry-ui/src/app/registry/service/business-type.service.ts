@@ -21,8 +21,6 @@ import { Injectable } from "@angular/core";
 import { HttpClient, HttpParams } from "@angular/common/http";
 
 import { EventService } from "@shared/service";
-import { GenericTableService } from "@shared/model/generic-table";
-import { PageResult } from "@shared/model/core";
 
 import { environment } from 'src/environments/environment';
 import { finalize, firstValueFrom } from "rxjs";
@@ -30,7 +28,7 @@ import { ObjectClassService } from "./object-class.service";
 import { BusinessEdgeType, BusinessType } from "@registry/model/object-class";
 
 @Injectable({ providedIn: 'root' })
-export class BusinessTypeService extends ObjectClassService<BusinessType> implements GenericTableService {
+export class BusinessTypeService extends ObjectClassService<BusinessType> {
 
     // eslint-disable-next-line no-useless-constructor
     constructor(public http: HttpClient, public eventService: EventService) {
@@ -51,14 +49,4 @@ export class BusinessTypeService extends ObjectClassService<BusinessType> implem
                 this.eventService.complete();
             })))
     }
-
-    page(criteria: Object, pageConfig: any): Promise<PageResult<Object>> {
-        let params: HttpParams = new HttpParams();
-        params = params.set("criteria", JSON.stringify(criteria));
-        params = params.set("typeCode", pageConfig.typeCode);
-
-        return firstValueFrom(this.http
-            .get<PageResult<Object>>(environment.apiUrl + "/api/business-type/data", { params: params }));
-    }
-
 }

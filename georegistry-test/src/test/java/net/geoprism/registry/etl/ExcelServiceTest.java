@@ -217,7 +217,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
     Assert.assertNotNull(istream);
 
-    GeoObjectImportConfigurationDTO dto = this.excelService.getExcelConfiguration(testData.clientRequest.getSessionId(), "test-spreadsheet.xlsx", istream, ImportConfigurationView.of(USATestData.DISTRICT.getCode(), null, null, USATestData.SOURCE.getCode(), ImportStrategy.NEW_AND_UPDATE, false));
+    GeoObjectImportConfigurationDTO dto = this.excelService.getExcelConfiguration(testData.clientRequest.getSessionId(), "test-spreadsheet.xlsx", istream, ImportConfigurationView.of(JobHistoryType.GEO_OBJECT, USATestData.DISTRICT.getCode(), null, null, USATestData.SOURCE.getCode(), ImportStrategy.NEW_AND_UPDATE, false));
 
     Assert.assertFalse(dto.getPostalCode());
 
@@ -259,7 +259,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
     Assert.assertNotNull(istream);
 
-    GeoObjectImportConfigurationDTO dto = this.excelService.getExcelConfiguration(testData.clientRequest.getSessionId(), "test-spreadsheet.xlsx", istream, ImportConfigurationView.of(USATestData.DISTRICT.getCode(), null, null, USATestData.SOURCE.getCode(), ImportStrategy.NEW_AND_UPDATE, false));
+    GeoObjectImportConfigurationDTO dto = this.excelService.getExcelConfiguration(testData.clientRequest.getSessionId(), "test-spreadsheet.xlsx", istream, ImportConfigurationView.of(JobHistoryType.GEO_OBJECT, USATestData.DISTRICT.getCode(), null, null, USATestData.SOURCE.getCode(), ImportStrategy.NEW_AND_UPDATE, false));
 
     Assert.assertTrue(dto.getPostalCode());
   }
@@ -931,7 +931,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
   private GeoObjectImportConfigurationDTO getTestConfiguration(InputStream istream, AttributeType attributeTerm, ImportStrategy strategy) throws JSONException
   {
-    GeoObjectImportConfigurationDTO config = this.excelService.getExcelConfiguration(testData.clientRequest.getSessionId(), "test-spreadsheet.xlsx", istream, ImportConfigurationView.of(USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getCode(), strategy, false));
+    GeoObjectImportConfigurationDTO config = this.excelService.getExcelConfiguration(testData.clientRequest.getSessionId(), "test-spreadsheet.xlsx", istream, ImportConfigurationView.of(JobHistoryType.GEO_OBJECT, USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getCode(), strategy, false));
     config.setFormatType(FormatImporterType.EXCEL);
     config.setObjectType(JobHistoryType.GEO_OBJECT);
     config.setImportStrategy(strategy);

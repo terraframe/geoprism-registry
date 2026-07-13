@@ -141,14 +141,14 @@ export class HubService {
                     key: 'header.data.option'
                 },
                 {
-                    id: 'BUSINESS-TYPES',
+                    id: 'OBJECT-IMPORT',
                     description: "nav.importer.business.description",
-                    link: '/registry/business-importer',
+                    link: '/registry/object-importer',
                     icon: 'fa-solid fa-file-import',
                     key: 'business.data.import'
                 },
                 {
-                    id: 'BUSINESS-EDGE-IMPORT',
+                    id: 'EDGE-IMPORT',
                     description: "nav.importer.edge.description",
                     link: '/registry/edge-importer',
                     icon: 'fa-solid fa-file-arrow-up',

@@ -21,15 +21,12 @@ package net.geoprism.registry.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.google.gson.JsonObject;
 
 import jakarta.validation.constraints.NotBlank;
 import net.geoprism.registry.graph.BusinessType;
@@ -51,14 +48,6 @@ public class BusinessTypeController extends ObjectClassController<BusinessType, 
   protected ObjectClassServiceIF<BusinessType, BusinessTypeDTO> getService()
   {
     return this.service;
-  }
-
-  @GetMapping("/data")
-  public ResponseEntity<String> data(@NotBlank @RequestParam(name = "typeCode") String typeCode, @RequestParam(required = false, name = "criteria") String criteria)
-  {
-    JsonObject page = this.service.data(this.getSessionId(), typeCode, criteria);
-
-    return new ResponseEntity<String>(page.toString(), HttpStatus.OK);
   }
 
   @GetMapping("/get-edge-types")
