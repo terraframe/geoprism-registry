@@ -65,3 +65,104 @@
   color: white;
   border-radius: 3px;
 }
+
+/**
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+ *
+ * This file is part of Geoprism Registry(tm).
+ *
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ */
+ table {
+	border-collapse: separate;
+	padding: 15px;
+   }
+   
+   .geometry-edit-active {
+	 background-color: #f4fcef !important;
+	 border: solid 1px #6BA542 !important;
+	 /* display:inline-block; */
+   }
+   
+   .version-column-wrapper.error-border {
+	   border-color: #e30000;
+	 border-style: solid;
+	 border-width: 2px;
+   }
+   
+   .version-column-wrapper.warning-border {
+	 border-color: orange;
+	 border-style: solid;
+	 border-width: 2px;
+   }
+   
+   p.warning-text.display-current-value {
+	 font-size: 12px;
+	 font-weight: bold;
+   }
+   
+   .version-column-wrapper {
+	   padding-top: 0px;
+	   padding-left: 0px;
+	   border: solid 1px lightgrey;
+   }
+   .version-column-wrapper.warning {
+	   background-color: inherit;
+	   border-color: orange;
+	   border-left: solid 5px orange;
+   }
+   
+   .version-column-wrapper .version-column-indicator {
+	   position: relative;
+	   background: grey;
+	   color: white;
+	   left: -1px;
+	   font-size: 14px;
+	   font-weight: bold;
+	   padding: 0 6px;
+	   width: fit-content;
+	   top: -1px;
+   }
+   .version-column-wrapper.warning .version-column-indicator {
+	   background-color: orange;
+   }
+   
+   .manage-version-button {
+	   border: solid 1px lightgrey;
+   }
+   
+   .has-changed {
+	   color: orange;
+   }
+   
+   .version-row tr {
+	padding-left: 10px;
+   }
+   .version-row tr td {
+	padding-left: 5px;
+   }
+   
+   .list-group {
+	margin-bottom: 0;
+   }
+   
+   td[disabled="true"] {
+		background: #f8f8f8;
+		cursor:not-allowed;
+   }
+   td[disabled="true"] i {
+		color: lightgrey;
+		cursor:not-allowed;
+   }
+   
