@@ -147,7 +147,7 @@
                                           <td class="button-column" style="width: 60px;">
                                               <a *ngIf="!attr.isDefault && attr.code !== 'keyName'" class="fa fa-pencil ico-edit" [routerLink]="" (click)="editAttribute(attr, $event)"
                                                   [title]="'modal.button.edit' | localize"></a>
-                                              <a *ngIf="!attr.isDefault && attr.code !== 'keyName'" class="fa fa-trash-o ico-remove" [routerLink]="" (click)="removeAttributeType(attr, $event)"
+                                              <a *ngIf="!attr.isDefault && attr.code !== 'keyName'" class="fa fa-trash ico-remove" [routerLink]="" (click)="removeAttributeType(attr, $event)"
                                                   [title]="'modal.button.remove' | localize"></a>
                                           </td>
                                       </tr>

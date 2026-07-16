@@ -72,7 +72,7 @@
                           <ng-container *ngIf="!readOnly && !attr.isDefault">
                             <a class="fa fa-pencil ico-edit" [routerLink]="" (click)="editAttribute(attr, $event)"
                               [title]="'modal.button.edit' | localize"></a>
-                            <a class="fa fa-trash-o ico-remove" [routerLink]=""
+                            <a class="fa fa-trash ico-remove" [routerLink]=""
                               (click)="removeAttributeType(attr, $event)"
                               [title]="'modal.button.remove' | localize"></a>
                           </ng-container>
