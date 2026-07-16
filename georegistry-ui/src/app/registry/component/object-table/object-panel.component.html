@@ -22,14 +22,16 @@
 
 
 <ng-template #localField let-value="value" let-entry="entry">
-  <tr *ngFor="let loc of value.localeValues; let idx = index;" class="attribute-value-row">
-    <td colspan="2">
-      <h5><convert-key-label [key]="loc.locale"></convert-key-label></h5>
+  <table style="border: none; padding: 0px;">
+    <tr *ngFor="let loc of value.localeValues; let idx = index;" class="attribute-value-row">
+      <td >
+        <h5><convert-key-label [key]="loc.locale"></convert-key-label></h5>
 
-      <input [disabled]="true" class="form-control" [name]="'loc-val-' + entry + '-' + idx" [(ngModel)]="loc.value"
-        [required]="loc.locale === 'defaultLocale'">
-    </td>
-  </tr>
+        <input [disabled]="true" class="form-control" [name]="'loc-val-' + entry + '-' + idx" [(ngModel)]="loc.value"
+          [required]="loc.locale === 'defaultLocale'">
+      </td>
+    </tr>
+  </table>
 </ng-template>
 
 <ng-template #dateField let-value="value" let-entry="entry">

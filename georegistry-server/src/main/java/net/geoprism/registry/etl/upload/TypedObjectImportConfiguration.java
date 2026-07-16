@@ -32,6 +32,7 @@ import com.runwaysdk.session.Request;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.registry.graph.ObjectClass;
+import net.geoprism.registry.io.LocalizedValueFunction;
 import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.view.BusinessObjectImportConfigurationDTO;
 import net.geoprism.registry.view.ExclusionDTO;
@@ -164,7 +165,21 @@ public abstract class TypedObjectImportConfiguration<T extends ObjectClass> exte
       }
       else if (!StringUtils.isBlank(attribute.getTarget()))
       {
-        this.setFunction(attribute.getCode(), new BasicColumnFunction(attribute.getTarget()));
+        if (!StringUtils.isBlank(attribute.getLocale()))
+        {
+          if (!this.functions.containsKey(attribute.getCode()))
+          {
+            this.functions.put(attribute.getCode(), new LocalizedValueFunction());
+          }
+
+          LocalizedValueFunction function = (LocalizedValueFunction) this.getFunction(attribute.getCode());
+
+          function.add(attribute.getLocale(), new BasicColumnFunction(attribute.getTarget()));
+        }
+        else
+        {
+          this.setFunction(attribute.getCode(), new BasicColumnFunction(attribute.getTarget()));
+        }
       }
     });
 
