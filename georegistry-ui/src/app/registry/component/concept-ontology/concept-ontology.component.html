@@ -22,12 +22,18 @@
     <div class="row">
         <div class="col-md-12 order-md-1">
             <tabset [justified]="true">
-                <tab [heading]="'skg.concept.classes' | localize">
+                <!-- <tab [heading]="'skg.concept.classes' | localize"> -->
+				<!-- LOCALIZE -->
+                <tab heading="Concept Classes">
+
                     <concept-class-page [organizations]="organizations" [types]="conceptClasses"
                         (typesChange)="setConceptClasss($event)" (onError)="error($event)">
                     </concept-class-page>
                 </tab>
 
+				<!-- LOCALIZE -->
+                <tab heading="Concept Sets">
+                </tab>
             </tabset>
         </div>
     </div>
