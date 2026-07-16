@@ -126,7 +126,7 @@
     <url>scm:git:ssh://git@github.com/terraframe/geoprism-registry</url>
     <tag>1.1.0</tag>
   </scm>
-
+  
   <build>
     <plugins>
 	  <plugin>

@@ -50,7 +50,7 @@ export class ObjectPanelComponent implements OnChanges, OnInit {
         const boundaries: DateBoundary[] = [];
 
         this.type.attributes.filter(a => a.isChangeOverTime).forEach(attribute => {
-            const attributeOverTime = this.object.data[attribute.code];
+            const attributeOverTime = this.object.properties[attribute.code];
 
             if (attributeOverTime != null) {
                 attributeOverTime.values.forEach(period => {

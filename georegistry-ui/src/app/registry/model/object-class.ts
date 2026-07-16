@@ -57,9 +57,10 @@ export class ObjectOverTime {
     }
     label?: string;
     code: string;
-    data: {
+    properties: {
         [key: string]: {
-            type: 'single' | 'multi'
+            type: string;
+            changeOverTime: boolean;
             value?: string | number;
             values?: {
                 startDate: string;

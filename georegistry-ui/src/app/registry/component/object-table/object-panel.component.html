@@ -19,6 +19,8 @@
 
 -->
 
+
+
 <ng-template #localField let-value="value" let-entry="entry">
   <tr *ngFor="let loc of value.localeValues; let idx = index;" class="attribute-value-row">
     <td colspan="2">
@@ -30,75 +32,94 @@
   </tr>
 </ng-template>
 
-<ng-template #basicField let-value="value" let-entry="entry">
-  {{value}}
+<ng-template #dateField let-value="value" let-entry="entry">
+  <date-field [value]="value" [inputName]="'val-' + entry" [disable]="true"></date-field>
 </ng-template>
 
+<ng-template #basicField let-value="value" let-entry="entry">
+  <input [disabled]="true" class="form-control" [name]="'val-' + entry + '-' + entry" [ngModel]="value">
+</ng-template>
+
+<ng-template #attributeValue let-value="value" let-attributeType="attributeType" let-entry="entry">
+  <ng-container *ngIf="value" [ngSwitch]="attributeType.type">
+    <ng-container *ngSwitchCase="'local'" [ngTemplateOutlet]="localField"
+      [ngTemplateOutletContext]="{value:value, entry: entry}">
+    </ng-container>
+    <ng-container *ngSwitchCase="'date'" [ngTemplateOutlet]="dateField"
+      [ngTemplateOutletContext]="{value:value, entry: entry}">
+    </ng-container>
+    <ng-container *ngSwitchDefault [ngTemplateOutlet]="basicField"
+      [ngTemplateOutletContext]="{value:value, entry: entry}">
+    </ng-container>
+  </ng-container>
+</ng-template>
 
 <ng-template #versionDetail let-attributeType='attributeType' let-values="values">
-  <div class="row">
-    <div class="col">
-      <div class="attribute-version-wrapper">
-        <ul class="list-group">
-          <li class="list-group-item" style="text-align:left;padding:0;">
-            <div>
-              <table class="table table-striped" *ngFor="let vot of values; let i = index;" class="version-row">
-                <tbody class="attribute-element-wrapper">
-                  <p class="message" *ngIf="values.length === 0">
-                    <localize key="changeovertime.manageVersions.no.versions.message"></localize>
-                  </p>
+  <form name="manage-versions-form" autocomplete="off">
 
-                  <ng-container>
-                    <tr>
-                      <td class="version-column-wrapper">
-                        <table>
-                          <ng-container *ngIf="vot.value" [ngSwitch]="attributeType.type">
-                            <ng-container *ngIf="'local'" [ngTemplateOutlet]="localField"
-                              [ngTemplateOutletContext]="{value:vot.value, entry: i}">
-                            </ng-container>
-                            <ng-container *ngSwitchDefault [ngTemplateOutlet]="basicField"
-                              [ngTemplateOutletContext]="{value:vot.value, entry: i}">
-                            </ng-container>
-                          </ng-container>
-                        </table>
-                      </td>
-                    </tr>
-                    <tr class="attribute-date-input-row">
-                      <td>
-                        <h5>
-                          <localize key="changeovertime.manageVersions.tableHeader.label.startDate">
-                          </localize>
-                        </h5>
+    <fieldset>
 
-                        <date-field #dateFieldComponents [(value)]="vot.startDate" [inputName]="'startDate_' + i"
-                          allowFutureDates]="true" [required]="true" [disable]="true"></date-field>
-                      </td>
-                      <td>
-                        <div class="version-edit-date-container">
-                          <h5>
-                            <localize key="changeovertime.manageVersions.tableHeader.label.endDate">
-                            </localize>
-                          </h5>
+      <div class="row">
+        <div class="col">
+          <div class="attribute-version-wrapper">
+            <ul class="list-group">
+              <li class="list-group-item" style="text-align:left;padding:0;border: none;">
+                <div>
+                  <table class="table table-striped">
+                    <tbody class="attribute-element-wrapper">
+                      <tr class="version-row" *ngFor="let vot of values; let i = index;">
+                        <td class="version-column-wrapper">
 
-                          <date-field #dateFieldComponents [(value)]="vot.endDate" [inputName]="'endDate_' + i"
-                            [allowFutureDates]="true" [required]="true" [placement]="'bottom'"
-                            [disable]="true"></date-field>
-                        </div>
-                      </td>
-                    </tr>
+                          <p class="message" *ngIf="values.length === 0">
+                            <localize key="changeovertime.manageVersions.no.versions.message"></localize>
+                          </p>
 
-                  </ng-container>
-                </tbody>
-              </table>
-            </div>
-          </li>
-        </ul>
+                          <table>
+                            <tr class="attribute-value-row">
+                              <td colspan="2">
+                                <ng-container [ngTemplateOutlet]="attributeValue"
+                                  [ngTemplateOutletContext]="{value:vot.value, attributeType: attributeType, entry: i}">
+                                </ng-container>
+                              </td>
+                            </tr>
+                            <tr class="attribute-date-input-row">
+                              <td>
+                                <h5>
+                                  <localize key="changeovertime.manageVersions.tableHeader.label.startDate">
+                                  </localize>
+                                </h5>
+
+                                <date-field #dateFieldComponents [(value)]="vot.startDate"
+                                  [inputName]="'startDate_' + i" allowFutureDates]="true" [required]="true"
+                                  [disable]="true"></date-field>
+                              </td>
+                              <td>
+                                <div class="version-edit-date-container">
+                                  <h5>
+                                    <localize key="changeovertime.manageVersions.tableHeader.label.endDate">
+                                    </localize>
+                                  </h5>
+
+                                  <date-field #dateFieldComponents [(value)]="vot.endDate" [inputName]="'endDate_' + i"
+                                    [allowFutureDates]="true" [required]="true" [placement]="'bottom'"
+                                    [disable]="true"></date-field>
+                                </div>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
+    </fieldset>
+  </form>
 </ng-template>
-
-
 
 
 <div>
@@ -126,18 +147,17 @@
                   </div>
 
                   <div class="panel-body">
-                    <ng-container *ngIf="object.data[attributeType.code] != null">
+                    @let attribute = object.properties[attributeType.code];
+
+                    <ng-container *ngIf="attribute != null">
                       <ng-container *ngIf="attributeType.isChangeOverTime">
                         <ng-container [ngTemplateOutlet]="versionDetail"
-                          [ngTemplateOutletContext]="{values:object.data[attributeType.code]!.values, attributeType:attributeType}">
+                          [ngTemplateOutletContext]="{values:attribute!.values, attributeType:attributeType}">
                         </ng-container>
                       </ng-container>
                       <ng-container *ngIf="!attributeType.isChangeOverTime">
-                        <ng-container *ngIf="attributeType.type === 'date'">
-                          <date-text [date]="object.data[attributeType.code]!.value"></date-text>
-                        </ng-container>
-                        <ng-container *ngIf="attributeType.type !== 'date'">
-                          {{ object.data[attributeType.code]!.value }}
+                        <ng-container [ngTemplateOutlet]="attributeValue"
+                          [ngTemplateOutletContext]="{value:attribute!.value, attributeType: attributeType, entry: 1}">
                         </ng-container>
                       </ng-container>
                     </ng-container>
