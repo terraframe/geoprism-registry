@@ -138,7 +138,7 @@
                                     <td *ngIf="isSRA" class="button-column">
                                         <a class="fa fa-pencil ico-edit" (click)="onEditOrganization(org)"
                                             [title]="'account.editTooltip' | localize"></a>
-                                        <!-- <a class="fa fa-trash-o ico-remove"
+                                        <!-- <a class="fa fa-trash ico-remove"
                                                 (click)="onRemoveOrganization(org.code, org.code)"
                                                 [title]="'account.removeTooltip' | localize"></a> -->
                                     </td>
@@ -230,9 +230,8 @@
                             <tbody>
                                 <tr *ngFor="let loc of installedLocales">
                                     <td *ngIf="isSRA" class="button-column">
-                                        <a class="fa fa-pencil ico-edit" (click)="onEditLocale(loc)"></a>
-                                        <a *ngIf="!loc.isDefaultLocale" class="fa fa-trash-o ico-remove"
-                                            (click)="onRemoveLocale(loc)"></a>
+                                        <a (click)="onEditLocale(loc)"><i class="fa fa-pencil ico-edit"></i></a>
+                                        <a *ngIf="!loc.isDefaultLocale" (click)="onRemoveLocale(loc)"> <i class="fa fa-trash ico-remove"></i></a>
                                     </td>
                                     <td class="label-column">{{loc.label.localizedValue}}</td>
                                     <td class="label-column">{{loc.language.label}}</td>
@@ -321,7 +320,7 @@
                                     <td class="button-column">
                                         <a class="fa fa-pencil ico-edit" (click)="onEditSystem(system)"
                                             [title]="'account.editTooltip' | localize"></a>
-                                        <a class="fa fa-trash-o ico-remove" (click)="onRemoveSystem(system)"
+                                        <a class="fa fa-trash ico-remove" (click)="onRemoveSystem(system)"
                                             [title]="'account.removeTooltip' | localize"></a>
                                     </td>
                                     <td class="label-column">

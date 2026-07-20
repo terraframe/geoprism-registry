@@ -35,7 +35,9 @@
 
             <div class="heading">
                 <h2>
-                    <localize key="business.data.import"></localize>
+                    <!-- <localize key="business.data.import"></localize> -->
+                     <!-- LOCALIZE -->
+                      Import Object Data
                 </h2>
             </div>
 
@@ -46,7 +48,8 @@
                         <form #form="ngForm" autocomplete="off">
                             <div class="form-group row">
                                 <label class="col-md-2 text-right" for="objectType">
-                                    <localize key="business.data.objectType"></localize>
+                                    <!-- LOCALIZE -->
+                                    Object Class
                                 </label>
                                 <div class="col-md-8">
                                     <select id="objectType" name="objectType" class="select-area"
@@ -61,7 +64,9 @@
 
                             <div class="form-group row">
                                 <label class="col-md-2 text-right" for="typeCode">
-                                    <localize key="business.data.type"></localize>
+                                    <!-- LOCALIZE -->
+                                     Type
+                                    <!-- <localize key="business.data.type"></localize> -->
                                 </label>
                                 <div class="col-md-8">
                                     <select id="typeCode" name="typeCode" class="select-area" [(ngModel)]="config.type"
@@ -136,6 +141,7 @@
 
                             <div class="form-group row">
                                 <label class="col-md-2 text-right" for="dataSource">
+                                    <!-- LOCALIZE -->
                                     Data Source
                                 </label>
                                 <div class="col-md-8">
