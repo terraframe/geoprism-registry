@@ -601,7 +601,7 @@ public class TestGeoObjectInfo extends TestCachedObject<ServerGeoObjectIF>
 
       if (vertex != null)
       {
-        vertex.delete();
+        service.delete(vertex);
       }
     }
 

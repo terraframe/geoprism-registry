@@ -18,17 +18,17 @@
  */
 package net.geoprism.registry.service.permission;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import com.runwaysdk.business.rbac.Operation;
-import com.runwaysdk.business.rbac.RoleDAOIF;
-import com.runwaysdk.business.rbac.SingleActorDAOIF;
+import com.runwaysdk.session.Session;
+import com.runwaysdk.session.SessionIF;
 
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -88,9 +88,9 @@ public class GPRGeoObjectPermissionService extends UserPermissionService impleme
   {
     if (this.hasSessionUser())
     {
-      SingleActorDAOIF actor = this.getSessionUser();
+      SessionIF session = Session.getCurrentSession();
 
-      boolean permission = this.hasDirectPermission(actor, orgCode, type, op, isChangeRequest);
+      boolean permission = this.hasDirectPermission(session, orgCode, type, op, isChangeRequest);
 
       if (!permission)
       {
@@ -98,7 +98,7 @@ public class GPRGeoObjectPermissionService extends UserPermissionService impleme
 
         if (superType != null)
         {
-          permission = this.hasDirectPermission(actor, orgCode, superType, op, isChangeRequest);
+          permission = this.hasDirectPermission(session, orgCode, superType, op, isChangeRequest);
         }
       }
 
@@ -108,21 +108,19 @@ public class GPRGeoObjectPermissionService extends UserPermissionService impleme
     return true;
   }
 
-  protected boolean hasDirectPermission(SingleActorDAOIF actor, String orgCode, ServerGeoObjectType type, Operation op, boolean isChangeRequest)
+  protected boolean hasDirectPermission(SessionIF session, String orgCode, ServerGeoObjectType type, Operation op, boolean isChangeRequest)
   {
-    if (actor == null) // null actor is assumed to be SYSTEM
+    if (session == null) // null actor is assumed to be SYSTEM
     {
       return true;
     }
 
     if (orgCode != null)
     {
-      Set<RoleDAOIF> roles = actor.authorizedRoles();
-
-      for (RoleDAOIF role : roles)
+      Collection<String> roleNames = session.getUserRoles().keySet();
+      
+      for (String roleName : roleNames)
       {
-        String roleName = role.getRoleName();
-
         if (RegistryRole.Type.isOrgRole(roleName) && !RegistryRole.Type.isRootOrgRole(roleName))
         {
           String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);

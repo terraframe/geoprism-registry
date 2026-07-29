@@ -416,11 +416,15 @@ export class HierarchyTypePageComponent implements OnInit {
         this.hierarchyService.addChildToHierarchy(hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode).then((ht: HierarchyType) => {
             const geoObjectType = this.findGeoObjectTypeByCode(childGeoObjectTypeCode);
 
-            const index = geoObjectType.relatedHierarchies.findIndex(t => t === hierarchyCode);
+            const index = geoObjectType.relatedHierarchies != null ? geoObjectType.relatedHierarchies.findIndex(t => t === hierarchyCode) : -1;
 
             if (index == -1) {
 
                 const got = lodash.cloneDeep(geoObjectType);
+
+                if (got.relatedHierarchies == null) {
+                    got.relatedHierarchies = []
+                }
                 got.relatedHierarchies.push(hierarchyCode);
 
                 this.onGeoObjectType.emit(got);
@@ -480,7 +484,7 @@ export class HierarchyTypePageComponent implements OnInit {
         if (event != null) {
 
             const bsModalRef = this.modalService.show(ConfirmModalComponent, {
-                
+
                 animated: false, backdrop: true,
                 ignoreBackdropClick: true
             });
@@ -621,7 +625,7 @@ export class HierarchyTypePageComponent implements OnInit {
     onImportHistory(type: HierarchyType): void {
         this.registryService.getImportHistory('HierarchyType', type.code).then(histories => {
             const bsModalRef = this.modalService.show(ImportHistoryModalComponent, {
-                
+
                 animated: false, backdrop: true,
                 ignoreBackdropClick: true
             });
@@ -686,7 +690,7 @@ export class HierarchyTypePageComponent implements OnInit {
 
         const xPadding = 30;
         const yPadding = 40;
-        svg.attr("viewBox", (x - xPadding) + " " + (y - yPadding) + " " + (width + xPadding * 2) + " " + (height + 200 + yPadding * 2 ));
+        svg.attr("viewBox", (x - xPadding) + " " + (y - yPadding) + " " + (width + xPadding * 2) + " " + (height + 200 + yPadding * 2));
 
         width = (width + xPadding * 2) * TREE_SCALE_FACTOR_X;
         height = (height + 200 + yPadding * 2) * TREE_SCALE_FACTOR_Y;

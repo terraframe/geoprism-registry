@@ -432,56 +432,6 @@ public abstract class ImportConfiguration
     }
   }
 
-  // public static ImportConfiguration build(String json)
-  // {
-  // JSONObject jo = new JSONObject(json);
-  //
-  // boolean includeCoordinates = false;
-  //
-  // if (jo.has(FORMAT_TYPE) &&
-  // jo.get(FORMAT_TYPE).equals(FormatImporterType.EXCEL.name()))
-  // {
-  // includeCoordinates = true;
-  // }
-  //
-  // return ImportConfiguration.build(json, includeCoordinates);
-  // }
-  //
-  // public static ImportConfiguration build(String json, boolean
-  // includeCoordinates)
-  // {
-  // JSONObject jo = new JSONObject(json);
-  //
-  // String objectType = jo.getString(OBJECT_TYPE);
-  //
-  // if
-  // (objectType.equals(ObjectImporterFactory.JobHistoryType.GEO_OBJECT.name()))
-  // {
-  // GeoObjectImportConfiguration config = new GeoObjectImportConfiguration();
-  // config.fromJSON(json, includeCoordinates);
-  // return config;
-  // }
-  // else if
-  // (objectType.equals(ObjectImporterFactory.JobHistoryType.BUSINESS_OBJECT.name()))
-  // {
-  // BusinessObjectImportConfiguration config = new
-  // BusinessObjectImportConfiguration();
-  // config.fromJSON(json, false);
-  // return config;
-  // }
-  // else if
-  // (objectType.equals(ObjectImporterFactory.JobHistoryType.EDGE_OBJECT.name()))
-  // {
-  // EdgeObjectImportConfiguration config = new EdgeObjectImportConfiguration();
-  // config.fromJSON(json, false);
-  // return config;
-  // }
-  // else
-  // {
-  // throw new UnsupportedOperationException();
-  // }
-  // }
-
   public static String getBaseType(net.geoprism.registry.graph.AttributeType type)
   {
     if (type instanceof net.geoprism.registry.graph.AttributeBooleanType)
@@ -703,7 +653,7 @@ public abstract class ImportConfiguration
           dto.getAttributes().add(column);
 
         });
-    
+
     Collections.sort(dto.getAttributes(), (a, b) -> a.getCode().compareTo(b.getCode()));
 
     return dto;

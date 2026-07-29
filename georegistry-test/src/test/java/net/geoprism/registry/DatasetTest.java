@@ -1,5 +1,7 @@
 package net.geoprism.registry;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
@@ -10,6 +12,9 @@ import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.runwaysdk.Pair;
+import com.runwaysdk.dataaccess.MdRelationshipDAOIF;
+import com.runwaysdk.dataaccess.database.Database;
+import com.runwaysdk.dataaccess.metadata.MdRelationshipDAO;
 
 import net.geoprism.registry.axon.event.repository.BusinessObjectEventBuilder;
 import net.geoprism.registry.axon.event.repository.ConceptObjectEventBuilder;
@@ -18,6 +23,7 @@ import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.graph.ConceptClass;
 import net.geoprism.registry.graph.DataSource;
+import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -125,6 +131,22 @@ public abstract class DatasetTest
     builder.build().stream().forEach(event -> {
       gateway.publish(GenericEventMessage.asEventMessage(event));
     });
+  }
+
+  public long getJobHistoryGeometryCount(ImportHistory hist) throws SQLException
+  {
+    MdRelationshipDAOIF mdRelationship = MdRelationshipDAO.getMdRelationshipDAO(RegistryConstants.JOB_HISTORY_GEOMETRY);
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT COUNT(*) FROM " + mdRelationship.getTableName());
+    statement.append(" WHERE parent_oid = '" + hist.getOid() + "'");
+
+    try (ResultSet results = Database.query(statement.toString()))
+    {
+      results.next();
+
+      return results.getLong(1);
+    }
   }
 
 }

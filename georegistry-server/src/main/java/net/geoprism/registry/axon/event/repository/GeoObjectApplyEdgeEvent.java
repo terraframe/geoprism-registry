@@ -11,7 +11,7 @@ import net.geoprism.registry.graph.UndirectedGraphType;
 import net.geoprism.registry.view.PublishDTO;
 import net.geoprism.registry.view.TypeClass;
 
-public class GeoObjectApplyEdgeEvent extends AbstractGeoObjectEdgeEvent implements GeoObjectEvent
+public class GeoObjectApplyEdgeEvent extends AbstractGeoObjectEdgeEvent implements GeoObjectEvent, ImportHistoryEvent
 {
 
   private String         sourceCode;
@@ -38,11 +38,18 @@ public class GeoObjectApplyEdgeEvent extends AbstractGeoObjectEdgeEvent implemen
 
   private ImportStrategy strategy;
 
+  private String         historyId;
+
   public GeoObjectApplyEdgeEvent()
   {
   }
 
   public GeoObjectApplyEdgeEvent(String sourceCode, String sourceType, String edgeType, String edgeTypeCode, String targetCode, String targetType, Date startDate, Date endDate, String dataSource, ImportStrategy strategy, Boolean validate)
+  {
+    this(sourceCode, sourceType, edgeType, edgeTypeCode, targetCode, targetType, startDate, endDate, dataSource, strategy, validate, null);
+  }
+
+  public GeoObjectApplyEdgeEvent(String sourceCode, String sourceType, String edgeType, String edgeTypeCode, String targetCode, String targetType, Date startDate, Date endDate, String dataSource, ImportStrategy strategy, Boolean validate, String historyId)
   {
     super(UUID.randomUUID().toString());
 
@@ -58,6 +65,7 @@ public class GeoObjectApplyEdgeEvent extends AbstractGeoObjectEdgeEvent implemen
     this.dataSource = dataSource;
     this.strategy = strategy;
     this.validate = validate;
+    this.historyId = historyId;
   }
 
   public String getSourceCode()
@@ -168,6 +176,16 @@ public class GeoObjectApplyEdgeEvent extends AbstractGeoObjectEdgeEvent implemen
   public void setDataSource(String dataSource)
   {
     this.dataSource = dataSource;
+  }
+
+  public String getHistoryId()
+  {
+    return historyId;
+  }
+
+  public void setHistoryId(String historyId)
+  {
+    this.historyId = historyId;
   }
 
   @Override

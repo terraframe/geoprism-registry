@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.view.PublishDTO;
 
-public class BusinessObjectApplyEdgeEvent extends AbstractBusinessObjectEdgeEvent implements BusinessObjectEvent
+public class BusinessObjectApplyEdgeEvent extends AbstractBusinessObjectEdgeEvent implements BusinessObjectEvent, ImportHistoryEvent
 {
   private String         sourceCode;
 
@@ -32,11 +32,18 @@ public class BusinessObjectApplyEdgeEvent extends AbstractBusinessObjectEdgeEven
 
   private ImportStrategy strategy;
 
+  private String         historyId;
+
   public BusinessObjectApplyEdgeEvent()
   {
   }
 
   public BusinessObjectApplyEdgeEvent(String sourceCode, String sourceType, String edgeTypeCode, String targetCode, String targetType, Date startDate, Date endDate, String dataSource, ImportStrategy strategy, Boolean validate)
+  {
+    this(sourceCode, sourceType, edgeTypeCode, targetCode, targetType, startDate, endDate, dataSource, strategy, validate, null);
+  }
+
+  public BusinessObjectApplyEdgeEvent(String sourceCode, String sourceType, String edgeTypeCode, String targetCode, String targetType, Date startDate, Date endDate, String dataSource, ImportStrategy strategy, Boolean validate, String historyId)
   {
     super(UUID.randomUUID().toString());
 
@@ -51,6 +58,7 @@ public class BusinessObjectApplyEdgeEvent extends AbstractBusinessObjectEdgeEven
     this.endDate = endDate;
     this.dataSource = dataSource;
     this.strategy = strategy;
+    this.historyId = historyId;
   }
 
   public String getSourceCode()
@@ -161,6 +169,16 @@ public class BusinessObjectApplyEdgeEvent extends AbstractBusinessObjectEdgeEven
   public void setStrategy(ImportStrategy strategy)
   {
     this.strategy = strategy;
+  }
+
+  public String getHistoryId()
+  {
+    return historyId;
+  }
+
+  public void setHistoryId(String historyId)
+  {
+    this.historyId = historyId;
   }
 
   @Override

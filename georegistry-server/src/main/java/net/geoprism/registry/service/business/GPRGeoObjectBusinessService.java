@@ -51,7 +51,6 @@ import com.runwaysdk.session.WritePermissionException;
 import net.geoprism.registry.etl.export.GeoObjectExportFormat;
 import net.geoprism.registry.etl.export.GeoObjectJsonExporter;
 import net.geoprism.registry.etl.export.RevealGeoObjectJsonAdapters;
-import net.geoprism.registry.etl.upload.ClassifierVertexCache;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
@@ -304,13 +303,16 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
   }
 
   @Override
-  public GeoObjectOverTime toGeoObjectOverTime(ServerGeoObjectIF sgo, boolean generateUid, ClassifierVertexCache classifierCache)
+  public GeoObjectOverTime toGeoObjectOverTime(ServerGeoObjectIF sgo, boolean generateUid, boolean includeExternalIds)
   {
-    GeoObjectOverTime geoObj = super.toGeoObjectOverTime(sgo, generateUid, classifierCache);
+    GeoObjectOverTime geoObj = super.toGeoObjectOverTime(sgo, generateUid, includeExternalIds);
 
-    for (ExternalId id : getAllExternalIds(sgo))
+    if (includeExternalIds)
     {
-      geoObj.addAlternateId(id.toDTO());
+      for (ExternalId id : getAllExternalIds(sgo))
+      {
+        geoObj.addAlternateId(id.toDTO());
+      }
     }
 
     return geoObj;
@@ -331,7 +333,7 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
 
     return geoObj;
   }
-  
+
   @Override
   public boolean exists(GraphType graphType, String uid)
   {

@@ -1,12 +1,13 @@
 package net.geoprism.registry.axon.event.repository;
 
+import java.util.Date;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.geoprism.registry.view.PublishDTO;
 
-public class GeoObjectApplyEvent extends AbstractGeoObjectEvent implements GeoObjectEvent
+public class GeoObjectApplyEvent extends AbstractGeoObjectEvent implements GeoObjectEvent, ImportHistoryEvent
 {
   private String  code;
 
@@ -14,9 +15,18 @@ public class GeoObjectApplyEvent extends AbstractGeoObjectEvent implements GeoOb
 
   private Boolean isNew;
 
+  private String  object;
+
   private Boolean isImport;
 
-  private String  object;
+  // Optional ID of the import
+  private String  historyId;
+
+  // Optional start date of the import
+  private Date    startDate;
+
+  // Optional start date of the import
+  private Date    endDate;
 
   public GeoObjectApplyEvent()
   {
@@ -31,6 +41,20 @@ public class GeoObjectApplyEvent extends AbstractGeoObjectEvent implements GeoOb
     this.isNew = isNew;
     this.isImport = isImport;
     this.object = object;
+  }
+
+  public GeoObjectApplyEvent(String code, String type, Boolean isNew, Boolean isImport, String object, String historyId, Date startDate, Date endDate)
+  {
+    super(UUID.randomUUID().toString());
+
+    this.code = code;
+    this.type = type;
+    this.isNew = isNew;
+    this.isImport = isImport;
+    this.object = object;
+    this.historyId = historyId;
+    this.startDate = startDate;
+    this.endDate = endDate;
   }
 
   public String getCode()
@@ -81,6 +105,36 @@ public class GeoObjectApplyEvent extends AbstractGeoObjectEvent implements GeoOb
   public void setType(String type)
   {
     this.type = type;
+  }
+
+  public String getHistoryId()
+  {
+    return historyId;
+  }
+
+  public void setHistoryId(String historyId)
+  {
+    this.historyId = historyId;
+  }
+
+  public Date getStartDate()
+  {
+    return startDate;
+  }
+
+  public void setStartDate(Date startDate)
+  {
+    this.startDate = startDate;
+  }
+
+  public Date getEndDate()
+  {
+    return endDate;
+  }
+
+  public void setEndDate(Date endDate)
+  {
+    this.endDate = endDate;
   }
 
   @Override

@@ -97,7 +97,7 @@ public class RollbackEventService
       }
       else if (event instanceof RemoveGeoObjectEdgeEvent)
       {
-        this.projection.handleRemoveGeoObjectEvent((RemoveGeoObjectEdgeEvent) event);
+        this.projection.handleRemoveGeoObjectEdgeEvent((RemoveGeoObjectEdgeEvent) event);
       }
       else if (event instanceof GeoObjectCreateParentEvent)
       {

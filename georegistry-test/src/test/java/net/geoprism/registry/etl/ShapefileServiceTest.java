@@ -459,21 +459,6 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
     Assert.assertEquals(131174431216L, object.getValue(testInteger.getName()));
   }
 
-  public long getJobHistoryGeometryCount(ImportHistory hist) throws SQLException
-  {
-    MdRelationshipDAOIF mdRelationship = MdRelationshipDAO.getMdRelationshipDAO(RegistryConstants.JOB_HISTORY_GEOMETRY);
-
-    StringBuilder statement = new StringBuilder();
-    statement.append("SELECT COUNT(*) FROM " + mdRelationship.getTableName());
-    statement.append(" WHERE parent_oid = '" + hist.getOid() + "'");
-
-    try (ResultSet results = Database.query(statement.toString()))
-    {
-      results.next();
-
-      return results.getLong(1);
-    }
-  }
 
   @Test
   @Request

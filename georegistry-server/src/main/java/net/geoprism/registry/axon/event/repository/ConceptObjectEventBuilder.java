@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
+import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.service.business.ConceptObjectBusinessServiceIF;
 import net.geoprism.registry.view.ObjectOverTimeDTO;
@@ -19,6 +20,8 @@ public class ConceptObjectEventBuilder
   private Boolean                        isNew;
 
   private List<ConceptObjectEvent>       events;
+
+  private ImportConfiguration            configuration;
 
   private ConceptObjectBusinessServiceIF service;
 
@@ -113,6 +116,16 @@ public class ConceptObjectEventBuilder
     this.attributeUpdate = attributeUpdate;
   }
 
+  public ImportConfiguration getConfiguration()
+  {
+    return configuration;
+  }
+
+  public void setConfiguration(ImportConfiguration configuration)
+  {
+    this.configuration = configuration;
+  }
+
   public List<RepositoryEvent> build()
   {
     LinkedList<RepositoryEvent> list = new LinkedList<>();
@@ -123,7 +136,16 @@ public class ConceptObjectEventBuilder
     {
       ObjectOverTimeDTO dto = service.toDTO(object);
 
-      list.add(new ConceptObjectApplyEvent(object.getCode(), object.getType().getCode(), dto, isNew));
+      ConceptObjectApplyEvent event = new ConceptObjectApplyEvent(object.getCode(), object.getType().getCode(), dto, isNew);
+
+      if (this.configuration != null)
+      {
+        event.setStartDate(this.configuration.getStartDate());
+        event.setEndDate(this.configuration.getEndDate());
+        event.setHistoryId(this.configuration.getHistoryId());
+      }
+
+      list.add(event);
     }
 
     list.addAll(events);

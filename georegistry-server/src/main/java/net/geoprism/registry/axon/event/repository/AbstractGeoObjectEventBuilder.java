@@ -12,6 +12,7 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.graph.ExternalSystem;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.EdgeType;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -34,6 +35,8 @@ public abstract class AbstractGeoObjectEventBuilder<K>
 
   private Boolean                      refreshWorking;
 
+  private GeoObjectImportConfiguration configuration;
+
   protected GeoObjectBusinessServiceIF service;
 
   public AbstractGeoObjectEventBuilder(GeoObjectBusinessServiceIF service)
@@ -44,6 +47,16 @@ public abstract class AbstractGeoObjectEventBuilder<K>
     this.isImport = false;
     this.events = new LinkedList<>();
     this.refreshWorking = false;
+  }
+
+  public GeoObjectImportConfiguration getConfiguration()
+  {
+    return configuration;
+  }
+
+  public void setConfiguration(GeoObjectImportConfiguration configuration)
+  {
+    this.configuration = configuration;
   }
 
   public Optional<K> getObject()
@@ -219,7 +232,16 @@ public abstract class AbstractGeoObjectEventBuilder<K>
 
     if (this.attributeUpdate || this.isNew)
     {
-      list.add(new GeoObjectApplyEvent(this.getCode(), this.getType(), this.isNew, this.isImport, this.toJSON().toString()));
+      GeoObjectApplyEvent event = new GeoObjectApplyEvent(this.getCode(), this.getType(), this.isNew, this.isImport, this.toJSON().toString());
+
+      if (this.configuration != null)
+      {
+        event.setStartDate(this.configuration.getStartDate());
+        event.setEndDate(this.configuration.getEndDate());
+        event.setHistoryId(this.configuration.getHistoryId());
+      }
+
+      list.add(event);
     }
 
     list.addAll(events);

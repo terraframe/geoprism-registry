@@ -42,7 +42,7 @@ public class GeoObjectCache extends LRUCache<String, ServerGeoObjectIF>
   }
 
   // Lazy load the service
-  protected GeoObjectBusinessServiceIF getObjectCache()
+  protected GeoObjectBusinessServiceIF getObjectService()
   {
     if (this.objectService == null)
     {
@@ -65,7 +65,7 @@ public class GeoObjectCache extends LRUCache<String, ServerGeoObjectIF>
   public ServerGeoObjectIF getOrFetchByCode(String code, String typeCode)
   {
     return this.get(code, typeCode).orElseGet(() -> {
-      ServerGeoObjectIF object = getObjectCache().getGeoObjectByCode(code, typeCode, true);
+      ServerGeoObjectIF object = getObjectService().getGeoObjectByCode(code, typeCode, true);
 
       this.put(typeCode + SEPARATOR + code, object);
 

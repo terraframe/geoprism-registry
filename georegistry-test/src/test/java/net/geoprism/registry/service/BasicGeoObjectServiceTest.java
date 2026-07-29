@@ -102,7 +102,6 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
 
     attributeClassification = this.typeService.createAttributeType(type, attributeClassification);
 
-
     source = this.sourceService.apply(SourceServiceTest.createMock());
   }
 
@@ -166,7 +165,6 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
       Assert.assertEquals(root.getOid(), test.getValue(attributeClassification.getCode(), USATestData.DEFAULT_OVER_TIME_DATE));
       Assert.assertEquals(source.getOid(), test.getValue(DefaultAttribute.DATA_SOURCE.getName(), USATestData.DEFAULT_OVER_TIME_DATE));
 
-
       Geometry geometry = test.getGeometry(USATestData.DEFAULT_OVER_TIME_DATE);
 
       Assert.assertNotNull(geometry);
@@ -207,7 +205,9 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
     finally
     {
       // Delete the object
-      this.service.getGeoObjectByCode(USATestData.USA.getCode(), type).delete();
+      ServerGeoObjectIF sgo = this.service.getGeoObjectByCode(USATestData.USA.getCode(), type);
+
+      this.service.delete(sgo);
 
       // Make sure the entry was deleted
 
@@ -266,7 +266,9 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
     finally
     {
       // Delete the object
-      this.service.getGeoObjectByCode(USATestData.USA.getCode(), type).delete();
+      ServerGeoObjectIF sgo = this.service.getGeoObjectByCode(USATestData.USA.getCode(), type);
+
+      this.service.delete(sgo);
     }
   }
 }

@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
+import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.DataSource;
@@ -25,6 +26,8 @@ public class BusinessObjectEventBuilder
 
   private List<BusinessObjectEvent>       events;
 
+  private ImportConfiguration             configuration;
+
   private BusinessObjectBusinessServiceIF service;
 
   public BusinessObjectEventBuilder(BusinessObjectBusinessServiceIF service)
@@ -33,6 +36,16 @@ public class BusinessObjectEventBuilder
     this.attributeUpdate = false;
     this.isNew = false;
     this.events = new LinkedList<>();
+  }
+
+  public ImportConfiguration getConfiguration()
+  {
+    return configuration;
+  }
+
+  public void setConfiguration(ImportConfiguration configuration)
+  {
+    this.configuration = configuration;
   }
 
   public Optional<BusinessObject> getObject()
@@ -144,7 +157,16 @@ public class BusinessObjectEventBuilder
     {
       ObjectOverTimeDTO dto = service.toDTO(object);
 
-      list.add(new BusinessObjectApplyEvent(object.getCode(), object.getType().getCode(), dto, isNew));
+      BusinessObjectApplyEvent event = new BusinessObjectApplyEvent(object.getCode(), object.getType().getCode(), dto, isNew);
+
+      if (this.configuration != null)
+      {
+        event.setStartDate(this.configuration.getStartDate());
+        event.setEndDate(this.configuration.getEndDate());
+        event.setHistoryId(this.configuration.getHistoryId());
+      }
+
+      list.add(event);
     }
 
     list.addAll(events);

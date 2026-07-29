@@ -126,7 +126,7 @@ public class BasicGeoObjectLocalAttributeTest implements InstanceTestClassListen
     }
     finally
     {
-      object.delete();
+      this.service.delete(object);
     }
   }
 }

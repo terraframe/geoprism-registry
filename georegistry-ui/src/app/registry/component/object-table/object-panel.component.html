@@ -20,6 +20,11 @@
 -->
 
 
+<!-- 
+
+  Local value widget
+
+-->
 
 <ng-template #localField let-value="value" let-entry="entry">
   <table style="border: none; padding: 0px;">
@@ -34,13 +39,31 @@
   </table>
 </ng-template>
 
+<!-- 
+
+  Date attribute value widget
+
+-->
+
 <ng-template #dateField let-value="value" let-entry="entry">
   <date-field [value]="value" [inputName]="'val-' + entry" [disable]="true"></date-field>
 </ng-template>
 
+<!-- 
+
+  Basic attribute value widget
+
+-->
+
 <ng-template #basicField let-value="value" let-entry="entry">
   <input [disabled]="true" class="form-control" [name]="'val-' + entry + '-' + entry" [ngModel]="value">
 </ng-template>
+
+<!-- 
+
+  Attribute value switch widget
+
+-->
 
 <ng-template #attributeValue let-value="value" let-attributeType="attributeType" let-entry="entry">
   <ng-container *ngIf="value" [ngSwitch]="attributeType.type">
@@ -56,6 +79,11 @@
   </ng-container>
 </ng-template>
 
+<!-- 
+
+  Version management widget
+
+-->
 <ng-template #versionDetail let-attributeType='attributeType' let-values="values">
   <form name="manage-versions-form" autocomplete="off">
 

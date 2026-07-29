@@ -352,6 +352,8 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
     MultiPoint expected = factory.createMultiPoint(new Point[] { factory.createPoint(new Coordinate(lon, lat)) });
 
     Assert.assertEquals(expected, geometry);
+
+    Assert.assertEquals(2L, getJobHistoryGeometryCount(hist));
   }
 
   @Test

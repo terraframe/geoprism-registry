@@ -42,6 +42,10 @@ import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.EdgeDirection;
+import net.geoprism.registry.model.GraphType;
+import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.ServerGraphNode;
+import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
@@ -52,7 +56,6 @@ import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
-import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.BusinessEdgeTypeView;
 import net.geoprism.registry.view.BusinessGeoEdgeTypeView;
 import net.geoprism.registry.view.BusinessTypeDTO;
@@ -258,61 +261,48 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
     return new ByteArrayInputStream(all.toString().getBytes());
   }
 
-  // @Test
-  // public void testPerformance() throws InterruptedException
-  // {
-  // TestDataSet.executeRequestAsUser(FastTestDataset.USER_ADMIN, () -> {
-  // generateDistricts();
-  // InputStream istream = generateEdgeJson();
-  //
-  // Assert.assertNotNull(istream);
-  //
-  // EdgeObjectImportConfiguration config =
-  // this.etlService.getTestConfiguration(TypeClass.HIERARCHY.getCode(),
-  // FastTestDataset.HIER_ADMIN.getCode(), istream,
-  // ImportStrategy.NEW_AND_UPDATE);
-  //
-  // long start = System.nanoTime();
-  //
-  // ImportHistory hist =
-  // this.etlService.importJsonFile(config.toJSON().toString());
-  //
-  // SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
-  // System.out.println("Elapsed: " + ( System.nanoTime() - start ) /
-  // 1_000_000_000.0 + " s");
-  //
-  // hist = ImportHistory.get(hist.getOid());
-  // Assert.assertEquals(Long.valueOf(IMPORT_COUNT), hist.getWorkTotal());
-  // Assert.assertEquals(Long.valueOf(IMPORT_COUNT), hist.getWorkProgress());
-  // Assert.assertEquals(Long.valueOf(IMPORT_COUNT), hist.getImportedRecords());
-  // Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
-  //
-  // GraphType hierarchyType =
-  // this.typeService.getByCode(TypeClass.HIERARCHY.getCode(),
-  // FastTestDataset.HIER_ADMIN.getCode());
-  // ServerGeoObjectIF dist1 = this.objectService.getGeoObjectByCode("1",
-  // FastTestDataset.DISTRICT.getCode());
-  // ServerGraphNode node = dist1.getGraphParents(hierarchyType, false,
-  // TestDataSet.DEFAULT_OVER_TIME_DATE);
-  //
-  // ServerGeoObjectIF parent = node.getGeoObject();
-  // Assert.assertNotNull(parent);
-  // Assert.assertEquals("1",
-  // parent.getDisplayLabel(TestDataSet.DEFAULT_OVER_TIME_DATE).getValue());
-  //
-  // List<ImportHistoryView> histories =
-  // this.etlBusinessService.getHistory(TypeClass.HIERARCHY.getCode(),
-  // FastTestDataset.HIER_ADMIN.getCode());
-  //
-  // Assert.assertEquals(1, histories.size());
-  // });
-  // }
+  @Test
+  public void testPerformance() throws InterruptedException
+  {
+    TestDataSet.executeRequestAsUser(FastTestDataset.USER_ADMIN, () -> {
+      generateDistricts();
+      InputStream istream = generateEdgeJson();
+
+      Assert.assertNotNull(istream);
+
+      EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(TypeClass.HIERARCHY.getCode(), FastTestDataset.HIER_ADMIN.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
+
+      long start = System.nanoTime();
+
+      ImportHistory hist = this.etlService.importJsonFile(config.toDTO());
+
+      SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
+      System.out.println("Elapsed: " + ( System.nanoTime() - start ) / 1_000_000_000.0 + " s");
+
+      hist = ImportHistory.get(hist.getOid());
+      Assert.assertEquals(Long.valueOf(IMPORT_COUNT), hist.getWorkTotal());
+      Assert.assertEquals(Long.valueOf(IMPORT_COUNT), hist.getWorkProgress());
+      Assert.assertEquals(Long.valueOf(IMPORT_COUNT), hist.getImportedRecords());
+      Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+
+      GraphType hierarchyType = FastTestDataset.HIER_ADMIN.getServerObject();
+      ServerGeoObjectIF dist1 = this.gObjectService.getGeoObjectByCode("1", FastTestDataset.DISTRICT.getCode());
+      ServerGraphNode node = dist1.getGraphParents(hierarchyType, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
+
+      ServerGeoObjectIF parent = node.getGeoObject();
+      Assert.assertNotNull(parent);
+      Assert.assertEquals("1", parent.getDisplayLabel(TestDataSet.DEFAULT_OVER_TIME_DATE).getValue());
+
+      List<ImportHistoryView> histories = this.etlBusinessService.getHistory(TypeClass.HIERARCHY.getCode(), FastTestDataset.HIER_ADMIN.getCode());
+
+      Assert.assertEquals(1, histories.size());
+    });
+  }
 
   @Test
   public void testBusinessEdge() throws InterruptedException
   {
     TestDataSet.executeRequestAsUser(FastTestDataset.USER_ADMIN, () -> {
-      generateDistricts();
       InputStream istream = generateEdgeJson(cObject, pObject);
 
       Assert.assertNotNull(istream);
@@ -339,6 +329,8 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
       List<ImportHistoryView> histories = this.etlBusinessService.getHistory(TypeClass.BUSINESS_EDGE.getCode(), bEdgeType.getCode());
 
       Assert.assertEquals(1, histories.size());
+
+      Assert.assertEquals(0L, getJobHistoryGeometryCount(hist));
     });
   }
 
@@ -346,7 +338,6 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
   public void testBusinessGeoEdge() throws InterruptedException
   {
     TestDataSet.executeRequestAsUser(FastTestDataset.USER_ADMIN, () -> {
-      generateDistricts();
       InputStream istream = generateEdgeJson(FastTestDataset.CAMBODIA.getServerObject(), cObject);
 
       Assert.assertNotNull(istream);
@@ -373,6 +364,59 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
       List<ImportHistoryView> histories = this.etlBusinessService.getHistory(TypeClass.BUSINESS_EDGE.getCode(), bGeoEdgeType.getCode());
 
       Assert.assertEquals(1, histories.size());
+
+      Assert.assertEquals(1L, getJobHistoryGeometryCount(hist));
+    });
+  }
+
+  @Test
+  public void testGeoEdge() throws InterruptedException
+  {
+    TestDataSet.executeRequestAsUser(FastTestDataset.USER_ADMIN, () -> {
+      String code = "TestDistrict_0";
+
+      TestGeoObjectInfo district = testData.newTestGeoObjectInfo(code, FastTestDataset.DISTRICT, FastTestDataset.SOURCE);
+      district.setCode(code);
+      district.apply();
+
+      try
+      {
+        ServerGeoObjectIF parent = FastTestDataset.PROV_CENTRAL.getServerObject();
+        ServerGeoObjectIF child = district.getServerObject();
+
+        InputStream istream = generateEdgeJson(parent, child);
+
+        Assert.assertNotNull(istream);
+
+        EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(TypeClass.HIERARCHY.getCode(), FastTestDataset.HIER_ADMIN.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
+
+        long start = System.nanoTime();
+
+        ImportHistory hist = this.etlService.importJsonFile(config.toDTO());
+
+        SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
+        System.out.println("Elapsed: " + ( System.nanoTime() - start ) / 1_000_000_000.0 + " s");
+
+        hist = ImportHistory.get(hist.getOid());
+        Assert.assertEquals(Long.valueOf(1), hist.getWorkTotal());
+        Assert.assertEquals(Long.valueOf(1), hist.getWorkProgress());
+        Assert.assertEquals(Long.valueOf(1), hist.getImportedRecords());
+        Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+
+        ServerParentTreeNode node = this.gObjectService.getParentsForHierarchy(child, FastTestDataset.HIER_ADMIN.getServerObject(), false, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
+
+        Assert.assertEquals(1, node.getParents().size());
+
+        List<ImportHistoryView> histories = this.etlBusinessService.getHistory(TypeClass.HIERARCHY.getCode(), FastTestDataset.HIER_ADMIN.getCode());
+
+        Assert.assertEquals(1, histories.size());
+
+        Assert.assertEquals(2L, getJobHistoryGeometryCount(hist));
+      }
+      finally
+      {
+        district.delete();
+      }
     });
   }
 

@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
+import com.runwaysdk.dataaccess.RelationshipDAO;
 import com.runwaysdk.dataaccess.graph.GraphDBService;
 import com.runwaysdk.dataaccess.graph.GraphRequest;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -27,6 +28,7 @@ import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.OriginException;
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
 import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectEvent;
@@ -37,6 +39,7 @@ import net.geoprism.registry.axon.event.remote.RemoteGeoObjectSetParentEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.ConceptObjectApplyEvent;
+import net.geoprism.registry.axon.event.repository.ImportHistoryEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectCreateParentEvent;
@@ -144,6 +147,16 @@ public class RepositoryProjection
     // event.getIsNew(), event.getIsImport(), true);
     //
     // final ServerGeoObjectType type = object.getType();
+
+    if (event.getIsImport())
+    {
+      String geometryId = object.getValue(DefaultAttribute.GEOMETRY.getName(), event.getStartDate());
+
+      if (!StringUtils.isBlank(geometryId) && !StringUtils.isBlank(event.getHistoryId()))
+      {
+        RelationshipDAO.newInstance(event.getHistoryId(), geometryId, RegistryConstants.JOB_HISTORY_GEOMETRY).apply();
+      }
+    }
 
     if (event.getRefreshWorking())
     {
@@ -294,10 +307,11 @@ public class RepositoryProjection
     final GraphType graphType = this.graphTypeService.getByCode(event.getEdgeType(), event.getEdgeTypeCode());
     DataSource dataSource = this.sourceService.getByCode(event.getDataSource()).orElse(null);
 
+    ServerGeoObjectIF source = goCache.getOrFetchByCode(event.getSourceCode(), event.getSourceType());
+    ServerGeoObjectIF target = goCache.getOrFetchByCode(event.getTargetCode(), event.getTargetType());
+
     if (event.getValidate())
     {
-      ServerGeoObjectIF source = goCache.getOrFetchByCode(event.getSourceCode(), event.getSourceType());
-      ServerGeoObjectIF target = goCache.getOrFetchByCode(event.getTargetCode(), event.getTargetType());
 
       if (ImportStrategy.NEW_AND_UPDATE.equals(event.getStrategy()) && ImportStrategy.UPDATE_ONLY.equals(event.getStrategy()))
       {
@@ -327,8 +341,8 @@ public class RepositoryProjection
     }
     else
     {
-      Object sourceRid = getOrFetchGeoObjectRid(event.getSourceCode(), event.getSourceType());
-      Object targetRid = getOrFetchGeoObjectRid(event.getTargetCode(), event.getTargetType());
+      Object targetRid = target.getVertex().getRID();
+      Object sourceRid = source.getVertex().getRID();
 
       if (ImportStrategy.NEW_AND_UPDATE.equals(event.getStrategy()) && ImportStrategy.UPDATE_ONLY.equals(event.getStrategy()))
       {
@@ -355,7 +369,12 @@ public class RepositoryProjection
       {
         this.newEdge(sourceRid, targetRid, graphType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), dataSource, true);
       }
+    }
 
+    if (StringUtils.isNotBlank(event.getHistoryId()))
+    {
+      createImportHistoryRelationship(event, source);
+      createImportHistoryRelationship(event, target);
     }
   }
 
@@ -552,30 +571,39 @@ public class RepositoryProjection
     BusinessEdgeType edgeType = this.edgeService.getByCodeOrThrow(event.getEdgeTypeCode());
     DataSource dataSource = this.sourceService.getByCode(event.getDataSource()).orElse(null);
 
+    VertexComponent source = edgeType.getIsParentGeoObject() ? //
+        goCache.getOrFetchByCode(event.getSourceCode(), event.getSourceType()) : //
+        boCache.getOrFetchByCode(event.getSourceCode(), event.getSourceType());
+
+    VertexComponent target = edgeType.getIsChildGeoObject() ? //
+        goCache.getOrFetchByCode(event.getTargetCode(), event.getTargetType()) : //
+        boCache.getOrFetchByCode(event.getTargetCode(), event.getTargetType());
+
     if (event.getValidate())
     {
-      VertexComponent source = edgeType.getIsParentGeoObject() ? //
-          goCache.getOrFetchByCode(event.getSourceCode(), event.getSourceType()) : //
-          boCache.getOrFetchByCode(event.getSourceCode(), event.getSourceType());
-
-      VertexComponent target = edgeType.getIsChildGeoObject() ? //
-          goCache.getOrFetchByCode(event.getTargetCode(), event.getTargetType()) : //
-          boCache.getOrFetchByCode(event.getTargetCode(), event.getTargetType());
-
       this.bObjectService.addChild(source, edgeType, target, event.getEdgeUid(), event.getStartDate(), event.getEndDate(), dataSource);
     }
     else
     {
-      Object sourceRid = edgeType.getIsParentGeoObject() ? //
-          getOrFetchGeoObjectRid(event.getSourceCode(), event.getSourceType()) : //
-          getOrFetchBusinessRid(event.getSourceCode(), event.getSourceType());
-
-      Object targetRid = edgeType.getIsChildGeoObject() ? //
-          getOrFetchGeoObjectRid(event.getTargetCode(), event.getTargetType()) : //
-          getOrFetchBusinessRid(event.getTargetCode(), event.getTargetType());
+      Object sourceRid = source.getVertex().getRID();
+      Object targetRid = target.getVertex().getRID();
 
       this.newEdge(sourceRid, targetRid, edgeType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), dataSource, true);
     }
+
+    if (StringUtils.isNotBlank(event.getHistoryId()))
+    {
+      if (edgeType.getIsParentGeoObject())
+      {
+        createImportHistoryRelationship(event, (ServerGeoObjectIF) source);
+      }
+
+      if (edgeType.getIsChildGeoObject())
+      {
+        createImportHistoryRelationship(event, (ServerGeoObjectIF) target);
+      }
+    }
+
   }
 
   @EventHandler
@@ -707,7 +735,7 @@ public class RepositoryProjection
 
     if (object != null)
     {
-      object.delete();
+      this.gObjectService.delete(object);
     }
   }
 
@@ -735,7 +763,7 @@ public class RepositoryProjection
     }
   }
 
-  public void handleRemoveGeoObjectEvent(RemoveGeoObjectEdgeEvent event)
+  public void handleRemoveGeoObjectEdgeEvent(RemoveGeoObjectEdgeEvent event)
   {
     GraphType graphType = this.graphTypeService.getByCode(event.getEdgeClassType(), event.getEdgeTypeCode());
 
@@ -810,4 +838,18 @@ public class RepositoryProjection
     this.goRidCache.clear();
   }
 
+  private void createImportHistoryRelationship(ImportHistoryEvent event, ServerGeoObjectIF sgo)
+  {
+    if (sgo != null)
+    {
+      String geometryId = sgo.getValue(DefaultAttribute.GEOMETRY.getName(), event.getStartDate());
+
+      if (!StringUtils.isBlank(geometryId) && !StringUtils.isBlank(event.getHistoryId()))
+      {
+        RelationshipDAO relationship = RelationshipDAO.newInstance(event.getHistoryId(), geometryId, RegistryConstants.JOB_HISTORY_GEOMETRY);
+        relationship.setValidate(false);
+        relationship.apply();
+      }
+    }
+  }
 }

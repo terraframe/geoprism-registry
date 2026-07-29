@@ -19,6 +19,8 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 
 import com.runwaysdk.ClientSession;
 import com.runwaysdk.business.BusinessFacade;
@@ -79,11 +81,13 @@ import net.geoprism.registry.action.AbstractActionQuery;
 import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.ChangeRequestQuery;
 import net.geoprism.registry.axon.config.RegistryEventStore;
+import net.geoprism.registry.cache.RemoveGeoObjectTypeEvent;
 import net.geoprism.registry.conversion.RegistryRoleConverter;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GraphRepoServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
@@ -304,7 +308,7 @@ abstract public class TestDataSet
   {
     GraphRepoServiceIF service = ServiceFactory.getBean(GraphRepoServiceIF.class);
 
-//    tearDownMetadata();
+    // tearDownMetadata();
 
     setUpOrgsInTrans();
     setUpMetadataInTrans();
@@ -358,7 +362,7 @@ abstract public class TestDataSet
     GraphRepoServiceIF service = ServiceFactory.getBean(GraphRepoServiceIF.class);
 
     tearDownInstanceData();
-    
+
     setUpTestInTrans();
 
     service.refreshMetadataCache();
@@ -488,7 +492,7 @@ abstract public class TestDataSet
     deleteAllChangeRequests();
 
     managedGeoObjectInfosExtras = new ArrayList<TestGeoObjectInfo>();
-    
+
     ServiceFactory.getBean(RegistryEventStore.class).truncate();
   }
 

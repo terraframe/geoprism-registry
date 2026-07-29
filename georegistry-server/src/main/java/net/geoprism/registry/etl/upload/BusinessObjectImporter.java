@@ -25,7 +25,6 @@ import net.geoprism.registry.axon.event.repository.RepositoryEvent;
 import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
-import net.geoprism.registry.service.business.ObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.view.BusinessTypeDTO;
 
@@ -51,6 +50,7 @@ public class BusinessObjectImporter extends ObjectImporter<BusinessObject, Busin
   protected List<RepositoryEvent> buildEvents(BusinessObject businessObject, boolean isNew)
   {
     BusinessObjectEventBuilder eventBuilder = new BusinessObjectEventBuilder(this.service);
+    eventBuilder.setConfiguration(this.getConfiguration());
     eventBuilder.setObject(businessObject, isNew);
     eventBuilder.setAttributeUpdate(true);
 

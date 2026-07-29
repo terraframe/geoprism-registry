@@ -41,8 +41,6 @@ import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.locationtech.jts.geom.Geometry;
@@ -56,15 +54,9 @@ import com.orientechnologies.common.io.OIOException;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.runwaysdk.ProblemException;
 import com.runwaysdk.ProblemIF;
-import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.DuplicateDataException;
-import com.runwaysdk.dataaccess.MdAttributeClassificationDAOIF;
-import com.runwaysdk.dataaccess.MdClassificationDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.dataaccess.RelationshipDAO;
-import com.runwaysdk.dataaccess.graph.attributes.AttributeClassification;
-import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestState;
@@ -72,13 +64,11 @@ import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionFacade;
 import com.runwaysdk.session.SessionIF;
-import com.runwaysdk.system.AbstractClassification;
 
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.GeometrySizeException;
 import net.geoprism.registry.GeoregistryProperties;
-import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.etl.InvalidExternalIdException;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
@@ -102,6 +92,7 @@ import net.geoprism.registry.io.SridException;
 import net.geoprism.registry.io.TermValueException;
 import net.geoprism.registry.jobs.ParentReferenceProblem;
 import net.geoprism.registry.jobs.RowValidationProblem;
+import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.GeoObjectMetadata;
 import net.geoprism.registry.model.GeoObjectTypeMetadata;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -112,6 +103,7 @@ import net.geoprism.registry.query.ServerCodeRestriction;
 import net.geoprism.registry.query.ServerExternalIdRestriction;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.ServerSynonymRestriction;
+import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
@@ -225,8 +217,6 @@ public class GeoObjectImporter implements ObjectImporterIF
   protected GeoObjectImportConfiguration   configuration;
 
   protected Map<String, ServerGeoObjectIF> parentCache;
-
-  protected ClassifierVertexCache          classifierCache            = new ClassifierVertexCache();
 
   protected static final String            parentConcatToken          = "&";
 
@@ -449,7 +439,8 @@ public class GeoObjectImporter implements ObjectImporterIF
           }
         }
 
-        GeoObjectOverTime go = this.service.toGeoObjectOverTime(entity, false, this.classifierCache);
+        // Validate the data by serializing it
+        GeoObjectOverTime go = this.service.toGeoObjectOverTime(entity, false, false);
         go.toJSON().toString();
 
         if (this.configuration.isExternalImport())
@@ -787,9 +778,6 @@ public class GeoObjectImporter implements ObjectImporterIF
         }
       }
 
-      go = this.service.toGeoObjectOverTime(serverGo, false, this.classifierCache);
-      goJson = go.toJSON().toString();
-
       /*
        * Try to get the parent and ensure that this row is not ignored. The
        * getParent method will throw a IgnoreRowException if the parent is
@@ -810,11 +798,15 @@ public class GeoObjectImporter implements ObjectImporterIF
         throw new RuntimeException("Did not expect to encounter validation problems during import.");
       }
 
+      go = this.service.toGeoObjectOverTime(serverGo, false, false);
+      goJson = go.toJSON().toString();
+
       data.setGoJson(goJson);
       data.setNew(isNew);
       data.setParentBuilder(parentBuilder);
 
-      ServerGeoObjectEventBuilder builder = new ServerGeoObjectEventBuilder(this.service, this.classifierCache);
+      ServerGeoObjectEventBuilder builder = new ServerGeoObjectEventBuilder(this.service);
+      builder.setConfiguration(configuration);
       builder.setObject(serverGo, isNew, true);
       builder.setAttributeUpdate(true);
 
@@ -859,19 +851,7 @@ public class GeoObjectImporter implements ObjectImporterIF
       }
       else
       {
-        ServerGeoObjectIF object = this.service.getGeoObjectByCode(code, configuration.getType());
-
-        if (object != null)
-        {
-          String geometryId = object.getValue(DefaultAttribute.GEOMETRY.getName(), configuration.getStartDate());
-
-          if (!StringUtils.isBlank(geometryId) && !StringUtils.isBlank(this.configuration.getHistoryId()))
-          {
-            RelationshipDAO.newInstance(this.configuration.getHistoryId(), geometryId, RegistryConstants.JOB_HISTORY_GEOMETRY).apply();
-          }
-        }
-
-        this.progressListener.add(new TypeInfo(TypeClass.GEO_OBJECT_TYPE, object.getType().getCode()));
+        this.progressListener.add(new TypeInfo(TypeClass.GEO_OBJECT_TYPE, this.configuration.getType().getCode()));
       }
     }
     catch (IgnoreRowException e)
@@ -1282,76 +1262,20 @@ public class GeoObjectImporter implements ObjectImporterIF
   {
     if (!this.configuration.isExclusion(attributeName, value.toString()))
     {
-      try
-      {
-        AttributeClassificationType attr = (AttributeClassificationType) attributeType;
+      org.commongeoregistry.adapter.metadata.AttributeClassificationType attr = (org.commongeoregistry.adapter.metadata.AttributeClassificationType) attributeType.toDTO();
 
-        MdClassificationDAOIF mdClassification = (MdClassificationDAOIF) MdClassificationDAO.get(attr.getMdClassificationOid());
-        MdAttributeClassificationDAOIF mdAttribute = attr.getMdAttributeClassification();
+      ClassificationBusinessServiceIF classificationService = ServiceFactory.getBean(ClassificationBusinessServiceIF.class);
+      String code = value.toString().trim();
 
-        VertexObject classifier = this.classifierCache.getClassifier(mdClassification.definesType(), value.toString().trim());
-
-        if (classifier == null)
-        {
-
-          classifier = AbstractClassification.findMatchingClassification(value.toString().trim(), mdAttribute);
-
-          if (classifier != null)
-          {
-            this.classifierCache.putClassifier(mdAttribute.getMdClassificationDAOIF().definesType(), classifier.getObjectValue("code"), classifier);
-          }
-        }
-
-        if (classifier == null)
-        {
-          GeoObjectType dto = entity.getType().toDTO();
-
-          throw new UnknownTermException(value.toString().trim(), dto.getAttribute(attributeName).get());
-        }
-        else
-        {
-          Boolean validationResult = this.classifierCache.getClassifierAttributeValidation(mdAttribute.getOid(), classifier);
-
-          if (validationResult == null)
-          {
-            validationResult = AttributeClassification.validateRid(mdAttribute, classifier.getRID(), false);
-
-            this.classifierCache.putClassifierAttributeValidation(mdAttribute.getOid(), classifier, validationResult);
-          }
-
-          // TODO : Was this merged correctly? I don't know...
-          // <<<<<<< HEAD
-          entity.setValue(attributeName, classifier.getOid(), startDate, endDate, !validationResult);
-          // =======
-          // if (Boolean.TRUE.equals(validationResult))
-          // {
-          // attrClass.setValidate(false);
-          //
-          // try
-          // {
-          // attrClass.setValue(classifier, startDate, endDate);
-          // }
-          // finally
-          // {
-          // attrClass.setValidate(true);
-          // }
-          // }
-          // else
-          // {
-          // throw new ClassificationValidationException("Value must be a child
-          // of the attribute root");
-          // }
-          // >>>>>>> refs/remotes/origin/master
-        }
-      }
-      catch (UnknownTermException e)
-      {
+      Classification classifier = classificationService.get(attr, code).orElseThrow(() -> {
         TermValueException ex = new TermValueException();
-        ex.setAttributeLabel(e.getAttribute().getLabel().getValue());
-        ex.setCode(e.getCode());
+        ex.setAttributeLabel(attr.getLabel().getValue());
+        ex.setCode(code);
 
-        throw e;
-      }
+        return ex;
+      });
+
+      entity.setValue(attributeName, classifier.getOid(), startDate, endDate, false);
     }
   }
 
