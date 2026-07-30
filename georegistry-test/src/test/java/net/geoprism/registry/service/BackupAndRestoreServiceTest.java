@@ -301,8 +301,8 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
           Assert.assertNotNull(USATestData.MEXICO.getCode(), parents.get(0).getGeoObject().getCode());
 
           // Validate Business Objects were imported
-          boParent = this.bObjectService.getByCode(bType, "BoParent");
-          boChild = this.bObjectService.getByCode(bType, "BoChild");
+          boParent = this.bObjectService.getByCode(bType, "BoParent").orElse(null);
+          boChild = this.bObjectService.getByCode(bType, "BoChild").orElse(null);
 
           Assert.assertNotNull(boParent);
           Assert.assertNotNull(boChild);

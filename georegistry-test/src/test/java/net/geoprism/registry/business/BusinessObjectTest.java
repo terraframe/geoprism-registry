@@ -238,7 +238,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
     try
     {
-      BusinessObject result = this.bObjectService.get(type, attribute.getCode(), object.getValue(attribute.getCode()));
+      BusinessObject result = this.bObjectService.get(type, attribute.getCode(), object.getValue(attribute.getCode())).orElse(null);
 
       Assert.assertEquals(object.getVertex().getOid(), result.getVertex().getOid());
       Assert.assertEquals(FastTestDataset.SOURCE.getDataSource().getOid(), (String) result.getValue(DefaultAttribute.DATA_SOURCE.getName()));
@@ -263,7 +263,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
     try
     {
-      BusinessObject result = this.bObjectService.getByCode(type, object.getCode());
+      BusinessObject result = this.bObjectService.getByCode(type, object.getCode()).orElse(null);
 
       Assert.assertEquals(object.getVertex().getOid(), result.getVertex().getOid());
     }

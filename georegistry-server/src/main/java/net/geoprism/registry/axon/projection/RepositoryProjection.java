@@ -331,12 +331,28 @@ public class RepositoryProjection
         }
         else
         {
-          source.addGraphChild(target, graphType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), dataSource, event.getValidate());
+          if (graphType instanceof ServerHierarchyType)
+          {
+            // For hierarchies the edge points to the parent from the child
+            this.gObjectService.addParent(target, source, (ServerHierarchyType) graphType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), dataSource, event.getValidate());
+          }
+          else
+          {
+            source.addGraphChild(target, graphType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), dataSource, event.getValidate());
+          }
         }
       }
       else
       {
-        source.addGraphChild(target, graphType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), dataSource, event.getValidate());
+        if (graphType instanceof ServerHierarchyType)
+        {
+          // For hierarchies the edge points to the parent from the child
+          this.gObjectService.addParent(target, source, (ServerHierarchyType) graphType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), dataSource, event.getValidate());
+        }
+        else
+        {
+          source.addGraphChild(target, graphType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), dataSource, event.getValidate());
+        }
       }
     }
     else
@@ -542,7 +558,7 @@ public class RepositoryProjection
 
     ObjectOverTimeDTO dto = event.getObject();
 
-    ConceptObject object = event.getIsNew() ? this.cObjectService.newInstance(type) : this.cObjectService.getByCode(type, event.getCode());
+    ConceptObject object = event.getIsNew() ? this.cObjectService.newInstance(type) : this.cObjectService.getByCode(type, event.getCode()).orElseThrow();
 
     this.cObjectService.populate(object, dto);
 
@@ -557,7 +573,7 @@ public class RepositoryProjection
 
     ObjectOverTimeDTO dto = event.getObject();
 
-    BusinessObject object = event.getIsNew() ? this.bObjectService.newInstance(type) : this.bObjectService.getByCode(type, event.getCode());
+    BusinessObject object = event.getIsNew() ? this.bObjectService.newInstance(type) : this.bObjectService.getByCode(type, event.getCode()).orElseThrow();
 
     this.bObjectService.populate(object, dto);
 
@@ -616,7 +632,7 @@ public class RepositoryProjection
     {
       ObjectAtTimeDTO dto = event.getObject();
 
-      BusinessObject object = this.bObjectService.getByCode(type, event.getCode());
+      BusinessObject object = this.bObjectService.getByCode(type, event.getCode()).orElse(null);
 
       if (object == null)
       {
@@ -643,7 +659,7 @@ public class RepositoryProjection
     {
       ObjectAtTimeDTO dto = event.getObject();
 
-      ConceptObject object = this.cObjectService.getByCode(type, event.getCode());
+      ConceptObject object = this.cObjectService.getByCode(type, event.getCode()).orElse(null);
 
       if (object == null)
       {
@@ -743,24 +759,18 @@ public class RepositoryProjection
   {
     BusinessType type = this.bTypeService.getByCodeOrThrow(event.getType());
 
-    BusinessObject object = this.bObjectService.getByCode(type, event.getCode());
-
-    if (object != null)
-    {
+    this.bObjectService.getByCode(type, event.getCode()).ifPresent(object -> {
       this.bObjectService.delete(object);
-    }
+    });
   }
 
   public void handleRemoveConceptObjectEvent(RemoveConceptObjectEvent event)
   {
     ConceptClass type = this.cClassService.getByCodeOrThrow(event.getType());
 
-    ConceptObject object = this.cObjectService.getByCode(type, event.getCode());
-
-    if (object != null)
-    {
+    this.cObjectService.getByCode(type, event.getCode()).ifPresent(object -> {
       this.cObjectService.delete(object);
-    }
+    });
   }
 
   public void handleRemoveGeoObjectEdgeEvent(RemoveGeoObjectEdgeEvent event)
@@ -806,11 +816,11 @@ public class RepositoryProjection
 
     Object sourceRid = ( parentType instanceof BaseGeoObjectType ) ? //
         this.gObjectService.getGeoObjectByCode(event.getSourceCode(), event.getSourceType()).getVertex().getRID() : //
-        this.bObjectService.getByCode(this.bTypeService.getByCodeOrThrow(event.getSourceType()), event.getSourceCode()).getVertex().getRID();
+        this.bObjectService.getByCode(this.bTypeService.getByCodeOrThrow(event.getSourceType()), event.getSourceCode()).orElseThrow().getRID();
 
     Object targetRid = ( childType instanceof BaseGeoObjectType ) ? //
         this.gObjectService.getGeoObjectByCode(event.getTargetCode(), event.getTargetType()).getVertex().getRID() : //
-        this.bObjectService.getByCode(this.bTypeService.getByCodeOrThrow(event.getTargetType()), event.getTargetCode()).getVertex().getRID();
+        this.bObjectService.getByCode(this.bTypeService.getByCodeOrThrow(event.getTargetType()), event.getTargetCode()).orElseThrow().getRID();
 
     StringBuilder statement = new StringBuilder();
     statement.append("DELETE EDGE " + clazz);

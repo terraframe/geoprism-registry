@@ -412,7 +412,7 @@ public abstract class ObjectImporter<V extends ServerObjectVertex, T extends Obj
 
       if (this.configuration.getImportStrategy().equals(ImportStrategy.UPDATE_ONLY) || this.configuration.getImportStrategy().equals(ImportStrategy.NEW_AND_UPDATE))
       {
-        businessObject = this.getService().getByCode(this.configuration.getType(), code);
+        businessObject = this.getService().getByCode(this.configuration.getType(), code).orElse(null);
       }
 
       if (businessObject == null)

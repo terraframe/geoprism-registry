@@ -77,7 +77,7 @@ public abstract class DatasetTest
       gateway.publish(GenericEventMessage.asEventMessage(event));
     });
 
-    return this.cObjectService.getByCode(object.getType(), builder.getCode());
+    return this.cObjectService.getByCode(object.getType(), builder.getCode()).orElse(null);
   }
 
   protected BusinessObject createBusinessObject(String code, BusinessType type, DataSource dataSource, Date startDate, Date endDate)
@@ -100,7 +100,7 @@ public abstract class DatasetTest
       gateway.publish(GenericEventMessage.asEventMessage(event));
     });
 
-    return this.bObjectService.getByCode(object.getType(), builder.getCode());
+    return this.bObjectService.getByCode(object.getType(), builder.getCode()).orElse(null);
   }
 
   protected ServerGeoObjectIF applyGeoObject(ServerGeoObjectIF object)

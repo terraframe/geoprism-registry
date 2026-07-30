@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -189,7 +190,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
         importer.importRow(new MapFeatureRow(row, 0L));
       }
 
-      BusinessObject result = this.bObjectService.get(type, attributeType.getCode(), basicValue);
+      BusinessObject result = this.bObjectService.get(type, attributeType.getCode(), basicValue).orElse(null);
 
       try
       {
@@ -263,7 +264,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
         importer.importRow(new MapFeatureRow(row, 0L));
       }
 
-      BusinessObject result = this.bObjectService.get(type, attributeType.getCode(), value);
+      BusinessObject result = this.bObjectService.get(type, attributeType.getCode(), value).orElse(null);
 
       try
       {
@@ -313,7 +314,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
 
         Assert.assertFalse(configuration.hasExceptions());
 
-        BusinessObject result = this.bObjectService.getByCode(type, TEST_CODE);
+        BusinessObject result = this.bObjectService.getByCode(type, TEST_CODE).orElse(null);
 
         Assert.assertEquals(result.getValue(attributeType.getCode()), value);
       }
@@ -415,8 +416,10 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
     });
   }
 
-  public void assertAndDelete(BusinessObject o1)
+  public void assertAndDelete(Optional<BusinessObject> optional)
   {
+    BusinessObject o1 = optional.orElse(null);
+
     try
     {
       Assert.assertNotNull(o1);

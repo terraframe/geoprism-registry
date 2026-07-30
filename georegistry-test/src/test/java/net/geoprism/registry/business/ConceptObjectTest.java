@@ -200,7 +200,7 @@ public class ConceptObjectTest extends FastDatasetTest implements InstanceTestCl
 
     try
     {
-      ConceptObject result = this.cObjectService.get(type, attribute.getCode(), object.getValue(attribute.getCode()));
+      ConceptObject result = this.cObjectService.get(type, attribute.getCode(), object.getValue(attribute.getCode())).orElse(null);
 
       Assert.assertEquals(object.getVertex().getOid(), result.getVertex().getOid());
       Assert.assertEquals(FastTestDataset.SOURCE.getDataSource().getOid(), (String) result.getValue(DefaultAttribute.DATA_SOURCE.getName()));
@@ -224,7 +224,7 @@ public class ConceptObjectTest extends FastDatasetTest implements InstanceTestCl
 
     try
     {
-      ConceptObject result = this.cObjectService.getByCode(type, object.getCode());
+      ConceptObject result = this.cObjectService.getByCode(type, object.getCode()).orElse(null);
 
       Assert.assertEquals(object.getVertex().getOid(), result.getVertex().getOid());
     }

@@ -189,7 +189,7 @@ public class RelationshipVisualizationService
 
           if (edgeType.getIsChildGeoObject())
           {
-            final BusinessObject selected = this.bObjectService.getByCode(type, sourceView.getCode());
+            final BusinessObject selected = this.bObjectService.getByCode(type, sourceView.getCode()).orElseThrow();
 
             List<VertexComponent> objects = this.bObjectService.getChildren(selected, edgeType, date);
 
@@ -315,15 +315,12 @@ public class RelationshipVisualizationService
 
       if (canReadBusinessData(type))
       {
-        final BusinessObject selected = this.bObjectService.getByCode(type, sourceView.getCode());
+        final BusinessObject selected = this.bObjectService.getByCode(type, sourceView.getCode()).orElseThrow();
 
         verticies.put(selected.getCode(), this.fromBusinessObject(selected, "SELECTED"));
         addRelatedType(relatedTypes, type);
 
         BusinessEdgeType edgeType = this.bEdgeService.getByCodeOrThrow(graphTypeCode);
-
-        ObjectClass parentType = this.bEdgeService.getParent(edgeType);
-        ObjectClass childType = this.bEdgeService.getChild(edgeType);
 
         List<VertexComponent> objects = this.bObjectService.getParents(selected, edgeType, date);
 

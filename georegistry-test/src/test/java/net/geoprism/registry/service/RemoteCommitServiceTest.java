@@ -333,7 +333,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
 
       BusinessType bType = this.bTypeService.getByCodeOrThrow("TEST_BUSINESS");
 
-      BusinessObject bObject = this.bObjectService.getByCode(bType, "C_CODE");
+      BusinessObject bObject = this.bObjectService.getByCode(bType, "C_CODE").orElse(null);
 
       Assert.assertNotNull(bObject);
       Assert.assertNotNull(bObject.getValue(DefaultAttribute.DATA_SOURCE.getName()));
@@ -345,7 +345,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
       Assert.assertEquals(1, this.bObjectService.getParents(bObject, bGeoEdgeType, USATestData.DEFAULT_OVER_TIME_DATE).size());
 
       ConceptClass conceptClass = this.cClassService.getByCodeOrThrow("TEST_CONCEPT");
-      ConceptObject concept = this.cObjectService.getByCode(conceptClass, "CONCEPT");
+      ConceptObject concept = this.cObjectService.getByCode(conceptClass, "CONCEPT").orElse(null);
 
       Assert.assertNotNull(concept);
       Assert.assertNotNull(concept.getValue(DefaultAttribute.DATA_SOURCE.getName()));
@@ -668,7 +668,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
 
         BusinessType bType = this.bTypeService.getByCodeOrThrow("TEST_BUSINESS");
 
-        BusinessObject bObject = this.bObjectService.getByCode(bType, "C_CODE");
+        BusinessObject bObject = this.bObjectService.getByCode(bType, "C_CODE").orElse(null);
 
         Assert.assertNotNull(bObject);
         Assert.assertNotNull(bObject.getValue(DefaultAttribute.DATA_SOURCE.getName()));

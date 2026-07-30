@@ -81,7 +81,7 @@ public class BusinessObjectCache extends LRUCache<String, BusinessObject>
     return this.get(typeCode, code).orElseGet(() -> {
       BusinessType businessType = getTypeService().getByCodeOrThrow(typeCode);
 
-      BusinessObject object = getObjectService().getByCode(businessType, code);
+      BusinessObject object = getObjectService().getByCode(businessType, code).orElse(null);
 
       this.put(typeCode + SEPARATOR + code, object);
 
@@ -93,7 +93,7 @@ public class BusinessObjectCache extends LRUCache<String, BusinessObject>
   {
     return this.get(type.getCode(), code).orElseGet(() -> {
 
-      BusinessObject object = getObjectService().getByCode(type, code);
+      BusinessObject object = getObjectService().getByCode(type, code).orElse(null);
 
       this.put(type.getCode() + SEPARATOR + code, object);
 

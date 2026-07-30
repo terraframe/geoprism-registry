@@ -256,6 +256,9 @@ public class EdgeObjectImporter implements ObjectImporterIF
 
         validateObject(graphType.getSourceType(), sourceCode, sourceTypeCode);
         validateObject(graphType.getTargetType(), targetCode, targetTypeCode);
+
+        // TODO if the graph type is a hierarchy we need to validate that edge
+        // is valid for based on the hierarchy definition
       }
       catch (IgnoreRowException e)
       {
