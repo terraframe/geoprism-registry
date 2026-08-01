@@ -96,9 +96,16 @@ export class HubService {
                     key: 'concept.data.type'
                 },
                 {
+                    id: 'SOURCE_AUTHORITY',
+                    description: "nav.authority.description",
+                    link: '/registry/source-authorities',
+                    icon: 'fa-solid fa-database',
+                    key: 'nav.authority.label'
+                },
+                {
                     id: 'DATA_SOURCE',
                     description: "nav.datasource.description",
-                    link: '/registry/sources',
+                    link: '/registry/data-sources',
                     icon: 'fa-solid fa-database',
                     key: 'nav.datasource.label'
                 }

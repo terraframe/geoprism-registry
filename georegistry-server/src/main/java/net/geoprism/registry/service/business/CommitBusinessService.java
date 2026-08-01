@@ -310,7 +310,7 @@ public class CommitBusinessService implements CommitBusinessServiceIF
     {
       return iterator.getAll().stream() //
           .map(c -> c.getValue(CommitHasDataSource.DATASOURCE)) //
-          .map(oid -> sourceService.get(oid))//
+          .map(oid -> sourceService.get(oid).orElseThrow())//
           .toList();
     }
   }

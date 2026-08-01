@@ -57,6 +57,7 @@ public class BasicHierarchyTest implements InstanceTestClassListener
     testData = USATestData.newTestData();
 
     USATestData.ORG_NPS.apply();
+    USATestData.AUTHORITY.apply();
     USATestData.SOURCE.apply();
 
     parent = this.gTypeService.create(USATestData.COUNTRY.toDTO());
@@ -98,7 +99,7 @@ public class BasicHierarchyTest implements InstanceTestClassListener
 
         Assert.assertNotNull(node.getSource());
         Assert.assertEquals(uid, node.getUid());
-        Assert.assertEquals(child.getCode(), node.getGeoObject().getCode());        
+        Assert.assertEquals(child.getCode(), node.getGeoObject().getCode());
       }
       finally
       {
@@ -110,29 +111,29 @@ public class BasicHierarchyTest implements InstanceTestClassListener
       USATestData.USA.delete();
     }
   }
-  
+
   @Test
   @Request
   public void testAddParent()
   {
     ServerGeoObjectIF parent = USATestData.USA.apply();
-    
+
     try
     {
       ServerGeoObjectIF child = USATestData.COLORADO.apply();
-      
+
       try
       {
         String uid = UUID.randomUUID().toString();
-        
+
         this.service.addParent(child, parent, hierarchyType, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, uid, USATestData.SOURCE.getDataSource(), false);
-        
+
         ServerParentTreeNode objects = this.service.getParentGeoObjects(child, hierarchyType, null, false, false, USATestData.DEFAULT_OVER_TIME_DATE);
-        
+
         Assert.assertEquals(1, objects.getParents().size());
-        
+
         ServerParentTreeNode node = objects.getParents().get(0);
-        
+
         Assert.assertNotNull(node.getSource());
         Assert.assertEquals(uid, node.getUid());
         Assert.assertEquals(parent.getCode(), node.getGeoObject().getCode());

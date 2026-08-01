@@ -195,9 +195,9 @@ public class GeoObjectExcelExporter
           }
           else if (attribute instanceof AttributeDataSourceType)
           {
-            DataSource source = this.sourceService.get(( (String) value ));
-
-            cell.setCellValue(source.getCode());
+            this.sourceService.get( ( (String) value )).ifPresent(source -> {
+              cell.setCellValue(source.getCode());
+            });
           }
           else if (attribute instanceof AttributeLocalType)
           {

@@ -32,8 +32,8 @@ import { BusinessTypeService } from "@registry/service/business-type.service";
 import { ConceptClassService } from "@registry/service/concept-class.service";
 
 import { environment } from 'src/environments/environment';
-import { Source } from "@registry/model/source";
-import { SourceService } from "@registry/service/source.service";
+import { DataSource } from "@registry/model/source";
+import { DataSourceService } from "@registry/service/data-source.service";
 import { BooleanFieldComponent } from "@shared/component/form-fields/boolean-field/boolean-field.component";
 import { DateFieldComponent } from "@shared/component/form-fields/date-field/date-field.component";
 import { FormsModule } from "@angular/forms";
@@ -95,7 +95,7 @@ export class ObjectImporterComponent implements OnInit {
     /*
      * Hierarchies grouped by GeoObjectType
      */
-    sources: Source[];
+    sources: DataSource[];
 
     dataSource: string;
 
@@ -103,7 +103,7 @@ export class ObjectImporterComponent implements OnInit {
     constructor(
         private eventService: EventService,
         private modalService: BsModalService,
-        private sourceService: SourceService,
+        private sourceService: DataSourceService,
         private localizationService: LocalizationService,
         private businessService: BusinessTypeService,
         private conceptService: ConceptClassService,

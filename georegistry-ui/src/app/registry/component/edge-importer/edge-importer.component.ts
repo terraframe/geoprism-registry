@@ -32,8 +32,8 @@ import { GraphTypeService } from "@registry/service/graph-type.service";
 
 import { environment } from 'src/environments/environment';
 import { GEO_OBJECT_OPTION, GeoObjectType, GraphType } from "@registry/model/registry";
-import { Source } from "@registry/model/source";
-import { SourceService } from "@registry/service/source.service";
+import { DataSource } from "@registry/model/source";
+import { DataSourceService } from "@registry/service/data-source.service";
 import { DateFieldComponent as DateFieldComponent_1 } from "../../../shared/component/form-fields/date-field/date-field.component";
 import { FormsModule } from "@angular/forms";
 import { NgIf, NgFor } from "@angular/common";
@@ -74,9 +74,9 @@ export class EdgeImporterComponent implements OnInit {
 
     businessTypes: BusinessType[];
 
-    sources: Source[];
+    sources: DataSource[];
 
-    source: Source;
+    source: DataSource;
 
     dataSource: string;
 
@@ -116,7 +116,7 @@ export class EdgeImporterComponent implements OnInit {
         private eventService: EventService,
         private modalService: BsModalService,
         private localizationService: LocalizationService,
-        private sourceService: SourceService,
+        private sourceService: DataSourceService,
         private registryService: RegistryService,
         private edgeService: GraphTypeService,
         private businessTypeService: BusinessTypeService,

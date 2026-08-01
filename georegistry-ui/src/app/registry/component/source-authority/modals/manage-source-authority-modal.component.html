@@ -22,11 +22,11 @@
 
   <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
-  <form #form="ngForm" *ngIf="source" class="modal-form" (ngSubmit)="form.valid">
+  <form #form="ngForm" *ngIf="authority" class="modal-form" (ngSubmit)="form.valid">
     <div class="heading text-center">
       <h1>
-        <span *ngIf="readOnly">View Source</span>
-        <span *ngIf="!readOnly">{{source.oid == null ? 'Create Source' : 'Edit Source'}}</span>
+        <span *ngIf="readOnly">View Source Authority</span>
+        <span *ngIf="!readOnly">{{authority.oid == null ? 'Create Source Authority' : 'Edit Source Authority'}}</span>
       </h1>
     </div>
     <fieldset>
@@ -38,11 +38,29 @@
         </div>
         <div class="holder">
           <span class="text">
-            <input type="text" [(ngModel)]="source.code" name="code" [disabled]="readOnly" required>
+            <input type="text" [(ngModel)]="authority.code" name="code" [disabled]="readOnly" required>
           </span>
         </div>
       </div>
 
+      <localized-input [disabled]="readOnly" [(value)]="authority.label" key="data.property.label.label">
+      </localized-input>
+
+      <localized-input [disabled]="readOnly" [(value)]="authority.description" key="data.property.label.description">
+      </localized-input>
+
+      <div class="row-holder">
+        <div class="label-holder">
+          <label>
+            <localize key="source.authority.authority.type"></localize>
+          </label>
+        </div>
+        <div class="holder">
+          <span class="text">
+            <input type="text" [(ngModel)]="authority.authorityType" name="authorityType" [disabled]="readOnly">
+          </span>
+        </div>
+      </div>
 
       <div class="row-holder">
         <div class="button-holder">

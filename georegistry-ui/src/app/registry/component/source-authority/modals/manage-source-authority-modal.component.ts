@@ -28,16 +28,17 @@ import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 import { Subject } from "rxjs";
 import { HttpErrorResponse } from "@angular/common/http";
 import { ErrorHandler } from "@shared/component";
-import { Source } from "@registry/model/source";
-import { SourceService } from "@registry/service/source.service";
 import { LocalizationService } from "@shared/service/localization.service";
 import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { FormsModule } from "@angular/forms";
 import { NgIf } from "@angular/common";
+import { SourceAuthorityService } from "@registry/service/source-authority.service";
+import { SourceAuthority } from "@registry/model/source";
+import { LocalizedInputComponent } from "@registry/component/form-fields/localized-input/localized-input.component";
 
 @Component({
-    selector: "manage-source-modal",
-    templateUrl: "./manage-source-modal.component.html",
+    selector: "manage-source-authority-modal",
+    templateUrl: "./manage-source-authority-modal.component.html",
     styleUrls: [],
     // host: { '[@fadeInOut]': 'true' },
     animations: [
@@ -56,33 +57,33 @@ import { NgIf } from "@angular/common";
         ]
     ],
     standalone: true,
-    imports: [NgIf, FormsModule, LocalizeComponent]
+    imports: [NgIf, FormsModule, LocalizeComponent, LocalizedInputComponent]
 })
-export class ManageSourceModalComponent implements OnInit {
+export class ManageSourceAuthorityModalComponent implements OnInit {
 
     message: string = null;
-    source: Source;
-    public onSourceChange: Subject<Source>;
+    authority: SourceAuthority;
+    public onSourceChange: Subject<SourceAuthority>;
     readOnly: boolean = false;
 
-    constructor(public service: SourceService, private localizationService: LocalizationService, private modalService: BsModalService, public bsModalRef: BsModalRef) {
+    constructor(public service: SourceAuthorityService, private localizationService: LocalizationService, private modalService: BsModalService, public bsModalRef: BsModalRef) {
     }
 
     ngOnInit(): void {
         this.onSourceChange = new Subject();
     }
 
-    init(source: Source, readOnly: boolean) {
-        this.source = source;
+    init(authority: SourceAuthority, readOnly: boolean) {
+        this.authority = authority;
         this.readOnly = readOnly;
     }
 
     handleSourceChange(): void {
-        this.onSourceChange.next(this.source);
+        this.onSourceChange.next(this.authority);
     }
 
     update(): void {
-        this.service.apply(this.source).then(type => {
+        this.service.apply(this.authority).then(type => {
             this.onSourceChange.next(type);
 
             this.bsModalRef.hide();

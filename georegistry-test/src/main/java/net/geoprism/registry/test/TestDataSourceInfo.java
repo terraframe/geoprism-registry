@@ -5,24 +5,31 @@ package net.geoprism.registry.test;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.model.DataSourceDTO;
+import net.geoprism.registry.model.GovernanceLevel;
+import net.geoprism.registry.model.MetadataProfile;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 
-public class TestSourceInfo
+public class TestDataSourceInfo
 {
 
-  private String     code;
+  private String                  code;
 
-  private DataSource dataSource;
+  private TestSourceAuthorityInfo authority;
 
-  public TestSourceInfo(String code)
+  private DataSource              dataSource;
+
+  public TestDataSourceInfo(String code, TestSourceAuthorityInfo authority)
   {
     this.code = code;
+    this.authority = authority;
+
     this.dataSource = null;
   }
 
@@ -44,6 +51,11 @@ public class TestSourceInfo
 
       DataSourceDTO dto = new DataSourceDTO();
       dto.setCode(code);
+      dto.setDescription(new LocalizedValue(code));
+      dto.setLabel(new LocalizedValue(code));
+      dto.setAuthority(this.authority.getCode());
+      dto.setGovernanceLevel(GovernanceLevel.AD_HOC);
+      dto.setMetadataProfile(MetadataProfile.AD_HOC);
 
       DataSourceBusinessServiceIF service = ServiceFactory.getBean(DataSourceBusinessServiceIF.class);
       this.dataSource = service.apply(dto);
@@ -88,12 +100,12 @@ public class TestSourceInfo
   @Override
   public boolean equals(Object obj)
   {
-    if (! ( obj instanceof TestSourceInfo ))
+    if (! ( obj instanceof TestDataSourceInfo ))
       return false;
     if (obj == this)
       return true;
 
-    TestSourceInfo rhs = (TestSourceInfo) obj;
+    TestDataSourceInfo rhs = (TestDataSourceInfo) obj;
     return new EqualsBuilder().
     // if deriving: appendSuper(super.equals(obj)).
         append(code, rhs.code).isEquals();

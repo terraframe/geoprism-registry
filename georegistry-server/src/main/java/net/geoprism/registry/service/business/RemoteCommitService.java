@@ -58,6 +58,9 @@ public class RemoteCommitService
   private DataSourceBusinessServiceIF               sourceService;
 
   @Autowired
+  private SourceAuthorityBusinessServiceIF          authorityService;
+
+  @Autowired
   private SnapshotBusinessService                   snapshotService;
 
   @Autowired
@@ -106,9 +109,18 @@ public class RemoteCommitService
 
     try
     {
-
       dependencies.forEach(dependency -> commit.addDependency(dependency).apply());
 
+      // TODO: Should this be updated with new values
+      client.getSourceAuthorities(commit.getUid()).forEach(dto -> {
+        this.authorityService.getByCode(dto.getCode()).orElseGet(() -> {
+          dto.setOid(null);
+
+          return this.authorityService.apply(dto);
+        });
+      });
+
+      // TODO: Should this be updated with new values
       client.getDataSources(commit.getUid()).forEach(dto -> {
         DataSource source = this.sourceService.getByCode(dto.getCode()).orElseGet(() -> {
           dto.setOid(null);

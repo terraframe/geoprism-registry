@@ -51,6 +51,7 @@ import net.geoprism.registry.graph.UndirectedGraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.SourceAuthorityDTO;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessEdgeTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
@@ -64,6 +65,7 @@ import net.geoprism.registry.service.business.GraphTypeSnapshotBusinessServiceIF
 import net.geoprism.registry.service.business.HierarchyTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.PublishBusinessServiceIF;
 import net.geoprism.registry.service.business.PublishEventService;
+import net.geoprism.registry.service.business.SourceAuthorityBusinessServiceIF;
 import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.BusinessTypeDTO;
 import net.geoprism.registry.view.ConceptClassDTO;
@@ -113,6 +115,9 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
   @Autowired
   private DataSourceBusinessServiceIF               sourceService;
+
+  @Autowired
+  private SourceAuthorityBusinessServiceIF          authorityService;
 
   @Autowired
   private RegistryEventStore                        store;
@@ -265,6 +270,23 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
         Assert.assertEquals(1, sources.size());
         Assert.assertEquals(USATestData.SOURCE.getCode(), sources.get(0).getCode());
 
+        List<SourceAuthorityDTO> authorities = sources.stream().map(source -> {
+          return this.authorityService.get(source.getObjectValue(DataSource.AUTHORITY));
+        }) //
+            .filter(o -> o.isPresent()) //
+            .map(o -> o.get()) //
+            .distinct() //
+            .map(this.authorityService::toDTO) //
+            .map(o -> {
+              o.setOid(null);
+
+              return o;
+            }) //
+            .toList();
+
+        Assert.assertEquals(1, authorities.size());
+        Assert.assertEquals(USATestData.AUTHORITY.getCode(), authorities.get(0).getCode());
+
         Assert.assertEquals(Long.valueOf(96L), this.store.size());
 
         List<RemoteEvent> events = this.cService.getRemoteEvents(commit).toList();
@@ -281,6 +303,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
           mapper.writeValue(new File(directory, "publish.json"), dto);
           mapper.writeValue(new File(directory, "commit.json"), commit.toDTO(publish));
           mapper.writeValue(new File(directory, "sources.json"), sources.stream().map(this.sourceService::toDTO).toArray());
+          mapper.writeValue(new File(directory, "authorities.json"), authorities);
 
           try (FileWriter writer = new FileWriter(new File(directory, "geo-object-types.json")))
           {

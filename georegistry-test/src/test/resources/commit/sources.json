@@ -1,4 +1,10 @@
 [ {
-  "oid" : "b6618fd4-6113-4c37-bddd-4cb8cd72e9e3",
-  "code" : "UsaSource"
+  "oid" : "0cd48800-a5e3-4a0c-adfc-d4e02299abe2",
+  "code" : "UsaSource",
+  "label" : {"localizedValue":"UsaSource","localeValues":[{"locale":"defaultLocale","value":"UsaSource"}]},
+  "description" : {"localizedValue":"UsaSource","localeValues":[{"locale":"defaultLocale","value":"UsaSource"}]},
+  "uri" : null,
+  "governanceLevel" : "AD_HOC",
+  "metadataProfile" : "AD_HOC",
+  "authority" : "UsaAuthority"
 } ]

@@ -101,53 +101,55 @@ abstract public class TestDataSet
     public void execute() throws Throwable;
   }
 
-  public static final String                 ADMIN_USER_NAME                 = "admin";
+  public static final String                   ADMIN_USER_NAME                 = "admin";
 
-  public static final String                 ADMIN_PASSWORD                  = "_nm8P4gfdWxGqNRQ#8";
+  public static final String                   ADMIN_PASSWORD                  = "_nm8P4gfdWxGqNRQ#8";
 
-  public static final TestUserInfo           USER_ADMIN                      = new TestUserInfo(ADMIN_USER_NAME, ADMIN_PASSWORD, null, null);
+  public static final TestUserInfo             USER_ADMIN                      = new TestUserInfo(ADMIN_USER_NAME, ADMIN_PASSWORD, null, null);
 
-  public static final String                 WKT_DEFAULT_MULTIPOINT          = "MULTIPOINT ((110 80),(120 70))";
+  public static final String                   WKT_DEFAULT_MULTIPOINT          = "MULTIPOINT ((110 80),(120 70))";
 
-  public static final String                 WKT_DEFAULT_POLYGON             = "MULTIPOLYGON (((30 10, 40 40, 20 40, 10 20, 30 10)))";
+  public static final String                   WKT_DEFAULT_POLYGON             = "MULTIPOLYGON (((30 10, 40 40, 20 40, 10 20, 30 10)))";
 
-  public static final String                 WKT_DEFAULT_POINT               = "MULTIPOINT((110 80))";
+  public static final String                   WKT_DEFAULT_POINT               = "MULTIPOINT((110 80))";
 
-  public static final String                 WKT_DEFAULT_MULTIPOLYGON        = "MULTIPOLYGON (((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2)))";
+  public static final String                   WKT_DEFAULT_MULTIPOLYGON        = "MULTIPOLYGON (((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2)))";
 
-  public static final String                 WKT_POLYGON_2                   = "MULTIPOLYGON(((1 1,10 1,10 10,1 10,1 1),(2 2, 3 2, 3 3, 2 3,2 2)))";
+  public static final String                   WKT_POLYGON_2                   = "MULTIPOLYGON(((1 1,10 1,10 10,1 10,1 1),(2 2, 3 2, 3 3, 2 3,2 2)))";
 
-  protected int                              debugMode                       = 0;
+  protected int                                debugMode                       = 0;
 
-  protected ArrayList<TestOrganizationInfo>  managedOrganizationInfos        = new ArrayList<TestOrganizationInfo>();
+  protected ArrayList<TestOrganizationInfo>    managedOrganizationInfos        = new ArrayList<TestOrganizationInfo>();
 
-  protected ArrayList<TestOrganizationInfo>  managedOrganizationInfosExtras  = new ArrayList<TestOrganizationInfo>();
+  protected ArrayList<TestOrganizationInfo>    managedOrganizationInfosExtras  = new ArrayList<TestOrganizationInfo>();
 
-  protected ArrayList<TestGeoObjectInfo>     managedGeoObjectInfos           = new ArrayList<TestGeoObjectInfo>();
+  protected ArrayList<TestGeoObjectInfo>       managedGeoObjectInfos           = new ArrayList<TestGeoObjectInfo>();
 
-  protected ArrayList<TestGeoObjectTypeInfo> managedGeoObjectTypeInfos       = new ArrayList<TestGeoObjectTypeInfo>();
+  protected ArrayList<TestGeoObjectTypeInfo>   managedGeoObjectTypeInfos       = new ArrayList<TestGeoObjectTypeInfo>();
 
-  protected ArrayList<TestGeoObjectInfo>     managedGeoObjectInfosExtras     = new ArrayList<TestGeoObjectInfo>();
+  protected ArrayList<TestGeoObjectInfo>       managedGeoObjectInfosExtras     = new ArrayList<TestGeoObjectInfo>();
 
-  protected ArrayList<TestGeoObjectTypeInfo> managedGeoObjectTypeInfosExtras = new ArrayList<TestGeoObjectTypeInfo>();
+  protected ArrayList<TestGeoObjectTypeInfo>   managedGeoObjectTypeInfosExtras = new ArrayList<TestGeoObjectTypeInfo>();
 
-  protected ArrayList<TestHierarchyTypeInfo> managedHierarchyTypeInfos       = new ArrayList<TestHierarchyTypeInfo>();
+  protected ArrayList<TestHierarchyTypeInfo>   managedHierarchyTypeInfos       = new ArrayList<TestHierarchyTypeInfo>();
 
-  protected ArrayList<TestHierarchyTypeInfo> managedHierarchyTypeInfosExtras = new ArrayList<TestHierarchyTypeInfo>();
+  protected ArrayList<TestHierarchyTypeInfo>   managedHierarchyTypeInfosExtras = new ArrayList<TestHierarchyTypeInfo>();
 
-  protected ArrayList<TestUserInfo>          managedUsers                    = new ArrayList<TestUserInfo>();
+  protected ArrayList<TestUserInfo>            managedUsers                    = new ArrayList<TestUserInfo>();
 
-  protected ArrayList<TestSourceInfo>        managedSources                  = new ArrayList<TestSourceInfo>();
+  protected ArrayList<TestSourceAuthorityInfo> managedAuthorities              = new ArrayList<TestSourceAuthorityInfo>();
 
-  public ClientSession                       clientSession                   = null;
+  protected ArrayList<TestDataSourceInfo>      managedSources                  = new ArrayList<TestDataSourceInfo>();
 
-  public ClientRequestIF                     clientRequest                   = null;
+  public ClientSession                         clientSession                   = null;
 
-  public static Date                         DEFAULT_OVER_TIME_DATE;
+  public ClientRequestIF                       clientRequest                   = null;
 
-  public static Date                         DEFAULT_END_TIME_DATE;
+  public static Date                           DEFAULT_OVER_TIME_DATE;
 
-  public static int                          DEFAULT_TIME_YEAR_DIFF;
+  public static Date                           DEFAULT_END_TIME_DATE;
+
+  public static int                            DEFAULT_TIME_YEAR_DIFF;
 
   static
   {
@@ -216,9 +218,18 @@ abstract public class TestDataSet
     return all;
   }
 
-  public ArrayList<TestSourceInfo> getManagedSources()
+  public ArrayList<TestSourceAuthorityInfo> getManagedAuthorities()
   {
-    ArrayList<TestSourceInfo> all = new ArrayList<TestSourceInfo>();
+    ArrayList<TestSourceAuthorityInfo> all = new ArrayList<TestSourceAuthorityInfo>();
+
+    all.addAll(this.managedAuthorities);
+
+    return all;
+  }
+
+  public ArrayList<TestDataSourceInfo> getManagedSources()
+  {
+    ArrayList<TestDataSourceInfo> all = new ArrayList<TestDataSourceInfo>();
 
     all.addAll(managedSources);
 
@@ -331,7 +342,12 @@ abstract public class TestDataSet
   @Transaction
   protected void setUpMetadataInTrans()
   {
-    for (TestSourceInfo source : managedSources)
+    for (TestSourceAuthorityInfo authority : managedAuthorities)
+    {
+      authority.apply();
+    }
+
+    for (TestDataSourceInfo source : managedSources)
     {
       source.apply();
     }
@@ -436,9 +452,14 @@ abstract public class TestDataSet
       got.delete();
     }
 
-    for (TestSourceInfo source : this.managedSources)
+    for (TestDataSourceInfo source : this.managedSources)
     {
       source.delete();
+    }
+
+    for (TestSourceAuthorityInfo authority : this.managedAuthorities)
+    {
+      authority.delete();
     }
 
     for (TestOrganizationInfo org : this.getManagedOrganizations())
@@ -652,7 +673,7 @@ abstract public class TestDataSet
     // compare.getRootGeoObjectTypes() // TODO
   }
 
-  public TestGeoObjectInfo newTestGeoObjectInfo(String genKey, TestGeoObjectTypeInfo testUni, TestSourceInfo source)
+  public TestGeoObjectInfo newTestGeoObjectInfo(String genKey, TestGeoObjectTypeInfo testUni, TestDataSourceInfo source)
   {
     TestGeoObjectInfo info = new TestGeoObjectInfo(genKey, testUni, source);
 
@@ -663,7 +684,7 @@ abstract public class TestDataSet
     return info;
   }
 
-  public TestGeoObjectInfo newTestGeoObjectInfo(String genKey, TestGeoObjectTypeInfo testUni, String wkt, TestSourceInfo source)
+  public TestGeoObjectInfo newTestGeoObjectInfo(String genKey, TestGeoObjectTypeInfo testUni, String wkt, TestDataSourceInfo source)
   {
     TestGeoObjectInfo info = new TestGeoObjectInfo(genKey, testUni, wkt, true, true, source);
 

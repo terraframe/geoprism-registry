@@ -18,12 +18,15 @@ import net.geoprism.registry.Commit;
 import net.geoprism.registry.JsonCollectors;
 import net.geoprism.registry.Publish;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
+import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.model.DataSourceDTO;
+import net.geoprism.registry.model.SourceAuthorityDTO;
 import net.geoprism.registry.service.business.BusinessEdgeTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.CommitBusinessServiceIF;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.PublishBusinessServiceIF;
+import net.geoprism.registry.service.business.SourceAuthorityBusinessServiceIF;
 import net.geoprism.registry.view.BusinessTypeDTO;
 import net.geoprism.registry.view.CommitDTO;
 
@@ -41,6 +44,9 @@ public class CommitService
 
   @Autowired
   private DataSourceBusinessServiceIF               sourceService;
+
+  @Autowired
+  private SourceAuthorityBusinessServiceIF          authorityService;
 
   @Autowired
   private HierarchyTypeSnapshotBusinessServiceIF    hierarchyTypeService;
@@ -147,6 +153,28 @@ public class CommitService
 
     return this.service.getSources(commit).stream() //
         .map(this.sourceService::toDTO) //
+        .map(dto -> {
+          dto.setOid(null);
+
+          return dto;
+        }) //
+        .toList();
+  }
+
+  @Request(RequestType.SESSION)
+  public List<SourceAuthorityDTO> getAuthorities(String sessionId, String uid)
+  {
+    Commit commit = this.service.getOrThrow(uid);
+
+    // Source authorities are not directly referenced by the commit, but
+    // inferred from the data sources in the commit
+    return this.service.getSources(commit).stream().map(source -> {
+      return this.authorityService.get(source.getObjectValue(DataSource.AUTHORITY));
+    }) //
+        .filter(o -> o.isPresent()) //
+        .map(o -> o.get()) //
+        .distinct() //
+        .map(this.authorityService::toDTO) //
         .map(dto -> {
           dto.setOid(null);
 

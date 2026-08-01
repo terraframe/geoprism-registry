@@ -18,6 +18,7 @@ import net.geoprism.registry.lpg.adapter.RegistryConnectorFactory;
 import net.geoprism.registry.lpg.adapter.RegistryConnectorIF;
 import net.geoprism.registry.lpg.adapter.response.RegistryResponse;
 import net.geoprism.registry.model.DataSourceDTO;
+import net.geoprism.registry.model.SourceAuthorityDTO;
 import net.geoprism.registry.view.BusinessTypeDTO;
 import net.geoprism.registry.view.CommitDTO;
 import net.geoprism.registry.view.ConceptClassDTO;
@@ -136,6 +137,30 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
     }
 
     @Override
+    public List<SourceAuthorityDTO> getSourceAuthorities(String uid)
+    {
+      RegistryResponse response = this.apiGet(COMMIT_API_PATH + "/authorities", new BasicNameValuePair("uid", uid));
+
+      if (response.isSuccess())
+      {
+        ObjectMapper mapper = new ObjectMapper();
+
+        try
+        {
+          ObjectReader reader = mapper.readerForListOf(SourceAuthorityDTO.class);
+
+          return reader.readValue(response.getResponse());
+        }
+        catch (JsonProcessingException e)
+        {
+          throw new RemoteConnectionException(e);
+        }
+      }
+
+      throw new RemoteConnectionException(response.getMessage());
+    }
+
+    @Override
     public List<DataSourceDTO> getDataSources(String uid)
     {
       RegistryResponse response = this.apiGet(COMMIT_API_PATH + "/sources", new BasicNameValuePair("uid", uid));
@@ -182,7 +207,7 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
 
       throw new RemoteConnectionException(response.getMessage());
     }
-    
+
     @Override
     public List<ConceptClassDTO> getConceptClasses(String uid)
     {
