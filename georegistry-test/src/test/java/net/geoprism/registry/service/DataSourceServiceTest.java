@@ -19,6 +19,7 @@ import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.exception.RequiredSourceAuthorityException;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.graph.SourceAuthority;
 import net.geoprism.registry.model.DataSourceDTO;
@@ -116,6 +117,27 @@ public class DataSourceServiceTest implements InstanceTestClassListener
     try
     {
       Assert.assertEquals(Long.valueOf(1), this.authorityService.getUseCount(authority));
+    }
+    finally
+    {
+      this.service.delete(source);
+    }
+  }
+
+  @Test(expected = RequiredSourceAuthorityException.class)
+  @Request
+  public void testRequiredSourceAuthorityException()
+  {
+    DataSource source = createMock(authority);
+
+    DataSourceDTO json = this.service.toDTO(source);
+    json.setOid(null);
+
+    source = this.service.apply(json);
+
+    try
+    {
+      this.authorityService.delete(authority);
     }
     finally
     {
