@@ -25,8 +25,7 @@
   <form #form="ngForm" *ngIf="authority" class="modal-form" (ngSubmit)="form.valid">
     <div class="heading text-center">
       <h1>
-        <span *ngIf="readOnly">View Source Authority</span>
-        <span *ngIf="!readOnly">{{authority.oid == null ? 'Create Source Authority' : 'Edit Source Authority'}}</span>
+        <localize key="source.authority.header"></localize>
       </h1>
     </div>
     <fieldset>

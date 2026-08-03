@@ -93,13 +93,13 @@ export class HubService {
                     description: "nav.concept.class.description",
                     link: '/registry/concept-classes',
                     icon: 'fa-solid fa-info',
-                    key: 'concept.data.type'
+                    key: 'nav.concept.class.label'
                 },
                 {
                     id: 'SOURCE_AUTHORITY',
                     description: "nav.authority.description",
                     link: '/registry/source-authorities',
-                    icon: 'fa-solid fa-database',
+                    icon: 'fa-solid fa-user-shield',
                     key: 'nav.authority.label'
                 },
                 {

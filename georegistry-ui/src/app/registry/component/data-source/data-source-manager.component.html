@@ -32,16 +32,22 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th style="width: 70%;">
+                    <th style="width: 35%;">
                         <localize key="data.property.label.code"></localize>
+                    </th>
+                    <th style="width: 35%;">
+                        <localize key="data.property.label.label"></localize>
                     </th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
                 <tr *ngFor="let source of sources; let i = index;" class="clickable">
-                    <td style="width: 70%; vertical-align: middle;">
+                    <td style="width: 35%; vertical-align: middle;">
                         {{source.code}}
+                    </td>
+                    <td style="width: 35%; vertical-align: middle;">
+                        {{source.label.localizedValue}}
                     </td>
                     <td style="width: 30%; text-align: right;">
                         <button type="submit" (click)="onEdit(source, true)" class="btn btn-primary" role="button">
