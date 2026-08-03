@@ -1,0 +1,251 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="nav.authority.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="nav.authority.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Manage source authorities" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="nav.authority.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="nav.authority.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Source Authorities" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="source.authority.header">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="source.authority.header" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Source Authority" />
+        </attributeStruct>
+      </object>      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="source.authority.authority.type">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="source.authority.authority.type" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Authority Type" />
+        </attributeStruct>
+      </object>      
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="nav.datasource.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="nav.datasource.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Manage data sources" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="nav.datasource.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="nav.datasource.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Data Sources" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="datasource.header">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="datasource.header" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Data Source" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="datasource.uri">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="datasource.uri" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="URI" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="datasource.governance.level">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="datasource.governance.level" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Governance Level" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="datasource.authoritative">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="datasource.authoritative" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Authoritative" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="datasource.official">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="datasource.official" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Official" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="datasource.community.curated">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="datasource.community.curated" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Community Curated" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="datasource.research">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="datasource.research" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Research" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="datasource.derived">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="datasource.derived" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Derived" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="datasource.experimental">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="datasource.experimental" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Experimental" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="datasource.ad.hoc">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="datasource.ad.hoc" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Ad Hoc" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="datasource.metadata.profile">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="datasource.metadata.profile" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Metadata Profile" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="datasource.dcat">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="datasource.dcat" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="DCAT" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="datasource.geo.dcat">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="datasource.geo.dcat" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="GeoDCAT" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="datasource.iso19115">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="datasource.iso19115" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="ISO19115" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="datasource.stac">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="datasource.stac" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="STAC" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="datasource.sensorML">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="datasource.sensorML" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="SensorML" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="datasource.fhir">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="datasource.fhir" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="FHIR" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="datasource.data.cite">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="datasource.data.cite" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Data Cite" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="datasource.custom">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="datasource.custom" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Custom" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="datasource.none">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="datasource.none" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="None" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="datasource.authority">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="datasource.authority" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Source Authority" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="nav.concept.class.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="nav.concept.class.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Manage concept classes" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="nav.concept.class.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="nav.concept.class.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Concept Classes" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="concept.class.header">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="concept.class.header" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Concept Class" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="nav.publish.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="nav.publish.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Manage and publish SKGs" />
+        </attributeStruct>
+      </object>
+           
+    </createOrUpdate>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>
