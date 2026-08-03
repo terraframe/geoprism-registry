@@ -18,13 +18,13 @@
 ///
 
 /* eslint-disable indent */
-import { Component, OnInit, Output, EventEmitter, OnDestroy, ViewChild } from "@angular/core";
+import { Component, OnInit, Output, EventEmitter, OnDestroy, ViewChild, Input } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalService } from "ngx-bootstrap/modal";
 
 import { ErrorHandler } from "@shared/component";
 
-import { GeoObjectTypeCache } from "@registry/model/registry";
+import { GeoObjectTypeCache, TimeRangeEntry } from "@registry/model/registry";
 import { Subject, Subscription } from "rxjs";
 import { RelationshipVisualizationService } from "@registry/service/relationship-visualization.service";
 import { Layout, Orientation, GraphModule, NgxGraphStateChangeEvent, NgxGraphStates, NgxGraphZoomOptions, GraphComponent } from "@swimlane/ngx-graph";
@@ -45,6 +45,8 @@ import { Layer, RelationshipVisualizionDataSource, RelationshipVisualizionLayer,
 import { BooleanFieldComponent } from "../../../shared/component/form-fields/boolean-field/boolean-field.component";
 import { FormsModule } from "@angular/forms";
 import { NgIf, NgFor, NgStyle, KeyValuePipe } from "@angular/common";
+import { DateService } from "@shared/service/date.service";
+import { LocalizationService } from "@shared/service/localization.service";
 
 export const DRAW_SCALE_MULTIPLIER: number = 1.0;
 
@@ -85,6 +87,8 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
 
     @Output() nodeSelect = new EventEmitter<Vertex>();
 
+    @Input() stabilityPeriods: TimeRangeEntry[] = [];
+
     public DIMENSIONS = DIMENSIONS;
 
     public SELECTED_NODE_COLOR = SELECTED_NODE_COLOR;
@@ -119,6 +123,8 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
 
     restrictToMapBounds: boolean = false;
 
+    selectedPeriodStartDate: string = null;
+
     isLoading: boolean = false;
 
     graphRef?: GraphComponent = undefined;
@@ -134,6 +140,8 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
         private vizService: RelationshipVisualizationService,
         private cacheService: RegistryCacheService,
         private geomService: GeometryService,
+        private dateService: DateService,
+        private lService: LocalizationService
     ) { }
 
     ngOnInit(): void {
@@ -162,6 +170,7 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
         let newState = JSON.parse(JSON.stringify(state));
         let oldState = JSON.parse(JSON.stringify(this.state));
         this.state = newState;
+        this.selectedPeriodStartDate = newState.date || null;
 
         this.panelOpen = newState.graphPanelOpen === "true";
 
@@ -170,12 +179,34 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
         }
 
         if (!this.loading) {
-            if (this.relationships == null || this.relationship == null || newState.objectType !== oldState.objectType || newState.type !== oldState.type) {
+            const relationshipContextChanged =
+                newState.objectType !== oldState.objectType
+                || newState.type !== oldState.type
+                || newState.code !== oldState.code
+                || newState.uid !== oldState.uid;
+
+            if (
+                this.relationships == null
+                || this.relationship == null
+                || relationshipContextChanged
+            ) {
                 this.relationships = null;
                 this.graphOid = null;
                 this.data = null;
+
                 this.fetchRelationships();
-            } else if (this.relationships != null && this.relationship && ((this.restrictToMapBounds && newState.bounds !== oldState.bounds) || newState.code !== oldState.code || newState.date !== oldState.date || newState.uid !== oldState.uid || newState.graphOid !== oldState.graphOid)) {
+            } else if (
+                this.relationships != null
+                && this.relationship
+                && (
+                    (
+                        this.restrictToMapBounds
+                        && newState.bounds !== oldState.bounds
+                    )
+                    || newState.date !== oldState.date
+                    || newState.graphOid !== oldState.graphOid
+                )
+            ) {
                 this.fetchData();
             }
         }
@@ -218,43 +249,133 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
     }
 
     private fetchRelationships(): void {
-        if (this.state.type != null) {
-            this.relationships = [];
-            this.spinner.show(this.CONSTANTS.OVERLAY);
-
-            this.vizService.relationships(this.state.objectType, this.state.type).then(relationships => {
-                this.relationships = relationships;
-
-                if (this.relationships && this.relationships.length > 0) {
-                    if (!this.state.graphOid || this.relationships.findIndex(rel => rel.oid === this.state.graphOid) === -1) {
-                        // If we got here by selecting a business object from a GeoObject
-                        if (this.relationship != null && this.relationship.code === "BUSINESS" && this.state.objectType === "BUSINESS" && this.relationships.findIndex(rel => rel.code === "GEOOBJECT") !== -1) {
-                            // Then we can default to the "Associated GeoObjects" relationship
-                            this.relationship = this.relationships[this.relationships.findIndex(rel => rel.code === "GEOOBJECT")];
-                        } else if (this.relationship != null && this.relationship.code === "GEOOBJECT" && this.state.objectType === "GEOOBJECT" && this.relationships.findIndex(rel => rel.code === "BUSINESS") !== -1) {
-                            // Then we can default to the "Associated Business Objects" relationship
-                            this.relationship = this.relationships[this.relationships.findIndex(rel => rel.code === "BUSINESS")];
-                        } else {
-                            // We have no idea which relationship makes the most sense. Just pick the first one
-                            this.relationship = this.relationships[0];
-                        }
-
-                        this.graphOid = this.relationship.oid;
-                        this.onSelectRelationship();
-                    } else {
-                        this.relationship = this.relationships[this.relationships.findIndex(rel => rel.oid === this.state.graphOid)];
-                        this.graphOid = this.state.graphOid;
-                        this.fetchData();
-                    }
-                } else {
-                    this.relationship = null;
-                }
-            }).catch((err: HttpErrorResponse) => {
-                this.error(err);
-            }).finally(() => {
-                this.spinner.hide(this.CONSTANTS.OVERLAY);
-            });
+        if (
+            this.state.type == null
+            || this.state.code == null
+            || this.state.objectType == null
+        ) {
+            return;
         }
+
+        this.relationships = [];
+        this.spinner.show(this.CONSTANTS.OVERLAY);
+
+        const sourceVertex: ObjectReference = {
+            code: this.state.code,
+            typeCode: this.state.type,
+            objectType: this.state.objectType
+        };
+
+        this.vizService.relationshipCounts(
+            this.state.objectType,
+            this.state.type,
+            sourceVertex
+        ).then(relationships => {
+            const allRelationships = relationships || [];
+
+            /*
+            * Hide zero-count relationships whenever at least one relationship
+            * actually has data.
+            *
+            * If every relationship has a count of zero, retain the full list so
+            * the dropdown does not become empty.
+            */
+            const hasNonZeroRelationship = allRelationships.some(
+                relationship => relationship.count > 0
+            );
+
+            this.relationships = hasNonZeroRelationship
+                ? allRelationships.filter(
+                    relationship => relationship.count > 0
+                )
+                : allRelationships;
+
+            if (this.relationships.length === 0) {
+                this.relationship = null;
+                this.graphOid = null;
+                this.data = null;
+
+                return;
+            }
+
+            /*
+            * Preserve the URL/state selection when it still exists in the
+            * filtered relationship list.
+            */
+            const selectedIndex = this.state.graphOid
+                ? this.relationships.findIndex(
+                    relationship =>
+                        relationship.oid === this.state.graphOid
+                )
+                : -1;
+
+            if (selectedIndex !== -1) {
+                this.relationship = this.relationships[selectedIndex];
+                this.graphOid = this.relationship.oid;
+
+                this.fetchData();
+
+                return;
+            }
+
+            /*
+            * Preserve the existing special transition behavior when moving
+            * between GeoObjects and BusinessObjects.
+            */
+            if (
+                this.relationship != null
+                && this.relationship.code === "BUSINESS"
+                && this.state.objectType === "BUSINESS"
+            ) {
+                const geoObjectRelationship =
+                    this.relationships.find(
+                        relationship =>
+                            relationship.code === "GEOOBJECT"
+                    );
+
+                if (geoObjectRelationship != null) {
+                    this.relationship = geoObjectRelationship;
+                }
+            } else if (
+                this.relationship != null
+                && this.relationship.code === "GEOOBJECT"
+                && this.state.objectType === "GEOOBJECT"
+            ) {
+                const businessRelationship =
+                    this.relationships.find(
+                        relationship =>
+                            relationship.code === "BUSINESS"
+                    );
+
+                if (businessRelationship != null) {
+                    this.relationship = businessRelationship;
+                }
+            }
+
+            /*
+            * If no special relationship was selected—or the old relationship
+            * is no longer available—select the first visible relationship.
+            *
+            * Since zero-count relationships have already been removed when
+            * possible, this selects the first relationship containing data.
+            */
+            if (
+                this.relationship == null
+                || this.relationships.findIndex(
+                    relationship =>
+                        relationship.oid === this.relationship.oid
+                ) === -1
+            ) {
+                this.relationship = this.relationships[0];
+            }
+
+            this.graphOid = this.relationship.oid;
+            this.onSelectRelationship();
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        }).finally(() => {
+            this.spinner.hide(this.CONSTANTS.OVERLAY);
+        });
     }
 
     onSelectRelationship(): void {
@@ -265,6 +386,18 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
         let newState = { graphOid: this.graphOid };
 
         this.geomService.setState(newState, false);
+    }
+
+    onSelectStabilityPeriod(): void {
+        this.geomService.setState({ date: this.selectedPeriodStartDate || null }, false);
+    }
+
+    formatPeriod(period: TimeRangeEntry): string {
+        return this.dateService.formatDateForDisplay(period.startDate) + " - " + this.dateService.formatDateForDisplay(period.endDate);
+    }
+
+    allPeriodsLabel(): string {
+        return this.lService.decode("manage.versions.history.viewingAll");
     }
 
     fetchData(): void {

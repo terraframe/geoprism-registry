@@ -25,11 +25,20 @@
 
   <div>
 
-    <select *ngIf="relationships" id="relationshipId" name="relationshipId" class="select-area" [(ngModel)]="graphOid"
-      (change)="onSelectRelationship()" required style="margin:10px;width:auto;min-width:200px;">
-      <option *ngIf="relationships.length === 0"></option>
-      <option *ngFor="let loopRel of relationships" [value]="loopRel.oid">{{loopRel.label.localizedValue}}</option>
-    </select>
+    <div class="visualizer-controls">
+      <select *ngIf="relationships" id="relationshipId" name="relationshipId" class="select-area" [(ngModel)]="graphOid"
+        (change)="onSelectRelationship()" required>
+        <option *ngIf="relationships.length === 0"></option>
+        <option *ngFor="let loopRel of relationships" [value]="loopRel.oid">{{ loopRel.label.localizedValue }} ({{ loopRel.count }})</option>
+      </select>
+
+      <select *ngIf="stabilityPeriods && stabilityPeriods.length > 1" id="stabilityPeriodId"
+        name="stabilityPeriodId" class="select-area" [(ngModel)]="selectedPeriodStartDate"
+        (change)="onSelectStabilityPeriod()">
+        <option [ngValue]="null">{{allPeriodsLabel()}}</option>
+        <option *ngFor="let period of stabilityPeriods" [value]="period.startDate">{{formatPeriod(period)}}</option>
+      </select>
+    </div>
 
     <div style="padding-top: 20px;">
       <boolean-field [(value)]="restrictToMapBounds" (change)="fetchData()"

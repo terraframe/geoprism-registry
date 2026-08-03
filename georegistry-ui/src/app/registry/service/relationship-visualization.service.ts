@@ -106,4 +106,45 @@ export class RelationshipVisualizationService {
             .toPromise();
     }
 
+    relationshipCounts(
+        objectType: "BUSINESS" | "GEOOBJECT",
+        typeCode: string,
+        sourceVertex: ObjectReference
+    ): Promise<Relationship[]> {
+        let params: HttpParams = new HttpParams();
+
+        params = params.set("objectType", objectType);
+        params = params.set("typeCode", typeCode);
+        params = params.set("sourceVertex", JSON.stringify(sourceVertex));
+
+        return this.http
+            .get<any[]>(
+                environment.apiUrl
+                    + "/api/relationship-visualization/relationship-counts",
+                { params: params }
+            )
+            .pipe(finalize(() => {
+                // this.eventService.complete();
+            }))
+            .toPromise()
+            .then(results => {
+                /*
+                * The preferred backend response has the original Relationship
+                * fields plus count.
+                *
+                * The fallbacks also support the names from the new count
+                * projection if the backend currently returns relationshipType
+                * instead of type.
+                */
+                return (results || []).map(result => {
+                    return {
+                        ...result,
+                        oid: result.oid || result.code,
+                        type: result.type || result.relationshipType,
+                        count: Number(result.count || 0)
+                    } as Relationship;
+                });
+            });
+    }
+
 }
