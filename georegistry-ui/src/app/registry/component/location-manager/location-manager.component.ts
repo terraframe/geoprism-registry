@@ -26,7 +26,7 @@ import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
 import uniqolor from 'uniqolor';
 
-import { GeoObject, GeoObjectType, GeoObjectTypeCache } from "@registry/model/registry";
+import { GeoObject, GeoObjectType, GeoObjectTypeCache, TimeRangeEntry } from "@registry/model/registry";
 import { ModalState, PANEL_SIZE_STATE } from "@registry/model/location-manager";
 
 import { MapService, GeometryService, SEARCH_DATASOURCE_ID } from "@registry/service";
@@ -229,6 +229,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     dateFieldValue: string;
 
     list: SelectedList = null;
+
+    stabilityPeriods: TimeRangeEntry[] = [];
     recordContext: string = "MAP";
 
     // eslint-disable-next-line no-useless-constructor
@@ -414,6 +416,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 // Handle parameters for selecting a business object
                 if (newState.objectType != null && newState.objectType === "BUSINESS" && newState.type && newState.code) {
                     if (this.current == null || this.current.businessObject == null || this.current.businessObject.code !== newState.code || this.current.businessType.code !== newState.type) {
+                        this.stabilityPeriods = [];
                         this.loadBusinessObjectFromState();
                     }
 
@@ -465,6 +468,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     loadBusinessObjectFromState() {
+        this.stabilityPeriods = [];
+
         this.businessObjectService.getTypeAndObject(this.state.type, this.state.code).then(resp => {
             this.current = {
                 objectType: "BUSINESS",
@@ -887,6 +892,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     clearRecord() {
+        this.stabilityPeriods = [];
         this.updateState({ type: null, code: null, version: null, uid: null }, false);
     }
 
@@ -954,6 +960,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 // this.zoomToFeature(this.current.geoObject, null);
             }
         });
+    }
+
+    onStabilityPeriodsChange(periods: TimeRangeEntry[]): void {
+        this.stabilityPeriods = periods;
     }
 
     onFeatureSelect(event: any): void {

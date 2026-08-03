@@ -37,6 +37,7 @@
       [readOnly]="!isEdit"
       [requestedDate]="forDate"
       [datasetId]="datasetId"
+      (stabilityPeriodsChange)="stabilityPeriodsChange.emit($event)"
       > 
     </geoobject-shared-attribute-editor>
     

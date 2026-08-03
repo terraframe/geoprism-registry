@@ -22,7 +22,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 import { NgxSpinnerService, NgxSpinnerModule } from "ngx-spinner";
 
-import { GeoObjectType, GeoObjectOverTime, AttributeType, HierarchyOverTime } from "@registry/model/registry";
+import { GeoObjectType, GeoObjectOverTime, AttributeType, HierarchyOverTime, TimeRangeEntry } from "@registry/model/registry";
 import { RegistryService, GeometryService } from "@registry/service";
 import { AuthService } from "@shared/service";
 import { ErrorHandler } from "@shared/component";
@@ -60,6 +60,8 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
     @Input() forDate: string;
 
     @Output() forDateChange = new EventEmitter<string>();
+
+    @Output() stabilityPeriodsChange = new EventEmitter<TimeRangeEntry[]>();
 
     readOnly: boolean = false;
 
@@ -138,6 +140,7 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
         this.postGeoObject = null;
         this.preGeoObject = null;
         this.hierarchies = null;
+        this.stabilityPeriodsChange.emit([]);
 
         if (this.code != null && this.type != null) {
             if (this.code !== "__NEW__") {

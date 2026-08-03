@@ -20,7 +20,7 @@
 -->
 <div class="row">
   <div class="col-md-12">
-    <stability-period *ngIf="showStabilityPeriods" [showHint]="!readOnly" [changeRequestEditor]="changeRequestEditor" [context]="datasetId == null ? 'EXPLORER' : 'LIST'" [latestPeriodIsActive]="requestedDate == null && changeRequestEditor.changeRequest.isNew"></stability-period>
+    <stability-period *ngIf="showStabilityPeriods" [showHint]="!readOnly" [changeRequestEditor]="changeRequestEditor" [context]="datasetId == null ? 'EXPLORER' : 'LIST'" [latestPeriodIsActive]="requestedDate == null && changeRequestEditor.changeRequest.isNew" (periodsChange)="stabilityPeriodsChange.emit($event)"></stability-period>
   </div>
 </div>
 

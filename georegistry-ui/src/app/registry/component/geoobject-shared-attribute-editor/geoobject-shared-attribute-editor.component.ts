@@ -32,7 +32,7 @@ import { LocalizationService, AuthService, ExternalSystemService } from "@shared
 import { GeometryService, RegistryService } from "@registry/service";
 import { DateService } from "@shared/service/date.service";
 
-import { GeoObjectType, GeoObjectOverTime, AttributeType, Term, HierarchyOverTime } from "@registry/model/registry";
+import { GeoObjectType, GeoObjectOverTime, AttributeType, Term, HierarchyOverTime, TimeRangeEntry } from "@registry/model/registry";
 import { UpdateAttributeOverTimeAction, AbstractAction, CreateGeoObjectAction, ChangeRequest } from "@registry/model/crtable";
 import { ActionTypes } from "@registry/model/constants";
 import { ChangeRequestEditor } from "./change-request-editor";
@@ -125,6 +125,8 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnDestro
 
     @Input() datasetId: string = null;
 
+    @Output() stabilityPeriodsChange = new EventEmitter<TimeRangeEntry[]>();
+
     // TODO : This was copy / pasted into manage-versions.component::onDateChange and ChangeRequestEditor::generateAttributeEditors
     geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate", "invalid", "exists"];
 
@@ -139,7 +141,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnDestro
     showStabilityPeriods = false;
 
     private subscription: Subscription;
-    
+
     systems: ExternalSystem[];
 
     // eslint-disable-next-line no-useless-constructor

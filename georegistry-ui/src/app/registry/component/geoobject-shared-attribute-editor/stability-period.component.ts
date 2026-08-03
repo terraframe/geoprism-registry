@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, Input, OnDestroy } from "@angular/core";
+import { Component, OnInit, Input, OnDestroy, Output, EventEmitter } from "@angular/core";
 import {
     trigger,
     style,
@@ -81,6 +81,8 @@ export class StabilityPeriodComponent implements OnInit, OnDestroy {
     @Input() context: string;
 
     @Input() latestPeriodIsActive: boolean = false;
+
+    @Output() periodsChange = new EventEmitter<TimeRangeEntry[]>();
 
     periods: TimeRangeEntry[] = [];
 
@@ -201,6 +203,7 @@ export class StabilityPeriodComponent implements OnInit, OnDestroy {
     generate() {
         this.generatePeriods();
         this.generateTimelines();
+        this.periodsChange.emit(this.periods.slice());
     }
 
     calculateDataTimeSpan(): void {

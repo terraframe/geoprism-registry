@@ -18,13 +18,13 @@
 ///
 
 /* eslint-disable indent */
-import { Component, OnInit, Output, EventEmitter, OnDestroy, ViewChild } from "@angular/core";
+import { Component, OnInit, Output, EventEmitter, OnDestroy, ViewChild, Input } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalService } from "ngx-bootstrap/modal";
 
 import { ErrorHandler } from "@shared/component";
 
-import { GeoObjectTypeCache } from "@registry/model/registry";
+import { GeoObjectTypeCache, TimeRangeEntry } from "@registry/model/registry";
 import { Subject, Subscription } from "rxjs";
 import { RelationshipVisualizationService } from "@registry/service/relationship-visualization.service";
 import { Layout, Orientation, GraphModule, NgxGraphStateChangeEvent, NgxGraphStates, NgxGraphZoomOptions, GraphComponent } from "@swimlane/ngx-graph";
@@ -45,6 +45,8 @@ import { Layer, RelationshipVisualizionDataSource, RelationshipVisualizionLayer,
 import { BooleanFieldComponent } from "../../../shared/component/form-fields/boolean-field/boolean-field.component";
 import { FormsModule } from "@angular/forms";
 import { NgIf, NgFor, NgStyle, KeyValuePipe } from "@angular/common";
+import { DateService } from "@shared/service/date.service";
+import { LocalizationService } from "@shared/service/localization.service";
 
 export const DRAW_SCALE_MULTIPLIER: number = 1.0;
 
@@ -85,6 +87,8 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
 
     @Output() nodeSelect = new EventEmitter<Vertex>();
 
+    @Input() stabilityPeriods: TimeRangeEntry[] = [];
+
     public DIMENSIONS = DIMENSIONS;
 
     public SELECTED_NODE_COLOR = SELECTED_NODE_COLOR;
@@ -119,6 +123,8 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
 
     restrictToMapBounds: boolean = false;
 
+    selectedPeriodStartDate: string = null;
+
     isLoading: boolean = false;
 
     graphRef?: GraphComponent = undefined;
@@ -134,6 +140,8 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
         private vizService: RelationshipVisualizationService,
         private cacheService: RegistryCacheService,
         private geomService: GeometryService,
+        private dateService: DateService,
+        private lService: LocalizationService
     ) { }
 
     ngOnInit(): void {
@@ -162,6 +170,7 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
         let newState = JSON.parse(JSON.stringify(state));
         let oldState = JSON.parse(JSON.stringify(this.state));
         this.state = newState;
+        this.selectedPeriodStartDate = newState.date || null;
 
         this.panelOpen = newState.graphPanelOpen === "true";
 
@@ -265,6 +274,18 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
         let newState = { graphOid: this.graphOid };
 
         this.geomService.setState(newState, false);
+    }
+
+    onSelectStabilityPeriod(): void {
+        this.geomService.setState({ date: this.selectedPeriodStartDate || null }, false);
+    }
+
+    formatPeriod(period: TimeRangeEntry): string {
+        return this.dateService.formatDateForDisplay(period.startDate) + " - " + this.dateService.formatDateForDisplay(period.endDate);
+    }
+
+    allPeriodsLabel(): string {
+        return this.lService.decode("manage.versions.history.viewingAll");
     }
 
     fetchData(): void {
