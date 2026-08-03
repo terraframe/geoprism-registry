@@ -3,6 +3,8 @@
  */
 package net.geoprism.registry.service;
 
+import java.util.List;
+
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.Assert;
 import org.junit.Test;
@@ -74,6 +76,51 @@ public class DataSourceServiceTest implements InstanceTestClassListener
     this.service.delete(result);
 
     Assert.assertFalse(this.service.getByCode(source.getCode()).isPresent());
+  }
+
+  @Test
+  @Request
+  public void testSearch()
+  {
+    DataSource source = createMock(authority);
+
+    DataSourceDTO json = this.service.toDTO(source);
+    json.setOid(null);
+
+    source = this.service.apply(json);
+
+    try
+    {
+      List<DataSource> results = this.service.search(source.getCode());
+
+      Assert.assertEquals(1, results.size());
+      Assert.assertEquals(source.getCode(), results.get(0).getCode());
+    }
+    finally
+    {
+      this.service.delete(source);
+    }
+  }
+
+  @Test
+  @Request
+  public void testCountInUse()
+  {
+    DataSource source = createMock(authority);
+
+    DataSourceDTO json = this.service.toDTO(source);
+    json.setOid(null);
+
+    source = this.service.apply(json);
+
+    try
+    {
+      Assert.assertEquals(Long.valueOf(1), this.authorityService.getUseCount(authority));
+    }
+    finally
+    {
+      this.service.delete(source);
+    }
   }
 
   public static DataSource createMock(SourceAuthority authority)
