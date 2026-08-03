@@ -162,7 +162,7 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
         this.stateSub.unsubscribe();
     }
 
-    stateChange(state) {
+    stateChange(state, dateChange = false) {
         if (state.type == null || state.code == null) {
             return;
         }
@@ -170,7 +170,6 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
         let newState = JSON.parse(JSON.stringify(state));
         let oldState = JSON.parse(JSON.stringify(this.state));
         this.state = newState;
-        this.selectedPeriodStartDate = newState.date || null;
 
         this.panelOpen = newState.graphPanelOpen === "true";
 
@@ -203,7 +202,7 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
                         this.restrictToMapBounds
                         && newState.bounds !== oldState.bounds
                     )
-                    || newState.date !== oldState.date
+                    || dateChange
                     || newState.graphOid !== oldState.graphOid
                 )
             ) {
@@ -389,7 +388,7 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
     }
 
     onSelectStabilityPeriod(): void {
-        this.geomService.setState({ date: this.selectedPeriodStartDate || null }, false);
+        this.stateChange(this.geomService.getState(), true);
     }
 
     formatPeriod(period: TimeRangeEntry): string {
@@ -406,7 +405,7 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
 
             let source = { code: this.state.code, typeCode: this.state.type, objectType: this.state.objectType } as Vertex;
 
-            this.vizService.tree(this.relationship.type, this.relationship.code, source, this.state.date, this.getBoundsAsWKT()).then(data => {
+            this.vizService.tree(this.relationship.type, this.relationship.code, source, this.selectedPeriodStartDate, this.getBoundsAsWKT()).then(data => {
                 this.data = null;
 
                 window.setTimeout(() => {
