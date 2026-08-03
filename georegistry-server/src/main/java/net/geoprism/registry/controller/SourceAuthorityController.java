@@ -29,25 +29,25 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.model.DataSourceDTO;
-import net.geoprism.registry.service.request.DataSourceServiceIF;
+import net.geoprism.registry.model.SourceAuthorityDTO;
+import net.geoprism.registry.service.request.SourceAuthorityServiceIF;
 
 @RestController
 @Validated
-@RequestMapping(RegistryConstants.CONTROLLER_ROOT + "data-source")
-public class DataSourceController extends AbstractCrudController<DataSourceDTO, DataSourceServiceIF>
+@RequestMapping(RegistryConstants.CONTROLLER_ROOT + "source-authority")
+public class SourceAuthorityController extends AbstractCrudController<SourceAuthorityDTO, SourceAuthorityServiceIF>
 {
-  public DataSourceController(DataSourceServiceIF service)
+  public SourceAuthorityController(SourceAuthorityServiceIF service)
   {
     super(service);
   }
 
   @GetMapping("/search")
-  public ResponseEntity<List<DataSourceDTO>> search(@RequestParam(name = "text", required = false) String text)
+  public ResponseEntity<List<SourceAuthorityDTO>> search(@RequestParam(name = "text", required = false) String text)
   {
-    List<DataSourceDTO> sources = this.getService().search(this.getSessionId(), text);
+    List<SourceAuthorityDTO> sources = this.getService().search(this.getSessionId(), text);
 
-    return new ResponseEntity<List<DataSourceDTO>>(sources, HttpStatus.OK);
+    return new ResponseEntity<List<SourceAuthorityDTO>>(sources, HttpStatus.OK);
   }
 
 }

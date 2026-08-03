@@ -20,88 +20,91 @@ import net.geoprism.registry.config.TestApplication;
 
 public class CambodiaTestDataset extends TestDataSet
 {
-  public static final String                    TEST_DATA_KEY           = "Cambodia";
+  public static final String                  TEST_DATA_KEY           = "Cambodia";
 
-  public static final TestSourceInfo            SOURCE                  = new TestSourceInfo("CambodiaSource");
+  public static final TestSourceAuthorityInfo AUTHORITY               = new TestSourceAuthorityInfo("CambodiaAuthority");
 
-  public static final TestOrganizationInfo      ORG_CENTRAL             = new TestOrganizationInfo("CentralGovernmentOrg", "Central Government");
+  public static final TestDataSourceInfo      SOURCE                  = new TestDataSourceInfo("CambodiaSource", AUTHORITY);
 
-  public static final TestUserInfo              USER_ORG_RA             = new TestUserInfo("cgovra", "cgovra", "cgovra@noreply.com", new String[] { RegistryRole.Type.getRA_RoleName(ORG_CENTRAL.getCode()) });
+  public static final TestOrganizationInfo    ORG_CENTRAL             = new TestOrganizationInfo("CentralGovernmentOrg", "Central Government");
 
-  public static final TestOrganizationInfo      ORG_MOH                 = new TestOrganizationInfo("MinistryOfHealthOrg", "Ministry Of Health");
+  public static final TestUserInfo            USER_ORG_RA             = new TestUserInfo("cgovra", "cgovra", "cgovra@noreply.com", new String[] { RegistryRole.Type.getRA_RoleName(ORG_CENTRAL.getCode()) });
 
-  public static final TestUserInfo              USER_MOH_RA             = new TestUserInfo("mohra", "mohra", "mohra@noreply.com", new String[] { RegistryRole.Type.getRA_RoleName(ORG_MOH.getCode()) });
+  public static final TestOrganizationInfo    ORG_MOH                 = new TestOrganizationInfo("MinistryOfHealthOrg", "Ministry Of Health");
 
-  public static final TestHierarchyTypeInfo     HIER_ADMIN              = new TestHierarchyTypeInfo("AdminDivisions", "Administrative Divisions", ORG_CENTRAL);
+  public static final TestUserInfo            USER_MOH_RA             = new TestUserInfo("mohra", "mohra", "mohra@noreply.com", new String[] { RegistryRole.Type.getRA_RoleName(ORG_MOH.getCode()) });
 
-  public static final TestHierarchyTypeInfo     HIER_MOH                = new TestHierarchyTypeInfo("MinistryOfHealth", "Ministry Of Health", ORG_MOH);
+  public static final TestHierarchyTypeInfo   HIER_ADMIN              = new TestHierarchyTypeInfo("AdminDivisions", "Administrative Divisions", ORG_CENTRAL);
 
-  public static final TestGeoObjectTypeInfo     GOT_Country             = new TestGeoObjectTypeInfo("Country", GeometryType.MULTIPOLYGON, ORG_CENTRAL);
+  public static final TestHierarchyTypeInfo   HIER_MOH                = new TestHierarchyTypeInfo("MinistryOfHealth", "Ministry Of Health", ORG_MOH);
 
-  public static final TestGeoObjectTypeInfo     GOT_Province            = new TestGeoObjectTypeInfo("Province", GeometryType.MULTIPOLYGON, ORG_CENTRAL);
+  public static final TestGeoObjectTypeInfo   GOT_Country             = new TestGeoObjectTypeInfo("Country", GeometryType.MULTIPOLYGON, ORG_CENTRAL);
 
-  public static final TestGeoObjectTypeInfo     GOT_District            = new TestGeoObjectTypeInfo("District", GeometryType.MULTIPOLYGON, ORG_CENTRAL);
+  public static final TestGeoObjectTypeInfo   GOT_Province            = new TestGeoObjectTypeInfo("Province", GeometryType.MULTIPOLYGON, ORG_CENTRAL);
 
-  public static final TestGeoObjectTypeInfo     GOT_Commune             = new TestGeoObjectTypeInfo("Commune", GeometryType.MULTIPOLYGON, ORG_CENTRAL);
+  public static final TestGeoObjectTypeInfo   GOT_District            = new TestGeoObjectTypeInfo("District", GeometryType.MULTIPOLYGON, ORG_CENTRAL);
 
-  public static final TestGeoObjectTypeInfo     GOT_Village             = new TestGeoObjectTypeInfo("Village", GeometryType.MULTIPOINT, ORG_CENTRAL);
+  public static final TestGeoObjectTypeInfo   GOT_Commune             = new TestGeoObjectTypeInfo("Commune", GeometryType.MULTIPOLYGON, ORG_CENTRAL);
 
-  public static final TestGeoObjectTypeInfo     GOT_Hospital            = new TestGeoObjectTypeInfo("Hospital", GeometryType.MULTIPOLYGON, ORG_MOH);
+  public static final TestGeoObjectTypeInfo   GOT_Village             = new TestGeoObjectTypeInfo("Village", GeometryType.MULTIPOINT, ORG_CENTRAL);
 
-  public static final TestGeoObjectInfo         GO_Cambodia             = new TestGeoObjectInfo("Cambodia", "855", GOT_Country, CambodiaTestGeometryImporter.getGeometry("855"), true, false, SOURCE);
+  public static final TestGeoObjectTypeInfo   GOT_Hospital            = new TestGeoObjectTypeInfo("Hospital", GeometryType.MULTIPOLYGON, ORG_MOH);
 
-  public static final TestGeoObjectInfo         GO_Oddar_Meanchey       = new TestGeoObjectInfo("Oddar Meanchey", "KH-22", GOT_Province, CambodiaTestGeometryImporter.getGeometry("KH-22"), true, false, SOURCE);
+  public static final TestGeoObjectInfo       GO_Cambodia             = new TestGeoObjectInfo("Cambodia", "855", GOT_Country, CambodiaTestGeometryImporter.getGeometry("855"), true, false, SOURCE);
 
-  public static final TestGeoObjectInfo         GO_Siem_Reap            = new TestGeoObjectInfo("Siem Reap", "KH-17", GOT_Province, TestDataSet.WKT_DEFAULT_MULTIPOLYGON, true, false, SOURCE);
+  public static final TestGeoObjectInfo       GO_Oddar_Meanchey       = new TestGeoObjectInfo("Oddar Meanchey", "KH-22", GOT_Province, CambodiaTestGeometryImporter.getGeometry("KH-22"), true, false, SOURCE);
 
-  public static final TestGeoObjectInfo         GO_Pursat               = new TestGeoObjectInfo("Pursat", "KH-15", GOT_Province, TestDataSet.WKT_DEFAULT_MULTIPOLYGON, true, false, SOURCE);
+  public static final TestGeoObjectInfo       GO_Siem_Reap            = new TestGeoObjectInfo("Siem Reap", "KH-17", GOT_Province, TestDataSet.WKT_DEFAULT_MULTIPOLYGON, true, false, SOURCE);
 
-  public static final TestGeoObjectInfo         GO_Banteay_Meanchey     = new TestGeoObjectInfo("Banteay Meanchey", "KH-1", GOT_Province, TestDataSet.WKT_DEFAULT_MULTIPOLYGON, true, false, SOURCE);
+  public static final TestGeoObjectInfo       GO_Pursat               = new TestGeoObjectInfo("Pursat", "KH-15", GOT_Province, TestDataSet.WKT_DEFAULT_MULTIPOLYGON, true, false, SOURCE);
 
-  public static final TestGeoObjectInfo         GO_Battambang           = new TestGeoObjectInfo("Battambang", "KH-2", GOT_Province, TestDataSet.WKT_DEFAULT_MULTIPOLYGON, true, false, SOURCE);
+  public static final TestGeoObjectInfo       GO_Banteay_Meanchey     = new TestGeoObjectInfo("Banteay Meanchey", "KH-1", GOT_Province, TestDataSet.WKT_DEFAULT_MULTIPOLYGON, true, false, SOURCE);
 
-  public static final TestGeoObjectInfo         GO_PreahVihear          = new TestGeoObjectInfo("Preah Vihear", "KH-13", GOT_Province, TestDataSet.WKT_DEFAULT_MULTIPOLYGON, true, false, SOURCE);
+  public static final TestGeoObjectInfo       GO_Battambang           = new TestGeoObjectInfo("Battambang", "KH-2", GOT_Province, TestDataSet.WKT_DEFAULT_MULTIPOLYGON, true, false, SOURCE);
 
-  public static final TestGeoObjectInfo         GO_BanteayAmpil         = new TestGeoObjectInfo("Banteay Ampil", "2202", GOT_District, CambodiaTestGeometryImporter.getGeometry("2202"), true, false, SOURCE);
+  public static final TestGeoObjectInfo       GO_PreahVihear          = new TestGeoObjectInfo("Preah Vihear", "KH-13", GOT_Province, TestDataSet.WKT_DEFAULT_MULTIPOLYGON, true, false, SOURCE);
 
-  public static final TestGeoObjectInfo         GO_ChongKal             = new TestGeoObjectInfo("Chong Kal", "2203", GOT_District, CambodiaTestGeometryImporter.getGeometry("2203"), true, false, SOURCE);
+  public static final TestGeoObjectInfo       GO_BanteayAmpil         = new TestGeoObjectInfo("Banteay Ampil", "2202", GOT_District, CambodiaTestGeometryImporter.getGeometry("2202"), true, false, SOURCE);
 
-  public static final TestGeoObjectInfo         GO_AnlongVeng           = new TestGeoObjectInfo("Anlong Veng", "2201", GOT_District, CambodiaTestGeometryImporter.getGeometry("2201"), true, false, SOURCE);
+  public static final TestGeoObjectInfo       GO_ChongKal             = new TestGeoObjectInfo("Chong Kal", "2203", GOT_District, CambodiaTestGeometryImporter.getGeometry("2203"), true, false, SOURCE);
 
-  public static final TestGeoObjectInfo         GO_SamraongMunicipality = new TestGeoObjectInfo("Samraong Municipality", "2204", GOT_District, CambodiaTestGeometryImporter.getGeometry("2204"), true, false, SOURCE);
+  public static final TestGeoObjectInfo       GO_AnlongVeng           = new TestGeoObjectInfo("Anlong Veng", "2201", GOT_District, CambodiaTestGeometryImporter.getGeometry("2201"), true, false, SOURCE);
 
-  public static final TestGeoObjectInfo         GO_TrapeangPrasat       = new TestGeoObjectInfo("Trapeang Prasat", "2205", GOT_District, CambodiaTestGeometryImporter.getGeometry("2205"), true, false, SOURCE);
+  public static final TestGeoObjectInfo       GO_SamraongMunicipality = new TestGeoObjectInfo("Samraong Municipality", "2204", GOT_District, CambodiaTestGeometryImporter.getGeometry("2204"), true, false, SOURCE);
 
-  public static final TestUserInfo              USER_CGOV_RM            = new TestUserInfo("cgovrm", "cgovrm", "cgovrm@noreply.com", new String[] { RegistryRole.Type.getRM_RoleName(ORG_CENTRAL.getCode(), GOT_Country.getCode()), RegistryRole.Type.getRM_RoleName(ORG_CENTRAL.getCode(), GOT_Province.getCode()), RegistryRole.Type.getRM_RoleName(ORG_CENTRAL.getCode(), GOT_District.getCode()), RegistryRole.Type.getRM_RoleName(ORG_CENTRAL.getCode(), GOT_Commune.getCode()), RegistryRole.Type.getRM_RoleName(ORG_CENTRAL.getCode(), GOT_Village.getCode()) });
+  public static final TestGeoObjectInfo       GO_TrapeangPrasat       = new TestGeoObjectInfo("Trapeang Prasat", "2205", GOT_District, CambodiaTestGeometryImporter.getGeometry("2205"), true, false, SOURCE);
 
-  public static final TestUserInfo              USER_CGOV_RC            = new TestUserInfo("cgovrc", "cgovrc", "cgovrc@noreply.com", new String[] { RegistryRole.Type.getRC_RoleName(ORG_CENTRAL.getCode(), GOT_Country.getCode()), RegistryRole.Type.getRC_RoleName(ORG_CENTRAL.getCode(), GOT_Province.getCode()), RegistryRole.Type.getRC_RoleName(ORG_CENTRAL.getCode(), GOT_District.getCode()), RegistryRole.Type.getRC_RoleName(ORG_CENTRAL.getCode(), GOT_Commune.getCode()), RegistryRole.Type.getRC_RoleName(ORG_CENTRAL.getCode(), GOT_Village.getCode()) });
+  public static final TestUserInfo            USER_CGOV_RM            = new TestUserInfo("cgovrm", "cgovrm", "cgovrm@noreply.com", new String[] { RegistryRole.Type.getRM_RoleName(ORG_CENTRAL.getCode(), GOT_Country.getCode()), RegistryRole.Type.getRM_RoleName(ORG_CENTRAL.getCode(), GOT_Province.getCode()), RegistryRole.Type.getRM_RoleName(ORG_CENTRAL.getCode(), GOT_District.getCode()), RegistryRole.Type.getRM_RoleName(ORG_CENTRAL.getCode(), GOT_Commune.getCode()), RegistryRole.Type.getRM_RoleName(ORG_CENTRAL.getCode(), GOT_Village.getCode()) });
 
-  public static final TestUserInfo              USER_CGOV_AC            = new TestUserInfo("cgovac", "cgovac", "cgovac@noreply.com", new String[] { RegistryRole.Type.getAC_RoleName(ORG_CENTRAL.getCode(), GOT_Country.getCode()), RegistryRole.Type.getAC_RoleName(ORG_CENTRAL.getCode(), GOT_Province.getCode()), RegistryRole.Type.getAC_RoleName(ORG_CENTRAL.getCode(), GOT_District.getCode()), RegistryRole.Type.getAC_RoleName(ORG_CENTRAL.getCode(), GOT_Commune.getCode()), RegistryRole.Type.getAC_RoleName(ORG_CENTRAL.getCode(), GOT_Village.getCode()) });
+  public static final TestUserInfo            USER_CGOV_RC            = new TestUserInfo("cgovrc", "cgovrc", "cgovrc@noreply.com", new String[] { RegistryRole.Type.getRC_RoleName(ORG_CENTRAL.getCode(), GOT_Country.getCode()), RegistryRole.Type.getRC_RoleName(ORG_CENTRAL.getCode(), GOT_Province.getCode()), RegistryRole.Type.getRC_RoleName(ORG_CENTRAL.getCode(), GOT_District.getCode()), RegistryRole.Type.getRC_RoleName(ORG_CENTRAL.getCode(), GOT_Commune.getCode()), RegistryRole.Type.getRC_RoleName(ORG_CENTRAL.getCode(), GOT_Village.getCode()) });
 
-  public static final TestUserInfo              USER_MOHA_RA            = new TestUserInfo("mohra", "mohra", "mohara@noreply.com", new String[] { RegistryRole.Type.getRA_RoleName(ORG_MOH.getCode()) });
+  public static final TestUserInfo            USER_CGOV_AC            = new TestUserInfo("cgovac", "cgovac", "cgovac@noreply.com", new String[] { RegistryRole.Type.getAC_RoleName(ORG_CENTRAL.getCode(), GOT_Country.getCode()), RegistryRole.Type.getAC_RoleName(ORG_CENTRAL.getCode(), GOT_Province.getCode()), RegistryRole.Type.getAC_RoleName(ORG_CENTRAL.getCode(), GOT_District.getCode()), RegistryRole.Type.getAC_RoleName(ORG_CENTRAL.getCode(), GOT_Commune.getCode()), RegistryRole.Type.getAC_RoleName(ORG_CENTRAL.getCode(), GOT_Village.getCode()) });
 
-  public static final TestUserInfo              USER_MOHA_RM            = new TestUserInfo("mohrm", "mohrm", "moharm@noreply.com", new String[] { RegistryRole.Type.getRM_RoleName(ORG_MOH.getCode(), GOT_Hospital.getCode()) });
+  public static final TestUserInfo            USER_MOHA_RA            = new TestUserInfo("mohra", "mohra", "mohara@noreply.com", new String[] { RegistryRole.Type.getRA_RoleName(ORG_MOH.getCode()) });
 
-  public static final TestUserInfo              USER_MOHA_RC            = new TestUserInfo("mohrc", "mohrc", "moharc@noreply.com", new String[] { RegistryRole.Type.getRC_RoleName(ORG_MOH.getCode(), GOT_Hospital.getCode()) });
+  public static final TestUserInfo            USER_MOHA_RM            = new TestUserInfo("mohrm", "mohrm", "moharm@noreply.com", new String[] { RegistryRole.Type.getRM_RoleName(ORG_MOH.getCode(), GOT_Hospital.getCode()) });
 
-  public static final TestUserInfo              USER_MOHA_AC            = new TestUserInfo("mohac", "mohac", "mohaac@noreply.com", new String[] { RegistryRole.Type.getAC_RoleName(ORG_MOH.getCode(), GOT_Hospital.getCode()) });
+  public static final TestUserInfo            USER_MOHA_RC            = new TestUserInfo("mohrc", "mohrc", "moharc@noreply.com", new String[] { RegistryRole.Type.getRC_RoleName(ORG_MOH.getCode(), GOT_Hospital.getCode()) });
 
-  public static final TestAttributeTypeInfo     AT_National_Anthem      = new TestAttributeTypeInfo("NationalAnthem", "National Anthem", GOT_Country, AttributeCharacterType.TYPE);
+  public static final TestUserInfo            USER_MOHA_AC            = new TestUserInfo("mohac", "mohac", "mohaac@noreply.com", new String[] { RegistryRole.Type.getAC_RoleName(ORG_MOH.getCode(), GOT_Hospital.getCode()) });
 
-  public static final TestAttributeTypeInfo     AT_SHORT_NAME           = new TestAttributeTypeInfo("shortName", "Short Name", GOT_Country, AttributeLocalType.TYPE);
+  public static final TestAttributeTypeInfo   AT_National_Anthem      = new TestAttributeTypeInfo("NationalAnthem", "National Anthem", GOT_Country, AttributeCharacterType.TYPE);
 
-  public static final TestAttributeTypeInfo     AT_PHONE_COUNTRY_CODE   = new TestAttributeTypeInfo("PhoneCountryCode", "Phone Country Code", GOT_Country, AttributeIntegerType.TYPE);
+  public static final TestAttributeTypeInfo   AT_SHORT_NAME           = new TestAttributeTypeInfo("shortName", "Short Name", GOT_Country, AttributeLocalType.TYPE);
 
-  public static final TestAttributeTypeInfo     AT_UN_MEMBER            = new TestAttributeTypeInfo("UnMember", "UN Member", GOT_Country, AttributeBooleanType.TYPE);
+  public static final TestAttributeTypeInfo   AT_PHONE_COUNTRY_CODE   = new TestAttributeTypeInfo("PhoneCountryCode", "Phone Country Code", GOT_Country, AttributeIntegerType.TYPE);
 
-  public static final TestAttributeTypeInfo     AT_GDP                  = new TestAttributeTypeInfo("GDP", "Gross Domestic Product", GOT_Country, AttributeFloatType.TYPE);
+  public static final TestAttributeTypeInfo   AT_UN_MEMBER            = new TestAttributeTypeInfo("UnMember", "UN Member", GOT_Country, AttributeBooleanType.TYPE);
 
-  public static final TestAttributeTypeInfo     AT_DATE_OF_FORMATION    = new TestAttributeTypeInfo("DateOfFormation", "Date Of Formation", GOT_Country, AttributeDateType.TYPE);
+  public static final TestAttributeTypeInfo   AT_GDP                  = new TestAttributeTypeInfo("GDP", "Gross Domestic Product", GOT_Country, AttributeFloatType.TYPE);
 
+  public static final TestAttributeTypeInfo   AT_DATE_OF_FORMATION    = new TestAttributeTypeInfo("DateOfFormation", "Date Of Formation", GOT_Country, AttributeDateType.TYPE);
 
   {
+    managedAuthorities.add(AUTHORITY);
+
     managedSources.add(SOURCE);
-    
+
     managedOrganizationInfos.add(ORG_CENTRAL);
     managedOrganizationInfos.add(ORG_MOH);
 
@@ -142,13 +145,16 @@ public class CambodiaTestDataset extends TestDataSet
     managedUsers.add(USER_MOHA_AC);
   }
 
-  public static void main(String[] args) {
+  public static void main(String[] args)
+  {
     System.setProperty("org.springframework.boot.logging.LoggingSystem", "none");
-    
-    try (ConfigurableApplicationContext ctx =
-           new SpringApplicationBuilder(TestApplication.class)  // your @SpringBootApplication class
-             .profiles("test")                              // optional
-             .run(args)) {
+
+    try (ConfigurableApplicationContext ctx = new SpringApplicationBuilder(TestApplication.class) // your
+                                                                                                  // @SpringBootApplication
+                                                                                                  // class
+        .profiles("test") // optional
+        .run(args))
+    {
 
       CambodiaTestDataset data = CambodiaTestDataset.newTestData();
       data.setUpMetadata();
@@ -205,7 +211,7 @@ public class CambodiaTestDataset extends TestDataSet
   @Override
   protected void setUpMetadataInTrans()
   {
-    super.setUpMetadataInTrans(); 
+    super.setUpMetadataInTrans();
 
     AT_National_Anthem.apply();
     GO_Cambodia.setDefaultValue(AT_National_Anthem.getAttributeName(), "Nokor Reach");

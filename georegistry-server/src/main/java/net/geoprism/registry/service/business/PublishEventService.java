@@ -51,25 +51,28 @@ import net.geoprism.registry.view.PublishDTO;
 public class PublishEventService
 {
   @Autowired
-  private RegistryEventStore             store;
+  private RegistryEventStore               store;
 
   @Autowired
-  private EventGateway                   gateway;
+  private EventGateway                     gateway;
 
   @Autowired
-  private PublishBusinessServiceIF       publishService;
+  private PublishBusinessServiceIF         publishService;
 
   @Autowired
-  private DataSourceBusinessServiceIF    sourceService;
+  private SourceAuthorityBusinessServiceIF authorityService;
 
   @Autowired
-  private GeoObjectBusinessServiceIF     service;
+  private DataSourceBusinessServiceIF      sourceService;
 
   @Autowired
-  private CommitBusinessServiceIF        commitService;
+  private GeoObjectBusinessServiceIF       service;
 
   @Autowired
-  private HierarchyTypeBusinessServiceIF hiearchyService;
+  private CommitBusinessServiceIF          commitService;
+
+  @Autowired
+  private HierarchyTypeBusinessServiceIF   hiearchyService;
 
   @Transaction
   public Publish publish(PublishDTO configuration) throws InterruptedException

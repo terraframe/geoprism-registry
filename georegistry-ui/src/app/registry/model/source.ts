@@ -17,9 +17,23 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-export class Source {
+import { LocalizedValue } from "@core/model/core";
 
-    oid: string;
+export class SourceAuthority {
+    oid?: string;
     code: string;
+    label: LocalizedValue;
+    description: LocalizedValue;
+    authorityType?: string;
 }
 
+export class DataSource {
+    oid?: string;
+    code: string;
+    label: LocalizedValue;
+    description: LocalizedValue;
+    uri?: string;
+    governanceLevel?: "AUTHORITATIVE" | "OFFICIAL" | "COMMUNITY" | "RESEARCH" | "DERIVED" | "EXPERIMENTAL" | "AD_HOC";
+    metadataProfile?: "DCAT" | "GEO_DCAT" | "ISO19115" | "STAC" | "SENSOR_ML" | "FHIR" | "DATA_CITE" | "AD_HOC" | "CUSTOM" | "NONE" ;
+    authority: string;
+}

@@ -31,8 +31,8 @@ import { ImportModalComponent } from "./modals/import-modal.component";
 import { ImportStrategy } from "@registry/model/constants";
 import { HierarchyGroupedTypeView, TypeGroupedHierachyView } from "@registry/model/hierarchy";
 import { environment } from "src/environments/environment";
-import { Source } from "@registry/model/source";
-import { SourceService } from "@registry/service/source.service";
+import { DataSource } from "@registry/model/source";
+import { DataSourceService } from "@registry/service/data-source.service";
 import { BooleanFieldComponent } from "../../../shared/component/form-fields/boolean-field/boolean-field.component";
 import { DateFieldComponent as DateFieldComponent_1 } from "../../../shared/component/form-fields/date-field/date-field.component";
 import { FormsModule } from "@angular/forms";
@@ -133,9 +133,9 @@ export class DataImporterComponent implements OnInit {
     /*
      * Hierarchies grouped by GeoObjectType
      */
-    sources: Source[];
+    sources: DataSource[];
 
-    source: Source;
+    source: DataSource;
 
     dataSource: string;
 
@@ -148,7 +148,7 @@ export class DataImporterComponent implements OnInit {
         private eventService: EventService,
         private modalService: BsModalService,
         private localizationService: LocalizationService,
-        private sourceService: SourceService,
+        private sourceService: DataSourceService,
         private sysService: ExternalSystemService,
         private hierarchyService: HierarchyService,
         private changeDetectorRef: ChangeDetectorRef

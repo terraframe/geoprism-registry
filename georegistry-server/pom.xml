@@ -37,7 +37,7 @@
 
   <properties>
     <hapifhir_version>8.8.1</hapifhir_version>
-    <axon.version>4.11.2</axon.version>
+    <axon.version>4.11.3</axon.version>
   </properties>
 
   <dependencyManagement>

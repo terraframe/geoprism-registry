@@ -12,93 +12,97 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 
 public class USATestData extends TestDataSet
 {
-  public static final String                TEST_DATA_KEY    = "USATestData";
+  public static final String                  TEST_DATA_KEY    = "USATestData";
 
-  public static final TestSourceInfo        SOURCE           = new TestSourceInfo("UsaSource");
+  public static final TestSourceAuthorityInfo AUTHORITY        = new TestSourceAuthorityInfo("UsaAuthority");
 
-  public static final TestOrganizationInfo  ORG_NPS          = new TestOrganizationInfo(TEST_DATA_KEY + "NPS");
+  public static final TestDataSourceInfo      SOURCE           = new TestDataSourceInfo("UsaSource", AUTHORITY);
 
-  public static final TestOrganizationInfo  ORG_PPP          = new TestOrganizationInfo(TEST_DATA_KEY + "PPP");
+  public static final TestOrganizationInfo    ORG_NPS          = new TestOrganizationInfo(TEST_DATA_KEY + "NPS");
 
-  public static final TestUserInfo          USER_NPS_RA      = new TestUserInfo(TEST_DATA_KEY + "_" + "npsra", "npsra", ORG_NPS.getCode() + "@noreply.com", new String[] { RegistryRole.Type.getRA_RoleName(ORG_NPS.getCode()) });
+  public static final TestOrganizationInfo    ORG_PPP          = new TestOrganizationInfo(TEST_DATA_KEY + "PPP");
 
-  public static final TestUserInfo          USER_PPP_RA      = new TestUserInfo(TEST_DATA_KEY + "_" + "pppra", "pppra", ORG_PPP.getCode() + "@noreply.com", new String[] { RegistryRole.Type.getRA_RoleName(ORG_PPP.getCode()) });
+  public static final TestUserInfo            USER_NPS_RA      = new TestUserInfo(TEST_DATA_KEY + "_" + "npsra", "npsra", ORG_NPS.getCode() + "@noreply.com", new String[] { RegistryRole.Type.getRA_RoleName(ORG_NPS.getCode()) });
 
-  public static final TestHierarchyTypeInfo HIER_ADMIN       = new TestHierarchyTypeInfo(TEST_DATA_KEY + "Admin", ORG_NPS);
+  public static final TestUserInfo            USER_PPP_RA      = new TestUserInfo(TEST_DATA_KEY + "_" + "pppra", "pppra", ORG_PPP.getCode() + "@noreply.com", new String[] { RegistryRole.Type.getRA_RoleName(ORG_PPP.getCode()) });
 
-  public static final TestHierarchyTypeInfo HIER_SCHOOL      = new TestHierarchyTypeInfo(TEST_DATA_KEY + "School", ORG_NPS);
+  public static final TestHierarchyTypeInfo   HIER_ADMIN       = new TestHierarchyTypeInfo(TEST_DATA_KEY + "Admin", ORG_NPS);
 
-  public static final TestHierarchyTypeInfo HIER_REPORTS_TO  = new TestHierarchyTypeInfo(TEST_DATA_KEY + "ReportsTo", ORG_NPS);
+  public static final TestHierarchyTypeInfo   HIER_SCHOOL      = new TestHierarchyTypeInfo(TEST_DATA_KEY + "School", ORG_NPS);
 
-  public static final TestGeoObjectTypeInfo COUNTRY          = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "Country", GeometryType.MULTIPOLYGON, ORG_NPS);
+  public static final TestHierarchyTypeInfo   HIER_REPORTS_TO  = new TestHierarchyTypeInfo(TEST_DATA_KEY + "ReportsTo", ORG_NPS);
 
-  public static final TestGeoObjectTypeInfo STATE            = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "State", GeometryType.MULTIPOLYGON, ORG_NPS);
+  public static final TestGeoObjectTypeInfo   COUNTRY          = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "Country", GeometryType.MULTIPOLYGON, ORG_NPS);
 
-  public static final TestGeoObjectTypeInfo COUNTY           = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "County", GeometryType.MULTIPOLYGON, ORG_NPS);
+  public static final TestGeoObjectTypeInfo   STATE            = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "State", GeometryType.MULTIPOLYGON, ORG_NPS);
 
-  public static final TestGeoObjectTypeInfo SCHOOL_ZONE      = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "SchoolZone", GeometryType.MULTIPOLYGON, ORG_NPS);
+  public static final TestGeoObjectTypeInfo   COUNTY           = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "County", GeometryType.MULTIPOLYGON, ORG_NPS);
 
-  public static final TestGeoObjectTypeInfo AREA             = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "Area", GeometryType.MULTIPOLYGON, ORG_NPS);
+  public static final TestGeoObjectTypeInfo   SCHOOL_ZONE      = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "SchoolZone", GeometryType.MULTIPOLYGON, ORG_NPS);
 
-  public static final TestGeoObjectTypeInfo DISTRICT         = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "District", GeometryType.MULTIPOINT, ORG_NPS);
+  public static final TestGeoObjectTypeInfo   AREA             = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "Area", GeometryType.MULTIPOLYGON, ORG_NPS);
 
-  public static final TestGeoObjectTypeInfo HEALTH_FACILITY  = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "HealthFacility", GeometryType.MULTIPOLYGON, ORG_NPS, true);
+  public static final TestGeoObjectTypeInfo   DISTRICT         = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "District", GeometryType.MULTIPOINT, ORG_NPS);
 
-  public static final TestGeoObjectTypeInfo HEALTH_STOP      = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "HealthStop", GeometryType.MULTIPOLYGON, false, ORG_NPS, HEALTH_FACILITY);
+  public static final TestGeoObjectTypeInfo   HEALTH_FACILITY  = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "HealthFacility", GeometryType.MULTIPOLYGON, ORG_NPS, true);
 
-  public static final TestGeoObjectTypeInfo HEALTH_POST      = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "HealthPost", GeometryType.MULTIPOLYGON, false, ORG_NPS, HEALTH_FACILITY);
+  public static final TestGeoObjectTypeInfo   HEALTH_STOP      = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "HealthStop", GeometryType.MULTIPOLYGON, false, ORG_NPS, HEALTH_FACILITY);
 
-  public static final TestGeoObjectInfo     USA              = new TestGeoObjectInfo(TEST_DATA_KEY + "USA", COUNTRY, SOURCE);
+  public static final TestGeoObjectTypeInfo   HEALTH_POST      = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "HealthPost", GeometryType.MULTIPOLYGON, false, ORG_NPS, HEALTH_FACILITY);
 
-  public static final TestGeoObjectInfo     COLORADO         = new TestGeoObjectInfo(TEST_DATA_KEY + "Colorado", STATE, SOURCE);
+  public static final TestGeoObjectInfo       USA              = new TestGeoObjectInfo(TEST_DATA_KEY + "USA", COUNTRY, SOURCE);
 
-  public static final TestGeoObjectInfo     CO_D_ONE         = new TestGeoObjectInfo(TEST_DATA_KEY + "ColoradoDistrictOne", DISTRICT, SOURCE);
+  public static final TestGeoObjectInfo       COLORADO         = new TestGeoObjectInfo(TEST_DATA_KEY + "Colorado", STATE, SOURCE);
 
-  public static final TestGeoObjectInfo     CO_D_TWO         = new TestGeoObjectInfo(TEST_DATA_KEY + "ColoradoDistrictTwo", DISTRICT, SOURCE);
+  public static final TestGeoObjectInfo       CO_D_ONE         = new TestGeoObjectInfo(TEST_DATA_KEY + "ColoradoDistrictOne", DISTRICT, SOURCE);
 
-  public static final TestGeoObjectInfo     CO_D_THREE       = new TestGeoObjectInfo(TEST_DATA_KEY + "ColoradoDistrictThree", DISTRICT, TestDataSet.WKT_DEFAULT_MULTIPOINT, false, true, SOURCE);
+  public static final TestGeoObjectInfo       CO_D_TWO         = new TestGeoObjectInfo(TEST_DATA_KEY + "ColoradoDistrictTwo", DISTRICT, SOURCE);
 
-  public static final TestGeoObjectInfo     CO_C_ONE         = new TestGeoObjectInfo(TEST_DATA_KEY + "ColoradoCountyOne", COUNTY, SOURCE);
+  public static final TestGeoObjectInfo       CO_D_THREE       = new TestGeoObjectInfo(TEST_DATA_KEY + "ColoradoDistrictThree", DISTRICT, TestDataSet.WKT_DEFAULT_MULTIPOINT, false, true, SOURCE);
 
-  public static final TestGeoObjectInfo     CO_A_ONE         = new TestGeoObjectInfo(TEST_DATA_KEY + "ColoradoAreaOne", AREA, SOURCE);
+  public static final TestGeoObjectInfo       CO_C_ONE         = new TestGeoObjectInfo(TEST_DATA_KEY + "ColoradoCountyOne", COUNTY, SOURCE);
 
-  public static final TestGeoObjectInfo     SCHOOL_ONE       = new TestGeoObjectInfo(TEST_DATA_KEY + "SchoolZoneOne", SCHOOL_ZONE, SOURCE);
+  public static final TestGeoObjectInfo       CO_A_ONE         = new TestGeoObjectInfo(TEST_DATA_KEY + "ColoradoAreaOne", AREA, SOURCE);
 
-  public static final TestGeoObjectInfo     WASHINGTON       = new TestGeoObjectInfo(TEST_DATA_KEY + "Washington", STATE, TestDataSet.WKT_POLYGON_2, true, true, SOURCE);
+  public static final TestGeoObjectInfo       SCHOOL_ONE       = new TestGeoObjectInfo(TEST_DATA_KEY + "SchoolZoneOne", SCHOOL_ZONE, SOURCE);
 
-  public static final TestGeoObjectInfo     WA_D_ONE         = new TestGeoObjectInfo(TEST_DATA_KEY + "WashingtonDistrictOne", DISTRICT, SOURCE);
+  public static final TestGeoObjectInfo       WASHINGTON       = new TestGeoObjectInfo(TEST_DATA_KEY + "Washington", STATE, TestDataSet.WKT_POLYGON_2, true, true, SOURCE);
 
-  public static final TestGeoObjectInfo     WA_D_TWO         = new TestGeoObjectInfo(TEST_DATA_KEY + "WashingtonDistrictTwo", DISTRICT, SOURCE);
+  public static final TestGeoObjectInfo       WA_D_ONE         = new TestGeoObjectInfo(TEST_DATA_KEY + "WashingtonDistrictOne", DISTRICT, SOURCE);
 
-  public static final TestGeoObjectInfo     CANADA           = new TestGeoObjectInfo(TEST_DATA_KEY + "CANADA", COUNTRY, SOURCE);
+  public static final TestGeoObjectInfo       WA_D_TWO         = new TestGeoObjectInfo(TEST_DATA_KEY + "WashingtonDistrictTwo", DISTRICT, SOURCE);
 
-  public static final TestGeoObjectInfo     HP_ONE           = new TestGeoObjectInfo(TEST_DATA_KEY + "HpOne", HEALTH_POST, SOURCE);
+  public static final TestGeoObjectInfo       CANADA           = new TestGeoObjectInfo(TEST_DATA_KEY + "CANADA", COUNTRY, SOURCE);
 
-  public static final TestGeoObjectInfo     HP_TWO           = new TestGeoObjectInfo(TEST_DATA_KEY + "HpTwo", HEALTH_POST, SOURCE);
+  public static final TestGeoObjectInfo       HP_ONE           = new TestGeoObjectInfo(TEST_DATA_KEY + "HpOne", HEALTH_POST, SOURCE);
 
-  public static final TestGeoObjectInfo     HS_ONE           = new TestGeoObjectInfo(TEST_DATA_KEY + "HsOne", HEALTH_STOP, SOURCE);
+  public static final TestGeoObjectInfo       HP_TWO           = new TestGeoObjectInfo(TEST_DATA_KEY + "HpTwo", HEALTH_POST, SOURCE);
 
-  public static final TestGeoObjectInfo     HS_TWO           = new TestGeoObjectInfo(TEST_DATA_KEY + "HsTwo", HEALTH_STOP, SOURCE);
+  public static final TestGeoObjectInfo       HS_ONE           = new TestGeoObjectInfo(TEST_DATA_KEY + "HsOne", HEALTH_STOP, SOURCE);
+
+  public static final TestGeoObjectInfo       HS_TWO           = new TestGeoObjectInfo(TEST_DATA_KEY + "HsTwo", HEALTH_STOP, SOURCE);
 
   /**
    * The Mexico Hierarchy cannot have any leaf nodes in it.
    */
 
-  public static final TestGeoObjectTypeInfo MEXICO_CITY_GOT  = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "Mexico_City_GOT", ORG_NPS);
+  public static final TestGeoObjectTypeInfo   MEXICO_CITY_GOT  = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "Mexico_City_GOT", ORG_NPS);
 
-  public static final TestGeoObjectTypeInfo MEXICO_STATE     = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "Mexico_State_GOT", ORG_NPS);
+  public static final TestGeoObjectTypeInfo   MEXICO_STATE     = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "Mexico_State_GOT", ORG_NPS);
 
-  public static final TestGeoObjectInfo     MEXICO           = new TestGeoObjectInfo(TEST_DATA_KEY + "Mexico", COUNTRY, SOURCE);
+  public static final TestGeoObjectInfo       MEXICO           = new TestGeoObjectInfo(TEST_DATA_KEY + "Mexico", COUNTRY, SOURCE);
 
-  public static final TestGeoObjectInfo     MEXICO_CITY_ONE  = new TestGeoObjectInfo(TEST_DATA_KEY + "MexicoCityOne", MEXICO_CITY_GOT, SOURCE);
+  public static final TestGeoObjectInfo       MEXICO_CITY_ONE  = new TestGeoObjectInfo(TEST_DATA_KEY + "MexicoCityOne", MEXICO_CITY_GOT, SOURCE);
 
-  public static final TestGeoObjectInfo     MEXICO_CITY_TWO  = new TestGeoObjectInfo(TEST_DATA_KEY + "MexicoCityTwo", MEXICO_CITY_GOT, SOURCE);
+  public static final TestGeoObjectInfo       MEXICO_CITY_TWO  = new TestGeoObjectInfo(TEST_DATA_KEY + "MexicoCityTwo", MEXICO_CITY_GOT, SOURCE);
 
-  public static final TestGeoObjectInfo     MEXICO_STATE_ONE = new TestGeoObjectInfo(TEST_DATA_KEY + "MexicoStateOne", MEXICO_STATE, SOURCE);
+  public static final TestGeoObjectInfo       MEXICO_STATE_ONE = new TestGeoObjectInfo(TEST_DATA_KEY + "MexicoStateOne", MEXICO_STATE, SOURCE);
 
-  public static final TestGeoObjectInfo     MEXICO_STATE_TWO = new TestGeoObjectInfo(TEST_DATA_KEY + "MexicoStateTwo", MEXICO_STATE, SOURCE);
+  public static final TestGeoObjectInfo       MEXICO_STATE_TWO = new TestGeoObjectInfo(TEST_DATA_KEY + "MexicoStateTwo", MEXICO_STATE, SOURCE);
 
   {
+    managedAuthorities.add(AUTHORITY);
+
     managedSources.add(SOURCE);
 
     managedOrganizationInfos.add(ORG_NPS);

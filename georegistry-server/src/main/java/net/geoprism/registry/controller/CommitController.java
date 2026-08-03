@@ -34,6 +34,7 @@ import com.google.gson.JsonArray;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
 import net.geoprism.registry.model.DataSourceDTO;
+import net.geoprism.registry.model.SourceAuthorityDTO;
 import net.geoprism.registry.service.request.CommitService;
 import net.geoprism.registry.view.BusinessTypeDTO;
 import net.geoprism.registry.view.CommitDTO;
@@ -126,6 +127,14 @@ public class CommitController extends RunwaySpringController
     return ResponseEntity.ok(sources);
   }
 
+  @GetMapping("/authorities")
+  public ResponseEntity<List<SourceAuthorityDTO>> getAuthorities(@RequestParam(name = "uid") String uid)
+  {
+    List<SourceAuthorityDTO> sources = this.service.getAuthorities(this.getSessionId(), uid);
+    
+    return ResponseEntity.ok(sources);
+  }
+  
   @GetMapping("/events")
   public ResponseEntity<List<RemoteEvent>> getEvents(@RequestParam(name = "uid") String uid, @RequestParam(name = "chunk") Integer chunk)
   {

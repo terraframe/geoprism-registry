@@ -3,6 +3,7 @@
  */
 package net.geoprism.registry.service;
 
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,18 +16,19 @@ import com.runwaysdk.session.Request;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.config.TestApplication;
-import net.geoprism.registry.graph.DataSource;
-import net.geoprism.registry.model.DataSourceDTO;
-import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
+import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.graph.SourceAuthority;
+import net.geoprism.registry.model.SourceAuthorityDTO;
+import net.geoprism.registry.service.business.SourceAuthorityBusinessServiceIF;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
 @RunWith(SpringInstanceTestClassRunner.class)
-public class SourceServiceTest implements InstanceTestClassListener
+public class SourceAuthorityServiceTest implements InstanceTestClassListener
 {
 
   @Autowired
-  private DataSourceBusinessServiceIF service;
+  private SourceAuthorityBusinessServiceIF service;
 
   @Override
   @Request
@@ -44,12 +46,12 @@ public class SourceServiceTest implements InstanceTestClassListener
   @Request
   public void testCreateDeleteSource()
   {
-    DataSource source = createMock();
+    SourceAuthority source = createMock();
 
-    DataSourceDTO json = this.service.toDTO(source);
-    json.setOid(null);
+    SourceAuthorityDTO dto = this.service.toDTO(source);
+    dto.setOid(null);
 
-    DataSource result = this.service.apply(json);
+    SourceAuthority result = this.service.apply(dto);
 
     Assert.assertEquals(source.getCode(), result.getCode());
 
@@ -60,10 +62,13 @@ public class SourceServiceTest implements InstanceTestClassListener
     Assert.assertFalse(this.service.getByCode(source.getCode()).isPresent());
   }
 
-  public static DataSource createMock()
+  public static SourceAuthority createMock()
   {
-    DataSource source = new DataSource();
+    SourceAuthority source = new SourceAuthority();
     source.setCode("ABCD");
+    LocalizedValueConverter.populate(source, SourceAuthority.DISPLAYLABEL, new LocalizedValue("Test Label"));
+    LocalizedValueConverter.populate(source, SourceAuthority.DESCRIPTION, new LocalizedValue("Test Description"));
+    source.setAuthorityType("Test Authority Type");
 
     return source;
   }

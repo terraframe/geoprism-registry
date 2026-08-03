@@ -35,83 +35,87 @@ import net.geoprism.registry.service.business.ServiceFactory;
  */
 public class FastTestDataset extends TestDataSet
 {
-  public static final String                    TEST_DATA_KEY         = "FAST";
-  
-  public static final TestSourceInfo            SOURCE                = new TestSourceInfo("FastSource");
+  public static final String                  TEST_DATA_KEY         = "FAST";
 
-  public static final TestOrganizationInfo      ORG_CGOV              = new TestOrganizationInfo(TEST_DATA_KEY + "_" + "CGOV", "Central Government");
+  public static final TestSourceAuthorityInfo AUTHORITY             = new TestSourceAuthorityInfo("FastAuthority");
 
-  public static final TestOrganizationInfo      ORG_MOHA              = new TestOrganizationInfo(TEST_DATA_KEY + "_" + "MOHA", "Ministry of Home Affairs");
+  public static final TestDataSourceInfo      SOURCE                = new TestDataSourceInfo("FastSource", AUTHORITY);
 
-  public static final TestHierarchyTypeInfo     HIER_ADMIN            = new TestHierarchyTypeInfo(TEST_DATA_KEY + "Admin", ORG_CGOV);
+  public static final TestOrganizationInfo    ORG_CGOV              = new TestOrganizationInfo(TEST_DATA_KEY + "_" + "CGOV", "Central Government");
 
-  public static final TestHierarchyTypeInfo     HIER_HEALTH_ADMIN     = new TestHierarchyTypeInfo(TEST_DATA_KEY + "HealthAdmin", ORG_MOHA);
+  public static final TestOrganizationInfo    ORG_MOHA              = new TestOrganizationInfo(TEST_DATA_KEY + "_" + "MOHA", "Ministry of Home Affairs");
 
-  public static final TestHierarchyTypeInfo     HIER_SPLIT_PARENT     = new TestHierarchyTypeInfo(TEST_DATA_KEY + "SplitParent", ORG_CGOV);                                                                                                                                                                                                                                                                                                                               // Used
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                          // for
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                          // testing
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                          // inheritance
+  public static final TestHierarchyTypeInfo   HIER_ADMIN            = new TestHierarchyTypeInfo(TEST_DATA_KEY + "Admin", ORG_CGOV);
 
-  public static final TestHierarchyTypeInfo     HIER_SPLIT_CHILD      = new TestHierarchyTypeInfo(TEST_DATA_KEY + "SplitChild", ORG_CGOV);                                                                                                                                                                                                                                                                                                                                // Used
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                          // for
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                          // testing
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                          // inheritance
+  public static final TestHierarchyTypeInfo   HIER_HEALTH_ADMIN     = new TestHierarchyTypeInfo(TEST_DATA_KEY + "HealthAdmin", ORG_MOHA);
 
-  public static final TestGeoObjectTypeInfo     COUNTRY               = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "Country", GeometryType.MULTIPOLYGON, ORG_CGOV);
+  public static final TestHierarchyTypeInfo   HIER_SPLIT_PARENT     = new TestHierarchyTypeInfo(TEST_DATA_KEY + "SplitParent", ORG_CGOV);                                                                                                                                                                                                                                                                                                                               // Used
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                        // for
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                        // testing
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                        // inheritance
 
-  public static final TestGeoObjectTypeInfo     PROVINCE              = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "Province", GeometryType.MULTIPOLYGON, ORG_CGOV);
+  public static final TestHierarchyTypeInfo   HIER_SPLIT_CHILD      = new TestHierarchyTypeInfo(TEST_DATA_KEY + "SplitChild", ORG_CGOV);                                                                                                                                                                                                                                                                                                                                // Used
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                        // for
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                        // testing
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                        // inheritance
 
-  public static final TestGeoObjectTypeInfo     PROVINCE_PRIVATE      = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "ProvincePrivate", GeometryType.MULTIPOLYGON, true, ORG_CGOV, null);
+  public static final TestGeoObjectTypeInfo   COUNTRY               = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "Country", GeometryType.MULTIPOLYGON, ORG_CGOV);
 
-  public static final TestGeoObjectTypeInfo     DISTRICT              = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "District", GeometryType.MULTIPOLYGON, ORG_CGOV);
+  public static final TestGeoObjectTypeInfo   PROVINCE              = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "Province", GeometryType.MULTIPOLYGON, ORG_CGOV);
 
-  public static final TestGeoObjectTypeInfo     HOSPITAL              = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "Hospital", GeometryType.MULTIPOLYGON, ORG_MOHA);
+  public static final TestGeoObjectTypeInfo   PROVINCE_PRIVATE      = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "ProvincePrivate", GeometryType.MULTIPOLYGON, true, ORG_CGOV, null);
 
-  public static final TestGeoObjectInfo         CAMBODIA              = new TestGeoObjectInfo(TEST_DATA_KEY + "Cambodia", COUNTRY, SOURCE);
+  public static final TestGeoObjectTypeInfo   DISTRICT              = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "District", GeometryType.MULTIPOLYGON, ORG_CGOV);
 
-  public static final TestGeoObjectInfo         PROV_CENTRAL          = new TestGeoObjectInfo(TEST_DATA_KEY + "CentralProvince", PROVINCE, SOURCE);
+  public static final TestGeoObjectTypeInfo   HOSPITAL              = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "Hospital", GeometryType.MULTIPOLYGON, ORG_MOHA);
 
-  public static final TestGeoObjectInfo         PROV_WESTERN          = new TestGeoObjectInfo(TEST_DATA_KEY + "WesternProvince", PROVINCE, SOURCE);
+  public static final TestGeoObjectInfo       CAMBODIA              = new TestGeoObjectInfo(TEST_DATA_KEY + "Cambodia", COUNTRY, SOURCE);
 
-  public static final TestGeoObjectInfo         PROV_CENTRAL_PRIVATE  = new TestGeoObjectInfo(TEST_DATA_KEY + "CentralProvincePrivate", PROVINCE_PRIVATE, SOURCE);
+  public static final TestGeoObjectInfo       PROV_CENTRAL          = new TestGeoObjectInfo(TEST_DATA_KEY + "CentralProvince", PROVINCE, SOURCE);
 
-  public static final TestGeoObjectInfo         DIST_CENTRAL          = new TestGeoObjectInfo(TEST_DATA_KEY + "CentralDistrict", DISTRICT, SOURCE);
+  public static final TestGeoObjectInfo       PROV_WESTERN          = new TestGeoObjectInfo(TEST_DATA_KEY + "WesternProvince", PROVINCE, SOURCE);
 
-  public static final TestGeoObjectInfo         CENTRAL_HOSPITAL      = new TestGeoObjectInfo(TEST_DATA_KEY + "CentralHospital", HOSPITAL, SOURCE);
+  public static final TestGeoObjectInfo       PROV_CENTRAL_PRIVATE  = new TestGeoObjectInfo(TEST_DATA_KEY + "CentralProvincePrivate", PROVINCE_PRIVATE, SOURCE);
 
-  public static final TestAttributeTypeInfo     AT_National_Anthem    = new TestAttributeTypeInfo("NationalAnthem", "National Anthem", COUNTRY, AttributeCharacterType.TYPE);
+  public static final TestGeoObjectInfo       DIST_CENTRAL          = new TestGeoObjectInfo(TEST_DATA_KEY + "CentralDistrict", DISTRICT, SOURCE);
 
-  public static final TestAttributeTypeInfo     AT_PHONE_COUNTRY_CODE = new TestAttributeTypeInfo("PhoneCountryCode", "Phone Country Code", COUNTRY, AttributeIntegerType.TYPE);
+  public static final TestGeoObjectInfo       CENTRAL_HOSPITAL      = new TestGeoObjectInfo(TEST_DATA_KEY + "CentralHospital", HOSPITAL, SOURCE);
 
-  public static final TestAttributeTypeInfo     AT_UN_MEMBER          = new TestAttributeTypeInfo("UnMember", "UN Member", COUNTRY, AttributeBooleanType.TYPE);
+  public static final TestAttributeTypeInfo   AT_National_Anthem    = new TestAttributeTypeInfo("NationalAnthem", "National Anthem", COUNTRY, AttributeCharacterType.TYPE);
 
-  public static final TestAttributeTypeInfo     AT_GDP                = new TestAttributeTypeInfo("GDP", "Gross Domestic Product", COUNTRY, AttributeFloatType.TYPE);
+  public static final TestAttributeTypeInfo   AT_PHONE_COUNTRY_CODE = new TestAttributeTypeInfo("PhoneCountryCode", "Phone Country Code", COUNTRY, AttributeIntegerType.TYPE);
 
-  public static final TestAttributeTypeInfo     AT_DATE_OF_FORMATION  = new TestAttributeTypeInfo("DateOfFormation", "Date Of Formation", COUNTRY, AttributeDateType.TYPE);
+  public static final TestAttributeTypeInfo   AT_UN_MEMBER          = new TestAttributeTypeInfo("UnMember", "UN Member", COUNTRY, AttributeBooleanType.TYPE);
 
-  public static final TestUserInfo              USER_CGOV_RA          = new TestUserInfo(TEST_DATA_KEY + "_" + "cgovra", "cgovra", TEST_DATA_KEY + "cgovra@noreply.com", new String[] { RegistryRole.Type.getRA_RoleName(ORG_CGOV.getCode()) });
+  public static final TestAttributeTypeInfo   AT_GDP                = new TestAttributeTypeInfo("GDP", "Gross Domestic Product", COUNTRY, AttributeFloatType.TYPE);
 
-  public static final TestUserInfo              USER_CGOV_RM          = new TestUserInfo(TEST_DATA_KEY + "_" + "cgovrm", "cgovrm", TEST_DATA_KEY + "cgovrm@noreply.com", new String[] { RegistryRole.Type.getRM_RoleName(ORG_CGOV.getCode(), COUNTRY.getCode()), RegistryRole.Type.getRM_RoleName(ORG_CGOV.getCode(), PROVINCE.getCode()) });
+  public static final TestAttributeTypeInfo   AT_DATE_OF_FORMATION  = new TestAttributeTypeInfo("DateOfFormation", "Date Of Formation", COUNTRY, AttributeDateType.TYPE);
 
-  public static final TestUserInfo              USER_CGOV_RC          = new TestUserInfo(TEST_DATA_KEY + "_" + "cgovrc", "cgovrc", TEST_DATA_KEY + "cgovrc@noreply.com", new String[] { RegistryRole.Type.getRC_RoleName(ORG_CGOV.getCode(), COUNTRY.getCode()), RegistryRole.Type.getRC_RoleName(ORG_CGOV.getCode(), PROVINCE.getCode()) });
+  public static final TestUserInfo            USER_CGOV_RA          = new TestUserInfo(TEST_DATA_KEY + "_" + "cgovra", "cgovra", TEST_DATA_KEY + "cgovra@noreply.com", new String[] { RegistryRole.Type.getRA_RoleName(ORG_CGOV.getCode()) });
 
-  public static final TestUserInfo              USER_CGOV_AC          = new TestUserInfo(TEST_DATA_KEY + "_" + "cgovac", "cgovac", TEST_DATA_KEY + "cgovac@noreply.com", new String[] { RegistryRole.Type.getAC_RoleName(ORG_CGOV.getCode(), COUNTRY.getCode()), RegistryRole.Type.getAC_RoleName(ORG_CGOV.getCode(), PROVINCE.getCode()) });
+  public static final TestUserInfo            USER_CGOV_RM          = new TestUserInfo(TEST_DATA_KEY + "_" + "cgovrm", "cgovrm", TEST_DATA_KEY + "cgovrm@noreply.com", new String[] { RegistryRole.Type.getRM_RoleName(ORG_CGOV.getCode(), COUNTRY.getCode()), RegistryRole.Type.getRM_RoleName(ORG_CGOV.getCode(), PROVINCE.getCode()) });
 
-  public static final TestUserInfo              USER_MOHA_RA          = new TestUserInfo(TEST_DATA_KEY + "_" + "mohara", "mohara", TEST_DATA_KEY + "mohara@noreply.com", new String[] { RegistryRole.Type.getRA_RoleName(ORG_MOHA.getCode()) });
+  public static final TestUserInfo            USER_CGOV_RC          = new TestUserInfo(TEST_DATA_KEY + "_" + "cgovrc", "cgovrc", TEST_DATA_KEY + "cgovrc@noreply.com", new String[] { RegistryRole.Type.getRC_RoleName(ORG_CGOV.getCode(), COUNTRY.getCode()), RegistryRole.Type.getRC_RoleName(ORG_CGOV.getCode(), PROVINCE.getCode()) });
 
-  public static final TestUserInfo              USER_MOHA_RM          = new TestUserInfo(TEST_DATA_KEY + "_" + "moharm", "moharm", TEST_DATA_KEY + "moharm@noreply.com", new String[] { RegistryRole.Type.getRM_RoleName(ORG_MOHA.getCode(), HOSPITAL.getCode()) });
+  public static final TestUserInfo            USER_CGOV_AC          = new TestUserInfo(TEST_DATA_KEY + "_" + "cgovac", "cgovac", TEST_DATA_KEY + "cgovac@noreply.com", new String[] { RegistryRole.Type.getAC_RoleName(ORG_CGOV.getCode(), COUNTRY.getCode()), RegistryRole.Type.getAC_RoleName(ORG_CGOV.getCode(), PROVINCE.getCode()) });
 
-  public static final TestUserInfo              USER_MOHA_RC          = new TestUserInfo(TEST_DATA_KEY + "_" + "moharc", "moharc", TEST_DATA_KEY + "moharc@noreply.com", new String[] { RegistryRole.Type.getRC_RoleName(ORG_MOHA.getCode(), HOSPITAL.getCode()) });
+  public static final TestUserInfo            USER_MOHA_RA          = new TestUserInfo(TEST_DATA_KEY + "_" + "mohara", "mohara", TEST_DATA_KEY + "mohara@noreply.com", new String[] { RegistryRole.Type.getRA_RoleName(ORG_MOHA.getCode()) });
 
-  public static final TestUserInfo              USER_MOHA_AC          = new TestUserInfo(TEST_DATA_KEY + "_" + "mohaac", "mohaac", TEST_DATA_KEY + "mohaac@noreply.com", new String[] { RegistryRole.Type.getAC_RoleName(ORG_MOHA.getCode(), HOSPITAL.getCode()) });
+  public static final TestUserInfo            USER_MOHA_RM          = new TestUserInfo(TEST_DATA_KEY + "_" + "moharm", "moharm", TEST_DATA_KEY + "moharm@noreply.com", new String[] { RegistryRole.Type.getRM_RoleName(ORG_MOHA.getCode(), HOSPITAL.getCode()) });
 
-  public static final TestUserInfo              USER_CGOV_RM_PRIVATE  = new TestUserInfo(FastTestDataset.TEST_DATA_KEY + "_" + "cgovrmprivate", "cgovrmprivate", FastTestDataset.TEST_DATA_KEY + "cgovrmprivate@noreply.com", new String[] { RegistryRole.Type.getRM_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.COUNTRY.getCode()), RegistryRole.Type.getRM_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.PROVINCE_PRIVATE.getCode()) });
+  public static final TestUserInfo            USER_MOHA_RC          = new TestUserInfo(TEST_DATA_KEY + "_" + "moharc", "moharc", TEST_DATA_KEY + "moharc@noreply.com", new String[] { RegistryRole.Type.getRC_RoleName(ORG_MOHA.getCode(), HOSPITAL.getCode()) });
 
-  public static final TestUserInfo              USER_CGOV_RC_PRIVATE  = new TestUserInfo(FastTestDataset.TEST_DATA_KEY + "_" + "cgovrcprivate", "cgovrcprivate", FastTestDataset.TEST_DATA_KEY + "cgovrcprivate@noreply.com", new String[] { RegistryRole.Type.getRC_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.COUNTRY.getCode()), RegistryRole.Type.getRC_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.PROVINCE_PRIVATE.getCode()) });
+  public static final TestUserInfo            USER_MOHA_AC          = new TestUserInfo(TEST_DATA_KEY + "_" + "mohaac", "mohaac", TEST_DATA_KEY + "mohaac@noreply.com", new String[] { RegistryRole.Type.getAC_RoleName(ORG_MOHA.getCode(), HOSPITAL.getCode()) });
 
-  public static final TestUserInfo              USER_CGOV_AC_PRIVATE  = new TestUserInfo(FastTestDataset.TEST_DATA_KEY + "_" + "cgovacprivate", "cgovacprivate", FastTestDataset.TEST_DATA_KEY + "cgovacprivate@noreply.com", new String[] { RegistryRole.Type.getAC_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.COUNTRY.getCode()), RegistryRole.Type.getAC_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.PROVINCE_PRIVATE.getCode()) });
+  public static final TestUserInfo            USER_CGOV_RM_PRIVATE  = new TestUserInfo(FastTestDataset.TEST_DATA_KEY + "_" + "cgovrmprivate", "cgovrmprivate", FastTestDataset.TEST_DATA_KEY + "cgovrmprivate@noreply.com", new String[] { RegistryRole.Type.getRM_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.COUNTRY.getCode()), RegistryRole.Type.getRM_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.PROVINCE_PRIVATE.getCode()) });
+
+  public static final TestUserInfo            USER_CGOV_RC_PRIVATE  = new TestUserInfo(FastTestDataset.TEST_DATA_KEY + "_" + "cgovrcprivate", "cgovrcprivate", FastTestDataset.TEST_DATA_KEY + "cgovrcprivate@noreply.com", new String[] { RegistryRole.Type.getRC_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.COUNTRY.getCode()), RegistryRole.Type.getRC_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.PROVINCE_PRIVATE.getCode()) });
+
+  public static final TestUserInfo            USER_CGOV_AC_PRIVATE  = new TestUserInfo(FastTestDataset.TEST_DATA_KEY + "_" + "cgovacprivate", "cgovacprivate", FastTestDataset.TEST_DATA_KEY + "cgovacprivate@noreply.com", new String[] { RegistryRole.Type.getAC_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.COUNTRY.getCode()), RegistryRole.Type.getAC_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.PROVINCE_PRIVATE.getCode()) });
 
   {
+    managedAuthorities.add(AUTHORITY);
+
     managedSources.add(SOURCE);
 
     managedOrganizationInfos.add(ORG_CGOV);

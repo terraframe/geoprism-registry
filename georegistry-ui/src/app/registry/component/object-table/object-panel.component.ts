@@ -19,7 +19,6 @@
 
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnInit } from "@angular/core";
 import { ObjectClass, ObjectOverTime } from "@registry/model/object-class";
-import { DateTextComponent } from "@shared/component/date-text/date-text.component";
 import { NgFor, NgIf, NgSwitch, NgSwitchCase, NgSwitchDefault, NgTemplateOutlet } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { DateBoundary } from "../geoobject-shared-attribute-editor/stability-period.component";
@@ -31,7 +30,7 @@ import { ConvertKeyLabel } from "@shared/component/localize/convert-key-label.co
     templateUrl: "./object-panel.component.html",
     styleUrls: ["./object-panel.css"],
     standalone: true,
-    imports: [FormsModule, NgFor, NgIf, NgTemplateOutlet, NgSwitch, NgSwitchCase, NgSwitchDefault, DateTextComponent, DateFieldComponent, LocalizeComponent, ConvertKeyLabel]
+    imports: [FormsModule, NgFor, NgIf, NgTemplateOutlet, NgSwitch, NgSwitchCase, NgSwitchDefault, DateFieldComponent, LocalizeComponent, ConvertKeyLabel]
 })
 export class ObjectPanelComponent implements OnChanges, OnInit {
     @Input() type: ObjectClass;

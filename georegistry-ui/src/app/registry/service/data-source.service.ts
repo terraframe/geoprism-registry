@@ -22,52 +22,48 @@ import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { finalize } from "rxjs/operators";
 
 import { EventService } from "@shared/service";
-import { Source } from "@registry/model/source";
-import { AttributeType } from "@registry/model/registry";
-import { GeoRegistryConfiguration } from "@core/model/core";
-import { GenericTableService } from "@shared/model/generic-table";
-import { PageResult } from "@shared/model/core";
+import { DataSource } from "@registry/model/source";
 
 import { environment } from 'src/environments/environment';
 import { firstValueFrom } from "rxjs";
 
 @Injectable({ providedIn: 'root' })
-export class SourceService {
+export class DataSourceService {
 
     // eslint-disable-next-line no-useless-constructor
     constructor(private http: HttpClient, private eventService: EventService) { }
 
-    getAll(): Promise<Source[]> {
+    getAll(): Promise<DataSource[]> {
         let params: HttpParams = new HttpParams();
 
         this.eventService.start();
 
-        return firstValueFrom(this.http.get<Source[]>(environment.apiUrl + "/api/source/get-all", { params: params })
+        return firstValueFrom(this.http.get<DataSource[]>(environment.apiUrl + "/api/data-source/get-all", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             })))
     }
 
-    search(text: string): Promise<Source[]> {
+    search(text: string): Promise<DataSource[]> {
         let params: HttpParams = new HttpParams();
         params = params.append('text', text);
 
-        return firstValueFrom(this.http.get<Source[]>(environment.apiUrl + "/api/source/search", { params: params }))
+        return firstValueFrom(this.http.get<DataSource[]>(environment.apiUrl + "/api/data-source/search", { params: params }))
     }
 
-    get(code: string): Promise<Source> {
+    get(code: string): Promise<DataSource> {
         let params: HttpParams = new HttpParams();
         params = params.append("code", code);
 
         this.eventService.start();
 
-        return firstValueFrom(this.http.get<Source>(environment.apiUrl + "/api/source/get", { params: params })
+        return firstValueFrom(this.http.get<DataSource>(environment.apiUrl + "/api/data-source/get", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             })));
     }
 
-    apply(source: Source): Promise<Source> {
+    apply(source: DataSource): Promise<DataSource> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
         });
@@ -75,13 +71,13 @@ export class SourceService {
         this.eventService.start();
 
         return firstValueFrom(this.http
-            .post<Source>(environment.apiUrl + "/api/source/apply", JSON.stringify(source), { headers: headers })
+            .post<DataSource>(environment.apiUrl + "/api/data-source/apply", JSON.stringify(source), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             })));
     }
 
-    remove(source: Source): Promise<Source> {
+    remove(source: DataSource): Promise<DataSource> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
         });
@@ -89,7 +85,7 @@ export class SourceService {
         this.eventService.start();
 
         return firstValueFrom(this.http
-            .post<Source>(environment.apiUrl + "/api/source/remove", JSON.stringify({ code: source.code }), { headers: headers })
+            .post<DataSource>(environment.apiUrl + "/api/data-source/remove", JSON.stringify({ code: source.code }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             })));

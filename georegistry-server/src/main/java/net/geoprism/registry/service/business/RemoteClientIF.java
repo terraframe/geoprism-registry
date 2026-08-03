@@ -7,6 +7,7 @@ import com.google.gson.JsonArray;
 
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
 import net.geoprism.registry.model.DataSourceDTO;
+import net.geoprism.registry.model.SourceAuthorityDTO;
 import net.geoprism.registry.view.BusinessTypeDTO;
 import net.geoprism.registry.view.CommitDTO;
 import net.geoprism.registry.view.ConceptClassDTO;
@@ -41,5 +42,7 @@ public interface RemoteClientIF extends AutoCloseable
   public List<RemoteEvent> getRemoteEvents(String uid, Integer chunk);
 
   public List<DataSourceDTO> getDataSources(String uid);
+
+  public List<SourceAuthorityDTO> getSourceAuthorities(String uid);
 
 }

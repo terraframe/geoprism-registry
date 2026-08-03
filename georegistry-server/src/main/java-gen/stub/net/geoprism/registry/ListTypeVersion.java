@@ -136,7 +136,6 @@ import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.curation.ListCurationHistory;
 import net.geoprism.registry.etl.PublishListTypeVersionJob;
 import net.geoprism.registry.etl.PublishListTypeVersionJobQuery;
-import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.masterlist.ListAttribute;
 import net.geoprism.registry.masterlist.ListAttributeGroup;
@@ -1060,9 +1059,9 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
           {
             DataSourceBusinessServiceIF service = ServiceFactory.getBean(DataSourceBusinessServiceIF.class);
 
-            DataSource source = service.get( ( (String) value ));
-
-            this.setValue(business, name, source.getCode());
+            service.get( ( (String) value )).ifPresent(source -> {
+              this.setValue(business, name, source.getCode());
+            });
           }
           else if (attribute instanceof AttributeClassificationType)
           {

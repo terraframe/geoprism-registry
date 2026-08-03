@@ -60,29 +60,29 @@ public class TestGeoObjectInfo extends TestCachedObject<ServerGeoObjectIF>
 
   private Date                    date;
 
-  private TestSourceInfo          source;
+  private TestDataSourceInfo          source;
 
   private HashMap<String, Object> defaultValues;
 
-  public TestGeoObjectInfo(String label, String code, TestGeoObjectTypeInfo testUni, String wkt, Boolean exists, Boolean isNew, TestSourceInfo source)
+  public TestGeoObjectInfo(String label, String code, TestGeoObjectTypeInfo testUni, String wkt, Boolean exists, Boolean isNew, TestDataSourceInfo source)
   {
     initialize(code, testUni, exists, isNew, source);
     this.displayLabel = label;
     this.wkt = wkt;
   }
 
-  public TestGeoObjectInfo(String code, TestGeoObjectTypeInfo testUni, String wkt, Boolean exists, Boolean isNew, TestSourceInfo source)
+  public TestGeoObjectInfo(String code, TestGeoObjectTypeInfo testUni, String wkt, Boolean exists, Boolean isNew, TestDataSourceInfo source)
   {
     initialize(code, testUni, exists, isNew, source);
     this.wkt = wkt;
   }
 
-  public TestGeoObjectInfo(String code, TestGeoObjectTypeInfo testUni, TestSourceInfo source)
+  public TestGeoObjectInfo(String code, TestGeoObjectTypeInfo testUni, TestDataSourceInfo source)
   {
     initialize(code, testUni, true, true, source);
   }
 
-  private void initialize(String code, TestGeoObjectTypeInfo testUni, Boolean exists, Boolean isNew, TestSourceInfo source)
+  private void initialize(String code, TestGeoObjectTypeInfo testUni, Boolean exists, Boolean isNew, TestDataSourceInfo source)
   {
     if (code.contains(" "))
     {

@@ -39,13 +39,14 @@ import { ListComponent } from "./component/list-type/list.component";
 import { CurationJobComponent } from "./component/curation/curation-job.component";
 import { ClassificationTypeManagerComponent } from "./component/classification-type/classification-type-manager.component";
 import { LabeledPropertyGraphTypeManagerComponent } from "./component/labeled-property-graph-type/labeled-property-graph-type-manager.component";
-import { SourceManagerComponent } from "./component/source/source-manager.component";
 import { EdgeImporterComponent } from "./component/edge-importer/edge-importer.component";
 import { PublishManagerComponent } from "./component/publish-events/publish-manager.component";
 import { RollbackCheckpointManagerComponent } from "./component/rollback-checkpoint/rollback-checkpoint-manager.component";
 import { BusinessOntologyComponent } from "./component/business-ontology/business-ontology.component";
 import { ConceptOntologyComponent } from "./component/concept-ontology/concept-ontology.component";
 import { ObjectTableComponent } from "./component/object-table/object-table.component";
+import { DataSourceManagerComponent } from "./component/data-source/data-source-manager.component";
+import { SourceAuthorityManagerComponent } from "./component/source-authority/source-authority-manager.component";
 
 export const routes: Routes = [
     {
@@ -164,8 +165,13 @@ export const routes: Routes = [
         canActivate: [AuthGuard]
     },
     {
-        path: "sources",
-        component: SourceManagerComponent,
+        path: "data-sources",
+        component: DataSourceManagerComponent,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: "source-authorities",
+        component: SourceAuthorityManagerComponent,
         canActivate: [AuthGuard]
     },
     {

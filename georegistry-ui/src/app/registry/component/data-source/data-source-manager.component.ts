@@ -24,25 +24,25 @@ import { HttpErrorResponse } from "@angular/common/http";
 
 import { ErrorHandler, ConfirmModalComponent } from "@shared/component";
 import { LocalizationService } from "@shared/service/localization.service";
-import { Source } from "@registry/model/source";
-import { ManageSourceModalComponent } from "./modals/manage-source-modal.component";
-import { SourceService } from "@registry/service/source.service";
+import { DataSource } from "@registry/model/source";
+import { DataSourceService } from "@registry/service/data-source.service";
 import { NgIf, NgFor } from "@angular/common";
 import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
 import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
 import { ModalTypes } from "@shared/model/modal";
+import { ManageDataSourceModalComponent } from "./modals/manage-data-source-modal.component";
 
 @Component({
-    selector: "source-manager",
-    templateUrl: "./source-manager.component.html",
+    selector: "data-source-manager",
+    templateUrl: "./data-source-manager.component.html",
     styleUrls: [],
     standalone: true,
     imports: [PageContainerComponent, LocalizeComponent, NgIf, NgFor]
 })
-export class SourceManagerComponent implements OnInit {
+export class DataSourceManagerComponent implements OnInit {
 
     message: string = null;
-    sources: Source[];
+    sources: DataSource[];
 
     /*
      * Reference to the modal current showing
@@ -50,9 +50,13 @@ export class SourceManagerComponent implements OnInit {
     bsModalRef: BsModalRef;
 
     // eslint-disable-next-line no-useless-constructor
-    constructor(public service: SourceService, private modalService: BsModalService, private router: Router, private localizeService: LocalizationService) { }
+    constructor(
+        private service: DataSourceService,
+        private modalService: BsModalService,
+        private localizeService: LocalizationService) { }
 
     ngOnInit(): void {
+
         this.service.getAll().then(sources => {
             this.sources = sources;
         }).catch((err: HttpErrorResponse) => {
@@ -62,20 +66,37 @@ export class SourceManagerComponent implements OnInit {
 
     onCreate(): void {
 
-        this.bsModalRef = this.modalService.show(ManageSourceModalComponent, {
-            animated: false, backdrop: true,             ignoreBackdropClick: true
+        const source: DataSource = {
+            code: '',
+            label: this.localizeService.create(),
+            description: this.localizeService.create(),
+            authority: null,
+            governanceLevel: null,
+            metadataProfile: null,
+            uri: null
+        };
+
+        this.bsModalRef = this.modalService.show(ManageDataSourceModalComponent, {
+            animated: false,
+            backdrop: true,
+            ignoreBackdropClick: true
         });
-        this.bsModalRef.content.init({ code: '' }, false);
-        this.bsModalRef.content.onSourceChange.subscribe((source: Source) => {
+        this.bsModalRef.content.init(source, false);
+        this.bsModalRef.content.onSourceChange.subscribe((source: DataSource) => {
             this.sources.push(source);
         });
     }
 
-    onEdit(source: Source, readOnly: boolean): void {
-        this.bsModalRef = this.modalService.show(ManageSourceModalComponent, {
-            animated: false, backdrop: true,             ignoreBackdropClick: true
+    onEdit(source: DataSource, readOnly: boolean): void {
+
+        console.log(source);
+
+        this.bsModalRef = this.modalService.show(ManageDataSourceModalComponent, {
+            animated: false,
+            backdrop: true,
+            ignoreBackdropClick: true
         });
-        this.bsModalRef.content.init({...source}, readOnly);
+        this.bsModalRef.content.init({ ...source }, readOnly);
 
         this.bsModalRef.content.onSourceChange.subscribe(t => {
             const index = this.sources.findIndex((tt) => source.code === tt.code);
@@ -86,13 +107,13 @@ export class SourceManagerComponent implements OnInit {
         });
     }
 
-    onDelete(source: Source): void {
+    onDelete(source: DataSource): void {
         this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: false, backdrop: true,             ignoreBackdropClick: true
+            animated: false, backdrop: true, ignoreBackdropClick: true
         });
         this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " [" + source.code + "]";
         this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
-        this.bsModalRef.content.type =  ModalTypes.danger;
+        this.bsModalRef.content.type = ModalTypes.danger;
 
         this.bsModalRef.content.onConfirm.subscribe(data => {
             this.service.remove(source).then(() => {

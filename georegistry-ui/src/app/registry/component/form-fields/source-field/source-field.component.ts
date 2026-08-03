@@ -18,7 +18,7 @@
 ///
 
 import { Component, Input, Output, EventEmitter } from "@angular/core";
-import { SourceService } from "@registry/service/source.service";
+import { DataSourceService } from "@registry/service/data-source.service";
 import { TypeaheadMatch, TypeaheadModule } from "ngx-bootstrap/typeahead";
 import { Observable, Observer, Subscription } from "rxjs";
 import { NgClass } from "@angular/common";
@@ -51,7 +51,7 @@ export class SourceFieldComponent {
 
 
     constructor(
-        private service: SourceService) { }
+        private service: DataSourceService) { }
 
     ngOnInit(): void {
         this.text = this.value;
