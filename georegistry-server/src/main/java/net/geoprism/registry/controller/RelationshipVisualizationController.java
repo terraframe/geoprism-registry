@@ -80,4 +80,20 @@ public class RelationshipVisualizationController extends RunwaySpringController
 
     return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
   }
+  
+  @GetMapping(API_PATH + "/relationship-counts")
+  public ResponseEntity<String> relationshipCounts(
+      @NotEmpty @RequestParam(name = "objectType") String objectType,
+      @NotEmpty @RequestParam(name = "typeCode") String typeCode,
+      @NotEmpty @RequestParam(name = "sourceVertex") String sourceVertex)
+  {
+    JsonElement json = this.service.getRelationshipTypeCounts(
+        this.getSessionId(),
+        VertexView.ObjectType.valueOf(objectType),
+        typeCode,
+        sourceVertex
+    );
+
+    return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
+  }
 }

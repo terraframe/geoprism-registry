@@ -25,6 +25,7 @@ export interface Relationship {
   layout: "VERTICAL" | "HORIZONTAL",
   code: string,
   type?: string
+  count: number
 }
 
 export class ObjectReference {
