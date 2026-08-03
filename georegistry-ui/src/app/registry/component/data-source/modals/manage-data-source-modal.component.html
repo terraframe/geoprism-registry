@@ -25,8 +25,7 @@
   <form #form="ngForm" *ngIf="source" class="modal-form" (ngSubmit)="form.valid">
     <div class="heading text-center">
       <h1>
-        <span *ngIf="readOnly">View Source</span>
-        <span *ngIf="!readOnly">{{source.oid == null ? 'Create Source' : 'Edit Source'}}</span>
+        <localize key="datasource.header"></localize>
       </h1>
     </div>
     <fieldset>
@@ -52,8 +51,7 @@
       <div class="row-holder">
         <div class="label-holder">
           <label>
-            <!-- LOCALIZE -->
-            URI
+            <localize key="datasource.uri"></localize>
           </label>
         </div>
         <div class="holder">
@@ -66,21 +64,34 @@
       <div class="row-holder">
         <div class="label-holder">
           <label>
-            <!-- LOCALIZE -->
-            Governance Level
+            <localize key="datasource.governance.level"></localize>
           </label>
         </div>
         <div class="holder">
           <select id="governanceLevel" name="governanceLevel" class="select-area" [(ngModel)]="source.governanceLevel"
             [disabled]="readOnly">
             <option></option>
-            <option value="AUTHORITATIVE">Authoritative</option>
-            <option value="OFFICIAL">Official</option>
-            <option value="COMMUNITY">Community Curated</option>
-            <option value="RESEARCH">Research</option>
-            <option value="DERIVED">Derived</option>
-            <option value="EXPERIMENTAL">Experimental</option>
-            <option value="AD_HOC">Ad Hoc</option>
+            <option value="AUTHORITATIVE">
+              <localize key="datasource.authoritative"></localize>
+            </option>
+            <option value="OFFICIAL">
+              <localize key="datasource.official"></localize>
+            </option>
+            <option value="COMMUNITY">
+              <localize key="datasource.community.curated"></localize>
+            </option>
+            <option value="RESEARCH">
+              <localize key="datasource.research"></localize>
+            </option>
+            <option value="DERIVED">
+              <localize key="datasource.derived"></localize>
+            </option>
+            <option value="EXPERIMENTAL">
+              <localize key="datasource.experimental"></localize>
+            </option>
+            <option value="AD_HOC">
+              <localize key="datasource.ad.hoc"></localize>
+            </option>
           </select>
         </div>
       </div>
@@ -88,24 +99,43 @@
       <div class="row-holder">
         <div class="label-holder">
           <label>
-            <!-- LOCALIZE -->
-            Metadata Profile
+            <localize key="datasource.metadata.profile"></localize>
           </label>
         </div>
         <div class="holder">
           <select id="metadataProfile" name="metadataProfile" class="select-area" [(ngModel)]="source.metadataProfile"
             [disabled]="readOnly">
             <option></option>
-            <option value="DCAT">DCAT</option>
-            <option value="GEO_DCAT">GeoDCAT</option>
-            <option value="ISO19115">ISO19115</option>
-            <option value="STAC">STAC</option>
-            <option value="SENSOR_ML">SensorML</option>
-            <option value="FHIR">FHIR</option>
-            <option value="DATA_CITE">Data Cite</option>
-            <option value="CUSTOM">Custom</option>
-            <option value="AD_HOC">Ad Hoc</option>
-            <option value="NONE">None</option>
+            <option value="DCAT">
+              <localize key="datasource.dcat"></localize>
+            </option>
+            <option value="GEO_DCAT">
+              <localize key="datasource.geo.dcat"></localize>
+            </option>
+            <option value="ISO19115">
+              <localize key="datasource.iso19115"></localize>
+            </option>
+            <option value="STAC">
+              <localize key="datasource.stac"></localize>
+            </option>
+            <option value="SENSOR_ML">
+              <localize key="datasource.sensorML"></localize>
+            </option>
+            <option value="FHIR">
+              <localize key="datasource.fhir"></localize>
+            </option>
+            <option value="DATA_CITE">
+              <localize key="datasource.data.cite"></localize>
+            </option>
+            <option value="CUSTOM">
+              <localize key="datasource.custom"></localize>
+            </option>
+            <option value="AD_HOC">
+              <localize key="datasource.ad.hoc"></localize>
+            </option>
+            <option value="NONE">
+              <localize key="datasource.none"></localize>
+            </option>
           </select>
         </div>
       </div>
@@ -113,14 +143,14 @@
       <div class="row-holder">
         <div class="label-holder">
           <label>
-            <!-- LOCALIZE -->
-            Source Authority
+            <localize key="datasource.authority"></localize>
           </label>
         </div>
         <div class="holder">
           <select id="authority" name="authority" class="select-area" [(ngModel)]="source.authority"
             [disabled]="readOnly" required>
-            <option *ngFor="let authority of authorities" [value]="authority.code">{{authority.label.localizedValue}}
+            <option *ngFor="let authority of authorities" [value]="authority.code">
+              {{authority.label.localizedValue}}
             </option>
           </select>
         </div>
