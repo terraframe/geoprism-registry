@@ -29,7 +29,7 @@
       <select *ngIf="relationships" id="relationshipId" name="relationshipId" class="select-area" [(ngModel)]="graphOid"
         (change)="onSelectRelationship()" required>
         <option *ngIf="relationships.length === 0"></option>
-        <option *ngFor="let loopRel of relationships" [value]="loopRel.oid">{{loopRel.label.localizedValue}}</option>
+        <option *ngFor="let loopRel of relationships" [value]="loopRel.oid">{{ loopRel.label.localizedValue }} ({{ loopRel.count }})</option>
       </select>
 
       <select *ngIf="stabilityPeriods && stabilityPeriods.length > 1" id="stabilityPeriodId"

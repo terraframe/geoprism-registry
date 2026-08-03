@@ -18,11 +18,16 @@
  */
 package net.geoprism.registry.service.request;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -41,6 +46,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
@@ -72,6 +78,7 @@ import net.geoprism.registry.service.permission.GeoObjectTypePermissionServiceIF
 import net.geoprism.registry.service.permission.HierarchyTypePermissionServiceIF;
 import net.geoprism.registry.view.TypeClass;
 import net.geoprism.registry.visualization.EdgeView;
+import net.geoprism.registry.visualization.RelationshipTypeCountMetadata;
 import net.geoprism.registry.visualization.VertexView;
 import net.geoprism.registry.visualization.VertexView.ObjectType;
 
@@ -509,6 +516,15 @@ public class RelationshipVisualizationService
     return geoObjects;
   }
 
+  /**
+   * Was used before we added the type with count method below
+   *
+   * @param sessionId
+   * @param objectType
+   * @param typeCode
+   * @return
+   */
+  @Deprecated
   @Request(RequestType.SESSION)
   public JsonElement getRelationshipTypes(String sessionId, VertexView.ObjectType objectType, String typeCode)
   {
@@ -617,6 +633,273 @@ public class RelationshipVisualizationService
     }
 
     return views;
+  }
+
+  @Request(RequestType.SESSION)
+  public JsonElement getRelationshipTypeCounts(String sessionId, VertexView.ObjectType objectType, String typeCode, String sourceVertex)
+  {
+    final VertexView sourceView = this.fromJSON(sourceVertex);
+
+    if (!sourceView.getObjectType().equals(objectType))
+    {
+      throw new IllegalArgumentException("The requested object type does not match the source vertex.");
+    }
+
+    /*
+     * Dynamically load all relationship metadata applicable to this type.
+     */
+    List<RelationshipTypeCountMetadata> relationshipTypes = this.getRelationshipTypeCountMetadata(objectType, typeCode);
+
+    if (relationshipTypes.isEmpty())
+    {
+      return new JsonArray();
+    }
+
+    /*
+     * Resolve the graph RID of the selected source object.
+     */
+    Object sourceRid = this.getRelationshipCountSourceRid(sourceView);
+
+    /*
+     * A relationship metadata item may theoretically be returned more than
+     * once, so deduplicate the physical OrientDB edge class names.
+     */
+    Set<String> edgeClasses = relationshipTypes.stream().map(RelationshipTypeCountMetadata::getEdgeClass).filter(edgeClass -> edgeClass != null && edgeClass.length() > 0).collect(Collectors.toCollection(LinkedHashSet::new));
+
+    if (edgeClasses.isEmpty())
+    {
+      return new JsonArray();
+    }
+
+    String edgeClassArguments = edgeClasses.stream().map(this::quoteGraphClassName).collect(Collectors.joining(", "));
+
+    Map<String, Object> parameters = new HashMap<String, Object>();
+    parameters.put("rid", sourceRid);
+
+    StringBuilder statement = new StringBuilder();
+
+    statement.append("SELECT ");
+    statement.append("@class AS edgeType, ");
+    statement.append("COUNT(*) AS edgeCount ");
+    statement.append("FROM (");
+    statement.append("SELECT EXPAND(");
+    statement.append("bothE(");
+    statement.append(edgeClassArguments);
+    statement.append(")");
+    statement.append(") ");
+    statement.append("FROM :rid");
+    statement.append(") ");
+    statement.append("GROUP BY @class");
+
+    GraphQuery<Map<String, Object>> query = new GraphQuery<Map<String, Object>>(statement.toString(), parameters);
+
+    List<Map<String, Object>> results = query.getResults();
+
+    /*
+     * Initialize every metadata-defined relationship to zero. The grouped query
+     * only returns edge classes that are actually present on the selected
+     * vertex.
+     */
+    Map<String, Long> countsByEdgeClass = new LinkedHashMap<String, Long>();
+
+    for (String edgeClass : edgeClasses)
+    {
+      countsByEdgeClass.put(edgeClass, 0L);
+    }
+
+    for (Map<String, Object> result : results)
+    {
+      Object edgeTypeValue = result.get("edgeType");
+      Object edgeCountValue = result.get("edgeCount");
+
+      if (edgeTypeValue == null)
+      {
+        continue;
+      }
+
+      String edgeType = edgeTypeValue.toString();
+
+      long edgeCount = 0L;
+
+      if (edgeCountValue instanceof Number)
+      {
+        edgeCount = ( (Number) edgeCountValue ).longValue();
+      }
+      else if (edgeCountValue != null)
+      {
+        edgeCount = Long.parseLong(edgeCountValue.toString());
+      }
+
+      countsByEdgeClass.put(edgeType, edgeCount);
+    }
+
+    /*
+     * Return the complete metadata-driven list, including relationships with
+     * zero edges for this particular source vertex.
+     */
+    JsonArray response = new JsonArray();
+
+    for (RelationshipTypeCountMetadata metadata : relationshipTypes)
+    {
+      JsonObject item = new JsonObject();
+
+      item.addProperty("code", metadata.getCode());
+      item.addProperty("edgeClass", metadata.getEdgeClass());
+      item.addProperty("relationshipType", metadata.getRelationshipType());
+      item.addProperty("layout", metadata.getLayout());
+      item.addProperty("count", countsByEdgeClass.getOrDefault(metadata.getEdgeClass(), 0L));
+
+      if (metadata.getLabel() != null)
+      {
+        item.add("label", metadata.getLabel());
+      }
+
+      response.add(item);
+    }
+
+    return response;
+  }
+
+  private List<RelationshipTypeCountMetadata> getRelationshipTypeCountMetadata(VertexView.ObjectType objectType, String typeCode)
+  {
+    List<RelationshipTypeCountMetadata> results = new ArrayList<RelationshipTypeCountMetadata>();
+
+    if (VertexView.ObjectType.GEOOBJECT.equals(objectType))
+    {
+      ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
+
+      /*
+       * Hierarchies.
+       *
+       * This matches the hierarchy lookup and permission filtering already used
+       * by getRelationshipTypes().
+       */
+      this.typeService.getHierarchies(type).stream().filter(graphType -> {
+        return this.hierarchyPermissions.canRead(graphType.getOrganizationCode());
+      }).forEach(graphType -> {
+        results.add(new RelationshipTypeCountMetadata(graphType.getCode(), graphType.getObjectEdge().getDBClassName(), TypeClass.HIERARCHY.getCode(), "VERTICAL", graphType.getLabel().toJSON()));
+      });
+
+      /*
+       * Undirected relationships.
+       */
+      this.undirectedService.getAll().forEach(graphType -> {
+        results.add(new RelationshipTypeCountMetadata(graphType.getCode(), graphType.getMdEdgeDAO().getDBClassName(), TypeClass.UNDIRECTED_GRAPH.getCode(), "HORIZONTAL", graphType.getLabel().toJSON()));
+      });
+
+      /*
+       * Directed acyclic graph relationships.
+       */
+      this.dagService.getAll().forEach(graphType -> {
+        results.add(new RelationshipTypeCountMetadata(graphType.getCode(), graphType.getMdEdgeDAO().getDBClassName(), TypeClass.DAG.getCode(), "HORIZONTAL", graphType.getLabel().toJSON()));
+      });
+
+      /*
+       * Business-edge relationships where at least one side is a GeoObject.
+       */
+      this.bEdgeService.getAll().forEach(edgeType -> {
+        if (edgeType.getIsParentGeoObject() || edgeType.getIsChildGeoObject())
+        {
+          results.add(new RelationshipTypeCountMetadata(edgeType.getCode(), edgeType.getMdEdgeDAO().getDBClassName(), TypeClass.BUSINESS_EDGE.getCode(), "VERTICAL", edgeType.getLabel().toJSON()));
+        }
+      });
+    }
+    else if (VertexView.ObjectType.BUSINESS.equals(objectType))
+    {
+      BusinessType type = this.bTypeService.getByCodeOrThrow(typeCode);
+
+      this.bEdgeService.getAll().forEach(edgeType -> {
+        boolean appliesToType = edgeType.getParentTypeOid().equals(type.getMdVertexOid()) || edgeType.getChildTypeOid().equals(type.getMdVertexOid());
+
+        if (appliesToType)
+        {
+          results.add(new RelationshipTypeCountMetadata(edgeType.getCode(), edgeType.getMdEdgeDAO().getDBClassName(), TypeClass.BUSINESS_EDGE.getCode(), "VERTICAL", edgeType.getLabel().toJSON()));
+        }
+      });
+    }
+    else
+    {
+      throw new UnsupportedOperationException("Unsupported visualization object type: " + objectType);
+    }
+
+    return results;
+  }
+
+  private Object getRelationshipCountSourceRid(
+      VertexView sourceView
+  )
+  {
+    if (VertexView.ObjectType.GEOOBJECT.equals(
+        sourceView.getObjectType()
+    ))
+    {
+      ServerGeoObjectType sourceType =
+          ServerGeoObjectType.get(sourceView.getTypeCode());
+
+      if (!this.objectPermissions.canRead(
+          sourceType.getOrganization().getCode(),
+          sourceType
+      ))
+      {
+        throw new IllegalArgumentException(
+            "The user cannot read the requested GeoObject type."
+        );
+      }
+
+      VertexServerGeoObject source =
+          (VertexServerGeoObject) this.geoObjectService
+              .getGeoObjectByCode(
+                  sourceView.getCode(),
+                  sourceType
+              );
+
+      return source.getVertex().getRID();
+    }
+
+    if (VertexView.ObjectType.BUSINESS.equals(
+        sourceView.getObjectType()
+    ))
+    {
+      BusinessType sourceType =
+          this.bTypeService.getByCodeOrThrow(
+              sourceView.getTypeCode()
+          );
+
+      if (!this.canReadBusinessData(sourceType))
+      {
+        throw new IllegalArgumentException(
+            "The user cannot read the requested BusinessObject type."
+        );
+      }
+
+      BusinessObject source =
+          this.bObjectService
+              .getByCode(
+                  sourceType,
+                  sourceView.getCode()
+              )
+              .orElseThrow();
+
+      return source.getVertex().getRID();
+    }
+
+    throw new UnsupportedOperationException(
+        "Unsupported source object type: "
+            + sourceView.getObjectType()
+    );
+  }
+
+  private String quoteGraphClassName(String className)
+  {
+    if (className == null
+        || !className.matches("[A-Za-z_][A-Za-z0-9_]*"))
+    {
+      throw new ProgrammingErrorException(
+          "Invalid OrientDB graph class name: " + className
+      );
+    }
+
+    return "'" + className + "'";
   }
 
   private void fetchParentsData(boolean recursive, VertexServerGeoObject vertexGo, GraphType graphType, Date date, Map<String, EdgeView> edges, Map<String, VertexView> verticies, Map<String, JsonObject> relatedTypes, String boundsWKT)
