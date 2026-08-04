@@ -194,6 +194,8 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
   @After
   public void tearDown()
   {
+    PostalCodeFactory.clear();
+
     testData.logOut();
 
     testData.tearDownInstanceData();
@@ -211,8 +213,6 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
   @Request
   public void testGetAttributeInformation() throws JSONException
   {
-    PostalCodeFactory.remove(USATestData.DISTRICT.getServerObject());
-
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
 
     Assert.assertNotNull(istream);

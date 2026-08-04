@@ -170,6 +170,8 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
   @After
   public void tearDown()
   {
+    PostalCodeFactory.clear();
+
     testData.logOut();
 
     testData.tearDownInstanceData();
@@ -229,8 +231,6 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
   @Request
   public void testGetAttributeInformation() throws JSONException
   {
-    PostalCodeFactory.remove(USATestData.STATE.getServerObject());
-
     InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
     Assert.assertNotNull(istream);
@@ -458,7 +458,6 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
     Assert.assertEquals("Alabama", object.getLocalizedDisplayLabel());
     Assert.assertEquals(131174431216L, object.getValue(testInteger.getName()));
   }
-
 
   @Test
   @Request

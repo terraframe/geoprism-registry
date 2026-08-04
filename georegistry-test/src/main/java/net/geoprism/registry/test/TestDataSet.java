@@ -79,6 +79,7 @@ import net.geoprism.registry.action.AbstractActionQuery;
 import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.ChangeRequestQuery;
 import net.geoprism.registry.axon.config.RegistryEventStore;
+import net.geoprism.registry.axon.projection.RepositoryProjection;
 import net.geoprism.registry.conversion.RegistryRoleConverter;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.graph.ExternalSystem;
@@ -371,6 +372,8 @@ abstract public class TestDataSet
   @Request
   public void setUpInstanceData()
   {
+    ServiceFactory.getBean(RepositoryProjection.class).clearCache();
+    
     GraphRepoServiceIF service = ServiceFactory.getBean(GraphRepoServiceIF.class);
 
     tearDownInstanceData();

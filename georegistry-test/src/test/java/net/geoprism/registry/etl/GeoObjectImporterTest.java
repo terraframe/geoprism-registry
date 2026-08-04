@@ -53,6 +53,7 @@ import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.Location;
 import net.geoprism.registry.io.ParentMatchStrategy;
+import net.geoprism.registry.io.PostalCodeFactory;
 import net.geoprism.registry.jobs.ImportError.ErrorResolution;
 import net.geoprism.registry.jobs.ImportErrorQuery;
 import net.geoprism.registry.jobs.ImportHistory;
@@ -127,6 +128,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
 
     clearData();
 
+    PostalCodeFactory.clear();
   }
 
   @Request
