@@ -96,9 +96,10 @@
 	    </tbody>
 	  </table>
 	  <li *ngIf="!readonly && view.value.length < systems.length" class="list-group-item" style="text-align: left;">
-      <i class="fa fa-plus clickable" (click)="onAddNewId()"> 
+      <span class="clickable" (click)="onAddNewId()">
+        <i class="fa fa-plus"></i>
         <localize key="changeovertime.manageVersions.alternateIds.new"></localize>
-      </i>
+      </span>      
     </li>
   </ng-container>
 

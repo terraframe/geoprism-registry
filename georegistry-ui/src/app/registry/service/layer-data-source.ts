@@ -307,7 +307,9 @@ export class ListVectorLayerDataSource extends LayerDataSource {
     }
 
     getGeometryType(): string {
-        return "POINT";
+
+        // TODO: Get the geometry type from the list definition
+        return "MIXED";
     }
 
     getBounds(layer: Layer): Promise<LngLatBounds> {
