@@ -38,9 +38,7 @@
         <option [ngValue]="null">{{allPeriodsLabel()}}</option>
         <option *ngFor="let period of stabilityPeriods" [value]="period.startDate">{{formatPeriod(period)}}</option>
       </select>
-    </div>
 
-    <div style="padding-top: 20px;">
       <boolean-field [(value)]="restrictToMapBounds" (change)="fetchData()"
         localizeLabelKey="graph.visualizer.restrictToMapBounds"></boolean-field>
     </div>
