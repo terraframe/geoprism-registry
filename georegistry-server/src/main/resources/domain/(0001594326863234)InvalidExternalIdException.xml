@@ -21,7 +21,7 @@
 <version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
     <create>
-      <mdException name="net.geoprism.registry.etl.InvalidExternalIdException" message="The External Id was null or the value was invalid." publish="false" label="Invalid External Id Exception" exported="false"></mdException>
+      <mdException name="net.geoprism.registry.etl.InvalidExternalIdException" message="The Alternative Id was null or the value was invalid." publish="false" label="Invalid External Id Exception" exported="false"></mdException>
     </create>
     <update></update>
   </doIt>

@@ -70,7 +70,6 @@ import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.GeometrySizeException;
 import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
-import net.geoprism.registry.etl.InvalidExternalIdException;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.AttributeCharacterType;
 import net.geoprism.registry.graph.AttributeClassificationType;
@@ -442,18 +441,6 @@ public class GeoObjectImporter implements ObjectImporterIF
         // Validate the data by serializing it
         GeoObjectOverTime go = this.service.toGeoObjectOverTime(entity, false, false);
         go.toJSON().toString();
-
-        if (this.configuration.isExternalImport())
-        {
-          ShapefileFunction function = this.configuration.getExternalIdFunction();
-
-          Object value = function.getValue(row);
-
-          if (value == null || ! ( value instanceof String || value instanceof Integer || value instanceof Long ) || ( value instanceof String && ( (String) value ).length() == 0 ))
-          {
-            throw new InvalidExternalIdException();
-          }
-        }
       }
       catch (IgnoreRowException | GeometrySizeException e)
       {
@@ -690,31 +677,6 @@ public class GeoObjectImporter implements ObjectImporterIF
         serverGo.setUid(ServiceFactory.getIdService().getUids(1)[0]);
       }
 
-      // Set exists first so we can validate attributes on it
-      // ShapefileFunction existsFunction =
-      // this.configuration.getFunction(DefaultAttribute.EXISTS.getName());
-      //
-      // if (existsFunction != null)
-      // {
-      // Object value = existsFunction.getValue(row);
-      //
-      // if (value != null && !this.isEmptyString(value))
-      // {
-      // this.setValue(serverGo,
-      // this.configuration.getType().getAttribute(DefaultAttribute.EXISTS.getName()).get(),
-      // DefaultAttribute.EXISTS.getName(), value);
-      // }
-      // }
-      // else if (isNew)
-      // {
-      // ValueOverTime defaultExists = ((VertexServerGeoObject)
-      // serverGo).buildDefaultExists();
-      // if (defaultExists != null)
-      // {
-      // serverGo.setValue(DefaultAttribute.EXISTS.getName(), Boolean.TRUE,
-      // defaultExists.getStartDate(), defaultExists.getEndDate());
-      // }
-      // }
       this.setValue(serverGo, this.configuration.getType().getAttribute(DefaultAttribute.EXISTS.getName()).get(), DefaultAttribute.EXISTS.getName(), true, row);
 
       Map<String, AttributeType> attributes = this.configuration.getType().getAttributeMap();
@@ -736,38 +698,6 @@ public class GeoObjectImporter implements ObjectImporterIF
 
             if (value != null && !this.isEmptyString(value))
             {
-              // if (!(existsFunction == null && isNew))
-              // {
-              // try
-              // {
-              // ((VertexServerGeoObject)
-              // serverGo).enforceAttributeSetWithinRange(serverGo.getDisplayLabel().getValue(),
-              // attributeName, this.configuration.getStartDate(),
-              // this.configuration.getEndDate());
-              // }
-              // catch (ValueOutOfRangeException e)
-              // {
-              // final SimpleDateFormat format =
-              // ValueOverTimeDTO.getTimeFormatter();
-              //
-              // ImportOutOfRangeException ex = new
-              // ImportOutOfRangeException();
-              // ex.setStartDate(format.format(this.configuration.getStartDate()));
-              //
-              // if
-              // (ValueOverTimeDTO.INFINITY_END_DATE.equals(this.configuration.getEndDate()))
-              // {
-              // ex.setEndDate(LocalizationFacade.localize("changeovertime.present"));
-              // }
-              // else
-              // {
-              // ex.setEndDate(format.format(this.configuration.getEndDate()));
-              // }
-              //
-              // throw ex;
-              // }
-              // }
-
               this.setValue(serverGo, attributeType, attributeName, value, row);
             }
             else if (this.configuration.getCopyBlank())
@@ -814,14 +744,15 @@ public class GeoObjectImporter implements ObjectImporterIF
 
       imported = true;
 
-      if (this.configuration.isExternalImport())
-      {
-        ShapefileFunction function = this.configuration.getExternalIdFunction();
-
+      // Assert that the id function
+      this.configuration.getIdFunctions().forEach((authority, function) -> {
         Object value = function.getValue(row);
 
-        builder.createExternalId(this.configuration.getExternalSystem(), String.valueOf(value), this.configuration.getImportStrategy());
-      }
+        if (value != null && !this.isEmptyString(value))
+        {
+          builder.createExternalId(authority, String.valueOf(value), this.configuration.getImportStrategy());
+        }
+      });
 
       if (parent != null)
       {
@@ -1067,32 +998,7 @@ public class GeoObjectImporter implements ObjectImporterIF
         }
         else if (ms.equals(ParentMatchStrategy.EXTERNAL))
         {
-          query.setRestriction(new ServerExternalIdRestriction(location.getType(), this.getConfiguration().getExternalSystem(), label.toString()));
-        }
-        else if (ms.equals(ParentMatchStrategy.DHIS2_PATH))
-        {
-          String path = label.toString();
-
-          String dhis2Parent;
-          try
-          {
-            if (path.startsWith("/"))
-            {
-              path = path.substring(1);
-            }
-
-            String pathArr[] = path.split("/");
-
-            dhis2Parent = pathArr[pathArr.length - 2];
-          }
-          catch (Throwable t)
-          {
-            InvalidDhis2PathException ex = new InvalidDhis2PathException(t);
-            ex.setDhis2Path(path);
-            throw ex;
-          }
-
-          query.setRestriction(new ServerExternalIdRestriction(location.getType(), this.getConfiguration().getExternalSystem(), dhis2Parent));
+          query.setRestriction(new ServerExternalIdRestriction(location.getType(), location.getAuthority(), label.toString()));
         }
         else
         {

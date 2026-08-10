@@ -19,58 +19,11 @@
 
 -->
 
-<div *ngIf="!isLoading && !showImportConfig && externalSystems.length > 0">
-  <div>
-    <div class="row">
 
-        <div class="col-xs-1"></div>
-        <div class="col-xs-9 radio-btn-wrapper">
 
-            <label class="radio">
-                <input type="checkbox" [value]="true" [checked]="!isExternal" (change)="setImportSource($event, 'FILE')" name="import-source">
-                <span [ngClass]="{'active' : !isExternal}">
-                    <localize key="importer.import.from-file.label"></localize>
-                </span>
-                <p class="radio-label-description">
-                    <localize key="importer.import.from-file.description"></localize>
-                </p>
-            </label>
-            
-            <label class="radio">
-                <input type="checkbox" [value]="false" [checked]="isExternal" (change)="setImportSource($event, 'EXTERNAL')" name="import-source">
-                <span [ngClass]="{'active' : isExternal}">
-                    <localize key="importer.import.from-external.label"></localize>
-                </span>
-                <p class="radio-label-description">
-                    <localize key="importer.import.from-external.description"></localize>
-                </p>
-            </label>
-
-            <div class="button-holder">
-                <button type="submit" class="btn btn-primary" (click)="onNext()">
-                    <localize key="io.next"></localize>
-                </button>
-            </div>
-        </div>
-        <div class="col-xs-2"></div>
-	  </div>
-  </div>
-</div>
-
-<div *ngIf="!isLoading && isExternal !== null && showImportConfig">
+<div>
     <div >
         <form #form="ngForm" autocomplete="off">
-            <div *ngIf="isExternal" class="form-group row">
-                <label class="col-md-2 text-right" for="externalSystem">
-                    <localize key="io.import.externalSystems"></localize>
-                </label>
-                <div class="col-md-8">
-                    <select id="externalSystem" name="externalSystem" class="select-area" [(ngModel)]="externalSystemId" required>
-                        <option *ngFor="let externalSystem of externalSystems" value={{externalSystem.oid}}>{{externalSystem.label.localizedValue}}</option>
-                    </select>
-                </div>
-                <div class="col-md-2"></div>
-            </div>
             <div class="form-group row" *ngIf="filteredHierarchyViews">
                 <label class="col-md-2 text-right" for="hierarchyCode"> <localize key="io.modal.hierarchy"></localize></label>
                 <div class="col-md-8">

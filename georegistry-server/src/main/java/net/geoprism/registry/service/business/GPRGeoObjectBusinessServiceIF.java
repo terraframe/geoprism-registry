@@ -20,28 +20,28 @@ package net.geoprism.registry.service.business;
 
 import java.util.List;
 
-import org.commongeoregistry.adapter.dataaccess.AlternateId;
 import org.springframework.stereotype.Component;
 
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
-import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.graph.ExternalId;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
 @Component
 public interface GPRGeoObjectBusinessServiceIF extends GeoObjectBusinessServiceIF
 {
+  void applyExternalId(ServerGeoObjectIF sgo, String authorityCode, String id, ImportStrategy importStrategy, boolean validateOrigin);
 
-  public String getExternalId(ServerGeoObjectIF sgo, ExternalSystem system);
+  void removeExternalId(ServerGeoObjectIF sgo, String authorityCode, boolean validateOrigin);
 
-  public void setAlternateIds(ServerGeoObjectIF sgo, List<AlternateId> alternateIds);
+  VertexServerGeoObject getByExternalId(String externalId, String authorityCode, ServerGeoObjectType type);
 
-  public VertexServerGeoObject getByExternalId(String externalId, ExternalSystem system, ServerGeoObjectType type);
+  List<ExternalId> getAllExternalIds(ServerGeoObjectIF sgo);
 
-  public void createExternalId(ServerGeoObjectIF sgo, ExternalSystem system, String id, ImportStrategy importStrategy);
+  String getExternalId(ServerGeoObjectIF sgo, String authorityCode);
 
-  public boolean exists(GraphType graphType, String edgeUid);
+  boolean exists(GraphType graphType, String uid);
 
 }

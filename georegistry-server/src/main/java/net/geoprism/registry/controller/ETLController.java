@@ -48,10 +48,10 @@ import com.runwaysdk.system.scheduler.JobHistory;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import net.geoprism.registry.io.view.ImportConfigurationDTO;
 import net.geoprism.registry.service.request.ETLService;
 import net.geoprism.registry.spring.NullableDateDeserializer;
 import net.geoprism.registry.view.ErrorResolveDTO;
-import net.geoprism.registry.view.ImportConfigurationDTO;
 import net.geoprism.registry.view.ImportHistoryView;
 import net.geoprism.registry.view.ValidationResolveDTO;
 

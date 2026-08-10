@@ -122,7 +122,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
   @Autowired
   private RegistryEventStore                        store;
 
-  private static boolean                            WRITE_FILES = false;
+  private static boolean                            WRITE_FILES = true;
 
   @Test
   @Request
@@ -134,7 +134,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
     System.out.println("");
     System.out.println("");
 
-    Assert.assertEquals(Long.valueOf(48L), this.store.size());
+    Assert.assertEquals(Long.valueOf(49L), this.store.size());
 
     String directory = "src/test/resources/commit";
 
@@ -287,16 +287,16 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
         Assert.assertEquals(1, authorities.size());
         Assert.assertEquals(USATestData.AUTHORITY.getCode(), authorities.get(0).getCode());
 
-        Assert.assertEquals(Long.valueOf(96L), this.store.size());
+        Assert.assertEquals(Long.valueOf(98L), this.store.size());
 
         List<RemoteEvent> events = this.cService.getRemoteEvents(commit).toList();
 
-        if (events.size() != 48)
+        if (events.size() != 49)
         {
           System.out.println("BAD");
         }
 
-        Assert.assertEquals(48, events.size());
+        Assert.assertEquals(49, events.size());
 
         if (WRITE_FILES)
         {
@@ -366,7 +366,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
     try
     {
-      Assert.assertEquals(Long.valueOf(48L), this.store.size());
+      Assert.assertEquals(Long.valueOf(49L), this.store.size());
 
       PublishDTO dto = new PublishDTO("USA Geospatial Graph", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       dto.addHierarchyType(testData.getManagedHierarchyTypes().stream().map(t -> t.getCode()).toArray(s -> new String[s]));
@@ -417,7 +417,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
         List<RemoteEvent> events = this.cService.getRemoteEvents(commit).toList();
 
-        Assert.assertEquals(41, events.size());
+        Assert.assertEquals(42, events.size());
       }
       finally
       {
@@ -449,8 +449,8 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
         Commit commit = commits.get(0);
 
-        Assert.assertEquals(48, this.cService.getRemoteEvents(commit).toList().size());
-        Assert.assertEquals(Long.valueOf(96), this.store.size());
+        Assert.assertEquals(49, this.cService.getRemoteEvents(commit).toList().size());
+        Assert.assertEquals(Long.valueOf(98), this.store.size());
 
         // Update a geo object
         ServerGeoObjectIF object = USATestData.COLORADO.getServerObject();
@@ -462,7 +462,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
         gateway.publish(builder.build().stream().map(GenericEventMessage::asEventMessage).toList());
 
-        Assert.assertEquals(Long.valueOf(97), this.store.size());
+        Assert.assertEquals(Long.valueOf(99), this.store.size());
 
         // Create a new commit with the new change
         Commit commit2 = this.service.createNewCommit(publish);

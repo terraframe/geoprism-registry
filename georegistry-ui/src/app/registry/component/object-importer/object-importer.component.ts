@@ -158,10 +158,11 @@ export class ObjectImporterComponent implements OnInit {
 
 
             const bsModalRef = this.modalService.show(ImportModalComponent, {
-                animated: false, backdrop: true,
+                animated: false,
+                backdrop: true,
                 ignoreBackdropClick: true
             });
-            bsModalRef.content.init(configuration, "geoObjectType", true);
+            bsModalRef.content.init(configuration, "object-type", true);
         };
         this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {
             const error = JSON.parse(response);

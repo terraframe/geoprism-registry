@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input, Output, EventEmitter } from "@angular/core";
+import { Component, Input, Output, EventEmitter, ViewEncapsulation } from "@angular/core";
 import { DataSourceService } from "@registry/service/data-source.service";
 import { TypeaheadMatch, TypeaheadModule } from "ngx-bootstrap/typeahead";
 import { Observable, Observer, Subscription } from "rxjs";
@@ -29,6 +29,7 @@ import { FormsModule } from "@angular/forms";
     templateUrl: "./source-field.component.html",
     styleUrls: [],
     standalone: true,
+    encapsulation: ViewEncapsulation.None,
     imports: [FormsModule, TypeaheadModule, NgClass]
 })
 export class SourceFieldComponent {

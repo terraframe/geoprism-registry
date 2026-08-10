@@ -1,0 +1,103 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<form class="modal-form">
+  <div class="text-center">
+    <h2>
+      <localize key="io.ids.title"></localize>
+    </h2>
+    <p class="lead">
+      <localize key="io.ids.description"></localize>
+    </p>
+  </div>
+  <div class="col-md-12 order-md-1">
+    <form #form="ngForm">
+      @for (mapping of configuration.ids; track mapping.id) {
+      <div class="form-group">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="row-holder">
+              <div class="label-holder">
+                <localize key="source.authority.header"></localize>
+              </div>
+              <div class="holder">
+                <select class="select-area" [(ngModel)]="mapping.authority" [name]="mapping.id + 'authority'"
+                  [required]="true" [authorityUniqueValue]="configuration.ids" #authorityControl="ngModel">
+                  <option></option>
+                  @for (authority of authorities; track authority.code) {
+                  <option [value]="authority.code">
+                    {{authority.label.localizedValue}}
+                  </option>
+                  }
+                </select>
+                <!-- Error Messages Breakdown -->
+                <div class="form-input-validation-error-message-wrapper">
+                  <p *ngIf="authorityControl.invalid && (authorityControl.dirty || authorityControl.touched)" class="error-message">
+                    A souce authority can only have a single alternate id mapping
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="row-holder">
+              <div class="label-holder">
+                <localize key="io.import.modal.parent.source"></localize>
+              </div>
+              <div class="holder">
+                <select class="select-area" [(ngModel)]="mapping.function.target" [name]="mapping.id + 'target'">
+                  <option value=""></option>
+                  <option *ngFor="let attr of configuration.sheet.attributes.text" [value]="attr">
+                    {{attr}}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="row-holder">
+              <span class="clickable pull-right" (click)="onRemove(mapping)">
+                <i class="fa fa-trash"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      }
+
+      <div class="form-group row">
+        <div class="row-holder">
+          <div class="button-holder">
+            <button type="submit" (click)="onAdd()" class="btn btn-default" role="button">
+              <localize key="io.import.modal.add.id"></localize>
+            </button>
+            <button type="submit" *ngIf="hasBack" (click)="onBack()" class="btn btn-default" role="button">
+              <localize key="io.back"></localize>
+            </button>
+            <button type="btn" (click)="onCancel()" class="btn btn-default" role="button">
+              <localize key="io.cancel"></localize>
+            </button>
+            <button type="submit" (click)="onNext()" class="btn btn-primary" role="button" [disabled]="form.invalid">
+              <localize *ngIf="hasNext" key="io.next"></localize>
+              <localize *ngIf="!hasNext" key="io.ok"></localize>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</form>

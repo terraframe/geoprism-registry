@@ -28,8 +28,10 @@ import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectApplyEdgeEven
 import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteConceptObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
+import net.geoprism.registry.axon.event.remote.RemoteGeoObjectApplyExternalIdEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectEvent;
+import net.geoprism.registry.axon.event.remote.RemoteGeoObjectRemoveExternalIdEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectSetParentEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEvent;
@@ -37,11 +39,14 @@ import net.geoprism.registry.axon.event.repository.ConceptObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.EventPhase;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEvent;
+import net.geoprism.registry.axon.event.repository.GeoObjectApplyExternalIdEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectCreateParentEvent;
+import net.geoprism.registry.axon.event.repository.GeoObjectRemoveExternalIdEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectRemoveParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectUpdateParentEvent;
 import net.geoprism.registry.axon.event.repository.InMemoryEventMerger;
 import net.geoprism.registry.axon.event.repository.RepositoryEvent;
+import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.event.EmptyPublishException;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.view.ObjectOverTimeDTO;
@@ -51,28 +56,25 @@ import net.geoprism.registry.view.PublishDTO;
 public class PublishEventService
 {
   @Autowired
-  private RegistryEventStore               store;
+  private RegistryEventStore             store;
 
   @Autowired
-  private EventGateway                     gateway;
+  private EventGateway                   gateway;
 
   @Autowired
-  private PublishBusinessServiceIF         publishService;
+  private PublishBusinessServiceIF       publishService;
 
   @Autowired
-  private SourceAuthorityBusinessServiceIF authorityService;
+  private DataSourceBusinessServiceIF    sourceService;
 
   @Autowired
-  private DataSourceBusinessServiceIF      sourceService;
+  private GeoObjectBusinessServiceIF     service;
 
   @Autowired
-  private GeoObjectBusinessServiceIF       service;
+  private CommitBusinessServiceIF        commitService;
 
   @Autowired
-  private CommitBusinessServiceIF          commitService;
-
-  @Autowired
-  private HierarchyTypeBusinessServiceIF   hiearchyService;
+  private HierarchyTypeBusinessServiceIF hiearchyService;
 
   @Transaction
   public Publish publish(PublishDTO configuration) throws InterruptedException
@@ -186,6 +188,25 @@ public class PublishEventService
 
       return new RemoteGeoObjectEvent(commit.getUid(), code, isNew, dto.toJSON().toString(), type, publish.getStartDate(), publish.getEndDate());
     }
+    else if (event instanceof GeoObjectApplyExternalIdEvent)
+    {
+      String code = ( (GeoObjectApplyExternalIdEvent) event ).getCode();
+      String type = ( (GeoObjectApplyExternalIdEvent) event ).getType();
+      String authority = ( (GeoObjectApplyExternalIdEvent) event ).getAuthority();
+      String externalId = ( (GeoObjectApplyExternalIdEvent) event ).getExternalId();
+      ImportStrategy strategy = ( (GeoObjectApplyExternalIdEvent) event ).getStrategy();
+
+      return new RemoteGeoObjectApplyExternalIdEvent(commit.getUid(), code, type, authority, externalId, strategy);
+    }
+    else if (event instanceof GeoObjectRemoveExternalIdEvent)
+    {
+      String code = ( (GeoObjectRemoveExternalIdEvent) event ).getCode();
+      String type = ( (GeoObjectRemoveExternalIdEvent) event ).getType();
+      String authority = ( (GeoObjectRemoveExternalIdEvent) event ).getAuthority();
+
+      return new RemoteGeoObjectRemoveExternalIdEvent(commit.getUid(), code, type, authority);
+    }
+
     else if (event instanceof GeoObjectCreateParentEvent)
     {
       String code = ( (GeoObjectCreateParentEvent) event ).getCode();

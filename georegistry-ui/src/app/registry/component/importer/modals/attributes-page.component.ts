@@ -34,6 +34,9 @@ import { LocalizeComponent } from '@shared/component/localize/localize.component
 export class AttributesPageComponent {
 
     @Input() configuration: ImportConfiguration;
+    @Input() hasNext: boolean = false;
+    @Input() hasBack: boolean = false;
+
     @Output() configurationChange = new EventEmitter<ImportConfiguration>();
     @Output() stateChange = new EventEmitter<string>();
 
@@ -41,11 +44,15 @@ export class AttributesPageComponent {
     }
 
     onNext(): void {
-        this.configurationChange.emit( this.configuration );
-        this.stateChange.emit( 'NEXT' );
+        this.configurationChange.emit(this.configuration);
+        this.stateChange.emit('NEXT');
+    }
+
+    onBack(): void {
+        this.stateChange.emit('BACK');
     }
 
     onCancel(): void {
-        this.stateChange.emit( 'CANCEL' );
+        this.stateChange.emit('CANCEL');
     }
 }

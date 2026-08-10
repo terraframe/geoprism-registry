@@ -35,6 +35,7 @@ import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.axon.projection.RepositoryProjection;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.etl.upload.EdgeObjectImportConfiguration;
+import net.geoprism.registry.etl.upload.EdgeObjectImporter.ReferenceStrategy;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
@@ -345,6 +346,45 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
       Assert.assertNotNull(istream);
 
       EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(TypeClass.BUSINESS_EDGE.getCode(), bGeoEdgeType.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
+
+      long start = System.nanoTime();
+
+      ImportHistory hist = this.etlService.importJsonFile(config.toDTO());
+
+      SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
+      System.out.println("Elapsed: " + ( System.nanoTime() - start ) / 1_000_000_000.0 + " s");
+
+      hist = ImportHistory.get(hist.getOid());
+      Assert.assertEquals(Long.valueOf(1), hist.getWorkTotal());
+      Assert.assertEquals(Long.valueOf(1), hist.getWorkProgress());
+      Assert.assertEquals(Long.valueOf(1), hist.getImportedRecords());
+      Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+
+      List<VertexComponent> tagets = this.bObjectService.getParents(cObject, bGeoEdgeType, TestDataSet.DEFAULT_OVER_TIME_DATE);
+
+      Assert.assertEquals(1, tagets.size());
+
+      List<ImportHistoryView> histories = this.etlBusinessService.getHistory(TypeClass.BUSINESS_EDGE.getCode(), bGeoEdgeType.getCode());
+
+      Assert.assertEquals(1, histories.size());
+
+      Assert.assertEquals(1L, getJobHistoryGeometryCount(hist));
+    });
+  }
+
+  @Test
+  public void testFixedType() throws InterruptedException
+  {
+    TestDataSet.executeRequestAsUser(FastTestDataset.USER_ADMIN, () -> {
+      InputStream istream = generateEdgeJson(FastTestDataset.CAMBODIA.getServerObject(), cObject);
+
+      Assert.assertNotNull(istream);
+
+      EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(TypeClass.BUSINESS_EDGE.getCode(), bGeoEdgeType.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
+      config.setEdgeSourceTypeStrategy(ReferenceStrategy.FIXED_TYPE);
+      config.setEdgeSourceType(FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
+      config.setEdgeTargetTypeStrategy(ReferenceStrategy.FIXED_TYPE);
+      config.setEdgeTargetType(btype.getCode());
 
       long start = System.nanoTime();
 

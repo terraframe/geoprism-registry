@@ -27,10 +27,10 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.io.view.GeoObjectImportConfigurationDTO;
+import net.geoprism.registry.io.view.TypedObjectImportConfigurationDTO;
 import net.geoprism.registry.service.business.ExcelBusinessService;
-import net.geoprism.registry.view.GeoObjectImportConfigurationDTO;
 import net.geoprism.registry.view.ImportConfigurationView;
-import net.geoprism.registry.view.TypedObjectImportConfigurationDTO;
 
 @Service
 public class ExcelService

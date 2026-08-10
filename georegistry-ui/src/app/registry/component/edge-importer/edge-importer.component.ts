@@ -191,7 +191,7 @@ export class EdgeImporterComponent implements OnInit {
             const configuration: EdgeImportConfiguration = JSON.parse(response);
 
             if (this.selectedGraphType.typeCode === "BusinessEdgeType") {
-                console.log('Graph Type',this.selectedGraphType);
+                console.log('Graph Type', this.selectedGraphType);
 
                 configuration.sourceTypes = this.selectedGraphType.parentType == GEO_OBJECT_OPTION ?
                     geoObjectTypes :
@@ -211,7 +211,8 @@ export class EdgeImporterComponent implements OnInit {
             }
 
             this.bsModalRef = this.modalService.show(ImportModalComponent, {
-                animated: false, backdrop: true,
+                animated: false,
+                backdrop: true,
                 ignoreBackdropClick: true
             });
             this.bsModalRef.content.init(configuration, "EDGE");

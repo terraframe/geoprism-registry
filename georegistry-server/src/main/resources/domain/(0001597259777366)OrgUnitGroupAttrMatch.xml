@@ -64,13 +64,6 @@
         </attributeStruct>
       </object>
     </createOrUpdate>
-    <create>
-      <mdException name="net.geoprism.registry.etl.export.dhis2.MissingDHIS2TermOrgUnitGroupMapping" message="The CGR Term with code [{termCode}] is not mapped to a DHIS2 Organisation Unit Group." publish="false" exported="false">
-        <attributes>
-          <text name="termCode"/>
-        </attributes>
-      </mdException>
-    </create>
     <update></update>
   </doIt>
   <undoIt>

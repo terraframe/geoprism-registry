@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
+import net.geoprism.registry.io.view.EdgeObjectImportConfigurationDTO;
 import net.geoprism.registry.service.business.GraphBusinessService;
 import net.geoprism.registry.view.EdgeImportConfigurationView;
-import net.geoprism.registry.view.EdgeObjectImportConfigurationDTO;
 
 @Service
 public class EdgeImportService

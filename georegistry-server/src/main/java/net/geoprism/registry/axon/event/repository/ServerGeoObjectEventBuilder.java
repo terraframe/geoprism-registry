@@ -10,6 +10,7 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.business.graph.EdgeObject;
 
 import net.geoprism.registry.graph.GeoVertex;
+import net.geoprism.registry.graph.SourceAuthority;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
@@ -59,5 +60,6 @@ public class ServerGeoObjectEventBuilder extends AbstractGeoObjectEventBuilder<S
       this.addEvent(new GeoObjectRemoveParentEvent(getCode(), getType(), uid, hierarchyType.getCode(), startDate, endDate));
     }
   }
+
 
 }

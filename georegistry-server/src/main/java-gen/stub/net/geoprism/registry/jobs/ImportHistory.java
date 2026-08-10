@@ -23,9 +23,9 @@ import com.runwaysdk.query.QueryFactory;
 
 import net.geoprism.registry.etl.ObjectImporterFactory.JobHistoryType;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
+import net.geoprism.registry.io.view.ExportConfigurationDTO;
+import net.geoprism.registry.io.view.ImportConfigurationDTO;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.view.ExportConfigurationDTO;
-import net.geoprism.registry.view.ImportConfigurationDTO;
 
 public class ImportHistory extends ImportHistoryBase
 {

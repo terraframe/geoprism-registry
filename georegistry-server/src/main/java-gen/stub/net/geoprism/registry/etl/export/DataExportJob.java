@@ -35,18 +35,7 @@ import com.runwaysdk.system.scheduler.QuartzRunwayJob;
 import com.runwaysdk.system.scheduler.QueueingQuartzJob;
 
 import net.geoprism.registry.SynchronizationConfig;
-import net.geoprism.registry.dhis2.DHIS2FeatureService;
-import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
-import net.geoprism.registry.dhis2.DHIS2SynchronizationManager;
-import net.geoprism.registry.dhis2.SynchronizationHistoryProgressScribe;
-import net.geoprism.registry.etl.DHIS2SyncConfig;
-import net.geoprism.registry.etl.ExternalSystemSyncConfig;
-import net.geoprism.registry.etl.FhirExportConfig;
-import net.geoprism.registry.etl.FhirImportConfig;
-import net.geoprism.registry.etl.export.dhis2.DHIS2TransportServiceIF;
 import net.geoprism.registry.service.business.DataExportJobBusinessServiceIF;
-import net.geoprism.registry.service.business.FhirExportSynchronizationService;
-import net.geoprism.registry.service.business.FhirImportSynchronizationService;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;

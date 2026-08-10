@@ -25,7 +25,7 @@
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="io.modal.external" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="External ID" />
+          <attribute name="defaultLocale" value="Alternative ID" />
         </attributeStruct>
       </object>
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.import.externalSystems">
@@ -68,11 +68,12 @@
     <create>
       <mdException name="net.geoprism.registry.etl.upload.ExternalParentReferenceException" 
                    label="Parent Code Exception" 
-                   description="Thrown when trying to lookup a parent with an external id that does not exist" 
-                   message="Unable to find a parent of type [{parentType}] and external id [{externalId}]">
+                   description="Thrown when trying to lookup a parent with an Alternative Id that does not exist" 
+                   message="Unable to find a parent of type [{parentType}] and Alternative Id [{externalId}]">
         <attributes>
           <text name="parentType" label="Parent Type Label" />
-          <text name="externalId" label="External Id" />
+          <text name="externalId" label="Alternative Id" />
+          <text name="authority" label="Authority" />
           <text name="context" label="Context" />
         </attributes>
       </mdException>

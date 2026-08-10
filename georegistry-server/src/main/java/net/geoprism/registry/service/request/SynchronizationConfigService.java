@@ -43,28 +43,17 @@ import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutableJob;
 
 import net.geoprism.GeoprismUser;
-import net.geoprism.dhis2.dhis2adapter.exception.BadServerUriException;
-import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
-import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
-import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
-import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
-import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnitGroup;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
-import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
 import net.geoprism.registry.etl.ExternalSystemSyncConfig;
 import net.geoprism.registry.etl.FhirExportConfig;
 import net.geoprism.registry.etl.export.DataExportJob;
 import net.geoprism.registry.etl.export.DataExportJobQuery;
 import net.geoprism.registry.etl.export.ExportHistory;
 import net.geoprism.registry.etl.export.ExportHistoryQuery;
-import net.geoprism.registry.etl.export.HttpError;
-import net.geoprism.registry.etl.export.LoginException;
-import net.geoprism.registry.etl.export.dhis2.DHIS2TransportServiceIF;
-import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.business.FhirExportSynchronizationService;
@@ -153,43 +142,6 @@ public class SynchronizationConfigService
     }
 
     ret.add("types", jarray);
-
-    // Add DHIS2 OrgUnitGroups
-    DHIS2ExternalSystem system = DHIS2ExternalSystem.get(externalSystemId);
-
-    try
-    {
-      DHIS2TransportServiceIF dhis2 = DHIS2ServiceFactory.buildDhis2TransportService(system);
-
-      JsonArray jaGroups = new JsonArray();
-
-      MetadataGetResponse<OrganisationUnitGroup> resp = dhis2.<OrganisationUnitGroup> metadataGet(OrganisationUnitGroup.class);
-
-      List<OrganisationUnitGroup> groups = resp.getObjects();
-
-      for (OrganisationUnitGroup group : groups)
-      {
-        JsonObject joGroup = new JsonObject();
-
-        joGroup.addProperty("id", group.getId());
-
-        joGroup.addProperty("name", group.getName());
-
-        jaGroups.add(joGroup);
-      }
-
-      ret.add("orgUnitGroups", jaGroups);
-    }
-    catch (InvalidLoginException e)
-    {
-      LoginException cgrlogin = new LoginException(e);
-      throw cgrlogin;
-    }
-    catch (HTTPException | UnexpectedResponseException | IllegalArgumentException | BadServerUriException e)
-    {
-      HttpError cgrhttp = new HttpError(e);
-      throw cgrhttp;
-    }
 
     return ret;
   }
@@ -371,7 +323,7 @@ public class SynchronizationConfigService
 
   public static String formatDate(Date date)
   {
-    SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT, Session.getCurrentLocale());
+    SimpleDateFormat format = new SimpleDateFormat(GeoRegistryUtil.LOCAL_DATE_FORMAT, Session.getCurrentLocale());
     // format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
     return format.format(date);

@@ -67,7 +67,7 @@ public class PublishMasterListJob extends PublishMasterListJobBase
 
   public JsonObject toJson()
   {
-    SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
+    SimpleDateFormat format = new SimpleDateFormat(GeoRegistryUtil.LOCAL_DATE_FORMAT);
     format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
     final MasterList masterlist = this.getMasterList();

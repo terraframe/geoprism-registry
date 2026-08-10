@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service.request;
 
@@ -31,12 +31,8 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
-import net.geoprism.account.OauthServer;
 import net.geoprism.registry.Organization;
-import net.geoprism.registry.dhis2.DHIS2FeatureService;
 import net.geoprism.registry.etl.OauthExternalSystem;
-import net.geoprism.registry.etl.export.dhis2.DHIS2TransportServiceIF;
-import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.service.permission.RolePermissionService;
@@ -83,13 +79,6 @@ public class ExternalSystemService
     {
       OauthExternalSystem oauthSystem = (OauthExternalSystem) system;
       oauthSystem.updateOauthServer(jo);
-
-      if (system instanceof DHIS2ExternalSystem)
-      {
-
-        // Test the DHIS2 connection information
-        new DHIS2FeatureService().setExternalSystemDhis2Version((DHIS2ExternalSystem) system);
-      }
     }
 
     return system.toJSON();
@@ -104,26 +93,7 @@ public class ExternalSystemService
 
     ExternalSystem system = ExternalSystem.desieralize(jo);
 
-    if (system instanceof DHIS2ExternalSystem)
-    {
-      DHIS2ExternalSystem dhis2System = (DHIS2ExternalSystem) system;
-
-      DHIS2TransportServiceIF dhis2 = new DHIS2FeatureService().getTransportService(dhis2System);
-
-      String version = dhis2.getVersionRemoteServer();
-
-      if (DHIS2FeatureService.OAUTH_INCOMPATIBLE_VERSIONS.contains(version))
-      {
-        capabilities.addProperty("oauth", false);
-      }
-      else
-      {
-        capabilities.addProperty("oauth", true);
-      }
-
-      capabilities.addProperty("supportedVersion", dhis2.getVersionRemoteServerApi() <= DHIS2FeatureService.LAST_TESTED_DHIS2_API_VERSION);
-    }
-    else if (system instanceof FhirExternalSystem)
+    if (system instanceof FhirExternalSystem)
     {
       capabilities.addProperty("oauth", true);
     }
@@ -150,18 +120,6 @@ public class ExternalSystemService
     Organization organization = system.getOrganization();
 
     this.permissions.enforceRA(organization.getCode());
-
-    if (system instanceof DHIS2ExternalSystem)
-    {
-      DHIS2ExternalSystem dhis2Sys = (DHIS2ExternalSystem) system;
-
-      if (dhis2Sys.getOauthServer() != null)
-      {
-        OauthServer dbServer = dhis2Sys.getOauthServer();
-
-        dbServer.delete();
-      }
-    }
 
     system.delete();
   }

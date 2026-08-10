@@ -39,13 +39,13 @@ import net.geoprism.registry.excel.ExcelFieldContentsHandler;
 import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.graph.ConceptClass;
 import net.geoprism.registry.io.PostalCodeFactory;
+import net.geoprism.registry.io.view.BusinessObjectImportConfigurationDTO;
+import net.geoprism.registry.io.view.ConceptObjectImportConfigurationDTO;
+import net.geoprism.registry.io.view.GeoObjectImportConfigurationDTO;
+import net.geoprism.registry.io.view.TypedObjectImportConfigurationDTO;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.ObjectClassIF;
-import net.geoprism.registry.view.BusinessObjectImportConfigurationDTO;
-import net.geoprism.registry.view.ConceptObjectImportConfigurationDTO;
-import net.geoprism.registry.view.GeoObjectImportConfigurationDTO;
 import net.geoprism.registry.view.ImportConfigurationView;
-import net.geoprism.registry.view.TypedObjectImportConfigurationDTO;
 
 @Service
 public class ExcelBusinessService extends DataImportBusinessService

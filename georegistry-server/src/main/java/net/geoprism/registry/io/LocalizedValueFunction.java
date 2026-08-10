@@ -25,7 +25,6 @@ import java.util.Set;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
-import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 
@@ -81,9 +80,4 @@ public class LocalizedValueFunction implements ShapefileFunction
     return new LocalizedValue("", localeValues);
   }
 
-  @Override
-  public String toJson()
-  {
-    throw new UnsupportedOperationException();
-  }
 }

@@ -34,6 +34,9 @@ import { LocalizeComponent } from '@shared/component/localize/localize.component
 export class EdgePageComponent implements OnInit {
 
     @Input() configuration: EdgeImportConfiguration;
+    @Input() hasNext: boolean = false;
+    @Input() hasBack: boolean = false;
+
     @Output() configurationChange = new EventEmitter<ImportConfiguration>();
     @Output() stateChange = new EventEmitter<string>();
 
@@ -79,9 +82,13 @@ export class EdgePageComponent implements OnInit {
         }
     }
 
-    onSubmit(): void {
+    onNext(): void {
         this.configurationChange.emit(this.configuration);
         this.stateChange.emit('NEXT');
+    }
+
+    onBack(): void {
+        this.stateChange.emit('BACK');
     }
 
     onCancel(): void {

@@ -36,6 +36,7 @@ export class Location {
     code: string;
     target: string;
     matchStrategy: string;
+    authority?: string;
 }
 
 export class Term {
@@ -73,6 +74,15 @@ export class Synonym {
     label: string;
     synonymId: string;
     vOid?: string;
+}
+
+export class IdMapping {
+    id?: string;
+    authority: string;
+    function: {
+        type: "basic";
+        target: string;
+    }
 }
 
 export class ImportConfigurationView {
@@ -113,6 +123,7 @@ export class ImportConfiguration {
     copyBlank?: boolean;
     postalCode: boolean;
     hasPostalCode: boolean;
+    ids?: IdMapping[];
 }
 
 export class EdgeImportConfiguration extends ImportConfiguration {

@@ -64,7 +64,7 @@ public class PublishShapefileJob extends PublishShapefileJobBase
 
   public JsonObject toJson()
   {
-    SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
+    SimpleDateFormat format = new SimpleDateFormat(GeoRegistryUtil.LOCAL_DATE_FORMAT);
     format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
     final MasterListVersion version = this.getVersion();

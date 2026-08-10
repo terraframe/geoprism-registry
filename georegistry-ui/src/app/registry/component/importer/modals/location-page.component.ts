@@ -25,6 +25,7 @@ import { IOService } from '@registry/service';
 import { NgFor, NgIf } from '@angular/common';
 import { LocalizeComponent } from '@shared/component/localize/localize.component';
 import { FormsModule } from '@angular/forms';
+import { SourceAuthority } from '@registry/model/source';
 
 @Component({
     selector: 'location-page',
@@ -36,8 +37,12 @@ import { FormsModule } from '@angular/forms';
 export class LocationPageComponent implements OnInit {
 
     @Input() configuration: ImportConfiguration;
+    @Input() hasNext: boolean = false;
+    @Input() hasBack: boolean = false;
     @Input() property: string = 'type';
     @Input() includeChild: boolean = false;
+    @Input() authorities: SourceAuthority[] = [];
+
 
     @Output() configurationChange = new EventEmitter<ImportConfiguration>();
     @Output() stateChange = new EventEmitter<string>();

@@ -18,8 +18,6 @@
  */
 package net.geoprism.registry.dhis2;
 
-import net.geoprism.registry.dhis2.DHIS2FeatureService.DHIS2SyncError;
-
 public interface SynchronizationProgressMonitorIF
 {
   public void setWorkTotal(Long workTotal);
@@ -37,8 +35,6 @@ public interface SynchronizationProgressMonitorIF
   public Long getWorkProgress();
 
   public void recordError(String errorMessage, int errorCode, String responseJson, String submittedJson, long rowNum, String goCode, ErrorType errorType);
-  
-  public void recordError(DHIS2SyncError ee, ErrorType errorType);
   
   public void finalize();
 

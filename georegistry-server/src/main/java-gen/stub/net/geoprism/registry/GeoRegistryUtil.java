@@ -138,7 +138,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
 
       if (!includeTime)
       {
-        SimpleDateFormat formatter = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
+        SimpleDateFormat formatter = new SimpleDateFormat(GeoRegistryUtil.LOCAL_DATE_FORMAT);
         formatter.setTimeZone(SYSTEM_TIMEZONE);
         return formatter.format(date);
       }
@@ -173,7 +173,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
 
       try
       {
-        SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
+        SimpleDateFormat format = new SimpleDateFormat(GeoRegistryUtil.LOCAL_DATE_FORMAT);
         format.setTimeZone(SYSTEM_TIMEZONE);
 
         return format.parse(date);
@@ -182,7 +182,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
       {
         if (throwClientException)
         {
-          throw new RuntimeException("Unable to parse the date [" + date + "]. The date format must be [" + GeoObjectImportConfiguration.DATE_FORMAT + "]");
+          throw new RuntimeException("Unable to parse the date [" + date + "]. The date format must be [" + GeoRegistryUtil.LOCAL_DATE_FORMAT + "]");
         }
         else
         {

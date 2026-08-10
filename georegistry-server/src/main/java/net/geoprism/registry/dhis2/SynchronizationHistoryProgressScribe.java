@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.dhis2;
 
@@ -27,34 +27,25 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.runwaysdk.RunwayException;
-import com.runwaysdk.business.SmartException;
-import com.runwaysdk.business.SmartExceptionDTO;
-import com.runwaysdk.session.Session;
-import com.runwaysdk.system.scheduler.JobHistory;
-
-import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
-import net.geoprism.registry.dhis2.DHIS2FeatureService.DHIS2SyncError;
 import net.geoprism.registry.etl.export.ExportError;
 import net.geoprism.registry.etl.export.ExportHistory;
 import net.geoprism.registry.etl.export.ExportStage;
-import net.geoprism.registry.etl.export.dhis2.NoParentException;
 
 public class SynchronizationHistoryProgressScribe implements SynchronizationProgressMonitorIF
 {
-  private static Logger          logger                    = LoggerFactory.getLogger(SynchronizationHistoryProgressScribe.class);
+  private static Logger            logger                    = LoggerFactory.getLogger(SynchronizationHistoryProgressScribe.class);
 
-  public static final Integer    UPDATE_PROGRESS_EVERY_NUM = 10;
-  
-  private ExportHistory          history;
+  public static final Integer      UPDATE_PROGRESS_EVERY_NUM = 10;
 
-  private int                    recordedErrors            = 0;
+  private ExportHistory            history;
 
-  private Long                   rowNumber                 = Long.valueOf(0);
+  private int                      recordedErrors            = 0;
 
-  private Long                   exportedRecords           = Long.valueOf(0);
+  private Long                     rowNumber                 = Long.valueOf(0);
 
-  private Map<String, ExportError> errorCache = new HashMap<String, ExportError>();
+  private Long                     exportedRecords           = Long.valueOf(0);
+
+  private Map<String, ExportError> errorCache                = new HashMap<String, ExportError>();
 
   public SynchronizationHistoryProgressScribe(ExportHistory history)
   {
@@ -136,7 +127,7 @@ public class SynchronizationHistoryProgressScribe implements SynchronizationProg
     ee.setCode(goCode);
     ee.setHistory(history);
     ee.apply();
-    
+
     if (type.equals(ErrorType.ERROR))
     {
       logger.error("Error thrown during sync. [" + ee.toJSON().toString() + "].");
@@ -144,11 +135,11 @@ public class SynchronizationHistoryProgressScribe implements SynchronizationProg
 
     this.recordedErrors++;
   }
-  
+
   public void addAffectedRow(ExportError exportError, long rowNum, String geoObjectCode)
   {
     exportError.appLock();
-    
+
     // Add row number to list
     String sRows = exportError.getAffectedRows();
 
@@ -171,11 +162,10 @@ public class SynchronizationHistoryProgressScribe implements SynchronizationProg
     }
 
     exportError.setAffectedRows(sRows);
-    
-    
+
     // Add code to codes
     String sCodes = exportError.getCode();
-    
+
     if (sCodes.length() > 0)
     {
       SortedSet<String> lCodes = new TreeSet<String>();
@@ -193,80 +183,10 @@ public class SynchronizationHistoryProgressScribe implements SynchronizationProg
     {
       sCodes = geoObjectCode;
     }
-    
-    exportError.setCode(sCodes);
-    
-    exportError.apply();
-  }
-  
-  @Override
-  public void recordError(DHIS2SyncError ee, ErrorType type)
-  {
-    DHIS2Response resp = ee.response;
-    Throwable ex = ee.error;
-    String geoObjectCode = ee.geoObjectCode;
-    
-    ExportError exportError = new ExportError();
-    
-    exportError.setErrorType(type.name());
 
-    if (ee.submittedJson != null)
-    {
-      exportError.setSubmittedJson(ee.submittedJson);
-    }
-    
-    if (resp != null)
-    {
-      if (resp.getResponse() != null && resp.getResponse().length() > 0)
-      {
-        exportError.setResponseJson(resp.getResponse());
-        
-        exportError.setErrorMessage(resp.getMessage());
-      }
-      
-      exportError.setErrorCode(resp.getStatusCode());
-    }
-    
-    exportError.setCode(geoObjectCode);
-    
-    if (ex != null)
-    {
-      exportError.setErrorJson(JobHistory.exceptionToJson(ex).toString());
-      
-      if (exportError.getErrorMessage() == null || exportError.getErrorMessage().length() == 0)
-      {
-        exportError.setErrorMessage(RunwayException.localizeThrowable(ex, Session.getCurrentLocale()));
-      }
-    }
-    
-    // Merge with an existing exception if the message is the same
-    if (this.errorCache.containsKey(exportError.getErrorMessage()))
-    {
-      exportError = this.errorCache.get(exportError.getErrorMessage());
-      
-      this.addAffectedRow(exportError, ee.rowIndex, ee.geoObjectCode);
-      
-      return;
-    }
-    else
-    {
-      this.errorCache.put(exportError.getErrorMessage(), exportError);
-    }
-    
-    if (ee.rowIndex != null && ee.rowIndex >= 0)
-    {
-      exportError.setRowIndex(ee.rowIndex);
-      exportError.setAffectedRows(String.valueOf(ee.rowIndex));
-    }
-    
-    exportError.setHistory(history);
-    
+    exportError.setCode(sCodes);
+
     exportError.apply();
-    
-    if (!(ex instanceof SmartException || ex instanceof SmartExceptionDTO))
-    {
-      logger.error("Unlocalized exception thrown during sync. [" + exportError.toJSON().toString() + "].", ex);
-    }
   }
 
   public int getRecordedErrorCount()

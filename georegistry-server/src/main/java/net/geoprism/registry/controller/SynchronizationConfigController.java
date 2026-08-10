@@ -40,7 +40,6 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.controller.ObjectClassController.OidBody;
-import net.geoprism.registry.dhis2.DHIS2FeatureService;
 import net.geoprism.registry.etl.fhir.FhirFactory;
 import net.geoprism.registry.service.request.SynchronizationConfigService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
@@ -93,16 +92,6 @@ public class SynchronizationConfigController extends RunwaySpringController
       @NotEmpty @RequestParam(name = "hierarchyTypeCode") String hierarchyTypeCode)
   {
     JsonObject resp = this.service.getConfigForExternalSystem(this.getSessionId(), externalSystemId, hierarchyTypeCode);
-
-    return new ResponseEntity<String>(resp.toString(), HttpStatus.OK);
-  }
-
-  @GetMapping(API_PATH + "/get-custom-attr")  
-  public ResponseEntity<String> getCustomAttributeConfiguration( //
-      @NotEmpty @RequestParam(name = "geoObjectTypeCode") String geoObjectTypeCode, //
-      @NotEmpty @RequestParam(name = "externalId") String externalId)
-  {
-    JsonArray resp = new DHIS2FeatureService().getDHIS2AttributeConfiguration(this.getSessionId(), externalId, geoObjectTypeCode);
 
     return new ResponseEntity<String>(resp.toString(), HttpStatus.OK);
   }

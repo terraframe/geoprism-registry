@@ -44,8 +44,8 @@ import net.geoprism.registry.etl.JSONFormatException;
 import net.geoprism.registry.etl.ObjectImporterFactory;
 import net.geoprism.registry.excel.SheetDTO;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.io.view.EdgeObjectImportConfigurationDTO;
 import net.geoprism.registry.view.EdgeImportConfigurationView;
-import net.geoprism.registry.view.EdgeObjectImportConfigurationDTO;
 
 @Service
 public class GraphBusinessService

@@ -29,8 +29,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.io.view.GeoObjectImportConfigurationDTO;
 import net.geoprism.registry.service.request.ShapefileService;
-import net.geoprism.registry.view.GeoObjectImportConfigurationDTO;
 import net.geoprism.registry.view.ImportConfigurationView;
 
 @RestController

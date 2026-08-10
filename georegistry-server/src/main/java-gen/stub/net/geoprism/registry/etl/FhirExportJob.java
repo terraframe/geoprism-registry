@@ -32,8 +32,6 @@ import net.geoprism.GeoprismUser;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListVersion;
-import net.geoprism.registry.graph.FhirExternalSystem;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
@@ -68,7 +66,7 @@ public class FhirExportJob extends FhirExportJobBase
 
   public JsonObject toJson()
   {
-    SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
+    SimpleDateFormat format = new SimpleDateFormat(GeoRegistryUtil.LOCAL_DATE_FORMAT);
     format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
     final MasterListVersion version = this.getVersion();

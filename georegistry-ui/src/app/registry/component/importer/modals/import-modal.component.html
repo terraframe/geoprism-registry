@@ -23,13 +23,16 @@
 
   <div *ngIf="configuration != null && configuration">
     <div *ngIf="state === 'EDGE'">
-      <edge-page [configuration]="$any(configuration)" (stateChange)="onStateChange($event)"></edge-page>
+      <edge-page [configuration]="$any(configuration)" [hasNext]="hasNext" [hasBack]="hasBack" (stateChange)="onStateChange($event)"></edge-page>
     </div>
     <div *ngIf="state === 'MAP'">
-      <attributes-page [configuration]="configuration" (stateChange)="onStateChange($event)"></attributes-page>
+      <attributes-page [configuration]="configuration" [hasNext]="hasNext" [hasBack]="hasBack"  (stateChange)="onStateChange($event)"></attributes-page>
+    </div>
+    <div *ngIf="state === 'IDS'">
+      <id-mapping-page [configuration]="configuration" [hasNext]="hasNext" [hasBack]="hasBack" [authorities]="authorities" (stateChange)="onStateChange($event)"></id-mapping-page>
     </div>
     <div *ngIf="state === 'LOCATION'">
-      <location-page [configuration]="configuration" [property]="property" [includeChild]="includeChild" (stateChange)="onStateChange($event)"></location-page>
+      <location-page [configuration]="configuration" [hasNext]="hasNext" [hasBack]="hasBack" [property]="property" [includeChild]="includeChild" (stateChange)="onStateChange($event)"></location-page>
     </div>
     <div *ngIf="state === 'LOCATION-PROBLEM'">
       <location-problem-page [configuration]="configuration" (stateChange)="onStateChange($event)"></location-problem-page>

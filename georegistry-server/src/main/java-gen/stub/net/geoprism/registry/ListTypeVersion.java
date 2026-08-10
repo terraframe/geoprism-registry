@@ -1702,7 +1702,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     ValueQuery vQuery = new ValueQuery(new QueryFactory());
     BusinessQuery query = new ListTypeVersionPageQuery(this, criteria, true, false).getQuery(vQuery);
 
-    DateFormat filterFormat = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
+    DateFormat filterFormat = new SimpleDateFormat(GeoRegistryUtil.LOCAL_DATE_FORMAT);
     filterFormat.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
     JsonArray results = new JsonArray();
@@ -1767,7 +1767,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
     if (filterJson != null && filterJson.length() > 0)
     {
-      DateFormat filterFormat = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
+      DateFormat filterFormat = new SimpleDateFormat(GeoRegistryUtil.LOCAL_DATE_FORMAT);
       filterFormat.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
       JsonArray filters = JsonParser.parseString(filterJson).getAsJsonArray();

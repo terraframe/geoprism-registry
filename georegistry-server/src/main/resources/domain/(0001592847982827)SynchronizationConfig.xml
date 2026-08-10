@@ -100,15 +100,6 @@
 		</object>
 	</createOrUpdate>
 
-    <update>
-      <mdVertex name="net.geoprism.registry.graph.DHIS2ExternalSystem">
-        <create>
-          <attributes>
-            <char name="version" label="Version" required="true" size="255" />
-          </attributes>
-        </create>
-      </mdVertex>   
-    </update>
     
     <create>
       
@@ -140,7 +131,6 @@
   </doIt>
   <undoIt>
     <delete>
-      <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.graph.DHIS2ExternalSystem.version"/>    
       <object type="com.runwaysdk.system.metadata.MdBusiness" key="net.geoprism.registry.SynchronizationConfig"/>    
     </delete>
   </undoIt>

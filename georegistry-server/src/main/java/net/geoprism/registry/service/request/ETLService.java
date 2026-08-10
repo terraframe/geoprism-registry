@@ -42,10 +42,10 @@ import jakarta.validation.constraints.NotNull;
 import net.geoprism.registry.JobHistoryTileCache;
 import net.geoprism.registry.etl.EdgeJsonImporter;
 import net.geoprism.registry.graph.DataSource;
+import net.geoprism.registry.io.view.ImportConfigurationDTO;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.ETLBusinessService;
 import net.geoprism.registry.view.ErrorResolveDTO;
-import net.geoprism.registry.view.ImportConfigurationDTO;
 import net.geoprism.registry.view.ImportHistoryView;
 import net.geoprism.registry.view.ValidationResolveDTO;
 

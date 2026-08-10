@@ -62,7 +62,6 @@ import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.data.importer.SimpleFeatureRow;
 import net.geoprism.registry.InvalidProjectionException;
-import net.geoprism.registry.RollbackCheckpoint;
 import net.geoprism.registry.UnableToReadProjectionException;
 import net.geoprism.registry.etl.CloseableDelegateFile;
 import net.geoprism.registry.etl.ImportFileFormatException;
@@ -283,7 +282,7 @@ public class ShapefileImporter implements FormatSpecificImporterIF
 
         if (loc instanceof BasicColumnFunction)
         {
-          sortBy.add(ff.sort(loc.toJson().toString(), SortOrder.ASCENDING));
+          sortBy.add(ff.sort( ( (BasicColumnFunction) loc ).getAttributeName(), SortOrder.ASCENDING));
         }
       }
     }

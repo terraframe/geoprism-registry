@@ -11,11 +11,7 @@ public class SynchronizationConfigFactory
 
   public static ExternalSystemSyncConfig get(Type type)
   {
-    if (type.equals(Type.DHIS2))
-    {
-      return new DHIS2SyncConfig();
-    }
-    else if (type.equals(Type.FHIR_IMPORT))
+    if (type.equals(Type.FHIR_IMPORT))
     {
       return new FhirImportConfig();
     }

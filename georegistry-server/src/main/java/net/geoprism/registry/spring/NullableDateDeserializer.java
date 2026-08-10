@@ -42,7 +42,7 @@ public class NullableDateDeserializer extends JsonDeserializer<Date>
     String date = jsonParser.getText();
     if (!StringUtils.isEmpty(date))
     {
-      SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
+      SimpleDateFormat format = new SimpleDateFormat(GeoRegistryUtil.LOCAL_DATE_FORMAT);
       format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
       try
@@ -51,7 +51,7 @@ public class NullableDateDeserializer extends JsonDeserializer<Date>
       }
       catch (ParseException e)
       {
-        throw new JsonParseException(jsonParser, "Unable to parse date [" + date + "], expected format [" + GeoObjectImportConfiguration.DATE_FORMAT + "]", e);
+        throw new JsonParseException(jsonParser, "Unable to parse date [" + date + "], expected format [" + GeoRegistryUtil.LOCAL_DATE_FORMAT + "]", e);
       }
     }
 

@@ -52,9 +52,9 @@ import net.geoprism.registry.etl.upload.ShapefileImporter;
 import net.geoprism.registry.excel.SheetDTO;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.PostalCodeFactory;
+import net.geoprism.registry.io.view.GeoObjectImportConfigurationDTO;
+import net.geoprism.registry.io.view.ImportConfigurationDTO;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.view.GeoObjectImportConfigurationDTO;
-import net.geoprism.registry.view.ImportConfigurationDTO;
 import net.geoprism.registry.view.ImportConfigurationView;
 
 @Service
@@ -72,7 +72,7 @@ public class ShapefileBusinessService extends DataImportBusinessService
 
       try (CloseableFile dbf = ShapefileImporter.getShapefileFromResource(vf, "dbf"))
       {
-        SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
+        SimpleDateFormat format = new SimpleDateFormat(GeoRegistryUtil.LOCAL_DATE_FORMAT);
         format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
         GeoObjectImportConfigurationDTO dto = new GeoObjectImportConfigurationDTO();

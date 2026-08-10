@@ -108,7 +108,7 @@ public class TransitionEventTest extends FastDatasetTest implements InstanceTest
   @Request
   public void testEventToJson()
   {
-    DateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
+    DateFormat format = new SimpleDateFormat(GeoRegistryUtil.LOCAL_DATE_FORMAT);
     format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
     TransitionEvent event = new TransitionEvent();

@@ -77,12 +77,12 @@ export class ListElementView {
     summaryKeyLocalized: string;
     value: string;
     oldValue?: string;
-    oldExternalSystemId: string;
-    externalSystemId: string;
+    oldAuthority: string;
+    authority: string;
     externalId: ExternalId;
     view: ListDiffView;
     
-    constructor(lService: LocalizationService, editor: StandardAttributeCRModel, summaryKey: SummaryKey, view: ListDiffView, id: ExternalId, oldId: string, oldExternalSystemId: string) {
+    constructor(lService: LocalizationService, editor: StandardAttributeCRModel, summaryKey: SummaryKey, view: ListDiffView, id: ExternalId, oldId: string, oldAuthority: string) {
         this.lService = lService;
         this.editor = editor;
         this.setSummaryKey(summaryKey);
@@ -94,8 +94,8 @@ export class ListElementView {
                 this.oldValue = oldId;
                 this.setSummaryKey(SummaryKey.UPDATE);
             }
-            if (oldExternalSystemId && id.externalSystemId !== oldExternalSystemId) {
-                this.oldExternalSystemId = oldExternalSystemId;
+            if (oldAuthority && id.authority !== oldAuthority) {
+                this.oldAuthority = oldAuthority;
                 this.setSummaryKey(SummaryKey.UPDATE);
             }
             if (this.summaryKey == null) {
@@ -106,10 +106,10 @@ export class ListElementView {
         if (id) {
             this.externalId = id;
             this.value = id.id;
-            this.externalSystemId = id.externalSystemId;
+            this.authority = id.authority;
         } else if (summaryKey === SummaryKey.DELETE) {
             this.value = oldId
-            this.externalSystemId = oldExternalSystemId;
+            this.authority = oldAuthority;
         }
     }
     
@@ -120,7 +120,7 @@ export class ListElementView {
     
     updateModel() {
         if (this.summaryKey !== SummaryKey.DELETE) {
-            let modelIdx = this.view.value.findIndex((id: ExternalId) => id.externalSystemId === this.externalId.externalSystemId && id.id === this.externalId.id);
+            let modelIdx = this.view.value.findIndex((id: ExternalId) => id.authority === this.externalId.authority && id.id === this.externalId.id);
             
             if (modelIdx !== -1) {
                 this.externalId = this.view.value[modelIdx];
@@ -128,17 +128,17 @@ export class ListElementView {
                 if (this.summaryKey !== SummaryKey.NEW) {
                     if (!this.oldValue && this.value !== this.externalId.id) {
                         this.oldValue = this.externalId.id;
-                    } else if (!this.oldExternalSystemId && this.externalSystemId !== this.externalId.externalSystemId) {
-                        this.oldExternalSystemId = this.externalId.externalSystemId;
+                    } else if (!this.oldAuthority && this.authority !== this.externalId.authority) {
+                        this.oldAuthority = this.externalId.authority;
                     }
                     
                     if (this.oldValue && this.value === this.oldValue) {
                         this.oldValue = null;
                     }
-                    if (this.oldExternalSystemId && this.oldExternalSystemId === this.externalSystemId) {
-                        this.oldExternalSystemId = null;
+                    if (this.oldAuthority && this.oldAuthority === this.authority) {
+                        this.oldAuthority = null;
                     }
-                    if (this.oldValue || this.oldExternalSystemId) {
+                    if (this.oldValue || this.oldAuthority) {
                         this.setSummaryKey(SummaryKey.UPDATE);
                     } else {
                         this.setSummaryKey(SummaryKey.UNMODIFIED);
@@ -146,7 +146,7 @@ export class ListElementView {
                 }
                 
                 this.externalId.id = this.value;
-                this.externalId.externalSystemId = this.externalSystemId;
+                this.externalId.authority = this.authority;
             }
         }
         
@@ -155,8 +155,8 @@ export class ListElementView {
     
     revert() {
       if (this.summaryKey === SummaryKey.NEW) {
-          let valIdx = this.view.value.findIndex((id: ExternalId) => id.id === this.value && id.externalSystemId === this.externalSystemId);
-          let leIdx = this.view.listElements.findIndex((le: ListElementView) => le.value === this.value && le.externalSystemId === this.externalSystemId && le.externalId === this.externalId);
+          let valIdx = this.view.value.findIndex((id: ExternalId) => id.id === this.value && id.authority === this.authority);
+          let leIdx = this.view.listElements.findIndex((le: ListElementView) => le.value === this.value && le.authority === this.authority && le.externalId === this.externalId);
           
           if (valIdx !== -1 && leIdx !== -1) {
             this.view.value.splice(valIdx,1);
@@ -167,7 +167,7 @@ export class ListElementView {
       } else if (this.summaryKey === SummaryKey.UNMODIFIED) {
           this.setSummaryKey(SummaryKey.DELETE);
           
-          let valIdx = this.view.value.findIndex((id: ExternalId) => id.id === this.value && id.externalSystemId === this.externalSystemId);
+          let valIdx = this.view.value.findIndex((id: ExternalId) => id.id === this.value && id.authority === this.authority);
           
           if (valIdx !== -1) {
             this.view.value.splice(valIdx,1);
@@ -180,7 +180,7 @@ export class ListElementView {
           this.view.value.push({
               type: "EXTERNAL_ID",
               id: this.value,
-              externalSystemId: this.externalSystemId
+              authority: this.authority
           });
           
           this.editor.value = JSON.parse(JSON.stringify(this.view.value));
@@ -188,8 +188,8 @@ export class ListElementView {
           if (this.oldValue) {
               this.value = this.oldValue;
           }
-          if (this.oldExternalSystemId) {
-              this.externalSystemId = this.oldExternalSystemId;
+          if (this.oldAuthority) {
+              this.authority = this.oldAuthority;
           }
           this.updateModel();
       }
@@ -253,16 +253,16 @@ export class ListDiffView extends StandardDiffView
               let matched = false;
               for (let j = 0; j < newLen; ++j) {
                   let newId: ExternalId = this.value[j];
-                  if (!newMatched.has(j) && (newId.id === oldId.id || newId.externalSystemId === oldId.externalSystemId)) {
+                  if (!newMatched.has(j) && (newId.id === oldId.id || newId.authority === oldId.authority)) {
                       matched = true;
                       newMatched.add(j);
-                      this.listElements.push(new ListElementView(this.lService, this.editor, null, this, newId as ExternalId, oldId.id, oldId.externalSystemId)); // TODO : constructor needs to figure out the SummaryKey as well as oldValues
+                      this.listElements.push(new ListElementView(this.lService, this.editor, null, this, newId as ExternalId, oldId.id, oldId.authority)); // TODO : constructor needs to figure out the SummaryKey as well as oldValues
                       break;
                   }
               }
               
               if (!matched) {
-                  this.listElements.push(new ListElementView(this.lService, this.editor, SummaryKey.DELETE, this, null, oldId.id, oldId.externalSystemId));
+                  this.listElements.push(new ListElementView(this.lService, this.editor, SummaryKey.DELETE, this, null, oldId.id, oldId.authority));
               }
           };
           

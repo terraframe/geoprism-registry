@@ -40,10 +40,10 @@ import jakarta.validation.constraints.NotEmpty;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.io.view.GeoObjectImportConfigurationDTO;
+import net.geoprism.registry.io.view.TypedObjectImportConfigurationDTO;
 import net.geoprism.registry.service.request.ExcelService;
-import net.geoprism.registry.view.GeoObjectImportConfigurationDTO;
 import net.geoprism.registry.view.ImportConfigurationView;
-import net.geoprism.registry.view.TypedObjectImportConfigurationDTO;
 
 @RestController
 @Validated

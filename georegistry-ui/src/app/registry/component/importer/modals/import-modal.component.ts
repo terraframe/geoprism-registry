@@ -17,14 +17,14 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { Component } from '@angular/core';
 import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { Router } from '@angular/router';
 
 import { LocalizationService } from '@shared/service';
-import { ErrorHandler, SuccessModalComponent, ConfirmModalComponent } from '@shared/component';
+import { ErrorHandler, ConfirmModalComponent } from '@shared/component';
 
 import { EdgeImportConfiguration, ImportConfiguration } from '@registry/model/io';
 import { IOService } from '@registry/service';
@@ -34,24 +34,46 @@ import { LocationPageComponent } from './location-page.component';
 import { AttributesPageComponent } from './attributes-page.component';
 import { EdgePageComponent } from './edge-page.component';
 import { NgIf } from '@angular/common';
+import { SourceAuthorityService } from '@registry/service/source-authority.service';
+import { SourceAuthority } from '@registry/model/source';
+import { IdMappingPageComponent } from './id-mapping-page.component';
+
+enum Pages {
+    EDGE = "EDGE",
+    MAP = "MAP",
+    IDS = "IDS",
+    LOCATION = "LOCATION",
+    LOCATION_PROBLEM = "LOCATION-PROBLEM",
+    TERM_PROBLEM = "TERM-PROBLEM"
+}
 
 @Component({
     selector: 'import-modal',
     templateUrl: './import-modal.component.html',
     styleUrls: [],
     standalone: true,
-    imports: [NgIf, EdgePageComponent, AttributesPageComponent, LocationPageComponent, LocationProblemPageComponent, TermProblemPageComponent]
+    imports: [NgIf, EdgePageComponent, AttributesPageComponent, LocationPageComponent, LocationProblemPageComponent, TermProblemPageComponent, IdMappingPageComponent]
 })
 export class ImportModalComponent {
 
     configuration: ImportConfiguration;
     message: string = null;
-    state: string = 'MAP';
+    state: string = Pages.MAP;
     property: string;
     includeChild: boolean;
+    authorities: SourceAuthority[] = [];
+    pages: string[] = [Pages.MAP];
 
-    constructor(private service: IOService, public bsModalRef: BsModalRef, private modalService: BsModalService,
-        private localizeService: LocalizationService, private router: Router) {
+    hasNext: boolean = true;
+    hasBack: boolean = false;
+
+    constructor(
+        public bsModalRef: BsModalRef,
+        private service: IOService,
+        private modalService: BsModalService,
+        private localizeService: LocalizationService,
+        private authorityService: SourceAuthorityService,
+        private router: Router) {
     }
 
     init(configuration: ImportConfiguration, property: string = 'type', includeChild: boolean = false): void {
@@ -59,9 +81,26 @@ export class ImportModalComponent {
         this.property = property;
         this.includeChild = includeChild;
 
-        if (this.property === 'EDGE') {
-            this.state = 'EDGE';
-        }
+        this.authorityService.getAll().then(authorities => {
+            this.authorities = authorities;
+
+            if (this.property === 'EDGE') {
+                this.pages = [Pages.EDGE];
+            }
+            else {
+                this.pages = [Pages.MAP];
+
+                if (authorities.length > 0 && this.property === 'type') {
+                    this.pages.push(Pages.IDS);
+                }
+
+                if (this.configuration.postalCode && this.configuration.hierarchy != null) {
+                    this.pages.push(Pages.LOCATION);
+                }
+            }
+
+            this.state = this.pages[0];
+        });
     }
 
     onStateChange(event: string): void {
@@ -76,54 +115,56 @@ export class ImportModalComponent {
         }
     }
 
+    updateButtonFlags(): void {
+
+        const index = this.pages.findIndex(p => p === this.state);
+
+        this.hasBack = (index > 0);
+        this.hasNext = (index < (this.pages.length - 1))
+    }
+
     handleBack(): void {
-        if (this.state === 'LOCATION') {
-            this.state = 'MAP';
+
+        const index = this.pages.findIndex(p => p === this.state);
+
+        if (index > 0) {
+            this.state = this.pages[(index - 1)];
         }
+
+        this.updateButtonFlags();
     }
 
     handleNext(): void {
-        if (this.state === 'MAP') {
-            if (!this.configuration.postalCode && this.configuration.hierarchy != null) {
-                this.state = 'LOCATION';
-            }
-            else {
-                this.handleSubmit();
-            }
-        }
-        else if (this.state === 'LOCATION') {
-            this.handleSubmit();
-        }
-        else if (this.state === 'LOCATION-PROBLEM') {
+        const index = this.pages.findIndex(p => p === this.state);
 
-            if (this.configuration.termProblems != null) {
-                this.state = 'TERM-PROBLEM';
-            }
-            else {
-                this.handleSubmit();
-            }
+        if ((index + 1) < this.pages.length) {
+            this.state = this.pages[(index + 1)];
         }
-        else if (this.state === 'TERM-PROBLEM') {
-            this.handleSubmit();
-        } else if (this.state === 'EDGE') {
-            this.handleSubmit();
+        else {
+            this.handleSubmit()
         }
+
+        this.updateButtonFlags();
     }
 
     handleSubmit(): void {
         this.message = null;
-        
+
         delete (this.configuration as EdgeImportConfiguration).sourceTypes;
         delete (this.configuration as EdgeImportConfiguration).targetTypes;
 
         this.service.beginImport(this.configuration).then(config => {
+            this.pages = [];
 
             if (config.locationProblems != null) {
-                this.state = 'LOCATION-PROBLEM';
+                this.pages.push(Pages.LOCATION_PROBLEM);
+                this.state = Pages.LOCATION_PROBLEM;
                 this.configuration = config;
             }
             else if (config.termProblems != null) {
-                this.state = 'TERM-PROBLEM';
+                this.pages.push(Pages.TERM_PROBLEM);
+
+                this.state = Pages.TERM_PROBLEM;
                 this.configuration = config;
             }
             else {

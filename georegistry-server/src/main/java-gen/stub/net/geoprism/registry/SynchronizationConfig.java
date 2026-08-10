@@ -29,7 +29,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
-import net.geoprism.registry.etl.DHIS2AttributeMapping;
 import net.geoprism.registry.etl.ExternalSystemSyncConfig;
 import net.geoprism.registry.etl.FhirSyncLevel;
 import net.geoprism.registry.etl.SynchronizationConfigFactory;
@@ -41,7 +40,7 @@ import net.geoprism.registry.view.JsonSerializable;
 public class SynchronizationConfig extends SynchronizationConfigBase implements JsonSerializable
 {
   public static enum Type {
-    FHIR_IMPORT, FHIR_EXPORT, DHIS2, JENA, REVEAL
+    FHIR_IMPORT, FHIR_EXPORT, JENA
   }
 
   private static final long   serialVersionUID = -1221759231;
@@ -85,7 +84,6 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
     GsonBuilder builder = new GsonBuilder();
     builder.registerTypeAdapter(Date.class, new SeverGeoObjectJsonAdapters.DateSerializer());
     builder.registerTypeAdapter(FhirSyncLevel.class, new FhirSyncLevel.Serializer());
-    builder.registerTypeAdapter(DHIS2AttributeMapping.class, new DHIS2AttributeMapping.DHIS2AttributeMappingSerializer());
     builder.serializeNulls();
 
     Gson gson = builder.create();

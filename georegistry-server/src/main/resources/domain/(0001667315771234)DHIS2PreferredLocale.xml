@@ -37,19 +37,11 @@
       </object>
     </createOrUpdate>
     <create>
-      <mdException name="net.geoprism.registry.etl.export.dhis2.RequiredValueException"
-                   label="Required Value Exception" 
-                   message="The DHIS2 attribute(s) [{dhis2AttrLabels}] require a value, but one was not mapped. Make sure that the Geo-Object has a label in either your preferred locale, or your default locale.">
-        <attributes>
-          <text name="dhis2AttrLabels" label="DHIS2 Attribute Labels" required="true"/>
-        </attributes>
-      </mdException>
     </create>
     <update></update>
   </doIt>
   <undoIt>
     <delete>
-      <object key="net.geoprism.registry.etl.export.dhis2.RequiredValueException" type="com.runwaysdk.system.metadata.MdException"/>
     </delete>
   </undoIt>
 </version>

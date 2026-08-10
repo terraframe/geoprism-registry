@@ -43,67 +43,44 @@ import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.etl.upload.GeoObjectRecordedErrorException;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
+import net.geoprism.registry.graph.SourceAuthority;
+import net.geoprism.registry.io.view.ExternalIdMappingDTO;
+import net.geoprism.registry.io.view.GeoObjectImportConfigurationDTO;
+import net.geoprism.registry.io.view.ImportTypeDTO;
+import net.geoprism.registry.io.view.LocationDTO;
 import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
+import net.geoprism.registry.service.business.SourceAuthorityBusinessServiceIF;
 import net.geoprism.registry.service.permission.RolePermissionService;
 import net.geoprism.registry.view.ExclusionDTO;
-import net.geoprism.registry.view.GeoObjectImportConfigurationDTO;
-import net.geoprism.registry.view.ImportTypeDTO;
-import net.geoprism.registry.view.LocationDTO;
 import net.geoprism.registry.view.TypeClass;
 import net.geoprism.registry.view.TypeInfo;
 
 public class GeoObjectImportConfiguration extends ImportConfiguration
 {
-  public static final String                          PARENT_EXCLUSION       = "##PARENT##";
+  public static final String                          PARENT_EXCLUSION = "##PARENT##";
 
-  public static final String                          DATA_SOURCE            = "dataSource";
+  public static final String                          DATA_SOURCE      = "dataSource";
 
-  public static final String                          TARGET                 = "target";
+  public static final String                          TARGET           = "target";
 
-  public static final String                          BASE_TYPE              = "baseType";
+  public static final String                          BASE_TYPE        = "baseType";
 
-  public static final String                          TEXT                   = "text";
+  public static final String                          TEXT             = "text";
 
-  public static final String                          LATITUDE               = "latitude";
+  public static final String                          LATITUDE         = "latitude";
 
-  public static final String                          LONGITUDE              = "longitude";
+  public static final String                          LONGITUDE        = "longitude";
 
-  public static final String                          NUMERIC                = "numeric";
+  public static final String                          NUMERIC          = "numeric";
 
-  public static final String                          HIERARCHY              = "hierarchy";
+  public static final String                          LONGITUDE_KEY    = "georegistry.longitude.label";
 
-  public static final String                          LOCATIONS              = "locations";
-
-  public static final String                          TYPE                   = "type";
-
-  public static final String                          CLASS                  = "class";
-
-  public static final String                          HAS_POSTAL_CODE        = "hasPostalCode";
-
-  public static final String                          POSTAL_CODE            = "postalCode";
-
-  public static final String                          SHEET                  = "sheet";
-
-  public static final String                          EXCLUSIONS             = "exclusions";
-
-  public static final String                          VALUE                  = "value";
-
-  public static final String                          LONGITUDE_KEY          = "georegistry.longitude.label";
-
-  public static final String                          LATITUDE_KEY           = "georegistry.latitude.label";
-
-  public static final String                          DATE_FORMAT            = "yyyy-MM-dd";
-
-  public static final String                          MATCH_STRATEGY         = "matchStrategy";
-
-  public static final String                          REVEAL_GEOMETRY_COLUMN = "revealGeometryColumn";
-
-  private String                                      revealGeometryColumn;
+  public static final String                          LATITUDE_KEY     = "georegistry.latitude.label";
 
   private ServerGeoObjectType                         type;
 
@@ -119,19 +96,26 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
 
   private Boolean                                     postalCode;
 
-  private LinkedList<GeoObjectRecordedErrorException> errors                 = new LinkedList<GeoObjectRecordedErrorException>();
+  private LinkedList<GeoObjectRecordedErrorException> errors           = new LinkedList<GeoObjectRecordedErrorException>();
 
   private GeoObjectTypeBusinessServiceIF              typeService;
 
+  private SourceAuthorityBusinessServiceIF            authorityService;
+
   private RolePermissionService                       permissions;
+
+  private Map<String, ShapefileFunction>              idFunctions;
 
   public GeoObjectImportConfiguration()
   {
+    super();
+
     this.typeService = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
     this.permissions = ServiceFactory.getBean(RolePermissionService.class);
+    this.authorityService = ServiceFactory.getBean(SourceAuthorityBusinessServiceIF.class);
 
     this.includeCoordinates = false;
-    this.functions = new HashMap<String, ShapefileFunction>();
+    this.idFunctions = new HashMap<String, ShapefileFunction>();
     this.locations = new LinkedList<Location>();
     this.exclusions = new HashMap<String, Set<String>>();
     this.postalCode = false;
@@ -202,6 +186,21 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     return ( this.exclusions.get(attributeName) != null && this.exclusions.get(attributeName).contains(value) );
   }
 
+  public Map<String, ShapefileFunction> getIdFunctions()
+  {
+    return idFunctions;
+  }
+
+  public void setIdFunctions(Map<String, ShapefileFunction> idFunctions)
+  {
+    this.idFunctions = idFunctions;
+  }
+
+  public void addIdFunction(String authority, ShapefileFunction idFunction)
+  {
+    this.idFunctions.put(authority, idFunction);
+  }
+
   public void addParent(Location location)
   {
     this.locations.add(location);
@@ -230,16 +229,6 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
   public void setPostalCode(Boolean postalCode)
   {
     this.postalCode = postalCode;
-  }
-
-  public String getRevealGeometryColumn()
-  {
-    return revealGeometryColumn;
-  }
-
-  public void setRevealGeometryColumn(String revealGeometryColumn)
-  {
-    this.revealGeometryColumn = revealGeometryColumn;
   }
 
   /**
@@ -282,7 +271,6 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     GeoObjectImportConfigurationDTO config = new GeoObjectImportConfigurationDTO();
     super.toDTO(config);
     config.setPostalCode(postalCode);
-    config.setRevealGeometryColumn(revealGeometryColumn);
     config.setType(type);
     config.setExclusions(exclusions);
 
@@ -290,6 +278,15 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     {
       config.addLocation(location.toDTO());
     }
+
+    this.idFunctions.forEach((key, function) -> {
+
+      ExternalIdMappingDTO dto = new ExternalIdMappingDTO();
+      dto.setAuthority(key);
+      dto.setFunction(toDTO(function));
+
+      config.addIdMapping(dto);
+    });
 
     if (this.hierarchy != null)
     {
@@ -309,7 +306,6 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     this.setType(type);
     this.setIncludeCoordinates(includeCoordinates);
     this.setPostalCode(dto.getPostalCode());
-    this.setRevealGeometryColumn(dto.getRevealGeometryColumn());
 
     dto.getExclusions().stream().forEach(exclusion -> {
       this.addExclusion(exclusion.getCode(), exclusion.getValue());
@@ -356,63 +352,6 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
       }
     }
 
-    // for (int i = 0; i < attributes.length(); i++)
-    // {
-    // JSONObject attribute = attributes.getJSONObject(i);
-    //
-    // if (attribute.has(TARGET))
-    // {
-    // String attributeName = attribute.getString(AttributeType.JSON_CODE);
-    //
-    // // In the case of a spreadsheet, this ends up being the column header
-    // String target = attribute.getString(TARGET);
-    //
-    // String functionType = attribute.has(CLASS) ? attribute.getString(CLASS) :
-    // "";
-    //
-    // if (attribute.has("locale"))
-    // {
-    // String locale = attribute.getString("locale");
-    //
-    // if (this.getFunction(attributeName) == null)
-    // {
-    // this.setFunction(attributeName, new LocalizedValueFunction());
-    // }
-    //
-    // LocalizedValueFunction function = (LocalizedValueFunction)
-    // this.getFunction(attributeName);
-    // function.add(locale, new BasicColumnFunction(target));
-    // }
-    // else if (functionType.equals(ConstantShapefileFunction.class.getName()))
-    // {
-    // this.setFunction(attributeName, new ConstantShapefileFunction(target));
-    // }
-    // else if (functionType.equals(BasicColumnFunction.class.getName()))
-    // {
-    // this.setFunction(attributeName, new BasicColumnFunction(target));
-    // }
-    // else if (!StringUtils.isBlank(functionType))
-    // {
-    // try
-    // {
-    // Class<?> clazz =
-    // this.getClass().getClassLoader().loadClass(functionType);
-    // ShapefileFunction function = (ShapefileFunction)
-    // clazz.getConstructor().newInstance();
-    //
-    // this.setFunction(attributeName, function);
-    // }
-    // catch (Exception e)
-    // {
-    // }
-    // }
-    // else
-    // {
-    // this.setFunction(attributeName, new BasicColumnFunction(target));
-    // }
-    // }
-    // }
-
     List<LocationDTO> locations = dto.getLocations();
 
     for (int i = 0; i < locations.size(); i++)
@@ -428,33 +367,10 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
 
         String target = location.getTarget();
 
-        String functionType = StringUtils.isNotBlank(location.getClassName()) ? location.getClassName() : "";
+        ShapefileFunction function = location.getFunction() != null ? fromDTO(location.getFunction()) : new BasicColumnFunction(target);
+        SourceAuthority authority = StringUtils.isNotBlank(location.getAuthority()) ? this.authorityService.getByCodeOrThrow(location.getAuthority()) : null;
 
-        if (functionType.equals(ConstantShapefileFunction.class.getName()))
-        {
-          this.addParent(new Location(pType, pHierarchy, new ConstantShapefileFunction(target), location.getMatchStrategy()));
-        }
-        else if (functionType.equals(BasicColumnFunction.class.getName()) || functionType.equals(LocalizedValueFunction.class.getName()))
-        {
-          this.addParent(new Location(pType, pHierarchy, new BasicColumnFunction(target), location.getMatchStrategy()));
-        }
-        else if (!StringUtils.isBlank(functionType))
-        {
-          try
-          {
-            Class<?> clazz = this.getClass().getClassLoader().loadClass(functionType);
-            ShapefileFunction function = (ShapefileFunction) clazz.getConstructor().newInstance();
-
-            this.addParent(new Location(pType, pHierarchy, function, location.getMatchStrategy()));
-          }
-          catch (Exception e)
-          {
-          }
-        }
-        else
-        {
-          this.addParent(new Location(pType, pHierarchy, new BasicColumnFunction(target), location.getMatchStrategy()));
-        }
+        this.addParent(new Location(pType, pHierarchy, function, location.getMatchStrategy(), authority));
       }
     }
 
@@ -470,176 +386,12 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
       loc.setHierarchy(ht);
     }
 
+    dto.getIds().forEach(id -> {
+      this.addIdFunction(id.getAuthority(), fromDTO(id.getFunction()));
+    });
+
     return this;
   }
-
-//  @Request
-//  public GeoObjectImportConfiguration fromJSON(String json, boolean includeCoordinates)
-//  {
-//    super.fromJSON(json);
-//
-//    SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
-//    format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
-//
-//    JSONObject config = new JSONObject(json);
-//    JSONObject type = config.getJSONObject(TYPE);
-//    JSONArray locations = config.has(LOCATIONS) ? config.getJSONArray(LOCATIONS) : new JSONArray();
-//    JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
-//    String code = type.getString(GeoObjectType.JSON_CODE);
-//    ServerGeoObjectType got = ServerGeoObjectType.get(code);
-//
-//    this.setType(got);
-//    this.setIncludeCoordinates(includeCoordinates);
-//    this.setPostalCode(config.has(POSTAL_CODE) && config.getBoolean(POSTAL_CODE));
-//
-//    if (config.has(code) && config.has(REVEAL_GEOMETRY_COLUMN))
-//    {
-//      this.setRevealGeometryColumn(config.getString(REVEAL_GEOMETRY_COLUMN));
-//    }
-//
-//    if (config.has(HIERARCHY))
-//    {
-//      String hCode = config.getString(HIERARCHY);
-//
-//      if (hCode.length() > 0)
-//      {
-//
-//        ServerHierarchyType hierarchyType = ServerHierarchyType.get(hCode);
-//        List<ServerGeoObjectType> ancestors = this.typeService.getTypeAncestors(got, hierarchyType, true);
-//
-//        this.setHierarchy(hierarchyType);
-//
-//        if (ancestors.size() > 0)
-//        {
-//          this.setRoot(null);
-//        }
-//      }
-//    }
-//
-//    if (config.has(EXCLUSIONS))
-//    {
-//      JSONArray exclusions = config.getJSONArray(EXCLUSIONS);
-//
-//      for (int i = 0; i < exclusions.length(); i++)
-//      {
-//        JSONObject exclusion = exclusions.getJSONObject(i);
-//        String attributeName = exclusion.getString(AttributeType.JSON_CODE);
-//        String value = exclusion.getString(VALUE);
-//
-//        this.addExclusion(attributeName, value);
-//      }
-//    }
-//
-//    for (int i = 0; i < attributes.length(); i++)
-//    {
-//      JSONObject attribute = attributes.getJSONObject(i);
-//
-//      if (attribute.has(TARGET))
-//      {
-//        String attributeName = attribute.getString(AttributeType.JSON_CODE);
-//
-//        // In the case of a spreadsheet, this ends up being the column header
-//        String target = attribute.getString(TARGET);
-//
-//        String functionType = attribute.has(CLASS) ? attribute.getString(CLASS) : "";
-//
-//        if (attribute.has("locale"))
-//        {
-//          String locale = attribute.getString("locale");
-//
-//          if (this.getFunction(attributeName) == null)
-//          {
-//            this.setFunction(attributeName, new LocalizedValueFunction());
-//          }
-//
-//          LocalizedValueFunction function = (LocalizedValueFunction) this.getFunction(attributeName);
-//          function.add(locale, new BasicColumnFunction(target));
-//        }
-//        else if (functionType.equals(ConstantShapefileFunction.class.getName()))
-//        {
-//          this.setFunction(attributeName, new ConstantShapefileFunction(target));
-//        }
-//        else if (functionType.equals(BasicColumnFunction.class.getName()))
-//        {
-//          this.setFunction(attributeName, new BasicColumnFunction(target));
-//        }
-//        else if (!StringUtils.isBlank(functionType))
-//        {
-//          try
-//          {
-//            Class<?> clazz = this.getClass().getClassLoader().loadClass(functionType);
-//            ShapefileFunction function = (ShapefileFunction) clazz.getConstructor().newInstance();
-//
-//            this.setFunction(attributeName, function);
-//          }
-//          catch (Exception e)
-//          {
-//          }
-//        }
-//        else
-//        {
-//          this.setFunction(attributeName, new BasicColumnFunction(target));
-//        }
-//      }
-//    }
-//
-//    for (int i = 0; i < locations.length(); i++)
-//    {
-//      JSONObject location = locations.getJSONObject(i);
-//
-//      if (location.has(TARGET) && location.getString(TARGET).length() > 0 && location.has(MATCH_STRATEGY) && location.getString(MATCH_STRATEGY).length() > 0)
-//      {
-//        String pCode = location.getString(AttributeType.JSON_CODE);
-//        ServerGeoObjectType pType = ServerGeoObjectType.get(pCode);
-//        ServerHierarchyType pHierarchy = this.typeService.findHierarchy(got, this.hierarchy, pType);
-//
-//        String target = location.getString(TARGET);
-//        ParentMatchStrategy matchStrategy = ParentMatchStrategy.valueOf(location.getString(MATCH_STRATEGY));
-//
-//        String functionType = location.has(CLASS) ? location.getString(CLASS) : "";
-//
-//        if (functionType.equals(ConstantShapefileFunction.class.getName()))
-//        {
-//          this.addParent(new Location(pType, pHierarchy, new ConstantShapefileFunction(target), matchStrategy));
-//        }
-//        else if (functionType.equals(BasicColumnFunction.class.getName()) || functionType.equals(LocalizedValueFunction.class.getName()))
-//        {
-//          this.addParent(new Location(pType, pHierarchy, new BasicColumnFunction(target), matchStrategy));
-//        }
-//        else if (!StringUtils.isBlank(functionType))
-//        {
-//          try
-//          {
-//            Class<?> clazz = this.getClass().getClassLoader().loadClass(functionType);
-//            ShapefileFunction function = (ShapefileFunction) clazz.getConstructor().newInstance();
-//
-//            this.addParent(new Location(pType, pHierarchy, function, matchStrategy));
-//          }
-//          catch (Exception e)
-//          {
-//          }
-//        }
-//        else
-//        {
-//          this.addParent(new Location(pType, pHierarchy, new BasicColumnFunction(target), matchStrategy));
-//        }
-//      }
-//    }
-//
-//    // If the hierarchy is inherited, we need to resolve the hierarchy
-//    // inheritance chain and set them properly on the Location objects
-//    // To do this, we must start from the bottom and resolve upwards
-//    ServerHierarchyType ht = this.hierarchy;
-//    for (int i = this.locations.size() - 1; i >= 0; --i)
-//    {
-//      Location loc = this.locations.get(i);
-//
-//      ht = this.typeService.findHierarchy(got, ht, loc.getType());
-//      loc.setHierarchy(ht);
-//    }
-//
-//    return this;
-//  }
 
   @Override
   public void validate()

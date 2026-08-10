@@ -242,6 +242,43 @@
           <attribute name="defaultLocale" value="Manage and publish SKGs" />
         </attributeStruct>
       </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.import.modal.id.source">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.import.modal.id.source" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Id source" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.import.modal.add.id">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.import.modal.add.id" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Add Id mapping" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.ids.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.ids.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Alternative Id Mappings" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.ids.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.ids.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="(Optional) Add additional alternative ids to import" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.ids.duplicate">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.ids.duplicate" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="A souce authority can only have a single alternate id mapping" />
+        </attributeStruct>
+      </object>
+      
            
     </createOrUpdate>
   </doIt>

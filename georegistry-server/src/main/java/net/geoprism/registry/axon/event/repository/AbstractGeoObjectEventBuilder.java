@@ -11,7 +11,7 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.DataSource;
-import net.geoprism.registry.graph.ExternalSystem;
+import net.geoprism.registry.graph.SourceAuthority;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.EdgeType;
 import net.geoprism.registry.model.GraphType;
@@ -179,9 +179,9 @@ public abstract class AbstractGeoObjectEventBuilder<K>
     this.refreshWorking = refreshWorking;
   }
 
-  public void createExternalId(ExternalSystem system, String externalId, ImportStrategy importStrategy)
+  public void createExternalId(String authority, String externalId, ImportStrategy importStrategy)
   {
-    this.events.add(new GeoObjectSetExternalIdEvent(this.getCode(), this.getType(), system.getId(), externalId, importStrategy));
+    this.events.add(new GeoObjectApplyExternalIdEvent(this.getCode(), this.getType(), authority, externalId, importStrategy));
   }
 
   public void addParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchy, Date startDate, Date endDate, String edgeUuid, DataSource dataSource, Boolean validate)
@@ -194,6 +194,16 @@ public abstract class AbstractGeoObjectEventBuilder<K>
   public void removeParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchy, Date startDate, Date endDate, String edgeUuid)
   {
     this.events.add(new GeoObjectRemoveParentEvent(this.getCode(), this.getType(), edgeUuid, hierarchy.getCode(), startDate, endDate));
+  }
+
+  public void addExternalId(SourceAuthority authority, String id, ImportStrategy strategy)
+  {
+    this.events.add(new GeoObjectApplyExternalIdEvent(this.getCode(), this.getType(), authority.getCode(), id, strategy));
+  }
+
+  public void removeExternalId(SourceAuthority authority)
+  {
+    this.events.add(new GeoObjectRemoveExternalIdEvent(this.getCode(), this.getType(), authority.getCode()));
   }
 
   public void addEdge(ServerGeoObjectIF target, GraphType graphType, Date startDate, Date endDate, String edgeUuid, DataSource source, ImportStrategy strategy, Boolean validate)

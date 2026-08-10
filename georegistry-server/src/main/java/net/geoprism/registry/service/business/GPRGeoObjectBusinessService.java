@@ -20,17 +20,13 @@ package net.geoprism.registry.service.business;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import org.commongeoregistry.adapter.dataaccess.AlternateId;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,16 +44,16 @@ import com.runwaysdk.session.CreatePermissionException;
 import com.runwaysdk.session.ReadPermissionException;
 import com.runwaysdk.session.WritePermissionException;
 
+import net.geoprism.configuration.GeoprismProperties;
+import net.geoprism.registry.OriginException;
 import net.geoprism.registry.etl.export.GeoObjectExportFormat;
 import net.geoprism.registry.etl.export.GeoObjectJsonExporter;
-import net.geoprism.registry.etl.export.RevealGeoObjectJsonAdapters;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
-import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
+import net.geoprism.registry.graph.SourceAuthority;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.ExternalId;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.roles.CreateGeoObjectPermissionException;
@@ -69,7 +65,10 @@ import net.geoprism.registry.roles.WriteGeoObjectPermissionException;
 public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implements GPRGeoObjectBusinessServiceIF
 {
   @Autowired
-  private SearchService searchService;
+  private SearchService                    searchService;
+
+  @Autowired
+  private SourceAuthorityBusinessServiceIF authorityService;
 
   @Override
   public JsonObject getAll(String gotCode, String hierarchyCode, Date since, Boolean includeLevel, String format, String externalSystemId, Integer pageNumber, Integer pageSize)
@@ -81,15 +80,6 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
     }
 
     Map<Type, Object> typeAdapters = null;
-
-    if (format.equals(GeoObjectExportFormat.JSON_REVEAL.name()) && externalSystemId != null)
-    {
-      ExternalSystem es = ExternalSystem.getByExternalSystemId(externalSystemId);
-      ServerHierarchyType ht = ServerHierarchyType.get(hierarchyCode);
-
-      typeAdapters = new HashMap<Type, Object>();
-      typeAdapters.put(VertexServerGeoObject.class, new RevealGeoObjectJsonAdapters.RevealSerializer(ServerGeoObjectType.get(gotCode), ht, includeLevel, es));
-    }
 
     GeoObjectJsonExporter exporter = new GeoObjectJsonExporter(gotCode, hierarchyCode, since, includeLevel, goef, typeAdapters, pageSize, pageNumber);
 
@@ -144,55 +134,11 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
     }
   }
 
-  public void setAlternateIds(ServerGeoObjectIF sgo, List<AlternateId> alternateIds)
-  {
-    if (alternateIds == null)
-    {
-      alternateIds = new ArrayList<>();
-    }
-
-    final List<ExternalId> olds = getAllExternalIds(sgo);
-    final Map<String, ExternalSystem> esMap = ExternalSystem.getAll().stream().collect(Collectors.toMap(es -> es.getOid(), es -> es));
-    final Set<Integer> newMatched = new HashSet<Integer>();
-
-    for (ExternalId oldId : olds)
-    {
-      boolean matched = false;
-
-      for (int i = 0; i < alternateIds.size(); ++i)
-      {
-        org.commongeoregistry.adapter.dataaccess.ExternalId newId = (org.commongeoregistry.adapter.dataaccess.ExternalId) alternateIds.get(i);
-
-        if (!newMatched.contains(i) && oldId.getExternalId().equals(newId.getId()))
-        {
-          oldId.setExternalId(newId.getId());
-          oldId.apply();
-
-          matched = true;
-          newMatched.add(i);
-          break;
-        }
-      }
-
-      if (!matched)
-      {
-        oldId.delete();
-      }
-    }
-    for (int i = 0; i < alternateIds.size(); ++i)
-    {
-      org.commongeoregistry.adapter.dataaccess.ExternalId newId = (org.commongeoregistry.adapter.dataaccess.ExternalId) alternateIds.get(i);
-
-      if (!newMatched.contains(i))
-      {
-        createExternalId(sgo, esMap.get(newId.getExternalSystemId()), newId.getId(), ImportStrategy.NEW_ONLY);
-      }
-    }
-  }
-
   @Override
-  public VertexServerGeoObject getByExternalId(String externalId, ExternalSystem system, ServerGeoObjectType type)
+  public VertexServerGeoObject getByExternalId(String externalId, String authorityCode, ServerGeoObjectType type)
   {
+    SourceAuthority authority = this.authorityService.getByCodeOrThrow(authorityCode);
+
     MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(GeoVertex.EXTERNAL_ID);
 
     StringBuilder statement = new StringBuilder();
@@ -203,7 +149,7 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
     }
 
     statement.append("SELECT expand(in) FROM (");
-    statement.append("SELECT expand(outE('" + mdEdge.getDBClassName() + "')[id = '" + externalId + "']) FROM :system)");
+    statement.append("SELECT expand(outE('" + mdEdge.getDBClassName() + "')[id = '" + externalId + "']) FROM :authority)");
 
     if (type != null)
     {
@@ -211,7 +157,7 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
     }
 
     GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
-    query.setParameter("system", system.getRID());
+    query.setParameter("authority", authority.getRID());
 
     VertexObject vo = query.getSingleResult();
 
@@ -230,7 +176,7 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
     }
   }
 
-  private ExternalId getExternalIdEdge(ServerGeoObjectIF sgo, ExternalSystem system)
+  private Optional<ExternalId> getExternalIdEdge(ServerGeoObjectIF sgo, SourceAuthority authority)
   {
     MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(GeoVertex.EXTERNAL_ID);
 
@@ -238,21 +184,13 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
     statement += " FROM :child";
 
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement);
-    query.setParameter("parent", system.getRID());
+    query.setParameter("parent", authority.getRID());
     query.setParameter("child", sgo.getVertex().getRID());
 
-    EdgeObject edge = query.getSingleResult();
-
-    if (edge == null)
-    {
-      return null;
-    }
-    else
-    {
-      return new ExternalId(edge);
-    }
+    return Optional.ofNullable(query.getSingleResult()).map(e -> new ExternalId(e));
   }
 
+  @Override
   public List<ExternalId> getAllExternalIds(ServerGeoObjectIF sgo)
   {
     MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(GeoVertex.EXTERNAL_ID);
@@ -267,22 +205,29 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
   }
 
   @Override
-  public void createExternalId(ServerGeoObjectIF sgo, ExternalSystem system, String id, ImportStrategy importStrategy)
+  public void applyExternalId(ServerGeoObjectIF sgo, String authorityCode, String id, ImportStrategy importStrategy, boolean validateOrigin)
   {
+    if (validateOrigin)
+    {
+      if (!sgo.getType().getOrigin().equals(GeoprismProperties.getOrigin()))
+      {
+        throw new OriginException();
+      }
+    }
+
+    SourceAuthority authority = this.authorityService.getByCodeOrThrow(authorityCode);
+
     if (importStrategy.equals(ImportStrategy.NEW_ONLY))
     {
-      ExternalId externalId = new ExternalId(sgo.getVertex().addParent(system, GeoVertex.EXTERNAL_ID));
+      ExternalId externalId = new ExternalId(sgo.getVertex().addParent(authority, GeoVertex.EXTERNAL_ID));
       externalId.setExternalId(id);
       externalId.apply();
     }
     else
     {
-      ExternalId externalId = getExternalIdEdge(sgo, system);
-
-      if (externalId == null)
-      {
-        externalId = new ExternalId(sgo.getVertex().addParent(system, GeoVertex.EXTERNAL_ID));
-      }
+      ExternalId externalId = getExternalIdEdge(sgo, authority).orElseGet(() -> {
+        return new ExternalId(sgo.getVertex().addParent(authority, GeoVertex.EXTERNAL_ID));
+      });
 
       externalId.setExternalId(id);
       externalId.apply();
@@ -290,16 +235,27 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
   }
 
   @Override
-  public String getExternalId(ServerGeoObjectIF sgo, ExternalSystem system)
+  public void removeExternalId(ServerGeoObjectIF sgo, String authorityCode, boolean validateOrigin)
   {
-    ExternalId edge = getExternalIdEdge(sgo, system);
-
-    if (edge != null)
+    if (validateOrigin)
     {
-      return edge.getExternalId();
+      if (!sgo.getType().getOrigin().equals(GeoprismProperties.getOrigin()))
+      {
+        throw new OriginException();
+      }
     }
 
-    return null;
+    SourceAuthority authority = this.authorityService.getByCodeOrThrow(authorityCode);
+
+    getExternalIdEdge(sgo, authority).ifPresent(ExternalId::delete);
+  }
+
+  @Override
+  public String getExternalId(ServerGeoObjectIF sgo, String authorityCode)
+  {
+    SourceAuthority authority = this.authorityService.getByCodeOrThrow(authorityCode);
+
+    return getExternalIdEdge(sgo, authority).map(e -> e.getExternalId()).orElse(null);
   }
 
   @Override

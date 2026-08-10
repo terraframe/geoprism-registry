@@ -177,9 +177,12 @@
           <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
             <localize key="io.cancel"></localize>
           </button>
-          <button type="submit" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="form.invalid">
-            <localize *ngIf="!configuration.postalCode" key="io.submit"></localize>
-            <localize *ngIf="configuration.postalCode" key="io.ok"></localize>
+          <button type="submit" *ngIf="hasBack" (click)="onBack()" class="btn btn-default" role="button">
+            <localize key="io.back"></localize>
+          </button>
+          <button type="submit" (click)="onNext()" class="btn btn-primary" role="button" [disabled]="form.invalid">
+            <localize *ngIf="hasNext" key="io.next"></localize>
+            <localize *ngIf="!hasNext" key="io.ok"></localize>
           </button>
         </div>
       </div>

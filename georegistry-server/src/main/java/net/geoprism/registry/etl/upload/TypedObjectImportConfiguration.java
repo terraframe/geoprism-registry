@@ -33,12 +33,12 @@ import com.runwaysdk.session.Request;
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.registry.graph.ObjectClass;
 import net.geoprism.registry.io.LocalizedValueFunction;
+import net.geoprism.registry.io.view.BusinessObjectImportConfigurationDTO;
+import net.geoprism.registry.io.view.ImportTypeDTO;
+import net.geoprism.registry.io.view.TypedObjectImportConfigurationDTO;
 import net.geoprism.registry.jobs.ImportHistory;
-import net.geoprism.registry.view.BusinessObjectImportConfigurationDTO;
 import net.geoprism.registry.view.ExclusionDTO;
-import net.geoprism.registry.view.ImportTypeDTO;
 import net.geoprism.registry.view.TypeInfo;
-import net.geoprism.registry.view.TypedObjectImportConfigurationDTO;
 
 public abstract class TypedObjectImportConfiguration<T extends ObjectClass> extends ImportConfiguration
 {

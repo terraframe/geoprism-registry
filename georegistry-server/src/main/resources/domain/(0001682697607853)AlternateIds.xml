@@ -25,7 +25,7 @@
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="geoObjectType.attr.altIds" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="External Ids" />
+          <attribute name="defaultLocale" value="Alternative Ids" />
         </attributeStruct>
       </object>
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="common.loading">
@@ -39,21 +39,21 @@
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="changeovertime.manageVersions.alternateIds.none" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="No external ids have been created" />
+          <attribute name="defaultLocale" value="No Alternative Ids have been created" />
         </attributeStruct>
       </object>
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.alternateIds.new">
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="changeovertime.manageVersions.alternateIds.new" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="New External Id" />
+          <attribute name="defaultLocale" value="New Alternative Id" />
         </attributeStruct>
       </object>
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.alternateIds.id">
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="changeovertime.manageVersions.alternateIds.id" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="External Id" />
+          <attribute name="defaultLocale" value="Alternative Id" />
         </attributeStruct>
       </object>
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.alternateIds.externalSystem">
@@ -63,6 +63,14 @@
           <attribute name="defaultLocale" value="External System" />
         </attributeStruct>
       </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="shared.noSystems">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="shared.noSystems" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="No source authorities have been defined" />
+        </attributeStruct>
+      </object>
+      
     </createOrUpdate>
     <create></create>
     <update></update>

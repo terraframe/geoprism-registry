@@ -20,9 +20,11 @@ package net.geoprism.registry.io;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
+import net.geoprism.registry.etl.upload.ImportConfiguration;
+import net.geoprism.registry.graph.SourceAuthority;
+import net.geoprism.registry.io.view.LocationDTO;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.view.LocationDTO;
 
 public class Location
 {
@@ -34,12 +36,20 @@ public class Location
 
   private ParentMatchStrategy matchStrategy;
 
+  private SourceAuthority     authority;
+
   public Location(ServerGeoObjectType type, ServerHierarchyType hierarchy, ShapefileFunction function, ParentMatchStrategy matchStrategy)
+  {
+    this(type, hierarchy, function, matchStrategy, null);
+  }
+
+  public Location(ServerGeoObjectType type, ServerHierarchyType hierarchy, ShapefileFunction function, ParentMatchStrategy matchStrategy, SourceAuthority authority)
   {
     this.type = type;
     this.hierarchy = hierarchy;
     this.function = function;
     this.matchStrategy = matchStrategy;
+    this.authority = authority;
   }
 
   public ServerGeoObjectType getType()
@@ -87,14 +97,36 @@ public class Location
     this.function = function;
   }
 
+  public SourceAuthority getAuthority()
+  {
+    return authority;
+  }
+
+  public void setAuthority(SourceAuthority authority)
+  {
+    this.authority = authority;
+  }
+
   public LocationDTO toDTO()
   {
     LocationDTO dto = new LocationDTO();
     dto.setLabel(this.type.getLabel().getValue());
     dto.setCode(this.type.getCode());
-    dto.setTarget(this.function.toJson());
-    dto.setClassName(this.function.getClass().getName());
     dto.setMatchStrategy(this.matchStrategy);
+
+    if (function instanceof BasicColumnFunction)
+    {
+      dto.setTarget( ( (BasicColumnFunction) this.function ).getAttributeName());
+    }
+    else
+    {
+      dto.setFunction(ImportConfiguration.toDTO(function));
+    }
+
+    if (this.authority != null)
+    {
+      dto.setAuthority(this.authority.getCode());
+    }
 
     return dto;
   }

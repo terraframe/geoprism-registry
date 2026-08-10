@@ -31,10 +31,10 @@ import com.runwaysdk.session.RequestType;
 
 import net.geoprism.registry.RollbackCheckpoint;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
+import net.geoprism.registry.io.view.ImportConfigurationDTO;
 import net.geoprism.registry.jobs.GPRJobHistory;
 import net.geoprism.registry.service.business.RollbackCheckpointBusinessService;
 import net.geoprism.registry.view.BasicPage;
-import net.geoprism.registry.view.ImportConfigurationDTO;
 import net.geoprism.registry.view.RollbackCheckpointDTO;
 
 @Service

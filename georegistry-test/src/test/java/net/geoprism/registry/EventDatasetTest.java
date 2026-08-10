@@ -24,10 +24,12 @@ import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.graph.ConceptClass;
 import net.geoprism.registry.graph.DirectedAcyclicGraphType;
+import net.geoprism.registry.graph.SourceAuthority;
 import net.geoprism.registry.graph.UndirectedGraphType;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.model.EdgeDirection;
+import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GraphRepoServiceIF;
@@ -176,6 +178,12 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
     addBusinessEdge();
     addDirectedAcyclicEdge();
     addUndirectedEdge();
+    addExternalId("TEST EXTERNAL ID");
+  }
+
+  protected void addExternalId(String externalId)
+  {
+    addExternalId(externalId, USATestData.COLORADO.getServerObject(), USATestData.AUTHORITY.getSourceAuthority());
   }
 
   protected String addUndirectedEdge()

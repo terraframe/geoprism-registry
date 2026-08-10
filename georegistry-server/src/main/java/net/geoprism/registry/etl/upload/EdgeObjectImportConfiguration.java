@@ -26,11 +26,11 @@ import com.runwaysdk.session.Request;
 
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.etl.upload.EdgeObjectImporter.ReferenceStrategy;
+import net.geoprism.registry.io.view.EdgeObjectImportConfigurationDTO;
 import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.model.EdgeType;
 import net.geoprism.registry.service.business.EdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
-import net.geoprism.registry.view.EdgeObjectImportConfigurationDTO;
 import net.geoprism.registry.view.TypeClass;
 import net.geoprism.registry.view.TypeInfo;
 
@@ -295,12 +295,12 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
     super.fromDTO(dto);
 
     edgeSource = dto.getEdgeSource();
-    edgeSourceStrategy = dto.getEdgeSourceTypeStrategy();
+    edgeSourceStrategy = dto.getEdgeSourceStrategy();
     edgeSourceType = dto.getEdgeSourceType();
     edgeSourceTypeStrategy = dto.getEdgeSourceTypeStrategy();
 
     edgeTarget = dto.getEdgeTarget();
-    edgeTargetStrategy = dto.getEdgeTargetTypeStrategy();
+    edgeTargetStrategy = dto.getEdgeTargetStrategy();
     edgeTargetType = dto.getEdgeTargetType();
     edgeTargetTypeStrategy = dto.getEdgeTargetTypeStrategy();
 

@@ -120,26 +120,6 @@
                             </div>
 
                             <div class="form-group row">
-                                <label class="col-md-2 text-right" for="copyBlank">
-                                    <localize key="dataimporter.importblankcells"></localize>
-                                </label>
-                                <div class="col-md-8">
-                                    <boolean-field [(value)]="config.copyBlank" label=""></boolean-field>
-                                </div>
-                                <div class="col-md-2"></div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-md-2 text-right" for="file">
-                                    <localize *ngIf="this.format === 'EXCEL'" key="io.spreadsheet"></localize>
-                                </label>
-                                <div class="col-md-8">
-                                    <input *ngIf="this.format === 'EXCEL'" class="ghost-input" #myFile name="file"
-                                        type="file" ng2FileSelect [uploader]="uploader" accept=".xls, .xlsx" required />
-                                </div>
-                                <div class="col-md-2"></div>
-                            </div>
-
-                            <div class="form-group row">
                                 <label class="col-md-2 text-right" for="dataSource">
                                     <localize key="datasource.header"></localize>
                                 </label>
@@ -160,7 +140,27 @@
                                 </div>
                                 <div class="col-md-2"></div>
                             </div>
+                            <div class="form-group row">
+                                <label class="col-md-2 text-right" for="copyBlank">
+                                    <localize key="dataimporter.importblankcells"></localize>
+                                </label>
+                                <div class="col-md-8">
+                                    <boolean-field [(value)]="config.copyBlank" label=""></boolean-field>
+                                </div>
+                                <div class="col-md-2"></div>
+                            </div>
+                            
 
+                            <div class="form-group row">
+                                <label class="col-md-2 text-right" for="file">
+                                    <localize *ngIf="this.format === 'EXCEL'" key="io.spreadsheet"></localize>
+                                </label>
+                                <div class="col-md-8">
+                                    <input *ngIf="this.format === 'EXCEL'" class="ghost-input" #myFile name="file"
+                                        type="file" ng2FileSelect [uploader]="uploader" accept=".xls, .xlsx" required />
+                                </div>
+                                <div class="col-md-2"></div>
+                            </div>
 
                             <div class="form-group row">
                                 <div class="col-md-2"></div>

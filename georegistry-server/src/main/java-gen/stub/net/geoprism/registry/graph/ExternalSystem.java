@@ -270,11 +270,7 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
       return ExternalSystem.get(oid);
     }
 
-    if (type.equals(RevealExternalSystem.class.getSimpleName()))
-    {
-      return new RevealExternalSystem();
-    }
-    else if (type.equals(FhirExternalSystem.class.getSimpleName()))
+    if (type.equals(FhirExternalSystem.class.getSimpleName()))
     {
       return new FhirExternalSystem();
     }
@@ -283,7 +279,7 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
       return new JenaExternalSystem();
     }
 
-    return new DHIS2ExternalSystem();
+    throw new UnsupportedOperationException();
   }
 
   public static ExternalSystem getByExternalSystemId(String id)

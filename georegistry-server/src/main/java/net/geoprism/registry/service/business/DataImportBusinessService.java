@@ -10,10 +10,10 @@ import com.runwaysdk.localization.LocalizationFacade;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.graph.ObjectClass;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.io.view.ImportColumnDTO;
+import net.geoprism.registry.io.view.ImportTypeDTO;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.ObjectClassIF;
-import net.geoprism.registry.view.ImportColumnDTO;
-import net.geoprism.registry.view.ImportTypeDTO;
 
 public abstract class DataImportBusinessService
 {

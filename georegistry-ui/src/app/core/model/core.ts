@@ -35,7 +35,7 @@ export class AlternateId {
 
     public static getKey(id: AlternateId) {
         if (id instanceof ExternalId) {
-            return id.id + "," + id.externalSystemId;
+            return id.id + "," + id.authority;
         }
 
         return id.type + "," + id.id;
@@ -43,8 +43,8 @@ export class AlternateId {
 }
 
 export class ExternalId extends AlternateId {
-    externalSystemId: string;
-    externalSystemLabel: string;
+    authority: string;
+    authorityLabel: string;
 }
 
 export class LocalizedValue {

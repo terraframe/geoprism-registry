@@ -115,22 +115,7 @@
           <char name="id" label="ID" required="true" size="255" />
           <reference name="organization" label="Organization" required="true" type="net.geoprism.registry.Organization" />
         </attributes>
-      </mdVertex>    
-      <mdVertex name="net.geoprism.registry.graph.RevealExternalSystem" label="Reveal"  extends="net.geoprism.registry.graph.ExternalSystem">
-      </mdVertex>    
-      <mdVertex name="net.geoprism.registry.graph.DHIS2ExternalSystem" label="DHIS2"  extends="net.geoprism.registry.graph.ExternalSystem">
-        <attributes>
-          <char name="username" label="Username" required="true" size="255" />
-          <char name="password" label="Password" required="true" size="255" />
-          <text name="url" label="URL" required="true" />
-        </attributes>
-      </mdVertex>   
-      <mdEdge name="net.geoprism.registry.graph.ExternalID" label="External ID" parent="net.geoprism.registry.graph.ExternalSystem" child="net.geoprism.registry.graph.GeoVertex" generateSource="false">
-        <attributes>
-          <text name="id" label="ID" required="true" />
-        </attributes>      
-      </mdEdge>
-       
+      </mdVertex>           
     </create>
     <permissions>
       <role roleName="geoprism.admin.Administrator">
@@ -138,15 +123,6 @@
           <mdBusinessPermission type="net.geoprism.registry.graph.ExternalSystem">
             <operation name="ALL" />
           </mdBusinessPermission>          
-          <mdBusinessPermission type="net.geoprism.registry.graph.RevealExternalSystem">
-            <operation name="ALL" />
-          </mdBusinessPermission>          
-          <mdBusinessPermission type="net.geoprism.registry.graph.DHIS2ExternalSystem">
-            <operation name="ALL" />
-          </mdBusinessPermission>
-          <mdRelationshipPermission type="net.geoprism.registry.graph.ExternalID">
-            <operation name="ALL" />
-          </mdRelationshipPermission>                    
         </grant>
       </role>      
       <role roleName="cgr.RegistryMaintainer">
@@ -155,17 +131,6 @@
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>          
-          <mdBusinessPermission type="net.geoprism.registry.graph.RevealExternalSystem">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-          </mdBusinessPermission>          
-          <mdBusinessPermission type="net.geoprism.registry.graph.DHIS2ExternalSystem">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-          </mdBusinessPermission>
-          <mdRelationshipPermission type="net.geoprism.registry.graph.ExternalID">
-            <operation name="ALL" />
-          </mdRelationshipPermission>                    
         </grant>
       </role>      
       <role roleName="cgr.RegistryContributor">
@@ -174,18 +139,6 @@
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>          
-          <mdBusinessPermission type="net.geoprism.registry.graph.RevealExternalSystem">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-          </mdBusinessPermission>          
-          <mdBusinessPermission type="net.geoprism.registry.graph.DHIS2ExternalSystem">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-          </mdBusinessPermission>
-          <mdRelationshipPermission type="net.geoprism.registry.graph.ExternalID">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-          </mdRelationshipPermission>                    
         </grant>
       </role>      
       <role roleName="cgr.APIConsumer">
@@ -194,18 +147,6 @@
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>          
-          <mdBusinessPermission type="net.geoprism.registry.graph.RevealExternalSystem">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-          </mdBusinessPermission>          
-          <mdBusinessPermission type="net.geoprism.registry.graph.DHIS2ExternalSystem">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-          </mdBusinessPermission>
-          <mdRelationshipPermission type="net.geoprism.registry.graph.ExternalID">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-          </mdRelationshipPermission>                    
         </grant>
       </role>      
       
@@ -213,9 +154,6 @@
   </doIt>
   <undoIt>
     <delete>
-      <object type="com.runwaysdk.system.metadata.MdEdge" key="net.geoprism.registry.graph.ExternalID"/>    
-      <object type="com.runwaysdk.system.metadata.MdVertex" key="net.geoprism.registry.graph.RevealExternalSystem"/>    
-      <object type="com.runwaysdk.system.metadata.MdVertex" key="net.geoprism.registry.graph.DHIS2ExternalSystem"/>    
       <object type="com.runwaysdk.system.metadata.MdVertex" key="net.geoprism.registry.graph.ExternalSystem"/>    
     </delete>
   </undoIt>

@@ -51,6 +51,7 @@ import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.etl.upload.ObjectRecordedErrorException;
 import net.geoprism.registry.excel.MapFeatureRow;
 import net.geoprism.registry.graph.ConceptClass;
+import net.geoprism.registry.io.view.ConceptObjectImportConfigurationDTO;
 import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.service.business.ConceptClassBusinessServiceIF;
@@ -61,7 +62,6 @@ import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.ConceptClassDTO;
-import net.geoprism.registry.view.ConceptObjectImportConfigurationDTO;
 import net.geoprism.registry.view.ImportConfigurationView;
 import net.geoprism.registry.view.ImportHistoryView;
 

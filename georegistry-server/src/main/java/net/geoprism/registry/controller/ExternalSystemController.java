@@ -18,14 +18,8 @@
  */
 package net.geoprism.registry.controller;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,7 +37,6 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.controller.ObjectClassController.OidBody;
-import net.geoprism.registry.dhis2.DHIS2PluginZipManager;
 import net.geoprism.registry.service.request.ExternalSystemService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
 
@@ -79,18 +72,6 @@ public class ExternalSystemController extends RunwaySpringController
     JsonObject response = this.service.getSystemCapabilities(this.getSessionId(), system);
 
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
-  }
-
-  @GetMapping(API_PATH + "/download-dhis2-plugin")
-  public ResponseEntity<FileSystemResource> downloadDhis2Plugin() throws FileNotFoundException
-  {
-    File pluginZip = DHIS2PluginZipManager.getPluginZip();
-
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.valueOf("application/zip"));
-    headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=cgr-dhis2-app.zip");
-
-    return new ResponseEntity<FileSystemResource>(new FileSystemResource(pluginZip), headers, HttpStatus.OK);
   }
 
   @GetMapping(API_PATH + "/get-all")

@@ -33,19 +33,22 @@ import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
 import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteConceptObjectEvent;
+import net.geoprism.registry.axon.event.remote.RemoteGeoObjectApplyExternalIdEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectEvent;
+import net.geoprism.registry.axon.event.remote.RemoteGeoObjectRemoveExternalIdEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectSetParentEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.ConceptObjectApplyEvent;
-import net.geoprism.registry.axon.event.repository.ImportHistoryEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEvent;
+import net.geoprism.registry.axon.event.repository.GeoObjectApplyExternalIdEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectCreateParentEvent;
+import net.geoprism.registry.axon.event.repository.GeoObjectRemoveExternalIdEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectRemoveParentEvent;
-import net.geoprism.registry.axon.event.repository.GeoObjectSetExternalIdEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectUpdateParentEvent;
+import net.geoprism.registry.axon.event.repository.ImportHistoryEvent;
 import net.geoprism.registry.axon.event.repository.RemoveBusinessObjectEdgeEvent;
 import net.geoprism.registry.axon.event.repository.RemoveBusinessObjectEvent;
 import net.geoprism.registry.axon.event.repository.RemoveConceptObjectEvent;
@@ -61,7 +64,6 @@ import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.graph.ConceptClass;
 import net.geoprism.registry.graph.DataSource;
-import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.graph.ObjectClass;
 import net.geoprism.registry.model.BusinessObject;
@@ -83,6 +85,7 @@ import net.geoprism.registry.service.business.GPRBusinessTypeBusinessService;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
+import net.geoprism.registry.service.business.SourceAuthorityBusinessServiceIF;
 import net.geoprism.registry.view.ObjectAtTimeDTO;
 import net.geoprism.registry.view.ObjectOverTimeDTO;
 
@@ -117,6 +120,9 @@ public class RepositoryProjection
 
   @Autowired
   private ConceptObjectBusinessServiceIF    cObjectService;
+
+  @Autowired
+  private SourceAuthorityBusinessServiceIF  authorityService;
 
   private final GeoObjectCache              goCache;
 
@@ -290,14 +296,24 @@ public class RepositoryProjection
 
   @EventHandler
   @Transaction
-  public void handleSetExternalId(GeoObjectSetExternalIdEvent event)
+  public void handleApplyExternalId(GeoObjectApplyExternalIdEvent event)
   {
     ServerGeoObjectIF object = this.gObjectService.getGeoObjectByCode(event.getCode(), event.getType());
-    String systemId = event.getSystemId();
 
-    ExternalSystem system = ExternalSystem.getByExternalSystemId(systemId);
+    this.authorityService.getByCode(event.getAuthority()).ifPresent(authority -> {
+      this.gObjectService.applyExternalId(object, event.getAuthority(), event.getExternalId(), event.getStrategy(), true);
+    });
+  }
 
-    this.gObjectService.createExternalId(object, system, event.getExternalId(), event.getStrategy());
+  @EventHandler
+  @Transaction
+  public void handleRemoveExternalId(GeoObjectRemoveExternalIdEvent event)
+  {
+    ServerGeoObjectIF object = this.gObjectService.getGeoObjectByCode(event.getCode(), event.getType());
+
+    this.authorityService.getByCode(event.getAuthority()).ifPresent(authority -> {
+      this.gObjectService.removeExternalId(object, event.getAuthority(), true);
+    });
   }
 
   @EventHandler
@@ -417,6 +433,46 @@ public class RepositoryProjection
     else
     {
       logger.info("Skipping remote geo object: [" + event.getType() + "][" + event.getCode() + "] - [" + event.getIsNew() + "]");
+    }
+  }
+
+  @EventHandler
+  @Transaction
+  public void handleRemoteGeoObjectApplyExternalIdEvent(RemoteGeoObjectApplyExternalIdEvent event)
+  {
+    ServerGeoObjectType type = ServerGeoObjectType.get(event.getType());
+
+    if (!GeoprismProperties.getOrigin().equals(type.getOrigin()))
+    {
+      ServerGeoObjectIF object = this.gObjectService.getGeoObjectByCode(event.getCode(), event.getType());
+
+      this.authorityService.getByCode(event.getAuthority()).ifPresent(authority -> {
+        this.gObjectService.applyExternalId(object, event.getAuthority(), event.getExternalId(), ImportStrategy.NEW_AND_UPDATE, false);
+      });
+    }
+    else
+    {
+      logger.info("Skipping remote create external ids: [" + event.getType() + "][" + event.getCode() + "][" + event.getAuthority() + "]");
+    }
+  }
+
+  @EventHandler
+  @Transaction
+  public void handleRemoteGeoObjectRemoveExternalIdEvent(RemoteGeoObjectRemoveExternalIdEvent event)
+  {
+    ServerGeoObjectType type = ServerGeoObjectType.get(event.getType());
+
+    if (!GeoprismProperties.getOrigin().equals(type.getOrigin()))
+    {
+      ServerGeoObjectIF object = this.gObjectService.getGeoObjectByCode(event.getCode(), event.getType());
+
+      this.authorityService.getByCode(event.getAuthority()).ifPresent(authority -> {
+        this.gObjectService.removeExternalId(object, event.getAuthority(), false);
+      });
+    }
+    else
+    {
+      logger.info("Skipping remote create external ids: [" + event.getType() + "][" + event.getCode() + "][" + event.getAuthority() + "]");
     }
   }
 

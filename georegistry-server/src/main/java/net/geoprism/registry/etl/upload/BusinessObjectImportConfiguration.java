@@ -19,9 +19,9 @@
 package net.geoprism.registry.etl.upload;
 
 import net.geoprism.registry.graph.BusinessType;
+import net.geoprism.registry.io.view.TypedObjectImportConfigurationDTO;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
-import net.geoprism.registry.view.TypedObjectImportConfigurationDTO;
 
 public class BusinessObjectImportConfiguration extends TypedObjectImportConfiguration<BusinessType>
 {

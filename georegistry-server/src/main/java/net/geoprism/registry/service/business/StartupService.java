@@ -20,7 +20,7 @@ public class StartupService implements ApplicationListener<ApplicationReadyEvent
     }
     catch (Exception e)
     {
-
+      e.printStackTrace();
     }
   }
 }

@@ -34,9 +34,10 @@ import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.config.TestApplication;
+import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.roles.CreateGeoObjectPermissionException;
-import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
@@ -57,7 +58,7 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
   private TestRegistryClient            client;
 
   @Autowired
-  private GeoObjectBusinessServiceIF    goService;
+  private GPRGeoObjectBusinessServiceIF goService;
 
   @Before
   public void setUp()
@@ -557,4 +558,5 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
     waGeoObj.setUid(UUID.randomUUID().toString());
     client.updateGeoObject(waGeoObj.toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
   }
+
 }

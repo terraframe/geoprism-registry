@@ -45,7 +45,6 @@ import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.config.TestApplication;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.localization.LocaleView;
 import net.geoprism.registry.service.request.GPRLocalizationService;
 import net.geoprism.registry.service.request.TaskService;
@@ -229,7 +228,7 @@ public class TaskTest implements InstanceTestClassListener
 
   private Date parseDate(String sDate)
   {
-    SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
+    SimpleDateFormat format = new SimpleDateFormat(GeoRegistryUtil.LOCAL_DATE_FORMAT);
     format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
     try

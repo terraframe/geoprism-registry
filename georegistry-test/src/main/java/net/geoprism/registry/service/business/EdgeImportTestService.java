@@ -15,12 +15,12 @@ import net.geoprism.registry.etl.upload.EdgeObjectImportConfiguration;
 import net.geoprism.registry.etl.upload.EdgeObjectImporter.ReferenceStrategy;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.io.view.EdgeObjectImportConfigurationDTO;
+import net.geoprism.registry.io.view.ImportConfigurationDTO;
 import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.view.EdgeImportConfigurationView;
-import net.geoprism.registry.view.EdgeObjectImportConfigurationDTO;
-import net.geoprism.registry.view.ImportConfigurationDTO;
 import net.geoprism.registry.view.ImportHistoryView;
 
 @Service

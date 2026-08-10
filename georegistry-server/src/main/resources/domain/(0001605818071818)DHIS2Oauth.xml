@@ -93,14 +93,6 @@
       </mdException>
     </create>
     <update>
-      <mdVertex name="net.geoprism.registry.graph.DHIS2ExternalSystem">
-        <create>
-          <attributes>
-            <reference name="oauthServer" type="net.geoprism.account.OauthServer" label="OAuth Server" required="false" />
-          </attributes>
-        </create>
-      </mdVertex>
-      
       <mdBusiness name="net.geoprism.registry.UserInfo">
         <create>
           <attributes>
@@ -138,7 +130,6 @@
   </doIt>
   <undoIt>
     <delete>
-      <object key="net.geoprism.registry.graph.DHIS2ExternalSystem.oauthServer" type="com.runwaysdk.system.metadata.MdAttribute"/>
       <object key="net.geoprism.registry.UserInfo.externalSystemOid" type="com.runwaysdk.system.metadata.MdAttribute"/>
       <object key="net.geoprism.registry.session.UserNotFoundException" type="com.runwaysdk.system.metadata.MdException" />
       <object key="net.geoprism.session.RegistrySessionService" type="com.runwaysdk.system.metadata.MdUtil"></object>

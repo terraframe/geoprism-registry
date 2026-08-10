@@ -41,26 +41,25 @@ import net.geoprism.registry.etl.ObjectImporterFactory.JobHistoryType;
 import net.geoprism.registry.graph.AttributeDataSourceType;
 import net.geoprism.registry.graph.AttributeGeometryType;
 import net.geoprism.registry.graph.DataSource;
-import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.io.ConstantShapefileFunction;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.LocalizedValueFunction;
+import net.geoprism.registry.io.view.BasicColumnFunctionDTO;
+import net.geoprism.registry.io.view.BusinessObjectImportConfigurationDTO;
+import net.geoprism.registry.io.view.ColumnFunctionDTO;
+import net.geoprism.registry.io.view.ConceptObjectImportConfigurationDTO;
+import net.geoprism.registry.io.view.ConstantFunctionDTO;
+import net.geoprism.registry.io.view.EdgeObjectImportConfigurationDTO;
+import net.geoprism.registry.io.view.GeoObjectImportConfigurationDTO;
+import net.geoprism.registry.io.view.ImportColumnDTO;
+import net.geoprism.registry.io.view.ImportConfigurationDTO;
+import net.geoprism.registry.io.view.ImportTypeDTO;
+import net.geoprism.registry.io.view.LocalizedValueFunctionDTO;
 import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.model.graph.ObjectClassIF;
 import net.geoprism.registry.model.localization.DefaultLocaleView;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
-import net.geoprism.registry.view.BasicColumnFunctionDTO;
-import net.geoprism.registry.view.BusinessObjectImportConfigurationDTO;
-import net.geoprism.registry.view.ColumnFunctionDTO;
-import net.geoprism.registry.view.ConceptObjectImportConfigurationDTO;
-import net.geoprism.registry.view.ConstantFunctionDTO;
-import net.geoprism.registry.view.EdgeObjectImportConfigurationDTO;
-import net.geoprism.registry.view.GeoObjectImportConfigurationDTO;
-import net.geoprism.registry.view.ImportColumnDTO;
-import net.geoprism.registry.view.ImportConfigurationDTO;
-import net.geoprism.registry.view.ImportTypeDTO;
-import net.geoprism.registry.view.LocalizedValueFunctionDTO;
 import net.geoprism.registry.view.TypeInfo;
 
 public abstract class ImportConfiguration
@@ -70,9 +69,9 @@ public abstract class ImportConfiguration
     // DELETE
   }
 
-  public static final String               TEXT               = "text";
+  public static final String               TEXT             = "text";
 
-  public static final String               NUMERIC            = "numeric";
+  public static final String               NUMERIC          = "numeric";
 
   protected String                         formatType;
 
@@ -86,19 +85,11 @@ public abstract class ImportConfiguration
 
   protected String                         fileName;
 
-  protected Boolean                        isExternal         = false;
+  protected Boolean                        copyBlank        = true;
 
-  protected Boolean                        copyBlank          = true;
+  protected Boolean                        ignoreProjection = false;
 
-  protected Boolean                        ignoreProjection   = false;
-
-  protected String                         externalSystemId   = null;
-
-  protected String                         description        = null;
-
-  protected ExternalSystem                 externalSystem     = null;
-
-  protected ShapefileFunction              externalIdFunction = null;
+  protected String                         description      = null;
 
   protected Map<String, ShapefileFunction> functions;
 
@@ -221,52 +212,6 @@ public abstract class ImportConfiguration
     this.description = description;
   }
 
-  public Boolean isExternalImport()
-  {
-    return this.isExternal;
-  }
-
-  public ExternalSystem getExternalSystem()
-  {
-    if (this.externalSystem == null)
-    {
-      this.externalSystem = ExternalSystem.get(externalSystemId);
-    }
-
-    return this.externalSystem;
-  }
-
-  public String getExternalSystemId()
-  {
-    return externalSystemId;
-  }
-
-  public void setExternalSystemId(String externalSystemId)
-  {
-    this.externalSystemId = externalSystemId;
-    this.externalSystem = null;
-  }
-
-  public ShapefileFunction getExternalIdFunction()
-  {
-    return this.externalIdFunction;
-  }
-
-  public void setExternalIdFunction(ShapefileFunction externalIdFunction)
-  {
-    this.externalIdFunction = externalIdFunction;
-  }
-
-  public Boolean getIsExternal()
-  {
-    return isExternal;
-  }
-
-  public void setIsExternal(Boolean isExternal)
-  {
-    this.isExternal = isExternal;
-  }
-
   public DataSource getDataSource()
   {
     return dataSource;
@@ -307,11 +252,8 @@ public abstract class ImportConfiguration
     this.setVaultFileId(dto.getVaultFileId());
     this.setImportStrategy(dto.getImportStrategy());
     this.setFileName(dto.getFileName());
-    this.setExternalSystemId(dto.getExternalSystemId());
-    this.setIsExternal(dto.getIsExternal());
     this.setCopyBlank(dto.getCopyBlank());
     this.setIgnoreProjection(dto.getIgnoreProjection());
-    this.setExternalIdFunction(this.fromDTO(dto.getExternalIdAttributeTarget()));
     this.setStartDate(dto.getStartDate());
     this.setEndDate(dto.getEndDate());
 
@@ -332,7 +274,7 @@ public abstract class ImportConfiguration
 
       if (dto instanceof BasicColumnFunctionDTO)
       {
-        return new BasicColumnFunction( ( (BasicColumnFunctionDTO) dto ).getAttributeName());
+        return new BasicColumnFunction( ( (BasicColumnFunctionDTO) dto ).getTarget());
       }
       else if (dto instanceof ConstantFunctionDTO)
       {
@@ -361,8 +303,6 @@ public abstract class ImportConfiguration
     dto.setJobId(this.jobId);
     dto.setVaultFileId(this.vaultFileId);
     dto.setFileName(this.fileName);
-    dto.setExternalSystemId(this.externalSystemId);
-    dto.setIsExternal(this.isExternal);
     dto.setCopyBlank(this.copyBlank);
     dto.setIgnoreProjection(this.ignoreProjection);
     dto.setStartDate(this.getStartDate());
@@ -376,11 +316,6 @@ public abstract class ImportConfiguration
     if (this.description != null)
     {
       dto.setDescription(this.description);
-    }
-
-    if (this.externalIdFunction != null)
-    {
-      dto.setExternalIdAttributeTarget(toDTO(this.externalIdFunction));
     }
 
     if (this.getDataSource() != null)
@@ -563,7 +498,9 @@ public abstract class ImportConfiguration
 
             if (function.has(LocalizedValue.DEFAULT_LOCALE))
             {
-              base.setTarget(function.getFunction(LocalizedValue.DEFAULT_LOCALE).toJson());
+              BasicColumnFunction localeFunction = (BasicColumnFunction) function.getFunction(LocalizedValue.DEFAULT_LOCALE);
+
+              base.setTarget(localeFunction.getAttributeName());
             }
 
             dto.addAttribute(base);
@@ -580,7 +517,9 @@ public abstract class ImportConfiguration
 
               if (function.has(localeCode))
               {
-                aDto.setTarget(function.getFunction(localeCode).toJson());
+                BasicColumnFunction localeFunction = (BasicColumnFunction) function.getFunction(localeCode);
+
+                aDto.setTarget(localeFunction.getAttributeName());
               }
 
               dto.addAttribute(aDto);

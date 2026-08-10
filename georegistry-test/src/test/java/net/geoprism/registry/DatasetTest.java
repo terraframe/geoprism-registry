@@ -19,10 +19,13 @@ import com.runwaysdk.dataaccess.metadata.MdRelationshipDAO;
 import net.geoprism.registry.axon.event.repository.BusinessObjectEventBuilder;
 import net.geoprism.registry.axon.event.repository.ConceptObjectEventBuilder;
 import net.geoprism.registry.axon.event.repository.GeoObjectEventBuilder;
+import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
+import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.graph.ConceptClass;
 import net.geoprism.registry.graph.DataSource;
+import net.geoprism.registry.graph.SourceAuthority;
 import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.ConceptObject;
@@ -33,6 +36,7 @@ import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ConceptClassBusinessServiceIF;
 import net.geoprism.registry.service.business.ConceptObjectBusinessServiceIF;
+import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 
 public abstract class DatasetTest
@@ -54,7 +58,7 @@ public abstract class DatasetTest
   protected BusinessObjectBusinessServiceIF   bObjectService;
 
   @Autowired
-  protected GeoObjectBusinessServiceIF        gObjectService;
+  protected GPRGeoObjectBusinessServiceIF     gObjectService;
 
   @Autowired
   protected EventGateway                      gateway;
@@ -88,6 +92,17 @@ public abstract class DatasetTest
     object.setValue(DefaultAttribute.DATA_SOURCE.getName(), dataSource, startDate, endDate);
 
     return applyBusinessObject(object, true);
+  }
+
+  protected void addExternalId(String externalId, ServerGeoObjectIF object, SourceAuthority authority)
+  {
+    ServerGeoObjectEventBuilder builder = new ServerGeoObjectEventBuilder(this.gObjectService);
+    builder.setObject(object);
+    builder.addExternalId(authority, externalId, ImportStrategy.NEW_ONLY);
+
+    builder.build().stream().forEach(event -> {
+      gateway.publish(GenericEventMessage.asEventMessage(event));
+    });
   }
 
   protected BusinessObject applyBusinessObject(BusinessObject object, boolean isNew)

@@ -38,12 +38,6 @@ public class ConstantShapefileFunction implements ShapefileFunction
     return this.constant;
   }
 
-  @Override
-  public String toJson()
-  {
-    return this.constant;
-  }
-
   public String getConstant()
   {
     return constant;

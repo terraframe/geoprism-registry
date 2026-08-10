@@ -310,7 +310,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
         Assert.assertEquals(Long.valueOf(20), type.getSequence());
       });
 
-      Assert.assertEquals(Long.valueOf(48), this.store.size());
+      Assert.assertEquals(Long.valueOf(49), this.store.size());
 
       // Test Object values
 
@@ -429,7 +429,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
         Assert.assertNotEquals(MockRemoteClientBuilderService.STALE_SOURCE, type.getLabel().getValue());
       });
 
-      Assert.assertEquals(Long.valueOf(96), this.store.size());
+      Assert.assertEquals(Long.valueOf(98), this.store.size());
     }
     finally
     {
@@ -486,7 +486,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
           Assert.assertTrue(this.undirectedTypeService.getByCode(code).isPresent());
         });
 
-        Assert.assertEquals(Long.valueOf(48), this.store.size());
+        Assert.assertEquals(Long.valueOf(49), this.store.size());
       }
       finally
       {
@@ -513,7 +513,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
     try
     {
       // Ensure that events for excluded types are not executed
-      Assert.assertEquals(Long.valueOf(47), this.store.size());
+      Assert.assertEquals(Long.valueOf(48), this.store.size());
     }
     finally
     {
@@ -646,7 +646,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
           Assert.assertEquals(Long.valueOf(20), type.getSequence());
         });
 
-        Assert.assertEquals(Long.valueOf(48), this.store.size());
+        Assert.assertEquals(Long.valueOf(49), this.store.size());
 
         // Test Object values
         ServerGeoObjectIF object = this.gObjectService.getGeoObjectByCode(USATestData.COLORADO.getCode(), USATestData.STATE.getCode());

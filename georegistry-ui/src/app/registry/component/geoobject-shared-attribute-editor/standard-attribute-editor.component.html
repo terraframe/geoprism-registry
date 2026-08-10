@@ -22,14 +22,14 @@
   <!-- 
      Alternate Ids
    -->
-  <ng-container *ngIf="systems && systems.length == 0">
+  <ng-container *ngIf="authorities && authorities.length == 0">
     <table class="table table-striped">
       <tbody class="attribute-element-wrapper" >
         <p class="warning-text"><localize key="shared.noSystems"></localize></p>
       </tbody>
     </table>
   </ng-container>
-  <ng-container *ngIf="systems && systems.length > 0 && attributeType.type === 'list' && attributeType.code === 'altIds' && view && view.value">
+  <ng-container *ngIf="authorities && authorities.length > 0 && attributeType.type === 'list' && attributeType.code === 'altIds' && view && view.value">
 	  <table class="table table-striped">
 	    <tbody class="attribute-element-wrapper" >
 	      <p *ngIf="$any(view).listElements.length == 0" class="message"><localize key="changeovertime.manageVersions.alternateIds.none"></localize></p>
@@ -45,17 +45,17 @@
 	          <table>
 	            <tr><td>
 			          <h5><localize key="changeovertime.manageVersions.alternateIds.externalSystem"></localize></h5>
-			          <select style="float:initial;" [ngClass]="{'has-changed': (eleView.oldExternalSystemId && !isNew)}" id="mod-{{attributeType.code}}" [name]="'altId-' + idx + '-system'" class="select-area" [(ngModel)]="eleView.externalSystemId" (ngModelChange)="eleView.updateModel()" [disabled]="readonly || eleView.summaryKey === 'DELETE'">
-			            <option *ngFor="let system of getAvailableSystems(eleView.externalSystemId)" [value]="system.oid">{{system.label.localizedValue}}</option>
+			          <select style="float:initial;" [ngClass]="{'has-changed': (eleView.oldAuthority && !isNew)}" id="mod-{{attributeType.code}}" [name]="'altId-' + idx + '-authority'" class="select-area" [(ngModel)]="eleView.authority" (ngModelChange)="eleView.updateModel()" [disabled]="readonly || eleView.summaryKey === 'DELETE'">
+			            <option *ngFor="let authority of getAvailableSystems(eleView.authority)" [value]="authority.code">{{authority.label.localizedValue}}</option>
 			          </select>
-			          <div *ngIf="(eleView.summaryKey === 'UPDATE' || eleView.summaryKey === 'VALUE_CHANGE') && eleView.oldExternalSystemId && !isNew">
+			          <div *ngIf="(eleView.summaryKey === 'UPDATE' || eleView.summaryKey === 'VALUE_CHANGE') && eleView.oldAuthority && !isNew">
 	                <p class="warning-text display-current-value" style="padding: 5px 0;margin-bottom:0;">
 	                  <localize key="change.request.changed.value.prefix"></localize>
-	                  {{ getExternalSystemLabel(eleView.oldExternalSystemId) }}
+	                  {{ getExternalSystemLabel(eleView.oldAuthority) }}
 	                </p>
 	              </div>
 			          <div class="form-input-validation-error-message-wrapper">
-		              <p *ngIf="!eleView.externalSystemId" class="error-message">
+		              <p *ngIf="!eleView.authority" class="error-message">
 		                <localize key="manage.versions.value.required.message"></localize>
 		              </p>
 		            </div>
@@ -95,7 +95,7 @@
 	      </tr>
 	    </tbody>
 	  </table>
-	  <li *ngIf="!readonly && view.value.length < systems.length" class="list-group-item" style="text-align: left;">
+	  <li *ngIf="!readonly && view.value.length < authorities.length" class="list-group-item" style="text-align: left;">
       <span class="clickable" (click)="onAddNewId()">
         <i class="fa fa-plus"></i>
         <localize key="changeovertime.manageVersions.alternateIds.new"></localize>

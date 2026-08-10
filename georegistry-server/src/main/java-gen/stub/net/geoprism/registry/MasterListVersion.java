@@ -1496,7 +1496,7 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
 
   public JsonArray values(String value, String attributeName, String valueAttribute, String filterJson)
   {
-    DateFormat filterFormat = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
+    DateFormat filterFormat = new SimpleDateFormat(GeoRegistryUtil.LOCAL_DATE_FORMAT);
     filterFormat.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
     JsonArray results = new JsonArray();
@@ -1554,7 +1554,7 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
 
     if (filterJson != null && filterJson.length() > 0)
     {
-      DateFormat filterFormat = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
+      DateFormat filterFormat = new SimpleDateFormat(GeoRegistryUtil.LOCAL_DATE_FORMAT);
       filterFormat.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
       JsonArray filters = JsonParser.parseString(filterJson).getAsJsonArray();

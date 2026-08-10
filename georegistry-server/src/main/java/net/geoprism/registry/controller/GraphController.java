@@ -35,10 +35,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.io.view.EdgeObjectImportConfigurationDTO;
 import net.geoprism.registry.service.request.EdgeImportService;
 import net.geoprism.registry.service.request.GraphTypeService;
 import net.geoprism.registry.view.EdgeImportConfigurationView;
-import net.geoprism.registry.view.EdgeObjectImportConfigurationDTO;
 
 @RestController
 @Validated
