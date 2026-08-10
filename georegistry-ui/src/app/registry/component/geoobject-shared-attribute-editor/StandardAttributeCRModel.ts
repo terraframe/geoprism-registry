@@ -23,6 +23,7 @@ import { AttributeType, GeoObjectOverTime } from "@registry/model/registry";
 import { ActionTypes } from "@registry/model/constants";
 import { AlternateId, ExternalId } from "@core/model/core";
 import { LocalizationService } from "@shared/service";
+import { v4 as uuid } from "uuid";
 
 export class StandardDiffView {
     summaryKey: SummaryKey;
@@ -81,6 +82,7 @@ export class ListElementView {
     authority: string;
     externalId: ExternalId;
     view: ListDiffView;
+    elementId: string;
     
     constructor(lService: LocalizationService, editor: StandardAttributeCRModel, summaryKey: SummaryKey, view: ListDiffView, id: ExternalId, oldId: string, oldAuthority: string) {
         this.lService = lService;
@@ -88,6 +90,7 @@ export class ListElementView {
         this.setSummaryKey(summaryKey);
         this.view = view;
         this.summaryKey = summaryKey;
+        this.elementId = uuid();
         
         if (this.summaryKey !== SummaryKey.NEW && this.summaryKey !== SummaryKey.DELETE) {
             if (oldId && id.id !== oldId) {

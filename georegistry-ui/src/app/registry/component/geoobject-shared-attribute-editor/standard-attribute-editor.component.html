@@ -58,7 +58,9 @@
                     id="mod-{{attributeType.code}}" [name]="'altId-' + idx + '-authority'" class="select-area"
                     [(ngModel)]="eleView.authority" (ngModelChange)="eleView.updateModel()"
                     [disabled]="readonly || eleView.summaryKey === 'DELETE'"
-                    [authorityUniqueValue]="$any(view).listElements" #authorityControl="ngModel" required>
+                    [authorityUniqueValue]="$any(view).listElements"
+                    [elementId]="eleView.elementId"
+                     #authorityControl="ngModel" required>
                     <option>
                     </option>
                     <option *ngFor="let authority of authorities" [value]="authority.code">

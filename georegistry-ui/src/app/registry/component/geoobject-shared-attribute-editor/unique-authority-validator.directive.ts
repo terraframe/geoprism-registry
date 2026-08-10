@@ -16,6 +16,7 @@ import { ListElementView } from './StandardAttributeCRModel';
 export class UniqueAuthorityValidatorDirective implements Validator {
   // Pass the list of existing values to check against
   @Input('authorityUniqueValue') existingValues: ListElementView[] = [];
+  @Input() elementId: string;
 
   validate(control: AbstractControl): ValidationErrors | null {
     if (!control.value) {
@@ -24,7 +25,7 @@ export class UniqueAuthorityValidatorDirective implements Validator {
 
     // Check if the current value already exists in the provided array
     const isNotUnique = this.existingValues.some(
-      (val) => val.authority === control.value
+      (val) => val.authority === control.value && val.elementId !== this.elementId
     );
 
     // Return an error object if not unique, or null if valid
