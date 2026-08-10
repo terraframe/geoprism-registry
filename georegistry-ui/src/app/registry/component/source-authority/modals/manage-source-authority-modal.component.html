@@ -55,11 +55,45 @@
           </label>
         </div>
         <div class="holder">
-          <span class="text">
-            <input type="text" [(ngModel)]="authority.authorityType" name="authorityType" [disabled]="readOnly">
-          </span>
+          <select id="authorityType" name="authorityType" class="select-area" [(ngModel)]="authority.authorityType"
+            [disabled]="readOnly">
+            <option></option>
+            <option value="GOVERNMENT">
+              <localize key="authority.type.government"></localize>
+            </option>
+            <option value="STATISTICAL">
+              <localize key="authority.type.statistical"></localize>
+            </option>
+            <option value="MAPPING">
+              <localize key="authority.type.mapping"></localize>
+            </option>
+            <option value="RESEARCH">
+              <localize key="authority.type.research"></localize>
+            </option>
+            <option value="NGO">
+              <localize key="authority.type.ngo"></localize>
+            </option>
+            <option value="PRIVATE">
+              <localize key="authority.type.private"></localize>
+            </option>
+            <option value="STANDARDS">
+              <localize key="authority.type.standards"></localize>
+            </option>
+            <option value="COMMUNITY">
+              <localize key="authority.type.community"></localize>
+            </option>
+            <option value="INDIVIDUAL">
+              <localize key="authority.type.individual"></localize>
+            </option>
+            <option value="CONSORTIUM">
+              <localize key="authority.type.consortium"></localize>
+            </option>
+            <option value="PROGRAM">
+              <localize key="authority.type.program"></localize>
+            </option>
+          </select>
         </div>
-      </div>
+      </div>      
 
       <div class="row-holder">
         <div class="button-holder">

@@ -10,6 +10,7 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.graph.SourceAuthority;
+import net.geoprism.registry.model.AuthorityType;
 import net.geoprism.registry.model.SourceAuthorityDTO;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.business.SourceAuthorityBusinessServiceIF;
@@ -47,7 +48,7 @@ public class TestSourceAuthorityInfo
       dto.setCode(code);
       dto.setDescription(new LocalizedValue(code));
       dto.setLabel(new LocalizedValue(code));
-      dto.setAuthorityType("Test Authority Type");
+      dto.setAuthorityType(AuthorityType.GOVERNMENT);
 
       SourceAuthorityBusinessServiceIF service = ServiceFactory.getBean(SourceAuthorityBusinessServiceIF.class);
       this.authority = service.apply(dto);

@@ -50,6 +50,83 @@
           <attribute name="defaultLocale" value="Authority Type" />
         </attributeStruct>
       </object>      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="authority.type.government">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="authority.type.government" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Government Agency" />
+        </attributeStruct>
+      </object> 
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="authority.type.statistical">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="authority.type.statistical" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Statistical Agency" />
+        </attributeStruct>
+      </object> 
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="authority.type.mapping">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="authority.type.mapping" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Mapping Agency" />
+        </attributeStruct>
+      </object> 
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="authority.type.research">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="authority.type.research" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Research Organization" />
+        </attributeStruct>
+      </object> 
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="authority.type.ngo">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="authority.type.ngo" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="NGO" />
+        </attributeStruct>
+      </object> 
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="authority.type.private">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="authority.type.private" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Private Sector" />
+        </attributeStruct>
+      </object> 
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="authority.type.standards">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="authority.type.standards" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Standards Organization" />
+        </attributeStruct>
+      </object> 
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="authority.type.community">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="authority.type.community" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Community Organization" />
+        </attributeStruct>
+      </object> 
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="authority.type.individual">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="authority.type.individual" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Individual" />
+        </attributeStruct>
+      </object> 
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="authority.type.consortium">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="authority.type.consortium" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Consortium" />
+        </attributeStruct>
+      </object> 
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="authority.type.program">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="authority.type.program" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Program" />
+        </attributeStruct>
+      </object> 
       
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="nav.datasource.description">
         <attribute name="storeTag" value="UIText" />
