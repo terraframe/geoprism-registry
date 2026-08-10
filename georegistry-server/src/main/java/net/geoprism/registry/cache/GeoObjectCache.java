@@ -21,15 +21,16 @@ package net.geoprism.registry.cache;
 import java.util.Optional;
 
 import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
-import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 
 public class GeoObjectCache extends LRUCache<String, ServerGeoObjectIF>
 {
-  public static final String         SEPARATOR = "$@~";
+  public static final String            SEPARATOR = "$@~";
 
-  private GeoObjectBusinessServiceIF objectService;
+  private GPRGeoObjectBusinessServiceIF objectService;
 
   public GeoObjectCache()
   {
@@ -42,11 +43,11 @@ public class GeoObjectCache extends LRUCache<String, ServerGeoObjectIF>
   }
 
   // Lazy load the service
-  protected GeoObjectBusinessServiceIF getObjectService()
+  protected GPRGeoObjectBusinessServiceIF getObjectService()
   {
     if (this.objectService == null)
     {
-      this.objectService = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
+      this.objectService = ServiceFactory.getBean(GPRGeoObjectBusinessServiceIF.class);
     }
 
     return this.objectService;
@@ -55,6 +56,11 @@ public class GeoObjectCache extends LRUCache<String, ServerGeoObjectIF>
   public Optional<ServerGeoObjectIF> get(String code, String typeCode)
   {
     return this.get(typeCode + SEPARATOR + code);
+  }
+
+  public Optional<ServerGeoObjectIF> getByExternalId(String externalId, String typeCode, String authority)
+  {
+    return this.get(typeCode + SEPARATOR + authority + SEPARATOR + externalId);
   }
 
   public ServerGeoObjectIF getByCode(String code, String typeCode)
@@ -70,6 +76,20 @@ public class GeoObjectCache extends LRUCache<String, ServerGeoObjectIF>
       this.put(typeCode + SEPARATOR + code, object);
 
       return object;
+    });
+  }
+
+  public ServerGeoObjectIF getOrFetchByExternalId(String externalId, String typeCode, String authority)
+  {
+    return this.getByExternalId(externalId, typeCode, authority).orElseGet(() -> {
+      Optional<VertexServerGeoObject> optional = getObjectService().getByExternalId(externalId, authority, ServerGeoObjectType.get(typeCode));
+
+      optional.ifPresent(object -> {
+        this.put(typeCode + SEPARATOR + authority + SEPARATOR + externalId, object);
+        this.put(typeCode + SEPARATOR + object.getCode(), object);
+      });
+
+      return optional.orElse(null);
     });
   }
 }

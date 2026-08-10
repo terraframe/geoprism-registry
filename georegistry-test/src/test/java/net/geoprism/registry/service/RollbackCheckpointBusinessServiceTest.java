@@ -78,8 +78,6 @@ public class RollbackCheckpointBusinessServiceTest extends EventDatasetTest impl
 
     this.store.truncate();
 
-    this.projection.clearCache();
-
     testData.tearDownInstanceData();
   }
 

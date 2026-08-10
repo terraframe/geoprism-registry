@@ -129,10 +129,12 @@ export class ImportConfiguration {
 export class EdgeImportConfiguration extends ImportConfiguration {
     edgeSource: string;
     edgeSourceStrategy: string;
+    edgeSourceAuthority: string;
     edgeSourceType: string;
     edgeSourceTypeStrategy: string;
     edgeTarget: string;
     edgeTargetStrategy: string;
+    edgeTargetAuthority: string;
     edgeTargetType: string;
     edgeTargetTypeStrategy: string;
     sourceTypes: { code: string, label: string }[];

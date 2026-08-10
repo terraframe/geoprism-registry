@@ -163,11 +163,15 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
 
     pObject = createBusinessObject("P_CODE", btype, FastTestDataset.SOURCE.getDataSource(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
     cObject = createBusinessObject("C_CODE", btype, FastTestDataset.SOURCE.getDataSource(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+
+    this.gObjectService.applyExternalId(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.AUTHORITY.getCode(), "TEST-EXTERNAL-ID", ImportStrategy.NEW_AND_UPDATE, false);
   }
 
   @After
   public void tearDown() throws IOException
   {
+    this.gObjectService.removeExternalId(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.AUTHORITY.getCode(), false);
+
     testData.logOut();
 
     testData.tearDownInstanceData();
@@ -202,8 +206,6 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
       one.setCode(String.valueOf(i));
       one.delete();
     }
-
-    projection.clearCache();
   }
 
   private void generateDistricts()
@@ -260,6 +262,19 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
       jo.put("targetType", target.getType().getCode());
       all.put(jo);
     }
+
+    return new ByteArrayInputStream(all.toString().getBytes());
+  }
+
+  private InputStream generateEdgeJson(String source, VertexComponent target)
+  {
+    JSONArray all = new JSONArray();
+
+    JSONObject jo = new JSONObject();
+    jo.put("source", source);
+    jo.put("target", target.getCode());
+    jo.put("targetType", target.getType().getCode());
+    all.put(jo);
 
     return new ByteArrayInputStream(all.toString().getBytes());
   }
@@ -516,6 +531,41 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
       {
         district.delete();
       }
+    });
+  }
+
+  @Test
+  public void testExternalId() throws InterruptedException
+  {
+    TestDataSet.executeRequestAsUser(FastTestDataset.USER_ADMIN, () -> {
+      InputStream istream = generateEdgeJson("TEST-EXTERNAL-ID", cObject);
+
+      Assert.assertNotNull(istream);
+
+      EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(TypeClass.BUSINESS_EDGE.getCode(), bGeoEdgeType.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
+      config.setEdgeSourceStrategy(ReferenceStrategy.EXTERNAL_ID);
+      config.setEdgeSourceAuthority(FastTestDataset.AUTHORITY.getCode());
+      config.setEdgeSourceTypeStrategy(ReferenceStrategy.FIXED_TYPE);
+      config.setEdgeSourceType(FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
+      config.setEdgeTargetTypeStrategy(ReferenceStrategy.FIXED_TYPE);
+      config.setEdgeTargetType(btype.getCode());
+
+      long start = System.nanoTime();
+
+      ImportHistory hist = this.etlService.importJsonFile(config.toDTO());
+
+      SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
+      System.out.println("Elapsed: " + ( System.nanoTime() - start ) / 1_000_000_000.0 + " s");
+
+      hist = ImportHistory.get(hist.getOid());
+      Assert.assertEquals(Long.valueOf(1), hist.getWorkTotal());
+      Assert.assertEquals(Long.valueOf(1), hist.getWorkProgress());
+      Assert.assertEquals(Long.valueOf(1), hist.getImportedRecords());
+      Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+
+      List<VertexComponent> tagets = this.bObjectService.getParents(cObject, bGeoEdgeType, TestDataSet.DEFAULT_OVER_TIME_DATE);
+
+      Assert.assertEquals(1, tagets.size());
     });
   }
 

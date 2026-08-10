@@ -115,7 +115,6 @@ public class BusinessEdgeJsonImporter
     }
     finally
     {
-      this.projection.clearCache();
     }
   }
 

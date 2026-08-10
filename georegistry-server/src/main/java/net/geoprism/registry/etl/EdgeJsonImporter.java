@@ -129,7 +129,6 @@ public class EdgeJsonImporter
     }
     finally
     {
-      this.projection.clearCache();
     }
 
   }

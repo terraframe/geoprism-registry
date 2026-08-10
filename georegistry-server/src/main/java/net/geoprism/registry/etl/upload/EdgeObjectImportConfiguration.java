@@ -22,71 +22,29 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.runwaysdk.session.Request;
 
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.etl.upload.EdgeObjectImporter.ReferenceStrategy;
+import net.geoprism.registry.graph.SourceAuthority;
 import net.geoprism.registry.io.view.EdgeObjectImportConfigurationDTO;
 import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.model.EdgeType;
 import net.geoprism.registry.service.business.EdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
+import net.geoprism.registry.service.business.SourceAuthorityBusinessServiceIF;
 import net.geoprism.registry.view.TypeClass;
 import net.geoprism.registry.view.TypeInfo;
 
 public class EdgeObjectImportConfiguration extends ImportConfiguration
 {
-  public static final String                           PARENT_EXCLUSION          = "##PARENT##";
-
-  public static final String                           TARGET                    = "target";
-
-  public static final String                           BASE_TYPE                 = "baseType";
-
-  public static final String                           TEXT                      = "text";
-
-  public static final String                           NUMERIC                   = "numeric";
-
-  public static final String                           GRAPH_TYPE_CODE           = "graphTypeCode";
-
-  public static final String                           GRAPH_TYPE_CLASS          = "graphTypeClass";
-
-  public static final String                           DIRECTION                 = "direction";
-
-  public static final String                           LOCATIONS                 = "locations";
-
-  public static final String                           TYPE                      = "type";
-
-  public static final String                           SHEET                     = "sheet";
-
-  public static final String                           EXCLUSIONS                = "exclusions";
-
-  public static final String                           VALUE                     = "value";
-
-  public static final String                           DATE_FORMAT               = "yyyy-MM-dd";
-
-  public static final String                           MATCH_STRATEGY            = "matchStrategy";
-
-  public static final String                           VALIDATE                  = "validate";
-
-  public static final String                           EDGE_SOURCE               = "edgeSource";
-
-  public static final String                           EDGE_SOURCE_STRATEGY      = "edgeSourceStrategy";
-
-  public static final String                           EDGE_SOURCE_TYPE          = "edgeSourceType";
-
-  public static final String                           EDGE_SOURCE_TYPE_STRATEGY = "edgeSourceTypeStrategy";
-
-  public static final String                           EDGE_TARGET               = "edgeTarget";
-
-  public static final String                           EDGE_TARGET_STRATEGY      = "edgeTargetStrategy";
-
-  public static final String                           EDGE_TARGET_TYPE          = "edgeTargetType";
-
-  public static final String                           EDGE_TARGET_TYPE_STRATEGY = "edgeTargetTypeStrategy";
-
   private String                                       edgeSource;
 
   private ReferenceStrategy                            edgeSourceStrategy;
+
+  private String                                       edgeSourceAuthority;
 
   private String                                       edgeSourceType;
 
@@ -96,6 +54,8 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
 
   private ReferenceStrategy                            edgeTargetStrategy;
 
+  private String                                       edgeTargetAuthority;
+
   private String                                       edgeTargetType;
 
   private ReferenceStrategy                            edgeTargetTypeStrategy;
@@ -104,13 +64,16 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
 
   private boolean                                      validate;
 
-  private LinkedList<EdgeObjectRecordedErrorException> errors                    = new LinkedList<EdgeObjectRecordedErrorException>();
+  private LinkedList<EdgeObjectRecordedErrorException> errors = new LinkedList<EdgeObjectRecordedErrorException>();
 
   private EdgeTypeBusinessServiceIF                    service;
+
+  private SourceAuthorityBusinessServiceIF             authorityService;
 
   public EdgeObjectImportConfiguration()
   {
     this.service = ServiceFactory.getBean(EdgeTypeBusinessServiceIF.class);
+    this.authorityService = ServiceFactory.getBean(SourceAuthorityBusinessServiceIF.class);
 
     this.functions = new HashMap<String, ShapefileFunction>();
   }
@@ -133,6 +96,16 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
   public void setEdgeSourceStrategy(ReferenceStrategy edgeSourceStrategy)
   {
     this.edgeSourceStrategy = edgeSourceStrategy;
+  }
+
+  public String getEdgeSourceAuthority()
+  {
+    return edgeSourceAuthority;
+  }
+
+  public void setEdgeSourceAuthority(String edgeSourceAuthority)
+  {
+    this.edgeSourceAuthority = edgeSourceAuthority;
   }
 
   public String getEdgeSourceType()
@@ -173,6 +146,16 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
   public void setEdgeTargetStrategy(ReferenceStrategy edgeTargetStrategy)
   {
     this.edgeTargetStrategy = edgeTargetStrategy;
+  }
+
+  public String getEdgeTargetAuthority()
+  {
+    return edgeTargetAuthority;
+  }
+
+  public void setEdgeTargetAuthority(String edgeTargetAuthority)
+  {
+    this.edgeTargetAuthority = edgeTargetAuthority;
   }
 
   public String getEdgeTargetType()
@@ -278,11 +261,15 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
 
     dto.setEdgeSource(edgeSource);
     dto.setEdgeSourceStrategy(edgeSourceStrategy);
+    dto.setEdgeSourceAuthority(edgeSourceAuthority);
+
     dto.setEdgeSourceType(edgeSourceType);
     dto.setEdgeSourceTypeStrategy(edgeSourceTypeStrategy);
 
     dto.setEdgeTarget(edgeTarget);
     dto.setEdgeTargetStrategy(edgeTargetStrategy);
+    dto.setEdgeTargetAuthority(edgeTargetAuthority);
+
     dto.setEdgeTargetType(edgeTargetType);
     dto.setEdgeTargetTypeStrategy(edgeTargetTypeStrategy);
 
@@ -296,11 +283,15 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
 
     edgeSource = dto.getEdgeSource();
     edgeSourceStrategy = dto.getEdgeSourceStrategy();
+    edgeSourceAuthority = dto.getEdgeSourceAuthority();
+
     edgeSourceType = dto.getEdgeSourceType();
     edgeSourceTypeStrategy = dto.getEdgeSourceTypeStrategy();
 
     edgeTarget = dto.getEdgeTarget();
     edgeTargetStrategy = dto.getEdgeTargetStrategy();
+    edgeTargetAuthority = dto.getEdgeTargetAuthority();
+
     edgeTargetType = dto.getEdgeTargetType();
     edgeTargetTypeStrategy = dto.getEdgeTargetTypeStrategy();
 

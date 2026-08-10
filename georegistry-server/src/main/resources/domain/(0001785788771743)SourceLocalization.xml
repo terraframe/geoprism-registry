@@ -278,6 +278,21 @@
           <attribute name="defaultLocale" value="A souce authority can only have a single alternate id mapping" />
         </attributeStruct>
       </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.edge.sourceAuthority">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.edge.sourceAuthority" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Source Column Source Authority" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.edge.targetAuthority">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.edge.targetAuthority" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Target Column Source Authority" />
+        </attributeStruct>
+      </object>
       
            
     </createOrUpdate>

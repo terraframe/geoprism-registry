@@ -282,8 +282,6 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
     TestDataSet.deleteAllListData();
 
     this.store.truncate();
-
-    this.projection.clearCache();
   }
 
   protected PublishDTO getPublishDTO()

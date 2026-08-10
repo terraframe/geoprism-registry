@@ -135,7 +135,7 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
   }
 
   @Override
-  public VertexServerGeoObject getByExternalId(String externalId, String authorityCode, ServerGeoObjectType type)
+  public Optional<VertexServerGeoObject> getByExternalId(String externalId, String authorityCode, ServerGeoObjectType type)
   {
     SourceAuthority authority = this.authorityService.getByCodeOrThrow(authorityCode);
 
@@ -168,12 +168,10 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
         type = ServerGeoObjectType.get((MdVertexDAOIF) vo.getMdClass());
       }
 
-      return new VertexServerGeoObject(type, vo, new TreeMap<>());
+      return Optional.of(new VertexServerGeoObject(type, vo, new TreeMap<>()));
     }
-    else
-    {
-      return null;
-    }
+
+    return Optional.empty();
   }
 
   private Optional<ExternalId> getExternalIdEdge(ServerGeoObjectIF sgo, SourceAuthority authority)

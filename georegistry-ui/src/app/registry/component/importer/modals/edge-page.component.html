@@ -44,10 +44,12 @@
           </label>
         </div>
         <div class="holder">
-          <select name="sourceStrategy" class="select-area" [(ngModel)]="configuration.edgeSourceStrategy"
-            [required]="true">
-            <option [ngValue]="'CODE'">
+          <select name="sourceStrategy" class="select-area" [(ngModel)]="configuration.edgeSourceStrategy" required>
+            <option value="CODE">
               <localize key="io.edge.codeStrategy"></localize>
+            </option>
+            <option value="EXTERNAL_ID">
+              <localize key="changeovertime.manageVersions.alternateIds.id"></localize>
             </option>
           </select>
         </div>
@@ -63,6 +65,24 @@
           <select name="source" class="select-area" [(ngModel)]="configuration.edgeSource" [required]="true">
             <option></option>
             <option *ngFor="let attr of configuration.sheet.attributes['text']" [value]="attr">{{attr}}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row-holder" *ngIf="configuration.edgeSourceStrategy === 'EXTERNAL_ID'">
+        <div class="label-holder">
+          <label class="">
+            <localize key="io.edge.sourceAuthority"></localize>
+          </label>
+        </div>
+        <div class="holder">
+          <select name="sourceAuthority" class="select-area" [(ngModel)]="configuration.edgeSourceAuthority" required>
+            <option> </option>
+            @for (authority of authorities; track authority.code) {
+            <option [value]="authority.code">
+              {{authority.label.localizedValue}}
+            </option>
+            }
           </select>
         </div>
       </div>
@@ -112,10 +132,12 @@
           </label>
         </div>
         <div class="holder">
-          <select name="targetStrategy" class="select-area" [(ngModel)]="configuration.edgeTargetStrategy"
-            [required]="true">
+          <select name="targetStrategy" class="select-area" [(ngModel)]="configuration.edgeTargetStrategy" required>
             <option value="CODE">
               <localize key="io.edge.codeStrategy"></localize>
+            </option>
+            <option value="EXTERNAL_ID">
+              <localize key="changeovertime.manageVersions.alternateIds.id"></localize>
             </option>
           </select>
         </div>
@@ -134,6 +156,25 @@
           </select>
         </div>
       </div>
+
+      <div class="row-holder" *ngIf="configuration.edgeTargetStrategy === 'EXTERNAL_ID'">
+        <div class="label-holder">
+          <label class="">
+            <localize key="io.edge.targetAuthority"></localize>
+          </label>
+        </div>
+        <div class="holder">
+          <select name="targetAuthority" class="select-area" [(ngModel)]="configuration.edgeTargetAuthority" required>
+            <option> </option>
+            @for (authority of authorities; track authority.code) {
+            <option [value]="authority.code">
+              {{authority.label.localizedValue}}
+            </option>
+            }
+          </select>
+        </div>
+      </div>
+
 
       <div class="row-holder">
         <div class="label-holder">

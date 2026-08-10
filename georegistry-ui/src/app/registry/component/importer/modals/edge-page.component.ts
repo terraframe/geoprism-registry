@@ -23,6 +23,7 @@ import { EdgeImportConfiguration, ImportConfiguration } from '@registry/model/io
 import { FormsModule } from '@angular/forms';
 import { NgIf, NgFor } from '@angular/common';
 import { LocalizeComponent } from '@shared/component/localize/localize.component';
+import { SourceAuthority } from '@registry/model/source';
 
 @Component({
     selector: 'edge-page',
@@ -36,6 +37,7 @@ export class EdgePageComponent implements OnInit {
     @Input() configuration: EdgeImportConfiguration;
     @Input() hasNext: boolean = false;
     @Input() hasBack: boolean = false;
+    @Input() authorities: SourceAuthority[] = [];
 
     @Output() configurationChange = new EventEmitter<ImportConfiguration>();
     @Output() stateChange = new EventEmitter<string>();

@@ -19,6 +19,7 @@
 package net.geoprism.registry.service.business;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
@@ -36,7 +37,7 @@ public interface GPRGeoObjectBusinessServiceIF extends GeoObjectBusinessServiceI
 
   void removeExternalId(ServerGeoObjectIF sgo, String authorityCode, boolean validateOrigin);
 
-  VertexServerGeoObject getByExternalId(String externalId, String authorityCode, ServerGeoObjectType type);
+  Optional<VertexServerGeoObject> getByExternalId(String externalId, String authorityCode, ServerGeoObjectType type);
 
   List<ExternalId> getAllExternalIds(ServerGeoObjectIF sgo);
 

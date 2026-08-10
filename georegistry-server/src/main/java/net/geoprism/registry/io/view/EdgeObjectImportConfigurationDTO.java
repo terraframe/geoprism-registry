@@ -31,6 +31,8 @@ public class EdgeObjectImportConfigurationDTO extends ImportConfigurationDTO
 
   private ReferenceStrategy edgeSourceStrategy;
 
+  private String            edgeSourceAuthority;
+
   private String            edgeSourceType;
 
   private ReferenceStrategy edgeSourceTypeStrategy;
@@ -38,6 +40,8 @@ public class EdgeObjectImportConfigurationDTO extends ImportConfigurationDTO
   private String            edgeTarget;
 
   private ReferenceStrategy edgeTargetStrategy;
+
+  private String            edgeTargetAuthority;
 
   private String            edgeTargetType;
 
@@ -93,6 +97,16 @@ public class EdgeObjectImportConfigurationDTO extends ImportConfigurationDTO
     this.edgeSourceStrategy = edgeSourceStrategy;
   }
 
+  public String getEdgeSourceAuthority()
+  {
+    return edgeSourceAuthority;
+  }
+
+  public void setEdgeSourceAuthority(String edgeSourceAuthority)
+  {
+    this.edgeSourceAuthority = edgeSourceAuthority;
+  }
+
   public String getEdgeSourceType()
   {
     return edgeSourceType;
@@ -131,6 +145,16 @@ public class EdgeObjectImportConfigurationDTO extends ImportConfigurationDTO
   public void setEdgeTargetStrategy(ReferenceStrategy edgeTargetStrategy)
   {
     this.edgeTargetStrategy = edgeTargetStrategy;
+  }
+
+  public String getEdgeTargetAuthority()
+  {
+    return edgeTargetAuthority;
+  }
+
+  public void setEdgeTargetAuthority(String edgeTargetAuthority)
+  {
+    this.edgeTargetAuthority = edgeTargetAuthority;
   }
 
   public String getEdgeTargetType()

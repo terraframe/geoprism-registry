@@ -22,6 +22,7 @@ import com.runwaysdk.dataaccess.RelationshipDAO;
 import com.runwaysdk.dataaccess.graph.GraphDBService;
 import com.runwaysdk.dataaccess.graph.GraphRequest;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.dataaccess.transaction.TransactionState;
 import com.runwaysdk.util.IDGenerator;
 
 import net.geoprism.configuration.GeoprismProperties;
@@ -92,7 +93,13 @@ import net.geoprism.registry.view.ObjectOverTimeDTO;
 @Service
 public class RepositoryProjection
 {
-  private static Logger                     logger = LoggerFactory.getLogger(RepositoryProjection.class);
+  public static final String                GEO_CACHE      = "geo-cache";
+
+  public static final String                BUSINESS_CACHE = "business-cache";
+
+  public static final String                RID_CACHE      = "rid-cache";
+
+  private static Logger                     logger         = LoggerFactory.getLogger(RepositoryProjection.class);
 
   @Autowired
   private HierarchyTypeBusinessServiceIF    hService;
@@ -123,19 +130,6 @@ public class RepositoryProjection
 
   @Autowired
   private SourceAuthorityBusinessServiceIF  authorityService;
-
-  private final GeoObjectCache              goCache;
-
-  private final BusinessObjectCache         boCache;
-
-  private final Cache<String, Object>       goRidCache;
-
-  public RepositoryProjection()
-  {
-    this.boCache = new BusinessObjectCache();
-    this.goCache = new GeoObjectCache();
-    this.goRidCache = new LRUCache<String, Object>(1000);
-  }
 
   @EventHandler
   @Transaction
@@ -323,8 +317,8 @@ public class RepositoryProjection
     final GraphType graphType = this.graphTypeService.getByCode(event.getEdgeType(), event.getEdgeTypeCode());
     DataSource dataSource = this.sourceService.getByCode(event.getDataSource()).orElse(null);
 
-    ServerGeoObjectIF source = goCache.getOrFetchByCode(event.getSourceCode(), event.getSourceType());
-    ServerGeoObjectIF target = goCache.getOrFetchByCode(event.getTargetCode(), event.getTargetType());
+    ServerGeoObjectIF source = this.getGeoObjectCache().getOrFetchByCode(event.getSourceCode(), event.getSourceType());
+    ServerGeoObjectIF target = this.getGeoObjectCache().getOrFetchByCode(event.getTargetCode(), event.getTargetType());
 
     if (event.getValidate())
     {
@@ -550,7 +544,7 @@ public class RepositoryProjection
   {
     String typeDbClassName = ServerGeoObjectType.get(typeCode).getDBClassName();
 
-    Optional<Object> optional = this.goRidCache.get(typeCode + "$#!" + code);
+    Optional<Object> optional = this.getRidCache().get(typeCode + "$#!" + code);
 
     return optional.orElseGet(() -> {
       GraphQuery<Object> query = new GraphQuery<Object>("select @rid from " + typeDbClassName + " where code=:code;");
@@ -563,7 +557,7 @@ public class RepositoryProjection
         throw new DataNotFoundException("Could not find Geo-Object with code " + code + " on table " + typeDbClassName);
       }
 
-      this.goRidCache.put(typeCode + "$#!" + code, rid);
+      this.getRidCache().put(typeCode + "$#!" + code, rid);
 
       return rid;
     });
@@ -644,12 +638,12 @@ public class RepositoryProjection
     DataSource dataSource = this.sourceService.getByCode(event.getDataSource()).orElse(null);
 
     VertexComponent source = edgeType.getIsParentGeoObject() ? //
-        goCache.getOrFetchByCode(event.getSourceCode(), event.getSourceType()) : //
-        boCache.getOrFetchByCode(event.getSourceCode(), event.getSourceType());
+        this.getGeoObjectCache().getOrFetchByCode(event.getSourceCode(), event.getSourceType()) : //
+        this.getBusinessObjectCache().getOrFetchByCode(event.getSourceCode(), event.getSourceType());
 
     VertexComponent target = edgeType.getIsChildGeoObject() ? //
-        goCache.getOrFetchByCode(event.getTargetCode(), event.getTargetType()) : //
-        boCache.getOrFetchByCode(event.getTargetCode(), event.getTargetType());
+        this.getGeoObjectCache().getOrFetchByCode(event.getTargetCode(), event.getTargetType()) : //
+        this.getBusinessObjectCache().getOrFetchByCode(event.getTargetCode(), event.getTargetType());
 
     if (event.getValidate())
     {
@@ -767,7 +761,7 @@ public class RepositoryProjection
 
     String typeDbClassName = businessType.getMdVertexDAO().getDBClassName();
 
-    Optional<Object> optional = this.goRidCache.get(businessType.getCode() + "$#!" + code);
+    Optional<Object> optional = this.getRidCache().get(businessType.getCode() + "$#!" + code);
 
     return optional.orElseGet(() -> {
       GraphQuery<Object> query = new GraphQuery<Object>("select @rid from " + typeDbClassName + " where code=:code;");
@@ -780,7 +774,7 @@ public class RepositoryProjection
         throw new DataNotFoundException("Could not find Business-Object with code " + code + " on table " + typeDbClassName);
       }
 
-      this.goRidCache.put(businessType.getCode() + "$#!" + code, rid);
+      this.getRidCache().put(businessType.getCode() + "$#!" + code, rid);
 
       return rid;
     });
@@ -897,13 +891,6 @@ public class RepositoryProjection
     service.command(request, statement.toString(), parameters);
   }
 
-  public void clearCache()
-  {
-    this.boCache.clear();
-    this.goCache.clear();
-    this.goRidCache.clear();
-  }
-
   private void createImportHistoryRelationship(ImportHistoryEvent event, ServerGeoObjectIF sgo)
   {
     if (sgo != null)
@@ -917,5 +904,57 @@ public class RepositoryProjection
         relationship.apply();
       }
     }
+  }
+
+  private GeoObjectCache getGeoObjectCache()
+  {
+    TransactionState state = TransactionState.getCurrentTransactionState();
+
+    if (state != null)
+    {
+      GeoObjectCache cache = (GeoObjectCache) state.getTransactionObject(GEO_CACHE);
+
+      if (cache != null)
+      {
+        return cache;
+      }
+    }
+
+    return new GeoObjectCache(1);
+  }
+
+  private BusinessObjectCache getBusinessObjectCache()
+  {
+    TransactionState state = TransactionState.getCurrentTransactionState();
+
+    if (state != null)
+    {
+      BusinessObjectCache cache = (BusinessObjectCache) state.getTransactionObject(BUSINESS_CACHE);
+
+      if (cache != null)
+      {
+        return cache;
+      }
+    }
+
+    return new BusinessObjectCache(1);
+  }
+
+  @SuppressWarnings("unchecked")
+  private Cache<String, Object> getRidCache()
+  {
+    TransactionState state = TransactionState.getCurrentTransactionState();
+
+    if (state != null)
+    {
+      Cache<String, Object> cache = (Cache<String, Object>) state.getTransactionObject(BUSINESS_CACHE);
+
+      if (cache != null)
+      {
+        return cache;
+      }
+    }
+
+    return new LRUCache<String, Object>(10);
   }
 }

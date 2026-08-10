@@ -73,8 +73,6 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
 
     this.store.truncate();
 
-    this.projection.clearCache();
-
     testData.tearDownInstanceData();
   }
 

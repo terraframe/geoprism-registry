@@ -23,7 +23,7 @@
 
   <div *ngIf="configuration != null && configuration">
     <div *ngIf="state === 'EDGE'">
-      <edge-page [configuration]="$any(configuration)" [hasNext]="hasNext" [hasBack]="hasBack" (stateChange)="onStateChange($event)"></edge-page>
+      <edge-page [configuration]="$any(configuration)"  [authorities]="authorities" [hasNext]="hasNext" [hasBack]="hasBack" (stateChange)="onStateChange($event)"></edge-page>
     </div>
     <div *ngIf="state === 'MAP'">
       <attributes-page [configuration]="configuration" [hasNext]="hasNext" [hasBack]="hasBack"  (stateChange)="onStateChange($event)"></attributes-page>
