@@ -32,7 +32,7 @@
       <id-mapping-page [configuration]="configuration" [hasNext]="hasNext" [hasBack]="hasBack" [authorities]="authorities" (stateChange)="onStateChange($event)"></id-mapping-page>
     </div>
     <div *ngIf="state === 'LOCATION'">
-      <location-page [configuration]="configuration" [hasNext]="hasNext" [hasBack]="hasBack" [property]="property" [includeChild]="includeChild" (stateChange)="onStateChange($event)"></location-page>
+      <location-page [configuration]="configuration" [authorities]="authorities" [hasNext]="hasNext" [hasBack]="hasBack" [property]="property" [includeChild]="includeChild" (stateChange)="onStateChange($event)"></location-page>
     </div>
     <div *ngIf="state === 'LOCATION-PROBLEM'">
       <location-problem-page [configuration]="configuration" (stateChange)="onStateChange($event)"></location-problem-page>

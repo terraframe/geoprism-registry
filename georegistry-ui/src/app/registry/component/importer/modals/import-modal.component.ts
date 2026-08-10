@@ -94,7 +94,7 @@ export class ImportModalComponent {
                     this.pages.push(Pages.IDS);
                 }
 
-                if (this.configuration.postalCode && this.configuration.hierarchy != null) {
+                if (this.configuration.postalCode || this.configuration.hierarchy != null) {
                     this.pages.push(Pages.LOCATION);
                 }
             }
