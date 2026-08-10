@@ -3,19 +3,19 @@ import { AbstractControl, NG_VALIDATORS, Validator, ValidationErrors } from '@an
 import { IdMapping } from '@registry/model/io';
 
 @Directive({
-  selector: '[authorityUniqueValue]',
+  selector: '[idMappingUniqueValue]',
   standalone: true, // Use standalone: true for modern Angular (v14+)
   providers: [
     {
       provide: NG_VALIDATORS,
-      useExisting: UniqueAuthorityValidatorDirective,
+      useExisting: UniqueMappingValidatorDirective,
       multi: true
     }
   ]
 })
-export class UniqueAuthorityValidatorDirective implements Validator {
+export class UniqueMappingValidatorDirective implements Validator {
   // Pass the list of existing values to check against
-  @Input('authorityUniqueValue') existingValues: IdMapping[] = [];
+  @Input('idMappingUniqueValue') existingValues: IdMapping[] = [];
 
   validate(control: AbstractControl): ValidationErrors | null {
     if (!control.value) {

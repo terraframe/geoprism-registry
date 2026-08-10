@@ -137,7 +137,7 @@ public class UpdateStandardAttributeView extends AbstractUpdateAttributeView
       {
         SourceAuthority authority = authorityService.getByCodeOrThrow(dto.getAuthority());
 
-        builder.addExternalId(authority, dto.getId(), ImportStrategy.NEW_ONLY);
+        builder.addExternalId(authority, dto.getId(), ImportStrategy.NEW_AND_UPDATE);
       }
     }
   }

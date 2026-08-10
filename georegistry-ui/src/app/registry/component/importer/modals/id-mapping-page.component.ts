@@ -26,14 +26,14 @@ import { LocalizeComponent } from '@shared/component/localize/localize.component
 import { FormsModule } from '@angular/forms';
 import { SourceAuthority } from '@registry/model/source';
 import { v4 as uuid } from "uuid";
-import { UniqueAuthorityValidatorDirective } from './unique-value-validator.directive';
+import { UniqueMappingValidatorDirective } from './unique-mapping-validator.directive';
 
 @Component({
     selector: 'id-mapping-page',
     templateUrl: './id-mapping-page.component.html',
     styleUrls: [],
     standalone: true,
-    imports: [FormsModule, NgFor, NgIf, LocalizeComponent, UniqueAuthorityValidatorDirective]
+    imports: [FormsModule, NgFor, NgIf, LocalizeComponent, UniqueMappingValidatorDirective]
 })
 export class IdMappingPageComponent implements OnInit {
 

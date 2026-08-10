@@ -39,7 +39,7 @@
               </div>
               <div class="holder">
                 <select class="select-area" [(ngModel)]="mapping.authority" [name]="mapping.id + 'authority'"
-                  [required]="true" [authorityUniqueValue]="configuration.ids" #authorityControl="ngModel">
+                  [required]="true" [idMappingUniqueValue]="configuration.ids" #authorityControl="ngModel">
                   <option></option>
                   @for (authority of authorities; track authority.code) {
                   <option [value]="authority.code">
@@ -50,7 +50,7 @@
                 <!-- Error Messages Breakdown -->
                 <div class="form-input-validation-error-message-wrapper">
                   <p *ngIf="authorityControl.invalid && (authorityControl.dirty || authorityControl.touched)" class="error-message">
-                    A souce authority can only have a single alternate id mapping
+                    <localize key="io.ids.duplicate"></localize>
                   </p>
                 </div>
               </div>
