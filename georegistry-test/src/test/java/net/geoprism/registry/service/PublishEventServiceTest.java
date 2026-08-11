@@ -122,7 +122,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
   @Autowired
   private RegistryEventStore                        store;
 
-  private static boolean                            WRITE_FILES = true;
+  private static boolean                            WRITE_FILES = false;
 
   @Test
   @Request
