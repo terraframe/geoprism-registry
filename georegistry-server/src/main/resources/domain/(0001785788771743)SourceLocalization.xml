@@ -370,9 +370,46 @@
           <attribute name="defaultLocale" value="Target Column Source Authority" />
         </attributeStruct>
       </object>
-      
-           
     </createOrUpdate>
+    <permissions>
+      <role roleName="cgr.RegistryMaintainer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.graph.SourceAuthority">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.graph.DataSource">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryContributor">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.graph.SourceAuthority">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.graph.DataSource">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.APIConsumer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.graph.SourceAuthority">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.graph.DataSource">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      
+    </permissions>
+    
+    
   </doIt>
   <undoIt>
     <delete></delete>
