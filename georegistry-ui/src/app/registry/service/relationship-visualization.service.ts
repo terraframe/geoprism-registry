@@ -34,9 +34,10 @@ export class RelationshipVisualizationService {
     constructor(private http: HttpClient, private eventService: EventService, private route: ActivatedRoute) {
     }
 
-    tree(relationshipType: string, graphTypeCode: string, sourceVertex: ObjectReference, date: string, boundsWKT: string): Promise<TreeData> {
+    tree(relationshipType: string, graphTypeCode: string, sourceVertex: ObjectReference, date: string, boundsWKT: string, nullDateIsLatest: boolean = true): Promise<TreeData> {
         let params: HttpParams = new HttpParams();
         params = params.set("sourceVertex", JSON.stringify(sourceVertex));
+        params = params.set("nullDateIsLatest", nullDateIsLatest);
 
         if (relationshipType != null) {
             params = params.set("relationshipType", relationshipType);
@@ -110,7 +111,7 @@ export class RelationshipVisualizationService {
         objectType: "BUSINESS" | "GEOOBJECT",
         typeCode: string,
         sourceVertex: ObjectReference
-    ): Promise<Relationship[]> {
+    ): Promise<{relationships: Relationship[], stabilityPeriods: any}> {
         let params: HttpParams = new HttpParams();
 
         params = params.set("objectType", objectType);
@@ -118,7 +119,7 @@ export class RelationshipVisualizationService {
         params = params.set("sourceVertex", JSON.stringify(sourceVertex));
 
         return this.http
-            .get<any[]>(
+            .get<any>(
                 environment.apiUrl
                     + "/api/relationship-visualization/relationship-counts",
                 { params: params }
@@ -126,25 +127,7 @@ export class RelationshipVisualizationService {
             .pipe(finalize(() => {
                 // this.eventService.complete();
             }))
-            .toPromise()
-            .then(results => {
-                /*
-                * The preferred backend response has the original Relationship
-                * fields plus count.
-                *
-                * The fallbacks also support the names from the new count
-                * projection if the backend currently returns relationshipType
-                * instead of type.
-                */
-                return (results || []).map(result => {
-                    return {
-                        ...result,
-                        oid: result.oid || result.code,
-                        type: result.type || result.relationshipType,
-                        count: Number(result.count || 0)
-                    } as Relationship;
-                });
-            });
+            .toPromise();
     }
 
 }

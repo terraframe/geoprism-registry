@@ -7,6 +7,9 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -117,7 +120,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
     object.setCode("TEST_BUSINESS");
     object.setOrganization(FastTestDataset.ORG_CGOV.getCode());
     object.setDisplayLabel(new LocalizedValue("Test Business"));
-
+    
     btype = this.bTypeService.apply(object);
 
     this.bTypeService.createAttributeType(btype, new AttributeBooleanType("testBoolean", new LocalizedValue("Test Boolean"), new LocalizedValue("Test Boolean"), false, false, false, false));
@@ -356,34 +359,124 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
   public void testBusinessGeoEdge() throws InterruptedException
   {
     TestDataSet.executeRequestAsUser(FastTestDataset.USER_ADMIN, () -> {
-      InputStream istream = generateEdgeJson(FastTestDataset.CAMBODIA.getServerObject(), cObject);
+
+      //
+      // Import first edge:
+      // DEFAULT_OVER_TIME_DATE -> 2020-04-05
+      //
+      InputStream istream = generateEdgeJson(
+          FastTestDataset.PROV_CENTRAL.getServerObject(),
+          cObject
+      );
 
       Assert.assertNotNull(istream);
 
-      EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(TypeClass.BUSINESS_EDGE.getCode(), bGeoEdgeType.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
+      EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(
+          TypeClass.BUSINESS_EDGE.getCode(),
+          bGeoEdgeType.getCode(),
+          istream,
+          ImportStrategy.NEW_AND_UPDATE
+      );
+
+      config.setStartDate(TestDataSet.DEFAULT_OVER_TIME_DATE);
+      config.setEndDate(
+          Date.from(
+              LocalDate.of(2020, 4, 5)
+                  .atStartOfDay(ZoneOffset.UTC)
+                  .toInstant()
+          )
+      );
 
       long start = System.nanoTime();
 
       ImportHistory hist = this.etlService.importJsonFile(config.toDTO());
 
       SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
-      System.out.println("Elapsed: " + ( System.nanoTime() - start ) / 1_000_000_000.0 + " s");
+
+      System.out.println(
+          "Elapsed: " + (System.nanoTime() - start) / 1_000_000_000.0 + " s"
+      );
 
       hist = ImportHistory.get(hist.getOid());
+
       Assert.assertEquals(Long.valueOf(1), hist.getWorkTotal());
       Assert.assertEquals(Long.valueOf(1), hist.getWorkProgress());
       Assert.assertEquals(Long.valueOf(1), hist.getImportedRecords());
       Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
-
-      List<VertexComponent> tagets = this.bObjectService.getParents(cObject, bGeoEdgeType, TestDataSet.DEFAULT_OVER_TIME_DATE);
-
-      Assert.assertEquals(1, tagets.size());
-
-      List<ImportHistoryView> histories = this.etlBusinessService.getHistory(TypeClass.BUSINESS_EDGE.getCode(), bGeoEdgeType.getCode());
-
-      Assert.assertEquals(1, histories.size());
-
       Assert.assertEquals(1L, getJobHistoryGeometryCount(hist));
+
+      List<VertexComponent> targets = this.bObjectService.getParents(
+          cObject,
+          bGeoEdgeType,
+          TestDataSet.DEFAULT_OVER_TIME_DATE
+      );
+
+      Assert.assertEquals(1, targets.size());
+
+
+      //
+      // Import second edge:
+      // 2020-04-06 -> DEFAULT_END_TIME_DATE
+      //
+      istream = generateEdgeJson(
+          FastTestDataset.PROV_WESTERN.getServerObject(),
+          cObject
+      );
+
+      Assert.assertNotNull(istream);
+
+      config = this.etlService.getTestConfiguration(
+          TypeClass.BUSINESS_EDGE.getCode(),
+          bGeoEdgeType.getCode(),
+          istream,
+          ImportStrategy.NEW_AND_UPDATE
+      );
+
+      config.setStartDate(
+          Date.from(
+              LocalDate.of(2020, 4, 6)
+                  .atStartOfDay(ZoneOffset.UTC)
+                  .toInstant()
+          )
+      );
+      config.setEndDate(TestDataSet.DEFAULT_END_TIME_DATE);
+
+      start = System.nanoTime();
+
+      hist = this.etlService.importJsonFile(config.toDTO());
+
+      SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
+
+      hist = ImportHistory.get(hist.getOid());
+
+      Assert.assertEquals(Long.valueOf(1), hist.getWorkTotal());
+      Assert.assertEquals(Long.valueOf(1), hist.getWorkProgress());
+      Assert.assertEquals(Long.valueOf(1), hist.getImportedRecords());
+      Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+      Assert.assertEquals(1L, getJobHistoryGeometryCount(hist));
+
+      targets = this.bObjectService.getParents(
+          cObject,
+          bGeoEdgeType,
+          Date.from(
+              LocalDate.of(2020, 4, 6)
+                  .atStartOfDay(ZoneOffset.UTC)
+                  .toInstant()
+          )
+      );
+
+      Assert.assertEquals(1, targets.size());
+
+
+      //
+      // Verify both imports exist in history.
+      //
+      List<ImportHistoryView> histories = this.etlBusinessService.getHistory(
+          TypeClass.BUSINESS_EDGE.getCode(),
+          bGeoEdgeType.getCode()
+      );
+
+      Assert.assertEquals(2, histories.size());
     });
   }
 

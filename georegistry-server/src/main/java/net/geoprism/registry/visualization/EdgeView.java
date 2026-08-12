@@ -25,6 +25,8 @@ import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGraphNode;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.view.ObjectAtTimeDTO;
 
 public class EdgeView
 {
@@ -58,6 +60,11 @@ public class EdgeView
   public static EdgeView create(BusinessObject source, ServerGeoObjectIF target)
   {
     return new EdgeView("g-" + source.getCode() + "-" + target.getUid(), "g-" + source.getCode(), "g-" + target.getUid(), "");
+  }
+  
+  public static EdgeView create(VertexServerGeoObject source, ObjectAtTimeDTO target)
+  {
+    return new EdgeView("g-" + source.getCode() + "-" + target.getCode(), "g-" + source.getCode(), "g-" + target.getCode(), "");
   }
   
   public static EdgeView create(ServerGeoObjectIF source, ServerGeoObjectIF target, GraphType graphType, ServerGraphNode node)

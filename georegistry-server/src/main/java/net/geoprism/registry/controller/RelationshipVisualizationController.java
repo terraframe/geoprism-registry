@@ -51,9 +51,10 @@ public class RelationshipVisualizationController extends RunwaySpringController
       @NotEmpty @RequestParam(name = "graphTypeCode") String graphTypeCode, //
       @NotEmpty @RequestParam(name = "sourceVertex") String sourceVertex, //
       @RequestParam(name = "date", required = false) Date date, //
-      @RequestParam(name = "boundsWKT", required = false) String boundsWKT)
+      @RequestParam(name = "boundsWKT", required = false) String boundsWKT,
+      @RequestParam(name = "nullDateIsLatest", required = false) Boolean nullDateIsLatest)
   {
-    JsonElement json = this.service.tree(this.getSessionId(), date, relationshipType, graphTypeCode, sourceVertex, boundsWKT);
+    JsonElement json = this.service.tree(this.getSessionId(), date, relationshipType, graphTypeCode, sourceVertex, boundsWKT, nullDateIsLatest);
 
     return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
   }
