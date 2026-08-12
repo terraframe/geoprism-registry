@@ -50,7 +50,7 @@ public class ExternalIdTest extends FastDatasetTest implements InstanceTestClass
     {
       Assert.assertEquals(expected, this.objectService.getExternalId(serverGO, authority));
 
-      Assert.assertNotNull(this.objectService.getByExternalId(expected, authority, FastTestDataset.PROV_CENTRAL.getGeoObjectType().getServerObject()));
+      Assert.assertNotNull(this.objectService.getByExternalId(expected, authority, FastTestDataset.PROV_CENTRAL.getGeoObjectType().getServerObject()).get());
 
       List<ExternalId> ids = this.objectService.getAllExternalIds(serverGO);
 
@@ -67,7 +67,7 @@ public class ExternalIdTest extends FastDatasetTest implements InstanceTestClass
     }
 
     // Ensure the delete worked
-    Assert.assertNull(this.objectService.getByExternalId(expected, authority, FastTestDataset.PROV_CENTRAL.getGeoObjectType().getServerObject()));
+    Assert.assertTrue(this.objectService.getByExternalId(expected, authority, FastTestDataset.PROV_CENTRAL.getGeoObjectType().getServerObject()).isEmpty());
   }
 
   @Test

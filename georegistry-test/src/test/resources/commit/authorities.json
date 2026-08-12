@@ -3,5 +3,5 @@
   "code" : "UsaAuthority",
   "label" : {"localizedValue":"UsaAuthority","localeValues":[{"locale":"defaultLocale","value":"UsaAuthority"}]},
   "description" : {"localizedValue":"UsaAuthority","localeValues":[{"locale":"defaultLocale","value":"UsaAuthority"}]},
-  "authorityType" : "Test Authority Type"
+  "authorityType" : "GOVERNMENT"
 } ]
