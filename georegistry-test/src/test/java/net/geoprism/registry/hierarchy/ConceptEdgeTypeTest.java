@@ -21,28 +21,26 @@ import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.config.TestApplication;
-import net.geoprism.registry.graph.BusinessEdgeType;
-import net.geoprism.registry.graph.BusinessType;
-import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
-import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
+import net.geoprism.registry.graph.ConceptClass;
+import net.geoprism.registry.graph.ConceptEdgeType;
+import net.geoprism.registry.service.business.ConceptClassBusinessServiceIF;
+import net.geoprism.registry.service.business.ConceptEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
-import net.geoprism.registry.view.BusinessEdgeTypeDTO;
-import net.geoprism.registry.view.BusinessTypeDTO;
+import net.geoprism.registry.view.ConceptClassDTO;
+import net.geoprism.registry.view.ConceptEdgeTypeDTO;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
 @RunWith(SpringInstanceTestClassRunner.class)
-public class BusinessEdgeTypeTest extends FastDatasetTest implements InstanceTestClassListener
+public class ConceptEdgeTypeTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  private static BusinessType               parentType;
-
-  private static BusinessType               childType;
+  private static ConceptClass              conceptClass;
 
   @Autowired
-  private BusinessTypeBusinessServiceIF     bTypeService;
+  private ConceptClassBusinessServiceIF    cClassService;
 
   @Autowired
-  private BusinessEdgeTypeBusinessServiceIF bEdgeService;
+  private ConceptEdgeTypeBusinessServiceIF cEdgeService;
 
   @Override
   public void beforeClassSetup() throws Exception
@@ -57,18 +55,12 @@ public class BusinessEdgeTypeTest extends FastDatasetTest implements InstanceTes
   {
     String orgCode = FastTestDataset.ORG_CGOV.getCode();
 
-    BusinessTypeDTO parentObject = new BusinessTypeDTO();
-    parentObject.setCode("TEST_PARENT");
-    parentObject.setOrganization(orgCode);
-    parentObject.setDisplayLabel(new LocalizedValue("TEST_PARENT"));
+    ConceptClassDTO dto = new ConceptClassDTO();
+    dto.setCode("TEST_CONCEPT_TYPE");
+    dto.setOrganization(orgCode);
+    dto.setDisplayLabel(new LocalizedValue("TEST_CONCEPT_TYPE"));
 
-    BusinessTypeDTO childObject = new BusinessTypeDTO();
-    childObject.setCode("TEST_CHILD");
-    childObject.setOrganization(orgCode);
-    childObject.setDisplayLabel(new LocalizedValue("TEST_CHILD"));
-
-    parentType = this.bTypeService.apply(parentObject);
-    childType = this.bTypeService.apply(childObject);
+    conceptClass = this.cClassService.apply(dto);
   }
 
   @Override
@@ -82,14 +74,9 @@ public class BusinessEdgeTypeTest extends FastDatasetTest implements InstanceTes
   @Request
   public void cleanUpClassInRequest()
   {
-    if (parentType != null)
+    if (conceptClass != null)
     {
-      this.bTypeService.delete(parentType);
-    }
-
-    if (childType != null)
-    {
-      this.bTypeService.delete(childType);
+      this.cClassService.delete(conceptClass);
     }
   }
 
@@ -101,7 +88,7 @@ public class BusinessEdgeTypeTest extends FastDatasetTest implements InstanceTes
     LocalizedValue label = new LocalizedValue("Test Label");
     LocalizedValue description = new LocalizedValue("Test Description");
 
-    BusinessEdgeType type = this.bEdgeService.create(BusinessEdgeTypeDTO.build(FastTestDataset.ORG_CGOV.getCode(), code, label, description, parentType.getCode(), childType.getCode()));
+    ConceptEdgeType type = this.cEdgeService.create(ConceptEdgeTypeDTO.build(FastTestDataset.ORG_CGOV.getCode(), code, label, description, conceptClass.getCode(), conceptClass.getCode()));
 
     try
     {
@@ -116,7 +103,7 @@ public class BusinessEdgeTypeTest extends FastDatasetTest implements InstanceTes
     }
     finally
     {
-      this.bEdgeService.delete(type);
+      this.cEdgeService.delete(type);
     }
 
   }
@@ -125,22 +112,22 @@ public class BusinessEdgeTypeTest extends FastDatasetTest implements InstanceTes
   @Request
   public void testUpdate()
   {
-    BusinessEdgeType type = createTestRelationship();
+    ConceptEdgeType type = createTestRelationship();
 
     try
     {
-      BusinessEdgeTypeDTO view = new BusinessEdgeTypeDTO();
+      ConceptEdgeTypeDTO view = new ConceptEdgeTypeDTO();
       view.setLabel(new LocalizedValue("Updated Label"));
       view.setDescription(new LocalizedValue("Updated Description"));
 
-      this.bEdgeService.update(type, view);
+      this.cEdgeService.update(type, view);
 
       Assert.assertEquals("Updated Label", type.getLabel().getValue());
       Assert.assertEquals("Updated Description", type.getDescriptionLV().getValue());
     }
     finally
     {
-      this.bEdgeService.delete(type);
+      this.cEdgeService.delete(type);
     }
 
   }
@@ -149,18 +136,18 @@ public class BusinessEdgeTypeTest extends FastDatasetTest implements InstanceTes
   @Request
   public void testGetByCode()
   {
-    BusinessEdgeType type = createTestRelationship();
+    ConceptEdgeType type = createTestRelationship();
 
     try
     {
-      BusinessEdgeType result = this.bEdgeService.getByCodeOrThrow(type.getCode());
+      ConceptEdgeType result = this.cEdgeService.getByCodeOrThrow(type.getCode());
 
       Assert.assertNotNull(result);
       Assert.assertEquals(type.getCode(), result.getCode());
     }
     finally
     {
-      this.bEdgeService.delete(type);
+      this.cEdgeService.delete(type);
     }
 
   }
@@ -169,18 +156,18 @@ public class BusinessEdgeTypeTest extends FastDatasetTest implements InstanceTes
   @Request
   public void testGetByMdEdge()
   {
-    BusinessEdgeType type = createTestRelationship();
+    ConceptEdgeType type = createTestRelationship();
 
     try
     {
-      Optional<BusinessEdgeType> result = this.bEdgeService.getByMdEdge(type.getMdEdge());
+      Optional<ConceptEdgeType> result = this.cEdgeService.getByMdEdge(type.getMdEdge());
 
       Assert.assertTrue(result.isPresent());
       Assert.assertEquals(type.getCode(), result.get().getCode());
     }
     finally
     {
-      this.bEdgeService.delete(type);
+      this.cEdgeService.delete(type);
     }
 
   }
@@ -189,28 +176,28 @@ public class BusinessEdgeTypeTest extends FastDatasetTest implements InstanceTes
   @Request
   public void testGetByAll()
   {
-    BusinessEdgeType type = createTestRelationship();
+    ConceptEdgeType type = createTestRelationship();
 
     try
     {
-      List<BusinessEdgeType> results = this.bEdgeService.getAll();
+      List<ConceptEdgeType> results = this.cEdgeService.getAll();
 
       Assert.assertEquals(1, results.size());
 
-      BusinessEdgeType result = results.get(0);
+      ConceptEdgeType result = results.get(0);
 
       Assert.assertEquals(type.getCode(), result.getCode());
     }
     finally
     {
-      this.bEdgeService.delete(type);
+      this.cEdgeService.delete(type);
     }
 
   }
 
-  public BusinessEdgeType createTestRelationship()
+  public ConceptEdgeType createTestRelationship()
   {
-    return this.bEdgeService.create(BusinessEdgeTypeDTO.build(FastTestDataset.ORG_CGOV.getCode(), "TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"), parentType.getCode(), childType.getCode()));
+    return this.cEdgeService.create(ConceptEdgeTypeDTO.build(FastTestDataset.ORG_CGOV.getCode(), "TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"), conceptClass.getCode(), conceptClass.getCode()));
   }
 
 }

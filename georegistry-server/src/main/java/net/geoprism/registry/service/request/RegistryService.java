@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service.request;
 
@@ -32,6 +32,7 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ValueOverTimeDTO;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.commongeoregistry.adapter.metadata.GraphTypeDTO;
 import org.commongeoregistry.adapter.metadata.HierarchyNode;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
@@ -83,7 +84,7 @@ public class RegistryService implements RegistryServiceIF
 
   @Autowired
   private HierarchyTypeServiceIF         hTypeService;
-  
+
   @Autowired
   private GraphTypeServiceIF             graphTypeService;
 
@@ -204,16 +205,13 @@ public class RegistryService implements RegistryServiceIF
 
     if (publicOnly && UserInfo.isPublicUser())
     {
-      ServiceFactory.getMetadataCache().getAllGeoObjectTypes().stream()
-        .filter(got -> !got.getIsPrivate())
-        .sorted((a,b) -> a.getLabel().getValue().compareTo(b.getLabel().getValue()))
-        .forEach(got -> {
-          types.add(got.toJSON(serializer));
-        });
+      ServiceFactory.getMetadataCache().getAllGeoObjectTypes().stream().filter(got -> !got.getIsPrivate()).sorted((a, b) -> a.getLabel().getValue().compareTo(b.getLabel().getValue())).forEach(got -> {
+        types.add(got.toJSON(serializer));
+      });
     }
     else
     {
-      List<GeoObjectType> gots = this.gTypeService.getGeoObjectTypes(null, PermissionContext.READ).stream().sorted((a,b) -> a.getLabel().getValue().compareTo(b.getLabel().getValue())).collect(Collectors.toList());
+      List<GeoObjectType> gots = this.gTypeService.getGeoObjectTypes(null, PermissionContext.READ).stream().sorted((a, b) -> a.getLabel().getValue().compareTo(b.getLabel().getValue())).collect(Collectors.toList());
       HierarchyType[] hts = this.hTypeService.getHierarchyTypes(sessionId, null, PermissionContext.READ);
 
       for (GeoObjectType got : gots)
@@ -254,19 +252,19 @@ public class RegistryService implements RegistryServiceIF
         organizations.add(dto.toJSON(serializer));
       }
     }
-    
+
     JsonObject response = new JsonObject();
     response.add("types", types);
     response.add("hierarchies", hierarchies);
-    
+
     if (Boolean.TRUE.equals(includeGraphTypes))
     {
       final JsonArray graphTypes = new JsonArray();
-      
-      graphTypeService.getGraphTypes(sessionId, null).stream()
-        .sorted((a,b) -> a.getLabel().getValue().compareTo(b.getLabel().getValue()))
-        .forEach(t -> graphTypes.add(t.toJSON()));
-      
+
+      graphTypeService.getGraphTypes(sessionId, null).stream() //
+          .sorted((a, b) -> a.getLabel().getValue().compareTo(b.getLabel().getValue())) //
+          .forEach(t -> graphTypes.add(JsonParser.parseString(GraphTypeDTO.toJson(t))));
+
       response.add("graphTypes", graphTypes);
     }
 

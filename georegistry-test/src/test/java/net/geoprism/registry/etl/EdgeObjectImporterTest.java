@@ -56,8 +56,8 @@ import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
-import net.geoprism.registry.view.BusinessEdgeTypeView;
-import net.geoprism.registry.view.BusinessGeoEdgeTypeView;
+import net.geoprism.registry.view.BusinessEdgeTypeDTO;
+import net.geoprism.registry.view.BusinessEdgeTypeDTO;
 import net.geoprism.registry.view.BusinessTypeDTO;
 import net.geoprism.registry.view.ImportHistoryView;
 import net.geoprism.registry.view.TypeClass;
@@ -122,9 +122,9 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
 
     this.bTypeService.createAttributeType(btype, new AttributeBooleanType("testBoolean", new LocalizedValue("Test Boolean"), new LocalizedValue("Test Boolean"), false, false, false, false));
 
-    bEdgeType = this.bEdgeService.create(BusinessEdgeTypeView.build(FastTestDataset.ORG_CGOV.getCode(), "TEST_B_EDGE", new LocalizedValue("TEST_B_EDGE"), new LocalizedValue("TEST_B_EDGE"), btype.getCode(), btype.getCode()));
+    bEdgeType = this.bEdgeService.create(BusinessEdgeTypeDTO.build(FastTestDataset.ORG_CGOV.getCode(), "TEST_B_EDGE", new LocalizedValue("TEST_B_EDGE"), new LocalizedValue("TEST_B_EDGE"), btype.getCode(), btype.getCode()));
 
-    bGeoEdgeType = this.bEdgeService.create(BusinessGeoEdgeTypeView.build(FastTestDataset.ORG_CGOV.getCode(), "TEST_GEO_EDGE", new LocalizedValue("TEST_GEO_EDGE"), new LocalizedValue("TEST_GEO_EDGE"), btype.getCode(), EdgeDirection.PARENT));
+    bGeoEdgeType = this.bEdgeService.create(BusinessEdgeTypeDTO.build(FastTestDataset.ORG_CGOV.getCode(), "TEST_GEO_EDGE", new LocalizedValue("TEST_GEO_EDGE"), new LocalizedValue("TEST_GEO_EDGE"), btype.getCode(), EdgeDirection.PARENT));
 
     this.repoService.refreshMetadataCache();
   }
