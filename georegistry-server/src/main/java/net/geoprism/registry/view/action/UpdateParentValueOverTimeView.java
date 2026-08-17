@@ -35,7 +35,7 @@ import net.geoprism.registry.axon.event.repository.GeoObjectRemoveParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectUpdateParentEvent;
 import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
-import net.geoprism.registry.graph.GeoVertex;
+import net.geoprism.registry.model.EdgeType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
@@ -92,12 +92,12 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
   //
   // if (_newStartDate == null)
   // {
-  // _newStartDate = edge.getObjectValue(GeoVertex.START_DATE);
+  // _newStartDate = edge.getObjectValue(EdgeType.START_DATE);
   // }
   //
   // if (_newEndDate == null)
   // {
-  // _newEndDate = edge.getObjectValue(GeoVertex.END_DATE);
+  // _newEndDate = edge.getObjectValue(EdgeType.END_DATE);
   // }
   //
   // edge.delete();
@@ -112,8 +112,8 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
   //
   // EdgeObject newEdge = go.getVertex().addParent( ( (VertexComponent)
   // newParent ).getVertex(), hierarchyType.getObjectEdge());
-  // newEdge.setValue(GeoVertex.START_DATE, _newStartDate);
-  // newEdge.setValue(GeoVertex.END_DATE, _newEndDate);
+  // newEdge.setValue(EdgeType.START_DATE, _newStartDate);
+  // newEdge.setValue(EdgeType.END_DATE, _newEndDate);
   // newEdge.apply();
   //
   // looseVotc.add(newEdge);
@@ -124,12 +124,12 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
   //
   // if (newStartDate != null)
   // {
-  // edge.setValue(GeoVertex.START_DATE, newStartDate);
+  // edge.setValue(EdgeType.START_DATE, newStartDate);
   // }
   //
   // if (newEndDate != null)
   // {
-  // edge.setValue(GeoVertex.END_DATE, newEndDate);
+  // edge.setValue(EdgeType.END_DATE, newEndDate);
   // }
   //
   // edge.apply();
@@ -161,8 +161,8 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
   //
   // EdgeObject newEdge = go.getVertex().addParent( ( (VertexComponent)
   // newParent ).getVertex(), hierarchyType.getObjectEdge());
-  // newEdge.setValue(GeoVertex.START_DATE, this.newStartDate);
-  // newEdge.setValue(GeoVertex.END_DATE, this.newEndDate);
+  // newEdge.setValue(EdgeType.START_DATE, this.newStartDate);
+  // newEdge.setValue(EdgeType.END_DATE, this.newEndDate);
   // newEdge.apply();
   //
   // looseVotc.add(newEdge);
@@ -187,8 +187,8 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
   protected Optional<EdgeObject> getEdgeByDate(Collection<EdgeObject> edges, Date startDate, Date endDate)
   {
     return edges.stream().filter(edge -> {
-      Date edgeStartDate = edge.getObjectValue(GeoVertex.START_DATE);
-      Date edgeEndDate = edge.getObjectValue(GeoVertex.END_DATE);
+      Date edgeStartDate = edge.getObjectValue(EdgeType.START_DATE);
+      Date edgeEndDate = edge.getObjectValue(EdgeType.END_DATE);
 
       return edgeStartDate.equals(startDate) && edgeEndDate.equals(endDate);
     }).findFirst();
@@ -228,8 +228,8 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
       if (this.action.equals(UpdateActionType.DELETE))
       {
         builder.addEvent(this.getEdgeByOid(collection, this.oid).map(edge -> {
-          Date startDate = edge.getObjectValue(GeoVertex.START_DATE);
-          Date endDate = edge.getObjectValue(GeoVertex.END_DATE);
+          Date startDate = edge.getObjectValue(EdgeType.START_DATE);
+          Date endDate = edge.getObjectValue(EdgeType.END_DATE);
           String uid = edge.getObjectValue(DefaultAttribute.UID.getName());
 
           return new GeoObjectRemoveParentEvent(go.getCode(), go.getType().getCode(), uid, hierarchyType.getCode(), startDate, endDate);

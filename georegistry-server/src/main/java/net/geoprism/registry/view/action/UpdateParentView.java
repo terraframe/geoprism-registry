@@ -27,7 +27,7 @@ import com.runwaysdk.business.graph.EdgeObject;
 
 import net.geoprism.registry.action.InvalidChangeRequestException;
 import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
-import net.geoprism.registry.graph.GeoVertex;
+import net.geoprism.registry.model.EdgeType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
@@ -66,8 +66,8 @@ public class UpdateParentView extends UpdateChangeOverTimeAttributeView
   {
     for (EdgeObject edge : votc)
     {
-      Date startDate = edge.getObjectValue(GeoVertex.START_DATE);
-      Date endDate = edge.getObjectValue(GeoVertex.END_DATE);
+      Date startDate = edge.getObjectValue(EdgeType.START_DATE);
+      Date endDate = edge.getObjectValue(EdgeType.END_DATE);
 
       if (startDate == null)
       {
@@ -75,7 +75,7 @@ public class UpdateParentView extends UpdateChangeOverTimeAttributeView
       }
       if (endDate == null)
       {
-        edge.setValue(GeoVertex.END_DATE, ValueOverTimeDTO.INFINITY_END_DATE);
+        edge.setValue(EdgeType.END_DATE, ValueOverTimeDTO.INFINITY_END_DATE);
       }
 
       if (endDate != null && startDate.after(endDate))
@@ -86,15 +86,15 @@ public class UpdateParentView extends UpdateChangeOverTimeAttributeView
 
     for (EdgeObject edge : votc)
     {
-      Date s1 = edge.getObjectValue(GeoVertex.START_DATE);
-      Date e1 = edge.getObjectValue(GeoVertex.END_DATE);
+      Date s1 = edge.getObjectValue(EdgeType.START_DATE);
+      Date e1 = edge.getObjectValue(EdgeType.END_DATE);
 
       for (EdgeObject edge2 : votc)
       {
         if (edge != edge2)
         {
-          Date s2 = edge2.getObjectValue(GeoVertex.START_DATE);
-          Date e2 = edge2.getObjectValue(GeoVertex.END_DATE);
+          Date s2 = edge2.getObjectValue(EdgeType.START_DATE);
+          Date e2 = edge2.getObjectValue(EdgeType.END_DATE);
 
           if (this.dateRangeOverlaps(s1.getTime(), e1.getTime(), s2.getTime(), e2.getTime()))
           {

@@ -302,7 +302,7 @@ public class ConceptObjectTest extends FastDatasetTest implements InstanceTestCl
   public void testAddChildren()
   {
     ConceptObject parent = this.cObjectService.newInstance(type);
-    parent.setValue(attribute.getCode(), "Test Parnet");
+    parent.setValue(attribute.getCode(), "Test Parent");
     parent.setCode("TEST_PARENT");
     this.cObjectService.apply(parent);
 
@@ -347,7 +347,7 @@ public class ConceptObjectTest extends FastDatasetTest implements InstanceTestCl
   public void testRemoveChildren()
   {
     ConceptObject parent = this.cObjectService.newInstance(type);
-    parent.setValue(attribute.getCode(), "Test Parnet");
+    parent.setValue(attribute.getCode(), "Test Parent");
     parent.setCode("TEST_PARENT");
     this.cObjectService.apply(parent);
 
@@ -381,7 +381,7 @@ public class ConceptObjectTest extends FastDatasetTest implements InstanceTestCl
   public void testDuplicateChildren()
   {
     ConceptObject parent = this.cObjectService.newInstance(type);
-    parent.setValue(attribute.getCode(), "Test Parnet");
+    parent.setValue(attribute.getCode(), "Test Parent");
     parent.setCode("TEST_PARENT");
     this.cObjectService.apply(parent);
 
@@ -407,6 +407,39 @@ public class ConceptObjectTest extends FastDatasetTest implements InstanceTestCl
         ConceptObject result = results.get(0);
 
         Assert.assertEquals(child.getCode(), result.getCode());
+      }
+      finally
+      {
+        this.cObjectService.delete(child);
+      }
+    }
+    finally
+    {
+      this.cObjectService.delete(parent);
+      ;
+    }
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  @Request
+  public void testAddCycle()
+  {
+    ConceptObject parent = this.cObjectService.newInstance(type);
+    parent.setValue(attribute.getCode(), "Test Parent");
+    parent.setCode("TEST_PARENT");
+    this.cObjectService.apply(parent);
+
+    try
+    {
+      ConceptObject child = this.cObjectService.newInstance(type);
+      child.setValue(attribute.getCode(), "Test Child");
+      child.setCode("TEST_CHILD");
+      this.cObjectService.apply(child);
+
+      try
+      {
+        this.cObjectService.addChild(parent, relationshipType, child, UUID.randomUUID().toString(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE, FastTestDataset.SOURCE.getDataSource()).get();
+        this.cObjectService.addChild(child, relationshipType, parent, UUID.randomUUID().toString(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE, FastTestDataset.SOURCE.getDataSource()).get();
       }
       finally
       {
