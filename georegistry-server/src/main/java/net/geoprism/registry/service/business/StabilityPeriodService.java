@@ -26,8 +26,7 @@ import com.runwaysdk.session.RequestType;
 
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
-import net.geoprism.registry.graph.GeoVertex;
-import net.geoprism.registry.model.BusinessObject;
+import net.geoprism.registry.model.EdgeType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.ServerObjectVertex;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
@@ -215,8 +214,8 @@ public class StabilityPeriodService
 
       ValueOverTime vot = new ValueOverTime(
           edge.getOid(),
-          edge.getObjectValue(GeoVertex.START_DATE),
-          edge.getObjectValue(GeoVertex.END_DATE),
+          edge.getObjectValue(EdgeType.START_DATE),
+          edge.getObjectValue(EdgeType.END_DATE),
           relatedOid
       );
 
