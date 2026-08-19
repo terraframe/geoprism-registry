@@ -10,7 +10,6 @@ import java.util.UUID;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ValueOverTimeDTO;
-import org.commongeoregistry.adapter.metadata.GraphTypeDTO;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -43,6 +42,7 @@ import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.view.ImportHistoryView;
+import net.geoprism.registry.view.TypeClass;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
@@ -308,7 +308,7 @@ public class DirectedAcyclicGraphTest extends FastDatasetTest implements Instanc
 
       Assert.assertNotNull(istream);
 
-      EdgeObjectImportConfiguration config = this.importService.getTestConfiguration(GraphTypeDTO.DIRECTED_ACYCLIC_GRAPH_TYPE, type.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
+      EdgeObjectImportConfiguration config = this.importService.getTestConfiguration(TypeClass.DAG.getCode(), type.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
 
       ImportHistory hist = this.importService.importJsonFile(config.toDTO());
 
@@ -316,7 +316,7 @@ public class DirectedAcyclicGraphTest extends FastDatasetTest implements Instanc
       {
         SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
 
-        List<ImportHistoryView> histories = this.importService.getHistory(GraphTypeDTO.DIRECTED_ACYCLIC_GRAPH_TYPE, type.getCode());
+        List<ImportHistoryView> histories = this.importService.getHistory(TypeClass.DAG.getCode(), type.getCode());
 
         Assert.assertEquals(1, histories.size());
 

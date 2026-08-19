@@ -53,8 +53,7 @@ import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
-import net.geoprism.registry.view.BusinessEdgeTypeView;
-import net.geoprism.registry.view.BusinessGeoEdgeTypeView;
+import net.geoprism.registry.view.BusinessEdgeTypeDTO;
 import net.geoprism.registry.view.BusinessTypeDTO;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
@@ -128,9 +127,9 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
     LocalizedValue label = new LocalizedValue("Test Edge");
     LocalizedValue description = new LocalizedValue("Test Edge Description");
 
-    bEdgeType = this.bEdgeService.create(BusinessEdgeTypeView.build(USATestData.ORG_NPS.getCode(), code, label, description, bType.getCode(), bType.getCode()));
+    bEdgeType = this.bEdgeService.create(BusinessEdgeTypeDTO.build(USATestData.ORG_NPS.getCode(), code, label, description, bType.getCode(), bType.getCode()));
 
-    bGeoEdgeType = this.bEdgeService.create(BusinessGeoEdgeTypeView.build(USATestData.ORG_NPS.getCode(), "GEO_EDGE", new LocalizedValue("Geo Edge"), new LocalizedValue("Geo Edge"), bType.getCode(), EdgeDirection.PARENT));
+    bGeoEdgeType = this.bEdgeService.create(BusinessEdgeTypeDTO.build(USATestData.ORG_NPS.getCode(), "GEO_EDGE", new LocalizedValue("Geo Edge"), new LocalizedValue("Geo Edge"), bType.getCode(), EdgeDirection.PARENT));
   }
 
   @Override

@@ -65,7 +65,6 @@ import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.graph.ConceptClass;
 import net.geoprism.registry.graph.DataSource;
-import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.graph.ObjectClass;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.ConceptObject;
@@ -213,12 +212,12 @@ public class RepositoryProjection
 
         if (_newStartDate == null)
         {
-          _newStartDate = edge.getObjectValue(GeoVertex.START_DATE);
+          _newStartDate = edge.getObjectValue(EdgeType.START_DATE);
         }
 
         if (_newEndDate == null)
         {
-          _newEndDate = edge.getObjectValue(GeoVertex.END_DATE);
+          _newEndDate = edge.getObjectValue(EdgeType.END_DATE);
         }
 
         edge.delete();
@@ -229,8 +228,8 @@ public class RepositoryProjection
         // _newEndDate);
 
         EdgeObject newEdge = object.getVertex().addParent( ( (VertexComponent) newParent ).getVertex(), hierarchy.getObjectEdge());
-        newEdge.setValue(GeoVertex.START_DATE, _newStartDate);
-        newEdge.setValue(GeoVertex.END_DATE, _newEndDate);
+        newEdge.setValue(EdgeType.START_DATE, _newStartDate);
+        newEdge.setValue(EdgeType.END_DATE, _newEndDate);
         newEdge.setValue(DefaultAttribute.UID.getName(), event.getEdgeUid());
         newEdge.setValue(DefaultAttribute.DATA_SOURCE.getName(), this.sourceService.getByCode(event.getDataSource()).orElse(null));
         newEdge.apply();
@@ -240,12 +239,12 @@ public class RepositoryProjection
     {
       if (event.getStartDate() != null)
       {
-        edge.setValue(GeoVertex.START_DATE, event.getStartDate());
+        edge.setValue(EdgeType.START_DATE, event.getStartDate());
       }
 
       if (event.getEndDate() != null)
       {
-        edge.setValue(GeoVertex.END_DATE, event.getEndDate());
+        edge.setValue(EdgeType.END_DATE, event.getEndDate());
       }
 
       if (!StringUtils.isBlank(event.getDataSource()))
@@ -331,8 +330,8 @@ public class RepositoryProjection
 
         if (edge != null)
         {
-          edge.setValue(GeoVertex.START_DATE, event.getStartDate());
-          edge.setValue(GeoVertex.END_DATE, event.getEndDate());
+          edge.setValue(EdgeType.START_DATE, event.getStartDate());
+          edge.setValue(EdgeType.END_DATE, event.getEndDate());
           edge.apply();
         }
         else if (ImportStrategy.UPDATE_ONLY.equals(event.getStrategy()))
@@ -378,8 +377,8 @@ public class RepositoryProjection
 
         if (edge != null)
         {
-          edge.setValue(GeoVertex.START_DATE, event.getStartDate());
-          edge.setValue(GeoVertex.END_DATE, event.getEndDate());
+          edge.setValue(EdgeType.START_DATE, event.getStartDate());
+          edge.setValue(EdgeType.END_DATE, event.getEndDate());
           edge.apply();
         }
         else if (ImportStrategy.UPDATE_ONLY.equals(event.getStrategy()))

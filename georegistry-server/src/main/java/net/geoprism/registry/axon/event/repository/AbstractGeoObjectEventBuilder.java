@@ -254,7 +254,15 @@ public abstract class AbstractGeoObjectEventBuilder<K>
       list.add(event);
     }
 
-    list.addAll(events);
+    list.addAll(events.stream().sorted((a, b) -> {
+      // Update events should always be first
+      if (a instanceof GeoObjectUpdateParentEvent)
+      {
+        return -1;
+      }
+
+      return 1;
+    }).toList());
 
     if (this.refreshWorking && list.size() > 0)
     {

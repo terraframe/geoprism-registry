@@ -75,8 +75,8 @@ import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
-import net.geoprism.registry.view.BusinessEdgeTypeView;
-import net.geoprism.registry.view.BusinessGeoEdgeTypeView;
+import net.geoprism.registry.view.BusinessEdgeTypeDTO;
+import net.geoprism.registry.view.BusinessEdgeTypeDTO;
 import net.geoprism.registry.view.BusinessTypeDTO;
 
 public class XMLImporter
@@ -648,7 +648,7 @@ public class XMLImporter
 
       ServiceFactory.getHierarchyPermissionService().enforceCanCreate(organization.getCode());
 
-      BusinessEdgeType type = this.bEdgeService.create(BusinessEdgeTypeView.build(organization.getCode(), code, label, description, parentTypeCode, childTypeCode));
+      BusinessEdgeType type = this.bEdgeService.create(BusinessEdgeTypeDTO.build(organization.getCode(), code, label, description, parentTypeCode, childTypeCode));
 
       TransactionCacheFacade.put(type);
       this.importedTypes.add(BUSINESS_EDGE_TYPE_PREFIX + type.getCode());
@@ -672,7 +672,7 @@ public class XMLImporter
 
       ServiceFactory.getHierarchyPermissionService().enforceCanCreate(organization.getCode());
 
-      BusinessEdgeTypeView dto = BusinessGeoEdgeTypeView.build(organization.getCode(), code, label, description, typeCode, EdgeDirection.valueOf(direction));
+      BusinessEdgeTypeDTO dto = BusinessEdgeTypeDTO.build(organization.getCode(), code, label, description, typeCode, EdgeDirection.valueOf(direction));
 
       BusinessEdgeType type = this.bEdgeService.create(dto);
 

@@ -4,6 +4,7 @@
 package net.geoprism.registry.business;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.FastDatasetTest;
@@ -25,21 +27,23 @@ import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.ConceptClass;
+import net.geoprism.registry.graph.ConceptEdgeType;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
 import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ConceptClassBusinessServiceIF;
+import net.geoprism.registry.service.business.ConceptEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ConceptObjectBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
-import net.geoprism.registry.view.ObjectOverTimeDTO;
 import net.geoprism.registry.view.ConceptClassDTO;
+import net.geoprism.registry.view.ConceptEdgeTypeDTO;
+import net.geoprism.registry.view.ObjectOverTimeDTO;
 import net.geoprism.registry.view.ValueOverTimeEntryDTO;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-
 @RunWith(SpringInstanceTestClassRunner.class)
 public class ConceptObjectTest extends FastDatasetTest implements InstanceTestClassListener
 {
@@ -57,6 +61,8 @@ public class ConceptObjectTest extends FastDatasetTest implements InstanceTestCl
 
   private static Classification               root;
 
+  private static ConceptEdgeType              relationshipType;
+
   @Autowired
   private ClassificationTypeBusinessServiceIF cTypeService;
 
@@ -68,6 +74,9 @@ public class ConceptObjectTest extends FastDatasetTest implements InstanceTestCl
 
   @Autowired
   private ConceptObjectBusinessServiceIF      cObjectService;
+
+  @Autowired
+  private ConceptEdgeTypeBusinessServiceIF    cEdgeService;
 
   @Override
   public void beforeClassSetup() throws Exception
@@ -109,6 +118,9 @@ public class ConceptObjectTest extends FastDatasetTest implements InstanceTestCl
     attributeClassification.setChangeOverTime(false);
 
     attributeClassification = (AttributeClassificationType) this.cClassService.createAttributeType(type, attributeClassification);
+
+    relationshipType = this.cEdgeService.create(ConceptEdgeTypeDTO.build(FastTestDataset.ORG_CGOV.getCode(), "TEST_REL", new LocalizedValue("Test Rel"), new LocalizedValue("Test Rel"), type.getCode(), type.getCode()));
+
   }
 
   @Override
@@ -127,6 +139,11 @@ public class ConceptObjectTest extends FastDatasetTest implements InstanceTestCl
   @Request
   private void cleanUpClassInRequest()
   {
+    if (relationshipType != null)
+    {
+      this.cEdgeService.delete(relationshipType);
+    }
+
     if (type != null)
     {
       this.cClassService.delete(type);
@@ -183,7 +200,6 @@ public class ConceptObjectTest extends FastDatasetTest implements InstanceTestCl
     {
       this.cObjectService.delete(object);
     }
-
   }
 
   @Test
@@ -280,4 +296,161 @@ public class ConceptObjectTest extends FastDatasetTest implements InstanceTestCl
       this.cObjectService.delete(object);
     }
   }
+
+  @Test
+  @Request
+  public void testAddChildren()
+  {
+    ConceptObject parent = this.cObjectService.newInstance(type);
+    parent.setValue(attribute.getCode(), "Test Parent");
+    parent.setCode("TEST_PARENT");
+    this.cObjectService.apply(parent);
+
+    try
+    {
+      ConceptObject child = this.cObjectService.newInstance(type);
+      child.setValue(attribute.getCode(), "Test Child");
+      child.setCode("TEST_CHILD");
+      this.cObjectService.apply(child);
+
+      try
+      {
+        String uid = UUID.randomUUID().toString();
+
+        EdgeObject edge = this.cObjectService.addChild(parent, relationshipType, child, uid, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE, FastTestDataset.SOURCE.getDataSource()).get();
+
+        Assert.assertEquals(uid, edge.getObjectValue(DefaultAttribute.UID.getName()));
+        Assert.assertNotNull(edge.getObjectValue(DefaultAttribute.DATA_SOURCE.getName()));
+
+        List<ConceptObject> results = this.cObjectService.getChildren(parent, relationshipType, FastTestDataset.DEFAULT_OVER_TIME_DATE);
+
+        Assert.assertEquals(1, results.size());
+
+        ConceptObject result = (ConceptObject) results.get(0);
+
+        Assert.assertEquals(child.getCode(), result.getCode());
+      }
+      finally
+      {
+        this.cObjectService.delete(child);
+      }
+    }
+    finally
+    {
+      this.cObjectService.delete(parent);
+      ;
+    }
+  }
+
+  @Test
+  @Request
+  public void testRemoveChildren()
+  {
+    ConceptObject parent = this.cObjectService.newInstance(type);
+    parent.setValue(attribute.getCode(), "Test Parent");
+    parent.setCode("TEST_PARENT");
+    this.cObjectService.apply(parent);
+
+    try
+    {
+      ConceptObject child = this.cObjectService.newInstance(type);
+      child.setValue(attribute.getCode(), "Test Child");
+      child.setCode("TEST_CHILD");
+      this.cObjectService.apply(child);
+
+      try
+      {
+        this.cObjectService.addChild(parent, relationshipType, child, UUID.randomUUID().toString(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE, FastTestDataset.SOURCE.getDataSource());
+        this.cObjectService.removeChild(parent, relationshipType, child, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
+
+        Assert.assertEquals(0, this.cObjectService.getChildren(parent, relationshipType, FastTestDataset.DEFAULT_OVER_TIME_DATE).size());
+      }
+      finally
+      {
+        this.cObjectService.delete(child);
+      }
+    }
+    finally
+    {
+      this.cObjectService.delete(parent);
+    }
+  }
+
+  @Test
+  @Request
+  public void testDuplicateChildren()
+  {
+    ConceptObject parent = this.cObjectService.newInstance(type);
+    parent.setValue(attribute.getCode(), "Test Parent");
+    parent.setCode("TEST_PARENT");
+    this.cObjectService.apply(parent);
+
+    try
+    {
+      ConceptObject child = this.cObjectService.newInstance(type);
+      child.setValue(attribute.getCode(), "Test Child");
+      child.setCode("TEST_CHILD");
+      this.cObjectService.apply(child);
+
+      try
+      {
+        this.cObjectService.addChild(parent, relationshipType, child, UUID.randomUUID().toString(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE, FastTestDataset.SOURCE.getDataSource());
+        this.cObjectService.addChild(parent, relationshipType, child, UUID.randomUUID().toString(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE, FastTestDataset.SOURCE.getDataSource());
+        this.cObjectService.addChild(parent, relationshipType, child, UUID.randomUUID().toString(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE, FastTestDataset.SOURCE.getDataSource());
+        this.cObjectService.addChild(parent, relationshipType, child, UUID.randomUUID().toString(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE, FastTestDataset.SOURCE.getDataSource());
+        this.cObjectService.addChild(parent, relationshipType, child, UUID.randomUUID().toString(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE, FastTestDataset.SOURCE.getDataSource());
+
+        List<ConceptObject> results = this.cObjectService.getChildren(parent, relationshipType, FastTestDataset.DEFAULT_OVER_TIME_DATE);
+
+        Assert.assertEquals(1, results.size());
+
+        ConceptObject result = results.get(0);
+
+        Assert.assertEquals(child.getCode(), result.getCode());
+      }
+      finally
+      {
+        this.cObjectService.delete(child);
+      }
+    }
+    finally
+    {
+      this.cObjectService.delete(parent);
+      ;
+    }
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  @Request
+  public void testAddCycle()
+  {
+    ConceptObject parent = this.cObjectService.newInstance(type);
+    parent.setValue(attribute.getCode(), "Test Parent");
+    parent.setCode("TEST_PARENT");
+    this.cObjectService.apply(parent);
+
+    try
+    {
+      ConceptObject child = this.cObjectService.newInstance(type);
+      child.setValue(attribute.getCode(), "Test Child");
+      child.setCode("TEST_CHILD");
+      this.cObjectService.apply(child);
+
+      try
+      {
+        this.cObjectService.addChild(parent, relationshipType, child, UUID.randomUUID().toString(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE, FastTestDataset.SOURCE.getDataSource()).get();
+        this.cObjectService.addChild(child, relationshipType, parent, UUID.randomUUID().toString(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE, FastTestDataset.SOURCE.getDataSource()).get();
+      }
+      finally
+      {
+        this.cObjectService.delete(child);
+      }
+    }
+    finally
+    {
+      this.cObjectService.delete(parent);
+      ;
+    }
+  }
+
 }

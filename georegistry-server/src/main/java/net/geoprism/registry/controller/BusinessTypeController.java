@@ -32,7 +32,7 @@ import jakarta.validation.constraints.NotBlank;
 import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.service.request.BusinessTypeService;
 import net.geoprism.registry.service.request.ObjectClassServiceIF;
-import net.geoprism.registry.view.BusinessEdgeTypeView;
+import net.geoprism.registry.view.BusinessEdgeTypeDTO;
 import net.geoprism.registry.view.BusinessTypeDTO;
 
 @RestController
@@ -51,9 +51,9 @@ public class BusinessTypeController extends ObjectClassController<BusinessType, 
   }
 
   @GetMapping("/get-edge-types")
-  public ResponseEntity<List<BusinessEdgeTypeView>> getEdgeTypes(@NotBlank @RequestParam(name = "typeCode") String typeCode)
+  public ResponseEntity<List<BusinessEdgeTypeDTO>> getEdgeTypes(@NotBlank @RequestParam(name = "typeCode") String typeCode)
   {
-    List<BusinessEdgeTypeView> edgeTypes = this.service.getEdgeTypes(this.getSessionId(), typeCode);
+    List<BusinessEdgeTypeDTO> edgeTypes = this.service.getEdgeTypes(this.getSessionId(), typeCode);
 
     return ResponseEntity.ok(edgeTypes);
   }

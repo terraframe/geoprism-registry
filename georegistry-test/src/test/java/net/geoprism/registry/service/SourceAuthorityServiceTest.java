@@ -18,6 +18,7 @@ import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.graph.SourceAuthority;
+import net.geoprism.registry.model.AuthorityType;
 import net.geoprism.registry.model.SourceAuthorityDTO;
 import net.geoprism.registry.service.business.SourceAuthorityBusinessServiceIF;
 
@@ -68,7 +69,7 @@ public class SourceAuthorityServiceTest implements InstanceTestClassListener
     source.setCode("ABCD");
     LocalizedValueConverter.populate(source, SourceAuthority.DISPLAYLABEL, new LocalizedValue("Test Label"));
     LocalizedValueConverter.populate(source, SourceAuthority.DESCRIPTION, new LocalizedValue("Test Description"));
-    source.setAuthorityType("Test Authority Type");
+    source.setAuthorityType(AuthorityType.COMMUNITY.name());
 
     return source;
   }

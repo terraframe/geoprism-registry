@@ -28,7 +28,7 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.graph.BusinessEdgeType;
-import net.geoprism.registry.view.BusinessEdgeTypeView;
+import net.geoprism.registry.view.BusinessEdgeTypeDTO;
 
 @Service
 @Primary
@@ -39,7 +39,7 @@ public class GPRBusinessEdgeTypeBusinessService extends BusinessEdgeTypeBusiness
 
   @Override
   @Transaction
-  public BusinessEdgeType create(BusinessEdgeTypeView dto)
+  public BusinessEdgeType create(BusinessEdgeTypeDTO dto)
   {
     BusinessEdgeType edgeType = super.create(dto);
 

@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import net.geoprism.registry.service.request.BusinessEdgeTypeServiceIF;
-import net.geoprism.registry.view.BusinessEdgeTypeView;
+import net.geoprism.registry.view.BusinessEdgeTypeDTO;
 
 @RestController
 @RequestMapping("api/business-edge-type")
@@ -61,17 +61,17 @@ public class BusinessEdgeTypeController extends RunwaySpringController
   private BusinessEdgeTypeServiceIF service;
 
   @GetMapping("/get-all")
-  public ResponseEntity<List<BusinessEdgeTypeView>> getAll()
+  public ResponseEntity<List<BusinessEdgeTypeDTO>> getAll()
   {
-    List<BusinessEdgeTypeView> all = this.service.getAll(this.getSessionId());
+    List<BusinessEdgeTypeDTO> all = this.service.getAll(this.getSessionId());
 
     return ResponseEntity.ok(all);
   }
 
   @PostMapping("/apply")
-  public ResponseEntity<BusinessEdgeTypeView> apply(@RequestBody BusinessEdgeTypeView type)
+  public ResponseEntity<BusinessEdgeTypeDTO> apply(@RequestBody BusinessEdgeTypeDTO type)
   {
-    BusinessEdgeTypeView response = this.service.apply(this.getSessionId(), type);
+    BusinessEdgeTypeDTO response = this.service.apply(this.getSessionId(), type);
 
     return ResponseEntity.ok(response);
   }
@@ -85,9 +85,9 @@ public class BusinessEdgeTypeController extends RunwaySpringController
   }
 
   @GetMapping("/get")
-  public ResponseEntity<BusinessEdgeTypeView> get(@NotBlank @RequestParam(name = "code") String code)
+  public ResponseEntity<BusinessEdgeTypeDTO> get(@NotBlank @RequestParam(name = "code") String code)
   {
-    BusinessEdgeTypeView response = this.service.getByCode(this.getSessionId(), code);
+    BusinessEdgeTypeDTO response = this.service.getByCode(this.getSessionId(), code);
 
     return ResponseEntity.ok(response);
   }

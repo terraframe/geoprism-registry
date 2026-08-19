@@ -82,7 +82,7 @@ import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.SnapshotContainer;
-import net.geoprism.registry.view.BusinessEdgeTypeView;
+import net.geoprism.registry.view.BusinessEdgeTypeDTO;
 import net.geoprism.registry.view.BusinessTypeDTO;
 import net.geoprism.registry.view.ConceptClassDTO;
 import net.geoprism.registry.view.TypeClass;
@@ -547,15 +547,15 @@ public class SnapshotBusinessService
 
       return t;
     }).orElseGet(() -> {
-      BusinessEdgeTypeView dto = new BusinessEdgeTypeView();
+      BusinessEdgeTypeDTO dto = new BusinessEdgeTypeDTO();
       dto.setCode(snapshot.getCode());
       dto.setDescription(description);
       dto.setLabel(label);
       dto.setOrganizationCode(snapshot.getOrgCode());
       dto.setOrigin(snapshot.getOrigin());
       dto.setSeq(snapshot.getSequence());
-      dto.setChildTypeCode(snapshot.getIsChildGeoObject() ? BusinessEdgeTypeView.GEO_OBJECT_TYPE : snapshot.getChildType().getCode());
-      dto.setParentTypeCode(snapshot.getIsParentGeoObject() ? BusinessEdgeTypeView.GEO_OBJECT_TYPE : snapshot.getParentType().getCode());
+      dto.setChildType(snapshot.getIsChildGeoObject() ? BusinessEdgeTypeDTO.GEO_OBJECT_TYPE : snapshot.getChildType().getCode());
+      dto.setParentType(snapshot.getIsParentGeoObject() ? BusinessEdgeTypeDTO.GEO_OBJECT_TYPE : snapshot.getParentType().getCode());
 
       return this.bEdgeService.create(dto);
     });

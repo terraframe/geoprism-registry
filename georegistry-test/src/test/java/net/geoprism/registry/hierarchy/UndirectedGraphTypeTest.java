@@ -4,6 +4,7 @@
 package net.geoprism.registry.hierarchy;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.GraphTypeDTO;
@@ -117,10 +118,10 @@ public class UndirectedGraphTypeTest
 
     try
     {
-      UndirectedGraphType result = this.service.getByMdEdge(type.getMdEdge());
+      Optional<UndirectedGraphType> optional = this.service.getByMdEdge(type.getMdEdge());
 
-      Assert.assertNotNull(result);
-      Assert.assertEquals(type.getCode(), result.getCode());
+      Assert.assertTrue(optional.isPresent());
+      Assert.assertEquals(type.getCode(), optional.get().getCode());
     }
     finally
     {
