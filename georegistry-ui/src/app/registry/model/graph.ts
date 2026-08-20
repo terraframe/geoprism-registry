@@ -18,6 +18,7 @@
 ///
 
 import { LocalizedValue } from "@core/model/core";
+import { TimeRangeEntry } from "./registry";
 
 export interface Relationship {
   oid: string,
@@ -25,6 +26,7 @@ export interface Relationship {
   layout: "VERTICAL" | "HORIZONTAL",
   code: string,
   type?: string
+  edgeClass?: string;
   count: number
 }
 
@@ -60,4 +62,5 @@ export interface TreeData {
   edges: Edge[],
   verticies: Vertex[],
   relatedTypes: RelatedType[]
+  stabilityPeriods: TimeRangeEntry[];
 }

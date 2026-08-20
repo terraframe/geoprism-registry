@@ -18,6 +18,8 @@
  */
 package net.geoprism.registry.service.request;
 
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -41,16 +43,20 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializer;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
+import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.graph.DirectedAcyclicGraphType;
@@ -63,6 +69,7 @@ import net.geoprism.registry.model.ServerChildGraphNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerParentGraphNode;
+import net.geoprism.registry.model.graph.ServerObjectVertex;
 import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
@@ -72,11 +79,14 @@ import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessSe
 import net.geoprism.registry.service.business.EdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.StabilityPeriodService.StabilityPeriod;
 import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.permission.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.service.permission.GeoObjectTypePermissionServiceIF;
 import net.geoprism.registry.service.permission.HierarchyTypePermissionServiceIF;
+import net.geoprism.registry.view.ObjectAtTimeDTO;
 import net.geoprism.registry.view.TypeClass;
+import net.geoprism.registry.view.TypeInfo;
 import net.geoprism.registry.visualization.EdgeView;
 import net.geoprism.registry.visualization.RelationshipTypeCountMetadata;
 import net.geoprism.registry.visualization.VertexView;
@@ -127,6 +137,9 @@ public class RelationshipVisualizationService
 
   @Autowired
   private HierarchyTypePermissionServiceIF          hierarchyPermissions;
+  
+  @Autowired
+  private net.geoprism.registry.service.business.StabilityPeriodService          stabilityPeriod;
 
   @Request(RequestType.SESSION)
   public JsonElement treeAsGeoJson(String sessionId, Date date, String relationshipType, String graphTypeCode, String sourceVertex, String boundsWKT)
@@ -190,24 +203,23 @@ public class RelationshipVisualizationService
       {
         final BusinessType type = this.bTypeService.getByCodeOrThrow(sourceView.getTypeCode());
 
-        if (canReadBusinessData(type))
+        enforceCanReadBusinessData(type);
+        
+        BusinessEdgeType edgeType = this.bEdgeService.getByCodeOrThrow(graphTypeCode);
+
+        if (edgeType.getIsChildGeoObject())
         {
-          BusinessEdgeType edgeType = this.bEdgeService.getByCodeOrThrow(graphTypeCode);
+          final BusinessObject selected = this.bObjectService.getByCode(type, sourceView.getCode()).orElseThrow();
 
-          if (edgeType.getIsChildGeoObject())
+          List<VertexComponent> objects = this.bObjectService.getChildren(selected, edgeType, date);
+
+          long endIndex = Math.min(maxResults, objects.size());
+
+          for (int i = 0; i < endIndex; ++i)
           {
-            final BusinessObject selected = this.bObjectService.getByCode(type, sourceView.getCode()).orElseThrow();
+            VertexServerGeoObject object = (VertexServerGeoObject) objects.get(i);
 
-            List<VertexComponent> objects = this.bObjectService.getChildren(selected, edgeType, date);
-
-            long endIndex = Math.min(maxResults, objects.size());
-
-            for (int i = 0; i < endIndex; ++i)
-            {
-              VertexServerGeoObject object = (VertexServerGeoObject) objects.get(i);
-
-              geoObjects.add(this.objectService.toGeoObject(object, date));
-            }
+            geoObjects.add(this.objectService.toGeoObject(object, date));
           }
         }
       }
@@ -234,9 +246,11 @@ public class RelationshipVisualizationService
   }
 
   @Request(RequestType.SESSION)
-  public JsonElement tree(String sessionId, Date date, String relationshipType, String graphTypeCode, String sourceVertex, String boundsWKT)
+  public JsonElement tree(String sessionId, Date date, String relationshipType, String graphTypeCode, String sourceVertex, String boundsWKT, Boolean nullDateIsLatest)
   {
-
+    if (nullDateIsLatest == null)
+      nullDateIsLatest = true;
+    
     if (!this.validateBounds(boundsWKT))
     {
       boundsWKT = null;
@@ -245,6 +259,8 @@ public class RelationshipVisualizationService
     final Map<String, VertexView> verticies = new HashMap<String, VertexView>();
     final Map<String, EdgeView> edges = new HashMap<String, EdgeView>();
     final Map<String, JsonObject> relatedTypes = new HashMap<String, JsonObject>();
+    
+    List<StabilityPeriod> stabilityPeriods = null;
 
     final VertexView sourceView = this.fromJSON(sourceVertex);
 
@@ -255,7 +271,7 @@ public class RelationshipVisualizationService
       if (objectPermissions.canRead(type.getOrganization().getCode(), type))
       {
         VertexServerGeoObject selected = (VertexServerGeoObject) geoObjectService.getGeoObjectByCode(sourceView.getCode(), type);
-
+        
         verticies.put(selected.getUid(), this.fromGeoObject(selected, "SELECTED"));
 
         addRelatedType(relatedTypes, type);
@@ -267,28 +283,61 @@ public class RelationshipVisualizationService
           ObjectClass parentType = this.bEdgeService.getParent(edgeType);
 
           EdgeDirection direction = ( parentType instanceof BusinessType ) ? EdgeDirection.PARENT : EdgeDirection.CHILD;
+          
+          stabilityPeriods = stabilityPeriod.getStabilityPeriods(selected, List.of(edgeType.getMdEdge().getDbClassName()));
+          if (nullDateIsLatest && date == null && stabilityPeriods.size() > 1) {
+            date = Date.from(stabilityPeriods.get(stabilityPeriods.size()-1).getStartDate().atStartOfDay(ZoneOffset.UTC).toInstant());
+          }
 
-          List<BusinessObject> objects = this.objectService.getBusinessObjects(selected, edgeType, direction);
-
-          long endIndex = Math.min(maxResults, objects.size());
-
-          for (int i = 0; i < endIndex; ++i)
+          if (date == null)
           {
-            BusinessObject child = objects.get(i);
-
-            if (!verticies.containsKey(child.getCode()))
+            List<BusinessObject> objects = this.objectService.getBusinessObjects(selected, edgeType, direction);
+      
+            long endIndex = Math.min(maxResults, objects.size());
+      
+            for (int i = 0; i < endIndex; ++i)
             {
-              verticies.put(child.getCode(), this.fromBusinessObject(child, direction.equals(EdgeDirection.CHILD) ? "CHILD" : "PARENT"));
-
-              EdgeView edge = EdgeView.create(selected, child);
-              edges.put(edge.getId(), edge);
-              addRelatedType(relatedTypes, child.getType());
+              BusinessObject child = objects.get(i);
+      
+              if (!verticies.containsKey(child.getCode()))
+              {
+                verticies.put(child.getCode(), this.fromBusinessObject(child, direction.equals(EdgeDirection.CHILD) ? "CHILD" : "PARENT"));
+      
+                EdgeView edge = EdgeView.create(selected, child);
+                edges.put(edge.getId(), edge);
+                addRelatedType(relatedTypes, child.getType());
+              }
+            }
+          }
+          else
+          {
+            List<ObjectAtTimeDTO> objects = this.objectService.getBusinessObjects(selected.getType().getCode(), selected.getCode(), edgeType.getCode(), direction.name(), date);
+            
+            long endIndex = Math.min(maxResults, objects.size());
+            
+            for (int i = 0; i < endIndex; ++i)
+            {
+              ObjectAtTimeDTO child = objects.get(i);
+      
+              if (!verticies.containsKey(child.getCode()))
+              {
+                verticies.put(child.getCode(), this.fromObjectAtTime(child, direction.equals(EdgeDirection.CHILD) ? "CHILD" : "PARENT"));
+      
+                EdgeView edge = EdgeView.create(selected, child);
+                edges.put(edge.getId(), edge);
+                addRelatedType(relatedTypes, child.getType());
+              }
             }
           }
         }
         else
         {
           final GraphType graphType = this.graphTypeService.getByCode(relationshipType, graphTypeCode);
+          
+          stabilityPeriods = stabilityPeriod.getStabilityPeriods(selected, List.of(graphType.getMdEdgeDAO().getDBClassName()));
+          if (nullDateIsLatest && date == null && stabilityPeriods.size() > 1) {
+            date = Date.from(stabilityPeriods.get(stabilityPeriods.size()-1).getStartDate().atStartOfDay(ZoneOffset.UTC).toInstant());
+          }
 
           if (graphType instanceof UndirectedGraphType)
           {
@@ -319,80 +368,82 @@ public class RelationshipVisualizationService
     else if (VertexView.ObjectType.BUSINESS.equals(sourceView.getObjectType()))
     {
       final BusinessType type = this.bTypeService.getByCodeOrThrow(sourceView.getTypeCode());
+      enforceCanReadBusinessData(type);
+      
+      final BusinessObject selected = this.bObjectService.getByCode(type, sourceView.getCode()).orElseThrow();
 
-      if (canReadBusinessData(type))
+      verticies.put(selected.getCode(), this.fromBusinessObject(selected, "SELECTED"));
+      addRelatedType(relatedTypes, type);
+
+      BusinessEdgeType edgeType = this.bEdgeService.getByCodeOrThrow(graphTypeCode);
+      
+      stabilityPeriods = stabilityPeriod.getStabilityPeriods(selected, List.of(edgeType.getMdEdgeDAO().getDBClassName()));
+      if (nullDateIsLatest && date == null && stabilityPeriods.size() > 1) {
+        date = Date.from(stabilityPeriods.get(stabilityPeriods.size()-1).getStartDate().atStartOfDay(ZoneOffset.UTC).toInstant());
+      }
+
+      List<VertexComponent> objects = this.bObjectService.getParents(selected, edgeType, date);
+
+      long endIndex = Math.min(maxResults, objects.size());
+
+      for (int i = 0; i < endIndex; ++i)
       {
-        final BusinessObject selected = this.bObjectService.getByCode(type, sourceView.getCode()).orElseThrow();
-
-        verticies.put(selected.getCode(), this.fromBusinessObject(selected, "SELECTED"));
-        addRelatedType(relatedTypes, type);
-
-        BusinessEdgeType edgeType = this.bEdgeService.getByCodeOrThrow(graphTypeCode);
-
-        List<VertexComponent> objects = this.bObjectService.getParents(selected, edgeType, date);
-
-        long endIndex = Math.min(maxResults, objects.size());
-
-        for (int i = 0; i < endIndex; ++i)
+        if (edgeType.getIsParentGeoObject())
         {
-          if (edgeType.getIsParentGeoObject())
-          {
-            VertexServerGeoObject parent = (VertexServerGeoObject) objects.get(i);
+          VertexServerGeoObject parent = (VertexServerGeoObject) objects.get(i);
 
-            if (!verticies.containsKey(parent.getCode()))
-            {
-              verticies.put(parent.getCode(), this.fromGeoObject(parent, "PARENT"));
-              EdgeView edge = EdgeView.create(selected, parent);
-              edges.put(edge.getId(), edge);
-              addRelatedType(relatedTypes, parent.getType());
-            }
-          }
-          else
+          if (!verticies.containsKey(parent.getCode()))
           {
-            BusinessObject parent = (BusinessObject) objects.get(i);
-
-            if (!verticies.containsKey(parent.getCode()))
-            {
-              verticies.put(parent.getCode(), this.fromBusinessObject(parent, "PARENT"));
-              EdgeView edge = EdgeView.create(selected, parent);
-              edges.put(edge.getId(), edge);
-              addRelatedType(relatedTypes, parent.getType());
-            }
+            verticies.put(parent.getCode(), this.fromGeoObject(parent, "PARENT"));
+            EdgeView edge = EdgeView.create(selected, parent);
+            edges.put(edge.getId(), edge);
+            addRelatedType(relatedTypes, parent.getType());
           }
         }
-
-        // Children
-        objects = this.bObjectService.getChildren(selected, edgeType, date);
-        endIndex = Math.min(maxResults - verticies.size(), objects.size());
-
-        for (int i = 0; i < endIndex; ++i)
+        else
         {
-          if (edgeType.getIsParentGeoObject())
-          {
-            VertexServerGeoObject child = (VertexServerGeoObject) objects.get(i);
+          BusinessObject parent = (BusinessObject) objects.get(i);
 
-            if (!verticies.containsKey(child.getCode()))
-            {
-              verticies.put(child.getCode(), this.fromGeoObject(child, "CHILD"));
-              EdgeView edge = EdgeView.create(selected, child);
-              edges.put(edge.getId(), edge);
-              addRelatedType(relatedTypes, child.getType());
-            }
-          }
-          else
+          if (!verticies.containsKey(parent.getCode()))
           {
-            BusinessObject child = (BusinessObject) objects.get(i);
-
-            if (!verticies.containsKey(child.getCode()))
-            {
-              verticies.put(child.getCode(), this.fromBusinessObject(child, "CHILD"));
-              EdgeView edge = EdgeView.create(selected, child);
-              edges.put(edge.getId(), edge);
-              addRelatedType(relatedTypes, child.getType());
-            }
+            verticies.put(parent.getCode(), this.fromBusinessObject(parent, "PARENT"));
+            EdgeView edge = EdgeView.create(selected, parent);
+            edges.put(edge.getId(), edge);
+            addRelatedType(relatedTypes, parent.getType());
           }
         }
+      }
 
+      // Children
+      objects = this.bObjectService.getChildren(selected, edgeType, date);
+      endIndex = Math.min(maxResults - verticies.size(), objects.size());
+
+      for (int i = 0; i < endIndex; ++i)
+      {
+        if (edgeType.getIsParentGeoObject())
+        {
+          VertexServerGeoObject child = (VertexServerGeoObject) objects.get(i);
+
+          if (!verticies.containsKey(child.getCode()))
+          {
+            verticies.put(child.getCode(), this.fromGeoObject(child, "CHILD"));
+            EdgeView edge = EdgeView.create(selected, child);
+            edges.put(edge.getId(), edge);
+            addRelatedType(relatedTypes, child.getType());
+          }
+        }
+        else
+        {
+          BusinessObject child = (BusinessObject) objects.get(i);
+
+          if (!verticies.containsKey(child.getCode()))
+          {
+            verticies.put(child.getCode(), this.fromBusinessObject(child, "CHILD"));
+            EdgeView edge = EdgeView.create(selected, child);
+            edges.put(edge.getId(), edge);
+            addRelatedType(relatedTypes, child.getType());
+          }
+        }
       }
     }
 
@@ -409,13 +460,46 @@ public class RelationshipVisualizationService
     JsonArray jaRelatedTypes = new JsonArray();
     relatedTypes.values().stream().forEach(relatedType -> jaRelatedTypes.add(relatedType));
     view.add("relatedTypes", jaRelatedTypes);
+    
+    if (stabilityPeriods != null) {
+      Gson gson = new GsonBuilder().registerTypeAdapter(LocalDate.class, (JsonSerializer<LocalDate>) (src, typeOfSrc, context) -> new JsonPrimitive(src.toString())).create();
+      view.add("stabilityPeriods", gson.toJsonTree(stabilityPeriods));
+    }
 
     return view;
   }
-
-  private boolean canReadBusinessData(BusinessType type)
+  
+  public ServerObjectVertex resolve(VertexView view)
   {
-    return true; // TODO
+    if (VertexView.ObjectType.GEOOBJECT.equals(view.getObjectType()))
+    {
+      final ServerGeoObjectType type = ServerGeoObjectType.get(view.getTypeCode());
+
+      objectPermissions.enforceCanRead(type.getOrganization().getCode(), type);
+      
+      return (ServerObjectVertex) geoObjectService.getGeoObjectByCode(view.getCode(), type);
+    }
+    else if (VertexView.ObjectType.BUSINESS.equals(view.getObjectType()))
+    {
+      final BusinessType type = this.bTypeService.getByCodeOrThrow(view.getTypeCode());
+
+      enforceCanReadBusinessData(type);
+      
+      return this.bObjectService.getByCode(type, view.getCode()).orElseThrow();
+    }
+    
+    var ex = new DataNotFoundException();
+    ex.setTypeLabel(view.getTypeCode());
+    throw ex;
+  }
+
+  public static void enforceCanReadBusinessData(BusinessType type)
+  {
+    // TODO
+    if (false)
+    {
+      throw new IllegalArgumentException("The user cannot read the requested business type.");
+    }
   }
 
   private void addRelatedType(Map<String, JsonObject> relatedTypes, BusinessType type)
@@ -434,6 +518,15 @@ public class RelationshipVisualizationService
     view.addProperty("label", type.getLabel().getValue());
     view.addProperty("objectType", ObjectType.GEOOBJECT.name());
     relatedTypes.put(type.getCode(), view);
+  }
+  
+  private void addRelatedType(Map<String, JsonObject> relatedTypes, TypeInfo type)
+  {
+    JsonObject view = new JsonObject();
+    view.addProperty("code", type.getTypeCode());
+    view.addProperty("label", type.getTypeCode());
+    view.addProperty("objectType", ObjectType.BUSINESS.name());
+    relatedTypes.put(type.getTypeCode(), view);
   }
 
   private boolean validateBounds(String boundsWKT)
@@ -654,11 +747,8 @@ public class RelationshipVisualizationService
     {
       return new JsonArray();
     }
-
-    /*
-     * Resolve the graph RID of the selected source object.
-     */
-    Object sourceRid = this.getRelationshipCountSourceRid(sourceView);
+    
+    final ServerObjectVertex sourceServerVertex = resolve(sourceView);
 
     /*
      * A relationship metadata item may theoretically be returned more than
@@ -674,7 +764,7 @@ public class RelationshipVisualizationService
     String edgeClassArguments = edgeClasses.stream().map(this::quoteGraphClassName).collect(Collectors.joining(", "));
 
     Map<String, Object> parameters = new HashMap<String, Object>();
-    parameters.put("rid", sourceRid);
+    parameters.put("rid", sourceServerVertex.getRID());
 
     StringBuilder statement = new StringBuilder();
 
@@ -737,15 +827,16 @@ public class RelationshipVisualizationService
      * Return the complete metadata-driven list, including relationships with
      * zero edges for this particular source vertex.
      */
-    JsonArray response = new JsonArray();
-
+    JsonObject response = new JsonObject();
+    
+    JsonArray relationships = new JsonArray();
     for (RelationshipTypeCountMetadata metadata : relationshipTypes)
     {
       JsonObject item = new JsonObject();
 
       item.addProperty("code", metadata.getCode());
       item.addProperty("edgeClass", metadata.getEdgeClass());
-      item.addProperty("relationshipType", metadata.getRelationshipType());
+      item.addProperty("type", metadata.getRelationshipType());
       item.addProperty("layout", metadata.getLayout());
       item.addProperty("count", countsByEdgeClass.getOrDefault(metadata.getEdgeClass(), 0L));
 
@@ -754,8 +845,9 @@ public class RelationshipVisualizationService
         item.add("label", metadata.getLabel());
       }
 
-      response.add(item);
+      relationships.add(item);
     }
+    response.add("relationships", relationships);
 
     return response;
   }
@@ -841,9 +933,7 @@ public class RelationshipVisualizationService
           sourceType
       ))
       {
-        throw new IllegalArgumentException(
-            "The user cannot read the requested GeoObject type."
-        );
+        throw new IllegalArgumentException("The user cannot read the requested GeoObject type.");
       }
 
       VertexServerGeoObject source =
@@ -865,12 +955,7 @@ public class RelationshipVisualizationService
               sourceView.getTypeCode()
           );
 
-      if (!this.canReadBusinessData(sourceType))
-      {
-        throw new IllegalArgumentException(
-            "The user cannot read the requested BusinessObject type."
-        );
-      }
+      enforceCanReadBusinessData(sourceType);
 
       BusinessObject source =
           this.bObjectService
@@ -976,6 +1061,13 @@ public class RelationshipVisualizationService
     String label = bo.getLabel();
 
     return new VertexView(ObjectType.BUSINESS, "g-" + bo.getCode(), bo.getCode(), bo.getType().getCode(), ( label == null || label.length() == 0 ) ? bo.getCode() : label, relation, true);
+  }
+  
+  public VertexView fromObjectAtTime(ObjectAtTimeDTO bo, String relation)
+  {
+    String label = bo.getLabel();
+
+    return new VertexView(ObjectType.BUSINESS, "g-" + bo.getCode(), bo.getCode(), bo.getType().getTypeCode(), ( label == null || label.length() == 0 ) ? bo.getCode() : label, relation, true);
   }
 
   public VertexView fromGeoObject(ServerGeoObjectIF go, String relation)

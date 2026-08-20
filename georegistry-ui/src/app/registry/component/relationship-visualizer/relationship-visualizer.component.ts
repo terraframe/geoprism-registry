@@ -206,7 +206,7 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
                     || newState.graphOid !== oldState.graphOid
                 )
             ) {
-                this.fetchData();
+                this.fetchData(dateChange);
             }
         }
 
@@ -269,8 +269,11 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
             this.state.objectType,
             this.state.type,
             sourceVertex
-        ).then(relationships => {
-            const allRelationships = relationships || [];
+        ).then(resp => {
+            const allRelationships = (resp.relationships || []).map(obj => ({
+                ...obj,
+                oid: obj.oid ?? obj.code
+                }));
 
             /*
             * Hide zero-count relationships whenever at least one relationship
@@ -382,6 +385,8 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
 
         //   this.fetchData();
 
+        this.selectedPeriodStartDate = null;
+
         let newState = { graphOid: this.graphOid };
 
         this.geomService.setState(newState, false);
@@ -399,17 +404,26 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
         return this.lService.decode("manage.versions.history.viewingAll");
     }
 
-    fetchData(): void {
+    fetchData(changeStabilityPeriod: boolean = false): void {
         if (this.relationship != null) {
             this.spinner.show(this.CONSTANTS.OVERLAY);
 
             let source = { code: this.state.code, typeCode: this.state.type, objectType: this.state.objectType } as Vertex;
 
-            this.vizService.tree(this.relationship.type, this.relationship.code, source, this.selectedPeriodStartDate, this.getBoundsAsWKT()).then(data => {
+            this.vizService.tree(this.relationship.type, this.relationship.code, source, this.selectedPeriodStartDate, this.getBoundsAsWKT(), changeStabilityPeriod !== true).then(data => {
                 this.data = null;
+
+                if (!changeStabilityPeriod)
+                    this.stabilityPeriods = [];
 
                 window.setTimeout(() => {
                     this.data = data;
+
+                    if (!changeStabilityPeriod && data.stabilityPeriods.length > 0) {
+                        this.stabilityPeriods = data.stabilityPeriods;
+                        this.selectedPeriodStartDate = this.stabilityPeriods[this.stabilityPeriods.length-1].startDate;
+                    }
+                    
                     this.resizeDimensions();
                     this.calculateTypeLegend(this.data.relatedTypes);
                     this.addLayers(this.data.relatedTypes);
