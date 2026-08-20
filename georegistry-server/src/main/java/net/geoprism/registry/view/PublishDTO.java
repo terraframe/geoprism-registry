@@ -247,6 +247,17 @@ public class PublishDTO
     this.addType(TypeClass.BUSINESS_EDGE, businessEdgeTypes);
   }
 
+  @JsonIgnore
+  public Stream<String> getConceptEdgeTypes()
+  {
+    return this.asStream(TypeClass.CONCEPT_EDGE);
+  }
+
+  public void addConceptEdgeType(String... conceptEdgeTypes)
+  {
+    this.addType(TypeClass.CONCEPT_CLASS, conceptEdgeTypes);
+  }
+
   public JsonArray toTypeJson()
   {
     return toJson(this.types);

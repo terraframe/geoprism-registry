@@ -741,6 +741,7 @@ public class ETLBusinessService
     else if (classType.equals(TypeClass.DAG.getCode()) //
         || classType.equals(TypeClass.UNDIRECTED_GRAPH.getCode()) //
         || classType.equals(TypeClass.BUSINESS_EDGE.getCode()) //
+        || classType.equals(TypeClass.CONCEPT_EDGE.getCode()) //
         || classType.equals(TypeClass.HIERARCHY.getCode()))
     {
       // Ensure the type code is valid

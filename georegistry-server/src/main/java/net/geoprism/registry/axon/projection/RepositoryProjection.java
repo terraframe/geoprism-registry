@@ -31,7 +31,7 @@ import net.geoprism.registry.ListType;
 import net.geoprism.registry.OriginException;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
-import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectApplyEdgeEvent;
+import net.geoprism.registry.axon.event.remote.RemoteObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteConceptObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectApplyExternalIdEvent;
@@ -39,7 +39,6 @@ import net.geoprism.registry.axon.event.remote.RemoteGeoObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectRemoveExternalIdEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectSetParentEvent;
-import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.ConceptObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEdgeEvent;
@@ -50,13 +49,15 @@ import net.geoprism.registry.axon.event.repository.GeoObjectRemoveExternalIdEven
 import net.geoprism.registry.axon.event.repository.GeoObjectRemoveParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectUpdateParentEvent;
 import net.geoprism.registry.axon.event.repository.ImportHistoryEvent;
-import net.geoprism.registry.axon.event.repository.RemoveBusinessObjectEdgeEvent;
+import net.geoprism.registry.axon.event.repository.ObjectApplyEdgeEvent;
+import net.geoprism.registry.axon.event.repository.RemoveObjectEdgeEvent;
 import net.geoprism.registry.axon.event.repository.RemoveBusinessObjectEvent;
 import net.geoprism.registry.axon.event.repository.RemoveConceptObjectEvent;
 import net.geoprism.registry.axon.event.repository.RemoveGeoObjectEdgeEvent;
 import net.geoprism.registry.axon.event.repository.RemoveGeoObjectEvent;
 import net.geoprism.registry.cache.BusinessObjectCache;
 import net.geoprism.registry.cache.Cache;
+import net.geoprism.registry.cache.ConceptObjectCache;
 import net.geoprism.registry.cache.GeoObjectCache;
 import net.geoprism.registry.cache.LRUCache;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
@@ -64,6 +65,7 @@ import net.geoprism.registry.graph.BaseGeoObjectType;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.graph.ConceptClass;
+import net.geoprism.registry.graph.ConceptEdgeType;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.graph.ObjectClass;
 import net.geoprism.registry.model.BusinessObject;
@@ -78,6 +80,7 @@ import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.ConceptClassBusinessServiceIF;
+import net.geoprism.registry.service.business.ConceptEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ConceptObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.EdgeTypeBusinessServiceIF;
@@ -88,6 +91,7 @@ import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.business.SourceAuthorityBusinessServiceIF;
 import net.geoprism.registry.view.ObjectAtTimeDTO;
 import net.geoprism.registry.view.ObjectOverTimeDTO;
+import net.geoprism.registry.view.TypeClass;
 
 @Service
 public class RepositoryProjection
@@ -95,6 +99,8 @@ public class RepositoryProjection
   public static final String                GEO_CACHE      = "geo-cache";
 
   public static final String                BUSINESS_CACHE = "business-cache";
+
+  public static final String                CONCEPT_CACHE  = "concept-cache";
 
   public static final String                RID_CACHE      = "rid-cache";
 
@@ -110,7 +116,13 @@ public class RepositoryProjection
   private DataSourceBusinessServiceIF       sourceService;
 
   @Autowired
-  private BusinessEdgeTypeBusinessServiceIF edgeService;
+  private BusinessEdgeTypeBusinessServiceIF bEdgeService;
+
+  @Autowired
+  private ConceptEdgeTypeBusinessServiceIF  cEdgeService;
+
+  @Autowired
+  private EdgeTypeBusinessServiceIF         edgeTypeService;
 
   @Autowired
   private GPRBusinessTypeBusinessService    bTypeService;
@@ -631,18 +643,36 @@ public class RepositoryProjection
 
   @EventHandler
   @Transaction
-  public void handleBusinessObjectApplyEdge(BusinessObjectApplyEdgeEvent event)
+  public void handleObjectApplyEdge(ObjectApplyEdgeEvent event)
   {
-    BusinessEdgeType edgeType = this.edgeService.getByCodeOrThrow(event.getEdgeTypeCode());
+    // Handle business edge case
+    if (event.getEdgeType().getTypeClass().equals(TypeClass.BUSINESS_EDGE))
+    {
+      handleBusinessObjectApplyEdgeEvent(event);
+    }
+    else if (event.getEdgeType().getTypeClass().equals(TypeClass.CONCEPT_EDGE))
+    {
+      handleConceptObjectApplyEdgeEvent(event);
+    }
+    else
+    {
+      throw new UnsupportedOperationException();
+    }
+  }
+
+  private void handleBusinessObjectApplyEdgeEvent(ObjectApplyEdgeEvent event)
+  {
+    BusinessEdgeType edgeType = this.bEdgeService.getByCodeOrThrow(event.getEdgeType().getTypeCode());
+
     DataSource dataSource = this.sourceService.getByCode(event.getDataSource()).orElse(null);
 
     VertexComponent source = edgeType.getIsParentGeoObject() ? //
-        this.getGeoObjectCache().getOrFetchByCode(event.getSourceCode(), event.getSourceType()) : //
-        this.getBusinessObjectCache().getOrFetchByCode(event.getSourceCode(), event.getSourceType());
+        this.getGeoObjectCache().getOrFetchByCode(event.getSourceCode(), event.getSourceType().getTypeCode()) : //
+        this.getBusinessObjectCache().getOrFetchByCode(event.getSourceCode(), event.getSourceType().getTypeCode());
 
     VertexComponent target = edgeType.getIsChildGeoObject() ? //
-        this.getGeoObjectCache().getOrFetchByCode(event.getTargetCode(), event.getTargetType()) : //
-        this.getBusinessObjectCache().getOrFetchByCode(event.getTargetCode(), event.getTargetType());
+        this.getGeoObjectCache().getOrFetchByCode(event.getTargetCode(), event.getTargetType().getTypeCode()) : //
+        this.getBusinessObjectCache().getOrFetchByCode(event.getTargetCode(), event.getTargetType().getTypeCode());
 
     if (event.getValidate())
     {
@@ -668,7 +698,28 @@ public class RepositoryProjection
         createImportHistoryRelationship(event, (ServerGeoObjectIF) target);
       }
     }
+  }
 
+  private void handleConceptObjectApplyEdgeEvent(ObjectApplyEdgeEvent event)
+  {
+    ConceptEdgeType edgeType = this.cEdgeService.getByCodeOrThrow(event.getEdgeType().getTypeCode());
+
+    DataSource dataSource = this.sourceService.getByCode(event.getDataSource()).orElse(null);
+
+    ConceptObject source = this.getConceptObjectCache().getOrFetchByCode(event.getSourceCode(), event.getSourceType().getTypeCode());
+    ConceptObject target = this.getConceptObjectCache().getOrFetchByCode(event.getTargetCode(), event.getTargetType().getTypeCode());
+
+    if (event.getValidate())
+    {
+      this.cObjectService.addChild(source, edgeType, target, event.getEdgeUid(), event.getStartDate(), event.getEndDate(), dataSource);
+    }
+    else
+    {
+      Object sourceRid = source.getVertex().getRID();
+      Object targetRid = target.getVertex().getRID();
+
+      this.newEdge(sourceRid, targetRid, edgeType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), dataSource, true);
+    }
   }
 
   @EventHandler
@@ -727,19 +778,19 @@ public class RepositoryProjection
 
   @EventHandler
   @Transaction
-  public void handleRemoteBusinessObjectApplyEdge(RemoteBusinessObjectApplyEdgeEvent event)
+  public void handleRemoteBusinessObjectApplyEdge(RemoteObjectApplyEdgeEvent event)
   {
-    BusinessEdgeType edgeType = this.edgeService.getByCodeOrThrow(event.getEdgeType());
+    BusinessEdgeType edgeType = this.bEdgeService.getByCodeOrThrow(event.getEdgeType().getTypeCode());
 
     if (!GeoprismProperties.getOrigin().equals(edgeType.getOrigin()))
     {
       Object sourceRid = edgeType.getIsParentGeoObject() ? //
-          getOrFetchGeoObjectRid(event.getSourceCode(), event.getSourceType()) : //
-          getOrFetchBusinessRid(event.getSourceCode(), event.getSourceType());
+          getOrFetchGeoObjectRid(event.getSourceCode(), event.getSourceType().getTypeCode()) : //
+          getOrFetchBusinessRid(event.getSourceCode(), event.getSourceType().getTypeCode());
 
       Object targetRid = edgeType.getIsChildGeoObject() ? //
-          getOrFetchGeoObjectRid(event.getTargetCode(), event.getTargetType()) : //
-          getOrFetchBusinessRid(event.getTargetCode(), event.getTargetType());
+          getOrFetchGeoObjectRid(event.getTargetCode(), event.getTargetType().getTypeCode()) : //
+          getOrFetchBusinessRid(event.getTargetCode(), event.getTargetType().getTypeCode());
 
       DataSource dataSource = this.sourceService.getByCode(event.getDataSource()).orElse(null);
 
@@ -855,21 +906,65 @@ public class RepositoryProjection
     service.command(request, statement.toString(), parameters);
   }
 
-  public void handleRemoveBusinessObjectEvent(RemoveBusinessObjectEdgeEvent event)
+  public void handleRemoveObjectEdgeEvent(RemoveObjectEdgeEvent event)
   {
-    BusinessEdgeType edgeType = this.edgeService.getByCodeOrThrow(event.getEdgeTypeCode());
-    ObjectClass parentType = this.edgeService.getParent(edgeType);
-    ObjectClass childType = this.edgeService.getChild(edgeType);
+    EdgeType edgeType = this.edgeTypeService.getByCode(event.getEdgeType());
+
+    if (edgeType instanceof BusinessEdgeType)
+    {
+      handleRemoveBusinessObjectEdgeEvent(event, (BusinessEdgeType) edgeType);
+    }
+    else if (edgeType instanceof ConceptEdgeType)
+    {
+      handleRemoveConceptObjectEdgeEvent(event, (ConceptEdgeType) edgeType);
+    }
+    else
+    {
+      throw new UnsupportedOperationException();
+    }
+
+  }
+
+  private void handleRemoveBusinessObjectEdgeEvent(RemoveObjectEdgeEvent event, BusinessEdgeType edgeType)
+  {
+    ObjectClass parentType = this.bEdgeService.getParent(edgeType);
+    ObjectClass childType = this.bEdgeService.getChild(edgeType);
 
     String clazz = edgeType.getMdEdgeDAO().getDBClassName();
 
     Object sourceRid = ( parentType instanceof BaseGeoObjectType ) ? //
-        this.gObjectService.getGeoObjectByCode(event.getSourceCode(), event.getSourceType()).getVertex().getRID() : //
-        this.bObjectService.getByCode(this.bTypeService.getByCodeOrThrow(event.getSourceType()), event.getSourceCode()).orElseThrow().getRID();
+        this.gObjectService.getGeoObjectByCode(event.getSourceCode(), event.getSourceType().getTypeCode()).getVertex().getRID() : //
+        this.bObjectService.getByCode(this.bTypeService.getByCodeOrThrow(event.getSourceType().getTypeCode()), event.getSourceCode()).orElseThrow().getRID();
 
     Object targetRid = ( childType instanceof BaseGeoObjectType ) ? //
-        this.gObjectService.getGeoObjectByCode(event.getTargetCode(), event.getTargetType()).getVertex().getRID() : //
-        this.bObjectService.getByCode(this.bTypeService.getByCodeOrThrow(event.getTargetType()), event.getTargetCode()).orElseThrow().getRID();
+        this.gObjectService.getGeoObjectByCode(event.getTargetCode(), event.getTargetType().getTypeCode()).getVertex().getRID() : //
+        this.bObjectService.getByCode(this.bTypeService.getByCodeOrThrow(event.getTargetType().getTypeCode()), event.getTargetCode()).orElseThrow().getRID();
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("DELETE EDGE " + clazz);
+    statement.append(" FROM :sourceRid");
+    statement.append(" TO :targetRid");
+    statement.append(" WHERE :startDate = startDate");
+    statement.append(" AND :endDate = endDate");
+
+    Map<String, Object> parameters = new HashMap<String, Object>();
+    parameters.put("sourceRid", sourceRid);
+    parameters.put("targetRid", targetRid);
+    parameters.put("startDate", event.getStartDate());
+    parameters.put("endDate", event.getEndDate());
+
+    GraphDBService service = GraphDBService.getInstance();
+    GraphRequest request = service.getGraphDBRequest();
+
+    service.command(request, statement.toString(), parameters);
+  }
+
+  private void handleRemoveConceptObjectEdgeEvent(RemoveObjectEdgeEvent event, ConceptEdgeType edgeType)
+  {
+    String clazz = edgeType.getMdEdgeDAO().getDBClassName();
+
+    Object sourceRid = this.cObjectService.getByCode(this.cClassService.getByCodeOrThrow(event.getSourceType().getTypeCode()), event.getSourceCode()).orElseThrow().getRID();
+    Object targetRid = this.cObjectService.getByCode(this.cClassService.getByCodeOrThrow(event.getTargetType().getTypeCode()), event.getTargetCode()).orElseThrow().getRID();
 
     StringBuilder statement = new StringBuilder();
     statement.append("DELETE EDGE " + clazz);
@@ -937,6 +1032,23 @@ public class RepositoryProjection
     }
 
     return new BusinessObjectCache(1);
+  }
+
+  private ConceptObjectCache getConceptObjectCache()
+  {
+    TransactionState state = TransactionState.getCurrentTransactionState();
+
+    if (state != null)
+    {
+      ConceptObjectCache cache = (ConceptObjectCache) state.getTransactionObject(CONCEPT_CACHE);
+
+      if (cache != null)
+      {
+        return cache;
+      }
+    }
+
+    return new ConceptObjectCache(1);
   }
 
   @SuppressWarnings("unchecked")

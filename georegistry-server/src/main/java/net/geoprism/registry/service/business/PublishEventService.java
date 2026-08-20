@@ -24,7 +24,7 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import net.geoprism.registry.Commit;
 import net.geoprism.registry.Publish;
 import net.geoprism.registry.axon.config.RegistryEventStore;
-import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectApplyEdgeEvent;
+import net.geoprism.registry.axon.event.remote.RemoteObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteConceptObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
@@ -33,7 +33,7 @@ import net.geoprism.registry.axon.event.remote.RemoteGeoObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectRemoveExternalIdEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectSetParentEvent;
-import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEdgeEvent;
+import net.geoprism.registry.axon.event.repository.ObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.ConceptObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.EventPhase;
@@ -51,6 +51,7 @@ import net.geoprism.registry.event.EmptyPublishException;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.view.ObjectOverTimeDTO;
 import net.geoprism.registry.view.PublishDTO;
+import net.geoprism.registry.view.TypeInfo;
 
 @Service
 public class PublishEventService
@@ -301,24 +302,24 @@ public class PublishEventService
 
       return new RemoteConceptObjectEvent(commit.getUid(), code, type, dto.toDate(publish.getForDate()), publish.getStartDate(), publish.getEndDate());
     }
-    else if (event instanceof BusinessObjectApplyEdgeEvent)
+    else if (event instanceof ObjectApplyEdgeEvent)
     {
-      String sourceCode = ( (BusinessObjectApplyEdgeEvent) event ).getSourceCode();
-      String sourceType = ( (BusinessObjectApplyEdgeEvent) event ).getSourceType();
-      String edgeUid = ( (BusinessObjectApplyEdgeEvent) event ).getEdgeUid();
-      String edgeType = ( (BusinessObjectApplyEdgeEvent) event ).getEdgeTypeCode();
-      String targetCode = ( (BusinessObjectApplyEdgeEvent) event ).getTargetCode();
-      String targetType = ( (BusinessObjectApplyEdgeEvent) event ).getTargetType();
-      Date startDate = ( (BusinessObjectApplyEdgeEvent) event ).getStartDate();
-      Date endDate = ( (BusinessObjectApplyEdgeEvent) event ).getEndDate();
-      String dataSource = ( (BusinessObjectApplyEdgeEvent) event ).getDataSource();
+      String sourceCode = ( (ObjectApplyEdgeEvent) event ).getSourceCode();
+      TypeInfo sourceType = ( (ObjectApplyEdgeEvent) event ).getSourceType();
+      String edgeUid = ( (ObjectApplyEdgeEvent) event ).getEdgeUid();
+      TypeInfo edgeType = ( (ObjectApplyEdgeEvent) event ).getEdgeType();
+      String targetCode = ( (ObjectApplyEdgeEvent) event ).getTargetCode();
+      TypeInfo targetType = ( (ObjectApplyEdgeEvent) event ).getTargetType();
+      Date startDate = ( (ObjectApplyEdgeEvent) event ).getStartDate();
+      Date endDate = ( (ObjectApplyEdgeEvent) event ).getEndDate();
+      String dataSource = ( (ObjectApplyEdgeEvent) event ).getDataSource();
 
       if (!StringUtils.isBlank(dataSource))
       {
         sources.add(dataSource);
       }
 
-      return new RemoteBusinessObjectApplyEdgeEvent(commit.getUid(), sourceCode, sourceType, edgeUid, edgeType, targetCode, targetType, startDate, endDate, dataSource);
+      return new RemoteObjectApplyEdgeEvent(commit.getUid(), sourceCode, sourceType, edgeUid, edgeType, targetCode, targetType, startDate, endDate, dataSource);
     }
 
     throw new UnsupportedOperationException("Events of type [" + event.getClass().getName() + "] do not support being published");

@@ -5,43 +5,42 @@ import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.geoprism.registry.view.PublishDTO;
-import net.geoprism.registry.view.TypeClass;
 import net.geoprism.registry.view.TypeInfo;
 
-public class RemoteBusinessObjectApplyEdgeEvent implements RemoteEvent
+public class RemoteObjectApplyEdgeEvent implements RemoteEvent
 {
-  private String key;
+  private String   key;
 
-  private String commitId;
+  private String   commitId;
 
-  private String sourceCode;
+  private String   sourceCode;
 
-  private String sourceType;
+  private TypeInfo sourceType;
 
-  private String edgeUid;
+  private String   edgeUid;
 
-  private String edgeType;
+  private TypeInfo edgeType;
 
-  private String targetType;
+  private TypeInfo targetType;
 
-  private String targetCode;
+  private String   targetCode;
 
-  private Date   startDate;
+  private Date     startDate;
 
-  private Date   endDate;
+  private Date     endDate;
 
-  private String dataSource;
+  private String   dataSource;
 
-  public RemoteBusinessObjectApplyEdgeEvent()
+  public RemoteObjectApplyEdgeEvent()
   {
   }
 
-  public RemoteBusinessObjectApplyEdgeEvent(String commitId, String sourceCode, String sourceType, String edgeUid, String edgeType, String targetCode, String targetType, Date startDate, Date endDate, String dataSource)
+  public RemoteObjectApplyEdgeEvent(String commitId, String sourceCode, TypeInfo sourceType, String edgeUid, TypeInfo edgeType, String targetCode, TypeInfo targetType, Date startDate, Date endDate, String dataSource)
   {
     this(commitId, sourceCode + "#" + sourceType, sourceCode, sourceType, edgeUid, edgeType, targetCode, targetType, startDate, endDate, dataSource);
   }
 
-  public RemoteBusinessObjectApplyEdgeEvent(String commitId, String key, String sourceCode, String sourceType, String edgeUid, String edgeType, String targetCode, String targetType, Date startDate, Date endDate, String dataSource)
+  public RemoteObjectApplyEdgeEvent(String commitId, String key, String sourceCode, TypeInfo sourceType, String edgeUid, TypeInfo edgeType, String targetCode, TypeInfo targetType, Date startDate, Date endDate, String dataSource)
   {
     super();
     this.commitId = commitId;
@@ -87,12 +86,12 @@ public class RemoteBusinessObjectApplyEdgeEvent implements RemoteEvent
     this.sourceCode = sourceCode;
   }
 
-  public String getSourceType()
+  public TypeInfo getSourceType()
   {
     return sourceType;
   }
 
-  public void setSourceType(String sourceType)
+  public void setSourceType(TypeInfo sourceType)
   {
     this.sourceType = sourceType;
   }
@@ -107,22 +106,22 @@ public class RemoteBusinessObjectApplyEdgeEvent implements RemoteEvent
     this.edgeUid = edgeUid;
   }
 
-  public String getEdgeType()
+  public TypeInfo getEdgeType()
   {
     return edgeType;
   }
 
-  public void setEdgeType(String edgeType)
+  public void setEdgeType(TypeInfo edgeType)
   {
     this.edgeType = edgeType;
   }
 
-  public String getTargetType()
+  public TypeInfo getTargetType()
   {
     return targetType;
   }
 
-  public void setTargetType(String targetType)
+  public void setTargetType(TypeInfo targetType)
   {
     this.targetType = targetType;
   }
@@ -170,7 +169,7 @@ public class RemoteBusinessObjectApplyEdgeEvent implements RemoteEvent
   @Override
   public boolean isValid(PublishDTO dto)
   {
-    return !dto.getExclusions().contains(TypeInfo.build(edgeType, TypeClass.BUSINESS_EDGE));
+    return !dto.getExclusions().contains(edgeType);
   }
 
   @Override

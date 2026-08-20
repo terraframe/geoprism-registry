@@ -7,18 +7,20 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.view.PublishDTO;
+import net.geoprism.registry.view.TypeClass;
+import net.geoprism.registry.view.TypeInfo;
 
-public class BusinessObjectApplyEdgeEvent extends AbstractBusinessObjectEdgeEvent implements BusinessObjectEvent, ImportHistoryEvent
+public class ObjectApplyEdgeEvent extends AbstractObjectEdgeEvent implements RepositoryEvent, ImportHistoryEvent
 {
   private String         sourceCode;
 
-  private String         sourceType;
+  private TypeInfo       sourceType;
 
   private String         edgeUid;
 
-  private String         edgeTypeCode;
+  private TypeInfo       edgeType;
 
-  private String         targetType;
+  private TypeInfo       targetType;
 
   private String         targetCode;
 
@@ -34,23 +36,23 @@ public class BusinessObjectApplyEdgeEvent extends AbstractBusinessObjectEdgeEven
 
   private String         historyId;
 
-  public BusinessObjectApplyEdgeEvent()
+  public ObjectApplyEdgeEvent()
   {
   }
 
-  public BusinessObjectApplyEdgeEvent(String sourceCode, String sourceType, String edgeTypeCode, String targetCode, String targetType, Date startDate, Date endDate, String dataSource, ImportStrategy strategy, Boolean validate)
+  public ObjectApplyEdgeEvent(String sourceCode, TypeInfo sourceType, TypeInfo edgeType, String targetCode, TypeInfo targetType, Date startDate, Date endDate, String dataSource, ImportStrategy strategy, Boolean validate)
   {
-    this(sourceCode, sourceType, edgeTypeCode, targetCode, targetType, startDate, endDate, dataSource, strategy, validate, null);
+    this(sourceCode, sourceType, edgeType, targetCode, targetType, startDate, endDate, dataSource, strategy, validate, null);
   }
 
-  public BusinessObjectApplyEdgeEvent(String sourceCode, String sourceType, String edgeTypeCode, String targetCode, String targetType, Date startDate, Date endDate, String dataSource, ImportStrategy strategy, Boolean validate, String historyId)
+  public ObjectApplyEdgeEvent(String sourceCode, TypeInfo sourceType, TypeInfo edgeType, String targetCode, TypeInfo targetType, Date startDate, Date endDate, String dataSource, ImportStrategy strategy, Boolean validate, String historyId)
   {
     super(UUID.randomUUID().toString());
 
     this.edgeUid = UUID.randomUUID().toString();
     this.sourceCode = sourceCode;
     this.sourceType = sourceType;
-    this.edgeTypeCode = edgeTypeCode;
+    this.edgeType = edgeType;
     this.targetCode = targetCode;
     this.targetType = targetType;
     this.validate = validate;
@@ -71,12 +73,12 @@ public class BusinessObjectApplyEdgeEvent extends AbstractBusinessObjectEdgeEven
     this.sourceCode = sourceCode;
   }
 
-  public String getSourceType()
+  public TypeInfo getSourceType()
   {
     return sourceType;
   }
 
-  public void setSourceType(String sourceType)
+  public void setSourceType(TypeInfo sourceType)
   {
     this.sourceType = sourceType;
   }
@@ -91,22 +93,22 @@ public class BusinessObjectApplyEdgeEvent extends AbstractBusinessObjectEdgeEven
     this.edgeUid = edgeUid;
   }
 
-  public String getEdgeTypeCode()
+  public TypeInfo getEdgeType()
   {
-    return edgeTypeCode;
+    return edgeType;
   }
 
-  public void setEdgeTypeCode(String edgeTypeCode)
+  public void setEdgeType(TypeInfo edgeType)
   {
-    this.edgeTypeCode = edgeTypeCode;
+    this.edgeType = edgeType;
   }
 
-  public String getTargetType()
+  public TypeInfo getTargetType()
   {
     return targetType;
   }
 
-  public void setTargetType(String targetType)
+  public void setTargetType(TypeInfo targetType)
   {
     this.targetType = targetType;
   }
@@ -193,17 +195,28 @@ public class BusinessObjectApplyEdgeEvent extends AbstractBusinessObjectEdgeEven
   {
     Date date = dto.getDate();
 
-    if (! ( dto.getBusinessTypes().anyMatch(this.getSourceType()::equals) || dto.getGeoObjectTypes().anyMatch(this.getSourceType()::equals) ))
+    // Ensure the source type is valid to be published
+    if ( ( ( this.getSourceType().getTypeClass().equals(TypeClass.BUSINESS_TYPE) && !dto.getBusinessTypes().anyMatch(this.getSourceType().getTypeCode()::equals) ) //
+        || ( this.getSourceType().getTypeClass().equals(TypeClass.GEO_OBJECT_TYPE) && !dto.getGeoObjectTypes().anyMatch(this.getSourceType().getTypeCode()::equals) ) //
+        || ( this.getSourceType().getTypeClass().equals(TypeClass.CONCEPT_CLASS) && !dto.getConceptClasses().anyMatch(this.getSourceType().getTypeCode()::equals) ) //
+    ))
     {
       return false;
     }
 
-    if (! ( dto.getBusinessTypes().anyMatch(this.getTargetType()::equals) || dto.getGeoObjectTypes().anyMatch(this.getTargetType()::equals) ))
+    // Ensure the target type is valid to be published
+    if ( ( ( this.getTargetType().getTypeClass().equals(TypeClass.BUSINESS_TYPE) && !dto.getBusinessTypes().anyMatch(this.getTargetType().getTypeCode()::equals) ) //
+        || ( this.getTargetType().getTypeClass().equals(TypeClass.GEO_OBJECT_TYPE) && !dto.getGeoObjectTypes().anyMatch(this.getTargetType().getTypeCode()::equals) ) //
+        || ( this.getTargetType().getTypeClass().equals(TypeClass.CONCEPT_CLASS) && !dto.getConceptClasses().anyMatch(this.getTargetType().getTypeCode()::equals) ) //
+    ))
     {
       return false;
     }
 
-    if (!dto.getBusinessEdgeTypes().anyMatch(this.getEdgeTypeCode()::equals))
+    // Ensure the edge type is valid to be published
+    if ( ( ( this.getEdgeType().getTypeClass().equals(TypeClass.BUSINESS_EDGE) && !dto.getBusinessEdgeTypes().anyMatch(this.getEdgeType().getTypeCode()::equals) ) //
+        || ( this.getEdgeType().getTypeClass().equals(TypeClass.CONCEPT_EDGE) && !dto.getConceptEdgeTypes().anyMatch(this.getEdgeType().getTypeCode()::equals) ) //
+    ))
     {
       return false;
     }

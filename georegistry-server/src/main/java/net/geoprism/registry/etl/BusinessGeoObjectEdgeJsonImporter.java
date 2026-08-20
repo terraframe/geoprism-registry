@@ -35,7 +35,7 @@ import com.google.gson.JsonSyntaxException;
 import com.runwaysdk.resource.ApplicationResource;
 
 import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEdgeEvent;
+import net.geoprism.registry.axon.event.repository.ObjectApplyEdgeEvent;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
@@ -84,9 +84,9 @@ public class BusinessGeoObjectEdgeJsonImporter
         Date endDate = GeoRegistryUtil.parseDate(joEdge.get("endDate").getAsString());
         String edgeTypeCode = joEdge.has("edgeType") ? joEdge.get("edgeType").getAsString() : defaultEdgeTypeCode;
 
-        BusinessObjectApplyEdgeEvent event = new BusinessObjectApplyEdgeEvent(sourceCode, sourceTypeCode, edgeTypeCode, targetCode, targetTypeCode, startDate, endDate, source.getCode(), ImportStrategy.NEW_ONLY, true);
-
-        this.gateway.publish(GenericEventMessage.asEventMessage(event));
+//        ObjectApplyEdgeEvent event = new ObjectApplyEdgeEvent(sourceCode, sourceTypeCode, edgeTypeCode, targetCode, targetTypeCode, startDate, endDate, source.getCode(), ImportStrategy.NEW_ONLY, true);
+//
+//        this.gateway.publish(GenericEventMessage.asEventMessage(event));
 
         if (j % 500 == 0)
         {

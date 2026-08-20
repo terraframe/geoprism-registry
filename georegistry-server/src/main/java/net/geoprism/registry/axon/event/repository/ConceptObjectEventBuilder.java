@@ -1,5 +1,6 @@
 package net.geoprism.registry.axon.event.repository;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -7,6 +8,9 @@ import java.util.Optional;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
 import net.geoprism.registry.etl.upload.ImportConfiguration;
+import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.graph.ConceptEdgeType;
+import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.service.business.ConceptObjectBusinessServiceIF;
 import net.geoprism.registry.view.ObjectOverTimeDTO;
@@ -19,7 +23,7 @@ public class ConceptObjectEventBuilder
 
   private Boolean                        isNew;
 
-  private List<ConceptObjectEvent>       events;
+  private List<RepositoryEvent>          events;
 
   private ImportConfiguration            configuration;
 
@@ -76,12 +80,12 @@ public class ConceptObjectEventBuilder
     this.isNew = isNew;
   }
 
-  public List<ConceptObjectEvent> getEvents()
+  public List<RepositoryEvent> getEvents()
   {
     return events;
   }
 
-  public void setEvents(List<ConceptObjectEvent> events)
+  public void setEvents(List<RepositoryEvent> events)
   {
     this.events = events;
   }
@@ -114,6 +118,22 @@ public class ConceptObjectEventBuilder
   public void setAttributeUpdate(boolean attributeUpdate)
   {
     this.attributeUpdate = attributeUpdate;
+  }
+
+  public void addParent(ConceptObject parent, ConceptEdgeType edgeType, Date startDate, Date endDate, DataSource source, Boolean validate)
+  {
+    ConceptObject object = this.getOrThrow();
+    String code = source != null ? source.getCode() : null;
+
+    this.events.add(new ObjectApplyEdgeEvent(parent.getCode(), parent.getType().getTypeInfo(), edgeType.getTypeInfo(), object.getCode(), object.getType().getTypeInfo(), startDate, endDate, code, ImportStrategy.NEW_AND_UPDATE, validate));
+  }
+
+  public void addChild(ConceptObject child, ConceptEdgeType edgeType, Date startDate, Date endDate, DataSource source, Boolean validate)
+  {
+    ConceptObject object = this.getOrThrow();
+    String code = source != null ? source.getCode() : null;
+
+    this.events.add(new ObjectApplyEdgeEvent(object.getCode(), object.getType().getTypeInfo(), edgeType.getTypeInfo(), child.getCode(), child.getType().getTypeInfo(), startDate, endDate, code, ImportStrategy.NEW_AND_UPDATE, validate));
   }
 
   public ImportConfiguration getConfiguration()
