@@ -22,17 +22,17 @@ import { HttpClient } from "@angular/common/http";
 
 import { EventService } from "@shared/service";
 
-import { BusinessEdgeType } from "@registry/model/object-class";
+import { ConceptEdgeType } from "@registry/model/object-class";
 import { EdgeClassService } from "./edge-class.service";
 
 @Injectable({ providedIn: 'root' })
-export class BusinessEdgeTypeService extends EdgeClassService<BusinessEdgeType> {
+export class ConceptEdgeTypeService extends EdgeClassService<ConceptEdgeType> {
 
     constructor(http: HttpClient, eventService: EventService) {
         super(http, eventService);
     }
 
     controller(): string {
-        return '/api/business-edge-type'
+        return '/api/concept-edge-type'
     }
 }

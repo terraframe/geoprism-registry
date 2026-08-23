@@ -39,15 +39,27 @@ export class BusinessType extends ObjectClass implements AttributedType {
     labelAttribute?: string;
 }
 
-export class BusinessEdgeType {
-    oid?: string;
+export class GraphClass {
     code: string;
-    organizationCode: string;
     label: LocalizedValue;
     description: LocalizedValue;
-    parentTypeCode: string;
-    childTypeCode: string;
-    direction?: string;
+    seq?: number;
+    oid?: string;
+    origin?: string;
+}
+
+
+export class EdgeClass extends GraphClass {
+    organizationCode: string;
+    childType: string;
+    parentType: string;
+}
+
+export class BusinessEdgeType extends EdgeClass {
+}
+
+export class ConceptEdgeType extends EdgeClass {
+    discreteType: string;
 }
 
 export class ObjectOverTime {

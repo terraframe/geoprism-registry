@@ -29,8 +29,11 @@
                 </tab>
 
 				<!-- LOCALIZE -->
-                <!-- <tab heading="Concept Sets">
-                </tab> -->
+                <tab heading="Concept Edges">
+                    <concept-edge-type-page [organizations]="organizations" [conceptTypes]="conceptClasses" (onError)="error($event)">
+                    </concept-edge-type-page>
+
+                </tab>
             </tabset>
         </div>
     </div>

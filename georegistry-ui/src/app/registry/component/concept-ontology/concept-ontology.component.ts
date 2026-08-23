@@ -34,6 +34,7 @@ import { LocalizePipe } from "@shared/pipe/localize.pipe";
 import { ConceptClass } from "@registry/model/object-class";
 import { ConceptClassPageComponent } from "./concept-class-page/concept-class-page.component";
 import { ConceptClassService } from "@registry/service/concept-class.service";
+import { ConceptEdgeTypePageComponent } from "./concept-edge-type-page/concept-edge-type-page.component";
 
 
 @Component({
@@ -41,7 +42,7 @@ import { ConceptClassService } from "@registry/service/concept-class.service";
     templateUrl: "./concept-ontology.component.html",
     styleUrls: ["./concept-ontology.css"],
     standalone: true,
-    imports: [PageContainerComponent, TabsModule, ConceptClassPageComponent, LocalizePipe]
+    imports: [PageContainerComponent, TabsModule, ConceptClassPageComponent, ConceptEdgeTypePageComponent, LocalizePipe]
 })
 export class ConceptOntologyComponent implements OnInit {
 

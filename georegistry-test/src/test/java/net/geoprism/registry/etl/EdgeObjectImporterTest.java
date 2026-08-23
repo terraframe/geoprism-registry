@@ -68,6 +68,7 @@ import net.geoprism.registry.view.BusinessEdgeTypeDTO;
 import net.geoprism.registry.view.BusinessTypeDTO;
 import net.geoprism.registry.view.ConceptClassDTO;
 import net.geoprism.registry.view.ConceptEdgeTypeDTO;
+import net.geoprism.registry.view.DiscreteType;
 import net.geoprism.registry.view.ImportHistoryView;
 import net.geoprism.registry.view.TypeClass;
 
@@ -163,7 +164,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
 
     cClassType = this.cClassService.apply(cDTO);
 
-    cEdgeType = this.cEdgeService.create(ConceptEdgeTypeDTO.build(FastTestDataset.ORG_CGOV.getCode(), "C_EDGE", cClassType.getCode(), cClassType.getCode()));
+    cEdgeType = this.cEdgeService.create(ConceptEdgeTypeDTO.build(FastTestDataset.ORG_CGOV.getCode(), "C_EDGE", cClassType.getCode(), cClassType.getCode(), DiscreteType.TAXONOMY));
 
     this.repoService.refreshMetadataCache();
   }

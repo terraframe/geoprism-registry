@@ -42,6 +42,7 @@ import net.geoprism.registry.view.BusinessEdgeTypeDTO;
 import net.geoprism.registry.view.BusinessTypeDTO;
 import net.geoprism.registry.view.ConceptClassDTO;
 import net.geoprism.registry.view.ConceptEdgeTypeDTO;
+import net.geoprism.registry.view.DiscreteType;
 import net.geoprism.registry.view.PublishDTO;
 
 public abstract class EventDatasetTest extends USADatasetTest implements InstanceTestClassListener
@@ -128,7 +129,7 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
 
     undirectedType = this.undirectedService.create("TEST_UN", new LocalizedValue("TEST_UN"), new LocalizedValue("TEST_UN"), 0L);
 
-    cEdgeType = this.cEdgeService.create(ConceptEdgeTypeDTO.build(USATestData.ORG_PPP.getCode(), "C_EDGE", cClass.getCode(), cClass.getCode()));
+    cEdgeType = this.cEdgeService.create(ConceptEdgeTypeDTO.build(USATestData.ORG_PPP.getCode(), "C_EDGE", cClass.getCode(), cClass.getCode(), DiscreteType.TAXONOMY));
 
     this.repoService.refreshMetadataCache();
   }

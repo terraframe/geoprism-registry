@@ -23,21 +23,21 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import net.geoprism.registry.graph.BusinessEdgeType;
-import net.geoprism.registry.service.request.BusinessEdgeTypeServiceIF;
+import net.geoprism.registry.graph.ConceptEdgeType;
+import net.geoprism.registry.service.request.ConceptEdgeTypeServiceIF;
 import net.geoprism.registry.service.request.EdgeClassServiceIF;
-import net.geoprism.registry.view.BusinessEdgeTypeDTO;
+import net.geoprism.registry.view.ConceptEdgeTypeDTO;
 
 @RestController
-@RequestMapping("api/business-edge-type")
+@RequestMapping("api/concept-edge-type")
 @Validated
-public class BusinessEdgeTypeController extends EdgeClassController<BusinessEdgeType, BusinessEdgeTypeDTO>
+public class ConceptEdgeTypeController extends EdgeClassController<ConceptEdgeType, ConceptEdgeTypeDTO>
 {
   @Autowired
-  private BusinessEdgeTypeServiceIF service;
+  private ConceptEdgeTypeServiceIF service;
 
   @Override
-  protected EdgeClassServiceIF<BusinessEdgeType, BusinessEdgeTypeDTO> getService()
+  protected EdgeClassServiceIF<ConceptEdgeType, ConceptEdgeTypeDTO> getService()
   {
     return this.service;
   }

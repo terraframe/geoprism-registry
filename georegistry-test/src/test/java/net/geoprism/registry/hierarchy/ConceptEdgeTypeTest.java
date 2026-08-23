@@ -28,6 +28,7 @@ import net.geoprism.registry.service.business.ConceptEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.view.ConceptClassDTO;
 import net.geoprism.registry.view.ConceptEdgeTypeDTO;
+import net.geoprism.registry.view.DiscreteType;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
@@ -88,7 +89,7 @@ public class ConceptEdgeTypeTest extends FastDatasetTest implements InstanceTest
     LocalizedValue label = new LocalizedValue("Test Label");
     LocalizedValue description = new LocalizedValue("Test Description");
 
-    ConceptEdgeType type = this.cEdgeService.create(ConceptEdgeTypeDTO.build(FastTestDataset.ORG_CGOV.getCode(), code, label, description, conceptClass.getCode(), conceptClass.getCode()));
+    ConceptEdgeType type = this.cEdgeService.create(ConceptEdgeTypeDTO.build(FastTestDataset.ORG_CGOV.getCode(), code, label, description, conceptClass.getCode(), conceptClass.getCode(), DiscreteType.TAXONOMY));
 
     try
     {
@@ -197,7 +198,7 @@ public class ConceptEdgeTypeTest extends FastDatasetTest implements InstanceTest
 
   public ConceptEdgeType createTestRelationship()
   {
-    return this.cEdgeService.create(ConceptEdgeTypeDTO.build(FastTestDataset.ORG_CGOV.getCode(), "TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"), conceptClass.getCode(), conceptClass.getCode()));
+    return this.cEdgeService.create(ConceptEdgeTypeDTO.build(FastTestDataset.ORG_CGOV.getCode(), "TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"), conceptClass.getCode(), conceptClass.getCode(), DiscreteType.TAXONOMY));
   }
 
 }
