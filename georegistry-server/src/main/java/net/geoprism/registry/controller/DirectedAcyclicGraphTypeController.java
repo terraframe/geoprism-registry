@@ -22,76 +22,32 @@ import java.util.List;
 
 import org.commongeoregistry.adapter.metadata.GraphTypeDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.graph.DirectedAcyclicGraphType;
 import net.geoprism.registry.service.request.DirectedAcyclicGraphTypeService;
+import net.geoprism.registry.service.request.EdgeClassServiceIF;
 import net.geoprism.registry.view.ImportHistoryView;
 
 @RestController
-@RequestMapping("api/directed-graph-type")
+@RequestMapping(RegistryConstants.CONTROLLER_ROOT + "directed-graph-type")
 @Validated
-public class DirectedAcyclicGraphTypeController extends RunwaySpringController
+public class DirectedAcyclicGraphTypeController extends EdgeClassController<DirectedAcyclicGraphType, GraphTypeDTO>
 {
-  public static final class CodeBody
-  {
-    @NotBlank
-    private String code;
-
-    public String getCode()
-    {
-      return code;
-    }
-
-    public void setCode(String code)
-    {
-      this.code = code;
-    }
-  }
-
   @Autowired
   private DirectedAcyclicGraphTypeService service;
 
-  @GetMapping("/get-all")
-  public ResponseEntity<List<GraphTypeDTO>> getAll()
+  @Override
+  protected EdgeClassServiceIF<DirectedAcyclicGraphType, GraphTypeDTO> getService()
   {
-    List<GraphTypeDTO> all = this.service.getAll(this.getSessionId());
-
-    return ResponseEntity.ok(all);
-  }
-
-  @PostMapping("/apply")
-  public ResponseEntity<GraphTypeDTO> apply(@RequestBody GraphTypeDTO type)
-  {
-    GraphTypeDTO response = this.service.apply(this.getSessionId(), type);
-
-    return ResponseEntity.ok(response);
-  }
-
-  @PostMapping("/remove")
-  public ResponseEntity<Void> remove(@Valid @RequestBody CodeBody body)
-  {
-    this.service.remove(this.getSessionId(), body.code);
-
-    return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
-  }
-
-  @GetMapping("/get")
-  public ResponseEntity<GraphTypeDTO> get(@NotBlank @RequestParam(name = "code") String code)
-  {
-    GraphTypeDTO response = this.service.get(this.getSessionId(), code);
-
-    return ResponseEntity.ok(response);
+    return this.service;
   }
 
   @GetMapping("/get-import-history")

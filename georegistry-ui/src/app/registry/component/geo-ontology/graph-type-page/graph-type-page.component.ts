@@ -24,17 +24,19 @@ import * as lodash from 'lodash';
 
 import { ConfirmModalComponent } from "@shared/component";
 import { LocalizationService } from "@shared/service/localization.service";
-import { GraphTypeService } from "@registry/service/graph-type.service";
-import { GraphType } from "@registry/model/registry";
 import { RegistryService } from "@registry/service";
 import { ImportHistoryModalComponent } from "@registry/component/import-history/modals/import-history-modal.component";
 import { AuthService } from "@shared/service";
-import { ManageGraphTypeComponent } from "./manage-graph-type.component";
 import { BsDropdownModule } from "ngx-bootstrap/dropdown";
 import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { NgIf, NgFor, NgClass } from "@angular/common";
 import { AccordionModule } from "ngx-bootstrap/accordion";
 import { ModalTypes } from "@shared/model/modal";
+import { DagTypeService } from "@registry/service/dag-type.service";
+import { EdgeClassService } from "@registry/service/edge-class.service";
+import { GraphClass } from "@registry/model/object-class";
+import { ManageGraphTypeComponent } from "./manage-graph-type.component";
+import { UndirectedGraphTypeService } from "@registry/service/undirected-graph-type.service";
 
 enum Action {
     VIEW = 0, CREATE = 1, EDIT = 2
@@ -44,7 +46,7 @@ interface Selection {
     action: Action
 
     // params for editing
-    type?: GraphType;
+    type?: GraphClass;
     readOnly?: boolean;
     isNew?: boolean;
 }
@@ -63,14 +65,16 @@ export class GraphTypePageComponent implements OnInit, OnDestroy {
     @Input() typeCode: string;
     @Output() onError: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>()
 
-    types: GraphType[];
+    types: GraphClass[];
 
     selection: Selection;
     isSRA: boolean;
+    service: EdgeClassService<GraphClass> = null
 
     // eslint-disable-next-line no-useless-constructor
     constructor(
-        public service: GraphTypeService,
+        private dagService: DagTypeService,
+        private undirectedService: UndirectedGraphTypeService,
         private registryService: RegistryService,
         private authService: AuthService,
         private modalService: BsModalService,
@@ -79,7 +83,11 @@ export class GraphTypePageComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.isSRA = this.authService.isSRA();
 
-        this.service.getAllForType(this.typeCode).then(types => {
+        console.log(this.typeCode)
+
+        this.service = this.typeCode === 'DirectedAcyclicGraphType' ? this.dagService : this.undirectedService;
+
+        this.service.getAll().then(types => {
             this.types = types;
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
@@ -104,8 +112,8 @@ export class GraphTypePageComponent implements OnInit, OnDestroy {
         };
     }
 
-    onEdit(type: GraphType): void {
-        this.service.get(this.typeCode, type.code).then(t => {
+    onEdit(type: GraphClass): void {
+        this.service.get(type.code).then(t => {
             this.selection = {
                 action: Action.EDIT,
                 type: type,
@@ -117,7 +125,7 @@ export class GraphTypePageComponent implements OnInit, OnDestroy {
         });
     }
 
-    handleTypeView(type: GraphType): void {
+    handleTypeView(type: GraphClass): void {
 
         this.selection = {
             action: Action.VIEW,
@@ -127,7 +135,7 @@ export class GraphTypePageComponent implements OnInit, OnDestroy {
         };
     }
 
-    handleTypeChange(type: GraphType): void {
+    handleTypeChange(type: GraphClass): void {
         this.selection = null;
 
         const types = [...this.types];
@@ -155,17 +163,17 @@ export class GraphTypePageComponent implements OnInit, OnDestroy {
     }
 
 
-    onDelete(type: GraphType): void {
+    onDelete(type: GraphClass): void {
         const bsModalRef = this.modalService.show(ConfirmModalComponent, {
             animated: false, backdrop: true,
             ignoreBackdropClick: true
         });
         bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " [" + type.label.localizedValue + "]";
         bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
-        bsModalRef.content.type =  ModalTypes.danger;
+        bsModalRef.content.type = ModalTypes.danger;
 
         bsModalRef.content.onConfirm.subscribe(data => {
-            this.service.remove(this.typeCode, type).then(() => {
+            this.service.remove(type).then(() => {
                 this.types = this.types.filter((t) => {
                     return t.code !== type.code;
                 });
@@ -175,16 +183,16 @@ export class GraphTypePageComponent implements OnInit, OnDestroy {
         });
     }
 
-    onImportHistory(type: GraphType): void {
+    onImportHistory(type: GraphClass): void {
         this.registryService.getImportHistory(this.typeCode, type.code).then(histories => {
             const bsModalRef = this.modalService.show(ImportHistoryModalComponent, {
-                
+
                 animated: false, backdrop: true,
                 ignoreBackdropClick: true
             });
             bsModalRef.content.init(type.label, histories);
         }).catch((err: HttpErrorResponse) => {
-            this.error(err);
+            this.error(err); 
         });
     }
 

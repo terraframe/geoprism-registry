@@ -23,13 +23,14 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.graph.ConceptEdgeType;
 import net.geoprism.registry.service.request.ConceptEdgeTypeServiceIF;
 import net.geoprism.registry.service.request.EdgeClassServiceIF;
 import net.geoprism.registry.view.ConceptEdgeTypeDTO;
 
 @RestController
-@RequestMapping("api/concept-edge-type")
+@RequestMapping(RegistryConstants.CONTROLLER_ROOT + "concept-edge-type")
 @Validated
 public class ConceptEdgeTypeController extends EdgeClassController<ConceptEdgeType, ConceptEdgeTypeDTO>
 {

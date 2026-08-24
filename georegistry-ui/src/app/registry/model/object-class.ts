@@ -40,14 +40,14 @@ export class BusinessType extends ObjectClass implements AttributedType {
 }
 
 export class GraphClass {
+    oid?: string;
+    typeCode?: string;
+    seq?: number;
+    origin?: string;
     code: string;
     label: LocalizedValue;
     description: LocalizedValue;
-    seq?: number;
-    oid?: string;
-    origin?: string;
 }
-
 
 export class EdgeClass extends GraphClass {
     organizationCode: string;

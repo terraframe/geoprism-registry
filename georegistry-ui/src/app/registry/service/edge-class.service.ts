@@ -24,9 +24,9 @@ import { EventService } from "@shared/service";
 
 import { environment } from 'src/environments/environment';
 import { firstValueFrom } from "rxjs";
-import { EdgeClass } from "@registry/model/object-class";
+import { GraphClass } from "@registry/model/object-class";
 
-export abstract class EdgeClassService<T extends EdgeClass> {
+export abstract class EdgeClassService<T extends GraphClass> {
 
     constructor(private http: HttpClient, private eventService: EventService) { }
 

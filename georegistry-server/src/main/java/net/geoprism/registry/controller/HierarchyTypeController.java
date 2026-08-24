@@ -18,14 +18,10 @@
  */
 package net.geoprism.registry.controller;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-
 import org.commongeoregistry.adapter.constants.RegistryUrls;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
-import jakarta.validation.constraints.NotEmpty;
 import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -41,8 +37,11 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.controller.DirectedAcyclicGraphTypeController.CodeBody;
+import net.geoprism.registry.controller.EdgeClassController.CodeBody;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.service.request.GPRHierarchyTypeService;
 import net.geoprism.registry.service.request.RegistryComponentService;

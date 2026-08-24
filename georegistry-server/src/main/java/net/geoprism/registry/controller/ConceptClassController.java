@@ -23,13 +23,14 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.graph.ConceptClass;
 import net.geoprism.registry.service.request.ConceptClassService;
 import net.geoprism.registry.service.request.ObjectClassServiceIF;
 import net.geoprism.registry.view.ConceptClassDTO;
 
 @RestController
-@RequestMapping("api/concept-class")
+@RequestMapping(RegistryConstants.CONTROLLER_ROOT + "concept-class")
 @Validated
 public class ConceptClassController extends ObjectClassController<ConceptClass, ConceptClassDTO>
 {

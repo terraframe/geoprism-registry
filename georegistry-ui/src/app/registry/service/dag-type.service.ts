@@ -18,33 +18,21 @@
 ///
 
 import { Injectable } from "@angular/core";
-import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
-import { finalize } from "rxjs/operators";
+import { HttpClient } from "@angular/common/http";
 
 import { EventService } from "@shared/service";
-import { GraphType, ImportHistory } from "@registry/model/registry";
 
-import { environment } from 'src/environments/environment';
-import { firstValueFrom } from "rxjs";
+import { GraphClass } from "@registry/model/object-class";
+import { EdgeClassService } from "./edge-class.service";
 
 @Injectable({ providedIn: 'root' })
-export class GraphTypeService {
+export class DagTypeService extends EdgeClassService<GraphClass> {
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor(private http: HttpClient, private eventService: EventService) { }
+    constructor(http: HttpClient, eventService: EventService) {
+        super(http, eventService);
+    }
 
-    getAll(codes: string[] = null): Promise<GraphType[]> {
-        let params: HttpParams = new HttpParams();
-
-        if (codes?.length) {
-            params = new HttpParams({ fromObject: { codes } });
-        }
-
-        this.eventService.start();
-
-        return firstValueFrom(this.http.get<GraphType[]>(environment.apiUrl + "/api/graph/get", { params: params })
-            .pipe(finalize(() => {
-                this.eventService.complete();
-            })))
+    controller(): string {
+        return '/api/directed-graph-type'
     }
 }

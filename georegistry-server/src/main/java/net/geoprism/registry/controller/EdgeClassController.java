@@ -35,7 +35,7 @@ import net.geoprism.registry.service.request.EdgeClassServiceIF;
 
 public abstract class EdgeClassController<T extends EdgeClass, D extends GraphTypeDTO> extends RunwaySpringController
 {
-  public static final class CodeBody
+  public static class CodeBody
   {
     @NotBlank
     private String code;

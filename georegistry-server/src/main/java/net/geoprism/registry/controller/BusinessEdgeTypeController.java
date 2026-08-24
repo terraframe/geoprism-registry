@@ -23,13 +23,14 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.service.request.BusinessEdgeTypeServiceIF;
 import net.geoprism.registry.service.request.EdgeClassServiceIF;
 import net.geoprism.registry.view.BusinessEdgeTypeDTO;
 
 @RestController
-@RequestMapping("api/business-edge-type")
+@RequestMapping(RegistryConstants.CONTROLLER_ROOT + "business-edge-type")
 @Validated
 public class BusinessEdgeTypeController extends EdgeClassController<BusinessEdgeType, BusinessEdgeTypeDTO>
 {

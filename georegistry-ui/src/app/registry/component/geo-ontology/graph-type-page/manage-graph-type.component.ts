@@ -25,13 +25,15 @@ import {
     transition
 } from "@angular/animations";
 import { HttpErrorResponse } from "@angular/common/http";
-import { GraphType } from "@registry/model/registry";
-import { GraphTypeService } from "@registry/service/graph-type.service";
 import { LocalizedTextComponent } from "../../form-fields/localized-text/localized-text.component";
 import { ConvertKeyLabel } from "@shared/component/localize/convert-key-label.component";
 import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { FormsModule } from "@angular/forms";
 import { NgIf, NgFor } from "@angular/common";
+import { GraphClass } from "@registry/model/object-class";
+import { UndirectedGraphTypeService } from "@registry/service/undirected-graph-type.service";
+import { DagTypeService } from "@registry/service/dag-type.service";
+import { EdgeClassService } from "@registry/service/edge-class.service";
 
 @Component({
     selector: "manage-graph-type",
@@ -59,23 +61,28 @@ import { NgIf, NgFor } from "@angular/common";
 export class ManageGraphTypeComponent implements OnInit {
 
     @Input() typeCode: string;
-    @Input() type: GraphType = null;
+    @Input() type: GraphClass = null;
     @Input() readOnly: boolean = false;
     @Input() isNew: boolean = false;
 
     @Output() onCancel: EventEmitter<void> = new EventEmitter<void>()
     @Output() onError: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>()
-    @Output() typeChange: EventEmitter<GraphType> = new EventEmitter<GraphType>()
+    @Output() typeChange: EventEmitter<GraphClass> = new EventEmitter<GraphClass>()
 
 
-    constructor(public service: GraphTypeService) {
+    service: EdgeClassService<GraphClass> = null;
+
+    constructor(
+        private dagService: DagTypeService,
+        private undirectedService: UndirectedGraphTypeService) {
     }
 
     ngOnInit(): void {
+        this.service = this.typeCode === 'DirectedAcyclicGraphType' ? this.dagService : this.undirectedService;
     }
 
     update(): void {
-        this.service.apply(this.typeCode, this.type).then(type => {
+        this.service.apply(this.type).then(type => {
             this.typeChange.emit(type);
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
