@@ -18,7 +18,7 @@
     License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<div id="relationship-visualizer-root-node" *ngIf="state.code" style="height:100%; overflow:hidden;">
+<div id="relationship-visualizer-root-node" *ngIf="state.code" style="height:100%; overflow:hidden; position:relative;">
 
   <ngx-spinner [fullScreen]="false" [name]="CONSTANTS.OVERLAY" type="ball-clip-rotate-multiple" size="medium">
   </ngx-spinner>
@@ -100,8 +100,26 @@
 
             <!-- Link Template -->
             <ng-template #linkTemplate let-link>
-              <svg:g class="edge">
-                <svg:path class="line" stroke-width="2" marker-end="url(#arrow)"></svg:path>
+              <svg:g
+                class="edge"
+                (click)="onClickEdge(link, $event)"
+                style="cursor: pointer;">
+
+                <!-- Invisible click target -->
+                <svg:path
+                  class="edge-hit-target"
+                  stroke="transparent"
+                  stroke-width="14"
+                  fill="none">
+                </svg:path>
+
+                <!-- Visible edge -->
+                <svg:path
+                  class="line"
+                  stroke-width="2"
+                  marker-end="url(#arrow)">
+                </svg:path>
+
               </svg:g>
             </ng-template>
           </ngx-graph>
@@ -110,5 +128,58 @@
     </div>
   </div>
 
+  <div
+    *ngIf="selectedEdge"
+    class="edge-popup-backdrop"
+    (click)="closeEdgePopup()">
 
+    <div
+      class="edge-popup"
+      (click)="$event.stopPropagation()">
+
+      <div class="edge-popup-header">
+        <h3>Relationship</h3>
+
+        <button
+          type="button"
+          class="edge-popup-close"
+          (click)="closeEdgePopup()"
+          aria-label="Close">
+          &times;
+        </button>
+      </div>
+
+      <div class="edge-popup-body">
+
+        <div
+          class="edge-attribute"
+          *ngFor="let attribute of getEdgeAttributes(selectedEdge)">
+
+          <label>{{ attribute.key }}</label>
+          <span>{{ attribute.value }}</span>
+
+        </div>
+
+      </div>
+
+      <div class="edge-popup-footer">
+
+        <button
+          type="button"
+          class="btn btn-default"
+          (click)="closeEdgePopup()">
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-danger"
+          (click)="deleteSelectedEdge()">
+          Delete
+        </button>
+
+      </div>
+
+    </div>
+  </div>
 </div>

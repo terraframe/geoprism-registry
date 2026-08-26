@@ -106,6 +106,8 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
 
     public typeCache: GeoObjectTypeCache;
 
+    public selectedEdge: any = null;
+
     relationship: Relationship = null;
     relationships: Relationship[];
 
@@ -717,6 +719,62 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
         } else {
             return DIMENSIONS.LABEL.WIDTH + DIMENSIONS.PADDING.NODE_LABEL;
         }
+    }
+
+    public onClickEdge(edge: any, event: MouseEvent): void {
+        event.stopPropagation();
+
+        console.log("EDGE:", edge);
+
+        this.selectedEdge = edge;
+    }
+
+    public closeEdgePopup(): void {
+        this.selectedEdge = null;
+    }
+
+    public getEdgeAttributes(edge: any): { key: string, value: any }[] {
+        if (edge == null) {
+            return [];
+        }
+
+        const source = this.data?.verticies?.find(vertex => vertex.id === edge.source);
+        const target = this.data?.verticies?.find(vertex => vertex.id === edge.target);
+
+        return [
+            {
+                key: "Relationship",
+                value: edge.label
+            },
+            {
+                key: "From",
+                value: source?.label ?? edge.source
+            },
+            {
+                key: "To",
+                value: target?.label ?? edge.target
+            },
+            {
+                key: "Start Date",
+                value: edge.startDate ?? ""
+            },
+            {
+                key: "End Date",
+                value: edge.endDate ?? ""
+            }
+        ];
+    }
+
+    public deleteSelectedEdge(): void {
+        if (this.selectedEdge == null) {
+            return;
+        }
+
+        console.log("Delete edge", this.selectedEdge);
+
+        // TODO: Call backend delete service here.
+
+        this.closeEdgePopup();
     }
 
     public error(err: HttpErrorResponse): void {
