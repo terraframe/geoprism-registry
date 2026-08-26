@@ -18,86 +18,28 @@
  */
 package net.geoprism.registry.controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
+import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.service.request.BusinessEdgeTypeServiceIF;
+import net.geoprism.registry.service.request.EdgeClassServiceIF;
 import net.geoprism.registry.view.BusinessEdgeTypeDTO;
 
 @RestController
-@RequestMapping("api/business-edge-type")
+@RequestMapping(RegistryConstants.CONTROLLER_ROOT + "business-edge-type")
 @Validated
-public class BusinessEdgeTypeController extends RunwaySpringController
+public class BusinessEdgeTypeController extends EdgeClassController<BusinessEdgeType, BusinessEdgeTypeDTO>
 {
-  public static final class CodeBody
-  {
-    @NotBlank
-    private String code;
-
-    public String getCode()
-    {
-      return code;
-    }
-
-    public void setCode(String code)
-    {
-      this.code = code;
-    }
-  }
-
   @Autowired
   private BusinessEdgeTypeServiceIF service;
 
-  @GetMapping("/get-all")
-  public ResponseEntity<List<BusinessEdgeTypeDTO>> getAll()
+  @Override
+  protected EdgeClassServiceIF<BusinessEdgeType, BusinessEdgeTypeDTO> getService()
   {
-    List<BusinessEdgeTypeDTO> all = this.service.getAll(this.getSessionId());
-
-    return ResponseEntity.ok(all);
+    return this.service;
   }
-
-  @PostMapping("/apply")
-  public ResponseEntity<BusinessEdgeTypeDTO> apply(@RequestBody BusinessEdgeTypeDTO type)
-  {
-    BusinessEdgeTypeDTO response = this.service.apply(this.getSessionId(), type);
-
-    return ResponseEntity.ok(response);
-  }
-
-  @PostMapping("/remove")
-  public ResponseEntity<Void> remove(@Valid @RequestBody CodeBody body)
-  {
-    this.service.delete(this.getSessionId(), body.code);
-
-    return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
-  }
-
-  @GetMapping("/get")
-  public ResponseEntity<BusinessEdgeTypeDTO> get(@NotBlank @RequestParam(name = "code") String code)
-  {
-    BusinessEdgeTypeDTO response = this.service.getByCode(this.getSessionId(), code);
-
-    return ResponseEntity.ok(response);
-  }
-
-//  @GetMapping("/get-import-history")
-//  public ResponseEntity<List<ImportHistoryView>> getImportHistory(@NotEmpty @RequestParam(name = "code") String code)
-//  {
-//    List<ImportHistoryView> response = this.service.getHistory(this.getSessionId(), code);
-//
-//    return ResponseEntity.ok(response);
-//  }
-//
 }

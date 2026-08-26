@@ -18,77 +18,21 @@
 ///
 
 import { Injectable } from "@angular/core";
-import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
-import { finalize } from "rxjs/operators";
+import { HttpClient } from "@angular/common/http";
 
 import { EventService } from "@shared/service";
 
-import { environment } from 'src/environments/environment';
-import { firstValueFrom } from "rxjs";
 import { BusinessEdgeType } from "@registry/model/object-class";
+import { EdgeClassService } from "./edge-class.service";
 
 @Injectable({ providedIn: 'root' })
-export class BusinessEdgeTypeService {
+export class BusinessEdgeTypeService extends EdgeClassService<BusinessEdgeType> {
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor(private http: HttpClient, private eventService: EventService) { }
+    constructor(http: HttpClient, eventService: EventService) {
+        super(http, eventService);
+    }
 
     controller(): string {
         return '/api/business-edge-type'
-    }
-
-
-    getAll(): Promise<BusinessEdgeType[]> {
-        let params: HttpParams = new HttpParams();
-
-
-        this.eventService.start();
-
-        return firstValueFrom(this.http.get<BusinessEdgeType[]>(environment.apiUrl + this.controller() + "/get-all", { params: params })
-            .pipe(finalize(() => {
-                this.eventService.complete();
-            })))
-    }
-
-
-    get(code: string): Promise<BusinessEdgeType> {
-        let params: HttpParams = new HttpParams();
-        params = params.append("code", code);
-
-        this.eventService.start();
-
-        return firstValueFrom(this.http.get<BusinessEdgeType>(environment.apiUrl + this.controller() + "/get", { params: params })
-            .pipe(finalize(() => {
-                this.eventService.complete();
-            }))
-        );
-    }
-
-    apply(type: BusinessEdgeType): Promise<BusinessEdgeType> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        this.eventService.start();
-
-        return firstValueFrom(this.http
-            .post<BusinessEdgeType>(environment.apiUrl + this.controller() + "/apply", JSON.stringify(type), { headers: headers })
-            .pipe(finalize(() => {
-                this.eventService.complete();
-            })));
-    }
-
-    remove(type: BusinessEdgeType): Promise<BusinessEdgeType> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        this.eventService.start();
-
-        return firstValueFrom(this.http
-            .post<BusinessEdgeType>(environment.apiUrl + this.controller() + "/remove", JSON.stringify({ code: type.code }), { headers: headers })
-            .pipe(finalize(() => {
-                this.eventService.complete();
-            })));
     }
 }

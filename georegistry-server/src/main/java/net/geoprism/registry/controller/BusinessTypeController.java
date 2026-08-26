@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.constraints.NotBlank;
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.service.request.BusinessTypeService;
 import net.geoprism.registry.service.request.ObjectClassServiceIF;
@@ -36,7 +37,7 @@ import net.geoprism.registry.view.BusinessEdgeTypeDTO;
 import net.geoprism.registry.view.BusinessTypeDTO;
 
 @RestController
-@RequestMapping("api/business-type")
+@RequestMapping(RegistryConstants.CONTROLLER_ROOT + "business-type")
 @Validated
 public class BusinessTypeController extends ObjectClassController<BusinessType, BusinessTypeDTO>
 {

@@ -25,20 +25,18 @@ import {
     transition
 } from "@angular/animations";
 import { HttpErrorResponse } from "@angular/common/http";
+import { ConceptEdgeTypeService } from "@registry/service/concept-edge-type.service";
 import { LocalizedTextComponent } from "../../form-fields/localized-text/localized-text.component";
 import { ConvertKeyLabel } from "@shared/component/localize/convert-key-label.component";
 import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { FormsModule } from "@angular/forms";
 import { NgIf, NgFor } from "@angular/common";
-import { GraphClass } from "@registry/model/object-class";
-import { UndirectedGraphTypeService } from "@registry/service/undirected-graph-type.service";
-import { DagTypeService } from "@registry/service/dag-type.service";
-import { EdgeClassService } from "@registry/service/edge-class.service";
+import { ConceptEdgeType, ConceptClass } from "@registry/model/object-class";
 
 @Component({
-    selector: "manage-graph-type",
-    templateUrl: "./manage-graph-type.component.html",
-    styleUrls: ["./manage-graph-type.css"],
+    selector: "manage-concept-edge-type",
+    templateUrl: "./manage-concept-edge-type.component.html",
+    styleUrls: ["./manage-concept-edge-type.css"],
     // host: { '[@fadeInOut]': 'true' },
     animations: [
         [
@@ -58,30 +56,27 @@ import { EdgeClassService } from "@registry/service/edge-class.service";
     standalone: true,
     imports: [NgIf, FormsModule, LocalizeComponent, NgFor, ConvertKeyLabel, LocalizedTextComponent]
 })
-export class ManageGraphTypeComponent implements OnInit {
+export class ManageConceptEdgeTypeComponent implements OnInit {
+    @Input() type: ConceptEdgeType = null;
+    @Input() conceptTypes: ConceptClass[] = [];
 
-    @Input() typeCode: string;
-    @Input() type: GraphClass = null;
     @Input() readOnly: boolean = false;
     @Input() isNew: boolean = false;
 
     @Output() onCancel: EventEmitter<void> = new EventEmitter<void>()
     @Output() onError: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>()
-    @Output() typeChange: EventEmitter<GraphClass> = new EventEmitter<GraphClass>()
+    @Output() typeChange: EventEmitter<ConceptEdgeType> = new EventEmitter<ConceptEdgeType>()
 
 
-    service: EdgeClassService<GraphClass> = null;
-
-    constructor(
-        private dagService: DagTypeService,
-        private undirectedService: UndirectedGraphTypeService) {
+    constructor(public service: ConceptEdgeTypeService) {
     }
 
     ngOnInit(): void {
-        this.service = this.typeCode === 'DirectedAcyclicGraphType' ? this.dagService : this.undirectedService;
+
     }
 
-    update(): void {
+    apply(): void {
+
         this.service.apply(this.type).then(type => {
             this.typeChange.emit(type);
         }).catch((err: HttpErrorResponse) => {

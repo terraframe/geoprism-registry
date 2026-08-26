@@ -52,20 +52,22 @@ import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.axon.event.repository.AbstractRepositoryEvent;
-import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEdgeEvent;
+import net.geoprism.registry.axon.event.repository.ObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.projection.RepositoryProjection;
 import net.geoprism.registry.cache.BusinessObjectCache;
 import net.geoprism.registry.cache.Cache;
+import net.geoprism.registry.cache.ConceptObjectCache;
 import net.geoprism.registry.cache.GeoObjectCache;
 import net.geoprism.registry.cache.LRUCache;
-import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.io.IgnoreRowException;
 import net.geoprism.registry.io.Location;
 import net.geoprism.registry.io.RequiredMappingException;
 import net.geoprism.registry.jobs.RowValidationProblem;
 import net.geoprism.registry.model.BusinessObject;
+import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.model.EdgeType;
+import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.view.TypeClass;
@@ -166,6 +168,8 @@ public class EdgeObjectImporter implements ObjectImporterIF
 
   protected BusinessObjectCache           boCache;
 
+  protected ConceptObjectCache            coCache;
+
   protected Cache<String, Object>         goRidCache;
 
   protected ImportProgressListenerIF      progressListener;
@@ -189,9 +193,10 @@ public class EdgeObjectImporter implements ObjectImporterIF
     this.configuration = configuration;
     this.progressListener = progressListener;
 
-    goCache = new GeoObjectCache();
-    boCache = new BusinessObjectCache();
-    goRidCache = new LRUCache<String, Object>(10000);
+    this.goCache = new GeoObjectCache();
+    this.boCache = new BusinessObjectCache();
+    this.coCache = new ConceptObjectCache();
+    this.goRidCache = new LRUCache<String, Object>(10000);
 
     this.blockingQueue = new LinkedBlockingDeque<Runnable>(50);
 
@@ -299,6 +304,7 @@ public class EdgeObjectImporter implements ObjectImporterIF
     state.putTransactionObject(RepositoryProjection.GEO_CACHE, goCache);
     state.putTransactionObject(RepositoryProjection.BUSINESS_CACHE, boCache);
     state.putTransactionObject(RepositoryProjection.RID_CACHE, goRidCache);
+    state.putTransactionObject(RepositoryProjection.CONCEPT_CACHE, coCache);
   }
 
   public void validateObject(TypeClass type, ReferenceStrategy strategy, String code, String typeCode, String authority)
@@ -326,9 +332,22 @@ public class EdgeObjectImporter implements ObjectImporterIF
     }
     else if (type.equals(TypeClass.BUSINESS_TYPE))
     {
-      BusinessObject business = boCache.getOrFetchByCode(code, typeCode);
+      BusinessObject object = boCache.getOrFetchByCode(code, typeCode);
 
-      if (business == null)
+      if (object == null)
+      {
+        DataNotFoundException ex = new DataNotFoundException();
+        ex.setAttributeLabel("Code");
+        ex.setDataIdentifier(code);
+        ex.setTypeLabel(typeCode);
+        throw ex;
+      }
+    }
+    else if (type.equals(TypeClass.CONCEPT_CLASS))
+    {
+      ConceptObject object = coCache.getOrFetchByCode(code, typeCode);
+
+      if (object == null)
       {
         DataNotFoundException ex = new DataNotFoundException();
         ex.setAttributeLabel("Code");
@@ -468,9 +487,12 @@ public class EdgeObjectImporter implements ObjectImporterIF
         targetCode = getCodeForExternalId(targetCode, targetTypeCode, this.configuration.getEdgeTargetAuthority());
       }
 
-      AbstractRepositoryEvent event = graphType instanceof BusinessEdgeType ? //
-          new BusinessObjectApplyEdgeEvent(sourceCode, sourceTypeCode, edgeCode, targetCode, targetTypeCode, startDate, endDate, dataSource, this.configuration.getImportStrategy(), true, this.configuration.getHistoryId()) : //
-          new GeoObjectApplyEdgeEvent(sourceCode, sourceTypeCode, edgeTypeCode, edgeCode, targetCode, targetTypeCode, startDate, endDate, dataSource, this.configuration.getImportStrategy(), true, this.configuration.getHistoryId());
+      TypeInfo sourceType = new TypeInfo(graphType.getSourceType(), sourceTypeCode);
+      TypeInfo targetType = new TypeInfo(graphType.getTargetType(), targetTypeCode);
+
+      AbstractRepositoryEvent event = graphType instanceof GraphType ? //
+          new GeoObjectApplyEdgeEvent(sourceCode, sourceTypeCode, edgeTypeCode, edgeCode, targetCode, targetTypeCode, startDate, endDate, dataSource, this.configuration.getImportStrategy(), true, this.configuration.getHistoryId()) : //
+          new ObjectApplyEdgeEvent(sourceCode, sourceType, graphType.getTypeInfo(), targetCode, targetType, startDate, endDate, dataSource, this.configuration.getImportStrategy(), true, this.configuration.getHistoryId());
 
       this.gateway.publish(GenericEventMessage.asEventMessage(event));
 
@@ -488,8 +510,8 @@ public class EdgeObjectImporter implements ObjectImporterIF
       }
       else
       {
-        this.progressListener.add(new TypeInfo(graphType.getSourceType(), sourceTypeCode));
-        this.progressListener.add(new TypeInfo(graphType.getTargetType(), targetTypeCode));
+        this.progressListener.add(sourceType);
+        this.progressListener.add(targetType);
       }
 
     }

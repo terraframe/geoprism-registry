@@ -37,11 +37,12 @@ import com.google.gson.JsonObject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.UndirectedGraphService;
 import net.geoprism.registry.spring.NullableDateDeserializer;
 
 @RestController
-@RequestMapping("api/undirected")
+@RequestMapping(RegistryConstants.CONTROLLER_ROOT + "undirected-graph-type")
 @Validated
 public class UndirectedGraphController extends RunwaySpringController
 {

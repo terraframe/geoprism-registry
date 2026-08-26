@@ -48,6 +48,7 @@ import com.runwaysdk.system.scheduler.JobHistory;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.io.view.ImportConfigurationDTO;
 import net.geoprism.registry.service.request.ETLService;
 import net.geoprism.registry.spring.NullableDateDeserializer;
@@ -56,7 +57,7 @@ import net.geoprism.registry.view.ImportHistoryView;
 import net.geoprism.registry.view.ValidationResolveDTO;
 
 @RestController
-@RequestMapping("api/etl")
+@RequestMapping(RegistryConstants.CONTROLLER_ROOT + "etl")
 @Validated
 public class ETLController extends RunwaySpringController
 {

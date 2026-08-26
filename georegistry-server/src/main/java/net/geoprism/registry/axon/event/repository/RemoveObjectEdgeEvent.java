@@ -6,35 +6,36 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.geoprism.registry.view.PublishDTO;
+import net.geoprism.registry.view.TypeInfo;
 
-public class RemoveBusinessObjectEdgeEvent extends AbstractRepositoryEvent implements BusinessObjectEvent
+public class RemoveObjectEdgeEvent extends AbstractRepositoryEvent implements BusinessObjectEvent
 {
-  private String sourceCode;
+  private String   sourceCode;
 
-  private String sourceType;
+  private TypeInfo sourceType;
 
-  private String targetCode;
+  private String   targetCode;
 
-  private String targetType;
+  private TypeInfo targetType;
 
-  private String edgeTypeCode;
+  private TypeInfo edgeType;
 
-  private Date   startDate;
+  private Date     startDate;
 
-  private Date   endDate;
+  private Date     endDate;
 
-  public RemoveBusinessObjectEdgeEvent()
+  public RemoveObjectEdgeEvent()
   {
   }
 
-  public RemoveBusinessObjectEdgeEvent(String targetCode, String targetType, String sourceCode, String sourceType, String edgeTypeCode, Date startDate, Date endDate)
+  public RemoveObjectEdgeEvent(String targetCode, TypeInfo targetType, String sourceCode, TypeInfo sourceType, TypeInfo edgeType, Date startDate, Date endDate)
   {
     super(UUID.randomUUID().toString());
     this.targetCode = targetCode;
     this.targetType = targetType;
     this.sourceCode = sourceCode;
     this.sourceType = sourceType;
-    this.edgeTypeCode = edgeTypeCode;
+    this.edgeType = edgeType;
     this.startDate = startDate;
     this.endDate = endDate;
   }
@@ -49,12 +50,12 @@ public class RemoveBusinessObjectEdgeEvent extends AbstractRepositoryEvent imple
     this.sourceCode = sourceCode;
   }
 
-  public String getSourceType()
+  public TypeInfo getSourceType()
   {
     return sourceType;
   }
 
-  public void setSourceType(String sourceType)
+  public void setSourceType(TypeInfo sourceType)
   {
     this.sourceType = sourceType;
   }
@@ -69,24 +70,24 @@ public class RemoveBusinessObjectEdgeEvent extends AbstractRepositoryEvent imple
     this.targetCode = targetCode;
   }
 
-  public String getTargetType()
+  public TypeInfo getTargetType()
   {
     return targetType;
   }
 
-  public void setTargetType(String targetType)
+  public void setTargetType(TypeInfo targetType)
   {
     this.targetType = targetType;
   }
 
-  public String getEdgeTypeCode()
+  public TypeInfo getEdgeType()
   {
-    return edgeTypeCode;
+    return edgeType;
   }
 
-  public void setEdgeTypeCode(String edgeTypeCode)
+  public void setEdgeType(TypeInfo edgeType)
   {
-    this.edgeTypeCode = edgeTypeCode;
+    this.edgeType = edgeType;
   }
 
   public Date getStartDate()
@@ -126,8 +127,7 @@ public class RemoveBusinessObjectEdgeEvent extends AbstractRepositoryEvent imple
   @Override
   public Boolean isValidFor(PublishDTO dto)
   {
-
-    return dto.getHierarchyTypes().anyMatch(this.getEdgeTypeCode()::equals);
+    return dto.getHierarchyTypes().anyMatch(this.getEdgeType().getTypeCode()::equals);
   }
 
 }

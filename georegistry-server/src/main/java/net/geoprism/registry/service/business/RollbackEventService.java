@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 import net.geoprism.registry.RollbackCheckpoint;
 import net.geoprism.registry.axon.config.RegistryEventStore;
-import net.geoprism.registry.axon.event.repository.AbstractBusinessObjectEdgeEvent;
+import net.geoprism.registry.axon.event.repository.AbstractObjectEdgeEvent;
 import net.geoprism.registry.axon.event.repository.AbstractGeoObjectEdgeEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.ConceptObjectApplyEvent;
@@ -20,7 +20,7 @@ import net.geoprism.registry.axon.event.repository.GeoObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectCreateParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectRemoveParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectUpdateParentEvent;
-import net.geoprism.registry.axon.event.repository.RemoveBusinessObjectEdgeEvent;
+import net.geoprism.registry.axon.event.repository.RemoveObjectEdgeEvent;
 import net.geoprism.registry.axon.event.repository.RemoveBusinessObjectEvent;
 import net.geoprism.registry.axon.event.repository.RemoveConceptObjectEvent;
 import net.geoprism.registry.axon.event.repository.RemoveGeoObjectEdgeEvent;
@@ -127,9 +127,9 @@ public class RollbackEventService
       {
         this.projection.handleRemoveConceptObjectEvent((RemoveConceptObjectEvent) event);
       }
-      else if (event instanceof RemoveBusinessObjectEdgeEvent)
+      else if (event instanceof RemoveObjectEdgeEvent)
       {
-        this.projection.handleRemoveBusinessObjectEvent((RemoveBusinessObjectEdgeEvent) event);
+        this.projection.handleRemoveObjectEdgeEvent((RemoveObjectEdgeEvent) event);
       }
       else
       {
@@ -198,9 +198,9 @@ public class RollbackEventService
     {
       return new RollbackGeoObjectEdgeEventBuilder((AbstractGeoObjectEdgeEvent) event);
     }
-    else if (event instanceof AbstractBusinessObjectEdgeEvent && phase.equals(EventPhase.EDGE))
+    else if (event instanceof AbstractObjectEdgeEvent && phase.equals(EventPhase.EDGE))
     {
-      return new RollbackBusinessObjectEdgeEventBuilder((AbstractBusinessObjectEdgeEvent) event);
+      return new RollbackBusinessObjectEdgeEventBuilder((AbstractObjectEdgeEvent) event);
     }
 
     throw new UnsupportedOperationException();

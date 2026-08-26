@@ -25,6 +25,7 @@ import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.view.ConceptClassDTO;
 import net.geoprism.registry.view.ConceptEdgeTypeDTO;
 import net.geoprism.registry.view.ConceptSetDTO;
+import net.geoprism.registry.view.DiscreteType;
 
 @SuppressWarnings("unchecked")
 public abstract class ConceptSetTest<T extends ConceptSet, D extends ConceptSetDTO> extends FastDatasetTest implements InstanceTestClassListener
@@ -61,7 +62,7 @@ public abstract class ConceptSetTest<T extends ConceptSet, D extends ConceptSetD
 
     conceptClass = this.cClassService.apply(dto);
 
-    conceptEdgeType = this.cEdgeService.create(ConceptEdgeTypeDTO.build(FastTestDataset.ORG_CGOV.getCode(), "TestConceptEdge", conceptClass.getCode(), conceptClass.getCode()));
+    conceptEdgeType = this.cEdgeService.create(ConceptEdgeTypeDTO.build(FastTestDataset.ORG_CGOV.getCode(), "TestConceptEdge", conceptClass.getCode(), conceptClass.getCode(), DiscreteType.TAXONOMY));
 
   }
 

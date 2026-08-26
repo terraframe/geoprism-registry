@@ -39,9 +39,11 @@ import { FormsModule } from "@angular/forms";
 import { NgIf, NgFor } from "@angular/common";
 import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
 import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
-import { BusinessType } from "@registry/model/object-class";
+import { BusinessType, ConceptClass } from "@registry/model/object-class";
 import { BusinessTypeService } from "@registry/service/business-type.service";
 import { EdgeImportConfiguration } from "@registry/model/io";
+import { ConceptEdgeTypeService } from "@registry/service/concept-edge-type.service";
+import { ConceptClassService } from "@registry/service/concept-class.service";
 
 @Component({
     selector: "edge-importer",
@@ -73,6 +75,8 @@ export class EdgeImporterComponent implements OnInit {
     geoObjectTypes: GeoObjectType[];
 
     businessTypes: BusinessType[];
+
+    conceptClasses: ConceptClass[];
 
     sources: DataSource[];
 
@@ -120,6 +124,7 @@ export class EdgeImporterComponent implements OnInit {
         private registryService: RegistryService,
         private edgeService: GraphTypeService,
         private businessTypeService: BusinessTypeService,
+        private conceptClassService: ConceptClassService,
         private changeDetectorRef: ChangeDetectorRef
     ) { }
 
@@ -146,6 +151,11 @@ export class EdgeImporterComponent implements OnInit {
             this.error(err);
         });
 
+        this.conceptClassService.getAll().then(types => {
+            this.conceptClasses = types;
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
 
         let getUrl = environment.apiUrl + "/api/graph/get-json-import-config";
 
@@ -191,8 +201,6 @@ export class EdgeImporterComponent implements OnInit {
             const configuration: EdgeImportConfiguration = JSON.parse(response);
 
             if (this.selectedGraphType.typeCode === "BusinessEdgeType") {
-                console.log('Graph Type', this.selectedGraphType);
-
                 configuration.sourceTypes = this.selectedGraphType.parentType == GEO_OBJECT_OPTION ?
                     geoObjectTypes :
                     this.businessTypes //
@@ -204,6 +212,12 @@ export class EdgeImporterComponent implements OnInit {
                     this.businessTypes //
                         .filter(t => t.code === this.selectedGraphType.childType) //
                         .map(t => { return { code: t.code, label: t.displayLabel.localizedValue } });
+            }
+            else if (this.selectedGraphType.typeCode === "ConceptEdgeType") {
+                const types = this.conceptClasses.map(t => { return { code: t.code, label: t.displayLabel.localizedValue } });
+
+                configuration.sourceTypes = types;
+                configuration.targetTypes = types;
             }
             else {
                 configuration.sourceTypes = geoObjectTypes;

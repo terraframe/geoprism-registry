@@ -24,7 +24,7 @@ public class BusinessObjectEventBuilder
 
   private Boolean                         isNew;
 
-  private List<BusinessObjectEvent>       events;
+  private List<RepositoryEvent>           events;
 
   private ImportConfiguration             configuration;
 
@@ -91,12 +91,12 @@ public class BusinessObjectEventBuilder
     this.isNew = isNew;
   }
 
-  public List<BusinessObjectEvent> getEvents()
+  public List<RepositoryEvent> getEvents()
   {
     return events;
   }
 
-  public void setEvents(List<BusinessObjectEvent> events)
+  public void setEvents(List<RepositoryEvent> events)
   {
     this.events = events;
   }
@@ -136,7 +136,7 @@ public class BusinessObjectEventBuilder
     BusinessObject object = this.getOrThrow();
     String code = source != null ? source.getCode() : null;
 
-    this.events.add(new BusinessObjectApplyEdgeEvent(parent.getCode(), parent.getType().getCode(), edgeType.getCode(), object.getCode(), object.getType().getCode(), startDate, endDate, code, ImportStrategy.NEW_AND_UPDATE, validate));
+    this.events.add(new ObjectApplyEdgeEvent(parent.getCode(), parent.getType().getTypeInfo(), edgeType.getTypeInfo(), object.getCode(), object.getType().getTypeInfo(), startDate, endDate, code, ImportStrategy.NEW_AND_UPDATE, validate));
   }
 
   public void addChild(VertexComponent child, BusinessEdgeType edgeType, Date startDate, Date endDate, DataSource source, Boolean validate)
@@ -144,7 +144,7 @@ public class BusinessObjectEventBuilder
     BusinessObject object = this.getOrThrow();
     String code = source != null ? source.getCode() : null;
 
-    this.events.add(new BusinessObjectApplyEdgeEvent(object.getCode(), object.getType().getCode(), edgeType.getCode(), child.getCode(), child.getType().getCode(), startDate, endDate, code, ImportStrategy.NEW_AND_UPDATE, validate));
+    this.events.add(new ObjectApplyEdgeEvent(object.getCode(), object.getType().getTypeInfo(), edgeType.getTypeInfo(), child.getCode(), child.getType().getTypeInfo(), startDate, endDate, code, ImportStrategy.NEW_AND_UPDATE, validate));
   }
 
   public List<RepositoryEvent> build()

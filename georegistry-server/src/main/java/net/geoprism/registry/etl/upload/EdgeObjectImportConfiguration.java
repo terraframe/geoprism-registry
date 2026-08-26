@@ -22,19 +22,15 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.runwaysdk.session.Request;
 
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.etl.upload.EdgeObjectImporter.ReferenceStrategy;
-import net.geoprism.registry.graph.SourceAuthority;
 import net.geoprism.registry.io.view.EdgeObjectImportConfigurationDTO;
 import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.model.EdgeType;
 import net.geoprism.registry.service.business.EdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
-import net.geoprism.registry.service.business.SourceAuthorityBusinessServiceIF;
 import net.geoprism.registry.view.TypeClass;
 import net.geoprism.registry.view.TypeInfo;
 
@@ -68,12 +64,9 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
 
   private EdgeTypeBusinessServiceIF                    service;
 
-  private SourceAuthorityBusinessServiceIF             authorityService;
-
   public EdgeObjectImportConfiguration()
   {
     this.service = ServiceFactory.getBean(EdgeTypeBusinessServiceIF.class);
-    this.authorityService = ServiceFactory.getBean(SourceAuthorityBusinessServiceIF.class);
 
     this.functions = new HashMap<String, ShapefileFunction>();
   }
@@ -317,9 +310,5 @@ public class EdgeObjectImportConfiguration extends ImportConfiguration
   @Override
   public void populate(ImportHistory history)
   {
-    // Organization org = graphType.getOrganization().getOrganization();
-    //
-    // history.setOrganization(org);
-    // history.setGeoObjectTypeCode(type.getCode());
   }
 }

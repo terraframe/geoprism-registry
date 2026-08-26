@@ -39,6 +39,7 @@ import net.geoprism.registry.service.business.ConceptObjectBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.view.ConceptClassDTO;
 import net.geoprism.registry.view.ConceptEdgeTypeDTO;
+import net.geoprism.registry.view.DiscreteType;
 import net.geoprism.registry.view.ObjectOverTimeDTO;
 import net.geoprism.registry.view.ValueOverTimeEntryDTO;
 
@@ -119,7 +120,7 @@ public class ConceptObjectTest extends FastDatasetTest implements InstanceTestCl
 
     attributeClassification = (AttributeClassificationType) this.cClassService.createAttributeType(type, attributeClassification);
 
-    relationshipType = this.cEdgeService.create(ConceptEdgeTypeDTO.build(FastTestDataset.ORG_CGOV.getCode(), "TEST_REL", new LocalizedValue("Test Rel"), new LocalizedValue("Test Rel"), type.getCode(), type.getCode()));
+    relationshipType = this.cEdgeService.create(ConceptEdgeTypeDTO.build(FastTestDataset.ORG_CGOV.getCode(), "TEST_REL", new LocalizedValue("Test Rel"), new LocalizedValue("Test Rel"), type.getCode(), type.getCode(), DiscreteType.TAXONOMY));
 
   }
 

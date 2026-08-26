@@ -64,16 +64,13 @@
         <div class="col-md-6">
           <div class="form-group">
             <label for="parentType">
-              <localize key="business.type.parent"></localize>
+              <localize key="concept.type.parent"></localize>
             </label>
             <select id="parentType" name="parentType" class="select-area" [(ngModel)]="type.parentType"
               [disabled]="readOnly || !isNew" required>
               <option></option>
-              <option [value]="GEO_OBJECT_OPTION">
-                <localize key="dropdown.select.geoobject.label"></localize>
-              </option>
-              <option *ngFor="let businessType of businessTypes" [value]="businessType.code">
-                {{businessType.displayLabel.localizedValue}}
+              <option *ngFor="let conceptType of conceptTypes" [value]="conceptType.code">
+                {{conceptType.displayLabel.localizedValue}}
               </option>
             </select>
           </div>
@@ -81,19 +78,41 @@
         <div class="col-md-6">
           <div class="form-group">
             <label for="childType">
-              <localize key="business.type.child"></localize>
+              <localize key="concept.type.child"></localize>
             </label>
             <select id="childType" name="childType" class="select-area" [(ngModel)]="type.childType"
               [disabled]="readOnly || !isNew" required>
               <option></option>
-              <option [value]="GEO_OBJECT_OPTION">
-                <localize key="dropdown.select.geoobject.label"></localize>
-              </option>
-              <option *ngFor="let businessType of businessTypes" [value]="businessType.code">
-                {{businessType.displayLabel.localizedValue}}
+              <option *ngFor="let conceptType of conceptTypes" [value]="conceptType.code">
+                {{conceptType.displayLabel.localizedValue}}
               </option>
             </select>
           </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="parentType">
+              Discrete Graph Type
+            </label>
+            <select id="discreteType" name="discreteType" class="select-area" [(ngModel)]="type.discreteType"
+              [disabled]="readOnly || !isNew" required>
+              <option></option>
+              <option value="ENUMERATION">
+                ENUMERATION
+              </option>
+              <option value="TAXONOMY">
+                TAXONOMY
+              </option>
+              <option value="ONTOLOGY">
+                ONTOLOGY
+              </option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-6">
         </div>
       </div>
 

@@ -27,15 +27,15 @@ import org.springframework.stereotype.Service;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
-import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.etl.ObjectImporterFactory;
 import net.geoprism.registry.graph.DirectedAcyclicGraphType;
 import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ETLBusinessService;
+import net.geoprism.registry.service.business.EdgeClassBusinessServiceIF;
 import net.geoprism.registry.view.ImportHistoryView;
 
 @Service
-public class DirectedAcyclicGraphTypeService
+public class DirectedAcyclicGraphTypeService extends EdgeClassService<DirectedAcyclicGraphType, GraphTypeDTO>
 {
   @Autowired
   private DirectedAcyclicGraphTypeBusinessServiceIF service;
@@ -43,54 +43,10 @@ public class DirectedAcyclicGraphTypeService
   @Autowired
   private ETLBusinessService                        etlBusinessService;
 
-  @Request(RequestType.SESSION)
-  public List<GraphTypeDTO> getAll(String sessionId)
+  @Override
+  protected EdgeClassBusinessServiceIF<DirectedAcyclicGraphType, GraphTypeDTO> getService()
   {
-    List<DirectedAcyclicGraphType> types = service.getAll();
-
-    return types.stream().map(child -> child.toDTO()).toList();
-  }
-
-  @Request(RequestType.SESSION)
-  public GraphTypeDTO apply(String sessionId, GraphTypeDTO object)
-  {
-    String code = object.getCode();
-
-    return service.getByCode(code).map(type -> {
-
-      this.service.update(type, object);
-
-      return type.toDTO();
-
-    }).orElseGet(() -> {
-
-      DirectedAcyclicGraphType type = this.service.create(object);
-
-      return type.toDTO();
-    });
-  }
-
-  @Request(RequestType.SESSION)
-  public GraphTypeDTO get(String sessionId, String code)
-  {
-    DirectedAcyclicGraphType type = service.getByCode(code).orElseThrow(() -> {
-      DataNotFoundException ex = new DataNotFoundException();
-      ex.setTypeLabel("DAG");
-      ex.setAttributeLabel(DirectedAcyclicGraphType.CODE);
-      ex.setDataIdentifier(code);
-
-      return ex;
-    });
-
-    return type.toDTO();
-  }
-
-  @Request(RequestType.SESSION)
-  public void remove(String sessionId, String code)
-  {
-    service.getByCode(code).ifPresent(type -> {
-      this.service.delete(type);
-    });
+    return this.service;
   }
 
   @Request(RequestType.SESSION)

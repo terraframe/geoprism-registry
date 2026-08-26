@@ -24,6 +24,7 @@ import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.graph.ConceptClass;
+import net.geoprism.registry.graph.ConceptEdgeType;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.graph.SourceAuthority;
 import net.geoprism.registry.jobs.ImportHistory;
@@ -37,7 +38,6 @@ import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ConceptClassBusinessServiceIF;
 import net.geoprism.registry.service.business.ConceptObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
-import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 
 public abstract class DatasetTest
 {
@@ -148,6 +148,21 @@ public abstract class DatasetTest
     });
   }
 
+  protected void createConceptEdges(ConceptObject child, Date startDate, Date endDate, DataSource dataSource, List<Pair<ConceptObject, ConceptEdgeType>> targets)
+  {
+    ConceptObjectEventBuilder builder = new ConceptObjectEventBuilder(cObjectService);
+    builder.setObject(child);
+    
+    for (Pair<ConceptObject, ConceptEdgeType> target : targets)
+    {
+      builder.addParent(target.getFirst(), target.getSecond(), startDate, endDate, dataSource, false);
+    }
+    
+    builder.build().stream().forEach(event -> {
+      gateway.publish(GenericEventMessage.asEventMessage(event));
+    });
+  }
+  
   public long getJobHistoryGeometryCount(ImportHistory hist) throws SQLException
   {
     MdRelationshipDAOIF mdRelationship = MdRelationshipDAO.getMdRelationshipDAO(RegistryConstants.JOB_HISTORY_GEOMETRY);

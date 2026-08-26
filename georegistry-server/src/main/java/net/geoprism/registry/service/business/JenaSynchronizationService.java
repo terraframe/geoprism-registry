@@ -33,7 +33,7 @@ import net.geoprism.registry.Commit;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Publish;
 import net.geoprism.registry.SynchronizationConfig;
-import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectApplyEdgeEvent;
+import net.geoprism.registry.axon.event.remote.RemoteObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteConceptObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectCreateEdgeEvent;
@@ -145,9 +145,9 @@ public class JenaSynchronizationService
         {
           this.handleRemoteConceptObject(commit, (RemoteConceptObjectEvent) event, config, model.get());
         }
-        else if (event instanceof RemoteBusinessObjectApplyEdgeEvent)
+        else if (event instanceof RemoteObjectApplyEdgeEvent)
         {
-          this.handleRemoteCreateEdge(commit, (RemoteBusinessObjectApplyEdgeEvent) event, config, model.get());
+          this.handleRemoteCreateEdge(commit, (RemoteObjectApplyEdgeEvent) event, config, model.get());
         }
         else if (event instanceof RemoteGeoObjectCreateEdgeEvent)
         {
@@ -416,14 +416,14 @@ public class JenaSynchronizationService
     // this.service.load(GRAPH_NAME, model, config);
   }
 
-  public void handleRemoteCreateEdge(Commit commit, RemoteBusinessObjectApplyEdgeEvent event, JenaExportConfig config, Model model)
+  public void handleRemoteCreateEdge(Commit commit, RemoteObjectApplyEdgeEvent event, JenaExportConfig config, Model model)
   {
     logger.trace("Jena Projection - Handling remote create edge");
 
     this.addResourceToModel(model, //
-        buildObjectUri(config, event.getSourceCode(), event.getSourceType()), //
+        buildObjectUri(config, event.getSourceCode(), event.getSourceType().getTypeCode()), //
         config.getNamespace() + "#" + event.getEdgeType(), //
-        buildObjectUri(config, event.getTargetCode(), event.getTargetType()));
+        buildObjectUri(config, event.getTargetCode(), event.getTargetType().getTypeCode()));
 
     // this.service.load(GRAPH_NAME, model, config);
   }

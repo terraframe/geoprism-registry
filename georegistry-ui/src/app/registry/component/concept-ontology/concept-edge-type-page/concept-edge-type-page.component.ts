@@ -25,17 +25,17 @@ import * as lodash from 'lodash';
 import { ConfirmModalComponent } from "@shared/component";
 import { LocalizationService } from "@shared/service/localization.service";
 import { AuthService } from "@shared/service";
-import { ManageBusinessEdgeTypeComponent } from "./manage-business-edge-type.component";
+import { ManageConceptEdgeTypeComponent } from "./manage-concept-edge-type.component";
 import { BsDropdownModule } from "ngx-bootstrap/dropdown";
 import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { NgIf, NgFor, NgClass } from "@angular/common";
 import { AccordionModule } from "ngx-bootstrap/accordion";
 import { ModalTypes } from "@shared/model/modal";
-import { BusinessEdgeTypeService } from "@registry/service/business-edge-type.service";
+import { ConceptEdgeTypeService } from "@registry/service/concept-edge-type.service";
 import { Organization } from "@shared/model/core";
 import { ImportHistoryModalComponent } from "@registry/component/import-history/modals/import-history-modal.component";
 import { RegistryService } from "@registry/service";
-import { BusinessEdgeType, BusinessType } from "@registry/model/object-class";
+import { ConceptEdgeType, ConceptClass } from "@registry/model/object-class";
 
 enum Action {
     VIEW = 0, CREATE = 1, EDIT = 2
@@ -45,36 +45,36 @@ interface Selection {
     action: Action
 
     // params for editing
-    type?: BusinessEdgeType;
+    type?: ConceptEdgeType;
     readOnly?: boolean;
     isNew?: boolean;
 }
 
 
 @Component({
-    selector: "business-edge-type-page",
-    templateUrl: "./business-edge-type-page.component.html",
-    styleUrls: ["./business-edge-type-page.css"],
+    selector: "concept-edge-type-page",
+    templateUrl: "./concept-edge-type-page.component.html",
+    styleUrls: ["./concept-edge-type-page.css"],
     standalone: true,
-    imports: [AccordionModule, NgIf, LocalizeComponent, NgFor, NgClass, BsDropdownModule, ManageBusinessEdgeTypeComponent]
+    imports: [AccordionModule, NgIf, LocalizeComponent, NgFor, NgClass, BsDropdownModule, ManageConceptEdgeTypeComponent]
 })
-export class BusinessEdgeTypePageComponent implements OnInit, OnDestroy, OnChanges {
+export class ConceptEdgeTypePageComponent implements OnInit, OnDestroy, OnChanges {
     Action = Action;
 
     @Input() organizations: Organization[] = [];
-    @Input() businessTypes: BusinessType[] = [];
+    @Input() conceptTypes: ConceptClass[] = [];
 
     @Output() onError: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>()
 
-    types: BusinessEdgeType[] = [];
-    typesByOrg: { org: Organization, write: boolean, types: BusinessEdgeType[] }[] = [];
+    types: ConceptEdgeType[] = [];
+    typesByOrg: { org: Organization, write: boolean, types: ConceptEdgeType[] }[] = [];
 
     selection: Selection;
     isSRA: boolean;
 
     // eslint-disable-next-line no-useless-constructor
     constructor(
-        public service: BusinessEdgeTypeService,
+        public service: ConceptEdgeTypeService,
         private registryService: RegistryService,
         private authService: AuthService,
         private modalService: BsModalService,
@@ -99,7 +99,7 @@ export class BusinessEdgeTypePageComponent implements OnInit, OnDestroy, OnChang
         }
     }
 
-    setTypes(types: BusinessEdgeType[]): void {
+    setTypes(types: ConceptEdgeType[]): void {
         this.types = types;
 
         this.refreshTypesByOrg();
@@ -130,13 +130,14 @@ export class BusinessEdgeTypePageComponent implements OnInit, OnDestroy, OnChang
                 label: this.localizeService.create(),
                 description: this.localizeService.create(),
                 organizationCode: organization.code,
+                discreteType: ""
             },
             readOnly: false,
             isNew: true
         };
     }
 
-    onEdit(type: BusinessEdgeType): void {
+    onEdit(type: ConceptEdgeType): void {
         this.service.get(type.code).then(t => {
             this.selection = {
                 action: Action.EDIT,
@@ -149,7 +150,7 @@ export class BusinessEdgeTypePageComponent implements OnInit, OnDestroy, OnChang
         });
     }
 
-    handleTypeView(type: BusinessEdgeType): void {
+    handleTypeView(type: ConceptEdgeType): void {
 
         this.selection = {
             action: Action.VIEW,
@@ -159,7 +160,7 @@ export class BusinessEdgeTypePageComponent implements OnInit, OnDestroy, OnChang
         };
     }
 
-    handleTypeChange(type: BusinessEdgeType): void {
+    handleTypeChange(type: ConceptEdgeType): void {
         this.selection = null;
 
         const edgeTypes = [...this.types];
@@ -191,7 +192,7 @@ export class BusinessEdgeTypePageComponent implements OnInit, OnDestroy, OnChang
     }
 
 
-    onDelete(type: BusinessEdgeType): void {
+    onDelete(type: ConceptEdgeType): void {
         const bsModalRef = this.modalService.show(ConfirmModalComponent, {
             animated: false, backdrop: true,
             ignoreBackdropClick: true
@@ -213,8 +214,8 @@ export class BusinessEdgeTypePageComponent implements OnInit, OnDestroy, OnChang
         });
     }
 
-    onImportHistory(type: BusinessEdgeType): void {
-        this.registryService.getImportHistory('BusinessEdgeType', type.code).then(histories => {
+    onImportHistory(type: ConceptEdgeType): void {
+        this.registryService.getImportHistory('ConceptEdgeType', type.code).then(histories => {
             const bsModalRef = this.modalService.show(ImportHistoryModalComponent, {
                 animated: false,
                 backdrop: true,

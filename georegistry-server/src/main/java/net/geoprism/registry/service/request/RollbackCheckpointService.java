@@ -24,13 +24,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
 import net.geoprism.registry.RollbackCheckpoint;
-import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.io.view.ImportConfigurationDTO;
 import net.geoprism.registry.jobs.GPRJobHistory;
 import net.geoprism.registry.service.business.RollbackCheckpointBusinessService;

@@ -18,43 +18,28 @@
  */
 package net.geoprism.registry.controller;
 
-import java.util.List;
-
-import org.commongeoregistry.adapter.metadata.GraphTypeDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.validation.constraints.NotEmpty;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.graph.UndirectedGraphType;
+import net.geoprism.registry.graph.ConceptEdgeType;
+import net.geoprism.registry.service.request.ConceptEdgeTypeServiceIF;
 import net.geoprism.registry.service.request.EdgeClassServiceIF;
-import net.geoprism.registry.service.request.UndirectedGraphTypeService;
-import net.geoprism.registry.view.ImportHistoryView;
+import net.geoprism.registry.view.ConceptEdgeTypeDTO;
 
 @RestController
-@RequestMapping(RegistryConstants.CONTROLLER_ROOT + "undirected-graph-type")
+@RequestMapping(RegistryConstants.CONTROLLER_ROOT + "concept-edge-type")
 @Validated
-public class UndirectedGraphTypeController extends EdgeClassController<UndirectedGraphType, GraphTypeDTO>
+public class ConceptEdgeTypeController extends EdgeClassController<ConceptEdgeType, ConceptEdgeTypeDTO>
 {
   @Autowired
-  private UndirectedGraphTypeService service;
-  
+  private ConceptEdgeTypeServiceIF service;
+
   @Override
-  protected EdgeClassServiceIF<UndirectedGraphType, GraphTypeDTO> getService()
+  protected EdgeClassServiceIF<ConceptEdgeType, ConceptEdgeTypeDTO> getService()
   {
     return this.service;
-  }
-
-  @GetMapping("/get-import-history")
-  public ResponseEntity<List<ImportHistoryView>> getImportHistory(@NotEmpty @RequestParam(name = "code") String code)
-  {
-    List<ImportHistoryView> response = this.service.getHistory(this.getSessionId(), code);
-
-    return ResponseEntity.ok(response);
   }
 }

@@ -27,7 +27,7 @@ import net.geoprism.registry.RollbackCheckpoint;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.config.TestApplication;
-import net.geoprism.registry.graph.BusinessEdgeType;
+import net.geoprism.registry.graph.EdgeClass;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.model.ServerChildGraphNode;
@@ -181,9 +181,9 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
   public void testRollbackCreateConceptObject()
   {
     // Index before the import
-    concept = createConceptObject("CONCEPT", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+    pConcept = createConceptObject("CONCEPT", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
-    Assert.assertNotNull(this.cObjectService.getByCode(cClass, concept.getCode()));
+    Assert.assertNotNull(this.cObjectService.getByCode(cClass, pConcept.getCode()));
     Assert.assertEquals(Long.valueOf(1), this.store.size());
 
     RollbackCheckpoint dto = new RollbackCheckpoint();
@@ -191,7 +191,7 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
 
     this.service.rollback(dto);
 
-    Assert.assertNull(this.cObjectService.getByCode(cClass, concept.getCode()).orElse(null));
+    Assert.assertNull(this.cObjectService.getByCode(cClass, pConcept.getCode()).orElse(null));
 
     Assert.assertEquals(Long.valueOf(0), this.store.size());
   }
@@ -200,15 +200,15 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
   @Request
   public void testRollbackUpdatedConceptObject()
   {
-    concept = createConceptObject("CONCEPT", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+    pConcept = createConceptObject("CONCEPT", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
     long startIndex = this.store.createHeadToken().position().getAsLong();
 
     Assert.assertEquals(Long.valueOf(1), this.store.size());
 
-    concept.setValue("testBoolean", true);
+    pConcept.setValue("testBoolean", true);
 
-    applyConceptObject(concept, false);
+    applyConceptObject(pConcept, false);
 
     Assert.assertEquals(Long.valueOf(2), this.store.size());
 
@@ -218,7 +218,7 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
 
     this.service.rollback(dto);
 
-    ConceptObject test = this.cObjectService.getByCode(cClass, concept.getCode()).orElse(null);
+    ConceptObject test = this.cObjectService.getByCode(cClass, pConcept.getCode()).orElse(null);
 
     Assert.assertNotNull(test);
     Assert.assertNull(test.getValue("testBoolean"));
@@ -388,6 +388,32 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
     Assert.assertEquals(Long.valueOf(3), this.store.size());
   }
 
+  @Test
+  @Request
+  public void testRollbackConceptObjectEdgeEvent()
+  {
+    pConcept = createConceptObject("P_CONCEPT", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+    cConcept = createConceptObject("C_CONCEPT", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+
+    long startIndex = this.store.createHeadToken().position().getAsLong();
+
+    this.addConceptEdge();
+
+    Assert.assertEquals(Long.valueOf(3), this.store.size());
+
+    Assert.assertEquals(1, this.getEdgeCount(cEdgeType, pConcept.getVertex().getRID(), cConcept.getVertex().getRID()));
+
+    // Rollback the last event
+    RollbackCheckpoint dto = new RollbackCheckpoint();
+    dto.setGlobalIndex(startIndex);
+
+    this.service.rollback(dto);
+
+    Assert.assertEquals(0, this.getEdgeCount(cEdgeType, pConcept.getVertex().getRID(), cConcept.getVertex().getRID()));
+
+    Assert.assertEquals(Long.valueOf(2), this.store.size());
+  }
+
   @Test(expected = ProgrammingErrorException.class)
   @Request
   public void testLock()
@@ -405,7 +431,7 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
 
   }
 
-  public long getEdgeCount(BusinessEdgeType type, Object outRid, Object inRid)
+  public long getEdgeCount(EdgeClass type, Object outRid, Object inRid)
   {
     MdEdge mdEdge = type.getMdEdge();
 
