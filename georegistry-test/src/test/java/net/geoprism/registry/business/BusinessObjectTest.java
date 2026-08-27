@@ -388,7 +388,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     {
       this.bObjectService.addParent(object, bGeoEdgeType, serverObject, UUID.randomUUID().toString(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE, FastTestDataset.SOURCE.getDataSource(), false);
 
-      List<BusinessObject> results = this.objectService.getBusinessObjects((VertexServerGeoObject) serverObject, bGeoEdgeType, EdgeDirection.CHILD);
+      List<BusinessObject> results = this.objectService.getBusinessObjects((VertexServerGeoObject) serverObject, bGeoEdgeType, EdgeDirection.CHILD, null);
 
       Assert.assertEquals(1, results.size());
 
@@ -417,7 +417,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     {
       this.bObjectService.addParent(object, bGeoEdgeType, serverObject, UUID.randomUUID().toString(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE, FastTestDataset.SOURCE.getDataSource(), false);
 
-      List<BusinessObject> results = this.objectService.getBusinessObjects((VertexServerGeoObject) serverObject, bGeoEdgeType, EdgeDirection.CHILD);
+      List<BusinessObject> results = this.objectService.getBusinessObjects((VertexServerGeoObject) serverObject, bGeoEdgeType, EdgeDirection.CHILD, null);
 
       Assert.assertEquals(1, results.size());
 

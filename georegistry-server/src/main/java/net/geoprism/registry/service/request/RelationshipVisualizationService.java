@@ -212,7 +212,7 @@ public class RelationshipVisualizationService
         {
           final BusinessObject selected = this.bObjectService.getByCode(type, sourceView.getCode()).orElseThrow();
 
-          List<EdgeQueryObject> objects = this.bObjectService.getChildren(selected, edgeType, date);
+          List<EdgeQueryObject> objects = this.bObjectService.getEdgeChildren(selected, edgeType, date);
 
           long endIndex = Math.min(maxResults, objects.size());
 
@@ -291,7 +291,7 @@ public class RelationshipVisualizationService
             date = Date.from(stabilityPeriods.get(stabilityPeriods.size()-1).getStartDate().atStartOfDay(ZoneOffset.UTC).toInstant());
           }
 
-          List<EdgeQueryObject> objects = this.objectService.getBusinessObjects(selected, edgeType, direction, date);
+          List<EdgeQueryObject> objects = this.objectService.getBusinessEdgeObjects(selected, edgeType, direction, date);
           
           long endIndex = Math.min(maxResults, objects.size());
           
@@ -362,7 +362,7 @@ public class RelationshipVisualizationService
         date = Date.from(stabilityPeriods.get(stabilityPeriods.size()-1).getStartDate().atStartOfDay(ZoneOffset.UTC).toInstant());
       }
 
-      List<EdgeQueryObject> objects = this.bObjectService.getParents(selected, edgeType, date);
+      List<EdgeQueryObject> objects = this.bObjectService.getEdgeParents(selected, edgeType, date);
 
       long endIndex = Math.min(maxResults, objects.size());
 
@@ -397,7 +397,7 @@ public class RelationshipVisualizationService
       }
 
       // Children
-      objects = this.bObjectService.getChildren(selected, edgeType, date);
+      objects = this.bObjectService.getEdgeChildren(selected, edgeType, date);
       endIndex = Math.min(maxResults - verticies.size(), objects.size());
 
       for (int i = 0; i < endIndex; ++i)
