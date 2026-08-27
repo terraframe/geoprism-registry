@@ -772,7 +772,7 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
 
         console.log("Delete edge", this.selectedEdge);
 
-        // TODO: Call backend delete service here.
+        this.vizService.deleteEdge(this.relationship.type, this.relationship.code, this.selectedEdge.id.substring(2));
 
         this.closeEdgePopup();
     }

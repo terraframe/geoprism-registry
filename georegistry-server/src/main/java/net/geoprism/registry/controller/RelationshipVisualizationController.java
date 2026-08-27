@@ -72,6 +72,14 @@ public class RelationshipVisualizationController extends RunwaySpringController
     return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
   }
   
+  @GetMapping(API_PATH + "/deleteEdge")
+  public ResponseEntity<Void> deleteEdge(@RequestParam(name = "oid", required = true) String oid, @RequestParam(name = "relationshipType", required = true) String relationshipType, @RequestParam(name = "graphTypeCode", required = true) String graphTypeCode)
+  {
+    this.service.deleteEdge(this.getSessionId(), relationshipType, graphTypeCode, oid);
+
+    return ResponseEntity.noContent().build();
+  }
+  
   @GetMapping(API_PATH + "/relationships")
   public ResponseEntity<String> relationships(
       @NotEmpty @RequestParam(name = "objectType") String objectType, 

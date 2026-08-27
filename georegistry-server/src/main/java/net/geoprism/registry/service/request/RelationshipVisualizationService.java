@@ -51,6 +51,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializer;
+import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
@@ -64,13 +65,13 @@ import net.geoprism.registry.graph.ObjectClass;
 import net.geoprism.registry.graph.UndirectedGraphType;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.EdgeDirection;
+import net.geoprism.registry.model.EdgeType;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerChildGraphNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerParentGraphNode;
 import net.geoprism.registry.model.graph.ServerObjectVertex;
-import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.query.graph.VertexAndEdgeQuery.EdgeQueryObject;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
@@ -85,7 +86,6 @@ import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessService
 import net.geoprism.registry.service.permission.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.service.permission.GeoObjectTypePermissionServiceIF;
 import net.geoprism.registry.service.permission.HierarchyTypePermissionServiceIF;
-import net.geoprism.registry.view.ObjectAtTimeDTO;
 import net.geoprism.registry.view.TypeClass;
 import net.geoprism.registry.view.TypeInfo;
 import net.geoprism.registry.visualization.EdgeView;
@@ -119,7 +119,7 @@ public class RelationshipVisualizationService
   private UndirectedGraphTypeBusinessServiceIF      undirectedService;
 
   @Autowired
-  private EdgeTypeBusinessServiceIF                 graphTypeService;
+  private EdgeTypeBusinessServiceIF                 edgeTypeService;
 
   @Autowired
   private RegistryComponentService                  service;
@@ -170,8 +170,8 @@ public class RelationshipVisualizationService
         }
         else
         {
-          final GraphType graphType = this.graphTypeService.getByCode(relationshipType, graphTypeCode);
-
+          final GraphType graphType = this.edgeTypeService.getByCode(relationshipType, graphTypeCode);
+          
           geoObjects.add(this.objectService.toGeoObject(rootGo, date));
 
           if (graphType instanceof UndirectedGraphType)
@@ -312,7 +312,7 @@ public class RelationshipVisualizationService
         }
         else
         {
-          final GraphType graphType = this.graphTypeService.getByCode(relationshipType, graphTypeCode);
+          final GraphType graphType = this.edgeTypeService.getByCode(relationshipType, graphTypeCode);
           
           stabilityPeriods = stabilityPeriod.getStabilityPeriods(selected, List.of(graphType.getMdEdgeDAO().getDBClassName()));
           if (nullDateIsLatest && date == null && stabilityPeriods.size() > 1) {
@@ -835,8 +835,25 @@ public class RelationshipVisualizationService
 
     return response;
   }
+  
+  @Request(RequestType.SESSION)
+  public void deleteEdge(String sessionId, String relationshipType, String graphTypeCode, String edgeOid)
+  {
+    final EdgeType edgeType = this.edgeTypeService.getByCode(relationshipType, graphTypeCode);
+    
+    String dbClassName = edgeType.getMdEdgeDAO().getDBClassName();
+    
+    Map<String,Object> params = new HashMap<String,Object>();
+    params.put("oid", edgeOid);
+    
+    GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>("SELECT FROM " + dbClassName + " WHERE oid=:oid", params);
+    
+    EdgeObject edge = query.getSingleResult();
+    
+    edge.delete();
+  }
 
-  private List<RelationshipTypeCountMetadata> getRelationshipTypeCountMetadata(VertexView.ObjectType objectType, String typeCode)
+  protected List<RelationshipTypeCountMetadata> getRelationshipTypeCountMetadata(VertexView.ObjectType objectType, String typeCode)
   {
     List<RelationshipTypeCountMetadata> results = new ArrayList<RelationshipTypeCountMetadata>();
 
@@ -901,64 +918,7 @@ public class RelationshipVisualizationService
     return results;
   }
 
-  private Object getRelationshipCountSourceRid(
-      VertexView sourceView
-  )
-  {
-    if (VertexView.ObjectType.GEOOBJECT.equals(
-        sourceView.getObjectType()
-    ))
-    {
-      ServerGeoObjectType sourceType =
-          ServerGeoObjectType.get(sourceView.getTypeCode());
-
-      if (!this.objectPermissions.canRead(
-          sourceType.getOrganization().getCode(),
-          sourceType
-      ))
-      {
-        throw new IllegalArgumentException("The user cannot read the requested GeoObject type.");
-      }
-
-      VertexServerGeoObject source =
-          (VertexServerGeoObject) this.geoObjectService
-              .getGeoObjectByCode(
-                  sourceView.getCode(),
-                  sourceType
-              );
-
-      return source.getVertex().getRID();
-    }
-
-    if (VertexView.ObjectType.BUSINESS.equals(
-        sourceView.getObjectType()
-    ))
-    {
-      BusinessType sourceType =
-          this.bTypeService.getByCodeOrThrow(
-              sourceView.getTypeCode()
-          );
-
-      enforceCanReadBusinessData(sourceType);
-
-      BusinessObject source =
-          this.bObjectService
-              .getByCode(
-                  sourceType,
-                  sourceView.getCode()
-              )
-              .orElseThrow();
-
-      return source.getVertex().getRID();
-    }
-
-    throw new UnsupportedOperationException(
-        "Unsupported source object type: "
-            + sourceView.getObjectType()
-    );
-  }
-
-  private String quoteGraphClassName(String className)
+  protected String quoteGraphClassName(String className)
   {
     if (className == null
         || !className.matches("[A-Za-z_][A-Za-z0-9_]*"))
@@ -971,14 +931,14 @@ public class RelationshipVisualizationService
     return "'" + className + "'";
   }
 
-  private void fetchParentsData(boolean recursive, VertexServerGeoObject vertexGo, GraphType graphType, Date date, Map<String, EdgeView> edges, Map<String, VertexView> verticies, Map<String, JsonObject> relatedTypes, String boundsWKT)
+  protected void fetchParentsData(boolean recursive, VertexServerGeoObject vertexGo, GraphType graphType, Date date, Map<String, EdgeView> edges, Map<String, VertexView> verticies, Map<String, JsonObject> relatedTypes, String boundsWKT)
   {
     ServerParentGraphNode node = vertexGo.getGraphEdgeParents(graphType, recursive, date, boundsWKT, null, maxResults);
 
     processParentNode(node, graphType, edges, verticies, relatedTypes);
   }
 
-  private void processParentNode(ServerParentGraphNode root, GraphType graphType, Map<String, EdgeView> edges, Map<String, VertexView> verticies, Map<String, JsonObject> relatedTypes)
+  protected void processParentNode(ServerParentGraphNode root, GraphType graphType, Map<String, EdgeView> edges, Map<String, VertexView> verticies, Map<String, JsonObject> relatedTypes)
   {
     final ServerGeoObjectIF childGO = root.getGeoObject();
 
@@ -1006,14 +966,14 @@ public class RelationshipVisualizationService
     });
   }
 
-  private void fetchChildrenData(boolean recursive, VertexServerGeoObject vertexGo, GraphType graphType, Date date, Map<String, EdgeView> edges, Map<String, VertexView> verticies, Map<String, JsonObject> relatedTypes, String boundsWKT)
+  protected void fetchChildrenData(boolean recursive, VertexServerGeoObject vertexGo, GraphType graphType, Date date, Map<String, EdgeView> edges, Map<String, VertexView> verticies, Map<String, JsonObject> relatedTypes, String boundsWKT)
   {
     ServerChildGraphNode node = vertexGo.getGraphEdgeChildren(graphType, recursive, date, boundsWKT, null, maxResults);
 
     this.processChildNode(node, graphType, edges, verticies, relatedTypes);
   }
 
-  private void processChildNode(ServerChildGraphNode root, GraphType graphType, Map<String, EdgeView> edges, Map<String, VertexView> verticies, Map<String, JsonObject> relatedTypes)
+  protected void processChildNode(ServerChildGraphNode root, GraphType graphType, Map<String, EdgeView> edges, Map<String, VertexView> verticies, Map<String, JsonObject> relatedTypes)
   {
     final ServerGeoObjectIF sourceGO = root.getGeoObject();
 
@@ -1040,7 +1000,7 @@ public class RelationshipVisualizationService
     });
   }
 
-  public VertexView fromBusinessObject(BusinessObject bo, String relation)
+  protected VertexView fromBusinessObject(BusinessObject bo, String relation)
   {
     String label = bo.getLabel();
 
@@ -1054,7 +1014,7 @@ public class RelationshipVisualizationService
 //    return new VertexView(ObjectType.BUSINESS, "g-" + bo.getOid(), bo.getCode(), bo.getType().getTypeCode(), ( label == null || label.length() == 0 ) ? bo.getCode() : label, relation, true);
 //  }
 
-  public VertexView fromGeoObject(ServerGeoObjectIF go, String relation)
+  protected VertexView fromGeoObject(ServerGeoObjectIF go, String relation)
   {
     final ServerGeoObjectType type = go.getType();
 
@@ -1067,7 +1027,7 @@ public class RelationshipVisualizationService
     return new VertexView(ObjectType.GEOOBJECT, "g-" + go.getRunwayId(), go.getCode(), go.getType().getCode(), ( label == null || label.length() == 0 ) ? go.getCode() : label, relation, readable);
   }
 
-  public VertexView fromJSON(String sJson)
+  protected VertexView fromJSON(String sJson)
   {
     GsonBuilder builder = new GsonBuilder();
 

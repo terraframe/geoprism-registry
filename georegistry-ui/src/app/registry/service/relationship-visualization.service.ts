@@ -107,6 +107,23 @@ export class RelationshipVisualizationService {
             .toPromise();
     }
 
+    deleteEdge(relationshipType: string, graphTypeCode: string, oid: string): Promise<void> {
+        let params: HttpParams = new HttpParams();
+        params = params.set("oid", oid);
+        params = params.set("relationshipType", relationshipType);
+        params = params.set("graphTypeCode", graphTypeCode);
+
+        return this.http
+            .get<void>(
+                environment.apiUrl + "/api/relationship-visualization/deleteEdge",
+                { params: params }
+            )
+            .pipe(finalize(() => {
+                // this.eventService.complete();
+            }))
+            .toPromise();
+    }
+
     relationshipCounts(
         objectType: "BUSINESS" | "GEOOBJECT",
         typeCode: string,
