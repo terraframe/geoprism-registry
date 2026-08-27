@@ -84,3 +84,86 @@
 :host::ng-deep .graph .panning-rect {
 	cursor: grab;
 }
+
+
+.edge-popup-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(0, 0, 0, 0.25);
+    z-index: 1000;
+}
+
+.edge-popup {
+    width: 420px;
+    max-width: calc(100% - 40px);
+    max-height: calc(100% - 40px);
+
+    display: flex;
+    flex-direction: column;
+
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.edge-popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 15px 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.edge-popup-header h3 {
+    margin: 0;
+}
+
+.edge-popup-close {
+    border: none;
+    background: transparent;
+
+    font-size: 26px;
+    line-height: 1;
+
+    cursor: pointer;
+}
+
+.edge-popup-body {
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.edge-attribute {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.edge-attribute label {
+    width: 140px;
+    margin-right: 10px;
+
+    font-weight: bold;
+}
+
+.edge-attribute span {
+    flex: 1;
+    word-break: break-word;
+}
+
+.edge-popup-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+
+    padding: 15px 20px;
+    border-top: 1px solid #ddd;
+}

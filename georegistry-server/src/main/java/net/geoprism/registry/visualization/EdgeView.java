@@ -18,14 +18,21 @@
  */
 package net.geoprism.registry.visualization;
 
+import java.time.LocalDate;
+import java.util.Date;
+
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializer;
 
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGraphNode;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.query.graph.VertexAndEdgeQuery.EdgeQueryObject;
 import net.geoprism.registry.view.ObjectAtTimeDTO;
 
 public class EdgeView
@@ -37,47 +44,63 @@ public class EdgeView
   private String target;
   
   private String label;
+  
+  private Date startDate;
+  
+  private Date endDate;
 
-  public EdgeView(String id, String source, String target, String label)
+  public EdgeView(String id, String source, String target, String label, Date startDate, Date endDate)
   {
     super();
     this.id = id;
     this.source = source;
     this.target = target;
     this.label = label;
+    this.startDate = startDate;
+    this.endDate = endDate;
   }
   
-  public static EdgeView create(BusinessObject source, BusinessObject target)
+//  public static EdgeView create(BusinessObject source, BusinessObject target)
+//  {
+//    return new EdgeView("g-" + source.getCode() + "-" + target.getCode(), "g-" + source.getCode(), "g-" + target.getCode(), "");
+//  }
+//  
+//  public static EdgeView create(ServerGeoObjectIF source, BusinessObject target)
+//  {
+//    return new EdgeView("g-" + source.getUid() + "-" + target.getCode(), "g-" + source.getUid(), "g-" + target.getCode(), "");
+//  }
+//  
+//  public static EdgeView create(BusinessObject source, ServerGeoObjectIF target)
+//  {
+//    return new EdgeView("g-" + source.getCode() + "-" + target.getUid(), "g-" + source.getCode(), "g-" + target.getUid(), "");
+//  }
+//  
+//  public static EdgeView create(VertexServerGeoObject source, ObjectAtTimeDTO target)
+//  {
+//    return new EdgeView("g-" + source.getCode() + "-" + target.getCode(), "g-" + source.getCode(), "g-" + target.getCode(), "");
+//  }
+  
+  public static EdgeView create(BusinessObject source, EdgeQueryObject edge)
   {
-    return new EdgeView("g-" + source.getCode() + "-" + target.getCode(), "g-" + source.getCode(), "g-" + target.getCode(), "");
+    return new EdgeView("g-" + edge.getOid(), "g-" + source.getOid(), "g-" + edge.getObject().getOid(), "", edge.getStartDate(), edge.getEndDate());
   }
   
-  public static EdgeView create(ServerGeoObjectIF source, BusinessObject target)
+  public static EdgeView create(VertexServerGeoObject source, EdgeQueryObject edge)
   {
-    return new EdgeView("g-" + source.getUid() + "-" + target.getCode(), "g-" + source.getUid(), "g-" + target.getCode(), "");
-  }
-  
-  public static EdgeView create(BusinessObject source, ServerGeoObjectIF target)
-  {
-    return new EdgeView("g-" + source.getCode() + "-" + target.getUid(), "g-" + source.getCode(), "g-" + target.getUid(), "");
-  }
-  
-  public static EdgeView create(VertexServerGeoObject source, ObjectAtTimeDTO target)
-  {
-    return new EdgeView("g-" + source.getCode() + "-" + target.getCode(), "g-" + source.getCode(), "g-" + target.getCode(), "");
+    return new EdgeView("g-" + edge.getOid(), "g-" + source.getOid(), "g-" + edge.getObject().getOid(), "", edge.getStartDate(), edge.getEndDate());
   }
   
   public static EdgeView create(ServerGeoObjectIF source, ServerGeoObjectIF target, GraphType graphType, ServerGraphNode node)
   {
     String label = graphType.getLabel().getValue();
-    return new EdgeView("g-" + node.getOid(), "g-" + source.getUid(), "g-" + target.getUid(), label == null ? "" : label);
+    return new EdgeView("g-" + node.getOid(), "g-" + source.getRunwayId(), "g-" + target.getRunwayId(), label == null ? "" : label, node.getStartDate(), node.getEndDate());
   }
   
   public JsonObject toJson()
   {
-    GsonBuilder builder = new GsonBuilder();
+    Gson gson = new GsonBuilder().registerTypeAdapter(LocalDate.class, (JsonSerializer<LocalDate>) (src, typeOfSrc, context) -> new JsonPrimitive(src.toString())).create();
 
-    return (JsonObject) builder.create().toJsonTree(this);
+    return (JsonObject) gson.toJsonTree(this);
   }
   
   public static EdgeView fromJSON(String sJson)
