@@ -20,17 +20,19 @@ package net.geoprism.registry.service.request;
 
 import java.util.List;
 
-import net.geoprism.registry.view.ConceptSetDTO;
-import net.geoprism.registry.view.DiscreteType;
+import org.springframework.stereotype.Component;
 
+import net.geoprism.registry.view.ConceptSetDTO;
+
+@Component
 public interface ConceptSetServiceIF
 {
 
-  void delete(String sessionId, DiscreteType discreteType, String code);
+  void delete(String sessionId, String code);
 
-  List<ConceptSetDTO> getAll(String sessionId, DiscreteType discreteType);
+  List<ConceptSetDTO> getAll(String sessionId);
 
-  ConceptSetDTO getByCode(String sessionId, DiscreteType discreteType, String code);
+  ConceptSetDTO getByCode(String sessionId, String code);
 
   ConceptSetDTO apply(String sessionId, ConceptSetDTO object);
 

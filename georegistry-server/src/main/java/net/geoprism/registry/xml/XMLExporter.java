@@ -40,7 +40,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
@@ -403,8 +402,9 @@ public class XMLExporter
       AttributeClassificationType type = (AttributeClassificationType) attributeType;
 
       attribute = document.createElement("classification");
-      attribute.setAttribute("root", type.getRootTerm().getCode());
-      attribute.setAttribute("classificationType", type.getClassificationType());
+      attribute.setAttribute("rootCode", type.getRootTerm().getCode());
+      attribute.setAttribute("rootType", type.getRootTerm().getType());
+      attribute.setAttribute("conceptSet", type.getConceptSet());
     }
 
     attribute.setAttribute("code", attributeType.getCode());
@@ -412,16 +412,6 @@ public class XMLExporter
     attribute.setAttribute("description", attributeType.getDescription().getValue());
 
     return attribute;
-  }
-
-  private Element exportTerm(Term term)
-  {
-    Element element = document.createElement("option");
-    element.setAttribute("code", term.getCode());
-    element.setAttribute("label", term.getLabel().getValue());
-    element.setAttribute("description", term.getDescription().getValue());
-
-    return element;
   }
 
   private String getGeometryType(ServerGeoObjectType type)

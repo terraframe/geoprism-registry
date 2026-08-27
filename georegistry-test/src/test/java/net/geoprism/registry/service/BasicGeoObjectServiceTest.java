@@ -22,62 +22,55 @@ import com.runwaysdk.dataaccess.BusinessDAOIF;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.ConceptDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
-import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.graph.SourceAuthority;
-import net.geoprism.registry.model.Classification;
-import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.EdgeType;
 import net.geoprism.registry.model.GeometryStateValue;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
-import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.SourceAuthorityBusinessServiceIF;
+import net.geoprism.registry.test.TestOrganizationInfo;
 import net.geoprism.registry.test.USATestData;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
 @RunWith(SpringInstanceTestClassRunner.class)
-public class BasicGeoObjectServiceTest implements InstanceTestClassListener
+public class BasicGeoObjectServiceTest extends ConceptDatasetTest implements InstanceTestClassListener
 {
-  private static ServerGeoObjectType          type;
+  private static ServerGeoObjectType         type;
 
-  private static AttributeFloatType           attributeFloat;
+  private static AttributeFloatType          attributeFloat;
 
-  private static AttributeClassificationType  attributeClassification;
+  private static AttributeClassificationType attributeClassification;
 
-  private static ClassificationType           classificationType;
+  private static SourceAuthority             authority;
 
-  private static Classification               root;
-
-  private static SourceAuthority              authority;
-
-  private static DataSource                   source;
+  private static DataSource                  source;
 
   @Autowired
-  private ClassificationTypeBusinessServiceIF cTypeService;
+  private GeoObjectTypeBusinessServiceIF     typeService;
 
   @Autowired
-  private ClassificationBusinessServiceIF     cService;
+  private GeoObjectBusinessServiceIF         service;
 
   @Autowired
-  private GeoObjectTypeBusinessServiceIF      typeService;
+  private DataSourceBusinessServiceIF        sourceService;
 
   @Autowired
-  private GeoObjectBusinessServiceIF          service;
+  private SourceAuthorityBusinessServiceIF   authorityService;
 
-  @Autowired
-  private DataSourceBusinessServiceIF         sourceService;
-
-  @Autowired
-  private SourceAuthorityBusinessServiceIF    authorityService;
+  @Override
+  protected TestOrganizationInfo getOrganization()
+  {
+    return USATestData.ORG_NPS;
+  }
 
   @Override
   @Request
@@ -85,22 +78,13 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
   {
     USATestData.ORG_NPS.apply();
 
-    classificationType = this.cTypeService.apply(ClassificationTypeTest.createMock());
-
-    root = this.cService.newInstance(classificationType);
-    root.setCode("ROOT_OBJ");
-
-    this.cService.apply(root, null);
+    super.beforeClassSetup();
 
     type = this.typeService.create(USATestData.COUNTRY.toDTO());
 
     attributeFloat = this.typeService.createAttributeType(type, new AttributeFloatType("testFloat", new LocalizedValue("Test Float"), new LocalizedValue("Test Float"), false, false, false));
 
-    attributeClassification = new AttributeClassificationType("testClassification", new LocalizedValue("Test Classification"), new LocalizedValue("Test Classification"), false, false, false);
-    attributeClassification.setClassificationType(classificationType.getCode());
-    attributeClassification.setRootTerm(root.toTerm());
-
-    attributeClassification = this.typeService.createAttributeType(type, attributeClassification);
+    attributeClassification = this.typeService.createAttributeType(type, this.createAttributeClassificationType());
 
     authority = this.authorityService.apply(SourceAuthorityServiceTest.createMock());
 
@@ -116,18 +100,6 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
       this.typeService.deleteGeoObjectType(type.getCode());
     }
 
-    if (root != null)
-    {
-      this.cService.delete(root);
-    }
-
-    if (classificationType != null)
-    {
-      this.cTypeService.delete(classificationType);
-    }
-
-    USATestData.ORG_NPS.delete();
-
     if (source != null)
     {
       this.sourceService.delete(source);
@@ -137,6 +109,10 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
     {
       this.authorityService.delete(authority);
     }
+
+    super.afterClassSetup();
+
+    USATestData.ORG_NPS.delete();
   }
 
   @Test
@@ -154,7 +130,7 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
     object.setExists(true, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
     object.setGeometry(USATestData.USA.getGeometry(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
     object.setValue(attributeFloat.getCode(), testDouble, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
-    object.setValue(attributeClassification.getCode(), root.getVertex(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+    object.setValue(attributeClassification.getCode(), rootConcept.getVertex(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
     object.setValue(DefaultAttribute.DATA_SOURCE.getName(), source, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
 
     this.service.apply(object, false, false);
@@ -169,7 +145,7 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
       Assert.assertEquals(object.getDisplayLabel(USATestData.DEFAULT_OVER_TIME_DATE).getValue(), test.getDisplayLabel(USATestData.DEFAULT_OVER_TIME_DATE).getValue());
       Assert.assertEquals(object.getExists(USATestData.DEFAULT_OVER_TIME_DATE), test.getExists(USATestData.DEFAULT_OVER_TIME_DATE));
       Assert.assertEquals(testDouble, test.getValue(attributeFloat.getCode(), USATestData.DEFAULT_OVER_TIME_DATE), 0.000001);
-      Assert.assertEquals(root.getOid(), test.getValue(attributeClassification.getCode(), USATestData.DEFAULT_OVER_TIME_DATE));
+      Assert.assertEquals(rootConcept.getOid(), test.getValue(attributeClassification.getCode(), USATestData.DEFAULT_OVER_TIME_DATE));
       Assert.assertEquals(source.getOid(), test.getValue(DefaultAttribute.DATA_SOURCE.getName(), USATestData.DEFAULT_OVER_TIME_DATE));
 
       Geometry geometry = test.getGeometry(USATestData.DEFAULT_OVER_TIME_DATE);
@@ -250,7 +226,7 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
     object.setExists(true, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
     object.setGeometry(USATestData.USA.getGeometry(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
     object.setValue(attributeFloat.getCode(), testDouble, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
-    object.setValue(attributeClassification.getCode(), root.getVertex(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+    object.setValue(attributeClassification.getCode(), rootConcept.getVertex(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
     object.setValue(DefaultAttribute.DATA_SOURCE.getName(), source, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
 
     this.service.apply(object, false, false);

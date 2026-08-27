@@ -18,8 +18,6 @@
  */
 package net.geoprism.registry.service.request;
 
-import org.commongeoregistry.adapter.Term;
-
 public class ConversionService
 {
   public ConversionService()
@@ -60,17 +58,6 @@ public class ConversionService
   // }
   // }
   // }
-
-  public Term getTerm(String code)
-  {
-    if (code == null)
-    {
-      return null;
-    }
-
-//    return ServiceFactory.getMetadataCache().getTerm(code).get();
-    return null;
-  }
 
   // public GeoObject getGeoObjectById(String uid, String geoObjectTypeCode)
   // {

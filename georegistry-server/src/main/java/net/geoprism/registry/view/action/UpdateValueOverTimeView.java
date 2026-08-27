@@ -50,10 +50,10 @@ import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
 import net.geoprism.registry.action.InvalidChangeRequestException;
 import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.graph.DataSource;
-import net.geoprism.registry.model.Classification;
+import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
+import net.geoprism.registry.service.business.ConceptObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.view.RegistryJsonTimeFormatter;
@@ -342,9 +342,9 @@ public class UpdateValueOverTimeView
             JsonObject object = this.newValue.getAsJsonObject();
             String code = object.get("code").getAsString();
 
-            ClassificationBusinessServiceIF service = ServiceFactory.getBean(ClassificationBusinessServiceIF.class);
+            ConceptObjectBusinessServiceIF service = ServiceFactory.getBean(ConceptObjectBusinessServiceIF.class);
 
-            Classification classification = service.get((AttributeClassificationType) attype, code).get();
+            ConceptObject classification = service.getByCode((AttributeClassificationType) attype, code).get();
 
             convertedValue = new AttributeGraphRef.ID(classification.getOid(), classification.getVertex().getRID());
           }
@@ -466,7 +466,7 @@ public class UpdateValueOverTimeView
   public ServerGeoObjectEventBuilder build(ServerGeoObjectEventBuilder builder, UpdateChangeOverTimeAttributeView cotView, Collection<ValueOverTime> collection)
   {
     VertexServerGeoObject go = builder.getOrThrow(true);
-    
+
     if (this.action.equals(UpdateActionType.DELETE))
     {
       ValueOverTime vot = this.getValueByOid(collection, this.getOid()).orElseThrow(() -> new ExecuteOutOfDateChangeRequestException());

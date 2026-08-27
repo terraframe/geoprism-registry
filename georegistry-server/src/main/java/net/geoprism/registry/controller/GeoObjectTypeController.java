@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.RegistryUrls;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
@@ -224,32 +223,6 @@ public class GeoObjectTypeController extends RunwaySpringController
   public ResponseEntity<Void> deleteAttributeType(@Valid @RequestBody AttributeNameBody body)
   {
     this.service.deleteAttributeType(this.getSessionId(), body.geoObjTypeId, body.attributeName);
-
-    return new ResponseEntity<Void>(HttpStatus.OK);
-  }
-
-  @PostMapping(RegistryConstants.CONTROLLER_ROOT + RegistryUrls.GEO_OBJECT_TYPE_ADD_TERM)
-  public ResponseEntity<String> createTerm(@Valid @RequestBody TermBody body)
-  {
-    Term term = this.service.createTerm(this.getSessionId(), body.parentTermCode, body.termJSON.toString());
-
-    JsonObject response = term.toJSON();
-    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
-  }
-
-  @PostMapping(RegistryConstants.CONTROLLER_ROOT + RegistryUrls.GEO_OBJECT_TYPE_UPDATE_TERM)
-  public ResponseEntity<String> updateTerm(@Valid @RequestBody TermBody body)
-  {
-    Term term = this.service.updateTerm(this.getSessionId(), body.parentTermCode, body.termJSON.toString());
-
-    JsonObject response = term.toJSON();
-    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
-  }
-
-  @PostMapping(RegistryConstants.CONTROLLER_ROOT + RegistryUrls.GEO_OBJECT_TYPE_DELETE_TERM)
-  public ResponseEntity<Void> deleteTerm(@Valid @RequestBody DeleteTermBody body)
-  {
-    this.service.deleteTerm(this.getSessionId(), body.parentTermCode, body.termCode);
 
     return new ResponseEntity<Void>(HttpStatus.OK);
   }

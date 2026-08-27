@@ -106,9 +106,6 @@ public class ETLBusinessService
   protected GeoObjectBusinessServiceIF     objectService;
 
   @Autowired
-  protected TermBusinessServiceIF          termService;
-
-  @Autowired
   protected GeoSynonymBusinessService      geoSynonymService;
 
   @Autowired

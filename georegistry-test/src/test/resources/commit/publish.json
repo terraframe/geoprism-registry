@@ -1,5 +1,5 @@
 {
-  "uid" : "fbdec37e-a3dc-41a3-8c3f-d2a532b1b662",
+  "uid" : "9982e9a7-3091-4e13-a2f5-09331c3af839",
   "label" : "USA Geospatial Graph",
   "date" : "2020-04-04",
   "startDate" : "2020-04-04",
@@ -64,7 +64,7 @@
     "typeCode" : "TEST_UN"
   }, {
     "typeClass" : "CONCEPT_CLASS",
-    "typeCode" : "TEST_CONCEPT"
+    "typeCode" : "TEST_C_CLASS"
   } ],
   "exclusions" : [ ]
 }

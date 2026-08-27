@@ -22,7 +22,6 @@ import net.geoprism.registry.axon.projection.RepositoryProjection;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
-import net.geoprism.registry.graph.ConceptClass;
 import net.geoprism.registry.graph.ConceptEdgeType;
 import net.geoprism.registry.graph.DirectedAcyclicGraphType;
 import net.geoprism.registry.graph.UndirectedGraphType;
@@ -34,15 +33,11 @@ import net.geoprism.registry.service.business.ConceptEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GraphRepoServiceIF;
 import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
-import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.BusinessEdgeTypeDTO;
 import net.geoprism.registry.view.BusinessTypeDTO;
-import net.geoprism.registry.view.ConceptClassDTO;
-import net.geoprism.registry.view.ConceptEdgeTypeDTO;
-import net.geoprism.registry.view.DiscreteType;
 import net.geoprism.registry.view.PublishDTO;
 
 public abstract class EventDatasetTest extends USADatasetTest implements InstanceTestClassListener
@@ -64,10 +59,6 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
 
   @Autowired
   protected RepositoryProjection                      projection;
-
-  protected static ConceptClass                       cClass;
-
-  protected static ConceptEdgeType                    cEdgeType;
 
   protected static BusinessType                       btype;
 
@@ -103,15 +94,6 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
   @Request
   private void setUpInReq()
   {
-    ConceptClassDTO concept = new ConceptClassDTO();
-    concept.setCode("TEST_CONCEPT");
-    concept.setOrganization(USATestData.ORG_PPP.getCode());
-    concept.setDisplayLabel(new LocalizedValue("Test Concept"));
-
-    cClass = this.cClassService.apply(concept);
-
-    this.cClassService.createAttributeType(cClass, new AttributeBooleanType("testBoolean", new LocalizedValue("Test Boolean"), new LocalizedValue("Test Boolean"), false, false, false, false));
-
     BusinessTypeDTO object = new BusinessTypeDTO();
     object.setCode("TEST_BUSINESS");
     object.setOrganization(USATestData.ORG_PPP.getCode());
@@ -128,8 +110,8 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
     dagType = this.dagService.create("TEST_DAG", new LocalizedValue("TEST_DAG"), new LocalizedValue("TEST_DAG"), 0L);
 
     undirectedType = this.undirectedService.create("TEST_UN", new LocalizedValue("TEST_UN"), new LocalizedValue("TEST_UN"), 0L);
-
-    cEdgeType = this.cEdgeService.create(ConceptEdgeTypeDTO.build(USATestData.ORG_PPP.getCode(), "C_EDGE", cClass.getCode(), cClass.getCode(), DiscreteType.TAXONOMY));
+    
+    this.cClassService.createAttributeType(cClass, new AttributeBooleanType("testBoolean", new LocalizedValue("Test Boolean"), new LocalizedValue("Test Boolean"), false, false, false, false));
 
     this.repoService.refreshMetadataCache();
   }
@@ -138,11 +120,6 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
   @Request
   public void afterClassSetup() throws Exception
   {
-    if (cEdgeType != null)
-    {
-      this.cEdgeService.delete(cEdgeType);
-    }
-
     if (bGeoEdgeType != null)
     {
       this.bEdgeService.delete(bGeoEdgeType);
@@ -166,11 +143,6 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
     if (undirectedType != null)
     {
       this.undirectedService.delete(undirectedType);
-    }
-
-    if (cClass != null)
-    {
-      this.cClassService.delete(cClass);
     }
 
     super.afterClassSetup();
@@ -294,6 +266,13 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
       this.cObjectService.delete(pConcept);
 
       pConcept = null;
+    }
+
+    if (cConcept != null)
+    {
+      this.cObjectService.delete(cConcept);
+
+      cConcept = null;
     }
 
     testData.logOut();

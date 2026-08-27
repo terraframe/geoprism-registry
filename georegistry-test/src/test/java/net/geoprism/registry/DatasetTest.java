@@ -152,17 +152,17 @@ public abstract class DatasetTest
   {
     ConceptObjectEventBuilder builder = new ConceptObjectEventBuilder(cObjectService);
     builder.setObject(child);
-    
+
     for (Pair<ConceptObject, ConceptEdgeType> target : targets)
     {
       builder.addParent(target.getFirst(), target.getSecond(), startDate, endDate, dataSource, false);
     }
-    
+
     builder.build().stream().forEach(event -> {
       gateway.publish(GenericEventMessage.asEventMessage(event));
     });
   }
-  
+
   public long getJobHistoryGeometryCount(ImportHistory hist) throws SQLException
   {
     MdRelationshipDAOIF mdRelationship = MdRelationshipDAO.getMdRelationshipDAO(RegistryConstants.JOB_HISTORY_GEOMETRY);

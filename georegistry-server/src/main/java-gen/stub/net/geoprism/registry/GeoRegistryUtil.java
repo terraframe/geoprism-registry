@@ -63,11 +63,8 @@ import com.runwaysdk.session.Session;
 import net.geoprism.registry.excel.ListTypeExcelExporter;
 import net.geoprism.registry.excel.ListTypeExcelExporter.ListMetadataSource;
 import net.geoprism.registry.excel.MasterListExcelExporter;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
-import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
@@ -216,16 +213,6 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
     return hierarchyType.getCode();
   }
 
-  @Authenticate
-  public static String applyClassificationType(String json)
-  {
-    ClassificationTypeBusinessServiceIF service = ServiceFactory.getBean(ClassificationTypeBusinessServiceIF.class);
-    JsonObject object = JsonParser.parseString(json).getAsJsonObject();
-
-    ClassificationType type = service.apply(object);
-
-    return type.toJSON().toString();
-  }
 
   @Transaction
   public static InputStream exportMasterListShapefile(String oid, String filterJson)

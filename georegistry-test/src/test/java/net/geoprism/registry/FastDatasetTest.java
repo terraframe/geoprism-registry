@@ -3,33 +3,40 @@
  */
 package net.geoprism.registry;
 
-import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 
-import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.test.FastTestDataset;
-import net.geoprism.registry.test.TestDataSet;
+import net.geoprism.registry.test.TestOrganizationInfo;
 
-public class FastDatasetTest extends DatasetTest implements InstanceTestClassListener
+public class FastDatasetTest extends ConceptDatasetTest implements InstanceTestClassListener
 {
   protected static FastTestDataset testData;
+
+  @Override
+  protected TestOrganizationInfo getOrganization()
+  {
+    return FastTestDataset.ORG_CGOV;
+  }
 
   @Override
   public void beforeClassSetup() throws Exception
   {
     testData = FastTestDataset.newTestData();
     testData.setUpMetadata();
+
+    super.beforeClassSetup();
   }
 
   @Override
   public void afterClassSetup() throws Exception
   {
+    super.afterClassSetup();
+
     if (testData != null)
     {
       testData.tearDownMetadata();

@@ -136,17 +136,6 @@ export class GeoRegistryConfiguration {
 
 }
 
-// <div class="row nav-row" *ngIf="shouldShowMenuItem('HIERARCHIES')">
-// <div class="col-xs-12">
-//   <a routerLink="/registry/hierarchies" [ngClass]="{'expanded': expanded}" class="route-item"
-//     routerLinkActive="active" [title]="'hierarchies.menu' | localize">
-//     <i class="route-icon fa-solid fa-sitemap"></i>
-//     <localize *ngIf="expanded" key="header.classifications.option"></localize>
-//   </a>
-// </div>
-// </div>
-
-
 export class MenuItem {
     id: string;
     link: string;

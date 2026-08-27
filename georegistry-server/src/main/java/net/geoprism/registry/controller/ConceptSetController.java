@@ -66,7 +66,7 @@ public class ConceptSetController extends RunwaySpringController
   @GetMapping("/get-all")
   public ResponseEntity<List<ConceptSetDTO>> getAll(@NotNull @RequestParam(name = "discreteType") DiscreteType discreteType)
   {
-    List<ConceptSetDTO> response = service.getAll(this.getSessionId(), discreteType);
+    List<ConceptSetDTO> response = service.getAll(this.getSessionId());
 
     return ResponseEntity.ok(response);
   }
@@ -74,7 +74,7 @@ public class ConceptSetController extends RunwaySpringController
   @GetMapping("/get")
   public ResponseEntity<ConceptSetDTO> get(@NotNull @RequestParam(name = "discreteType") DiscreteType discreteType, @NotBlank @RequestParam(name = "code") String code)
   {
-    ConceptSetDTO response = service.getByCode(this.getSessionId(), discreteType, code);
+    ConceptSetDTO response = service.getByCode(this.getSessionId(), code);
 
     return ResponseEntity.ok(response);
   }
@@ -90,7 +90,7 @@ public class ConceptSetController extends RunwaySpringController
   @PostMapping("/remove")
   public ResponseEntity<Void> remove(@Valid @RequestBody DiscreteTypeBody body)
   {
-    this.service.delete(this.getSessionId(), body.discreteType, body.getCode());
+    this.service.delete(this.getSessionId(), body.getCode());
 
     return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
   }

@@ -291,11 +291,7 @@ public class ConceptClassTest extends FastDatasetTest implements InstanceTestCla
 
         List<ConceptClassDTO> types = org.getTypes();
 
-        Assert.assertEquals(1, types.size());
-
-        ConceptClassDTO actual = types.get(0);
-
-        Assert.assertEquals(type.getCode(), actual.getCode());
+        Assert.assertTrue(types.size() > 1);
       }
       finally
       {

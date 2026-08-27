@@ -34,12 +34,10 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.RegistryAdapter;
-import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
-import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
@@ -55,9 +53,7 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.resource.ApplicationResource;
 
-import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.cache.TransactionCacheFacade;
-import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.graph.DirectedAcyclicGraphType;
@@ -75,7 +71,6 @@ import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
-import net.geoprism.registry.view.BusinessEdgeTypeDTO;
 import net.geoprism.registry.view.BusinessEdgeTypeDTO;
 import net.geoprism.registry.view.BusinessTypeDTO;
 
@@ -404,17 +399,6 @@ public class XMLImporter
           {
             this.typeService.createAttributeType(type, new AttributeDateType(code, label, description, false, false, false));
           }
-          else if (elem.getTagName().equals("classification"))
-          {
-            String rootCode = elem.getAttribute("root");
-            String classificationType = elem.getAttribute("classificationType");
-
-            AttributeClassificationType attributeType = new AttributeClassificationType(code, label, description, false, false, false);
-            attributeType.setRootTerm(new Term(rootCode, new LocalizedValue(""), new LocalizedValue("")));
-            attributeType.setClassificationType(classificationType);
-
-            attributeType = (AttributeClassificationType) this.typeService.createAttributeType(type, attributeType);
-          }
         }
       }
     }
@@ -464,48 +448,11 @@ public class XMLImporter
           {
             this.bTypeService.createAttributeType(type, new AttributeDateType(code, label, description, false, false, false, false));
           }
-          else if (elem.getTagName().equals("classification"))
-          {
-            String rootCode = elem.getAttribute("root");
-            String classificationType = elem.getAttribute("classificationType");
-
-            AttributeClassificationType attributeType = new AttributeClassificationType(code, label, description, false, false, false, false);
-            attributeType.setRootTerm(new Term(rootCode, new LocalizedValue(""), new LocalizedValue("")));
-            attributeType.setClassificationType(classificationType);
-
-            attributeType = (AttributeClassificationType) this.bTypeService.createAttributeType(type, attributeType);
-          }
         }
       }
     }
   }
 
-  private void createTermOptions(Element attributeNode, Term root)
-  {
-    NodeList attributeList = attributeNode.getElementsByTagName("option");
-
-    for (int i = 0; i < attributeList.getLength(); i++)
-    {
-      Node nNode = attributeList.item(i);
-
-      if (nNode.getNodeType() == Node.ELEMENT_NODE)
-      {
-        Element elem = (Element) nNode;
-
-        String code = elem.getAttribute("code");
-        LocalizedValue label = this.getLabel(elem);
-        LocalizedValue description = this.getDescription(elem);
-
-        Term term = new Term(code, label, description);
-
-        Classifier classifier = TermConverter.createClassifierFromTerm(root.getCode(), term);
-
-        TermConverter termBuilder = new TermConverter(classifier.getKeyName());
-
-        termBuilder.build();
-      }
-    }
-  }
 
   private void addChildren(ServerHierarchyType hierarchy, ServerGeoObjectType parent, Element root)
   {

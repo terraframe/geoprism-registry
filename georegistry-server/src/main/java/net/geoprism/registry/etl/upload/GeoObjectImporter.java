@@ -92,6 +92,7 @@ import net.geoprism.registry.io.TermValueException;
 import net.geoprism.registry.jobs.ParentReferenceProblem;
 import net.geoprism.registry.jobs.RowValidationProblem;
 import net.geoprism.registry.model.Classification;
+import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.model.GeoObjectMetadata;
 import net.geoprism.registry.model.GeoObjectTypeMetadata;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -102,7 +103,7 @@ import net.geoprism.registry.query.ServerCodeRestriction;
 import net.geoprism.registry.query.ServerExternalIdRestriction;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.ServerSynonymRestriction;
-import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
+import net.geoprism.registry.service.business.ConceptObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
@@ -1170,10 +1171,10 @@ public class GeoObjectImporter implements ObjectImporterIF
     {
       org.commongeoregistry.adapter.metadata.AttributeClassificationType attr = (org.commongeoregistry.adapter.metadata.AttributeClassificationType) attributeType.toDTO();
 
-      ClassificationBusinessServiceIF classificationService = ServiceFactory.getBean(ClassificationBusinessServiceIF.class);
+      ConceptObjectBusinessServiceIF classificationService = ServiceFactory.getBean(ConceptObjectBusinessServiceIF.class);
       String code = value.toString().trim();
 
-      Classification classifier = classificationService.get(attr, code).orElseThrow(() -> {
+      ConceptObject classifier = classificationService.getByCode(attr, code).orElseThrow(() -> {
         TermValueException ex = new TermValueException();
         ex.setAttributeLabel(attr.getLabel().getValue());
         ex.setCode(code);

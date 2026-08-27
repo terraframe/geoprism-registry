@@ -177,17 +177,6 @@ public class AllAttributesDataset extends TestDataSet
   protected void cleanUpClassInTrans()
   {
     super.cleanUpClassInTrans();
-
-    deleteTestTerms();
-  }
-
-  public void deleteTestTerms()
-  {
-    TestDataSet.deleteClassifier(ROOT_TEST_TERM_CLASSIFIER_ID);
-    TestDataSet.deleteClassifier(TEST_DATA_KEY + "ALL_VAL1");
-    TestDataSet.deleteClassifier(TEST_DATA_KEY + "ALL_VAL2");
-    TestDataSet.deleteClassifier(TEST_DATA_KEY + "_TERMVAL1");
-    TestDataSet.deleteClassifier(TEST_DATA_KEY + "_TERMVAL2");
   }
 
   @Transaction

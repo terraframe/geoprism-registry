@@ -21,72 +21,39 @@ package net.geoprism.registry.service.request;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
 import net.geoprism.registry.graph.ConceptSet;
 import net.geoprism.registry.service.business.ConceptSetBusinessServiceIF;
-import net.geoprism.registry.service.business.EnumerationBusinessServiceIF;
-import net.geoprism.registry.service.business.OntologyBusinessServiceIF;
-import net.geoprism.registry.service.business.TaxonomyBusinessServiceIF;
 import net.geoprism.registry.view.ConceptSetDTO;
-import net.geoprism.registry.view.DiscreteType;
 
+@Service
 public class ConceptSetService implements ConceptSetServiceIF
 {
   @Autowired
-  private TaxonomyBusinessServiceIF    taxonomyService;
-
-  @Autowired
-  private EnumerationBusinessServiceIF enumerationService;
-
-  @Autowired
-  private OntologyBusinessServiceIF    ontologyService;
-
-  @SuppressWarnings("unchecked")
-  private <T extends ConceptSet> ConceptSetBusinessServiceIF<T, ConceptSetDTO> getService(DiscreteType discreteType)
-  {
-    if (discreteType.equals(DiscreteType.TAXONOMY))
-    {
-      return (ConceptSetBusinessServiceIF<T, ConceptSetDTO>) taxonomyService;
-    }
-    else if (discreteType.equals(DiscreteType.ENUMERATION))
-    {
-      return (ConceptSetBusinessServiceIF<T, ConceptSetDTO>) enumerationService;
-    }
-    else if (discreteType.equals(DiscreteType.ONTOLOGY))
-    {
-      return (ConceptSetBusinessServiceIF<T, ConceptSetDTO>) ontologyService;
-    }
-
-    throw new UnsupportedOperationException();
-  }
+  private ConceptSetBusinessServiceIF service;
 
   @Override
   @Request(RequestType.SESSION)
-  public void delete(String sessionId, DiscreteType discreteType, String code)
+  public void delete(String sessionId, String code)
   {
-    ConceptSetBusinessServiceIF<ConceptSet, ConceptSetDTO> service = this.getService(discreteType);
-
     service.getByCode(code).ifPresent(t -> service.delete(t));
   }
 
   @Override
   @Request(RequestType.SESSION)
-  public List<ConceptSetDTO> getAll(String sessionId, DiscreteType discreteType)
+  public List<ConceptSetDTO> getAll(String sessionId)
   {
-    ConceptSetBusinessServiceIF<ConceptSet, ConceptSetDTO> service = this.getService(discreteType);
-
     return service.getAll().stream().map(t -> service.toDTO(t)).toList();
   }
 
   @Override
   @Request(RequestType.SESSION)
-  public ConceptSetDTO getByCode(String sessionId, DiscreteType discreteType, String code)
+  public ConceptSetDTO getByCode(String sessionId, String code)
   {
-    ConceptSetBusinessServiceIF<ConceptSet, ConceptSetDTO> service = this.getService(discreteType);
-
     ConceptSet t = service.getByCodeOrThrow(code);
 
     return service.toDTO(t);
@@ -96,8 +63,6 @@ public class ConceptSetService implements ConceptSetServiceIF
   @Request(RequestType.SESSION)
   public ConceptSetDTO apply(String sessionId, ConceptSetDTO object)
   {
-    ConceptSetBusinessServiceIF<ConceptSet, ConceptSetDTO> service = this.getService(object.getDiscreteType());
-
     ConceptSet t = service.apply(object);
 
     return service.toDTO(t);

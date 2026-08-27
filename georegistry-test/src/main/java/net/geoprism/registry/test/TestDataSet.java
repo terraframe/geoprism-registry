@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
@@ -80,7 +79,6 @@ import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.ChangeRequestQuery;
 import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.conversion.RegistryRoleConverter;
-import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -882,17 +880,6 @@ abstract public class TestDataSet
     }
   }
 
-  @Request
-  public static void deleteClassifier(String classifierId)
-  {
-    Classifier clazz = getClassifierIfExist(classifierId);
-
-    if (clazz != null)
-    {
-      clazz.delete();
-    }
-  }
-
   public static MdClass getMdClassIfExist(String pack, String type)
   {
     MdClassQuery mbq = new MdClassQuery(new QueryFactory());
@@ -1086,19 +1073,6 @@ abstract public class TestDataSet
     at = service.createAttributeType(got.getServerObject(), attributeTypeJSON);
 
     return new TestAttributeTypeInfo(at, got);
-  }
-
-  public static Term createAttributeRootTerm(TestGeoObjectTypeInfo gTypeInfo, TestAttributeTypeInfo aTypeInfo)
-  {
-    ServerGeoObjectType type = gTypeInfo.getServerObject();
-
-    Classifier typeRoot = TermConverter.buildIfNotExistGeoObjectTypeClassifier(type);
-    Classifier attributeRoot = TermConverter.buildIfNotExistAttribute(type, aTypeInfo.getAttributeName(), typeRoot);
-
-    type.refreshDTO();
-    type.toDTO();
-
-    return new TermConverter(attributeRoot.getKeyName()).build();
   }
 
   public static void runAsUser(TestUserInfo user, ClientRequestExecutor executor)

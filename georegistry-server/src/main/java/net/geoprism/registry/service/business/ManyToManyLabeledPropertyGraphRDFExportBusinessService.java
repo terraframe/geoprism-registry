@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service.business;
 
@@ -67,7 +67,7 @@ import net.geoprism.registry.InvalidMasterListException;
 import net.geoprism.registry.etl.ImportStage;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.jobs.ImportHistory;
-import net.geoprism.registry.model.Classification;
+import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.service.business.GraphPublisherService.CachedBusinessSnapshot;
@@ -135,7 +135,7 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
   private LabeledPropertyGraphTypeVersionBusinessServiceIF versionService;
 
   @Autowired
-  private ClassificationBusinessServiceIF                  classificationService;
+  private ConceptObjectBusinessServiceIF                   cObjectService;
 
   @Autowired
   private DataSourceBusinessServiceIF                      sourceService;
@@ -213,7 +213,7 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
       }
 
       if (state.history != null)
-    	  ProgressService.remove(state.history.getOid());
+        ProgressService.remove(state.history.getOid());
     }
   }
 
@@ -554,11 +554,12 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
 
           if (value != null)
           {
-            Classification classification = this.classificationService.get((AttributeClassificationType) attribute, value).get();
+            ConceptObject classification = this.cObjectService.getByCode((AttributeClassificationType) attribute, value).orElse(null);
 
             if (classification != null)
             {
-              literal = classification.getDisplayLabel().getValue();
+//              literal = classification.getDisplayLabel().getValue();
+              literal = classification.getCode();
             }
           }
         }

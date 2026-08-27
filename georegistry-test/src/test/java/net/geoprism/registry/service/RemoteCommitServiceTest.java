@@ -179,7 +179,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
       }
     });
 
-    Arrays.asList("TEST_CONCEPT").forEach(code -> {
+    Arrays.asList("TEST_C_CLASS").forEach(code -> {
       ConceptClass type = this.cClassService.getByCodeOrThrow(code);
 
       if (type != null)
@@ -252,7 +252,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
         Assert.assertEquals(Long.valueOf(20), type.getSequence());
       });
 
-      Arrays.asList("TEST_CONCEPT").forEach(code -> {
+      Arrays.asList("TEST_C_CLASS").forEach(code -> {
         ConceptClassSnapshot snapshot = this.cClassSnapshotService.get(commit, code);
 
         Assert.assertNotNull(snapshot);
@@ -310,7 +310,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
         Assert.assertEquals(Long.valueOf(20), type.getSequence());
       });
 
-      Assert.assertEquals(Long.valueOf(49), this.store.size());
+      Assert.assertEquals(Long.valueOf(50), this.store.size());
 
       // Test Object values
 
@@ -344,8 +344,8 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
       Assert.assertEquals(1, this.bObjectService.getParents(bObject, bEdgeType, USATestData.DEFAULT_OVER_TIME_DATE).size());
       Assert.assertEquals(1, this.bObjectService.getParents(bObject, bGeoEdgeType, USATestData.DEFAULT_OVER_TIME_DATE).size());
 
-      ConceptClass conceptClass = this.cClassService.getByCodeOrThrow("TEST_CONCEPT");
-      ConceptObject concept = this.cObjectService.getByCode(conceptClass, "CONCEPT").orElse(null);
+      ConceptClass conceptClass = this.cClassService.getByCodeOrThrow("TEST_C_CLASS");
+      ConceptObject concept = this.cObjectService.getByCode(conceptClass, "P_CONCEPT").orElse(null);
 
       Assert.assertNotNull(concept);
       Assert.assertNotNull(concept.getValue(DefaultAttribute.DATA_SOURCE.getName()));
@@ -429,7 +429,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
         Assert.assertNotEquals(MockRemoteClientBuilderService.STALE_SOURCE, type.getLabel().getValue());
       });
 
-      Assert.assertEquals(Long.valueOf(98), this.store.size());
+      Assert.assertEquals(Long.valueOf(100), this.store.size());
     }
     finally
     {
@@ -466,7 +466,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
           Assert.assertNotNull(ServerHierarchyType.get(code, true));
         });
 
-        Arrays.asList("TEST_CONCEPT").forEach(code -> {
+        Arrays.asList("TEST_C_CLASS").forEach(code -> {
           Assert.assertNotNull(this.cClassService.getByCode(code));
         });
 
@@ -486,7 +486,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
           Assert.assertTrue(this.undirectedTypeService.getByCode(code).isPresent());
         });
 
-        Assert.assertEquals(Long.valueOf(49), this.store.size());
+        Assert.assertEquals(Long.valueOf(50), this.store.size());
       }
       finally
       {
@@ -513,7 +513,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
     try
     {
       // Ensure that events for excluded types are not executed
-      Assert.assertEquals(Long.valueOf(48), this.store.size());
+      Assert.assertEquals(Long.valueOf(49), this.store.size());
     }
     finally
     {
@@ -646,7 +646,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
           Assert.assertEquals(Long.valueOf(20), type.getSequence());
         });
 
-        Assert.assertEquals(Long.valueOf(49), this.store.size());
+        Assert.assertEquals(Long.valueOf(50), this.store.size());
 
         // Test Object values
         ServerGeoObjectIF object = this.gObjectService.getGeoObjectByCode(USATestData.COLORADO.getCode(), USATestData.STATE.getCode());

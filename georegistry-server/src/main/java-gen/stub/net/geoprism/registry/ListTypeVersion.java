@@ -80,7 +80,6 @@ import com.runwaysdk.constants.Constants;
 import com.runwaysdk.constants.IndexTypes;
 import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.constants.MdAttributeCharacterInfo;
-import com.runwaysdk.constants.MdAttributeConcreteInfo;
 import com.runwaysdk.constants.MdAttributeDateTimeUtil;
 import com.runwaysdk.constants.MdAttributeDoubleInfo;
 import com.runwaysdk.constants.MdAttributeFloatInfo;
@@ -125,7 +124,6 @@ import com.runwaysdk.system.metadata.MdAttributeCharacter;
 import com.runwaysdk.system.metadata.MdAttributeConcrete;
 import com.runwaysdk.system.metadata.MdAttributeDateTime;
 import com.runwaysdk.system.metadata.MdAttributeDouble;
-import com.runwaysdk.system.metadata.MdAttributeIndices;
 import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdAttributeText;
 import com.runwaysdk.system.metadata.MdBusiness;
@@ -136,7 +134,6 @@ import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.curation.ListCurationHistory;
 import net.geoprism.registry.etl.PublishListTypeVersionJob;
 import net.geoprism.registry.etl.PublishListTypeVersionJobQuery;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.masterlist.ListAttribute;
 import net.geoprism.registry.masterlist.ListAttributeGroup;
 import net.geoprism.registry.masterlist.ListColumn;
@@ -148,8 +145,6 @@ import net.geoprism.registry.masterlist.TableMetadata.Group;
 import net.geoprism.registry.masterlist.TableMetadata.HierarchyGroup;
 import net.geoprism.registry.masterlist.TableMetadata.HolderGroup;
 import net.geoprism.registry.masterlist.TableMetadata.TypeGroup;
-import net.geoprism.registry.model.Classification;
-import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.LocationInfo;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -162,8 +157,7 @@ import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.query.ListTypeVersionPageQuery;
 import net.geoprism.registry.query.graph.BasicVertexQuery;
 import net.geoprism.registry.query.graph.BasicVertexRestriction;
-import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
-import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.ConceptObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.CurationBusinessService;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
@@ -389,7 +383,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
   {
     MdBusiness mdBusiness = metadata.getMdBusiness();
 
-    if (! ( attributeType instanceof AttributeClassificationType || attributeType instanceof AttributeLocalType || attributeType instanceof AttributeListType ))
+    if (! ( attributeType instanceof AttributeLocalType || attributeType instanceof AttributeListType ))
     {
       MdAttributeConcrete mdAttribute = null;
 
@@ -423,6 +417,10 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       {
         mdAttribute = new MdAttributeText();
       }
+      else if (attributeType.getType().equals(AttributeClassificationType.TYPE))
+      {
+        mdAttribute = new MdAttributeText();
+      }
       else
       {
         throw new UnsupportedOperationException("Unsupported type [" + attributeType.getType() + "]");
@@ -440,54 +438,6 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       {
         metadata.getRoot().addChild(new Attribute(mdAttribute, 2));
       }
-    }
-    else if (attributeType instanceof AttributeClassificationType)
-    {
-      AttributeGroup attributeGroup = metadata.getRoot().addChild(new AttributeGroup(attributeType));
-
-      MdAttributeCharacter cloneAttribute = new MdAttributeCharacter();
-      cloneAttribute.setValue(MdAttributeConcreteInfo.NAME, attributeType.getCode());
-      cloneAttribute.setValue(MdAttributeCharacterInfo.SIZE, "255");
-      cloneAttribute.addIndexType(MdAttributeIndices.NON_UNIQUE_INDEX);
-      RegistryLocalizedValueConverter.populate(cloneAttribute.getDisplayLabel(), attributeType.getLabel());
-      RegistryLocalizedValueConverter.populate(cloneAttribute.getDescription(), attributeType.getDescription());
-      cloneAttribute.setDefiningMdClass(mdBusiness);
-      cloneAttribute.apply();
-
-      attributeGroup.addChild(new Attribute(cloneAttribute, LocalizationFacade.localizeAll("data.property.label.code")));
-
-      MdAttributeCharacter mdAttributeDefaultLocale = new MdAttributeCharacter();
-      mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getCode() + DEFAULT_LOCALE);
-      mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
-      mdAttributeDefaultLocale.setDefiningMdClass(mdBusiness);
-      RegistryLocalizedValueConverter.populate(mdAttributeDefaultLocale.getDisplayLabel(), attributeType.getLabel(), " (" + defaultLocaleLabel.getValue() + ")");
-      RegistryLocalizedValueConverter.populate(mdAttributeDefaultLocale.getDescription(), attributeType.getDescription(), " (" + defaultLocaleLabel.getValue() + ")");
-      mdAttributeDefaultLocale.apply();
-
-      attributeGroup.addChild(new Attribute(mdAttributeDefaultLocale, defaultLocaleLabel));
-
-      for (SupportedLocaleIF locale : locales)
-      {
-        MdAttributeCharacter mdAttributeLocale = new MdAttributeCharacter();
-        mdAttributeLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getCode() + locale.getLocale().toString());
-        mdAttributeLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
-        mdAttributeLocale.setDefiningMdClass(mdBusiness);
-        RegistryLocalizedValueConverter.populate(mdAttributeLocale.getDisplayLabel(), attributeType.getLabel(), " (" + locale.getDisplayLabel().getValue() + ")");
-        RegistryLocalizedValueConverter.populate(mdAttributeLocale.getDescription(), attributeType.getDescription());
-        mdAttributeLocale.apply();
-
-        attributeGroup.addChild(new Attribute(mdAttributeLocale, locale));
-      }
-
-      // MdAttributeUUID mdAttributeOid = new MdAttributeUUID();
-      // mdAttributeOid.setValue(MdAttributeConcreteInfo.NAME,
-      // attributeType.getCode() + "Oid");
-      // AbstractBuilder.populate(mdAttributeOid.getDisplayLabel(),
-      // attributeType.getLabel());
-      // AbstractBuilder.populate(mdAttributeOid.getDescription(),
-      // attributeType.getDescription());
-      // mdAttributeOid.setDefiningMdClass(mdBusiness);
-      // mdAttributeOid.apply();
     }
     else if (attributeType instanceof AttributeLocalType)
     {
@@ -1065,22 +1015,12 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
           }
           else if (attribute instanceof AttributeClassificationType)
           {
-            ClassificationTypeBusinessServiceIF typeService = ServiceFactory.getBean(ClassificationTypeBusinessServiceIF.class);
-            ClassificationBusinessServiceIF service = ServiceFactory.getBean(ClassificationBusinessServiceIF.class);
+            ConceptObjectBusinessServiceIF service = ServiceFactory.getBean(ConceptObjectBusinessServiceIF.class);
 
-            String classificationTypeCode = ( (AttributeClassificationType) attribute ).getClassificationType();
-            ClassificationType classificationType = typeService.getByCode(classificationTypeCode);
-            Classification classification = service.getByOid(classificationType, (String) value).get();
+            service.getByOid((String) value).ifPresent(classification -> {
+              this.setValue(business, name, classification.getCode());
+            });
 
-            LocalizedValue label = classification.getDisplayLabel();
-
-            this.setValue(business, name, classification.getCode());
-            this.setValue(business, name + DEFAULT_LOCALE, label.getValue(LocalizedValue.DEFAULT_LOCALE));
-
-            for (Locale locale : locales)
-            {
-              this.setValue(business, name + locale.toString(), label.getValue(locale));
-            }
           }
           else if (attribute instanceof AttributeLocalType)
           {

@@ -60,7 +60,6 @@ import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.USADatasetTest;
-import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ObjectImporterFactory.JobHistoryType;
@@ -77,7 +76,6 @@ import net.geoprism.registry.io.PostalCodeFactory;
 import net.geoprism.registry.io.view.GeoObjectImportConfigurationDTO;
 import net.geoprism.registry.io.view.ImportConfigurationDTO;
 import net.geoprism.registry.jobs.ImportHistory;
-import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.EdgeConstant;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -87,8 +85,6 @@ import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.query.ServerCodeRestriction;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
-import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
-import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ETLBusinessService;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
@@ -106,53 +102,39 @@ import net.geoprism.registry.view.ImportHistoryView;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class ExcelServiceTest extends USADatasetTest implements InstanceTestClassListener
 {
-  private static ClassificationType           type;
+  private static ClassificationType          type;
 
-  protected static String                     CODE      = "Test Term";
+  protected static String                    CODE      = "Test Term";
 
-  private static AttributeIntegerType         testInteger;
+  private static AttributeIntegerType        testInteger;
 
-  private static AttributeDateType            testDate;
+  private static AttributeDateType           testDate;
 
-  private static AttributeBooleanType         testBoolean;
+  private static AttributeBooleanType        testBoolean;
 
-  private static AttributeClassificationType  testClassification;
+  private static AttributeClassificationType testClassification;
 
-  private final Integer                       ROW_COUNT = 2;
-
-  @Autowired
-  private GeoObjectTypeBusinessServiceIF      typeService;
+  private final Integer                      ROW_COUNT = 2;
 
   @Autowired
-  private GeoObjectBusinessServiceIF          objectService;
+  private GeoObjectTypeBusinessServiceIF     typeService;
 
   @Autowired
-  private ExcelService                        excelService;
+  private GeoObjectBusinessServiceIF         objectService;
 
   @Autowired
-  private ETLService                          etlService;
+  private ExcelService                       excelService;
 
   @Autowired
-  private ETLBusinessService                  etlBusinessService;
+  private ETLService                         etlService;
 
   @Autowired
-  private ClassificationTypeBusinessServiceIF cTypeService;
-
-  @Autowired
-  private ClassificationBusinessServiceIF     cService;
+  private ETLBusinessService                 etlBusinessService;
 
   @Override
   @Request
   public void beforeClassSetup() throws Exception
   {
-    type = this.cTypeService.apply(ClassificationTypeTest.createMock());
-
-    Classification root = this.cService.newInstance(type);
-    root.setCode(CODE);
-    root.setDisplayLabel(new LocalizedValue("Test Classification"));
-
-    this.cService.apply(root, null);
-
     TestDataSet.deleteAllSchedulerData();
 
     super.beforeClassSetup();
@@ -166,21 +148,8 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
       SchedulerManager.start();
     }
 
-    testClassification = (AttributeClassificationType) AttributeType.factory("testClassification", new LocalizedValue("testClassificationLocalName"), new LocalizedValue("testClassificationLocalDescrip"), AttributeClassificationType.TYPE, false, false, false);
-    testClassification.setClassificationType(type.getCode());
-    testClassification.setRootTerm(root.toTerm());
-
     ServerGeoObjectType got = ServerGeoObjectType.get(USATestData.DISTRICT.getCode());
-    testClassification = (AttributeClassificationType) this.typeService.createAttributeType(got, testClassification);
-  }
-
-  @Override
-  @Request
-  public void afterClassSetup() throws Exception
-  {
-    super.afterClassSetup();
-
-    this.cTypeService.delete(type);
+    testClassification = (AttributeClassificationType) this.typeService.createAttributeType(got, this.createAttributeClassificationType());
   }
 
   @Before

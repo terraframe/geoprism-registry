@@ -126,7 +126,6 @@
       <xs:element name="decimal" type="decimal" />
       <xs:element name="date" type="date" />
       <xs:element name="term" type="term" />
-      <xs:element name="classification" type="classification" />
     </xs:choice>
   </xs:complexType>
   <!-- Common Attributes of all attributes -->
@@ -155,14 +154,6 @@
     </xs:sequence>
     <xs:attributeGroup ref="attribute" />
   </xs:complexType>
-  <xs:complexType name="classification">
-    <xs:attributeGroup ref="attributeClassification" />
-  </xs:complexType>
-  <xs:attributeGroup name="attributeClassification">
-    <xs:attributeGroup ref="attribute" />
-    <xs:attribute name="root" type="xs:string" use="required" />
-    <xs:attribute name="classificationType" type="xs:string" use="required" />
-  </xs:attributeGroup>
   <xs:attributeGroup name="attributeDec">
     <xs:attributeGroup ref="attribute" />
     <xs:attribute name="precision" type="xs:integer" />

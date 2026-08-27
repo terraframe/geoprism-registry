@@ -25,13 +25,10 @@ import com.runwaysdk.session.Request;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
-import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.model.BusinessObject;
-import net.geoprism.registry.model.Classification;
-import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.graph.VertexComponent;
@@ -39,8 +36,6 @@ import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
-import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
-import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.view.BusinessEdgeTypeDTO;
@@ -53,41 +48,31 @@ import net.geoprism.registry.view.ValueOverTimeEntryDTO;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class BusinessObjectTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  private static String                       TEST_CODE = "TEST_OBJ";
+  private static String                      TEST_CODE = "TEST_OBJ";
 
-  private static BusinessType                 type;
+  private static BusinessType                type;
 
-  private static AttributeType                attribute;
+  private static AttributeType               attribute;
 
-  private static AttributeType                attributeOverTime;
+  private static AttributeType               attributeOverTime;
 
-  private static AttributeClassificationType  attributeClassification;
+  private static AttributeClassificationType attributeClassification;
 
-  private static ClassificationType           classificationType;
+  private static BusinessEdgeType            relationshipType;
 
-  private static Classification               root;
-
-  private static BusinessEdgeType             relationshipType;
-
-  private static BusinessEdgeType             bGeoEdgeType;
+  private static BusinessEdgeType            bGeoEdgeType;
 
   @Autowired
-  private ClassificationTypeBusinessServiceIF cTypeService;
+  private BusinessTypeBusinessServiceIF      bTypeService;
 
   @Autowired
-  private ClassificationBusinessServiceIF     cService;
+  private BusinessEdgeTypeBusinessServiceIF  bEdgeService;
 
   @Autowired
-  private BusinessTypeBusinessServiceIF       bTypeService;
+  private BusinessObjectBusinessServiceIF    bObjectService;
 
   @Autowired
-  private BusinessEdgeTypeBusinessServiceIF   bEdgeService;
-
-  @Autowired
-  private BusinessObjectBusinessServiceIF     bObjectService;
-
-  @Autowired
-  private GeoObjectBusinessServiceIF          objectService;
+  private GeoObjectBusinessServiceIF         objectService;
 
   @Override
   public void beforeClassSetup() throws Exception
@@ -102,13 +87,6 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
   @Request
   private void setUpClassInRequest()
   {
-    classificationType = this.cTypeService.apply(ClassificationTypeTest.createMock());
-
-    root = this.cService.newInstance(classificationType);
-    root.setCode("ROOT_OBJ");
-
-    this.cService.apply(root, null);
-
     String code = "TEST_PROG";
     String orgCode = FastTestDataset.ORG_CGOV.getCode();
     String label = "Test Prog";
@@ -123,9 +101,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     attribute = this.bTypeService.createAttributeType(type, new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test True"), false, false, false, false));
     attributeOverTime = this.bTypeService.createAttributeType(type, new AttributeLocalType("testCharacter2", new LocalizedValue("Test Character 2"), new LocalizedValue("Test True"), false, false, false, true));
 
-    attributeClassification = new AttributeClassificationType("testClassification", new LocalizedValue("Test Classification"), new LocalizedValue("Test Classification"), false, false, false);
-    attributeClassification.setClassificationType(classificationType.getCode());
-    attributeClassification.setRootTerm(root.toTerm());
+    attributeClassification = this.createAttributeClassificationType();
     attributeClassification.setChangeOverTime(false);
 
     attributeClassification = (AttributeClassificationType) this.bTypeService.createAttributeType(type, attributeClassification);
@@ -167,15 +143,6 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
       this.bTypeService.delete(type);
     }
 
-    if (root != null)
-    {
-      this.cService.delete(root);
-    }
-
-    if (classificationType != null)
-    {
-      this.cTypeService.delete(classificationType);
-    }
   }
 
   @Test
@@ -204,7 +171,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     BusinessObject object = this.bObjectService.newInstance(type);
     object.setValue(attribute.getCode(), "Test Text");
     object.setValue(attributeOverTime.getCode(), new LocalizedValue("Test Text 2"), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
-    object.setValue(attributeClassification.getCode(), root.getVertex());
+    object.setValue(attributeClassification.getCode(), rootConcept.getVertex());
     object.setValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.SOURCE.getDataSource(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
     object.setCode(TEST_CODE);
 

@@ -1,9 +1,9 @@
 [
   {
-    "code": "TEST_CONCEPT",
-    "organization": "USATestDataPPP",
+    "code": "TEST_C_CLASS",
+    "organization": "USATestDataNPS",
     "origin": "terraframe.com",
-    "sequence": 1,
+    "sequence": 0,
     "displayLabel": {
       "localizedValue": "Test Concept",
       "localeValues": [
@@ -14,32 +14,6 @@
       ]
     },
     "attributes": [
-      {
-        "type": "boolean",
-        "code": "testBoolean",
-        "label": {
-          "localizedValue": "Test Boolean",
-          "localeValues": [
-            {
-              "locale": "defaultLocale",
-              "value": "Test Boolean"
-            }
-          ]
-        },
-        "description": {
-          "localizedValue": "Test Boolean",
-          "localeValues": [
-            {
-              "locale": "defaultLocale",
-              "value": "Test Boolean"
-            }
-          ]
-        },
-        "required": false,
-        "unique": false,
-        "isDefault": false,
-        "isChangeOverTime": true
-      },
       {
         "type": "character",
         "code": "code",

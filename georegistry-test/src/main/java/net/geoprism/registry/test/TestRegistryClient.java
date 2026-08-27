@@ -7,7 +7,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
@@ -17,7 +16,6 @@ import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.JsonArray;
@@ -32,9 +30,7 @@ import net.geoprism.registry.controller.GeoObjectOverTimeController;
 import net.geoprism.registry.controller.GeoObjectOverTimeController.GeoObjectOverTimeBody;
 import net.geoprism.registry.controller.GeoObjectTypeController;
 import net.geoprism.registry.controller.GeoObjectTypeController.AttributeBody;
-import net.geoprism.registry.controller.GeoObjectTypeController.DeleteTermBody;
 import net.geoprism.registry.controller.GeoObjectTypeController.GeoObjectTypeBody;
-import net.geoprism.registry.controller.GeoObjectTypeController.TermBody;
 import net.geoprism.registry.controller.HierarchyTypeController;
 import net.geoprism.registry.controller.HierarchyTypeController.HierarchyTypeNodeBody;
 import net.geoprism.registry.controller.SynchronizationConfigController;
@@ -99,33 +95,6 @@ public class TestRegistryClient extends AbstractTestClient
     body.setAttributeType(JsonParser.parseString(attributeTypeJSON).getAsJsonObject());
 
     return responseToAttributeType(this.geoObjectTypeController.updateAttributeType(body));
-  }
-
-  public Term createTerm(String parentTermCode, String termJSON)
-  {
-    TermBody body = new TermBody();
-    body.setParentTermCode(parentTermCode);
-    body.setTermJSON(JsonParser.parseString(termJSON).getAsJsonObject());
-
-    return responseToTerm(this.geoObjectTypeController.createTerm(body));
-  }
-
-  public Term updateTerm(String parentTermCode, String termJSON)
-  {
-    TermBody body = new TermBody();
-    body.setParentTermCode(parentTermCode);
-    body.setTermJSON(JsonParser.parseString(termJSON).getAsJsonObject());
-
-    return responseToTerm(this.geoObjectTypeController.updateTerm(body));
-  }
-
-  public void deleteTerm(String parentTermCode, String termCode)
-  {
-    DeleteTermBody body = new DeleteTermBody();
-    body.setParentTermCode(parentTermCode);
-    body.setTermCode(termCode);
-
-    this.geoObjectTypeController.deleteTerm(body);
   }
 
   public GeoObjectType createGeoObjectType(String gtJSON)

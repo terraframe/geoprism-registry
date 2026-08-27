@@ -5,6 +5,7 @@ package net.geoprism.registry.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
@@ -12,6 +13,7 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
+import org.commongeoregistry.adapter.metadata.CodeReference;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.junit.Assert;
 import org.junit.Test;
@@ -23,36 +25,30 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.ConceptDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
-import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.AttributeType;
-import net.geoprism.registry.model.Classification;
-import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
-import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.test.TestDataSet;
+import net.geoprism.registry.test.TestOrganizationInfo;
 import net.geoprism.registry.test.USATestData;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
 @RunWith(SpringInstanceTestClassRunner.class)
-public class BasicGeoObjectTypeServiceTest implements InstanceTestClassListener
+public class BasicGeoObjectTypeServiceTest extends ConceptDatasetTest implements InstanceTestClassListener
 {
-  private static ClassificationType           classificationType;
-
-  private static Classification               root;
-
   @Autowired
-  private GeoObjectTypeBusinessServiceIF      service;
+  private GeoObjectTypeBusinessServiceIF service;
 
-  @Autowired
-  private ClassificationTypeBusinessServiceIF cTypeService;
-
-  @Autowired
-  private ClassificationBusinessServiceIF     cService;
+  @Override
+  protected TestOrganizationInfo getOrganization()
+  {
+    return USATestData.ORG_NPS;
+  }
 
   @Override
   @Request
@@ -60,27 +56,14 @@ public class BasicGeoObjectTypeServiceTest implements InstanceTestClassListener
   {
     USATestData.ORG_NPS.apply();
 
-    classificationType = this.cTypeService.apply(ClassificationTypeTest.createMock());
-
-    root = this.cService.newInstance(classificationType);
-    root.setCode("ROOT_OBJ");
-
-    this.cService.apply(root, null);
+    super.beforeClassSetup();
   }
 
   @Override
   @Request
   public void afterClassSetup() throws Exception
   {
-    if (root != null)
-    {
-      this.cService.delete(root);
-    }
-
-    if (classificationType != null)
-    {
-      this.cTypeService.delete(classificationType);
-    }
+    super.afterClassSetup();
 
     USATestData.ORG_NPS.delete();
   }
@@ -97,7 +80,7 @@ public class BasicGeoObjectTypeServiceTest implements InstanceTestClassListener
     {
       Assert.assertNotNull(type.getMdVertexDAO());
       Assert.assertNotNull(type.getGeometryTable());
-      
+
       Map<String, AttributeType> attributes = type.getAttributeMap();
 
       Assert.assertTrue(attributes.size() > 0);
@@ -245,14 +228,25 @@ public class BasicGeoObjectTypeServiceTest implements InstanceTestClassListener
     try
     {
       AttributeClassificationType attributeDto = new AttributeClassificationType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test Character"), false, false, false);
-      attributeDto.setClassificationType(classificationType.getCode());
-      attributeDto.setRootTerm(root.toTerm());
+      attributeDto.setConceptSet(cSet.getCode());
+      attributeDto.setRootTerm(CodeReference.build(rootConcept.getCode(), rootConcept.getType().getCode()));
+      attributeDto.setStartDate(TestDataSet.DEFAULT_OVER_TIME_DATE);
+      attributeDto.setEndDate(TestDataSet.DEFAULT_END_TIME_DATE);
 
       attributeDto = (AttributeClassificationType) service.createAttributeType(type, attributeDto);
 
       Assert.assertNotNull(attributeDto);
 
-      Assert.assertTrue(type.getAttribute(attributeDto.getCode()).isPresent());
+      Optional<AttributeType> optional = type.getAttribute(attributeDto.getCode());
+
+      Assert.assertTrue(optional.isPresent());
+
+      net.geoprism.registry.graph.AttributeClassificationType attributeType = (net.geoprism.registry.graph.AttributeClassificationType) optional.get();
+
+      Assert.assertNotNull(attributeType.getStartDate());
+      Assert.assertNotNull(attributeType.getEndDate());
+      Assert.assertNotNull(attributeType.getRootTerm());
+      Assert.assertNotNull(attributeType.getConceptSet());
 
       service.deleteAttributeType(type, attributeDto.getCode());
 

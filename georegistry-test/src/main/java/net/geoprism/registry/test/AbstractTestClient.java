@@ -6,7 +6,6 @@ package net.geoprism.registry.test;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
@@ -94,13 +93,6 @@ public class AbstractTestClient
     JsonObject attrObj = JsonParser.parseString(responseToString(resp)).getAsJsonObject();
 
     return AttributeType.parse(attrObj);
-  }
-
-  protected Term responseToTerm(ResponseEntity<String> resp)
-  {
-    JsonObject termObj = JsonParser.parseString(responseToString(resp)).getAsJsonObject();
-
-    return Term.fromJSON(termObj);
   }
 
   protected String stringifyDate(Date date)

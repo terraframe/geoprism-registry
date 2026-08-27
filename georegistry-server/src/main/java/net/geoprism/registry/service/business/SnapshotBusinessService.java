@@ -4,12 +4,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
-import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeDataSourceType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
@@ -770,12 +768,13 @@ public class SnapshotBusinessService
     }
     else if (attribute instanceof AttributeClassificationTypeSnapshot)
     {
-      AttributeClassificationType attributeClassificationType = new AttributeClassificationType(attribute.getCode(), attributeLabel, attributeDescription, attribute.getIsDefault(), attribute.getIsRequired(), attribute.getIsUnique());
-      attributeClassificationType.setChangeOverTime(attribute.getIsChangeOverTime());
-      attributeClassificationType.setClassificationType( ( (AttributeClassificationTypeSnapshot) attribute ).getClassificationType());
-      attributeClassificationType.setRootTerm(new Term( ( (AttributeClassificationTypeSnapshot) attribute ).getRootTerm(), attributeLabel, attributeDescription));
-
-      attributeType = attributeClassificationType;
+//      AttributeClassificationType attributeClassificationType = new AttributeClassificationType(attribute.getCode(), attributeLabel, attributeDescription, attribute.getIsDefault(), attribute.getIsRequired(), attribute.getIsUnique());
+//      attributeClassificationType.setChangeOverTime(attribute.getIsChangeOverTime());
+//      attributeClassificationType.setClassificationType( ( (AttributeClassificationTypeSnapshot) attribute ).getClassificationType());
+//      attributeClassificationType.setRootTerm(new Term( ( (AttributeClassificationTypeSnapshot) attribute ).getRootTerm(), attributeLabel, attributeDescription));
+//
+//      attributeType = attributeClassificationType;
+      throw new UnsupportedOperationException();
     }
     else if (attribute instanceof AttributeBooleanTypeSnapshot)
     {

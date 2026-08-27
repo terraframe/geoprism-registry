@@ -9,7 +9,6 @@ import java.util.List;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
-import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -49,15 +48,11 @@ import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.SingleListType;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.USADatasetTest;
-import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.etl.PublishListTypeVersionJobQuery;
-import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerOrganization;
-import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
-import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GraphRepoServiceIF;
 import net.geoprism.registry.service.request.ListTypeService;
@@ -75,23 +70,17 @@ import net.geoprism.registry.view.Page;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class ListTypeTest extends USADatasetTest implements InstanceTestClassListener
 {
-  private static String                       CODE = "Test Term";
+  private static String                      CODE = "Test Term";
 
-  private static ClassificationType           type;
+  private static ClassificationType          type;
 
-  private static AttributeClassificationType  testClassification;
-
-  @Autowired
-  private GeoObjectTypeBusinessServiceIF      typeService;
+  private static AttributeClassificationType testClassification;
 
   @Autowired
-  private ClassificationTypeBusinessServiceIF cTypeService;
+  private GeoObjectTypeBusinessServiceIF     typeService;
 
   @Autowired
-  private ClassificationBusinessServiceIF     cService;
-
-  @Autowired
-  private GraphRepoServiceIF                  repService;
+  private GraphRepoServiceIF                 repService;
 
   @Override
   public void beforeClassSetup() throws Exception
@@ -115,19 +104,8 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
   @Request
   private void setUpInReq()
   {
-    type = this.cTypeService.apply(ClassificationTypeTest.createMock());
-
-    Classification root = this.cService.newInstance(type);
-    root.setCode(CODE);
-    root.setDisplayLabel(new LocalizedValue("Test Classification"));
-    this.cService.apply(root, null);
-
-    testClassification = (AttributeClassificationType) AttributeType.factory("testClassification", new LocalizedValue("testClassificationLocalName"), new LocalizedValue("testClassificationLocalDescrip"), AttributeClassificationType.TYPE, false, false, true);
-    testClassification.setClassificationType(type.getCode());
-    testClassification.setRootTerm(root.toTerm());
-
     ServerGeoObjectType got = USATestData.STATE.getServerObject();
-    testClassification = (AttributeClassificationType) this.typeService.createAttributeType(got, testClassification);
+    testClassification = (AttributeClassificationType) this.typeService.createAttributeType(got, createAttributeClassificationType());
 
     USATestData.COLORADO.setDefaultValue(testClassification.getCode(), CODE);
 
@@ -141,11 +119,6 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
     super.afterClassSetup();
 
     USATestData.COLORADO.removeDefaultValue(testClassification.getCode());
-
-    if (type != null)
-    {
-      this.cTypeService.delete(type);
-    }
   }
 
   @Before

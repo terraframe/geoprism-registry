@@ -9,7 +9,6 @@ import java.util.UUID;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
-import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -58,19 +57,14 @@ import net.geoprism.registry.LocalRegistryConnectorBuilder;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.USADatasetTest;
-import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
-import net.geoprism.registry.graph.ConceptClass;
 import net.geoprism.registry.graph.DirectedAcyclicGraphType;
 import net.geoprism.registry.lpg.LPGPublishProgressMonitorNoOp;
 import net.geoprism.registry.lpg.TreeStrategyConfiguration;
 import net.geoprism.registry.lpg.adapter.RegistryConnectorFactory;
 import net.geoprism.registry.model.BusinessObject;
-import net.geoprism.registry.model.Classification;
-import net.geoprism.registry.model.ClassificationType;
-import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.EdgeType;
 import net.geoprism.registry.model.GraphType;
@@ -81,10 +75,6 @@ import net.geoprism.registry.service.business.BusinessEdgeTypeSnapshotBusinessSe
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeSnapshotBusinessServiceIF;
-import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
-import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
-import net.geoprism.registry.service.business.ConceptClassBusinessServiceIF;
-import net.geoprism.registry.service.business.ConceptObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeSnapshotBusinessServiceIF;
@@ -104,9 +94,7 @@ import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.TestHierarchyTypeInfo;
 import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.BusinessEdgeTypeDTO;
-import net.geoprism.registry.view.BusinessEdgeTypeDTO;
 import net.geoprism.registry.view.BusinessTypeDTO;
-import net.geoprism.registry.view.ConceptClassDTO;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
@@ -114,10 +102,6 @@ import net.geoprism.registry.view.ConceptClassDTO;
 public class LabeledPropertyGraphTest extends USADatasetTest implements InstanceTestClassListener
 {
   private static String                                        CODE = "Test Term";
-
-  private static ClassificationType                            type;
-
-  private static ConceptClass                                  cClass;
 
   private static BusinessType                                  btype;
 
@@ -130,8 +114,6 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
   private BusinessObject                                       pObject;
 
   private BusinessObject                                       cObject;
-
-  private ConceptObject                                        concept;
 
   @Autowired
   private LabeledPropertyGraphTypeServiceIF                    service;
@@ -173,15 +155,6 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
   private LabeledPropertyGraphJsonExporterService              exporterService;
 
   @Autowired
-  private ClassificationTypeBusinessServiceIF                  cTypeService;
-
-  @Autowired
-  private ClassificationBusinessServiceIF                      cService;
-
-  @Autowired
-  private ConceptClassBusinessServiceIF                        cClassService;
-
-  @Autowired
   private BusinessTypeBusinessServiceIF                        bTypeService;
 
   @Autowired
@@ -195,9 +168,6 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
 
   @Autowired
   private BusinessObjectBusinessServiceIF                      bObjectService;
-
-  @Autowired
-  private ConceptObjectBusinessServiceIF                       cObjectService;
 
   @Override
   public void beforeClassSetup() throws Exception
@@ -215,19 +185,8 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
   @Request
   private void setUpInReq()
   {
-    type = this.cTypeService.apply(ClassificationTypeTest.createMock());
-
-    Classification root = this.cService.newInstance(type);
-    root.setCode(CODE);
-    root.setDisplayLabel(new LocalizedValue("Test Classification"));
-    this.cService.apply(root, null);
-
-    testClassification = (AttributeClassificationType) AttributeType.factory("testClassification", new LocalizedValue("testClassificationLocalName"), new LocalizedValue("testClassificationLocalDescrip"), AttributeClassificationType.TYPE, false, false, true);
-    testClassification.setClassificationType(type.getCode());
-    testClassification.setRootTerm(root.toTerm());
-
     ServerGeoObjectType got = ServerGeoObjectType.get(USATestData.STATE.getCode());
-    testClassification = (AttributeClassificationType) this.oTypeService.createAttributeType(got, testClassification.toJSON().toString());
+    testClassification = (AttributeClassificationType) this.oTypeService.createAttributeType(got, this.createAttributeClassificationType());
 
     USATestData.COLORADO.setDefaultValue(testClassification.getCode(), CODE);
 
@@ -237,13 +196,6 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
     object.setDisplayLabel(new LocalizedValue("Test Business"));
 
     btype = this.bTypeService.apply(object);
-
-    ConceptClassDTO concept = new ConceptClassDTO();
-    concept.setCode("TEST_CONCEPT");
-    concept.setOrganization(USATestData.ORG_PPP.getCode());
-    concept.setDisplayLabel(new LocalizedValue("Test Concept"));
-
-    cClass = this.cClassService.apply(concept);
 
     bEdgeType = this.bEdgeService.create(BusinessEdgeTypeDTO.build(USATestData.ORG_PPP.getCode(), "TEST_B_EDGE", new LocalizedValue("TEST_B_EDGE"), new LocalizedValue("TEST_B_EDGE"), btype.getCode(), btype.getCode()));
 
@@ -271,19 +223,9 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
       this.bTypeService.delete(btype);
     }
 
-    if (cClass != null)
-    {
-      this.cClassService.delete(cClass);
-    }
-
     super.afterClassSetup();
 
     USATestData.COLORADO.removeDefaultValue(testClassification.getCode());
-
-    if (type != null)
-    {
-      this.cTypeService.delete(type);
-    }
   }
 
   @Before
@@ -295,11 +237,6 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
     testData.setUpInstanceData();
 
     testData.logIn(USATestData.USER_NPS_RA);
-
-    concept = this.cObjectService.newInstance(cClass);
-    concept.setCode("P_CODE");
-
-    this.cObjectService.apply(concept);
 
     pObject = this.bObjectService.newInstance(btype);
     pObject.setCode("P_CODE");
@@ -327,11 +264,6 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
     if (pObject != null)
     {
       this.bObjectService.delete(pObject);
-    }
-
-    if (concept != null)
-    {
-      this.cObjectService.delete(concept);
     }
 
     testData.logOut();

@@ -3,7 +3,6 @@
  */
 package net.geoprism.registry.hierarchy;
 
-import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
@@ -12,6 +11,7 @@ import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
+import org.commongeoregistry.adapter.metadata.CodeReference;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.MetadataFactory;
 import org.junit.After;
@@ -23,25 +23,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.runwaysdk.constants.MdAttributeLocalInfo;
-import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Request;
 
-import net.geoprism.ontology.Classifier;
-import net.geoprism.ontology.ClassifierIsARelationship;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
-import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.config.TestApplication;
-import net.geoprism.registry.conversion.TermConverter;
-import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
-import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
@@ -52,22 +41,14 @@ import net.geoprism.registry.test.TestRegistryClient;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class AttributeTypeServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  public static final TestGeoObjectTypeInfo   TEST_GOT  = new TestGeoObjectTypeInfo("GOTTest_TEST1", FastTestDataset.ORG_CGOV);
+  public static final TestGeoObjectTypeInfo TEST_GOT  = new TestGeoObjectTypeInfo("GOTTest_TEST1", FastTestDataset.ORG_CGOV);
 
-  protected static ClassificationType         type;
+  protected static ClassificationType       type;
 
-  protected static String                     TYPE_CODE = null;
-
-  protected static String                     CODE      = "Classification-ROOT";
+  protected static String                   TYPE_CODE = null;
 
   @Autowired
-  private TestRegistryClient                  client;
-
-  @Autowired
-  private ClassificationTypeBusinessServiceIF typeService;
-
-  @Autowired
-  private ClassificationBusinessServiceIF     service;
+  private TestRegistryClient                client;
 
   @Before
   public void setUp()
@@ -91,43 +72,12 @@ public class AttributeTypeServiceTest extends FastDatasetTest implements Instanc
 
   private void cleanUpExtras()
   {
-    TestDataSet.deleteClassifier("termValue1");
-    TestDataSet.deleteClassifier("termValue2");
-
     TEST_GOT.delete();
-
-    deleteMdClassification();
   }
 
   private void setUpExtras()
   {
     cleanUpExtras();
-
-    createMdClassification();
-  }
-
-  @Request
-  private void createMdClassification()
-  {
-    type = this.typeService.apply(ClassificationTypeTest.createMock());
-
-    Classification root = this.service.newInstance(type);
-    root.setCode(CODE);
-    root.setDisplayLabel(new LocalizedValue("Test Classification"));
-    this.service.apply(root, null);
-
-    TYPE_CODE = type.getCode();
-  }
-
-  @Request
-  private void deleteMdClassification()
-  {
-    if (type != null)
-    {
-      this.typeService.delete(type);
-
-      type = null;
-    }
   }
 
   @Test
@@ -153,8 +103,8 @@ public class AttributeTypeServiceTest extends FastDatasetTest implements Instanc
     Assert.assertNotNull("A GeoObjectType did not define the attribute: " + testChar.getCode(), mdAttributeConcreteDAOIF);
     Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof net.geoprism.registry.graph.AttributeCharacterType);
 
-    testChar.setLabel( new LocalizedValue("testCharLocalName-Update"));
-    testChar.setDescription( new LocalizedValue("testCharLocalDescrip-Update"));
+    testChar.setLabel(new LocalizedValue("testCharLocalName-Update"));
+    testChar.setDescription(new LocalizedValue("testCharLocalDescrip-Update"));
     attributeTypeJSON = testChar.toJSON().toString();
     testChar = this.client.updateAttributeType(geoObjectTypeCode, attributeTypeJSON);
 
@@ -231,39 +181,16 @@ public class AttributeTypeServiceTest extends FastDatasetTest implements Instanc
     Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof net.geoprism.registry.graph.AttributeBooleanType);
   }
 
-
-  @Test
-  public void testClassifierToTerm()
-  {
-    // String classKey = RegistryConstants.TERM_CLASS+"_TestType";
-    // Term classTerm = new Term(classKey, "Test Type", "");
-    //
-    //
-    // String attributeKey = classKey+"_AttributeName";
-    // Term attributeTerm = new Term(attributeKey, "Attribute Root", "");
-    // classTerm.addChild(classTerm);
-    //
-    // Term attributeValueTerm1 = new Term(attributeTerm+"_1", "Attribute Value
-    // 1", "");
-    // attributeTerm.addChild(attributeValueTerm1);
-    // Term attributeValueTerm2 = new Term(attributeTerm+"_2", "Attribute Value
-    // 2", "");
-    // attributeTerm.addChild(attributeValueTerm2);
-    // Term attributeValueTerm3 = new Term(attributeTerm+"_3", "Attribute Value
-    // 3", "");
-    // attributeTerm.addChild(attributeValueTerm3);
-
-    this.buildClassifierTree();
-  }
-
   @Test
   public void testCreateGeoObjectTypeClassification()
   {
     String organizationCode = FastTestDataset.ORG_CGOV.getCode();
 
     AttributeClassificationType attributeClassificationType = (AttributeClassificationType) AttributeType.factory("testClassification", new LocalizedValue("Test Classification Name"), new LocalizedValue("Test Classification Description"), AttributeClassificationType.TYPE, false, false, false);
-    attributeClassificationType.setClassificationType(TYPE_CODE);
-    attributeClassificationType.setRootTerm(new Term(CODE, new LocalizedValue("Test Term Name"), new LocalizedValue("Test Term Description")));
+    attributeClassificationType.setConceptSet(cSet.getCode());
+    attributeClassificationType.setRootTerm(CodeReference.build(rootConcept.getCode(), rootConcept.getType().getCode()));
+    attributeClassificationType.setStartDate(TestDataSet.DEFAULT_OVER_TIME_DATE);
+    attributeClassificationType.setEndDate(TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, client.getAdapter());
     province.addAttribute(attributeClassificationType);
@@ -282,7 +209,7 @@ public class AttributeTypeServiceTest extends FastDatasetTest implements Instanc
     Assert.assertNotNull("A GeoObjectType did not define the attribute: " + attributeClassificationType.getCode(), mdAttributeConcreteDAOIF);
     Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof net.geoprism.registry.graph.AttributeClassificationType);
 
-    Term rootTerm = attributeClassificationType.getRootTerm();
+    CodeReference rootTerm = attributeClassificationType.getRootTerm();
 
     Assert.assertNotNull("AttributeClassification root term not set correctly: " + attributeClassificationType.getCode(), rootTerm);
   }
@@ -309,88 +236,6 @@ public class AttributeTypeServiceTest extends FastDatasetTest implements Instanc
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(geoObjectTypeCode);
     return type.getAttribute(attributeName).orElseThrow();
-  }
-
-  @Request
-  private void buildClassifierTree()
-  {
-    String className = "TestClass";
-    String attributeName = "SomeAttribute";
-
-    String classifierId = TermConverter.buildRootClassClassifierId(className);
-
-    Classifier classifier = this.buildClassAttributeClassifierTree(className, attributeName);
-
-    try
-    {
-      TermConverter termBuilder = new TermConverter(classifier.getKeyName());
-
-      Term term = termBuilder.build();
-
-      classifierId = TermConverter.buildRootClassClassifierId(className);
-
-      Assert.assertEquals(classifierId, term.getCode());
-
-      int childCount = 0;
-
-      OIterator<? extends Classifier> i = classifier.getAllIsAChild();
-      while (i.hasNext())
-      {
-        i.next();
-        childCount++;
-      }
-
-      Assert.assertEquals(childCount, term.getChildren().size());
-    }
-    finally
-    {
-      try
-      {
-        classifier.delete();
-      }
-      catch (RuntimeException e)
-      {
-        e.printStackTrace();
-      }
-    }
-  }
-
-  @Transaction
-  private Classifier buildClassAttributeClassifierTree(String className, String attributeName)
-  {
-    Classifier rootTestClassifier = Classifier.getRoot();
-
-    String classifierId = TermConverter.buildRootClassClassifierId(className);
-    Classifier classTerm = this.createClassifier(classifierId, "Test Type");
-
-    classTerm.addLink(rootTestClassifier, ClassifierIsARelationship.CLASS).apply();
-
-    String attributeKey = classifierId + "_" + attributeName;
-    Classifier attributeTerm = this.createClassifier(attributeKey, "Attribute Test Root");
-    attributeTerm.addLink(classTerm, ClassifierIsARelationship.CLASS).apply();
-
-    Classifier attributeValueTerm1 = this.createClassifier(attributeKey + "_Value1", "Attribute Value 1");
-    attributeValueTerm1.addLink(attributeTerm, ClassifierIsARelationship.CLASS).apply();
-
-    Classifier attributeValueTerm2 = this.createClassifier(attributeKey + "_Value2", "Attribute Value 2");
-    attributeValueTerm2.addLink(attributeTerm, ClassifierIsARelationship.CLASS).apply();
-
-    Classifier attributeValueTerm3 = this.createClassifier(attributeKey + "_Value3", "Attribute Value 3");
-    attributeValueTerm3.addLink(attributeTerm, ClassifierIsARelationship.CLASS).apply();
-
-    return classTerm;
-  }
-
-  private Classifier createClassifier(String classifierId, String displayLabel)
-  {
-    // Create Classifier Terms
-    Classifier classifier = new Classifier();
-    classifier.setClassifierId(classifierId);
-    classifier.setClassifierPackage(RegistryConstants.REGISTRY_PACKAGE);
-    classifier.getDisplayLabel().setDefaultValue(displayLabel);
-    classifier.apply();
-
-    return classifier;
   }
 
 }

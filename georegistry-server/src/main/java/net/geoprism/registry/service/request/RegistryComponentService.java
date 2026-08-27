@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 
-import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
@@ -51,9 +50,6 @@ public class RegistryComponentService
 
   @Autowired
   private GeoObjectServiceIF      objectService;
-
-  @Autowired
-  private TermServiceIF           termService;
 
   @Autowired
   private GPRGeoObjectTypeService typeService;
@@ -176,21 +172,6 @@ public class RegistryComponentService
   public void deleteAttributeType(String sessionId, String gtId, String attributeName)
   {
     this.typeService.deleteAttributeType(sessionId, gtId, attributeName);
-  }
-
-  public Term createTerm(String sessionId, String parentTermCode, String termJSON)
-  {
-    return this.termService.createTerm(sessionId, parentTermCode, termJSON);
-  }
-
-  public Term updateTerm(String sessionId, String parentTermCode, String termJSON)
-  {
-    return this.termService.updateTerm(sessionId, parentTermCode, termJSON);
-  }
-
-  public void deleteTerm(String sessionId, String parentTermCode, String termCode)
-  {
-    this.termService.deleteTerm(sessionId, parentTermCode, termCode);
   }
 
   public void deleteGeoObjectType(String sessionId, String code)

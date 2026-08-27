@@ -111,9 +111,6 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
 
   private void cleanUpExtras()
   {
-    TestDataSet.deleteClassifier("termValue1");
-    TestDataSet.deleteClassifier("termValue2");
-
     TEST_GOT.delete();
 
     cleanupPrivateTestGot();

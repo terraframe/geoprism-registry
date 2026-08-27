@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.google.gson.JsonObject;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.graph.EdgeObject;
@@ -224,12 +223,6 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
 
   @Autowired
   private GeoObjectBusinessServiceIF                       objectService;
-
-  @Autowired
-  protected ClassificationBusinessServiceIF                cService;
-
-  @Autowired
-  protected ClassificationTypeBusinessServiceIF            cTypeService;
 
   @Autowired
   private BusinessObjectBusinessServiceIF                  bObjectService;

@@ -15,9 +15,6 @@
         <decimal code="TEST_DECIMAL" label="Test Decimal" description="Test Decimal Description" precision="10"
                  scale="2"/>
         <integer code="TEST_DATE" label="Test Date" description="Test Date Description"/>
-        <classification code="TEST_CLASSIFICATION" label="Test Classification"
-                        description="Test Text Classification" classificationType="TEST_PROG"
-                        root="Test_Classification"/>
       </attributes>
       <group-item code="TEST_GI" label="Test GI" description="Test GI"/>
     </type>
@@ -41,9 +38,6 @@
         <decimal code="TEST_DECIMAL" label="Test Decimal" description="Test Decimal Description" precision="10"
                  scale="2"/>
         <date code="TEST_DATE" label="Test Date" description="Test Date Description"/>
-        <classification code="TEST_CLASSIFICATION" label="Test Classification"
-                        description="Test Text Classification" classificationType="TEST_PROG"
-                        root="Test_Classification"/>
       </attributes>
     </business-type>
     <business-type code="BUSINESS_CHILD" label="Business Child" description="Business Child">

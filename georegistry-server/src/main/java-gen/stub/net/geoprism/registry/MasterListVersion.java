@@ -926,21 +926,22 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
 
           if (attribute instanceof AttributeClassificationType)
           {
-            String classificationType = ( (AttributeClassificationType) attribute ).getClassificationType();
-            MdClassificationDAOIF mdClassificationDAO = MdClassificationDAO.getMdClassificationDAO(classificationType);
-            MdVertexDAOIF mdVertexDAO = mdClassificationDAO.getReferenceMdVertexDAO();
-
-            VertexObject classification = VertexObject.get(mdVertexDAO, (String) value);
-
-            LocalizedValue label = RegistryLocalizedValueConverter.convert(classification.getEmbeddedComponent(AbstractClassification.DISPLAYLABEL));
-
-            this.setValue(business, name, classification.getObjectValue(AbstractClassification.CODE));
-            this.setValue(business, name + DEFAULT_LOCALE, label.getValue(LocalizedValue.DEFAULT_LOCALE));
-
-            for (Locale locale : locales)
-            {
-              this.setValue(business, name + locale.toString(), label.getValue(locale));
-            }
+            throw new UnsupportedOperationException();
+//            String classificationType = ( (AttributeClassificationType) attribute ).getClassificationType();
+//            MdClassificationDAOIF mdClassificationDAO = MdClassificationDAO.getMdClassificationDAO(classificationType);
+//            MdVertexDAOIF mdVertexDAO = mdClassificationDAO.getReferenceMdVertexDAO();
+//
+//            VertexObject classification = VertexObject.get(mdVertexDAO, (String) value);
+//
+//            LocalizedValue label = RegistryLocalizedValueConverter.convert(classification.getEmbeddedComponent(AbstractClassification.DISPLAYLABEL));
+//
+//            this.setValue(business, name, classification.getObjectValue(AbstractClassification.CODE));
+//            this.setValue(business, name + DEFAULT_LOCALE, label.getValue(LocalizedValue.DEFAULT_LOCALE));
+//
+//            for (Locale locale : locales)
+//            {
+//              this.setValue(business, name + locale.toString(), label.getValue(locale));
+//            }
           }
           else if (attribute instanceof AttributeLocalType)
           {
