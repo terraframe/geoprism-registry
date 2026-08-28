@@ -16,12 +16,10 @@
 /// You should have received a copy of the GNU Lesser General Public
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
-
 export class TypeAndCode {
-    code: string
-    type: string;
+    typeCode: string
+    typeClass: string;
 }
-
 export class Publish {
     uid: string
     label: string;
@@ -31,7 +29,6 @@ export class Publish {
     types: TypeAndCode[];
     exclusions: TypeAndCode[];
 }
-
 export class Commit {
     uid: string;
     publishId: string;
@@ -39,8 +36,6 @@ export class Commit {
     lastOriginGlobalIndex: number;
     createDate: string;
 }
-
-
 export class PublishEvents {
     uid: string
     label: string;
