@@ -47,6 +47,7 @@ import { ConceptOntologyComponent } from "./component/concept-ontology/concept-o
 import { ObjectTableComponent } from "./component/object-table/object-table.component";
 import { DataSourceManagerComponent } from "./component/data-source/data-source-manager.component";
 import { SourceAuthorityManagerComponent } from "./component/source-authority/source-authority-manager.component";
+import { RDFExportComponent } from "./component/data-export/rdf-export.component";
 
 export const routes: Routes = [
     {
@@ -179,6 +180,11 @@ export const routes: Routes = [
         component: LabeledPropertyGraphTypeManagerComponent,
         canActivate: [AuthGuard, LabeledPropertyGraphGuard]
     },
+    {
+        path: "export",
+        component: RDFExportComponent,
+        canActivate: [AuthGuard]
+    },
     {
         path: "publish",
         component: PublishManagerComponent,
