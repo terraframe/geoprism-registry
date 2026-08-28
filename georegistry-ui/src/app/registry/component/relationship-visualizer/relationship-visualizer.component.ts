@@ -219,6 +219,16 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
         }
     }
 
+    public confirmingDelete: boolean = false;
+
+    public requestDeleteConfirmation(): void {
+        this.confirmingDelete = true;
+    }
+
+    public cancelDeleteConfirmation(): void {
+        this.confirmingDelete = false;
+    }
+
     resizeDimensions(): void {
         let graphContainer = document.getElementById("graph-container");
 
@@ -731,6 +741,7 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
 
     public closeEdgePopup(): void {
         this.selectedEdge = null;
+        this.confirmingDelete = false;
     }
 
     public getEdgeAttributes(edge: any): { key: string, value: any }[] {
@@ -742,10 +753,6 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
         const target = this.data?.verticies?.find(vertex => vertex.id === edge.target);
 
         return [
-            {
-                key: "Relationship",
-                value: edge.label
-            },
             {
                 key: "From",
                 value: source?.label ?? edge.source
@@ -770,11 +777,27 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
             return;
         }
 
-        console.log("Delete edge", this.selectedEdge);
+        const edgeOid = this.selectedEdge.id.substring(2);
 
-        this.vizService.deleteEdge(this.relationship.type, this.relationship.code, this.selectedEdge.id.substring(2));
+        this.vizService.deleteEdge(
+            this.relationship.type,
+            this.relationship.code,
+            edgeOid
+        ).then(() => {
+            this.closeEdgePopup();
 
-        this.closeEdgePopup();
+            /*
+            * Refresh relationships as well as graph data because deleting the
+            * edge changes the relationship count. fetchRelationships() will
+            * subsequently reload the selected graph.
+            */
+            this.fetchRelationships();
+        }).catch((err: HttpErrorResponse) => {
+            /*
+            * Keep the popup open so the user can retry or cancel.
+            */
+            this.error(err);
+        });
     }
 
     public error(err: HttpErrorResponse): void {
