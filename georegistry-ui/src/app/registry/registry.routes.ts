@@ -175,6 +175,11 @@ export const routes: Routes = [
         canActivate: [AuthGuard, LabeledPropertyGraphGuard]
     },
     {
+        path: "export",
+        component: RDFExportComponent,
+        canActivate: [AuthGuard]
+    },
+    {
         path: "publish",
         component: PublishManagerComponent,
         canActivate: [AuthGuard]

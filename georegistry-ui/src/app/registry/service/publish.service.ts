@@ -16,23 +16,17 @@
 /// You should have received a copy of the GNU Lesser General Public
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
-
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { finalize } from "rxjs/operators";
-
 import { EventService } from "@shared/service";
-
 import { environment } from 'src/environments/environment';
 import { firstValueFrom } from "rxjs";
 import { Commit, Publish, PublishEvents } from "@registry/model/publish";
-
 @Injectable({ providedIn: 'root' })
 export class PublishService {
-
     // eslint-disable-next-line no-useless-constructor
     constructor(private http: HttpClient, private eventService: EventService) { }
-
     toPublishEvent(p: Publish): PublishEvents {
         return {
             uid: p.uid,
@@ -48,7 +42,6 @@ export class PublishService {
             businessEdgeCodes: p.types.filter(t => t.typeClass === 'BUSINESS_EDGE').map(t => t.typeCode)
         }
     }
-
     toPublish(p: PublishEvents): Publish {
         let types = [];
         types = types.concat(p.businessEdgeCodes.map(code => { return { typeClass: 'BUSINESS_EDGE', typeCode:code } }))
@@ -68,12 +61,9 @@ export class PublishService {
             exclusions: []
         }
     }
-
     getAll(): Promise<PublishEvents[]> {
         let params: HttpParams = new HttpParams();
-
         this.eventService.start();
-
         return firstValueFrom(this.http.get<Publish[]>(environment.apiUrl + "/api/publish/get-all", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
@@ -81,42 +71,31 @@ export class PublishService {
                 return array.map(this.toPublishEvent);
             });
     }
-
     get(uid: string): Promise<PublishEvents> {
         let params: HttpParams = new HttpParams();
         params = params.append('uid', uid);
-
         this.eventService.start();
-
         return firstValueFrom(this.http.get<Publish>(environment.apiUrl + "/api/publish/get", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))).then(this.toPublishEvent);
     }
-
-
-
     create(publish: PublishEvents): Promise<PublishEvents> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
         });
-
         this.eventService.start();
-
         return firstValueFrom(this.http
             .post<Publish>(environment.apiUrl + "/api/publish/create", JSON.stringify(this.toPublish(publish)), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))).then(this.toPublishEvent);
     }
-
     remove(publish: PublishEvents): Promise<PublishEvents> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
         });
-
         this.eventService.start();
-
         return this.http
             .post<PublishEvents>(environment.apiUrl + "/api/publish/remove", JSON.stringify({ uid: publish.uid }), { headers: headers })
             .pipe(finalize(() => {
@@ -124,33 +103,24 @@ export class PublishService {
             }))
             .toPromise();
     }
-
-
     createNewVersion(uid: string): Promise<Commit> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
         });
-
         this.eventService.start();
-
         return firstValueFrom(this.http
             .post<Commit>(environment.apiUrl + "/api/publish/create-new-version", JSON.stringify({ uid }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             })));
     }
-
     getCommits(uid: string): Promise<Commit[]> {
         let params: HttpParams = new HttpParams();
         params = params.append("publishId", uid);
-
         this.eventService.start();
-
         return firstValueFrom(this.http.get<Commit[]>(environment.apiUrl + "/api/commit/get-all", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             })));
     }
-
-
 }

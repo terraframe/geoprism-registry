@@ -63,9 +63,19 @@
             <!-- Draw an arrow on relationships for directed graph types -->
             <ng-template #defsTemplate>
               <ng-container *ngIf="relationship.type !== 'UndirectedGraphType'">
-                <svg:marker id="arrow" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="4" markerHeight="4"
+                <svg:marker
+                  id="arrow"
+                  viewBox="0 -5 10 10"
+                  refX="8"
+                  refY="0"
+                  markerWidth="4"
+                  markerHeight="4"
                   orient="auto">
-                  <svg:path d="M0,-5L10,0L0,5" class="arrow-head" />
+
+                  <svg:path
+                    d="M0,-5L10,0L0,5"
+                    fill="context-stroke">
+                  </svg:path>
                 </svg:marker>
               </ng-container>
             </ng-template>
@@ -102,23 +112,27 @@
             <ng-template #linkTemplate let-link>
               <svg:g
                 class="edge"
+                stroke-width="2"
                 (click)="onClickEdge(link, $event)"
                 style="cursor: pointer;">
 
-                <!-- Invisible click target -->
+                <!-- Visible edge: inherits stroke-width 2 -->
                 <svg:path
-                  class="edge-hit-target"
-                  stroke="transparent"
-                  stroke-width="14"
-                  fill="none">
-                </svg:path>
-
-                <!-- Visible edge -->
-                <svg:path
+                  [attr.id]="'edge-path-' + link.id"
                   class="line"
-                  stroke-width="2"
                   marker-end="url(#arrow)">
                 </svg:path>
+
+                <!-- Invisible hit target: overrides inherited width -->
+                <svg:use
+                  [attr.href]="'#edge-path-' + link.id"
+                  class="edge-hit-target"
+                  stroke-width="20"
+                  opacity="0"
+                  fill="none"
+                  pointer-events="stroke"
+                  style="cursor: pointer;">
+                </svg:use>
 
               </svg:g>
             </ng-template>
@@ -138,7 +152,7 @@
       (click)="$event.stopPropagation()">
 
       <div class="edge-popup-header">
-        <h3>Relationship</h3>
+        <h3>{{this.relationship.label.localizedValue}}</h3>
 
         <button
           type="button"
@@ -150,21 +164,25 @@
       </div>
 
       <div class="edge-popup-body">
+        <ng-container *ngIf="!confirmingDelete">
+          <div
+            class="edge-attribute"
+            *ngFor="let attribute of getEdgeAttributes(selectedEdge)">
 
-        <div
-          class="edge-attribute"
-          *ngFor="let attribute of getEdgeAttributes(selectedEdge)">
+            <label>{{ attribute.key }}</label>
+            <span>{{ attribute.value }}</span>
+          </div>
+        </ng-container>
 
-          <label>{{ attribute.key }}</label>
-          <span>{{ attribute.value }}</span>
-
+        <div *ngIf="confirmingDelete" class="edge-delete-confirmation">
+          <strong>Delete this relationship?</strong>
+          <p>This action cannot be undone.</p>
         </div>
-
       </div>
 
       <div class="edge-popup-footer">
-
         <button
+          *ngIf="!confirmingDelete"
           type="button"
           class="btn btn-default"
           (click)="closeEdgePopup()">
@@ -172,12 +190,28 @@
         </button>
 
         <button
+          *ngIf="confirmingDelete"
+          type="button"
+          class="btn btn-default"
+          (click)="cancelDeleteConfirmation()">
+          Go back
+        </button>
+
+        <button
+          *ngIf="!confirmingDelete"
           type="button"
           class="btn btn-danger"
-          (click)="deleteSelectedEdge()">
+          (click)="requestDeleteConfirmation()">
           Delete
         </button>
 
+        <button
+          *ngIf="confirmingDelete"
+          type="button"
+          class="btn btn-danger"
+          (click)="deleteSelectedEdge()">
+          Yes, delete
+        </button>
       </div>
 
     </div>

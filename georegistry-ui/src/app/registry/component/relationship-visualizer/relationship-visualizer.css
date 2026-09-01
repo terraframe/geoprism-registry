@@ -167,3 +167,11 @@
     padding: 15px 20px;
     border-top: 1px solid #ddd;
 }
+
+.edge .line {
+  transition: stroke 150ms ease;
+}
+
+.edge:hover .line {
+  stroke: #4287f5 !important;
+}
