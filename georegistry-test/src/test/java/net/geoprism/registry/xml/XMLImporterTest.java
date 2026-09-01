@@ -30,6 +30,8 @@ import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.AttributeType;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
+import net.geoprism.registry.graph.ConceptClass;
+import net.geoprism.registry.graph.ConceptEdgeType;
 import net.geoprism.registry.model.ServerElement;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -97,9 +99,9 @@ public class XMLImporterTest extends ConceptDatasetTest implements InstanceTestC
       {
         graphRepo.refreshMetadataCache();
 
-        Assert.assertEquals(8, results.size());
+        Assert.assertEquals(10, results.size());
 
-        ServerGeoObjectType type = ServerGeoObjectType.get(results.get(0).getCode());
+        ServerGeoObjectType type = ServerGeoObjectType.get("TEST_VILLAGE");
 
         Assert.assertEquals("TEST_VILLAGE", type.getCode());
         Assert.assertEquals("Test Village", type.getLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
@@ -148,7 +150,7 @@ public class XMLImporterTest extends ConceptDatasetTest implements InstanceTestC
         Assert.assertEquals("Test Decimal", attributeType.getLocalizedLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
         Assert.assertEquals("Test Decimal Description", attributeType.getLocalizedDescription().getValue(LocalizedValue.DEFAULT_LOCALE));
 
-        type = ServerGeoObjectType.get(results.get(1).getCode());
+        type = ServerGeoObjectType.get("TEST_GI");
 
         Assert.assertEquals("TEST_GI", type.getCode());
         Assert.assertEquals("Test GI", type.getLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
@@ -158,7 +160,7 @@ public class XMLImporterTest extends ConceptDatasetTest implements InstanceTestC
         Assert.assertFalse(type.getIsAbstract());
         Assert.assertEquals("TEST_VILLAGE", type.getSuperType().getCode());
 
-        ServerHierarchyType hierarchy = ServerHierarchyType.get(results.get(3).getCode());
+        ServerHierarchyType hierarchy = ServerHierarchyType.get("TEST_HIERARCHY");
 
         Assert.assertEquals("TEST_HIERARCHY", hierarchy.getCode());
         Assert.assertEquals("Test Hierarchy", hierarchy.getLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
@@ -185,22 +187,37 @@ public class XMLImporterTest extends ConceptDatasetTest implements InstanceTestC
 
         Assert.assertEquals("TEST_VILLAGE", node.getGeoObjectType().getCode());
 
-        BusinessType businessType = bizService.getByCodeOrThrow(results.get(4).getCode());
+        BusinessType businessType = bizService.getByCodeOrThrow("BUSINESS_POP");
 
         Assert.assertEquals("BUSINESS_POP", businessType.getCode());
         Assert.assertEquals("Business Pop", businessType.getLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
         Assert.assertEquals("TEST_TEXT", businessType.getLabelAttribute().getAttributeName());
+        Assert.assertEquals(7, businessType.getAttributes().size());
 
         AttributeType businessAttribute = businessType.getAttribute("TEST_TEXT").orElseThrow();
 
         Assert.assertEquals("Test Text", businessAttribute.getLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
         Assert.assertEquals("Test Text Description", businessAttribute.getDescription().getValue(LocalizedValue.DEFAULT_LOCALE));
 
-        BusinessEdgeType businessEdge = bizEdgeService.getByCodeOrThrow(results.get(6).getCode());
+        BusinessEdgeType businessEdge = bizEdgeService.getByCodeOrThrow("BUS_EDGE");
         Assert.assertEquals("BUS_EDGE", businessEdge.getCode());
 
-        BusinessEdgeType businessGeoEdge = bizEdgeService.getByCodeOrThrow(results.get(7).getCode());
+        BusinessEdgeType businessGeoEdge = bizEdgeService.getByCodeOrThrow("BUS_GEO_EDGE");
         Assert.assertEquals("BUS_GEO_EDGE", businessGeoEdge.getCode());
+
+        ConceptClass conceptClass = cClassService.getByCodeOrThrow("CONCEPT_POP");
+
+        Assert.assertEquals("CONCEPT_POP", conceptClass.getCode());
+        Assert.assertEquals("Concept Pop", conceptClass.getLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
+        Assert.assertEquals(7, conceptClass.getAttributes().size());
+
+        AttributeType conceptAttribute = conceptClass.getAttribute("TEST_TEXT").orElseThrow();
+
+        Assert.assertEquals("Test Text", conceptAttribute.getLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
+        Assert.assertEquals("Test Text Description", conceptAttribute.getDescription().getValue(LocalizedValue.DEFAULT_LOCALE));
+
+        ConceptEdgeType conceptEdge = cEdgeTypeService.getByCodeOrThrow("CONCEPT_POP_EDGE");
+        Assert.assertEquals("CONCEPT_POP_EDGE", conceptEdge.getCode());
 
         XMLExporter exporter = new XMLExporter(this.getOrganization().getServerObject());
         exporter.build();

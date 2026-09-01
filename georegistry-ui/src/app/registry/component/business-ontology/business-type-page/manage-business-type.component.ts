@@ -33,8 +33,6 @@ import { GeoObjectTypeModalStates } from "@registry/model/constants";
 import { ModalTypes } from "@shared/model/modal";
 import { LocalizationService } from "@shared/service/localization.service";
 import { LocalizePipe } from "@shared/pipe/localize.pipe";
-import { EditTermOptionInputComponent } from "../../geo-ontology/geoobjecttype-management/edit-term-option-input.component";
-import { ManageTermOptionsComponent } from "../../geo-ontology/geoobjecttype-management/manage-term-options.component";
 import { EditAttributeModalContentComponent } from "../../geo-ontology/geoobjecttype-management/edit-attribute-modal-content.component";
 import { DefineAttributeModalContentComponent } from "../../geo-ontology/geoobjecttype-management/define-attribute-modal-content.component";
 import { RouterLink } from "@angular/router";
@@ -65,7 +63,7 @@ import { BusinessType } from "@registry/model/object-class";
         ]
     ],
     standalone: true,
-    imports: [NgIf, FormsModule, LocalizeComponent, LocalizedInputComponent, NgFor, RouterLink, DefineAttributeModalContentComponent, EditAttributeModalContentComponent, ManageTermOptionsComponent, EditTermOptionInputComponent, LocalizePipe]
+    imports: [NgIf, FormsModule, LocalizeComponent, LocalizedInputComponent, NgFor, RouterLink, DefineAttributeModalContentComponent, EditAttributeModalContentComponent, LocalizePipe]
 })
 export class ManageBusinessTypeComponent implements OnInit {
 

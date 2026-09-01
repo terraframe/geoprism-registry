@@ -103,15 +103,7 @@ export class DefineAttributeModalContentComponent implements OnInit {
             isChangeOverTime: true,
         }
 
-        if (type === "term") {
-            this.newAttribute.rootTerm = {
-                code: null,
-                label: null,
-                description: null
-            };
-            this.newAttribute.termOptions = [];
-
-        } else if (type === "float") {
+        if (type === "float") {
             this.newAttribute.precision = 32;
             this.newAttribute.scale = 8;
         }

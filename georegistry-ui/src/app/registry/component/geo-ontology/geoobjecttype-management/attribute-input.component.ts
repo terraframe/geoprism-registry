@@ -25,16 +25,13 @@ import {
     animate,
     transition
 } from "@angular/animations";
+import { NgIf } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 
-import { GeoObjectType, AttributeType } from "@registry/model/registry";
-import { ClassificationTypeService } from "@registry/service/classification-type.service";
-import { ClassificationType } from "@registry/model/classification-type";
-import { ClassificationFieldComponent } from "../../form-fields/classification-field/classification-field.component";
+import { AttributeType } from "@registry/model/registry";
 import { LocalizedTextComponent } from "../../form-fields/localized-text/localized-text.component";
-import { NgIf, NgFor } from "@angular/common";
 import { LocalizedInputComponent } from "../../form-fields/localized-input/localized-input.component";
 import { GeoObjectAttributeCodeValidator } from "../../../factory/form-validation.factory";
-import { FormsModule } from "@angular/forms";
 import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { BooleanFieldComponent } from "@shared/component/form-fields/boolean-field/boolean-field.component";
 
@@ -51,7 +48,7 @@ import { BooleanFieldComponent } from "@shared/component/form-fields/boolean-fie
         ])
     ],
     standalone: true,
-    imports: [LocalizeComponent, FormsModule, GeoObjectAttributeCodeValidator, LocalizedInputComponent, NgIf, LocalizedTextComponent, NgFor, ClassificationFieldComponent, BooleanFieldComponent]
+    imports: [LocalizeComponent, FormsModule, GeoObjectAttributeCodeValidator, LocalizedInputComponent, NgIf, LocalizedTextComponent, BooleanFieldComponent]
 })
 export class AttributeInputComponent implements OnChanges {
 
@@ -65,9 +62,8 @@ export class AttributeInputComponent implements OnChanges {
     message: string = null;
 
     state: string = "none";
-    classifications: ClassificationType[] = [];
 
-    constructor(private service: ClassificationTypeService, private cdr: ChangeDetectorRef) { }
+    constructor(private cdr: ChangeDetectorRef) { }
 
     ngOnInit(): void {
     }
@@ -78,11 +74,6 @@ export class AttributeInputComponent implements OnChanges {
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes.type != null && this.attribute.type === "classification") {
-            this.service.page({}).then((page) => {
-                this.classifications = page.resultSet;
-            });
-        }
     }
 
     ngOnDestroy() {
@@ -124,7 +115,7 @@ export class AttributeInputComponent implements OnChanges {
                 return false;
             }
 
-            if (this.type === "classification" && (this.attribute.classificationType == null || this.attribute.classificationType.length === 0)) {
+            if (this.type === "classification" && (this.attribute.conceptSet == null || this.attribute.conceptSet.length === 0)) {
                 return false;
             }
 

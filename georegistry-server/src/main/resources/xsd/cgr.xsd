@@ -31,12 +31,12 @@
       <xs:choice minOccurs="0" maxOccurs="unbounded">
         <xs:element name="type" type="type" />
         <xs:element name="business-type" type="business-type" />
+        <xs:element name="concept-class" type="business-type" />        
         <xs:element name="hierarchy" type="hierarchy" />
         <xs:element name="dag" type="graph" />
         <xs:element name="undirected-graph" type="graph" />
         <xs:element name="business-edge" type="business-edge" />
-        <xs:element name="business-geoobject-edge" type="business-geoobject-edge" />
-        
+        <xs:element name="concept-edge" type="concept-edge" />
       </xs:choice>
     </xs:sequence>
     <xs:attribute name="code" type="xs:string" use="required" />
@@ -64,12 +64,13 @@
     <xs:attribute name="parentTypeCode" type="xs:string" use="optional" />
     <xs:attribute name="childTypeCode" type="xs:string" use="optional" />
   </xs:complexType>
-  <xs:complexType name="business-geoobject-edge">
+  <xs:complexType name="concept-edge">
     <xs:attribute name="code" type="xs:string" use="required" />
     <xs:attribute name="label" type="xs:string" use="required" />
     <xs:attribute name="description" type="xs:string" use="optional" />
-    <xs:attribute name="typeCode" type="xs:string" use="optional" />
-    <xs:attribute name="direction" type="xs:string" use="optional" />    
+    <xs:attribute name="parentTypeCode" type="xs:string" use="optional" />
+    <xs:attribute name="childTypeCode" type="xs:string" use="optional" />
+    <xs:attribute name="discreteType" type="xs:string" use="optional" />    
   </xs:complexType>
   
   <xs:complexType name="graph">
@@ -108,6 +109,17 @@
     <xs:attribute name="description" type="xs:string" use="optional" />
     <xs:attribute name="labelAttribute" type="xs:string" use="optional" />
   </xs:complexType>
+  <xs:complexType name="concept-class">
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="attributes" type="attributes" minOccurs="0" />
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute name="code" type="xs:string" use="required" />
+    <xs:attribute name="label" type="xs:string" use="required" />
+    <xs:attribute name="description" type="xs:string" use="optional" />
+  </xs:complexType>
+  
   <xs:complexType name="node">
     <xs:sequence>
       <xs:choice minOccurs="0" maxOccurs="unbounded">

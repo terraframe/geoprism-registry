@@ -76,7 +76,6 @@ import net.geoprism.registry.io.PostalCodeFactory;
 import net.geoprism.registry.io.view.GeoObjectImportConfigurationDTO;
 import net.geoprism.registry.io.view.ImportConfigurationDTO;
 import net.geoprism.registry.jobs.ImportHistory;
-import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.EdgeConstant;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -102,8 +101,6 @@ import net.geoprism.registry.view.ImportHistoryView;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class ExcelServiceTest extends USADatasetTest implements InstanceTestClassListener
 {
-  private static ClassificationType          type;
-
   protected static String                    CODE      = "Test Term";
 
   private static AttributeIntegerType        testInteger;

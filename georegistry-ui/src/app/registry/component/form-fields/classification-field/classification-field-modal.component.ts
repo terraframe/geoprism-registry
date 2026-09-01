@@ -24,12 +24,14 @@ import { TreeComponent, TreeNode, TreeModule } from "@ali-hm/angular-tree-compon
 import { ContextMenuComponent, ContextMenuService, ContextMenuModule } from "@perfectmemory/ngx-contextmenu";
 
 import { ErrorHandler } from "@shared/component";
-import { Classification, ClassificationNode } from "@registry/model/classification-type";
-import { ClassificationService } from "@registry/service/classification.service";
 import { PageResult } from "@shared/model/core";
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { FormsModule } from "@angular/forms";
+import { ObjectOverTime, ObjectOverTimeNode } from "@registry/model/object-class";
+import { ConceptObjectService } from "@registry/service/concept-object.service";
+import { Page } from "ngx-pagination";
+import { AttributedType, AttributeType } from "@registry/model/registry";
 
 const PAGE_SIZE: number = 100;
 
@@ -42,9 +44,8 @@ enum NodeType {
 class ClassificationTreeNode {
 
     name: string;
-    code: string;
     type: NodeType;
-    classification?: Classification;
+    classification?: ObjectOverTime;
     hasChildren: boolean;
     children?: ClassificationTreeNode[];
     parent?: ClassificationTreeNode;
@@ -63,12 +64,13 @@ export class ClassificationFieldModalComponent implements OnDestroy {
 
     message: string = null;
 
-    classificationType: string = null;
-    rootCode: string = null;
+    type: AttributedType;
+
+    attribute: AttributeType;
 
     disabled: boolean = false;
 
-    select: Subject<Classification> = new Subject<Classification>();
+    select: Subject<ObjectOverTime> = new Subject<ObjectOverTime>();
 
     nodes: ClassificationTreeNode[] = [];
 
@@ -84,7 +86,7 @@ export class ClassificationFieldModalComponent implements OnDestroy {
     @ViewChild("nodeMenu") public nodeMenuComponent: ContextMenuComponent<TreeNode>;
 
     options = {
-        idField: "code",
+        idField: "name",
         getChildren: (node: TreeNode) => {
             return this.getChildren(node);
         },
@@ -109,16 +111,16 @@ export class ClassificationFieldModalComponent implements OnDestroy {
     constructor(
         private bsModalRef: BsModalRef,
         private contextMenuService: ContextMenuService<TreeNode>,
-        private service: ClassificationService
+        private service: ConceptObjectService
     ) { }
 
-    init(classificationType: string, rootCode: string, disabled: boolean, value: { code: string }, observer: Partial<Observer<Classification>> | ((value: Classification) => void)): Subscription {
-        this.classificationType = classificationType;
-        this.rootCode = rootCode;
+    init(type: AttributedType, attribute: AttributeType, disabled: boolean, value: { code: string }, observer: Partial<Observer<ObjectOverTime>> | ((value: ObjectOverTime) => void)): Subscription {
+        this.type = type;
+        this.attribute = attribute;
         this.disabled = disabled;
 
         if (value != null) {
-            this.service.getAncestorTree(this.classificationType, this.rootCode, value.code, PAGE_SIZE).then(ancestor => {
+            this.service.getAncestorTree(this.type, this.attribute, value.code, PAGE_SIZE).then(ancestor => {
                 this.nodes = [this.build(null, ancestor)];
 
                 window.setTimeout(() => {
@@ -129,21 +131,15 @@ export class ClassificationFieldModalComponent implements OnDestroy {
                     }
                 }, 100);
             });
-        } else if (this.rootCode != null) {
-            this.service.get(this.classificationType, this.rootCode).then(classification => {
+        } else
+            this.service.get(this.attribute.rootTerm.type, this.attribute.rootTerm.code).then(classification => {
                 this.nodes = [{
-                    code: classification.code,
-                    name: classification.displayLabel.localizedValue,
+                    name: classification.code,
                     type: NodeType.CLASSIFICATION,
                     classification: classification,
                     hasChildren: true
                 }];
             });
-        } else {
-            this.getChildren(null).then(nodes => {
-                this.nodes = nodes;
-            });
-        }
 
         return this.select.subscribe(observer);
     }
@@ -153,11 +149,12 @@ export class ClassificationFieldModalComponent implements OnDestroy {
     }
 
     getChildren(treeNode: TreeNode): Promise<ClassificationTreeNode[]> {
+
         const node: ClassificationTreeNode = treeNode != null ? treeNode.data : null;
 
         const code = node != null ? node.classification.code : null;
 
-        return this.service.getChildren(this.classificationType, code, 1, PAGE_SIZE).then(page => {
+        return this.service.getChildren(this.type, this.attribute, code, 1, PAGE_SIZE).then(page => {
             const nodes = this.createNodes(node, page);
 
             if (node != null) {
@@ -174,19 +171,18 @@ export class ClassificationFieldModalComponent implements OnDestroy {
         });
     }
 
-    build(parent: ClassificationTreeNode, cNode: ClassificationNode): ClassificationTreeNode {
+    build(parent: ClassificationTreeNode, cNode: ObjectOverTimeNode): ClassificationTreeNode {
         const node: ClassificationTreeNode = {
-            code: cNode.classification.code,
-            name: cNode.classification.displayLabel.localizedValue,
+            name: cNode.object.code,
             type: NodeType.CLASSIFICATION,
-            classification: cNode.classification,
+            classification: cNode.object,
             hasChildren: true
         };
 
         if (cNode.children != null) {
             const nodes: ClassificationTreeNode[] = cNode.children.resultSet.map(child => this.build(parent, child));
 
-            const page = cNode.children;
+            const page: PageResult<ObjectOverTimeNode> = cNode.children;
 
             // Add page node if needed
             if (page.count > page.pageNumber * page.pageSize) {
@@ -206,11 +202,10 @@ export class ClassificationFieldModalComponent implements OnDestroy {
         return node;
     }
 
-    createNodes(parent: ClassificationTreeNode, page: PageResult<Classification>): ClassificationTreeNode[] {
+    createNodes(parent: ClassificationTreeNode, page: PageResult<ObjectOverTime>): ClassificationTreeNode[] {
         const nodes = page.resultSet.map(child => {
             return {
-                code: child.code,
-                name: child.displayLabel.localizedValue,
+                name: child.code,
                 type: NodeType.CLASSIFICATION,
                 classification: child,
                 hasChildren: true
@@ -253,10 +248,10 @@ export class ClassificationFieldModalComponent implements OnDestroy {
                 const code = parentNode.classification.code;
                 const pageNumber = node.pageNumber;
 
-                this.service.getChildren(this.classificationType, code, pageNumber, PAGE_SIZE).then(page => {
+                this.service.getChildren(this.type, this.attribute, code, pageNumber, PAGE_SIZE).then(page => {
                     const nodes = this.createNodes(parentNode, page);
 
-                    parentNode.children = parentNode.children.filter(node => node.code !== "...");
+                    parentNode.children = parentNode.children.filter(node => node.name !== "...");
                     parentNode.children = parentNode.children.concat(nodes);
 
                     this.tree.treeModel.update();

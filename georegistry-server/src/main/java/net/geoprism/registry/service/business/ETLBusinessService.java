@@ -87,8 +87,8 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.permission.RolePermissionService;
 import net.geoprism.registry.view.ErrorResolveDTO;
 import net.geoprism.registry.view.ImportHistoryView;
+import net.geoprism.registry.view.JsonSerializablePage;
 import net.geoprism.registry.view.JsonWrapper;
-import net.geoprism.registry.view.Page;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 import net.geoprism.registry.view.TypeClass;
 import net.geoprism.registry.view.ValidationResolveDTO;
@@ -198,7 +198,7 @@ public class ETLBusinessService
     {
       List<ImportError> results = new LinkedList<>(it.getAll());
 
-      return new Page<ImportError>(query.getCount(), query.getPageNumber(), query.getPageSize(), results).toJSON();
+      return new JsonSerializablePage<ImportError>(query.getCount(), query.getPageNumber(), query.getPageSize(), results).toJSON();
     }
   }
 
@@ -372,7 +372,7 @@ public class ETLBusinessService
         return new JsonWrapper(serializeHistory(hist, user, job));
       }).collect(Collectors.toList());
 
-      return new Page<JsonWrapper>(ihq.getCount(), ihq.getPageNumber(), ihq.getPageSize(), results).toJSON();
+      return new JsonSerializablePage<JsonWrapper>(ihq.getCount(), ihq.getPageNumber(), ihq.getPageSize(), results).toJSON();
     }
   }
 
@@ -396,7 +396,7 @@ public class ETLBusinessService
         return new JsonWrapper(serializeHistory(hist, user, job));
       }).collect(Collectors.toList());
 
-      return new Page<JsonWrapper>(ihq.getCount(), ihq.getPageNumber(), ihq.getPageSize(), results).toJSON();
+      return new JsonSerializablePage<JsonWrapper>(ihq.getCount(), ihq.getPageNumber(), ihq.getPageSize(), results).toJSON();
     }
   }
 
@@ -476,7 +476,7 @@ public class ETLBusinessService
     {
       List<ValidationProblem> results = new LinkedList<>(it.getAll());
 
-      return new Page<ValidationProblem>(vpq.getCount(), vpq.getPageNumber(), vpq.getPageSize(), results).toJSON();
+      return new JsonSerializablePage<ValidationProblem>(vpq.getCount(), vpq.getPageNumber(), vpq.getPageSize(), results).toJSON();
     }
   }
 
@@ -494,7 +494,7 @@ public class ETLBusinessService
     {
       List<ExportError> results = new LinkedList<>(it.getAll());
 
-      return new Page<ExportError>(query.getCount(), query.getPageNumber(), query.getPageSize(), results).toJSON();
+      return new JsonSerializablePage<ExportError>(query.getCount(), query.getPageNumber(), query.getPageSize(), results).toJSON();
     }
   }
 

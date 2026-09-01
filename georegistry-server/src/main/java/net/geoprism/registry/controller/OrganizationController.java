@@ -46,7 +46,7 @@ import net.geoprism.registry.controller.EdgeClassController.CodeBody;
 import net.geoprism.registry.model.OrganizationView;
 import net.geoprism.registry.service.request.GPROrganizationService;
 import net.geoprism.registry.service.request.RegistryComponentService;
-import net.geoprism.registry.view.Page;
+import net.geoprism.registry.view.JsonSerializablePage;
 
 /**
  * Differences in Spring MVC as compared to Runway MVC:
@@ -242,7 +242,7 @@ public class OrganizationController extends RunwaySpringController
       @RequestParam(name = "pageSize", required = false) Integer pageSize, //
       @RequestParam(name = "pageNumber", required = false) Integer pageNumber)
   {
-    Page<OrganizationView> page = this.service.getPage(this.getSessionId(), pageSize, pageNumber);
+    JsonSerializablePage<OrganizationView> page = this.service.getPage(this.getSessionId(), pageSize, pageNumber);
 
     return new ResponseEntity<String>(page.toJSON().toString(), HttpStatus.OK);
   }

@@ -60,7 +60,7 @@ import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.TestRegistryAdapter;
 import net.geoprism.registry.test.TestUserInfo;
-import net.geoprism.registry.view.Page;
+import net.geoprism.registry.view.JsonSerializablePage;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 import net.geoprism.registry.view.action.UpdateAttributeViewJsonAdapters;
 import net.geoprism.registry.view.action.UpdateParentValueOverTimeView;
@@ -259,7 +259,7 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
 
   private void testGetAllCR(ClientRequestIF request, boolean hasPermission)
   {
-    Page<ChangeRequest> page = changeService.getAllRequests(request.getSessionId(), 10, 1, "", "", null);
+    JsonSerializablePage<ChangeRequest> page = changeService.getAllRequests(request.getSessionId(), 10, 1, "", "", null);
 
     JsonObject joPage = toJson(request.getSessionId(), page);
     JsonArray jaResults = joPage.get("resultSet").getAsJsonArray();
@@ -300,7 +300,7 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
   }
 
   @Request(RequestType.SESSION)
-  private JsonObject toJson(String sessionId, Page<ChangeRequest> page)
+  private JsonObject toJson(String sessionId, JsonSerializablePage<ChangeRequest> page)
   {
     return page.toJSON();
   }

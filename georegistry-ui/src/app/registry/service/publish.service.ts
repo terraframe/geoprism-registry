@@ -40,23 +40,23 @@ export class PublishService {
             date: p.date,
             startDate: p.startDate,
             endDate: p.endDate,
-            typeCodes: p.types.filter(t => t.type === 'GEO_OBJECT').map(t => t.code),
-            businessTypeCodes: p.types.filter(t => t.type === 'BUSINESS').map(t => t.code),
-            dagCodes: p.types.filter(t => t.type === 'DAG').map(t => t.code),
-            undirectedCodes: p.types.filter(t => t.type === 'UNDIRECTED').map(t => t.code),
-            hierarchyCodes: p.types.filter(t => t.type === 'HIERARCHY').map(t => t.code),
-            businessEdgeCodes: p.types.filter(t => t.type === 'BUSINESS_EDGE').map(t => t.code)
+            typeCodes: p.types.filter(t => t.typeClass === 'GEO_OBJECT_TYPE').map(t => t.typeCode),
+            businessTypeCodes: p.types.filter(t => t.typeClass === 'BUSINESS_TYPE').map(t => t.typeCode),
+            dagCodes: p.types.filter(t => t.typeClass === 'DAG').map(t => t.typeCode),
+            undirectedCodes: p.types.filter(t => t.typeClass === 'UNDIRECTED_GRAPH').map(t => t.typeCode),
+            hierarchyCodes: p.types.filter(t => t.typeClass === 'HIERARCHY').map(t => t.typeCode),
+            businessEdgeCodes: p.types.filter(t => t.typeClass === 'BUSINESS_EDGE').map(t => t.typeCode)
         }
     }
 
     toPublish(p: PublishEvents): Publish {
         let types = [];
-        types = types.concat(p.businessEdgeCodes.map(code => { return { type: 'BUSINESS_EDGE', code } }))
-        types = types.concat(p.hierarchyCodes.map(code => { return { type: 'HIERARCHY', code } }))
-        types = types.concat(p.undirectedCodes.map(code => { return { type: 'UNDIRECTED', code } }))
-        types = types.concat(p.dagCodes.map(code => { return { type: 'DAG', code } }))
-        types = types.concat(p.businessTypeCodes.map(code => { return { type: 'BUSINESS', code } }))
-        types = types.concat(p.typeCodes.map(code => { return { type: 'GEO_OBJECT', code } }))
+        types = types.concat(p.businessEdgeCodes.map(code => { return { typeClass: 'BUSINESS_EDGE', typeCode:code } }))
+        types = types.concat(p.hierarchyCodes.map(code => { return { typeClass: 'HIERARCHY', typeCode:code } }))
+        types = types.concat(p.undirectedCodes.map(code => { return { typeClass: 'UNDIRECTED_GRAPH', typeCode:code } }))
+        types = types.concat(p.dagCodes.map(code => { return { typeClass: 'DAG', typeCode:code } }))
+        types = types.concat(p.businessTypeCodes.map(code => { return { typeClass: 'BUSINESS_TYPE', typeCode:code } }))
+        types = types.concat(p.typeCodes.map(code => { return { typeClass: 'GEO_OBJECT_TYPE', typeCode:code } }))
 
         return {
             uid: p.uid,

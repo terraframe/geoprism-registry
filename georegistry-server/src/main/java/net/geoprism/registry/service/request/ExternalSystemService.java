@@ -36,7 +36,7 @@ import net.geoprism.registry.etl.OauthExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.service.permission.RolePermissionService;
-import net.geoprism.registry.view.Page;
+import net.geoprism.registry.view.JsonSerializablePage;
 
 @Service
 public class ExternalSystemService
@@ -50,7 +50,7 @@ public class ExternalSystemService
     long count = ExternalSystem.getCount();
     List<ExternalSystem> results = ExternalSystem.getExternalSystemsForOrg(pageNumber, pageSize);
 
-    return new Page<ExternalSystem>(count, pageNumber, pageSize, results).toJSON();
+    return new JsonSerializablePage<ExternalSystem>(count, pageNumber, pageSize, results).toJSON();
   }
 
   @Request(RequestType.SESSION)

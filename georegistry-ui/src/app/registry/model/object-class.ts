@@ -19,8 +19,9 @@
 
 import { LocalizedValue } from "@core/model/core";
 import { AttributedType, AttributeType } from "./registry";
+import { PageResult } from "@shared/model/core";
 
-export class ObjectClass {
+export class ObjectClass implements AttributedType {
     oid?: string;
     type: "business-type" | "concept-class";
     code: string;
@@ -31,11 +32,11 @@ export class ObjectClass {
     attributes?: Array<AttributeType>;
 }
 
-export class ConceptClass extends ObjectClass implements AttributedType {
+export class ConceptClass extends ObjectClass {
 
 }
 
-export class BusinessType extends ObjectClass implements AttributedType {
+export class BusinessType extends ObjectClass {
     labelAttribute?: string;
 }
 
@@ -92,5 +93,10 @@ export class ObjectAtTime {
         [key: string]: string | number;
     }
 
+}
+
+export class ObjectOverTimeNode {
+    object?: ObjectOverTime;
+    children?: PageResult<ObjectOverTimeNode>;
 }
 

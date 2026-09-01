@@ -50,7 +50,6 @@ import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.etl.PublishListTypeVersionJobQuery;
-import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
@@ -71,8 +70,6 @@ import net.geoprism.registry.view.Page;
 public class ListTypeTest extends USADatasetTest implements InstanceTestClassListener
 {
   private static String                      CODE = "Test Term";
-
-  private static ClassificationType          type;
 
   private static AttributeClassificationType testClassification;
 
@@ -492,7 +489,7 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
           // Entries should be HP_1, HP_2, HS_1, HS_2
           Assert.assertEquals(Long.valueOf(4), data.getCount());
 
-          List<JsonSerializable> results = data.getResults();
+          List<JsonSerializable> results = data.getResultSet();
 
           for (int i = 0; i < results.size(); i++)
           {

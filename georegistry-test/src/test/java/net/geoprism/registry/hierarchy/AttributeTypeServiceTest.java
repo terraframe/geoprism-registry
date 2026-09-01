@@ -29,7 +29,6 @@ import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.config.TestApplication;
-import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
@@ -42,8 +41,6 @@ import net.geoprism.registry.test.TestRegistryClient;
 public class AttributeTypeServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
   public static final TestGeoObjectTypeInfo TEST_GOT  = new TestGeoObjectTypeInfo("GOTTest_TEST1", FastTestDataset.ORG_CGOV);
-
-  protected static ClassificationType       type;
 
   protected static String                   TYPE_CODE = null;
 

@@ -58,54 +58,68 @@ import org.w3c.dom.Element;
 
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.io.XMLException;
-import com.runwaysdk.system.metadata.MdAttribute;
 
 import net.geoprism.registry.cache.ServerMetadataCache;
-import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
+import net.geoprism.registry.graph.ConceptClass;
 import net.geoprism.registry.graph.DirectedAcyclicGraphType;
+import net.geoprism.registry.graph.EdgeClass;
+import net.geoprism.registry.graph.ObjectClass;
 import net.geoprism.registry.graph.UndirectedGraphType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.ConceptClassBusinessServiceIF;
+import net.geoprism.registry.service.business.ConceptEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.EdgeClassBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.ObjectClassBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.permission.RolePermissionService;
+import net.geoprism.registry.view.ConceptEdgeTypeDTO;
+import net.geoprism.registry.view.EdgeClassDTO;
+import net.geoprism.registry.view.ObjectClassDTO;
+import net.geoprism.registry.view.TypeClass;
+import net.geoprism.registry.view.TypeInfo;
 
 public class XMLExporter
 {
-  private static Logger                             logger = LoggerFactory.getLogger(XMLExporter.class);
+  private static Logger                                   logger = LoggerFactory.getLogger(XMLExporter.class);
 
   /**
    * The DOM <code>document</code> that is populated with data from the core.
    */
-  private Document                                  document;
+  private Document                                        document;
 
   /**
    * The <code>root</code> element of the DOM document.
    */
-  private Element                                   root;
+  private Element                                         root;
 
-  private List<ServerOrganization>                  organizations;
+  private List<ServerOrganization>                        organizations;
 
-  private Set<String>                               businessEdgeTypes;
+  private Set<TypeInfo>                                   edgeTypes;
 
-  private GeoObjectTypeBusinessServiceIF            typeService;
+  private final GeoObjectTypeBusinessServiceIF            typeService;
 
-  private HierarchyTypeBusinessServiceIF            hierarchyService;
+  private final BusinessTypeBusinessServiceIF             bTypeService;
 
-  private BusinessTypeBusinessServiceIF             bTypeService;
+  private final ConceptClassBusinessServiceIF             cClassService;
 
-  private BusinessEdgeTypeBusinessServiceIF         bEdgeService;
+  private final HierarchyTypeBusinessServiceIF            hierarchyService;
 
-  private DirectedAcyclicGraphTypeBusinessServiceIF dagService;
+  private final DirectedAcyclicGraphTypeBusinessServiceIF dagService;
 
-  private UndirectedGraphTypeBusinessServiceIF      undirectedService;
+  private final UndirectedGraphTypeBusinessServiceIF      undirectedService;
+
+  private final BusinessEdgeTypeBusinessServiceIF         bEdgeService;
+
+  private final ConceptEdgeTypeBusinessServiceIF          cEdgeService;
 
   /**
    * Initializes the <code>document</code>, creates the <code>root</code>
@@ -120,14 +134,17 @@ public class XMLExporter
   public XMLExporter(List<ServerOrganization> organizations)
   {
     this.typeService = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
-    this.hierarchyService = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class);
     this.bTypeService = ServiceFactory.getBean(BusinessTypeBusinessServiceIF.class);
-    this.bEdgeService = ServiceFactory.getBean(BusinessEdgeTypeBusinessServiceIF.class);
+    this.cClassService = ServiceFactory.getBean(ConceptClassBusinessServiceIF.class);
+
+    this.hierarchyService = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class);
     this.dagService = ServiceFactory.getBean(DirectedAcyclicGraphTypeBusinessServiceIF.class);
     this.undirectedService = ServiceFactory.getBean(UndirectedGraphTypeBusinessServiceIF.class);
+    this.bEdgeService = ServiceFactory.getBean(BusinessEdgeTypeBusinessServiceIF.class);
+    this.cEdgeService = ServiceFactory.getBean(ConceptEdgeTypeBusinessServiceIF.class);
 
     this.organizations = organizations;
-    this.businessEdgeTypes = new TreeSet<>();
+    this.edgeTypes = new TreeSet<>();
 
     try
     {
@@ -173,7 +190,7 @@ public class XMLExporter
 
   protected void exportOrganization(ServerOrganization organization)
   {
-    this.businessEdgeTypes.clear();
+    this.edgeTypes.clear();
 
     Element element = document.createElement("organization");
     element.setAttribute("code", organization.getCode());
@@ -185,19 +202,33 @@ public class XMLExporter
       this.exportType(element, type);
     });
 
+    this.bTypeService.getForOrganization(organization).forEach(type -> {
+      this.exportBusinessType(element, type);
+    });
+
+    this.cClassService.getForOrganization(organization).forEach(type -> {
+      this.exportConceptClass(element, type);
+    });
+
     List<ServerHierarchyType> hierarchies = cache.getAllHierarchyTypes();
 
     hierarchies.stream().filter(type -> type.getOrganizationCode().equals(organization.getCode())).forEach(type -> {
       this.exportHierarchy(element, type);
     });
 
-    this.bTypeService.getForOrganization(organization).forEach(type -> {
-      this.exportBusinessType(element, type);
-    });
+    this.edgeTypes.stream() //
+        .filter(t -> t.getTypeClass().equals(TypeClass.BUSINESS_EDGE)) //
+        .map(t -> this.bEdgeService.getByCodeOrThrow(t.getTypeCode())) //
+        .forEach(type -> {
+          this.exportEdgeType(element, "business-edge", type, this.bEdgeService);
+        });
 
-    this.businessEdgeTypes.stream().map(code -> this.bEdgeService.getByCodeOrThrow(code)).forEach(type -> {
-      this.exportBusinessEdgeType(element, type);
-    });
+    this.edgeTypes.stream() //
+        .filter(t -> t.getTypeClass().equals(TypeClass.CONCEPT_EDGE)) //
+        .map(t -> this.cEdgeService.getByCodeOrThrow(t.getTypeCode())) //
+        .forEach(type -> {
+          this.exportEdgeType(element, "concept-edge", type, this.cEdgeService);
+        });
 
     this.root.appendChild(element);
   }
@@ -226,28 +257,70 @@ public class XMLExporter
     element.setAttribute("code", type.getCode());
     element.setAttribute("label", type.getLabel().getValue());
 
-    MdAttribute labelAttribute = type.getLabelAttribute();
-
-    if (labelAttribute != null)
-    {
-      element.setAttribute("labelAttribute", labelAttribute.getAttributeName());
-    }
+    exportAttributes(type, element, this.bTypeService);
 
     parent.appendChild(element);
 
     this.bTypeService.getEdgeTypes(type).forEach(edgeType -> {
-      this.businessEdgeTypes.add(edgeType.getCode());
+      this.edgeTypes.add(edgeType.getTypeInfo());
     });
   }
 
-  private void exportBusinessEdgeType(Element parent, BusinessEdgeType type)
+  private void exportConceptClass(Element parent, ConceptClass type)
   {
-    Element element = document.createElement("business-edge");
+    Element element = document.createElement("concept-class");
     element.setAttribute("code", type.getCode());
     element.setAttribute("label", type.getLabel().getValue());
-    element.setAttribute("description", type.getDescriptionLV().getValue());
-    element.setAttribute("parentTypeCode", this.bEdgeService.getParent(type).getCode());
-    element.setAttribute("childTypeCode", this.bEdgeService.getChild(type).getCode());
+
+    exportAttributes(type, element, this.cClassService);
+
+    parent.appendChild(element);
+
+    this.cClassService.getEdgeTypes(type).forEach(edgeType -> {
+      this.edgeTypes.add(edgeType.getTypeInfo());
+    });
+  }
+
+  public <T extends ObjectClass, D extends ObjectClassDTO> void exportAttributes(T type, Element element, ObjectClassBusinessServiceIF<T, D> service)
+  {
+
+    D dto = service.toDTO(type, true, false);
+
+    List<AttributeType> attributeList = dto.getAttributes();
+
+    if (attributeList != null)
+    {
+      Element attributes = document.createElement("attributes");
+
+      attributeList.forEach(attributeType -> {
+
+        if (isValid(attributeType))
+        {
+          Element attribute = this.exportAttribute(attributeType);
+
+          attributes.appendChild(attribute);
+        }
+      });
+
+      element.appendChild(attributes);
+    }
+  }
+
+  private <T extends EdgeClass, D extends EdgeClassDTO> void exportEdgeType(Element parent, String tag, T type, EdgeClassBusinessServiceIF<T, D> service)
+  {
+    D dto = service.toDTO(type);
+
+    Element element = document.createElement(tag);
+    element.setAttribute("code", dto.getCode());
+    element.setAttribute("label", dto.getLabel().getValue());
+    element.setAttribute("description", dto.getDescription().getValue());
+    element.setAttribute("parentTypeCode", dto.getParentType());
+    element.setAttribute("childTypeCode", dto.getChildType());
+
+    if (dto instanceof ConceptEdgeTypeDTO)
+    {
+      element.setAttribute("discreteType", ( (ConceptEdgeTypeDTO) dto ).getDiscreteType().name());
+    }
 
     parent.appendChild(element);
   }

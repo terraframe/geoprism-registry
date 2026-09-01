@@ -18,8 +18,8 @@
 ///
 
 export class TypeAndCode {
-    code: string
-    type: string;
+    typeCode: string
+    typeClass: string;
 }
 
 export class Publish {

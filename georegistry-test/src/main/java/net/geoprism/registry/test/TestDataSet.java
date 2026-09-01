@@ -427,6 +427,18 @@ abstract public class TestDataSet
   public void tearDownMetadata()
   {
     cleanUpClassInTrans();
+
+    this.clearIndex();
+  }
+
+  @Request
+  public void clearIndex()
+  {
+    GraphDBService service = GraphDBService.getInstance();
+    GraphRequest request = service.getGraphDBRequest();
+
+    String indexName = service.getIndexName(request, "table_class", "code");
+    service.command(request, "REBUILD INDEX " + indexName, new HashMap<>());
   }
 
   @Transaction

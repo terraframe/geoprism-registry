@@ -53,50 +53,9 @@ import net.geoprism.registry.test.USATestData;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class RepositoryProjectionTest extends EventDatasetTest implements InstanceTestClassListener
 {
-  @Autowired
-  private PublishEventService                       service;
 
   @Autowired
-  private PublishBusinessServiceIF                  pService;
-
-  @Autowired
-  private CommitBusinessServiceIF                   cService;
-
-  @Autowired
-  private GeoObjectTypeSnapshotBusinessServiceIF    gSnapshotService;
-
-  @Autowired
-  private HierarchyTypeSnapshotBusinessServiceIF    hSnapshotService;
-
-  @Autowired
-  private GraphTypeSnapshotBusinessServiceIF        graphSnapshotService;
-
-  @Autowired
-  private ConceptClassBusinessServiceIF             ccService;
-
-  @Autowired
-  private ConceptClassSnapshotBusinessServiceIF     cSnapshotService;
-
-  @Autowired
-  private BusinessTypeBusinessServiceIF             bTypeService;
-
-  @Autowired
-  private BusinessTypeSnapshotBusinessServiceIF     bTypeSnapshotService;
-
-  @Autowired
-  private BusinessEdgeTypeBusinessServiceIF         bEdgeService;
-
-  @Autowired
-  private BusinessEdgeTypeSnapshotBusinessServiceIF bEdgeSnapshotService;
-
-  @Autowired
-  private DataSourceBusinessServiceIF               sourceService;
-
-  @Autowired
-  private SourceAuthorityBusinessServiceIF          authorityService;
-
-  @Autowired
-  private RepositoryProjection                      projection;
+  private RepositoryProjection projection;
 
   @Override
   public void setUp()

@@ -37,7 +37,6 @@ import { HistoricalEventModuleComponent } from "./component/historical-event-mod
 import { ListTypeManagerComponent } from "./component/list-type/list-type-manager.component";
 import { ListComponent } from "./component/list-type/list.component";
 import { CurationJobComponent } from "./component/curation/curation-job.component";
-import { ClassificationTypeManagerComponent } from "./component/classification-type/classification-type-manager.component";
 import { LabeledPropertyGraphTypeManagerComponent } from "./component/labeled-property-graph-type/labeled-property-graph-type-manager.component";
 import { EdgeImporterComponent } from "./component/edge-importer/edge-importer.component";
 import { PublishManagerComponent } from "./component/publish-events/publish-manager.component";
@@ -47,6 +46,7 @@ import { ConceptOntologyComponent } from "./component/concept-ontology/concept-o
 import { ObjectTableComponent } from "./component/object-table/object-table.component";
 import { DataSourceManagerComponent } from "./component/data-source/data-source-manager.component";
 import { SourceAuthorityManagerComponent } from "./component/source-authority/source-authority-manager.component";
+import { RDFExportComponent } from "./component/data-export/rdf-export.component";
 
 export const routes: Routes = [
     {
@@ -160,11 +160,6 @@ export const routes: Routes = [
         canActivate: [AuthGuard, BusinessDataGuard]
     },
     {
-        path: "classification-type",
-        component: ClassificationTypeManagerComponent,
-        canActivate: [AuthGuard]
-    },
-    {
         path: "data-sources",
         component: DataSourceManagerComponent,
         canActivate: [AuthGuard]
@@ -184,6 +179,11 @@ export const routes: Routes = [
         component: PublishManagerComponent,
         canActivate: [AuthGuard]
     },
+    {
+        path: "export",
+        component: RDFExportComponent,
+        canActivate: [AuthGuard]
+    },    
     {
         path: "rollback",
         component: RollbackCheckpointManagerComponent,

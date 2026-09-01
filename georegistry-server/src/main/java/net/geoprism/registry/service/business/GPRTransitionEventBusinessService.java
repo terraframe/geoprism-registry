@@ -57,6 +57,7 @@ import net.geoprism.registry.graph.transition.TransitionEvent;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.permission.RolePermissionService;
 import net.geoprism.registry.view.HistoricalRow;
+import net.geoprism.registry.view.JsonSerializablePage;
 import net.geoprism.registry.view.Page;
 
 @Service
@@ -202,7 +203,7 @@ public class GPRTransitionEventBusinessService extends TransitionEventBusinessSe
     return query.getSingleResult();
   }
 
-  public Page<HistoricalRow> getHistoricalReport(ServerGeoObjectType type, Date startDate, Date endDate, Integer pageSize, Integer pageNumber)
+  public JsonSerializablePage<HistoricalRow> getHistoricalReport(ServerGeoObjectType type, Date startDate, Date endDate, Integer pageSize, Integer pageNumber)
   {
     MdVertexDAOIF transitionVertex = MdVertexDAO.getMdVertexDAO(Transition.CLASS);
     MdAttributeDAOIF eventAttribute = transitionVertex.definesAttribute(Transition.EVENT);
@@ -278,7 +279,7 @@ public class GPRTransitionEventBusinessService extends TransitionEventBusinessSe
 
     List<HistoricalRow> results = query.getResults().stream().map(list -> HistoricalRow.parse(list)).collect(Collectors.toList());
 
-    return new Page<HistoricalRow>(count, pageNumber, pageSize, results);
+    return new JsonSerializablePage<HistoricalRow>(count, pageNumber, pageSize, results);
   }
 
   private String coalesce(String prefix)
@@ -342,9 +343,9 @@ public class GPRTransitionEventBusinessService extends TransitionEventBusinessSe
   {
     Page<TransitionEvent> page = this.getAll(1000, 1);
 
-    while (page.getResults().size() > 0)
+    while (page.getResultSet().size() > 0)
     {
-      List<TransitionEvent> results = page.getResults();
+      List<TransitionEvent> results = page.getResultSet();
 
       for (TransitionEvent result : results)
       {

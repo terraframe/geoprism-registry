@@ -149,7 +149,7 @@ export class GeoObjectType implements AttributedType {
     isLeaf: boolean;
     isGeometryEditable: boolean;
     organizationCode: string;
-    attributes: Array<AttributeType> = [];
+    attributes: Array<AttributeType>;
     relatedHierarchies?: string[];
     superTypeCode?: string;
     isAbstract?: boolean;
@@ -290,9 +290,8 @@ export class AttributeType {
     isChangeOverTime?: boolean;
     precision?: number;
     scale?: number;
-    classificationType?: string;
-    rootTerm?: Term;
-    termOptions?: Term[];
+    conceptSet?: string;
+    rootTerm?: { code: string, type: string };
     isValid?: boolean;
     isValidReason?: { timeConflict: boolean, existConflict: boolean, dateField: boolean };
     isValidReasonHierarchy?: any;

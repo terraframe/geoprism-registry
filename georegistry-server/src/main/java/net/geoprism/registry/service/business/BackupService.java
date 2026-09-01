@@ -172,9 +172,9 @@ public class BackupService implements BackupServiceIF
 
       writer.beginArray();
 
-      while (page.getResults().size() > 0)
+      while (page.getResultSet().size() > 0)
       {
-        List<TransitionEvent> results = page.getResults();
+        List<TransitionEvent> results = page.getResultSet();
 
         for (TransitionEvent result : results)
         {

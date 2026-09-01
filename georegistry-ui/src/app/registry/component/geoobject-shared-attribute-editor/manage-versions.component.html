@@ -111,8 +111,9 @@
                                   </div>
 
                                   <div *ngIf="attributeType.type === 'classification'">
-                                    <classification-field [classificationType]="attributeType.classificationType"
-                                      [rootCode]="attributeType.rootTerm != null ? attributeType.rootTerm.code : null"
+                                    <classification-field 
+                                      [type]="geoObjectType"
+                                      [attribute]="attributeType"
                                       [classNames]="(viewModel.oldValue && !isNew) ? 'has-changed': ''"
                                       [name]="'mod-term-' + i + '-' + attributeType.code" [(value)]="viewModel.value"
                                       [disabled]="readonly || viewModel.summaryKey === 'DELETE'">

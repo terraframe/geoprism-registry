@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service.request;
 
@@ -42,13 +42,12 @@ import com.runwaysdk.system.RolesQuery;
 
 import net.geoprism.rbac.RoleConstants;
 import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.service.business.ETLBusinessService;
 import net.geoprism.registry.task.Task;
 import net.geoprism.registry.task.Task.TaskStatus;
 import net.geoprism.registry.task.TaskHasRoleQuery;
 import net.geoprism.registry.task.TaskQuery;
+import net.geoprism.registry.view.JsonSerializablePage;
 import net.geoprism.registry.view.JsonWrapper;
-import net.geoprism.registry.view.Page;
 
 @Service
 public class TaskService
@@ -136,7 +135,7 @@ public class TaskService
         return new JsonWrapper(jo);
       }).collect(Collectors.toList());
 
-      return new Page<JsonWrapper>(vq.getCount(), pageNum, pageSize, results).toJSON();
+      return new JsonSerializablePage<JsonWrapper>(vq.getCount(), pageNum, pageSize, results).toJSON();
     }
   }
 

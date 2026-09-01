@@ -1,7 +1,7 @@
 /**
  *
  */
-package net.geoprism.registry.business;
+package net.geoprism.registry.service;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,7 +24,7 @@ import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.model.ConceptObject;
-import net.geoprism.registry.test.FastTestDataset;
+import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.test.TestOrganizationInfo;
 import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.ObjectOverTimeDTO;
@@ -33,7 +33,7 @@ import net.geoprism.registry.view.ValueOverTimeEntryDTO;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
 @RunWith(SpringInstanceTestClassRunner.class)
-public class ConceptObjectTest extends ConceptDatasetTest implements InstanceTestClassListener
+public class ConceptObjectServiceTest extends ConceptDatasetTest implements InstanceTestClassListener
 {
   private static String        TEST_CODE = "TEST_OBJ";
 
@@ -52,6 +52,8 @@ public class ConceptObjectTest extends ConceptDatasetTest implements InstanceTes
   public void beforeClassSetup() throws Exception
   {
     USATestData.ORG_NPS.apply();
+    USATestData.AUTHORITY.apply();
+    USATestData.SOURCE.apply();
 
     super.beforeClassSetup();
 
@@ -60,10 +62,13 @@ public class ConceptObjectTest extends ConceptDatasetTest implements InstanceTes
   }
 
   @Override
+  @Request
   public void afterClassSetup() throws Exception
   {
     super.afterClassSetup();
 
+    USATestData.SOURCE.delete();
+    USATestData.AUTHORITY.delete();
     USATestData.ORG_NPS.delete();
   }
 
@@ -92,15 +97,15 @@ public class ConceptObjectTest extends ConceptDatasetTest implements InstanceTes
   {
     ConceptObject object = this.cObjectService.newInstance(cClass);
     object.setValue(attribute.getCode(), "Test Text");
-    object.setValue(attributeOverTime.getCode(), "Test Text 2", FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
-    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.SOURCE.getDataSource(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
+    object.setValue(attributeOverTime.getCode(), "Test Text 2", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), USATestData.SOURCE.getDataSource(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
     object.setCode(TEST_CODE);
     this.cObjectService.apply(object);
 
     try
     {
       Assert.assertEquals("Test Text", object.getValue(attribute.getCode()));
-      Assert.assertEquals("Test Text 2", object.getValue(attributeOverTime.getCode(), FastTestDataset.DEFAULT_OVER_TIME_DATE));
+      Assert.assertEquals("Test Text 2", object.getValue(attributeOverTime.getCode(), USATestData.DEFAULT_OVER_TIME_DATE));
     }
     finally
     {
@@ -115,8 +120,8 @@ public class ConceptObjectTest extends ConceptDatasetTest implements InstanceTes
     ConceptObject object = this.cObjectService.newInstance(cClass);
     object.setValue(attribute.getCode(), "Test Text");
     object.setCode(TEST_CODE);
-    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.SOURCE.getDataSource(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
-    object.setValue(attributeOverTime.getCode(), "Test Text 2", FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
+    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), USATestData.SOURCE.getDataSource(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+    object.setValue(attributeOverTime.getCode(), "Test Text 2", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
 
     this.cObjectService.apply(object);
 
@@ -125,8 +130,8 @@ public class ConceptObjectTest extends ConceptDatasetTest implements InstanceTes
       ConceptObject result = this.cObjectService.get(cClass, attribute.getCode(), object.getValue(attribute.getCode())).orElse(null);
 
       Assert.assertEquals(object.getVertex().getOid(), result.getVertex().getOid());
-      Assert.assertEquals(FastTestDataset.SOURCE.getDataSource().getOid(), (String) result.getValue(DefaultAttribute.DATA_SOURCE.getName()));
-      Assert.assertEquals("Test Text 2", result.getValue(attributeOverTime.getCode(), FastTestDataset.DEFAULT_OVER_TIME_DATE));
+      Assert.assertEquals(USATestData.SOURCE.getDataSource().getOid(), (String) result.getValue(DefaultAttribute.DATA_SOURCE.getName()));
+      Assert.assertEquals("Test Text 2", result.getValue(attributeOverTime.getCode(), USATestData.DEFAULT_OVER_TIME_DATE));
       Assert.assertEquals("Test Text", result.getValue(attribute.getCode()));
     }
     finally
@@ -208,8 +213,8 @@ public class ConceptObjectTest extends ConceptDatasetTest implements InstanceTes
     object.setValue(attribute.getCode(), text);
     object.setCode(TEST_CODE);
     // object.setValue(attributeClassification.getCode(), root.getVertex());
-    object.setValue(attributeOverTime.getCode(), text, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
-    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.SOURCE.getDataSource(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
+    object.setValue(attributeOverTime.getCode(), text, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), USATestData.SOURCE.getDataSource(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
 
     ObjectOverTimeDTO dto = this.cObjectService.toDTO(object);
 
@@ -226,7 +231,7 @@ public class ConceptObjectTest extends ConceptDatasetTest implements InstanceTes
       Assert.assertNotNull(dto);
       Assert.assertEquals(TEST_CODE, dto.getCode());
 
-      Assert.assertEquals(FastTestDataset.SOURCE.getCode(), dto.getValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.DEFAULT_OVER_TIME_DATE).get());
+      Assert.assertEquals(USATestData.SOURCE.getCode(), dto.getValue(DefaultAttribute.DATA_SOURCE.getName(), USATestData.DEFAULT_OVER_TIME_DATE).get());
       Assert.assertEquals(text, dto.getValue(attribute.getCode()));
 
       List<ValueOverTimeEntryDTO<String>> valuesOverTime = dto.getValuesOverTime(attributeOverTime.getCode());
@@ -235,8 +240,8 @@ public class ConceptObjectTest extends ConceptDatasetTest implements InstanceTes
 
       ValueOverTimeEntryDTO<String> entry = valuesOverTime.get(0);
 
-      Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, entry.getStartDate());
-      Assert.assertEquals(FastTestDataset.DEFAULT_END_TIME_DATE, entry.getEndDate());
+      Assert.assertEquals(USATestData.DEFAULT_OVER_TIME_DATE, entry.getStartDate());
+      Assert.assertEquals(USATestData.DEFAULT_END_TIME_DATE, entry.getEndDate());
       Assert.assertEquals(text, entry.getValue());
     }
     finally
@@ -265,12 +270,12 @@ public class ConceptObjectTest extends ConceptDatasetTest implements InstanceTes
       {
         String uid = UUID.randomUUID().toString();
 
-        EdgeObject edge = this.cObjectService.addChild(parent, cEdgeType, child, uid, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE, FastTestDataset.SOURCE.getDataSource()).get();
+        EdgeObject edge = this.cObjectService.addChild(parent, cEdgeType, child, uid, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getDataSource()).get();
 
         Assert.assertEquals(uid, edge.getObjectValue(DefaultAttribute.UID.getName()));
         Assert.assertNotNull(edge.getObjectValue(DefaultAttribute.DATA_SOURCE.getName()));
 
-        List<ConceptObject> results = this.cObjectService.getChildren(parent, cEdgeType, FastTestDataset.DEFAULT_OVER_TIME_DATE);
+        List<ConceptObject> results = this.cObjectService.getChildren(parent, cEdgeType, USATestData.DEFAULT_OVER_TIME_DATE);
 
         Assert.assertEquals(1, results.size());
 
@@ -308,10 +313,10 @@ public class ConceptObjectTest extends ConceptDatasetTest implements InstanceTes
 
       try
       {
-        this.cObjectService.addChild(parent, cEdgeType, child, UUID.randomUUID().toString(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE, FastTestDataset.SOURCE.getDataSource());
-        this.cObjectService.removeChild(parent, cEdgeType, child, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
+        this.cObjectService.addChild(parent, cEdgeType, child, UUID.randomUUID().toString(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getDataSource());
+        this.cObjectService.removeChild(parent, cEdgeType, child, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
 
-        Assert.assertEquals(0, this.cObjectService.getChildren(parent, cEdgeType, FastTestDataset.DEFAULT_OVER_TIME_DATE).size());
+        Assert.assertEquals(0, this.cObjectService.getChildren(parent, cEdgeType, USATestData.DEFAULT_OVER_TIME_DATE).size());
       }
       finally
       {
@@ -342,13 +347,13 @@ public class ConceptObjectTest extends ConceptDatasetTest implements InstanceTes
 
       try
       {
-        this.cObjectService.addChild(parent, cEdgeType, child, UUID.randomUUID().toString(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE, FastTestDataset.SOURCE.getDataSource());
-        this.cObjectService.addChild(parent, cEdgeType, child, UUID.randomUUID().toString(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE, FastTestDataset.SOURCE.getDataSource());
-        this.cObjectService.addChild(parent, cEdgeType, child, UUID.randomUUID().toString(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE, FastTestDataset.SOURCE.getDataSource());
-        this.cObjectService.addChild(parent, cEdgeType, child, UUID.randomUUID().toString(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE, FastTestDataset.SOURCE.getDataSource());
-        this.cObjectService.addChild(parent, cEdgeType, child, UUID.randomUUID().toString(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE, FastTestDataset.SOURCE.getDataSource());
+        this.cObjectService.addChild(parent, cEdgeType, child, UUID.randomUUID().toString(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getDataSource());
+        this.cObjectService.addChild(parent, cEdgeType, child, UUID.randomUUID().toString(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getDataSource());
+        this.cObjectService.addChild(parent, cEdgeType, child, UUID.randomUUID().toString(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getDataSource());
+        this.cObjectService.addChild(parent, cEdgeType, child, UUID.randomUUID().toString(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getDataSource());
+        this.cObjectService.addChild(parent, cEdgeType, child, UUID.randomUUID().toString(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getDataSource());
 
-        List<ConceptObject> results = this.cObjectService.getChildren(parent, cEdgeType, FastTestDataset.DEFAULT_OVER_TIME_DATE);
+        List<ConceptObject> results = this.cObjectService.getChildren(parent, cEdgeType, USATestData.DEFAULT_OVER_TIME_DATE);
 
         Assert.assertEquals(1, results.size());
 
@@ -386,8 +391,8 @@ public class ConceptObjectTest extends ConceptDatasetTest implements InstanceTes
 
       try
       {
-        this.cObjectService.addChild(parent, cEdgeType, child, UUID.randomUUID().toString(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE, FastTestDataset.SOURCE.getDataSource()).get();
-        this.cObjectService.addChild(child, cEdgeType, parent, UUID.randomUUID().toString(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE, FastTestDataset.SOURCE.getDataSource()).get();
+        this.cObjectService.addChild(parent, cEdgeType, child, UUID.randomUUID().toString(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getDataSource()).get();
+        this.cObjectService.addChild(child, cEdgeType, parent, UUID.randomUUID().toString(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getDataSource()).get();
       }
       finally
       {

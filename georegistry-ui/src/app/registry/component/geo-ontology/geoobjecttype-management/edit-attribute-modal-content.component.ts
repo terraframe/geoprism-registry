@@ -24,10 +24,9 @@ import {
     animate,
     transition
 } from "@angular/animations";
-import { BsModalRef } from "ngx-bootstrap/modal";
 import { HttpErrorResponse } from "@angular/common/http";
 
-import { GeoObjectType, AttributeType, ManageGeoObjectTypeModalState, AttributedType } from "@registry/model/registry";
+import { AttributeType, ManageGeoObjectTypeModalState, AttributedType } from "@registry/model/registry";
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
 
 import { ErrorHandler } from "@shared/component";
@@ -35,10 +34,9 @@ import { StepConfig } from "@shared/model/modal";
 
 import { LocalizationService, ModalStepIndicatorService } from "@shared/service";
 
-import { AttributeTypeService, RegistryService } from "@registry/service";
+import { AttributeTypeService } from "@registry/service";
 
 import { AttributeInputComponent } from "./attribute-input.component";
-import { TermOptionWidgetComponent } from "./term-option-widget.component";
 import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { NgIf } from "@angular/common";
 import { FormsModule } from "@angular/forms";
@@ -61,7 +59,7 @@ import { FormsModule } from "@angular/forms";
         ]
     ],
     standalone: true,
-    imports: [FormsModule, NgIf, LocalizeComponent, AttributeInputComponent, TermOptionWidgetComponent]
+    imports: [FormsModule, NgIf, LocalizeComponent, AttributeInputComponent]
 })
 export class EditAttributeModalContentComponent implements OnInit {
 
