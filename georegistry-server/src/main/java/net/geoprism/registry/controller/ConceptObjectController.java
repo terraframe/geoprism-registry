@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.constraints.NotBlank;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.graph.ConceptClass;
 import net.geoprism.registry.model.ConceptObject;
@@ -70,6 +71,17 @@ public class ConceptObjectController extends ObjectController<ConceptObject, Con
       @RequestParam(name = "text") String text)
   {
     List<ObjectOverTimeDTO> response = this.getService().search(getSessionId(), conceptClass, text);
+
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/search-set")
+  public ResponseEntity<List<ObjectOverTimeDTO>> searchSet( //
+      @NotBlank @RequestParam(name = "conceptSet") String conceptSet, //
+      @NotBlank @RequestParam(name = "date") String date, //
+      @RequestParam(name = "text") String text)
+  {
+    List<ObjectOverTimeDTO> response = this.getService().search(getSessionId(), conceptSet, GeoRegistryUtil.parseDate(date, true), text);
 
     return ResponseEntity.ok(response);
   }

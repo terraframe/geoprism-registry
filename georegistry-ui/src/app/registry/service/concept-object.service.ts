@@ -48,6 +48,15 @@ export class ConceptObjectService extends ObjectService {
         return firstValueFrom(this.http.get<ObjectOverTime[]>(environment.apiUrl + this.controller() + "/search-class", { params: params }));
     }
 
+    searchSet(conceptSet: string, date: string, text: string): Promise<ObjectOverTime[]> {
+        let params: HttpParams = new HttpParams();
+        params = params.append("conceptSet", conceptSet);
+        params = params.append("date", date);
+        params = params.append("text", text);
+
+        return firstValueFrom(this.http.get<ObjectOverTime[]>(environment.apiUrl + this.controller() + "/search-set", { params: params }));
+    }
+
     search(type: AttributedType, attribute: AttributeType, text: string): Promise<ObjectOverTime[]> {
         let params: HttpParams = new HttpParams();
         params = params.append("typeCode", type.code);

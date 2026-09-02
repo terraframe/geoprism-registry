@@ -18,16 +18,22 @@
     License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
+
+<ng-template #customItemTemplate let-model="item" let-index="index">
+  <h5> {{ model.code }}</h5>
+</ng-template>
+
 <form #form="ngForm" (ngSubmit)="form.valid && handleOnSubmit()" class="modal-form">
 
   <div class="modal-body">
 
     <div class="heading text-center">
       <h1>
-        <localize *ngIf="geoObjectType.isAbstract" key="hierarchy.management.create.geoobjecttype.group.title"></localize> 
-        <localize *ngIf="!geoObjectType.isAbstract" key="hierarchy.management.create.geoobjecttype.title"></localize> 
+        <localize *ngIf="geoObjectType.isAbstract" key="hierarchy.management.create.geoobjecttype.group.title">
+        </localize>
+        <localize *ngIf="!geoObjectType.isAbstract" key="hierarchy.management.create.geoobjecttype.title"></localize>
       </h1>
-    </div> 
+    </div>
 
     <div class="row">
       <div class="col-md-12">
@@ -47,8 +53,9 @@
       <div class="col-md-12">
         <div class="form-group" *ngFor="let localeValue of geoObjectType.label.localeValues">
           <label>
-            <localize key="data.property.label.label"></localize> 
-            <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale"></convert-key-label>)</span>
+            <localize key="data.property.label.label"></localize>
+            <span style="color: #BABABA">&nbsp;(<convert-key-label
+                [key]="localeValue.locale"></convert-key-label>)</span>
           </label>
           <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input"
             class="form-control" [required]="localeValue.locale === 'defaultLocale'">
@@ -58,32 +65,35 @@
 
     <div class="row">
       <div class="col-md-12">
-        <localized-text [(value)]="geoObjectType.description" key="data.property.label.description" [inlinelayout]="true"></localized-text>
+        <localized-text [(value)]="geoObjectType.description" key="data.property.label.description"
+          [inlinelayout]="true"></localized-text>
       </div>
     </div>
-    
+
     <div class="row" *ngIf="!geoObjectType.superTypeCode">
       <div class="col-md-12" style="margin-bottom: 15px;">
         <div class="form-group">
           <label style="display: block;">
-            <localize key="attribute.group.label"></localize> 
+            <localize key="attribute.group.label"></localize>
           </label>
           <div class="check-block">
-            <boolean-field [disable]="true" [(value)]="geoObjectType.isAbstract" [localizeLabelKey]="'attribute.isAbstract.label'"></boolean-field>
+            <boolean-field [disable]="true" [(value)]="geoObjectType.isAbstract"
+              [localizeLabelKey]="'attribute.isAbstract.label'"></boolean-field>
           </div>
         </div>
       </div>
     </div>
-    
+
     <div class="row">
       <div class="col-md-12" style="margin-bottom: 15px;">
         <div class="form-group">
-        
+
           <label style="display: block;">
-            <localize key="geoObjectType.attr.visibility.label"></localize> 
+            <localize key="geoObjectType.attr.visibility.label"></localize>
           </label>
           <div class="check-block">
-            <boolean-field [disable]="geoObjectType.superTypeCode != null" [(value)]="geoObjectType.isPrivate" [localizeLabelKey]="'geoObjectType.attr.isPrivate'"></boolean-field>
+            <boolean-field [disable]="geoObjectType.superTypeCode != null" [(value)]="geoObjectType.isPrivate"
+              [localizeLabelKey]="'geoObjectType.attr.isPrivate'"></boolean-field>
           </div>
         </div>
       </div>
@@ -95,7 +105,8 @@
           <label for="geometryType">
             <localize key="data.property.label.geometryType"></localize>
           </label>
-          <select class="select-area" name="geometryType" [(ngModel)]="geoObjectType.geometryType" required [disabled]="geoObjectType.superTypeCode != null && geoObjectType.superTypeCode != ''">
+          <select class="select-area" name="geometryType" [(ngModel)]="geoObjectType.geometryType" required
+            [disabled]="geoObjectType.superTypeCode != null && geoObjectType.superTypeCode != ''">
             <option></option>
             <!-- <option value="POINT">
               <localize key="georegistry.geometry.point"></localize>
@@ -115,7 +126,7 @@
             <option value="MULTIPOLYGON">
               <localize key="georegistry.geometry.multipolygon"></localize>
             </option> -->
-             <option value="MULTIPOINT">
+            <option value="MULTIPOINT">
               <localize key="georegistry.geometry.point"></localize>
             </option>
             <option value="MULTILINE">
@@ -161,7 +172,7 @@
         </div>
       </div>
     </div>
-    
+
     <div class="row">
       <div class="col-md-12">
         <div class="form-group">
@@ -172,6 +183,71 @@
             <input type="text" name="organization" [(ngModel)]="organizationLabel" disabled required>
           </span>
         </div>
+      </div>
+    </div>
+
+    <div class="panel panel-default" *ngIf="groupSuperType == null">
+      <div class="panel-heading">
+        <h5 class="panel-title">Classification</h5>
+      </div>
+      <div class="panel-body">
+
+        <div class="row">
+          <div class="col-md-12">
+            <div class="form-group">
+              <label>
+                Concept Set
+              </label>
+              <select name="conceptSet" class="select-area" [(ngModel)]="geoObjectType.classification.conceptSet">
+                <option></option>
+                @for (set of sets; track set) {
+                <option [value]="set.code">
+                  {{set.displayLabel.localizedValue}}
+                </option>
+                }
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="row" *ngIf="geoObjectType.classification.conceptSet.length > 0">
+          <div class="col-md-12">
+            <div class="form-group">
+              <label>
+                Start Date
+              </label>
+              <date-field [(value)]="geoObjectType.classification.startDate" classNames="form-control"
+                inputName="startDate" name="startDate" [required]="true"></date-field>
+            </div>
+          </div>
+        </div>
+        <div class="row" *ngIf="geoObjectType.classification.conceptSet.length > 0">
+          <div class="col-md-12">
+            <div class="form-group">
+              <label>
+                End Date
+              </label>
+              <date-field [(value)]="geoObjectType.classification.endDate" classNames="form-control" inputName="endDate"
+                name="endDate" [allowInfinity]="true" [allowFutureDates]="true" [required]="true"></date-field>
+            </div>
+          </div>
+        </div>
+        <div class="row"
+          *ngIf="geoObjectType.classification.conceptSet.length > 0 && geoObjectType.classification.startDate != null">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>
+                Root Term
+              </label>
+              <input type="text" class="form-control" autocomplete="off" name="rootTerm" [(ngModel)]="text"
+                [typeaheadAsync]="true" [typeahead]="typeahead" (change)="onTextChange()"
+                (typeaheadOnSelect)="typeaheadOnSelect($event)" (typeaheadLoading)="loading = $event"
+                [ngClass]="{'inline-loading':loading}" [typeaheadOptionsLimit]="7"
+                [typeaheadItemTemplate]="customItemTemplate" [typeaheadMinLength]="0" [typeaheadWaitMs]="300">
+            </div>
+          </div>
+        </div>
+
+
       </div>
     </div>
 

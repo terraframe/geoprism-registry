@@ -24,7 +24,7 @@ import { ConfigurationService } from "@core/service/configuration.service";
 @Injectable({ providedIn: 'root' })
 export class LocalizationService {
 
-    constructor(private config : ConfigurationService) {
+    constructor(private config: ConfigurationService) {
     }
 
     addLocale(locale: LocaleView): void {
@@ -56,13 +56,13 @@ export class LocalizationService {
         return this.config.getConfiguration().locales;
     }
 
-    create(): LocalizedValue {
-        const value = { localizedValue: "", localeValues: [] } as LocalizedValue;
+    create(localizedValue: string = ""): LocalizedValue {
+        const value = { localizedValue: localizedValue, localeValues: [] } as LocalizedValue;
 
         this.config.getConfiguration().locales.forEach(locale => {
             // if (!locale.isDefaultLocale)
             // {
-            value.localeValues.push({ locale: locale.toString, value: "" });
+            value.localeValues.push({ locale: locale.toString, value: localizedValue });
             // }
         });
 
