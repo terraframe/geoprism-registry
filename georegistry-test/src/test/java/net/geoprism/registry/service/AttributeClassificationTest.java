@@ -239,6 +239,16 @@ public class AttributeClassificationTest extends FastDatasetTest implements Inst
 
   @Test
   @Request
+  public void testGetAncestorTreeRoot()
+  {
+    NodeDTO<ObjectOverTimeDTO> node = this.cObjectService.getAncestorTree(testClassification, rootConcept, 20);
+
+    Assert.assertEquals(rootConcept.getCode(), node.getObject().getCode());
+    Assert.assertEquals(1, node.getChildren().getResultSet().size());
+  }
+
+  @Test
+  @Request
   public void testGetChildrenCount()
   {
     Assert.assertEquals(Integer.valueOf(1), this.cObjectService.getChildCount(rootConcept, testClassification));

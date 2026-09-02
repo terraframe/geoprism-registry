@@ -22,14 +22,14 @@ import { LocalizedValue } from "@core/model/core";
 import { FormsModule } from "@angular/forms";
 import { ConvertKeyLabel } from "@shared/component/localize/convert-key-label.component";
 import { LocalizeComponent } from "@shared/component/localize/localize.component";
-import { NgFor, NgClass } from "@angular/common";
+import { NgFor, NgClass, NgIf } from "@angular/common";
 
 @Component({
     selector: "localized-text",
     templateUrl: "./localized-text.component.html",
     styleUrls: ["./localized-text.css"],
     standalone: true,
-    imports: [NgFor, NgClass, LocalizeComponent, ConvertKeyLabel, FormsModule]
+    imports: [NgFor, NgClass, NgIf, LocalizeComponent, ConvertKeyLabel, FormsModule]
 })
 export class LocalizedTextComponent {
 
