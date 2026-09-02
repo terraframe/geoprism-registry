@@ -23,8 +23,10 @@ import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.ConceptClass;
 import net.geoprism.registry.graph.ConceptEdgeType;
 import net.geoprism.registry.graph.ConceptSet;
+import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.service.business.ConceptClassBusinessServiceIF;
 import net.geoprism.registry.service.business.ConceptEdgeTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.ConceptObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.ConceptSetBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.view.ConceptClassDTO;
@@ -37,6 +39,8 @@ import net.geoprism.registry.view.DiscreteType;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class ConceptSetTest extends DatasetTest implements InstanceTestClassListener
 {
+  private static ConceptObject             conceptObject;
+
   private static ConceptClass              conceptClass;
 
   private static ConceptEdgeType           conceptEdgeType;
@@ -46,6 +50,9 @@ public class ConceptSetTest extends DatasetTest implements InstanceTestClassList
 
   @Autowired
   private ConceptEdgeTypeBusinessServiceIF cEdgeService;
+
+  @Autowired
+  private ConceptObjectBusinessServiceIF   cObjectService;
 
   @Autowired
   private ConceptSetBusinessServiceIF      service;
@@ -64,12 +71,21 @@ public class ConceptSetTest extends DatasetTest implements InstanceTestClassList
     conceptClass = this.cClassService.apply(dto);
 
     conceptEdgeType = this.cEdgeService.create(ConceptEdgeTypeDTO.build(FastTestDataset.ORG_CGOV.getCode(), "TestConceptEdge", conceptClass.getCode(), conceptClass.getCode(), DiscreteType.TAXONOMY));
+
+    conceptObject = this.cObjectService.newInstance(conceptClass);
+    conceptObject.setCode("Concept Object 1");
+    conceptObject.apply();
   }
 
   @Override
   @Request
   public void afterClassSetup() throws Exception
   {
+    if (conceptObject != null)
+    {
+      this.cObjectService.delete(conceptObject);
+    }
+
     if (conceptEdgeType != null)
     {
       this.cEdgeService.delete(conceptEdgeType);
@@ -252,6 +268,31 @@ public class ConceptSetTest extends DatasetTest implements InstanceTestClassList
     {
       this.service.delete(set);
     }
+  }
+
+  @Test
+  @Request
+  public void testCreateWithClassAndType()
+  {
+    ConceptSetDTO dto = createDTO();
+    dto.getConceptClasses().add(conceptClass.getCode());
+    dto.getConceptEdgeTypes().add(conceptEdgeType.getCode());
+    dto.setRootTerm(conceptObject.getCode());
+
+    ConceptSet set = this.service.apply(dto);
+
+    try
+    {
+      Assert.assertNotNull(set);
+      Assert.assertNotNull(set.getRootTerm());
+      Assert.assertEquals(1, this.service.getConceptEdgeTypeEdges(set).size());
+      Assert.assertEquals(1, this.service.getConceptClasses(set).size());
+    }
+    finally
+    {
+      this.service.delete(set);
+    }
+
   }
 
   public ConceptSetDTO createDTO()

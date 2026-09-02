@@ -1,0 +1,89 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<!--   <h2> <localize key="hierarchy.management.title"></localize> </h2> -->
+<div class="row">
+
+	<nav class="col-md-2 hierarchy-sidebar">
+
+		<accordion [isAnimated]="true" [closeOthers]="false">
+			<accordion-group [panelClass]="'hierarchy-sidebar-content'" [isOpen]="true" style="border-radius: 0;">
+				<div accordion-heading style="padding: 10px 15px;">
+					<span>
+						<i style="margin-right:10px;" class="fa fa-circle"></i>
+					</span>
+					Concept Sets
+				</div>
+				<div class="sidebar-section-content">
+					<ul class="list-group">
+						<div>
+
+							<div style="text-align: center;padding: 10px 0;">
+								<button (click)="createConceptSet()" type="button" class="btn btn-primary"
+									style="margin-bottom:20px;min-width:45%;">
+									<localize key="modal.button.add"></localize>
+								</button>
+							</div>
+
+							<li class="list-group-item type-item type-li-item" *ngFor="let set of sets"
+								[ngClass]="{'primary active': (selection != null && selection.set != null && set.code === selection.set.code)}"
+								(click)="handleTypeView(set)">
+								{{set.displayLabel.localizedValue}}
+
+								<div class="btn-group pull-right" dropdown [dropup]="true" container="body">
+									<a class="pull-right" dropdownToggle (click)="$event.stopPropagation();"
+										aria-controls="basic-link-dropdown">
+										<i class="fa fa-ellipsis-vertical clickable dropdown-toggle"></i>
+									</a>
+									<ul *dropdownMenu class="dropdown-menu" role="menu"
+										aria-labelledby="button-animated">
+										<li role="menuitem">
+											<a class="dropdown-item" (click)="handleDeleteConceptSet(set)">
+												<localize key="button.delete.helptext"></localize>
+											</a>
+										</li>
+										<li role="menuitem">
+											<a class="dropdown-item" (click)="handleEditConceptSet(set)">
+												<localize key="button.edit.helptext">
+												</localize>
+											</a>
+										</li>
+									</ul>
+								</div>
+							</li>
+						</div>
+					</ul>
+				</div>
+			</accordion-group>
+		</accordion>
+	</nav>
+
+	<div class="col-md-10 hierarchy-content">
+		<div id="overflow-div">
+			<manage-concept-set *ngIf="selection != null" [conceptClasses]="conceptClasses"
+				[conceptEdgeTypes]="conceptEdgeTypes" [set]="selection.set" [readOnly]="selection.readOnly"
+				[isNew]="selection.action === Action.CREATE" (typeChange)="handleTypeChange($event)"
+				(onCancel)="selection = null" (onError)="error($event)">
+			</manage-concept-set>
+
+		</div>
+	</div>
+</div>

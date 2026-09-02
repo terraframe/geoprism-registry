@@ -64,6 +64,16 @@ public class ConceptObjectController extends ObjectController<ConceptObject, Con
     return ResponseEntity.ok(response);
   }
 
+  @GetMapping("/search-class")
+  public ResponseEntity<List<ObjectOverTimeDTO>> search( //
+      @NotBlank @RequestParam(name = "conceptClass") String conceptClass, //
+      @RequestParam(name = "text") String text)
+  {
+    List<ObjectOverTimeDTO> response = this.getService().search(getSessionId(), conceptClass, text);
+
+    return ResponseEntity.ok(response);
+  }
+
   @GetMapping("/get-children")
   public ResponseEntity<Page<ObjectOverTimeDTO>> getChildren( //
       @NotBlank @RequestParam(name = "concept") String concept, //

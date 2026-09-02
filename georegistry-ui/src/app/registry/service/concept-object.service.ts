@@ -40,6 +40,14 @@ export class ConceptObjectService extends ObjectService {
         return "/api/concept-object";
     }
 
+    searchConceptClass(conceptClass: string, text: string): Promise<ObjectOverTime[]> {
+        let params: HttpParams = new HttpParams();
+        params = params.append("conceptClass", conceptClass);
+        params = params.append("text", text);
+
+        return firstValueFrom(this.http.get<ObjectOverTime[]>(environment.apiUrl + this.controller() + "/search-class", { params: params }));
+    }
+
     search(type: AttributedType, attribute: AttributeType, text: string): Promise<ObjectOverTime[]> {
         let params: HttpParams = new HttpParams();
         params = params.append("typeCode", type.code);
@@ -68,5 +76,5 @@ export class ConceptObjectService extends ObjectService {
         params = params.append("pageSize", pageSize);
 
         return firstValueFrom(this.http.get<ObjectOverTimeNode>(environment.apiUrl + this.controller() + "/get-ancestor-tree", { params: params }));
-    }    
+    }
 }

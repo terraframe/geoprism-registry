@@ -18,16 +18,11 @@
 ///
 
 import { Injectable } from "@angular/core";
-import { HttpClient, HttpParams } from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 
 import { EventService } from "@shared/service";
-import { GenericTableService } from "@shared/model/generic-table";
-import { PageResult } from "@shared/model/core";
-
-import { environment } from 'src/environments/environment';
-import { firstValueFrom } from "rxjs";
 import { ObjectClassService } from "./object-class.service";
-import { BusinessType, ConceptClass } from "@registry/model/object-class";
+import { ConceptClass } from "@registry/model/object-class";
 
 @Injectable({ providedIn: 'root' })
 export class ConceptClassService extends ObjectClassService<ConceptClass> {

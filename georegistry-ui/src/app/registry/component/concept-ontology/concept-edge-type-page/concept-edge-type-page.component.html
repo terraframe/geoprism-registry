@@ -74,7 +74,7 @@
     <div class="col-md-10 hierarchy-content">
         <div id="overflow-div">
             <manage-concept-edge-type *ngIf="selection != null" [isNew]="selection.isNew" [type]="selection.type"
-                [conceptTypes]="conceptTypes" [readOnly]="selection.readOnly" (typeChange)="handleTypeChange($event)"
+                [conceptClasses]="conceptClasses" [readOnly]="selection.readOnly" (typeChange)="handleTypeChange($event)"
                 (onCancel)="selection = null" (onError)="error($event)">
             </manage-concept-edge-type>
 

@@ -58,7 +58,7 @@ import { ConceptEdgeType, ConceptClass } from "@registry/model/object-class";
 })
 export class ManageConceptEdgeTypeComponent implements OnInit {
     @Input() type: ConceptEdgeType = null;
-    @Input() conceptTypes: ConceptClass[] = [];
+    @Input() conceptClasses: ConceptClass[] = [];
 
     @Input() readOnly: boolean = false;
     @Input() isNew: boolean = false;

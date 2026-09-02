@@ -1,0 +1,150 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<ng-template #customItemTemplate let-model="item" let-index="index">
+  <h5> {{ model.code }}</h5>
+</ng-template>
+
+
+<div>
+  <form #form="ngForm" *ngIf="set != null" class="modal-form" (ngSubmit)="form.valid">
+    <fieldset>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label>
+              <localize key="data.property.label.code"></localize>
+            </label>
+            <span class="text">
+              <input set="text" class="form-control" [(ngModel)]="set.code" name="code" [disabled]="readOnly || !isNew"
+                required>
+            </span>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label>
+              Discrete Graph Type
+            </label>
+            <select id="discreteType" name="discreteType" class="select-area" [(ngModel)]="set.discreteType"
+              [disabled]="readOnly || !isNew" required>
+              <option></option>
+              <option value="ENUMERATION">
+                ENUMERATION
+              </option>
+              <option value="TAXONOMY">
+                TAXONOMY
+              </option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-6">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group" *ngFor="let localeValue of set.displayLabel.localeValues">
+            <label>
+              <localize key="data.property.label.label"></localize>
+              <span style="color: #BABABA">&nbsp;(
+                <convert-key-label [key]="localeValue.locale"></convert-key-label>
+                )
+              </span>
+            </label>
+            <input [disabled]="readOnly" [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale"
+              set="input" class="form-control" required>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <localized-text [disabled]="readOnly" [(value)]="set.description" key="data.property.label.description"
+              [inlinelayout]="true">
+            </localized-text>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label>
+              Concept Class
+            </label>
+            <select name="conceptClasses[0]" class="select-area" [(ngModel)]="set.conceptClasses[0]"
+              [disabled]="readOnly || !isNew" required>
+              <option></option>
+              @for (conceptClass of conceptClasses; track conceptClass) {
+              <option [value]="conceptClass.code">
+                {{conceptClass.displayLabel.localizedValue}}
+              </option>
+              }
+            </select>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label>
+              Concept Edge Type
+            </label>
+            <select name="conceptEdgeTypes[0]" class="select-area" [(ngModel)]="set.conceptEdgeTypes[0]"
+              [disabled]="readOnly || !isNew" required>
+              <option></option>
+              @for (conceptEdge of conceptEdgeTypes; track conceptEdge) {
+              <option [value]="conceptEdge.code">
+                {{conceptEdge.label.localizedValue}}
+              </option>
+              }
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="row" *ngIf="set.conceptClasses[0].length > 0">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label>
+              Root Term
+            </label>
+            <input type="text" class="form-control" autocomplete="off" name="rootTerm" [disabled]="readOnly || !isNew"
+              [(ngModel)]="text" [typeaheadAsync]="true" [typeahead]="typeahead" (change)="onTextChange()"
+              (typeaheadOnSelect)="typeaheadOnSelect($event)" (typeaheadLoading)="loading = $event"
+              [ngClass]="{'inline-loading':loading}" [typeaheadOptionsLimit]="7"
+              [typeaheadItemTemplate]="customItemTemplate" [typeaheadMinLength]="0" [typeaheadWaitMs]="300">
+          </div>
+        </div>
+      </div>
+
+
+
+      <div class="row-holder" *ngIf="!readOnly">
+        <div class="button-holder">
+          <button set="button" class="btn btn-default" (click)="close()">
+            <localize key="modal.button.cancel"></localize>
+          </button>
+          <button *ngIf="!readOnly" set="button" class="btn btn-primary" [disabled]="form.invalid" (click)="update()">
+            <localize key="modal.button.submit"></localize>
+          </button>
+        </div>
+      </div>
+    </fieldset>
+  </form>
+
+</div>

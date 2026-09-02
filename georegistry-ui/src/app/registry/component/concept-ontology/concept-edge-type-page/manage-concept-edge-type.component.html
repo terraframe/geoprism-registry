@@ -69,8 +69,8 @@
             <select id="parentType" name="parentType" class="select-area" [(ngModel)]="type.parentType"
               [disabled]="readOnly || !isNew" required>
               <option></option>
-              <option *ngFor="let conceptType of conceptTypes" [value]="conceptType.code">
-                {{conceptType.displayLabel.localizedValue}}
+              <option *ngFor="let conceptClass of conceptClasses" [value]="conceptClass.code">
+                {{conceptClass.displayLabel.localizedValue}}
               </option>
             </select>
           </div>
@@ -83,8 +83,8 @@
             <select id="childType" name="childType" class="select-area" [(ngModel)]="type.childType"
               [disabled]="readOnly || !isNew" required>
               <option></option>
-              <option *ngFor="let conceptType of conceptTypes" [value]="conceptType.code">
-                {{conceptType.displayLabel.localizedValue}}
+              <option *ngFor="let conceptClass of conceptClasses" [value]="conceptClass.code">
+                {{conceptClass.displayLabel.localizedValue}}
               </option>
             </select>
           </div>

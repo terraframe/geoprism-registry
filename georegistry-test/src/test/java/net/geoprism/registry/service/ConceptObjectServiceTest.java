@@ -23,8 +23,8 @@ import net.geoprism.registry.ConceptDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.config.TestApplication;
+import net.geoprism.registry.graph.ConceptClass;
 import net.geoprism.registry.model.ConceptObject;
-import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.test.TestOrganizationInfo;
 import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.ObjectOverTimeDTO;
@@ -40,6 +40,8 @@ public class ConceptObjectServiceTest extends ConceptDatasetTest implements Inst
   private static AttributeType attribute;
 
   private static AttributeType attributeOverTime;
+
+  private static ConceptClass  secondClass;
 
   @Override
   protected TestOrganizationInfo getOrganization()
@@ -59,12 +61,16 @@ public class ConceptObjectServiceTest extends ConceptDatasetTest implements Inst
 
     attribute = this.cClassService.createAttributeType(cClass, new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test True"), false, false, false, false));
     attributeOverTime = this.cClassService.createAttributeType(cClass, new AttributeCharacterType("testCharacter2", new LocalizedValue("Test Character 2"), new LocalizedValue("Test True"), false, false, false, true));
+
+    secondClass = this.cClassService.apply(this.mockConceptClass("SECOND_C_CLASS", "SECOND Concept", "SECOND Concept"));
   }
 
   @Override
   @Request
   public void afterClassSetup() throws Exception
   {
+    this.cClassService.delete(secondClass);
+
     super.afterClassSetup();
 
     USATestData.SOURCE.delete();
@@ -172,7 +178,7 @@ public class ConceptObjectServiceTest extends ConceptDatasetTest implements Inst
 
     try
     {
-      ConceptObject result = this.cObjectService.getByCode(cSet, cClass.getCode(), object.getCode()).orElse(null);
+      ConceptObject result = this.cObjectService.getByCode(cSet, object.getCode()).orElse(null);
 
       Assert.assertEquals(object.getVertex().getOid(), result.getVertex().getOid());
     }
@@ -186,16 +192,14 @@ public class ConceptObjectServiceTest extends ConceptDatasetTest implements Inst
   @Request
   public void testBadConceptSetGetByCode()
   {
-    ConceptObject object = this.cObjectService.newInstance(cClass);
-    object.setValue(attribute.getCode(), "Test Text");
+    ConceptObject object = this.cObjectService.newInstance(secondClass);
     object.setCode(TEST_CODE);
+
     this.cObjectService.apply(object);
 
     try
     {
-      ConceptObject result = this.cObjectService.getByCode(cSet, "BAD", object.getCode()).orElse(null);
-
-      Assert.assertEquals(object.getVertex().getOid(), result.getVertex().getOid());
+      this.cObjectService.getByCode(cSet, object.getCode()).orElse(null);
     }
     finally
     {

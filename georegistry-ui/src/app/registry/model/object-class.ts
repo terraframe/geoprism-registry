@@ -21,6 +21,17 @@ import { LocalizedValue } from "@core/model/core";
 import { AttributedType, AttributeType } from "./registry";
 import { PageResult } from "@shared/model/core";
 
+export class ConceptSet {
+    oid?: string;
+    code: string;
+    displayLabel: LocalizedValue;
+    description: LocalizedValue;
+    discreteType: string;
+    conceptEdgeTypes: string[];
+    conceptClasses: string[];
+    rootTerm: string;
+}
+
 export class ObjectClass implements AttributedType {
     oid?: string;
     type: "business-type" | "concept-class";

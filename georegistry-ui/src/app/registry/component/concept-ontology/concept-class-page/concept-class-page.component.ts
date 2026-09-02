@@ -89,8 +89,8 @@ export class ConceptClassPageComponent implements OnInit, OnChanges {
 
     ngOnChanges(changes: SimpleChanges) {
         if (changes['types'] || changes['organizations']) {
-            const organizations = changes['organizations'] ? changes['organizations'].currentValue : this.organizations;
-            const types = changes['types'] ? changes['types'].currentValue : this.types;
+            const organizations: Organization[] = changes['organizations'] ? changes['organizations'].currentValue : this.organizations;
+            const types: ConceptClass[] = changes['types'] ? changes['types'].currentValue : this.types;
 
             this.typesByOrg = [];
 

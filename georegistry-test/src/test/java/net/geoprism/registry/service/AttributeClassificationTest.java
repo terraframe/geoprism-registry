@@ -182,6 +182,21 @@ public class AttributeClassificationTest extends FastDatasetTest implements Inst
 
   @Test
   @Request
+  public void testSearchConceptClass()
+  {
+    List<ConceptObject> results = this.cObjectService.search(cClass, rootConcept.getCode());
+
+    Assert.assertEquals(1, results.size());
+
+    ConceptObject result = results.get(0);
+
+    Assert.assertEquals(rootConcept.getCode(), result.getCode());
+
+    Assert.assertEquals(1, this.cObjectService.search(cClass, childConcept.getCode()).size());
+  }
+
+  @Test
+  @Request
   public void testGetChildren()
   {
     List<ConceptObject> results = this.cObjectService.getChildren(rootConcept, testClassification, 20, 1);
@@ -243,6 +258,25 @@ public class AttributeClassificationTest extends FastDatasetTest implements Inst
     {
       TestDataSet.runAsUser(user, (request) -> {
         List<ObjectOverTimeDTO> results = this.service.search(request.getSessionId(), TEST_GOT.getCode(), testClassification.getCode(), childConcept.getCode());
+
+        Assert.assertEquals(1, results.size());
+
+        ObjectOverTimeDTO result = results.get(0);
+
+        Assert.assertEquals(childConcept.getCode(), result.getCode());
+      });
+    }
+  }
+
+  @Test
+  public void testRequestSearchClass()
+  {
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA };
+
+    for (TestUserInfo user : allowedUsers)
+    {
+      TestDataSet.runAsUser(user, (request) -> {
+        List<ObjectOverTimeDTO> results = this.service.search(request.getSessionId(), cClass.getCode(), childConcept.getCode());
 
         Assert.assertEquals(1, results.size());
 
