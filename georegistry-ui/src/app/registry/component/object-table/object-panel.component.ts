@@ -73,8 +73,6 @@ export class ObjectPanelComponent implements OnChanges, OnInit {
                 });
             }
         });
-
-        console.log(boundaries);
     }
 
 

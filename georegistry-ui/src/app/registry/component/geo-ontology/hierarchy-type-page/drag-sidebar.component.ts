@@ -38,9 +38,9 @@ export class DragSidebarComponent implements AfterViewInit, OnChanges {
 
     @Input() typesByOrg: { org: Organization, types: GeoObjectType[] }[] = [];
 
-    @Output() onDrag = new EventEmitter<{dragEl: Element, dropEl: Element, event: any}>();
+    @Output() onDrag = new EventEmitter<{ dragEl: Element, dropEl: Element, event: any }>();
 
-    @Output() onDrop = new EventEmitter<{dragEl: Element, event: any}>();
+    @Output() onDrop = new EventEmitter<{ dragEl: Element, event: any }>();
 
 
     constructor() {
@@ -48,7 +48,7 @@ export class DragSidebarComponent implements AfterViewInit, OnChanges {
 
 
     ngAfterViewInit(): void {
-        this.registerDragHandlers();        
+        this.registerDragHandlers();
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -57,8 +57,6 @@ export class DragSidebarComponent implements AfterViewInit, OnChanges {
     }
 
     registerDragHandlers(): any {
-        console.log('Updating Drag Handlers')
-
         const that = this;
 
         // GeoObjectTypes and Hierarchies
@@ -92,7 +90,7 @@ export class DragSidebarComponent implements AfterViewInit, OnChanges {
 
                 selThis.style("display", null);
 
-                that.onDrag.emit({dragEl: this, dropEl: target, event})
+                that.onDrag.emit({ dragEl: this, dropEl: target, event })
 
                 // for (let i = 0; i < dropTargets.length; ++i) {
                 //     dropTargets[i].onDrag(this, target, event);
@@ -141,7 +139,7 @@ export class DragSidebarComponent implements AfterViewInit, OnChanges {
                     });
                 }
 
-                that.onDrop.emit({dragEl: this, event});
+                that.onDrop.emit({ dragEl: this, event });
 
                 // for (let i = 0; i < dropTargets.length; ++i) {
                 //     dropTargets[i].onDrop(this, event);

@@ -58,9 +58,6 @@ export class EdgePageComponent implements OnInit {
         this.configuration.edgeTargetStrategy = 'CODE';
         this.configuration.edgeTargetTypeStrategy = 'FIXED_TYPE';
 
-
-        console.log(this.configuration);
-
         this.sourceTypes = [
             ...this.configuration.sourceTypes
         ];
