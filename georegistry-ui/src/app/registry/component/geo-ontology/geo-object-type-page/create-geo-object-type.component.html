@@ -19,8 +19,16 @@
 
 -->
 
-<ng-template #customItemTemplate let-model="item" let-index="index">
-  <h5> {{ model.code }}</h5>
+<ng-template #customListTemplate let-matches="matches" let-query="query" let-typeaheadTemplateMethods>
+  <ul class="list-group">
+    @for (match of matches; track match) {
+    <li class="list-group-item" [class.active]="typeaheadTemplateMethods.isActive(match)"
+      (click)="typeaheadTemplateMethods.selectMatch(match, $event)"
+      (mouseenter)="typeaheadTemplateMethods.selectActive(match)">
+      {{ match.item.code }}
+    </li>
+    }
+  </ul>
 </ng-template>
 
 <form #form="ngForm" (ngSubmit)="form.valid && handleOnSubmit()" class="modal-form">
@@ -188,7 +196,9 @@
 
     <div class="panel panel-default" *ngIf="groupSuperType == null">
       <div class="panel-heading">
-        <h5 class="panel-title">Classification</h5>
+        <h5 class="panel-title">
+          <localize key="data.type.label.classification"></localize>          
+        </h5>
       </div>
       <div class="panel-body">
 
@@ -196,7 +206,7 @@
           <div class="col-md-12">
             <div class="form-group">
               <label>
-                Concept Set
+                <localize key="concept.set.header"></localize>          
               </label>
               <select name="conceptSet" class="select-area" [(ngModel)]="geoObjectType.classification.conceptSet">
                 <option></option>
@@ -213,7 +223,7 @@
           <div class="col-md-12">
             <div class="form-group">
               <label>
-                Start Date
+                <localize key="io.startDate"></localize>          
               </label>
               <date-field [(value)]="geoObjectType.classification.startDate" classNames="form-control"
                 inputName="startDate" name="startDate" [required]="true"></date-field>
@@ -224,7 +234,7 @@
           <div class="col-md-12">
             <div class="form-group">
               <label>
-                End Date
+                <localize key="io.endDate"></localize>          
               </label>
               <date-field [(value)]="geoObjectType.classification.endDate" classNames="form-control" inputName="endDate"
                 name="endDate" [allowInfinity]="true" [allowFutureDates]="true" [required]="true"></date-field>
@@ -236,13 +246,13 @@
           <div class="col-md-6">
             <div class="form-group">
               <label>
-                Root Term
+                <localize key="concept.root.term"></localize>          
               </label>
               <input type="text" class="form-control" autocomplete="off" name="rootTerm" [(ngModel)]="text"
                 [typeaheadAsync]="true" [typeahead]="typeahead" (change)="onTextChange()"
                 (typeaheadOnSelect)="typeaheadOnSelect($event)" (typeaheadLoading)="loading = $event"
                 [ngClass]="{'inline-loading':loading}" [typeaheadOptionsLimit]="7"
-                [typeaheadItemTemplate]="customItemTemplate" [typeaheadMinLength]="0" [typeaheadWaitMs]="300">
+                [optionsListTemplate]="customListTemplate" [typeaheadMinLength]="0" [typeaheadWaitMs]="300">
             </div>
           </div>
         </div>

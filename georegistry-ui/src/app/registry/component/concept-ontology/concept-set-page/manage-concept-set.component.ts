@@ -94,6 +94,9 @@ export class ManageConceptSetComponent implements OnInit, OnDestroy {
         if (this.set != null) {
             this.text = this.set.rootTerm;
         }
+        else {
+            this.text = ""
+        }
     }
 
     ngOnDestroy(): void {

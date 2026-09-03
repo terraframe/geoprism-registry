@@ -18,10 +18,17 @@
     License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<ng-template #customItemTemplate let-model="item" let-index="index">
-  <h5> {{ model.code }}</h5>
+<ng-template #customListTemplate let-matches="matches" let-query="query" let-typeaheadTemplateMethods>
+  <ul class="list-group">
+    @for (match of matches; track match) {
+    <li class="list-group-item" [class.active]="typeaheadTemplateMethods.isActive(match)"
+      (click)="typeaheadTemplateMethods.selectMatch(match, $event)"
+      (mouseenter)="typeaheadTemplateMethods.selectActive(match)">
+      {{ match.item.code }}
+    </li>
+    }
+  </ul>
 </ng-template>
-
 <div class="input-group">
 
   <input type="text" class="form-control" autocomplete="off"
@@ -32,7 +39,7 @@
     (change)="onTextChange()"
     (typeaheadOnSelect)="typeaheadOnSelect($event)" (typeaheadLoading)="loading = $event"
     [ngClass]="{'inline-loading':loading}" [typeaheadOptionsLimit]="7"
-    [typeaheadItemTemplate]="customItemTemplate" [typeaheadMinLength]="0" [typeaheadWaitMs]="300"
+    [optionsListTemplate]="customListTemplate" [typeaheadMinLength]="0" [typeaheadWaitMs]="300"
     [container]="container"
     >
 

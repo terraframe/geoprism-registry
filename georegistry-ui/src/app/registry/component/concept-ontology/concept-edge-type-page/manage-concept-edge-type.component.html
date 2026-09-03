@@ -37,8 +37,6 @@
         </div>
       </div>
 
-
-
       <div class="row">
         <div class="col-md-6">
           <div class="form-group" *ngFor="let localeValue of type.label.localeValues">
@@ -64,7 +62,7 @@
         <div class="col-md-6">
           <div class="form-group">
             <label for="parentType">
-              <localize key="concept.type.parent"></localize>
+              <localize key="business.type.parent"></localize>
             </label>
             <select id="parentType" name="parentType" class="select-area" [(ngModel)]="type.parentType"
               [disabled]="readOnly || !isNew" required>
@@ -78,7 +76,7 @@
         <div class="col-md-6">
           <div class="form-group">
             <label for="childType">
-              <localize key="concept.type.child"></localize>
+              <localize key="business.type.child"></localize>
             </label>
             <select id="childType" name="childType" class="select-area" [(ngModel)]="type.childType"
               [disabled]="readOnly || !isNew" required>
@@ -95,19 +93,19 @@
         <div class="col-md-6">
           <div class="form-group">
             <label for="parentType">
-              Discrete Graph Type
+              <localize key="concept.edge.discrete.type"></localize>
             </label>
             <select id="discreteType" name="discreteType" class="select-area" [(ngModel)]="type.discreteType"
               [disabled]="readOnly || !isNew" required>
               <option></option>
               <option value="ENUMERATION">
-                ENUMERATION
+                <localize key="concept.edge.discrete.type.enumeration"></localize>
               </option>
               <option value="TAXONOMY">
-                TAXONOMY
+                <localize key="concept.edge.discrete.type.taxonomy"></localize>
               </option>
               <option value="ONTOLOGY">
-                ONTOLOGY
+                <localize key="concept.edge.discrete.type.ontology"></localize>
               </option>
             </select>
           </div>

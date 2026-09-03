@@ -18,13 +18,20 @@
     License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<ng-template #customItemTemplate let-model="item" let-index="index">
-  <h5> {{ model.code }}</h5>
+<ng-template #customListTemplate let-matches="matches" let-query="query" let-typeaheadTemplateMethods>
+  <ul class="list-group">
+    @for (match of matches; track match) {
+    <li class="list-group-item" [class.active]="typeaheadTemplateMethods.isActive(match)"
+      (click)="typeaheadTemplateMethods.selectMatch(match, $event)"
+      (mouseenter)="typeaheadTemplateMethods.selectActive(match)">
+      {{ match.item.code }}
+    </li>
+    }
+  </ul>
 </ng-template>
 
-
 <div>
-  <form #form="ngForm" *ngIf="set != null" class="modal-form" (ngSubmit)="form.valid">
+  <form #form="ngForm" *ngIf="set != null" class="page-form" (ngSubmit)="form.valid">
     <fieldset>
 
       <div class="row">
@@ -42,16 +49,16 @@
         <div class="col-md-6">
           <div class="form-group">
             <label>
-              Discrete Graph Type
+              <localize key="concept.edge.discrete.type"></localize>
             </label>
             <select id="discreteType" name="discreteType" class="select-area" [(ngModel)]="set.discreteType"
               [disabled]="readOnly || !isNew" required>
               <option></option>
               <option value="ENUMERATION">
-                ENUMERATION
+                <localize key="concept.edge.discrete.type.enumeration"></localize>
               </option>
               <option value="TAXONOMY">
-                TAXONOMY
+                <localize key="concept.edge.discrete.type.taxonomy"></localize>
               </option>
             </select>
           </div>
@@ -87,7 +94,7 @@
         <div class="col-md-6">
           <div class="form-group">
             <label>
-              Concept Class
+              <localize key="concept.class.header"></localize>
             </label>
             <select name="conceptClasses[0]" class="select-area" [(ngModel)]="set.conceptClasses[0]"
               [disabled]="readOnly || !isNew" required>
@@ -103,7 +110,7 @@
         <div class="col-md-6">
           <div class="form-group">
             <label>
-              Concept Edge Type
+              <localize key="concept.edge.header"></localize>
             </label>
             <select name="conceptEdgeTypes[0]" class="select-area" [(ngModel)]="set.conceptEdgeTypes[0]"
               [disabled]="readOnly || !isNew" required>
@@ -121,13 +128,13 @@
         <div class="col-md-6">
           <div class="form-group">
             <label>
-              Root Term
+              <localize key="concept.root.term"></localize>
             </label>
             <input type="text" class="form-control" autocomplete="off" name="rootTerm" [disabled]="readOnly || !isNew"
               [(ngModel)]="text" [typeaheadAsync]="true" [typeahead]="typeahead" (change)="onTextChange()"
               (typeaheadOnSelect)="typeaheadOnSelect($event)" (typeaheadLoading)="loading = $event"
-              [ngClass]="{'inline-loading':loading}" [typeaheadOptionsLimit]="7"
-              [typeaheadItemTemplate]="customItemTemplate" [typeaheadMinLength]="0" [typeaheadWaitMs]="300">
+              [ngClass]="{'inline-loading':loading}" [typeaheadOptionsLimit]="7" [typeaheadMinLength]="0"
+              [typeaheadWaitMs]="300" [optionsListTemplate]="customListTemplate">
           </div>
         </div>
       </div>

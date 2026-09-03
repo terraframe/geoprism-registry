@@ -121,6 +121,30 @@ public class ConceptSetTest extends DatasetTest implements InstanceTestClassList
 
   @Test
   @Request
+  public void testToDTO()
+  {
+    ConceptSetDTO dto = createDTO();
+
+    ConceptSet set = this.service.apply(dto);
+
+    try
+    {
+      ConceptSetDTO result = this.service.toDTO(set);
+
+      Assert.assertNotNull(result);
+      Assert.assertEquals(dto.getCode(), result.getCode());
+      Assert.assertEquals(dto.getDisplayLabel().getValue(), result.getDisplayLabel().getValue());
+      Assert.assertEquals(dto.getDescription().getValue(), result.getDescription().getValue());
+    }
+    finally
+    {
+      this.service.delete(set);
+    }
+
+  }
+
+  @Test
+  @Request
   public void testUpdate()
   {
     ConceptSetDTO dto = createDTO();

@@ -29,7 +29,7 @@
                 </tab>
 
                 <!-- LOCALIZE -->
-                <tab heading="Concept Edges">
+                <tab [heading]="'nav.concept.edge.label' | localize">
                     <concept-edge-type-page [organizations]="organizations" [conceptClasses]="conceptClasses"
                         [types]="conceptEdgeTypes" (typesChange)="setConceptEdgeTypes($event)"
                         (onError)="error($event)">
@@ -37,11 +37,10 @@
 
                 </tab>
                 <!-- LOCALIZE -->
-                <tab heading="Concept Sets">
+                <tab [heading]="'nav.concept.set.label' | localize">
                     <concept-set-page (onError)="error($event)" [conceptClasses]="conceptClasses"
                         [conceptEdgeTypes]="conceptEdgeTypes">
                     </concept-set-page>
-
                 </tab>
 
             </tabset>

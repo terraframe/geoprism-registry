@@ -60,11 +60,13 @@
 	width: 100%;
 }
 
-.modal-form .row-holder .row-holder {
+.modal-form .row-holder .row-holder,
+.page-form .row-holder .row-holder {
 	padding: 0 0 0 12px;
 }
 
-.modal-form .label-holder {
+.modal-form .label-holder,
+.page-form .label-holder {
 	float: left;
 	/* width:236px;
 	margin:0 18px 0 0; */
@@ -76,7 +78,9 @@
 }
 
 .modal-form .label-holder label,
-.modal-form .label-holder strong {
+.modal-form .label-holder strong,
+.page-form .label-holder label,
+.page-form .label-holder strong {
 	float: none;
 	display: inline-block;
 	vertical-align: top;
@@ -88,12 +92,14 @@
 	padding: 0;
 }
 
-.modal-form .holder.dataset-attr-holder {
+.modal-form .holder.dataset-attr-holder,
+.page-form .holder.dataset-attr-holder {
 	overflow-y: auto;
 	max-height: 50vh;
 }
 
-.modal-form .holder {
+.modal-form .holder,
+.page-form .holder {
 	float: left;
 	width: 80%;
 	border-left: none;
@@ -101,7 +107,8 @@
 	position: relative;
 }
 
-.modal-form .wide-holder {
+.modal-form .wide-holder,
+.page-form .wide-holder {
 	float: left;
 	width: 100%;
 	border-left: 1px solid #ccc;
@@ -109,36 +116,44 @@
 	position: relative;
 }
 
-.modal-form ::-webkit-input-placeholder {
+.modal-form ::-webkit-input-placeholder,
+.page-form ::-webkit-input-placeholder {
 	color: darkgrey !important;
 }
 
-.modal-form :-ms-input-placeholder {
+.modal-form :-ms-input-placeholder,
+.page-form :-ms-input-placeholder {
 	color: darkgrey !important;
 }
 
-.modal-form :-moz-placeholder {
+.modal-form :-moz-placeholder,
+.page-form :-moz-placeholder {
 	color: darkgrey !important;
 }
 
-.modal-form ::-moz-placeholder {
+.modal-form ::-moz-placeholder,
+.page-form ::-moz-placeholder {
 	color: darkgrey !important;
 	opacity: 1 !important;
 }
 
-.modal-form :focus::-webkit-input-placeholder {
+.modal-form :focus::-webkit-input-placeholder,
+.page-form :focus::-webkit-input-placeholder {
 	opacity: 0 !important;
 }
 
-.modal-form :focus:-ms-input-placeholder {
+.modal-form :focus:-ms-input-placeholder,
+.page-form :focus:-ms-input-placeholder {
 	opacity: 0 !important;
 }
 
-.modal-form :focus:-moz-placeholder {
+.modal-form :focus:-moz-placeholder,
+.page-form :focus:-moz-placeholder {
 	opacity: 0 !important;
 }
 
-.modal-form :focus::-moz-placeholder {
+.modal-form :focus::-moz-placeholder,
+.page-form :focus::-moz-placeholder {
 	opacity: 0 !important;
 }
 
@@ -175,13 +190,15 @@ input :focus::-moz-placeholder {
 	opacity: 0 !important;
 }
 
-.modal-form .form-group {
+.modal-form .form-group,
+.page-form .form-group {
 	float: left;
 	position: relative;
 	width: 100%;
 }
 
-.modal-form .form-group textarea {
+.modal-form .form-group textarea,
+.page-form .form-group textarea {
 	background: white;
 	border: 1px solid #aaa;
 	border-radius: 5px;
@@ -200,57 +217,69 @@ input :focus::-moz-placeholder {
 	resize: none;
 }
 
-.modal-form .form-group textarea::-moz-placeholder {
+.modal-form .form-group textarea::-moz-placeholder,
+.page-form .form-group textarea::-moz-placeholder {
 	color: #333;
 	opacity: 1;
 }
 
-.modal-form .form-group textarea:-ms-input-placeholder {
+.modal-form .form-group textarea:-ms-input-placeholder,
+.page-form .form-group textarea:-ms-input-placeholder {
 	color: #333;
 }
 
-.modal-form .form-group textarea::-webkit-input-placeholder {
+.modal-form .form-group textarea::-webkit-input-placeholder,
+.page-form .form-group textarea::-webkit-input-placeholder {
 	color: #333;
 }
 
-.modal-form .form-group textarea:-moz-placeholder {
+.modal-form .form-group textarea:-moz-placeholder,
+.page-form .form-group textarea:-moz-placeholder {
 	color: #333;
 }
 
-.modal-form .form-group textarea:focus {
+.modal-form .form-group textarea:focus,
+.page-form .form-group textarea:focus {
 	border-color: #6BA542;
 	-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(107, 165, 66, .6);
 	box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(107, 165, 66, .6);
 }
 
-.modal-form .form-group textarea:disabled {
+.modal-form .form-group textarea:disabled,
+.page-form .form-group textarea:disabled {
 	color: #999;
 }
 
-.modal-form .select-holder {
+.modal-form .select-holder,
+.page-form .select-holder {
 	float: left;
 	position: relative;
 	width: 100%;
 	overflow: hidden;
 }
 
-.modal-form .select-holder select {
+.modal-form .select-holder select,
+.page-form .select-holder select {
 	float: left;
 	font-size: 13px;
 	line-height: 16px;
 	color: #333;
 }
 
-.modal-form .font-select {
+.modal-form .font-select,
+.page-form .font-select {
 	width: 92px;
 }
 
-.modal-form .font-select {
+.modal-form .font-select,
+.page-form .font-select {
 	width: 62px;
 }
 
 .modal-form .cell label,
-.modal-form .cell>span {
+.modal-form .cell>span,
+.page-form .cell label,
+.page-form .cell>span {
 	float: left;
 	font-size: 12px;
 	line-height: 15px;
@@ -389,14 +418,16 @@ input :focus::-moz-placeholder {
 	padding: 4px 0;
 }
 
-.modal-form .color-holder {
+.modal-form .color-holder,
+.page-form .color-holder {
 	float: left;
 	position: relative;
 	width: 100%;
 	height: 31px;
 }
 
-.modal-form .color-choice {
+.modal-form .color-choice,
+.page-form .color-choice {
 	float: left;
 }
 
@@ -450,7 +481,8 @@ input :focus::-moz-placeholder {
 	overflow: hidden;
 }
 
-.modal-form .box {
+.modal-form .box,
+.page-form .box {
 	float: left;
 	position: relative;
 	margin: 0 27px 0 0;
@@ -460,7 +492,8 @@ input :focus::-moz-placeholder {
 	padding: 1px;
 }
 
-.modal-form .box label {
+.modal-form .box label,
+.page-form .box label {
 	float: left;
 	font-size: 13px;
 	line-height: 16px;
@@ -469,7 +502,8 @@ input :focus::-moz-placeholder {
 	margin: 7px 19px 0 0;
 }
 
-.modal-form .select-box {
+.modal-form .select-box,
+.page-form .select-box {
 	float: left;
 	min-width: 100px;
 	position: relative;
@@ -558,35 +592,42 @@ option[selected] {
 
 
 
-.modal-form .select-box select:focus {
+.modal-form .select-box select:focus,
+.page-form .select-box select:focus {
 	border-color: #6BA542;
 }
 
-.modal-form .select-holder select:focus {
+.modal-form .select-holder select:focus,
+.page-form .select-holder select:focus {
 	border-color: #6BA542;
 }
 
 
-.modal-form .holder.add {
+.modal-form .holder.add,
+.page-form .holder.add {
 	padding-top: 14px;
 }
 
-.modal-form .cell-holder .cell {
+.modal-form .cell-holder .cell,
+.page-form .cell-holder .cell {
 	float: left;
 	width: 62px;
 	margin: 0 0 0 9px;
 	position: relative;
 }
 
-.modal-form .cell-holder .cell:first-child {
+.modal-form .cell-holder .cell:first-child,
+.page-form .cell-holder .cell:first-child {
 	margin: 0;
 }
 
-.modal-form .cell-holder {
+.modal-form .cell-holder,
+.page-form .cell-holder {
 	overflow: hidden;
 }
 
-.modal-form .tab-pane .title {
+.modal-form .tab-pane .title,
+.page-form .tab-pane .title {
 	display: block;
 	font-size: 13px;
 	line-height: 16px;
@@ -597,15 +638,18 @@ option[selected] {
 	margin: 0 0 6px;
 }
 
-.modal-form .tab-content>.tab-pane {
+.modal-form .tab-content>.tab-pane,
+.page-form .tab-content>.tab-pane {
 	padding: 9px 0 22px 2px;
 }
 
-.modal-form .tab-pane .cell label {
+.modal-form .tab-pane .cell label,
+.page-form .tab-pane .cell label {
 	margin-bottom: 5px;
 }
 
-.modal-form .tab-pane .text input[type="text"] {
+.modal-form .tab-pane .text input[type="text"],
+.page-form .tab-pane .text input[type="text"] {
 	height: 31px;
 	font-size: 12px;
 	line-height: 15px;
@@ -613,24 +657,29 @@ option[selected] {
 	padding: 5px 7px;
 }
 
-.modal-form .tab-pane .text input[type="text"]::-moz-placeholder {
+.modal-form .tab-pane .text input[type="text"]::-moz-placeholder,
+.page-form .tab-pane .text input[type="text"]::-moz-placeholder {
 	color: #bababa;
 	opacity: 1;
 }
 
-.modal-form .tab-pane .text input[type="text"]:-ms-input-placeholder {
+.modal-form .tab-pane .text input[type="text"]:-ms-input-placeholder,
+.page-form .tab-pane .text input[type="text"]:-ms-input-placeholder {
 	color: #bababa;
 }
 
-.modal-form .tab-pane .text input[type="text"]::-webkit-input-placeholder {
+.modal-form .tab-pane .text input[type="text"]::-webkit-input-placeholder,
+.page-form .tab-pane .text input[type="text"]::-webkit-input-placeholder {
 	color: #bababa;
 }
 
-.modal-form .tab-pane .text input[type="text"]:-moz-placeholder {
+.modal-form .tab-pane .text input[type="text"]:-moz-placeholder,
+.page-form .tab-pane .text input[type="text"]:-moz-placeholder {
 	color: #bababa;
 }
 
-.modal-form .button-holder {
+.modal-form .button-holder,
+.page-form .button-holder {
 	overflow: hidden;
 	/* padding:0 0 0 1px; */
 	text-align: right;
@@ -642,7 +691,11 @@ option[selected] {
 .modal-form .button-holder .btn,
 .modal-form .button-holder .btn:hover,
 .modal-form .button-holder .btn:active,
-.modal-form .button-holder .btn:focus {
+.modal-form .button-holder .btn:focus,
+.page-form .button-holder .btn,
+.page-form .button-holder .btn:hover,
+.page-form .button-holder .btn:active,
+.page-form .button-holder .btn:focus {
 	min-width: 77px;
 	padding: 4px 10px;
 	/* margin:0 11px 0 0; */
@@ -732,10 +785,11 @@ div.gdb-maincontent-busy {
 	max-width: 52%;
 }
 
-.modal-form .table.table-bordered {
+.modal-form .table.table-bordered,
+.page-form .table.table-bordered {
 	font-size: 12px;
 }
 
-.modal-body:focus {
+.basic-body:focus {
 	outline: none;
 }
