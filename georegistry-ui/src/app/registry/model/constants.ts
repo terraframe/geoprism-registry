@@ -33,8 +33,6 @@ export enum GeoObjectTypeModalStates {
     "manageAttributes" = "MANAGE-ATTRIBUTES",
     "editAttribute" = "EDIT-ATTRIBUTE",
     "defineAttribute" = "DEFINE-ATTRIBUTE",
-    "manageTermOption" = "MANAGE-TERM-OPTION",
-    "editTermOption" = "EDIT-TERM-OPTION",
     "manageGeoObjectType" = "MANAGE-GEO-OBJECT-TYPE"
 }
 

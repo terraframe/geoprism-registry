@@ -109,7 +109,7 @@ export class LabeledPropertyGraphTypeComponent implements OnInit, OnDestroy {
     onCreate(entry: LabeledPropertyGraphTypeEntry): void {
 
         this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: false, backdrop: true,             ignoreBackdropClick: true
+            animated: false, backdrop: true, ignoreBackdropClick: true
         });
         this.bsModalRef.content.message = "Are you sure you want to publish a new version of the entry [" + entry.period.value + "]";
 
@@ -144,11 +144,11 @@ export class LabeledPropertyGraphTypeComponent implements OnInit, OnDestroy {
 
     onViewConfiguration(type: LabeledPropertyGraphType): void {
         this.bsModalRef = this.modalService.show(LabeledPropertyGraphTypePublishModalComponent, {
-            animated: false, backdrop: true,             ignoreBackdropClick: true
+            animated: false, backdrop: true, ignoreBackdropClick: true
         });
         this.bsModalRef.content.init(null, type);
     }
-    
+
     onExportRDF(entry, version, geometryExportType: string): void {
 
         this.registryService.rdfExport(geometryExportType, version.oid).then(() => {
@@ -160,11 +160,11 @@ export class LabeledPropertyGraphTypeComponent implements OnInit, OnDestroy {
 
     onDelete(entry: LabeledPropertyGraphTypeEntry, version: LabeledPropertyGraphTypeVersion): void {
         this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: false, backdrop: true,             ignoreBackdropClick: true
+            animated: false, backdrop: true, ignoreBackdropClick: true
         });
         this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " Version [" + version.versionNumber + "]";
         this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
-        this.bsModalRef.content.type =  ModalTypes.danger;
+        this.bsModalRef.content.type = ModalTypes.danger;
 
         this.bsModalRef.content.onConfirm.subscribe(data => {
             this.service.removeVersion(version).then(response => {
@@ -180,13 +180,11 @@ export class LabeledPropertyGraphTypeComponent implements OnInit, OnDestroy {
     }
 
     handleProgressChange(progress: Progress): void {
-        console.log(progress)
-
         this.isRefreshing = (progress.current < progress.total);
         progress.description = '';
 
         this.pService.progress(progress);
     }
 
-    
+
 }

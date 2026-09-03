@@ -43,7 +43,7 @@
                 [disabled]="readonly" />
         </div>
     </div>
-<!--
+    <!--
 
     <div class="row-holder">
         <div class="label-holder">
@@ -57,7 +57,7 @@
             </date-field>
         </div>
     </div>
--->    
+-->
     <div class="row-holder" *ngFor="let localeValue of metadata.description.localeValues">
         <div class="label-holder">
             <label>
@@ -443,7 +443,8 @@
                         </label>
                     </div>
                     <div class="holder">
-                        <boolean-field [(value)]="list.includeLatLong" label="" [disable]="readonly || !isNew"></boolean-field>
+                        <boolean-field [(value)]="list.includeLatLong" label=""
+                            [disable]="readonly || !isNew"></boolean-field>
                     </div>
                 </div>
 
@@ -551,9 +552,10 @@
                                     <localize key="georegistry.frequency.monthly"></localize>
                                 </option>
                             </select>
-                            <div *ngIf="!list.frequency && (frequency.dirty)" class="form-input-validation-error-message-wrapper">
-                            	<p class="error-message">
-                                	<localize key="list.change.frequency"></localize>
+                            <div *ngIf="!list.frequency && (frequency.dirty)"
+                                class="form-input-validation-error-message-wrapper">
+                                <p class="error-message">
+                                    <localize key="list.change.frequency"></localize>
                                 </p>
                             </div>
                         </div>
@@ -609,8 +611,8 @@
 
                                     </div>
                                     <div class="col-md-5">
-                                        <date-field [(value)]="interval.endDate" [classNames]="'form-control'"
-                                            label="" [inputName]="'endDate-' + interval.oid" [allowInfinity]="true"
+                                        <date-field [(value)]="interval.endDate" [classNames]="'form-control'" label=""
+                                            [inputName]="'endDate-' + interval.oid" [allowInfinity]="true"
                                             [required]="true"
                                             [disable]="readonly || (!isNew && interval.readonly == 'BOTH')"
                                             (valueChange)="handleDateChange()"></date-field>
@@ -682,10 +684,9 @@
                                         <div class="col-md-4">
                                             <ng-container [ngSwitch]="attributeType.type">
                                                 <ng-container *ngSwitchCase="'classification'">
-                                                    <classification-field
-                                                        [classificationType]="attributeType.classificationType"
-                                                        [name]="'filter-value' + filter.id" container="body"
-                                                        [(value)]="filter.value" [disabled]="!isNew">
+                                                    <classification-field [type]="geoObjectType"
+                                                        [attribute]="attributeType" [name]="'filter-value' + filter.id"
+                                                        container="body" [(value)]="filter.value" [disabled]="!isNew">
                                                     </classification-field>
                                                 </ng-container>
                                                 <ng-container *ngSwitchCase="'term'">

@@ -130,7 +130,7 @@ public class GPROrganizationBusinessService extends OrganizationBusinessService 
 
       // Can't disable if a child is still enabled
       Page<ServerOrganization> page = this.getChildren(org, null, null);
-      page.getResults().forEach(child -> {
+      page.getResultSet().forEach(child -> {
         if (child.getEnabled())
         {
           throw new ObjectHasDataException();

@@ -115,7 +115,7 @@ public abstract class ConceptDatasetTest extends DatasetTest
 
   public ConceptSetDTO mockConceptSet()
   {
-    return mockConceptSet("TEST_PROG", "Test Prog", "Test Description");
+    return mockConceptSet("TEST_CONCEPT_SET", "Test Prog", "Test Description");
   }
 
   public ConceptSetDTO mockConceptSet(String code, String label, String description)
@@ -131,7 +131,7 @@ public abstract class ConceptDatasetTest extends DatasetTest
 
   public ConceptEdgeTypeDTO mockConceptEdge(ConceptClass conceptClass)
   {
-    return mockConceptEdge(conceptClass, "TEST_PROG", "Test Prog", "Test Description");
+    return mockConceptEdge(conceptClass, "TEST_CONCEPT_EDGE", "Test Prog", "Test Description");
   }
 
   public ConceptEdgeTypeDTO mockConceptEdge(ConceptClass conceptClass, String code, String label, String description)

@@ -94,7 +94,7 @@ public class OrganizationHierarchyTest
 
         Assert.assertEquals(Long.valueOf(1), children.getCount());
 
-        ServerOrganization result = children.getResults().get(0);
+        ServerOrganization result = children.getResultSet().get(0);
 
         Assert.assertEquals(child.getCode(), result.getCode());
       }
@@ -125,7 +125,7 @@ public class OrganizationHierarchyTest
 
         Assert.assertEquals(Long.valueOf(1), children.getCount());
 
-        ServerOrganization result = children.getResults().get(0);
+        ServerOrganization result = children.getResultSet().get(0);
 
         Assert.assertEquals(child.getCode(), result.getCode());
       }

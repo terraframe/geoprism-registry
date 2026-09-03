@@ -91,7 +91,6 @@ import net.geoprism.registry.io.SridException;
 import net.geoprism.registry.io.TermValueException;
 import net.geoprism.registry.jobs.ParentReferenceProblem;
 import net.geoprism.registry.jobs.RowValidationProblem;
-import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.model.GeoObjectMetadata;
 import net.geoprism.registry.model.GeoObjectTypeMetadata;

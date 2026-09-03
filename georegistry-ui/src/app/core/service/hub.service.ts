@@ -68,6 +68,13 @@ export class HubService {
             description: 'cgr.nav.configure.description',
             items: [
                 {
+                    id: 'CONCEPT-CLASSES',
+                    description: "nav.concept.class.description",
+                    link: '/registry/concept-classes',
+                    icon: 'fa-solid fa-info',
+                    key: 'nav.concept.class.label'
+                },
+                {
                     id: 'HIERARCHIES',
                     description: "nav.hierarchies.description",
                     link: '/registry/hierarchies',
@@ -75,25 +82,11 @@ export class HubService {
                     key: 'hierarchies.menu'
                 },
                 {
-                    id: 'CLASSIFICATION',
-                    description: "nav.classifications.description",
-                    link: '/registry/classification-type',
-                    icon: 'fa-solid fa-bars-staggered',
-                    key: 'header.classifications.option'
-                },
-                {
                     id: 'BUSINESS-TYPES',
                     description: "nav.business.type.description",
                     link: '/registry/business-types',
                     icon: 'fa-solid fa-briefcase',
                     key: 'business.data.type'
-                },
-                {
-                    id: 'CONCEPT-CLASSES',
-                    description: "nav.concept.class.description",
-                    link: '/registry/concept-classes',
-                    icon: 'fa-solid fa-info',
-                    key: 'nav.concept.class.label'
                 },
                 {
                     id: 'SOURCE_AUTHORITY',

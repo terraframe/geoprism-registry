@@ -89,8 +89,6 @@ export class DataSourceManagerComponent implements OnInit {
 
     onEdit(source: DataSource, readOnly: boolean): void {
 
-        console.log(source);
-
         this.bsModalRef = this.modalService.show(ManageDataSourceModalComponent, {
             animated: false,
             backdrop: true,

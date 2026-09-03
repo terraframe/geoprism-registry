@@ -41,7 +41,6 @@ import net.geoprism.registry.graph.transition.Transition;
 import net.geoprism.registry.graph.transition.Transition.TransitionImpact;
 import net.geoprism.registry.graph.transition.Transition.TransitionType;
 import net.geoprism.registry.graph.transition.TransitionEvent;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.GPRTransitionEventBusinessService;
 import net.geoprism.registry.service.business.TransitionBusinessServiceIF;
@@ -50,6 +49,7 @@ import net.geoprism.registry.task.TaskQuery;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestUserInfo;
 import net.geoprism.registry.view.HistoricalRow;
+import net.geoprism.registry.view.JsonSerializablePage;
 import net.geoprism.registry.view.Page;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
@@ -383,7 +383,7 @@ public class TransitionEventTest extends FastDatasetTest implements InstanceTest
       traneService.addTransition(event, FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
 
       Page<HistoricalRow> page = traneService.getHistoricalReport(FastTestDataset.PROVINCE.getServerObject(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, null, null);
-      List<HistoricalRow> results = page.getResults();
+      List<HistoricalRow> results = page.getResultSet();
 
       Assert.assertEquals(1, results.size());
 
@@ -482,7 +482,7 @@ public class TransitionEventTest extends FastDatasetTest implements InstanceTest
 
       traneService.addTransition(event, FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
 
-      Page<HistoricalRow> page = traneService.getHistoricalReport(FastTestDataset.PROVINCE.getServerObject(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, null, null);
+      JsonSerializablePage<HistoricalRow> page = traneService.getHistoricalReport(FastTestDataset.PROVINCE.getServerObject(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, null, null);
       JsonObject json = page.toJSON().getAsJsonObject();
 
       Assert.assertEquals(1, json.get("count").getAsInt());
@@ -524,7 +524,7 @@ public class TransitionEventTest extends FastDatasetTest implements InstanceTest
       Page<HistoricalRow> page = traneService.getHistoricalReport(FastTestDataset.PROVINCE.getServerObject(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, 2, 10);
 
       Assert.assertEquals(Long.valueOf(1L), page.getCount());
-      Assert.assertEquals(0, page.getResults().size());
+      Assert.assertEquals(0, page.getResultSet().size());
     }
     catch (Exception e)
     {
@@ -644,7 +644,7 @@ public class TransitionEventTest extends FastDatasetTest implements InstanceTest
       Assert.assertEquals(Long.valueOf(1), page.getCount());
       Assert.assertEquals(Integer.valueOf(1), page.getPageNumber());
       Assert.assertEquals(Integer.valueOf(10), page.getPageSize());
-      Assert.assertEquals(event.getOid(), page.getResults().get(0).getOid());
+      Assert.assertEquals(event.getOid(), page.getResultSet().get(0).getOid());
     }
     finally
     {
@@ -682,7 +682,7 @@ public class TransitionEventTest extends FastDatasetTest implements InstanceTest
     Assert.assertEquals(Long.valueOf(1), page.getCount());
     Assert.assertEquals(Integer.valueOf(1), page.getPageNumber());
     Assert.assertEquals(Integer.valueOf(10), page.getPageSize());
-    Assert.assertEquals(event.getOid(), page.getResults().get(0).getOid());
+    Assert.assertEquals(event.getOid(), page.getResultSet().get(0).getOid());
   }
 
   @Request()

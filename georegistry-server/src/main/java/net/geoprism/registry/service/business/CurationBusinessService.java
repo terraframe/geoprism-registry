@@ -45,7 +45,7 @@ import net.geoprism.registry.curation.ListCurationJob;
 import net.geoprism.registry.jobs.ImportError.ErrorResolution;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.permission.RolePermissionService;
-import net.geoprism.registry.view.Page;
+import net.geoprism.registry.view.JsonSerializablePage;
 
 @Service
 public class CurationBusinessService
@@ -137,7 +137,7 @@ public class CurationBusinessService
     {
       List<CurationProblem> results = new LinkedList<>(it.getAll());
 
-      return new Page<CurationProblem>(query.getCount(), query.getPageNumber(), query.getPageSize(), results).toJSON();
+      return new JsonSerializablePage<CurationProblem>(query.getCount(), query.getPageNumber(), query.getPageSize(), results).toJSON();
     }
   }
 

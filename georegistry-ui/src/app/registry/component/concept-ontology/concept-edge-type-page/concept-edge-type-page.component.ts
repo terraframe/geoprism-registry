@@ -62,11 +62,12 @@ export class ConceptEdgeTypePageComponent implements OnInit, OnDestroy, OnChange
     Action = Action;
 
     @Input() organizations: Organization[] = [];
-    @Input() conceptTypes: ConceptClass[] = [];
+    @Input() conceptClasses: ConceptClass[] = [];
+    @Input() types: ConceptEdgeType[] = [];
 
-    @Output() onError: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>()
+    @Output() onError: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>();
+    @Output() typesChange: EventEmitter<ConceptEdgeType[]> = new EventEmitter<ConceptEdgeType[]>();
 
-    types: ConceptEdgeType[] = [];
     typesByOrg: { org: Organization, write: boolean, types: ConceptEdgeType[] }[] = [];
 
     selection: Selection;
@@ -82,40 +83,27 @@ export class ConceptEdgeTypePageComponent implements OnInit, OnDestroy, OnChange
 
     ngOnInit(): void {
         this.isSRA = this.authService.isSRA();
-
-        this.service.getAll().then(types => {
-            this.setTypes(types);
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
     }
 
     ngOnDestroy(): void {
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes["organizations"]) {
-            this.refreshTypesByOrg();
-        }
-    }
+        if (changes['types'] || changes['organizations']) {
+            const organizations: Organization[] = changes['organizations'] ? changes['organizations'].currentValue : this.organizations;
+            const types: ConceptEdgeType[] = changes['types'] ? changes['types'].currentValue : this.types;
 
-    setTypes(types: ConceptEdgeType[]): void {
-        this.types = types;
+            this.typesByOrg = [];
 
-        this.refreshTypesByOrg();
-    }
+            for (let i = 0; i < organizations.length; ++i) {
+                let org: Organization = organizations[i];
 
-    refreshTypesByOrg(): void {
-        this.typesByOrg = [];
-
-        for (let i = 0; i < this.organizations.length; ++i) {
-            let org: Organization = this.organizations[i];
-
-            this.typesByOrg.push({
-                org: org,
-                write: this.authService.isSRA() || this.authService.isOrganizationRA(org.code),
-                types: this.types.filter(t => t.organizationCode === org.code)
-            });
+                this.typesByOrg.push({
+                    org: org,
+                    write: this.authService.isSRA() || this.authService.isOrganizationRA(org.code),
+                    types: types.filter(t => t.organizationCode === org.code)
+                });
+            }
         }
     }
 
@@ -188,7 +176,7 @@ export class ConceptEdgeTypePageComponent implements OnInit, OnDestroy, OnChange
 
         }
 
-        this.setTypes(edgeTypes);
+        this.typesChange.emit(edgeTypes);
     }
 
 
@@ -207,7 +195,7 @@ export class ConceptEdgeTypePageComponent implements OnInit, OnDestroy, OnChange
                     return t.code !== type.code;
                 });
 
-                this.setTypes(types);
+                this.typesChange.emit(types);
             }).catch((err: HttpErrorResponse) => {
                 this.error(err);
             });

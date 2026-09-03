@@ -335,4 +335,33 @@ public class BasicGeoObjectTypeServiceTest extends ConceptDatasetTest implements
       this.service.deleteGeoObjectType(parentType.getCode());
     }
   }
+
+  @Test
+  @Request
+  public void testCreateDeleteWithClassification()
+  {
+    GeoObjectType dto = USATestData.COUNTRY.toDTO();
+    dto.setClassification(createAttributeClassificationType());
+
+    ServerGeoObjectType type = this.service.create(dto);
+
+    try
+    {
+      Assert.assertNotNull(type.getMdVertexDAO());
+      Assert.assertNotNull(type.getGeometryTable());
+
+      Map<String, AttributeType> attributes = type.getAttributeMap();
+
+      Assert.assertTrue(attributes.size() > 0);
+
+      Set<String> attributeNames = attributes.keySet();
+
+      Assert.assertTrue(attributeNames.contains(DefaultAttribute.CLASSIFICATION.getName()));
+    }
+    finally
+    {
+      this.service.deleteGeoObjectType(type.getCode());
+    }
+  }
+
 }

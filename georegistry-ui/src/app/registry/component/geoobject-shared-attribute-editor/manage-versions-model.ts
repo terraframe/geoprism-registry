@@ -182,23 +182,8 @@ export class VersionDiffView {
             let parentCode = split[1];
 
             return parentCode;
-        } else if (this.component.attributeType.type === "term") {
-            let code = val;
-            if (code instanceof Array) {
-                code = val[0];
-            }
-
-            let attrOpts = this.component.attributeType.rootTerm.children;
-
-            let index = attrOpts.findIndex((term: Term) => term.code === code);
-
-            if (index !== -1) {
-                return attrOpts[index].label.localizedValue;
-            } else {
-                return val;
-            }
         } else if (this.component.attributeType.type === "classification") {
-            return val.label.localizedValue;
+            return val.code;
         }
 
         return val;

@@ -285,7 +285,7 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
             const allRelationships = (resp.relationships || []).map(obj => ({
                 ...obj,
                 oid: obj.oid ?? obj.code
-                }));
+            }));
 
             /*
             * Hide zero-count relationships whenever at least one relationship
@@ -433,9 +433,9 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
 
                     if (!changeStabilityPeriod && data.stabilityPeriods.length > 0) {
                         this.stabilityPeriods = data.stabilityPeriods;
-                        this.selectedPeriodStartDate = this.stabilityPeriods[this.stabilityPeriods.length-1].startDate;
+                        this.selectedPeriodStartDate = this.stabilityPeriods[this.stabilityPeriods.length - 1].startDate;
                     }
-                    
+
                     this.resizeDimensions();
                     this.calculateTypeLegend(this.data.relatedTypes);
                     this.addLayers(this.data.relatedTypes);
@@ -733,8 +733,6 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
 
     public onClickEdge(edge: any, event: MouseEvent): void {
         event.stopPropagation();
-
-        console.log("EDGE:", edge);
 
         this.selectedEdge = edge;
     }

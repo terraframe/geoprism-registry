@@ -83,8 +83,6 @@ export class GraphTypePageComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.isSRA = this.authService.isSRA();
 
-        console.log(this.typeCode)
-
         this.service = this.typeCode === 'DirectedAcyclicGraphType' ? this.dagService : this.undirectedService;
 
         this.service.getAll().then(types => {
@@ -192,7 +190,7 @@ export class GraphTypePageComponent implements OnInit, OnDestroy {
             });
             bsModalRef.content.init(type.label, histories);
         }).catch((err: HttpErrorResponse) => {
-            this.error(err); 
+            this.error(err);
         });
     }
 

@@ -33,38 +33,21 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.controller.EdgeClassController.CodeBody;
 import net.geoprism.registry.service.request.ConceptSetServiceIF;
 import net.geoprism.registry.view.ConceptSetDTO;
-import net.geoprism.registry.view.DiscreteType;
 
 @RestController
 @Validated
-@RequestMapping("concept-set")
+@RequestMapping(RegistryConstants.CONTROLLER_ROOT + "concept-set")
 public class ConceptSetController extends RunwaySpringController
 {
-  public static class DiscreteTypeBody extends CodeBody
-  {
-    @NotNull
-    private DiscreteType discreteType;
-
-    public DiscreteType getDiscreteType()
-    {
-      return discreteType;
-    }
-
-    public void setDiscreteType(DiscreteType discreteType)
-    {
-      this.discreteType = discreteType;
-    }
-  }
-
   @Autowired
   private ConceptSetServiceIF service;
 
   @GetMapping("/get-all")
-  public ResponseEntity<List<ConceptSetDTO>> getAll(@NotNull @RequestParam(name = "discreteType") DiscreteType discreteType)
+  public ResponseEntity<List<ConceptSetDTO>> getAll()
   {
     List<ConceptSetDTO> response = service.getAll(this.getSessionId());
 
@@ -72,7 +55,7 @@ public class ConceptSetController extends RunwaySpringController
   }
 
   @GetMapping("/get")
-  public ResponseEntity<ConceptSetDTO> get(@NotNull @RequestParam(name = "discreteType") DiscreteType discreteType, @NotBlank @RequestParam(name = "code") String code)
+  public ResponseEntity<ConceptSetDTO> get(@NotBlank @RequestParam(name = "code") String code)
   {
     ConceptSetDTO response = service.getByCode(this.getSessionId(), code);
 
@@ -88,7 +71,7 @@ public class ConceptSetController extends RunwaySpringController
   }
 
   @PostMapping("/remove")
-  public ResponseEntity<Void> remove(@Valid @RequestBody DiscreteTypeBody body)
+  public ResponseEntity<Void> remove(@Valid @RequestBody CodeBody body)
   {
     this.service.delete(this.getSessionId(), body.getCode());
 

@@ -149,13 +149,14 @@ export class GeoObjectType implements AttributedType {
     isLeaf: boolean;
     isGeometryEditable: boolean;
     organizationCode: string;
-    attributes: Array<AttributeType> = [];
+    attributes: Array<AttributeType>;
     relatedHierarchies?: string[];
     superTypeCode?: string;
     isAbstract?: boolean;
     isPrivate?: boolean;
     canDrag?: boolean;
     permissions?: string[];
+    classification?: AttributeType;
 
     public static getAttribute(type: GeoObjectType, name: string) {
         let len = type.attributes.length;
@@ -290,9 +291,6 @@ export class AttributeType {
     isChangeOverTime?: boolean;
     precision?: number;
     scale?: number;
-    classificationType?: string;
-    rootTerm?: Term;
-    termOptions?: Term[];
     isValid?: boolean;
     isValidReason?: { timeConflict: boolean, existConflict: boolean, dateField: boolean };
     isValidReasonHierarchy?: any;
@@ -303,6 +301,13 @@ export class AttributeType {
 
     // Used for the import configuration to denote base type of the attribute
     baseType?: string;
+
+    // Attribute Classification Type specific attributes 
+    conceptSet?: string;
+    rootTerm?: { code: string, type: string };
+    startDate?: string;
+    endDate?: string;
+
 }
 
 export class TreeNode {

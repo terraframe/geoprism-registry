@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service.request;
 
@@ -70,7 +70,7 @@ import net.geoprism.registry.roles.CreateListPermissionException;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
 import net.geoprism.registry.view.JsonSerializable;
-import net.geoprism.registry.view.Page;
+import net.geoprism.registry.view.JsonSerializablePage;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;
@@ -211,7 +211,7 @@ public class ListTypeService
     {
       List<JsonSerializable> results = new LinkedList<>(it.getAll());
 
-      return new Page<JsonSerializable>(query.getCount(), query.getPageNumber(), query.getPageSize(), results).toJSON();
+      return new JsonSerializablePage<JsonSerializable>(query.getCount(), query.getPageNumber(), query.getPageSize(), results).toJSON();
     }
   }
 
@@ -374,7 +374,7 @@ public class ListTypeService
   public JsonObject data(String sessionId, String oid, String criteria, Boolean showInvalid, Boolean includeGeometries)
   {
     ListTypeVersion version = getVersion(oid);
-    Page<JsonSerializable> page = version.data(JsonParser.parseString(criteria).getAsJsonObject(), showInvalid, includeGeometries);
+    JsonSerializablePage<JsonSerializable> page = version.data(JsonParser.parseString(criteria).getAsJsonObject(), showInvalid, includeGeometries);
 
     return page.toJSON();
   }

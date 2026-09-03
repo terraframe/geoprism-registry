@@ -51,14 +51,6 @@
                         <localize key="hierarchy.management.edit.attribute.subtitle"></localize>: <localize
                             key="data.type.label.date"></localize>
                     </h4>
-                    <h4 class="sub-title" *ngIf="attribute.type === 'term'">
-                        <localize key="hierarchy.management.edit.attribute.subtitle"></localize>: <localize
-                            key="data.type.label.term"></localize>
-                    </h4>
-                    <h4 class="sub-title" *ngIf="attribute.type === 'classification'">
-                        <localize key="hierarchy.management.edit.attribute.subtitle"></localize>: <localize
-                            key="data.type.label.classification"></localize>
-                    </h4>
                     <h4 class="sub-title" *ngIf="attribute.type === 'local'">
                         <localize key="hierarchy.management.edit.attribute.subtitle"></localize>: <localize
                             key="data.type.label.localtext"></localize>
@@ -73,10 +65,6 @@
                     <attribute-input [isNew]="false" [excludeDescription]="attribute.type === 'term' ? true : false"
                         [type]="attribute.type" [(attribute)]="attribute" [manageChangeOverTime]="manageChangeOverTime">
                     </attribute-input>
-
-                    <!-- *ngIf="attribute.type === 'term' && isFormValid()" -->
-                    <term-option-widget *ngIf="attribute.type === 'term' && isFormValid()" [attribute]="attribute"
-                        (stateChange)="onModalStateChange($event)"></term-option-widget>
 
                     <div class="row">
                         <div class="col-md-12">

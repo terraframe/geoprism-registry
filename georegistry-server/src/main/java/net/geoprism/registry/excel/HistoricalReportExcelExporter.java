@@ -132,9 +132,9 @@ public class HistoricalReportExcelExporter
 
     Page<HistoricalRow> page = this.service.getHistoricalReport(type, startDate, endDate, 1000, 1);
 
-    while (page.getResults().size() > 0)
+    while (page.getResultSet().size() > 0)
     {
-      List<HistoricalRow> results = page.getResults();
+      List<HistoricalRow> results = page.getResultSet();
 
       for (HistoricalRow result : results)
       {

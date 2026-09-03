@@ -31,10 +31,14 @@ import { TabsModule } from "ngx-bootstrap/tabs";
 import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
 import { RegistryService } from "@registry/service";
 import { LocalizePipe } from "@shared/pipe/localize.pipe";
-import { ConceptClass } from "@registry/model/object-class";
+import { ConceptClass, ConceptEdgeType, ConceptSet } from "@registry/model/object-class";
 import { ConceptClassPageComponent } from "./concept-class-page/concept-class-page.component";
 import { ConceptClassService } from "@registry/service/concept-class.service";
 import { ConceptEdgeTypePageComponent } from "./concept-edge-type-page/concept-edge-type-page.component";
+import { ConceptSetService } from "@registry/service/concept-set.service";
+import { ConceptSetPageComponent } from "./concept-set-page/concept-set-page.component";
+import { forkJoin, from } from "rxjs";
+import { ConceptEdgeTypeService } from "@registry/service/concept-edge-type.service";
 
 
 @Component({
@@ -42,7 +46,7 @@ import { ConceptEdgeTypePageComponent } from "./concept-edge-type-page/concept-e
     templateUrl: "./concept-ontology.component.html",
     styleUrls: ["./concept-ontology.css"],
     standalone: true,
-    imports: [PageContainerComponent, TabsModule, ConceptClassPageComponent, ConceptEdgeTypePageComponent, LocalizePipe]
+    imports: [PageContainerComponent, TabsModule, ConceptClassPageComponent, ConceptEdgeTypePageComponent, ConceptSetPageComponent, LocalizePipe]
 })
 export class ConceptOntologyComponent implements OnInit {
 
@@ -50,11 +54,13 @@ export class ConceptOntologyComponent implements OnInit {
 
     organizations: Organization[] = [];
     conceptClasses: ConceptClass[] = [];
+    conceptEdgeTypes: ConceptEdgeType[] = [];
 
     constructor(
         private localizeService: LocalizationService,
         private registryService: RegistryService,
-        private service: ConceptClassService,
+        private cClassService: ConceptClassService,
+        private cEdgeTypeService: ConceptEdgeTypeService,
         private modalService: BsModalService,
         private authService: AuthService) {
         this.isSRA = authService.isSRA();
@@ -76,49 +82,30 @@ export class ConceptOntologyComponent implements OnInit {
         this.conceptClasses = types;
     }
 
+    setConceptEdgeTypes(conceptEdgeTypes: ConceptEdgeType[]): void {
+        this.conceptEdgeTypes = conceptEdgeTypes;
+    }
+
     refreshAll(): void {
         // Clear the types to then refresh
         this.conceptClasses = [];
         this.organizations = [];
 
-        this.registryService.getOrganizations().then(orgs => {
-
-            if (!this.authService.isSRA()) {
-                const myorg = this.authService.getMyOrganizations();
-
-                let index = orgs.findIndex(org => {
-                    return org.code === myorg[0];
-                });
-
-                if (index !== -1) {
-                    Utils.arrayMove(orgs, index, 0);
-                }
+        // Convert promises to observables and join them
+        forkJoin([
+            from(this.registryService.getOrganizations()),
+            from(this.cClassService.getAll()),
+            from(this.cEdgeTypeService.getAll())
+        ]).subscribe({
+            next: ([orgs, conceptClasses, conceptEdgeTypes]) => {
+                this.organizations = orgs;
+                this.setConceptClasss(conceptClasses);
+                this.setConceptEdgeTypes(conceptEdgeTypes);
+            },
+            error: (err) => {
+                this.error(err);
             }
-
-            this.organizations = orgs
         });
-
-
-        this.service.getAll().then(conceptClasses => {
-            this.setConceptClasss(conceptClasses);
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
-
-    handleConceptClass(type: ConceptClass): void {
-        const conceptClasses = [...this.conceptClasses];
-
-        const index = conceptClasses.findIndex(t => t.code === type.code);
-
-        if (index != -1) {
-            conceptClasses[index] = type;
-        }
-        else {
-            conceptClasses.push(type);
-        }
-
-        this.setConceptClasss(conceptClasses);
     }
 
     error(err: HttpErrorResponse): void {

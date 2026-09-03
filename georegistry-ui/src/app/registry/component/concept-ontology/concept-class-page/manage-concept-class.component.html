@@ -119,11 +119,4 @@
     [manageChangeOverTime]="true">
   </edit-attribute-modal-content>
 
-  <manage-term-options *ngIf="modalState.state === 'MANAGE-TERM-OPTION'" [attribute]="modalState.attribute"
-    (stateChange)="onModalStateChange($event)"></manage-term-options>
-
-  <edit-term-option-input *ngIf="modalState.state === 'EDIT-TERM-OPTION'" [attribute]="modalState.attribute"
-    [termOption]="modalState.termOption" (stateChange)="onModalStateChange($event)">
-  </edit-term-option-input>
-
 </div>

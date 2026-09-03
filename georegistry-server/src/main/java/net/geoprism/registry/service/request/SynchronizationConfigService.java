@@ -61,8 +61,8 @@ import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.SynchronizationConfigBusinessServiceIF;
 import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
 import net.geoprism.registry.service.permission.RolePermissionService;
+import net.geoprism.registry.view.JsonSerializablePage;
 import net.geoprism.registry.view.JsonWrapper;
-import net.geoprism.registry.view.Page;
 
 @Service
 public class SynchronizationConfigService
@@ -89,7 +89,7 @@ public class SynchronizationConfigService
     long count = this.service.getCount();
     List<SynchronizationConfig> results = this.service.getSynchronizationConfigsForOrg(pageNumber, pageSize);
 
-    return new Page<SynchronizationConfig>(count, pageNumber, pageSize, results).toJSON();
+    return new JsonSerializablePage<SynchronizationConfig>(count, pageNumber, pageSize, results).toJSON();
   }
 
   @Request(RequestType.SESSION)
@@ -287,7 +287,7 @@ public class SynchronizationConfigService
         results.add(new JsonWrapper(serializeHistory(hist, user, job)));
       }
 
-      return new Page<JsonWrapper>(ihq.getCount(), pageNumber, pageSize, results).toJSON();
+      return new JsonSerializablePage<JsonWrapper>(ihq.getCount(), pageNumber, pageSize, results).toJSON();
     }
   }
 

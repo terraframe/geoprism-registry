@@ -40,6 +40,7 @@
         <date code="TEST_DATE" label="Test Date" description="Test Date Description"/>
       </attributes>
     </business-type>
+    
     <business-type code="BUSINESS_CHILD" label="Business Child" description="Business Child">
     </business-type>
 
@@ -47,10 +48,27 @@
                    childTypeCode="BUSINESS_CHILD">
     </business-edge>
 
-    <business-geoobject-edge code="BUS_GEO_EDGE" label="Business Geo Edge" description="Business Geo Edge" typeCode="BUSINESS_POP"
-                   direction="PARENT">
-    </business-geoobject-edge>
+    <business-edge code="BUS_GEO_EDGE" label="Business Geo Edge" description="Business Edge" parentTypeCode="~#GO#~"
+                   childTypeCode="BUSINESS_CHILD">
+    </business-edge>
     
+    <concept-class code="CONCEPT_POP" label="Concept Pop" description="Concept Pop Description">
+      <attributes>
+        <text code="TEST_TEXT" label="Test Text" description="Test Text Description"/>
+        <boolean code="TEST_BOOLEAN" label="Test Boolean" description="Test Boolean Description"/>
+        <integer code="TEST_INTEGER" label="Test Integer" description="Test Integer Description"/>
+        <decimal code="TEST_DECIMAL" label="Test Decimal" description="Test Decimal Description" precision="10"
+                 scale="2"/>
+        <date code="TEST_DATE" label="Test Date" description="Test Date Description"/>
+      </attributes>
+    </concept-class>
+    
+      
+
+    <concept-edge code="CONCEPT_POP_EDGE" label="Concept Pop Edge" description="Concept Pop Edge" parentTypeCode="CONCEPT_POP"
+                   childTypeCode="CONCEPT_POP" discreteType="TAXONOMY">
+    </concept-edge>
+
   </organization>
 
 </CGR>

@@ -54,7 +54,5 @@ export class PageContainerComponent implements OnInit, OnDestroy {
 
     onToggleExpanded(): void {
         this.expanded = !this.expanded;
-
-        console.log('Expanded', this.expanded);
     }
 }

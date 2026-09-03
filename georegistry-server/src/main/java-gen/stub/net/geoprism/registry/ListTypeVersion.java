@@ -168,7 +168,7 @@ import net.geoprism.registry.service.request.SerializedListTypeCache;
 import net.geoprism.registry.shapefile.ListTypeShapefileExporter;
 import net.geoprism.registry.util.GeometryUtilFacade;
 import net.geoprism.registry.view.JsonSerializable;
-import net.geoprism.registry.view.Page;
+import net.geoprism.registry.view.JsonSerializablePage;
 
 public class ListTypeVersion extends ListTypeVersionBase implements TableEntity, LabeledVersion
 {
@@ -1675,7 +1675,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     return results;
   }
 
-  public Page<JsonSerializable> data(JsonObject criteria, Boolean showInvalid, Boolean includeGeometries)
+  public JsonSerializablePage<JsonSerializable> data(JsonObject criteria, Boolean showInvalid, Boolean includeGeometries)
   {
     if (includeGeometries == null)
     {

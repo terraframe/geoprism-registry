@@ -18,15 +18,15 @@
 ///
 
 import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from "@angular/core";
-import { Classification } from "@registry/model/classification-type";
-import { ClassificationService } from "@registry/service/classification.service";
-import { LocalizedValue } from "@core/model/core";
 import { BsModalService } from "ngx-bootstrap/modal";
 import { TypeaheadMatch, TypeaheadModule } from "ngx-bootstrap/typeahead";
 import { Observable, Observer, Subscription } from "rxjs";
-import { ClassificationFieldModalComponent } from "./classification-field-modal.component";
 import { NgClass } from "@angular/common";
 import { FormsModule } from "@angular/forms";
+import { ConceptObjectService } from "@registry/service/concept-object.service";
+import { ObjectOverTime } from "@registry/model/object-class";
+import { AttributedType, AttributeType } from "@registry/model/registry";
+import { ClassificationFieldModalComponent } from "./classification-field-modal.component";
 
 @Component({
     selector: "classification-field",
@@ -37,8 +37,8 @@ import { FormsModule } from "@angular/forms";
 })
 export class ClassificationFieldComponent implements OnInit, OnDestroy {
 
-    @Input() classificationType: string;
-    @Input() rootCode: string;
+    @Input() type: AttributedType;
+    @Input() attribute: AttributeType;
 
     @Input() name: string;
     @Input() disabled: boolean = false;
@@ -46,29 +46,31 @@ export class ClassificationFieldComponent implements OnInit, OnDestroy {
     @Input() classNames: string = "";
     @Input() container: string = null;
 
-    @Input() value: { code: string, label: LocalizedValue } = null;
+    @Input() value: { code: string } = null;
 
-    @Output() valueChange = new EventEmitter<{ code: string, label: LocalizedValue }>();
+    @Output() valueChange = new EventEmitter<{ code: string }>();
 
     loading: boolean = false;
     text: string = "";
 
-    typeahead: Observable<any> = null;
+    typeahead: Observable<ObjectOverTime[]> = null;
     subscription: Subscription = null;
 
     constructor(
         private modalService: BsModalService,
-        private service: ClassificationService) { }
+        private service: ConceptObjectService) {
+
+    }
 
     ngOnInit(): void {
-        this.typeahead = new Observable((observer: Observer<any>) => {
-            this.service.search(this.classificationType, this.rootCode, this.text).then(results => {
+        this.typeahead = new Observable((observer: Observer<ObjectOverTime[]>) => {
+            this.service.search(this.type, this.attribute, this.text).then(results => {
                 observer.next(results);
             });
         });
 
         if (this.value != null) {
-            this.text = this.value.label.localizedValue;
+            this.text = this.value.code;
         }
     }
 
@@ -80,29 +82,30 @@ export class ClassificationFieldComponent implements OnInit, OnDestroy {
 
     typeaheadOnSelect(match: TypeaheadMatch): void {
         if (match != null) {
-            const item: Classification = match.item;
-            this.text = item.displayLabel.localizedValue;
+            const item: ObjectOverTime = match.item;
+            this.text = item.code;
 
             if (this.value == null || this.value.code !== item.code) {
-                this.setValue({ code: item.code, label: item.displayLabel });
+                this.setValue({ code: item.code });
             }
         } else if (this.value != null) {
             this.setValue(null);
         }
     }
 
-    setValue(value: { code: string, label: LocalizedValue }): void {
+    setValue(value: { code: string }): void {
         this.value = value;
         this.valueChange.emit(this.value);
     }
 
     onViewTree(): void {
         const bsModalRef = this.modalService.show(ClassificationFieldModalComponent, {
-            animated: false, backdrop: true,             ignoreBackdropClick: true
+            animated: false, backdrop: true, ignoreBackdropClick: true
         });
-        this.subscription = bsModalRef.content.init(this.classificationType, this.rootCode, this.disabled, this.value, (classification:Classification) => {
-            this.text = classification.displayLabel.localizedValue;
-            this.setValue({ code: classification.code, label: classification.displayLabel });
+
+        this.subscription = bsModalRef.content.init(this.type, this.attribute, this.disabled, this.value, (classification: ObjectOverTime) => {
+            this.text = classification.code;
+            this.setValue({ code: classification.code });
         });
     }
 

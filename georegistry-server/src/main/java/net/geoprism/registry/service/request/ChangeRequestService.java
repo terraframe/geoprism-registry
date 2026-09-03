@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service.request;
 
@@ -65,6 +65,7 @@ import net.geoprism.registry.service.business.GeoObjectEditorBusinessService;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.permission.ChangeRequestPermissionService;
 import net.geoprism.registry.service.permission.ChangeRequestPermissionService.ChangeRequestPermissionAction;
+import net.geoprism.registry.view.JsonSerializablePage;
 import net.geoprism.registry.view.Page;
 
 @Service
@@ -210,7 +211,7 @@ public class ChangeRequestService
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
   @Request(RequestType.SESSION)
-  public Page<ChangeRequest> getAllRequests(String sessionId, int pageSize, int pageNumber, String filter, String sort, String oid)
+  public JsonSerializablePage<ChangeRequest> getAllRequests(String sessionId, int pageSize, int pageNumber, String filter, String sort, String oid)
   {
     ChangeRequestQuery query = new ChangeRequestQuery(new QueryFactory());
 
@@ -263,16 +264,16 @@ public class ChangeRequestService
     for (ChangeRequest cr : list)
     {
       // TODO: Figure out why this is null
-//      if (ServerGeoObjectType.get(cr.getGeoObjectTypeCode(), true) != null)
-//      {
-//        cr.lock();
-//        cr.clearApprovalStatus();
-//        cr.addApprovalStatus(AllGovernanceStatus.INVALID);
-//        cr.apply();
-//      }
+      // if (ServerGeoObjectType.get(cr.getGeoObjectTypeCode(), true) != null)
+      // {
+      // cr.lock();
+      // cr.clearApprovalStatus();
+      // cr.addApprovalStatus(AllGovernanceStatus.INVALID);
+      // cr.apply();
+      // }
     }
 
-    return new Page(query.getCount(), pageNumber, pageSize, list);
+    return new JsonSerializablePage(query.getCount(), pageNumber, pageSize, list);
   }
 
   // An attempt to do this without selectable sqls
@@ -452,7 +453,7 @@ public class ChangeRequestService
     if (!this.permissions.getPermissions(action.getAllRequest().next()).containsAll(Arrays.asList(ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS)))
     {
       throw new CGRPermissionException();
-    } 
+    }
 
     action.appLock();
     action.clearApprovalStatus();

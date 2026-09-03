@@ -18,10 +18,15 @@
 ///
 
 import { Injectable } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 
 import { EventService } from "@shared/service";
 import { ObjectService } from "./object.service";
+import { ObjectOverTime, ObjectOverTimeNode } from "@registry/model/object-class";
+import { environment } from "src/environments/environment";
+import { finalize, firstValueFrom } from "rxjs";
+import { AttributedType, AttributeType } from "@registry/model/registry";
+import { PageResult } from "@shared/model/core";
 
 @Injectable({ providedIn: 'root' })
 export class ConceptObjectService extends ObjectService {
@@ -33,5 +38,52 @@ export class ConceptObjectService extends ObjectService {
 
     controller() {
         return "/api/concept-object";
+    }
+
+    searchConceptClass(conceptClass: string, text: string): Promise<ObjectOverTime[]> {
+        let params: HttpParams = new HttpParams();
+        params = params.append("conceptClass", conceptClass);
+        params = params.append("text", text);
+
+        return firstValueFrom(this.http.get<ObjectOverTime[]>(environment.apiUrl + this.controller() + "/search-class", { params: params }));
+    }
+
+    searchSet(conceptSet: string, date: string, text: string): Promise<ObjectOverTime[]> {
+        let params: HttpParams = new HttpParams();
+        params = params.append("conceptSet", conceptSet);
+        params = params.append("date", date);
+        params = params.append("text", text);
+
+        return firstValueFrom(this.http.get<ObjectOverTime[]>(environment.apiUrl + this.controller() + "/search-set", { params: params }));
+    }
+
+    search(type: AttributedType, attribute: AttributeType, text: string): Promise<ObjectOverTime[]> {
+        let params: HttpParams = new HttpParams();
+        params = params.append("typeCode", type.code);
+        params = params.append("attribute", attribute.code);
+        params = params.append("text", text);
+
+        return firstValueFrom(this.http.get<ObjectOverTime[]>(environment.apiUrl + this.controller() + "/search", { params: params }));
+    }
+
+    getChildren(type: AttributedType, attribute: AttributeType, concept: string, pageNumber: number, pageSize: number): Promise<PageResult<ObjectOverTime>> {
+        let params: HttpParams = new HttpParams();
+        params = params.append("typeCode", type.code);
+        params = params.append("attribute", attribute.code);
+        params = params.append("concept", concept);
+        params = params.append("pageNumber", pageNumber);
+        params = params.append("pageSize", pageSize);
+
+        return firstValueFrom(this.http.get<PageResult<ObjectOverTime>>(environment.apiUrl + this.controller() + "/get-children", { params: params }));
+    }
+
+    getAncestorTree(type: AttributedType, attribute: AttributeType, concept: string, pageSize: number): Promise<ObjectOverTimeNode> {
+        let params: HttpParams = new HttpParams();
+        params = params.append("typeCode", type.code);
+        params = params.append("attribute", attribute.code);
+        params = params.append("concept", concept);
+        params = params.append("pageSize", pageSize);
+
+        return firstValueFrom(this.http.get<ObjectOverTimeNode>(environment.apiUrl + this.controller() + "/get-ancestor-tree", { params: params }));
     }
 }
