@@ -211,6 +211,25 @@
           </span>
         </div>
       </div>
+      
+      <div *ngIf="system.type === 'JenaExternalSystem'" class="row-holder">
+        <div class="label-holder">
+          <label>
+            <localize key="external.system.authType"></localize>
+          </label>
+        </div>
+        <div class="holder">
+          <span class="text">
+            <select type="text" [ngModel]="system.authTypeS || ''" (ngModelChange)="system.authTypeS = $event" name="authType" [disabled]="false">
+              <option value=""><localize key="external.system.authType.none"></localize></option>
+              <option value="IAM">
+                <localize key="external.system.authType.iam"></localize>
+              </option>
+            </select>
+          </span>
+        </div>
+      </div>
+      
 
       <!--           <div class="row-holder"> -->
       <!-- 	        <div  class="label-holder"> -->

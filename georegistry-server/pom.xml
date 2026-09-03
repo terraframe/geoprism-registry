@@ -38,6 +38,7 @@
   <properties>
     <hapifhir_version>8.8.1</hapifhir_version>
     <axon.version>4.11.3</axon.version>
+    <aws.version>2.47.4</aws.version>
   </properties>
 
   <dependencyManagement>
@@ -46,6 +47,13 @@
         <groupId>org.axonframework</groupId>
         <artifactId>axon-bom</artifactId>
         <version>${axon.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>bom</artifactId>
+        <version>${aws.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -136,6 +144,38 @@
       		<groupId>org.slf4j</groupId>
       		<artifactId>slf4j-api</artifactId>
       	</exclusion>
+      </exclusions>
+    </dependency>
+    
+    <!-- AWS -->
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>auth</artifactId>
+      <exclusions>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+          </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>regions</artifactId>
+      <exclusions>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+          </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>http-auth-aws</artifactId>
+      <exclusions>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+          </exclusion>
       </exclusions>
     </dependency>
 

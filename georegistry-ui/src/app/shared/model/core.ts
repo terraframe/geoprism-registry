@@ -67,7 +67,7 @@ export class ExternalSystem {
     system?: string;
     version?: string;
     oAuthServer?: OAuthServer;
-
+    authTypeS?: string;
 }
 
 export class OAuthServer {

@@ -192,13 +192,6 @@ export class HubService {
                     key: 'masterlist.menu'
                 },
                 {
-                    id: 'EXPORT',
-                    description: "nav.export.description",
-                    link: '/registry/export',
-                    icon: 'fa-solid fa-file-export',
-                    key: 'header.export'
-                },
-                {
                     id: 'LPG',
                     description: "nav.lpg.description",
                     link: '/registry/labeled-property-graph-type',
