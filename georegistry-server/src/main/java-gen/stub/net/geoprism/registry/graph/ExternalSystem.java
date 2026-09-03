@@ -54,6 +54,10 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
   }
 
   public abstract boolean isExportSupported();
+  
+  public static enum AuthType {
+    NONE, IAM
+  }
 
   public void setOrganization(ServerOrganization value)
   {
@@ -105,6 +109,16 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
 
     super.delete();
   }
+  
+  public AuthType getAuthType()
+  {
+    return "IAM".equals(this.getAuthTypeS()) ? AuthType.IAM : AuthType.NONE;
+  }
+  
+  public void setAuthType(AuthType type)
+  {
+    this.setAuthTypeS(type.name());
+  }
 
   public long getReferencedDataCount()
   {
@@ -128,6 +142,7 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
 
     this.setId(json.get(ExternalSystem.ID).getAsString());
     this.setOrganization(Organization.getByCode(orgCode));
+    this.setAuthTypeS(json.get(ExternalSystem.AUTHTYPES).getAsString());
 
     LocalizedValue label = LocalizedValue.fromJSON(json.get(ExternalSystem.LABEL).getAsJsonObject());
     LocalizedValue description = LocalizedValue.fromJSON(json.get(ExternalSystem.DESCRIPTION).getAsJsonObject());
@@ -144,6 +159,7 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
     object.addProperty(ExternalSystem.OID, this.getOid());
     object.addProperty(ExternalSystem.ID, this.getId());
     object.addProperty(ExternalSystem.ORGANIZATION, this.getOrganization().getCode());
+    object.addProperty(ExternalSystem.AUTHTYPES, this.getAuthTypeS());
     object.add(ExternalSystem.LABEL, RegistryLocalizedValueConverter.convert(this.getEmbeddedComponent(LABEL)).toJSON());
     object.add(ExternalSystem.DESCRIPTION, RegistryLocalizedValueConverter.convert(this.getEmbeddedComponent(DESCRIPTION)).toJSON());
 

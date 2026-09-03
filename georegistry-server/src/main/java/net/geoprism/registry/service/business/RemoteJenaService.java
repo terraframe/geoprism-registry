@@ -1,8 +1,22 @@
 package net.geoprism.registry.service.business;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.Authenticator;
+import java.net.CookieHandler;
+import java.net.ProxySelector;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.jena.query.QueryExecution;
@@ -13,30 +27,70 @@ import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.rdfconnection.RDFConnectionRemote;
 import org.apache.jena.rdfconnection.RDFConnectionRemoteBuilder;
 import org.apache.jena.update.UpdateFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import net.geoprism.registry.etl.AWSSigV4HttpClient;
 import net.geoprism.registry.etl.JenaExportConfig;
 import net.geoprism.registry.etl.RemoteConnectionException;
+import net.geoprism.registry.graph.ExternalSystem.AuthType;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.regions.providers.DefaultAwsRegionProviderChain;
 
 @Service
 public class RemoteJenaService implements RemoteJenaServiceIF
 {
-
+  
+  private static final Logger logger = LoggerFactory.getLogger(RemoteJenaService.class);
+  
   protected Optional<RDFConnectionRemoteBuilder> builder(JenaExportConfig config)
   {
     String baseUrl = config.getSystem().getUrl();
 
-    if (!StringUtils.isBlank(baseUrl))
+    if (StringUtils.isBlank(baseUrl))
     {
-      RDFConnectionRemoteBuilder builder = RDFConnectionRemote.newBuilder()//
-          .gspEndpoint(baseUrl + "/data") //
-          .queryEndpoint(baseUrl + "/sparql")//
-          .updateEndpoint(baseUrl + "/update");
-
-      return Optional.of(builder);
+      return Optional.empty();
     }
 
-    return Optional.empty();
+    if (baseUrl.endsWith("/"))
+    {
+      baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
+    }
+
+    RDFConnectionRemoteBuilder builder = RDFConnectionRemote.newBuilder();
+
+    if (baseUrl.contains(".neptune.amazonaws.com"))
+    {
+      builder
+          .gspEndpoint(baseUrl + "/sparql/gsp/")
+          .queryEndpoint(baseUrl + "/sparql")
+          .updateEndpoint(baseUrl + "/sparql");
+    }
+    else
+    {
+      builder
+          .gspEndpoint(baseUrl + "/data")
+          .queryEndpoint(baseUrl + "/sparql")
+          .updateEndpoint(baseUrl + "/update");
+    }
+
+    if (AuthType.IAM.equals(config.getSystem().getAuthType()))
+    {
+      AwsCredentialsProvider credentialsProvider = DefaultCredentialsProvider.builder().build();
+
+      Region region = DefaultAwsRegionProviderChain.builder()
+          .build()
+          .getRegion();
+
+      HttpClient signingClient = new AWSSigV4HttpClient(region, credentialsProvider);
+
+      builder.httpClient(signingClient);
+    }
+
+    return Optional.of(builder);
   }
 
   @Override
