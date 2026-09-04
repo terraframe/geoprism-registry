@@ -139,5 +139,7 @@ export class EdgeImportConfiguration extends ImportConfiguration {
     edgeTargetTypeStrategy: string;
     sourceTypes: { code: string, label: string }[];
     targetTypes: { code: string, label: string }[];
+    graphTypeClass?: string;
+    graphTypeCode?: string;
 }
 

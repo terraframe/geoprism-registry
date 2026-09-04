@@ -58,7 +58,7 @@ import { ConceptObjectService } from "@registry/service/concept-object.service";
         ]
     ],
     standalone: true,
-    imports: [NgIf, NgFor, NgClass, FormsModule, LocalizeComponent, LocalizedTextComponent, LocalizePipe, ConvertKeyLabel, TypeaheadModule]
+    imports: [NgIf, NgFor, NgClass, FormsModule, LocalizeComponent, LocalizedTextComponent, ConvertKeyLabel, TypeaheadModule]
 })
 export class ManageConceptSetComponent implements OnInit, OnDestroy {
 

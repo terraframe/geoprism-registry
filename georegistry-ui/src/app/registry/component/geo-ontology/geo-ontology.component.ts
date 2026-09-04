@@ -52,6 +52,7 @@ import { PageContainerComponent } from "../../../shared/component/page-container
 export class GeoOntologyComponent implements OnInit {
 
     isSRA: boolean = false;
+    loaded: boolean = false;
 
     userOrganization: string = null;
 
@@ -117,6 +118,7 @@ export class GeoOntologyComponent implements OnInit {
         this.geoObjectTypes = [];
         this.hierarchies = [];
         this.organizations = [];
+        this.loaded = false;
 
         this.registryService.init().then(response => {
             this.localizeService.setLocales(response.locales);
@@ -143,13 +145,9 @@ export class GeoOntologyComponent implements OnInit {
                 }
             }
 
-            // let pos = this.getGeoObjectTypePosition("ROOT");
-            // if (pos) {
-            //     this.geoObjectTypes.splice(pos, 1);
-            // }
-
             this.setHierarchyTypes(response.hierarchies);
 
+            this.loaded = true;
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
@@ -293,7 +291,7 @@ export class GeoOntologyComponent implements OnInit {
 
     public importTypes(): void {
         const bsModalRef = this.modalService.show(ImportTypesModalComponent, {
-            animated: false, backdrop: true,             ignoreBackdropClick: true,
+            animated: false, backdrop: true, ignoreBackdropClick: true,
             class: "upload-modal"
         });
 
@@ -307,7 +305,7 @@ export class GeoOntologyComponent implements OnInit {
 
     public exportTypes(): void {
         const bsModalRef = this.modalService.show(ExportTypesModalComponent, {
-            animated: false, backdrop: true,             ignoreBackdropClick: true,
+            animated: false, backdrop: true, ignoreBackdropClick: true,
             class: "upload-modal"
         });
 

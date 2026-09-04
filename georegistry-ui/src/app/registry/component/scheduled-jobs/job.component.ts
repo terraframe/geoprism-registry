@@ -48,6 +48,7 @@ import { PageContainerComponent } from "../../../shared/component/page-container
 import { ScheduledJobMapComponent } from "./scheduled-job-map/scheduled-job-map.component";
 import { TabsModule } from "ngx-bootstrap/tabs";
 import { LocalizePipe } from "@shared/pipe/localize.pipe";
+import { EdgeImportConfiguration, ImportConfiguration } from "@registry/model/io";
 
 @Component({
     selector: "job",
@@ -320,6 +321,19 @@ export class JobComponent implements OnInit, OnDestroy {
 
     downloadRdfExport(): void {
         window.location.href = environment.apiUrl + "/api/rdf/repo-export-download?historyId=" + this.historyId;
+    }
+
+    hasMappableContent(configuration: ImportConfiguration): boolean {
+        if (configuration != null) {
+
+            if (configuration.objectType === 'GEO_OBJECT') {
+                return true;
+            } else if (configuration.objectType === 'EDGE_OBJECT') {
+                return ((configuration as EdgeImportConfiguration).graphTypeClass !== 'ConceptEdgeType');
+            }
+        }
+
+        return false;
     }
 
     error(err: any): void {
