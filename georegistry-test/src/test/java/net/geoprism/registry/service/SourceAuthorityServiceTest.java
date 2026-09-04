@@ -63,6 +63,30 @@ public class SourceAuthorityServiceTest implements InstanceTestClassListener
     Assert.assertFalse(this.service.getByCode(source.getCode()).isPresent());
   }
 
+  @Test
+  @Request
+  public void testNonRequiredDTO()
+  {
+    SourceAuthority source = createMock();
+    source.setAuthorityType(null);
+
+    SourceAuthorityDTO dto = this.service.toDTO(source);
+    dto.setOid(null);
+
+    Assert.assertNull(dto.getAuthorityType());
+
+    SourceAuthority result = this.service.apply(dto);
+
+    try
+    {
+      Assert.assertNull(result.getAuthorityType());
+    }
+    finally
+    {
+      this.service.delete(result);
+    }
+  }
+
   public static SourceAuthority createMock()
   {
     SourceAuthority source = new SourceAuthority();

@@ -81,6 +81,34 @@ public class DataSourceServiceTest implements InstanceTestClassListener
 
   @Test
   @Request
+  public void testNonRequiredToDTO()
+  {
+    DataSource source = createMock(authority);
+    source.setGovernanceLevel(null);
+    source.setMetadataProfile(null);
+
+    DataSourceDTO dto = this.service.toDTO(source);
+    dto.setOid(null);
+
+    Assert.assertNull(dto.getGovernanceLevel());
+    Assert.assertNull(dto.getMetadataProfile());
+
+    DataSource result = this.service.apply(dto);
+
+    try
+    {
+      Assert.assertEquals(source.getCode(), result.getCode());
+      Assert.assertNull(result.getMetadataProfile());
+      Assert.assertNull(result.getGovernanceLevel());
+    }
+    finally
+    {
+      this.service.delete(result);
+    }
+  }
+
+  @Test
+  @Request
   public void testSearch()
   {
     DataSource source = createMock(authority);
