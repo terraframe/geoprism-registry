@@ -177,7 +177,20 @@
         </div>
         <div class="holder">
           <span class="text">
-            <input type="text" (focusout)="dhis2FocusOut()" [(ngModel)]="system.url" name="url" required>
+            <input type="text" (focusout)="dhis2FocusOut()" [(ngModel)]="system.url" name="url" required pattern="^https?://[^/:]+:\d+(/.*)?$" #url="ngModel">
+            <div *ngIf="url.invalid && (url.dirty || url.touched)"
+                class="text-danger"
+                style="margin-top: 5px;">
+
+              <span *ngIf="url.errors?.['required']">
+                URL is required.
+              </span>
+
+              <span *ngIf="url.errors?.['pattern']">
+                URL must include a protocol and port, e.g. https://example.com:8182/.
+                <span *ngIf="system.type === 'JenaExternalSystem'">Do not include the '/sparql' path.</span>
+              </span>
+            </div>
           </span>
         </div>
       </div>
