@@ -747,22 +747,24 @@ export class HierarchyTypePageComponent implements OnInit {
 
                 // Find out if we've dragged the GeoObjectType inside of a HierarchyNode. If we have, then
                 // we need to expand the HierarchyNode's BoundingBox to accomodate our new drop zones.
-                that.primarySvgHierarchy.getD3Tree().descendants().forEach((node: any) => {
-                    if (node.data.geoObjectType !== "GhostNode" && isPointWithin(svgMousePoint, node.data.dropZoneBbox)) {
-                        this.dropEl = d3.select(".g-hierarchy[data-primary=true] .svg-got-body-rect[data-gotCode=\"" + node.data.geoObjectType + "\"]");
-                        node.data.activeDropZones = true;
+                if (that.primarySvgHierarchy != null) {
+                    that.primarySvgHierarchy.getD3Tree().descendants().forEach((node: any) => {
+                        if (node.data.geoObjectType !== "GhostNode" && isPointWithin(svgMousePoint, node.data.dropZoneBbox)) {
+                            this.dropEl = d3.select(".g-hierarchy[data-primary=true] .svg-got-body-rect[data-gotCode=\"" + node.data.geoObjectType + "\"]");
+                            node.data.activeDropZones = true;
 
-                        if (node.parent == null) {
-                            node.data.dropZoneBbox = { x: node.x - SvgHierarchyType.gotRectW / 2, y: node.y - SvgHierarchyType.gotRectH * 2, width: SvgHierarchyType.gotRectW, height: SvgHierarchyType.gotRectH * 4 };
-                        }
-                    } else {
-                        node.data.activeDropZones = false;
+                            if (node.parent == null) {
+                                node.data.dropZoneBbox = { x: node.x - SvgHierarchyType.gotRectW / 2, y: node.y - SvgHierarchyType.gotRectH * 2, width: SvgHierarchyType.gotRectW, height: SvgHierarchyType.gotRectH * 4 };
+                            }
+                        } else {
+                            node.data.activeDropZones = false;
 
-                        if (node.parent == null) {
-                            node.data.dropZoneBbox = { x: node.x - SvgHierarchyType.gotRectW / 2, y: node.y - SvgHierarchyType.gotRectH / 2, width: SvgHierarchyType.gotRectW, height: SvgHierarchyType.gotRectH };
+                            if (node.parent == null) {
+                                node.data.dropZoneBbox = { x: node.x - SvgHierarchyType.gotRectW / 2, y: node.y - SvgHierarchyType.gotRectH / 2, width: SvgHierarchyType.gotRectW, height: SvgHierarchyType.gotRectH };
+                            }
                         }
-                    }
-                });
+                    });
+                }
 
                 if (this.dropEl == null || (lastDropEl != null && this.dropEl != null && lastDropEl.attr("data-gotCode") != this.dropEl.attr("data-gotCode"))) {
                     this.clearGhostNodes(true);

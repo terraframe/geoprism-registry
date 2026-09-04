@@ -21,6 +21,8 @@
 <page-container>
     <div class="row">
         <div class="col-md-12 order-md-1">
+
+            @if (loaded && organizations.length > 0) {
             <tabset [justified]="true">
                 <tab heading="Geo-Object Types" id="geo-object-type">
                     <geo-object-type-page [userOrganization]="userOrganization" [organizations]="organizations"
@@ -54,6 +56,14 @@
 
 
             </tabset>
+            }
+            @else if(loaded) {
+            <div class="py-5">
+                <h3 class="inline-message">
+                    You must first define at least one organization
+                </h3>
+            </div>
+            }
         </div>
     </div>
 
