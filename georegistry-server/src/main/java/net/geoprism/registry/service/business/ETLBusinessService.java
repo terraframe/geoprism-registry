@@ -70,6 +70,7 @@ import net.geoprism.registry.etl.export.ExportError;
 import net.geoprism.registry.etl.export.ExportErrorQuery;
 import net.geoprism.registry.etl.export.ExportHistory;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
+import net.geoprism.registry.io.view.HistoryConfigurationDTO;
 import net.geoprism.registry.io.view.ImportConfigurationDTO;
 import net.geoprism.registry.jobs.GPRJobHistory;
 import net.geoprism.registry.jobs.ImportError;
@@ -424,7 +425,7 @@ public class ETLBusinessService
 
       if (StringUtils.isNotBlank(iHist.getConfigJson()) && iHist.getConfigJson().startsWith("{"))
       {
-        ImportConfigurationDTO configuration = iHist.getConfigurationDTO();
+        HistoryConfigurationDTO configuration = iHist.getConfigurationDTO();
 
         jo.addProperty("fileName", configuration.getFileName());
         jo.add("configuration", JsonParser.parseString(ImportConfigurationDTO.toJson(configuration)));

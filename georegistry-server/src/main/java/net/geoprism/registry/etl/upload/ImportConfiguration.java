@@ -62,7 +62,7 @@ import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.view.TypeInfo;
 
-public abstract class ImportConfiguration
+public abstract class ImportConfiguration extends JobConfiguration
 {
   public static enum ImportStrategy {
     NEW_AND_UPDATE, NEW_ONLY, UPDATE_ONLY
@@ -109,10 +109,6 @@ public abstract class ImportConfiguration
 
     this.sourceService = ServiceFactory.getBean(DataSourceBusinessServiceIF.class);
   }
-
-  public abstract void enforceCreatePermissions();
-
-  public abstract void enforceExecutePermissions();
 
   public abstract void populate(ImportHistory history);
 

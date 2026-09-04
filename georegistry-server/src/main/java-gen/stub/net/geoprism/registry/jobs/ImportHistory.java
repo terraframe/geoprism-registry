@@ -21,9 +21,10 @@ package net.geoprism.registry.jobs;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 
-import net.geoprism.registry.etl.ObjectImporterFactory.JobHistoryType;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
+import net.geoprism.registry.etl.upload.JobConfiguration;
 import net.geoprism.registry.io.view.ExportConfigurationDTO;
+import net.geoprism.registry.io.view.HistoryConfigurationDTO;
 import net.geoprism.registry.io.view.ImportConfigurationDTO;
 import net.geoprism.registry.model.ServerGeoObjectType;
 
@@ -47,15 +48,16 @@ public class ImportHistory extends ImportHistoryBase
     this.setConfigJson(ImportConfigurationDTO.toJson(configuration));
   }
 
-  public ImportConfiguration getConfiguration()
+  @SuppressWarnings("unchecked")
+  public <T extends JobConfiguration> T getConfiguration()
   {
-    return ImportConfiguration.build(getConfigurationDTO());
+    return (T) JobConfiguration.build(getConfigurationDTO());
   }
 
   @SuppressWarnings("unchecked")
-  public <T extends ImportConfigurationDTO> T getConfigurationDTO()
+  public <T extends HistoryConfigurationDTO> T getConfigurationDTO()
   {
-    return (T) ImportConfigurationDTO.parseJson(this.getConfigJson());
+    return (T) HistoryConfigurationDTO.parseJson(this.getConfigJson());
   }
 
   // public List<TypeInfo> getTypesAsList()
@@ -160,12 +162,13 @@ public class ImportHistory extends ImportHistoryBase
 
   public void enforceExecutePermissions()
   {
-//    ImportConfigurationDTO dto = this.getConfigurationDTO();
-//
-//    if (!dto.getObjectType().equals(JobHistoryType.LPG) && !dto.getObjectType().equals(JobHistoryType.RDF))
-//    {
-      getConfiguration().enforceExecutePermissions();
-//    }
+    // ImportConfigurationDTO dto = this.getConfigurationDTO();
+    //
+    // if (!dto.getObjectType().equals(JobHistoryType.LPG) &&
+    // !dto.getObjectType().equals(JobHistoryType.RDF))
+    // {
+    getConfiguration().enforceExecutePermissions();
+    // }
   }
 
 }

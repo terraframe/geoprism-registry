@@ -20,11 +20,8 @@ package net.geoprism.registry.io.view;
 
 import java.util.Date;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
@@ -41,8 +38,6 @@ public abstract class ImportConfigurationDTO extends HistoryConfigurationDTO
   private String             jobId;
 
   private String             vaultFileId;
-
-  private String             fileName;
 
   private ImportStrategy     importStrategy;
 
@@ -108,16 +103,6 @@ public abstract class ImportConfigurationDTO extends HistoryConfigurationDTO
   public void setVaultFileId(String vaultFileId)
   {
     this.vaultFileId = vaultFileId;
-  }
-
-  public String getFileName()
-  {
-    return fileName;
-  }
-
-  public void setFileName(String fileName)
-  {
-    this.fileName = fileName;
   }
 
   public ImportStrategy getImportStrategy()
@@ -199,31 +184,4 @@ public abstract class ImportConfigurationDTO extends HistoryConfigurationDTO
   {
     this.sheet = sheet;
   }
-
-  public static ImportConfigurationDTO parseJson(String json)
-  {
-    try
-    {
-      ObjectMapper mapper = new ObjectMapper();
-      return mapper.readValue(json, ImportConfigurationDTO.class);
-    }
-    catch (JsonProcessingException e)
-    {
-      throw new ProgrammingErrorException(e);
-    }
-  }
-
-  public static String toJson(ImportConfigurationDTO dto)
-  {
-    try
-    {
-      ObjectMapper mapper = new ObjectMapper();
-      return mapper.writeValueAsString(dto);
-    }
-    catch (JsonProcessingException e)
-    {
-      throw new ProgrammingErrorException(e);
-    }
-  }
-
 }
