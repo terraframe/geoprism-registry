@@ -1,5 +1,6 @@
 package net.geoprism.registry.etl.upload;
 
+import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.io.view.HistoryConfigurationDTO;
 import net.geoprism.registry.io.view.ImportConfigurationDTO;
 
@@ -14,7 +15,9 @@ public abstract class JobConfiguration
   {
     if (dto instanceof ImportConfigurationDTO)
     {
-      return (T) ImportConfiguration.build(dto);
+      ImportConfigurationDTO config = (ImportConfigurationDTO) dto;
+
+      return (T) ImportConfiguration.build(config, config.getFormatType().equals(FormatImporterType.EXCEL));
     }
 
     return (T) new ExportConfiguration();

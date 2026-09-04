@@ -189,7 +189,12 @@ export class CgrHeaderComponent {
 
     account(): void {
         this.profileService.get().then(profile => {
-            this.bsModalRef = this.modalService.show(ProfileComponent, { backdrop: "static", class: "gray modal-lg" });
+            this.bsModalRef = this.modalService.show(ProfileComponent,
+                {
+                    animated: false,
+                    backdrop: true,
+                    class: "gray modal-lg"
+                });
             this.bsModalRef.content.profile = profile;
         });
     }

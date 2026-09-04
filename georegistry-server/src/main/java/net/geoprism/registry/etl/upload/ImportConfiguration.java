@@ -405,11 +405,6 @@ public abstract class ImportConfiguration extends JobConfiguration
     throw new UnsupportedOperationException("Unsupported type [" + type.getBinding().getName() + "]");
   }
 
-  public static ImportConfiguration build(ImportConfigurationDTO dto)
-  {
-    return ImportConfiguration.build(dto, dto.getFormatType().equals(FormatImporterType.EXCEL));
-  }
-
   public static ImportConfiguration build(ImportConfigurationDTO dto, boolean includeCoordinates)
   {
 
