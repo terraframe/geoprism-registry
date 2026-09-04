@@ -162,7 +162,8 @@ export class SettingsComponent implements OnInit {
 
 	public newOrganization(): void {
 		let bsModalRef = this.modalService.show(OrganizationModalComponent, {
-			animated: false, backdrop: true,
+			animated: false, 
+			backdrop: true,
 			ignoreBackdropClick: true,
 		});
 
