@@ -277,6 +277,25 @@ public class ConceptSetTest extends DatasetTest implements InstanceTestClassList
 
   @Test(expected = UnsupportedOperationException.class)
   @Request
+  public void testAddConceptEdgeTypeEnumeration()
+  {
+    ConceptSetDTO dto = createDTO();
+    dto.setDiscreteType(DiscreteType.ENUMERATION);
+
+    ConceptSet set = this.service.apply(dto);
+
+    try
+    {
+      this.service.addConceptEdgeType(set, conceptEdgeType);
+    }
+    finally
+    {
+      this.service.delete(set);
+    }
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  @Request
   public void testAddDuplicateEdgeType()
   {
     ConceptSetDTO dto = createDTO();

@@ -31,19 +31,13 @@
 </ng-template>
 <div class="input-group">
 
-  <input type="text" class="form-control" autocomplete="off"
-    [style]="customStyles" [name]="name" [disabled]="disabled" [(ngModel)]="text"
-    [class]="classNames"    
-    [typeaheadAsync]="true"
-    [typeahead]="typeahead"
-    (change)="onTextChange()"
+  <input type="text" class="form-control" autocomplete="off" [style]="customStyles" [name]="name" [disabled]="disabled"
+    [(ngModel)]="text" [class]="classNames" [typeaheadAsync]="true" [typeahead]="typeahead" (change)="onTextChange()"
     (typeaheadOnSelect)="typeaheadOnSelect($event)" (typeaheadLoading)="loading = $event"
-    [ngClass]="{'inline-loading':loading}" [typeaheadOptionsLimit]="7"
-    [optionsListTemplate]="customListTemplate" [typeaheadMinLength]="0" [typeaheadWaitMs]="300"
-    [container]="container"
-    >
+    [ngClass]="{'inline-loading':loading}" [typeaheadOptionsLimit]="7" [optionsListTemplate]="customListTemplate"
+    [typeaheadMinLength]="0" [typeaheadWaitMs]="300" [container]="container">
 
-  <span class="input-group-addon clickable addon-alert" (click)="onViewTree()">
+  <span class="input-group-addon addon-alert" [class.clickable]="attribute.rootTerm == null" (click)="onViewTree()">
     <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
   </span>
 </div>

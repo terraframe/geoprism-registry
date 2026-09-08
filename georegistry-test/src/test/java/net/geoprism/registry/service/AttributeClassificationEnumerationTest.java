@@ -32,6 +32,8 @@ import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestRegistryClient;
 import net.geoprism.registry.test.TestUserInfo;
+import net.geoprism.registry.view.ConceptSetDTO;
+import net.geoprism.registry.view.DiscreteType;
 import net.geoprism.registry.view.NodeDTO;
 import net.geoprism.registry.view.ObjectOverTimeDTO;
 import net.geoprism.registry.view.Page;
@@ -39,7 +41,7 @@ import net.geoprism.registry.view.Page;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
 @RunWith(SpringInstanceTestClassRunner.class)
-public class AttributeClassificationTest extends FastDatasetTest implements InstanceTestClassListener
+public class AttributeClassificationEnumerationTest extends FastDatasetTest implements InstanceTestClassListener
 {
   public static final String                 TEST_KEY = "ATTRCLASSTEST";
 
@@ -79,90 +81,13 @@ public class AttributeClassificationTest extends FastDatasetTest implements Inst
     super.afterClassSetup();
   }
 
-  @Test
-  public void testCreateGeoObject()
+  @Override
+  public ConceptSetDTO mockConceptSet(String code, String label, String description)
   {
-    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA };
+    ConceptSetDTO dto = super.mockConceptSet(code, label, description);
+    dto.setDiscreteType(DiscreteType.ENUMERATION);
 
-    for (TestUserInfo user : allowedUsers)
-    {
-      TestDataSet.runAsUser(user, (request) -> {
-        TestDataSet.populateAdapterIds(user, client.getAdapter());
-
-        GeoObject object = TEST_GO.newGeoObject(client.getAdapter());
-        object.setValue(testClassification.getCode(), rootConcept.getCode());
-
-        GeoObject returned = client.createGeoObject(object.toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
-
-        try
-        {
-          Assert.assertEquals(rootConcept.getCode(), returned.getAttribute(testClassification.getCode()).getValue());
-          TEST_GO.assertApplied();
-        }
-        finally
-        {
-          TEST_GO.delete();
-        }
-      });
-    }
-  }
-
-  @Test
-  public void testCreateGeoObjectOverTime()
-  {
-    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA };
-
-    for (TestUserInfo user : allowedUsers)
-    {
-      TestDataSet.runAsUser(user, (request) -> {
-        TestDataSet.populateAdapterIds(user, client.getAdapter());
-
-        GeoObjectOverTime object = TEST_GO.newGeoObjectOverTime(client.getAdapter());
-        object.setValue(testClassification.getCode(), rootConcept.getCode(), TEST_GO.getDate(), ValueOverTimeDTO.INFINITY_END_DATE);
-
-        GeoObjectOverTime returned = client.createGeoObjectOverTime(object.toJSON().toString());
-
-        try
-        {
-          Assert.assertEquals(rootConcept.getCode(), returned.getValue(testClassification.getCode(), TEST_GO.getDate()));
-
-          TEST_GO.assertApplied();
-        }
-        finally
-        {
-          TEST_GO.delete();
-        }
-      });
-    }
-  }
-
-  @Test
-  public void testCreateGeoObjectOverTime_ChildConcept()
-  {
-    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA };
-
-    for (TestUserInfo user : allowedUsers)
-    {
-      TestDataSet.runAsUser(user, (request) -> {
-        TestDataSet.populateAdapterIds(user, client.getAdapter());
-
-        GeoObjectOverTime object = TEST_GO.newGeoObjectOverTime(client.getAdapter());
-        object.setValue(testClassification.getCode(), childConcept.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_OVER_TIME_DATE);
-
-        GeoObjectOverTime returned = client.createGeoObjectOverTime(object.toJSON().toString());
-
-        try
-        {
-          Assert.assertEquals(childConcept.getCode(), returned.getValue(testClassification.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE));
-
-          TEST_GO.assertApplied();
-        }
-        finally
-        {
-          TEST_GO.delete();
-        }
-      });
-    }
+    return dto;
   }
 
   @Test
@@ -216,11 +141,7 @@ public class AttributeClassificationTest extends FastDatasetTest implements Inst
   {
     List<ConceptObject> results = this.cObjectService.getChildren(rootConcept, testClassification, 20, 1);
 
-    Assert.assertEquals(1, results.size());
-
-    ConceptObject result = results.get(0);
-
-    Assert.assertEquals(childConcept.getCode(), result.getCode());
+    Assert.assertEquals(0, results.size());
   }
 
   @Test
@@ -229,12 +150,8 @@ public class AttributeClassificationTest extends FastDatasetTest implements Inst
   {
     NodeDTO<ObjectOverTimeDTO> node = this.cObjectService.getAncestorTree(testClassification, childConcept, 20);
 
-    Assert.assertEquals(rootConcept.getCode(), node.getObject().getCode());
-    Assert.assertEquals(1, node.getChildren().getResultSet().size());
-
-    NodeDTO<ObjectOverTimeDTO> result = node.getChildren().getResultSet().get(0);
-
-    Assert.assertEquals(childConcept.getCode(), result.getObject().getCode());
+    Assert.assertEquals(childConcept.getCode(), node.getObject().getCode());
+    Assert.assertEquals(0, node.getChildren().getResultSet().size());
   }
 
   @Test
@@ -244,14 +161,14 @@ public class AttributeClassificationTest extends FastDatasetTest implements Inst
     NodeDTO<ObjectOverTimeDTO> node = this.cObjectService.getAncestorTree(testClassification, rootConcept, 20);
 
     Assert.assertEquals(rootConcept.getCode(), node.getObject().getCode());
-    Assert.assertEquals(1, node.getChildren().getResultSet().size());
+    Assert.assertEquals(0, node.getChildren().getResultSet().size());
   }
 
   @Test
   @Request
   public void testGetChildrenCount()
   {
-    Assert.assertEquals(Integer.valueOf(1), this.cObjectService.getChildCount(rootConcept, testClassification));
+    Assert.assertEquals(Integer.valueOf(0), this.cObjectService.getChildCount(rootConcept, testClassification));
   }
 
   @Test
@@ -264,11 +181,7 @@ public class AttributeClassificationTest extends FastDatasetTest implements Inst
       TestDataSet.runAsUser(user, (request) -> {
         Page<ObjectOverTimeDTO> page = this.service.getChildren(request.getSessionId(), rootConcept.getCode(), TEST_GOT.getCode(), testClassification.getCode(), 20, 1);
 
-        Assert.assertEquals(Long.valueOf(1), page.getCount());
-
-        ObjectOverTimeDTO result = page.getResultSet().get(0);
-
-        Assert.assertEquals(childConcept.getCode(), result.getCode());
+        Assert.assertEquals(Long.valueOf(0), page.getCount());
 
       });
     }

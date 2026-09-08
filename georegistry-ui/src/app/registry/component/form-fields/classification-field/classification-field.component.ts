@@ -99,14 +99,16 @@ export class ClassificationFieldComponent implements OnInit, OnDestroy {
     }
 
     onViewTree(): void {
-        const bsModalRef = this.modalService.show(ClassificationFieldModalComponent, {
-            animated: false, backdrop: true, ignoreBackdropClick: true
-        });
+        if (this.attribute.rootTerm != null) {
+            const bsModalRef = this.modalService.show(ClassificationFieldModalComponent, {
+                animated: false, backdrop: true, ignoreBackdropClick: true
+            });
 
-        this.subscription = bsModalRef.content.init(this.type, this.attribute, this.disabled, this.value, (classification: ObjectOverTime) => {
-            this.text = classification.code;
-            this.setValue({ code: classification.code });
-        });
+            this.subscription = bsModalRef.content.init(this.type, this.attribute, this.disabled, this.value, (classification: ObjectOverTime) => {
+                this.text = classification.code;
+                this.setValue({ code: classification.code });
+            });
+        }
     }
 
     onTextChange(): void {

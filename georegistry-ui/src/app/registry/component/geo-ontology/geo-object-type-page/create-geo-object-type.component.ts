@@ -61,6 +61,8 @@ export class CreateGeoObjectTypeComponent implements OnInit {
     organizationLabel: string;
 
     sets: ConceptSet[] = [];
+    currentSet: ConceptSet = null;
+
     typeahead: Observable<ObjectOverTime[]> = null;
     text: string;
     loading: boolean;
@@ -169,6 +171,14 @@ export class CreateGeoObjectTypeComponent implements OnInit {
             }
         } else if (this.geoObjectType.classification.rootTerm != null) {
             this.geoObjectType.classification.rootTerm = null;
+        }
+    }
+    onConceptSetChange(): void {
+        if (this.geoObjectType.classification.conceptSet != null && this.geoObjectType.classification.conceptSet.length > 0) {
+            this.currentSet = this.sets.find(f => f.code === this.geoObjectType.classification.conceptSet);
+        }
+        else {
+            this.currentSet = null;
         }
     }
 

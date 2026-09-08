@@ -108,6 +108,8 @@
           </div>
         </div>
         <div class="col-md-6">
+          @if (set.discreteType !== 'ENUMERATION') {
+
           <div class="form-group">
             <label>
               <localize key="concept.edge.header"></localize>
@@ -122,9 +124,11 @@
               }
             </select>
           </div>
+          }
         </div>
       </div>
-      <div class="row" *ngIf="set.conceptClasses[0].length > 0">
+      @if (set.discreteType !== 'ENUMERATION' && set.conceptClasses[0].length > 0) {
+      <div class="row">
         <div class="col-md-6">
           <div class="form-group">
             <label>
@@ -138,19 +142,21 @@
           </div>
         </div>
       </div>
+      }
 
 
-
-      <div class="row-holder" *ngIf="!readOnly">
+      @if (!readOnly) {
+      <div class="row-holder">
         <div class="button-holder">
           <button set="button" class="btn btn-default" (click)="close()">
             <localize key="modal.button.cancel"></localize>
           </button>
-          <button *ngIf="!readOnly" set="button" class="btn btn-primary" [disabled]="form.invalid" (click)="update()">
+          <button set="button" class="btn btn-primary" [disabled]="form.invalid" (click)="update()">
             <localize key="modal.button.submit"></localize>
           </button>
         </div>
       </div>
+      }
     </fieldset>
   </form>
 

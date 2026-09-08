@@ -60,7 +60,11 @@ public abstract class ConceptDatasetTest extends DatasetTest
     cSet = this.cSetService.apply(this.mockConceptSet());
 
     this.cSetService.addConceptClass(cSet, cClass);
-    this.cSetService.addConceptEdgeType(cSet, cEdgeType);
+
+    if (!cSet.getDiscreteType().equals(DiscreteType.ENUMERATION.name()))
+    {
+      this.cSetService.addConceptEdgeType(cSet, cEdgeType);
+    }
 
     rootConcept = this.cObjectService.newInstance(cClass);
     rootConcept.setCode("Test Term");
@@ -152,9 +156,13 @@ public abstract class ConceptDatasetTest extends DatasetTest
   {
     AttributeClassificationType dto = (AttributeClassificationType) AttributeType.factory("testClassification", new LocalizedValue("testClassificationLocalName"), new LocalizedValue("testClassificationLocalDescrip"), AttributeClassificationType.TYPE, false, false, true);
     dto.setConceptSet(cSet.getCode());
-    dto.setRootTerm(CodeReference.build(rootConcept.getCode(), rootConcept.getType().getCode()));
     dto.setStartDate(TestDataSet.DEFAULT_OVER_TIME_DATE);
     dto.setEndDate(TestDataSet.DEFAULT_END_TIME_DATE);
+
+    if (!cSet.getDiscreteType().equals(DiscreteType.ENUMERATION.name()))
+    {
+      dto.setRootTerm(CodeReference.build(rootConcept.getCode(), rootConcept.getType().getCode()));
+    }
 
     return dto;
   }

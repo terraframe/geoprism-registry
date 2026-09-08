@@ -197,7 +197,7 @@
     <div class="panel panel-default" *ngIf="groupSuperType == null">
       <div class="panel-heading">
         <h5 class="panel-title">
-          <localize key="data.type.label.classification"></localize>          
+          <localize key="data.type.label.classification"></localize>
         </h5>
       </div>
       <div class="panel-body">
@@ -206,9 +206,10 @@
           <div class="col-md-12">
             <div class="form-group">
               <label>
-                <localize key="concept.set.header"></localize>          
+                <localize key="concept.set.header"></localize>
               </label>
-              <select name="conceptSet" class="select-area" [(ngModel)]="geoObjectType.classification.conceptSet">
+              <select name="conceptSet" class="select-area" [(ngModel)]="geoObjectType.classification.conceptSet"
+                (change)="onConceptSetChange()">
                 <option></option>
                 @for (set of sets; track set) {
                 <option [value]="set.code">
@@ -219,34 +220,36 @@
             </div>
           </div>
         </div>
-        <div class="row" *ngIf="geoObjectType.classification.conceptSet.length > 0">
+
+        @if (currentSet != null) {
+        <div class="row">
           <div class="col-md-12">
             <div class="form-group">
               <label>
-                <localize key="io.startDate"></localize>          
+                <localize key="io.startDate"></localize>
               </label>
               <date-field [(value)]="geoObjectType.classification.startDate" classNames="form-control"
                 inputName="startDate" name="startDate" [required]="true"></date-field>
             </div>
           </div>
         </div>
-        <div class="row" *ngIf="geoObjectType.classification.conceptSet.length > 0">
+        <div class="row">
           <div class="col-md-12">
             <div class="form-group">
               <label>
-                <localize key="io.endDate"></localize>          
+                <localize key="io.endDate"></localize>
               </label>
               <date-field [(value)]="geoObjectType.classification.endDate" classNames="form-control" inputName="endDate"
                 name="endDate" [allowInfinity]="true" [allowFutureDates]="true" [required]="true"></date-field>
             </div>
           </div>
         </div>
-        <div class="row"
-          *ngIf="geoObjectType.classification.conceptSet.length > 0 && geoObjectType.classification.startDate != null">
+        @if (currentSet.discreteType !== 'ENUMERATION' && geoObjectType.classification.startDate != null) {
+        <div class="row">
           <div class="col-md-6">
             <div class="form-group">
               <label>
-                <localize key="concept.root.term"></localize>          
+                <localize key="concept.root.term"></localize>
               </label>
               <input type="text" class="form-control" autocomplete="off" name="rootTerm" [(ngModel)]="text"
                 [typeaheadAsync]="true" [typeahead]="typeahead" (change)="onTextChange()"
@@ -256,6 +259,9 @@
             </div>
           </div>
         </div>
+          }
+        }
+
 
 
       </div>
