@@ -24,15 +24,11 @@
 
 	<nav class="col-md-2 hierarchy-sidebar">
 
-		<accordion [isAnimated]="true" [closeOthers]="false">
-			<accordion-group [panelClass]="'hierarchy-sidebar-content'" [isOpen]="true" style="border-radius: 0;">
-				<div accordion-heading style="padding: 10px 15px;">
-					<span>
-						<i style="margin-right:10px;" class="fa fa-circle"></i>
-					</span>
-					<localize key="nav.concept.set.label"></localize>
-				</div>
-				<div class="sidebar-section-content">
+		<ng-content select="[sectionNav]"></ng-content>
+
+		<hr class="sidebar-divider">
+
+			<div class="sidebar-section-content">
 					<ul class="list-group">
 						<div>
 
@@ -71,9 +67,7 @@
 							</li>
 						</div>
 					</ul>
-				</div>
-			</accordion-group>
-		</accordion>
+			</div>
 	</nav>
 
 	<div class="col-md-10 hierarchy-content">

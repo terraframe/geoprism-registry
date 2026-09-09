@@ -16,26 +16,39 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-.nopadding {
-    padding: 0 !important;
-    margin: 0 !important;
+:host {
+    display: block;
+    background: #f1f1f1;
+    padding: 0;
 }
 
-.collapsed-sidebar {
-    width: 55px;
-    margin-left: auto;
-    margin-right: auto;
+.ontology-section-nav {
+    margin-bottom: 0;
+    padding: 5px;
 }
 
-.collapsed-main {
-    width: calc(100% - 55px);
-    margin-left: auto;
-    margin-right: auto;
+li.ontology-section-nav-item {
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    border-radius: 6px;
+    background-color: transparent;
+    color: var(--theme-text-dark, #767676);
+    margin-bottom: 2px;
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
 }
 
-.sidebar {
-    background-color: #27232CFF;
-    color: #BABABAFF;
-    height: 100vh;
-    overflow-y: auto;
+li.ontology-section-nav-item:hover {
+    background-color: rgba(217, 181, 255, 0.35);
+}
+
+li.ontology-section-nav-item.active {
+    background-color: #D9B5FF;
+    color: var(--theme-primary-color, #3E2A5A);
+    font-weight: 700;
+}
+
+li.ontology-section-nav-item.active i {
+    color: var(--theme-primary-color, #3E2A5A);
 }

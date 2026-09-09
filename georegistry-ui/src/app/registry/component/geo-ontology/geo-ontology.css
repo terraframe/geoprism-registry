@@ -103,25 +103,13 @@ ul li:last-child:before {
 	overflow-y: auto;
 }
 
-.hierarchy-sidebar button {
-	margin:0;
+.ontology-content-tools {
+	text-align: right;
+	padding: 10px 15px;
 }
 
-.hierarchy-sidebar {
-    z-index: 999;
-    background: #f1f1f1;
-/*     color: #fff; */
-	transition: all 0.3s;
-  	padding:0;
-    vertical-align: top;
-    height: calc(100vh - 50px);
-    overflow-x: hidden;
-    overflow-y: auto;
-}
-
-.hierarchy-content {
-	height: calc(100vh - 50px);
-    overflow: auto;
+.ontology-content-tools button {
+	margin-left: 10px;
 }
 
 #overflow-div {

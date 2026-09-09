@@ -19,13 +19,14 @@
 
 -->
 <page-container>
+
     <div class="row">
         <div class="col-md-12 order-md-1">
 
             @if (loaded && organizations.length > 0) {
             <tabset [justified]="true">
                 <tab heading="Geo-Object Types" id="geo-object-type">
-                    <geo-object-type-page [userOrganization]="userOrganization" [organizations]="organizations"
+                    <geo-object-type-page [hidden]="section !== 'geo-object-type'" [userOrganization]="userOrganization" [organizations]="organizations"
                         [types]="geoObjectTypes" (typesChange)="setGeoObjectTypes($event)" (onError)="error($event)">
                     </geo-object-type-page>
                 </tab>
@@ -64,7 +65,23 @@
                 </h3>
             </div>
             }
+
         </div>
-    </div>
+    </geo-object-type-page>
+
+    <hierarchy-type-page [hidden]="section !== 'hierarchy-type'" [userOrganization]="userOrganization"
+        [organizations]="organizations" [geoObjectTypes]="geoObjectTypes" [hierarchies]="hierarchies"
+        (onHierarchyType)="handleHierarchyType($event)" (onGeoObjectType)="handleGeoObjectType($event)"
+        (onRemove)="handleRemoveHierarchyType($event)" (onError)="error($event)">
+        <ontology-section-nav sectionNav [items]="sections" [(active)]="section"></ontology-section-nav>
+    </hierarchy-type-page>
+
+    <graph-type-page [hidden]="section !== 'dag'" [typeCode]="'DirectedAcyclicGraphType'">
+        <ontology-section-nav sectionNav [items]="sections" [(active)]="section"></ontology-section-nav>
+    </graph-type-page>
+
+    <graph-type-page [hidden]="section !== 'graph'" [typeCode]="'UndirectedGraphType'">
+        <ontology-section-nav sectionNav [items]="sections" [(active)]="section"></ontology-section-nav>
+    </graph-type-page>
 
 </page-container>

@@ -24,21 +24,17 @@
 
 	<nav class="col-md-2 hierarchy-sidebar">
 
+		<ng-content select="[sectionNav]"></ng-content>
+
+		<hr class="sidebar-divider">
+
 		<div class="row" style="padding: 5px 5px;">
 			<div class="col-md-12">
 				<input type="text" class="form-control" [placeholder]="'hierarchy.sidebar.searchAll' | localize"
 					[(ngModel)]="filter" (change)="onFilterChange()">
 			</div>
 		</div>
-		<accordion [isAnimated]="true" [closeOthers]="false">
-			<accordion-group [panelClass]="'hierarchy-sidebar-content'" [isOpen]="true" style="border-radius: 0;">
-				<div accordion-heading style="padding: 10px 15px;">
-					<span>
-						<i style="margin-right:10px;" class="fa fa-circle"></i>
-					</span>
-					<localize key="hierarchy.sidebar.geoObjectTypes"></localize>
-				</div>
-				<div class="sidebar-section-content">
+			<div class="sidebar-section-content">
 					<ul *ngFor="let typeByOrg of filteredTypesByOrg;" class="list-group">
 						<div>
 
@@ -47,14 +43,16 @@
 							</div>
 
 							<div *ngIf="isSRA || typeByOrg.org.code === userOrganization"
-								style="text-align: center;padding: 10px 0;">
+								style="display:flex;gap:8px;padding: 10px 5px;">
 								<button (click)="createGeoObjectType(null, false, typeByOrg.org)" type="button"
-									class="btn btn-primary" style="margin-bottom:20px;min-width:45%;">
+									class="btn btn-primary"
+									style="flex:1;min-width:0;padding:6px 4px;font-size:12px;white-space:normal;">
 									<localize key="hierarchy.sidebar.newGeoObjectType"></localize>
 								</button>
 
 								<button (click)="createGeoObjectType(null, true, typeByOrg.org)" type="button"
-									class="btn btn-primary" style="margin-bottom:20px;margin-left:10px;min-width:45%;">
+									class="btn btn-primary"
+									style="flex:1;min-width:0;padding:6px 4px;font-size:12px;white-space:normal;">
 									<localize key="hierarchies.add.group.button.label"></localize>
 								</button>
 							</div>
@@ -106,12 +104,12 @@
 							</li>
 						</div>
 					</ul>
-				</div>
-			</accordion-group>
-		</accordion>
+			</div>
 	</nav>
 
 	<div class="col-md-10 hierarchy-content">
+		<ng-content select="[contentTools]"></ng-content>
+
 		<div id="overflow-div">
 			<create-geo-object-type *ngIf="selection != null && selection.action === Action.CREATE"
 				[organization]="selection.org" [parents]="types" [groupSuperType]="selection.groupSuperType"

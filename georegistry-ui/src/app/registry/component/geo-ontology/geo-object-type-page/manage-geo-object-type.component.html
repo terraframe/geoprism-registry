@@ -20,8 +20,6 @@
 -->
 <form>
 
-  <modal-step-indicator></modal-step-indicator>
-
   <geoobjecttype-input *ngIf="modalState.state === 'MANAGE-GEO-OBJECT-TYPE'" [readOnly]="readOnly"
     [geoObjectType]="type" [setGeoObjectType]="type" (stateChange)="onModalStateChange($event)"
     (geoObjectTypeChange)="onGeoObjectTypeChange($event)"

@@ -30,7 +30,6 @@ import { AuthService } from "@shared/service";
 import { BsDropdownModule } from "ngx-bootstrap/dropdown";
 import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { NgIf, NgFor, NgClass } from "@angular/common";
-import { AccordionModule } from "ngx-bootstrap/accordion";
 import { ModalTypes } from "@shared/model/modal";
 import { DagTypeService } from "@registry/service/dag-type.service";
 import { EdgeClassService } from "@registry/service/edge-class.service";
@@ -57,7 +56,7 @@ interface Selection {
     templateUrl: "./graph-type-page.component.html",
     styleUrls: ["./graph-type-page.css"],
     standalone: true,
-    imports: [AccordionModule, NgIf, LocalizeComponent, NgFor, NgClass, BsDropdownModule, ManageGraphTypeComponent]
+    imports: [NgIf, LocalizeComponent, NgFor, NgClass, BsDropdownModule, ManageGraphTypeComponent]
 })
 export class GraphTypePageComponent implements OnInit, OnDestroy {
     Action = Action;
@@ -87,6 +86,10 @@ export class GraphTypePageComponent implements OnInit, OnDestroy {
 
         this.service.getAll().then(types => {
             this.types = types;
+
+            if (this.selection == null && types.length > 0) {
+                this.handleTypeView(types[0]);
+            }
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });

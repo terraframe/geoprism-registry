@@ -32,7 +32,6 @@ import { EditAttributeModalContentComponent } from "../geoobjecttype-management/
 import { DefineAttributeModalContentComponent } from "../geoobjecttype-management/define-attribute-modal-content.component";
 import { GeoObjectTypeInputComponent } from "../geoobjecttype-management/geoobjecttype-input.component";
 import { NgIf } from "@angular/common";
-import { ModalStepIndicatorComponent } from "@shared/component/modals/modal-step-indicator.component";
 import { FormsModule } from "@angular/forms";
 
 @Component({
@@ -56,7 +55,7 @@ import { FormsModule } from "@angular/forms";
         ]
     ],
     standalone: true,
-    imports: [FormsModule, ModalStepIndicatorComponent, NgIf, GeoObjectTypeInputComponent, DefineAttributeModalContentComponent, EditAttributeModalContentComponent]
+    imports: [FormsModule, NgIf, GeoObjectTypeInputComponent, DefineAttributeModalContentComponent, EditAttributeModalContentComponent]
 })
 export class ManageGeoObjectTypeComponent implements OnInit {
 
