@@ -33,93 +33,108 @@
   <form #form="ngForm" *ngIf="type != null" class="modal-form" (ngSubmit)="form.valid">
     <fieldset>
 
-      <div class="row">
-        <div class="col-md-12">
-          <div class="form-group">
-            <label for="codeInput">
-              <localize key="data.property.label.code"></localize>
-            </label>
-            <span class="text">
-              <input type="text" [(ngModel)]="type.code" name="code" [disabled]="readOnly || !isNew" required>
-            </span>
+      <div class="panel panel-default section-panel">
+        <div class="panel-heading">
+          <h5 class="panel-title"><localize key="hierarchy.management.section.identity.title"></localize></h5>
+          <p class="panel-subtitle"><localize key="hierarchy.management.section.identity.description"></localize></p>
+        </div>
+        <div class="panel-body">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="codeInput">
+                  <localize key="data.property.label.code"></localize>
+                </label>
+                <span class="text">
+                  <input type="text" [(ngModel)]="type.code" name="code" [disabled]="readOnly || !isNew" required>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group" *ngFor="let localeValue of type.label.localeValues">
+                <label for="labelInput">
+                  <localize key="data.property.label.label"></localize>
+                  <span style="color: #BABABA">&nbsp;(<convert-key-label
+                      [key]="localeValue.locale"></convert-key-label>)</span>
+                </label>
+                <input [disabled]="readOnly" [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale"
+                  type="input" class="form-control" required>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <localized-text [disabled]="readOnly" [(value)]="type.description" key="data.property.label.description"
+                  [inlinelayout]="true">
+                </localized-text>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="row">
-        <div class="col-md-6">
-          <div class="form-group" *ngFor="let localeValue of type.label.localeValues">
-            <label for="labelInput">
-              <localize key="data.property.label.label"></localize>
-              <span style="color: #BABABA">&nbsp;(<convert-key-label
-                  [key]="localeValue.locale"></convert-key-label>)</span>
-            </label>
-            <input [disabled]="readOnly" [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale"
-              type="input" class="form-control" required>
-          </div>
+      <div class="panel panel-default section-panel">
+        <div class="panel-heading">
+          <h5 class="panel-title"><localize key="hierarchy.management.section.configuration.title"></localize></h5>
+          <p class="panel-subtitle"><localize key="hierarchy.management.section.configuration.description"></localize></p>
         </div>
-        <div class="col-md-6">
-          <div class="form-group">
-            <localized-text [disabled]="readOnly" [(value)]="type.description" key="data.property.label.description"
-              [inlinelayout]="true">
-            </localized-text>
+        <div class="panel-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="parentType">
+                  <localize key="business.type.parent"></localize>
+                </label>
+                <select id="parentType" name="parentType" class="select-area" [(ngModel)]="type.parentType"
+                  [disabled]="readOnly || !isNew" required>
+                  <option></option>
+                  <option *ngFor="let conceptClass of conceptClasses" [value]="conceptClass.code">
+                    {{conceptClass.displayLabel.localizedValue}}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="childType">
+                  <localize key="business.type.child"></localize>
+                </label>
+                <select id="childType" name="childType" class="select-area" [(ngModel)]="type.childType"
+                  [disabled]="readOnly || !isNew" required>
+                  <option></option>
+                  <option *ngFor="let conceptClass of conceptClasses" [value]="conceptClass.code">
+                    {{conceptClass.displayLabel.localizedValue}}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="parentType">
+                  <localize key="concept.edge.discrete.type"></localize>
+                </label>
+                <select id="discreteType" name="discreteType" class="select-area" [(ngModel)]="type.discreteType"
+                  [disabled]="readOnly || !isNew" required>
+                  <option></option>
+                  <option value="TAXONOMY">
+                    <localize key="concept.edge.discrete.type.taxonomy"></localize>
+                  </option>
+                  <option value="ONTOLOGY">
+                    <localize key="concept.edge.discrete.type.ontology"></localize>
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+            </div>
           </div>
         </div>
       </div>
-
-      <div class="row">
-        <div class="col-md-6">
-          <div class="form-group">
-            <label for="parentType">
-              <localize key="business.type.parent"></localize>
-            </label>
-            <select id="parentType" name="parentType" class="select-area" [(ngModel)]="type.parentType"
-              [disabled]="readOnly || !isNew" required>
-              <option></option>
-              <option *ngFor="let conceptClass of conceptClasses" [value]="conceptClass.code">
-                {{conceptClass.displayLabel.localizedValue}}
-              </option>
-            </select>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="form-group">
-            <label for="childType">
-              <localize key="business.type.child"></localize>
-            </label>
-            <select id="childType" name="childType" class="select-area" [(ngModel)]="type.childType"
-              [disabled]="readOnly || !isNew" required>
-              <option></option>
-              <option *ngFor="let conceptClass of conceptClasses" [value]="conceptClass.code">
-                {{conceptClass.displayLabel.localizedValue}}
-              </option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col-md-6">
-          <div class="form-group">
-            <label for="parentType">
-              <localize key="concept.edge.discrete.type"></localize>
-            </label>
-            <select id="discreteType" name="discreteType" class="select-area" [(ngModel)]="type.discreteType"
-              [disabled]="readOnly || !isNew" required>
-              <option></option>
-              <option value="TAXONOMY">
-                <localize key="concept.edge.discrete.type.taxonomy"></localize>
-              </option>
-              <option value="ONTOLOGY">
-                <localize key="concept.edge.discrete.type.ontology"></localize>
-              </option>
-            </select>
-          </div>
-        </div>
-        <div class="col-md-6">
-        </div>
-      </div>
-
 
       <div class="row-holder" *ngIf="!readOnly">
         <div class="button-holder">

@@ -52,3 +52,22 @@
     color: var(--theme-text-dark, #767676);
     margin-top: 0;
 }
+
+.section-panel {
+    margin-bottom: 20px;
+}
+.section-panel .panel-heading {
+    padding: 12px 15px 10px;
+}
+.section-panel .panel-title {
+    margin: 0 0 2px;
+}
+.section-panel .panel-subtitle {
+    margin: 0;
+    font-size: 12px;
+    font-weight: normal;
+    color: #999;
+}
+.section-panel .panel-body {
+    padding-top: 18px;
+}

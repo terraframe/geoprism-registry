@@ -160,7 +160,7 @@ li.list-group-item:hover {
     white-space: nowrap;
 }
 .pill.type {
-    background: rgba(217, 181, 255, 0.35);
+    background: rgba(162, 155, 171, 0.45);
     color: var(--theme-primary-color, #3E2A5A);
 }
 .pill.default {
