@@ -27,14 +27,13 @@ import { LocalizationService, AuthService } from "@shared/service";
 import { Organization } from "@shared/model/core";
 
 import Utils from "@registry/utility/Utils";
-import { TabsModule } from "ngx-bootstrap/tabs";
 import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
 import { BusinessTypeService } from "@registry/service/business-type.service";
 import { RegistryService } from "@registry/service";
 import { BusinessTypePageComponent } from "./business-type-page/business-type-page.component";
 import { BusinessEdgeTypePageComponent } from "./business-edge-type-page/business-edge-type-page.component";
-import { LocalizePipe } from "@shared/pipe/localize.pipe";
 import { BusinessType } from "@registry/model/object-class";
+import { OntologySectionNavComponent, OntologySectionNavItem } from "../ontology-section-nav/ontology-section-nav.component";
 
 
 @Component({
@@ -42,7 +41,7 @@ import { BusinessType } from "@registry/model/object-class";
     templateUrl: "./business-ontology.component.html",
     styleUrls: ["./business-ontology.css"],
     standalone: true,
-    imports: [PageContainerComponent, TabsModule, BusinessTypePageComponent, BusinessEdgeTypePageComponent, LocalizePipe]
+    imports: [PageContainerComponent, OntologySectionNavComponent, BusinessTypePageComponent, BusinessEdgeTypePageComponent]
 })
 export class BusinessOntologyComponent implements OnInit {
 
@@ -50,6 +49,13 @@ export class BusinessOntologyComponent implements OnInit {
 
     organizations: Organization[] = [];
     businessTypes: BusinessType[] = [];
+
+    section: string = "business-type";
+
+    sections: OntologySectionNavItem[] = [
+        { id: "business-type", labelKey: "skg.business.types", icon: "fa-database" },
+        { id: "business-edge-type", labelKey: "skg.business.edge.types", icon: "fa-right-left" }
+    ];
 
     constructor(
         private localizeService: LocalizationService,

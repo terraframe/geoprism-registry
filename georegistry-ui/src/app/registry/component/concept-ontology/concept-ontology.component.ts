@@ -27,10 +27,9 @@ import { LocalizationService, AuthService } from "@shared/service";
 import { Organization } from "@shared/model/core";
 
 import Utils from "@registry/utility/Utils";
-import { TabsModule } from "ngx-bootstrap/tabs";
 import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
+import { OntologySectionNavComponent, OntologySectionNavItem } from "../ontology-section-nav/ontology-section-nav.component";
 import { RegistryService } from "@registry/service";
-import { LocalizePipe } from "@shared/pipe/localize.pipe";
 import { ConceptClass, ConceptEdgeType, ConceptSet } from "@registry/model/object-class";
 import { ConceptClassPageComponent } from "./concept-class-page/concept-class-page.component";
 import { ConceptClassService } from "@registry/service/concept-class.service";
@@ -46,7 +45,7 @@ import { ConceptEdgeTypeService } from "@registry/service/concept-edge-type.serv
     templateUrl: "./concept-ontology.component.html",
     styleUrls: ["./concept-ontology.css"],
     standalone: true,
-    imports: [PageContainerComponent, TabsModule, ConceptClassPageComponent, ConceptEdgeTypePageComponent, ConceptSetPageComponent, LocalizePipe]
+    imports: [PageContainerComponent, OntologySectionNavComponent, ConceptClassPageComponent, ConceptEdgeTypePageComponent, ConceptSetPageComponent]
 })
 export class ConceptOntologyComponent implements OnInit {
 
@@ -55,6 +54,14 @@ export class ConceptOntologyComponent implements OnInit {
     organizations: Organization[] = [];
     conceptClasses: ConceptClass[] = [];
     conceptEdgeTypes: ConceptEdgeType[] = [];
+
+    section: string = "concept-class";
+
+    sections: OntologySectionNavItem[] = [
+        { id: "concept-class", labelKey: "nav.concept.class.label", icon: "fa-circle" },
+        { id: "concept-edge-type", labelKey: "nav.concept.edge.label", icon: "fa-right-left" },
+        { id: "concept-set", labelKey: "nav.concept.set.label", icon: "fa-layer-group" }
+    ];
 
     constructor(
         private localizeService: LocalizationService,

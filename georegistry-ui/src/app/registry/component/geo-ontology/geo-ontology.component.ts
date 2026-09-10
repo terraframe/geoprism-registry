@@ -38,8 +38,8 @@ import { NgIf } from "@angular/common";
 import { GraphTypePageComponent } from "./graph-type-page/graph-type-page.component";
 import { HierarchyTypePageComponent } from "./hierarchy-type-page/hierarchy-type-page.component";
 import { GeoObjectTypePageComponent } from "./geo-object-type-page/geo-object-type-page.component";
-import { TabsModule } from "ngx-bootstrap/tabs";
 import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
+import { OntologySectionNavComponent, OntologySectionNavItem } from "../ontology-section-nav/ontology-section-nav.component";
 
 
 @Component({
@@ -47,7 +47,7 @@ import { PageContainerComponent } from "../../../shared/component/page-container
     templateUrl: "./geo-ontology.component.html",
     styleUrls: ["./geo-ontology.css"],
     standalone: true,
-    imports: [PageContainerComponent, TabsModule, GeoObjectTypePageComponent, HierarchyTypePageComponent, GraphTypePageComponent, NgIf, LocalizePipe]
+    imports: [PageContainerComponent, OntologySectionNavComponent, GeoObjectTypePageComponent, HierarchyTypePageComponent, GraphTypePageComponent, NgIf, LocalizePipe]
 })
 export class GeoOntologyComponent implements OnInit {
 
@@ -55,6 +55,15 @@ export class GeoOntologyComponent implements OnInit {
     loaded: boolean = false;
 
     userOrganization: string = null;
+
+    section: string = "geo-object-type";
+
+    sections: OntologySectionNavItem[] = [
+        { id: "geo-object-type", labelKey: "hierarchy.sidebar.geoObjectTypes", icon: "fa-circle" },
+        { id: "hierarchy-type", labelKey: "hierarchy.sidebar.hierarchies", icon: "fa-sitemap" },
+        { id: "dag", labelKey: "header.dag.type", icon: "fa-code-branch" },
+        { id: "graph", labelKey: "header.undirected.type", icon: "fa-circle-nodes" }
+    ];
 
     hierarchies: HierarchyType[];
     organizations: Organization[];

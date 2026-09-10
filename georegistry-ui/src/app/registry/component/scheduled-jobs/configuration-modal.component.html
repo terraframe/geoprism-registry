@@ -107,7 +107,7 @@
             <localize key="transition.event.description"></localize>                    
         </label>
         <div class="col-md-8">
-            <textarea style="width:100%;" [(ngModel)]="configuration.description" name="description" [disabled]="true"></textarea>
+            <textarea style="width:100%;border:none;" [(ngModel)]="configuration.description" name="description" [disabled]="true"></textarea>
         </div>
         <div class="col-md-2"></div>
     </div>
@@ -116,10 +116,12 @@
       <ng-container *ngIf="configuration.type && configuration.type.attributes">
         <hr>
 
-        <div class="text-center">
-          <h2>
-            <localize key="io.attributes.title"></localize>
-          </h2>
+        <div class="row">
+          <div class="col-md-12 text-center">
+            <h2 style="margin: 0 0 15px;">
+              <localize key="io.attributes.title"></localize>
+            </h2>
+          </div>
         </div>
 
         <ng-container *ngFor="let attribute of configuration.type.attributes">
@@ -130,6 +132,7 @@
             <div class="col-md-8">
               {{attribute.target}}
             </div>
+            <div class="col-md-2"></div>
           </div>
         </ng-container>
       </ng-container>

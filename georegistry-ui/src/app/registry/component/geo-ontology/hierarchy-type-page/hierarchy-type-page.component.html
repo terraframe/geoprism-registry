@@ -26,23 +26,18 @@
 
 		<nav class="col-md-2 hierarchy-sidebar">
 
+			<ng-content select="[sectionNav]"></ng-content>
+
+			<hr class="sidebar-divider">
+
 			<div class="row" style="padding: 5px 5px;">
 				<div class="col-md-12">
 					<input type="text" class="form-control" #searchInput
 						[placeholder]="'hierarchy.sidebar.searchAll' | localize" [(ngModel)]="filter">
 				</div>
 			</div>
-			<accordion *ngIf="selection == null || selection.action != Action.EDIT" [isAnimated]="true"
-				[closeOthers]="false">
-				<accordion-group [isOpen]="true" class="sidebar-section" style="border-radius: 0;"
-					[panelClass]="'hierarchy-sidebar-content'">
-					<div accordion-heading style="padding: 10px 15px;">
-						<span>
-							<i class="fa fa-sitemap"></i>
-						</span>
-						<localize key="hierarchy.sidebar.hierarchies"></localize>
-					</div>
-					<div class="sidebar-section-content">
+			<div *ngIf="selection == null || selection.action != Action.EDIT" class="sidebar-section">
+				<div class="sidebar-section-content">
 						<ul *ngFor="let hierarchyByOrg of filteredHierarchiesByOrg" class="list-group">
 							<div>
 
@@ -104,9 +99,8 @@
 								</li>
 							</div>
 						</ul>
-					</div>
-				</accordion-group>
-			</accordion>
+				</div>
+			</div>
 			<ng-container *ngIf="selection != null && selection.action == Action.EDIT">
 
 				<drag-sidebar *ngIf="selection != null && selection.action == Action.EDIT" [typesByOrg]="typesByOrg"
@@ -118,6 +112,16 @@
 
 		<div class="col-md-10">
 			<ng-container *ngIf="selection != null">
+				<div class="crumbs" *ngIf="selection.action !== Action.CREATE">
+					<span class="crumb-link"><localize key="hierarchy.sidebar.hierarchies"></localize></span><span class="sep">/</span>
+					<span class="crumb-link">{{findOrganizationByCode(selection.type.organizationCode)?.label?.localizedValue}}</span><span class="sep">/</span>
+					<span class="current">{{selection.type.label.localizedValue}}</span>
+				</div>
+				<div class="heading" *ngIf="selection.action !== Action.CREATE">
+					<h1>{{selection.type.label.localizedValue}}</h1>
+					<div class="sub"><localize key="hierarchyType.label"></localize></div>
+				</div>
+
 				<tabset>
 					<tab heading="Metadata" [active]="tab === Tab.METADATA" (selectTab)="handleTabChange(Tab.METADATA)">
 						<hierarchy-type [hierarchyType]="selection.type" [edit]="selection.action === Action.EDIT"

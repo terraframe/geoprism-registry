@@ -34,7 +34,6 @@ import { CreateConceptClassComponent } from "./create-concept-class.component";
 import { BsDropdownModule } from "ngx-bootstrap/dropdown";
 import { NgFor, NgIf, NgClass } from "@angular/common";
 import { LocalizeComponent } from "@shared/component/localize/localize.component";
-import { AccordionModule } from "ngx-bootstrap/accordion";
 import { FormsModule } from "@angular/forms";
 import { RouterLink } from "@angular/router";
 import { ConceptClass } from "@registry/model/object-class";
@@ -59,7 +58,7 @@ interface Selection {
     templateUrl: "./concept-class-page.component.html",
     styleUrls: ["./concept-class-page.css"],
     standalone: true,
-    imports: [FormsModule, AccordionModule, LocalizeComponent, NgFor, NgIf, NgClass, BsDropdownModule, CreateConceptClassComponent, ManageConceptClassComponent, RouterLink]
+    imports: [FormsModule, LocalizeComponent, NgFor, NgIf, NgClass, BsDropdownModule, CreateConceptClassComponent, ManageConceptClassComponent, RouterLink]
 })
 export class ConceptClassPageComponent implements OnInit, OnChanges {
     Action = Action;
@@ -102,6 +101,19 @@ export class ConceptClassPageComponent implements OnInit, OnChanges {
                     write: this.authService.isSRA() || this.authService.isOrganizationRA(org.code),
                     types: types.filter(t => t.organization === org.code)
                 });
+            }
+
+            if (this.selection == null) {
+                this.selectFirstAvailable();
+            }
+        }
+    }
+
+    private selectFirstAvailable(): void {
+        for (const item of this.typesByOrg) {
+            if (item.types.length > 0) {
+                this.handleTypeView(item.types[0]);
+                return;
             }
         }
     }

@@ -29,7 +29,6 @@ import { ManageBusinessEdgeTypeComponent } from "./manage-business-edge-type.com
 import { BsDropdownModule } from "ngx-bootstrap/dropdown";
 import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { NgIf, NgFor, NgClass } from "@angular/common";
-import { AccordionModule } from "ngx-bootstrap/accordion";
 import { ModalTypes } from "@shared/model/modal";
 import { BusinessEdgeTypeService } from "@registry/service/business-edge-type.service";
 import { Organization } from "@shared/model/core";
@@ -56,7 +55,7 @@ interface Selection {
     templateUrl: "./business-edge-type-page.component.html",
     styleUrls: ["./business-edge-type-page.css"],
     standalone: true,
-    imports: [AccordionModule, NgIf, LocalizeComponent, NgFor, NgClass, BsDropdownModule, ManageBusinessEdgeTypeComponent]
+    imports: [NgIf, LocalizeComponent, NgFor, NgClass, BsDropdownModule, ManageBusinessEdgeTypeComponent]
 })
 export class BusinessEdgeTypePageComponent implements OnInit, OnDestroy, OnChanges {
     Action = Action;
@@ -116,6 +115,19 @@ export class BusinessEdgeTypePageComponent implements OnInit, OnDestroy, OnChang
                 write: this.authService.isSRA() || this.authService.isOrganizationRA(org.code),
                 types: this.types.filter(t => t.organizationCode === org.code)
             });
+        }
+
+        if (this.selection == null) {
+            this.selectFirstAvailable();
+        }
+    }
+
+    private selectFirstAvailable(): void {
+        for (const item of this.typesByOrg) {
+            if (item.types.length > 0) {
+                this.handleTypeView(item.types[0]);
+                return;
+            }
         }
     }
 

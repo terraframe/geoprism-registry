@@ -44,7 +44,6 @@ import { TabsModule } from "ngx-bootstrap/tabs";
 import { DragSidebarComponent } from "./drag-sidebar.component";
 import { BsDropdownModule } from "ngx-bootstrap/dropdown";
 import { LocalizeComponent } from "@shared/component/localize/localize.component";
-import { AccordionModule } from "ngx-bootstrap/accordion";
 import { NgIf, NgFor, NgClass } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { ModalTypes } from "@shared/model/modal";
@@ -88,7 +87,7 @@ interface Selection {
     templateUrl: "./hierarchy-type-page.component.html",
     styleUrls: ["./hierarchy-type-page.css"],
     standalone: true,
-    imports: [FormsModule, NgIf, AccordionModule, LocalizeComponent, NgFor, NgClass, BsDropdownModule, DragSidebarComponent, TabsModule, HierarchyTypeComponent, LocalizePipe]
+    imports: [FormsModule, NgIf, LocalizeComponent, NgFor, NgClass, BsDropdownModule, DragSidebarComponent, TabsModule, HierarchyTypeComponent, LocalizePipe]
 })
 export class HierarchyTypePageComponent implements OnInit {
     Action = Action;
@@ -169,8 +168,21 @@ export class HierarchyTypePageComponent implements OnInit {
             });
 
             this.onFilterChange();
+
+            if (this.selection == null) {
+                this.selectFirstAvailable();
+            }
         }
 
+    }
+
+    private selectFirstAvailable(): void {
+        for (const item of this.filteredHierarchiesByOrg) {
+            if (item.hierarchies.length > 0) {
+                this.handleTypeView(item.hierarchies[0]);
+                return;
+            }
+        }
     }
 
     ngAfterViewInit() {

@@ -31,6 +31,16 @@
 </ng-template>
 
 <div>
+  <div class="crumbs" *ngIf="!isNew && set != null">
+    <span class="crumb-link"><localize key="nav.concept.set.label"></localize></span><span class="sep">/</span>
+    <span class="current">{{set.displayLabel.localizedValue}}</span>
+  </div>
+
+  <div class="heading" *ngIf="!isNew && set != null">
+    <h1>{{set.displayLabel.localizedValue}}</h1>
+    <div class="sub"><localize key="concept.set.header"></localize></div>
+  </div>
+
   <form #form="ngForm" *ngIf="set != null" class="page-form" (ngSubmit)="form.valid">
     <fieldset>
 

@@ -20,6 +20,16 @@
 -->
 <div>
 
+  <div class="crumbs" *ngIf="type != null">
+    <span class="crumb-link"><localize key="nav.concept.class.label"></localize></span><span class="sep">/</span>
+    <span class="crumb-link">{{type.organizationLabel}}</span><span class="sep">/</span>
+    <span class="current">{{type.displayLabel.localizedValue}}</span>
+  </div>
+
+  <div class="heading" *ngIf="type != null">
+    <h1>{{type.displayLabel.localizedValue}}</h1>
+    <div class="sub"><localize key="concept.class.header"></localize></div>
+  </div>
 
   <ng-container *ngIf="modalState.state === 'MANAGE-GEO-OBJECT-TYPE'">
 

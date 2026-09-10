@@ -36,7 +36,6 @@ import { CreateGeoObjectTypeComponent } from "./create-geo-object-type.component
 import { BsDropdownModule } from "ngx-bootstrap/dropdown";
 import { NgFor, NgIf, NgClass } from "@angular/common";
 import { LocalizeComponent } from "@shared/component/localize/localize.component";
-import { AccordionModule } from "ngx-bootstrap/accordion";
 import { FormsModule } from "@angular/forms";
 
 enum Action {
@@ -60,7 +59,7 @@ interface Selection {
     templateUrl: "./geo-object-type-page.component.html",
     styleUrls: ["./geo-object-type-page.css"],
     standalone: true,
-    imports: [FormsModule, AccordionModule, LocalizeComponent, NgFor, NgIf, NgClass, BsDropdownModule, CreateGeoObjectTypeComponent, ManageGeoObjectTypeComponent, LocalizePipe]
+    imports: [FormsModule, LocalizeComponent, NgFor, NgIf, NgClass, BsDropdownModule, CreateGeoObjectTypeComponent, ManageGeoObjectTypeComponent, LocalizePipe]
 })
 export class GeoObjectTypePageComponent implements OnInit, OnChanges {
     Action = Action;
@@ -107,6 +106,19 @@ export class GeoObjectTypePageComponent implements OnInit, OnChanges {
             }
 
             this.onFilterChange();
+
+            if (this.selection == null) {
+                this.selectFirstAvailable();
+            }
+        }
+    }
+
+    private selectFirstAvailable(): void {
+        for (const item of this.filteredTypesByOrg) {
+            if (item.types.length > 0) {
+                this.handleTypeView(item.types[0]);
+                return;
+            }
         }
     }
 

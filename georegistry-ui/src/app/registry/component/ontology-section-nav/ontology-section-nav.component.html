@@ -18,15 +18,9 @@
     License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<page-container>
-    <business-type-page [hidden]="section !== 'business-type'" [organizations]="organizations"
-        [types]="businessTypes" (typesChange)="setBusinessTypes($event)" (onError)="error($event)">
-        <ontology-section-nav sectionNav [items]="sections" [(active)]="section"></ontology-section-nav>
-    </business-type-page>
-
-    <business-edge-type-page [hidden]="section !== 'business-edge-type'" [organizations]="organizations"
-        [businessTypes]="businessTypes" (onError)="error($event)">
-        <ontology-section-nav sectionNav [items]="sections" [(active)]="section"></ontology-section-nav>
-    </business-edge-type-page>
-
-</page-container>
+<ul class="list-group ontology-section-nav">
+    <li *ngFor="let item of items" class="list-group-item ontology-section-nav-item"
+        [ngClass]="{'primary active': item.id === active}" (click)="select(item)">
+        <i class="fa" [ngClass]="item.icon" style="margin-right:10px;"></i><localize [key]="item.labelKey"></localize>
+    </li>
+</ul>
