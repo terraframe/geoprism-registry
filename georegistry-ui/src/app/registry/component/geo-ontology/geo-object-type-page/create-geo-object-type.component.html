@@ -25,7 +25,7 @@
     <li class="list-group-item" [class.active]="typeaheadTemplateMethods.isActive(match)"
       (click)="typeaheadTemplateMethods.selectMatch(match, $event)"
       (mouseenter)="typeaheadTemplateMethods.selectActive(match)">
-      {{ match.item.code }}
+      {{ match.item.code}} : {{match.item.data['displayLabel'].localizedValue}}
     </li>
     }
   </ul>

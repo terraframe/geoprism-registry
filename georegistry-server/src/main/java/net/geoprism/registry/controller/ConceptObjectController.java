@@ -35,6 +35,7 @@ import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.service.request.ConceptObjectService;
 import net.geoprism.registry.view.ConceptClassDTO;
 import net.geoprism.registry.view.NodeDTO;
+import net.geoprism.registry.view.ObjectAtTimeDTO;
 import net.geoprism.registry.view.ObjectOverTimeDTO;
 import net.geoprism.registry.view.Page;
 
@@ -54,13 +55,23 @@ public class ConceptObjectController extends ObjectController<ConceptObject, Con
     return (ConceptObjectService) super.getService();
   }
 
+  @GetMapping("/get-by-code")
+  public ResponseEntity<ObjectAtTimeDTO> getByCode( //
+      @NotBlank @RequestParam(name = "code") String code, //
+      @NotBlank @RequestParam(name = "date") String date)
+  {
+    ObjectAtTimeDTO response = this.getService().get(this.getSessionId(), code, GeoRegistryUtil.parseDate(date, true));
+
+    return ResponseEntity.ok(response);
+  }
+
   @GetMapping("/search")
-  public ResponseEntity<List<ObjectOverTimeDTO>> search( //
+  public ResponseEntity<List<ObjectAtTimeDTO>> search( //
       @NotBlank @RequestParam(name = "typeCode") String typeCode, //
       @NotBlank @RequestParam(name = "attribute") String attribute, //
       @RequestParam(name = "text") String text)
   {
-    List<ObjectOverTimeDTO> response = this.getService().search(getSessionId(), typeCode, attribute, text);
+    List<ObjectAtTimeDTO> response = this.getService().search(getSessionId(), typeCode, attribute, text);
 
     return ResponseEntity.ok(response);
   }
@@ -76,37 +87,37 @@ public class ConceptObjectController extends ObjectController<ConceptObject, Con
   }
 
   @GetMapping("/search-set")
-  public ResponseEntity<List<ObjectOverTimeDTO>> searchSet( //
+  public ResponseEntity<List<ObjectAtTimeDTO>> searchSet( //
       @NotBlank @RequestParam(name = "conceptSet") String conceptSet, //
       @NotBlank @RequestParam(name = "date") String date, //
       @RequestParam(name = "text") String text)
   {
-    List<ObjectOverTimeDTO> response = this.getService().search(getSessionId(), conceptSet, GeoRegistryUtil.parseDate(date, true), text);
+    List<ObjectAtTimeDTO> response = this.getService().search(getSessionId(), conceptSet, GeoRegistryUtil.parseDate(date, true), text);
 
     return ResponseEntity.ok(response);
   }
 
   @GetMapping("/get-children")
-  public ResponseEntity<Page<ObjectOverTimeDTO>> getChildren( //
+  public ResponseEntity<Page<ObjectAtTimeDTO>> getChildren( //
       @NotBlank @RequestParam(name = "concept") String concept, //
       @NotBlank @RequestParam(name = "typeCode") String typeCode, //
       @NotBlank @RequestParam(name = "attribute") String attribute, //
       @RequestParam(name = "pageSize", required = false, defaultValue = "20") Integer pageSize, //
       @RequestParam(name = "pageNumber", required = false, defaultValue = "1") Integer pageNumber)
   {
-    Page<ObjectOverTimeDTO> response = this.getService().getChildren(getSessionId(), concept, typeCode, attribute, pageSize, pageNumber);
+    Page<ObjectAtTimeDTO> response = this.getService().getChildren(getSessionId(), concept, typeCode, attribute, pageSize, pageNumber);
 
     return ResponseEntity.ok(response);
   }
 
   @GetMapping("/get-ancestor-tree")
-  public ResponseEntity<NodeDTO<ObjectOverTimeDTO>> getAncestorTree( //
+  public ResponseEntity<NodeDTO<ObjectAtTimeDTO>> getAncestorTree( //
       @NotBlank @RequestParam(name = "concept") String concept, //
       @NotBlank @RequestParam(name = "typeCode") String typeCode, //
       @NotBlank @RequestParam(name = "attribute") String attribute, //
       @RequestParam(name = "pageSize", required = false, defaultValue = "20") Integer pageSize)
   {
-    NodeDTO<ObjectOverTimeDTO> response = this.getService().getAncestorTree(getSessionId(), concept, typeCode, attribute, pageSize);
+    NodeDTO<ObjectAtTimeDTO> response = this.getService().getAncestorTree(getSessionId(), concept, typeCode, attribute, pageSize);
 
     return ResponseEntity.ok(response);
   }

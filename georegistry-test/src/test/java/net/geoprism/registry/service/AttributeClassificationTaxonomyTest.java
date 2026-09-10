@@ -33,6 +33,7 @@ import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestRegistryClient;
 import net.geoprism.registry.test.TestUserInfo;
 import net.geoprism.registry.view.NodeDTO;
+import net.geoprism.registry.view.ObjectAtTimeDTO;
 import net.geoprism.registry.view.ObjectOverTimeDTO;
 import net.geoprism.registry.view.Page;
 
@@ -227,12 +228,12 @@ public class AttributeClassificationTaxonomyTest extends FastDatasetTest impleme
   @Request
   public void testGetAncestorTree()
   {
-    NodeDTO<ObjectOverTimeDTO> node = this.cObjectService.getAncestorTree(testClassification, childConcept, 20);
+    NodeDTO<ObjectAtTimeDTO> node = this.cObjectService.getAncestorTree(testClassification, childConcept, 20);
 
     Assert.assertEquals(rootConcept.getCode(), node.getObject().getCode());
     Assert.assertEquals(1, node.getChildren().getResultSet().size());
 
-    NodeDTO<ObjectOverTimeDTO> result = node.getChildren().getResultSet().get(0);
+    NodeDTO<ObjectAtTimeDTO> result = node.getChildren().getResultSet().get(0);
 
     Assert.assertEquals(parentConcept.getCode(), result.getObject().getCode());
   }
@@ -241,7 +242,7 @@ public class AttributeClassificationTaxonomyTest extends FastDatasetTest impleme
   @Request
   public void testGetAncestorTreeRoot()
   {
-    NodeDTO<ObjectOverTimeDTO> node = this.cObjectService.getAncestorTree(testClassification, rootConcept, 20);
+    NodeDTO<ObjectAtTimeDTO> node = this.cObjectService.getAncestorTree(testClassification, rootConcept, 20);
 
     Assert.assertEquals(rootConcept.getCode(), node.getObject().getCode());
     Assert.assertEquals(1, node.getChildren().getResultSet().size());
@@ -262,11 +263,11 @@ public class AttributeClassificationTaxonomyTest extends FastDatasetTest impleme
     for (TestUserInfo user : allowedUsers)
     {
       TestDataSet.runAsUser(user, (request) -> {
-        Page<ObjectOverTimeDTO> page = this.service.getChildren(request.getSessionId(), rootConcept.getCode(), TEST_GOT.getCode(), testClassification.getCode(), 20, 1);
+        Page<ObjectAtTimeDTO> page = this.service.getChildren(request.getSessionId(), rootConcept.getCode(), TEST_GOT.getCode(), testClassification.getCode(), 20, 1);
 
         Assert.assertEquals(Long.valueOf(1), page.getCount());
 
-        ObjectOverTimeDTO result = page.getResultSet().get(0);
+        ObjectAtTimeDTO result = page.getResultSet().get(0);
 
         Assert.assertEquals(parentConcept.getCode(), result.getCode());
 
@@ -282,11 +283,11 @@ public class AttributeClassificationTaxonomyTest extends FastDatasetTest impleme
     for (TestUserInfo user : allowedUsers)
     {
       TestDataSet.runAsUser(user, (request) -> {
-        List<ObjectOverTimeDTO> results = this.service.search(request.getSessionId(), TEST_GOT.getCode(), testClassification.getCode(), childConcept.getCode());
+        List<ObjectAtTimeDTO> results = this.service.search(request.getSessionId(), TEST_GOT.getCode(), testClassification.getCode(), childConcept.getCode());
 
         Assert.assertEquals(1, results.size());
 
-        ObjectOverTimeDTO result = results.get(0);
+        ObjectAtTimeDTO result = results.get(0);
 
         Assert.assertEquals(childConcept.getCode(), result.getCode());
       });
@@ -320,11 +321,11 @@ public class AttributeClassificationTaxonomyTest extends FastDatasetTest impleme
     for (TestUserInfo user : allowedUsers)
     {
       TestDataSet.runAsUser(user, (request) -> {
-        List<ObjectOverTimeDTO> results = this.service.search(request.getSessionId(), cSet.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, childConcept.getCode());
+        List<ObjectAtTimeDTO> results = this.service.search(request.getSessionId(), cSet.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, childConcept.getCode());
 
         Assert.assertEquals(1, results.size());
 
-        ObjectOverTimeDTO result = results.get(0);
+        ObjectAtTimeDTO result = results.get(0);
 
         Assert.assertEquals(childConcept.getCode(), result.getCode());
       });

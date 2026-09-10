@@ -304,7 +304,7 @@ export class AttributeType {
 
     // Attribute Classification Type specific attributes 
     conceptSet?: string;
-    rootTerm?: { code: string, type: string };
+    rootTerm?: string;
     startDate?: string;
     endDate?: string;
 

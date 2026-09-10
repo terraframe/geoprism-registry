@@ -24,7 +24,7 @@
     <li class="list-group-item" [class.active]="typeaheadTemplateMethods.isActive(match)"
       (click)="typeaheadTemplateMethods.selectMatch(match, $event)"
       (mouseenter)="typeaheadTemplateMethods.selectActive(match)">
-      {{ match.item.code }}
+      {{ match.item.code + ' : ' + match.item.properties['displayLabel'].values[0].value.localizedValue }}
     </li>
     }
   </ul>
@@ -32,13 +32,17 @@
 
 <div>
   <div class="crumbs" *ngIf="!isNew && set != null">
-    <span class="crumb-link"><localize key="nav.concept.set.label"></localize></span><span class="sep">/</span>
+    <span class="crumb-link">
+      <localize key="nav.concept.set.label"></localize>
+    </span><span class="sep">/</span>
     <span class="current">{{set.displayLabel.localizedValue}}</span>
   </div>
 
   <div class="heading" *ngIf="!isNew && set != null">
     <h1>{{set.displayLabel.localizedValue}}</h1>
-    <div class="sub"><localize key="concept.set.header"></localize></div>
+    <div class="sub">
+      <localize key="concept.set.header"></localize>
+    </div>
   </div>
 
   <form #form="ngForm" *ngIf="set != null" class="page-form" (ngSubmit)="form.valid">
@@ -148,7 +152,7 @@
               [(ngModel)]="text" [typeaheadAsync]="true" [typeahead]="typeahead" (change)="onTextChange()"
               (typeaheadOnSelect)="typeaheadOnSelect($event)" (typeaheadLoading)="loading = $event"
               [ngClass]="{'inline-loading':loading}" [typeaheadOptionsLimit]="7" [typeaheadMinLength]="0"
-              [typeaheadWaitMs]="300" [optionsListTemplate]="customListTemplate">
+              [typeaheadWaitMs]="300" [optionsListTemplate]="customListTemplate" required>
           </div>
         </div>
       </div>

@@ -24,7 +24,7 @@ import { Observable, Observer, Subscription } from "rxjs";
 import { NgClass } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { ConceptObjectService } from "@registry/service/concept-object.service";
-import { ObjectOverTime } from "@registry/model/object-class";
+import { ObjectAtTime, ObjectOverTime } from "@registry/model/object-class";
 import { AttributedType, AttributeType } from "@registry/model/registry";
 import { ClassificationFieldModalComponent } from "./classification-field-modal.component";
 
@@ -53,7 +53,7 @@ export class ClassificationFieldComponent implements OnInit, OnDestroy {
     loading: boolean = false;
     text: string = "";
 
-    typeahead: Observable<ObjectOverTime[]> = null;
+    typeahead: Observable<ObjectAtTime[]> = null;
     subscription: Subscription = null;
 
     constructor(
@@ -63,7 +63,7 @@ export class ClassificationFieldComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        this.typeahead = new Observable((observer: Observer<ObjectOverTime[]>) => {
+        this.typeahead = new Observable((observer: Observer<ObjectAtTime[]>) => {
             this.service.search(this.type, this.attribute, this.text).then(results => {
                 observer.next(results);
             });
@@ -104,7 +104,7 @@ export class ClassificationFieldComponent implements OnInit, OnDestroy {
                 animated: false, backdrop: true, ignoreBackdropClick: true
             });
 
-            this.subscription = bsModalRef.content.init(this.type, this.attribute, this.disabled, this.value, (classification: ObjectOverTime) => {
+            this.subscription = bsModalRef.content.init(this.type, this.attribute, this.disabled, this.value, (classification: ObjectAtTime) => {
                 this.text = classification.code;
                 this.setValue({ code: classification.code });
             });
