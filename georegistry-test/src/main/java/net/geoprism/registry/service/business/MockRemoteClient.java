@@ -18,14 +18,22 @@ import net.geoprism.graph.GeoObjectTypeSnapshot;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
 import net.geoprism.registry.model.DataSourceDTO;
 import net.geoprism.registry.model.SourceAuthorityDTO;
+import net.geoprism.registry.view.BusinessEdgeTypeDTO;
 import net.geoprism.registry.view.BusinessTypeDTO;
 import net.geoprism.registry.view.CommitDTO;
 import net.geoprism.registry.view.ConceptClassDTO;
+import net.geoprism.registry.view.ConceptEdgeTypeDTO;
+import net.geoprism.registry.view.ConceptSetDTO;
 import net.geoprism.registry.view.PublishDTO;
 
 public class MockRemoteClient implements RemoteClientIF
 {
   public static String REMOTE_ORIGIN = "REMOTE";
+
+  protected String getCommitFolder(String uid)
+  {
+    return uid;
+  }
 
   @Override
   public List<PublishDTO> getAll()
@@ -34,9 +42,19 @@ public class MockRemoteClient implements RemoteClientIF
   }
 
   @Override
-  public List<CommitDTO> getDependencies(String commitId)
+  public List<CommitDTO> getDependencies(String uid)
   {
-    return new LinkedList<>();
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectReader reader = mapper.readerForListOf(CommitDTO.class);
+
+    try
+    {
+      return reader.readValue(this.getClass().getResourceAsStream("/commit/" + getCommitFolder(uid) + "/dependencies.json"));
+    }
+    catch (IOException e)
+    {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
@@ -47,7 +65,7 @@ public class MockRemoteClient implements RemoteClientIF
 
     try
     {
-      return reader.readValue(this.getClass().getResourceAsStream("/commit/authorities.json"));
+      return reader.readValue(this.getClass().getResourceAsStream("/commit/" + getCommitFolder(uid) + "/authorities.json"));
     }
     catch (IOException e)
     {
@@ -63,7 +81,7 @@ public class MockRemoteClient implements RemoteClientIF
 
     try
     {
-      return reader.readValue(this.getClass().getResourceAsStream("/commit/sources.json"));
+      return reader.readValue(this.getClass().getResourceAsStream("/commit/" + getCommitFolder(uid) + "/sources.json"));
     }
     catch (IOException e)
     {
@@ -79,9 +97,15 @@ public class MockRemoteClient implements RemoteClientIF
       ObjectMapper mapper = new ObjectMapper();
       ObjectReader reader = mapper.readerForListOf(RemoteEvent.class);
 
-      try
+      try (InputStream stream = this.getClass().getResourceAsStream("/commit/" + getCommitFolder(uid) + "/events.json"))
       {
-        return reader.readValue(this.getClass().getResourceAsStream("/commit/events.json"));
+        if (stream != null)
+        {
+          List<RemoteEvent> events = reader.readValue(stream);
+          events.forEach(e -> e.setCommitId(uid));
+
+          return events;
+        }
       }
       catch (IOException e)
       {
@@ -93,9 +117,9 @@ public class MockRemoteClient implements RemoteClientIF
   }
 
   @Override
-  public Optional<PublishDTO> getPublish(String publishId)
+  public Optional<PublishDTO> getPublish(String uid)
   {
-    return Optional.ofNullable(readPublish("/commit/publish.json"));
+    return Optional.ofNullable(readPublish("/commit/" + getCommitFolder(uid) + "/publish.json"));
   }
 
   protected PublishDTO readPublish(String file)
@@ -118,7 +142,7 @@ public class MockRemoteClient implements RemoteClientIF
   @Override
   public JsonArray getHierarchyTypes(String uid)
   {
-    try (InputStream stream = this.getClass().getResourceAsStream("/commit/hierarchy-types.json"))
+    try (InputStream stream = this.getClass().getResourceAsStream("/commit/" + getCommitFolder(uid) + "/hierarchy-types.json"))
     {
       return process(stream);
     }
@@ -129,9 +153,9 @@ public class MockRemoteClient implements RemoteClientIF
   }
 
   @Override
-  public JsonArray getGeoObjectTypes(String commitId)
+  public JsonArray getGeoObjectTypes(String uid)
   {
-    try (InputStream stream = this.getClass().getResourceAsStream("/commit/geo-object-types.json"))
+    try (InputStream stream = this.getClass().getResourceAsStream("/commit/" + getCommitFolder(uid) + "/geo-object-types.json"))
     {
       return process(stream);
     }
@@ -144,7 +168,7 @@ public class MockRemoteClient implements RemoteClientIF
   @Override
   public JsonArray getDirectedAcyclicGraphTypes(String uid)
   {
-    try (InputStream stream = this.getClass().getResourceAsStream("/commit/dag-types.json"))
+    try (InputStream stream = this.getClass().getResourceAsStream("/commit/" + getCommitFolder(uid) + "/dag-types.json"))
     {
       return process(stream);
     }
@@ -157,7 +181,7 @@ public class MockRemoteClient implements RemoteClientIF
   @Override
   public JsonArray getUndirectedGraphTypes(String uid)
   {
-    try (InputStream stream = this.getClass().getResourceAsStream("/commit/undirected-graph-types.json"))
+    try (InputStream stream = this.getClass().getResourceAsStream("/commit/" + getCommitFolder(uid) + "/undirected-graph-types.json"))
     {
       return process(stream);
     }
@@ -168,73 +192,150 @@ public class MockRemoteClient implements RemoteClientIF
   }
 
   @Override
-  public List<BusinessTypeDTO> getBusinessTypes(String commitId)
+  public List<BusinessTypeDTO> getBusinessTypes(String uid)
   {
     ObjectMapper mapper = new ObjectMapper();
     ObjectReader reader = mapper.readerForListOf(BusinessTypeDTO.class);
 
-    try
+    try (InputStream stream = this.getClass().getResourceAsStream("/commit/" + getCommitFolder(uid) + "/business-types.json"))
     {
-      List<BusinessTypeDTO> value = reader.readValue(this.getClass().getResourceAsStream("/commit/business-types.json"));
+      if (stream != null)
+      {
+        List<BusinessTypeDTO> value = reader.readValue(stream);
 
-      value.stream().forEach(t -> {
-        t.setOrigin(REMOTE_ORIGIN);
-        t.setSequence(20L);
-      });
+        value.stream().forEach(t -> {
+          t.setOrigin(REMOTE_ORIGIN);
+          t.setSequence(20L);
+        });
 
-      return value;
+        return value;
+      }
     }
     catch (IOException e)
     {
       throw new RuntimeException(e);
     }
+
+    return new LinkedList<>();
   }
 
   @Override
-  public List<ConceptClassDTO> getConceptClasses(String commitId)
+  public List<ConceptClassDTO> getConceptClasses(String uid)
   {
     ObjectMapper mapper = new ObjectMapper();
     ObjectReader reader = mapper.readerForListOf(ConceptClassDTO.class);
 
-    try
+    try (InputStream stream = this.getClass().getResourceAsStream("/commit/" + getCommitFolder(uid) + "/concept-classes.json"))
     {
-      List<ConceptClassDTO> value = reader.readValue(this.getClass().getResourceAsStream("/commit/concept-classes.json"));
+      if (stream != null)
+      {
+        List<ConceptClassDTO> value = reader.readValue(stream);
 
-      value.stream().forEach(t -> {
-        t.setOrigin(REMOTE_ORIGIN);
-        t.setSequence(20L);
-      });
+        value.stream().forEach(t -> {
+          t.setOrigin(REMOTE_ORIGIN);
+          t.setSequence(20L);
+        });
 
-      return value;
+        return value;
+      }
     }
     catch (IOException e)
     {
       throw new RuntimeException(e);
     }
+
+    return new LinkedList<>();
   }
 
   @Override
-  public JsonArray getBusinessEdgeTypes(String uid)
+  public List<BusinessEdgeTypeDTO> getBusinessEdgeTypes(String uid)
   {
-    try (InputStream stream = this.getClass().getResourceAsStream("/commit/business-edge-types.json"))
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectReader reader = mapper.readerForListOf(BusinessEdgeTypeDTO.class);
+
+    try (InputStream stream = this.getClass().getResourceAsStream("/commit/" + getCommitFolder(uid) + "/business-edge-types.json"))
     {
-      return process(stream);
+      if (stream != null)
+      {
+        List<BusinessEdgeTypeDTO> value = reader.readValue(stream);
+
+        value.stream().forEach(t -> {
+          t.setOrigin(REMOTE_ORIGIN);
+          t.setSeq(20L);
+        });
+
+        return value;
+      }
     }
     catch (IOException e)
     {
       throw new RuntimeException(e);
     }
+
+    return new LinkedList<>();
+  }
+
+  @Override
+  public List<ConceptSetDTO> getConceptSets(String uid)
+  {
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectReader reader = mapper.readerForListOf(ConceptSetDTO.class);
+
+    try (InputStream stream = this.getClass().getResourceAsStream("/commit/" + getCommitFolder(uid) + "/concept-sets.json"))
+    {
+      if (stream != null)
+      {
+        List<ConceptSetDTO> value = reader.readValue(stream);
+
+        value.stream().forEach(t -> {
+          t.setOrigin(REMOTE_ORIGIN);
+          t.setSequence(20L);
+        });
+
+        return value;
+      }
+    }
+    catch (IOException e)
+    {
+      throw new RuntimeException(e);
+    }
+
+    return new LinkedList<>();
+  }
+
+  @Override
+  public List<ConceptEdgeTypeDTO> getConceptEdgeTypes(String uid)
+  {
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectReader reader = mapper.readerForListOf(ConceptEdgeTypeDTO.class);
+
+    try (InputStream stream = this.getClass().getResourceAsStream("/commit/" + getCommitFolder(uid) + "/concept-edge-types.json"))
+    {
+      if (stream != null)
+      {
+
+        List<ConceptEdgeTypeDTO> value = reader.readValue(stream);
+
+        value.stream().forEach(t -> {
+          t.setOrigin(REMOTE_ORIGIN);
+          t.setSeq(20L);
+        });
+
+        return value;
+      }
+    }
+    catch (IOException e)
+    {
+      throw new RuntimeException(e);
+    }
+
+    return new LinkedList<>();
   }
 
   @Override
   public Optional<CommitDTO> getLatest(String publishId)
   {
-    return Optional.ofNullable(readCommit());
-  }
-
-  protected CommitDTO readCommit()
-  {
-    return readCommit("/commit/commit.json");
+    return Optional.ofNullable(readCommit("/commit/" + getCommitFolder(publishId) + "/commit.json"));
   }
 
   protected CommitDTO readCommit(String file)

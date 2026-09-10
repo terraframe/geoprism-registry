@@ -68,7 +68,7 @@ public class CurationTest extends FastDatasetTest implements InstanceTestClassLi
   private GeoObjectProblem          curationProblem;
 
   private String                    curationProblemId;
-  
+
   @Override
   public void beforeClassSetup() throws Exception
   {
@@ -84,19 +84,19 @@ public class CurationTest extends FastDatasetTest implements InstanceTestClassLi
   }
 
   @Before
-  public void setUp()
+  @Override
+  public void setUp() throws Exception
   {
-    testData.setUpInstanceData();
+    super.setUp();
 
     createTestInstanceData();
   }
 
   @After
-  public void tearDown()
+  @Override
+  public void tearDown() throws Exception
   {
-    testData.logOut();
-
-    testData.tearDownInstanceData();
+    super.tearDown();
 
     TestDataSet.deleteAllSchedulerData();
     TestDataSet.deleteAllListData();

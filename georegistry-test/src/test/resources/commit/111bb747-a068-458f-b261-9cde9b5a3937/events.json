@@ -1,0 +1,129 @@
+[ {
+  "@type" : "RemoteConceptObjectEvent",
+  "commitId" : "643fb455-0a7d-4f2e-a1ce-73ba3d87a980",
+  "key" : "Child Concept#TEST_C_CLASS",
+  "code" : "Child Concept",
+  "type" : "TEST_C_CLASS",
+  "object" : {
+    "type" : {
+      "typeClass" : "CONCEPT_CLASS",
+      "typeCode" : "TEST_C_CLASS"
+    },
+    "code" : "Child Concept",
+    "label" : null,
+    "date" : null,
+    "data" : {
+      "displayLabel" : {
+        "localizedValue" : "Pizza",
+        "localeValues" : [ {
+          "locale" : "defaultLocale",
+          "value" : "Pizza"
+        } ]
+      },
+      "code" : "Child Concept",
+      "dataSource" : "UsaSource"
+    }
+  },
+  "startDate" : "2020-04-04",
+  "endDate" : "2021-04-04"
+}, {
+  "@type" : "RemoteConceptObjectEvent",
+  "commitId" : "643fb455-0a7d-4f2e-a1ce-73ba3d87a980",
+  "key" : "Parent Concept#TEST_C_CLASS",
+  "code" : "Parent Concept",
+  "type" : "TEST_C_CLASS",
+  "object" : {
+    "type" : {
+      "typeClass" : "CONCEPT_CLASS",
+      "typeCode" : "TEST_C_CLASS"
+    },
+    "code" : "Parent Concept",
+    "label" : null,
+    "date" : null,
+    "data" : {
+      "displayLabel" : {
+        "localizedValue" : "Flatbread",
+        "localeValues" : [ {
+          "locale" : "defaultLocale",
+          "value" : "Flatbread"
+        } ]
+      },
+      "code" : "Parent Concept",
+      "dataSource" : "UsaSource"
+    }
+  },
+  "startDate" : "2020-04-04",
+  "endDate" : "2021-04-04"
+}, {
+  "@type" : "RemoteConceptObjectEvent",
+  "commitId" : "643fb455-0a7d-4f2e-a1ce-73ba3d87a980",
+  "key" : "Test Term#TEST_C_CLASS",
+  "code" : "Test Term",
+  "type" : "TEST_C_CLASS",
+  "object" : {
+    "type" : {
+      "typeClass" : "CONCEPT_CLASS",
+      "typeCode" : "TEST_C_CLASS"
+    },
+    "code" : "Test Term",
+    "label" : null,
+    "date" : null,
+    "data" : {
+      "displayLabel" : {
+        "localizedValue" : "Food",
+        "localeValues" : [ {
+          "locale" : "defaultLocale",
+          "value" : "Food"
+        } ]
+      },
+      "code" : "Test Term",
+      "dataSource" : "UsaSource"
+    }
+  },
+  "startDate" : "2020-04-04",
+  "endDate" : "2021-04-04"
+}, {
+  "@type" : "RemoteObjectApplyEdgeEvent",
+  "key" : "Test Term#net.geoprism.registry.view.TypeInfo@2b7d8dd8",
+  "commitId" : "643fb455-0a7d-4f2e-a1ce-73ba3d87a980",
+  "sourceCode" : "Test Term",
+  "sourceType" : {
+    "typeClass" : "CONCEPT_CLASS",
+    "typeCode" : "TEST_C_CLASS"
+  },
+  "edgeUid" : "6f555166-6f33-4b02-bf5c-da7fdf7dc91a",
+  "edgeType" : {
+    "typeClass" : "CONCEPT_EDGE",
+    "typeCode" : "TEST_CONCEPT_EDGE"
+  },
+  "targetType" : {
+    "typeClass" : "CONCEPT_CLASS",
+    "typeCode" : "TEST_C_CLASS"
+  },
+  "targetCode" : "Parent Concept",
+  "startDate" : 1585958400000,
+  "endDate" : 1617494400000,
+  "dataSource" : "UsaSource"
+}, {
+  "@type" : "RemoteObjectApplyEdgeEvent",
+  "key" : "Parent Concept#net.geoprism.registry.view.TypeInfo@5f69c7c0",
+  "commitId" : "643fb455-0a7d-4f2e-a1ce-73ba3d87a980",
+  "sourceCode" : "Parent Concept",
+  "sourceType" : {
+    "typeClass" : "CONCEPT_CLASS",
+    "typeCode" : "TEST_C_CLASS"
+  },
+  "edgeUid" : "c00009a7-a3f2-4b3c-9366-5769ae77020e",
+  "edgeType" : {
+    "typeClass" : "CONCEPT_EDGE",
+    "typeCode" : "TEST_CONCEPT_EDGE"
+  },
+  "targetType" : {
+    "typeClass" : "CONCEPT_CLASS",
+    "typeCode" : "TEST_C_CLASS"
+  },
+  "targetCode" : "Child Concept",
+  "startDate" : 1585958400000,
+  "endDate" : 1617494400000,
+  "dataSource" : "UsaSource"
+} ]

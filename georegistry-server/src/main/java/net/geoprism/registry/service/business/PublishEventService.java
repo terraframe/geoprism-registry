@@ -16,6 +16,7 @@ import org.axonframework.eventsourcing.eventstore.DomainEventStream;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
+import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +25,6 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import net.geoprism.registry.Commit;
 import net.geoprism.registry.Publish;
 import net.geoprism.registry.axon.config.RegistryEventStore;
-import net.geoprism.registry.axon.event.remote.RemoteObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteConceptObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
@@ -33,7 +33,7 @@ import net.geoprism.registry.axon.event.remote.RemoteGeoObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectRemoveExternalIdEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectSetParentEvent;
-import net.geoprism.registry.axon.event.repository.ObjectApplyEdgeEvent;
+import net.geoprism.registry.axon.event.remote.RemoteObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.ConceptObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.EventPhase;
@@ -45,10 +45,13 @@ import net.geoprism.registry.axon.event.repository.GeoObjectRemoveExternalIdEven
 import net.geoprism.registry.axon.event.repository.GeoObjectRemoveParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectUpdateParentEvent;
 import net.geoprism.registry.axon.event.repository.InMemoryEventMerger;
+import net.geoprism.registry.axon.event.repository.ObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.repository.RepositoryEvent;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.event.EmptyPublishException;
+import net.geoprism.registry.graph.ConceptSet;
 import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.view.ObjectOverTimeDTO;
 import net.geoprism.registry.view.PublishDTO;
 import net.geoprism.registry.view.TypeInfo;
@@ -70,6 +73,9 @@ public class PublishEventService
 
   @Autowired
   private GeoObjectBusinessServiceIF     service;
+
+  @Autowired
+  private ConceptSetBusinessServiceIF    cSetService;
 
   @Autowired
   private CommitBusinessServiceIF        commitService;
@@ -100,6 +106,12 @@ public class PublishEventService
   @Transaction
   public Commit createNewCommit(Publish publish)
   {
+    PublishDTO dto = publish.toDTO();
+
+    // First ensure all classifications are published
+    List<Publish> dependencies = new LinkedList<>();
+    dependencies.addAll(this.createClassificationDependencies(dto));
+
     Optional<Commit> previous = this.commitService.getLatest(publish);
 
     Long lastGlobalIndex = previous.map(p -> p.getLastOriginGlobalIndex()).orElse(Long.valueOf(0));
@@ -112,7 +124,7 @@ public class PublishEventService
     // Determine all of the dependent commits
     previous.ifPresent(p -> commit.addDependency(p).apply());
 
-    List<Publish> dependencies = this.publishService.getRemoteFor(publish.toDTO());
+    dependencies.addAll(this.publishService.getRemoteFor(dto));
 
     for (Publish dependency : dependencies)
     {
@@ -123,6 +135,48 @@ public class PublishEventService
     }
 
     return commit;
+  }
+
+  public List<Publish> createClassificationDependencies(PublishDTO dto)
+  {
+    return dto.getGeoObjectTypes().map(code -> ServerGeoObjectType.get(code)) //
+        .map(t -> t.getAttribute(DefaultAttribute.CLASSIFICATION.getName())) //
+        .filter(a -> a.isPresent()) //
+        .map(a -> a.get()) //
+        .map(a -> (AttributeClassificationType) a.toDTO()) //
+        .map(classification -> {
+          ConceptSet set = this.cSetService.getByCodeOrThrow(classification.getConceptSet());
+
+          Publish publish = this.publishService.getFor(set, classification.getStartDate(), classification.getEndDate());
+
+          if (publish == null)
+          {
+            PublishDTO configuration = new PublishDTO(set.getLabel().getValue(), classification.getStartDate(), classification.getStartDate(), classification.getEndDate());
+            configuration.setConceptSet(classification.getConceptSet());
+
+            this.cSetService.getConceptClasses(set).forEach(cClass -> {
+              configuration.addConceptClass(cClass.getCode());
+            });
+
+            this.cSetService.getConceptEdgeTypes(set).forEach(cType -> {
+              configuration.addConceptEdgeType(cType.getCode());
+            });
+
+            publish = this.publishService.create(configuration);
+          }
+
+          try
+          {
+            createNewCommit(publish);
+          }
+          catch (EmptyPublishException e)
+          {
+            // There isn't any new data so, delete the newly created commit
+            this.commitService.getLatest(publish).ifPresent(latest -> this.commitService.delete(latest));
+          }
+
+          return publish;
+        }).toList();
   }
 
   protected Commit publish(Publish publish, GapAwareTrackingToken start, Integer versionNumber)

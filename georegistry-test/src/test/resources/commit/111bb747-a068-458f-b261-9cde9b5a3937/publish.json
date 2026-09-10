@@ -1,0 +1,17 @@
+{
+  "uid" : "111bb747-a068-458f-b261-9cde9b5a3937",
+  "label" : "Test Prog",
+  "date" : "2020-04-04",
+  "startDate" : "2020-04-04",
+  "endDate" : "2021-04-04",
+  "conceptSet" : "TEST_CONCEPT_SET",
+  "origin" : "terraframe.com",
+  "types" : [ {
+    "typeClass" : "CONCEPT_CLASS",
+    "typeCode" : "TEST_C_CLASS"
+  }, {
+    "typeClass" : "CONCEPT_EDGE",
+    "typeCode" : "TEST_CONCEPT_EDGE"
+  } ],
+  "exclusions" : [ ]
+}

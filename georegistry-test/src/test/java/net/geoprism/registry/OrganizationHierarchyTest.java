@@ -365,7 +365,7 @@ public class OrganizationHierarchyTest
 
   @Test
   @Request
-  public void testImportJson() throws IOException
+  public void testImportJson() throws Exception
   {
     try (InputStream resource = this.getClass().getResourceAsStream("/org-tree.json"))
     {

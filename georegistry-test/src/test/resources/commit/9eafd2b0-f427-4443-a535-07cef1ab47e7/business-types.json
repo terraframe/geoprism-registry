@@ -1,0 +1,39 @@
+[ {
+  "oid" : null,
+  "code" : "TEST_BUSINESS",
+  "organization" : "USATestDataPPP",
+  "organizationLabel" : null,
+  "origin" : "terraframe.com",
+  "sequence" : 1,
+  "displayLabel" : {"localizedValue":"Test Business","localeValues":[{"locale":"defaultLocale","value":"Test Business"}]},
+  "attributes" : [ {
+    "type" : "boolean",
+    "code" : "testBoolean",
+    "label" : {"localizedValue":"Test Boolean","localeValues":[{"locale":"defaultLocale","value":"Test Boolean"}]},
+    "description" : {"localizedValue":"Test Boolean","localeValues":[{"locale":"defaultLocale","value":"Test Boolean"}]},
+    "required" : false,
+    "unique" : false,
+    "isDefault" : false,
+    "isChangeOverTime" : true
+  }, {
+    "type" : "character",
+    "code" : "code",
+    "label" : {"localizedValue":"Code","localeValues":[{"locale":"defaultLocale","value":"Code"}]},
+    "description" : {"localizedValue":"Human readable unique identified","localeValues":[{"locale":"defaultLocale","value":"Human readable unique identified"}]},
+    "required" : true,
+    "unique" : true,
+    "isDefault" : true,
+    "isChangeOverTime" : false
+  }, {
+    "type" : "source",
+    "code" : "dataSource",
+    "label" : {"localizedValue":"Data Source","localeValues":[{"locale":"defaultLocale","value":"Data Source"}]},
+    "description" : {"localizedValue":"Source of the data","localeValues":[{"locale":"defaultLocale","value":"Source of the data"}]},
+    "required" : false,
+    "unique" : false,
+    "isDefault" : true,
+    "isChangeOverTime" : true
+  } ],
+  "labelAttribute" : "",
+  "type" : "business-type"
+} ]

@@ -425,12 +425,13 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
     {
       logger.info("Publishing block " + skip + " through " + Math.min(skip + BLOCK_SIZE, total) + " of total " + total);
 
-      List<EdgeObject> results = new GraphQuery<EdgeObject>("SELECT * FROM " + dbClass + " ORDER BY out.@class, in.@class, out, in LIMIT " + BLOCK_SIZE + " SKIP " + skip).getResults();
+      List<EdgeObject> results = new GraphQuery<EdgeObject>("SELECT FROM " + dbClass + " ORDER BY out.@class, in.@class, out, in LIMIT " + BLOCK_SIZE + " SKIP " + skip).getResults();
 
       for (EdgeObject result : results)
       {
         VertexObject parent = result.getParent();
         VertexObject child = result.getChild();
+        String uid = result.getObjectValue("uid");
 
         CachedSnapshot outGotCached = this.snapshotCache.get( ( (MdVertexDAOIF) parent.getMdClass() ).getDBClassName().toLowerCase());
         CachedSnapshot inGotCached = this.snapshotCache.get( ( (MdVertexDAOIF) child.getMdClass() ).getDBClassName().toLowerCase());
@@ -441,7 +442,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
 
           final String outRid = ( parentType instanceof BaseGeoObjectType ) ? getRid(state, outGotCached.getGraphMdVertex(), parent.getObjectValue(DefaultAttribute.UID.getName())) : getBusinessRid(state, outGotCached.getGraphMdVertex(), parent.getObjectValue(DefaultAttribute.CODE.getName()));
 
-          createEdge(outRid, inRid, snapshotMdEdge);
+          createEdge(outRid, inRid, uid, snapshotMdEdge);
         }
 
         count++;
@@ -581,6 +582,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
       {
         VertexObject parent = result.getParent();
         VertexObject child = result.getChild();
+        String uid = result.getObjectValue("uid");
 
         CachedSnapshot inGotCached = this.snapshotCache.get( ( (MdVertexDAOIF) parent.getMdClass() ).getDBClassName().toLowerCase());
         CachedSnapshot outGotCached = this.snapshotCache.get( ( (MdVertexDAOIF) child.getMdClass() ).getDBClassName().toLowerCase());
@@ -590,7 +592,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
           final String inRid = getRid(state, inGotCached.getGraphMdVertex(), parent.getObjectValue(DefaultAttribute.UID.getName()));
           final String outRid = getRid(state, outGotCached.getGraphMdVertex(), child.getObjectValue(DefaultAttribute.UID.getName()));
 
-          createEdge(inRid, outRid, snapshotMdEdge);
+          createEdge(inRid, outRid, uid, snapshotMdEdge);
         }
 
         count++;
@@ -604,12 +606,13 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
     }
   }
 
-  private void createEdge(final String inRid, final String outRid, final MdEdge graphMdEdge)
+  private void createEdge(final String inRid, final String outRid, String uid, final MdEdge graphMdEdge)
   {
-    final String sql = "CREATE EDGE " + graphMdEdge.getDbClassName() + " FROM " + inRid + " TO " + outRid + " SET oid = :oid";
+    final String sql = "CREATE EDGE " + graphMdEdge.getDbClassName() + " FROM " + inRid + " TO " + outRid + " SET oid = :oid, uid = :uid";
 
     Map<String, Object> parameters = new HashMap<String, Object>();
     parameters.put("oid", IDGenerator.nextID());
+    parameters.put("uid", uid);
 
     GraphDBService service = GraphDBService.getInstance();
     GraphRequest request = service.getGraphDBRequest();

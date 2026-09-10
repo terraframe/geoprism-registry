@@ -1,0 +1,13 @@
+[ {
+  "typeCode" : "ConceptEdgeType",
+  "code" : "TEST_CONCEPT_EDGE",
+  "label" : {"localizedValue":"Test Prog","localeValues":[{"locale":"defaultLocale","value":"Test Prog"}]},
+  "description" : {"localizedValue":"Test Description","localeValues":[{"locale":"defaultLocale","value":"Test Description"}]},
+  "seq" : 0,
+  "oid" : null,
+  "origin" : "terraframe.com",
+  "organizationCode" : "USATestDataNPS",
+  "childType" : "TEST_C_CLASS",
+  "parentType" : "TEST_C_CLASS",
+  "discreteType" : "TAXONOMY"
+} ]

@@ -155,23 +155,21 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
   }
 
   @Before
-  public void setUp()
+  public void setUp() throws Exception
   {
-    clearData();
+    super.setUp();
 
-    testData.logIn(USATestData.USER_NPS_RA);
+    clearData();
   }
 
   @After
-  public void tearDown()
+  public void tearDown() throws Exception
   {
     PostalCodeFactory.clear();
 
-    testData.logOut();
-
-    testData.tearDownInstanceData();
-
     clearData();
+
+    super.tearDown();
   }
 
   @Request
@@ -214,7 +212,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
   // }
   //
   // @After
-  // public void tearDown() throws IOException
+  // public void tearDown() throws Exception
   // {
   // testData.cleanUp();
   //
@@ -946,7 +944,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
     Assert.assertEquals(0, page2.getInt("count"));
   }
 
-  public List<String> shapefileSort() throws IOException
+  public List<String> shapefileSort() throws Exception
   {
     try (CloseableFile shp = ShapefileImporter.getShapefileFromResource(new StreamResource(this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test"), "cb_2017_us_state_500k.zip"), "shp"))
     {

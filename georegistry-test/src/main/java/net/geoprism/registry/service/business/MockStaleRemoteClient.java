@@ -13,9 +13,19 @@ import net.geoprism.registry.view.CommitDTO;
 
 public class MockStaleRemoteClient extends MockRemoteClient
 {
+  private String publishId = "";
+
+  @Override
+  protected String getCommitFolder(String uid)
+  {
+    return this.publishId;
+  }
+
   @Override
   public Optional<CommitDTO> getLatest(String publishId)
   {
+    this.publishId = publishId;
+
     return super.getLatest(publishId).map(commit -> {
       commit.setUid(UUID.randomUUID().toString());
 

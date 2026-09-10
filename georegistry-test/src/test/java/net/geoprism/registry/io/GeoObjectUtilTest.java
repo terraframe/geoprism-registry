@@ -40,22 +40,6 @@ public class GeoObjectUtilTest extends USADatasetTest implements InstanceTestCla
   @Autowired
   private GeoObjectTypeBusinessServiceIF typeService;
 
-  @Before
-  public void setUp()
-  {
-    testData.setUpInstanceData();
-
-    testData.logIn();
-  }
-
-  @After
-  public void tearDown()
-  {
-    testData.logOut();
-
-    testData.tearDownInstanceData();
-  }
-
   @Test
   @Request
   public void testGetAncestorMapForTreeType()

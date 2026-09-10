@@ -3,12 +3,8 @@
  */
 package net.geoprism.registry;
 
-import java.io.IOException;
-
 import org.junit.After;
 import org.junit.Before;
-
-import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestOrganizationInfo;
@@ -44,19 +40,22 @@ public class FastDatasetTest extends ConceptDatasetTest implements InstanceTestC
   }
 
   @Before
-  @Request
-  public void setUp()
+  public void setUp() throws Exception
   {
+    super.setUp();
+
     testData.setUpInstanceData();
 
     testData.logIn();
   }
 
   @After
-  public void tearDown() throws IOException
+  public void tearDown() throws Exception
   {
     testData.logOut();
 
     testData.tearDownInstanceData();
+
+    super.tearDown();
   }
 }

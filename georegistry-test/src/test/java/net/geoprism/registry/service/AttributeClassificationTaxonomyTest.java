@@ -220,7 +220,7 @@ public class AttributeClassificationTaxonomyTest extends FastDatasetTest impleme
 
     ConceptObject result = results.get(0);
 
-    Assert.assertEquals(childConcept.getCode(), result.getCode());
+    Assert.assertEquals(parentConcept.getCode(), result.getCode());
   }
 
   @Test
@@ -234,7 +234,7 @@ public class AttributeClassificationTaxonomyTest extends FastDatasetTest impleme
 
     NodeDTO<ObjectOverTimeDTO> result = node.getChildren().getResultSet().get(0);
 
-    Assert.assertEquals(childConcept.getCode(), result.getObject().getCode());
+    Assert.assertEquals(parentConcept.getCode(), result.getObject().getCode());
   }
 
   @Test
@@ -268,7 +268,7 @@ public class AttributeClassificationTaxonomyTest extends FastDatasetTest impleme
 
         ObjectOverTimeDTO result = page.getResultSet().get(0);
 
-        Assert.assertEquals(childConcept.getCode(), result.getCode());
+        Assert.assertEquals(parentConcept.getCode(), result.getCode());
 
       });
     }

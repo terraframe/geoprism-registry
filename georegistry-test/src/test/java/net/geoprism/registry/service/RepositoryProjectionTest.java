@@ -32,20 +32,6 @@ import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
-import net.geoprism.registry.service.business.BusinessEdgeTypeSnapshotBusinessServiceIF;
-import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
-import net.geoprism.registry.service.business.BusinessTypeSnapshotBusinessServiceIF;
-import net.geoprism.registry.service.business.CommitBusinessServiceIF;
-import net.geoprism.registry.service.business.ConceptClassBusinessServiceIF;
-import net.geoprism.registry.service.business.ConceptClassSnapshotBusinessServiceIF;
-import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
-import net.geoprism.registry.service.business.GeoObjectTypeSnapshotBusinessServiceIF;
-import net.geoprism.registry.service.business.GraphTypeSnapshotBusinessServiceIF;
-import net.geoprism.registry.service.business.HierarchyTypeSnapshotBusinessServiceIF;
-import net.geoprism.registry.service.business.PublishBusinessServiceIF;
-import net.geoprism.registry.service.business.PublishEventService;
-import net.geoprism.registry.service.business.SourceAuthorityBusinessServiceIF;
 import net.geoprism.registry.test.USATestData;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
@@ -58,14 +44,14 @@ public class RepositoryProjectionTest extends EventDatasetTest implements Instan
   private RepositoryProjection projection;
 
   @Override
-  public void setUp()
+  public void setUp() throws Exception
   {
+    USATestData.COLORADO.removeDefaultValue(testClassification.getCode());
   }
 
   @Override
-  public void tearDown()
+  public void tearDown() throws Exception
   {
-    super.tearDown();
   }
 
   @Test

@@ -19,9 +19,12 @@ import net.geoprism.registry.lpg.adapter.RegistryConnectorIF;
 import net.geoprism.registry.lpg.adapter.response.RegistryResponse;
 import net.geoprism.registry.model.DataSourceDTO;
 import net.geoprism.registry.model.SourceAuthorityDTO;
+import net.geoprism.registry.view.BusinessEdgeTypeDTO;
 import net.geoprism.registry.view.BusinessTypeDTO;
 import net.geoprism.registry.view.CommitDTO;
 import net.geoprism.registry.view.ConceptClassDTO;
+import net.geoprism.registry.view.ConceptEdgeTypeDTO;
+import net.geoprism.registry.view.ConceptSetDTO;
 import net.geoprism.registry.view.PublishDTO;
 
 @Service
@@ -209,6 +212,30 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
     }
 
     @Override
+    public List<ConceptEdgeTypeDTO> getConceptEdgeTypes(String uid)
+    {
+      RegistryResponse response = this.apiGet(COMMIT_API_PATH + "/concept-types", new BasicNameValuePair("uid", uid));
+
+      if (response.isSuccess())
+      {
+        ObjectMapper mapper = new ObjectMapper();
+
+        try
+        {
+          ObjectReader reader = mapper.readerForListOf(ConceptEdgeTypeDTO.class);
+
+          return reader.readValue(response.getResponse());
+        }
+        catch (JsonProcessingException e)
+        {
+          throw new RemoteConnectionException(e);
+        }
+      }
+
+      throw new RemoteConnectionException(response.getMessage());
+    }
+
+    @Override
     public List<ConceptClassDTO> getConceptClasses(String uid)
     {
       RegistryResponse response = this.apiGet(COMMIT_API_PATH + "/concept-classes", new BasicNameValuePair("uid", uid));
@@ -220,6 +247,30 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
         try
         {
           ObjectReader reader = mapper.readerForListOf(ConceptClassDTO.class);
+
+          return reader.readValue(response.getResponse());
+        }
+        catch (JsonProcessingException e)
+        {
+          throw new RemoteConnectionException(e);
+        }
+      }
+
+      throw new RemoteConnectionException(response.getMessage());
+    }
+
+    @Override
+    public List<ConceptSetDTO> getConceptSets(String uid)
+    {
+      RegistryResponse response = this.apiGet(COMMIT_API_PATH + "/concept-sets", new BasicNameValuePair("uid", uid));
+
+      if (response.isSuccess())
+      {
+        ObjectMapper mapper = new ObjectMapper();
+
+        try
+        {
+          ObjectReader reader = mapper.readerForListOf(ConceptSetDTO.class);
 
           return reader.readValue(response.getResponse());
         }
@@ -246,13 +297,24 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
     }
 
     @Override
-    public JsonArray getBusinessEdgeTypes(String uid)
+    public List<BusinessEdgeTypeDTO> getBusinessEdgeTypes(String uid)
     {
       RegistryResponse response = this.apiGet(COMMIT_API_PATH + "/business-edge-types", new BasicNameValuePair("uid", uid));
 
       if (response.isSuccess())
       {
-        return response.getJsonArray();
+        ObjectMapper mapper = new ObjectMapper();
+
+        try
+        {
+          ObjectReader reader = mapper.readerForListOf(BusinessEdgeTypeDTO.class);
+
+          return reader.readValue(response.getResponse());
+        }
+        catch (JsonProcessingException e)
+        {
+          throw new RemoteConnectionException(e);
+        }
       }
 
       throw new RemoteConnectionException(response.getMessage());

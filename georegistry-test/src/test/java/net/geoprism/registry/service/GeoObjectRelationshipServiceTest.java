@@ -50,24 +50,6 @@ public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements
   @Autowired
   private TestRegistryClient       client;
 
-  @Before
-  public void setUp()
-  {
-    testData.setUpInstanceData();
-
-    testData.logIn(FastTestDataset.USER_CGOV_RA);
-
-//    TestDataSet.populateAdapterIds(null, client);
-  }
-
-  @After
-  public void tearDown()
-  {
-    testData.logOut();
-
-    testData.tearDownInstanceData();
-  }
-
   /**
    * TODO : The registry endpoint "init" is very poorly named. It's used to
    * populate the hierarchy manager with initial data. Regardless of how poorly

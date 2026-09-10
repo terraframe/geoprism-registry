@@ -1,9 +1,10 @@
 {
-  "uid" : "9982e9a7-3091-4e13-a2f5-09331c3af839",
+  "uid" : "9eafd2b0-f427-4443-a535-07cef1ab47e7",
   "label" : "USA Geospatial Graph",
   "date" : "2020-04-04",
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04",
+  "conceptSet" : "",
   "origin" : "terraframe.com",
   "types" : [ {
     "typeClass" : "GEO_OBJECT_TYPE",
@@ -39,15 +40,6 @@
     "typeClass" : "GEO_OBJECT_TYPE",
     "typeCode" : "USATestDataMexico_City_GOT"
   }, {
-    "typeClass" : "HIERARCHY",
-    "typeCode" : "USATestDataAdminCode"
-  }, {
-    "typeClass" : "HIERARCHY",
-    "typeCode" : "USATestDataSchoolCode"
-  }, {
-    "typeClass" : "HIERARCHY",
-    "typeCode" : "USATestDataReportsToCode"
-  }, {
     "typeClass" : "BUSINESS_TYPE",
     "typeCode" : "TEST_BUSINESS"
   }, {
@@ -63,8 +55,14 @@
     "typeClass" : "UNDIRECTED_GRAPH",
     "typeCode" : "TEST_UN"
   }, {
-    "typeClass" : "CONCEPT_CLASS",
-    "typeCode" : "TEST_C_CLASS"
+    "typeClass" : "HIERARCHY",
+    "typeCode" : "USATestDataAdminCode"
+  }, {
+    "typeClass" : "HIERARCHY",
+    "typeCode" : "USATestDataSchoolCode"
+  }, {
+    "typeClass" : "HIERARCHY",
+    "typeCode" : "USATestDataReportsToCode"
   } ],
   "exclusions" : [ ]
 }

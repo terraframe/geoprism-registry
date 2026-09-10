@@ -103,6 +103,8 @@ public class CommitBusinessServiceTest extends EventDatasetTest
   public void testCreateSnapshots()
   {
     PublishDTO configuration = this.getPublishDTO();
+    configuration.addConceptClass(cClass.getCode());
+    configuration.addConceptEdgeType(cEdgeType.getCode());
 
     Publish publish = this.publishService.create(configuration);
 
@@ -113,7 +115,8 @@ public class CommitBusinessServiceTest extends EventDatasetTest
       Assert.assertNotNull(this.service.getRootType(commit));
       Assert.assertEquals( ( configuration.getGeoObjectTypes().toList().size() + 1 ), this.service.getTypes(commit).size());
       Assert.assertEquals(configuration.getBusinessTypes().toList().size(), this.service.getBusinessTypes(commit).size());
-      Assert.assertEquals(configuration.getBusinessEdgeTypes().toList().size(), this.service.getBusinessEdgeTypes(commit).size());
+      Assert.assertEquals(configuration.getConceptClasses().toList().size(), this.service.getConceptClasses(commit).size());
+      Assert.assertEquals(configuration.getConceptEdgeTypes().toList().size(), this.service.getConceptEdgeTypes(commit).size());
       Assert.assertEquals(configuration.getHierarchyTypes().toList().size(), this.service.getHiearchyTypes(commit).size());
       Assert.assertEquals(configuration.getDagTypes().toList().size(), this.service.getDirectedAcyclicGraphTypes(commit).size());
       Assert.assertEquals(configuration.getUndirectedTypes().toList().size(), this.service.getUndirectedGraphTypes(commit).size());

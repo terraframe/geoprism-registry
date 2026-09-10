@@ -1,5 +1,166 @@
 [
   {
+    "code": "USATestDataHealthFacility",
+    "orgCode": "USATestDataNPS",
+    "origin": "terraframe.com",
+    "sequence": 0,
+    "displayLabel": {
+      "localizedValue": "USATestDataHealthFacility",
+      "localeValues": [
+        {
+          "locale": "defaultLocale",
+          "value": "USATestDataHealthFacility"
+        }
+      ]
+    },
+    "description": {
+      "localizedValue": "USATestDataHealthFacility",
+      "localeValues": [
+        {
+          "locale": "defaultLocale",
+          "value": "USATestDataHealthFacility"
+        }
+      ]
+    },
+    "geometryType": "MULTIPOLYGON",
+    "isAbstract": true,
+    "isRoot": false,
+    "isPrivate": false,
+    "attributes": [
+      {
+        "code": "displayLabel",
+        "type": "local",
+        "label": {
+          "localizedValue": "Display Label",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Display Label"
+            }
+          ]
+        },
+        "description": {
+          "localizedValue": "Label of the location",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Label of the location"
+            }
+          ]
+        },
+        "isDefault": true,
+        "required": false,
+        "unique": false,
+        "isChangeOverTime": true
+      },
+      {
+        "code": "uid",
+        "type": "character",
+        "label": {
+          "localizedValue": "UID",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "UID"
+            }
+          ]
+        },
+        "description": {
+          "localizedValue": "The internal globally unique identifier ID",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "The internal globally unique identifier ID"
+            }
+          ]
+        },
+        "isDefault": true,
+        "required": true,
+        "unique": true,
+        "isChangeOverTime": false
+      },
+      {
+        "code": "invalid",
+        "type": "boolean",
+        "label": {
+          "localizedValue": "Invalid",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Invalid"
+            }
+          ]
+        },
+        "description": {
+          "localizedValue": "This Geo-Object is no longer valid.",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "This Geo-Object is no longer valid."
+            }
+          ]
+        },
+        "isDefault": true,
+        "required": true,
+        "unique": false,
+        "isChangeOverTime": false
+      },
+      {
+        "code": "exists",
+        "type": "boolean",
+        "label": {
+          "localizedValue": "Exists",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Exists"
+            }
+          ]
+        },
+        "description": {
+          "localizedValue": "Does this GeoObject exist",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Does this GeoObject exist"
+            }
+          ]
+        },
+        "isDefault": true,
+        "required": false,
+        "unique": false,
+        "isChangeOverTime": true
+      },
+      {
+        "code": "dataSource",
+        "type": "source",
+        "label": {
+          "localizedValue": "Data Source",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Data Source"
+            }
+          ]
+        },
+        "description": {
+          "localizedValue": "Source of the data",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Source of the data"
+            }
+          ]
+        },
+        "isDefault": true,
+        "required": false,
+        "unique": false,
+        "isChangeOverTime": true
+      }
+    ],
+    "parent": "__ROOT__"
+  },
+  {
     "code": "USATestDataCountry",
     "orgCode": "USATestDataNPS",
     "origin": "terraframe.com",
@@ -190,7 +351,7 @@
     "code": "USATestDataState",
     "orgCode": "USATestDataNPS",
     "origin": "terraframe.com",
-    "sequence": 0,
+    "sequence": 1,
     "displayLabel": {
       "localizedValue": "USATestDataState",
       "localeValues": [
@@ -214,6 +375,36 @@
     "isRoot": false,
     "isPrivate": false,
     "attributes": [
+      {
+        "code": "classification",
+        "type": "classification",
+        "label": {
+          "localizedValue": "Classification",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Classification"
+            }
+          ]
+        },
+        "description": {
+          "localizedValue": "Classification",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "Classification"
+            }
+          ]
+        },
+        "isDefault": false,
+        "required": false,
+        "unique": false,
+        "isChangeOverTime": true,
+        "conceptSet": "TEST_CONCEPT_SET",
+        "startDate": "2020-04-04",
+        "endDate": "2021-04-04",
+        "rootTerm": "Test Term"
+      },
       {
         "code": "displayLabel",
         "type": "local",
@@ -1032,167 +1223,6 @@
             {
               "locale": "defaultLocale",
               "value": "Human readable unique identified"
-            }
-          ]
-        },
-        "isDefault": true,
-        "required": true,
-        "unique": true,
-        "isChangeOverTime": false
-      },
-      {
-        "code": "invalid",
-        "type": "boolean",
-        "label": {
-          "localizedValue": "Invalid",
-          "localeValues": [
-            {
-              "locale": "defaultLocale",
-              "value": "Invalid"
-            }
-          ]
-        },
-        "description": {
-          "localizedValue": "This Geo-Object is no longer valid.",
-          "localeValues": [
-            {
-              "locale": "defaultLocale",
-              "value": "This Geo-Object is no longer valid."
-            }
-          ]
-        },
-        "isDefault": true,
-        "required": true,
-        "unique": false,
-        "isChangeOverTime": false
-      },
-      {
-        "code": "exists",
-        "type": "boolean",
-        "label": {
-          "localizedValue": "Exists",
-          "localeValues": [
-            {
-              "locale": "defaultLocale",
-              "value": "Exists"
-            }
-          ]
-        },
-        "description": {
-          "localizedValue": "Does this GeoObject exist",
-          "localeValues": [
-            {
-              "locale": "defaultLocale",
-              "value": "Does this GeoObject exist"
-            }
-          ]
-        },
-        "isDefault": true,
-        "required": false,
-        "unique": false,
-        "isChangeOverTime": true
-      },
-      {
-        "code": "dataSource",
-        "type": "source",
-        "label": {
-          "localizedValue": "Data Source",
-          "localeValues": [
-            {
-              "locale": "defaultLocale",
-              "value": "Data Source"
-            }
-          ]
-        },
-        "description": {
-          "localizedValue": "Source of the data",
-          "localeValues": [
-            {
-              "locale": "defaultLocale",
-              "value": "Source of the data"
-            }
-          ]
-        },
-        "isDefault": true,
-        "required": false,
-        "unique": false,
-        "isChangeOverTime": true
-      }
-    ],
-    "parent": "__ROOT__"
-  },
-  {
-    "code": "USATestDataHealthFacility",
-    "orgCode": "USATestDataNPS",
-    "origin": "terraframe.com",
-    "sequence": 0,
-    "displayLabel": {
-      "localizedValue": "USATestDataHealthFacility",
-      "localeValues": [
-        {
-          "locale": "defaultLocale",
-          "value": "USATestDataHealthFacility"
-        }
-      ]
-    },
-    "description": {
-      "localizedValue": "USATestDataHealthFacility",
-      "localeValues": [
-        {
-          "locale": "defaultLocale",
-          "value": "USATestDataHealthFacility"
-        }
-      ]
-    },
-    "geometryType": "MULTIPOLYGON",
-    "isAbstract": true,
-    "isRoot": false,
-    "isPrivate": false,
-    "attributes": [
-      {
-        "code": "displayLabel",
-        "type": "local",
-        "label": {
-          "localizedValue": "Display Label",
-          "localeValues": [
-            {
-              "locale": "defaultLocale",
-              "value": "Display Label"
-            }
-          ]
-        },
-        "description": {
-          "localizedValue": "Label of the location",
-          "localeValues": [
-            {
-              "locale": "defaultLocale",
-              "value": "Label of the location"
-            }
-          ]
-        },
-        "isDefault": true,
-        "required": false,
-        "unique": false,
-        "isChangeOverTime": true
-      },
-      {
-        "code": "uid",
-        "type": "character",
-        "label": {
-          "localizedValue": "UID",
-          "localeValues": [
-            {
-              "locale": "defaultLocale",
-              "value": "UID"
-            }
-          ]
-        },
-        "description": {
-          "localizedValue": "The internal globally unique identifier ID",
-          "localeValues": [
-            {
-              "locale": "defaultLocale",
-              "value": "The internal globally unique identifier ID"
             }
           ]
         },

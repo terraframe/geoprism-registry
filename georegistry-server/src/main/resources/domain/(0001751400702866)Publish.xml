@@ -37,6 +37,10 @@
             name="origin"
             label="Origin"
             required="true" />
+          <text
+            name="conceptSet"
+            label="Concept Set"
+            required="false" />            
         </attributes>
       </mdBusiness>
       <mdBusiness

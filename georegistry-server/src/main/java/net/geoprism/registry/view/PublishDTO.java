@@ -45,6 +45,8 @@ public class PublishDTO
   @JsonDeserialize(using = DateDeserializer.class)
   private Date           endDate;
 
+  private String         conceptSet;
+
   private String         origin;
 
   private List<TypeInfo> types;
@@ -128,6 +130,16 @@ public class PublishDTO
   public void setEndDate(Date endDate)
   {
     this.endDate = endDate;
+  }
+
+  public String getConceptSet()
+  {
+    return conceptSet;
+  }
+
+  public void setConceptSet(String conceptSet)
+  {
+    this.conceptSet = conceptSet;
   }
 
   public List<TypeInfo> getTypes()
@@ -255,7 +267,7 @@ public class PublishDTO
 
   public void addConceptEdgeType(String... conceptEdgeTypes)
   {
-    this.addType(TypeClass.CONCEPT_CLASS, conceptEdgeTypes);
+    this.addType(TypeClass.CONCEPT_EDGE, conceptEdgeTypes);
   }
 
   public JsonArray toTypeJson()

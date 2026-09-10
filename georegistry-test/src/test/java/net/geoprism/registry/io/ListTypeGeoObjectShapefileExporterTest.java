@@ -109,12 +109,12 @@ public class ListTypeGeoObjectShapefileExporterTest extends FastDatasetTest impl
   }
 
   @Before
-  public void setUp()
+  public void setUp() throws Exception
   {
+    super.setUp();
+    
     if (testData != null)
     {
-      testData.setUpInstanceData();
-
       TestDataSet.executeRequestAsUser(FastTestDataset.USER_ADMIN, () -> {
         version.publish();
       });
@@ -122,12 +122,9 @@ public class ListTypeGeoObjectShapefileExporterTest extends FastDatasetTest impl
   }
 
   @After
-  public void tearDown() throws IOException
+  public void tearDown() throws Exception
   {
-    if (testData != null)
-    {
-      testData.tearDownInstanceData();
-    }
+    super.tearDown();
 
     FileUtils.deleteDirectory(new File(VaultProperties.getPath("vault.default"), "files"));
   }
@@ -227,7 +224,7 @@ public class ListTypeGeoObjectShapefileExporterTest extends FastDatasetTest impl
 
   @Test
   @Request
-  public void testWriteToFile() throws IOException
+  public void testWriteToFile() throws Exception
   {
 
     ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(version, mdBusiness, mdAttributes, new JsonObject(), null);
@@ -242,7 +239,7 @@ public class ListTypeGeoObjectShapefileExporterTest extends FastDatasetTest impl
 
   @Test
   @Request
-  public void testExport() throws IOException
+  public void testExport() throws Exception
   {
     ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(version, mdBusiness, mdAttributes, new JsonObject(), null);
     InputStream export = exporter.export();

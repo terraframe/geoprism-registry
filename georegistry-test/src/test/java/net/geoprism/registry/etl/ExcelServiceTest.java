@@ -543,7 +543,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
   @Test
   @Request
-  public void testExport() throws IOException
+  public void testExport() throws Exception
   {
 
     Calendar calendar = Calendar.getInstance();

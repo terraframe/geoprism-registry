@@ -51,21 +51,11 @@ public class FhirOauthImportTest extends FastDatasetTest implements InstanceTest
   }
 
   @Before
-  public void setUp()
+  public void setUp() throws Exception
   {
-    testData.setUpInstanceData();
+    super.setUp();
 
     syncService = new SynchronizationConfigService();
-
-    testData.logIn(FastTestDataset.USER_CGOV_RA);
-  }
-
-  @After
-  public void tearDown()
-  {
-    testData.logOut();
-
-    testData.tearDownInstanceData();
   }
 
   @Request

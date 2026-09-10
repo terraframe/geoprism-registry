@@ -52,9 +52,6 @@ public class AttributeClassificationEnumerationTest extends FastDatasetTest impl
   private static AttributeClassificationType testClassification;
 
   @Autowired
-  private TestRegistryClient                 client;
-
-  @Autowired
   private GeoObjectTypeBusinessServiceIF     gotService;
 
   @Autowired
