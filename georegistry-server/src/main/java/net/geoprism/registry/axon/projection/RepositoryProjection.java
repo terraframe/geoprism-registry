@@ -50,11 +50,12 @@ import net.geoprism.registry.axon.event.repository.GeoObjectRemoveParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectUpdateParentEvent;
 import net.geoprism.registry.axon.event.repository.ImportHistoryEvent;
 import net.geoprism.registry.axon.event.repository.ObjectApplyEdgeEvent;
+import net.geoprism.registry.axon.event.repository.ObjectRemoveEdgeEvent;
 import net.geoprism.registry.axon.event.repository.RemoveBusinessObjectEvent;
 import net.geoprism.registry.axon.event.repository.RemoveConceptObjectEvent;
 import net.geoprism.registry.axon.event.repository.RemoveGeoObjectEdgeEvent;
 import net.geoprism.registry.axon.event.repository.RemoveGeoObjectEvent;
-import net.geoprism.registry.axon.event.repository.RemoveObjectEdgeEvent;
+import net.geoprism.registry.axon.event.repository.RemoveHiearchyEdgeEvent;
 import net.geoprism.registry.cache.BusinessObjectCache;
 import net.geoprism.registry.cache.Cache;
 import net.geoprism.registry.cache.ConceptObjectCache;
@@ -83,6 +84,7 @@ import net.geoprism.registry.service.business.ConceptClassBusinessServiceIF;
 import net.geoprism.registry.service.business.ConceptEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ConceptObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
+import net.geoprism.registry.service.business.EdgeObjectBusinessService;
 import net.geoprism.registry.service.business.EdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GPRBusinessTypeBusinessService;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
@@ -141,6 +143,9 @@ public class RepositoryProjection
 
   @Autowired
   private SourceAuthorityBusinessServiceIF  authorityService;
+
+  @Autowired
+  private EdgeObjectBusinessService         eObjectService;
 
   @EventHandler
   @Transaction
@@ -643,6 +648,15 @@ public class RepositoryProjection
 
   @EventHandler
   @Transaction
+  public void handleObjectRemoveEdge(ObjectRemoveEdgeEvent event)
+  {
+    final EdgeType edgeType = this.edgeTypeService.getByCode(event.getEdgeType());
+
+    this.eObjectService.getByUid(edgeType, event.getEdgeUid()).ifPresent(edge -> edge.delete());
+  }
+
+  @EventHandler
+  @Transaction
   public void handleObjectApplyEdge(ObjectApplyEdgeEvent event)
   {
     // Handle business edge case
@@ -933,7 +947,7 @@ public class RepositoryProjection
     service.command(request, statement.toString(), parameters);
   }
 
-  public void handleRemoveObjectEdgeEvent(RemoveObjectEdgeEvent event)
+  public void handleRemoveObjectEdgeEvent(RemoveHiearchyEdgeEvent event)
   {
     EdgeType edgeType = this.edgeTypeService.getByCode(event.getEdgeType());
 
@@ -952,7 +966,7 @@ public class RepositoryProjection
 
   }
 
-  private void handleRemoveBusinessObjectEdgeEvent(RemoveObjectEdgeEvent event, BusinessEdgeType edgeType)
+  private void handleRemoveBusinessObjectEdgeEvent(RemoveHiearchyEdgeEvent event, BusinessEdgeType edgeType)
   {
     ObjectClass parentType = this.bEdgeService.getParent(edgeType);
     ObjectClass childType = this.bEdgeService.getChild(edgeType);
@@ -986,7 +1000,7 @@ public class RepositoryProjection
     service.command(request, statement.toString(), parameters);
   }
 
-  private void handleRemoveConceptObjectEdgeEvent(RemoveObjectEdgeEvent event, ConceptEdgeType edgeType)
+  private void handleRemoveConceptObjectEdgeEvent(RemoveHiearchyEdgeEvent event, ConceptEdgeType edgeType)
   {
     String clazz = edgeType.getMdEdgeDAO().getDBClassName();
 

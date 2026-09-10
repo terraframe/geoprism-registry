@@ -5,7 +5,7 @@ import java.util.List;
 
 import net.geoprism.registry.axon.event.repository.AbstractObjectEdgeEvent;
 import net.geoprism.registry.axon.event.repository.AbstractGeoObjectEdgeEvent;
-import net.geoprism.registry.axon.event.repository.RemoveObjectEdgeEvent;
+import net.geoprism.registry.axon.event.repository.RemoveHiearchyEdgeEvent;
 import net.geoprism.registry.axon.event.repository.RepositoryEvent;
 
 public class RollbackBusinessObjectEdgeEventBuilder extends RollbackEventBuilder
@@ -43,7 +43,7 @@ public class RollbackBusinessObjectEdgeEventBuilder extends RollbackEventBuilder
     List<RepositoryEvent> list = new LinkedList<>();
 
     // Reset the edge and the replay all of the events
-    list.add(new RemoveObjectEdgeEvent(this.original.getTargetCode(), this.original.getTargetType(), this.original.getSourceCode(), this.original.getSourceType(), this.original.getEdgeType(), this.original.getStartDate(), this.original.getEndDate()));
+    list.add(new RemoveHiearchyEdgeEvent(this.original.getTargetCode(), this.original.getTargetType(), this.original.getSourceCode(), this.original.getSourceType(), this.original.getEdgeType(), this.original.getStartDate(), this.original.getEndDate()));
     list.addAll(this.events);
 
     return list;

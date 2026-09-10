@@ -32,6 +32,10 @@ import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.query.graph.VertexAndEdgeQuery.EdgeQueryObject;
+import net.geoprism.registry.service.business.EdgeObjectBusinessService;
+import net.geoprism.registry.service.business.EventBusinessService;
+import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
@@ -41,7 +45,13 @@ public class RepositoryProjectionTest extends EventDatasetTest implements Instan
 {
 
   @Autowired
-  private RepositoryProjection projection;
+  private RepositoryProjection      projection;
+
+  @Autowired
+  private EventBusinessService      eventService;
+
+  @Autowired
+  private EdgeObjectBusinessService eObjectService;
 
   @Override
   public void setUp() throws Exception
@@ -126,6 +136,28 @@ public class RepositoryProjectionTest extends EventDatasetTest implements Instan
     Optional<ConceptObject> result = this.cObjectService.getByCode(cClass, code);
 
     Assert.assertTrue(result.isPresent());
+  }
+
+  @Test
+  @Request
+  public void testHandleApplyConceptEdge() throws InterruptedException
+  {
+    ConceptObject parent = this.createConceptObject("P_CONCEPT");
+    ConceptObject child = this.createConceptObject("C_CONCEPT");
+
+    this.addConceptEdge(parent, cEdgeType, child);
+
+    List<EdgeQueryObject> results = this.cObjectService.getEdgeChildren(parent, cEdgeType, TestDataSet.DEFAULT_OVER_TIME_DATE);
+
+    Assert.assertEquals(1, results.size());
+
+    EdgeQueryObject result = results.get(0);
+
+    this.eObjectService.getByOid(cEdgeType, result.getOid()).ifPresent(edge -> {
+      this.eventService.remove(cEdgeType, edge);
+    });
+
+    Assert.assertEquals(0, this.cObjectService.getEdgeChildren(parent, cEdgeType, TestDataSet.DEFAULT_OVER_TIME_DATE).size());
   }
 
 }

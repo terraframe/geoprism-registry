@@ -20,7 +20,7 @@ import net.geoprism.registry.axon.event.repository.GeoObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectCreateParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectRemoveParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectUpdateParentEvent;
-import net.geoprism.registry.axon.event.repository.RemoveObjectEdgeEvent;
+import net.geoprism.registry.axon.event.repository.RemoveHiearchyEdgeEvent;
 import net.geoprism.registry.axon.event.repository.RemoveBusinessObjectEvent;
 import net.geoprism.registry.axon.event.repository.RemoveConceptObjectEvent;
 import net.geoprism.registry.axon.event.repository.RemoveGeoObjectEdgeEvent;
@@ -127,9 +127,9 @@ public class RollbackEventService
       {
         this.projection.handleRemoveConceptObjectEvent((RemoveConceptObjectEvent) event);
       }
-      else if (event instanceof RemoveObjectEdgeEvent)
+      else if (event instanceof RemoveHiearchyEdgeEvent)
       {
-        this.projection.handleRemoveObjectEdgeEvent((RemoveObjectEdgeEvent) event);
+        this.projection.handleRemoveObjectEdgeEvent((RemoveHiearchyEdgeEvent) event);
       }
       else
       {
