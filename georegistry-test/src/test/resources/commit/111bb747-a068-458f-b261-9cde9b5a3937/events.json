@@ -1,9 +1,12 @@
 [ {
-  "@type" : "RemoteConceptObjectEvent",
-  "commitId" : "643fb455-0a7d-4f2e-a1ce-73ba3d87a980",
+  "@type" : "RemoteObjectApplyEvent",
+  "commitId" : "33e5dbd1-dc40-45a1-9b80-344c6cfeab79",
   "key" : "Child Concept#TEST_C_CLASS",
   "code" : "Child Concept",
-  "type" : "TEST_C_CLASS",
+  "type" : {
+    "typeClass" : "CONCEPT_CLASS",
+    "typeCode" : "TEST_C_CLASS"
+  },
   "object" : {
     "type" : {
       "typeClass" : "CONCEPT_CLASS",
@@ -27,11 +30,14 @@
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04"
 }, {
-  "@type" : "RemoteConceptObjectEvent",
-  "commitId" : "643fb455-0a7d-4f2e-a1ce-73ba3d87a980",
+  "@type" : "RemoteObjectApplyEvent",
+  "commitId" : "33e5dbd1-dc40-45a1-9b80-344c6cfeab79",
   "key" : "Parent Concept#TEST_C_CLASS",
   "code" : "Parent Concept",
-  "type" : "TEST_C_CLASS",
+  "type" : {
+    "typeClass" : "CONCEPT_CLASS",
+    "typeCode" : "TEST_C_CLASS"
+  },
   "object" : {
     "type" : {
       "typeClass" : "CONCEPT_CLASS",
@@ -55,11 +61,14 @@
   "startDate" : "2020-04-04",
   "endDate" : "2021-04-04"
 }, {
-  "@type" : "RemoteConceptObjectEvent",
-  "commitId" : "643fb455-0a7d-4f2e-a1ce-73ba3d87a980",
+  "@type" : "RemoteObjectApplyEvent",
+  "commitId" : "33e5dbd1-dc40-45a1-9b80-344c6cfeab79",
   "key" : "Test Term#TEST_C_CLASS",
   "code" : "Test Term",
-  "type" : "TEST_C_CLASS",
+  "type" : {
+    "typeClass" : "CONCEPT_CLASS",
+    "typeCode" : "TEST_C_CLASS"
+  },
   "object" : {
     "type" : {
       "typeClass" : "CONCEPT_CLASS",
@@ -84,14 +93,14 @@
   "endDate" : "2021-04-04"
 }, {
   "@type" : "RemoteObjectApplyEdgeEvent",
-  "key" : "Test Term#net.geoprism.registry.view.TypeInfo@2b7d8dd8",
-  "commitId" : "643fb455-0a7d-4f2e-a1ce-73ba3d87a980",
+  "key" : "Test Term#TEST_C_CLASS",
+  "commitId" : "33e5dbd1-dc40-45a1-9b80-344c6cfeab79",
   "sourceCode" : "Test Term",
   "sourceType" : {
     "typeClass" : "CONCEPT_CLASS",
     "typeCode" : "TEST_C_CLASS"
   },
-  "edgeUid" : "6f555166-6f33-4b02-bf5c-da7fdf7dc91a",
+  "edgeUid" : "2de88c54-d96b-4656-ac1e-073b0bbc6c91",
   "edgeType" : {
     "typeClass" : "CONCEPT_EDGE",
     "typeCode" : "TEST_CONCEPT_EDGE"
@@ -106,14 +115,14 @@
   "dataSource" : "UsaSource"
 }, {
   "@type" : "RemoteObjectApplyEdgeEvent",
-  "key" : "Parent Concept#net.geoprism.registry.view.TypeInfo@5f69c7c0",
-  "commitId" : "643fb455-0a7d-4f2e-a1ce-73ba3d87a980",
+  "key" : "Parent Concept#TEST_C_CLASS",
+  "commitId" : "33e5dbd1-dc40-45a1-9b80-344c6cfeab79",
   "sourceCode" : "Parent Concept",
   "sourceType" : {
     "typeClass" : "CONCEPT_CLASS",
     "typeCode" : "TEST_C_CLASS"
   },
-  "edgeUid" : "c00009a7-a3f2-4b3c-9366-5769ae77020e",
+  "edgeUid" : "93d2b44f-31c5-4a8a-ac9e-0e5f588c4e01",
   "edgeType" : {
     "typeClass" : "CONCEPT_EDGE",
     "typeCode" : "TEST_CONCEPT_EDGE"

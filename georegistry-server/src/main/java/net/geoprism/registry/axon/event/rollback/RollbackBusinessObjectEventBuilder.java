@@ -3,9 +3,9 @@ package net.geoprism.registry.axon.event.rollback;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.geoprism.registry.axon.event.repository.BaseObjectEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEvent;
-import net.geoprism.registry.axon.event.repository.BusinessObjectEvent;
-import net.geoprism.registry.axon.event.repository.RemoveBusinessObjectEvent;
+import net.geoprism.registry.axon.event.repository.RemoveObjectEvent;
 import net.geoprism.registry.axon.event.repository.RepositoryEvent;
 
 public class RollbackBusinessObjectEventBuilder extends RollbackEventBuilder
@@ -27,13 +27,13 @@ public class RollbackBusinessObjectEventBuilder extends RollbackEventBuilder
 
   public void addEvent(RepositoryEvent event)
   {
-    if (event instanceof BusinessObjectEvent)
+    if (event instanceof BaseObjectEvent)
     {
-      this.addEvent((BusinessObjectEvent) event);
+      this.addEvent((BaseObjectEvent) event);
     }
   }
 
-  public void addEvent(BusinessObjectEvent event)
+  public void addEvent(BaseObjectEvent event)
   {
     if (event instanceof BusinessObjectApplyEvent)
     {
@@ -47,7 +47,7 @@ public class RollbackBusinessObjectEventBuilder extends RollbackEventBuilder
 
     if (this.original.getIsNew())
     {
-      list.add(new RemoveBusinessObjectEvent(this.original.getCode(), this.original.getType()));
+      list.add(new RemoveObjectEvent(this.original.getCode(), this.original.getType()));
     }
     else if (this.events.size() > 0)
     {

@@ -5,20 +5,21 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.geoprism.registry.view.PublishDTO;
+import net.geoprism.registry.view.TypeInfo;
 
 public class GeoObjectRemoveExternalIdEvent extends AbstractGeoObjectEvent implements GeoObjectEvent
 {
-  private String code;
+  private String   code;
 
-  private String type;
+  private TypeInfo type;
 
-  private String authority;
+  private String   authority;
 
   public GeoObjectRemoveExternalIdEvent()
   {
   }
 
-  public GeoObjectRemoveExternalIdEvent(String code, String type, String authority)
+  public GeoObjectRemoveExternalIdEvent(String code, TypeInfo type, String authority)
   {
     super(UUID.randomUUID().toString());
 
@@ -37,12 +38,12 @@ public class GeoObjectRemoveExternalIdEvent extends AbstractGeoObjectEvent imple
     this.code = code;
   }
 
-  public String getType()
+  public TypeInfo getType()
   {
     return type;
   }
 
-  public void setType(String type)
+  public void setType(TypeInfo type)
   {
     this.type = type;
   }
@@ -74,6 +75,6 @@ public class GeoObjectRemoveExternalIdEvent extends AbstractGeoObjectEvent imple
   @Override
   public Boolean isValidFor(PublishDTO dto)
   {
-    return dto.getGeoObjectTypes().anyMatch(this.getType()::equals);
+    return dto.getTypes().stream().anyMatch(this.getType()::equals);
   }
 }

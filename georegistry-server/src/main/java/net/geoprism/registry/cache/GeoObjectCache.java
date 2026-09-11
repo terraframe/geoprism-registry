@@ -25,6 +25,7 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
+import net.geoprism.registry.view.TypeInfo;
 
 public class GeoObjectCache extends LRUCache<String, ServerGeoObjectIF>
 {
@@ -77,6 +78,16 @@ public class GeoObjectCache extends LRUCache<String, ServerGeoObjectIF>
 
       return object;
     });
+  }
+
+  public ServerGeoObjectIF getOrFetchByCode(String code, TypeInfo type)
+  {
+    return this.getOrFetchByCode(code, type.getTypeCode());
+  }
+
+  public ServerGeoObjectIF getOrFetchByExternalId(String externalId, TypeInfo type, String authority)
+  {
+    return this.getOrFetchByExternalId(externalId, type.getTypeCode(), authority);
   }
 
   public ServerGeoObjectIF getOrFetchByExternalId(String externalId, String typeCode, String authority)

@@ -5,7 +5,7 @@ import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.geoprism.registry.view.PublishDTO;
-import net.geoprism.registry.view.TypeClass;
+import net.geoprism.registry.view.TypeInfo;
 
 public abstract class AbstractHierarchyEvent extends AbstractGeoObjectEdgeEvent implements GeoObjectEvent
 {
@@ -26,20 +26,14 @@ public abstract class AbstractHierarchyEvent extends AbstractGeoObjectEdgeEvent 
 
   public abstract String getCode();
 
-  public abstract String getType();
-
-  @Override
-  public String getEdgeClassType()
-  {
-    return TypeClass.HIERARCHY.getCode();
-  }
+  public abstract TypeInfo getType();
 
   @Override
   public Boolean isValidFor(PublishDTO dto)
   {
     Date date = dto.getDate();
 
-    if (dto.getHierarchyTypes().anyMatch(this.getEdgeTypeCode()::equals))
+    if (dto.getTypes().stream().anyMatch(this.getEdgeType()::equals))
     {
       return ( date.after(this.getStartDate()) && date.before(this.getEndDate()) ) || date.equals(this.getStartDate()) || date.equals(this.getEndDate());
     }
@@ -54,7 +48,7 @@ public abstract class AbstractHierarchyEvent extends AbstractGeoObjectEdgeEvent 
   }
 
   @Override
-  public String getSourceType()
+  public TypeInfo getSourceType()
   {
     return null;
   }
@@ -66,7 +60,7 @@ public abstract class AbstractHierarchyEvent extends AbstractGeoObjectEdgeEvent 
   }
 
   @Override
-  public String getTargetType()
+  public TypeInfo getTargetType()
   {
     return this.getType();
   }
@@ -75,7 +69,9 @@ public abstract class AbstractHierarchyEvent extends AbstractGeoObjectEdgeEvent 
   @JsonIgnore
   public String getBaseObjectId()
   {
-    return this.getCode() + "#" + this.getType() + "_H_" + this.getEdgeTypeCode();
+    String delimeter = "_" + this.getEdgeType().getTypeClass().getCode() + "_";
+
+    return this.getCode() + "#" + this.getType().getTypeCode() + delimeter + this.getEdgeType().getTypeCode();
   }
 
   @Override

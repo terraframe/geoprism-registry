@@ -27,8 +27,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
-import org.axonframework.eventhandling.GenericEventMessage;
-import org.axonframework.eventhandling.gateway.EventGateway;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -69,6 +67,7 @@ import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.model.EdgeType;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.service.business.EventBusinessService;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.view.TypeClass;
 import net.geoprism.registry.view.TypeInfo;
@@ -184,11 +183,11 @@ public class EdgeObjectImporter implements ObjectImporterIF
 
   private ThreadPoolExecutor              executor;
 
-  private EventGateway                    gateway;
+  private EventBusinessService            eventService;
 
   public EdgeObjectImporter(EdgeObjectImportConfiguration configuration, ImportProgressListenerIF progressListener)
   {
-    this.gateway = ServiceFactory.getBean(EventGateway.class);
+    this.eventService = ServiceFactory.getBean(EventBusinessService.class);
 
     this.configuration = configuration;
     this.progressListener = progressListener;
@@ -491,10 +490,10 @@ public class EdgeObjectImporter implements ObjectImporterIF
       TypeInfo targetType = new TypeInfo(graphType.getTargetType(), targetTypeCode);
 
       AbstractRepositoryEvent event = graphType instanceof GraphType ? //
-          new GeoObjectApplyEdgeEvent(sourceCode, sourceTypeCode, edgeTypeCode, edgeCode, targetCode, targetTypeCode, startDate, endDate, dataSource, this.configuration.getImportStrategy(), true, this.configuration.getHistoryId()) : //
+          new GeoObjectApplyEdgeEvent(sourceCode, sourceType, graphType.getTypeInfo(), targetCode, targetType, startDate, endDate, dataSource, this.configuration.getImportStrategy(), true, this.configuration.getHistoryId()) : //
           new ObjectApplyEdgeEvent(sourceCode, sourceType, graphType.getTypeInfo(), targetCode, targetType, startDate, endDate, dataSource, this.configuration.getImportStrategy(), true, this.configuration.getHistoryId());
 
-      this.gateway.publish(GenericEventMessage.asEventMessage(event));
+      this.eventService.publish(event);
 
       imported = true;
 

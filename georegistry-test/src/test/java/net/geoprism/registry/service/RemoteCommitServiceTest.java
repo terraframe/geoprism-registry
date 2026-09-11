@@ -45,6 +45,7 @@ import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.ServerParentGraphNode;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessEdgeTypeSnapshotBusinessServiceIF;
@@ -355,7 +356,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
       Assert.assertEquals(Long.valueOf(20), type.getSequence());
     });
 
-    Assert.assertEquals(Long.valueOf(53), this.store.size());
+    Assert.assertEquals(Long.valueOf(54), this.store.size());
 
     // Test Object values
 
@@ -375,6 +376,13 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
     Assert.assertNotNull(node.getSource());
     Assert.assertEquals(USATestData.SOURCE.getCode(), node.getSource().getCode());
     Assert.assertNotNull(node.getUid());
+
+    // Assert DAG values
+    DirectedAcyclicGraphType dagType = this.dagTypeService.getByCode("TEST_DAG").get();
+
+    ServerParentGraphNode dNode = this.gObjectService.getGraphParentGeoObjects(object, dagType, false, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
+
+    Assert.assertEquals(1, dNode.getParents().size());
 
     BusinessType bType = this.bTypeService.getByCodeOrThrow("TEST_BUSINESS");
 
@@ -466,7 +474,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
       Assert.assertNotEquals(MockRemoteClientBuilderService.STALE_SOURCE, type.getLabel().getValue());
     });
 
-    Assert.assertEquals(Long.valueOf(101), this.store.size());
+    Assert.assertEquals(Long.valueOf(103), this.store.size());
   }
 
   @Test
@@ -477,10 +485,10 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
 
     List<TypeInfo> exclusions = Arrays.asList(TypeInfo.build("TEST_UN", TypeClass.UNDIRECTED_GRAPH));
 
-    Commit commit = this.service.pull(MockRemoteClientBuilderService.SOURCE, PublishEventServiceTest.MAIN, exclusions);
+    this.service.pull(MockRemoteClientBuilderService.SOURCE, PublishEventServiceTest.MAIN, exclusions);
 
     // Ensure that events for excluded types are not executed
-    Assert.assertEquals(Long.valueOf(52), this.store.size());
+    Assert.assertEquals(Long.valueOf(53), this.store.size());
   }
 
   @Test

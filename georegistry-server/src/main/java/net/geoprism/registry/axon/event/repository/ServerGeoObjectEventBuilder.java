@@ -13,6 +13,7 @@ import net.geoprism.registry.model.EdgeType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.view.TypeInfo;
 
 public class ServerGeoObjectEventBuilder extends AbstractGeoObjectEventBuilder<ServerGeoObjectIF>
 {
@@ -28,9 +29,9 @@ public class ServerGeoObjectEventBuilder extends AbstractGeoObjectEventBuilder<S
   }
 
   @Override
-  public String getType()
+  public TypeInfo getType()
   {
-    return this.getOrThrow().getType().getCode();
+    return this.getOrThrow().getType().getTypeInfo();
   }
 
   @Override
@@ -56,9 +57,8 @@ public class ServerGeoObjectEventBuilder extends AbstractGeoObjectEventBuilder<S
       Date endDate = edge.getObjectValue(EdgeType.END_DATE);
       String uid = edge.getObjectValue(DefaultAttribute.UID.getName());
 
-      this.addEvent(new GeoObjectRemoveParentEvent(getCode(), getType(), uid, hierarchyType.getCode(), startDate, endDate));
+      this.addEvent(new GeoObjectRemoveParentEvent(getCode(), getType(), uid, hierarchyType.getTypeInfo(), startDate, endDate));
     }
   }
-
 
 }

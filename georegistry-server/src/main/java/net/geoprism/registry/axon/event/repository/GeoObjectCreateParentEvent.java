@@ -5,40 +5,42 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import net.geoprism.registry.view.TypeInfo;
+
 public class GeoObjectCreateParentEvent extends AbstractHierarchyEvent implements GeoObjectEvent
 {
-  private String  code;
+  private String   code;
 
-  private String  type;
+  private TypeInfo type;
 
-  private String  edgeUid;
+  private String   edgeUid;
 
-  private String  edgeTypeCode;
+  private TypeInfo edgeType;
 
-  private Date    startDate;
+  private Date     startDate;
 
-  private Date    endDate;
+  private Date     endDate;
 
-  private String  parentType;
+  private TypeInfo parentType;
 
-  private String  parentCode;
+  private String   parentCode;
 
-  private String  dataSource;
+  private String   dataSource;
 
-  private Boolean validate;
+  private Boolean  validate;
 
   public GeoObjectCreateParentEvent()
   {
   }
 
-  public GeoObjectCreateParentEvent(String code, String type, String edgeUid, String edgeTypeCode, Date stateDate, Date endDate, String parentCode, String parentType, String dataSource, Boolean validate)
+  public GeoObjectCreateParentEvent(String code, TypeInfo type, String edgeUid, TypeInfo edgeType, Date stateDate, Date endDate, String parentCode, TypeInfo parentType, String dataSource, Boolean validate)
   {
     super(UUID.randomUUID().toString());
 
     this.code = code;
     this.type = type;
     this.edgeUid = edgeUid;
-    this.edgeTypeCode = edgeTypeCode;
+    this.edgeType = edgeType;
     this.startDate = stateDate;
     this.endDate = endDate;
     this.parentType = parentType;
@@ -57,12 +59,12 @@ public class GeoObjectCreateParentEvent extends AbstractHierarchyEvent implement
     this.code = code;
   }
 
-  public String getType()
+  public TypeInfo getType()
   {
     return type;
   }
 
-  public void setType(String type)
+  public void setType(TypeInfo type)
   {
     this.type = type;
   }
@@ -77,14 +79,14 @@ public class GeoObjectCreateParentEvent extends AbstractHierarchyEvent implement
     this.edgeUid = edgeUid;
   }
 
-  public String getEdgeTypeCode()
+  public TypeInfo getEdgeType()
   {
-    return edgeTypeCode;
+    return edgeType;
   }
 
-  public void setEdgeTypeCode(String edgeTypeCode)
+  public void setEdgeType(TypeInfo edgeType)
   {
-    this.edgeTypeCode = edgeTypeCode;
+    this.edgeType = edgeType;
   }
 
   public Date getStartDate()
@@ -107,12 +109,12 @@ public class GeoObjectCreateParentEvent extends AbstractHierarchyEvent implement
     this.endDate = endDate;
   }
 
-  public String getParentType()
+  public TypeInfo getParentType()
   {
     return parentType;
   }
 
-  public void setParentType(String parentType)
+  public void setParentType(TypeInfo parentType)
   {
     this.parentType = parentType;
   }
@@ -127,16 +129,6 @@ public class GeoObjectCreateParentEvent extends AbstractHierarchyEvent implement
     this.parentCode = parentCode;
   }
 
-  public Boolean getValidate()
-  {
-    return validate;
-  }
-
-  public void setValidate(Boolean validate)
-  {
-    this.validate = validate;
-  }
-
   public String getDataSource()
   {
     return dataSource;
@@ -145,6 +137,16 @@ public class GeoObjectCreateParentEvent extends AbstractHierarchyEvent implement
   public void setDataSource(String dataSource)
   {
     this.dataSource = dataSource;
+  }
+
+  public Boolean getValidate()
+  {
+    return validate;
+  }
+
+  public void setValidate(Boolean validate)
+  {
+    this.validate = validate;
   }
 
   @Override

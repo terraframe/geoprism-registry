@@ -17,9 +17,11 @@ import com.runwaysdk.dataaccess.MdRelationshipDAOIF;
 import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.dataaccess.metadata.MdRelationshipDAO;
 
+import net.geoprism.registry.axon.event.repository.AbstractObjectEdgeEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectEventBuilder;
 import net.geoprism.registry.axon.event.repository.ConceptObjectEventBuilder;
 import net.geoprism.registry.axon.event.repository.GeoObjectEventBuilder;
+import net.geoprism.registry.axon.event.repository.RepositoryEvent;
 import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.BusinessEdgeType;
@@ -151,7 +153,7 @@ public abstract class DatasetTest
     });
   }
 
-  protected void createConceptEdges(ConceptObject child, Date startDate, Date endDate, DataSource dataSource, List<Pair<ConceptObject, ConceptEdgeType>> targets)
+  protected List<String> createConceptEdges(ConceptObject child, Date startDate, Date endDate, DataSource dataSource, List<Pair<ConceptObject, ConceptEdgeType>> targets)
   {
     ConceptObjectEventBuilder builder = new ConceptObjectEventBuilder(cObjectService);
     builder.setObject(child);
@@ -161,9 +163,13 @@ public abstract class DatasetTest
       builder.addParent(target.getFirst(), target.getSecond(), startDate, endDate, dataSource, false);
     }
 
-    builder.build().stream().forEach(event -> {
+    List<RepositoryEvent> list = builder.build();
+
+    list.stream().forEach(event -> {
       gateway.publish(GenericEventMessage.asEventMessage(event));
     });
+
+    return list.stream().map(e -> (AbstractObjectEdgeEvent) e).map(e -> e.getEdgeUid()).toList();
   }
 
   public long getJobHistoryGeometryCount(ImportHistory hist) throws SQLException

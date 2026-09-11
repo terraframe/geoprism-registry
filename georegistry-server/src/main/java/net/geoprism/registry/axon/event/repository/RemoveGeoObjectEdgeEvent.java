@@ -5,43 +5,40 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.geoprism.registry.view.PublishDTO;
+import net.geoprism.registry.view.TypeInfo;
 
-public class RemoveGeoObjectEdgeEvent extends AbstractRepositoryEvent implements BusinessObjectEvent
+public class RemoveGeoObjectEdgeEvent extends AbstractRepositoryEvent implements BaseObjectEvent
 {
-  private String sourceCode;
+  private String   sourceCode;
 
-  private String sourceType;
+  private TypeInfo sourceType;
 
-  private String targetCode;
+  private String   targetCode;
 
-  private String tagetType;
+  private TypeInfo tagetType;
 
-  private String edgeTypeCode;
-
-  private String edgeClassType;
+  private TypeInfo edgeType;
 
   public RemoveGeoObjectEdgeEvent()
   {
   }
 
-  public RemoveGeoObjectEdgeEvent(String targetCode, String tagetType, String edgeTypeCode, String edgeClassType)
+  public RemoveGeoObjectEdgeEvent(String targetCode, TypeInfo tagetType, TypeInfo edgeType)
   {
     super(UUID.randomUUID().toString());
     this.targetCode = targetCode;
     this.tagetType = tagetType;
-    this.edgeTypeCode = edgeTypeCode;
-    this.edgeClassType = edgeClassType;
+    this.edgeType = edgeType;
   }
 
-  public RemoveGeoObjectEdgeEvent(String targetCode, String tagetType, String sourceCode, String sourceType, String edgeTypeCode, String edgeClassType)
+  public RemoveGeoObjectEdgeEvent(String targetCode, TypeInfo tagetType, String sourceCode, TypeInfo sourceType, TypeInfo edgeType)
   {
     super(UUID.randomUUID().toString());
     this.targetCode = targetCode;
     this.tagetType = tagetType;
     this.sourceCode = sourceCode;
     this.sourceType = sourceType;
-    this.edgeTypeCode = edgeTypeCode;
-    this.edgeClassType = edgeClassType;
+    this.edgeType = edgeType;
   }
 
   public String getSourceCode()
@@ -54,12 +51,12 @@ public class RemoveGeoObjectEdgeEvent extends AbstractRepositoryEvent implements
     this.sourceCode = sourceCode;
   }
 
-  public String getSourceType()
+  public TypeInfo getSourceType()
   {
     return sourceType;
   }
 
-  public void setSourceType(String sourceType)
+  public void setSourceType(TypeInfo sourceType)
   {
     this.sourceType = sourceType;
   }
@@ -74,34 +71,24 @@ public class RemoveGeoObjectEdgeEvent extends AbstractRepositoryEvent implements
     this.targetCode = targetCode;
   }
 
-  public String getTagetType()
+  public TypeInfo getTagetType()
   {
     return tagetType;
   }
 
-  public void setTagetType(String tagetType)
+  public void setTagetType(TypeInfo tagetType)
   {
     this.tagetType = tagetType;
   }
 
-  public String getEdgeTypeCode()
+  public TypeInfo getEdgeType()
   {
-    return edgeTypeCode;
+    return edgeType;
   }
 
-  public void setEdgeTypeCode(String edgeTypeCode)
+  public void setEdgeType(TypeInfo edgeType)
   {
-    this.edgeTypeCode = edgeTypeCode;
-  }
-
-  public String getEdgeClassType()
-  {
-    return edgeClassType;
-  }
-
-  public void setEdgeClassType(String edgeClassType)
-  {
-    this.edgeClassType = edgeClassType;
+    this.edgeType = edgeType;
   }
 
   @Override
@@ -121,8 +108,7 @@ public class RemoveGeoObjectEdgeEvent extends AbstractRepositoryEvent implements
   @Override
   public Boolean isValidFor(PublishDTO dto)
   {
-
-    return dto.getHierarchyTypes().anyMatch(this.getEdgeTypeCode()::equals);
+    return dto.getTypes().stream().anyMatch(this.getEdgeType()::equals);
   }
 
 }

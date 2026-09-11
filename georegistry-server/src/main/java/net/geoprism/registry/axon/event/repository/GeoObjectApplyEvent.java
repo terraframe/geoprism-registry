@@ -6,33 +6,34 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.geoprism.registry.view.PublishDTO;
+import net.geoprism.registry.view.TypeInfo;
 
 public class GeoObjectApplyEvent extends AbstractGeoObjectEvent implements GeoObjectEvent, ImportHistoryEvent
 {
-  private String  code;
+  private String   code;
 
-  private String  type;
+  private TypeInfo type;
 
-  private Boolean isNew;
+  private Boolean  isNew;
 
-  private String  object;
+  private String   object;
 
-  private Boolean isImport;
+  private Boolean  isImport;
 
   // Optional ID of the import
-  private String  historyId;
+  private String   historyId;
 
   // Optional start date of the import
-  private Date    startDate;
+  private Date     startDate;
 
   // Optional start date of the import
-  private Date    endDate;
+  private Date     endDate;
 
   public GeoObjectApplyEvent()
   {
   }
 
-  public GeoObjectApplyEvent(String code, String type, Boolean isNew, Boolean isImport, String object)
+  public GeoObjectApplyEvent(String code, TypeInfo type, Boolean isNew, Boolean isImport, String object)
   {
     super(UUID.randomUUID().toString());
 
@@ -43,7 +44,7 @@ public class GeoObjectApplyEvent extends AbstractGeoObjectEvent implements GeoOb
     this.object = object;
   }
 
-  public GeoObjectApplyEvent(String code, String type, Boolean isNew, Boolean isImport, String object, String historyId, Date startDate, Date endDate)
+  public GeoObjectApplyEvent(String code, TypeInfo type, Boolean isNew, Boolean isImport, String object, String historyId, Date startDate, Date endDate)
   {
     super(UUID.randomUUID().toString());
 
@@ -97,12 +98,12 @@ public class GeoObjectApplyEvent extends AbstractGeoObjectEvent implements GeoOb
     this.object = object;
   }
 
-  public String getType()
+  public TypeInfo getType()
   {
     return type;
   }
 
-  public void setType(String type)
+  public void setType(TypeInfo type)
   {
     this.type = type;
   }
@@ -141,7 +142,7 @@ public class GeoObjectApplyEvent extends AbstractGeoObjectEvent implements GeoOb
   @JsonIgnore
   public String getBaseObjectId()
   {
-    return this.code + "#" + this.type + "_O_";
+    return this.code + "#" + this.type.getTypeCode() + "_O_";
   }
 
   @Override
@@ -154,6 +155,6 @@ public class GeoObjectApplyEvent extends AbstractGeoObjectEvent implements GeoOb
   @Override
   public Boolean isValidFor(PublishDTO dto)
   {
-    return dto.getGeoObjectTypes().anyMatch(this.getType()::equals);
+    return dto.getTypes().stream().anyMatch(this.getType()::equals);
   }
 }

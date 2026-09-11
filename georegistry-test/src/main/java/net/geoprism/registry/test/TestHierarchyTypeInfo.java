@@ -15,6 +15,8 @@ import net.geoprism.registry.model.RootGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
+import net.geoprism.registry.view.TypeClass;
+import net.geoprism.registry.view.TypeInfo;
 
 public class TestHierarchyTypeInfo extends TestCachedObject<ServerHierarchyType>
 {
@@ -43,6 +45,11 @@ public class TestHierarchyTypeInfo extends TestCachedObject<ServerHierarchyType>
     this.code = genKey + "Code";
     this.displayLabel = genKey + " Display Label";
     this.org = org;
+  }
+
+  public TypeInfo getTypeInfo()
+  {
+    return new TypeInfo(TypeClass.HIERARCHY, code);
   }
 
   public String getCode()

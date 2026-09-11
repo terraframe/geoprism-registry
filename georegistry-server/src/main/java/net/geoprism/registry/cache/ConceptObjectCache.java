@@ -25,6 +25,7 @@ import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.service.business.ConceptClassBusinessServiceIF;
 import net.geoprism.registry.service.business.ConceptObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
+import net.geoprism.registry.view.TypeInfo;
 
 public class ConceptObjectCache extends LRUCache<String, ConceptObject>
 {
@@ -74,6 +75,11 @@ public class ConceptObjectCache extends LRUCache<String, ConceptObject>
   public ConceptObject getByCode(String code, String typeCode)
   {
     return this.get(typeCode + SEPARATOR + code).orElse(null);
+  }
+
+  public ConceptObject getOrFetchByCode(String code, TypeInfo type)
+  {
+    return this.getOrFetchByCode(code, type.getTypeCode());
   }
 
   public ConceptObject getOrFetchByCode(String code, String typeCode)

@@ -2,20 +2,13 @@ package net.geoprism.registry.axon.event.remote;
 
 import java.util.Date;
 
-import org.axonframework.modelling.command.TargetAggregateIdentifier;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import net.geoprism.registry.view.serialization.DateDeserializer;
-import net.geoprism.registry.view.serialization.DateSerializer;
 import net.geoprism.registry.view.PublishDTO;
 import net.geoprism.registry.view.TypeInfo;
 
-public class RemoteGeoObjectCreateEdgeEvent implements RemoteEvent
+public abstract class RemoteObjectEdgeEvent implements RemoteEvent
 {
-  @TargetAggregateIdentifier
   private String   key;
 
   private String   commitId;
@@ -28,30 +21,26 @@ public class RemoteGeoObjectCreateEdgeEvent implements RemoteEvent
 
   private TypeInfo edgeType;
 
-  @JsonSerialize(using = DateSerializer.class)
-  @JsonDeserialize(using = DateDeserializer.class)
-  private Date     startDate;
-
-  @JsonSerialize(using = DateSerializer.class)
-  @JsonDeserialize(using = DateDeserializer.class)
-  private Date     endDate;
-
   private TypeInfo targetType;
 
   private String   targetCode;
 
+  private Date     startDate;
+
+  private Date     endDate;
+
   private String   dataSource;
 
-  public RemoteGeoObjectCreateEdgeEvent()
+  public RemoteObjectEdgeEvent()
   {
   }
 
-  public RemoteGeoObjectCreateEdgeEvent(String commitId, String sourceCode, TypeInfo sourceType, String edgeUid, TypeInfo edgeType, Date startDate, Date endDate, String targetCode, TypeInfo targetType, String dataSource)
+  public RemoteObjectEdgeEvent(String commitId, String sourceCode, TypeInfo sourceType, String edgeUid, TypeInfo edgeType, String targetCode, TypeInfo targetType, Date startDate, Date endDate, String dataSource)
   {
-    this(commitId, sourceCode + "#" + sourceType, sourceCode, sourceType, edgeUid, edgeType, startDate, endDate, targetCode, targetType, dataSource);
+    this(commitId, sourceCode + "#" + sourceType, sourceCode, sourceType, edgeUid, edgeType, targetCode, targetType, startDate, endDate, dataSource);
   }
 
-  public RemoteGeoObjectCreateEdgeEvent(String commitId, String key, String sourceCode, TypeInfo sourceType, String edgeUid, TypeInfo edgeType, Date startDate, Date endDate, String targetCode, TypeInfo targetType, String dataSource)
+  public RemoteObjectEdgeEvent(String commitId, String key, String sourceCode, TypeInfo sourceType, String edgeUid, TypeInfo edgeType, String targetCode, TypeInfo targetType, Date startDate, Date endDate, String dataSource)
   {
     super();
     this.commitId = commitId;
@@ -60,10 +49,10 @@ public class RemoteGeoObjectCreateEdgeEvent implements RemoteEvent
     this.sourceType = sourceType;
     this.edgeUid = edgeUid;
     this.edgeType = edgeType;
-    this.startDate = startDate;
-    this.endDate = endDate;
     this.targetCode = targetCode;
     this.targetType = targetType;
+    this.startDate = startDate;
+    this.endDate = endDate;
     this.dataSource = dataSource;
   }
 
@@ -127,26 +116,6 @@ public class RemoteGeoObjectCreateEdgeEvent implements RemoteEvent
     this.edgeType = edgeType;
   }
 
-  public Date getStartDate()
-  {
-    return startDate;
-  }
-
-  public void setStartDate(Date startDate)
-  {
-    this.startDate = startDate;
-  }
-
-  public Date getEndDate()
-  {
-    return endDate;
-  }
-
-  public void setEndDate(Date endDate)
-  {
-    this.endDate = endDate;
-  }
-
   public TypeInfo getTargetType()
   {
     return targetType;
@@ -177,11 +146,24 @@ public class RemoteGeoObjectCreateEdgeEvent implements RemoteEvent
     this.dataSource = dataSource;
   }
 
-  @Override
-  @JsonIgnore
-  public String getBaseObjectId()
+  public Date getStartDate()
   {
-    return this.edgeUid;
+    return startDate;
+  }
+
+  public void setStartDate(Date startDate)
+  {
+    this.startDate = startDate;
+  }
+
+  public Date getEndDate()
+  {
+    return endDate;
+  }
+
+  public void setEndDate(Date endDate)
+  {
+    this.endDate = endDate;
   }
 
   @Override
@@ -190,4 +172,10 @@ public class RemoteGeoObjectCreateEdgeEvent implements RemoteEvent
     return !dto.getExclusions().contains(edgeType);
   }
 
+  @Override
+  @JsonIgnore
+  public String getBaseObjectId()
+  {
+    return this.edgeUid;
+  }
 }

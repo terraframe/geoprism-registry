@@ -25,6 +25,7 @@ import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
+import net.geoprism.registry.view.TypeInfo;
 
 public class BusinessObjectCache extends LRUCache<String, BusinessObject>
 {
@@ -76,6 +77,11 @@ public class BusinessObjectCache extends LRUCache<String, BusinessObject>
     return this.get(typeCode + SEPARATOR + code).orElse(null);
   }
 
+  public BusinessObject getOrFetchByCode(String code, TypeInfo type)
+  {
+    return this.getOrFetchByCode(code, type.getTypeCode());
+  }
+
   public BusinessObject getOrFetchByCode(String code, String typeCode)
   {
     return this.get(typeCode, code).orElseGet(() -> {
@@ -86,6 +92,7 @@ public class BusinessObjectCache extends LRUCache<String, BusinessObject>
       this.put(typeCode + SEPARATOR + code, object);
 
       return object;
+
     });
   }
 

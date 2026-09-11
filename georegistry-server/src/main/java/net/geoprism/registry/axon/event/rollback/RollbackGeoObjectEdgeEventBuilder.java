@@ -42,7 +42,7 @@ public class RollbackGeoObjectEdgeEventBuilder extends RollbackEventBuilder
     List<RepositoryEvent> list = new LinkedList<>();
 
     // Reset the edge and the replay all of the events
-    list.add(new RemoveGeoObjectEdgeEvent(this.original.getTargetCode(), this.original.getTargetType(), this.original.getSourceCode(), this.original.getSourceType(), this.original.getEdgeTypeCode(), this.original.getEdgeClassType()));
+    list.add(new RemoveGeoObjectEdgeEvent(this.original.getTargetCode(), this.original.getTargetType(), this.original.getSourceCode(), this.original.getSourceType(), this.original.getEdgeType()));
     list.addAll(this.events);
 
     return list;

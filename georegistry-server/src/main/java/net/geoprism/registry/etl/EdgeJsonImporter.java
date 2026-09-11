@@ -48,6 +48,8 @@ import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.business.EdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
+import net.geoprism.registry.view.TypeClass;
+import net.geoprism.registry.view.TypeInfo;
 
 public class EdgeJsonImporter
 {
@@ -109,14 +111,15 @@ public class EdgeJsonImporter
           JsonObject joEdge = edges.get(j).getAsJsonObject();
 
           String sourceCode = joEdge.get("source").getAsString();
-          String sourceTypeCode = joEdge.get("sourceType").getAsString();
+          TypeInfo sourceType = new TypeInfo(TypeClass.GEO_OBJECT_TYPE, joEdge.get("sourceType").getAsString());
           String targetCode = joEdge.get("target").getAsString();
-          String targetTypeCode = joEdge.get("targetType").getAsString();
+          TypeInfo targetType = new TypeInfo(TypeClass.GEO_OBJECT_TYPE, joEdge.get("targetType").getAsString());
           Date startDate = joEdge.has("startDate") ? GeoRegistryUtil.parseDate(joEdge.get("startDate").getAsString()) : this.startDate;
           Date endDate = joEdge.has("endDate") ? GeoRegistryUtil.parseDate(joEdge.get("endDate").getAsString()) : this.endDate;
 
           // UID
-          GeoObjectApplyEdgeEvent event = new GeoObjectApplyEdgeEvent(sourceCode, sourceTypeCode, edgeType, graphType.getCode(), targetCode, targetTypeCode, startDate, endDate, source.getCode(), ImportStrategy.NEW_ONLY, validate);
+
+          GeoObjectApplyEdgeEvent event = new GeoObjectApplyEdgeEvent(sourceCode, sourceType, graphType.getTypeInfo(), targetCode, targetType, startDate, endDate, source.getCode(), ImportStrategy.NEW_ONLY, validate);
 
           this.gateway.publish(GenericEventMessage.asEventMessage(event));
 

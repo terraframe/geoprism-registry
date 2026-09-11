@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.view.PublishDTO;
-import net.geoprism.registry.view.TypeClass;
 import net.geoprism.registry.view.TypeInfo;
 
 public class RemoteGeoObjectApplyExternalIdEvent implements RemoteEvent
@@ -13,7 +12,7 @@ public class RemoteGeoObjectApplyExternalIdEvent implements RemoteEvent
 
   private String         code;
 
-  private String         type;
+  private TypeInfo       type;
 
   private String         authority;
 
@@ -25,7 +24,7 @@ public class RemoteGeoObjectApplyExternalIdEvent implements RemoteEvent
   {
   }
 
-  public RemoteGeoObjectApplyExternalIdEvent(String commitId, String code, String type, String authority, String externalId, ImportStrategy strategy)
+  public RemoteGeoObjectApplyExternalIdEvent(String commitId, String code, TypeInfo type, String authority, String externalId, ImportStrategy strategy)
   {
     this.commitId = commitId;
     this.code = code;
@@ -56,12 +55,12 @@ public class RemoteGeoObjectApplyExternalIdEvent implements RemoteEvent
     this.code = code;
   }
 
-  public String getType()
+  public TypeInfo getType()
   {
     return type;
   }
 
-  public void setType(String type)
+  public void setType(TypeInfo type)
   {
     this.type = type;
   }
@@ -100,12 +99,12 @@ public class RemoteGeoObjectApplyExternalIdEvent implements RemoteEvent
   @JsonIgnore
   public String getBaseObjectId()
   {
-    return this.code + "#" + this.type + "_S_" + this.authority;
+    return this.code + "#" + this.type.getTypeCode() + "_S_" + this.authority;
   }
 
   @Override
   public boolean isValid(PublishDTO dto)
   {
-    return !dto.getExclusions().contains(TypeInfo.build(type, TypeClass.GEO_OBJECT_TYPE));
+    return !dto.getExclusions().contains(type);
   }
 }

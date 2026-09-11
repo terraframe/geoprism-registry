@@ -6,12 +6,13 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.geoprism.registry.view.ObjectOverTimeDTO;
+import net.geoprism.registry.view.TypeInfo;
 
 public abstract class ObjectApplyEvent extends AbstractRepositoryEvent implements ImportHistoryEvent
 {
   private String            code;
 
-  private String            type;
+  private TypeInfo          type;
 
   private ObjectOverTimeDTO object;
 
@@ -30,7 +31,7 @@ public abstract class ObjectApplyEvent extends AbstractRepositoryEvent implement
   {
   }
 
-  public ObjectApplyEvent(String code, String type, ObjectOverTimeDTO object, Boolean isNew)
+  public ObjectApplyEvent(String code, TypeInfo type, ObjectOverTimeDTO object, Boolean isNew)
   {
     super(UUID.randomUUID().toString());
 
@@ -40,12 +41,12 @@ public abstract class ObjectApplyEvent extends AbstractRepositoryEvent implement
     this.isNew = isNew;
   }
 
-  public String getType()
+  public TypeInfo getType()
   {
     return type;
   }
 
-  public void setType(String type)
+  public void setType(TypeInfo type)
   {
     this.type = type;
   }

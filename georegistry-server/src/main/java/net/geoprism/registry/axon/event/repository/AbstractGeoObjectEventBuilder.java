@@ -13,13 +13,13 @@ import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.graph.SourceAuthority;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.model.EdgeType;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
+import net.geoprism.registry.view.TypeInfo;
 
 public abstract class AbstractGeoObjectEventBuilder<K>
 {
@@ -133,7 +133,7 @@ public abstract class AbstractGeoObjectEventBuilder<K>
 
   public abstract String getCode();
 
-  public abstract String getType();
+  public abstract TypeInfo getType();
 
   protected abstract JsonObject toJSON();
 
@@ -188,12 +188,12 @@ public abstract class AbstractGeoObjectEventBuilder<K>
   {
     String code = dataSource != null ? dataSource.getCode() : null;
 
-    this.events.add(new GeoObjectCreateParentEvent(this.getCode(), this.getType(), edgeUuid, hierarchy.getCode(), startDate, endDate, parent.getCode(), parent.getType().getCode(), code, validate));
+    this.events.add(new GeoObjectCreateParentEvent(this.getCode(), this.getType(), edgeUuid, hierarchy.getTypeInfo(), startDate, endDate, parent.getCode(), parent.getType().getTypeInfo(), code, validate));
   }
 
   public void removeParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchy, Date startDate, Date endDate, String edgeUuid)
   {
-    this.events.add(new GeoObjectRemoveParentEvent(this.getCode(), this.getType(), edgeUuid, hierarchy.getCode(), startDate, endDate));
+    this.events.add(new GeoObjectRemoveParentEvent(this.getCode(), this.getType(), edgeUuid, hierarchy.getTypeInfo(), startDate, endDate));
   }
 
   public void addExternalId(SourceAuthority authority, String id, ImportStrategy strategy)
@@ -206,12 +206,11 @@ public abstract class AbstractGeoObjectEventBuilder<K>
     this.events.add(new GeoObjectRemoveExternalIdEvent(this.getCode(), this.getType(), authority.getCode()));
   }
 
-  public void addEdge(ServerGeoObjectIF target, GraphType graphType, Date startDate, Date endDate, String edgeUuid, DataSource source, ImportStrategy strategy, Boolean validate)
+  public void addEdge(ServerGeoObjectIF target, GraphType graphType, Date startDate, Date endDate, String edgeUid, DataSource source, ImportStrategy strategy, Boolean validate)
   {
-    String typeCode = EdgeType.getTypeCode(graphType);
-    String code = source != null ? source.getCode() : null;
+    String sourceCode = source != null ? source.getCode() : null;
 
-    this.events.add(new GeoObjectApplyEdgeEvent(this.getCode(), this.getType(), typeCode, graphType.getCode(), target.getCode(), target.getType().getCode(), startDate, endDate, code, strategy, validate));
+    this.events.add(new GeoObjectApplyEdgeEvent(edgeUid, this.getCode(), this.getType(), graphType.getTypeInfo(), target.getCode(), target.getType().getTypeInfo(), startDate, endDate, sourceCode, strategy, validate, null));
   }
 
   public void setParents(ServerParentTreeNodeOverTime parentsOverTime, DataSource dataSource)

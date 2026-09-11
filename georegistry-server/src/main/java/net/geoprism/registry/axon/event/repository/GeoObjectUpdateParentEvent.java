@@ -3,38 +3,40 @@ package net.geoprism.registry.axon.event.repository;
 import java.util.Date;
 import java.util.UUID;
 
+import net.geoprism.registry.view.TypeInfo;
+
 public class GeoObjectUpdateParentEvent extends AbstractHierarchyEvent implements GeoObjectEvent
 {
-  private String code;
+  private String   code;
 
-  private String type;
+  private TypeInfo type;
 
-  private String edgeUid;
+  private String   edgeUid;
 
-  private String edgeTypeCode;
+  private TypeInfo edgeType;
 
-  private Date   startDate;
+  private Date     startDate;
 
-  private Date   endDate;
+  private Date     endDate;
 
-  private String parentType;
+  private TypeInfo parentType;
 
-  private String parentCode;
+  private String   parentCode;
 
-  private String dataSource;
+  private String   dataSource;
 
   public GeoObjectUpdateParentEvent()
   {
   }
 
-  public GeoObjectUpdateParentEvent(String code, String type, String edgeUid, String edgeType, Date startDate, Date endDate, String parentCode, String parentType, String dataSource)
+  public GeoObjectUpdateParentEvent(String code, TypeInfo type, String edgeUid, TypeInfo edgeType, Date startDate, Date endDate, String parentCode, TypeInfo parentType, String dataSource)
   {
     super(UUID.randomUUID().toString());
 
     this.code = code;
     this.type = type;
     this.edgeUid = edgeUid;
-    this.edgeTypeCode = edgeType;
+    this.edgeType = edgeType;
     this.startDate = startDate;
     this.endDate = endDate;
     this.parentType = parentType;
@@ -47,17 +49,12 @@ public class GeoObjectUpdateParentEvent extends AbstractHierarchyEvent implement
     return code;
   }
 
-  public void setCode(String code)
-  {
-    this.code = code;
-  }
-
-  public String getType()
+  public TypeInfo getType()
   {
     return type;
   }
 
-  public void setType(String type)
+  public void setType(TypeInfo type)
   {
     this.type = type;
   }
@@ -72,14 +69,14 @@ public class GeoObjectUpdateParentEvent extends AbstractHierarchyEvent implement
     this.edgeUid = edgeUid;
   }
 
-  public String getEdgeTypeCode()
+  public TypeInfo getEdgeType()
   {
-    return edgeTypeCode;
+    return edgeType;
   }
 
-  public void setEdgeTypeCode(String edgeTypeCode)
+  public void setEdgeType(TypeInfo edgeType)
   {
-    this.edgeTypeCode = edgeTypeCode;
+    this.edgeType = edgeType;
   }
 
   public Date getStartDate()
@@ -102,12 +99,12 @@ public class GeoObjectUpdateParentEvent extends AbstractHierarchyEvent implement
     this.endDate = endDate;
   }
 
-  public String getParentType()
+  public TypeInfo getParentType()
   {
     return parentType;
   }
 
-  public void setParentType(String parentType)
+  public void setParentType(TypeInfo parentType)
   {
     this.parentType = parentType;
   }
@@ -131,4 +128,10 @@ public class GeoObjectUpdateParentEvent extends AbstractHierarchyEvent implement
   {
     this.dataSource = dataSource;
   }
+
+  public void setCode(String code)
+  {
+    this.code = code;
+  }
+
 }

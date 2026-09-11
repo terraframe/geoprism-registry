@@ -169,7 +169,8 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
     cObject = createBusinessObject("C_CODE", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
 
     addBusinessEdge();
-    addDirectedAcyclicEdge();
+    addDirectedAcyclicEdge(USATestData.COLORADO, USATestData.CANADA);
+    addDirectedAcyclicEdge(USATestData.COLORADO, USATestData.USA);
     addUndirectedEdge();
     addExternalId("TEST EXTERNAL ID");
   }
@@ -200,14 +201,6 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
     return edgeUid;
   }
 
-  protected String addDirectedAcyclicEdge()
-  {
-    TestGeoObjectInfo source = USATestData.COLORADO;
-    TestGeoObjectInfo target = USATestData.CANADA;
-
-    return addDirectedAcyclicEdge(source, target);
-  }
-
   protected String addDirectedAcyclicEdge(TestGeoObjectInfo source, TestGeoObjectInfo target)
   {
     String edgeUid = UUID.randomUUID().toString();
@@ -224,13 +217,13 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
   }
 
   @Override
-  protected void addConceptEdge(ConceptObject parent, ConceptEdgeType edge, ConceptObject child)
+  protected String addConceptEdge(ConceptObject parent, ConceptEdgeType edge, ConceptObject child)
   {
     List<Pair<ConceptObject, ConceptEdgeType>> targets = Arrays.asList( //
         new Pair<ConceptObject, ConceptEdgeType>(parent, edge) //
     );
 
-    createConceptEdges(child, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getDataSource(), targets);
+    return createConceptEdges(child, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getDataSource(), targets).get(0);
   }
 
   protected void addBusinessEdge()

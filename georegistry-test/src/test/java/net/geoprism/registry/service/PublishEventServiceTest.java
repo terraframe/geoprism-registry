@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.axonframework.eventhandling.GenericEventMessage;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
+import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.graph.BusinessEdgeTypeSnapshot;
@@ -59,12 +61,15 @@ import net.geoprism.registry.service.business.CommitBusinessServiceIF;
 import net.geoprism.registry.service.business.ConceptEdgeTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.ConceptSetSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
+import net.geoprism.registry.service.business.EdgeObjectBusinessService;
+import net.geoprism.registry.service.business.EventBusinessService;
 import net.geoprism.registry.service.business.GeoObjectTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.GraphTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.PublishBusinessServiceIF;
 import net.geoprism.registry.service.business.PublishEventService;
 import net.geoprism.registry.service.business.SourceAuthorityBusinessServiceIF;
+import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.CommitDTO;
 import net.geoprism.registry.view.ConceptClassDTO;
@@ -123,7 +128,34 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
   @Autowired
   private SourceAuthorityBusinessServiceIF          authorityService;
 
+  @Autowired
+  private EventBusinessService                      eventService;
+
+  @Autowired
+  private EdgeObjectBusinessService                 eObjectService;
+
   private static boolean                            WRITE_FILES = false;
+
+  private static String                             edgeUid;
+
+  @Override
+  protected String addDirectedAcyclicEdge(TestGeoObjectInfo source, TestGeoObjectInfo target)
+  {
+    edgeUid = super.addDirectedAcyclicEdge(source, target);
+
+    return edgeUid;
+  }
+
+  @Before
+  @Request
+  public void setUp() throws Exception
+  {
+    super.setUp();
+
+    EdgeObject edge = this.eObjectService.getByUid(dagType, edgeUid).get();
+
+    this.eventService.remove(dagType, edge);
+  }
 
   @Test
   @Request
@@ -135,7 +167,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
     System.out.println("");
     System.out.println("");
 
-    Assert.assertEquals(Long.valueOf(53L), this.store.size());
+    Assert.assertEquals(Long.valueOf(55L), this.store.size());
 
     try
     {
@@ -235,11 +267,11 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
         Assert.assertEquals(1, authorities.size());
         Assert.assertEquals(USATestData.AUTHORITY.getCode(), authorities.get(0).getCode());
 
-        Assert.assertEquals(Long.valueOf(106L), this.store.size());
+        Assert.assertEquals(Long.valueOf(109L), this.store.size());
 
         List<RemoteEvent> events = this.cService.getRemoteEvents(commit).toList();
 
-        Assert.assertEquals(48, events.size());
+        Assert.assertEquals(49, events.size());
 
         // Validate the concept set dependencies
         List<Commit> dependencies = this.cService.getDependencies(commit);
@@ -326,7 +358,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
     try
     {
-      Assert.assertEquals(Long.valueOf(53L), this.store.size());
+      Assert.assertEquals(Long.valueOf(55L), this.store.size());
 
       PublishDTO dto = new PublishDTO("USA Geospatial Graph", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       dto.addHierarchyType(testData.getManagedHierarchyTypes().stream().map(t -> t.getCode()).toArray(s -> new String[s]));
@@ -413,8 +445,8 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
         Assert.assertEquals(1, dependencies.size());
 
-        Assert.assertEquals(48, this.cService.getRemoteEvents(commit).toList().size());
-        Assert.assertEquals(Long.valueOf(106), this.store.size());
+        Assert.assertEquals(49, this.cService.getRemoteEvents(commit).toList().size());
+        Assert.assertEquals(Long.valueOf(109), this.store.size());
 
         // Update a geo object
         ServerGeoObjectIF object = USATestData.COLORADO.getServerObject();
@@ -426,7 +458,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
         gateway.publish(builder.build().stream().map(GenericEventMessage::asEventMessage).toList());
 
-        Assert.assertEquals(Long.valueOf(107), this.store.size());
+        Assert.assertEquals(Long.valueOf(110), this.store.size());
 
         // Create a new commit with the new change
         Commit commit2 = this.service.createNewCommit(publish);

@@ -490,11 +490,11 @@ public class RelationshipVisualizationService
 
   public static void enforceCanReadBusinessData(BusinessType type)
   {
-    // TODO
-    if (false)
-    {
-      throw new IllegalArgumentException("The user cannot read the requested business type.");
-    }
+//    // TODO
+//    if (false)
+//    {
+//      throw new IllegalArgumentException("The user cannot read the requested business type.");
+//    }
   }
 
   private void addRelatedType(Map<String, JsonObject> relatedTypes, BusinessType type)

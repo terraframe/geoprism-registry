@@ -1,6 +1,6 @@
 package net.geoprism.registry.axon.event.repository;
 
-public interface BusinessObjectEvent extends RepositoryEvent
+public interface BaseObjectEvent extends RepositoryEvent
 {
 
   String getBaseObjectId();

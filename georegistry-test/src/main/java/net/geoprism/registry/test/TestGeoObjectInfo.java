@@ -392,7 +392,7 @@ public class TestGeoObjectInfo extends TestCachedObject<ServerGeoObjectIF>
   @Request
   public void updateParent(TestGeoObjectInfo parent, TestHierarchyTypeInfo hierarchy, String edgeUid, Date startDate, Date endDate)
   {
-    GeoObjectUpdateParentEvent event = new GeoObjectUpdateParentEvent(this.code, this.geoObjectType.getCode(), edgeUid, hierarchy.getCode(), startDate, endDate, parent.getCode(), parent.getGeoObjectType().getCode(), source.getCode());
+    GeoObjectUpdateParentEvent event = new GeoObjectUpdateParentEvent(this.code, this.geoObjectType.getTypeInfo(), edgeUid, hierarchy.getTypeInfo(), startDate, endDate, parent.getCode(), parent.getGeoObjectType().getTypeInfo(), source.getCode());
 
     EventGateway gateway = ServiceFactory.getBean(EventGateway.class);
     gateway.publish(GenericEventMessage.asEventMessage(event));

@@ -162,9 +162,13 @@ public abstract class ConceptDatasetTest extends DatasetTest
     return concept;
   }
 
-  protected void addConceptEdge(ConceptObject parent, ConceptEdgeType edge, ConceptObject child)
+  protected String addConceptEdge(ConceptObject parent, ConceptEdgeType edge, ConceptObject child)
   {
-    this.cObjectService.addChild(parent, edge, child, UUID.randomUUID().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, null);
+    String edgeUId = UUID.randomUUID().toString();
+
+    this.cObjectService.addChild(parent, edge, child, edgeUId, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, null);
+
+    return edgeUId;
   }
 
   public ConceptClassDTO mockConceptClass()

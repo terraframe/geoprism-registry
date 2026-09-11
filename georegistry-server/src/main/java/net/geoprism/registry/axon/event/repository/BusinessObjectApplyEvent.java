@@ -2,14 +2,15 @@ package net.geoprism.registry.axon.event.repository;
 
 import net.geoprism.registry.view.ObjectOverTimeDTO;
 import net.geoprism.registry.view.PublishDTO;
+import net.geoprism.registry.view.TypeInfo;
 
-public class BusinessObjectApplyEvent extends ObjectApplyEvent implements BusinessObjectEvent
+public class BusinessObjectApplyEvent extends ObjectApplyEvent implements BaseObjectEvent
 {
   public BusinessObjectApplyEvent()
   {
   }
 
-  public BusinessObjectApplyEvent(String code, String type, ObjectOverTimeDTO object, Boolean isNew)
+  public BusinessObjectApplyEvent(String code, TypeInfo type, ObjectOverTimeDTO object, Boolean isNew)
   {
     super(code, type, object, isNew);
   }
@@ -23,6 +24,6 @@ public class BusinessObjectApplyEvent extends ObjectApplyEvent implements Busine
   @Override
   public Boolean isValidFor(PublishDTO dto)
   {
-    return dto.getBusinessTypes().anyMatch(this.getType()::equals);
+    return dto.getTypes().stream().anyMatch(this.getType()::equals);
   }
 }

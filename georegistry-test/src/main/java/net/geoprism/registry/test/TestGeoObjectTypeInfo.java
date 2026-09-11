@@ -20,6 +20,8 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
+import net.geoprism.registry.view.TypeClass;
+import net.geoprism.registry.view.TypeInfo;
 
 public class TestGeoObjectTypeInfo extends TestCachedObject<ServerGeoObjectType>
 {
@@ -87,6 +89,11 @@ public class TestGeoObjectTypeInfo extends TestCachedObject<ServerGeoObjectType>
     this.isLeaf = false; // Leaf types are not supported anymore
     this.organization = organization;
     this.isPrivate = isPrivate;
+  }
+
+  public TypeInfo getTypeInfo()
+  {
+    return new TypeInfo(TypeClass.GEO_OBJECT_TYPE, code);
   }
 
   public String getCode()

@@ -1,6 +1,8 @@
 package net.geoprism.registry.axon.event.repository;
 
-public abstract class AbstractGeoObjectEdgeEvent extends AbstractGeoObjectEvent
+import net.geoprism.registry.view.TypeInfo;
+
+public abstract class AbstractGeoObjectEdgeEvent extends AbstractGeoObjectEvent implements ObjectEdgeEventIF
 {
   public AbstractGeoObjectEdgeEvent()
   {
@@ -12,16 +14,14 @@ public abstract class AbstractGeoObjectEdgeEvent extends AbstractGeoObjectEvent
     super(eventId);
   }
 
-  public abstract String getSourceType();
+  public abstract TypeInfo getSourceType();
 
   public abstract String getSourceCode();
 
-  public abstract String getTargetType();
+  public abstract TypeInfo getTargetType();
 
   public abstract String getTargetCode();
 
-  public abstract String getEdgeTypeCode();
-
-  public abstract String getEdgeClassType();
+  public abstract TypeInfo getEdgeType();
 
 }

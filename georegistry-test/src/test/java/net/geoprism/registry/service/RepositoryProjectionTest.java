@@ -5,6 +5,7 @@ package net.geoprism.registry.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.EventDatasetTest;
@@ -27,15 +29,19 @@ import net.geoprism.registry.axon.event.repository.ConceptObjectEventBuilder;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectEventBuilder;
 import net.geoprism.registry.axon.event.repository.RepositoryEvent;
+import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.axon.projection.RepositoryProjection;
 import net.geoprism.registry.config.TestApplication;
+import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.ConceptObject;
+import net.geoprism.registry.model.ServerChildGraphNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.query.graph.VertexAndEdgeQuery.EdgeQueryObject;
 import net.geoprism.registry.service.business.EdgeObjectBusinessService;
 import net.geoprism.registry.service.business.EventBusinessService;
 import net.geoprism.registry.test.TestDataSet;
+import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.USATestData;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
@@ -54,14 +60,36 @@ public class RepositoryProjectionTest extends EventDatasetTest implements Instan
   private EdgeObjectBusinessService eObjectService;
 
   @Override
+  @Request
   public void setUp() throws Exception
   {
     USATestData.COLORADO.removeDefaultValue(testClassification.getCode());
+
+    this.store.truncate();
   }
 
   @Override
+  @Request
   public void tearDown() throws Exception
   {
+    this.store.truncate();
+  }
+
+  public ServerGeoObjectIF createGeoObject(TestGeoObjectInfo info)
+  {
+    ServerGeoObjectIF object = this.gObjectService.newInstance(info.getGeoObjectType().getServerObject());
+    GeoObjectOverTime dto = this.gObjectService.toGeoObjectOverTime(object);
+
+    info.populate(dto);
+
+    GeoObjectEventBuilder builder = new GeoObjectEventBuilder(gObjectService);
+    builder.setObject(dto, true, false);
+
+    List<RepositoryEvent> events = builder.build();
+
+    this.projection.handleApplyGeoObject((GeoObjectApplyEvent) events.get(0));
+
+    return this.gObjectService.getGeoObjectByCode(info.getCode(), info.getGeoObjectType().getCode());
   }
 
   @Test
@@ -158,6 +186,33 @@ public class RepositoryProjectionTest extends EventDatasetTest implements Instan
     });
 
     Assert.assertEquals(0, this.cObjectService.getEdgeChildren(parent, cEdgeType, TestDataSet.DEFAULT_OVER_TIME_DATE).size());
+  }
+
+  @Test
+  @Request
+  public void testHandleApplyDagEdge() throws InterruptedException
+  {
+    ServerGeoObjectIF colorado = createGeoObject(USATestData.USA);
+    ServerGeoObjectIF canada = createGeoObject(USATestData.CANADA);
+    String edgeUid = UUID.randomUUID().toString();
+
+    ServerGeoObjectEventBuilder builder = new ServerGeoObjectEventBuilder(gObjectService);
+    builder.setObject(colorado, false, false);
+    builder.addEdge(canada, dagType, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_OVER_TIME_DATE, edgeUid, null, ImportStrategy.NEW_AND_UPDATE, true);
+
+    this.eventService.publish(builder.build());
+
+    ServerChildGraphNode results = this.gObjectService.getGraphChildGeoObjects(colorado, dagType, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
+
+    Assert.assertEquals(1, results.getChildren().size());
+
+    EdgeObject edge = this.eObjectService.getByUid(dagType, edgeUid).get();
+
+    this.eventService.remove(dagType, edge);
+
+    results = this.gObjectService.getGraphChildGeoObjects(colorado, dagType, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
+
+    Assert.assertEquals(0, results.getChildren().size());
   }
 
 }

@@ -6,12 +6,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.view.PublishDTO;
+import net.geoprism.registry.view.TypeInfo;
 
 public class GeoObjectApplyExternalIdEvent extends AbstractGeoObjectEvent implements GeoObjectEvent
 {
   private String         code;
 
-  private String         type;
+  private TypeInfo       type;
 
   private String         authority;
 
@@ -23,7 +24,7 @@ public class GeoObjectApplyExternalIdEvent extends AbstractGeoObjectEvent implem
   {
   }
 
-  public GeoObjectApplyExternalIdEvent(String code, String type, String authority, String externalId, ImportStrategy strategy)
+  public GeoObjectApplyExternalIdEvent(String code, TypeInfo type, String authority, String externalId, ImportStrategy strategy)
   {
     super(UUID.randomUUID().toString());
 
@@ -44,12 +45,12 @@ public class GeoObjectApplyExternalIdEvent extends AbstractGeoObjectEvent implem
     this.code = code;
   }
 
-  public String getType()
+  public TypeInfo getType()
   {
     return type;
   }
 
-  public void setType(String type)
+  public void setType(TypeInfo type)
   {
     this.type = type;
   }
@@ -101,6 +102,6 @@ public class GeoObjectApplyExternalIdEvent extends AbstractGeoObjectEvent implem
   @Override
   public Boolean isValidFor(PublishDTO dto)
   {
-    return dto.getGeoObjectTypes().anyMatch(this.getType()::equals);
+    return dto.getTypes().stream().anyMatch(this.getType()::equals);
   }
 }
