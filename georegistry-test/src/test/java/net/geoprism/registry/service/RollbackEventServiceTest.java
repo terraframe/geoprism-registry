@@ -63,12 +63,15 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
   private static ConceptObject      pConcept;
 
   @Override
+  @Request
   public void setUp()
   {
     // Do not create any data
 
     // Do not set a value for the classification attribute
     USATestData.COLORADO.removeDefaultValue(testClassification.getCode());
+
+    this.store.truncate();
   }
 
   @After

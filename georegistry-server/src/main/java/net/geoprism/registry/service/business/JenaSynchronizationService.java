@@ -38,6 +38,7 @@ import net.geoprism.registry.axon.event.remote.RemoteGeoObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectSetParentEvent;
 import net.geoprism.registry.axon.event.remote.RemoteObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteObjectApplyEvent;
+import net.geoprism.registry.axon.event.remote.RemoteObjectRemoveEdgeEvent;
 import net.geoprism.registry.etl.JenaExportConfig;
 import net.geoprism.registry.etl.export.ExportHistory;
 import net.geoprism.registry.etl.export.ExportStage;
@@ -142,6 +143,10 @@ public class JenaSynchronizationService
         else if (event instanceof RemoteObjectApplyEdgeEvent)
         {
           this.handleRemoteCreateEdge(commit, (RemoteObjectApplyEdgeEvent) event, config, model.get());
+        }
+        else if (event instanceof RemoteObjectRemoveEdgeEvent)
+        {
+          this.handleRemoteRemoveEdge(commit, (RemoteObjectRemoveEdgeEvent) event, config, model.get());
         }
         else if (event instanceof RemoteGeoObjectCreateEdgeEvent)
         {
@@ -413,6 +418,23 @@ public class JenaSynchronizationService
         buildObjectUri(config, event.getTargetCode(), event.getTargetType().getTypeCode()));
 
     // this.service.load(GRAPH_NAME, model, config);
+  }
+
+  public void handleRemoteRemoveEdge(Commit commit, RemoteObjectRemoveEdgeEvent event, JenaExportConfig config, Model model)
+  {
+    logger.trace("Jena Projection - Handling remote remove edge");
+
+    String subjectUri = buildObjectUri(config, event.getSourceCode(), event.getSourceType().getTypeCode());
+    String edgeUri = config.getNamespace() + "#" + event.getEdgeType();
+    String objectUri = buildObjectUri(config, event.getTargetCode(), event.getTargetType().getTypeCode());
+
+    List<String> statements = new LinkedList<>();
+    statements.add("DELETE WHERE { GRAPH <" + config.getGraph() + "> { <" + subjectUri + "> <" + edgeUri + "> <" + objectUri + ">}}");
+
+    if (!commit.getVersionNumber().equals(Integer.valueOf(1)))
+    {
+      this.service.update(statements, config);
+    }
   }
 
   protected String getSrs(Geometry geom)
