@@ -36,8 +36,12 @@ import net.geoprism.registry.axon.event.remote.RemoteEvent;
 import net.geoprism.registry.model.DataSourceDTO;
 import net.geoprism.registry.model.SourceAuthorityDTO;
 import net.geoprism.registry.service.request.CommitService;
+import net.geoprism.registry.view.BusinessEdgeTypeDTO;
 import net.geoprism.registry.view.BusinessTypeDTO;
 import net.geoprism.registry.view.CommitDTO;
+import net.geoprism.registry.view.ConceptClassDTO;
+import net.geoprism.registry.view.ConceptEdgeTypeDTO;
+import net.geoprism.registry.view.ConceptSetDTO;
 
 @RestController
 @Validated
@@ -74,9 +78,9 @@ public class CommitController extends RunwaySpringController
   @GetMapping("/business-types")
   public ResponseEntity<List<BusinessTypeDTO>> getBusinessTypes(@RequestParam(name = "uid") String uid)
   {
-     List<BusinessTypeDTO> response = this.service.getBusinessTypes(this.getSessionId(), uid);
+    List<BusinessTypeDTO> response = this.service.getBusinessTypes(this.getSessionId(), uid);
 
-     return ResponseEntity.ok(response);
+    return ResponseEntity.ok(response);
   }
 
   @GetMapping("/geo-object-types")
@@ -88,11 +92,35 @@ public class CommitController extends RunwaySpringController
   }
 
   @GetMapping("/business-edge-types")
-  public ResponseEntity<String> getBusinessEdgeTypes(@RequestParam(name = "uid") String uid)
+  public ResponseEntity<List<BusinessEdgeTypeDTO>> getBusinessEdgeTypes(@RequestParam(name = "uid") String uid)
   {
-    JsonArray response = this.service.getBusinessEdgeTypes(this.getSessionId(), uid);
+    List<BusinessEdgeTypeDTO> response = this.service.getBusinessEdgeTypes(this.getSessionId(), uid);
 
-    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/concept-edge-types")
+  public ResponseEntity<List<ConceptEdgeTypeDTO>> getConceptEdgeTypes(@RequestParam(name = "uid") String uid)
+  {
+    List<ConceptEdgeTypeDTO> response = this.service.getConceptEdgeTypes(this.getSessionId(), uid);
+
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/concept-classes")
+  public ResponseEntity<List<ConceptClassDTO>> getConceptClasses(@RequestParam(name = "uid") String uid)
+  {
+    List<ConceptClassDTO> response = this.service.getConceptClasses(this.getSessionId(), uid);
+
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/concept-sets")
+  public ResponseEntity<List<ConceptSetDTO>> getConceptSets(@RequestParam(name = "uid") String uid)
+  {
+    List<ConceptSetDTO> response = this.service.getConceptSets(this.getSessionId(), uid);
+
+    return ResponseEntity.ok(response);
   }
 
   @GetMapping("/hierarchy-types")
@@ -131,10 +159,10 @@ public class CommitController extends RunwaySpringController
   public ResponseEntity<List<SourceAuthorityDTO>> getAuthorities(@RequestParam(name = "uid") String uid)
   {
     List<SourceAuthorityDTO> sources = this.service.getAuthorities(this.getSessionId(), uid);
-    
+
     return ResponseEntity.ok(sources);
   }
-  
+
   @GetMapping("/events")
   public ResponseEntity<List<RemoteEvent>> getEvents(@RequestParam(name = "uid") String uid, @RequestParam(name = "chunk") Integer chunk)
   {

@@ -27,6 +27,8 @@ import net.geoprism.registry.graph.ConceptClass;
 import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.test.TestOrganizationInfo;
 import net.geoprism.registry.test.USATestData;
+import net.geoprism.registry.view.ConceptSetDTO;
+import net.geoprism.registry.view.DiscreteType;
 import net.geoprism.registry.view.ObjectOverTimeDTO;
 import net.geoprism.registry.view.ValueOverTimeEntryDTO;
 
@@ -42,6 +44,15 @@ public class ConceptObjectServiceTest extends ConceptDatasetTest implements Inst
   private static AttributeType attributeOverTime;
 
   private static ConceptClass  secondClass;
+
+  public ConceptSetDTO mockConceptSet(String code, String label, String description)
+  {
+    ConceptSetDTO dto = super.mockConceptSet(code, label, description);
+    dto.setDiscreteType(DiscreteType.ENUMERATION);
+    dto.setRootTerm(null);
+
+    return dto;
+  }
 
   @Override
   protected TestOrganizationInfo getOrganization()
@@ -180,6 +191,7 @@ public class ConceptObjectServiceTest extends ConceptDatasetTest implements Inst
     {
       ConceptObject result = this.cObjectService.getByCode(cSet, object.getCode()).orElse(null);
 
+      Assert.assertNotNull(result);
       Assert.assertEquals(object.getVertex().getOid(), result.getVertex().getOid());
     }
     finally

@@ -14,6 +14,7 @@ import com.runwaysdk.session.Request;
 import net.geoprism.graph.BusinessEdgeTypeSnapshot;
 import net.geoprism.graph.BusinessTypeSnapshot;
 import net.geoprism.graph.ConceptClassSnapshot;
+import net.geoprism.graph.ConceptEdgeTypeSnapshot;
 import net.geoprism.graph.DirectedAcyclicGraphTypeSnapshot;
 import net.geoprism.graph.GeoObjectTypeSnapshot;
 import net.geoprism.graph.HierarchyTypeSnapshot;
@@ -50,6 +51,12 @@ public class RemoteCommitService
 
   @Autowired
   private ConceptClassSnapshotBusinessServiceIF     cClassService;
+
+  @Autowired
+  private ConceptEdgeTypeSnapshotBusinessServiceIF  cEdgeTypeService;
+
+  @Autowired
+  private ConceptSetSnapshotBusinessServiceIF       cSetService;
 
   @Autowired
   private GraphTypeSnapshotBusinessServiceIF        graphTypeService;
@@ -134,11 +141,34 @@ public class RemoteCommitService
       // Copy the metadata for the remote types
       GeoObjectTypeSnapshot root = this.snapshotService.createRoot(commit);
 
+      // 1) create the concept classes - MUST BE FIRST
       client.getConceptClasses(commit.getUid()).forEach(dto -> {
 
+        // Save the snapshot
         ConceptClassSnapshot snapshot = this.cClassService.create(commit, dto);
 
+        // Create the type if it doesn't exist or update its current values
         this.snapshotService.createType(snapshot);
+      });
+
+      // 2) create the concept classes - MUST BE SECOND
+      client.getConceptEdgeTypes(commit.getUid()).forEach(dto -> {
+
+        // Save the snapshot
+        this.cEdgeTypeService.create(commit, dto);
+
+        // Create the type if it doesn't exist or update its current values
+        this.snapshotService.createType(dto);
+      });
+
+      // 3) create the concept sets - MUST BE THIRD
+      client.getConceptSets(commit.getUid()).forEach(dto -> {
+
+        // Save the snapshot
+        this.cSetService.create(commit, dto);
+
+        // Create the type if it doesn't exist or update its current values
+        this.snapshotService.createType(dto);
       });
 
       client.getBusinessTypes(commit.getUid()).forEach(dto -> {
@@ -172,10 +202,12 @@ public class RemoteCommitService
         this.snapshotService.createType(snapshot, root);
       });
 
-      client.getBusinessEdgeTypes(commit.getUid()).forEach(element -> {
-        BusinessEdgeTypeSnapshot snapshot = this.bEdgeTypeService.create(commit, element.getAsJsonObject());
+      client.getBusinessEdgeTypes(commit.getUid()).forEach(dto -> {
+        // Save the snapshot
+        this.bEdgeTypeService.create(commit, dto);
 
-        this.snapshotService.createType(snapshot);
+        // Create the type if it doesn't exist or update its current values
+        this.snapshotService.createType(dto);
       });
 
       this.metadataService.refreshMetadataCache();

@@ -65,7 +65,7 @@ public class SnapshotBusinessServiceTest extends EventDatasetTest
   @Override
   @Before
   @Request
-  public void setUp()
+  public void setUp() throws Exception
   {
     super.setUp();
 
@@ -76,7 +76,7 @@ public class SnapshotBusinessServiceTest extends EventDatasetTest
   @Override
   @After
   @Request
-  public void tearDown()
+  public void tearDown() throws Exception
   {
     this.commitService.delete(commit);
     this.publishService.delete(publish);

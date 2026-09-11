@@ -45,9 +45,9 @@ public class SearchServiceTest extends FastDatasetTest implements InstanceTestCl
   private SearchService                 service;
 
   @Before
-  public void setUp()
+  public void setUp() throws Exception
   {
-    testData.setUpInstanceData();
+    super.setUp();
 
     BELIZE_CITY.apply();
     // HALF_LIFE.apply();
@@ -55,15 +55,11 @@ public class SearchServiceTest extends FastDatasetTest implements InstanceTestCl
     EXACT_MATCH_TEST.apply();
     EXACT_MATCH_FAIL.apply();
     EXACT_WRONG_FAIL.apply();
-
-    testData.logIn(FastTestDataset.USER_ADMIN);
   }
 
   @After
-  public void tearDown()
+  public void tearDown() throws Exception
   {
-    testData.logOut();
-
     BELIZE_CITY.delete();
     // HALF_LIFE.delete();
     // HALFLIFE.delete();
@@ -71,7 +67,7 @@ public class SearchServiceTest extends FastDatasetTest implements InstanceTestCl
     EXACT_MATCH_FAIL.delete();
     EXACT_WRONG_FAIL.delete();
 
-    testData.tearDownInstanceData();
+    super.tearDown();
   }
 
   @Test

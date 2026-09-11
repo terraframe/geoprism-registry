@@ -21,6 +21,8 @@ public interface RemoteEvent
 {
   public String getCommitId();
 
+  public void setCommitId(String commitId);
+
   public boolean isValid(PublishDTO dto);
 
   public String getBaseObjectId();

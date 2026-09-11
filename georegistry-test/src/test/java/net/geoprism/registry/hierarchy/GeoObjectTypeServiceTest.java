@@ -90,23 +90,19 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
   }
 
   @Before
-  public void setUp()
+  public void setUp() throws Exception
   {
-    testData.setUpInstanceData();
+    super.setUp();
 
     setUpExtras();
-
-    // testData.logIn(FastTestDataset.USER_CGOV_RA);
   }
 
   @After
-  public void tearDown()
+  public void tearDown() throws Exception
   {
-    // testData.logOut();
-
     cleanUpExtras();
 
-    testData.tearDownInstanceData();
+    super.tearDown();
   }
 
   private void cleanUpExtras()
@@ -663,12 +659,12 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
   private void checkMdGraphAttributes(String code)
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(code);
-    
+
     Assert.assertTrue(type.getAttribute(DefaultAttribute.UID.getName()).isPresent());
 
     // DefaultAttribute.CODE - defined by GeoEntity geoId
     Assert.assertTrue(type.getAttribute(DefaultAttribute.CODE.getName()).isPresent());
-    
+
     MdVertexDAOIF mdGraphClassDAOIF = type.getMdVertexDAO();
 
     // DefaultAttribute.CREATED_DATE - The create data on the GeoObject?

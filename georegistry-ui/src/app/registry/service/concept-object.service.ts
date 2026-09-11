@@ -22,7 +22,7 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 
 import { EventService } from "@shared/service";
 import { ObjectService } from "./object.service";
-import { ObjectOverTime, ObjectOverTimeNode } from "@registry/model/object-class";
+import { ObjectAtTime, ObjectNode, ObjectOverTime } from "@registry/model/object-class";
 import { environment } from "src/environments/environment";
 import { finalize, firstValueFrom } from "rxjs";
 import { AttributedType, AttributeType } from "@registry/model/registry";
@@ -40,6 +40,20 @@ export class ConceptObjectService extends ObjectService {
         return "/api/concept-object";
     }
 
+    getByCode(code: string, date: string): Promise<ObjectAtTime> {
+        let params: HttpParams = new HttpParams();
+        params = params.append("code", code);
+        params = params.append("date", date);
+
+        this.eventService.start();
+
+        return firstValueFrom(this.http.get<ObjectAtTime>(environment.apiUrl + this.controller() + "/get-by-code", { params: params })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            })));
+    }
+
+
     searchConceptClass(conceptClass: string, text: string): Promise<ObjectOverTime[]> {
         let params: HttpParams = new HttpParams();
         params = params.append("conceptClass", conceptClass);
@@ -48,25 +62,25 @@ export class ConceptObjectService extends ObjectService {
         return firstValueFrom(this.http.get<ObjectOverTime[]>(environment.apiUrl + this.controller() + "/search-class", { params: params }));
     }
 
-    searchSet(conceptSet: string, date: string, text: string): Promise<ObjectOverTime[]> {
+    searchSet(conceptSet: string, date: string, text: string): Promise<ObjectAtTime[]> {
         let params: HttpParams = new HttpParams();
         params = params.append("conceptSet", conceptSet);
         params = params.append("date", date);
         params = params.append("text", text);
 
-        return firstValueFrom(this.http.get<ObjectOverTime[]>(environment.apiUrl + this.controller() + "/search-set", { params: params }));
+        return firstValueFrom(this.http.get<ObjectAtTime[]>(environment.apiUrl + this.controller() + "/search-set", { params: params }));
     }
 
-    search(type: AttributedType, attribute: AttributeType, text: string): Promise<ObjectOverTime[]> {
+    search(type: AttributedType, attribute: AttributeType, text: string): Promise<ObjectAtTime[]> {
         let params: HttpParams = new HttpParams();
         params = params.append("typeCode", type.code);
         params = params.append("attribute", attribute.code);
         params = params.append("text", text);
 
-        return firstValueFrom(this.http.get<ObjectOverTime[]>(environment.apiUrl + this.controller() + "/search", { params: params }));
+        return firstValueFrom(this.http.get<ObjectAtTime[]>(environment.apiUrl + this.controller() + "/search", { params: params }));
     }
 
-    getChildren(type: AttributedType, attribute: AttributeType, concept: string, pageNumber: number, pageSize: number): Promise<PageResult<ObjectOverTime>> {
+    getChildren(type: AttributedType, attribute: AttributeType, concept: string, pageNumber: number, pageSize: number): Promise<PageResult<ObjectAtTime>> {
         let params: HttpParams = new HttpParams();
         params = params.append("typeCode", type.code);
         params = params.append("attribute", attribute.code);
@@ -74,16 +88,16 @@ export class ConceptObjectService extends ObjectService {
         params = params.append("pageNumber", pageNumber);
         params = params.append("pageSize", pageSize);
 
-        return firstValueFrom(this.http.get<PageResult<ObjectOverTime>>(environment.apiUrl + this.controller() + "/get-children", { params: params }));
+        return firstValueFrom(this.http.get<PageResult<ObjectAtTime>>(environment.apiUrl + this.controller() + "/get-children", { params: params }));
     }
 
-    getAncestorTree(type: AttributedType, attribute: AttributeType, concept: string, pageSize: number): Promise<ObjectOverTimeNode> {
+    getAncestorTree(type: AttributedType, attribute: AttributeType, concept: string, pageSize: number): Promise<ObjectNode<ObjectAtTime>> {
         let params: HttpParams = new HttpParams();
         params = params.append("typeCode", type.code);
         params = params.append("attribute", attribute.code);
         params = params.append("concept", concept);
         params = params.append("pageSize", pageSize);
 
-        return firstValueFrom(this.http.get<ObjectOverTimeNode>(environment.apiUrl + this.controller() + "/get-ancestor-tree", { params: params }));
+        return firstValueFrom(this.http.get<ObjectNode<ObjectAtTime>>(environment.apiUrl + this.controller() + "/get-ancestor-tree", { params: params }));
     }
 }

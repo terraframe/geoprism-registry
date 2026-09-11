@@ -59,6 +59,7 @@ import org.w3c.dom.Element;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.io.XMLException;
 
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.cache.ServerMetadataCache;
 import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.graph.ConceptClass;
@@ -475,9 +476,10 @@ public class XMLExporter
       AttributeClassificationType type = (AttributeClassificationType) attributeType;
 
       attribute = document.createElement("classification");
-      attribute.setAttribute("rootCode", type.getRootTerm().getCode());
-      attribute.setAttribute("rootType", type.getRootTerm().getType());
+      attribute.setAttribute("rootCode", type.getRootTerm());
       attribute.setAttribute("conceptSet", type.getConceptSet());
+      attribute.setAttribute("startDate", GeoRegistryUtil.formatDate(type.getStartDate(), false));
+      attribute.setAttribute("endDate", GeoRegistryUtil.formatDate(type.getEndDate(), false));
     }
 
     attribute.setAttribute("code", attributeType.getCode());

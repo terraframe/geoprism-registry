@@ -47,10 +47,17 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
   @Autowired
   private RegistryEventStore   store;
 
+  private static ConceptObject cConcept;
+
+  private static ConceptObject pConcept;
+
   @Override
   public void setUp()
   {
     // Do not create any data
+
+    // Do not set a value for the classification attribute
+    USATestData.COLORADO.removeDefaultValue(testClassification.getCode());
   }
 
   @After
@@ -181,7 +188,7 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
   public void testRollbackCreateConceptObject()
   {
     // Index before the import
-    pConcept = createConceptObject("CONCEPT", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+    pConcept = createConceptObject("CONCEPT", "CONCEPT", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
     Assert.assertNotNull(this.cObjectService.getByCode(cClass, pConcept.getCode()));
     Assert.assertEquals(Long.valueOf(1), this.store.size());
@@ -200,7 +207,7 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
   @Request
   public void testRollbackUpdatedConceptObject()
   {
-    pConcept = createConceptObject("CONCEPT", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+    pConcept = createConceptObject("CONCEPT", "CONCEPT", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
     long startIndex = this.store.createHeadToken().position().getAsLong();
 
@@ -392,12 +399,12 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
   @Request
   public void testRollbackConceptObjectEdgeEvent()
   {
-    pConcept = createConceptObject("P_CONCEPT", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
-    cConcept = createConceptObject("C_CONCEPT", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+    pConcept = createConceptObject("P_CONCEPT", "P_CONCEPT", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+    cConcept = createConceptObject("C_CONCEPT", "C_CONCEPT", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
     long startIndex = this.store.createHeadToken().position().getAsLong();
 
-    this.addConceptEdge();
+    this.addConceptEdge(pConcept, cEdgeType, cConcept);
 
     Assert.assertEquals(Long.valueOf(3), this.store.size());
 

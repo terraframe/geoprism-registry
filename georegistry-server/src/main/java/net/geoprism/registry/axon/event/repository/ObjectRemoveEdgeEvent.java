@@ -8,8 +8,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import net.geoprism.registry.view.PublishDTO;
 import net.geoprism.registry.view.TypeInfo;
 
-public class RemoveObjectEdgeEvent extends AbstractRepositoryEvent implements BusinessObjectEvent
+public class ObjectRemoveEdgeEvent extends AbstractRepositoryEvent implements BusinessObjectEvent
 {
+  private String   edgeUid;
+
   private String   sourceCode;
 
   private TypeInfo sourceType;
@@ -24,13 +26,14 @@ public class RemoveObjectEdgeEvent extends AbstractRepositoryEvent implements Bu
 
   private Date     endDate;
 
-  public RemoveObjectEdgeEvent()
+  public ObjectRemoveEdgeEvent()
   {
   }
 
-  public RemoveObjectEdgeEvent(String targetCode, TypeInfo targetType, String sourceCode, TypeInfo sourceType, TypeInfo edgeType, Date startDate, Date endDate)
+  public ObjectRemoveEdgeEvent(String edgeUid, String targetCode, TypeInfo targetType, String sourceCode, TypeInfo sourceType, TypeInfo edgeType, Date startDate, Date endDate)
   {
     super(UUID.randomUUID().toString());
+    this.edgeUid = edgeUid;
     this.targetCode = targetCode;
     this.targetType = targetType;
     this.sourceCode = sourceCode;
@@ -38,6 +41,16 @@ public class RemoveObjectEdgeEvent extends AbstractRepositoryEvent implements Bu
     this.edgeType = edgeType;
     this.startDate = startDate;
     this.endDate = endDate;
+  }
+
+  public String getEdgeUid()
+  {
+    return edgeUid;
+  }
+
+  public void setEdgeUid(String edgeUid)
+  {
+    this.edgeUid = edgeUid;
   }
 
   public String getSourceCode()
@@ -114,7 +127,7 @@ public class RemoveObjectEdgeEvent extends AbstractRepositoryEvent implements Bu
   @JsonIgnore
   public String getBaseObjectId()
   {
-    throw new UnsupportedOperationException();
+    return this.edgeUid;
   }
 
   @Override
@@ -127,7 +140,7 @@ public class RemoveObjectEdgeEvent extends AbstractRepositoryEvent implements Bu
   @Override
   public Boolean isValidFor(PublishDTO dto)
   {
-    return dto.getHierarchyTypes().anyMatch(this.getEdgeType().getTypeCode()::equals);
+    return dto.getTypes().stream().anyMatch(this.getEdgeType()::equals);
   }
 
 }

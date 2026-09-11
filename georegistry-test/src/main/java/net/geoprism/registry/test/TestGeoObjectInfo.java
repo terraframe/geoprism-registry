@@ -60,7 +60,7 @@ public class TestGeoObjectInfo extends TestCachedObject<ServerGeoObjectIF>
 
   private Date                    date;
 
-  private TestDataSourceInfo          source;
+  private TestDataSourceInfo      source;
 
   private HashMap<String, Object> defaultValues;
 

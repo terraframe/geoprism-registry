@@ -8,9 +8,12 @@ import com.google.gson.JsonArray;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
 import net.geoprism.registry.model.DataSourceDTO;
 import net.geoprism.registry.model.SourceAuthorityDTO;
+import net.geoprism.registry.view.BusinessEdgeTypeDTO;
 import net.geoprism.registry.view.BusinessTypeDTO;
 import net.geoprism.registry.view.CommitDTO;
 import net.geoprism.registry.view.ConceptClassDTO;
+import net.geoprism.registry.view.ConceptEdgeTypeDTO;
+import net.geoprism.registry.view.ConceptSetDTO;
 import net.geoprism.registry.view.PublishDTO;
 
 public interface RemoteClientIF extends AutoCloseable
@@ -29,9 +32,13 @@ public interface RemoteClientIF extends AutoCloseable
 
   public List<ConceptClassDTO> getConceptClasses(String commitId);
 
+  public List<ConceptEdgeTypeDTO> getConceptEdgeTypes(String commitId);
+
+  public List<ConceptSetDTO> getConceptSets(String commitId);
+
   public JsonArray getGeoObjectTypes(String commitId);
 
-  public JsonArray getBusinessEdgeTypes(String uid);
+  public List<BusinessEdgeTypeDTO> getBusinessEdgeTypes(String uid);
 
   public JsonArray getHierarchyTypes(String uid);
 

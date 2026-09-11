@@ -38,25 +38,6 @@ public class HierarchyChangeTest extends USADatasetTest implements InstanceTestC
   @Autowired
   private HierarchyTypeBusinessServiceIF hierarchyService;
 
-  @Before
-  public void setUp()
-  {
-    testData.setUpInstanceData();
-
-    testData.logIn(USATestData.USER_NPS_RA);
-  }
-
-  @After
-  public void tearDown()
-  {
-    if (testData != null)
-    {
-      testData.logOut();
-
-      testData.tearDownInstanceData();
-    }
-  }
-
   @Test
   @Request
   public void testRemoveFromHierarchyWithData()

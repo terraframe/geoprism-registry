@@ -32,7 +32,7 @@ public class DemoBackupAndRestoreTest
 
   @Request
   @Test
-  public void testImportAndExport() throws IOException
+  public void testImportAndExport() throws Exception
   {
     File file = new File("demo-backup.zip");
 

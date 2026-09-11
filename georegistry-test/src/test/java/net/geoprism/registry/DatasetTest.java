@@ -9,6 +9,7 @@ import org.axonframework.eventhandling.GenericEventMessage;
 import org.axonframework.eventhandling.gateway.EventGateway;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.runwaysdk.Pair;
@@ -63,11 +64,13 @@ public abstract class DatasetTest
   @Autowired
   protected EventGateway                      gateway;
 
-  protected ConceptObject createConceptObject(String code, ConceptClass type, DataSource dataSource, Date startDate, Date endDate)
+  protected ConceptObject createConceptObject(ConceptClass type, String code, String label, DataSource dataSource, Date startDate, Date endDate)
   {
     ConceptObject object = this.cObjectService.newInstance(type);
     object.setCode(code);
     object.setValue(DefaultAttribute.DATA_SOURCE.getName(), dataSource, startDate, endDate);
+    object.setValue(DefaultAttribute.DISPLAY_LABEL.getName(), new LocalizedValue(label), startDate, endDate);
+
     return applyConceptObject(object, true);
   }
 
@@ -84,7 +87,7 @@ public abstract class DatasetTest
     return this.cObjectService.getByCode(object.getType(), builder.getCode()).orElse(null);
   }
 
-  protected BusinessObject createBusinessObject(String code, BusinessType type, DataSource dataSource, Date startDate, Date endDate)
+  protected BusinessObject createBusinessObject(BusinessType type, String code, DataSource dataSource, Date startDate, Date endDate)
   {
     BusinessObject object = this.bObjectService.newInstance(type);
     object.setCode(code);

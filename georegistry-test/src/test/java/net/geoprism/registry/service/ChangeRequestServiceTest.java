@@ -114,9 +114,9 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
 
   @Before
   @Request
-  public void setUp()
+  public void setUp() throws Exception
   {
-    testData.setUpInstanceData();
+    super.setUp();
 
     BELIZE.apply();
 
@@ -141,11 +141,11 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
   }
 
   @After
-  public void tearDown()
+  public void tearDown() throws Exception
   {
     BELIZE.delete();
 
-    testData.tearDownInstanceData();
+    super.tearDown();
 
     TestDataSet.deleteAllChangeRequests();
   }
@@ -453,7 +453,7 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
   }
 
   @Test
-  public void testImplementParentDecisions()
+  public void testImplementParentDecisions() throws Exception
   {
     TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_ADMIN, FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM };
 

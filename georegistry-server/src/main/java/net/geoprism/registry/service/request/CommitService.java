@@ -23,12 +23,18 @@ import net.geoprism.registry.model.DataSourceDTO;
 import net.geoprism.registry.model.SourceAuthorityDTO;
 import net.geoprism.registry.service.business.BusinessEdgeTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.CommitBusinessServiceIF;
+import net.geoprism.registry.service.business.ConceptEdgeTypeSnapshotBusinessServiceIF;
+import net.geoprism.registry.service.business.ConceptSetSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.PublishBusinessServiceIF;
 import net.geoprism.registry.service.business.SourceAuthorityBusinessServiceIF;
+import net.geoprism.registry.view.BusinessEdgeTypeDTO;
 import net.geoprism.registry.view.BusinessTypeDTO;
 import net.geoprism.registry.view.CommitDTO;
+import net.geoprism.registry.view.ConceptClassDTO;
+import net.geoprism.registry.view.ConceptEdgeTypeDTO;
+import net.geoprism.registry.view.ConceptSetDTO;
 
 @Service
 public class CommitService
@@ -40,7 +46,13 @@ public class CommitService
   private CommitBusinessServiceIF                   service;
 
   @Autowired
-  private BusinessEdgeTypeSnapshotBusinessServiceIF edgeTypeService;
+  private BusinessEdgeTypeSnapshotBusinessServiceIF bEdgeTypeService;
+
+  @Autowired
+  private ConceptEdgeTypeSnapshotBusinessServiceIF  cEdgeTypeService;
+
+  @Autowired
+  private ConceptSetSnapshotBusinessServiceIF       cSetService;
 
   @Autowired
   private DataSourceBusinessServiceIF               sourceService;
@@ -78,6 +90,30 @@ public class CommitService
   }
 
   @Request(RequestType.SESSION)
+  public List<ConceptClassDTO> getConceptClasses(String sessionId, String uid)
+  {
+    Commit commit = this.service.getOrThrow(uid);
+
+    return this.service.getConceptClasses(commit).stream().map(type -> type.toDTO()).toList();
+  }
+
+  @Request(RequestType.SESSION)
+  public List<ConceptSetDTO> getConceptSets(String sessionId, String uid)
+  {
+    Commit commit = this.service.getOrThrow(uid);
+
+    return this.service.getConceptSets(commit).stream().map(type -> this.cSetService.toDTO(type)).toList();
+  }
+
+  @Request(RequestType.SESSION)
+  public List<ConceptEdgeTypeDTO> getConceptEdgeTypes(String sessionId, String uid)
+  {
+    Commit commit = this.service.getOrThrow(uid);
+
+    return this.service.getConceptEdgeTypes(commit).stream().map(type -> this.cEdgeTypeService.toDTO(type)).toList();
+  }
+
+  @Request(RequestType.SESSION)
   public JsonArray getGeoObjectTypes(String sessionId, String uid)
   {
     Commit commit = this.service.getOrThrow(uid);
@@ -86,11 +122,11 @@ public class CommitService
   }
 
   @Request(RequestType.SESSION)
-  public JsonArray getBusinessEdgeTypes(String sessionId, String uid)
+  public List<BusinessEdgeTypeDTO> getBusinessEdgeTypes(String sessionId, String uid)
   {
     Commit commit = this.service.getOrThrow(uid);
 
-    return this.service.getBusinessEdgeTypes(commit).stream().map(type -> this.edgeTypeService.toJSON(type)).collect(JsonCollectors.toJsonArray());
+    return this.service.getBusinessEdgeTypes(commit).stream().map(type -> this.bEdgeTypeService.toDTO(type)).toList();
   }
 
   @Request(RequestType.SESSION)

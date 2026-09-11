@@ -119,8 +119,10 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
   }
 
   @Before
-  public void setUp()
+  public void setUp() throws Exception
   {
+    super.setUp();
+
     cleanUpExtra();
 
     testData.setUpInstanceData();
@@ -130,13 +132,11 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
   }
 
   @After
-  public void tearDown()
+  public void tearDown() throws Exception
   {
-    testData.logOut();
-
     cleanUpExtra();
 
-    testData.tearDownInstanceData();
+    super.tearDown();
   }
 
   @Request
@@ -756,7 +756,7 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
 
   //
   // @Test
-  // public void testGetTile() throws IOException
+  // public void testGetTile() throws Exception
   // {
   // JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(),
   // USATestData.HIER_ADMIN, USATestData.STATE, ListType.PUBLIC, false,

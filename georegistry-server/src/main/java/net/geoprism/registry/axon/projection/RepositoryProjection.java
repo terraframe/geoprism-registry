@@ -31,7 +31,6 @@ import net.geoprism.registry.ListType;
 import net.geoprism.registry.OriginException;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
-import net.geoprism.registry.axon.event.remote.RemoteObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteConceptObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectApplyExternalIdEvent;
@@ -39,6 +38,7 @@ import net.geoprism.registry.axon.event.remote.RemoteGeoObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectRemoveExternalIdEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectSetParentEvent;
+import net.geoprism.registry.axon.event.remote.RemoteObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.ConceptObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEdgeEvent;
@@ -50,11 +50,12 @@ import net.geoprism.registry.axon.event.repository.GeoObjectRemoveParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectUpdateParentEvent;
 import net.geoprism.registry.axon.event.repository.ImportHistoryEvent;
 import net.geoprism.registry.axon.event.repository.ObjectApplyEdgeEvent;
-import net.geoprism.registry.axon.event.repository.RemoveObjectEdgeEvent;
+import net.geoprism.registry.axon.event.repository.ObjectRemoveEdgeEvent;
 import net.geoprism.registry.axon.event.repository.RemoveBusinessObjectEvent;
 import net.geoprism.registry.axon.event.repository.RemoveConceptObjectEvent;
 import net.geoprism.registry.axon.event.repository.RemoveGeoObjectEdgeEvent;
 import net.geoprism.registry.axon.event.repository.RemoveGeoObjectEvent;
+import net.geoprism.registry.axon.event.repository.RemoveHiearchyEdgeEvent;
 import net.geoprism.registry.cache.BusinessObjectCache;
 import net.geoprism.registry.cache.Cache;
 import net.geoprism.registry.cache.ConceptObjectCache;
@@ -83,6 +84,7 @@ import net.geoprism.registry.service.business.ConceptClassBusinessServiceIF;
 import net.geoprism.registry.service.business.ConceptEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ConceptObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
+import net.geoprism.registry.service.business.EdgeObjectBusinessService;
 import net.geoprism.registry.service.business.EdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GPRBusinessTypeBusinessService;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
@@ -141,6 +143,9 @@ public class RepositoryProjection
 
   @Autowired
   private SourceAuthorityBusinessServiceIF  authorityService;
+
+  @Autowired
+  private EdgeObjectBusinessService         eObjectService;
 
   @EventHandler
   @Transaction
@@ -643,6 +648,15 @@ public class RepositoryProjection
 
   @EventHandler
   @Transaction
+  public void handleObjectRemoveEdge(ObjectRemoveEdgeEvent event)
+  {
+    final EdgeType edgeType = this.edgeTypeService.getByCode(event.getEdgeType());
+
+    this.eObjectService.getByUid(edgeType, event.getEdgeUid()).ifPresent(edge -> edge.delete());
+  }
+
+  @EventHandler
+  @Transaction
   public void handleObjectApplyEdge(ObjectApplyEdgeEvent event)
   {
     // Handle business edge case
@@ -772,46 +786,73 @@ public class RepositoryProjection
     }
     else
     {
-      logger.info("Skipping remote business object: [" + event.getType() + "][" + event.getCode() + "]");
+      logger.info("Skipping remote concept object: [" + event.getType() + "][" + event.getCode() + "]");
     }
   }
 
   @EventHandler
   @Transaction
-  public void handleRemoteBusinessObjectApplyEdge(RemoteObjectApplyEdgeEvent event)
+  public void handleRemoteObjectApplyEdge(RemoteObjectApplyEdgeEvent event)
   {
-    BusinessEdgeType edgeType = this.bEdgeService.getByCodeOrThrow(event.getEdgeType().getTypeCode());
+    EdgeType edgeType = this.edgeTypeService.getByCode(event.getEdgeType());
 
     if (!GeoprismProperties.getOrigin().equals(edgeType.getOrigin()))
     {
-      Object sourceRid = edgeType.getIsParentGeoObject() ? //
-          getOrFetchGeoObjectRid(event.getSourceCode(), event.getSourceType().getTypeCode()) : //
-          getOrFetchBusinessRid(event.getSourceCode(), event.getSourceType().getTypeCode());
-
-      Object targetRid = edgeType.getIsChildGeoObject() ? //
-          getOrFetchGeoObjectRid(event.getTargetCode(), event.getTargetType().getTypeCode()) : //
-          getOrFetchBusinessRid(event.getTargetCode(), event.getTargetType().getTypeCode());
-
-      DataSource dataSource = this.sourceService.getByCode(event.getDataSource()).orElse(null);
-
-      if (!this.bObjectService.exists(edgeType, event.getEdgeUid()))
+      if (edgeType instanceof BusinessEdgeType)
       {
-        this.newEdge(sourceRid, targetRid, edgeType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), dataSource, false);
+        BusinessEdgeType bEdgeType = (BusinessEdgeType) edgeType;
+
+        Object sourceRid = bEdgeType.getIsParentGeoObject() ? //
+            getOrFetchGeoObjectRid(event.getSourceCode(), event.getSourceType().getTypeCode()) : //
+            getOrFetchBusinessRid(event.getSourceCode(), event.getSourceType().getTypeCode());
+
+        Object targetRid = bEdgeType.getIsChildGeoObject() ? //
+            getOrFetchGeoObjectRid(event.getTargetCode(), event.getTargetType().getTypeCode()) : //
+            getOrFetchBusinessRid(event.getTargetCode(), event.getTargetType().getTypeCode());
+
+        DataSource dataSource = this.sourceService.getByCode(event.getDataSource()).orElse(null);
+
+        if (!this.bObjectService.exists(bEdgeType, event.getEdgeUid()))
+        {
+          this.newEdge(sourceRid, targetRid, edgeType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), dataSource, false);
+        }
+      }
+      else if (edgeType instanceof ConceptEdgeType)
+      {
+        ConceptEdgeType cEdgeType = (ConceptEdgeType) edgeType;
+
+        Object sourceRid = getOrFetchConceptRid(event.getSourceCode(), event.getSourceType().getTypeCode());
+        Object targetRid = getOrFetchConceptRid(event.getTargetCode(), event.getTargetType().getTypeCode());
+
+        DataSource dataSource = this.sourceService.getByCode(event.getDataSource()).orElse(null);
+
+        if (!this.cObjectService.exists(cEdgeType, event.getEdgeUid()))
+        {
+          this.newEdge(sourceRid, targetRid, edgeType, event.getStartDate(), event.getEndDate(), event.getEdgeUid(), dataSource, false);
+        }
       }
     }
     else
     {
-      logger.info("Skipping remote create edge: [" + event.getEdgeType() + "][" + event.getSourceType() + "][" + event.getSourceCode() + "]");
+      logger.info("Skipping remote create edge: [" + event.getEdgeType().getTypeCode() + "][" + event.getSourceType().getTypeCode() + "][" + event.getSourceCode() + "]");
     }
   }
 
   private Object getOrFetchBusinessRid(String code, String businessTypeCode)
   {
-    BusinessType businessType = this.bTypeService.getByCodeOrThrow(businessTypeCode);
+    return getOrFetchObjectRid(code, this.bTypeService.getByCodeOrThrow(businessTypeCode));
+  }
 
-    String typeDbClassName = businessType.getMdVertexDAO().getDBClassName();
+  private Object getOrFetchConceptRid(String code, String conceptClassCode)
+  {
+    return getOrFetchObjectRid(code, this.cClassService.getByCodeOrThrow(conceptClassCode));
+  }
 
-    Optional<Object> optional = this.getRidCache().get(businessType.getCode() + "$#!" + code);
+  public Object getOrFetchObjectRid(String code, ObjectClass cClass)
+  {
+    String typeDbClassName = cClass.getMdVertexDAO().getDBClassName();
+
+    Optional<Object> optional = this.getRidCache().get(cClass.getCode() + "$#!" + code);
 
     return optional.orElseGet(() -> {
       GraphQuery<Object> query = new GraphQuery<Object>("select @rid from " + typeDbClassName + " where code=:code;");
@@ -824,7 +865,7 @@ public class RepositoryProjection
         throw new DataNotFoundException("Could not find Business-Object with code " + code + " on table " + typeDbClassName);
       }
 
-      this.getRidCache().put(businessType.getCode() + "$#!" + code, rid);
+      this.getRidCache().put(cClass.getCode() + "$#!" + code, rid);
 
       return rid;
     });
@@ -906,7 +947,7 @@ public class RepositoryProjection
     service.command(request, statement.toString(), parameters);
   }
 
-  public void handleRemoveObjectEdgeEvent(RemoveObjectEdgeEvent event)
+  public void handleRemoveObjectEdgeEvent(RemoveHiearchyEdgeEvent event)
   {
     EdgeType edgeType = this.edgeTypeService.getByCode(event.getEdgeType());
 
@@ -925,7 +966,7 @@ public class RepositoryProjection
 
   }
 
-  private void handleRemoveBusinessObjectEdgeEvent(RemoveObjectEdgeEvent event, BusinessEdgeType edgeType)
+  private void handleRemoveBusinessObjectEdgeEvent(RemoveHiearchyEdgeEvent event, BusinessEdgeType edgeType)
   {
     ObjectClass parentType = this.bEdgeService.getParent(edgeType);
     ObjectClass childType = this.bEdgeService.getChild(edgeType);
@@ -959,7 +1000,7 @@ public class RepositoryProjection
     service.command(request, statement.toString(), parameters);
   }
 
-  private void handleRemoveConceptObjectEdgeEvent(RemoveObjectEdgeEvent event, ConceptEdgeType edgeType)
+  private void handleRemoveConceptObjectEdgeEvent(RemoveHiearchyEdgeEvent event, ConceptEdgeType edgeType)
   {
     String clazz = edgeType.getMdEdgeDAO().getDBClassName();
 

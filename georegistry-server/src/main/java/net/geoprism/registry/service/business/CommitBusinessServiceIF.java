@@ -6,6 +6,9 @@ import java.util.stream.Stream;
 
 import net.geoprism.graph.BusinessEdgeTypeSnapshot;
 import net.geoprism.graph.BusinessTypeSnapshot;
+import net.geoprism.graph.ConceptClassSnapshot;
+import net.geoprism.graph.ConceptEdgeTypeSnapshot;
+import net.geoprism.graph.ConceptSetSnapshot;
 import net.geoprism.graph.GeoObjectTypeSnapshot;
 import net.geoprism.graph.GraphTypeSnapshot;
 import net.geoprism.registry.Commit;
@@ -28,13 +31,19 @@ public interface CommitBusinessServiceIF
 
   List<BusinessTypeSnapshot> getBusinessTypes(Commit commit);
 
-  List<BusinessEdgeTypeSnapshot> getBusinessEdgeTypes(Commit commit);
+  List<ConceptClassSnapshot> getConceptClasses(Commit commit);
+
+  List<ConceptSetSnapshot> getConceptSets(Commit commit);
 
   <T extends GraphTypeSnapshot> List<T> getHiearchyTypes(Commit commit);
 
   <T extends GraphTypeSnapshot> List<T> getDirectedAcyclicGraphTypes(Commit commit);
 
   <T extends GraphTypeSnapshot> List<T> getUndirectedGraphTypes(Commit commit);
+
+  List<BusinessEdgeTypeSnapshot> getBusinessEdgeTypes(Commit commit);
+
+  List<ConceptEdgeTypeSnapshot> getConceptEdgeTypes(Commit commit);
 
   List<GraphTypeSnapshot> getGraphSnapshots(Commit commit);
 
