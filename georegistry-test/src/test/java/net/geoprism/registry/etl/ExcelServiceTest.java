@@ -150,23 +150,21 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
   }
 
   @Before
-  public void setUp()
+  public void setUp() throws Exception
   {
-    clearData();
+    super.setUp();
 
-    testData.logIn(USATestData.USER_NPS_RA);
+    clearData();
   }
 
   @After
-  public void tearDown()
+  public void tearDown() throws Exception
   {
     PostalCodeFactory.clear();
 
-    testData.logOut();
-
-    testData.tearDownInstanceData();
-
     clearData();
+
+    super.tearDown();
   }
 
   @Request
@@ -543,7 +541,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
   @Test
   @Request
-  public void testExport() throws IOException
+  public void testExport() throws Exception
   {
 
     Calendar calendar = Calendar.getInstance();

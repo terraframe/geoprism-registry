@@ -52,19 +52,17 @@ public class ChangeRequestDocumentServiceTest extends FastDatasetTest implements
   private ChangeRequestService crService;
 
   @Before
-  public void setUp()
+  public void setUp() throws Exception
   {
-    testData.setUpInstanceData();
-
-    // TestDataSet.populateAdapterIds(null, testData.adapter);
+    super.setUp();
 
     createTestChangeRequest();
   }
 
   @After
-  public void tearDown()
+  public void tearDown() throws Exception
   {
-    testData.tearDownInstanceData();
+    super.tearDown();
 
     TestDataSet.deleteAllChangeRequests();
     TestDataSet.deleteAllVaultFiles();
@@ -288,7 +286,7 @@ public class ChangeRequestDocumentServiceTest extends FastDatasetTest implements
   }
 
   @Test
-  public void testDownloadDocument() throws IOException
+  public void testDownloadDocument() throws Exception
   {
     String vfOid = uploadDocumentsAsAdmin();
 

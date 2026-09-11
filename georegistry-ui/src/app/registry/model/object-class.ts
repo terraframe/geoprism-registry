@@ -101,13 +101,13 @@ export class ObjectAtTime {
     label?: string;
     code: string;
     data: {
-        [key: string]: string | number;
+        [key: string]: any;
     }
 
 }
 
-export class ObjectOverTimeNode {
-    object?: ObjectOverTime;
-    children?: PageResult<ObjectOverTimeNode>;
+export class ObjectNode<T> {
+    object?: T;
+    children?: PageResult<ObjectNode<ObjectAtTime>>;
 }
 

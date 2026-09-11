@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.axonframework.eventhandling.GenericEventMessage;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
+import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.junit.After;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,13 +28,12 @@ import net.geoprism.registry.graph.DirectedAcyclicGraphType;
 import net.geoprism.registry.graph.UndirectedGraphType;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.ConceptObject;
-import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.service.business.ConceptEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GraphRepoServiceIF;
 import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
-import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.BusinessEdgeTypeDTO;
@@ -60,6 +60,9 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
   @Autowired
   protected RepositoryProjection                      projection;
 
+  @Autowired
+  private GeoObjectTypeBusinessServiceIF              gotService;
+
   protected static BusinessType                       btype;
 
   protected static BusinessEdgeType                   bEdgeType;
@@ -74,9 +77,7 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
 
   protected static BusinessObject                     cObject;
 
-  protected static ConceptObject                      pConcept;
-
-  protected static ConceptObject                      cConcept;
+  protected static AttributeClassificationType        testClassification;
 
   @Override
   public void beforeClassSetup() throws Exception
@@ -105,13 +106,19 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
 
     bEdgeType = this.bEdgeService.create(BusinessEdgeTypeDTO.build(USATestData.ORG_PPP.getCode(), "TEST_B_EDGE", new LocalizedValue("TEST_B_EDGE"), new LocalizedValue("TEST_B_EDGE"), btype.getCode(), btype.getCode()));
 
-    bGeoEdgeType = this.bEdgeService.create(BusinessEdgeTypeDTO.build(USATestData.ORG_PPP.getCode(), "TEST_GEO_EDGE", new LocalizedValue("TEST_GEO_EDGE"), new LocalizedValue("TEST_GEO_EDGE"), btype.getCode(), EdgeDirection.PARENT));
+    bGeoEdgeType = this.bEdgeService.create(BusinessEdgeTypeDTO.build(USATestData.ORG_PPP.getCode(), "TEST_GEO_EDGE", new LocalizedValue("TEST_GEO_EDGE"), new LocalizedValue("TEST_GEO_EDGE"), BusinessEdgeTypeDTO.GEO_OBJECT_TYPE, btype.getCode()));
 
     dagType = this.dagService.create("TEST_DAG", new LocalizedValue("TEST_DAG"), new LocalizedValue("TEST_DAG"), 0L);
 
     undirectedType = this.undirectedService.create("TEST_UN", new LocalizedValue("TEST_UN"), new LocalizedValue("TEST_UN"), 0L);
-    
+
     this.cClassService.createAttributeType(cClass, new AttributeBooleanType("testBoolean", new LocalizedValue("Test Boolean"), new LocalizedValue("Test Boolean"), false, false, false, false));
+
+    testClassification = this.createDefaultClassificationType();
+
+    testClassification = (AttributeClassificationType) gotService.createAttributeType(USATestData.STATE.getServerObject(), testClassification);
+
+    USATestData.COLORADO.setDefaultValue(testClassification.getCode(), "Child Concept");
 
     this.repoService.refreshMetadataCache();
   }
@@ -120,6 +127,8 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
   @Request
   public void afterClassSetup() throws Exception
   {
+    USATestData.COLORADO.removeDefaultValue(testClassification.getCode());
+
     if (bGeoEdgeType != null)
     {
       this.bEdgeService.delete(bGeoEdgeType);
@@ -150,25 +159,26 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
 
   @Before
   @Request
-  public void setUp()
+  public void setUp() throws Exception
   {
-    cleanUpExtra();
+    this.store.truncate();
 
-    testData.setUpInstanceData();
-
-    testData.logIn(USATestData.USER_NPS_RA);
-
-    pConcept = createConceptObject("P_CONCEPT", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
-    cConcept = createConceptObject("C_CONCEPT", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+    super.setUp();
 
     pObject = createBusinessObject("P_CODE", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
     cObject = createBusinessObject("C_CODE", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
 
-    addConceptEdge();
     addBusinessEdge();
-    addDirectedAcyclicEdge();
+    addDirectedAcyclicEdge(USATestData.COLORADO, USATestData.CANADA);
+    addDirectedAcyclicEdge(USATestData.COLORADO, USATestData.USA);
     addUndirectedEdge();
     addExternalId("TEST EXTERNAL ID");
+  }
+
+  @Override
+  protected ConceptObject createConceptObject(String code, String label)
+  {
+    return createConceptObject(code, label, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
   }
 
   protected void addExternalId(String externalId)
@@ -191,14 +201,6 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
     return edgeUid;
   }
 
-  protected String addDirectedAcyclicEdge()
-  {
-    TestGeoObjectInfo source = USATestData.COLORADO;
-    TestGeoObjectInfo target = USATestData.CANADA;
-
-    return addDirectedAcyclicEdge(source, target);
-  }
-
   protected String addDirectedAcyclicEdge(TestGeoObjectInfo source, TestGeoObjectInfo target)
   {
     String edgeUid = UUID.randomUUID().toString();
@@ -214,13 +216,14 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
     return edgeUid;
   }
 
-  protected void addConceptEdge()
+  @Override
+  protected String addConceptEdge(ConceptObject parent, ConceptEdgeType edge, ConceptObject child)
   {
     List<Pair<ConceptObject, ConceptEdgeType>> targets = Arrays.asList( //
-        new Pair<ConceptObject, ConceptEdgeType>(pConcept, cEdgeType) //
+        new Pair<ConceptObject, ConceptEdgeType>(parent, edge) //
     );
 
-    createConceptEdges(cConcept, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getDataSource(), targets);
+    return createConceptEdges(child, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getDataSource(), targets).get(0);
   }
 
   protected void addBusinessEdge()
@@ -235,17 +238,17 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
 
   protected BusinessObject createBusinessObject(String code, Date startDate, Date endDate)
   {
-    return createBusinessObject(code, btype, USATestData.SOURCE.getDataSource(), startDate, endDate);
+    return createBusinessObject(btype, code, USATestData.SOURCE.getDataSource(), startDate, endDate);
   }
 
-  protected ConceptObject createConceptObject(String code, Date startDate, Date endDate)
+  protected ConceptObject createConceptObject(String code, String label, Date startDate, Date endDate)
   {
-    return createConceptObject(code, cClass, USATestData.SOURCE.getDataSource(), startDate, endDate);
+    return createConceptObject(cClass, code, label, USATestData.SOURCE.getDataSource(), startDate, endDate);
   }
 
   @After
   @Request
-  public void tearDown()
+  public void tearDown() throws Exception
   {
     if (cObject != null)
     {
@@ -261,31 +264,7 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
       pObject = null;
     }
 
-    if (pConcept != null)
-    {
-      this.cObjectService.delete(pConcept);
-
-      pConcept = null;
-    }
-
-    if (cConcept != null)
-    {
-      this.cObjectService.delete(cConcept);
-
-      cConcept = null;
-    }
-
-    testData.logOut();
-
-    cleanUpExtra();
-
-    testData.tearDownInstanceData();
-  }
-
-  @Request
-  public void cleanUpExtra()
-  {
-    TestDataSet.deleteAllListData();
+    super.tearDown();
 
     this.store.truncate();
   }
@@ -299,7 +278,6 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
     dto.addBusinessEdgeType(bEdgeType.getCode(), bGeoEdgeType.getCode());
     dto.addDagType(dagType.getCode());
     dto.addUndirectedType(undirectedType.getCode());
-    dto.addConceptClass(cClass.getCode());
 
     return dto;
   }

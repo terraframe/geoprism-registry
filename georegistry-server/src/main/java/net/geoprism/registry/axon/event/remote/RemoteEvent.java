@@ -13,13 +13,15 @@ import net.geoprism.registry.view.PublishDTO;
     @JsonSubTypes.Type(value = RemoteGeoObjectApplyExternalIdEvent.class), //
     @JsonSubTypes.Type(value = RemoteGeoObjectRemoveExternalIdEvent.class), //
     @JsonSubTypes.Type(value = RemoteGeoObjectCreateEdgeEvent.class), //
-    @JsonSubTypes.Type(value = RemoteBusinessObjectEvent.class), //
-    @JsonSubTypes.Type(value = RemoteConceptObjectEvent.class), //
+    @JsonSubTypes.Type(value = RemoteObjectApplyEvent.class), //
     @JsonSubTypes.Type(value = RemoteObjectApplyEdgeEvent.class), //
+    @JsonSubTypes.Type(value = RemoteObjectRemoveEdgeEvent.class) //
 })
 public interface RemoteEvent
 {
   public String getCommitId();
+
+  public void setCommitId(String commitId);
 
   public boolean isValid(PublishDTO dto);
 

@@ -6,12 +6,14 @@ package net.geoprism.registry.service;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.LinkedList;
+import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.axonframework.eventhandling.GenericEventMessage;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +25,12 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonParser;
+import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.graph.BusinessEdgeTypeSnapshot;
 import net.geoprism.graph.BusinessTypeSnapshot;
-import net.geoprism.graph.ConceptClassSnapshot;
+import net.geoprism.graph.ConceptSetSnapshot;
 import net.geoprism.graph.DirectedAcyclicGraphTypeSnapshot;
 import net.geoprism.graph.GeoObjectTypeSnapshot;
 import net.geoprism.graph.HierarchyTypeSnapshot;
@@ -36,15 +38,14 @@ import net.geoprism.graph.UndirectedGraphTypeSnapshot;
 import net.geoprism.registry.Commit;
 import net.geoprism.registry.EventDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.JsonCollectors;
 import net.geoprism.registry.Publish;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
-import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
 import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
-import net.geoprism.registry.graph.ConceptClass;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.graph.DirectedAcyclicGraphType;
 import net.geoprism.registry.graph.UndirectedGraphType;
@@ -57,17 +58,22 @@ import net.geoprism.registry.service.business.BusinessEdgeTypeSnapshotBusinessSe
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.CommitBusinessServiceIF;
-import net.geoprism.registry.service.business.ConceptClassSnapshotBusinessServiceIF;
+import net.geoprism.registry.service.business.ConceptEdgeTypeSnapshotBusinessServiceIF;
+import net.geoprism.registry.service.business.ConceptSetSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
+import net.geoprism.registry.service.business.EdgeObjectBusinessService;
+import net.geoprism.registry.service.business.EventBusinessService;
 import net.geoprism.registry.service.business.GeoObjectTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.GraphTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.PublishBusinessServiceIF;
 import net.geoprism.registry.service.business.PublishEventService;
 import net.geoprism.registry.service.business.SourceAuthorityBusinessServiceIF;
+import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.USATestData;
-import net.geoprism.registry.view.BusinessTypeDTO;
+import net.geoprism.registry.view.CommitDTO;
 import net.geoprism.registry.view.ConceptClassDTO;
+import net.geoprism.registry.view.ConceptEdgeTypeDTO;
 import net.geoprism.registry.view.PublishDTO;
 import net.geoprism.registry.view.TypeClass;
 
@@ -76,6 +82,10 @@ import net.geoprism.registry.view.TypeClass;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class PublishEventServiceTest extends EventDatasetTest implements InstanceTestClassListener
 {
+  public static final String                        DEPENDENCY  = "111bb747-a068-458f-b261-9cde9b5a3937";
+
+  public static final String                        MAIN        = "9eafd2b0-f427-4443-a535-07cef1ab47e7";
+
   @Autowired
   private PublishEventService                       service;
 
@@ -95,7 +105,10 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
   private GraphTypeSnapshotBusinessServiceIF        graphSnapshotService;
 
   @Autowired
-  private ConceptClassSnapshotBusinessServiceIF     cSnapshotService;
+  private ConceptEdgeTypeSnapshotBusinessServiceIF  cEdgeSnapshotService;
+
+  @Autowired
+  private ConceptSetSnapshotBusinessServiceIF       cSetSnapshotService;
 
   @Autowired
   private BusinessTypeBusinessServiceIF             bTypeService;
@@ -116,9 +129,33 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
   private SourceAuthorityBusinessServiceIF          authorityService;
 
   @Autowired
-  private RegistryEventStore                        store;
+  private EventBusinessService                      eventService;
+
+  @Autowired
+  private EdgeObjectBusinessService                 eObjectService;
 
   private static boolean                            WRITE_FILES = false;
+
+  private static String                             edgeUid;
+
+  @Override
+  protected String addDirectedAcyclicEdge(TestGeoObjectInfo source, TestGeoObjectInfo target)
+  {
+    edgeUid = super.addDirectedAcyclicEdge(source, target);
+
+    return edgeUid;
+  }
+
+  @Before
+  @Request
+  public void setUp() throws Exception
+  {
+    super.setUp();
+
+    EdgeObject edge = this.eObjectService.getByUid(dagType, edgeUid).get();
+
+    this.eventService.remove(dagType, edge);
+  }
 
   @Test
   @Request
@@ -130,14 +167,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
     System.out.println("");
     System.out.println("");
 
-    Assert.assertEquals(Long.valueOf(51L), this.store.size());
-
-    String directory = "src/test/resources/commit";
-
-    Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.enable(SerializationFeature.INDENT_OUTPUT);
+    Assert.assertEquals(Long.valueOf(55L), this.store.size());
 
     try
     {
@@ -191,8 +221,6 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
           hierarchyTypes.add(this.hSnapshotService.toJSON(snapshot, root));
         });
 
-        List<BusinessTypeDTO> businessTypes = new LinkedList<>();
-
         dto.getBusinessTypes().forEach(code -> {
           BusinessTypeSnapshot snapshot = this.bTypeSnapshotService.get(commit, code);
 
@@ -200,24 +228,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
           BusinessType type = this.bTypeService.getByCodeOrThrow(code);
           Assert.assertEquals(type.getSequence(), snapshot.getSequence());
-
-          businessTypes.add(snapshot.toDTO());
         });
-
-        List<ConceptClassDTO> conceptClasses = new LinkedList<>();
-
-        dto.getConceptClasses().forEach(code -> {
-          ConceptClassSnapshot snapshot = this.cSnapshotService.get(commit, code);
-
-          Assert.assertNotNull(snapshot);
-
-          ConceptClass type = this.cClassService.getByCodeOrThrow(code);
-          Assert.assertEquals(type.getSequence(), snapshot.getSequence());
-
-          conceptClasses.add(snapshot.toDTO());
-        });
-
-        JsonArray businessEdgeTypes = new JsonArray();
 
         dto.getBusinessEdgeTypes().forEach(code -> {
           BusinessEdgeTypeSnapshot snapshot = this.bEdgeSnapshotService.get(commit, code);
@@ -226,11 +237,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
           BusinessEdgeType type = this.bEdgeService.getByCode(code).get();
           Assert.assertEquals(type.getSequence(), snapshot.getSequence());
-
-          businessEdgeTypes.add(this.bEdgeSnapshotService.toJSON(snapshot));
         });
-
-        JsonArray dagTypes = new JsonArray();
 
         dto.getDagTypes().forEach(code -> {
           DirectedAcyclicGraphTypeSnapshot snapshot = (DirectedAcyclicGraphTypeSnapshot) this.graphSnapshotService.get(commit, TypeClass.DAG.getCode(), code);
@@ -239,11 +246,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
           DirectedAcyclicGraphType type = this.dagService.getByCode(code).get();
           Assert.assertEquals(type.getSequence(), snapshot.getSequence());
-
-          dagTypes.add(snapshot.toJSON());
         });
-
-        JsonArray undirectedGraphTypes = new JsonArray();
 
         dto.getUndirectedTypes().forEach(code -> {
           UndirectedGraphTypeSnapshot snapshot = (UndirectedGraphTypeSnapshot) this.graphSnapshotService.get(commit, TypeClass.UNDIRECTED_GRAPH.getCode(), code);
@@ -252,81 +255,61 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
           UndirectedGraphType type = this.undirectedService.getByCode(code).get();
           Assert.assertEquals(type.getSequence(), snapshot.getSequence());
-
-          undirectedGraphTypes.add(snapshot.toJSON());
         });
-
-        try (FileWriter writer = new FileWriter(new File(directory, "undirected-graph-types.json")))
-        {
-          gson.toJson(undirectedGraphTypes, writer);
-        }
 
         List<DataSource> sources = this.cService.getSources(commit);
 
         Assert.assertEquals(1, sources.size());
         Assert.assertEquals(USATestData.SOURCE.getCode(), sources.get(0).getCode());
 
-        List<SourceAuthorityDTO> authorities = sources.stream().map(source -> {
-          return this.authorityService.get(source.getObjectValue(DataSource.AUTHORITY));
-        }) //
-            .filter(o -> o.isPresent()) //
-            .map(o -> o.get()) //
-            .distinct() //
-            .map(this.authorityService::toDTO) //
-            .map(o -> {
-              o.setOid(null);
-
-              return o;
-            }) //
-            .toList();
+        List<SourceAuthorityDTO> authorities = getAuthorities(sources);
 
         Assert.assertEquals(1, authorities.size());
         Assert.assertEquals(USATestData.AUTHORITY.getCode(), authorities.get(0).getCode());
 
-        Assert.assertEquals(Long.valueOf(101L), this.store.size());
+        Assert.assertEquals(Long.valueOf(109L), this.store.size());
 
         List<RemoteEvent> events = this.cService.getRemoteEvents(commit).toList();
 
-        Assert.assertEquals(50, events.size());
+        Assert.assertEquals(49, events.size());
+
+        // Validate the concept set dependencies
+        List<Commit> dependencies = this.cService.getDependencies(commit);
+
+        Assert.assertEquals(1, dependencies.size());
+
+        Commit dependency = dependencies.get(0);
+
+        Assert.assertNotEquals(commit.getOid(), dependency.getOid());
+
+        Assert.assertEquals(0, this.cService.getDependencies(dependency).size());
+
+        Publish dependentPublish = dependency.getPublish();
+
+        Assert.assertTrue(StringUtils.isNotBlank(dependentPublish.getConceptSet()));
+
+        List<ConceptSetSnapshot> sets = this.cService.getConceptSets(dependency);
+
+        Assert.assertEquals(1, sets.size());
+
+        ConceptSetSnapshot snapshot = sets.get(0);
+
+        // Assert the set has concept classes
+        List<ConceptClassDTO> cClasses = this.cSetSnapshotService.getConceptClasses(snapshot).stream().map(c -> c.toDTO()).toList();
+
+        Assert.assertEquals(1, cClasses.size());
+
+        // Assert the set has concept edge types
+        List<ConceptEdgeTypeDTO> cEdgeTypes = this.cSetSnapshotService.getConceptEdgeTypes(snapshot).stream().map(c -> this.cEdgeSnapshotService.toDTO(c)).toList();
+
+        Assert.assertEquals(1, cEdgeTypes.size());
+
+        Assert.assertEquals(5, this.cService.getRemoteEvents(dependency).toList().size());
 
         if (WRITE_FILES)
         {
-          mapper.writeValue(new File(directory, "publish.json"), dto);
-          mapper.writeValue(new File(directory, "commit.json"), commit.toDTO(publish));
-          mapper.writeValue(new File(directory, "sources.json"), sources.stream().map(this.sourceService::toDTO).toArray());
-          mapper.writeValue(new File(directory, "authorities.json"), authorities);
-
-          try (FileWriter writer = new FileWriter(new File(directory, "geo-object-types.json")))
-          {
-            gson.toJson(geoObjectTypes, writer);
-          }
-
-          try (FileWriter writer = new FileWriter(new File(directory, "hierarchy-types.json")))
-          {
-            gson.toJson(hierarchyTypes, writer);
-          }
-
-          try (FileWriter writer = new FileWriter(new File(directory, "concept-classes.json")))
-          {
-            gson.toJson(JsonParser.parseString(ConceptClassDTO.toJson(conceptClasses)), writer);
-          }
-
-          try (FileWriter writer = new FileWriter(new File(directory, "business-types.json")))
-          {
-            gson.toJson(JsonParser.parseString(BusinessTypeDTO.toJson(businessTypes)), writer);
-          }
-
-          try (FileWriter writer = new FileWriter(new File(directory, "business-edge-types.json")))
-          {
-            gson.toJson(businessEdgeTypes, writer);
-          }
-
-          try (FileWriter writer = new FileWriter(new File(directory, "dag-types.json")))
-          {
-            gson.toJson(dagTypes, writer);
-          }
-
-          mapper.writerFor(mapper.getTypeFactory().constructCollectionLikeType(List.class, RemoteEvent.class)).writeValue(new File(directory, "events.json"), events);
+          this.write(DEPENDENCY, dependentPublish);
+          this.write(MAIN, publish);
         }
       }
       catch (IOException e)
@@ -335,7 +318,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
       }
       finally
       {
-        pService.delete(publish);
+        delete(publish);
       }
     }
     catch (InterruptedException e)
@@ -350,6 +333,24 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
     System.out.println("");
   }
 
+  public List<SourceAuthorityDTO> getAuthorities(List<DataSource> sources)
+  {
+    List<SourceAuthorityDTO> authorities = sources.stream().map(source -> {
+      return this.authorityService.get(source.getObjectValue(DataSource.AUTHORITY));
+    }) //
+        .filter(o -> o.isPresent()) //
+        .map(o -> o.get()) //
+        .distinct() //
+        .map(this.authorityService::toDTO) //
+        .map(o -> {
+          o.setOid(null);
+
+          return o;
+        }) //
+        .toList();
+    return authorities;
+  }
+
   @Test
   @Request
   public void testIncludeAllTypesFromHierarchy() throws InterruptedException
@@ -357,7 +358,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
     try
     {
-      Assert.assertEquals(Long.valueOf(51L), this.store.size());
+      Assert.assertEquals(Long.valueOf(55L), this.store.size());
 
       PublishDTO dto = new PublishDTO("USA Geospatial Graph", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       dto.addHierarchyType(testData.getManagedHierarchyTypes().stream().map(t -> t.getCode()).toArray(s -> new String[s]));
@@ -412,7 +413,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
       }
       finally
       {
-        pService.delete(publish);
+        this.delete(publish);
       }
     }
     catch (InterruptedException e)
@@ -440,8 +441,12 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
         Commit commit = commits.get(0);
 
-        Assert.assertEquals(50, this.cService.getRemoteEvents(commit).toList().size());
-        Assert.assertEquals(Long.valueOf(101), this.store.size());
+        List<Commit> dependencies = this.cService.getDependencies(commit);
+
+        Assert.assertEquals(1, dependencies.size());
+
+        Assert.assertEquals(49, this.cService.getRemoteEvents(commit).toList().size());
+        Assert.assertEquals(Long.valueOf(109), this.store.size());
 
         // Update a geo object
         ServerGeoObjectIF object = USATestData.COLORADO.getServerObject();
@@ -453,7 +458,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
         gateway.publish(builder.build().stream().map(GenericEventMessage::asEventMessage).toList());
 
-        Assert.assertEquals(Long.valueOf(102), this.store.size());
+        Assert.assertEquals(Long.valueOf(110), this.store.size());
 
         // Create a new commit with the new change
         Commit commit2 = this.service.createNewCommit(publish);
@@ -462,19 +467,149 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
         Assert.assertEquals(1, this.cService.getRemoteEvents(commit2).toList().size());
 
-        List<Commit> dependencies = this.cService.getDependencies(commit2);
+        List<Commit> results = this.cService.getDependencies(commit2);
 
-        Assert.assertEquals(1, dependencies.size());
-        Assert.assertEquals(commit.getUid(), dependencies.get(0).getUid());
+        Assert.assertEquals(2, results.size());
+        Assert.assertTrue(results.contains(dependencies.get(0)));
+        Assert.assertTrue(results.contains(commit));
       }
       finally
       {
-        pService.delete(publish);
+        this.delete(publish);
       }
     }
     catch (InterruptedException e)
     {
       throw new RuntimeException(e);
+    }
+  }
+
+  public void delete(Publish publish)
+  {
+    try
+    {
+      // Delete all of the publishes that were generated because of
+      // dependencies
+      this.cService.getCommits(publish) //
+          .stream() //
+          .flatMap(c -> this.cService.getDependencies(c).stream()) //
+          .map(d -> d.getPublish()) //
+          .distinct() //
+          .filter(p -> !p.getOid().equals(publish.getOid())) //
+          .forEach(p -> pService.delete(p));
+    }
+    finally
+    {
+      try
+      {
+        pService.delete(publish);
+      }
+      catch (Exception e)
+      {
+        e.printStackTrace();
+      }
+    }
+  }
+
+  public void write(String uid, Publish publish) throws IOException
+  {
+    String directory = "src/test/resources/commit/" + uid + "/";
+
+    new File(directory).mkdirs();
+
+    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+    PublishDTO pDto = publish.toDTO();
+    pDto.setUid(uid);
+
+    mapper.writeValue(new File(directory, "publish.json"), pDto);
+
+    List<Commit> commits = this.cService.getCommits(publish);
+
+    if (commits.size() > 0)
+    {
+      Commit commit = commits.get(0);
+
+      CommitDTO cDTO = commit.toDTO(publish);
+      cDTO.setPublishId(uid);
+      cDTO.setUid(uid);
+
+      mapper.writeValue(new File(directory, "commit.json"), cDTO);
+
+      List<Commit> dependencies = this.cService.getDependencies(commit);
+
+      mapper.writeValue(new File(directory, "dependencies.json"), dependencies.stream().map(dependency -> {
+        CommitDTO dto = dependency.toDTO(publish);
+        dto.setPublishId(DEPENDENCY);
+        dto.setUid(DEPENDENCY);
+
+        return dto;
+      }).toList());
+
+      List<DataSource> sources = this.cService.getSources(commit);
+
+      if (sources.size() > 0)
+      {
+        mapper.writeValue(new File(directory, "sources.json"), sources.stream().map(this.sourceService::toDTO).toArray());
+
+        List<SourceAuthorityDTO> authorities = getAuthorities(sources);
+
+        mapper.writeValue(new File(directory, "authorities.json"), authorities);
+      }
+
+      List<ConceptSetSnapshot> sets = this.cService.getConceptSets(commit);
+
+      if (sets.size() > 0)
+      {
+        ConceptSetSnapshot set = sets.get(0);
+
+        mapper.writeValue(new File(directory, "concept-sets.json"), Arrays.asList(this.cSetSnapshotService.toDTO(set)));
+
+        List<ConceptClassDTO> cClasses = this.cSetSnapshotService.getConceptClasses(set).stream().map(c -> c.toDTO()).toList();
+
+        mapper.writeValue(new File(directory, "concept-classes.json"), cClasses);
+
+        List<ConceptEdgeTypeDTO> cEdgeTypes = this.cSetSnapshotService.getConceptEdgeTypes(set).stream().map(c -> this.cEdgeSnapshotService.toDTO(c)).toList();
+
+        mapper.writeValue(new File(directory, "concept-edge-types.json"), cEdgeTypes);
+      }
+
+      mapper.writeValue(new File(directory, "business-types.json"), this.cService.getBusinessTypes(commit).stream().map(type -> type.toDTO()).toList());
+      mapper.writeValue(new File(directory, "business-edge-types.json"), this.cService.getBusinessEdgeTypes(commit).stream().map(type -> this.bEdgeSnapshotService.toDTO(type)).toList());
+
+      GeoObjectTypeSnapshot rootType = this.cService.getRootType(commit);
+
+      JsonArray geoObjectTypes = this.cService.getTypes(commit).stream().filter(s -> !s.isRoot()).map(s -> s.toJSON()).collect(JsonCollectors.toJsonArray());
+      JsonArray hierarchyTypes = this.cService.getHiearchyTypes(commit).stream().map(s -> this.hSnapshotService.toJSON((HierarchyTypeSnapshot) s, rootType)).collect(JsonCollectors.toJsonArray());
+      JsonArray dagTypes = this.cService.getDirectedAcyclicGraphTypes(commit).stream().map(s -> ( (DirectedAcyclicGraphTypeSnapshot) s ).toJSON()).collect(JsonCollectors.toJsonArray());
+      JsonArray undirectedGraphTypes = this.cService.getUndirectedGraphTypes(commit).stream().map(s -> ( (UndirectedGraphTypeSnapshot) s ).toJSON()).collect(JsonCollectors.toJsonArray());
+
+      try (FileWriter writer = new FileWriter(new File(directory, "geo-object-types.json")))
+      {
+        gson.toJson(geoObjectTypes, writer);
+      }
+
+      try (FileWriter writer = new FileWriter(new File(directory, "hierarchy-types.json")))
+      {
+        gson.toJson(hierarchyTypes, writer);
+      }
+
+      try (FileWriter writer = new FileWriter(new File(directory, "dag-types.json")))
+      {
+        gson.toJson(dagTypes, writer);
+      }
+
+      try (FileWriter writer = new FileWriter(new File(directory, "undirected-graph-types.json")))
+      {
+        gson.toJson(undirectedGraphTypes, writer);
+      }
+
+      List<RemoteEvent> events = this.cService.getRemoteEvents(commit).toList();
+
+      mapper.writerFor(mapper.getTypeFactory().constructCollectionLikeType(List.class, RemoteEvent.class)).writeValue(new File(directory, "events.json"), events);
     }
   }
 

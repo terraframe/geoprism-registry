@@ -209,7 +209,7 @@ public class XMLImporterTest extends ConceptDatasetTest implements InstanceTestC
 
         Assert.assertEquals("CONCEPT_POP", conceptClass.getCode());
         Assert.assertEquals("Concept Pop", conceptClass.getLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
-        Assert.assertEquals(7, conceptClass.getAttributes().size());
+        Assert.assertEquals(8, conceptClass.getAttributes().size());
 
         AttributeType conceptAttribute = conceptClass.getAttribute("TEST_TEXT").orElseThrow();
 

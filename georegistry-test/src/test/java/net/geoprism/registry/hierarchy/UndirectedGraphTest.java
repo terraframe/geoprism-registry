@@ -61,22 +61,6 @@ public class UndirectedGraphTest extends FastDatasetTest implements InstanceTest
     super.afterClassSetup();
   }
 
-  @Before
-  public void setUp()
-  {
-    testData.setUpInstanceData();
-
-    testData.logIn(FastTestDataset.USER_CGOV_RA);
-  }
-
-  @After
-  public void tearDown()
-  {
-    testData.logOut();
-
-    testData.tearDownInstanceData();
-  }
-
   @Test
   @Request
   public void testAddParent()

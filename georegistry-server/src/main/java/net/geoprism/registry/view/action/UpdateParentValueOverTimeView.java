@@ -39,6 +39,8 @@ import net.geoprism.registry.model.EdgeType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.view.TypeClass;
+import net.geoprism.registry.view.TypeInfo;
 
 public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
 {
@@ -232,7 +234,7 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
           Date endDate = edge.getObjectValue(EdgeType.END_DATE);
           String uid = edge.getObjectValue(DefaultAttribute.UID.getName());
 
-          return new GeoObjectRemoveParentEvent(go.getCode(), go.getType().getCode(), uid, hierarchyType.getCode(), startDate, endDate);
+          return new GeoObjectRemoveParentEvent(go.getCode(), go.getType().getTypeInfo(), uid, hierarchyType.getTypeInfo(), startDate, endDate);
         }));
       }
       else if (this.action.equals(UpdateActionType.UPDATE))
@@ -251,8 +253,9 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
           }
 
           String source = StringUtils.isBlank(this.newDataSource) ? this.oldDataSource : this.newDataSource;
+          TypeInfo parentType = StringUtils.isNotBlank(parentTypeCode) ? new TypeInfo(TypeClass.GEO_OBJECT_TYPE, parentTypeCode) : null;
 
-          return new GeoObjectUpdateParentEvent(go.getCode(), go.getType().getCode(), edgeUid, hierarchyType.getCode(), this.newStartDate, this.newEndDate, parentCode, parentTypeCode, source);
+          return new GeoObjectUpdateParentEvent(go.getCode(), go.getType().getTypeInfo(), edgeUid, hierarchyType.getTypeInfo(), this.newStartDate, this.newEndDate, parentCode, parentType, source);
         }));
       }
       else if (this.action.equals(UpdateActionType.CREATE))
@@ -270,8 +273,8 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
         {
           throw new ExecuteOutOfDateChangeRequestException();
         }
-        
-        builder.addEvent(new GeoObjectCreateParentEvent(go.getCode(), go.getType().getCode(), UUID.randomUUID().toString(), hierarchyType.getCode(), this.newStartDate, this.newEndDate, newParent.getCode(), newParent.getType().getCode(), this.newDataSource, true));
+
+        builder.addEvent(new GeoObjectCreateParentEvent(go.getCode(), go.getType().getTypeInfo(), UUID.randomUUID().toString(), hierarchyType.getTypeInfo(), this.newStartDate, this.newEndDate, newParent.getCode(), newParent.getType().getTypeInfo(), this.newDataSource, true));
       }
       else
       {

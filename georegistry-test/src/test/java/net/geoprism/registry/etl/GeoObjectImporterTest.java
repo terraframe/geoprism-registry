@@ -108,18 +108,18 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
 
   @Before
   @Request
-  public void setUp()
+  public void setUp() throws Exception
   {
-    testData.setUpInstanceData();
+    super.setUp();
 
     clearData();
-
-    testData.logIn(USATestData.USER_NPS_RA);
   }
 
   @After
-  public void tearDown() throws IOException
+  public void tearDown() throws Exception
   {
+    super.tearDown();
+
     testData.logOut();
 
     testData.tearDownInstanceData();

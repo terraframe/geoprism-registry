@@ -20,76 +20,95 @@
 -->
 <div>
 
+  <div class="crumbs" *ngIf="type != null">
+    <span class="crumb-link"><localize key="nav.concept.class.label"></localize></span><span class="sep">/</span>
+    <span class="crumb-link">{{type.organizationLabel}}</span><span class="sep">/</span>
+    <span class="current">{{type.displayLabel.localizedValue}}</span>
+  </div>
+
+  <div class="heading" *ngIf="type != null">
+    <h1>{{type.displayLabel.localizedValue}}</h1>
+    <div class="sub"><localize key="concept.class.header"></localize></div>
+  </div>
 
   <ng-container *ngIf="modalState.state === 'MANAGE-GEO-OBJECT-TYPE'">
 
     <form #form="ngForm" *ngIf="type" class="modal-form" (ngSubmit)="form.valid">
       <fieldset>
-        <div class="row-holder">
-          <div class="label-holder">
-            <label>
-              <localize key="data.property.label.code"></localize>
-            </label>
+        <div class="panel panel-default section-panel">
+          <div class="panel-heading">
+            <h5 class="panel-title"><localize key="hierarchy.management.section.identity.title"></localize></h5>
+            <p class="panel-subtitle"><localize key="hierarchy.management.section.identity.description"></localize></p>
           </div>
-          <div class="holder">
-            <span class="text"> <input type="text" [(ngModel)]="type.code" name="code" disabled required>
-            </span>
-          </div>
-        </div>
-
-        <localized-input [disabled]="readOnly" [(value)]="type.displayLabel" key="data.property.label.label">
-        </localized-input>
-
-        <div class="row-holder">
-          <div class="label-holder">
-            <label>
-              <localize key="attribute.organization.label"></localize>
-            </label>
-          </div>
-          <div class="holder">
-            <span class="text">
-              <input type="text" [(ngModel)]="type.organizationLabel" name="organization" disabled required>
-            </span>
-          </div>
-        </div>
-
-        <div class="row-holder">
-          <div class="label-holder">
-            <label>
-              <localize key="hierarchy.management.manage.attributes.label.displayAttributes"></localize>
-            </label>
-          </div>
-          <div class="holder">
-            <div class="panel panel-default">
-              <div class="panel-body">
-
-                <div class="table-responsive">
-                  <table class="table">
-                    <tbody>
-                      <tr *ngFor="let attr of type.attributes">
-                        <td>{{attr.label.localizedValue}}</td>
-                        <td class="button-column" style="width: 60px;">
-                          <ng-container *ngIf="!readOnly && !attr.isDefault">
-                            <a class="fa fa-pencil ico-edit" [routerLink]="" (click)="editAttribute(attr, $event)"
-                              [title]="'modal.button.edit' | localize"></a>
-                            <a class="fa fa-trash ico-remove" [routerLink]=""
-                              (click)="removeAttributeType(attr, $event)"
-                              [title]="'modal.button.remove' | localize"></a>
-                          </ng-container>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-
-                <span *ngIf="!readOnly" class="clickable" (click)="createAttribute()">
-                  <i class="fa fa-plus" style="font-size:20px;margin:10px 0 10px 0;" aria-hidden="true">
-                  </i>
-                  <localize key="modal.button.add"></localize>
+          <div class="panel-body">
+            <div class="row-holder">
+              <div class="label-holder">
+                <label>
+                  <localize key="data.property.label.code"></localize>
+                </label>
+              </div>
+              <div class="holder">
+                <span class="text"> <input type="text" [(ngModel)]="type.code" name="code" disabled required>
                 </span>
-
               </div>
             </div>
+
+            <localized-input [disabled]="readOnly" [(value)]="type.displayLabel" key="data.property.label.label">
+            </localized-input>
+          </div>
+        </div>
+
+        <div class="panel panel-default section-panel">
+          <div class="panel-heading">
+            <h5 class="panel-title"><localize key="hierarchy.management.section.ownership.title"></localize></h5>
+            <p class="panel-subtitle"><localize key="hierarchy.management.section.ownership.description"></localize></p>
+          </div>
+          <div class="panel-body">
+            <div class="row-holder">
+              <div class="label-holder">
+                <label>
+                  <localize key="attribute.organization.label"></localize>
+                </label>
+              </div>
+              <div class="holder">
+                <span class="text">
+                  <input type="text" [(ngModel)]="type.organizationLabel" name="organization" disabled required>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel panel-default section-panel">
+          <div class="panel-heading">
+            <h5 class="panel-title"><localize key="hierarchy.management.section.attributes.title"></localize></h5>
+            <p class="panel-subtitle"><localize key="hierarchy.management.section.attributes.description"></localize></p>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table">
+                <tbody>
+                  <tr *ngFor="let attr of type.attributes">
+                    <td>{{attr.label.localizedValue}}</td>
+                    <td class="button-column" style="width: 60px;">
+                      <ng-container *ngIf="!readOnly && !attr.isDefault">
+                        <a class="fa fa-pencil ico-edit" [routerLink]="" (click)="editAttribute(attr, $event)"
+                          [title]="'modal.button.edit' | localize"></a>
+                        <a class="fa fa-trash ico-remove" [routerLink]=""
+                          (click)="removeAttributeType(attr, $event)"
+                          [title]="'modal.button.remove' | localize"></a>
+                      </ng-container>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <span *ngIf="!readOnly" class="clickable" (click)="createAttribute()">
+              <i class="fa fa-plus" style="font-size:20px;margin:10px 0 10px 0;" aria-hidden="true">
+              </i>
+              <localize key="modal.button.add"></localize>
+            </span>
           </div>
         </div>
 

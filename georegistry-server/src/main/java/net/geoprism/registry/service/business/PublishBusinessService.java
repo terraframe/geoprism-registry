@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.service.business;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +35,7 @@ import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Publish;
 import net.geoprism.registry.PublishQuery;
+import net.geoprism.registry.graph.ConceptSet;
 import net.geoprism.registry.view.PublishDTO;
 
 @Service
@@ -79,6 +81,7 @@ public class PublishBusinessService implements PublishBusinessServiceIF
     publish.setStartDate(configuration.getStartDate());
     publish.setEndDate(configuration.getEndDate());
     publish.setOrigin(configuration.getOrigin());
+    publish.setConceptSet(configuration.getConceptSet());
     publish.apply();
 
     return publish;
@@ -138,6 +141,26 @@ public class PublishBusinessService implements PublishBusinessServiceIF
     {
       return iterator.getAll().stream().map(p -> (Publish) p).filter(p -> p.hasSameTypes(configuration)).toList();
     }
+  }
+
+  @Override
+  public Publish getFor(ConceptSet set, Date startDate, Date endDate)
+  {
+    PublishQuery query = new PublishQuery(new QueryFactory());
+    query.WHERE(query.getStartDate().LE(startDate));
+    query.AND(query.getEndDate().GE(endDate));
+    query.AND(query.getConceptSet().EQ(set.getCode()));
+
+    try (OIterator<? extends Publish> iterator = query.getIterator())
+    {
+      if (iterator.hasNext())
+      {
+        return iterator.next();
+      }
+
+    }
+
+    return null;
   }
 
 }

@@ -84,23 +84,19 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
   }
 
   @Before
-  public void setUp()
+  public void setUp() throws Exception
   {
+    super.setUp();
+
     cleanUpExtra();
-
-    testData.setUpInstanceData();
-
-    testData.logIn(FastTestDataset.USER_CGOV_RA);
   }
 
   @After
-  public void tearDown()
+  public void tearDown() throws Exception
   {
-    testData.logOut();
-
     cleanUpExtra();
 
-    testData.tearDownInstanceData();
+    super.tearDown();
   }
 
   @Request
@@ -135,7 +131,7 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
 
   @Test
   @Request
-  public void testPublishHierarchy() throws IOException
+  public void testPublishHierarchy() throws Exception
   {
     JsonObject json = LabeledPropertyGraphTest.getJson(FastTestDataset.CAMBODIA, FastTestDataset.HIER_ADMIN);
 
@@ -174,7 +170,7 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
 
   @Test
   @Request
-  public void testPublishUndirected() throws IOException
+  public void testPublishUndirected() throws Exception
   {
     UndirectedGraphType graphType = this.undirectedSerivce.create("TestUn", new LocalizedValue("TestUn"), new LocalizedValue("TestUn"), 1L);
 
@@ -231,7 +227,7 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
 
   @Test
   @Request
-  public void testPublishDAG() throws IOException
+  public void testPublishDAG() throws Exception
   {
     DirectedAcyclicGraphType dagType = this.dagSerivce.create("TestDag", new LocalizedValue("TestDag"), new LocalizedValue("TestDag"), 1L);
     try

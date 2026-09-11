@@ -32,7 +32,7 @@ import { LocalizeComponent } from "@shared/component/localize/localize.component
 import { NgIf, NgFor, NgClass } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { ConceptSetService } from "@registry/service/concept-set.service";
-import { ConceptSet, ObjectOverTime } from "@registry/model/object-class";
+import { ConceptSet, ObjectAtTime, ObjectOverTime } from "@registry/model/object-class";
 import { DateFieldComponent } from "@shared/component";
 import { Observable, Observer } from "rxjs";
 import { TypeaheadMatch, TypeaheadModule } from "ngx-bootstrap/typeahead";
@@ -63,7 +63,7 @@ export class CreateGeoObjectTypeComponent implements OnInit {
     sets: ConceptSet[] = [];
     currentSet: ConceptSet = null;
 
-    typeahead: Observable<ObjectOverTime[]> = null;
+    typeahead: Observable<ObjectAtTime[]> = null;
     text: string;
     loading: boolean;
 
@@ -76,7 +76,7 @@ export class CreateGeoObjectTypeComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
-        this.typeahead = new Observable((observer: Observer<ObjectOverTime[]>) => {
+        this.typeahead = new Observable((observer: Observer<ObjectAtTime[]>) => {
             if (this.geoObjectType.classification != null
                 && this.geoObjectType.classification.conceptSet != null
                 && this.geoObjectType.classification.conceptSet.length > 0
@@ -166,8 +166,8 @@ export class CreateGeoObjectTypeComponent implements OnInit {
             const item: ObjectOverTime = match.item;
             this.text = item.code;
 
-            if (this.geoObjectType.classification.rootTerm == null || this.geoObjectType.classification.rootTerm.code !== item.code) {
-                this.geoObjectType.classification.rootTerm = { code: item.code, type: item.type.typeCode };
+            if (this.geoObjectType.classification.rootTerm == null) {
+                this.geoObjectType.classification.rootTerm = item.code;
             }
         } else if (this.geoObjectType.classification.rootTerm != null) {
             this.geoObjectType.classification.rootTerm = null;

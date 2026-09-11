@@ -11,27 +11,28 @@ import org.springframework.stereotype.Service;
 
 import net.geoprism.registry.RollbackCheckpoint;
 import net.geoprism.registry.axon.config.RegistryEventStore;
-import net.geoprism.registry.axon.event.repository.AbstractObjectEdgeEvent;
 import net.geoprism.registry.axon.event.repository.AbstractGeoObjectEdgeEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.ConceptObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.EventPhase;
+import net.geoprism.registry.axon.event.repository.GeoObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectCreateParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectRemoveParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectUpdateParentEvent;
-import net.geoprism.registry.axon.event.repository.RemoveObjectEdgeEvent;
-import net.geoprism.registry.axon.event.repository.RemoveBusinessObjectEvent;
-import net.geoprism.registry.axon.event.repository.RemoveConceptObjectEvent;
+import net.geoprism.registry.axon.event.repository.ObjectApplyEdgeEvent;
+import net.geoprism.registry.axon.event.repository.ObjectEdgeEventIF;
+import net.geoprism.registry.axon.event.repository.ObjectRemoveEdgeEvent;
 import net.geoprism.registry.axon.event.repository.RemoveGeoObjectEdgeEvent;
 import net.geoprism.registry.axon.event.repository.RemoveGeoObjectEvent;
+import net.geoprism.registry.axon.event.repository.RemoveObjectEvent;
 import net.geoprism.registry.axon.event.repository.RepositoryEvent;
-import net.geoprism.registry.axon.event.rollback.RollbackBusinessObjectEdgeEventBuilder;
 import net.geoprism.registry.axon.event.rollback.RollbackBusinessObjectEventBuilder;
 import net.geoprism.registry.axon.event.rollback.RollbackConceptObjectEventBuilder;
 import net.geoprism.registry.axon.event.rollback.RollbackEventBuilder;
 import net.geoprism.registry.axon.event.rollback.RollbackGeoObjectEdgeEventBuilder;
 import net.geoprism.registry.axon.event.rollback.RollbackGeoObjectEventBuilder;
+import net.geoprism.registry.axon.event.rollback.RollbackObjectEdgeEventBuilder;
 import net.geoprism.registry.axon.projection.RepositoryProjection;
 
 @Service
@@ -86,56 +87,63 @@ public class RollbackEventService
       }
     }
 
-    builder.build().forEach(event -> {
-      if (event instanceof GeoObjectApplyEvent)
-      {
-        this.projection.handleApplyGeoObject((GeoObjectApplyEvent) event);
-      }
-      else if (event instanceof RemoveGeoObjectEvent)
-      {
-        this.projection.handleRemoveGeoObjectEvent((RemoveGeoObjectEvent) event);
-      }
-      else if (event instanceof RemoveGeoObjectEdgeEvent)
-      {
-        this.projection.handleRemoveGeoObjectEdgeEvent((RemoveGeoObjectEdgeEvent) event);
-      }
-      else if (event instanceof GeoObjectCreateParentEvent)
-      {
-        this.projection.handleCreateParent((GeoObjectCreateParentEvent) event);
-      }
-      else if (event instanceof GeoObjectRemoveParentEvent)
-      {
-        this.projection.handleRemoveParent((GeoObjectRemoveParentEvent) event);
-      }
-      else if (event instanceof GeoObjectUpdateParentEvent)
-      {
-        this.projection.handleUpdateParent((GeoObjectUpdateParentEvent) event);
-      }
-      else if (event instanceof BusinessObjectApplyEvent)
-      {
-        this.projection.handleApplyBusinessObject((BusinessObjectApplyEvent) event);
-      }
-      else if (event instanceof ConceptObjectApplyEvent)
-      {
-        this.projection.handleApplyConceptObject((ConceptObjectApplyEvent) event);
-      }
-      else if (event instanceof RemoveBusinessObjectEvent)
-      {
-        this.projection.handleRemoveBusinessObjectEvent((RemoveBusinessObjectEvent) event);
-      }
-      else if (event instanceof RemoveConceptObjectEvent)
-      {
-        this.projection.handleRemoveConceptObjectEvent((RemoveConceptObjectEvent) event);
-      }
-      else if (event instanceof RemoveObjectEdgeEvent)
-      {
-        this.projection.handleRemoveObjectEdgeEvent((RemoveObjectEdgeEvent) event);
-      }
-      else
-      {
-        throw new UnsupportedOperationException("Events of type [" + event.getClass().getName() + "] do not support being rolledback");
-      }
-    });
+    builder.build().forEach(this::replay);
+  }
+
+  public void replay(RepositoryEvent event)
+  {
+    if (event instanceof GeoObjectApplyEvent)
+    {
+      this.projection.handleApplyGeoObject((GeoObjectApplyEvent) event);
+    }
+    else if (event instanceof RemoveGeoObjectEvent)
+    {
+      this.projection.handleRemoveGeoObjectEvent((RemoveGeoObjectEvent) event);
+    }
+    else if (event instanceof RemoveGeoObjectEdgeEvent)
+    {
+      this.projection.handleRemoveGeoObjectEdgeEvent((RemoveGeoObjectEdgeEvent) event);
+    }
+    else if (event instanceof GeoObjectCreateParentEvent)
+    {
+      this.projection.handleCreateParent((GeoObjectCreateParentEvent) event);
+    }
+    else if (event instanceof GeoObjectRemoveParentEvent)
+    {
+      this.projection.handleRemoveParent((GeoObjectRemoveParentEvent) event);
+    }
+    else if (event instanceof GeoObjectUpdateParentEvent)
+    {
+      this.projection.handleUpdateParent((GeoObjectUpdateParentEvent) event);
+    }
+    else if (event instanceof BusinessObjectApplyEvent)
+    {
+      this.projection.handleApplyBusinessObject((BusinessObjectApplyEvent) event);
+    }
+    else if (event instanceof ConceptObjectApplyEvent)
+    {
+      this.projection.handleApplyConceptObject((ConceptObjectApplyEvent) event);
+    }
+    else if (event instanceof RemoveObjectEvent)
+    {
+      this.projection.handleRemoveObjectEvent((RemoveObjectEvent) event);
+    }
+    else if (event instanceof ObjectRemoveEdgeEvent)
+    {
+      this.projection.handleObjectRemoveEdge((ObjectRemoveEdgeEvent) event);
+    }
+    else if (event instanceof ObjectApplyEdgeEvent)
+    {
+      this.projection.handleObjectApplyEdge((ObjectApplyEdgeEvent) event);
+    }
+    else if (event instanceof GeoObjectApplyEdgeEvent)
+    {
+      this.projection.handleGeoObjectApplyEdge((GeoObjectApplyEdgeEvent) event);
+    }
+    else
+    {
+      throw new UnsupportedOperationException("Events of type [" + event.getClass().getName() + "] do not support being replayed");
+    }
   }
 
   protected void processEventType(GapAwareTrackingToken start, EventPhase phase)
@@ -198,12 +206,12 @@ public class RollbackEventService
     {
       return new RollbackGeoObjectEdgeEventBuilder((AbstractGeoObjectEdgeEvent) event);
     }
-    else if (event instanceof AbstractObjectEdgeEvent && phase.equals(EventPhase.EDGE))
+    else if (event instanceof ObjectEdgeEventIF && phase.equals(EventPhase.EDGE))
     {
-      return new RollbackBusinessObjectEdgeEventBuilder((AbstractObjectEdgeEvent) event);
+      return new RollbackObjectEdgeEventBuilder((ObjectEdgeEventIF) event);
     }
 
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException("Event type cannot be rolled back [" + event.getClass().getTypeName() + "]");
   }
 
 }

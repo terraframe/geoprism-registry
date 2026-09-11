@@ -19,21 +19,14 @@
 
 -->
 <page-container>
-    <div class="row">
-        <div class="col-md-12 order-md-1">
-            <tabset [justified]="true">
-                <tab [heading]="'skg.business.types' | localize">
-                    <business-type-page [organizations]="organizations" [types]="businessTypes"
-                        (typesChange)="setBusinessTypes($event)" (onError)="error($event)">
-                    </business-type-page>
-                </tab>
-                <tab [heading]="'skg.business.edge.types' | localize">
-                    <business-edge-type-page [organizations]="organizations" [businessTypes]="businessTypes" (onError)="error($event)">
-                    </business-edge-type-page>
-                </tab>
+    <business-type-page [hidden]="section !== 'business-type'" [organizations]="organizations"
+        [types]="businessTypes" (typesChange)="setBusinessTypes($event)" (onError)="error($event)">
+        <ontology-section-nav sectionNav [items]="sections" [(active)]="section"></ontology-section-nav>
+    </business-type-page>
 
-            </tabset>
-        </div>
-    </div>
+    <business-edge-type-page [hidden]="section !== 'business-edge-type'" [organizations]="organizations"
+        [businessTypes]="businessTypes" (onError)="error($event)">
+        <ontology-section-nav sectionNav [items]="sections" [(active)]="section"></ontology-section-nav>
+    </business-edge-type-page>
 
 </page-container>

@@ -4,10 +4,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
+import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeDataSourceType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
@@ -53,13 +55,15 @@ import net.geoprism.graph.BusinessEdgeTypeSnapshot;
 import net.geoprism.graph.BusinessTypeSnapshot;
 import net.geoprism.graph.BusinessTypeSnapshotQuery;
 import net.geoprism.graph.ConceptClassSnapshot;
+import net.geoprism.graph.ConceptClassSnapshotQuery;
+import net.geoprism.graph.ConceptEdgeTypeSnapshot;
+import net.geoprism.graph.ConceptSetSnapshot;
 import net.geoprism.graph.DirectedAcyclicGraphTypeSnapshot;
 import net.geoprism.graph.GeoObjectTypeSnapshot;
 import net.geoprism.graph.GraphTypeReference;
 import net.geoprism.graph.GraphTypeSnapshot;
 import net.geoprism.graph.HierarchyTypeSnapshot;
 import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
-import net.geoprism.graph.ObjectTypeSnapshot;
 import net.geoprism.graph.SchemaElementSnapshot;
 import net.geoprism.graph.UndirectedGraphTypeSnapshot;
 import net.geoprism.rbac.RoleConstants;
@@ -68,13 +72,13 @@ import net.geoprism.registry.CommitHasSnapshotQuery;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
-import net.geoprism.registry.graph.BaseGeoObjectType;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.graph.ConceptClass;
+import net.geoprism.registry.graph.ConceptEdgeType;
+import net.geoprism.registry.graph.ConceptSet;
 import net.geoprism.registry.graph.DirectedAcyclicGraphType;
 import net.geoprism.registry.graph.GeoObjectTypeAlreadyInHierarchyException;
-import net.geoprism.registry.graph.ObjectClass;
 import net.geoprism.registry.graph.UndirectedGraphType;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -83,6 +87,8 @@ import net.geoprism.registry.model.SnapshotContainer;
 import net.geoprism.registry.view.BusinessEdgeTypeDTO;
 import net.geoprism.registry.view.BusinessTypeDTO;
 import net.geoprism.registry.view.ConceptClassDTO;
+import net.geoprism.registry.view.ConceptEdgeTypeDTO;
+import net.geoprism.registry.view.ConceptSetDTO;
 import net.geoprism.registry.view.TypeClass;
 
 @Service
@@ -101,7 +107,16 @@ public class SnapshotBusinessService
   private ConceptClassSnapshotBusinessServiceIF     cClassSnapshotService;
 
   @Autowired
+  private ConceptEdgeTypeSnapshotBusinessServiceIF  cEdgeSnapshotService;
+
+  @Autowired
+  private ConceptEdgeTypeBusinessServiceIF          cEdgeService;
+
+  @Autowired
   private BusinessEdgeTypeBusinessServiceIF         bEdgeService;
+
+  @Autowired
+  private BusinessEdgeTypeSnapshotBusinessServiceIF bEdgeSnapshotService;
 
   @Autowired
   private DirectedAcyclicGraphTypeBusinessServiceIF dagTypeService;
@@ -120,6 +135,12 @@ public class SnapshotBusinessService
 
   @Autowired
   private ConceptClassBusinessServiceIF             cClassService;
+
+  @Autowired
+  private ConceptSetBusinessServiceIF               cSetService;
+
+  @Autowired
+  private ConceptSetSnapshotBusinessServiceIF       cSetSnapshotService;
 
   @Autowired
   private EdgeTypeBusinessServiceIF                 graphTypeService;
@@ -194,52 +215,16 @@ public class SnapshotBusinessService
 
   public BusinessEdgeTypeSnapshot createSnapshot(SnapshotContainer<?> version, BusinessEdgeType edgeType, GeoObjectTypeSnapshot root)
   {
-    ObjectClass parent = this.bEdgeService.getParent(edgeType);
-    ObjectClass child = this.bEdgeService.getChild(edgeType);
+    BusinessEdgeTypeDTO dto = this.bEdgeService.toDTO(edgeType);
 
-    boolean parentIsGeoObject = parent instanceof BaseGeoObjectType;
-    boolean childIsGeoObject = child instanceof BaseGeoObjectType;
+    return this.bEdgeSnapshotService.create(version, dto);
+  }
 
-    ObjectTypeSnapshot pSnapshot = parentIsGeoObject ? root : this.getBusinessType(version, parent.getCode());
-    ObjectTypeSnapshot cSnapshot = childIsGeoObject ? root : this.getBusinessType(version, child.getCode());
+  public ConceptEdgeTypeSnapshot createSnapshot(SnapshotContainer<?> version, ConceptEdgeType edgeType)
+  {
+    ConceptEdgeTypeDTO dto = this.cEdgeService.toDTO(edgeType);
 
-    MdEdge mdEdge = null;
-
-    if (version.createTablesWithSnapshot())
-    {
-      String viewName = getEdgeName(edgeType.getMdEdgeDAO());
-
-      MdEdgeDAO mdEdgeDAO = MdEdgeDAO.newInstance();
-      mdEdgeDAO.setValue(MdEdgeInfo.PACKAGE, RegistryConstants.UNIVERSAL_GRAPH_PACKAGE);
-      mdEdgeDAO.setValue(MdEdgeInfo.NAME, viewName);
-      mdEdgeDAO.setValue(MdEdgeInfo.DB_CLASS_NAME, viewName);
-      mdEdgeDAO.setValue(MdEdgeInfo.PARENT_MD_VERTEX, pSnapshot.getGraphMdVertexOid());
-      mdEdgeDAO.setValue(MdEdgeInfo.CHILD_MD_VERTEX, cSnapshot.getGraphMdVertexOid());
-      RegistryLocalizedValueConverter.populate(mdEdgeDAO, MdEdgeInfo.DISPLAY_LABEL, edgeType.getLabel());
-      mdEdgeDAO.setValue(MdEdgeInfo.ENABLE_CHANGE_OVER_TIME, MdAttributeBooleanInfo.FALSE);
-      mdEdgeDAO.apply();
-
-      mdEdge = (MdEdge) BusinessFacade.get(mdEdgeDAO);
-
-      this.assignPermissions(mdEdge);
-    }
-
-    BusinessEdgeTypeSnapshot snapshot = new BusinessEdgeTypeSnapshot();
-    snapshot.setGraphMdEdge(mdEdge);
-    snapshot.setCode(edgeType.getCode());
-    snapshot.setOrgCode(edgeType.getOrganization().getCode());
-    snapshot.setOrigin(edgeType.getOrigin());
-    snapshot.setSequence(edgeType.getSequence());
-    snapshot.setIsChildGeoObject(childIsGeoObject);
-    snapshot.setIsParentGeoObject(parentIsGeoObject);
-    snapshot.setParentType(pSnapshot);
-    snapshot.setChildType(cSnapshot);
-    LocalizedValueConverter.populate(snapshot.getDisplayLabel(), edgeType.getLabel());
-    snapshot.apply();
-
-    version.addSnapshot(snapshot).apply();
-
-    return snapshot;
+    return this.cEdgeSnapshotService.create(version, dto);
   }
 
   public HierarchyTypeSnapshot createSnapshot(SnapshotContainer<?> version, ServerHierarchyType type, GeoObjectTypeSnapshot root)
@@ -440,58 +425,18 @@ public class SnapshotBusinessService
   @Transaction
   public ConceptClassSnapshot createSnapshot(SnapshotContainer<?> version, ConceptClass type)
   {
-    MdVertex graphMdVertex = null;
+    ConceptClassDTO dto = this.cClassService.toDTO(type, true, false);
 
-    if (version.createTablesWithSnapshot())
-    {
-      String viewName = this.oSnapshotService.getTableName(type.getMdVertex().getDbClassName());
+    return  this.cClassSnapshotService.create(version, dto);
+    
+  }
 
-      // Create the MdTable
-      MdVertexDAO mdVertexDAO = MdVertexDAO.newInstance();
-      mdVertexDAO.setValue(MdVertexInfo.NAME, viewName);
-      mdVertexDAO.setValue(MdVertexInfo.PACKAGE, RegistryConstants.TABLE_PACKAGE);
-      RegistryLocalizedValueConverter.populate(mdVertexDAO, MdVertexInfo.DISPLAY_LABEL, type.getLabel());
-      mdVertexDAO.setValue(MdVertexInfo.DB_CLASS_NAME, viewName);
-      mdVertexDAO.setValue(MdVertexInfo.GENERATE_SOURCE, MdAttributeBooleanInfo.FALSE);
-      mdVertexDAO.setValue(MdVertexInfo.ENABLE_CHANGE_OVER_TIME, MdAttributeBooleanInfo.FALSE);
-      mdVertexDAO.apply();
-
-      final MdVertex mdVertex = (MdVertex) BusinessFacade.get(mdVertexDAO);
-
-      List<String> existingAttributes = mdVertexDAO.getAllDefinedMdAttributes().stream().map(attribute -> attribute.definesAttribute()).collect(Collectors.toList());
-
-      type.getAttributeMap().values().stream() //
-          .map(t -> t.toDTO()) //
-          .filter(a -> ! ( a instanceof AttributeGeometryType )) //
-          .filter(a -> !existingAttributes.contains(a.getCode())) //
-          .forEach(attributeType -> {
-            this.bTypeSnapshotService.createMdAttributeFromAttributeType(mdVertex, attributeType);
-          });
-
-      graphMdVertex = mdVertex;
-
-      assignPermissions(mdVertexDAO);
-    }
-
-    ConceptClassSnapshot snapshot = new ConceptClassSnapshot();
-    snapshot.setGraphMdVertex(graphMdVertex);
-    snapshot.setCode(type.getCode());
-    snapshot.setOrgCode(type.getServerOrganization().getCode());
-    snapshot.setOrigin(type.getOrigin());
-    snapshot.setSequence(type.getSequence());
-    RegistryLocalizedValueConverter.populate(snapshot.getDisplayLabel(), type.getLabel());
-    snapshot.apply();
-
-    version.addSnapshot(snapshot).apply();
-
-    type.getAttributeMap().values().stream() //
-        .map(t -> t.toDTO()) //
-        .filter(a -> ! ( a instanceof AttributeGeometryType )) //
-        .forEach(attributeType -> {
-          this.cClassSnapshotService.createAttributeTypeSnapshot(snapshot, attributeType);
-        });
-
-    return snapshot;
+  @Transaction
+  public ConceptSetSnapshot createSnapshot(SnapshotContainer<?> version, ConceptSet set)
+  {
+    ConceptSetDTO dto = this.cSetService.toDTO(set);
+    
+    return this.cSetSnapshotService.create(version, dto);    
   }
 
   public GraphType createType(GraphTypeSnapshot snapshot, GeoObjectTypeSnapshot root)
@@ -532,30 +477,49 @@ public class SnapshotBusinessService
     }
   }
 
-  public BusinessEdgeType createType(BusinessEdgeTypeSnapshot snapshot)
+  public BusinessEdgeType createType(BusinessEdgeTypeDTO dto)
   {
-    LocalizedValue label = LocalizedValueConverter.convertNoAutoCoalesce(snapshot.getDisplayLabel());
-    LocalizedValue description = LocalizedValueConverter.convertNoAutoCoalesce(snapshot.getDescription());
-
-    BusinessEdgeType type = this.bEdgeService.getByCode(snapshot.getCode()).map(t -> {
-      if (t.getSequence() < snapshot.getSequence())
+    BusinessEdgeType type = this.bEdgeService.getByCode(dto.getCode()).map(t -> {
+      if (t.getSequence() < dto.getSeq())
       {
-        this.bEdgeService.update(t, label, description);
+        this.bEdgeService.update(t, dto.getLabel(), dto.getDescription());
       }
 
       return t;
     }).orElseGet(() -> {
-      BusinessEdgeTypeDTO dto = new BusinessEdgeTypeDTO();
-      dto.setCode(snapshot.getCode());
-      dto.setDescription(description);
-      dto.setLabel(label);
-      dto.setOrganizationCode(snapshot.getOrgCode());
-      dto.setOrigin(snapshot.getOrigin());
-      dto.setSeq(snapshot.getSequence());
-      dto.setChildType(snapshot.getIsChildGeoObject() ? BusinessEdgeTypeDTO.GEO_OBJECT_TYPE : snapshot.getChildType().getCode());
-      dto.setParentType(snapshot.getIsParentGeoObject() ? BusinessEdgeTypeDTO.GEO_OBJECT_TYPE : snapshot.getParentType().getCode());
-
       return this.bEdgeService.create(dto);
+    });
+
+    return type;
+  }
+
+  public ConceptEdgeType createType(ConceptEdgeTypeDTO dto)
+  {
+    ConceptEdgeType type = this.cEdgeService.getByCode(dto.getCode()).map(t -> {
+      if (t.getSequence() < dto.getSeq())
+      {
+        this.cEdgeService.update(t, dto.getLabel(), dto.getDescription());
+      }
+
+      return t;
+    }).orElseGet(() -> {
+      return this.cEdgeService.create(dto);
+    });
+
+    return type;
+  }
+
+  public ConceptSet createType(ConceptSetDTO dto)
+  {
+    ConceptSet type = this.cSetService.getByCode(dto.getCode()).map(t -> {
+      if (t.getSequence() < dto.getSequence())
+      {
+        return this.cSetService.apply(dto);
+      }
+
+      return t;
+    }).orElseGet(() -> {
+      return this.cSetService.apply(dto);
     });
 
     return type;
@@ -768,13 +732,20 @@ public class SnapshotBusinessService
     }
     else if (attribute instanceof AttributeClassificationTypeSnapshot)
     {
-//      AttributeClassificationType attributeClassificationType = new AttributeClassificationType(attribute.getCode(), attributeLabel, attributeDescription, attribute.getIsDefault(), attribute.getIsRequired(), attribute.getIsUnique());
-//      attributeClassificationType.setChangeOverTime(attribute.getIsChangeOverTime());
-//      attributeClassificationType.setClassificationType( ( (AttributeClassificationTypeSnapshot) attribute ).getClassificationType());
-//      attributeClassificationType.setRootTerm(new Term( ( (AttributeClassificationTypeSnapshot) attribute ).getRootTerm(), attributeLabel, attributeDescription));
-//
-//      attributeType = attributeClassificationType;
-      throw new UnsupportedOperationException();
+      AttributeClassificationTypeSnapshot attributeSnapshot = (AttributeClassificationTypeSnapshot) attribute;
+
+      AttributeClassificationType attributeClassificationType = new AttributeClassificationType(attribute.getCode(), attributeLabel, attributeDescription, attribute.getIsDefault(), attribute.getIsRequired(), attribute.getIsUnique());
+      attributeClassificationType.setChangeOverTime(attribute.getIsChangeOverTime());
+      attributeClassificationType.setConceptSet(attributeSnapshot.getConceptSet());
+      attributeClassificationType.setStartDate(attributeSnapshot.getStartDate());
+      attributeClassificationType.setEndDate(attributeSnapshot.getEndDate());
+
+      if (StringUtils.isNotBlank(attributeSnapshot.getRootTerm()))
+      {
+        attributeClassificationType.setRootTerm(attributeSnapshot.getRootTerm());
+      }
+
+      attributeType = attributeClassificationType;
     }
     else if (attribute instanceof AttributeBooleanTypeSnapshot)
     {
@@ -842,6 +813,33 @@ public class SnapshotBusinessService
     query.AND(query.getCode().EQ(code));
 
     try (OIterator<? extends BusinessTypeSnapshot> it = query.getIterator())
+    {
+      if (it.hasNext())
+      {
+        return it.next();
+      }
+    }
+
+    return null;
+  }
+
+  public ConceptClassSnapshot getConceptClass(SnapshotContainer<?> version, String code)
+  {
+    if (version instanceof LabeledPropertyGraphTypeVersion)
+    {
+      return this.cClassSnapshotService.get((LabeledPropertyGraphTypeVersion) version, code);
+    }
+
+    QueryFactory factory = new QueryFactory();
+
+    CommitHasSnapshotQuery vQuery = new CommitHasSnapshotQuery(factory);
+    vQuery.WHERE(vQuery.getParent().EQ((Commit) version));
+
+    ConceptClassSnapshotQuery query = new ConceptClassSnapshotQuery(factory);
+    query.WHERE(query.EQ(vQuery.getChild()));
+    query.AND(query.getCode().EQ(code));
+
+    try (OIterator<? extends ConceptClassSnapshot> it = query.getIterator())
     {
       if (it.hasNext())
       {

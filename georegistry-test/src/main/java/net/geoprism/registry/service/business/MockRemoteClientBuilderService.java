@@ -22,10 +22,6 @@ public class MockRemoteClientBuilderService implements RemoteClientBuilderServic
     {
       return new MockStaleRemoteClient();
     }
-    else if (source.equals(DEPENDENCY))
-    {
-      return new MockDependentRemoteClient();
-    }
     else if (source.equals(ERROR))
     {
       return new MockErrorRemoteClient();

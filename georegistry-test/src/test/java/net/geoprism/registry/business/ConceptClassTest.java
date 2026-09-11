@@ -6,6 +6,7 @@ package net.geoprism.registry.business;
 import java.util.List;
 import java.util.Map;
 
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
@@ -36,7 +37,6 @@ import net.geoprism.registry.view.OrganizationGroup;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-
 @RunWith(SpringInstanceTestClassRunner.class)
 public class ConceptClassTest extends FastDatasetTest implements InstanceTestClassListener
 {
@@ -72,6 +72,14 @@ public class ConceptClassTest extends FastDatasetTest implements InstanceTestCla
       Assert.assertNotNull(type.getMdVertex());
       Assert.assertEquals(type.getOrigin(), GeoprismProperties.getOrigin());
       Assert.assertEquals(Long.valueOf(0), type.getSequence());
+
+      // Ensure the default attributes are created
+      List<net.geoprism.registry.graph.AttributeType> attributes = type.getAttributes();
+
+      Assert.assertEquals(3, attributes.size());
+      Assert.assertTrue(attributes.stream().anyMatch(a -> a.getCode().equals(DefaultAttribute.CODE.getName())));
+      Assert.assertTrue(attributes.stream().anyMatch(a -> a.getCode().equals(DefaultAttribute.DATA_SOURCE.getName())));
+      Assert.assertTrue(attributes.stream().anyMatch(a -> a.getCode().equals(DefaultAttribute.DISPLAY_LABEL.getName())));
     }
     finally
     {

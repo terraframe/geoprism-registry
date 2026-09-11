@@ -6,43 +6,42 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import net.geoprism.registry.view.PublishDTO;
+import net.geoprism.registry.view.TypeInfo;
 import net.geoprism.registry.view.serialization.DateDeserializer;
 import net.geoprism.registry.view.serialization.DateSerializer;
-import net.geoprism.registry.view.PublishDTO;
-import net.geoprism.registry.view.TypeClass;
-import net.geoprism.registry.view.TypeInfo;
 
 public class RemoteGeoObjectSetParentEvent implements RemoteEvent
 {
-  private String commitId;
+  private String   commitId;
 
-  private String code;
+  private String   code;
 
-  private String type;
+  private TypeInfo type;
 
-  private String edgeUid;
+  private String   edgeUid;
 
-  private String edgeType;
-
-  @JsonSerialize(using = DateSerializer.class)
-  @JsonDeserialize(using = DateDeserializer.class)
-  private Date   startDate;
+  private TypeInfo edgeType;
 
   @JsonSerialize(using = DateSerializer.class)
   @JsonDeserialize(using = DateDeserializer.class)
-  private Date   endDate;
+  private Date     startDate;
 
-  private String parentType;
+  @JsonSerialize(using = DateSerializer.class)
+  @JsonDeserialize(using = DateDeserializer.class)
+  private Date     endDate;
 
-  private String parentCode;
+  private TypeInfo parentType;
 
-  private String dataSource;
+  private String   parentCode;
+
+  private String   dataSource;
 
   public RemoteGeoObjectSetParentEvent()
   {
   }
 
-  public RemoteGeoObjectSetParentEvent(String commitId, String code, String type, String edgeUid, String edgeType, Date startDate, Date endDate, String parentCode, String parentType, String dataSource)
+  public RemoteGeoObjectSetParentEvent(String commitId, String code, TypeInfo type, String edgeUid, TypeInfo edgeType, Date startDate, Date endDate, String parentCode, TypeInfo parentType, String dataSource)
   {
     super();
     this.commitId = commitId;
@@ -77,12 +76,12 @@ public class RemoteGeoObjectSetParentEvent implements RemoteEvent
     this.code = code;
   }
 
-  public String getType()
+  public TypeInfo getType()
   {
     return type;
   }
 
-  public void setType(String type)
+  public void setType(TypeInfo type)
   {
     this.type = type;
   }
@@ -97,12 +96,12 @@ public class RemoteGeoObjectSetParentEvent implements RemoteEvent
     this.edgeUid = edgeUid;
   }
 
-  public String getEdgeType()
+  public TypeInfo getEdgeType()
   {
     return edgeType;
   }
 
-  public void setEdgeType(String edgeType)
+  public void setEdgeType(TypeInfo edgeType)
   {
     this.edgeType = edgeType;
   }
@@ -127,12 +126,12 @@ public class RemoteGeoObjectSetParentEvent implements RemoteEvent
     this.endDate = endDate;
   }
 
-  public String getParentType()
+  public TypeInfo getParentType()
   {
     return parentType;
   }
 
-  public void setParentType(String parentType)
+  public void setParentType(TypeInfo parentType)
   {
     this.parentType = parentType;
   }
@@ -161,13 +160,13 @@ public class RemoteGeoObjectSetParentEvent implements RemoteEvent
   @JsonIgnore
   public String getBaseObjectId()
   {
-    return this.code + "#" + this.type + "_H_" + this.edgeType;
+    return this.code + "#" + this.type.getTypeCode() + "_H_" + this.edgeType.getTypeCode();
   }
 
   @Override
   public boolean isValid(PublishDTO dto)
   {
-    return !dto.getExclusions().contains(TypeInfo.build(edgeType, TypeClass.HIERARCHY));
+    return !dto.getExclusions().contains(edgeType);
   }
 
 }

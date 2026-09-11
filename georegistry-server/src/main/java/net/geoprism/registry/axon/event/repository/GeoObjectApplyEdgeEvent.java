@@ -6,25 +6,21 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
-import net.geoprism.registry.graph.DirectedAcyclicGraphType;
-import net.geoprism.registry.graph.UndirectedGraphType;
 import net.geoprism.registry.view.PublishDTO;
-import net.geoprism.registry.view.TypeClass;
+import net.geoprism.registry.view.TypeInfo;
 
 public class GeoObjectApplyEdgeEvent extends AbstractGeoObjectEdgeEvent implements GeoObjectEvent, ImportHistoryEvent
 {
 
   private String         sourceCode;
 
-  private String         sourceType;
+  private TypeInfo       sourceType;
 
   private String         edgeUid;
 
-  private String         edgeType;
+  private TypeInfo       edgeType;
 
-  private String         edgeTypeCode;
-
-  private String         targetType;
+  private TypeInfo       targetType;
 
   private String         targetCode;
 
@@ -44,20 +40,24 @@ public class GeoObjectApplyEdgeEvent extends AbstractGeoObjectEdgeEvent implemen
   {
   }
 
-  public GeoObjectApplyEdgeEvent(String sourceCode, String sourceType, String edgeType, String edgeTypeCode, String targetCode, String targetType, Date startDate, Date endDate, String dataSource, ImportStrategy strategy, Boolean validate)
+  public GeoObjectApplyEdgeEvent(String sourceCode, TypeInfo sourceType, TypeInfo edgeType, String targetCode, TypeInfo targetType, Date startDate, Date endDate, String dataSource, ImportStrategy strategy, Boolean validate)
   {
-    this(sourceCode, sourceType, edgeType, edgeTypeCode, targetCode, targetType, startDate, endDate, dataSource, strategy, validate, null);
+    this(sourceCode, sourceType, edgeType, targetCode, targetType, startDate, endDate, dataSource, strategy, validate, null);
   }
 
-  public GeoObjectApplyEdgeEvent(String sourceCode, String sourceType, String edgeType, String edgeTypeCode, String targetCode, String targetType, Date startDate, Date endDate, String dataSource, ImportStrategy strategy, Boolean validate, String historyId)
+  public GeoObjectApplyEdgeEvent(String sourceCode, TypeInfo sourceType, TypeInfo edgeType, String targetCode, TypeInfo targetType, Date startDate, Date endDate, String dataSource, ImportStrategy strategy, Boolean validate, String historyId)
+  {
+    this(UUID.randomUUID().toString(), sourceCode, sourceType, edgeType, targetCode, targetType, startDate, endDate, dataSource, strategy, validate, historyId);
+  }
+
+  public GeoObjectApplyEdgeEvent(String edgeUid, String sourceCode, TypeInfo sourceType, TypeInfo edgeType, String targetCode, TypeInfo targetType, Date startDate, Date endDate, String dataSource, ImportStrategy strategy, Boolean validate, String historyId)
   {
     super(UUID.randomUUID().toString());
 
-    this.edgeUid = UUID.randomUUID().toString();
+    this.edgeUid = edgeUid;
     this.sourceCode = sourceCode;
     this.sourceType = sourceType;
     this.edgeType = edgeType;
-    this.edgeTypeCode = edgeTypeCode;
     this.targetCode = targetCode;
     this.targetType = targetType;
     this.startDate = startDate;
@@ -78,12 +78,12 @@ public class GeoObjectApplyEdgeEvent extends AbstractGeoObjectEdgeEvent implemen
     this.sourceCode = sourceCode;
   }
 
-  public String getSourceType()
+  public TypeInfo getSourceType()
   {
     return sourceType;
   }
 
-  public void setSourceType(String sourceType)
+  public void setSourceType(TypeInfo sourceType)
   {
     this.sourceType = sourceType;
   }
@@ -98,32 +98,22 @@ public class GeoObjectApplyEdgeEvent extends AbstractGeoObjectEdgeEvent implemen
     this.edgeUid = edgeUid;
   }
 
-  public String getEdgeType()
+  public TypeInfo getEdgeType()
   {
     return edgeType;
   }
 
-  public void setEdgeType(String edgeType)
+  public void setEdgeType(TypeInfo edgeType)
   {
     this.edgeType = edgeType;
   }
 
-  public String getEdgeTypeCode()
-  {
-    return edgeTypeCode;
-  }
-
-  public void setEdgeTypeCode(String edgeTypeCode)
-  {
-    this.edgeTypeCode = edgeTypeCode;
-  }
-
-  public String getTargetType()
+  public TypeInfo getTargetType()
   {
     return targetType;
   }
 
-  public void setTargetType(String targetType)
+  public void setTargetType(TypeInfo targetType)
   {
     this.targetType = targetType;
   }
@@ -178,6 +168,16 @@ public class GeoObjectApplyEdgeEvent extends AbstractGeoObjectEdgeEvent implemen
     this.dataSource = dataSource;
   }
 
+  public ImportStrategy getStrategy()
+  {
+    return strategy;
+  }
+
+  public void setStrategy(ImportStrategy strategy)
+  {
+    this.strategy = strategy;
+  }
+
   public String getHistoryId()
   {
     return historyId;
@@ -189,42 +189,19 @@ public class GeoObjectApplyEdgeEvent extends AbstractGeoObjectEdgeEvent implemen
   }
 
   @Override
-  public String getEdgeClassType()
-  {
-    return this.edgeType;
-  }
-
-  public ImportStrategy getStrategy()
-  {
-    return strategy;
-  }
-
-  public void setStrategy(ImportStrategy strategy)
-  {
-    this.strategy = strategy;
-  }
-
-  @Override
   public Boolean isValidFor(PublishDTO dto)
   {
-    String edgeType = this.getEdgeType();
-
-    if ( ( edgeType.equals(TypeClass.DAG.getCode()) || edgeType.equals(DirectedAcyclicGraphType.class.getName()) ) && !dto.getDagTypes().anyMatch(this.getEdgeTypeCode()::equals))
+    if (!dto.getTypes().stream().anyMatch(this.getEdgeType()::equals))
     {
       return false;
     }
 
-    if ( ( edgeType.equals(TypeClass.UNDIRECTED_GRAPH.getCode()) || edgeType.equals(UndirectedGraphType.class.getName()) ) && !dto.getUndirectedTypes().anyMatch(this.getEdgeTypeCode()::equals))
+    if (!dto.getTypes().stream().anyMatch(this.getSourceType()::equals))
     {
       return false;
     }
 
-    if (!dto.getGeoObjectTypes().anyMatch(this.getSourceType()::equals))
-    {
-      return false;
-    }
-
-    if (!dto.getGeoObjectTypes().anyMatch(this.getTargetType()::equals))
+    if (!dto.getTypes().stream().anyMatch(this.getTargetType()::equals))
     {
       return false;
     }
@@ -237,10 +214,7 @@ public class GeoObjectApplyEdgeEvent extends AbstractGeoObjectEdgeEvent implemen
   @JsonIgnore
   public String getBaseObjectId()
   {
-    String delimeter = this.edgeType.equals(TypeClass.HIERARCHY.getCode()) ? "_H_" //
-        : this.edgeType.equals(TypeClass.DAG.getCode()) ? "_D_" : "_U_";
-
-    return this.sourceCode + "#" + this.sourceType + delimeter + this.edgeTypeCode + this.targetCode + "#" + this.targetType;
+    return this.edgeUid;
   }
 
   @Override

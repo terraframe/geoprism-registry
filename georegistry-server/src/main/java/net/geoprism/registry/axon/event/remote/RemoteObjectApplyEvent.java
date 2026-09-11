@@ -2,14 +2,17 @@ package net.geoprism.registry.axon.event.remote;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import net.geoprism.registry.view.ObjectAtTimeDTO;
+import net.geoprism.registry.view.PublishDTO;
+import net.geoprism.registry.view.TypeInfo;
 import net.geoprism.registry.view.serialization.DateDeserializer;
 import net.geoprism.registry.view.serialization.DateSerializer;
 
-public abstract class RemoteObjectEvent implements RemoteEvent
+public class RemoteObjectApplyEvent implements RemoteEvent
 {
   private String          commitId;
 
@@ -17,7 +20,7 @@ public abstract class RemoteObjectEvent implements RemoteEvent
 
   private String          code;
 
-  private String          type;
+  private TypeInfo        type;
 
   private ObjectAtTimeDTO object;
 
@@ -29,16 +32,16 @@ public abstract class RemoteObjectEvent implements RemoteEvent
   @JsonDeserialize(using = DateDeserializer.class)
   private Date            endDate;
 
-  public RemoteObjectEvent()
+  public RemoteObjectApplyEvent()
   {
   }
 
-  public RemoteObjectEvent(String commitId, String code, String type, ObjectAtTimeDTO object, Date startDate, Date endDate)
+  public RemoteObjectApplyEvent(String commitId, String code, TypeInfo type, ObjectAtTimeDTO object, Date startDate, Date endDate)
   {
     this(commitId, code + "#" + type, code, type, object, startDate, endDate);
   }
 
-  public RemoteObjectEvent(String commitId, String key, String code, String type, ObjectAtTimeDTO object, Date startDate, Date endDate)
+  public RemoteObjectApplyEvent(String commitId, String key, String code, TypeInfo type, ObjectAtTimeDTO object, Date startDate, Date endDate)
   {
     super();
 
@@ -71,12 +74,12 @@ public abstract class RemoteObjectEvent implements RemoteEvent
     this.key = key;
   }
 
-  public String getType()
+  public TypeInfo getType()
   {
     return type;
   }
 
-  public void setType(String type)
+  public void setType(TypeInfo type)
   {
     this.type = type;
   }
@@ -120,4 +123,18 @@ public abstract class RemoteObjectEvent implements RemoteEvent
   {
     this.endDate = endDate;
   }
+
+  @Override
+  public boolean isValid(PublishDTO dto)
+  {
+    return !dto.getExclusions().contains(this.getType());
+  }
+
+  @Override
+  @JsonIgnore
+  public String getBaseObjectId()
+  {
+    return this.getCode() + "#" + this.getType().getTypeCode() + "#" + this.getType().getTypeClass().getShortCode();
+  }
+
 }

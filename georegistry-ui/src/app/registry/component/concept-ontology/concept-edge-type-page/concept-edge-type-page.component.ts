@@ -29,7 +29,6 @@ import { ManageConceptEdgeTypeComponent } from "./manage-concept-edge-type.compo
 import { BsDropdownModule } from "ngx-bootstrap/dropdown";
 import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { NgIf, NgFor, NgClass } from "@angular/common";
-import { AccordionModule } from "ngx-bootstrap/accordion";
 import { ModalTypes } from "@shared/model/modal";
 import { ConceptEdgeTypeService } from "@registry/service/concept-edge-type.service";
 import { Organization } from "@shared/model/core";
@@ -56,7 +55,7 @@ interface Selection {
     templateUrl: "./concept-edge-type-page.component.html",
     styleUrls: ["./concept-edge-type-page.css"],
     standalone: true,
-    imports: [AccordionModule, NgIf, LocalizeComponent, NgFor, NgClass, BsDropdownModule, ManageConceptEdgeTypeComponent]
+    imports: [NgIf, LocalizeComponent, NgFor, NgClass, BsDropdownModule, ManageConceptEdgeTypeComponent]
 })
 export class ConceptEdgeTypePageComponent implements OnInit, OnDestroy, OnChanges {
     Action = Action;
@@ -103,6 +102,19 @@ export class ConceptEdgeTypePageComponent implements OnInit, OnDestroy, OnChange
                     write: this.authService.isSRA() || this.authService.isOrganizationRA(org.code),
                     types: types.filter(t => t.organizationCode === org.code)
                 });
+            }
+
+            if (this.selection == null) {
+                this.selectFirstAvailable();
+            }
+        }
+    }
+
+    private selectFirstAvailable(): void {
+        for (const item of this.typesByOrg) {
+            if (item.types.length > 0) {
+                this.handleTypeView(item.types[0]);
+                return;
             }
         }
     }

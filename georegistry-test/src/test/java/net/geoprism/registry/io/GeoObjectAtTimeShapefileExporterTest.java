@@ -4,7 +4,6 @@
 package net.geoprism.registry.io;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
@@ -46,22 +45,10 @@ import net.geoprism.registry.test.FastTestDataset;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class GeoObjectAtTimeShapefileExporterTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  @Before
-  public void setUp()
-  {
-    if (testData != null)
-    {
-      testData.setUpInstanceData();
-    }
-  }
-
   @After
-  public void tearDown() throws IOException
+  public void tearDown() throws Exception
   {
-    if (testData != null)
-    {
-      testData.tearDownInstanceData();
-    }
+    super.tearDown();
 
     FileUtils.deleteDirectory(new File(VaultProperties.getPath("vault.default"), "files"));
   }
@@ -162,7 +149,7 @@ public class GeoObjectAtTimeShapefileExporterTest extends FastDatasetTest implem
 
   @Test
   @Request
-  public void testWriteToFile() throws IOException
+  public void testWriteToFile() throws Exception
   {
     ServerGeoObjectType type = FastTestDataset.PROVINCE.getServerObject();
 
@@ -178,7 +165,7 @@ public class GeoObjectAtTimeShapefileExporterTest extends FastDatasetTest implem
 
   @Test
   @Request
-  public void testExport() throws IOException
+  public void testExport() throws Exception
   {
     ServerGeoObjectType type = FastTestDataset.PROVINCE.getServerObject();
 

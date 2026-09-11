@@ -105,8 +105,11 @@ public class ConceptObjectImporterTest extends FastDatasetTest implements Instan
 
   @Before
   @Request
-  public void before()
+  @Override
+  public void setUp() throws Exception
   {
+    super.setUp();
+
     // Clear out the event table
     Database.deleteWhere("domainevententry", "true");
   }
@@ -153,8 +156,11 @@ public class ConceptObjectImporterTest extends FastDatasetTest implements Instan
 
   @After
   @Request
-  public void tearDown()
+  @Override
+  public void tearDown() throws Exception
   {
+    super.tearDown();
+
     this.store.truncate();
   }
 

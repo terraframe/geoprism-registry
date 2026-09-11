@@ -48,22 +48,6 @@ public class ConversionTest extends USADatasetTest implements InstanceTestClassL
     testGo = testData.newTestGeoObjectInfo("ConversionTest", USATestData.STATE, USATestData.SOURCE);
   }
 
-  @Before
-  public void setUp()
-  {
-    testGo.delete();
-
-    testData.logIn(USATestData.USER_NPS_RA);
-  }
-
-  @After
-  public void tearDown()
-  {
-    testData.logOut();
-
-    testGo.delete();
-  }
-
   @Test
   public void testAttributeTypeDateTree()
   {

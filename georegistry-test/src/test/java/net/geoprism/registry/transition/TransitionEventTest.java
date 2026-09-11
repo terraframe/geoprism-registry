@@ -3,7 +3,6 @@
  */
 package net.geoprism.registry.transition;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -15,9 +14,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,22 +60,6 @@ public class TransitionEventTest extends FastDatasetTest implements InstanceTest
 
   @Autowired
   private TransitionBusinessServiceIF       tranService;
-
-  @Before
-  public void setUp()
-  {
-    testData.setUpInstanceData();
-
-    testData.logIn(FastTestDataset.USER_CGOV_RA);
-  }
-
-  @After
-  public void tearDown()
-  {
-    testData.logOut();
-
-    testData.tearDownInstanceData();
-  }
 
   @Test
   @Request
@@ -408,7 +389,7 @@ public class TransitionEventTest extends FastDatasetTest implements InstanceTest
 
   @Test
   @Request
-  public void testExportHistoricalReportToExcel() throws IOException
+  public void testExportHistoricalReportToExcel() throws Exception
   {
     TransitionEvent event = new TransitionEvent();
 

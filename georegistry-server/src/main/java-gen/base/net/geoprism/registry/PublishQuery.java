@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1850113316)
+@com.runwaysdk.business.ClassSignature(hash = 1317539560)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -37,6 +37,23 @@ public  class PublishQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   public String getClassType()
   {
     return net.geoprism.registry.Publish.CLASS;
+  }
+  public com.runwaysdk.query.SelectableChar getConceptSet()
+  {
+    return getConceptSet(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getConceptSet(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.Publish.CONCEPTSET, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getConceptSet(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.Publish.CONCEPTSET, alias, displayLabel);
+
   }
   public com.runwaysdk.query.SelectableMoment getCreateDate()
   {
@@ -492,6 +509,9 @@ public  class PublishQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   public interface PublishQueryReferenceIF extends com.runwaysdk.query.SelectableReference
   {
 
+    public com.runwaysdk.query.SelectableChar getConceptSet();
+    public com.runwaysdk.query.SelectableChar getConceptSet(String alias);
+    public com.runwaysdk.query.SelectableChar getConceptSet(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableMoment getCreateDate();
     public com.runwaysdk.query.SelectableMoment getCreateDate(String alias);
     public com.runwaysdk.query.SelectableMoment getCreateDate(String alias, String displayLabel);
@@ -587,6 +607,23 @@ public  class PublishQuery extends com.runwaysdk.query.GeneratedBusinessQuery
       return this.NE(publish.getOid());
     }
 
+  public com.runwaysdk.query.SelectableChar getConceptSet()
+  {
+    return getConceptSet(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getConceptSet(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.Publish.CONCEPTSET, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getConceptSet(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.Publish.CONCEPTSET, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableMoment getCreateDate()
   {
     return getCreateDate(null);
@@ -982,6 +1019,9 @@ public  class PublishQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   public interface PublishQueryMultiReferenceIF extends com.runwaysdk.query.SelectableMultiReference
   {
 
+    public com.runwaysdk.query.SelectableChar getConceptSet();
+    public com.runwaysdk.query.SelectableChar getConceptSet(String alias);
+    public com.runwaysdk.query.SelectableChar getConceptSet(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableMoment getCreateDate();
     public com.runwaysdk.query.SelectableMoment getCreateDate(String alias);
     public com.runwaysdk.query.SelectableMoment getCreateDate(String alias, String displayLabel);
@@ -1125,6 +1165,23 @@ public  class PublishQuery extends com.runwaysdk.query.GeneratedBusinessQuery
       }
 
       return this.containsExactly(itemIdArray);
+  }
+  public com.runwaysdk.query.SelectableChar getConceptSet()
+  {
+    return getConceptSet(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getConceptSet(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.Publish.CONCEPTSET, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getConceptSet(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.Publish.CONCEPTSET, alias, displayLabel);
+
   }
   public com.runwaysdk.query.SelectableMoment getCreateDate()
   {

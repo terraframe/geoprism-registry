@@ -150,21 +150,11 @@ public class FhirExportTest extends USADatasetTest implements InstanceTestClassL
   }
 
   @Before
-  public void setUp()
+  public void setUp() throws Exception
   {
-    testData.setUpInstanceData();
+    super.setUp();
 
     syncService = new SynchronizationConfigService();
-
-    testData.logIn(USATestData.USER_NPS_RA);
-  }
-
-  @After
-  public void tearDown()
-  {
-    testData.logOut();
-
-    testData.tearDownInstanceData();
   }
 
   @Request

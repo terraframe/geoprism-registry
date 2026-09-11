@@ -101,12 +101,12 @@ public class BusinessObjectEventBuilder
     this.events = events;
   }
 
-  public void addEvent(BusinessObjectEvent event)
+  public void addEvent(BaseObjectEvent event)
   {
     this.events.add(event);
   }
 
-  public void addEvent(Optional<BusinessObjectEvent> event)
+  public void addEvent(Optional<BaseObjectEvent> event)
   {
     event.ifPresent(events::add);
   }
@@ -157,7 +157,7 @@ public class BusinessObjectEventBuilder
     {
       ObjectOverTimeDTO dto = service.toDTO(object);
 
-      BusinessObjectApplyEvent event = new BusinessObjectApplyEvent(object.getCode(), object.getType().getCode(), dto, isNew);
+      BusinessObjectApplyEvent event = new BusinessObjectApplyEvent(object.getCode(), object.getType().getTypeInfo(), dto, isNew);
 
       if (this.configuration != null)
       {

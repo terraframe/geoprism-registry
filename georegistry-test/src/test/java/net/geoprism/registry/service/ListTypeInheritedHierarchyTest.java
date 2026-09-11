@@ -60,23 +60,19 @@ public class ListTypeInheritedHierarchyTest extends USADatasetTest implements In
   }
 
   @Before
-  public void setUp()
+  public void setUp() throws Exception
   {
+    super.setUp();
+
     cleanUpExtra();
-
-    testData.setUpInstanceData();
-
-    testData.logIn(USATestData.USER_NPS_RA);
   }
 
   @After
-  public void tearDown()
+  public void tearDown() throws Exception
   {
-    testData.logOut();
-
     cleanUpExtra();
 
-    testData.tearDownInstanceData();
+    super.tearDown();
   }
 
   @Request

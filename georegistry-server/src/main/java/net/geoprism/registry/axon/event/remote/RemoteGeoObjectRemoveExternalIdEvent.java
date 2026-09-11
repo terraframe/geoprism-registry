@@ -3,24 +3,23 @@ package net.geoprism.registry.axon.event.remote;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.geoprism.registry.view.PublishDTO;
-import net.geoprism.registry.view.TypeClass;
 import net.geoprism.registry.view.TypeInfo;
 
 public class RemoteGeoObjectRemoveExternalIdEvent implements RemoteEvent
 {
-  private String commitId;
+  private String   commitId;
 
-  private String code;
+  private String   code;
 
-  private String type;
+  private TypeInfo type;
 
-  private String authority;
+  private String   authority;
 
   public RemoteGeoObjectRemoveExternalIdEvent()
   {
   }
 
-  public RemoteGeoObjectRemoveExternalIdEvent(String commitId, String code, String type, String authority)
+  public RemoteGeoObjectRemoveExternalIdEvent(String commitId, String code, TypeInfo type, String authority)
   {
     super();
     this.commitId = commitId;
@@ -49,12 +48,12 @@ public class RemoteGeoObjectRemoveExternalIdEvent implements RemoteEvent
     this.code = code;
   }
 
-  public String getType()
+  public TypeInfo getType()
   {
     return type;
   }
 
-  public void setType(String type)
+  public void setType(TypeInfo type)
   {
     this.type = type;
   }
@@ -73,12 +72,12 @@ public class RemoteGeoObjectRemoveExternalIdEvent implements RemoteEvent
   @JsonIgnore
   public String getBaseObjectId()
   {
-    return this.code + "#" + this.type + "_S_" + this.authority;
+    return this.code + "#" + this.type.getTypeCode() + "_S_" + this.authority;
   }
 
   @Override
   public boolean isValid(PublishDTO dto)
   {
-    return !dto.getExclusions().contains(TypeInfo.build(type, TypeClass.GEO_OBJECT_TYPE));
+    return !dto.getExclusions().contains(type);
   }
 }

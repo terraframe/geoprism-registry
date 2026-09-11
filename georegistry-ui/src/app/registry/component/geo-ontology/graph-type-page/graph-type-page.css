@@ -22,21 +22,57 @@ li.list-group-item {
 }
 
 li.list-group-item.active {
-    background-color: #DBD7A5;
+    background-color: #A29BAB;
+    color: var(--theme-primary-color, #3E2A5A);
+    font-weight: 700;
 }
 
 li.list-group-item.graph-li-item {
-	background: #6e6775;
-    border: 2px solid #3E2A5A;
-    color: white;
+	background: transparent;
+	border: none;
+	border-radius: 6px;
+	color: var(--theme-text-dark, #767676);
+	padding: 10px 5px;
+	margin: 0 5px 2px 5px;
+	cursor: pointer;
+}
+
+li.list-group-item.graph-li-item {
+	display: flex;
+	align-items: center;
+}
+li.list-group-item.graph-li-item .btn-group.pull-right {
+	float: none;
+	margin-left: auto;
+}
+li.list-group-item.graph-li-item .btn-group.pull-right > a {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 4px 6px;
+	border-radius: 4px;
+}
+li.list-group-item.graph-li-item .btn-group.pull-right > a:hover {
+	background-color: #f4fcef;
 }
 li.list-group-item.graph-li-item i.fa {
-	color: white;
+	color: var(--theme-text-dark, #767676);
+}
+
+li.list-group-item.graph-li-item:hover {
+	background-color: rgba(162, 155, 171, 0.4);
+	cursor: pointer;
 }
 
 li.list-group-item.graph-li-item.primary
 {
-	background: #3E2A5A;
+	background: #A29BAB;
+	color: var(--theme-primary-color, #3E2A5A);
+	font-weight: 700;
+}
+
+li.list-group-item.graph-li-item.primary i.fa {
+	color: var(--theme-primary-color, #3E2A5A);
 }
 
 
@@ -84,6 +120,12 @@ ul li:last-child:before {
 	overflow-y: auto;
 }
 
+.sidebar-divider {
+	margin: 0;
+	border: none;
+	border-top: 1px solid #ddd;
+}
+
 .hierarchy-sidebar button {
 	margin:0;
 }
@@ -101,8 +143,8 @@ ul li:last-child:before {
 }
 
 .hierarchy-content {
-	height: calc(100vh - 50px);
-    overflow: auto;
+    height: calc(100vh - 50px);
+    overflow-y: auto;
 }
 
 #overflow-div {
@@ -122,13 +164,6 @@ ul li:last-child:before {
 
 
 
-.hierarchy-sidebar-content .panel-body {
-/* 	color: #6e6775; */
-	background-color: #f1f1f1;
-	max-height: 500px;
-    overflow: auto;
-}
-
 .sidebar-section-header {
 	margin-left:20px;
 	cursor: pointer;
@@ -140,8 +175,8 @@ accordion-group.panel {
 }
 
 li.list-group-item {
-	background-color: rgba(255, 255, 255, 1.0);
-	margin-bottom:5px;
+	background-color: transparent;
+	margin-bottom: 0;
 }
 
 .drop-box-container {

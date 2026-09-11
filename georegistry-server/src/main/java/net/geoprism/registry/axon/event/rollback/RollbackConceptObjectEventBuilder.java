@@ -5,7 +5,7 @@ import java.util.List;
 
 import net.geoprism.registry.axon.event.repository.ConceptObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.ConceptObjectEvent;
-import net.geoprism.registry.axon.event.repository.RemoveConceptObjectEvent;
+import net.geoprism.registry.axon.event.repository.RemoveObjectEvent;
 import net.geoprism.registry.axon.event.repository.RepositoryEvent;
 
 public class RollbackConceptObjectEventBuilder extends RollbackEventBuilder
@@ -47,7 +47,7 @@ public class RollbackConceptObjectEventBuilder extends RollbackEventBuilder
 
     if (this.original.getIsNew())
     {
-      list.add(new RemoveConceptObjectEvent(this.original.getCode(), this.original.getType()));
+      list.add(new RemoveObjectEvent(this.original.getCode(), this.original.getType()));
     }
     else if (this.events.size() > 0)
     {

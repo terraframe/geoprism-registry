@@ -59,23 +59,19 @@ public class HierarchyServiceTest extends FastDatasetTest implements InstanceTes
   }
 
   @Before
-  public void setUp()
+  public void setUp() throws Exception
   {
-    testData.setUpInstanceData();
+    super.setUp();
 
     deleteExtraMetadata();
-
-    testData.logIn(FastTestDataset.USER_CGOV_RA);
   }
 
   @After
-  public void tearDown()
+  public void tearDown() throws Exception
   {
-    testData.logOut();
-
     deleteExtraMetadata();
 
-    testData.tearDownInstanceData();
+    super.tearDown();
   }
 
   private void deleteExtraMetadata()

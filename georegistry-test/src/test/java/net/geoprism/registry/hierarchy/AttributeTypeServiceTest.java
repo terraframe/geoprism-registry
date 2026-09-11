@@ -11,7 +11,6 @@ import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.commongeoregistry.adapter.metadata.CodeReference;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.MetadataFactory;
 import org.junit.After;
@@ -48,23 +47,19 @@ public class AttributeTypeServiceTest extends FastDatasetTest implements Instanc
   private TestRegistryClient                client;
 
   @Before
-  public void setUp()
+  public void setUp() throws Exception
   {
-    testData.setUpInstanceData();
+    super.setUp();
 
     setUpExtras();
-
-    testData.logIn(FastTestDataset.USER_CGOV_RA);
   }
 
   @After
-  public void tearDown()
+  public void tearDown() throws Exception
   {
-    testData.logOut();
-
     cleanUpExtras();
 
-    testData.tearDownInstanceData();
+    super.tearDown();
   }
 
   private void cleanUpExtras()
@@ -185,7 +180,7 @@ public class AttributeTypeServiceTest extends FastDatasetTest implements Instanc
 
     AttributeClassificationType attributeClassificationType = (AttributeClassificationType) AttributeType.factory("testClassification", new LocalizedValue("Test Classification Name"), new LocalizedValue("Test Classification Description"), AttributeClassificationType.TYPE, false, false, false);
     attributeClassificationType.setConceptSet(cSet.getCode());
-    attributeClassificationType.setRootTerm(CodeReference.build(rootConcept.getCode(), rootConcept.getType().getCode()));
+    attributeClassificationType.setRootTerm(rootConcept.getCode());
     attributeClassificationType.setStartDate(TestDataSet.DEFAULT_OVER_TIME_DATE);
     attributeClassificationType.setEndDate(TestDataSet.DEFAULT_OVER_TIME_DATE);
 
@@ -206,7 +201,7 @@ public class AttributeTypeServiceTest extends FastDatasetTest implements Instanc
     Assert.assertNotNull("A GeoObjectType did not define the attribute: " + attributeClassificationType.getCode(), mdAttributeConcreteDAOIF);
     Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof net.geoprism.registry.graph.AttributeClassificationType);
 
-    CodeReference rootTerm = attributeClassificationType.getRootTerm();
+    String rootTerm = attributeClassificationType.getRootTerm();
 
     Assert.assertNotNull("AttributeClassification root term not set correctly: " + attributeClassificationType.getCode(), rootTerm);
   }

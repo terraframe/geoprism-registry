@@ -13,7 +13,6 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
-import org.commongeoregistry.adapter.metadata.CodeReference;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.junit.Assert;
 import org.junit.Test;
@@ -229,7 +228,7 @@ public class BasicGeoObjectTypeServiceTest extends ConceptDatasetTest implements
     {
       AttributeClassificationType attributeDto = new AttributeClassificationType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test Character"), false, false, false);
       attributeDto.setConceptSet(cSet.getCode());
-      attributeDto.setRootTerm(CodeReference.build(rootConcept.getCode(), rootConcept.getType().getCode()));
+      attributeDto.setRootTerm(rootConcept.getCode());
       attributeDto.setStartDate(TestDataSet.DEFAULT_OVER_TIME_DATE);
       attributeDto.setEndDate(TestDataSet.DEFAULT_END_TIME_DATE);
 

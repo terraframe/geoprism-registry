@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.view.PublishDTO;
-import net.geoprism.registry.view.TypeClass;
 import net.geoprism.registry.view.TypeInfo;
 
 public class ObjectApplyEdgeEvent extends AbstractObjectEdgeEvent implements RepositoryEvent, ImportHistoryEvent
@@ -47,9 +46,14 @@ public class ObjectApplyEdgeEvent extends AbstractObjectEdgeEvent implements Rep
 
   public ObjectApplyEdgeEvent(String sourceCode, TypeInfo sourceType, TypeInfo edgeType, String targetCode, TypeInfo targetType, Date startDate, Date endDate, String dataSource, ImportStrategy strategy, Boolean validate, String historyId)
   {
+    this(UUID.randomUUID().toString(), sourceCode, sourceType, edgeType, targetCode, targetType, startDate, endDate, dataSource, strategy, validate, historyId);
+  }
+
+  public ObjectApplyEdgeEvent(String edgeUid, String sourceCode, TypeInfo sourceType, TypeInfo edgeType, String targetCode, TypeInfo targetType, Date startDate, Date endDate, String dataSource, ImportStrategy strategy, Boolean validate, String historyId)
+  {
     super(UUID.randomUUID().toString());
 
-    this.edgeUid = UUID.randomUUID().toString();
+    this.edgeUid = edgeUid;
     this.sourceCode = sourceCode;
     this.sourceType = sourceType;
     this.edgeType = edgeType;
@@ -196,27 +200,19 @@ public class ObjectApplyEdgeEvent extends AbstractObjectEdgeEvent implements Rep
     Date date = dto.getDate();
 
     // Ensure the source type is valid to be published
-    if ( ( ( this.getSourceType().getTypeClass().equals(TypeClass.BUSINESS_TYPE) && !dto.getBusinessTypes().anyMatch(this.getSourceType().getTypeCode()::equals) ) //
-        || ( this.getSourceType().getTypeClass().equals(TypeClass.GEO_OBJECT_TYPE) && !dto.getGeoObjectTypes().anyMatch(this.getSourceType().getTypeCode()::equals) ) //
-        || ( this.getSourceType().getTypeClass().equals(TypeClass.CONCEPT_CLASS) && !dto.getConceptClasses().anyMatch(this.getSourceType().getTypeCode()::equals) ) //
-    ))
+    if (!dto.getTypes().stream().anyMatch(this.getSourceType()::equals))
     {
       return false;
     }
 
     // Ensure the target type is valid to be published
-    if ( ( ( this.getTargetType().getTypeClass().equals(TypeClass.BUSINESS_TYPE) && !dto.getBusinessTypes().anyMatch(this.getTargetType().getTypeCode()::equals) ) //
-        || ( this.getTargetType().getTypeClass().equals(TypeClass.GEO_OBJECT_TYPE) && !dto.getGeoObjectTypes().anyMatch(this.getTargetType().getTypeCode()::equals) ) //
-        || ( this.getTargetType().getTypeClass().equals(TypeClass.CONCEPT_CLASS) && !dto.getConceptClasses().anyMatch(this.getTargetType().getTypeCode()::equals) ) //
-    ))
+    if (!dto.getTypes().stream().anyMatch(this.getTargetType()::equals))
     {
       return false;
     }
 
     // Ensure the edge type is valid to be published
-    if ( ( ( this.getEdgeType().getTypeClass().equals(TypeClass.BUSINESS_EDGE) && !dto.getBusinessEdgeTypes().anyMatch(this.getEdgeType().getTypeCode()::equals) ) //
-        || ( this.getEdgeType().getTypeClass().equals(TypeClass.CONCEPT_EDGE) && !dto.getConceptEdgeTypes().anyMatch(this.getEdgeType().getTypeCode()::equals) ) //
-    ))
+    if (!dto.getTypes().stream().anyMatch(this.getEdgeType()::equals))
     {
       return false;
     }

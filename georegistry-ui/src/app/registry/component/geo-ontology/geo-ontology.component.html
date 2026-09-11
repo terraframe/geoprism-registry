@@ -19,52 +19,49 @@
 
 -->
 <page-container>
+
+    @if (loaded && organizations.length > 0) {
+
+    <geo-object-type-page [hidden]="section !== 'geo-object-type'" [userOrganization]="userOrganization"
+        [organizations]="organizations" [types]="geoObjectTypes" (typesChange)="setGeoObjectTypes($event)"
+        (onError)="error($event)">
+        <ontology-section-nav sectionNav [items]="sections" [(active)]="section"></ontology-section-nav>
+        <div *ngIf="isSRA" contentTools class="ontology-content-tools">
+            <button type="button" class="btn btn-primary" (click)="importTypes()">
+                <i class="fa-solid fa-file-import"></i> {{'hierarchy.sidebar.importTypes' | localize}}
+            </button>
+            <button type="button" class="btn btn-primary" (click)="exportTypes()">
+                <i class="fa-solid fa-file-export"></i> {{'hierarchy.sidebar.exportTypes' | localize}}
+            </button>
+        </div>
+    </geo-object-type-page>
+
+    <hierarchy-type-page [hidden]="section !== 'hierarchy-type'" [userOrganization]="userOrganization"
+        [organizations]="organizations" [geoObjectTypes]="geoObjectTypes" [hierarchies]="hierarchies"
+        (onHierarchyType)="handleHierarchyType($event)" (onGeoObjectType)="handleGeoObjectType($event)"
+        (onRemove)="handleRemoveHierarchyType($event)" (onError)="error($event)">
+        <ontology-section-nav sectionNav [items]="sections" [(active)]="section"></ontology-section-nav>
+    </hierarchy-type-page>
+
+    <graph-type-page [hidden]="section !== 'dag'" [typeCode]="'DirectedAcyclicGraphType'">
+        <ontology-section-nav sectionNav [items]="sections" [(active)]="section"></ontology-section-nav>
+    </graph-type-page>
+
+    <graph-type-page [hidden]="section !== 'graph'" [typeCode]="'UndirectedGraphType'">
+        <ontology-section-nav sectionNav [items]="sections" [(active)]="section"></ontology-section-nav>
+    </graph-type-page>
+
+    }
+    @else if (loaded) {
     <div class="row">
         <div class="col-md-12 order-md-1">
-
-            @if (loaded && organizations.length > 0) {
-            <tabset [justified]="true">
-                <tab heading="Geo-Object Types" id="geo-object-type">
-                    <geo-object-type-page [userOrganization]="userOrganization" [organizations]="organizations"
-                        [types]="geoObjectTypes" (typesChange)="setGeoObjectTypes($event)" (onError)="error($event)">
-                    </geo-object-type-page>
-                </tab>
-                <tab heading="Hierarchy Types">
-                    <hierarchy-type-page [userOrganization]="userOrganization" [organizations]="organizations"
-                        [geoObjectTypes]="geoObjectTypes" [hierarchies]="hierarchies"
-                        (onHierarchyType)="handleHierarchyType($event)" (onGeoObjectType)="handleGeoObjectType($event)"
-                        (onRemove)="handleRemoveHierarchyType($event)" (onError)="error($event)">
-                    </hierarchy-type-page>
-
-                </tab>
-                <tab heading="Directed Acyclic Graph Type">
-                    <graph-type-page [typeCode]="'DirectedAcyclicGraphType'"></graph-type-page>
-                </tab>
-                <tab heading="Undirected Graph Type">
-                    <graph-type-page [typeCode]="'UndirectedGraphType'"></graph-type-page>
-                </tab>
-                <tab *ngIf="isSRA" [disabled]="true">
-                    <ng-template tabHeading>
-                        <a (click)="importTypes()" [title]="'hierarchy.sidebar.importTypes' | localize">
-                            <i class="fa-solid fa-file-import"></i>
-                        </a>
-                        <a (click)="exportTypes()" [title]="'hierarchy.sidebar.exportTypes' | localize">
-                            <i class="fa-solid fa-file-export"></i>
-                        </a>
-                    </ng-template>
-                </tab>
-
-
-            </tabset>
-            }
-            @else if(loaded) {
             <div class="py-5">
                 <h3 class="inline-message">
                     You must first define at least one organization
                 </h3>
             </div>
-            }
         </div>
     </div>
+    }
 
 </page-container>

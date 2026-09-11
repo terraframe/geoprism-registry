@@ -30,7 +30,6 @@ import { ManageConceptSetComponent } from "./manage-concept-set.component";
 import { BsDropdownModule } from "ngx-bootstrap/dropdown";
 import { NgFor, NgIf, NgClass } from "@angular/common";
 import { LocalizeComponent } from "@shared/component/localize/localize.component";
-import { AccordionModule } from "ngx-bootstrap/accordion";
 import { FormsModule } from "@angular/forms";
 import { ConceptClass, ConceptEdgeType, ConceptSet } from "@registry/model/object-class";
 import { ConceptSetService } from "@registry/service/concept-set.service";
@@ -51,7 +50,7 @@ interface Selection {
     templateUrl: "./concept-set-page.component.html",
     styleUrls: ["./concept-set-page.css"],
     standalone: true,
-    imports: [FormsModule, AccordionModule, LocalizeComponent, NgFor, NgIf, NgClass, BsDropdownModule, ManageConceptSetComponent]
+    imports: [FormsModule, LocalizeComponent, NgFor, NgIf, NgClass, BsDropdownModule, ManageConceptSetComponent]
 })
 export class ConceptSetPageComponent implements OnInit {
     Action = Action;
@@ -73,6 +72,10 @@ export class ConceptSetPageComponent implements OnInit {
     ngOnInit(): void {
         this.service.getAll().then(sets => {
             this.sets = sets;
+
+            if (this.selection == null && sets.length > 0) {
+                this.handleTypeView(sets[0]);
+            }
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });

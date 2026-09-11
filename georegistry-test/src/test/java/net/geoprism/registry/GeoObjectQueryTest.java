@@ -8,9 +8,7 @@ import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -32,24 +30,6 @@ import net.geoprism.registry.test.USATestData;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class GeoObjectQueryTest extends USADatasetTest implements InstanceTestClassListener
 {
-  @Before
-  public void setUp()
-  {
-    if (testData != null)
-    {
-      testData.setUpInstanceData();
-    }
-  }
-
-  @After
-  public void tearDown()
-  {
-    if (testData != null)
-    {
-      testData.tearDownInstanceData();
-    }
-  }
-
   @Test
   @Request
   public void testQueryTreeNodes()

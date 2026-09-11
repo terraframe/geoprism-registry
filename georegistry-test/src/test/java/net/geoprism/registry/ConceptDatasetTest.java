@@ -2,10 +2,12 @@ package net.geoprism.registry;
 
 import java.util.UUID;
 
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.commongeoregistry.adapter.metadata.CodeReference;
+import org.junit.After;
+import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.runwaysdk.session.Request;
@@ -27,6 +29,18 @@ import net.geoprism.registry.view.DiscreteType;
 
 public abstract class ConceptDatasetTest extends DatasetTest
 {
+  public static final String                 ROOT_CONCEPT       = "Test Term";
+
+  public static final String                 PARENT_CONCEPT     = "Parent Concept";
+
+  public static final String                 CHILD_CONCEPT      = "Child Concept";
+
+  public static final String                 CONCEPT_CLASS_CODE = "TEST_C_CLASS";
+
+  public static final String                 CONCEPT_EDGE_CODE  = "TEST_CONCEPT_EDGE";
+
+  public static final String                 CONCEPT_SET_CODE   = "TEST_CONCEPT_SET";
+
   @Autowired
   protected ConceptSetBusinessServiceIF      cSetService;
 
@@ -47,6 +61,8 @@ public abstract class ConceptDatasetTest extends DatasetTest
 
   protected static ConceptObject             rootConcept;
 
+  protected static ConceptObject             parentConcept;
+
   protected static ConceptObject             childConcept;
 
   protected abstract TestOrganizationInfo getOrganization();
@@ -65,16 +81,6 @@ public abstract class ConceptDatasetTest extends DatasetTest
     {
       this.cSetService.addConceptEdgeType(cSet, cEdgeType);
     }
-
-    rootConcept = this.cObjectService.newInstance(cClass);
-    rootConcept.setCode("Test Term");
-    rootConcept.apply();
-
-    childConcept = this.cObjectService.newInstance(cClass);
-    childConcept.setCode("Child Concept");
-    childConcept.apply();
-
-    this.cObjectService.addChild(rootConcept, cEdgeType, childConcept, UUID.randomUUID().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, null);
   }
 
   @Request
@@ -102,9 +108,72 @@ public abstract class ConceptDatasetTest extends DatasetTest
     }
   }
 
+  @Before
+  @Request
+  public void setUp() throws Exception
+  {
+    rootConcept = createConceptObject(ROOT_CONCEPT, "Food");
+    parentConcept = createConceptObject(PARENT_CONCEPT, "Flatbread");
+    childConcept = createConceptObject(CHILD_CONCEPT, "Pizza");
+
+    addConceptEdge(rootConcept, cEdgeType, parentConcept);
+    addConceptEdge(parentConcept, cEdgeType, childConcept);
+  }
+
+  @After
+  @Request
+  public void tearDown() throws Exception
+  {
+    if (childConcept != null)
+    {
+      this.cObjectService.delete(childConcept);
+
+      childConcept = null;
+    }
+
+    if (parentConcept != null)
+    {
+      this.cObjectService.delete(parentConcept);
+
+      parentConcept = null;
+    }
+
+    if (rootConcept != null)
+    {
+      this.cObjectService.delete(rootConcept);
+
+      rootConcept = null;
+    }
+  }
+
+  protected final ConceptObject createConceptObject(String code)
+  {
+    return this.createConceptObject(code, code);
+  }
+
+  protected ConceptObject createConceptObject(String code, String label)
+  {
+    ConceptObject concept = this.cObjectService.newInstance(cClass);
+    concept.setCode(code);
+    concept.setValue(DefaultAttribute.DISPLAY_LABEL.getName(), new LocalizedValue(label), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+
+    this.cObjectService.apply(concept, false);
+
+    return concept;
+  }
+
+  protected String addConceptEdge(ConceptObject parent, ConceptEdgeType edge, ConceptObject child)
+  {
+    String edgeUId = UUID.randomUUID().toString();
+
+    this.cObjectService.addChild(parent, edge, child, edgeUId, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, null);
+
+    return edgeUId;
+  }
+
   public ConceptClassDTO mockConceptClass()
   {
-    return mockConceptClass("TEST_C_CLASS", "Test Concept", "Test Concept");
+    return mockConceptClass(CONCEPT_CLASS_CODE, "Test Concept", "Test Concept");
   }
 
   public ConceptClassDTO mockConceptClass(String code, String label, String description)
@@ -119,7 +188,7 @@ public abstract class ConceptDatasetTest extends DatasetTest
 
   public ConceptSetDTO mockConceptSet()
   {
-    return mockConceptSet("TEST_CONCEPT_SET", "Test Prog", "Test Description");
+    return mockConceptSet(CONCEPT_SET_CODE, "Test Prog", "Test Description");
   }
 
   public ConceptSetDTO mockConceptSet(String code, String label, String description)
@@ -129,13 +198,14 @@ public abstract class ConceptDatasetTest extends DatasetTest
     object.setDisplayLabel(new LocalizedValue(label));
     object.setDescription(new LocalizedValue(description));
     object.setDiscreteType(DiscreteType.TAXONOMY);
+    object.setRootTerm(ROOT_CONCEPT);
 
     return object;
   }
 
   public ConceptEdgeTypeDTO mockConceptEdge(ConceptClass conceptClass)
   {
-    return mockConceptEdge(conceptClass, "TEST_CONCEPT_EDGE", "Test Prog", "Test Description");
+    return mockConceptEdge(conceptClass, CONCEPT_EDGE_CODE, "Test Prog", "Test Description");
   }
 
   public ConceptEdgeTypeDTO mockConceptEdge(ConceptClass conceptClass, String code, String label, String description)
@@ -161,7 +231,22 @@ public abstract class ConceptDatasetTest extends DatasetTest
 
     if (!cSet.getDiscreteType().equals(DiscreteType.ENUMERATION.name()))
     {
-      dto.setRootTerm(CodeReference.build(rootConcept.getCode(), rootConcept.getType().getCode()));
+      dto.setRootTerm(ROOT_CONCEPT);
+    }
+
+    return dto;
+  }
+
+  public AttributeClassificationType createDefaultClassificationType()
+  {
+    AttributeClassificationType dto = (AttributeClassificationType) AttributeType.factory(DefaultAttribute.CLASSIFICATION.getName(), new LocalizedValue("Classification"), new LocalizedValue("Classification"), AttributeClassificationType.TYPE, false, false, true);
+    dto.setConceptSet(cSet.getCode());
+    dto.setStartDate(TestDataSet.DEFAULT_OVER_TIME_DATE);
+    dto.setEndDate(TestDataSet.DEFAULT_END_TIME_DATE);
+
+    if (!cSet.getDiscreteType().equals(DiscreteType.ENUMERATION.name()))
+    {
+      dto.setRootTerm(ROOT_CONCEPT);
     }
 
     return dto;

@@ -65,7 +65,6 @@ import net.geoprism.registry.lpg.LPGPublishProgressMonitorNoOp;
 import net.geoprism.registry.lpg.TreeStrategyConfiguration;
 import net.geoprism.registry.lpg.adapter.RegistryConnectorFactory;
 import net.geoprism.registry.model.BusinessObject;
-import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.EdgeType;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -199,7 +198,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
 
     bEdgeType = this.bEdgeService.create(BusinessEdgeTypeDTO.build(USATestData.ORG_PPP.getCode(), "TEST_B_EDGE", new LocalizedValue("TEST_B_EDGE"), new LocalizedValue("TEST_B_EDGE"), btype.getCode(), btype.getCode()));
 
-    bGeoEdgeType = this.bEdgeService.create(BusinessEdgeTypeDTO.build(USATestData.ORG_PPP.getCode(), "TEST_GEO_EDGE", new LocalizedValue("TEST_GEO_EDGE"), new LocalizedValue("TEST_GEO_EDGE"), btype.getCode(), EdgeDirection.PARENT));
+    bGeoEdgeType = this.bEdgeService.create(BusinessEdgeTypeDTO.build(USATestData.ORG_PPP.getCode(), "TEST_GEO_EDGE", new LocalizedValue("TEST_GEO_EDGE"), new LocalizedValue("TEST_GEO_EDGE"), BusinessEdgeTypeDTO.GEO_OBJECT_TYPE, btype.getCode()));
 
     this.repoService.refreshMetadataCache();
   }
@@ -230,13 +229,9 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
 
   @Before
   @Request
-  public void setUp()
+  public void setUp() throws Exception
   {
-    cleanUpExtra();
-
-    testData.setUpInstanceData();
-
-    testData.logIn(USATestData.USER_NPS_RA);
+    super.setUp();
 
     pObject = this.bObjectService.newInstance(btype);
     pObject.setCode("P_CODE");
@@ -254,7 +249,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
 
   @After
   @Request
-  public void tearDown()
+  public void tearDown() throws Exception
   {
     if (cObject != null)
     {
@@ -266,17 +261,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
       this.bObjectService.delete(pObject);
     }
 
-    testData.logOut();
-
-    cleanUpExtra();
-
-    testData.tearDownInstanceData();
-  }
-
-  @Request
-  public void cleanUpExtra()
-  {
-    TestDataSet.deleteAllListData();
+    super.tearDown();
   }
 
   // @Test

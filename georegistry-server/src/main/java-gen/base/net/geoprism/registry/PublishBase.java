@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -847137243)
+@com.runwaysdk.business.ClassSignature(hash = 1156191793)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -11,6 +11,7 @@ package net.geoprism.registry;
 public abstract class PublishBase extends com.runwaysdk.business.Business
 {
   public final static String CLASS = "net.geoprism.registry.Publish";
+  public final static java.lang.String CONCEPTSET = "conceptSet";
   public final static java.lang.String CREATEDATE = "createDate";
   public final static java.lang.String CREATEDBY = "createdBy";
   public final static java.lang.String DISPLAYLABEL = "displayLabel";
@@ -34,12 +35,40 @@ public abstract class PublishBase extends com.runwaysdk.business.Business
   public final static java.lang.String TYPECODES = "typeCodes";
   public final static java.lang.String UID = "uid";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = -847137243;
+  private static final long serialVersionUID = 1156191793;
   
   public PublishBase()
   {
     super();
     displayLabel = super.getStruct("displayLabel");
+  }
+  
+  public String getConceptSet()
+  {
+    return getValue(CONCEPTSET);
+  }
+  
+  public void validateConceptSet()
+  {
+    this.validateAttribute(CONCEPTSET);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getConceptSetMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.Publish.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(CONCEPTSET);
+  }
+  
+  public void setConceptSet(String value)
+  {
+    if(value == null)
+    {
+      setValue(CONCEPTSET, "");
+    }
+    else
+    {
+      setValue(CONCEPTSET, value);
+    }
   }
   
   public java.util.Date getCreateDate()

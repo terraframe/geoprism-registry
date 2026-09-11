@@ -103,11 +103,14 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
 
     setUpClassInRequest();
   }
-
+  
   @Before
   @Request
-  public void before()
+  @Override
+  public void setUp() throws Exception
   {
+    super.setUp();
+    
     // Clear out the event table
     Database.deleteWhere("domainevententry", "true");
   }
@@ -155,8 +158,10 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
 
   @After
   @Request
-  public void tearDown()
+  public void tearDown() throws Exception
   {
+    super.tearDown();
+    
     this.store.truncate();
   }
 

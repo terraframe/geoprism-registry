@@ -26,6 +26,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.StringUtils;
 import org.axonframework.eventsourcing.eventstore.DomainEventStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,6 +40,12 @@ import net.geoprism.graph.BusinessEdgeTypeSnapshot;
 import net.geoprism.graph.BusinessEdgeTypeSnapshotQuery;
 import net.geoprism.graph.BusinessTypeSnapshot;
 import net.geoprism.graph.BusinessTypeSnapshotQuery;
+import net.geoprism.graph.ConceptClassSnapshot;
+import net.geoprism.graph.ConceptClassSnapshotQuery;
+import net.geoprism.graph.ConceptEdgeTypeSnapshot;
+import net.geoprism.graph.ConceptEdgeTypeSnapshotQuery;
+import net.geoprism.graph.ConceptSetSnapshot;
+import net.geoprism.graph.ConceptSetSnapshotQuery;
 import net.geoprism.graph.DirectedAcyclicGraphTypeSnapshot;
 import net.geoprism.graph.DirectedAcyclicGraphTypeSnapshotQuery;
 import net.geoprism.graph.GeoObjectTypeSnapshot;
@@ -76,6 +83,12 @@ public class CommitBusinessService implements CommitBusinessServiceIF
   private ConceptClassBusinessServiceIF             cService;
 
   @Autowired
+  private ConceptEdgeTypeBusinessServiceIF          cEdgeService;
+
+  @Autowired
+  private ConceptSetBusinessServiceIF               cSetService;
+
+  @Autowired
   private BusinessTypeBusinessServiceIF             bService;
 
   @Autowired
@@ -88,7 +101,16 @@ public class CommitBusinessService implements CommitBusinessServiceIF
   private BusinessTypeSnapshotBusinessServiceIF     bSnapshotService;
 
   @Autowired
+  private ConceptClassSnapshotBusinessServiceIF     cSnapshotService;
+
+  @Autowired
+  private ConceptSetSnapshotBusinessServiceIF       cSetSnapshotService;
+
+  @Autowired
   private BusinessEdgeTypeSnapshotBusinessServiceIF bEdgeSnapshotService;
+
+  @Autowired
+  private ConceptEdgeTypeSnapshotBusinessServiceIF  cEdgeSnapshotService;
 
   @Autowired
   private GraphTypeSnapshotBusinessServiceIF        graphSnapshotService;
@@ -114,9 +136,6 @@ public class CommitBusinessService implements CommitBusinessServiceIF
     // Delete all business edge types
     this.getBusinessEdgeTypes(commit).stream().forEach(v -> this.bEdgeSnapshotService.delete(v));
 
-    // Delete all business types
-    this.getBusinessTypes(commit).stream().forEach(v -> this.bSnapshotService.delete(v));
-
     // Delete the non-root snapshots first
     this.getTypes(commit).stream().filter(v -> !v.getIsAbstract()).forEach(v -> this.gSnapshotService.delete(v));
 
@@ -126,6 +145,18 @@ public class CommitBusinessService implements CommitBusinessServiceIF
 
     // Delete the root snapshots after all the sub snapshots have been deleted
     this.getTypes(commit).stream().filter(v -> v.isRoot()).forEach(v -> this.gSnapshotService.delete(v));
+
+    // Delete all business types
+    this.getBusinessTypes(commit).stream().forEach(v -> this.bSnapshotService.delete(v));
+
+    // Delete all concept edge types
+    this.getConceptEdgeTypes(commit).stream().forEach(v -> this.cEdgeSnapshotService.delete(v));
+
+    // Delete all concept classes
+    this.getConceptClasses(commit).stream().forEach(v -> this.cSnapshotService.delete(v));
+
+    // Delete all concept sets
+    this.getConceptSets(commit).stream().forEach(v -> this.cSetSnapshotService.delete(v));
 
     this.store.delete(commit);
 
@@ -196,7 +227,7 @@ public class CommitBusinessService implements CommitBusinessServiceIF
 
     try (OIterator<? extends GeoObjectTypeSnapshot> it = query.getIterator())
     {
-      return it.getAll().stream().map(b -> (GeoObjectTypeSnapshot) b).sorted((a, b) -> a.getIsAbstract().compareTo(b.getIsAbstract())).collect(Collectors.toList());
+      return it.getAll().stream().map(b -> (GeoObjectTypeSnapshot) b).sorted((a, b) -> b.getIsAbstract().compareTo(a.getIsAbstract())).collect(Collectors.toList());
     }
   }
 
@@ -218,6 +249,23 @@ public class CommitBusinessService implements CommitBusinessServiceIF
   }
 
   @Override
+  public List<ConceptClassSnapshot> getConceptClasses(Commit commit)
+  {
+    QueryFactory factory = new QueryFactory();
+
+    CommitHasSnapshotQuery vQuery = new CommitHasSnapshotQuery(factory);
+    vQuery.WHERE(vQuery.getParent().EQ(commit));
+
+    ConceptClassSnapshotQuery query = new ConceptClassSnapshotQuery(factory);
+    query.WHERE(query.EQ(vQuery.getChild()));
+
+    try (OIterator<? extends ConceptClassSnapshot> it = query.getIterator())
+    {
+      return it.getAll().stream().map(b -> (ConceptClassSnapshot) b).collect(Collectors.toList());
+    }
+  }
+
+  @Override
   public List<BusinessEdgeTypeSnapshot> getBusinessEdgeTypes(Commit commit)
   {
     QueryFactory factory = new QueryFactory();
@@ -231,6 +279,40 @@ public class CommitBusinessService implements CommitBusinessServiceIF
     try (OIterator<? extends BusinessEdgeTypeSnapshot> it = query.getIterator())
     {
       return it.getAll().stream().map(b -> (BusinessEdgeTypeSnapshot) b).collect(Collectors.toList());
+    }
+  }
+
+  @Override
+  public List<ConceptEdgeTypeSnapshot> getConceptEdgeTypes(Commit commit)
+  {
+    QueryFactory factory = new QueryFactory();
+
+    CommitHasSnapshotQuery vQuery = new CommitHasSnapshotQuery(factory);
+    vQuery.WHERE(vQuery.getParent().EQ(commit));
+
+    ConceptEdgeTypeSnapshotQuery query = new ConceptEdgeTypeSnapshotQuery(factory);
+    query.WHERE(query.EQ(vQuery.getChild()));
+
+    try (OIterator<? extends ConceptEdgeTypeSnapshot> it = query.getIterator())
+    {
+      return it.getAll().stream().map(b -> (ConceptEdgeTypeSnapshot) b).collect(Collectors.toList());
+    }
+  }
+
+  @Override
+  public List<ConceptSetSnapshot> getConceptSets(Commit commit)
+  {
+    QueryFactory factory = new QueryFactory();
+
+    CommitHasSnapshotQuery vQuery = new CommitHasSnapshotQuery(factory);
+    vQuery.WHERE(vQuery.getParent().EQ(commit));
+
+    ConceptSetSnapshotQuery query = new ConceptSetSnapshotQuery(factory);
+    query.WHERE(query.EQ(vQuery.getChild()));
+
+    try (OIterator<? extends ConceptSetSnapshot> it = query.getIterator())
+    {
+      return it.getAll().stream().map(b -> (ConceptSetSnapshot) b).collect(Collectors.toList());
     }
   }
 
@@ -371,21 +453,30 @@ public class CommitBusinessService implements CommitBusinessServiceIF
 
     GeoObjectTypeSnapshot root = this.snapshotService.createRoot(commit);
 
-    // Publish snapshots for all business types participating in the graph
+    // FIRST - Publish all of the concept set definitions
     configuration.getConceptClasses().forEach(code -> {
       this.snapshotService.createSnapshot(commit, this.cService.getByCodeOrThrow(code));
     });
 
+    configuration.getConceptEdgeTypes().forEach(code -> {
+      this.snapshotService.createSnapshot(commit, this.cEdgeService.getByCodeOrThrow(code));
+    });
+
+    if (StringUtils.isNotBlank(configuration.getConceptSet()))
+    {
+      this.snapshotService.createSnapshot(commit, this.cSetService.getByCodeOrThrow(configuration.getConceptSet()));
+    }
+
+    // SECOND - Publish the object type definitions
     configuration.getBusinessTypes().forEach(code -> {
       this.snapshotService.createSnapshot(commit, this.bService.getByCodeOrThrow(code));
     });
 
-    // Publish snapshots for all abstract geo object types
     configuration.getGeoObjectTypes().map(code -> ServerGeoObjectType.get(code)).filter(t -> t.getIsAbstract()).forEach(type -> {
       this.snapshotService.createSnapshot(commit, type, root);
     });
 
-    // Publish snapshots for all child geo object types
+    // THIRD - Publish the other edge definitions
     configuration.getGeoObjectTypes().map(code -> ServerGeoObjectType.get(code)).filter(t -> !t.getIsAbstract()).forEach(type -> {
       this.snapshotService.createSnapshot(commit, type, root);
     });

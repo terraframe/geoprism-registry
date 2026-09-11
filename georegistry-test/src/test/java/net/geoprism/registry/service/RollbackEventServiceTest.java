@@ -4,6 +4,7 @@
 package net.geoprism.registry.service;
 
 import java.util.SortedSet;
+import java.util.UUID;
 
 import org.axonframework.eventhandling.GapAwareTrackingToken;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -26,12 +27,16 @@ import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.RollbackCheckpoint;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.axon.config.RegistryEventStore;
+import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.config.TestApplication;
+import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.EdgeClass;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.model.ServerChildGraphNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.service.business.EdgeObjectBusinessService;
+import net.geoprism.registry.service.business.EventBusinessService;
 import net.geoprism.registry.service.business.RollbackEventService;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
@@ -42,15 +47,28 @@ import net.geoprism.registry.test.USATestData;
 public class RollbackEventServiceTest extends EventDatasetTest implements InstanceTestClassListener
 {
   @Autowired
-  private RollbackEventService service;
+  private RollbackEventService      service;
 
   @Autowired
-  private RegistryEventStore   store;
+  private RegistryEventStore        store;
+
+  @Autowired
+  private EdgeObjectBusinessService eObjectService;
+
+  @Autowired
+  private EventBusinessService      eventService;
+
+  private static ConceptObject      cConcept;
+
+  private static ConceptObject      pConcept;
 
   @Override
   public void setUp()
   {
     // Do not create any data
+
+    // Do not set a value for the classification attribute
+    USATestData.COLORADO.removeDefaultValue(testClassification.getCode());
   }
 
   @After
@@ -69,6 +87,20 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
       this.bObjectService.delete(cObject);
 
       cObject = null;
+    }
+
+    if (pConcept != null)
+    {
+      this.cObjectService.delete(pConcept);
+
+      pConcept = null;
+    }
+
+    if (cConcept != null)
+    {
+      this.cObjectService.delete(cConcept);
+
+      cConcept = null;
     }
 
     this.store.truncate();
@@ -181,7 +213,7 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
   public void testRollbackCreateConceptObject()
   {
     // Index before the import
-    pConcept = createConceptObject("CONCEPT", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+    pConcept = createConceptObject("CONCEPT", "CONCEPT", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
     Assert.assertNotNull(this.cObjectService.getByCode(cClass, pConcept.getCode()));
     Assert.assertEquals(Long.valueOf(1), this.store.size());
@@ -200,7 +232,7 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
   @Request
   public void testRollbackUpdatedConceptObject()
   {
-    pConcept = createConceptObject("CONCEPT", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+    pConcept = createConceptObject("CONCEPT", "CONCEPT", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
     long startIndex = this.store.createHeadToken().position().getAsLong();
 
@@ -390,14 +422,14 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
 
   @Test
   @Request
-  public void testRollbackConceptObjectEdgeEvent()
+  public void testRollbackConceptObjectApplyEdgeEvent()
   {
-    pConcept = createConceptObject("P_CONCEPT", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
-    cConcept = createConceptObject("C_CONCEPT", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+    pConcept = createConceptObject("P_CONCEPT", "P_CONCEPT", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+    cConcept = createConceptObject("C_CONCEPT", "C_CONCEPT", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
     long startIndex = this.store.createHeadToken().position().getAsLong();
 
-    this.addConceptEdge();
+    this.addConceptEdge(pConcept, cEdgeType, cConcept);
 
     Assert.assertEquals(Long.valueOf(3), this.store.size());
 
@@ -412,6 +444,67 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
     Assert.assertEquals(0, this.getEdgeCount(cEdgeType, pConcept.getVertex().getRID(), cConcept.getVertex().getRID()));
 
     Assert.assertEquals(Long.valueOf(2), this.store.size());
+  }
+
+  @Test
+  @Request
+  public void testRollbackConceptObjectRemoveEdgeEvent()
+  {
+    pConcept = createConceptObject("P_CONCEPT", "P_CONCEPT", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+    cConcept = createConceptObject("C_CONCEPT", "C_CONCEPT", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+
+    String edgeUid = this.addConceptEdge(pConcept, cEdgeType, cConcept);
+
+    long startIndex = this.store.createHeadToken().position().getAsLong();
+
+    this.eObjectService.getByUid(cEdgeType, edgeUid).ifPresent(edge -> this.eventService.remove(cEdgeType, edge));
+
+    Assert.assertEquals(Long.valueOf(4), this.store.size());
+
+    Assert.assertEquals(0, this.getEdgeCount(cEdgeType, pConcept.getVertex().getRID(), cConcept.getVertex().getRID()));
+
+    // Rollback the last event
+    RollbackCheckpoint dto = new RollbackCheckpoint();
+    dto.setGlobalIndex(startIndex);
+
+    this.service.rollback(dto);
+
+    Assert.assertEquals(Long.valueOf(3), this.store.size());
+
+    Assert.assertEquals(1, this.getEdgeCount(cEdgeType, pConcept.getVertex().getRID(), cConcept.getVertex().getRID()));
+  }
+
+  @Test
+  @Request
+  public void testRollbackDagRemoveEdgeEvent()
+  {
+    ServerGeoObjectIF usa = USATestData.USA.apply();
+    ServerGeoObjectIF canada = USATestData.CANADA.apply();
+    String edgeUid = UUID.randomUUID().toString();
+
+    ServerGeoObjectEventBuilder builder = new ServerGeoObjectEventBuilder(gObjectService);
+    builder.setObject(usa, false, false);
+    builder.addEdge(canada, dagType, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_OVER_TIME_DATE, edgeUid, null, ImportStrategy.NEW_AND_UPDATE, true);
+
+    this.eventService.publish(builder.build());
+
+    long startIndex = this.store.createHeadToken().position().getAsLong();
+
+    this.eObjectService.getByUid(dagType, edgeUid).ifPresent(edge -> this.eventService.remove(dagType, edge));
+
+    Assert.assertEquals(Long.valueOf(4), this.store.size());
+
+    Assert.assertEquals(0, this.getEdgeCount(dagType, usa.getVertex().getRID(), canada.getVertex().getRID()));
+
+    // Rollback the last event
+    RollbackCheckpoint dto = new RollbackCheckpoint();
+    dto.setGlobalIndex(startIndex);
+
+    this.service.rollback(dto);
+
+    Assert.assertEquals(Long.valueOf(3), this.store.size());
+
+    Assert.assertEquals(1, this.getEdgeCount(dagType, usa.getVertex().getRID(), canada.getVertex().getRID()));
   }
 
   @Test(expected = ProgrammingErrorException.class)

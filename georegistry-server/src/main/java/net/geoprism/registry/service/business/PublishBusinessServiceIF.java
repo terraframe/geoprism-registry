@@ -1,11 +1,13 @@
 package net.geoprism.registry.service.business;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
 import net.geoprism.registry.Publish;
+import net.geoprism.registry.graph.ConceptSet;
 import net.geoprism.registry.view.PublishDTO;
 
 @Component
@@ -25,5 +27,7 @@ public interface PublishBusinessServiceIF
   List<Publish> getAll();
 
   List<Publish> getRemoteFor(PublishDTO configuration);
+
+  Publish getFor(ConceptSet set, Date startDate, Date endDate);
 
 }

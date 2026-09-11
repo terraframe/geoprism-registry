@@ -46,27 +46,16 @@ public class TempServiceTest extends FastDatasetTest implements InstanceTestClas
 
   @Autowired
   private GeoObjectOverTimeController   controller;
-  
-  @Autowired private GeoObjectBusinessServiceIF goService;
+
+  @Autowired
+  private GeoObjectBusinessServiceIF    goService;
 
   @Before
-  public void setUp()
+  public void setUp() throws Exception
   {
-    testData.setUpInstanceData();
+    super.setUp();
 
     TEST_GO.delete();
-
-    testData.logIn(FastTestDataset.USER_CGOV_RA);
-    
-    System.out.println();
-  }
-
-  @After
-  public void tearDown()
-  {
-    testData.logOut();
-
-    testData.tearDownInstanceData();
   }
 
   @Test

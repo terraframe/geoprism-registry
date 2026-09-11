@@ -40,21 +40,11 @@ public class GeoObjectOverTimeServiceTest extends FastDatasetTest implements Ins
   private TestRegistryClient            client;
 
   @Before
-  public void setUp()
+  public void setUp() throws Exception
   {
-    testData.setUpInstanceData();
+    super.setUp();
 
     TEST_GO.delete();
-
-    testData.logIn(FastTestDataset.USER_CGOV_RA);
-  }
-
-  @After
-  public void tearDown()
-  {
-    testData.logOut();
-
-    testData.tearDownInstanceData();
   }
 
   @Test

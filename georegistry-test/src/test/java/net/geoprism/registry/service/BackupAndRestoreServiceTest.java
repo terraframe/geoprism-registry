@@ -128,8 +128,7 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
     LocalizedValue description = new LocalizedValue("Test Edge Description");
 
     bEdgeType = this.bEdgeService.create(BusinessEdgeTypeDTO.build(USATestData.ORG_NPS.getCode(), code, label, description, bType.getCode(), bType.getCode()));
-
-    bGeoEdgeType = this.bEdgeService.create(BusinessEdgeTypeDTO.build(USATestData.ORG_NPS.getCode(), "GEO_EDGE", new LocalizedValue("Geo Edge"), new LocalizedValue("Geo Edge"), bType.getCode(), EdgeDirection.PARENT));
+    bGeoEdgeType = this.bEdgeService.create(BusinessEdgeTypeDTO.build(USATestData.ORG_NPS.getCode(), "GEO_EDGE", new LocalizedValue("Geo Edge"), new LocalizedValue("Geo Edge"), bType.getCode(), BusinessEdgeTypeDTO.GEO_OBJECT_TYPE));
   }
 
   @Override
@@ -243,7 +242,7 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
   }
 
   @Test
-  public void testImportAndExport() throws IOException
+  public void testImportAndExport() throws Exception
   {
     File file = File.createTempFile("gpr-dump", ".zip");
 

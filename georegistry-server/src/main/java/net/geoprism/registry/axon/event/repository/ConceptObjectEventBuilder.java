@@ -156,7 +156,7 @@ public class ConceptObjectEventBuilder
     {
       ObjectOverTimeDTO dto = service.toDTO(object);
 
-      ConceptObjectApplyEvent event = new ConceptObjectApplyEvent(object.getCode(), object.getType().getCode(), dto, isNew);
+      ConceptObjectApplyEvent event = new ConceptObjectApplyEvent(object.getCode(), object.getType().getTypeInfo(), dto, isNew);
 
       if (this.configuration != null)
       {

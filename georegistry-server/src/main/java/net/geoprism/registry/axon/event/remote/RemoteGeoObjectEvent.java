@@ -6,38 +6,37 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import net.geoprism.registry.view.PublishDTO;
+import net.geoprism.registry.view.TypeInfo;
 import net.geoprism.registry.view.serialization.DateDeserializer;
 import net.geoprism.registry.view.serialization.DateSerializer;
-import net.geoprism.registry.view.PublishDTO;
-import net.geoprism.registry.view.TypeClass;
-import net.geoprism.registry.view.TypeInfo;
 
 public class RemoteGeoObjectEvent implements RemoteEvent
 {
-  private String  commitId;
+  private String   commitId;
 
-  private String  code;
+  private String   code;
 
-  private String  type;
+  private TypeInfo type;
 
-  private Boolean isNew;
+  private Boolean  isNew;
 
   // Serialized GeoObject
-  private String  object;
+  private String   object;
 
   @JsonSerialize(using = DateSerializer.class)
   @JsonDeserialize(using = DateDeserializer.class)
-  private Date    startDate;
+  private Date     startDate;
 
   @JsonSerialize(using = DateSerializer.class)
   @JsonDeserialize(using = DateDeserializer.class)
-  private Date    endDate;
+  private Date     endDate;
 
   public RemoteGeoObjectEvent()
   {
   }
 
-  public RemoteGeoObjectEvent(String commitId, String code, Boolean isNew, String object, String type, Date startDate, Date endDate)
+  public RemoteGeoObjectEvent(String commitId, String code, Boolean isNew, String object, TypeInfo type, Date startDate, Date endDate)
   {
     super();
     this.commitId = commitId;
@@ -89,12 +88,12 @@ public class RemoteGeoObjectEvent implements RemoteEvent
     this.object = object;
   }
 
-  public String getType()
+  public TypeInfo getType()
   {
     return type;
   }
 
-  public void setType(String type)
+  public void setType(TypeInfo type)
   {
     this.type = type;
   }
@@ -123,12 +122,12 @@ public class RemoteGeoObjectEvent implements RemoteEvent
   @JsonIgnore
   public String getBaseObjectId()
   {
-    return this.code + "#" + this.type + "_O_";
+    return this.code + "#" + this.type.getTypeCode() + "_O_";
   }
 
   @Override
   public boolean isValid(PublishDTO dto)
   {
-    return !dto.getExclusions().contains(TypeInfo.build(type, TypeClass.GEO_OBJECT_TYPE));
+    return !dto.getExclusions().contains(type);
   }
 }

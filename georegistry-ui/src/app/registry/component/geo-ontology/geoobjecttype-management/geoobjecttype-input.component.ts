@@ -26,10 +26,10 @@ import {
 } from "@angular/animations";
 import { BsModalService } from "ngx-bootstrap/modal";
 import { HttpErrorResponse } from "@angular/common/http";
-import { StepConfig, ModalTypes } from "@shared/model/modal";
+import { ModalTypes } from "@shared/model/modal";
 import { ErrorHandler, ConfirmModalComponent } from "@shared/component";
 
-import { LocalizationService, ModalStepIndicatorService } from "@shared/service";
+import { LocalizationService } from "@shared/service";
 
 import { GeoObjectType, ManageGeoObjectTypeModalState, AttributeType } from "@registry/model/registry";
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
@@ -41,7 +41,7 @@ import { LocalizedTextComponent } from "../../form-fields/localized-text/localiz
 import { LocalizedInputComponent } from "../../form-fields/localized-input/localized-input.component";
 import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { FormsModule } from "@angular/forms";
-import { NgIf, NgFor } from "@angular/common";
+import { NgIf, NgFor, NgClass } from "@angular/common";
 
 @Component({
     selector: "geoobjecttype-input",
@@ -64,7 +64,7 @@ import { NgIf, NgFor } from "@angular/common";
         ]
     ],
     standalone: true,
-    imports: [NgIf, FormsModule, LocalizeComponent, LocalizedInputComponent, LocalizedTextComponent, BooleanFieldComponent, NgFor, RouterLink, LocalizePipe]
+    imports: [NgIf, NgClass, FormsModule, LocalizeComponent, LocalizedInputComponent, LocalizedTextComponent, BooleanFieldComponent, NgFor, RouterLink, LocalizePipe]
 })
 export class GeoObjectTypeInputComponent implements OnInit {
 
@@ -91,20 +91,11 @@ export class GeoObjectTypeInputComponent implements OnInit {
 
     // modalState: ManageGeoObjectTypeModalState = { state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: "", termOption: "" };
 
-    modalStepConfig: StepConfig = {
-        steps: [
-            { label: this.localizationService.decode("modal.step.indicator.manage.geoobjecttype"), active: true, enabled: true }
-        ]
-    };
-
     // eslint-disable-next-line no-useless-constructor
     constructor(private modalService: BsModalService,
-        private modalStepIndicatorService: ModalStepIndicatorService,
         private localizationService: LocalizationService, private registryService: RegistryService) { }
 
     ngOnInit(): void {
-        this.modalStepIndicatorService.setStepConfig(this.modalStepConfig);
-
         // this.geoObjectTypeManagementService.setModalState(this.modalState);
 
         this.fetchOrganizationLabel();
@@ -173,6 +164,21 @@ export class GeoObjectTypeInputComponent implements OnInit {
         // return false;
 
         return true;
+    }
+
+    private static readonly ATTRIBUTE_TYPE_LABEL_KEYS: { [type: string]: string } = {
+        character: "data.type.label.text",
+        local: "data.type.label.localtext",
+        integer: "data.type.label.integer",
+        float: "data.type.label.float",
+        date: "data.type.label.date",
+        boolean: "data.type.label.boolean",
+        term: "data.type.label.term",
+        classification: "data.type.label.classification"
+    };
+
+    getAttributeTypeLabelKey(type: string): string {
+        return GeoObjectTypeInputComponent.ATTRIBUTE_TYPE_LABEL_KEYS[type] || null;
     }
 
     editAttribute(attr: AttributeType, e: any): void {

@@ -9,6 +9,7 @@ import org.axonframework.eventhandling.GenericEventMessage;
 import org.axonframework.eventhandling.gateway.EventGateway;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.runwaysdk.Pair;
@@ -16,9 +17,11 @@ import com.runwaysdk.dataaccess.MdRelationshipDAOIF;
 import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.dataaccess.metadata.MdRelationshipDAO;
 
+import net.geoprism.registry.axon.event.repository.AbstractObjectEdgeEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectEventBuilder;
 import net.geoprism.registry.axon.event.repository.ConceptObjectEventBuilder;
 import net.geoprism.registry.axon.event.repository.GeoObjectEventBuilder;
+import net.geoprism.registry.axon.event.repository.RepositoryEvent;
 import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.BusinessEdgeType;
@@ -63,11 +66,13 @@ public abstract class DatasetTest
   @Autowired
   protected EventGateway                      gateway;
 
-  protected ConceptObject createConceptObject(String code, ConceptClass type, DataSource dataSource, Date startDate, Date endDate)
+  protected ConceptObject createConceptObject(ConceptClass type, String code, String label, DataSource dataSource, Date startDate, Date endDate)
   {
     ConceptObject object = this.cObjectService.newInstance(type);
     object.setCode(code);
     object.setValue(DefaultAttribute.DATA_SOURCE.getName(), dataSource, startDate, endDate);
+    object.setValue(DefaultAttribute.DISPLAY_LABEL.getName(), new LocalizedValue(label), startDate, endDate);
+
     return applyConceptObject(object, true);
   }
 
@@ -84,7 +89,7 @@ public abstract class DatasetTest
     return this.cObjectService.getByCode(object.getType(), builder.getCode()).orElse(null);
   }
 
-  protected BusinessObject createBusinessObject(String code, BusinessType type, DataSource dataSource, Date startDate, Date endDate)
+  protected BusinessObject createBusinessObject(BusinessType type, String code, DataSource dataSource, Date startDate, Date endDate)
   {
     BusinessObject object = this.bObjectService.newInstance(type);
     object.setCode(code);
@@ -148,7 +153,7 @@ public abstract class DatasetTest
     });
   }
 
-  protected void createConceptEdges(ConceptObject child, Date startDate, Date endDate, DataSource dataSource, List<Pair<ConceptObject, ConceptEdgeType>> targets)
+  protected List<String> createConceptEdges(ConceptObject child, Date startDate, Date endDate, DataSource dataSource, List<Pair<ConceptObject, ConceptEdgeType>> targets)
   {
     ConceptObjectEventBuilder builder = new ConceptObjectEventBuilder(cObjectService);
     builder.setObject(child);
@@ -158,9 +163,13 @@ public abstract class DatasetTest
       builder.addParent(target.getFirst(), target.getSecond(), startDate, endDate, dataSource, false);
     }
 
-    builder.build().stream().forEach(event -> {
+    List<RepositoryEvent> list = builder.build();
+
+    list.stream().forEach(event -> {
       gateway.publish(GenericEventMessage.asEventMessage(event));
     });
+
+    return list.stream().map(e -> (AbstractObjectEdgeEvent) e).map(e -> e.getEdgeUid()).toList();
   }
 
   public long getJobHistoryGeometryCount(ImportHistory hist) throws SQLException

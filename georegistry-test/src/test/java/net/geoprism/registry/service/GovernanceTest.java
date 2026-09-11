@@ -40,22 +40,6 @@ public class GovernanceTest extends FastDatasetTest implements InstanceTestClass
   @Autowired
   private TestRegistryClient            client;
   
-  @Before
-  public void setUp()
-  {
-    testData.setUpInstanceData();
-    
-    testData.logIn();
-  }
-
-  @After
-  public void tearDown()
-  {
-    testData.logOut();
-    
-    testData.tearDownInstanceData();
-  }
-
   /**
    * Tests serialization on the DTOs and also conversion to/from DTO
    */

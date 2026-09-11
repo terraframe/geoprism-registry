@@ -43,9 +43,10 @@ public class RollbackCheckpointBusinessServiceTest extends EventDatasetTest impl
 
   @Override
   @Request
-
-  public void setUp()
+  public void setUp() throws Exception
   {
+    super.setUp();
+
     history = new GPRJobHistory();
     history.addStage(ImportStage.IMPORT);
     history.apply();
@@ -53,7 +54,7 @@ public class RollbackCheckpointBusinessServiceTest extends EventDatasetTest impl
 
   @After
   @Request
-  public void tearDown()
+  public void tearDown() throws Exception
   {
     if (history != null)
     {
@@ -62,23 +63,7 @@ public class RollbackCheckpointBusinessServiceTest extends EventDatasetTest impl
       history = null;
     }
 
-    if (pObject != null)
-    {
-      this.bObjectService.delete(pObject);
-
-      pObject = null;
-    }
-
-    if (cObject != null)
-    {
-      this.bObjectService.delete(cObject);
-
-      cObject = null;
-    }
-
-    this.store.truncate();
-
-    testData.tearDownInstanceData();
+    super.tearDown();
   }
 
   @Test

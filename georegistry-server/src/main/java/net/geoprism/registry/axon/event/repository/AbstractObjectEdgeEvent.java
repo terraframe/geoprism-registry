@@ -4,7 +4,7 @@ import java.util.Date;
 
 import net.geoprism.registry.view.TypeInfo;
 
-public abstract class AbstractObjectEdgeEvent extends AbstractRepositoryEvent
+public abstract class AbstractObjectEdgeEvent extends AbstractRepositoryEvent implements ObjectEdgeEventIF
 {
   public AbstractObjectEdgeEvent()
   {
@@ -29,4 +29,6 @@ public abstract class AbstractObjectEdgeEvent extends AbstractRepositoryEvent
   public abstract Date getStartDate();
 
   public abstract Date getEndDate();
+
+  public abstract String getEdgeUid();
 }

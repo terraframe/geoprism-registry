@@ -5,25 +5,24 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import net.geoprism.registry.view.PublishDTO;
+import net.geoprism.registry.view.TypeInfo;
 
-public abstract class RemoveObjectEvent extends AbstractRepositoryEvent
+public class RemoveObjectEvent extends AbstractRepositoryEvent
 {
-  private String code;
+  private String   code;
 
-  private String type;
+  private TypeInfo type;
 
   public RemoveObjectEvent()
   {
   }
 
-  public RemoveObjectEvent(String code, String type)
+  public RemoveObjectEvent(String code, TypeInfo type)
   {
     super(UUID.randomUUID().toString());
     this.code = code;
     this.type = type;
   }
-
-  public abstract Boolean isValidFor(PublishDTO dto);
 
   public String getCode()
   {
@@ -35,12 +34,12 @@ public abstract class RemoveObjectEvent extends AbstractRepositoryEvent
     this.code = code;
   }
 
-  public String getType()
+  public TypeInfo getType()
   {
     return type;
   }
 
-  public void setType(String type)
+  public void setType(TypeInfo type)
   {
     this.type = type;
   }
@@ -59,4 +58,9 @@ public abstract class RemoveObjectEvent extends AbstractRepositoryEvent
     return EventPhase.OBJECT;
   }
 
+  @Override
+  public Boolean isValidFor(PublishDTO dto)
+  {
+    return dto.getTypes().stream().anyMatch(this.getType()::equals);
+  }
 }

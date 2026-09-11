@@ -16,6 +16,7 @@ import org.axonframework.eventsourcing.eventstore.DomainEventStream;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
+import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,16 +25,15 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import net.geoprism.registry.Commit;
 import net.geoprism.registry.Publish;
 import net.geoprism.registry.axon.config.RegistryEventStore;
-import net.geoprism.registry.axon.event.remote.RemoteObjectApplyEdgeEvent;
-import net.geoprism.registry.axon.event.remote.RemoteBusinessObjectEvent;
-import net.geoprism.registry.axon.event.remote.RemoteConceptObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectApplyExternalIdEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectCreateEdgeEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectRemoveExternalIdEvent;
 import net.geoprism.registry.axon.event.remote.RemoteGeoObjectSetParentEvent;
-import net.geoprism.registry.axon.event.repository.ObjectApplyEdgeEvent;
+import net.geoprism.registry.axon.event.remote.RemoteObjectApplyEdgeEvent;
+import net.geoprism.registry.axon.event.remote.RemoteObjectApplyEvent;
+import net.geoprism.registry.axon.event.remote.RemoteObjectRemoveEdgeEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.ConceptObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.EventPhase;
@@ -45,10 +45,14 @@ import net.geoprism.registry.axon.event.repository.GeoObjectRemoveExternalIdEven
 import net.geoprism.registry.axon.event.repository.GeoObjectRemoveParentEvent;
 import net.geoprism.registry.axon.event.repository.GeoObjectUpdateParentEvent;
 import net.geoprism.registry.axon.event.repository.InMemoryEventMerger;
+import net.geoprism.registry.axon.event.repository.ObjectApplyEdgeEvent;
+import net.geoprism.registry.axon.event.repository.ObjectRemoveEdgeEvent;
 import net.geoprism.registry.axon.event.repository.RepositoryEvent;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.event.EmptyPublishException;
+import net.geoprism.registry.graph.ConceptSet;
 import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.view.ObjectOverTimeDTO;
 import net.geoprism.registry.view.PublishDTO;
 import net.geoprism.registry.view.TypeInfo;
@@ -70,6 +74,9 @@ public class PublishEventService
 
   @Autowired
   private GeoObjectBusinessServiceIF     service;
+
+  @Autowired
+  private ConceptSetBusinessServiceIF    cSetService;
 
   @Autowired
   private CommitBusinessServiceIF        commitService;
@@ -100,6 +107,12 @@ public class PublishEventService
   @Transaction
   public Commit createNewCommit(Publish publish)
   {
+    PublishDTO dto = publish.toDTO();
+
+    // First ensure all classifications are published
+    List<Publish> dependencies = new LinkedList<>();
+    dependencies.addAll(this.createClassificationDependencies(dto));
+
     Optional<Commit> previous = this.commitService.getLatest(publish);
 
     Long lastGlobalIndex = previous.map(p -> p.getLastOriginGlobalIndex()).orElse(Long.valueOf(0));
@@ -112,7 +125,7 @@ public class PublishEventService
     // Determine all of the dependent commits
     previous.ifPresent(p -> commit.addDependency(p).apply());
 
-    List<Publish> dependencies = this.publishService.getRemoteFor(publish.toDTO());
+    dependencies.addAll(this.publishService.getRemoteFor(dto));
 
     for (Publish dependency : dependencies)
     {
@@ -123,6 +136,48 @@ public class PublishEventService
     }
 
     return commit;
+  }
+
+  public List<Publish> createClassificationDependencies(PublishDTO dto)
+  {
+    return dto.getGeoObjectTypes().map(code -> ServerGeoObjectType.get(code)) //
+        .map(t -> t.getAttribute(DefaultAttribute.CLASSIFICATION.getName())) //
+        .filter(a -> a.isPresent()) //
+        .map(a -> a.get()) //
+        .map(a -> (AttributeClassificationType) a.toDTO()) //
+        .map(classification -> {
+          ConceptSet set = this.cSetService.getByCodeOrThrow(classification.getConceptSet());
+
+          Publish publish = this.publishService.getFor(set, classification.getStartDate(), classification.getEndDate());
+
+          if (publish == null)
+          {
+            PublishDTO configuration = new PublishDTO(set.getLabel().getValue(), classification.getStartDate(), classification.getStartDate(), classification.getEndDate());
+            configuration.setConceptSet(classification.getConceptSet());
+
+            this.cSetService.getConceptClasses(set).forEach(cClass -> {
+              configuration.addConceptClass(cClass.getCode());
+            });
+
+            this.cSetService.getConceptEdgeTypes(set).forEach(cType -> {
+              configuration.addConceptEdgeType(cType.getCode());
+            });
+
+            publish = this.publishService.create(configuration);
+          }
+
+          try
+          {
+            createNewCommit(publish);
+          }
+          catch (EmptyPublishException e)
+          {
+            // There isn't any new data so, delete the newly created commit
+            this.commitService.getLatest(publish).ifPresent(latest -> this.commitService.delete(latest));
+          }
+
+          return publish;
+        }).toList();
   }
 
   protected Commit publish(Publish publish, GapAwareTrackingToken start, Integer versionNumber)
@@ -167,14 +222,14 @@ public class PublishEventService
     if (event instanceof GeoObjectApplyEvent)
     {
       String oJson = ( (GeoObjectApplyEvent) event ).getObject();
-      String type = ( (GeoObjectApplyEvent) event ).getType();
+      TypeInfo type = ( (GeoObjectApplyEvent) event ).getType();
       Boolean isNew = ( (GeoObjectApplyEvent) event ).getIsNew();
       String code = ( (GeoObjectApplyEvent) event ).getCode();
 
       // Possible optimization - Directly convert from GeoObjectOverTime to
       // GeoObject for a given time without using a ServerGeoObject
 
-      ServerGeoObjectIF object = this.service.getGeoObjectByCode(code, type);
+      ServerGeoObjectIF object = this.service.getGeoObjectByCode(code, type.getTypeCode());
 
       this.service.populate(object, GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), oJson));
 
@@ -192,7 +247,7 @@ public class PublishEventService
     else if (event instanceof GeoObjectApplyExternalIdEvent)
     {
       String code = ( (GeoObjectApplyExternalIdEvent) event ).getCode();
-      String type = ( (GeoObjectApplyExternalIdEvent) event ).getType();
+      TypeInfo type = ( (GeoObjectApplyExternalIdEvent) event ).getType();
       String authority = ( (GeoObjectApplyExternalIdEvent) event ).getAuthority();
       String externalId = ( (GeoObjectApplyExternalIdEvent) event ).getExternalId();
       ImportStrategy strategy = ( (GeoObjectApplyExternalIdEvent) event ).getStrategy();
@@ -202,7 +257,7 @@ public class PublishEventService
     else if (event instanceof GeoObjectRemoveExternalIdEvent)
     {
       String code = ( (GeoObjectRemoveExternalIdEvent) event ).getCode();
-      String type = ( (GeoObjectRemoveExternalIdEvent) event ).getType();
+      TypeInfo type = ( (GeoObjectRemoveExternalIdEvent) event ).getType();
       String authority = ( (GeoObjectRemoveExternalIdEvent) event ).getAuthority();
 
       return new RemoteGeoObjectRemoveExternalIdEvent(commit.getUid(), code, type, authority);
@@ -211,10 +266,10 @@ public class PublishEventService
     else if (event instanceof GeoObjectCreateParentEvent)
     {
       String code = ( (GeoObjectCreateParentEvent) event ).getCode();
-      String type = ( (GeoObjectCreateParentEvent) event ).getType();
+      TypeInfo type = ( (GeoObjectCreateParentEvent) event ).getType();
       String edgeUid = ( (GeoObjectCreateParentEvent) event ).getEdgeUid();
-      String edgeType = ( (GeoObjectCreateParentEvent) event ).getEdgeTypeCode();
-      String parentType = ( (GeoObjectCreateParentEvent) event ).getParentType();
+      TypeInfo edgeType = ( (GeoObjectCreateParentEvent) event ).getEdgeType();
+      TypeInfo parentType = ( (GeoObjectCreateParentEvent) event ).getParentType();
       String parentCode = ( (GeoObjectCreateParentEvent) event ).getParentCode();
       String dataSource = ( (GeoObjectCreateParentEvent) event ).getDataSource();
 
@@ -228,10 +283,10 @@ public class PublishEventService
     else if (event instanceof GeoObjectUpdateParentEvent)
     {
       String code = ( (GeoObjectUpdateParentEvent) event ).getCode();
-      String type = ( (GeoObjectUpdateParentEvent) event ).getType();
+      TypeInfo type = ( (GeoObjectUpdateParentEvent) event ).getType();
       String edgeUid = ( (GeoObjectUpdateParentEvent) event ).getEdgeUid();
-      String edgeType = ( (GeoObjectUpdateParentEvent) event ).getEdgeTypeCode();
-      String parentType = ( (GeoObjectUpdateParentEvent) event ).getParentType();
+      TypeInfo edgeType = ( (GeoObjectUpdateParentEvent) event ).getEdgeType();
+      TypeInfo parentType = ( (GeoObjectUpdateParentEvent) event ).getParentType();
       String parentCode = ( (GeoObjectUpdateParentEvent) event ).getParentCode();
       String dataSource = ( (GeoObjectUpdateParentEvent) event ).getDataSource();
 
@@ -245,21 +300,20 @@ public class PublishEventService
     else if (event instanceof GeoObjectRemoveParentEvent)
     {
       String code = ( (GeoObjectRemoveParentEvent) event ).getCode();
-      String type = ( (GeoObjectRemoveParentEvent) event ).getType();
+      TypeInfo type = ( (GeoObjectRemoveParentEvent) event ).getType();
       String edgeUid = ( (GeoObjectRemoveParentEvent) event ).getEdgeUid();
-      String edgeType = ( (GeoObjectRemoveParentEvent) event ).getEdgeTypeCode();
+      TypeInfo edgeType = ( (GeoObjectRemoveParentEvent) event ).getEdgeType();
 
       return new RemoteGeoObjectSetParentEvent(commit.getUid(), code, type, edgeUid, edgeType, publish.getStartDate(), publish.getEndDate(), null, null, null);
     }
     else if (event instanceof GeoObjectApplyEdgeEvent)
     {
       String sourceCode = ( (GeoObjectApplyEdgeEvent) event ).getSourceCode();
-      String sourceType = ( (GeoObjectApplyEdgeEvent) event ).getSourceType();
+      TypeInfo sourceType = ( (GeoObjectApplyEdgeEvent) event ).getSourceType();
       String edgeUid = ( (GeoObjectApplyEdgeEvent) event ).getEdgeUid();
-      String edgeType = ( (GeoObjectApplyEdgeEvent) event ).getEdgeType();
-      String edgeTypeCode = ( (GeoObjectApplyEdgeEvent) event ).getEdgeTypeCode();
+      TypeInfo edgeType = ( (GeoObjectApplyEdgeEvent) event ).getEdgeType();
       String targetCode = ( (GeoObjectApplyEdgeEvent) event ).getTargetCode();
-      String targetType = ( (GeoObjectApplyEdgeEvent) event ).getTargetType();
+      TypeInfo targetType = ( (GeoObjectApplyEdgeEvent) event ).getTargetType();
       Date startDate = ( (GeoObjectApplyEdgeEvent) event ).getStartDate();
       Date endDate = ( (GeoObjectApplyEdgeEvent) event ).getEndDate();
       String dataSource = ( (GeoObjectApplyEdgeEvent) event ).getDataSource();
@@ -269,13 +323,13 @@ public class PublishEventService
         sources.add(dataSource);
       }
 
-      return new RemoteGeoObjectCreateEdgeEvent(commit.getUid(), sourceCode, sourceType, edgeUid, edgeType, edgeTypeCode, startDate, endDate, targetCode, targetType, dataSource);
+      return new RemoteGeoObjectCreateEdgeEvent(commit.getUid(), sourceCode, sourceType, edgeUid, edgeType, startDate, endDate, targetCode, targetType, dataSource);
     }
     else if (event instanceof BusinessObjectApplyEvent)
     {
       ObjectOverTimeDTO dto = ( (BusinessObjectApplyEvent) event ).getObject();
       String code = ( (BusinessObjectApplyEvent) event ).getCode();
-      String type = ( (BusinessObjectApplyEvent) event ).getType();
+      TypeInfo type = ( (BusinessObjectApplyEvent) event ).getType();
 
       // TODO: Use business object service to get the data source??
       String dataSource = dto.has(DefaultAttribute.DATA_SOURCE.getName()) ? dto.getValue(DefaultAttribute.DATA_SOURCE.getName()) : null;
@@ -285,13 +339,13 @@ public class PublishEventService
         sources.add(dataSource);
       }
 
-      return new RemoteBusinessObjectEvent(commit.getUid(), code, type, dto.toDate(publish.getForDate()), publish.getStartDate(), publish.getEndDate());
+      return new RemoteObjectApplyEvent(commit.getUid(), code, type, dto.toDate(publish.getForDate()), publish.getStartDate(), publish.getEndDate());
     }
     else if (event instanceof ConceptObjectApplyEvent)
     {
       ObjectOverTimeDTO dto = ( (ConceptObjectApplyEvent) event ).getObject();
       String code = ( (ConceptObjectApplyEvent) event ).getCode();
-      String type = ( (ConceptObjectApplyEvent) event ).getType();
+      TypeInfo type = ( (ConceptObjectApplyEvent) event ).getType();
 
       String dataSource = dto.has(DefaultAttribute.DATA_SOURCE.getName()) ? dto.getValue(DefaultAttribute.DATA_SOURCE.getName()) : null;
 
@@ -300,7 +354,7 @@ public class PublishEventService
         sources.add(dataSource);
       }
 
-      return new RemoteConceptObjectEvent(commit.getUid(), code, type, dto.toDate(publish.getForDate()), publish.getStartDate(), publish.getEndDate());
+      return new RemoteObjectApplyEvent(commit.getUid(), code, type, dto.toDate(publish.getForDate()), publish.getStartDate(), publish.getEndDate());
     }
     else if (event instanceof ObjectApplyEdgeEvent)
     {
@@ -320,6 +374,25 @@ public class PublishEventService
       }
 
       return new RemoteObjectApplyEdgeEvent(commit.getUid(), sourceCode, sourceType, edgeUid, edgeType, targetCode, targetType, startDate, endDate, dataSource);
+    }
+    else if (event instanceof ObjectRemoveEdgeEvent)
+    {
+      String sourceCode = ( (ObjectRemoveEdgeEvent) event ).getSourceCode();
+      TypeInfo sourceType = ( (ObjectRemoveEdgeEvent) event ).getSourceType();
+      String edgeUid = ( (ObjectRemoveEdgeEvent) event ).getEdgeUid();
+      TypeInfo edgeType = ( (ObjectRemoveEdgeEvent) event ).getEdgeType();
+      String targetCode = ( (ObjectRemoveEdgeEvent) event ).getTargetCode();
+      TypeInfo targetType = ( (ObjectRemoveEdgeEvent) event ).getTargetType();
+      Date startDate = ( (ObjectRemoveEdgeEvent) event ).getStartDate();
+      Date endDate = ( (ObjectRemoveEdgeEvent) event ).getEndDate();
+      String dataSource = ( (ObjectRemoveEdgeEvent) event ).getDataSource();
+
+      if (!StringUtils.isBlank(dataSource))
+      {
+        sources.add(dataSource);
+      }
+
+      return new RemoteObjectRemoveEdgeEvent(commit.getUid(), sourceCode, sourceType, edgeUid, edgeType, targetCode, targetType, startDate, endDate, dataSource);
     }
 
     throw new UnsupportedOperationException("Events of type [" + event.getClass().getName() + "] do not support being published");

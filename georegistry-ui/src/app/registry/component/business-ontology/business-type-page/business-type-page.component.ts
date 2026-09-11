@@ -34,7 +34,6 @@ import { CreateBusinessTypeComponent } from "./create-business-type.component";
 import { BsDropdownModule } from "ngx-bootstrap/dropdown";
 import { NgFor, NgIf, NgClass } from "@angular/common";
 import { LocalizeComponent } from "@shared/component/localize/localize.component";
-import { AccordionModule } from "ngx-bootstrap/accordion";
 import { FormsModule } from "@angular/forms";
 import { BusinessTypeService } from "@registry/service/business-type.service";
 import { RouterLink } from "@angular/router";
@@ -59,7 +58,7 @@ interface Selection {
     templateUrl: "./business-type-page.component.html",
     styleUrls: ["./business-type-page.css"],
     standalone: true,
-    imports: [FormsModule, AccordionModule, LocalizeComponent, NgFor, NgIf, NgClass, BsDropdownModule, CreateBusinessTypeComponent, ManageBusinessTypeComponent, RouterLink]
+    imports: [FormsModule, LocalizeComponent, NgFor, NgIf, NgClass, BsDropdownModule, CreateBusinessTypeComponent, ManageBusinessTypeComponent, RouterLink]
 })
 export class BusinessTypePageComponent implements OnInit, OnChanges {
     Action = Action;
@@ -102,6 +101,19 @@ export class BusinessTypePageComponent implements OnInit, OnChanges {
                     write: this.authService.isSRA() || this.authService.isOrganizationRA(org.code),
                     types: types.filter(t => t.organization === org.code)
                 });
+            }
+
+            if (this.selection == null) {
+                this.selectFirstAvailable();
+            }
+        }
+    }
+
+    private selectFirstAvailable(): void {
+        for (const item of this.typesByOrg) {
+            if (item.types.length > 0) {
+                this.handleTypeView(item.types[0]);
+                return;
             }
         }
     }

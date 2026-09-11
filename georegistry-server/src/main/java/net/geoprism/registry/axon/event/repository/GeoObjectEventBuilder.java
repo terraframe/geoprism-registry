@@ -6,6 +6,8 @@ import com.google.gson.JsonObject;
 
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.view.TypeClass;
+import net.geoprism.registry.view.TypeInfo;
 
 public class GeoObjectEventBuilder extends AbstractGeoObjectEventBuilder<GeoObjectOverTime>
 {
@@ -22,9 +24,9 @@ public class GeoObjectEventBuilder extends AbstractGeoObjectEventBuilder<GeoObje
   }
 
   @Override
-  public String getType()
+  public TypeInfo getType()
   {
-    return this.getOrThrow().getType().getCode();
+    return new TypeInfo(TypeClass.GEO_OBJECT_TYPE, this.getOrThrow().getType().getCode());
   }
 
   @Override
