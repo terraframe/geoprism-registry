@@ -58,7 +58,7 @@ li.list-group-item {
 }
 
 li.list-group-item.active {
-    background-color: #F0E6FF;
+    background-color: #A29BAB;
     color: var(--theme-primary-color, #3E2A5A);
     font-weight: 700;
 }
@@ -67,6 +67,8 @@ li.list-group-item.got-li-item
 {
 	border-top: 15px solid #a0a0a0;
 	border-radius: 5px;
+    margin: 7px;
+    background-color: white;
 }
 
 li.list-group-item.got-li-item.got-group-child {
@@ -87,22 +89,41 @@ li.list-group-item.hier-li-item {
 	border: none;
 	border-radius: 6px;
 	color: var(--theme-text-dark, #767676);
-	padding: 10px 5px;
+	padding: 5px 10px;
 	margin: 0 5px 2px 5px;
 	cursor: pointer;
+}
+
+li.list-group-item.hier-li-item {
+	display: flex;
+	align-items: center;
+}
+li.list-group-item.hier-li-item .btn-group.pull-right {
+	float: none;
+	margin-left: auto;
+}
+li.list-group-item.hier-li-item .btn-group.pull-right > a {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 4px 6px;
+	border-radius: 4px;
+}
+li.list-group-item.hier-li-item .btn-group.pull-right > a:hover {
+	background-color: #f4fcef;
 }
 li.list-group-item.hier-li-item i.fa {
 	color: var(--theme-text-dark, #767676);
 }
 
 li.list-group-item.hier-li-item:hover {
-	background-color: rgba(217, 181, 255, 0.2);
+	background-color: rgba(162, 155, 171, 0.4);
 	cursor: pointer;
 }
 
 li.list-group-item.hier-li-item.primary
 {
-	background: #F0E6FF;
+	background: #A29BAB;
 	color: var(--theme-primary-color, #3E2A5A);
 	font-weight: 700;
 }
@@ -176,7 +197,7 @@ ul li:last-child:before {
 }
 
 .hierarchy-content {
-    height: calc(100vh - 158px);
+    height: calc(100vh - 182px);
     overflow-y: auto;
 }
 
@@ -202,10 +223,6 @@ ul li:last-child:before {
 	cursor: pointer;
 }
 
-
-accordion-group.panel {
-/* 	background-color: #505050; */
-}
 
 li.list-group-item {
 	background-color: transparent;
@@ -261,17 +278,4 @@ li.got-li-item.dragging {
 }
 #NodeTooltip .holder label {
   line-height:2.8;
-}
-
-:host::ng-deep .panel .panel-heading .accordion-toggle:after {
-    /* symbol for "opening" panels */
-    font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
-    content: "\e080";    /* adjust as needed, taken from bootstrap.css */
-    float: right;        /* adjust as needed */
-/*     color: white;         adjust as needed */
-    margin-top: -30px;
-}
-:host::ng-deep .panel.panel-open .panel-heading .accordion-toggle:after {
-    /* symbol for "collapsed" panels */
-    content: "\e114";    /* adjust as needed, taken from bootstrap.css */
 }

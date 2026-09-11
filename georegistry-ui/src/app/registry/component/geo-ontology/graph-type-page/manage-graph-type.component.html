@@ -39,35 +39,43 @@
   <form #form="ngForm" *ngIf="type != null && typeCode != null" class="modal-form" (ngSubmit)="form.valid">
     <fieldset>
 
-      <div class="row">
-        <div class="col-md-12">
-          <div class="form-group">
-            <label for="codeInput">
-              <localize key="data.property.label.code"></localize>
-            </label>
-            <span class="text">
-              <input type="text" [(ngModel)]="type.code" name="code" [disabled]="readOnly || !isNew" required>
-            </span>
-          </div>
+      <div class="panel panel-default section-panel">
+        <div class="panel-heading">
+          <h5 class="panel-title"><localize key="hierarchy.management.section.identity.title"></localize></h5>
+          <p class="panel-subtitle"><localize key="hierarchy.management.section.identity.description"></localize></p>
         </div>
-      </div>
+        <div class="panel-body">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="codeInput">
+                  <localize key="data.property.label.code"></localize>
+                </label>
+                <span class="text">
+                  <input type="text" [(ngModel)]="type.code" name="code" [disabled]="readOnly || !isNew" required>
+                </span>
+              </div>
+            </div>
+          </div>
 
-      <div class="row">
-        <div class="col-md-6">
-          <div class="form-group" *ngFor="let localeValue of type.label.localeValues">
-            <label for="labelInput">
-              <localize key="data.property.label.label"></localize>
-              <span style="color: #BABABA">&nbsp;(<convert-key-label
-                  [key]="localeValue.locale"></convert-key-label>)</span>
-            </label>
-            <input [disabled]="readOnly" [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale"
-              type="input" class="form-control" required>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="form-group">
-            <localized-text [disabled]="readOnly" [(value)]="type.description" key="data.property.label.description" [inlinelayout]="true">
-            </localized-text>      
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group" *ngFor="let localeValue of type.label.localeValues">
+                <label for="labelInput">
+                  <localize key="data.property.label.label"></localize>
+                  <span style="color: #BABABA">&nbsp;(<convert-key-label
+                      [key]="localeValue.locale"></convert-key-label>)</span>
+                </label>
+                <input [disabled]="readOnly" [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale"
+                  type="input" class="form-control" required>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <localized-text [disabled]="readOnly" [(value)]="type.description" key="data.property.label.description" [inlinelayout]="true">
+                </localized-text>
+              </div>
+            </div>
           </div>
         </div>
       </div>

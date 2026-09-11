@@ -40,11 +40,11 @@ li.ontology-section-nav-item {
 }
 
 li.ontology-section-nav-item:hover {
-    background-color: rgba(217, 181, 255, 0.35);
+    background-color: rgba(162, 155, 171, 0.45);
 }
 
 li.ontology-section-nav-item.active {
-    background-color: #D9B5FF;
+    background-color: #A29BAB;
     color: var(--theme-primary-color, #3E2A5A);
     font-weight: 700;
 }

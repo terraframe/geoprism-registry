@@ -52,3 +52,60 @@
     color: var(--theme-text-dark, #767676);
     margin-top: 0;
 }
+
+.section-panel {
+    margin-bottom: 20px;
+}
+.section-panel .panel-heading {
+    padding: 12px 15px 10px;
+}
+.section-panel .panel-title {
+    margin: 0 0 2px;
+}
+.section-panel .panel-subtitle {
+    margin: 0;
+    font-size: 12px;
+    font-weight: normal;
+    color: #999;
+}
+.section-panel .panel-body {
+    padding-top: 18px;
+}
+
+/* Stack labels above their inputs instead of the app-wide right-justified
+   label/input split, which left too little room for the input in these
+   narrower card sections. ::ng-deep is required because localized-input
+   renders this same row-holder/label-holder markup from its own component
+   template. */
+:host::ng-deep .section-panel .row-holder {
+    display: block;
+    overflow: visible;
+    margin-bottom: 10px;
+}
+:host::ng-deep .section-panel .row-holder:last-child {
+    margin-bottom: 0;
+}
+:host::ng-deep .section-panel .label-holder {
+    float: none;
+    width: 100%;
+    text-align: left;
+    margin: 0 0 6px;
+}
+:host::ng-deep .section-panel .label-holder label,
+:host::ng-deep .section-panel .label-holder strong {
+    margin: 0;
+}
+:host::ng-deep .section-panel .holder {
+    float: none;
+    width: 100%;
+    padding: 0;
+}
+:host::ng-deep .section-panel .holder .text {
+    display: block;
+}
+:host::ng-deep .section-panel .holder input[type="text"],
+:host::ng-deep .section-panel .holder select,
+:host::ng-deep .section-panel .holder textarea {
+    display: block;
+    width: 100%;
+}

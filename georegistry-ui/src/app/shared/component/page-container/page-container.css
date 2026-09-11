@@ -39,3 +39,7 @@
     height: 100vh;
     overflow-y: auto;
 }
+
+.sidebar.collapsed-sidebar {
+    overflow-y: hidden;
+}
