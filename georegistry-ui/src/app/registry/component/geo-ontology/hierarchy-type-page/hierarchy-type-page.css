@@ -67,6 +67,8 @@ li.list-group-item.got-li-item
 {
 	border-top: 15px solid #a0a0a0;
 	border-radius: 5px;
+    margin: 7px;
+    background-color: white;
 }
 
 li.list-group-item.got-li-item.got-group-child {
@@ -222,10 +224,6 @@ ul li:last-child:before {
 }
 
 
-accordion-group.panel {
-/* 	background-color: #505050; */
-}
-
 li.list-group-item {
 	background-color: transparent;
 	margin-bottom: 0;
@@ -280,17 +278,4 @@ li.got-li-item.dragging {
 }
 #NodeTooltip .holder label {
   line-height:2.8;
-}
-
-:host::ng-deep .panel .panel-heading .accordion-toggle:after {
-    /* symbol for "opening" panels */
-    font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
-    content: "\e080";    /* adjust as needed, taken from bootstrap.css */
-    float: right;        /* adjust as needed */
-/*     color: white;         adjust as needed */
-    margin-top: -30px;
-}
-:host::ng-deep .panel.panel-open .panel-heading .accordion-toggle:after {
-    /* symbol for "collapsed" panels */
-    content: "\e114";    /* adjust as needed, taken from bootstrap.css */
 }

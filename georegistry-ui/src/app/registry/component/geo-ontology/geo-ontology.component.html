@@ -27,10 +27,10 @@
         (onError)="error($event)">
         <ontology-section-nav sectionNav [items]="sections" [(active)]="section"></ontology-section-nav>
         <div *ngIf="isSRA" contentTools class="ontology-content-tools">
-            <button type="button" class="btn btn-default" (click)="importTypes()">
+            <button type="button" class="btn btn-primary" (click)="importTypes()">
                 <i class="fa-solid fa-file-import"></i> {{'hierarchy.sidebar.importTypes' | localize}}
             </button>
-            <button type="button" class="btn btn-default" (click)="exportTypes()">
+            <button type="button" class="btn btn-primary" (click)="exportTypes()">
                 <i class="fa-solid fa-file-export"></i> {{'hierarchy.sidebar.exportTypes' | localize}}
             </button>
         </div>

@@ -20,7 +20,7 @@
     position: fixed;
     bottom: 0;
     width: 100%;
-    padding: 15px 0;
+    padding: 0 0 15px 0;
 }
 
 .brand {
@@ -55,6 +55,18 @@
 .route-item.expanded {
     padding-left: 8px;
     padding-right: 8px;
+}
+
+
+.user-command-link {
+    background-color: #D9B5FFFF;
+    color: black;
+    padding: 4px;
+}
+
+.user-command-link.route-item.expanded {
+    margin-left: 255px;
+    padding: 4px;
 }
 
 .route-item.active {

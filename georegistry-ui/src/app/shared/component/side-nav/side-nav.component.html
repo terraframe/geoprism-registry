@@ -59,7 +59,7 @@
       </ng-container>
 
       <ng-container *ngIf="!isPublic">
-        <div class="card card-default section">
+        <div class="card card-default section" style="margin-bottom: 20px;">
           <div class="card-body">
             <hr>
             <div class="row nav-row" *ngIf="shouldShowMenuItem('SETTINGS')">
@@ -81,7 +81,7 @@
 
       <div class="row fixed-bottom-row">
         <div class="col-xs-12">
-          <a class="user-command-link route-item" (click)="handleToggle()">
+          <a class="user-command-link route-item" (click)="handleToggle()" [ngClass]="{'expanded':expanded}">
             <i class="fa-solid" [ngClass]="{'fa-chevron-left':expanded, 'fa-chevron-right': !expanded}"></i>
           </a>
         </div>
