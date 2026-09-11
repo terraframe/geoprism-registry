@@ -52,14 +52,18 @@ export class HierarchyGroupedTypeView {
     code: string;
     label: string;
     orgCode: string;
-    types: any[];
+    types: string[];
 }
 
-export class TypeGroupedHierachyView {
+export class GeoObjectTypeImportView {
     code: string;
     label: string;
     orgCode: string;
-    super?: {code: string, label: string, orgCode: string, isAbstract: boolean};
-    permissions: [string];
-    hierarchies: any[];
+    isAbstract: boolean;
+    super?: string;
+}
+
+export class ImportFormView {
+    types: GeoObjectTypeImportView[];
+    hierarchies: HierarchyGroupedTypeView[];
 }

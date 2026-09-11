@@ -86,7 +86,8 @@ public class HierarchyServiceTest extends FastDatasetTest implements InstanceTes
     for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM })
     {
       FastTestDataset.runAsUser(user, (request) -> {
-        JsonArray ja = service.getHierarchyGroupedTypes(request.getSessionId());
+        JsonObject view = service.getHierarchyGroupedTypes(request.getSessionId());
+        JsonArray ja = view.get("hierarchies").getAsJsonArray();
 
         ArrayList<String> hierarchyLabels = new ArrayList<String>();
         ArrayList<String> hierarchyCodes = new ArrayList<String>();
@@ -113,7 +114,8 @@ public class HierarchyServiceTest extends FastDatasetTest implements InstanceTes
     for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_MOHA_RM })
     {
       FastTestDataset.runAsUser(user, (request) -> {
-        JsonArray ja = service.getHierarchyGroupedTypes(request.getSessionId());
+        JsonObject view = service.getHierarchyGroupedTypes(request.getSessionId());
+        JsonArray ja = view.get("hierarchies").getAsJsonArray();
 
         ArrayList<String> hierarchyLabels = new ArrayList<String>();
         ArrayList<String> hierarchyCodes = new ArrayList<String>();
@@ -140,7 +142,8 @@ public class HierarchyServiceTest extends FastDatasetTest implements InstanceTes
     for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.USER_ADMIN })
     {
       FastTestDataset.runAsUser(user, (request) -> {
-        JsonArray ja = service.getHierarchyGroupedTypes(request.getSessionId());
+        JsonObject view = service.getHierarchyGroupedTypes(request.getSessionId());
+        JsonArray ja = view.get("hierarchies").getAsJsonArray();
 
         ArrayList<String> hierarchyLabels = new ArrayList<String>();
         ArrayList<String> hierarchyCodes = new ArrayList<String>();

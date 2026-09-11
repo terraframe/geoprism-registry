@@ -28,7 +28,7 @@ import { HierarchyService } from "@registry/service";
 
 import { ImportModalComponent } from "./modals/import-modal.component";
 import { ImportStrategy } from "@registry/model/constants";
-import { HierarchyGroupedTypeView, TypeGroupedHierachyView } from "@registry/model/hierarchy";
+import { GeoObjectTypeImportView, HierarchyGroupedTypeView } from "@registry/model/hierarchy";
 import { environment } from "src/environments/environment";
 import { DataSource } from "@registry/model/source";
 import { DataSourceService } from "@registry/service/data-source.service";
@@ -57,18 +57,16 @@ export class DataImporterComponent implements OnInit {
     /*
     * GeoObjectTypes grouped by hierarchy
     */
-    allHierarchyViews: HierarchyGroupedTypeView[];
-
-    filteredHierarchyViews: any[];
+    hierarchies: HierarchyGroupedTypeView[] = [];
 
     /*
      * Hierarchies grouped by GeoObjectType
      */
-    allTypeViews: TypeGroupedHierachyView[];
+    allTypes: GeoObjectTypeImportView[] = [];
 
-    filteredTypeViews: any[];
+    filteredTypes: GeoObjectTypeImportView[] = [];
 
-    importStrategy: ImportStrategy;
+    importStrategy: ImportStrategy = ImportStrategy.NEW_ONLY;
     importStrategies: any[] = [
         { strategy: ImportStrategy.NEW_AND_UPDATE, label: this.localizationService.decode("etl.import.ImportStrategy.NEW_AND_UPDATE") },
         { strategy: ImportStrategy.NEW_ONLY, label: this.localizationService.decode("etl.import.ImportStrategy.NEW_ONLY") },
@@ -134,7 +132,6 @@ export class DataImporterComponent implements OnInit {
         private modalService: BsModalService,
         private localizationService: LocalizationService,
         private sourceService: DataSourceService,
-        private sysService: ExternalSystemService,
         private hierarchyService: HierarchyService,
         private changeDetectorRef: ChangeDetectorRef
     ) { }
@@ -146,63 +143,12 @@ export class DataImporterComponent implements OnInit {
             this.error(err);
         });
 
-        this.hierarchyService.getHierarchyGroupedTypes().then(views => {
-            this.allHierarchyViews = views;
-            this.allTypeViews = [];
+        this.hierarchyService.getHierarchyGroupedTypes().then(view => {
 
-            // Make sure we are using the same object references for all types
-            let len0 = this.allHierarchyViews.length;
-            for (let i = 0; i < len0; ++i) {
-                let view = this.allHierarchyViews[i];
+            this.hierarchies = view.hierarchies.sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase()));
+            this.allTypes = view.types.sort((a, b) => a.label.toLowerCase().localeCompare(b.label.toLowerCase()));
 
-                let len2 = view.types.length;
-                for (let j = 0; j < len2; ++j) {
-                    let type = view.types[j];
-
-                    let len9 = this.allHierarchyViews.length;
-                    for (let j = 0; j < len9; ++j) {
-                        let view2 = this.allHierarchyViews[j];
-
-                        let indexOf = view2.types.findIndex(findType => type.code === findType.code);
-
-                        if (indexOf !== -1) {
-                            view2.types[indexOf] = type;
-                        }
-                    }
-                }
-            }
-
-            // Generate a TypeGroupedHierarchy lookup structure from the HierarchyGroupedType structure
-            let len = this.allHierarchyViews.length;
-            for (let i = 0; i < len; ++i) {
-                let view = this.allHierarchyViews[i];
-
-                let len2 = view.types.length;
-                for (let j = 0; j < len2; ++j) {
-                    let type = view.types[j];
-
-                    let indexOf = this.allTypeViews.findIndex(findType => findType.code === type.code);
-
-                    if (indexOf !== -1) {
-                        let findType = this.allTypeViews[indexOf];
-
-                        let existingHierarchyIndex = findType.hierarchies.findIndex(findHier => findHier.code === view.code);
-
-                        if (existingHierarchyIndex === -1) {
-                            findType.hierarchies.push(view);
-                        }
-                    } else {
-                        if (type.hierarchies == null) {
-                            type.hierarchies = [];
-                        }
-                        type.hierarchies.push(view);
-                        this.allTypeViews.push(type);
-                    }
-                }
-            }
-
-            this.filteredHierarchyViews = this.allHierarchyViews;
-            this.filteredTypeViews = this.allTypeViews;
+            this.filteredTypes = this.allTypes.filter(t => !t.isAbstract);
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
@@ -275,39 +221,31 @@ export class DataImporterComponent implements OnInit {
     }
 
     onSelectHierarchy(): void {
-        let view: HierarchyGroupedTypeView = null;
-
-        let len = this.allHierarchyViews.length;
-        for (let i = 0; i < len; ++i) {
-            if (this.allHierarchyViews[i].code === this.hierarchyCode) {
-                view = this.allHierarchyViews[i];
-                break;
-            }
-        }
+        const view = this.hierarchies.find(h => h.code === this.hierarchyCode);
 
         if (view != null) {
-            this.filteredTypeViews = view.types;
+            this.filteredTypes = this.allTypes.filter(t => !t.isAbstract && view.types.findIndex(tt => tt === t.code) !== -1);
         } else {
-            this.filteredTypeViews = this.allTypeViews;
+            this.filteredTypes = this.allTypes.filter(t => !t.isAbstract);
         }
     }
 
     onSelectType(): void {
-        let view: TypeGroupedHierachyView = null;
+        // let view: TypeGroupedHierachyView = null;
 
-        let len = this.allTypeViews.length;
-        for (let i = 0; i < len; ++i) {
-            if (this.allTypeViews[i].code === this.typeCode) {
-                view = this.allTypeViews[i];
-                break;
-            }
-        }
+        // let len = this.allTypeViews.length;
+        // for (let i = 0; i < len; ++i) {
+        //     if (this.allTypeViews[i].code === this.typeCode) {
+        //         view = this.allTypeViews[i];
+        //         break;
+        //     }
+        // }
 
-        if (view != null) {
-            this.filteredHierarchyViews = view.hierarchies;
-        } else {
-            this.filteredHierarchyViews = this.allHierarchyViews;
-        }
+        // if (view != null) {
+        //     this.filteredHierarchyViews = view.hierarchies;
+        // } else {
+        //     this.filteredHierarchyViews = this.allHierarchyViews;
+        // }
 
         this.checkDates();
     }
@@ -350,7 +288,7 @@ export class DataImporterComponent implements OnInit {
     checkDateFieldValidity(): boolean {
         let dateFields = this.dateFieldComponentsArray.toArray();
 
-        let startDateField: DateFieldComponent;
+        let startDateField: DateFieldComponent = null;
         for (let i = 0; i < dateFields.length; i++) {
             let field = dateFields[i];
 
@@ -364,7 +302,7 @@ export class DataImporterComponent implements OnInit {
             }
         }
 
-        if (this.startDate > this.endDate) {
+        if (startDateField != null && this.startDate > this.endDate) {
             startDateField.setInvalid(this.localizationService.decode("date.input.startdate.after.enddate.error.message"));
 
             this.changeDetectorRef.detectChanges();

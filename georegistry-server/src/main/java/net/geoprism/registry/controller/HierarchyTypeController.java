@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import jakarta.validation.Valid;
@@ -221,9 +222,9 @@ public class HierarchyTypeController extends RunwaySpringController
   @GetMapping(API_PATH + "/groupedTypes")
   public ResponseEntity<String> getHierarchyGroupedTypes()
   {
-    JsonArray ja = this.hierarchyService.getHierarchyGroupedTypes(this.getSessionId());
+    JsonElement ja = this.hierarchyService.getHierarchyGroupedTypes(this.getSessionId());
 
-    return new ResponseEntity<String>(ja.toString(), HttpStatus.OK);
+    return ResponseEntity.ok(ja.toString());
   }
 
   /**
