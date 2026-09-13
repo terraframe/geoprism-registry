@@ -6,6 +6,8 @@ import java.util.List;
 import org.axonframework.eventhandling.DomainEventMessage;
 import org.axonframework.eventhandling.GapAwareTrackingToken;
 import org.axonframework.eventsourcing.eventstore.DomainEventStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +40,10 @@ import net.geoprism.registry.axon.projection.RepositoryProjection;
 @Service
 public class RollbackEventService
 {
+  private static Logger        logger         = LoggerFactory.getLogger(RollbackEventService.class);
+
+  public static final int      ROLLBACK_CHUNK = 1000;
+
   @Autowired
   private RegistryEventStore   store;
 
@@ -48,6 +54,8 @@ public class RollbackEventService
   {
     try
     {
+      logger.info("Rolling back checkpoint [" + checkpoint.getOid() + "] to event index [" + checkpoint.getGlobalIndex() + "] ");
+
       store.setLock(true);
 
       GapAwareTrackingToken start = GapAwareTrackingToken.newInstance(checkpoint.getGlobalIndex(), new LinkedList<>());
@@ -148,12 +156,11 @@ public class RollbackEventService
 
   protected void processEventType(GapAwareTrackingToken start, EventPhase phase)
   {
-    long limit = 1000;
     long offset = 0;
 
     List<String> baseObjectIds = null;
 
-    while ( ( baseObjectIds = this.store.getBaseObjectIds(start, null, phase, limit, offset) ).size() > 0)
+    while ( ( baseObjectIds = this.store.getBaseObjectIds(start, null, phase, ROLLBACK_CHUNK, offset) ).size() > 0)
     {
       for (String baseObjectId : baseObjectIds)
       {
@@ -181,9 +188,9 @@ public class RollbackEventService
               .findFirst() // TODO: merge the events?
               .ifPresent(event -> this.rollback(event, start, phase));
         }
-
-        offset += limit;
       }
+
+      offset += ROLLBACK_CHUNK;
     }
 
   }

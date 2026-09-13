@@ -3,6 +3,8 @@ package net.geoprism.registry.service.business;
 import java.util.List;
 
 import org.axonframework.eventhandling.TrackingToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
@@ -15,13 +17,15 @@ import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.RollbackCheckpoint;
 import net.geoprism.registry.RollbackCheckpoint.Status;
-import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.RollbackCheckpointQuery;
+import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.jobs.GPRJobHistory;
 
 @Service
 public class RollbackCheckpointBusinessService
 {
+  private static Logger        logger = LoggerFactory.getLogger(RollbackCheckpointBusinessService.class);
+
   @Autowired
   private RollbackEventService service;
 
@@ -80,7 +84,22 @@ public class RollbackCheckpointBusinessService
       throw new ProgrammingErrorException("The system cannot be rolledback because data imports are running or scheduled");
     }
 
+    execute(checkpoint);
+  }
+
+  @Request
+  public void resume(RollbackCheckpoint checkpoint)
+  {
+    this.execute(checkpoint);
+  }
+
+  private void execute(RollbackCheckpoint checkpoint)
+  {
+    logger.info("Initiate rollback for checkpoint: " + checkpoint.getOid());
+
     List<RollbackCheckpoint> checkpoints = this.getAfter(checkpoint);
+
+    logger.info("Previous checkpoints " + checkpoints.size());
 
     checkpoints.stream().forEach(ch -> {
       ch.appLock();
@@ -94,6 +113,8 @@ public class RollbackCheckpointBusinessService
       ch.apply();
 
       this.service.rollback(ch);
+
+      logger.info("Deleting checkpoint: " + ch.getOid());
 
       ch.delete();
     });
@@ -112,7 +133,7 @@ public class RollbackCheckpointBusinessService
   {
     RollbackCheckpointQuery query = new RollbackCheckpointQuery(new QueryFactory());
     query.WHERE(query.getStatus().NE(RollbackCheckpoint.Status.AVAILABLE.name()));
-    query.ORDER_BY_DESC(query.getCreateDate());
+    query.ORDER_BY_DESC(query.getGlobalIndex());
 
     try (OIterator<? extends RollbackCheckpoint> it = query.getIterator())
     {
@@ -146,7 +167,7 @@ public class RollbackCheckpointBusinessService
   {
     RollbackCheckpointQuery query = new RollbackCheckpointQuery(new QueryFactory());
     query.WHERE(query.getGlobalIndex().GE(checkpoint.getGlobalIndex()));
-    query.ORDER_BY_DESC(query.getCreateDate());
+    query.ORDER_BY_DESC(query.getGlobalIndex());
 
     try (OIterator<? extends RollbackCheckpoint> it = query.getIterator())
     {
@@ -166,12 +187,26 @@ public class RollbackCheckpointBusinessService
   {
     try
     {
-
       List<RollbackCheckpoint> list = this.getExecutionList();
 
-      if (list.size() > 0)
+      if (list.size() > 0 && !this.store.isLocked())
       {
-        this.rollback(list.get(list.size() - 1));
+        // TODO: Change to spring thread executor??
+        Thread t = new Thread(() -> {
+
+          // Give time for the metadata cache to be populated
+          try
+          {
+            Thread.sleep(15000);
+          }
+          catch (InterruptedException e)
+          {
+          }
+
+          this.resume(list.get(list.size() - 1));
+        }, "resume-rollback");
+        t.setDaemon(true);
+        t.start();
       }
     }
     catch (Exception e)

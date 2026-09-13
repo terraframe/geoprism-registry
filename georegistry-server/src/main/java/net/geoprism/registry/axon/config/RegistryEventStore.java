@@ -188,6 +188,11 @@ public class RegistryEventStore extends EmbeddedEventStore implements EventStore
     this.locked.set(locked);
   }
 
+  public boolean isLocked()
+  {
+    return this.locked.get();
+  }
+
   @Override
   protected void prepareCommit(List<? extends EventMessage<?>> events)
   {

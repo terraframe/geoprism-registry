@@ -27,6 +27,9 @@ import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.etl.ImportStage;
 import net.geoprism.registry.jobs.GPRJobHistory;
 import net.geoprism.registry.service.business.RollbackCheckpointBusinessService;
+import net.geoprism.registry.service.business.RollbackEventService;
+import net.geoprism.registry.test.TestGeoObjectInfo;
+import net.geoprism.registry.test.USATestData;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
@@ -45,11 +48,11 @@ public class RollbackCheckpointBusinessServiceTest extends EventDatasetTest impl
   @Request
   public void setUp() throws Exception
   {
-    super.setUp();
-
     history = new GPRJobHistory();
     history.addStage(ImportStage.IMPORT);
     history.apply();
+
+    this.store.truncate();
   }
 
   @After
@@ -63,7 +66,9 @@ public class RollbackCheckpointBusinessServiceTest extends EventDatasetTest impl
       history = null;
     }
 
-    super.tearDown();
+    testData.tearDownInstanceData();
+
+    this.store.truncate();
   }
 
   @Test
@@ -102,7 +107,14 @@ public class RollbackCheckpointBusinessServiceTest extends EventDatasetTest impl
     RollbackCheckpoint second = this.service.create(history, 2L);
 
     Assert.assertEquals(2, this.service.getCount());
-    Assert.assertEquals(2, this.service.getAfter(first).size());
+
+    List<RollbackCheckpoint> list = this.service.getAfter(first);
+
+    Assert.assertEquals(2, list.size());
+
+    Assert.assertEquals(second.getOid(), list.get(0).getOid());
+    Assert.assertEquals(first.getOid(), list.get(1).getOid());
+
     Assert.assertEquals(1, this.service.getAfter(second).size());
   }
 
@@ -163,6 +175,132 @@ public class RollbackCheckpointBusinessServiceTest extends EventDatasetTest impl
     this.service.rollback(checkpoint);
 
     Assert.assertEquals(1, this.service.getCount());
+  }
+
+  @Test
+  @Request
+  public void testMultiCheckpointRollback() throws InterruptedException
+  {
+    RollbackCheckpoint first = this.service.create(history);
+
+    USATestData.USA.apply();
+
+    RollbackCheckpoint second = this.service.create(history);
+
+    USATestData.CANADA.apply();
+
+    this.service.create(history);
+
+    USATestData.CO_A_ONE.apply();
+
+    this.service.create(history);
+
+    USATestData.CO_C_ONE.apply();
+
+    Assert.assertNotNull(this.gObjectService.getGeoObjectByCode(USATestData.USA.getCode(), USATestData.USA.getGeoObjectType().getCode()));
+    Assert.assertNotNull(this.gObjectService.getGeoObjectByCode(USATestData.CANADA.getCode(), USATestData.CANADA.getGeoObjectType().getCode()));
+    Assert.assertNotNull(this.gObjectService.getGeoObjectByCode(USATestData.CO_A_ONE.getCode(), USATestData.CO_A_ONE.getGeoObjectType().getCode()));
+    Assert.assertNotNull(this.gObjectService.getGeoObjectByCode(USATestData.CO_C_ONE.getCode(), USATestData.CO_C_ONE.getGeoObjectType().getCode()));
+
+    Assert.assertEquals(Long.valueOf(4), this.store.size());
+
+    Assert.assertEquals(4, this.service.getCount());
+
+    List<RollbackCheckpoint> list = this.service.getAfter(second);
+
+    Assert.assertEquals(3, list.size());
+
+    this.service.rollback(second);
+
+    Assert.assertNotNull(this.gObjectService.getGeoObjectByCode(USATestData.USA.getCode(), USATestData.USA.getGeoObjectType().getCode()));
+    Assert.assertNull(this.gObjectService.getGeoObjectByCode(USATestData.CANADA.getCode(), USATestData.CANADA.getGeoObjectType().getCode(), false));
+    Assert.assertNull(this.gObjectService.getGeoObjectByCode(USATestData.CO_A_ONE.getCode(), USATestData.CO_A_ONE.getGeoObjectType().getCode(), false));
+    Assert.assertNull(this.gObjectService.getGeoObjectByCode(USATestData.CO_C_ONE.getCode(), USATestData.CO_C_ONE.getGeoObjectType().getCode(), false));
+
+    Assert.assertEquals(1, this.service.getCount());
+
+    List<RollbackCheckpoint> checkpoints = this.service.getAll(10, 1);
+
+    Assert.assertEquals(1, checkpoints.size());
+    Assert.assertEquals(first.getOid(), checkpoints.get(0).getOid());
+
+    Assert.assertEquals(Long.valueOf(1), this.store.size());
+  }
+
+  @Test
+  @Request
+  public void testMultiCheckpointRollback_2() throws InterruptedException
+  {
+    RollbackCheckpoint first = this.service.create(history);
+
+    USATestData.USA.apply();
+
+    this.service.create(history);
+
+    USATestData.CANADA.apply();
+
+    RollbackCheckpoint checkpoint = this.service.create(history);
+
+    USATestData.CO_A_ONE.apply();
+
+    this.service.create(history);
+
+    USATestData.CO_C_ONE.apply();
+
+    Assert.assertNotNull(this.gObjectService.getGeoObjectByCode(USATestData.USA.getCode(), USATestData.USA.getGeoObjectType().getCode()));
+    Assert.assertNotNull(this.gObjectService.getGeoObjectByCode(USATestData.CANADA.getCode(), USATestData.CANADA.getGeoObjectType().getCode()));
+    Assert.assertNotNull(this.gObjectService.getGeoObjectByCode(USATestData.CO_A_ONE.getCode(), USATestData.CO_A_ONE.getGeoObjectType().getCode()));
+    Assert.assertNotNull(this.gObjectService.getGeoObjectByCode(USATestData.CO_C_ONE.getCode(), USATestData.CO_C_ONE.getGeoObjectType().getCode()));
+
+    Assert.assertEquals(Long.valueOf(4), this.store.size());
+
+    Assert.assertEquals(4, this.service.getCount());
+
+    List<RollbackCheckpoint> list = this.service.getAfter(checkpoint);
+
+    Assert.assertEquals(2, list.size());
+
+    this.service.rollback(checkpoint);
+
+    Assert.assertNotNull(this.gObjectService.getGeoObjectByCode(USATestData.USA.getCode(), USATestData.USA.getGeoObjectType().getCode()));
+    Assert.assertNotNull(this.gObjectService.getGeoObjectByCode(USATestData.CANADA.getCode(), USATestData.CANADA.getGeoObjectType().getCode(), false));
+    Assert.assertNull(this.gObjectService.getGeoObjectByCode(USATestData.CO_A_ONE.getCode(), USATestData.CO_A_ONE.getGeoObjectType().getCode(), false));
+    Assert.assertNull(this.gObjectService.getGeoObjectByCode(USATestData.CO_C_ONE.getCode(), USATestData.CO_C_ONE.getGeoObjectType().getCode(), false));
+
+    Assert.assertEquals(2, this.service.getCount());
+
+    List<RollbackCheckpoint> checkpoints = this.service.getAll(10, 1);
+
+    Assert.assertEquals(2, checkpoints.size());
+    Assert.assertEquals(first.getOid(), checkpoints.get(0).getOid());
+
+    Assert.assertEquals(Long.valueOf(2), this.store.size());
+  }
+
+  @Test
+  @Request
+  public void testChunkLimit() throws InterruptedException
+  {
+    RollbackCheckpoint checkpoint = this.service.create(history);
+
+    int limit = RollbackEventService.ROLLBACK_CHUNK + 10;
+
+    for (int i = 0; i < limit; i++)
+    {
+      TestGeoObjectInfo object = new TestGeoObjectInfo("TEST_00_" + i, USATestData.COUNTRY, USATestData.SOURCE);
+      object.apply();
+    }
+
+    Assert.assertEquals(Long.valueOf(RollbackEventService.ROLLBACK_CHUNK + 10), this.store.size());
+
+    this.service.rollback(checkpoint);
+
+    for (int i = 0; i < limit; i++)
+    {
+      Assert.assertNull(this.gObjectService.getGeoObjectByCode("TEST_00_" + i, USATestData.COUNTRY.getCode(), false));
+    }
+
+    Assert.assertEquals(Long.valueOf(0), this.store.size());
   }
 
 }

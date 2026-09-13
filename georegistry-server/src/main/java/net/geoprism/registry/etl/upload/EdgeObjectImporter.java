@@ -490,8 +490,8 @@ public class EdgeObjectImporter implements ObjectImporterIF
       TypeInfo targetType = new TypeInfo(graphType.getTargetType(), targetTypeCode);
 
       AbstractRepositoryEvent event = graphType instanceof GraphType ? //
-          new GeoObjectApplyEdgeEvent(sourceCode, sourceType, graphType.getTypeInfo(), targetCode, targetType, startDate, endDate, dataSource, this.configuration.getImportStrategy(), true, this.configuration.getHistoryId()) : //
-          new ObjectApplyEdgeEvent(sourceCode, sourceType, graphType.getTypeInfo(), targetCode, targetType, startDate, endDate, dataSource, this.configuration.getImportStrategy(), true, this.configuration.getHistoryId());
+          new GeoObjectApplyEdgeEvent(sourceCode, sourceType, graphType.getTypeInfo(), targetCode, targetType, startDate, endDate, dataSource, this.configuration.getImportStrategy(), this.configuration.isValidate(), this.configuration.getHistoryId()) : //
+          new ObjectApplyEdgeEvent(sourceCode, sourceType, graphType.getTypeInfo(), targetCode, targetType, startDate, endDate, dataSource, this.configuration.getImportStrategy(), this.configuration.isValidate(), this.configuration.getHistoryId());
 
       this.eventService.publish(event);
 
