@@ -48,9 +48,9 @@ import { NgIf } from "@angular/common";
 export class PublishEventsModalComponent implements OnInit, OnDestroy {
 
     currentDate: Date = new Date();
-    message: string = null;
+    message: string | null = null;
 
-    type: PublishEvents = null;
+    type: PublishEvents | null = null;
     isNew: boolean = true;
     readonly: boolean = false;
 
@@ -113,20 +113,20 @@ export class PublishEventsModalComponent implements OnInit, OnDestroy {
         this.registryService.init(false, true).then(response => {
             this.hierarchies = response.hierarchies.map(b => { return { label: b.label.localizedValue, value: b.code } });
             this.types = response.types.map(b => { return { label: b.label.localizedValue, value: b.code } });
-            this.dagTypes = response.graphTypes
+            this.dagTypes = response.graphTypes!
                 .filter(b => b.typeCode === 'DirectedAcyclicGraphType')
                 .map(b => { return { label: b.label.localizedValue, value: b.code } });
-            this.undirectedTypes = response.graphTypes
+            this.undirectedTypes = response.graphTypes!
                 .filter(b => b.typeCode === 'UndirectedGraphType')
                 .map(b => { return { label: b.label.localizedValue, value: b.code } });
         });
 
         this.type = {
             uid: uuid(),
-            label: null,
-            date: null,
-            startDate: null,
-            endDate: null,
+            label: "",
+            date: "",
+            startDate: "",
+            endDate: "",
             typeCodes: [],
             businessTypeCodes: [],
             hierarchyCodes: [],
@@ -138,17 +138,17 @@ export class PublishEventsModalComponent implements OnInit, OnDestroy {
 
     valid(): boolean {
 
-        if (this.type.label == null || this.type.label.trim().length == 0) {
+        if (this.type!.label == null || this.type!.label.trim().length == 0) {
             return false;
         }
 
-        if (this.type.date == null || this.type.date.trim().length == 0) {
+        if (this.type!.date == null || this.type!.date.trim().length == 0) {
             return false;
         }
-        if (this.type.startDate == null || this.type.startDate.trim().length == 0) {
+        if (this.type!.startDate == null || this.type!.startDate.trim().length == 0) {
             return false;
         }
-        if (this.type.endDate == null || this.type.endDate.trim().length == 0) {
+        if (this.type!.endDate == null || this.type!.endDate.trim().length == 0) {
             return false;
         }
 
@@ -158,7 +158,7 @@ export class PublishEventsModalComponent implements OnInit, OnDestroy {
     onSubmit(): void {
 
 
-        this.service.create(this.type).then(dto => {
+        this.service.create(this.type!).then(dto => {
             // Do something
             this.onChange.next(dto);
 

@@ -76,22 +76,22 @@ export class DataImporterComponent implements OnInit {
     /*
      * Code of the currently selected GeoObjectType
      */
-    typeCode: string = null;
+    typeCode: string | null = null;
 
     /*
      * Code of the currently selected Hierarchy
      */
-    hierarchyCode: string = null;
+    hierarchyCode: string | null = null;
 
     /*
      * Start date
      */
-    startDate: string = null;
+    startDate: string | null = null;
 
     /*
      * End date
      */
-    endDate: string = null;
+    endDate: string | null = null;
 
     /*
      * Reference to the modal current showing
@@ -288,7 +288,7 @@ export class DataImporterComponent implements OnInit {
     checkDateFieldValidity(): boolean {
         let dateFields = this.dateFieldComponentsArray.toArray();
 
-        let startDateField: DateFieldComponent = null;
+        let startDateField: DateFieldComponent | null = null;
         for (let i = 0; i < dateFields.length; i++) {
             let field = dateFields[i];
 
@@ -302,7 +302,7 @@ export class DataImporterComponent implements OnInit {
             }
         }
 
-        if (startDateField != null && this.startDate > this.endDate) {
+        if (startDateField != null && this.startDate! > this.endDate!) {
             startDateField.setInvalid(this.localizationService.decode("date.input.startdate.after.enddate.error.message"));
 
             this.changeDetectorRef.detectChanges();

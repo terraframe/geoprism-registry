@@ -324,10 +324,6 @@
                                             [title]="'account.removeTooltip' | localize"></a>
                                     </td>
                                     <td class="label-column">
-                                        <localize *ngIf="system.type === 'DHIS2ExternalSystem'"
-                                            key="external.system.dhis2"></localize>
-                                        <localize *ngIf="system.type === 'RevealExternalSystem'"
-                                            key="external.system.reveal"></localize>
                                         <localize *ngIf="system.type === 'FhirExternalSystem'"
                                             key="external.system.fhir"></localize>
                                         <localize *ngIf="system.type === 'JenaExternalSystem'"

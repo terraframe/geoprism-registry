@@ -54,7 +54,7 @@ export class GeoOntologyComponent implements OnInit {
     isSRA: boolean = false;
     loaded: boolean = false;
 
-    userOrganization: string = null;
+    userOrganization: string | null = null;
 
     section: string = "geo-object-type";
 
@@ -244,14 +244,14 @@ export class GeoOntologyComponent implements OnInit {
     }
 
     private getHierarchyLabel(geoObjectTypeCode: string): string {
-        let label: string = null;
+        let label: string | null = null;
         this.geoObjectTypes.forEach(function (gOT) {
             if (gOT.code === geoObjectTypeCode) {
                 label = gOT.label.localizedValue;
             }
         });
 
-        return label;
+        return label!;
     }
 
     handleRemoveHierarchyType(code: string): void {
@@ -304,9 +304,9 @@ export class GeoOntologyComponent implements OnInit {
             class: "upload-modal"
         });
 
-        bsModalRef.content.init(this.organizations);
+        bsModalRef.content!.init(this.organizations);
 
-        bsModalRef.content.onNodeChange.subscribe(data => {
+        bsModalRef.content!.onNodeChange.subscribe(data => {
             // Reload the page
             this.refreshAll();
         });
@@ -318,9 +318,9 @@ export class GeoOntologyComponent implements OnInit {
             class: "upload-modal"
         });
 
-        bsModalRef.content.init(this.organizations);
+        bsModalRef.content!.init(this.organizations);
 
-        bsModalRef.content.onNodeChange.subscribe(orgCode => {
+        bsModalRef.content!.onNodeChange.subscribe(orgCode => {
             if (orgCode != null && orgCode.length > 0) {
                 window.location.href = environment.apiUrl + "/api/cgr/export-types?code=" + orgCode;
             }

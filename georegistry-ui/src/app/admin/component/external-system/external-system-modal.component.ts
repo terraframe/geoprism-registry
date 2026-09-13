@@ -56,7 +56,7 @@ export class ExternalSystemModalComponent implements OnInit {
 
   system: ExternalSystem = {
       id: "",
-      type: "DHIS2ExternalSystem",
+      type: "JenaExternalSystem",
       organization: "",
       label: this.lService.create(),
       description: this.lService.create(),

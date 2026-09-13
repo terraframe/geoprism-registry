@@ -21,6 +21,7 @@ package net.geoprism.registry.graph;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
 import com.google.gson.JsonObject;
@@ -54,7 +55,7 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
   }
 
   public abstract boolean isExportSupported();
-  
+
   public static enum AuthType {
     NONE, IAM
   }
@@ -109,12 +110,12 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
 
     super.delete();
   }
-  
+
   public AuthType getAuthType()
   {
     return "IAM".equals(this.getAuthTypeS()) ? AuthType.IAM : AuthType.NONE;
   }
-  
+
   public void setAuthType(AuthType type)
   {
     this.setAuthTypeS(type.name());
@@ -142,7 +143,11 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
 
     this.setId(json.get(ExternalSystem.ID).getAsString());
     this.setOrganization(Organization.getByCode(orgCode));
-    this.setAuthTypeS(json.get(ExternalSystem.AUTHTYPES).getAsString());
+
+    if (json.has(ExternalSystem.AUTHTYPES))
+    {
+      this.setAuthTypeS(json.get(ExternalSystem.AUTHTYPES).getAsString());
+    }
 
     LocalizedValue label = LocalizedValue.fromJSON(json.get(ExternalSystem.LABEL).getAsJsonObject());
     LocalizedValue description = LocalizedValue.fromJSON(json.get(ExternalSystem.DESCRIPTION).getAsJsonObject());
@@ -159,9 +164,13 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
     object.addProperty(ExternalSystem.OID, this.getOid());
     object.addProperty(ExternalSystem.ID, this.getId());
     object.addProperty(ExternalSystem.ORGANIZATION, this.getOrganization().getCode());
-    object.addProperty(ExternalSystem.AUTHTYPES, this.getAuthTypeS());
     object.add(ExternalSystem.LABEL, RegistryLocalizedValueConverter.convert(this.getEmbeddedComponent(LABEL)).toJSON());
     object.add(ExternalSystem.DESCRIPTION, RegistryLocalizedValueConverter.convert(this.getEmbeddedComponent(DESCRIPTION)).toJSON());
+
+    if (StringUtils.isNotBlank(this.getAuthTypeS()))
+    {
+      object.addProperty(ExternalSystem.AUTHTYPES, this.getAuthTypeS());
+    }
 
     return object;
   }
