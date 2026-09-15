@@ -37,6 +37,14 @@
     background-color: #27232CFF;
     color: #BABABAFF;
     height: 100vh;
+    /*
+     * This element is the scroll container on purpose: as a ".col-xs-2" it
+     * carries Bootstrap's 15px horizontal padding, which absorbs the -15px
+     * margins of the rows inside it. Scrolling any inner, unpadded wrapper
+     * instead leaves those negative margins overflowing by 15px, and since
+     * the CSS spec forces overflow-x to "auto" whenever overflow-y isn't
+     * "visible", that overflow turns into a stray horizontal scrollbar.
+     */
     overflow-y: auto;
 }
 

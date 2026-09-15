@@ -16,10 +16,25 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
+:host {
+    /* Fills ".sidebar" (height: 100vh) so the column below has a definite
+       height to distribute. */
+    display: block;
+    height: 100%;
+}
+
+.side-nav-root {
+    /* A column: nav content on top, collapse toggle at the bottom. */
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+}
+
 .fixed-bottom-row {
-    position: fixed;
+    margin-top: auto;
+    position: sticky;
     bottom: 0;
-    width: 100%;
+    background-color: #27232CFF;
     padding: 0 0 15px 0;
 }
 
@@ -65,8 +80,17 @@
 }
 
 .user-command-link.route-item.expanded {
-    margin-left: 255px;
     padding: 4px;
+}
+
+.fixed-bottom-row .col-xs-12.expanded {
+    /* Pushes the toggle button to the sidebar's actual right edge
+       (whatever that width happens to be) instead of the old hardcoded
+       "margin-left: 255px", which only lined up at one specific sidebar
+       width. Only applied when expanded so the collapsed-sidebar icon
+       keeps its original left-aligned position. */
+    display: flex;
+    justify-content: flex-end;
 }
 
 .route-item.active {
