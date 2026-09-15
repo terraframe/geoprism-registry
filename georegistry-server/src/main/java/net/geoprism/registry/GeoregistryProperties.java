@@ -58,13 +58,13 @@ public class GeoregistryProperties
   
   public static Boolean isLabeledPropertyGraphEnabled()
   {
-    return Singleton.INSTANCE.props.getBoolean("enable.labeled.property.graph", false);
+    return Singleton.INSTANCE.props.getBoolean("enable.labeled.property.graph", true);
   }
 
 
   public static Boolean isBusinessDataEnabled()
   {
-    return Singleton.INSTANCE.props.getBoolean("enable.business.data", false);
+    return Singleton.INSTANCE.props.getBoolean("enable.business.data", true);
   }
 
   public static String getCustomFont()
