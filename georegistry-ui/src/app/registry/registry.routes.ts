@@ -137,27 +137,27 @@ export const routes: Routes = [
     {
         path: "business-types",
         component: BusinessOntologyComponent,
-        canActivate: [AuthGuard, BusinessDataGuard]
+        canActivate: [AuthGuard]
     },
     {
         path: "concept-classes",
         component: ConceptOntologyComponent,
-        canActivate: [AuthGuard, BusinessDataGuard]
+        canActivate: [AuthGuard]
     },
     {
         path: "object-importer",
         component: ObjectImporterComponent,
-        canActivate: [AuthGuard, BusinessDataGuard]
+        canActivate: [AuthGuard]
     },
     {
         path: "object/:objectType/:oid",
         component: ObjectTableComponent,
-        canActivate: [AuthGuard, BusinessDataGuard]
+        canActivate: [AuthGuard]
     },
     {
         path: "edge-importer",
         component: EdgeImporterComponent,
-        canActivate: [AuthGuard, BusinessDataGuard]
+        canActivate: [AuthGuard]
     },
     {
         path: "data-sources",
