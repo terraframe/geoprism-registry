@@ -177,7 +177,7 @@ export class ScheduledJobMapComponent implements OnInit, OnDestroy {
         this.map.addLayer({
             'id': 'line-layer',
             'source': 'features',
-            'source-layer': 'point',
+            'source-layer': 'line',
             type: "line",
             layout: {
                 "line-join": "round",
@@ -187,13 +187,13 @@ export class ScheduledJobMapComponent implements OnInit, OnDestroy {
                 "line-color": "#800000",
                 "line-width": 3
             },
-    });
+        });
 
         this.map.addLayer({
             'id': 'line-labels',
             'type': 'symbol',
             'source': 'features',
-            'source-layer': 'point',
+            'source-layer': 'line',
             layout: {
                 "text-field": "{label}",
                 "text-font": ["NotoSansRegular"],

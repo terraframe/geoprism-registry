@@ -85,7 +85,7 @@ public class GeometryTableVectorTileBuilder
 
     // Generate geometry layers
     statement.append(generateTileStatement(zoom, x, y, "ST_MultiPolygon", "polygon") + ",\n");
-    statement.append(generateTileStatement(zoom, x, y, "ST_MultiLine", "line") + ",\n");
+    statement.append(generateTileStatement(zoom, x, y, "ST_MultiLineString", "line") + ",\n");
     statement.append(generateTileStatement(zoom, x, y, "ST_MultiPoint", "point") + "\n");
 
     // Create the tile layer
