@@ -363,7 +363,7 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
 
   @Test
   @Request
-  public void testRollbackCreateEdgeEvent()
+  public void testRollbackCreateEdgeEvent_Dag()
   {
     USATestData.USA.apply();
 
@@ -479,7 +479,7 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
 
   @Test
   @Request
-  public void testRollbackDagRemoveEdgeEvent()
+  public void testRollbackRemoveEdgeEvent_Dag()
   {
     ServerGeoObjectIF usa = USATestData.USA.apply();
     ServerGeoObjectIF canada = USATestData.CANADA.apply();

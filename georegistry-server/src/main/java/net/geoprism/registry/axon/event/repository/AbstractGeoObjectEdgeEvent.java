@@ -24,4 +24,6 @@ public abstract class AbstractGeoObjectEdgeEvent extends AbstractGeoObjectEvent 
 
   public abstract TypeInfo getEdgeType();
 
+  public abstract String getEdgeUid();
+
 }

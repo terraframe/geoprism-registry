@@ -35,11 +35,11 @@ import net.geoprism.registry.test.FastTestDataset;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class UndirectedGraphTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  protected static UndirectedGraphType type;
-  
+  protected static UndirectedGraphType         type;
+
   @Autowired
   private UndirectedGraphTypeBusinessServiceIF service;
-  
+
   @Override
   @Request
   public void beforeClassSetup() throws Exception
@@ -48,7 +48,7 @@ public class UndirectedGraphTest extends FastDatasetTest implements InstanceTest
 
     type = this.service.create("TEST_DAG", new LocalizedValue("TEST_DAG"), new LocalizedValue("TEST_DAG"), 0L);
   }
-  
+
   @Override
   @Request
   public void afterClassSetup() throws Exception
@@ -57,7 +57,7 @@ public class UndirectedGraphTest extends FastDatasetTest implements InstanceTest
     {
       this.service.delete(type);
     }
-    
+
     super.afterClassSetup();
   }
 
@@ -69,13 +69,13 @@ public class UndirectedGraphTest extends FastDatasetTest implements InstanceTest
     ServerGeoObjectIF child = FastTestDataset.PROV_WESTERN.getServerObject();
     String uid = UUID.randomUUID().toString();
 
-    ServerParentGraphNode node = child.addGraphParent(parent, type, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, uid, FastTestDataset.SOURCE.getDataSource(), true);
+    child.addGraphParent(parent, type, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, uid, FastTestDataset.SOURCE.getDataSource(), true);
+
+    ServerParentGraphNode node = child.getGraphParents(type, false, FastTestDataset.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertNotNull(node);
 
     Assert.assertEquals(child.getCode(), node.getGeoObject().getCode());
-    Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, node.getStartDate());
-    Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, node.getEndDate());
 
     List<ServerParentGraphNode> parents = node.getParents();
 
@@ -85,6 +85,8 @@ public class UndirectedGraphTest extends FastDatasetTest implements InstanceTest
     Assert.assertEquals(parent.getCode(), pNode.getGeoObject().getCode());
     Assert.assertEquals(FastTestDataset.SOURCE.getCode(), pNode.getSource().getCode());
     Assert.assertEquals(uid, pNode.getUid());
+    Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, pNode.getStartDate());
+    Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, pNode.getEndDate());
   }
 
   @Test(expected = ProgrammingErrorException.class)
@@ -201,13 +203,13 @@ public class UndirectedGraphTest extends FastDatasetTest implements InstanceTest
     ServerGeoObjectIF child = FastTestDataset.PROV_WESTERN.getServerObject();
     String uid = UUID.randomUUID().toString();
 
-    ServerParentGraphNode node = parent.addGraphChild(child, type, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, uid, FastTestDataset.SOURCE.getDataSource(), true);
+    parent.addGraphChild(child, type, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, uid, FastTestDataset.SOURCE.getDataSource(), true);
+
+    ServerParentGraphNode node = child.getGraphParents(type, false, FastTestDataset.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertNotNull(node);
 
     Assert.assertEquals(child.getCode(), node.getGeoObject().getCode());
-    Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, node.getStartDate());
-    Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, node.getEndDate());
 
     List<ServerParentGraphNode> parents = node.getParents();
 
@@ -217,6 +219,8 @@ public class UndirectedGraphTest extends FastDatasetTest implements InstanceTest
     Assert.assertEquals(parent.getCode(), pNode.getGeoObject().getCode());
     Assert.assertEquals(FastTestDataset.SOURCE.getCode(), pNode.getSource().getCode());
     Assert.assertEquals(uid, pNode.getUid());
+    Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, pNode.getStartDate());
+    Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, pNode.getEndDate());
   }
 
   @Test

@@ -9,6 +9,8 @@ import net.geoprism.registry.view.TypeInfo;
 
 public class RemoveGeoObjectEdgeEvent extends AbstractRepositoryEvent implements BaseObjectEvent
 {
+  private String   edgeUid;
+
   private String   sourceCode;
 
   private TypeInfo sourceType;
@@ -23,22 +25,34 @@ public class RemoveGeoObjectEdgeEvent extends AbstractRepositoryEvent implements
   {
   }
 
-  public RemoveGeoObjectEdgeEvent(String targetCode, TypeInfo tagetType, TypeInfo edgeType)
+  public RemoveGeoObjectEdgeEvent(String edgeUid, String targetCode, TypeInfo tagetType, TypeInfo edgeType)
   {
     super(UUID.randomUUID().toString());
+    this.edgeUid = edgeUid;
     this.targetCode = targetCode;
     this.tagetType = tagetType;
     this.edgeType = edgeType;
   }
 
-  public RemoveGeoObjectEdgeEvent(String targetCode, TypeInfo tagetType, String sourceCode, TypeInfo sourceType, TypeInfo edgeType)
+  public RemoveGeoObjectEdgeEvent(String edgeUid, String targetCode, TypeInfo tagetType, String sourceCode, TypeInfo sourceType, TypeInfo edgeType)
   {
     super(UUID.randomUUID().toString());
+    this.edgeUid = edgeUid;
     this.targetCode = targetCode;
     this.tagetType = tagetType;
     this.sourceCode = sourceCode;
     this.sourceType = sourceType;
     this.edgeType = edgeType;
+  }
+
+  public String getEdgeUid()
+  {
+    return edgeUid;
+  }
+
+  public void setEdgeUid(String edgeUid)
+  {
+    this.edgeUid = edgeUid;
   }
 
   public String getSourceCode()

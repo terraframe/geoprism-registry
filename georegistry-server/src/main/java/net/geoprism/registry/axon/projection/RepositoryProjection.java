@@ -652,9 +652,23 @@ public class RepositoryProjection
   @Transaction
   public void handleObjectRemoveEdge(ObjectRemoveEdgeEvent event)
   {
-    final EdgeType edgeType = this.edgeTypeService.getByCode(event.getEdgeType());
+    // final EdgeType edgeType =
+    // this.edgeTypeService.getByCode(event.getEdgeType());
+    //
+    // this.eObjectService.getByUid(edgeType, event.getEdgeUid()).ifPresent(edge
+    // -> edge.delete());
+    EdgeType edgeType = this.edgeTypeService.getByCode(event.getEdgeType());
 
-    this.eObjectService.getByUid(edgeType, event.getEdgeUid()).ifPresent(edge -> edge.delete());
+    String clazz = edgeType.getMdEdgeDAO().getDBClassName();
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("DELETE EDGE " + clazz);
+    statement.append(" WHERE uid = :uid");
+
+    GraphDBService service = GraphDBService.getInstance();
+    GraphRequest request = service.getGraphDBRequest();
+
+    service.command(request, statement.toString(), Map.of("uid", event.getEdgeUid()));
   }
 
   @EventHandler
@@ -967,22 +981,7 @@ public class RepositoryProjection
 
     StringBuilder statement = new StringBuilder();
     statement.append("DELETE EDGE " + clazz);
-
-    if (!StringUtils.isEmpty(event.getSourceCode()))
-    {
-      VertexServerGeoObject object = (VertexServerGeoObject) this.gObjectService.getGeoObjectByCode(event.getSourceCode(), event.getSourceType());
-      parameters.put("parentRid", object.getVertex().getRID());
-
-      statement.append(" FROM :parentRid");
-    }
-
-    if (!StringUtils.isEmpty(event.getTargetCode()))
-    {
-      VertexServerGeoObject object = (VertexServerGeoObject) this.gObjectService.getGeoObjectByCode(event.getTargetCode(), event.getTagetType());
-      parameters.put("childRid", object.getVertex().getRID());
-
-      statement.append(" TO :childRid");
-    }
+    statement.append(" WHERE uid = '" + event.getEdgeUid() + "'");
 
     GraphDBService service = GraphDBService.getInstance();
     GraphRequest request = service.getGraphDBRequest();

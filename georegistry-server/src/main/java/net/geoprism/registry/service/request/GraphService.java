@@ -31,6 +31,7 @@ import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGraphNode;
+import net.geoprism.registry.model.ServerParentGraphNode;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 
@@ -84,7 +85,10 @@ public abstract class GraphService
     // ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanAddChild(ht.getOrganization().getCode(),
     // parent.getType(), child.getType());
 
-    ServerGraphNode node = parent.addGraphChild(child, graphType, startDate, endDate, UUID.randomUUID().toString(), source, true);
+    parent.addGraphChild(child, graphType, startDate, endDate, UUID.randomUUID().toString(), source, true);
+
+    ServerParentGraphNode node = child.getGraphParents(graphType, false, startDate);
+
     return node.toJSON();
   }
 

@@ -10,9 +10,7 @@ import java.util.UUID;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ValueOverTimeDTO;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,13 +93,13 @@ public class DirectedAcyclicGraphTest extends FastDatasetTest implements Instanc
     ServerGeoObjectIF child = FastTestDataset.PROV_WESTERN.getServerObject();
     String uid = UUID.randomUUID().toString();
 
-    ServerParentGraphNode node = child.addGraphParent(parent, type, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, uid, FastTestDataset.SOURCE.getDataSource(), true);
+    child.addGraphParent(parent, type, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, uid, FastTestDataset.SOURCE.getDataSource(), true);
+
+    ServerParentGraphNode node = child.getGraphParents(type, false, FastTestDataset.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertNotNull(node);
 
     Assert.assertEquals(child.getCode(), node.getGeoObject().getCode());
-    Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, node.getStartDate());
-    Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, node.getEndDate());
 
     List<ServerParentGraphNode> parents = node.getParents();
 
@@ -111,6 +109,37 @@ public class DirectedAcyclicGraphTest extends FastDatasetTest implements Instanc
     Assert.assertEquals(parent.getCode(), pNode.getGeoObject().getCode());
     Assert.assertEquals(FastTestDataset.SOURCE.getCode(), pNode.getSource().getCode());
     Assert.assertEquals(uid, pNode.getUid());
+    Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, pNode.getStartDate());
+    Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, pNode.getEndDate());
+  }
+
+  @Test
+  @Request
+  public void testUpdateParent()
+  {
+    ServerGeoObjectIF parent = FastTestDataset.PROV_CENTRAL.getServerObject();
+    ServerGeoObjectIF child = FastTestDataset.PROV_WESTERN.getServerObject();
+    String uid = UUID.randomUUID().toString();
+
+    child.addGraphParent(parent, type, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, uid, FastTestDataset.SOURCE.getDataSource(), true);
+    child.addGraphParent(parent, type, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, uid, null, false);
+
+    ServerParentGraphNode node = child.getGraphParents(type, false, FastTestDataset.DEFAULT_OVER_TIME_DATE);
+
+    Assert.assertNotNull(node);
+
+    Assert.assertEquals(child.getCode(), node.getGeoObject().getCode());
+
+    List<ServerParentGraphNode> parents = node.getParents();
+
+    Assert.assertEquals(1, parents.size());
+
+    ServerParentGraphNode pNode = parents.get(0);
+    Assert.assertEquals(parent.getCode(), pNode.getGeoObject().getCode());
+    Assert.assertNull(pNode.getSource());
+    Assert.assertEquals(uid, pNode.getUid());
+    Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, pNode.getStartDate());
+    Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, pNode.getEndDate());
   }
 
   @Test(expected = ProgrammingErrorException.class)
@@ -212,13 +241,13 @@ public class DirectedAcyclicGraphTest extends FastDatasetTest implements Instanc
     ServerGeoObjectIF child = FastTestDataset.PROV_WESTERN.getServerObject();
     String uid = UUID.randomUUID().toString();
 
-    ServerParentGraphNode node = parent.addGraphChild(child, type, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, uid, FastTestDataset.SOURCE.getDataSource(), true);
+    parent.addGraphChild(child, type, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, uid, FastTestDataset.SOURCE.getDataSource(), true);
+
+    ServerParentGraphNode node = child.getGraphParents(type, false, FastTestDataset.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertNotNull(node);
 
     Assert.assertEquals(child.getCode(), node.getGeoObject().getCode());
-    Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, node.getStartDate());
-    Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, node.getEndDate());
 
     List<ServerParentGraphNode> parents = node.getParents();
 
@@ -227,8 +256,11 @@ public class DirectedAcyclicGraphTest extends FastDatasetTest implements Instanc
     ServerParentGraphNode pNode = parents.get(0);
 
     Assert.assertEquals(parent.getCode(), pNode.getGeoObject().getCode());
+
     Assert.assertEquals(FastTestDataset.SOURCE.getCode(), pNode.getSource().getCode());
     Assert.assertEquals(uid, pNode.getUid());
+    Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, pNode.getStartDate());
+    Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, pNode.getEndDate());
   }
 
   @Test
