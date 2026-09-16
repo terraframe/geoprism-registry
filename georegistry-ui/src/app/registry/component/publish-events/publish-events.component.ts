@@ -18,7 +18,14 @@
 ///
 
 import { HttpErrorResponse } from "@angular/common/http";
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+} from "@angular/core";
 import { Commit, PublishEvents } from "@registry/model/publish";
 import { PublishService } from "@registry/service/publish.service";
 import { MultiSelectFieldComponent } from "../../../shared/component/form-fields/multi-select/multi-select-field.component";
@@ -26,51 +33,106 @@ import { DateFieldComponent } from "../../../shared/component/form-fields/date-f
 import { FormsModule } from "@angular/forms";
 import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
 import { NgIf, NgFor } from "@angular/common";
+import { webSocket, WebSocketSubject } from "rxjs/webSocket";
+import { Subscription } from "rxjs";
+import { WebSockets } from "@shared/component/web-sockets/web-sockets";
+import { Progress } from "@shared/model/progress";
+import { ProgressService } from "@shared/service";
+import { ProgressBarComponent } from "@shared/component";
 
 @Component({
-    selector: "publish-events",
-    templateUrl: "./publish-events.component.html",
-    styleUrls: [],
-    standalone: true,
-    imports: [NgIf, LocalizeComponent, FormsModule, DateFieldComponent, MultiSelectFieldComponent, NgFor]
+  selector: "publish-events",
+  templateUrl: "./publish-events.component.html",
+  styleUrls: [],
+  standalone: true,
+  imports: [
+    LocalizeComponent,
+    FormsModule,
+    DateFieldComponent,
+    MultiSelectFieldComponent,
+    NgFor,
+    ProgressBarComponent,
+  ],
 })
-export class PublishEventsComponent implements OnInit {
+export class PublishEventsComponent implements OnInit, OnDestroy {
+  @Input() type: PublishEvents | null = null;
+  @Input() types: { label: string; value: string }[] = [];
+  @Input() hierarchies: { label: string; value: string }[] = [];
+  @Input() dagTypes: { label: string; value: string }[] = [];
+  @Input() undirectedTypes: { label: string; value: string }[] = [];
+  @Input() businessTypes: { label: string; value: string }[] = [];
+  @Input() edgeTypes: { label: string; value: string }[] = [];
 
-    @Input() type: PublishEvents = null;
-    @Input() types: { label: string, value: string }[] = [];
-    @Input() hierarchies: { label: string, value: string }[] = [];
-    @Input() dagTypes: { label: string, value: string }[] = [];
-    @Input() undirectedTypes: { label: string, value: string }[] = [];
-    @Input() businessTypes: { label: string, value: string }[] = [];
-    @Input() edgeTypes: { label: string, value: string }[] = [];
+  @Output() error = new EventEmitter<HttpErrorResponse | null>();
 
-    @Output() error = new EventEmitter<HttpErrorResponse>();
+  progressNotifier: WebSocketSubject<any> | null = null;
+  progressSubscription: Subscription | null = null;
+  isRefreshing: boolean = false;
 
-    commits: Commit[] = [];
+  commits: Commit[] = [];
 
-    constructor(private service: PublishService) {
-    }
+  constructor(
+    private service: PublishService,
+    private pService: ProgressService,
+  ) {}
 
-    ngOnInit(): void {
-        if (this.type != null) {
-            this.service.getCommits(this.type.uid)
-                .then(commits => this.commits = commits)
-                .catch(err => this.error.emit(err))
+  ngOnInit(): void {
+    if (this.type != null) {
+      this.service
+        .getCommits(this.type.uid)
+        .then((commits) => (this.commits = commits))
+        .catch((err) => this.error.emit(err));
+
+      let baseUrl = WebSockets.buildBaseUrl();
+
+      this.progressNotifier = webSocket(
+        baseUrl + "/websocket/progress/" + this.type.uid,
+      );
+
+      this.progressSubscription = this.progressNotifier.subscribe((message) => {
+        console.log("Update", message);
+
+        if (message.content != null) {
+          this.handleProgressChange(message.content);
+        } else {
+          this.handleProgressChange(message);
         }
+      });
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.progressSubscription != null) {
+      this.progressSubscription.unsubscribe();
     }
 
-    onCreateNewCommit(): void {
-
-        if (this.type != null) {
-            this.error.emit(null);
-
-            this.service.createNewVersion(this.type.uid).then(dto => {
-                this.service.getCommits(this.type.uid)
-                    .then(commits => this.commits = commits)
-                    .catch(err => this.error.emit(err))
-            }).catch((err: HttpErrorResponse) => {
-                this.error.emit(err);
-            });
-        }
+    if (this.progressNotifier != null) {
+      this.progressNotifier.unsubscribe();
     }
+  }
+
+  handleProgressChange(progress: Progress): void {
+    this.isRefreshing = progress.current < progress.total;
+    progress.description = "";
+
+    this.pService.progress(progress);
+  }
+
+  onCreateNewCommit(): void {
+    if (this.type != null) {
+      this.error.emit(null);
+
+      this.service
+        .createNewVersion(this.type.uid)
+        .then((dto) => {
+          this.service
+            .getCommits(this.type!.uid)
+            .then((commits) => (this.commits = commits))
+            .catch((err) => this.error.emit(err));
+        })
+        .catch((err: HttpErrorResponse) => {
+          this.error.emit(err);
+        });
+    }
+  }
 }

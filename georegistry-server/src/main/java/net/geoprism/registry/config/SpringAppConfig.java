@@ -19,19 +19,13 @@
 package net.geoprism.registry.config;
 
 import java.util.List;
-import java.util.concurrent.Executor;
 
-import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
-import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.AsyncConfigurer;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ConcurrentTaskExecutor;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.config.annotation.AsyncSupportConfigurer;
@@ -60,10 +54,14 @@ import net.geoprism.spring.web.JsonExceptionHandler;
 })
 @EnableAutoConfiguration
 @EnableScheduling
-@EnableAsync
-public class SpringAppConfig implements AsyncConfigurer, WebMvcConfigurer
-
+public class SpringAppConfig implements WebMvcConfigurer
 {
+  private final ConcurrentTaskExecutor executor;
+
+  public SpringAppConfig(ConcurrentTaskExecutor executor)
+  {
+    this.executor = executor;
+  }
 
   @Bean(name = "multipartResolver")
   public MultipartResolver multipartResolver()
@@ -93,18 +91,6 @@ public class SpringAppConfig implements AsyncConfigurer, WebMvcConfigurer
     }
   }
 
-  @Override
-  @Bean(name = "taskExecutor")
-  public Executor getAsyncExecutor()
-  {
-    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-    executor.setCorePoolSize(2);
-    executor.setMaxPoolSize(10);
-    executor.setQueueCapacity(1000);
-    executor.setThreadNamePrefix("async");
-    return executor;
-  }
-
   // ---------------> Use this task executor also for async rest methods
   @Bean
   protected WebMvcConfigurer webMvcConfigurer()
@@ -114,21 +100,9 @@ public class SpringAppConfig implements AsyncConfigurer, WebMvcConfigurer
       @Override
       public void configureAsyncSupport(AsyncSupportConfigurer configurer)
       {
-        configurer.setTaskExecutor(getTaskExecutor());
+        configurer.setTaskExecutor(executor);
       }
     };
-  }
-
-  @Bean
-  protected ConcurrentTaskExecutor getTaskExecutor()
-  {
-    return new ConcurrentTaskExecutor(this.getAsyncExecutor());
-  }
-
-  @Override
-  public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler()
-  {
-    return new SimpleAsyncUncaughtExceptionHandler();
   }
 
   // @Override

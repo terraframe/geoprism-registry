@@ -22,31 +22,22 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 
 import { EventService } from "@shared/service";
 
-import { environment } from 'src/environments/environment';
+import { environment } from "src/environments/environment";
 import { finalize, firstValueFrom } from "rxjs";
 import { ObjectClassService } from "./object-class.service";
 import { BusinessEdgeType, BusinessType } from "@registry/model/object-class";
 
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class BusinessTypeService extends ObjectClassService<BusinessType> {
+  // eslint-disable-next-line no-useless-constructor
+  constructor(
+    public http: HttpClient,
+    public eventService: EventService,
+  ) {
+    super(http, eventService);
+  }
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor(public http: HttpClient, public eventService: EventService) {
-        super(http, eventService);
-    }
-
-    getController(): string {
-        return "/api/business-type";
-    }
-
-    getEdges(): Promise<BusinessEdgeType[]> {
-        let params: HttpParams = new HttpParams();
-
-        this.eventService.start();
-
-        return firstValueFrom(this.http.get<BusinessEdgeType[]>(environment.apiUrl + "/api/business-type/get-edges", { params: params })
-            .pipe(finalize(() => {
-                this.eventService.complete();
-            })))
-    }
+  getController(): string {
+    return "/api/business-type";
+  }
 }

@@ -22,92 +22,86 @@ import { AttributedType, AttributeType } from "./registry";
 import { PageResult } from "@shared/model/core";
 
 export class ConceptSet {
-    oid?: string;
-    code: string;
-    displayLabel: LocalizedValue;
-    description: LocalizedValue;
-    discreteType: string;
-    conceptEdgeTypes: string[];
-    conceptClasses: string[];
-    rootTerm: string;
+  oid?: string;
+  code: string;
+  displayLabel: LocalizedValue;
+  description: LocalizedValue;
+  discreteType: string;
+  conceptEdgeTypes: string[];
+  conceptClasses: string[];
+  rootTerm: string | null;
 }
 
 export class ObjectClass implements AttributedType {
-    oid?: string;
-    type: "business-type" | "concept-class";
-    code: string;
-    organization: string;
-    organizationLabel?: string;
-    displayLabel: LocalizedValue;
-    description: LocalizedValue;
-    attributes?: Array<AttributeType>;
+  oid?: string;
+  type: "business-type" | "concept-class";
+  code: string;
+  organization: string;
+  organizationLabel?: string;
+  displayLabel: LocalizedValue;
+  description: LocalizedValue;
+  attributes?: Array<AttributeType>;
 }
 
-export class ConceptClass extends ObjectClass {
-
-}
+export class ConceptClass extends ObjectClass {}
 
 export class BusinessType extends ObjectClass {
-    labelAttribute?: string;
+  labelAttribute?: string;
 }
 
 export class GraphClass {
-    oid?: string;
-    typeCode?: string;
-    seq?: number;
-    origin?: string;
-    code: string;
-    label: LocalizedValue;
-    description: LocalizedValue;
+  oid?: string;
+  typeCode?: string;
+  seq?: number;
+  origin?: string;
+  code: string;
+  label: LocalizedValue;
+  description: LocalizedValue;
 }
 
 export class EdgeClass extends GraphClass {
-    organizationCode: string;
-    childType: string;
-    parentType: string;
+  organizationCode: string;
+  childType: string;
+  parentType: string;
 }
 
-export class BusinessEdgeType extends EdgeClass {
-}
+export class BusinessEdgeType extends EdgeClass {}
 
 export class ConceptEdgeType extends EdgeClass {
-    discreteType: string;
+  discreteType: string;
 }
 
 export class ObjectOverTime {
-    type: {
-        typeCode: string;
-        typeClass: string;
-    }
-    label?: string;
-    code: string;
-    properties: {
-        [key: string]: {
-            type: string;
-            changeOverTime: boolean;
-            value?: string | number;
-            values?: {
-                startDate: string;
-                endDate: string;
-                oid: string;
-                value: string | number;
-            }[]
-        }
-    }
-
+  type: {
+    typeCode: string;
+    typeClass: string;
+  };
+  label?: string;
+  code: string;
+  properties: {
+    [key: string]: {
+      type: string;
+      changeOverTime: boolean;
+      value?: string | number;
+      values?: {
+        startDate: string;
+        endDate: string;
+        oid: string;
+        value: string | number;
+      }[];
+    };
+  };
 }
 
 export class ObjectAtTime {
-    label?: string;
-    code: string;
-    data: {
-        [key: string]: any;
-    }
-
+  label?: string;
+  code: string;
+  data: {
+    [key: string]: any;
+  };
 }
 
 export class ObjectNode<T> {
-    object?: T;
-    children?: PageResult<ObjectNode<ObjectAtTime>>;
+  object?: T;
+  children?: PageResult<ObjectNode<ObjectAtTime>>;
 }
-

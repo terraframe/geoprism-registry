@@ -37,143 +37,162 @@ import { DateFieldComponent } from "../../../shared/component/form-fields/date-f
 import { FormsModule } from "@angular/forms";
 import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
 import { NgIf } from "@angular/common";
+import { BusinessEdgeTypeService } from "@registry/service/business-edge-type.service";
 
 @Component({
-    selector: "publish-events-modal",
-    templateUrl: "./publish-events-modal.component.html",
-    styleUrls: [],
-    standalone: true,
-    imports: [NgIf, LocalizeComponent, FormsModule, DateFieldComponent, MultiSelectFieldComponent]
+  selector: "publish-events-modal",
+  templateUrl: "./publish-events-modal.component.html",
+  styleUrls: [],
+  standalone: true,
+  imports: [
+    NgIf,
+    LocalizeComponent,
+    FormsModule,
+    DateFieldComponent,
+    MultiSelectFieldComponent,
+  ],
 })
 export class PublishEventsModalComponent implements OnInit, OnDestroy {
+  currentDate: Date = new Date();
+  message: string | null = null;
 
-    currentDate: Date = new Date();
-    message: string | null = null;
+  type: PublishEvents | null = null;
+  isNew: boolean = true;
+  readonly: boolean = false;
 
-    type: PublishEvents | null = null;
-    isNew: boolean = true;
-    readonly: boolean = false;
+  types: { label: string; value: string }[] = [];
+  hierarchies: { label: string; value: string }[] = [];
+  dagTypes: { label: string; value: string }[] = [];
+  undirectedTypes: { label: string; value: string }[] = [];
+  businessTypes: { label: string; value: string }[] = [];
+  edgeTypes: { label: string; value: string }[] = [];
 
-    types: { label: string, value: string }[] = [];
-    hierarchies: { label: string, value: string }[] = [];
-    dagTypes: { label: string, value: string }[] = [];
-    undirectedTypes: { label: string, value: string }[] = [];
-    businessTypes: { label: string, value: string }[] = [];
-    edgeTypes: { label: string, value: string }[] = [];
+  onChange: Subject<PublishEvents>;
 
-    onChange: Subject<PublishEvents>;
+  // eslint-disable-next-line no-useless-constructor
+  constructor(
+    private businessService: BusinessTypeService,
+    private bEdgeTypeService: BusinessEdgeTypeService,
+    private registryService: RegistryService,
+    private bsModalRef: BsModalRef,
+    private service: PublishService,
+  ) {}
 
+  ngOnInit(): void {}
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor(
-        private businessService: BusinessTypeService,
-        private registryService: RegistryService,
-        private bsModalRef: BsModalRef,
-        private service: PublishService) {
+  ngOnDestroy(): void {
+    this.onChange.unsubscribe();
+  }
+
+  init(
+    types: { label: string; value: string }[],
+    hierarchies: { label: string; value: string }[],
+    dagTypes: { label: string; value: string }[],
+    undirectedTypes: { label: string; value: string }[],
+    businessTypes: { label: string; value: string }[],
+    edgeTypes: { label: string; value: string }[],
+    observerOrNext?:
+      Partial<Observer<PublishEvents>> | ((value: PublishEvents) => void),
+  ): void {
+    this.types = types;
+    this.hierarchies = hierarchies;
+    this.dagTypes = dagTypes;
+    this.undirectedTypes = undirectedTypes;
+    this.businessTypes = businessTypes;
+    this.edgeTypes = edgeTypes;
+
+    this.onChange = new Subject();
+
+    if (observerOrNext != null) {
+      this.onChange.subscribe(observerOrNext);
     }
 
-    ngOnInit(): void {
+    this.businessService.getAll().then((response) => {
+      this.businessTypes = response.map((b) => {
+        return { label: b.displayLabel.localizedValue, value: b.code };
+      });
+    });
 
-    }
+    this.bEdgeTypeService.getAll().then((response) => {
+      this.edgeTypes = response.map((b) => {
+        return { label: b.label.localizedValue, value: b.code };
+      });
+    });
 
-    ngOnDestroy(): void {
-        this.onChange.unsubscribe();
-    }
-
-    init(types: { label: string, value: string }[],
-        hierarchies: { label: string, value: string }[],
-        dagTypes: { label: string, value: string }[],
-        undirectedTypes: { label: string, value: string }[],
-        businessTypes: { label: string, value: string }[],
-        edgeTypes: { label: string, value: string }[],
-        observerOrNext?: Partial<Observer<PublishEvents>> | ((value: PublishEvents) => void)): void {
-
-        this.types = types;
-        this.hierarchies = hierarchies;
-        this.dagTypes = dagTypes;
-        this.undirectedTypes = undirectedTypes;
-        this.businessTypes = businessTypes;
-        this.edgeTypes = edgeTypes;
-
-
-        this.onChange = new Subject();
-
-        if (observerOrNext != null) {
-            this.onChange.subscribe(observerOrNext);
-        }
-
-        this.businessService.getAll().then(response => {
-            this.businessTypes = response.map(b => { return { label: b.displayLabel.localizedValue, value: b.code } });
-        })
-
-        this.businessService.getEdges().then(response => {
-            this.edgeTypes = response.map(b => { return { label: b.label.localizedValue, value: b.code } });
-        })
-
-        this.registryService.init(false, true).then(response => {
-            this.hierarchies = response.hierarchies.map(b => { return { label: b.label.localizedValue, value: b.code } });
-            this.types = response.types.map(b => { return { label: b.label.localizedValue, value: b.code } });
-            this.dagTypes = response.graphTypes!
-                .filter(b => b.typeCode === 'DirectedAcyclicGraphType')
-                .map(b => { return { label: b.label.localizedValue, value: b.code } });
-            this.undirectedTypes = response.graphTypes!
-                .filter(b => b.typeCode === 'UndirectedGraphType')
-                .map(b => { return { label: b.label.localizedValue, value: b.code } });
+    this.registryService.init(false, true).then((response) => {
+      this.hierarchies = response.hierarchies.map((b) => {
+        return { label: b.label.localizedValue, value: b.code };
+      });
+      this.types = response.types.map((b) => {
+        return { label: b.label.localizedValue, value: b.code };
+      });
+      this.dagTypes = response
+        .graphTypes!.filter((b) => b.typeCode === "DirectedAcyclicGraphType")
+        .map((b) => {
+          return { label: b.label.localizedValue, value: b.code };
         });
-
-        this.type = {
-            uid: uuid(),
-            label: "",
-            date: "",
-            startDate: "",
-            endDate: "",
-            typeCodes: [],
-            businessTypeCodes: [],
-            hierarchyCodes: [],
-            dagCodes: [],
-            undirectedCodes: [],
-            businessEdgeCodes: []
-        }
-    }
-
-    valid(): boolean {
-
-        if (this.type!.label == null || this.type!.label.trim().length == 0) {
-            return false;
-        }
-
-        if (this.type!.date == null || this.type!.date.trim().length == 0) {
-            return false;
-        }
-        if (this.type!.startDate == null || this.type!.startDate.trim().length == 0) {
-            return false;
-        }
-        if (this.type!.endDate == null || this.type!.endDate.trim().length == 0) {
-            return false;
-        }
-
-        return true;
-    }
-
-    onSubmit(): void {
-
-
-        this.service.create(this.type!).then(dto => {
-            // Do something
-            this.onChange.next(dto);
-
-            this.bsModalRef.hide();
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
+      this.undirectedTypes = response
+        .graphTypes!.filter((b) => b.typeCode === "UndirectedGraphType")
+        .map((b) => {
+          return { label: b.label.localizedValue, value: b.code };
         });
+    });
+
+    this.type = {
+      uid: uuid(),
+      label: "",
+      date: "",
+      startDate: "",
+      endDate: "",
+      typeCodes: [],
+      businessTypeCodes: [],
+      hierarchyCodes: [],
+      dagCodes: [],
+      undirectedCodes: [],
+      businessEdgeCodes: [],
+    };
+  }
+
+  valid(): boolean {
+    if (this.type!.label == null || this.type!.label.trim().length == 0) {
+      return false;
     }
 
-    onCancel(): void {
+    if (this.type!.date == null || this.type!.date.trim().length == 0) {
+      return false;
+    }
+    if (
+      this.type!.startDate == null ||
+      this.type!.startDate.trim().length == 0
+    ) {
+      return false;
+    }
+    if (this.type!.endDate == null || this.type!.endDate.trim().length == 0) {
+      return false;
+    }
+
+    return true;
+  }
+
+  onSubmit(): void {
+    this.service
+      .create(this.type!)
+      .then((dto) => {
+        // Do something
+        this.onChange.next(dto);
+
         this.bsModalRef.hide();
-    }
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
 
-    error(err: HttpErrorResponse): void {
-        this.message = ErrorHandler.getMessageFromError(err);
-    }
+  onCancel(): void {
+    this.bsModalRef.hide();
+  }
 
+  error(err: HttpErrorResponse): void {
+    this.message = ErrorHandler.getMessageFromError(err);
+  }
 }

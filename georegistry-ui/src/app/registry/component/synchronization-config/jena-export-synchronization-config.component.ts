@@ -40,7 +40,7 @@ import { LocalizeComponent } from "../../../shared/component/localize/localize.c
   templateUrl: "./jena-export-synchronization-config.component.html",
   styleUrls: [],
   standalone: true,
-  imports: [LocalizeComponent, NgIf, FormsModule, NgFor],
+  imports: [LocalizeComponent, NgIf, FormsModule],
 })
 export class JenaExportSynchronizationConfigComponent
   implements OnInit, OnDestroy

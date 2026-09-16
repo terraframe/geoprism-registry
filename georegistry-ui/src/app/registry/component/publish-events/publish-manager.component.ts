@@ -18,9 +18,14 @@
 ///
 
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { ActivatedRoute, Params, Router, RouterLinkActive, RouterLink } from "@angular/router";
+import {
+  ActivatedRoute,
+  Params,
+  Router,
+  RouterLinkActive,
+  RouterLink,
+} from "@angular/router";
 import { HttpErrorResponse } from "@angular/common/http";
-
 
 import { ConfirmModalComponent, ErrorHandler } from "@shared/component";
 import { Subscription } from "rxjs";
@@ -37,168 +42,204 @@ import { NgFor, NgIf } from "@angular/common";
 import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { PageContainerComponent } from "@shared/component/page-container/page-container.component";
 import { ModalTypes } from "@shared/model/modal";
+import { BusinessEdgeTypeService } from "@registry/service/business-edge-type.service";
 
 @Component({
-    selector: "publish-manager",
-    templateUrl: "./publish-manager.component.html",
-    styleUrls: [],
-    standalone: true,
-    imports: [PageContainerComponent, LocalizeComponent, NgFor, RouterLinkActive, RouterLink, NgIf, PublishEventsComponent, LocalizePipe]
+  selector: "publish-manager",
+  templateUrl: "./publish-manager.component.html",
+  styleUrls: [],
+  standalone: true,
+  imports: [
+    PageContainerComponent,
+    LocalizeComponent,
+    NgFor,
+    RouterLinkActive,
+    RouterLink,
+    NgIf,
+    PublishEventsComponent,
+    LocalizePipe,
+  ],
 })
 export class PublishManagerComponent implements OnInit, OnDestroy {
+  message: string | null = null;
 
-    message: string = null;
+  publishes: PublishEvents[] = [];
+  current: PublishEvents | null = null;
 
-    publishes: PublishEvents[] = [];
-    current: PublishEvents = null;
+  subscription: Subscription | null = null;
 
-    subscription: Subscription = null;
+  noQueryParams = false;
 
-    noQueryParams = false;
+  /*
+   * Reference to the modal current showing
+   */
+  bsModalRef: BsModalRef;
 
-    /*
-     * Reference to the modal current showing
-     */
-    bsModalRef: BsModalRef;
+  types: { label: string; value: string }[] = [];
+  hierarchies: { label: string; value: string }[] = [];
+  dagTypes: { label: string; value: string }[] = [];
+  undirectedTypes: { label: string; value: string }[] = [];
+  businessTypes: { label: string; value: string }[] = [];
+  edgeTypes: { label: string; value: string }[] = [];
 
-    types: { label: string, value: string }[] = [];
-    hierarchies: { label: string, value: string }[] = [];
-    dagTypes: { label: string, value: string }[] = [];
-    undirectedTypes: { label: string, value: string }[] = [];
-    businessTypes: { label: string, value: string }[] = [];
-    edgeTypes: { label: string, value: string }[] = [];
+  // eslint-disable-next-line no-useless-constructor
+  constructor(
+    private service: PublishService,
+    private modalService: BsModalService,
+    private route: ActivatedRoute,
+    private router: Router,
+    private localizeService: LocalizationService,
+    private businessService: BusinessTypeService,
+    private bEdgeTypeService: BusinessEdgeTypeService,
+    private registryService: RegistryService,
+  ) {}
 
+  ngOnInit(): void {
+    this.subscription = this.route.queryParams.subscribe((params: Params) => {
+      const uid = params.uid;
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor(
-        private service: PublishService,
-        private modalService: BsModalService,
-        private route: ActivatedRoute,
-        private router: Router,
-        private localizeService: LocalizationService,
-        private businessService: BusinessTypeService,
-        private registryService: RegistryService,
-    ) { }
+      if (uid != null && uid.length > 0) {
+        this.service
+          .get(uid)
+          .then((current) => {
+            this.current = current;
+          })
+          .catch((err: HttpErrorResponse) => {
+            this.error(err);
+          });
+      } else {
+        this.noQueryParams = true;
+      }
+    });
 
-    ngOnInit(): void {
-        this.subscription = this.route.queryParams.subscribe((params: Params) => {
-            const uid = params.uid;
-
-            if (uid != null && uid.length > 0) {
-                this.service.get(uid).then(current => {
-                    this.current = current;
-                }).catch((err: HttpErrorResponse) => {
-                    this.error(err);
-                });
-            } else {
-                this.noQueryParams = true;
-            }
-        });
-
-        if (this.publishes.length === 0) {
-            this.service.getAll().then(publishes => {
-                this.publishes = publishes;
-            }).catch((err: HttpErrorResponse) => {
-                this.error(err);
-            });
-        }
-
-        this.businessService.getAll().then(response => {
-            this.businessTypes = response.map(b => { return { label: b.displayLabel.localizedValue, value: b.code } });
+    if (this.publishes.length === 0) {
+      this.service
+        .getAll()
+        .then((publishes) => {
+          this.publishes = publishes;
         })
-
-        this.businessService.getEdges().then(response => {
-            this.edgeTypes = response.map(b => { return { label: b.label.localizedValue, value: b.code } });
-        })
-
-        this.registryService.init(false, true).then(response => {
-            this.hierarchies = response.hierarchies.map(b => { return { label: b.label.localizedValue, value: b.code } });
-            this.types = response.types.map(b => { return { label: b.label.localizedValue, value: b.code } });
-            this.dagTypes = response.graphTypes
-                .filter(b => b.typeCode === 'DirectedAcyclicGraphType')
-                .map(b => { return { label: b.label.localizedValue, value: b.code } });
-            this.undirectedTypes = response.graphTypes
-                .filter(b => b.typeCode === 'UndirectedGraphType')
-                .map(b => { return { label: b.label.localizedValue, value: b.code } });
+        .catch((err: HttpErrorResponse) => {
+          this.error(err);
         });
     }
 
-    ngAfterViewInit() {
-    }
+    this.businessService.getAll().then((response) => {
+      this.businessTypes = response.map((b) => {
+        return { label: b.displayLabel.localizedValue, value: b.code };
+      });
+    });
 
-    ngOnDestroy(): void {
-        if (this.subscription != null) {
-            this.subscription.unsubscribe();
-        }
-    }
+    this.bEdgeTypeService.getAll().then((response) => {
+      this.edgeTypes = response.map((b) => {
+        return { label: b.label.localizedValue, value: b.code };
+      });
+    });
 
-
-    onCreate(): void {
-        this.bsModalRef = this.modalService.show(PublishEventsModalComponent, {
-            animated: false, backdrop: true,             ignoreBackdropClick: true
+    this.registryService.init(false, true).then((response) => {
+      this.hierarchies = response.hierarchies.map((b) => {
+        return { label: b.label.localizedValue, value: b.code };
+      });
+      this.types = response.types.map((b) => {
+        return { label: b.label.localizedValue, value: b.code };
+      });
+      this.dagTypes = response
+        .graphTypes!.filter((b) => b.typeCode === "DirectedAcyclicGraphType")
+        .map((b) => {
+          return { label: b.label.localizedValue, value: b.code };
         });
-        this.bsModalRef.content.init(this.types,
-            this.hierarchies,
-            this.dagTypes,
-            this.undirectedTypes,
-            this.businessTypes,
-            this.edgeTypes,
-            (publish) => {
-                this.publishes.push(publish);
-
-                this.router.navigate([], {
-                    relativeTo: this.route,
-                    queryParams: { uid: publish.uid },
-                    queryParamsHandling: "merge",
-                    replaceUrl: true
-                });
-            }, null);
-    }
-
-    onDelete(publish: PublishEvents): void {
-        this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: false, backdrop: true,             ignoreBackdropClick: true
+      this.undirectedTypes = response
+        .graphTypes!.filter((b) => b.typeCode === "UndirectedGraphType")
+        .map((b) => {
+          return { label: b.label.localizedValue, value: b.code };
         });
-        this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " [" + publish.label + "]";
-        this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
-        this.bsModalRef.content.type =  ModalTypes.danger;
+    });
+  }
 
-        this.bsModalRef.content.onConfirm.subscribe(() => {
-            this.message = null;
+  ngAfterViewInit() {}
 
-            this.service.remove(publish).then(() => {
+  ngOnDestroy(): void {
+    if (this.subscription != null) {
+      this.subscription.unsubscribe();
+    }
+  }
 
-                const index = this.publishes.findIndex(v => v.uid === publish.uid);
+  onCreate(): void {
+    this.bsModalRef = this.modalService.show(PublishEventsModalComponent, {
+      animated: false,
+      backdrop: true,
+      ignoreBackdropClick: true,
+    });
+    this.bsModalRef.content.init(
+      this.types,
+      this.hierarchies,
+      this.dagTypes,
+      this.undirectedTypes,
+      this.businessTypes,
+      this.edgeTypes,
+      (publish) => {
+        this.publishes.push(publish);
 
-                if (index !== -1) {
-                    this.publishes.splice(index, 1);
-                }
+        this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: { uid: publish.uid },
+          queryParamsHandling: "merge",
+          replaceUrl: true,
+        });
+      },
+      null,
+    );
+  }
 
-                if (this.current != null && this.current.uid === publish.uid) {
-                    this.current = null;
+  onDelete(publish: PublishEvents): void {
+    this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
+      animated: false,
+      backdrop: true,
+      ignoreBackdropClick: true,
+    });
+    this.bsModalRef.content.message =
+      this.localizeService.decode("confirm.modal.verify.delete") +
+      " [" +
+      publish.label +
+      "]";
+    this.bsModalRef.content.submitText = this.localizeService.decode(
+      "modal.button.delete",
+    );
+    this.bsModalRef.content.type = ModalTypes.danger;
 
-                    this.router.navigate([], {
-                        relativeTo: this.route,
-                        queryParams: { uid: null },
-                        queryParamsHandling: "merge",
-                        replaceUrl: true
-                    });
+    this.bsModalRef.content.onConfirm.subscribe(() => {
+      this.message = null;
 
-                }
-            }).catch((err: HttpErrorResponse) => {
-                this.error(err);
+      this.service
+        .remove(publish)
+        .then(() => {
+          const index = this.publishes.findIndex((v) => v.uid === publish.uid);
+
+          if (index !== -1) {
+            this.publishes.splice(index, 1);
+          }
+
+          if (this.current != null && this.current.uid === publish.uid) {
+            this.current = null;
+
+            this.router.navigate([], {
+              relativeTo: this.route,
+              queryParams: { uid: null },
+              queryParamsHandling: "merge",
+              replaceUrl: true,
             });
+          }
+        })
+        .catch((err: HttpErrorResponse) => {
+          this.error(err);
         });
+    });
+  }
+
+  error(err: HttpErrorResponse): void {
+    if (err != null) {
+      this.message = ErrorHandler.getMessageFromError(err);
+    } else {
+      this.message = null;
     }
-
-
-    error(err: HttpErrorResponse): void {
-        if (err != null) {
-            this.message = ErrorHandler.getMessageFromError(err);
-        }
-        else {
-            this.message = null;
-        }
-    }
-
+  }
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.Executor;
 
 import org.apache.commons.lang.StringUtils;
 import org.axonframework.eventhandling.DomainEventMessage;
@@ -18,9 +19,11 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.Commit;
 import net.geoprism.registry.Publish;
@@ -53,6 +56,8 @@ import net.geoprism.registry.event.EmptyPublishException;
 import net.geoprism.registry.graph.ConceptSet;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.progress.Progress;
+import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.view.ObjectOverTimeDTO;
 import net.geoprism.registry.view.PublishDTO;
 import net.geoprism.registry.view.TypeInfo;
@@ -84,6 +89,10 @@ public class PublishEventService
   @Autowired
   private HierarchyTypeBusinessServiceIF hiearchyService;
 
+  @Autowired
+  @Qualifier("taskExecutor")
+  public Executor                        executor;
+
   @Transaction
   public Publish publish(PublishDTO configuration) throws InterruptedException
   {
@@ -99,43 +108,67 @@ public class PublishEventService
 
     Publish publish = this.publishService.create(configuration);
 
-    createNewCommit(publish);
+    this.executor.execute(() -> {
+      this.execute(publish);
+    });
 
     return publish;
+  }
+
+  @Request
+  public void execute(Publish publish)
+  {
+    this.createNewCommit(publish);
   }
 
   @Transaction
   public Commit createNewCommit(Publish publish)
   {
-    PublishDTO dto = publish.toDTO();
-
-    // First ensure all classifications are published
-    List<Publish> dependencies = new LinkedList<>();
-    dependencies.addAll(this.createClassificationDependencies(dto));
-
-    Optional<Commit> previous = this.commitService.getLatest(publish);
-
-    Long lastGlobalIndex = previous.map(p -> p.getLastOriginGlobalIndex()).orElse(Long.valueOf(0));
-    Integer versionNumber = previous.map(p -> p.getVersionNumber() + 1).orElse(Integer.valueOf(1));
-
-    GapAwareTrackingToken start = new GapAwareTrackingToken(lastGlobalIndex, new LinkedList<>());
-
-    Commit commit = publish(publish, start, versionNumber);
-
-    // Determine all of the dependent commits
-    previous.ifPresent(p -> commit.addDependency(p).apply());
-
-    dependencies.addAll(this.publishService.getRemoteFor(dto));
-
-    for (Publish dependency : dependencies)
+    try
     {
-      // We only need to add the latest commit as a dependency because the
-      // latest commit will have a dependency on its previous version if one
-      // exists
-      this.commitService.getLatest(dependency).ifPresent(latest -> commit.addDependency(latest).apply());
-    }
+      ProgressService.put(publish.getUid(), new Progress(0L, 100L, ""));
 
-    return commit;
+      PublishDTO dto = publish.toDTO();
+
+      // First ensure all classifications are published
+      List<Publish> dependencies = new LinkedList<>();
+      dependencies.addAll(this.createClassificationDependencies(dto));
+
+      Optional<Commit> previous = this.commitService.getLatest(publish);
+
+      Long lastGlobalIndex = previous.map(p -> p.getLastOriginGlobalIndex()).orElse(Long.valueOf(0));
+      Integer versionNumber = previous.map(p -> p.getVersionNumber() + 1).orElse(Integer.valueOf(1));
+
+      GapAwareTrackingToken start = new GapAwareTrackingToken(lastGlobalIndex, new LinkedList<>());
+
+      Commit commit = publish(publish, start, versionNumber);
+
+      // Determine all of the dependent commits
+      previous.ifPresent(p -> commit.addDependency(p).apply());
+
+      dependencies.addAll(this.publishService.getRemoteFor(dto));
+
+      for (Publish dependency : dependencies)
+      {
+        // We only need to add the latest commit as a dependency because the
+        // latest commit will have a dependency on its previous version if one
+        // exists
+        this.commitService.getLatest(dependency).ifPresent(latest -> commit.addDependency(latest).apply());
+      }
+
+      return commit;
+    }
+    finally
+    {
+      try
+      {
+        ProgressService.put(publish.getUid(), new Progress(100L, 100L, ""));
+      }
+      finally
+      {
+        ProgressService.remove(publish.getOid());
+      }
+    }
   }
 
   public List<Publish> createClassificationDependencies(PublishDTO dto)
@@ -191,11 +224,15 @@ public class PublishEventService
     {
       Commit commit = this.commitService.create(publish, versionNumber, end.getIndex());
 
+      Progress progress = new Progress(0L, ( end.getIndex() - start.getIndex() ), commit.getOid());
+
+      ProgressService.put(publish.getUid(), progress);
+
       Set<String> sources = new TreeSet<String>();
 
-      total += processEventType(start, end, EventPhase.OBJECT, publish, commit, dto, sources);
+      total += processEventType(start, end, EventPhase.OBJECT, publish, commit, dto, sources, progress);
 
-      total += processEventType(start, end, EventPhase.EDGE, publish, commit, dto, sources);
+      total += processEventType(start, end, EventPhase.EDGE, publish, commit, dto, sources, progress);
 
       if (total == 0)
       {
@@ -398,7 +435,7 @@ public class PublishEventService
     throw new UnsupportedOperationException("Events of type [" + event.getClass().getName() + "] do not support being published");
   }
 
-  protected long processEventType(GapAwareTrackingToken start, GapAwareTrackingToken end, EventPhase phase, Publish publish, Commit commit, PublishDTO dto, Set<String> source)
+  protected long processEventType(GapAwareTrackingToken start, GapAwareTrackingToken end, EventPhase phase, Publish publish, Commit commit, PublishDTO dto, Set<String> source, Progress progress)
   {
     long limit = 1000;
     long offset = 0;
@@ -441,6 +478,8 @@ public class PublishEventService
       }
 
       offset += limit;
+
+      ProgressService.put(publish.getUid(), progress.add(limit));
     }
 
     return total;
