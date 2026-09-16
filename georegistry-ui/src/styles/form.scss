@@ -110,6 +110,8 @@ input.form-control.ng-invalid:active{
     background-color: white;
     color:#969696;
     cursor: not-allowed;
+    border-color: #ccc;
+    border-color: var(--theme-input-text-border-disabled);
 }
 
 input[type="text"] {

@@ -248,6 +248,8 @@ input :focus::-moz-placeholder {
 .modal-form .form-group textarea:disabled,
 .page-form .form-group textarea:disabled {
 	color: #999;
+	border-color: #ccc; /* IE fallback */
+	border-color: var(--theme-input-text-border-disabled);
 }
 
 .modal-form .select-holder,

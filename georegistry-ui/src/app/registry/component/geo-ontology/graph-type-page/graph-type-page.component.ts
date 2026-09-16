@@ -20,7 +20,6 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { BsModalService } from "ngx-bootstrap/modal";
 import { HttpErrorResponse } from "@angular/common/http";
-import * as lodash from 'lodash';
 
 import { ConfirmModalComponent } from "@shared/component";
 import { LocalizationService } from "@shared/service/localization.service";
@@ -136,9 +135,16 @@ export class GraphTypePageComponent implements OnInit, OnDestroy {
         };
     }
 
-    handleTypeChange(type: GraphClass): void {
-        this.selection = null;
+    handleCancel(): void {
+        if (this.selection != null && this.selection.action === Action.EDIT) {
+            this.handleTypeView(this.selection.type);
+        }
+        else {
+            this.selection = null;
+        }
+    }
 
+    handleTypeChange(type: GraphClass): void {
         const types = [...this.types];
         const index = types.findIndex(t => t.code === type.code);
 
@@ -147,20 +153,13 @@ export class GraphTypePageComponent implements OnInit, OnDestroy {
         }
         else {
             types.push(type);
-
-            this.selection = {
-                action: Action.EDIT,
-                type: lodash.cloneDeep(type),
-                readOnly: !this.isSRA,
-                isNew: false
-            };
-
         }
 
         this.types = types;
 
         // this.typesChange.emit(types);
 
+        this.handleTypeView(type);
     }
 
 
