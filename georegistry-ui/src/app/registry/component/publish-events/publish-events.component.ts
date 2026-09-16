@@ -90,8 +90,6 @@ export class PublishEventsComponent implements OnInit, OnDestroy {
       );
 
       this.progressSubscription = this.progressNotifier.subscribe((message) => {
-        console.log("Update", message);
-
         if (message.content != null) {
           this.handleProgressChange(message.content);
         } else {
