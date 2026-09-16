@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.jena.atlas.lib.IRILib;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -261,7 +262,7 @@ public class JenaSynchronizationService
         {
           literal = value;
         }
-        
+
         if (literal != null)
         {
           this.addLiteralToModel(model, //
@@ -484,7 +485,7 @@ public class JenaSynchronizationService
 
   protected String buildObjectUri(JenaExportConfig config, String code, final String typeCode)
   {
-    return config.getNamespace() + "#" + typeCode + "-" + code;
+    return config.getNamespace() + "#" + typeCode + "-" + IRILib.encodeUriComponent(code);
   }
 
   protected String buildAttributeUri(JenaExportConfig config, String typeCode, AttributeType attribute)
