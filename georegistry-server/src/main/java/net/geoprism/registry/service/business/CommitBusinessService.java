@@ -603,6 +603,23 @@ public class CommitBusinessService implements CommitBusinessServiceIF
     }
   }
 
+  @Override
+  public List<Commit> getDependents(Commit commit)
+  {
+    QueryFactory factory = new QueryFactory();
+
+    CommitHasDependencyQuery vQuery = new CommitHasDependencyQuery(factory);
+    vQuery.WHERE(vQuery.getParent().EQ(commit));
+
+    CommitQuery query = new CommitQuery(factory);
+    query.WHERE(query.getOid().EQ(vQuery.getChild().oid()));
+
+    try (OIterator<? extends Commit> iterator = query.getIterator())
+    {
+      return new LinkedList<>(iterator.getAll());
+    }
+  }
+
   /**
    * Split stream of events, only gets a single chunk per split
    */

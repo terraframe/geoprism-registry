@@ -100,6 +100,32 @@ public class CommitBusinessServiceTest extends EventDatasetTest
 
   @Test
   @Request
+  public void testDependents()
+  {
+    Publish publish = this.publishService.create(this.getPublishDTO());
+
+    try
+    {
+      Commit first = this.service.create(publish, new CommitDTO(UUID.randomUUID().toString(), publish.getUid(), 1, 10L));
+      Commit second = this.service.create(publish, new CommitDTO(UUID.randomUUID().toString(), publish.getUid(), 2, 100L));
+      Commit third = this.service.create(publish, new CommitDTO(UUID.randomUUID().toString(), publish.getUid(), 3, 1000L));
+
+      second.addDependency(first).apply();
+      third.addDependency(second).apply();
+
+      List<Commit> results = this.service.getDependents(second);
+
+      Assert.assertEquals(1, results.size());
+      Assert.assertEquals(third.getUid(), results.get(0).getUid());
+    }
+    finally
+    {
+      this.publishService.delete(publish);
+    }
+  }
+
+  @Test
+  @Request
   public void testCreateSnapshots()
   {
     PublishDTO configuration = this.getPublishDTO();

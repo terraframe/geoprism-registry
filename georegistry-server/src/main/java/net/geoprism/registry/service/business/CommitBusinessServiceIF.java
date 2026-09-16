@@ -67,6 +67,8 @@ public interface CommitBusinessServiceIF
 
   List<Commit> getDependencies(Commit commit);
 
+  List<Commit> getDependents(Commit commit);
+
   List<DataSource> getSources(Commit commit);
 
   CommitHasDataSource addSource(Commit commit, DataSource source);
@@ -76,5 +78,4 @@ public interface CommitBusinessServiceIF
   Stream<RemoteEvent> getRemoteEvents(Commit commit);
 
   List<RemoteEvent> getRemoteEvents(Commit commit, Integer chunk);
-
 }

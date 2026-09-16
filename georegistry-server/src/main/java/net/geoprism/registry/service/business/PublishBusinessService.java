@@ -26,6 +26,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
@@ -51,16 +52,30 @@ public class PublishBusinessService implements PublishBusinessServiceIF
   @Transaction
   public void delete(Publish publish)
   {
+    // Ensure that the publish being deleted doesn't have any dependent
+    // publishes
     this.commitService.getCommits(publish).forEach(commit -> {
-      if (Session.getCurrentSession() != null)
-      {
-        this.commitService.remove(commit);
-      }
-      else
-      {
-        this.commitService.delete(commit);
-      }
+      this.commitService.getDependents(commit).forEach(dependent -> {
+        if (!dependent.getPublishOid().equals(publish.getOid()))
+        {
+          throw new ProgrammingErrorException("Cannot delete. Other published SKGs have dependencies on this SKG");
+        }
+      });
+    });
 
+    this.commitService.getCommits(publish).forEach(commit -> {
+      // Do not delete commits which were part of a different publish
+      if (commit.getPublishOid().equals(publish.getOid()))
+      {
+        if (Session.getCurrentSession() != null)
+        {
+          this.commitService.remove(commit);
+        }
+        else
+        {
+          this.commitService.delete(commit);
+        }
+      }
     });
 
     this.synchronizationService.getSynchronizations(publish).forEach(this.synchronizationService::delete);
