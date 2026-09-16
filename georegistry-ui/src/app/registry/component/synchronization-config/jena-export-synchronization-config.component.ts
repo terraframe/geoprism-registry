@@ -17,7 +17,14 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, Input, OnDestroy, EventEmitter, Output } from "@angular/core";
+import {
+  Component,
+  OnInit,
+  Input,
+  OnDestroy,
+  EventEmitter,
+  Output,
+} from "@angular/core";
 import { Subject, Subscription } from "rxjs";
 import { HttpErrorResponse } from "@angular/common/http";
 
@@ -29,58 +36,57 @@ import { NgIf, NgFor } from "@angular/common";
 import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
 
 @Component({
-    selector: "jena-export-synchronization-config",
-    templateUrl: "./jena-export-synchronization-config.component.html",
-    styleUrls: [],
-    standalone: true,
-    imports: [LocalizeComponent, NgIf, FormsModule, NgFor]
+  selector: "jena-export-synchronization-config",
+  templateUrl: "./jena-export-synchronization-config.component.html",
+  styleUrls: [],
+  standalone: true,
+  imports: [LocalizeComponent, NgIf, FormsModule, NgFor],
 })
-export class JenaExportSynchronizationConfigComponent implements OnInit, OnDestroy {
+export class JenaExportSynchronizationConfigComponent
+  implements OnInit, OnDestroy
+{
+  @Input() config: SynchronizationConfig;
+  @Input() fieldChange: Subject<string>;
+  @Output() onError = new EventEmitter<HttpErrorResponse>();
 
-    @Input() config: SynchronizationConfig;
-    @Input() fieldChange: Subject<string>;
-    @Output() onError = new EventEmitter<HttpErrorResponse>();
+  subscription: Subscription | null = null;
+  publishes: PublishEvents[] | null = null;
 
-    subscription: Subscription = null;
-    publishes: PublishEvents[] = null;
+  constructor(private pService: PublishService) {}
 
-    constructor(private pService: PublishService) { }
+  ngOnInit(): void {
+    this.reset();
 
-    ngOnInit(): void {
+    this.subscription = this.fieldChange.subscribe((field: string) => {
+      if (field === "organization" || field === "system") {
         this.reset();
+      }
+    });
 
-        this.subscription = this.fieldChange.subscribe((field: string) => {
-            if (field === "organization" || field === "system") {
-                this.reset();
-            }
-        });
+    this.pService.getAll().then((publishes) => {
+      this.publishes = publishes;
+    });
+  }
 
-        this.pService.getAll().then(publishes => {
-            this.publishes = publishes;
-        });
+  ngOnDestroy(): void {
+    if (this.subscription != null) {
+      this.subscription.unsubscribe();
     }
+  }
 
-    ngOnDestroy(): void {
-        if (this.subscription != null) {
-            this.subscription.unsubscribe();
-        }
+  reset(): void {
+    if (this.config.configuration == null) {
+      this.config.configuration = {
+        publishUid: null,
+      };
     }
+    // Get
+    this.pService.getAll().then((publishes) => {
+      this.publishes = publishes;
+    });
+  }
 
-    reset(): void {
-        if (this.config.configuration == null) {
-            this.config.configuration = {
-                publishUid: null,
-            };
-        }
-        // Get
-        this.pService.getAll().then(publishes => {
-            this.publishes = publishes;
-        });
-    }
-
-
-    error(err: HttpErrorResponse): void {
-        this.onError.emit(err);
-    }
-
+  error(err: HttpErrorResponse): void {
+    this.onError.emit(err);
+  }
 }
