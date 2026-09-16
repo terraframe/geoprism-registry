@@ -150,7 +150,7 @@
                 </div>
                 <div class="panel-body">
                     <div class="table-responsive">
-                          <table class="table">
+                          <table class="table" [class.view-mode]="readOnly">
                               <thead>
                                   <tr>
                                       <th><localize key="data.property.label.label"></localize></th>
@@ -161,7 +161,7 @@
                               </thead>
                               <tbody>
                                   <tr *ngFor="let attr of geoObjectType.attributes" >
-                                      <td>{{attr.label.localizedValue}}</td>
+                                      <td class="attr-label">{{attr.label.localizedValue}}</td>
                                       <td>
                                           <span class="pill type" *ngIf="getAttributeTypeLabelKey(attr.type) as typeKey; else rawType">{{ typeKey | localize }}</span>
                                           <ng-template #rawType><span class="pill type">{{ attr.type }}</span></ng-template>

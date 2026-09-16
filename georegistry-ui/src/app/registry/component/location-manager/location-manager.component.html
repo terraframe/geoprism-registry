@@ -33,7 +33,11 @@
 
 
   <!-- Floating search panel-->
-  <div style="position: absolute; top: 0; bottom: 0; left: 10px; right: 10px; height: 100%;">
+  <!-- padding: 0 15px absorbs the -15px margins of the Bootstrap .row below, which
+       otherwise bleed past this wrapper's edges and trigger a stray horizontal
+       scrollbar on #app-container (see the .sidebar comment in page-container.css
+       for the same pattern) -->
+  <div style="position: absolute; top: 0; bottom: 0; left: 0; right: 10px; height: 100%; padding: 0 15px;">
 
     <div class="row" style="margin-top: 50px;">
       <div class="col-md-4" style="z-index: 999;" [hidden]="!state.attrPanelOpen">

@@ -19,3 +19,7 @@
 .layer-toggle-wrapper {
 	padding-left: 0;
 }
+
+.btn.find-layers-btn {
+	height: 40px;
+}

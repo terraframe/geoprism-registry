@@ -160,33 +160,32 @@ export class ConceptEdgeTypePageComponent implements OnInit, OnDestroy, OnChange
         };
     }
 
-    handleTypeChange(type: ConceptEdgeType): void {
-        this.selection = null;
+    handleCancel(): void {
+        if (this.selection != null && this.selection.action === Action.EDIT) {
+            this.handleTypeView(this.selection.type);
+        }
+        else {
+            this.selection = null;
+        }
+    }
 
+    handleTypeChange(type: ConceptEdgeType): void {
         const edgeTypes = [...this.types];
         const index = edgeTypes.findIndex(t => t.code === type.code);
 
         if (index !== -1) {
             edgeTypes[index] = type;
-
-            this.selection = {
-                action: Action.VIEW,
-                type: type,
-                readOnly: true,
-                isNew: false
-            };
         }
         else {
             edgeTypes.push(type);
-
-            this.selection = {
-                action: Action.EDIT,
-                type: lodash.cloneDeep(type),
-                readOnly: !this.isSRA,
-                isNew: false
-            };
-
         }
+
+        this.selection = {
+            action: Action.VIEW,
+            type: lodash.cloneDeep(type),
+            readOnly: true,
+            isNew: false
+        };
 
         this.typesChange.emit(edgeTypes);
     }

@@ -1021,6 +1021,10 @@ td.clickable:focus {
 	margin-right: 0;
 }
 
+.input-group-btn .btn.btn-primary {
+	height: 40px;
+}
+
 .input-group input {
 	height: -webkit-fill-available;
 	height: 40px;

@@ -75,7 +75,7 @@
 			<manage-concept-set *ngIf="selection != null" [conceptClasses]="conceptClasses"
 				[conceptEdgeTypes]="conceptEdgeTypes" [set]="selection.set" [readOnly]="selection.readOnly"
 				[isNew]="selection.action === Action.CREATE" (typeChange)="handleTypeChange($event)"
-				(onCancel)="selection = null" (onError)="error($event)">
+				(onCancel)="handleCancel()" (onError)="error($event)">
 			</manage-concept-set>
 
 		</div>
