@@ -113,7 +113,7 @@
                 <label>
                   <localize key="concept.edge.discrete.type"></localize>
                 </label>
-                <select id="discreteType" name="discreteType" class="select-area" [(ngModel)]="set.discreteType"
+                <select id="discreteType" name="discreteType" class="form-control" [(ngModel)]="set.discreteType"
                   [disabled]="readOnly || !isNew" required>
                   <option></option>
                   <option value="ENUMERATION">
@@ -133,7 +133,7 @@
                 <label>
                   <localize key="concept.class.header"></localize>
                 </label>
-                <select name="conceptClasses[0]" class="select-area" [(ngModel)]="set.conceptClasses[0]"
+                <select name="conceptClasses[0]" class="form-control" [(ngModel)]="set.conceptClasses[0]"
                   [disabled]="readOnly || !isNew" required>
                   <option></option>
                   @for (conceptClass of conceptClasses; track conceptClass) {
@@ -151,7 +151,7 @@
                 <label>
                   <localize key="concept.edge.header"></localize>
                 </label>
-                <select name="conceptEdgeTypes[0]" class="select-area" [(ngModel)]="set.conceptEdgeTypes[0]"
+                <select name="conceptEdgeTypes[0]" class="form-control" [(ngModel)]="set.conceptEdgeTypes[0]"
                   [disabled]="readOnly || !isNew" required>
                   <option></option>
                   @for (conceptEdge of conceptEdgeTypes; track conceptEdge) {

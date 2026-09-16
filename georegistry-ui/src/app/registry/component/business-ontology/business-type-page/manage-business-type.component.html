@@ -48,7 +48,7 @@
                 </label>
               </div>
               <div class="holder">
-                <span class="text"> <input type="text" [(ngModel)]="type.code" name="code" disabled required>
+                <span class="text"> <input type="text" [(ngModel)]="type.code" name="code" class="form-control" disabled required>
                 </span>
               </div>
             </div>
@@ -71,7 +71,7 @@
                 </label>
               </div>
               <div class="holder">
-                <select class="select-area" name="labelAttribute" [(ngModel)]="type.labelAttribute" [disabled]="readOnly">
+                <select class="form-control" name="labelAttribute" [(ngModel)]="type.labelAttribute" [disabled]="readOnly">
                   <option *ngFor="let attr of type.attributes" [value]="attr.code">
                     {{attr.label.localizedValue}}
                   </option>
@@ -95,7 +95,7 @@
               </div>
               <div class="holder">
                 <span class="text">
-                  <input type="text" [(ngModel)]="type.organizationLabel" name="organization" disabled required>
+                  <input type="text" [(ngModel)]="type.organizationLabel" name="organization" class="form-control" disabled required>
                 </span>
               </div>
             </div>

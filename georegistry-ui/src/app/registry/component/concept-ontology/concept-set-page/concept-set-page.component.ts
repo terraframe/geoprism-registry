@@ -106,6 +106,15 @@ export class ConceptSetPageComponent implements OnInit {
         }).catch(e => this.onError.emit(e))
     }
 
+    handleCancel(): void {
+        if (this.selection != null && this.selection.action === Action.EDIT) {
+            this.handleTypeView(this.selection.set);
+        }
+        else {
+            this.selection = null;
+        }
+    }
+
     handleEditConceptSet(set: ConceptSet): void {
         this.service.get(set.code).then(t => {
             this.selection = {
@@ -144,30 +153,21 @@ export class ConceptSetPageComponent implements OnInit {
 
 
     handleTypeChange(set: ConceptSet): void {
-        this.selection = null;
-
         const sets = [...this.sets];
         const index = sets.findIndex(t => t.code === set.code);
 
         if (index !== -1) {
             sets[index] = set;
-
-            this.selection = {
-                action: Action.VIEW,
-                set: lodash.cloneDeep(set),
-                readOnly: true
-            };
         }
         else {
             sets.push(set);
-
-            this.selection = {
-                action: Action.EDIT,
-                set: lodash.cloneDeep(set),
-                readOnly: false
-            };
-
         }
+
+        this.selection = {
+            action: Action.VIEW,
+            set: lodash.cloneDeep(set),
+            readOnly: true
+        };
 
         this.sets = sets;
     }

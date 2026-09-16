@@ -185,30 +185,21 @@ export class ConceptClassPageComponent implements OnInit, OnChanges {
 
 
     handleTypeChange(type: ConceptClass): void {
-        this.selection = null;
-
         const types = [...this.types];
         const index = types.findIndex(t => t.code === type.code);
 
         if (index !== -1) {
             types[index] = type;
-
-            this.selection = {
-                action: Action.VIEW,
-                type: lodash.cloneDeep(type),
-                readOnly: true
-            };
         }
         else {
             types.push(type);
-
-            this.selection = {
-                action: Action.EDIT,
-                type: lodash.cloneDeep(type),
-                readOnly: false
-            };
-
         }
+
+        this.selection = {
+            action: Action.VIEW,
+            type: lodash.cloneDeep(type),
+            readOnly: true
+        };
 
         this.typesChange.emit(types);
     }

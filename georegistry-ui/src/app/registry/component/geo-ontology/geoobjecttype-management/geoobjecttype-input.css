@@ -180,3 +180,10 @@ li.list-group-item:hover {
 .section-panel .button-column a + a {
     margin-left: 8px;
 }
+
+table.view-mode .attr-label {
+    color: #969696;
+}
+table.view-mode .pill {
+    color: #969696;
+}

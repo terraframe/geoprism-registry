@@ -46,7 +46,7 @@
                   <localize key="data.property.label.code"></localize>
                 </label>
                 <span class="text">
-                  <input type="text" [(ngModel)]="type.code" name="code" [disabled]="readOnly || !isNew" required>
+                  <input type="text" [(ngModel)]="type.code" name="code" class="form-control" [disabled]="readOnly || !isNew" required>
                 </span>
               </div>
             </div>
@@ -87,7 +87,7 @@
                 <label for="parentType">
                   <localize key="business.type.parent"></localize>
                 </label>
-                <select id="parentType" name="parentType" class="select-area" [(ngModel)]="type.parentType"
+                <select id="parentType" name="parentType" class="form-control" [(ngModel)]="type.parentType"
                   [disabled]="readOnly || !isNew" required>
                   <option></option>
                   <option *ngFor="let conceptClass of conceptClasses" [value]="conceptClass.code">
@@ -101,7 +101,7 @@
                 <label for="childType">
                   <localize key="business.type.child"></localize>
                 </label>
-                <select id="childType" name="childType" class="select-area" [(ngModel)]="type.childType"
+                <select id="childType" name="childType" class="form-control" [(ngModel)]="type.childType"
                   [disabled]="readOnly || !isNew" required>
                   <option></option>
                   <option *ngFor="let conceptClass of conceptClasses" [value]="conceptClass.code">
@@ -118,7 +118,7 @@
                 <label for="parentType">
                   <localize key="concept.edge.discrete.type"></localize>
                 </label>
-                <select id="discreteType" name="discreteType" class="select-area" [(ngModel)]="type.discreteType"
+                <select id="discreteType" name="discreteType" class="form-control" [(ngModel)]="type.discreteType"
                   [disabled]="readOnly || !isNew" required>
                   <option></option>
                   <option value="TAXONOMY">

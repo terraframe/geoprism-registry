@@ -45,7 +45,7 @@
                                 <label><localize key="data.property.label.code"></localize></label>
                             </div>
                             <div class="holder">
-                                <span class="text"> <input type="text" [(ngModel)]="editGeoObjectType.code" name="code" disabled required>
+                                <span class="text"> <input type="text" [(ngModel)]="editGeoObjectType.code" name="code" class="form-control" disabled required>
                                 </span>
                             </div>
                         </div>
@@ -108,7 +108,7 @@
                             <label><localize key="data.property.label.geometryType"></localize></label>
                         </div>
                         <div class="holder">
-                            <select name="geometryType" [(ngModel)]="editGeoObjectType.geometryType" disabled>
+                            <select name="geometryType" [(ngModel)]="editGeoObjectType.geometryType" class="form-control" disabled>
                                 <option></option>
                                  <option value="MULTIPOINT"><localize key="georegistry.geometry.point"></localize></option>
                                 <option value="MULTILINE"><localize key="georegistry.geometry.line"></localize></option>
@@ -137,7 +137,7 @@
                         <label><localize key="attribute.organization.label"></localize></label>
                       </div>
                       <div class="holder">
-                        <span class="text"> <input type="text" [(ngModel)]="organizationLabel" name="organization" disabled required></span>
+                        <span class="text"> <input type="text" [(ngModel)]="organizationLabel" name="organization" class="form-control" disabled required></span>
                       </div>
                     </div>
                 </div>
@@ -150,7 +150,7 @@
                 </div>
                 <div class="panel-body">
                     <div class="table-responsive">
-                          <table class="table">
+                          <table class="table" [class.view-mode]="readOnly">
                               <thead>
                                   <tr>
                                       <th><localize key="data.property.label.label"></localize></th>
@@ -161,7 +161,7 @@
                               </thead>
                               <tbody>
                                   <tr *ngFor="let attr of geoObjectType.attributes" >
-                                      <td>{{attr.label.localizedValue}}</td>
+                                      <td class="attr-label">{{attr.label.localizedValue}}</td>
                                       <td>
                                           <span class="pill type" *ngIf="getAttributeTypeLabelKey(attr.type) as typeKey; else rawType">{{ typeKey | localize }}</span>
                                           <ng-template #rawType><span class="pill type">{{ attr.type }}</span></ng-template>
@@ -172,9 +172,9 @@
                                           </span>
                                       </td>
                                       <td class="button-column">
-                                          <a *ngIf="!attr.isDefault && attr.code !== 'keyName'" class="fa fa-pencil ico-edit" [routerLink]="" (click)="editAttribute(attr, $event)"
+                                          <a *ngIf="!readOnly && !attr.isDefault && attr.code !== 'keyName'" class="fa fa-pencil ico-edit" [routerLink]="" (click)="editAttribute(attr, $event)"
                                               [title]="'modal.button.edit' | localize"></a>
-                                          <a *ngIf="!attr.isDefault && attr.code !== 'keyName'" class="fa fa-trash ico-remove" [routerLink]="" (click)="removeAttributeType(attr, $event)"
+                                          <a *ngIf="!readOnly && !attr.isDefault && attr.code !== 'keyName'" class="fa fa-trash ico-remove" [routerLink]="" (click)="removeAttributeType(attr, $event)"
                                               [title]="'modal.button.remove' | localize"></a>
                                       </td>
                                   </tr>
@@ -189,12 +189,12 @@
                 </div>
             </div>
 
-            <div class="row-holder">
+            <div class="row-holder" *ngIf="!readOnly">
                     <div class="button-holder">
                         <button type="button" class="btn btn-default" (click)="close()">
                             <localize key="modal.button.cancel"></localize>
                         </button>
-                        <button *ngIf="!readOnly" type="button" class="btn btn-primary" [disabled]="!isValid()" (click)="update()">
+                        <button type="button" class="btn btn-primary" [disabled]="!isValid()" (click)="update()">
                             <localize key="modal.button.submit"></localize>
                         </button>
                     </div>

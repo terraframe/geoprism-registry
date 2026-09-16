@@ -226,8 +226,6 @@ export class GeoObjectTypePageComponent implements OnInit, OnChanges {
     }
 
     handleTypeChange(type: GeoObjectType): void {
-        this.selection = null;
-
         const types = [...this.types];
         const index = types.findIndex(t => t.code === type.code);
 
@@ -236,14 +234,13 @@ export class GeoObjectTypePageComponent implements OnInit, OnChanges {
         }
         else {
             types.push(type);
-
-            this.selection = {
-                action: Action.EDIT,
-                type: lodash.cloneDeep(type),
-                readOnly: false
-            };
-
         }
+
+        this.selection = {
+            action: Action.EDIT,
+            type: lodash.cloneDeep(type),
+            readOnly: false
+        };
 
         this.typesChange.emit(types);
 

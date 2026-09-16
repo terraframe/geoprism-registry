@@ -99,7 +99,7 @@
 			<manage-concept-class
 				*ngIf="selection != null && (selection.action === Action.EDIT || selection.action === Action.VIEW)"
 				[type]="selection.type" [readOnly]="selection.readOnly" (typeChange)="handleTypeChange($event)"
-				(onCancel)="selection = null" (onError)="error($event)">
+				(onCancel)="handleTypeView(selection.type)" (onError)="error($event)">
 			</manage-concept-class>
 
 		</div>

@@ -33,7 +33,7 @@ li.list-group-item.type-li-item {
     border: none;
     border-radius: 6px;
     color: var(--theme-text-dark, #767676);
-    padding: 10px 5px;
+    padding: 5px 10px;
     margin: 0 5px 2px 5px;
     cursor: pointer;
 }
