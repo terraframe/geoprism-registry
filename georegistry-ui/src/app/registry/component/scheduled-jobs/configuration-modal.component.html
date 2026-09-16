@@ -44,7 +44,12 @@
           Type
         </label>
         <div class="col-md-8">
+          @if(configuration.type != null) {
           {{configuration.type.label.localizedValue}}
+          }
+          @else if(configuration.graphTypeCode != null) {
+          {{configuration.graphTypeCode}}
+          }
         </div>
         <div class="col-md-2"></div>
       </div>
@@ -100,17 +105,18 @@
           {{configuration.dataSource}}
         </div>
         <div class="col-md-2"></div>
-    </div>
+      </div>
 
-    <div class="form-group row">
+      <div class="form-group row">
         <label class="col-md-2 text-right" for="description">
-            <localize key="transition.event.description"></localize>                    
+          <localize key="transition.event.description"></localize>
         </label>
         <div class="col-md-8">
-            <textarea style="width:100%;border:none;" [(ngModel)]="configuration.description" name="description" [disabled]="true"></textarea>
+          <textarea style="width:100%;border:none;" [(ngModel)]="configuration.description" name="description"
+            [disabled]="true"></textarea>
         </div>
         <div class="col-md-2"></div>
-    </div>
+      </div>
 
 
       <ng-container *ngIf="configuration.type && configuration.type.attributes">

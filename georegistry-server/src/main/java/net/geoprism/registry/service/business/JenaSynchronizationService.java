@@ -1,5 +1,6 @@
 package net.geoprism.registry.service.business;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
+import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeGeometryType;
@@ -72,6 +74,9 @@ public class JenaSynchronizationService
 
   @Autowired
   private PublishBusinessServiceIF                           publishService;
+
+  @Autowired
+  private ConceptObjectBusinessServiceIF                     cObjectService;
 
   @Autowired
   private SynchronizationHasProcessedCommitBusinessServiceIF exportService;
@@ -230,6 +235,20 @@ public class JenaSynchronizationService
       {
         // SKIP
       }
+      else if (attribute instanceof AttributeClassificationType)
+      {
+        String value = (String) dto.getValue(attributeName);
+
+        if (StringUtils.isNotBlank(value))
+        {
+          this.cObjectService.getByCode(value).ifPresent(concept -> {
+            this.addResourceToModel(model, //
+                buildObjectUri(config, code, typeCode), //
+                attributeUri, //
+                buildObjectUri(config, concept.getCode(), concept.getType().getCode()));
+          });
+        }
+      }
       else
       {
         Object value = dto.getValue(attributeName);
@@ -242,15 +261,17 @@ public class JenaSynchronizationService
         {
           literal = value;
         }
+        
+        if (literal != null)
+        {
+          this.addLiteralToModel(model, //
+              subjectUri, //
+              attributeUri, //
+              literal);
+        }
+
       }
 
-      if (literal != null)
-      {
-        this.addLiteralToModel(model, //
-            subjectUri, //
-            attributeUri, //
-            literal);
-      }
     });
 
     if (INCLUDE_GEOMETRIES)
@@ -343,6 +364,7 @@ public class JenaSynchronizationService
     handleRemoteObject(commit, event, config, model, type);
   }
 
+  @SuppressWarnings("unchecked")
   public void handleRemoteObject(Commit commit, RemoteObjectApplyEvent event, JenaExportConfig config, Model model, ObjectClass type)
   {
     List<String> statements = new LinkedList<>();
@@ -368,7 +390,9 @@ public class JenaSynchronizationService
 
           if (attribute instanceof AttributeLocalType)
           {
-            literal = ( (LocalizedValue) value ).getValue();
+            Map<String, String> values = (Map<String, String>) value;
+
+            literal = values.get(LocalizedValue.LOCALIZED_VALUE);
           }
           else if (attribute instanceof AttributeIntegerType)
           {
@@ -380,7 +404,7 @@ public class JenaSynchronizationService
           }
           else if (attribute instanceof AttributeDateType)
           {
-            literal = GeoRegistryUtil.parseDate((String) value);
+            literal = (Date) value;
           }
           else if (attribute instanceof AttributeBooleanType)
           {

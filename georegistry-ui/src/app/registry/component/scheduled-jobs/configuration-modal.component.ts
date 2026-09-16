@@ -26,7 +26,7 @@ import { Router } from '@angular/router';
 import { LocalizationService } from '@shared/service';
 import { ErrorHandler, SuccessModalComponent, ConfirmModalComponent } from '@shared/component';
 
-import { ImportConfiguration } from '@registry/model/io';
+import { EdgeImportConfiguration, ImportConfiguration } from '@registry/model/io';
 
 import { IOService } from '@registry/service';
 import { ImportStrategy } from '@registry/model/constants';

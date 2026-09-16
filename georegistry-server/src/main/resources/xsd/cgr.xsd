@@ -37,6 +37,7 @@
         <xs:element name="undirected-graph" type="graph" />
         <xs:element name="business-edge" type="business-edge" />
         <xs:element name="concept-edge" type="concept-edge" />
+        <xs:element name="concept-set" type="concept-set" />        
       </xs:choice>
     </xs:sequence>
     <xs:attribute name="code" type="xs:string" use="required" />
@@ -72,6 +73,14 @@
     <xs:attribute name="childTypeCode" type="xs:string" use="optional" />
     <xs:attribute name="discreteType" type="xs:string" use="optional" />    
   </xs:complexType>
+  <xs:complexType name="concept-set">
+    <xs:attribute name="code" type="xs:string" use="required" />
+    <xs:attribute name="label" type="xs:string" use="required" />
+    <xs:attribute name="description" type="xs:string" use="optional" />
+    <xs:attribute name="conceptClass" type="xs:string" use="optional" />
+    <xs:attribute name="conceptEdgeType" type="xs:string" use="optional" />
+    <xs:attribute name="discreteType" type="xs:string" use="optional" />    
+  </xs:complexType>
   
   <xs:complexType name="graph">
     <xs:attribute name="code" type="xs:string" use="required" />
@@ -97,6 +106,10 @@
     <xs:attribute name="geometryType" type="geometryType" use="required" />
     <xs:attribute name="isGeometryEditable" type="xs:boolean" />
     <xs:attribute name="isGroup" type="xs:boolean" />
+    <xs:attribute name="conceptSet" type="xs:string" use="optional" />
+    <xs:attribute name="startDate" type="xs:string" use="optional" />
+    <xs:attribute name="endDate" type="xs:string" use="optional" />
+    <xs:attribute name="rootTerm" type="xs:string" use="optional" />    
   </xs:complexType>
   <xs:complexType name="business-type">
     <xs:sequence>

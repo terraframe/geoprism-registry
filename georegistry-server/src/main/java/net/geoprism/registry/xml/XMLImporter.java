@@ -34,10 +34,12 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.RegistryAdapter;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
+import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
@@ -53,11 +55,13 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.resource.ApplicationResource;
 
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.cache.TransactionCacheFacade;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.graph.ConceptClass;
 import net.geoprism.registry.graph.ConceptEdgeType;
+import net.geoprism.registry.graph.ConceptSet;
 import net.geoprism.registry.graph.DirectedAcyclicGraphType;
 import net.geoprism.registry.graph.ObjectClass;
 import net.geoprism.registry.graph.UndirectedGraphType;
@@ -70,6 +74,7 @@ import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ConceptClassBusinessServiceIF;
 import net.geoprism.registry.service.business.ConceptEdgeTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.ConceptSetBusinessServiceIF;
 import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
@@ -80,6 +85,7 @@ import net.geoprism.registry.view.BusinessEdgeTypeDTO;
 import net.geoprism.registry.view.BusinessTypeDTO;
 import net.geoprism.registry.view.ConceptClassDTO;
 import net.geoprism.registry.view.ConceptEdgeTypeDTO;
+import net.geoprism.registry.view.ConceptSetDTO;
 import net.geoprism.registry.view.DiscreteType;
 import net.geoprism.registry.view.ObjectClassDTO;
 
@@ -92,6 +98,8 @@ public class XMLImporter
   private final BusinessTypeBusinessServiceIF             bTypeService;
 
   private final ConceptClassBusinessServiceIF             cClassService;
+
+  private final ConceptSetBusinessServiceIF               cSetService;
 
   private final HierarchyTypeBusinessServiceIF            hierarchyService;
 
@@ -124,6 +132,7 @@ public class XMLImporter
     this.undirectedService = ServiceFactory.getBean(UndirectedGraphTypeBusinessServiceIF.class);
     this.bEdgeService = ServiceFactory.getBean(BusinessEdgeTypeBusinessServiceIF.class);
     this.cEdgeService = ServiceFactory.getBean(ConceptEdgeTypeBusinessServiceIF.class);
+    this.cSetService = ServiceFactory.getBean(ConceptSetBusinessServiceIF.class);
 
     this.adapter = ServiceFactory.getAdapter();
 
@@ -161,12 +170,15 @@ public class XMLImporter
           String code = elem.getAttribute("code");
 
           organizations.stream().filter(org -> org.getCode().equals(code)).forEach(organization -> {
+            list.addAll(this.createConceptClasses(organization, elem));
+            list.addAll(this.createConceptEdgeTypes(organization, elem));
+
+            this.createConceptSets(organization, elem);
+
             list.addAll(this.createTypes(organization, elem));
             list.addAll(this.createBusinessTypes(organization, elem));
-            list.addAll(this.createConceptClasses(organization, elem));
             list.addAll(this.createHierarchies(organization, elem));
             list.addAll(this.createBusinessEdgeTypes(organization, elem));
-            list.addAll(this.createConceptEdgeTypes(organization, elem));
           });
         }
       }
@@ -323,6 +335,27 @@ public class XMLImporter
         Element elem = (Element) nNode;
 
         createConceptClass(organization, elem).ifPresent(list::add);
+      }
+    }
+
+    return list;
+  }
+
+  private List<ConceptSet> createConceptSets(ServerOrganization organization, Element parent)
+  {
+    LinkedList<ConceptSet> list = new LinkedList<ConceptSet>();
+
+    NodeList nList = parent.getElementsByTagName("concept-set");
+
+    for (int i = 0; i < nList.getLength(); i++)
+    {
+      Node nNode = nList.item(i);
+
+      if (nNode.getNodeType() == Node.ELEMENT_NODE)
+      {
+        Element elem = (Element) nNode;
+
+        createConceptSet(organization, elem).ifPresent(list::add);
       }
     }
 
@@ -656,6 +689,7 @@ public class XMLImporter
       ConceptEdgeType type = this.cEdgeService.create(dto);
 
       TransactionCacheFacade.put(type);
+
       this.importedTypes.add(type.getCode());
 
       return Optional.of(type);
@@ -682,6 +716,24 @@ public class XMLImporter
       GeoObjectType dto = new GeoObjectType(code, geometryType, label, description, isGeometryEditable, organization.getCode(), adapter);
       dto.setIsPrivate(this.getIsPrivate(visibility));
       dto.setIsAbstract(isAbstract);
+
+      if (elem.hasAttribute("conceptSet"))
+      {
+        AttributeClassificationType classification = new AttributeClassificationType();
+        classification.setConceptSet(elem.getAttribute("conceptSet"));
+        classification.setStartDate(GeoRegistryUtil.parseDate(elem.getAttribute("startDate")));
+        classification.setEndDate(GeoRegistryUtil.parseDate(elem.getAttribute("endDate")));
+        classification.setCode(DefaultAttribute.CLASSIFICATION.getName());
+        classification.setLabel(new LocalizedValue(DefaultAttribute.CLASSIFICATION.getDefaultLocalizedName()));
+        classification.setDescription(new LocalizedValue(""));
+
+        if (elem.hasAttribute("rootTerm"))
+        {
+          classification.setRootTerm(elem.getAttribute("rootTerm"));
+        }
+
+        dto.setClassification(classification);
+      }
 
       ServiceFactory.getGeoObjectTypePermissionService().enforceCanCreate(organization.getCode(), dto.getIsPrivate());
 
@@ -755,6 +807,41 @@ public class XMLImporter
       this.addAttributes(elem, type, this.cClassService);
 
       return Optional.of(type);
+    }
+
+    return Optional.empty();
+  }
+
+  private Optional<ConceptSet> createConceptSet(ServerOrganization organization, Element elem)
+  {
+    String code = elem.getAttribute("code");
+
+    if (!this.importedTypes.contains(code))
+    {
+      ServiceFactory.getGeoObjectTypePermissionService().enforceCanCreate(organization.getCode(), false);
+
+      ConceptSetDTO object = new ConceptSetDTO();
+      object.setCode(code);
+      object.setDisplayLabel(this.getLabel(elem));
+      object.setDescription(this.getDescription(elem));
+      object.setRootTerm(elem.getAttribute("rootTerm"));
+      object.setDiscreteType(DiscreteType.valueOf(elem.getAttribute("discreteType")));
+
+      if (elem.hasAttribute("conceptEdgeType"))
+      {
+        object.getConceptEdgeTypes().add(elem.getAttribute("conceptEdgeType"));
+      }
+
+      if (elem.hasAttribute("conceptClass"))
+      {
+        object.getConceptClasses().add(elem.getAttribute("conceptClass"));
+      }
+
+      ConceptSet set = this.cSetService.apply(object);
+
+      this.importedTypes.add(set.getCode());
+
+      return Optional.of(set);
     }
 
     return Optional.empty();
