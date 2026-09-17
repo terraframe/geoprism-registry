@@ -19,10 +19,16 @@
 
 -->
 <div>
+  <div *ngIf="message != null" class="alert alert-danger" role="alert">
+    {{ message }}
+  </div>
 
-  <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
-
-  <form #form="ngForm" *ngIf="source" class="modal-form" (ngSubmit)="form.valid">
+  <form
+    #form="ngForm"
+    *ngIf="source"
+    class="modal-form"
+    (ngSubmit)="(form.valid)"
+  >
     <div class="heading text-center">
       <h1>
         <localize key="datasource.header"></localize>
@@ -37,15 +43,29 @@
         </div>
         <div class="holder">
           <span class="text">
-            <input type="text" [(ngModel)]="source.code" name="code" [disabled]="readOnly" required>
+            <input
+              type="text"
+              [(ngModel)]="source.code"
+              name="code"
+              [disabled]="readOnly || source.oid != null"
+              required
+            />
           </span>
         </div>
       </div>
 
-      <localized-input [disabled]="readOnly" [(value)]="source.label" key="data.property.label.label">
+      <localized-input
+        [disabled]="readOnly"
+        [(value)]="source.label"
+        key="data.property.label.label"
+      >
       </localized-input>
 
-      <localized-input [disabled]="readOnly" [(value)]="source.description" key="data.property.label.description">
+      <localized-input
+        [disabled]="readOnly"
+        [(value)]="source.description"
+        key="data.property.label.description"
+      >
       </localized-input>
 
       <div class="row-holder">
@@ -56,7 +76,12 @@
         </div>
         <div class="holder">
           <span class="text">
-            <input type="text" [(ngModel)]="source.uri" name="uri" [disabled]="readOnly">
+            <input
+              type="text"
+              [(ngModel)]="source.uri"
+              name="uri"
+              [disabled]="readOnly"
+            />
           </span>
         </div>
       </div>
@@ -68,8 +93,13 @@
           </label>
         </div>
         <div class="holder">
-          <select id="governanceLevel" name="governanceLevel" class="select-area" [(ngModel)]="source.governanceLevel"
-            [disabled]="readOnly">
+          <select
+            id="governanceLevel"
+            name="governanceLevel"
+            class="select-area"
+            [(ngModel)]="source.governanceLevel"
+            [disabled]="readOnly"
+          >
             <option></option>
             <option value="AUTHORITATIVE">
               <localize key="datasource.authoritative"></localize>
@@ -103,8 +133,13 @@
           </label>
         </div>
         <div class="holder">
-          <select id="metadataProfile" name="metadataProfile" class="select-area" [(ngModel)]="source.metadataProfile"
-            [disabled]="readOnly">
+          <select
+            id="metadataProfile"
+            name="metadataProfile"
+            class="select-area"
+            [(ngModel)]="source.metadataProfile"
+            [disabled]="readOnly"
+          >
             <option></option>
             <option value="DCAT">
               <localize key="datasource.dcat"></localize>
@@ -147,27 +182,40 @@
           </label>
         </div>
         <div class="holder">
-          <select id="authority" name="authority" class="select-area" [(ngModel)]="source.authority"
-            [disabled]="readOnly" required>
-            <option *ngFor="let authority of authorities" [value]="authority.code">
-              {{authority.label.localizedValue}}
+          <select
+            id="authority"
+            name="authority"
+            class="select-area"
+            [(ngModel)]="source.authority"
+            [disabled]="readOnly"
+            required
+          >
+            <option
+              *ngFor="let authority of authorities"
+              [value]="authority.code"
+            >
+              {{ authority.label.localizedValue }}
             </option>
           </select>
         </div>
       </div>
-
 
       <div class="row-holder">
         <div class="button-holder">
           <button type="button" class="btn btn-default" (click)="close()">
             <localize key="modal.button.cancel"></localize>
           </button>
-          <button *ngIf="!readOnly" type="button" class="btn btn-primary" [disabled]="form.invalid" (click)="update()">
+          <button
+            *ngIf="!readOnly"
+            type="button"
+            class="btn btn-primary"
+            [disabled]="form.invalid"
+            (click)="update()"
+          >
             <localize key="modal.button.submit"></localize>
           </button>
         </div>
       </div>
     </fieldset>
   </form>
-
 </div>

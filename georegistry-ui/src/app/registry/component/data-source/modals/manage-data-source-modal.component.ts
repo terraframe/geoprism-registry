@@ -18,12 +18,7 @@
 ///
 
 import { Component, OnInit } from "@angular/core";
-import {
-    trigger,
-    style,
-    animate,
-    transition
-} from "@angular/animations";
+import { trigger, style, animate, transition } from "@angular/animations";
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { Subject } from "rxjs";
 import { HttpErrorResponse } from "@angular/common/http";
@@ -37,78 +32,95 @@ import { SourceAuthorityService } from "@registry/service/source-authority.servi
 import { LocalizedInputComponent } from "@registry/component/form-fields/localized-input/localized-input.component";
 
 @Component({
-    selector: "manage-data-source-modal",
-    templateUrl: "./manage-data-source-modal.component.html",
-    styleUrls: [],
-    // host: { '[@fadeInOut]': 'true' },
-    animations: [
-        [
-            trigger("fadeInOut", [
-                transition("void => *", [
-                    style({
-                        opacity: 0
-                    }),
-                    animate("500ms")
-                ]),
-                transition(":leave", animate("500ms", style({
-                    opacity: 0
-                })))
-            ])
-        ]
+  selector: "manage-data-source-modal",
+  templateUrl: "./manage-data-source-modal.component.html",
+  styleUrls: [],
+  // host: { '[@fadeInOut]': 'true' },
+  animations: [
+    [
+      trigger("fadeInOut", [
+        transition("void => *", [
+          style({
+            opacity: 0,
+          }),
+          animate("500ms"),
+        ]),
+        transition(
+          ":leave",
+          animate(
+            "500ms",
+            style({
+              opacity: 0,
+            }),
+          ),
+        ),
+      ]),
     ],
-    standalone: true,
-    imports: [NgIf, NgFor, FormsModule, LocalizeComponent, LocalizedInputComponent]
+  ],
+  standalone: true,
+  imports: [
+    NgIf,
+    NgFor,
+    FormsModule,
+    LocalizeComponent,
+    LocalizedInputComponent,
+  ],
 })
 export class ManageDataSourceModalComponent implements OnInit {
+  message: string = null;
 
-    message: string = null;
+  authorities: SourceAuthority[] = [];
+  source: DataSource;
+  public onSourceChange: Subject<DataSource>;
 
-    authorities: SourceAuthority[] = [];
-    source: DataSource;
-    public onSourceChange: Subject<DataSource>;
-    readOnly: boolean = false;
+  readOnly: boolean = false;
 
-    constructor(
-        private service: DataSourceService,
-        private authorityService: SourceAuthorityService,
-        private bsModalRef: BsModalRef) {
-    }
+  constructor(
+    private service: DataSourceService,
+    private authorityService: SourceAuthorityService,
+    private bsModalRef: BsModalRef,
+  ) {}
 
-    ngOnInit(): void {
-        this.onSourceChange = new Subject();
-    }
+  ngOnInit(): void {
+    this.onSourceChange = new Subject();
+  }
 
-    init(source: DataSource, readOnly: boolean) {
-        this.source = source;
-        this.readOnly = readOnly;
+  init(source: DataSource, readOnly: boolean) {
+    this.source = source;
+    this.readOnly = readOnly;
 
-        this.authorityService.getAll().then(authorities => {
-            this.authorities = authorities;
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
+    this.authorityService
+      .getAll()
+      .then((authorities) => {
+        this.authorities = authorities;
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
 
-    handleSourceChange(): void {
-        this.onSourceChange.next(this.source);
-    }
+  handleSourceChange(): void {
+    this.onSourceChange.next(this.source);
+  }
 
-    update(): void {
-        this.service.apply(this.source).then(type => {
-            this.onSourceChange.next(type);
+  update(): void {
+    this.service
+      .apply(this.source)
+      .then((type) => {
+        this.onSourceChange.next(type);
 
-            this.bsModalRef.hide();
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
-
-    close(): void {
         this.bsModalRef.hide();
-    }
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
 
-    error(err: HttpErrorResponse): void {
-        this.message = ErrorHandler.getMessageFromError(err);
-    }
+  close(): void {
+    this.bsModalRef.hide();
+  }
 
+  error(err: HttpErrorResponse): void {
+    this.message = ErrorHandler.getMessageFromError(err);
+  }
 }
