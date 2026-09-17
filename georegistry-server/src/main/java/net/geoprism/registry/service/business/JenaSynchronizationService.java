@@ -268,6 +268,12 @@ public class JenaSynchronizationService
   {
     String subjectUri = buildObjectUri(data.config, source.getCode(), "DataSource");
 
+    // Add type information
+    this.addResourceToModel(model, //
+        subjectUri, //
+        org.apache.jena.vocabulary.RDF.type.getURI(), //
+        buildTypeUri(data.config, "DataSource"));
+
     this.addLiteralToModel(model, //
         subjectUri, //
         buildAttributeUri(data.config, "DataSource", "code"), //
@@ -314,7 +320,7 @@ public class JenaSynchronizationService
     }
 
     if (StringUtils.isNotBlank(source.getAuthority()))
-    { 
+    {
       this.addResourceToModel(model, //
           subjectUri, //
           buildAttributeUri(data.config, "DataSource", "authority"), //
@@ -335,6 +341,12 @@ public class JenaSynchronizationService
   public void handleSourceAuthority(SourceAuthorityDTO source, ExportData data, Model model)
   {
     String subjectUri = buildObjectUri(data.config, source.getCode(), "SourceAuthority");
+
+    // Add type information
+    this.addResourceToModel(model, //
+        subjectUri, //
+        org.apache.jena.vocabulary.RDF.type.getURI(), //
+        buildTypeUri(data.config, "SourceAuthority"));
 
     this.addLiteralToModel(model, //
         subjectUri, //
