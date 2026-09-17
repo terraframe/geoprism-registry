@@ -19,67 +19,93 @@
 
 -->
 <page-container>
+  @if (inProgress) {
+    <progress-bar></progress-bar>
+  }
 
+  <div class="heading">
+    <h2>
+      <localize key="header.rollback.checkpoint"></localize>
+    </h2>
+  </div>
 
+  <div *ngIf="message != null" class="alert alert-danger" role="alert">
+    {{ message }}
+  </div>
 
-    <div class="heading">
-        <h2>
-            <localize key="header.rollback.checkpoint"></localize>
-        </h2>
+  <div *ngIf="page.count === 0" class="row">
+    <div class="col-md-12">
+      <div class="py-5">
+        <p class="inline-message">
+          <localize key="rollback.no.data"></localize>
+        </p>
+      </div>
     </div>
+  </div>
 
-    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+  <ul
+    *ngIf="page.count > 0"
+    class="type-group"
+    style="border-bottom: 2px solid lightgrey; margin-top: 30px"
+  >
+    <table class="table">
+      <thead>
+        <tr>
+          <th style="width: 30%">
+            <localize key="rollback.filename"></localize>
+          </th>
+          <th style="width: 15%">
+            <localize key="rollback.import.date"></localize>
+          </th>
+          <th style="width: 30%">
+            <localize key="transition.event.description"></localize>
+          </th>
 
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="
+            let checkpoint of page.resultSet
+              | paginate
+                : {
+                    id: 'rollback',
+                    itemsPerPage: page.pageSize,
+                    currentPage: page.pageNumber,
+                    totalItems: page.count,
+                  }
+          "
+        >
+          <td style="width: 30%; vertical-align: middle">
+            <a [routerLink]="'/registry/job/' + checkpoint.historyId">{{
+              checkpoint.filename
+            }}</a>
+          </td>
+          <td style="width: 15%; vertical-align: middle">
+            {{ checkpoint.importDate }}
+          </td>
+          <td style="width: 30%; vertical-align: middle">
+            {{ checkpoint.description }}
+          </td>
 
-    <div *ngIf="page.count === 0" class="row">
-        <div class="col-md-12">
-            <div class="py-5">
-                <p class="inline-message">
-                    <localize key="rollback.no.data"></localize>
-                </p>
-            </div>
-        </div>
-    </div>
+          <td style="width: 25%; text-align: right">
+            <button
+              type="submit"
+              (click)="onRollback(checkpoint)"
+              class="btn btn-danger"
+              role="button"
+            >
+              <localize key="modal.button.rollback"></localize>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
-    <ul *ngIf="page.count > 0" class="type-group" style="border-bottom: 2px solid lightgrey; margin-top: 30px;">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th style="width: 30%;">
-                        <localize key="rollback.filename"></localize>
-                    </th>
-                    <th style="width: 15%;">
-                        <localize key="rollback.import.date"></localize>
-                    </th>
-                    <th style="width: 30%;">
-                        <localize key="transition.event.description"></localize>
-                    </th>
-
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let checkpoint of page.resultSet | paginate: { id:'rollback', itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count}">
-                    <td style="width: 30%; vertical-align: middle;">
-                        <a [routerLink]="'/registry/job/' + checkpoint.historyId">{{checkpoint.filename}}</a>
-                    </td>
-                    <td style="width: 15%; vertical-align: middle;">
-                        {{checkpoint.importDate}}
-                    </td>
-                    <td style="width: 30%; vertical-align: middle;">
-                        {{checkpoint.description}}
-                    </td>
-
-                    <td style="width: 25%; text-align: right;">
-                        <button type="submit" (click)="onRollback(checkpoint)" class="btn btn-danger" role="button">
-                            <localize key="modal.button.rollback"></localize>
-                        </button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-
-        <pagination-controls id="rollback" (pageChange)="onPageChange($event)"></pagination-controls>
-
-    </ul>
+    <pagination-controls
+      id="rollback"
+      (pageChange)="onPageChange($event)"
+    ></pagination-controls>
+  </ul>
 </page-container>

@@ -17,11 +17,15 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { BsModalService } from "ngx-bootstrap/modal";
 import { HttpErrorResponse } from "@angular/common/http";
 
-import { ErrorHandler, ConfirmModalComponent } from "@shared/component";
+import {
+  ErrorHandler,
+  ConfirmModalComponent,
+  ProgressBarComponent,
+} from "@shared/component";
 import { LocalizationService } from "@shared/service/localization.service";
 import { RollbackCheckpointService } from "@registry/service/rollback-checkpoint.service";
 import { PageResult } from "@shared/model/core";
@@ -32,64 +36,118 @@ import { NgIf, NgFor } from "@angular/common";
 import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
 import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
 import { ModalTypes } from "@shared/model/modal";
+import { webSocket, WebSocketSubject } from "rxjs/webSocket";
+import { Subscription } from "rxjs";
+import { WebSockets } from "@shared/component/web-sockets/web-sockets";
+import { Progress } from "@shared/model/progress";
+import { ProgressService } from "@shared/service";
 
 @Component({
-    selector: "rollback-checkpoint-manager",
-    templateUrl: "./rollback-checkpoint-manager.component.html",
-    styleUrls: ["./rollback-checkpoint-manager.css"],
-    standalone: true,
-    imports: [PageContainerComponent, LocalizeComponent, NgIf, NgFor, RouterLink, NgxPaginationModule]
+  selector: "rollback-checkpoint-manager",
+  templateUrl: "./rollback-checkpoint-manager.component.html",
+  styleUrls: ["./rollback-checkpoint-manager.css"],
+  standalone: true,
+  imports: [
+    PageContainerComponent,
+    LocalizeComponent,
+    NgIf,
+    NgFor,
+    RouterLink,
+    NgxPaginationModule,
+    ProgressBarComponent,
+  ],
 })
-export class RollbackCheckpointManagerComponent implements OnInit {
+export class RollbackCheckpointManagerComponent implements OnInit, OnDestroy {
+  message: string | null = null;
 
-    message: string = null;
+  page: PageResult<RollbackCheckpoint> = {
+    count: 0,
+    pageNumber: 1,
+    pageSize: 20,
+    resultSet: [],
+  };
 
-    page: PageResult<RollbackCheckpoint> = {
-        count: 0,
-        pageNumber: 1,
-        pageSize: 20,
-        resultSet: []
-    };
+  progressNotifier: WebSocketSubject<any> | null = null;
+  progressSubscription: Subscription | null = null;
+  inProgress: boolean = false;
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor(
-        private service: RollbackCheckpointService,
-        private localizeService: LocalizationService,
-        private modalService: BsModalService) { }
+  // eslint-disable-next-line no-useless-constructor
+  constructor(
+    private service: RollbackCheckpointService,
+    private localizeService: LocalizationService,
+    private modalService: BsModalService,
+    private pService: ProgressService,
+  ) {}
 
-    ngOnInit(): void {
-        this.onPageChange(1);
+  ngOnInit(): void {
+    let baseUrl = WebSockets.buildBaseUrl();
+
+    this.progressNotifier = webSocket(baseUrl + "/websocket/progress/rollback");
+
+    this.progressSubscription = this.progressNotifier.subscribe((message) => {
+      if (message.content != null) {
+        this.handleProgressChange(message.content);
+      } else {
+        this.handleProgressChange(message);
+      }
+    });
+
+    this.onPageChange(1);
+  }
+
+  ngOnDestroy(): void {
+    if (this.progressSubscription != null) {
+      this.progressSubscription.unsubscribe();
     }
 
-
-    onRollback(checkpoint: RollbackCheckpoint): void {
-        const bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: false, backdrop: true,             ignoreBackdropClick: true
-        });
-        bsModalRef.content.message = this.localizeService.decode("modal.confirm.rollback").replaceAll("{filename}", checkpoint.filename);
-        bsModalRef.content.submitText = this.localizeService.decode("modal.button.rollback");
-        bsModalRef.content.type =  ModalTypes.danger;
-
-        bsModalRef.content.onConfirm.subscribe(() => {
-            this.service.rollback(checkpoint.oid).then(() => {
-                this.onPageChange(1);
-            }).catch((err: HttpErrorResponse) => {
-                this.error(err);
-            });
-        });
+    if (this.progressNotifier != null) {
+      this.progressNotifier.unsubscribe();
     }
+  }
 
-    onPageChange(pageNumber: number): void {
-		this.service.getPage(pageNumber, 20).then(page => {
-			this.page = page;
-		}).catch((err: HttpErrorResponse) => {
-			this.error(err);
-		});
-	}
+  onRollback(checkpoint: RollbackCheckpoint): void {
+    const bsModalRef = this.modalService.show(ConfirmModalComponent, {
+      animated: false,
+      backdrop: true,
+      ignoreBackdropClick: true,
+    });
+    bsModalRef.content!.message = this.localizeService
+      .decode("modal.confirm.rollback")
+      .replaceAll("{filename}", checkpoint.filename);
+    bsModalRef.content!.submitText = this.localizeService.decode(
+      "modal.button.rollback",
+    );
+    bsModalRef.content!.type = ModalTypes.danger;
 
+    bsModalRef.content!.onConfirm.subscribe(() => {
+      this.service.rollback(checkpoint.oid).catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+    });
+  }
 
-    error(err: HttpErrorResponse): void {
-        this.message = ErrorHandler.getMessageFromError(err);
+  onPageChange(pageNumber: number): void {
+    this.service
+      .getPage(pageNumber, 20)
+      .then((page) => {
+        this.page = page;
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
+
+  handleProgressChange(progress: Progress): void {
+    this.inProgress = progress.current < progress.total;
+
+    this.pService.progress(progress);
+
+    if (!this.inProgress) {
+      this.onPageChange(1);
     }
+  }
 
+  error(err: HttpErrorResponse): void {
+    this.message = ErrorHandler.getMessageFromError(err);
+  }
 }

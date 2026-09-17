@@ -4,6 +4,7 @@
 package net.geoprism.registry.service;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import org.axonframework.eventhandling.TrackingToken;
 import org.junit.After;
@@ -155,31 +156,31 @@ public class RollbackCheckpointBusinessServiceTest extends EventDatasetTest impl
 
   @Test
   @Request
-  public void testRollback() throws InterruptedException
+  public void testRollback() throws InterruptedException, ExecutionException
   {
     this.service.create(history, 100000L, Status.AVAILABLE);
     RollbackCheckpoint checkpoint = this.service.create(history, 999999L, Status.AVAILABLE);
 
-    this.service.rollback(checkpoint);
+    this.service.rollback(checkpoint).get();
 
     Assert.assertEquals(1, this.service.getCount());
   }
 
   @Test(expected = ProgrammingErrorException.class)
   @Request
-  public void testRollbackInProgress() throws InterruptedException
+  public void testRollbackInProgress() throws InterruptedException, ExecutionException
   {
     this.service.create(history, 100000L, Status.SCHEDULED);
     RollbackCheckpoint checkpoint = this.service.create(history, 999999L, Status.RUNNING);
 
-    this.service.rollback(checkpoint);
+    this.service.rollback(checkpoint).get();
 
     Assert.assertEquals(1, this.service.getCount());
   }
 
   @Test
   @Request
-  public void testMultiCheckpointRollback() throws InterruptedException
+  public void testMultiCheckpointRollback() throws InterruptedException, ExecutionException
   {
     RollbackCheckpoint first = this.service.create(history);
 
@@ -210,7 +211,7 @@ public class RollbackCheckpointBusinessServiceTest extends EventDatasetTest impl
 
     Assert.assertEquals(3, list.size());
 
-    this.service.rollback(second);
+    this.service.rollback(second).get();
 
     Assert.assertNotNull(this.gObjectService.getGeoObjectByCode(USATestData.USA.getCode(), USATestData.USA.getGeoObjectType().getCode()));
     Assert.assertNull(this.gObjectService.getGeoObjectByCode(USATestData.CANADA.getCode(), USATestData.CANADA.getGeoObjectType().getCode(), false));
@@ -229,13 +230,13 @@ public class RollbackCheckpointBusinessServiceTest extends EventDatasetTest impl
 
   @Test
   @Request
-  public void testMultiCheckpointRollback_2() throws InterruptedException
+  public void testMultiCheckpointRollback_2() throws InterruptedException, ExecutionException
   {
     RollbackCheckpoint first = this.service.create(history);
 
     USATestData.USA.apply();
 
-    this.service.create(history);
+    RollbackCheckpoint second = this.service.create(history);
 
     USATestData.CANADA.apply();
 
@@ -260,7 +261,7 @@ public class RollbackCheckpointBusinessServiceTest extends EventDatasetTest impl
 
     Assert.assertEquals(2, list.size());
 
-    this.service.rollback(checkpoint);
+    this.service.rollback(checkpoint).get();
 
     Assert.assertNotNull(this.gObjectService.getGeoObjectByCode(USATestData.USA.getCode(), USATestData.USA.getGeoObjectType().getCode()));
     Assert.assertNotNull(this.gObjectService.getGeoObjectByCode(USATestData.CANADA.getCode(), USATestData.CANADA.getGeoObjectType().getCode(), false));
@@ -272,14 +273,15 @@ public class RollbackCheckpointBusinessServiceTest extends EventDatasetTest impl
     List<RollbackCheckpoint> checkpoints = this.service.getAll(10, 1);
 
     Assert.assertEquals(2, checkpoints.size());
-    Assert.assertEquals(first.getOid(), checkpoints.get(0).getOid());
+    Assert.assertTrue(checkpoints.stream().anyMatch(c -> c.getOid().equals(second.getOid())));
+    Assert.assertTrue(checkpoints.stream().anyMatch(c -> c.getOid().equals(first.getOid())));
 
     Assert.assertEquals(Long.valueOf(2), this.store.size());
   }
 
   @Test
   @Request
-  public void testChunkLimit() throws InterruptedException
+  public void testChunkLimit() throws InterruptedException, ExecutionException
   {
     RollbackCheckpoint checkpoint = this.service.create(history);
 
@@ -293,7 +295,7 @@ public class RollbackCheckpointBusinessServiceTest extends EventDatasetTest impl
 
     Assert.assertEquals(Long.valueOf(RollbackEventService.ROLLBACK_CHUNK + 10), this.store.size());
 
-    this.service.rollback(checkpoint);
+    this.service.rollback(checkpoint).get();
 
     for (int i = 0; i < limit; i++)
     {

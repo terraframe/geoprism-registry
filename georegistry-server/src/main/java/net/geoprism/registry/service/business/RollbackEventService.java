@@ -66,11 +66,14 @@ public class RollbackEventService
 
       // Delete the events
       store.delete(checkpoint.getGlobalIndex());
+
+      logger.info("Finished rolling back checkpoint: " + checkpoint.getOid());
     }
     finally
     {
       store.setLock(false);
     }
+
   }
 
   private void rollback(RepositoryEvent original, GapAwareTrackingToken start, EventPhase phase)
