@@ -20,18 +20,23 @@ package net.geoprism.registry.cache;
 
 import java.util.Optional;
 
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
+
+import net.geoprism.registry.DataNotFoundException;
+import net.geoprism.registry.model.GeoObjectMetadata;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.view.TypeInfo;
 
-public class GeoObjectCache extends LRUCache<String, ServerGeoObjectIF>
+public class GeoObjectCache
 {
-  public static final String            SEPARATOR = "$@~";
+  public static final String                              SEPARATOR = "$@~";
 
-  private GPRGeoObjectBusinessServiceIF objectService;
+  private GPRGeoObjectBusinessServiceIF                   objectService;
+
+  private LRUCache<String, CacheEntry<ServerGeoObjectIF>> cache;
 
   public GeoObjectCache()
   {
@@ -40,7 +45,7 @@ public class GeoObjectCache extends LRUCache<String, ServerGeoObjectIF>
 
   public GeoObjectCache(int cacheSize)
   {
-    super(cacheSize);
+    this.cache = new LRUCache<>(cacheSize);
   }
 
   // Lazy load the service
@@ -54,29 +59,42 @@ public class GeoObjectCache extends LRUCache<String, ServerGeoObjectIF>
     return this.objectService;
   }
 
-  public Optional<ServerGeoObjectIF> get(String code, String typeCode)
+  public Optional<CacheEntry<ServerGeoObjectIF>> get(String key)
   {
-    return this.get(typeCode + SEPARATOR + code);
+    return this.cache.get(key);
   }
 
-  public Optional<ServerGeoObjectIF> getByExternalId(String externalId, String typeCode, String authority)
+  public Optional<CacheEntry<ServerGeoObjectIF>> get(String code, String typeCode)
   {
-    return this.get(typeCode + SEPARATOR + authority + SEPARATOR + externalId);
+    return get(typeCode + SEPARATOR + code);
+  }
+
+  public Optional<CacheEntry<ServerGeoObjectIF>> getByExternalId(String externalId, String typeCode, String authority)
+  {
+    return this.cache.get(typeCode + SEPARATOR + authority + SEPARATOR + externalId);
   }
 
   public ServerGeoObjectIF getByCode(String code, String typeCode)
   {
-    return get(code, typeCode).orElse(null);
+    return get(code, typeCode).map(CacheEntry::orNull).orElse(null);
   }
 
   public ServerGeoObjectIF getOrFetchByCode(String code, String typeCode)
   {
     return this.get(code, typeCode).orElseGet(() -> {
-      ServerGeoObjectIF object = getObjectService().getGeoObjectByCode(code, typeCode, true);
+      ServerGeoObjectIF object = getObjectService().getGeoObjectByCode(code, typeCode, false);
+      CacheEntry<ServerGeoObjectIF> entry = new CacheEntry<>(Optional.ofNullable(object));
 
-      this.put(typeCode + SEPARATOR + code, object);
+      this.cache.put(typeCode + SEPARATOR + code, entry);
 
-      return object;
+      return entry;
+    }).orElseThrow(() -> {
+      DataNotFoundException ex = new DataNotFoundException("Could not find a GeoObject with code [" + code + "].");
+      ex.setTypeLabel(GeoObjectMetadata.get().getClassDisplayLabel());
+      ex.setDataIdentifier(code);
+      ex.setAttributeLabel(GeoObjectMetadata.get().getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
+
+      return ex;
     });
   }
 
@@ -93,14 +111,23 @@ public class GeoObjectCache extends LRUCache<String, ServerGeoObjectIF>
   public ServerGeoObjectIF getOrFetchByExternalId(String externalId, String typeCode, String authority)
   {
     return this.getByExternalId(externalId, typeCode, authority).orElseGet(() -> {
-      Optional<VertexServerGeoObject> optional = getObjectService().getByExternalId(externalId, authority, ServerGeoObjectType.get(typeCode));
+      Optional<ServerGeoObjectIF> optional = getObjectService().getByExternalId(externalId, authority, ServerGeoObjectType.get(typeCode));
+      CacheEntry<ServerGeoObjectIF> entry = new CacheEntry<>(optional);
+
+      this.cache.put(typeCode + SEPARATOR + authority + SEPARATOR + externalId, entry);
 
       optional.ifPresent(object -> {
-        this.put(typeCode + SEPARATOR + authority + SEPARATOR + externalId, object);
-        this.put(typeCode + SEPARATOR + object.getCode(), object);
+        this.cache.put(typeCode + SEPARATOR + object.getCode(), entry);
       });
 
-      return optional.orElse(null);
+      return entry;
+    }).orElseThrow(() -> {
+      DataNotFoundException ex = new DataNotFoundException("Could not find a GeoObject with alternate id [" + externalId + "].");
+      ex.setTypeLabel(GeoObjectMetadata.get().getClassDisplayLabel());
+      ex.setDataIdentifier(externalId);
+      ex.setAttributeLabel(authority);
+
+      return ex;
     });
   }
 }

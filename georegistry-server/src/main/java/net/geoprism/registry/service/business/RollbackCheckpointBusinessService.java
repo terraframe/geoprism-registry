@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.concurrent.ConcurrentTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
@@ -24,13 +25,16 @@ import net.geoprism.registry.jobs.GPRJobHistory;
 @Service
 public class RollbackCheckpointBusinessService
 {
-  private static Logger        logger = LoggerFactory.getLogger(RollbackCheckpointBusinessService.class);
+  private static Logger         logger = LoggerFactory.getLogger(RollbackCheckpointBusinessService.class);
 
   @Autowired
-  private RollbackEventService service;
+  private RollbackEventService  service;
 
   @Autowired
-  private RegistryEventStore   store;
+  private RegistryEventStore    store;
+
+  @Autowired
+  public ConcurrentTaskExecutor executor;
 
   public RollbackCheckpoint create(GPRJobHistory history)
   {

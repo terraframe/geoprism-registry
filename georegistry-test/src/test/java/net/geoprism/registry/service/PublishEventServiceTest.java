@@ -8,6 +8,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import org.apache.commons.lang3.StringUtils;
 import org.axonframework.eventhandling.GenericEventMessage;
@@ -19,12 +21,14 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.scheduling.concurrent.ConcurrentTaskExecutor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
+import com.runwaysdk.Pair;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.session.Request;
 
@@ -134,6 +138,9 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
   @Autowired
   private EdgeObjectBusinessService                 eObjectService;
 
+  @Autowired
+  public ConcurrentTaskExecutor                     executor;
+
   private static boolean                            WRITE_FILES = false;
 
   private static String                             edgeUid;
@@ -159,7 +166,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
   @Test
   @Request
-  public void testPublish() throws InterruptedException
+  public void testPublish() throws InterruptedException, ExecutionException
   {
     System.out.println("");
     System.out.println("");
@@ -173,7 +180,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
     {
       PublishDTO dto = getPublishDTO();
 
-      Publish publish = service.publish(dto);
+      Publish publish = publishAndWait(dto);
 
       try
       {
@@ -284,9 +291,9 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
         Assert.assertEquals(0, this.cService.getDependencies(dependency).size());
 
-        Publish dependentPublish = dependency.getPublish();
+        Publish conceptPublish = dependency.getPublish();
 
-        Assert.assertTrue(StringUtils.isNotBlank(dependentPublish.getConceptSet()));
+        Assert.assertTrue(StringUtils.isNotBlank(conceptPublish.getConceptSet()));
 
         List<ConceptSetSnapshot> sets = this.cService.getConceptSets(dependency);
 
@@ -308,7 +315,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
         if (WRITE_FILES)
         {
-          this.write(DEPENDENCY, dependentPublish);
+          this.write(DEPENDENCY, conceptPublish);
           this.write(MAIN, publish);
         }
       }
@@ -333,6 +340,18 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
     System.out.println("");
   }
 
+  public Publish publishAndWait(PublishDTO dto) throws InterruptedException, ExecutionException
+  {
+    Pair<Publish, Future<?>> response = service.publish(dto);
+
+    Publish publish = response.getFirst();
+
+    // Wait for the commit to finish publishing
+    response.getSecond().get();
+
+    return publish;
+  }
+
   public List<SourceAuthorityDTO> getAuthorities(List<DataSource> sources)
   {
     List<SourceAuthorityDTO> authorities = sources.stream().map(source -> {
@@ -353,7 +372,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
   @Test
   @Request
-  public void testIncludeAllTypesFromHierarchy() throws InterruptedException
+  public void testIncludeAllTypesFromHierarchy() throws InterruptedException, ExecutionException
   {
 
     try
@@ -363,7 +382,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
       PublishDTO dto = new PublishDTO("USA Geospatial Graph", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       dto.addHierarchyType(testData.getManagedHierarchyTypes().stream().map(t -> t.getCode()).toArray(s -> new String[s]));
 
-      Publish publish = service.publish(dto);
+      Publish publish = publishAndWait(dto);
 
       try
       {
@@ -425,13 +444,13 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
   @Test
   @Request
-  public void testNewCommit() throws InterruptedException
+  public void testNewCommit() throws InterruptedException, ExecutionException
   {
     try
     {
       PublishDTO dto = getPublishDTO();
 
-      Publish publish = service.publish(dto);
+      Publish publish = publishAndWait(dto);
 
       try
       {
@@ -486,28 +505,22 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
   public void delete(Publish publish)
   {
+    // Delete all of the publishes that were generated because of
+    // dependencies
+    List<Publish> dependencies = this.cService.getCommits(publish) //
+        .stream() //
+        .flatMap(c -> this.cService.getDependencies(c).stream()) //
+        .map(d -> d.getPublish()) //
+        .distinct() //
+        .filter(p -> !p.getOid().equals(publish.getOid())).toList();
+
     try
     {
-      // Delete all of the publishes that were generated because of
-      // dependencies
-      this.cService.getCommits(publish) //
-          .stream() //
-          .flatMap(c -> this.cService.getDependencies(c).stream()) //
-          .map(d -> d.getPublish()) //
-          .distinct() //
-          .filter(p -> !p.getOid().equals(publish.getOid())) //
-          .forEach(p -> pService.delete(p));
+      pService.delete(publish);
     }
     finally
     {
-      try
-      {
-        pService.delete(publish);
-      }
-      catch (Exception e)
-      {
-        e.printStackTrace();
-      }
+      dependencies.forEach(pService::delete);
     }
   }
 

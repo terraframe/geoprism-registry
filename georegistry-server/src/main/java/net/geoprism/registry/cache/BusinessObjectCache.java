@@ -27,13 +27,15 @@ import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.view.TypeInfo;
 
-public class BusinessObjectCache extends LRUCache<String, BusinessObject>
+public class BusinessObjectCache
 {
-  public static final String                SEPARATOR = "$@~";
+  public static final String                           SEPARATOR = "$@~";
 
-  protected BusinessTypeBusinessServiceIF   typeService;
+  private BusinessObjectBusinessServiceIF              objectService;
 
-  protected BusinessObjectBusinessServiceIF objectService;
+  private BusinessTypeBusinessServiceIF                typeService;
+
+  private LRUCache<String, CacheEntry<BusinessObject>> cache;
 
   public BusinessObjectCache()
   {
@@ -42,7 +44,7 @@ public class BusinessObjectCache extends LRUCache<String, BusinessObject>
 
   public BusinessObjectCache(int cacheSize)
   {
-    super(cacheSize);
+    this.cache = new LRUCache<>(cacheSize);
   }
 
   // Lazy load the service
@@ -67,44 +69,37 @@ public class BusinessObjectCache extends LRUCache<String, BusinessObject>
     return this.typeService;
   }
 
-  public Optional<BusinessObject> get(String code, String typeCode)
+  public Optional<CacheEntry<BusinessObject>> get(String key)
   {
-    return this.get(typeCode + SEPARATOR + code);
+    return this.cache.get(key);
+  }
+
+  public Optional<CacheEntry<BusinessObject>> get(String code, String typeCode)
+  {
+    return get(typeCode + SEPARATOR + code);
   }
 
   public BusinessObject getByCode(String code, String typeCode)
   {
-    return this.get(typeCode + SEPARATOR + code).orElse(null);
+    return get(code, typeCode).map(CacheEntry::orNull).orElse(null);
+  }
+
+  public BusinessObject getOrFetchByCode(String code, String typeCode)
+  {
+    return this.get(code, typeCode).orElseGet(() -> {
+      BusinessType businessType = getTypeService().getByCodeOrThrow(typeCode);
+
+      BusinessObject object = getObjectService().getByCode(businessType, code).orElse(null);
+      CacheEntry<BusinessObject> entry = new CacheEntry<>(Optional.ofNullable(object));
+
+      this.cache.put(typeCode + SEPARATOR + code, entry);
+
+      return entry;
+    }).orNull();
   }
 
   public BusinessObject getOrFetchByCode(String code, TypeInfo type)
   {
     return this.getOrFetchByCode(code, type.getTypeCode());
-  }
-
-  public BusinessObject getOrFetchByCode(String code, String typeCode)
-  {
-    return this.get(typeCode, code).orElseGet(() -> {
-      BusinessType businessType = getTypeService().getByCodeOrThrow(typeCode);
-
-      BusinessObject object = getObjectService().getByCode(businessType, code).orElse(null);
-
-      this.put(typeCode + SEPARATOR + code, object);
-
-      return object;
-
-    });
-  }
-
-  public BusinessObject getOrFetchByCode(String code, BusinessType type)
-  {
-    return this.get(type.getCode(), code).orElseGet(() -> {
-
-      BusinessObject object = getObjectService().getByCode(type, code).orElse(null);
-
-      this.put(type.getCode() + SEPARATOR + code, object);
-
-      return object;
-    });
   }
 }

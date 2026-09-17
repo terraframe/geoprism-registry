@@ -22,18 +22,20 @@ import java.util.Optional;
 
 import net.geoprism.registry.graph.ConceptClass;
 import net.geoprism.registry.model.ConceptObject;
-import net.geoprism.registry.service.business.ConceptClassBusinessServiceIF;
 import net.geoprism.registry.service.business.ConceptObjectBusinessServiceIF;
+import net.geoprism.registry.service.business.ConceptClassBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.view.TypeInfo;
 
-public class ConceptObjectCache extends LRUCache<String, ConceptObject>
+public class ConceptObjectCache
 {
-  public static final String               SEPARATOR = "$@~";
+  public static final String                          SEPARATOR = "$@~";
 
-  protected ConceptClassBusinessServiceIF  typeService;
+  private ConceptObjectBusinessServiceIF              objectService;
 
-  protected ConceptObjectBusinessServiceIF objectService;
+  private ConceptClassBusinessServiceIF               typeService;
+
+  private LRUCache<String, CacheEntry<ConceptObject>> cache;
 
   public ConceptObjectCache()
   {
@@ -42,7 +44,7 @@ public class ConceptObjectCache extends LRUCache<String, ConceptObject>
 
   public ConceptObjectCache(int cacheSize)
   {
-    super(cacheSize);
+    this.cache = new LRUCache<>(cacheSize);
   }
 
   // Lazy load the service
@@ -67,43 +69,37 @@ public class ConceptObjectCache extends LRUCache<String, ConceptObject>
     return this.typeService;
   }
 
-  public Optional<ConceptObject> get(String code, String typeCode)
+  public Optional<CacheEntry<ConceptObject>> get(String key)
   {
-    return this.get(typeCode + SEPARATOR + code);
+    return this.cache.get(key);
+  }
+
+  public Optional<CacheEntry<ConceptObject>> get(String code, String typeCode)
+  {
+    return get(typeCode + SEPARATOR + code);
   }
 
   public ConceptObject getByCode(String code, String typeCode)
   {
-    return this.get(typeCode + SEPARATOR + code).orElse(null);
+    return get(code, typeCode).map(CacheEntry::orNull).orElse(null);
+  }
+
+  public ConceptObject getOrFetchByCode(String code, String typeCode)
+  {
+    return this.get(code, typeCode).orElseGet(() -> {
+      ConceptClass conceptClass = getTypeService().getByCodeOrThrow(typeCode);
+
+      ConceptObject object = getObjectService().getByCode(conceptClass, code).orElse(null);
+      CacheEntry<ConceptObject> entry = new CacheEntry<>(Optional.ofNullable(object));
+
+      this.cache.put(typeCode + SEPARATOR + code, entry);
+
+      return entry;
+    }).orNull();
   }
 
   public ConceptObject getOrFetchByCode(String code, TypeInfo type)
   {
     return this.getOrFetchByCode(code, type.getTypeCode());
-  }
-
-  public ConceptObject getOrFetchByCode(String code, String typeCode)
-  {
-    return this.get(typeCode, code).orElseGet(() -> {
-      ConceptClass type = getTypeService().getByCodeOrThrow(typeCode);
-
-      ConceptObject object = getObjectService().getByCode(type, code).orElse(null);
-
-      this.put(typeCode + SEPARATOR + code, object);
-
-      return object;
-    });
-  }
-
-  public ConceptObject getOrFetchByCode(String code, ConceptClass type)
-  {
-    return this.get(type.getCode(), code).orElseGet(() -> {
-
-      ConceptObject object = getObjectService().getByCode(type, code).orElse(null);
-
-      this.put(type.getCode() + SEPARATOR + code, object);
-
-      return object;
-    });
   }
 }

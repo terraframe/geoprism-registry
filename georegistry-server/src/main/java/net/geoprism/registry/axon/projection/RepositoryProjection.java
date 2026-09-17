@@ -439,7 +439,7 @@ public class RepositoryProjection
     }
     else
     {
-      logger.info("Skipping remote geo object: [" + event.getType() + "][" + event.getCode() + "] - [" + event.getIsNew() + "]");
+      logger.trace("Skipping remote geo object: [" + event.getType() + "][" + event.getCode() + "] - [" + event.getIsNew() + "]");
     }
   }
 
@@ -459,7 +459,7 @@ public class RepositoryProjection
     }
     else
     {
-      logger.info("Skipping remote create external ids: [" + event.getType() + "][" + event.getCode() + "][" + event.getAuthority() + "]");
+      logger.trace("Skipping remote create external ids: [" + event.getType() + "][" + event.getCode() + "][" + event.getAuthority() + "]");
     }
   }
 
@@ -479,7 +479,7 @@ public class RepositoryProjection
     }
     else
     {
-      logger.info("Skipping remote create external ids: [" + event.getType() + "][" + event.getCode() + "][" + event.getAuthority() + "]");
+      logger.trace("Skipping remote create external ids: [" + event.getType() + "][" + event.getCode() + "][" + event.getAuthority() + "]");
     }
   }
 
@@ -512,7 +512,7 @@ public class RepositoryProjection
     }
     else
     {
-      logger.info("Skipping remote set parent: [" + event.getEdgeType() + "][" + event.getType() + "][" + event.getCode() + "]");
+      logger.trace("Skipping remote set parent: [" + event.getEdgeType() + "][" + event.getType() + "][" + event.getCode() + "]");
     }
   }
 
@@ -536,7 +536,7 @@ public class RepositoryProjection
     }
     else
     {
-      logger.info("Skipping remote create edge: [" + event.getEdgeType() + "][" + event.getSourceType() + "][" + event.getSourceCode() + "]");
+      logger.trace("Skipping remote create edge: [" + event.getEdgeType() + "][" + event.getSourceType() + "][" + event.getSourceCode() + "]");
     }
   }
 
@@ -789,7 +789,7 @@ public class RepositoryProjection
     }
     else
     {
-      logger.info("Skipping remote business object: [" + event.getType() + "][" + event.getCode() + "]");
+      logger.trace("Skipping remote business object: [" + event.getType() + "][" + event.getCode() + "]");
     }
   }
 
@@ -814,7 +814,7 @@ public class RepositoryProjection
     }
     else
     {
-      logger.info("Skipping remote concept object: [" + event.getType() + "][" + event.getCode() + "]");
+      logger.trace("Skipping remote concept object: [" + event.getType() + "][" + event.getCode() + "]");
     }
   }
 
@@ -862,7 +862,7 @@ public class RepositoryProjection
     }
     else
     {
-      logger.info("Skipping remote create edge: [" + event.getEdgeType() + "][" + event.getSourceType() + "][" + event.getSourceCode() + "]");
+      logger.trace("Skipping remote create edge: [" + event.getEdgeType() + "][" + event.getSourceType() + "][" + event.getSourceCode() + "]");
     }
   }
 
@@ -878,7 +878,7 @@ public class RepositoryProjection
     }
     else
     {
-      logger.info("Skipping remote remove edge: [" + event.getEdgeType() + "][" + event.getSourceType() + "][" + event.getSourceCode() + "]");
+      logger.trace("Skipping remote remove edge: [" + event.getEdgeType() + "][" + event.getSourceType() + "][" + event.getSourceCode() + "]");
     }
   }
 

@@ -23,6 +23,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +44,8 @@ import net.geoprism.registry.view.PublishDTO;
 @Service
 public class PublishBusinessService implements PublishBusinessServiceIF
 {
+  private static Logger                          logger = LoggerFactory.getLogger(PublishBusinessService.class);
+
   @Autowired
   private CommitBusinessServiceIF                commitService;
 
@@ -54,8 +58,11 @@ public class PublishBusinessService implements PublishBusinessServiceIF
   {
     // Ensure that the publish being deleted doesn't have any dependent
     // publishes
+    logger.info("Deleting SKG - " + publish.getOid());
+
     this.commitService.getCommits(publish).forEach(commit -> {
       this.commitService.getDependents(commit).forEach(dependent -> {
+
         if (!dependent.getPublishOid().equals(publish.getOid()))
         {
           throw new ProgrammingErrorException("Cannot delete. Other published SKGs have dependencies on this SKG");

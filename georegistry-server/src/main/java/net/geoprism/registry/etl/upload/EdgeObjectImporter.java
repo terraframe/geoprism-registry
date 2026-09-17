@@ -169,7 +169,7 @@ public class EdgeObjectImporter implements ObjectImporterIF
 
   protected ConceptObjectCache            coCache;
 
-  protected Cache<String, Object>         goRidCache;
+  protected Cache<String, Object>         ridCache;
 
   protected ImportProgressListenerIF      progressListener;
 
@@ -195,7 +195,7 @@ public class EdgeObjectImporter implements ObjectImporterIF
     this.goCache = new GeoObjectCache();
     this.boCache = new BusinessObjectCache();
     this.coCache = new ConceptObjectCache();
-    this.goRidCache = new LRUCache<String, Object>(10000);
+    this.ridCache = new LRUCache<String, Object>(10000);
 
     this.blockingQueue = new LinkedBlockingDeque<Runnable>(50);
 
@@ -302,7 +302,7 @@ public class EdgeObjectImporter implements ObjectImporterIF
     TransactionState state = TransactionState.getCurrentTransactionState();
     state.putTransactionObject(RepositoryProjection.GEO_CACHE, goCache);
     state.putTransactionObject(RepositoryProjection.BUSINESS_CACHE, boCache);
-    state.putTransactionObject(RepositoryProjection.RID_CACHE, goRidCache);
+    state.putTransactionObject(RepositoryProjection.RID_CACHE, ridCache);
     state.putTransactionObject(RepositoryProjection.CONCEPT_CACHE, coCache);
   }
 

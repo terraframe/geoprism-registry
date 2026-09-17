@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.Executor;
+import java.util.concurrent.Future;
 
 import org.apache.commons.lang.StringUtils;
 import org.axonframework.eventhandling.DomainEventMessage;
@@ -18,10 +18,13 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.concurrent.ConcurrentTaskExecutor;
 import org.springframework.stereotype.Service;
 
+import com.runwaysdk.Pair;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 
@@ -65,6 +68,8 @@ import net.geoprism.registry.view.TypeInfo;
 @Service
 public class PublishEventService
 {
+  private static Logger                  logger = LoggerFactory.getLogger(PublishEventService.class);
+
   @Autowired
   private RegistryEventStore             store;
 
@@ -90,11 +95,10 @@ public class PublishEventService
   private HierarchyTypeBusinessServiceIF hiearchyService;
 
   @Autowired
-  @Qualifier("taskExecutor")
-  public Executor                        executor;
+  public ConcurrentTaskExecutor          executor;
 
   @Transaction
-  public Publish publish(PublishDTO configuration) throws InterruptedException
+  public Pair<Publish, Future<?>> publish(PublishDTO configuration) throws InterruptedException
   {
     // Add all types in a hierarchy to the exported geo object types
     List<String> codes = configuration.getHierarchyTypes() //
@@ -108,11 +112,13 @@ public class PublishEventService
 
     Publish publish = this.publishService.create(configuration);
 
-    this.executor.execute(() -> {
+    logger.info("Publishing root SKG - " + publish.getOid());
+
+    Future<?> f = this.executor.submit(() -> {
       this.execute(publish);
     });
 
-    return publish;
+    return new Pair<>(publish, f);
   }
 
   @Request
@@ -126,6 +132,8 @@ public class PublishEventService
   {
     try
     {
+      logger.info("Adding new commit - " + publish.getOid());
+
       ProgressService.put(publish.getUid(), new Progress(0L, 100L, ""));
 
       PublishDTO dto = publish.toDTO();
@@ -160,6 +168,7 @@ public class PublishEventService
     }
     finally
     {
+
       try
       {
         ProgressService.put(publish.getUid(), new Progress(100L, 100L, ""));
@@ -171,7 +180,7 @@ public class PublishEventService
     }
   }
 
-  public List<Publish> createClassificationDependencies(PublishDTO dto)
+  private List<Publish> createClassificationDependencies(PublishDTO dto)
   {
     return dto.getGeoObjectTypes().map(code -> ServerGeoObjectType.get(code)) //
         .map(t -> t.getAttribute(DefaultAttribute.CLASSIFICATION.getName())) //
@@ -180,6 +189,8 @@ public class PublishEventService
         .map(a -> (AttributeClassificationType) a.toDTO()) //
         .map(classification -> {
           ConceptSet set = this.cSetService.getByCodeOrThrow(classification.getConceptSet());
+
+          logger.info("Found concept set dependency - " + set.getOid());
 
           Publish publish = this.publishService.getFor(set, classification.getStartDate(), classification.getEndDate());
 
@@ -197,6 +208,12 @@ public class PublishEventService
             });
 
             publish = this.publishService.create(configuration);
+
+            logger.info("Creating dependency concept set SKG - " + publish.getOid());
+          }
+          else
+          {
+            logger.info("Found existing concept set SKG - " + publish.getOid());
           }
 
           try
@@ -206,7 +223,11 @@ public class PublishEventService
           catch (EmptyPublishException e)
           {
             // There isn't any new data so, delete the newly created commit
-            this.commitService.getLatest(publish).ifPresent(latest -> this.commitService.delete(latest));
+            this.commitService.getLatest(publish).ifPresent(latest -> {
+              logger.info("Removing empty concept set commit - " + latest.getOid());
+
+              this.commitService.delete(latest);
+            });
           }
 
           return publish;
@@ -223,6 +244,8 @@ public class PublishEventService
     if (end != null && start.getIndex() < end.getIndex())
     {
       Commit commit = this.commitService.create(publish, versionNumber, end.getIndex());
+
+      logger.info("Publishing commit - " + commit.getOid());
 
       Progress progress = new Progress(0L, ( end.getIndex() - start.getIndex() ), commit.getOid());
 
@@ -247,6 +270,8 @@ public class PublishEventService
           .forEach(source -> {
             this.commitService.addSource(commit, source);
           });
+
+      logger.info("Finished publishing commit - " + commit.getOid() + " - " + total + " events");
 
       return commit;
     }

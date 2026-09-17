@@ -135,7 +135,7 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
   }
 
   @Override
-  public Optional<VertexServerGeoObject> getByExternalId(String externalId, String authorityCode, ServerGeoObjectType type)
+  public Optional<ServerGeoObjectIF> getByExternalId(String externalId, String authorityCode, ServerGeoObjectType type)
   {
     SourceAuthority authority = this.authorityService.getByCodeOrThrow(authorityCode);
 

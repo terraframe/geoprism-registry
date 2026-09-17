@@ -28,7 +28,6 @@ import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.ExternalId;
-import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
 @Component
 public interface GPRGeoObjectBusinessServiceIF extends GeoObjectBusinessServiceIF
@@ -37,7 +36,7 @@ public interface GPRGeoObjectBusinessServiceIF extends GeoObjectBusinessServiceI
 
   void removeExternalId(ServerGeoObjectIF sgo, String authorityCode, boolean validateOrigin);
 
-  Optional<VertexServerGeoObject> getByExternalId(String externalId, String authorityCode, ServerGeoObjectType type);
+  Optional<ServerGeoObjectIF> getByExternalId(String externalId, String authorityCode, ServerGeoObjectType type);
 
   List<ExternalId> getAllExternalIds(ServerGeoObjectIF sgo);
 

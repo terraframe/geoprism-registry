@@ -47,7 +47,7 @@ public class PublishService
   {
     try
     {
-      return this.eventService.publish(dto).toDTO();
+      return this.eventService.publish(dto).getFirst().toDTO();
     }
     catch (InterruptedException e)
     {

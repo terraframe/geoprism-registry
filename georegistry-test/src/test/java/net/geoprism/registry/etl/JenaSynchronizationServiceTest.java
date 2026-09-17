@@ -4,6 +4,8 @@
 package net.geoprism.registry.etl;
 
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -18,6 +20,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.runwaysdk.Pair;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.EventDatasetTest;
@@ -88,12 +91,16 @@ public class JenaSynchronizationServiceTest extends EventDatasetTest implements 
 
   // @Test
   @Request
-  public void testPublish() throws InterruptedException
+  public void testPublish() throws InterruptedException, ExecutionException
   {
     try
     {
+      Pair<Publish, Future<?>> response = eventService.publish(getPublishDTO());
 
-      Publish publish = eventService.publish(getPublishDTO());
+      Publish publish = response.getFirst();
+
+      // Wait for the commit to finish publishing
+      response.getSecond().get();
 
       JenaExportConfig config = new JenaExportConfig();
       config.setLabel(new LocalizedValue("FHIR Export Test Data"));
