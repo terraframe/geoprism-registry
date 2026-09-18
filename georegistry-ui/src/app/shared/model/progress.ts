@@ -18,8 +18,14 @@
 ///
 
 /* eslint-disable padded-blocks */
+
+export class WebSocketMessage {
+  type: string;
+  content?: Progress;
+}
+
 export class Progress {
-  current:number;
-  total:number;
-  description:string;
+  current: number;
+  total: number;
+  description: string;
 }

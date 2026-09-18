@@ -22,16 +22,12 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { v4 as uuid } from "uuid";
 
 import { ErrorHandler } from "@shared/component";
-import { Publish, PublishEvents } from "@registry/model/publish";
+import { PublishEvents } from "@registry/model/publish";
 import { PublishService } from "@registry/service/publish.service";
-import { GeoObjectType, GraphType } from "@registry/model/registry";
-import { HierarchyType } from "@registry/model/hierarchy";
-import { Organization } from "@shared/model/core";
-import { BusinessEdgeType, BusinessType } from "@registry/model/object-class";
 import { RegistryService } from "@registry/service";
 import { BusinessTypeService } from "@registry/service/business-type.service";
 import { BsModalRef } from "ngx-bootstrap/modal";
-import { Observable, Observer, Subject, Subscription } from "rxjs";
+import { Observer, Subject } from "rxjs";
 import { MultiSelectFieldComponent } from "../../../shared/component/form-fields/multi-select/multi-select-field.component";
 import { DateFieldComponent } from "../../../shared/component/form-fields/date-field/date-field.component";
 import { FormsModule } from "@angular/forms";

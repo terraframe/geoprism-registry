@@ -27,10 +27,14 @@ import {
 } from "@angular/router";
 import { HttpErrorResponse } from "@angular/common/http";
 
-import { ConfirmModalComponent, ErrorHandler } from "@shared/component";
+import {
+  ConfirmModalComponent,
+  ErrorHandler,
+  ProgressBarComponent,
+} from "@shared/component";
 import { Subscription } from "rxjs";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
-import { LocalizationService } from "@shared/service";
+import { LocalizationService, ProgressService } from "@shared/service";
 import { PublishEvents } from "@registry/model/publish";
 import { PublishService } from "@registry/service/publish.service";
 import { PublishEventsModalComponent } from "./publish-events-modal.component";
@@ -43,6 +47,9 @@ import { LocalizeComponent } from "@shared/component/localize/localize.component
 import { PageContainerComponent } from "@shared/component/page-container/page-container.component";
 import { ModalTypes } from "@shared/model/modal";
 import { BusinessEdgeTypeService } from "@registry/service/business-edge-type.service";
+import { webSocket, WebSocketSubject } from "rxjs/webSocket";
+import { Progress, WebSocketMessage } from "@shared/model/progress";
+import { WebSockets } from "@shared/component/web-sockets/web-sockets";
 
 @Component({
   selector: "publish-manager",
@@ -58,6 +65,7 @@ import { BusinessEdgeTypeService } from "@registry/service/business-edge-type.se
     NgIf,
     PublishEventsComponent,
     LocalizePipe,
+    ProgressBarComponent,
   ],
 })
 export class PublishManagerComponent implements OnInit, OnDestroy {
@@ -82,6 +90,10 @@ export class PublishManagerComponent implements OnInit, OnDestroy {
   businessTypes: { label: string; value: string }[] = [];
   edgeTypes: { label: string; value: string }[] = [];
 
+  progressNotifier: WebSocketSubject<WebSocketMessage> | null = null;
+  progressSubscription: Subscription | null = null;
+  isRefreshing: boolean = false;
+
   // eslint-disable-next-line no-useless-constructor
   constructor(
     private service: PublishService,
@@ -92,9 +104,18 @@ export class PublishManagerComponent implements OnInit, OnDestroy {
     private businessService: BusinessTypeService,
     private bEdgeTypeService: BusinessEdgeTypeService,
     private registryService: RegistryService,
+    private pService: ProgressService,
   ) {}
 
   ngOnInit(): void {
+    let baseUrl = WebSockets.buildBaseUrl();
+
+    this.progressNotifier = webSocket(baseUrl + "/websocket/progress/publish");
+
+    this.progressSubscription = this.progressNotifier.subscribe((message) => {
+      this.handleProgressChange(message);
+    });
+
     this.subscription = this.route.queryParams.subscribe((params: Params) => {
       const uid = params.uid;
 
@@ -160,6 +181,23 @@ export class PublishManagerComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.subscription != null) {
       this.subscription.unsubscribe();
+    }
+
+    if (this.progressSubscription != null) {
+      this.progressSubscription.unsubscribe();
+    }
+
+    if (this.progressNotifier != null) {
+      this.progressNotifier.unsubscribe();
+    }
+  }
+
+  handleProgressChange(message: WebSocketMessage): void {
+    if (message.content) {
+      this.isRefreshing = message.content!.current < message.content!.total;
+      message.content!.description = "";
+
+      this.pService.progress(message.content!);
     }
   }
 

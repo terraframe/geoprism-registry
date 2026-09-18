@@ -51,10 +51,9 @@ import { ProgressBarComponent } from "@shared/component";
     DateFieldComponent,
     MultiSelectFieldComponent,
     NgFor,
-    ProgressBarComponent,
   ],
 })
-export class PublishEventsComponent implements OnInit, OnDestroy {
+export class PublishEventsComponent implements OnInit {
   @Input() type: PublishEvents | null = null;
   @Input() types: { label: string; value: string }[] = [];
   @Input() hierarchies: { label: string; value: string }[] = [];
@@ -65,16 +64,9 @@ export class PublishEventsComponent implements OnInit, OnDestroy {
 
   @Output() error = new EventEmitter<HttpErrorResponse | null>();
 
-  progressNotifier: WebSocketSubject<any> | null = null;
-  progressSubscription: Subscription | null = null;
-  isRefreshing: boolean = false;
-
   commits: Commit[] = [];
 
-  constructor(
-    private service: PublishService,
-    private pService: ProgressService,
-  ) {}
+  constructor(private service: PublishService) {}
 
   ngOnInit(): void {
     if (this.type != null) {
@@ -82,38 +74,7 @@ export class PublishEventsComponent implements OnInit, OnDestroy {
         .getCommits(this.type.uid)
         .then((commits) => (this.commits = commits))
         .catch((err) => this.error.emit(err));
-
-      let baseUrl = WebSockets.buildBaseUrl();
-
-      this.progressNotifier = webSocket(
-        baseUrl + "/websocket/progress/" + this.type.uid,
-      );
-
-      this.progressSubscription = this.progressNotifier.subscribe((message) => {
-        if (message.content != null) {
-          this.handleProgressChange(message.content);
-        } else {
-          this.handleProgressChange(message);
-        }
-      });
     }
-  }
-
-  ngOnDestroy(): void {
-    if (this.progressSubscription != null) {
-      this.progressSubscription.unsubscribe();
-    }
-
-    if (this.progressNotifier != null) {
-      this.progressNotifier.unsubscribe();
-    }
-  }
-
-  handleProgressChange(progress: Progress): void {
-    this.isRefreshing = progress.current < progress.total;
-    progress.description = "";
-
-    this.pService.progress(progress);
   }
 
   onCreateNewCommit(): void {

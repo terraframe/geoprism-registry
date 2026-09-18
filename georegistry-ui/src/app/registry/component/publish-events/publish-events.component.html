@@ -20,10 +20,6 @@
 -->
 
 <div class="modal-body">
-  @if (isRefreshing) {
-    <progress-bar></progress-bar>
-  }
-
   @if (type != null) {
     <ng-container>
       <div class="text-center">
@@ -263,7 +259,6 @@
           <div>
             <div class="button-holder">
               <button
-                [disabled]="isRefreshing"
                 (click)="onCreateNewCommit()"
                 class="btn btn-primary"
                 role="button"

@@ -68,7 +68,9 @@ import net.geoprism.registry.view.TypeInfo;
 @Service
 public class PublishEventService
 {
-  private static Logger                  logger = LoggerFactory.getLogger(PublishEventService.class);
+  private static final String            PROGRESS_KEY = "publish";
+
+  private static Logger                  logger       = LoggerFactory.getLogger(PublishEventService.class);
 
   @Autowired
   private RegistryEventStore             store;
@@ -134,7 +136,7 @@ public class PublishEventService
     {
       logger.info("Adding new commit - " + publish.getOid());
 
-      ProgressService.put(publish.getUid(), new Progress(0L, 100L, ""));
+      ProgressService.put(PROGRESS_KEY, new Progress(0L, 100L, ""));
 
       PublishDTO dto = publish.toDTO();
 
@@ -171,11 +173,11 @@ public class PublishEventService
 
       try
       {
-        ProgressService.put(publish.getUid(), new Progress(100L, 100L, ""));
+        ProgressService.put(PROGRESS_KEY, new Progress(100L, 100L, ""));
       }
       finally
       {
-        ProgressService.remove(publish.getOid());
+        ProgressService.remove(PROGRESS_KEY);
       }
     }
   }
@@ -249,7 +251,7 @@ public class PublishEventService
 
       Progress progress = new Progress(0L, ( end.getIndex() - start.getIndex() ), commit.getOid());
 
-      ProgressService.put(publish.getUid(), progress);
+      ProgressService.put(PROGRESS_KEY, progress);
 
       Set<String> sources = new TreeSet<String>();
 
@@ -504,7 +506,7 @@ public class PublishEventService
 
       offset += limit;
 
-      ProgressService.put(publish.getUid(), progress.add(limit));
+      ProgressService.put(PROGRESS_KEY, progress.add(limit));
     }
 
     return total;
