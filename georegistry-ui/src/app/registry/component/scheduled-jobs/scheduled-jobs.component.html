@@ -20,19 +20,20 @@
 -->
 
 <page-container>
-  <div>
+  <div class="ds-page">
+
+    <div class="ds-header">
+      <div>
+        <h1 class="ds-title"><localize key="scheduledjobs.title"></localize></h1>
+        <div class="ds-subtitle"><localize key="scheduledjobs.manager.subtitle"></localize></div>
+      </div>
+    </div>
+
     <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
-    <div class="py-5">
-      <h2>
-        <localize key="scheduledjobs.title"></localize>
-      </h2>
-    </div>
-    <div class="row">
-      <div class="col-md-12 order-md-1">
-        <ul class="list-group">
-          <div class="solid-table-wrapper">
-            <table class="table table-striped">
+    <div>
+        <div class="solid-table-wrapper">
+            <table class="table">
               <thead>
                 <tr style="height: 56px;">
                   <th style="vertical-align: middle;">
@@ -111,12 +112,12 @@
               </tbody>
             </table>
             <div *ngIf="activeJobsPage.resultSet.length > 0" class="solid-table-footer">
-              <pagination-controls id="activeJobs" (pageChange)="onActiveJobsPageChange($event)"></pagination-controls>
+              <pagination-controls id="activeJobs" class="ds-pagination" (pageChange)="onActiveJobsPageChange($event)"></pagination-controls>
             </div>
           </div>
 
           <div class="solid-table-wrapper">
-            <table class="table table-striped">
+            <table class="table">
               <thead>
                 <tr>
                   <th style="width:40%;border-bottom: none;">
@@ -181,13 +182,10 @@
             </table>
 
             <div *ngIf="completeJobsPage.resultSet.length > 0" class="solid-table-footer">
-              <pagination-controls id="completeJobs"
+              <pagination-controls id="completeJobs" class="ds-pagination"
                 (pageChange)="onCompleteJobsPageChange($event)"></pagination-controls>
             </div>
           </div>
-        </ul>
-
-      </div>
     </div>
   </div>
 </page-container>

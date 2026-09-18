@@ -21,22 +21,128 @@
     /* height: calc(100% - 88px); */
 }
 
+.ds-page {
+    padding-top: 10px;
+}
+
+.ds-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.ds-title {
+    font-size: 23px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0 0 4px;
+    color: var(--ink-900, #16141f);
+}
+
+.ds-subtitle {
+    font-size: 13px;
+    font-weight: normal;
+    color: var(--theme-text-dark, #767676);
+    margin-top: 0;
+}
 
 .solid-table-wrapper {
-    background: #F4F4F4;
-    border-radius: 15px;
+    background: #ffffff;
+    border: 1px solid #e3e2ea;
+    border-radius: 6px;
+    box-shadow: 0 1px 2px rgba(20, 15, 45, 0.04);
+    overflow: hidden;
     margin-bottom: 20px;
 }
-.solid-table-footer {
-    /* background: #b0b0b0; */
-    border-radius: 0 0 15px 15px;
-    padding: 0 0 10px 10px;
+
+.solid-table-wrapper table {
+    margin-bottom: 0;
 }
 
-/* thead {
-    border-bottom: solid white 4px;
-} */
+.solid-table-wrapper thead tr {
+    background: #f8f8fb;
+}
+.solid-table-wrapper thead th {
+    border-bottom: 1px solid #ecebf2 !important;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    color: var(--theme-text-dark, #767676);
+    text-transform: uppercase;
+}
 
+.solid-table-wrapper tbody tr {
+    border-top: 1px solid #f0eff5;
+}
+.solid-table-wrapper tbody tr:first-child {
+    border-top: none;
+}
+.solid-table-wrapper tbody tr:nth-child(even) {
+    background: #faf9fd;
+}
+
+.solid-table-footer {
+    padding: 14px 10px;
+}
+
+.ds-pagination {
+    margin-top: 0;
+    display: flex;
+    justify-content: center;
+}
+:host::ng-deep .ds-pagination .ngx-pagination {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+:host::ng-deep .ds-pagination .ngx-pagination li {
+    margin: 0;
+}
+:host::ng-deep .ds-pagination .ngx-pagination a,
+:host::ng-deep .ds-pagination .ngx-pagination button,
+:host::ng-deep .ds-pagination .ngx-pagination span {
+    display: inline-flex;
+    align-items: center;
+    padding: 7px 10px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--theme-text-dark, #767676);
+    border-radius: 7px;
+    background: transparent;
+}
+:host::ng-deep .ds-pagination .ngx-pagination a:hover {
+    background: var(--theme-submit-button-color-light-hover, #f4fcef);
+    color: var(--theme-submit-button-color, #6BA542);
+}
+:host::ng-deep .ds-pagination .ngx-pagination .disabled span {
+    color: #c3c1cf;
+    cursor: default;
+}
+:host::ng-deep .ds-pagination .ngx-pagination li.current {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 7px;
+    background: #A29BAB !important;
+    color: var(--theme-primary-color, #3E2A5A);
+    font-weight: 700;
+}
+:host::ng-deep .ds-pagination .ngx-pagination li.current span {
+    padding: 0;
+    color: var(--theme-primary-color, #3E2A5A);
+}
+
+/*
+ * NOTE: .wrapper is the in-progress job status cell (filename, date, status
+ * text, step-indicator) — left untouched intentionally.
+ */
 .wrapper {
     padding: 10px;
 }

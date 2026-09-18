@@ -66,8 +66,8 @@
         </div>
         <div>{{ checkpoint.importDate }}</div>
         <div class="ds-actions">
-          <button type="button" class="ds-rollback-btn" (click)="onRollback(checkpoint)">
-            <i class="fa fa-undo" aria-hidden="true"></i>
+          <button type="button" class="btn btn-danger" (click)="onRollback(checkpoint)">
+            <i class="fa fa-undo" style="margin-right: 6px;" aria-hidden="true"></i>
             <localize key="modal.button.rollback"></localize>
           </button>
         </div>

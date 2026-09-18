@@ -112,23 +112,6 @@
     text-decoration: underline;
 }
 
-.ds-rollback-btn {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    background: #fff0f0;
-    color: #c0392b;
-    border: 1px solid #f3c9c4;
-    border-radius: 8px;
-    padding: 8px 14px;
-    font-size: 12.5px;
-    font-weight: 700;
-    cursor: pointer;
-}
-.ds-rollback-btn:hover {
-    background: #ffe2e0;
-}
-
 .ds-empty-state {
     padding: 36px 20px;
     text-align: center;
