@@ -39,296 +39,329 @@ import { GraphTypePageComponent } from "./graph-type-page/graph-type-page.compon
 import { HierarchyTypePageComponent } from "./hierarchy-type-page/hierarchy-type-page.component";
 import { GeoObjectTypePageComponent } from "./geo-object-type-page/geo-object-type-page.component";
 import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
-import { OntologySectionNavComponent, OntologySectionNavItem } from "../ontology-section-nav/ontology-section-nav.component";
-
+import {
+  OntologySectionNavComponent,
+  OntologySectionNavItem,
+} from "../ontology-section-nav/ontology-section-nav.component";
 
 @Component({
-    selector: "geo-ontology",
-    templateUrl: "./geo-ontology.component.html",
-    styleUrls: ["./geo-ontology.css"],
-    standalone: true,
-    imports: [PageContainerComponent, OntologySectionNavComponent, GeoObjectTypePageComponent, HierarchyTypePageComponent, GraphTypePageComponent, NgIf, LocalizePipe]
+  selector: "geo-ontology",
+  templateUrl: "./geo-ontology.component.html",
+  styleUrls: ["./geo-ontology.css"],
+  standalone: true,
+  imports: [
+    PageContainerComponent,
+    OntologySectionNavComponent,
+    GeoObjectTypePageComponent,
+    HierarchyTypePageComponent,
+    GraphTypePageComponent,
+    NgIf,
+    LocalizePipe,
+  ],
 })
 export class GeoOntologyComponent implements OnInit {
+  isSRA: boolean = false;
+  loaded: boolean = false;
 
-    isSRA: boolean = false;
-    loaded: boolean = false;
+  userOrganization: string | null = null;
 
-    userOrganization: string | null = null;
+  section: string = "geo-object-type";
 
-    section: string = "geo-object-type";
+  sections: OntologySectionNavItem[] = [
+    {
+      id: "geo-object-type",
+      labelKey: "hierarchy.sidebar.geoObjectTypes",
+      icon: "fa-circle",
+    },
+    {
+      id: "hierarchy-type",
+      labelKey: "hierarchy.sidebar.hierarchies",
+      icon: "fa-sitemap",
+    },
+    { id: "dag", labelKey: "header.dag.type", icon: "fa-code-branch" },
+  ];
 
-    sections: OntologySectionNavItem[] = [
-        { id: "geo-object-type", labelKey: "hierarchy.sidebar.geoObjectTypes", icon: "fa-circle" },
-        { id: "hierarchy-type", labelKey: "hierarchy.sidebar.hierarchies", icon: "fa-sitemap" },
-        { id: "dag", labelKey: "header.dag.type", icon: "fa-code-branch" },
-        { id: "graph", labelKey: "header.undirected.type", icon: "fa-circle-nodes" }
-    ];
+  hierarchies: HierarchyType[];
+  organizations: Organization[];
+  geoObjectTypes: GeoObjectType[] = [];
 
-    hierarchies: HierarchyType[];
-    organizations: Organization[];
-    geoObjectTypes: GeoObjectType[] = [];
+  constructor(
+    public hierarchyService: HierarchyService,
+    public localizeService: LocalizationService,
+    private modalService: BsModalService,
+    private registryService: RegistryService,
+    private authService: AuthService,
+  ) {
+    this.isSRA = authService.isSRA();
+  }
 
-    constructor(
-        public hierarchyService: HierarchyService,
-        public localizeService: LocalizationService,
-        private modalService: BsModalService,
-        private registryService: RegistryService,
-        private authService: AuthService) {
-        this.isSRA = authService.isSRA();
+  ngOnInit(): void {
+    this.refreshAll();
+  }
+
+  localize(key: string): string {
+    return this.localizeService.decode(key);
+  }
+
+  isRA(): boolean {
+    return this.authService.isRA();
+  }
+
+  isOrganizationRA(orgCode: string, dropZone: boolean = false): boolean {
+    return this.isSRA || this.authService.isOrganizationRA(orgCode);
+  }
+
+  getTypesByOrg(org: Organization): GeoObjectType[] {
+    let orgTypes: GeoObjectType[] = [];
+
+    for (let i = 0; i < this.geoObjectTypes.length; ++i) {
+      let geoObjectType: GeoObjectType = this.geoObjectTypes[i];
+
+      if (geoObjectType.organizationCode === org.code) {
+        orgTypes.push(geoObjectType);
+      }
     }
 
-    ngOnInit(): void {
-        this.refreshAll();
+    return orgTypes;
+  }
+
+  getHierarchiesByOrg(org: Organization): HierarchyType[] {
+    let orgHierarchies: HierarchyType[] = [];
+
+    for (let i = 0; i < this.hierarchies.length; ++i) {
+      let hierarchy: HierarchyType = this.hierarchies[i];
+
+      if (hierarchy.organizationCode === org.code) {
+        orgHierarchies.push(hierarchy);
+      }
     }
 
-    localize(key: string): string {
-        return this.localizeService.decode(key);
-    }
+    return orgHierarchies;
+  }
 
-    isRA(): boolean {
-        return this.authService.isRA();
-    }
+  public refreshAll() {
+    // Clear the types to then refresh
+    this.geoObjectTypes = [];
+    this.hierarchies = [];
+    this.organizations = [];
+    this.loaded = false;
 
-    isOrganizationRA(orgCode: string, dropZone: boolean = false): boolean {
-        return this.isSRA || this.authService.isOrganizationRA(orgCode);
-    }
+    this.registryService
+      .init()
+      .then((response) => {
+        this.localizeService.setLocales(response.locales);
 
-    getTypesByOrg(org: Organization): GeoObjectType[] {
-        let orgTypes: GeoObjectType[] = [];
+        this.setGeoObjectTypes(response.types);
 
-        for (let i = 0; i < this.geoObjectTypes.length; ++i) {
-            let geoObjectType: GeoObjectType = this.geoObjectTypes[i];
+        this.organizations = response.organizations;
 
-            if (geoObjectType.organizationCode === org.code) {
-                orgTypes.push(geoObjectType);
-            }
+        this.organizations.forEach((org) => {
+          if (this.isOrganizationRA(org.code)) {
+            this.userOrganization = org.code;
+          }
+        });
+
+        if (!this.authService.isSRA()) {
+          let myorg = this.authService.getMyOrganizations();
+
+          let pos = response.organizations.findIndex((org) => {
+            return org.code === myorg[0];
+          });
+
+          if (pos >= 0) {
+            Utils.arrayMove(response.organizations, pos, 0);
+          }
         }
 
-        return orgTypes;
-    }
+        this.setHierarchyTypes(response.hierarchies);
 
-    getHierarchiesByOrg(org: Organization): HierarchyType[] {
-        let orgHierarchies: HierarchyType[] = [];
+        this.loaded = true;
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
 
-        for (let i = 0; i < this.hierarchies.length; ++i) {
-            let hierarchy: HierarchyType = this.hierarchies[i];
+  public setGeoObjectTypes(types: GeoObjectType[]): void {
+    this.geoObjectTypes = [];
 
-            if (hierarchy.organizationCode === org.code) {
-                orgHierarchies.push(hierarchy);
-            }
+    // Set group parent types
+    this.setAbstractTypes(types);
+
+    // Set GeoObjectTypes that aren't part of a group.
+    types.forEach((type) => {
+      if (!type.isAbstract) {
+        if (!type.superTypeCode) {
+          this.geoObjectTypes.push(type);
         }
+      }
+    });
 
-        return orgHierarchies;
-    }
+    // Sort aphabetically because all other types to add will be children in a group.
+    this.geoObjectTypes.sort((a, b) => {
+      if (
+        a.label.localizedValue.toLowerCase() <
+        b.label.localizedValue.toLowerCase()
+      )
+        return -1;
+      else if (
+        a.label.localizedValue.toLowerCase() >
+        b.label.localizedValue.toLowerCase()
+      )
+        return 1;
+      else return 0;
+    });
 
-    public refreshAll() {
-        // Clear the types to then refresh
-        this.geoObjectTypes = [];
-        this.hierarchies = [];
-        this.organizations = [];
-        this.loaded = false;
+    // Add group children
+    types.forEach((type) => {
+      if (!type.isAbstract) {
+        if (type.superTypeCode && type.superTypeCode.length > 0) {
+          for (let i = 0; i < this.geoObjectTypes.length; i++) {
+            const setType = this.geoObjectTypes[i];
 
-        this.registryService.init().then(response => {
-            this.localizeService.setLocales(response.locales);
-
-            this.setGeoObjectTypes(response.types);
-
-            this.organizations = response.organizations;
-
-            this.organizations.forEach(org => {
-                if (this.isOrganizationRA(org.code)) {
-                    this.userOrganization = org.code;
-                }
-            });
-
-            if (!this.authService.isSRA()) {
-                let myorg = this.authService.getMyOrganizations();
-
-                let pos = response.organizations.findIndex(org => {
-                    return org.code === myorg[0];
-                });
-
-                if (pos >= 0) {
-                    Utils.arrayMove(response.organizations, pos, 0);
-                }
+            if (type.superTypeCode === setType.code) {
+              this.geoObjectTypes.splice(i + 1, 0, type);
             }
-
-            this.setHierarchyTypes(response.hierarchies);
-
-            this.loaded = true;
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
-
-    public setGeoObjectTypes(types: GeoObjectType[]): void {
-        this.geoObjectTypes = [];
-
-        // Set group parent types
-        this.setAbstractTypes(types);
-
-        // Set GeoObjectTypes that aren't part of a group.
-        types.forEach(type => {
-            if (!type.isAbstract) {
-                if (!type.superTypeCode) {
-                    this.geoObjectTypes.push(type);
-                }
-            }
-        });
-
-        // Sort aphabetically because all other types to add will be children in a group.
-        this.geoObjectTypes.sort((a, b) => {
-            if (a.label.localizedValue.toLowerCase() < b.label.localizedValue.toLowerCase()) return -1;
-            else if (a.label.localizedValue.toLowerCase() > b.label.localizedValue.toLowerCase()) return 1;
-            else return 0;
-        });
-
-        // Add group children
-        types.forEach(type => {
-            if (!type.isAbstract) {
-                if (type.superTypeCode && type.superTypeCode.length > 0) {
-                    for (let i = 0; i < this.geoObjectTypes.length; i++) {
-                        const setType = this.geoObjectTypes[i];
-
-                        if (type.superTypeCode === setType.code) {
-                            this.geoObjectTypes.splice(i + 1, 0, type);
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    private setAbstractTypes(types: GeoObjectType[]): void {
-        types.forEach(type => {
-            if (type.isAbstract) {
-                this.geoObjectTypes.push(type);
-            }
-        });
-    }
-
-
-
-
-    setHierarchyTypes(data: HierarchyType[]): void {
-        const hierarchies: HierarchyType[] = [];
-
-        data.forEach((hierarchyType, index) => {
-            if (hierarchyType.rootGeoObjectTypes.length > 0) {
-                hierarchyType.rootGeoObjectTypes.forEach(rootGeoObjectType => {
-                    this.processHierarchyNodes(rootGeoObjectType);
-                });
-            }
-
-            hierarchies.push(hierarchyType);
-        });
-
-        this.hierarchies = hierarchies;
-
-        this.hierarchies.sort((a, b) => {
-            if (a.label.localizedValue.toLowerCase() < b.label.localizedValue.toLowerCase()) return -1;
-            else if (a.label.localizedValue.toLowerCase() > b.label.localizedValue.toLowerCase()) return 1;
-            else return 0;
-        });
-    }
-
-    private processHierarchyNodes(node: HierarchyNode) {
-        if (node != null) {
-            node.label = this.getHierarchyLabel(node.geoObjectType);
-
-            node.children.forEach(child => {
-                this.processHierarchyNodes(child);
-            });
+          }
         }
-    }
+      }
+    });
+  }
 
-    private getHierarchyLabel(geoObjectTypeCode: string): string {
-        let label: string | null = null;
-        this.geoObjectTypes.forEach(function (gOT) {
-            if (gOT.code === geoObjectTypeCode) {
-                label = gOT.label.localizedValue;
-            }
+  private setAbstractTypes(types: GeoObjectType[]): void {
+    types.forEach((type) => {
+      if (type.isAbstract) {
+        this.geoObjectTypes.push(type);
+      }
+    });
+  }
+
+  setHierarchyTypes(data: HierarchyType[]): void {
+    const hierarchies: HierarchyType[] = [];
+
+    data.forEach((hierarchyType, index) => {
+      if (hierarchyType.rootGeoObjectTypes.length > 0) {
+        hierarchyType.rootGeoObjectTypes.forEach((rootGeoObjectType) => {
+          this.processHierarchyNodes(rootGeoObjectType);
         });
+      }
 
-        return label!;
+      hierarchies.push(hierarchyType);
+    });
+
+    this.hierarchies = hierarchies;
+
+    this.hierarchies.sort((a, b) => {
+      if (
+        a.label.localizedValue.toLowerCase() <
+        b.label.localizedValue.toLowerCase()
+      )
+        return -1;
+      else if (
+        a.label.localizedValue.toLowerCase() >
+        b.label.localizedValue.toLowerCase()
+      )
+        return 1;
+      else return 0;
+    });
+  }
+
+  private processHierarchyNodes(node: HierarchyNode) {
+    if (node != null) {
+      node.label = this.getHierarchyLabel(node.geoObjectType);
+
+      node.children.forEach((child) => {
+        this.processHierarchyNodes(child);
+      });
+    }
+  }
+
+  private getHierarchyLabel(geoObjectTypeCode: string): string {
+    let label: string | null = null;
+    this.geoObjectTypes.forEach(function (gOT) {
+      if (gOT.code === geoObjectTypeCode) {
+        label = gOT.label.localizedValue;
+      }
+    });
+
+    return label!;
+  }
+
+  handleRemoveHierarchyType(code: string): void {
+    const hierarchies = [...this.hierarchies];
+
+    const index = hierarchies.findIndex((t) => t.code === code);
+
+    if (index != -1) {
+      hierarchies.splice(index, 1);
     }
 
-    handleRemoveHierarchyType(code: string): void {
-        const hierarchies = [...this.hierarchies];
+    this.setHierarchyTypes(hierarchies);
+  }
 
-        const index = hierarchies.findIndex(t => t.code === code);
+  handleHierarchyType(type: HierarchyType): void {
+    const hierarchies = [...this.hierarchies];
 
-        if (index != -1) {
-            hierarchies.splice(index, 1);
-        }
+    const index = hierarchies.findIndex((t) => t.code === type.code);
 
-        this.setHierarchyTypes(hierarchies);
+    if (index != -1) {
+      hierarchies[index] = type;
+    } else {
+      hierarchies.push(type);
     }
 
-    handleHierarchyType(type: HierarchyType): void {
-        const hierarchies = [...this.hierarchies];
+    this.setHierarchyTypes(hierarchies);
+  }
 
-        const index = hierarchies.findIndex(t => t.code === type.code);
+  handleGeoObjectType(type: GeoObjectType): void {
+    const geoObjectTypes = [...this.geoObjectTypes];
 
-        if (index != -1) {
-            hierarchies[index] = type;
-        }
-        else {
-            hierarchies.push(type);
-        }
+    const index = geoObjectTypes.findIndex((t) => t.code === type.code);
 
-        this.setHierarchyTypes(hierarchies);
+    if (index != -1) {
+      geoObjectTypes[index] = type;
+    } else {
+      geoObjectTypes.push(type);
     }
 
-    handleGeoObjectType(type: GeoObjectType): void {
-        const geoObjectTypes = [...this.geoObjectTypes];
+    this.setGeoObjectTypes(geoObjectTypes);
+  }
 
-        const index = geoObjectTypes.findIndex(t => t.code === type.code);
+  public importTypes(): void {
+    const bsModalRef = this.modalService.show(ImportTypesModalComponent, {
+      animated: false,
+      backdrop: true,
+      ignoreBackdropClick: true,
+      class: "upload-modal",
+    });
 
-        if (index != -1) {
-            geoObjectTypes[index] = type;
-        }
-        else {
-            geoObjectTypes.push(type);
-        }
+    bsModalRef.content!.init(this.organizations);
 
-        this.setGeoObjectTypes(geoObjectTypes);
-    }
+    bsModalRef.content!.onNodeChange.subscribe((data) => {
+      // Reload the page
+      this.refreshAll();
+    });
+  }
 
+  public exportTypes(): void {
+    const bsModalRef = this.modalService.show(ExportTypesModalComponent, {
+      animated: false,
+      backdrop: true,
+      ignoreBackdropClick: true,
+      class: "upload-modal",
+    });
 
+    bsModalRef.content!.init(this.organizations);
 
-    public importTypes(): void {
-        const bsModalRef = this.modalService.show(ImportTypesModalComponent, {
-            animated: false, backdrop: true, ignoreBackdropClick: true,
-            class: "upload-modal"
-        });
+    bsModalRef.content!.onNodeChange.subscribe((orgCode) => {
+      if (orgCode != null && orgCode.length > 0) {
+        window.location.href =
+          environment.apiUrl + "/api/cgr/export-types?code=" + orgCode;
+      }
+    });
+  }
 
-        bsModalRef.content!.init(this.organizations);
-
-        bsModalRef.content!.onNodeChange.subscribe(data => {
-            // Reload the page
-            this.refreshAll();
-        });
-    }
-
-    public exportTypes(): void {
-        const bsModalRef = this.modalService.show(ExportTypesModalComponent, {
-            animated: false, backdrop: true, ignoreBackdropClick: true,
-            class: "upload-modal"
-        });
-
-        bsModalRef.content!.init(this.organizations);
-
-        bsModalRef.content!.onNodeChange.subscribe(orgCode => {
-            if (orgCode != null && orgCode.length > 0) {
-                window.location.href = environment.apiUrl + "/api/cgr/export-types?code=" + orgCode;
-            }
-        });
-    }
-
-    public error(err: HttpErrorResponse): void {
-        ErrorHandler.showErrorAsDialog(err, this.modalService);
-    }
-
+  public error(err: HttpErrorResponse): void {
+    ErrorHandler.showErrorAsDialog(err, this.modalService);
+  }
 }

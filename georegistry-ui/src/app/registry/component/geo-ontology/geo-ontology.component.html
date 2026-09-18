@@ -19,49 +19,70 @@
 
 -->
 <page-container>
+  @if (loaded && organizations.length > 0) {
+    <geo-object-type-page
+      [hidden]="section !== 'geo-object-type'"
+      [userOrganization]="userOrganization"
+      [organizations]="organizations"
+      [types]="geoObjectTypes"
+      (typesChange)="setGeoObjectTypes($event)"
+      (onError)="error($event)"
+    >
+      <ontology-section-nav
+        sectionNav
+        [items]="sections"
+        [(active)]="section"
+      ></ontology-section-nav>
 
-    @if (loaded && organizations.length > 0) {
-
-    <geo-object-type-page [hidden]="section !== 'geo-object-type'" [userOrganization]="userOrganization"
-        [organizations]="organizations" [types]="geoObjectTypes" (typesChange)="setGeoObjectTypes($event)"
-        (onError)="error($event)">
-        <ontology-section-nav sectionNav [items]="sections" [(active)]="section"></ontology-section-nav>
-        <div *ngIf="isSRA" contentTools class="ontology-content-tools">
-            <button type="button" class="btn btn-primary" (click)="importTypes()">
-                <i class="fa-solid fa-file-import"></i> {{'hierarchy.sidebar.importTypes' | localize}}
-            </button>
-            <button type="button" class="btn btn-primary" (click)="exportTypes()">
-                <i class="fa-solid fa-file-export"></i> {{'hierarchy.sidebar.exportTypes' | localize}}
-            </button>
-        </div>
+      <div *ngIf="isSRA" contentTools class="ontology-content-tools">
+        <button type="button" class="btn btn-primary" (click)="importTypes()">
+          <i class="fa-solid fa-file-import"></i>
+          {{ "hierarchy.sidebar.importTypes" | localize }}
+        </button>
+        <button type="button" class="btn btn-primary" (click)="exportTypes()">
+          <i class="fa-solid fa-file-export"></i>
+          {{ "hierarchy.sidebar.exportTypes" | localize }}
+        </button>
+      </div>
     </geo-object-type-page>
 
-    <hierarchy-type-page [hidden]="section !== 'hierarchy-type'" [userOrganization]="userOrganization"
-        [organizations]="organizations" [geoObjectTypes]="geoObjectTypes" [hierarchies]="hierarchies"
-        (onHierarchyType)="handleHierarchyType($event)" (onGeoObjectType)="handleGeoObjectType($event)"
-        (onRemove)="handleRemoveHierarchyType($event)" (onError)="error($event)">
-        <ontology-section-nav sectionNav [items]="sections" [(active)]="section"></ontology-section-nav>
+    <hierarchy-type-page
+      [hidden]="section !== 'hierarchy-type'"
+      [userOrganization]="userOrganization"
+      [organizations]="organizations"
+      [geoObjectTypes]="geoObjectTypes"
+      [hierarchies]="hierarchies"
+      (onHierarchyType)="handleHierarchyType($event)"
+      (onGeoObjectType)="handleGeoObjectType($event)"
+      (onRemove)="handleRemoveHierarchyType($event)"
+      (onError)="error($event)"
+    >
+      <ontology-section-nav
+        sectionNav
+        [items]="sections"
+        [(active)]="section"
+      ></ontology-section-nav>
     </hierarchy-type-page>
 
-    <graph-type-page [hidden]="section !== 'dag'" [typeCode]="'DirectedAcyclicGraphType'">
-        <ontology-section-nav sectionNav [items]="sections" [(active)]="section"></ontology-section-nav>
+    <graph-type-page
+      [hidden]="section !== 'dag'"
+      [typeCode]="'DirectedAcyclicGraphType'"
+    >
+      <ontology-section-nav
+        sectionNav
+        [items]="sections"
+        [(active)]="section"
+      ></ontology-section-nav>
     </graph-type-page>
-
-    <graph-type-page [hidden]="section !== 'graph'" [typeCode]="'UndirectedGraphType'">
-        <ontology-section-nav sectionNav [items]="sections" [(active)]="section"></ontology-section-nav>
-    </graph-type-page>
-
-    }
-    @else if (loaded) {
+  } @else if (loaded) {
     <div class="row">
-        <div class="col-md-12 order-md-1">
-            <div class="py-5">
-                <h3 class="inline-message">
-                    You must first define at least one organization
-                </h3>
-            </div>
+      <div class="col-md-12 order-md-1">
+        <div class="py-5">
+          <h3 class="inline-message">
+            You must first define at least one organization
+          </h3>
         </div>
+      </div>
     </div>
-    }
-
+  }
 </page-container>
