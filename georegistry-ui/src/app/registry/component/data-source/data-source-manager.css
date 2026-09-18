@@ -1,0 +1,130 @@
+/**
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+ *
+ * This file is part of Geoprism Registry(tm).
+ *
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+.ds-page {
+    padding-top: 10px;
+}
+
+.ds-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.ds-title {
+    font-size: 23px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0 0 4px;
+    color: var(--ink-900, #16141f);
+}
+
+.ds-subtitle {
+    font-size: 13px;
+    font-weight: normal;
+    color: var(--theme-text-dark, #767676);
+    margin-top: 0;
+}
+
+.ds-new-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: none;
+}
+
+.ds-card {
+    background: #ffffff;
+    border: 1px solid #e3e2ea;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(20, 15, 45, 0.04);
+}
+
+.ds-row {
+    display: grid;
+    grid-template-columns: 170px minmax(0, 1fr) 220px 148px;
+    align-items: center;
+    padding: 14px 20px;
+    border-bottom: 1px solid #f0eff5;
+}
+.ds-row:last-child {
+    border-bottom: none;
+}
+
+.ds-row-alt {
+    background: #faf9fd;
+}
+
+.ds-row-head {
+    padding: 12px 20px;
+    background: #f8f8fb;
+    border-bottom: 1px solid #ecebf2;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    color: var(--theme-text-dark, #767676);
+    text-transform: uppercase;
+}
+
+.ds-actions-head {
+    text-align: right;
+}
+
+.ds-label {
+    font-size: 13.5px;
+    color: var(--ink-900, #16141f);
+    font-weight: 600;
+}
+
+.ds-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 4px;
+}
+
+.ds-icon-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--theme-text-dark, #767676);
+    padding: 0;
+}
+.ds-icon-btn:hover {
+    background-color: var(--theme-submit-button-color-light-hover, #f4fcef);
+    color: var(--theme-submit-button-color, #6BA542);
+}
+.ds-icon-btn-danger:hover {
+    background-color: rgba(255, 0, 0, 0.08);
+    color: var(--theme-text-error, red);
+}
+
+.ds-empty-state {
+    padding: 36px 20px;
+    text-align: center;
+    color: #a9a6bd;
+    font-size: 13px;
+}
