@@ -86,11 +86,28 @@
           </div>
           <div class="panel-body">
             <div class="table-responsive">
-              <table class="table">
+              <table class="table" [class.view-mode]="readOnly">
+                <thead>
+                  <tr>
+                    <th><localize key="data.property.label.label"></localize></th>
+                    <th><localize key="data.property.label.type"></localize></th>
+                    <th><localize key="hierarchy.management.attribute.source.label"></localize></th>
+                    <th class="button-column-header"><localize key="data.property.label.actions"></localize></th>
+                  </tr>
+                </thead>
                 <tbody>
                   <tr *ngFor="let attr of type.attributes">
-                    <td>{{attr.label.localizedValue}}</td>
-                    <td class="button-column" style="width: 60px;">
+                    <td class="attr-label">{{attr.label.localizedValue}}</td>
+                    <td>
+                      <span class="pill type" *ngIf="getAttributeTypeLabelKey(attr.type) as typeKey; else rawType">{{ typeKey | localize }}</span>
+                      <ng-template #rawType><span class="pill type">{{ attr.type }}</span></ng-template>
+                    </td>
+                    <td>
+                      <span class="pill" [ngClass]="attr.isDefault ? 'default' : 'custom'">
+                        <localize [key]="attr.isDefault ? 'hierarchy.management.attribute.default.label' : 'hierarchy.management.attribute.custom.label'"></localize>
+                      </span>
+                    </td>
+                    <td class="button-column">
                       <ng-container *ngIf="!readOnly && !attr.isDefault">
                         <a class="fa fa-pencil ico-edit" [routerLink]="" (click)="editAttribute(attr, $event)"
                           [title]="'modal.button.edit' | localize"></a>
@@ -112,12 +129,12 @@
           </div>
         </div>
 
-        <div class="row-holder">
+        <div class="row-holder" *ngIf="!readOnly">
           <div class="button-holder">
             <button type="button" class="btn btn-default" (click)="close()">
               <localize key="modal.button.cancel"></localize>
             </button>
-            <button *ngIf="!readOnly" type="button" class="btn btn-primary" [disabled]="form.invalid"
+            <button type="button" class="btn btn-primary" [disabled]="form.invalid"
               (click)="update()">
               <localize key="modal.button.submit"></localize>
             </button>
