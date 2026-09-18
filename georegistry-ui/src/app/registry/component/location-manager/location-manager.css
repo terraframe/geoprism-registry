@@ -92,6 +92,7 @@
 	border: none;
 	border-bottom: 1px solid #ddd;
 	margin-bottom: 0;
+  background-color: rgba(255, 255, 255, .25);
 }
 .list-group-item input {
 	height: auto;
@@ -150,7 +151,7 @@
 	position: absolute;
 /* 	left: 20px; */
 	padding: 15px 0;
-	background-color: white;
+  background-color: rgba(255, 255, 255, .9);
 	z-index:9;
 	width: 100%;
 	
@@ -202,7 +203,7 @@
 .full-height-sidebar {
 	height: calc(100vh - 120px);
 	overflow:auto;top: 70px;
-	background:white;
+  background-color: rgba(255, 255, 255, .95);
 }
 .full-height-sidebar.max-height {
 	height: calc(100vh - 50px);

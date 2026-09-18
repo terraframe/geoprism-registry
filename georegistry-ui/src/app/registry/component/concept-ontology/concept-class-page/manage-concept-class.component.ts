@@ -39,7 +39,7 @@ import { RouterLink } from "@angular/router";
 import { LocalizedInputComponent } from "../../form-fields/localized-input/localized-input.component";
 import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { FormsModule } from "@angular/forms";
-import { NgIf, NgFor } from "@angular/common";
+import { NgIf, NgFor, NgClass } from "@angular/common";
 import { ConceptClassService } from "@registry/service/concept-class.service";
 
 @Component({
@@ -63,7 +63,7 @@ import { ConceptClassService } from "@registry/service/concept-class.service";
         ]
     ],
     standalone: true,
-    imports: [NgIf, FormsModule, LocalizeComponent, LocalizedInputComponent, NgFor, RouterLink, DefineAttributeModalContentComponent, EditAttributeModalContentComponent, LocalizePipe]
+    imports: [NgIf, FormsModule, LocalizeComponent, LocalizedInputComponent, NgFor, NgClass, RouterLink, DefineAttributeModalContentComponent, EditAttributeModalContentComponent, LocalizePipe]
 })
 export class ManageConceptClassComponent implements OnInit {
 
@@ -84,6 +84,21 @@ export class ManageConceptClassComponent implements OnInit {
     }
 
     ngOnInit(): void {
+    }
+
+    private static readonly ATTRIBUTE_TYPE_LABEL_KEYS: { [type: string]: string } = {
+        character: "data.type.label.text",
+        local: "data.type.label.localtext",
+        integer: "data.type.label.integer",
+        float: "data.type.label.float",
+        date: "data.type.label.date",
+        boolean: "data.type.label.boolean",
+        term: "data.type.label.term",
+        classification: "data.type.label.classification"
+    };
+
+    getAttributeTypeLabelKey(type: string): string {
+        return ManageConceptClassComponent.ATTRIBUTE_TYPE_LABEL_KEYS[type] || null;
     }
 
     createAttribute(): void {
