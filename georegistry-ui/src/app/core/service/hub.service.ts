@@ -86,7 +86,7 @@ export class HubService {
                     description: "nav.business.type.description",
                     link: '/registry/business-types',
                     icon: 'fa-solid fa-briefcase',
-                    key: 'business.data.type'
+                    key: 'nav.business.types.label'
                 },
                 {
                     id: 'SOURCE_AUTHORITY',

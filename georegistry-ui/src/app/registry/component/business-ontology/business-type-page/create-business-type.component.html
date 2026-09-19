@@ -18,64 +18,80 @@
     License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<form #form="ngForm" (ngSubmit)="form.valid && handleOnSubmit()" class="modal-form">
+<div>
 
-  <div class="modal-body">
+  <div class="crumbs" *ngIf="type != null">
+    <span class="crumb-link"><localize key="skg.business.types"></localize></span><span class="sep">/</span>
+    <span class="crumb-link">{{type.organizationLabel}}</span><span class="sep">/</span>
+    <span class="current">{{type.displayLabel.localizedValue}}</span>
+  </div>
 
-    <div class="heading text-center">
-      <h1>
-        <localize key="business.data.type"></localize>
-      </h1>
-    </div> 
+  <div class="heading" *ngIf="type != null">
+    <h1>{{type.displayLabel.localizedValue}}</h1>
+    <div class="sub"><localize key="business.data.type"></localize></div>
+  </div>
 
-    <div class="row">
-      <div class="col-md-12">
-        <div class="form-group">
-          <div>
-            <label for="codeInput">
-              <localize key="data.property.label.code"></localize>
-            </label>
-            <input [(ngModel)]="type.code" name="code" type="text" class="form-control" id="codeInput"
-              required>
+  <form #form="ngForm" *ngIf="type" class="modal-form" (ngSubmit)="form.valid && handleOnSubmit()">
+    <fieldset>
+
+      <div class="panel panel-default section-panel">
+        <div class="panel-heading">
+          <h5 class="panel-title"><localize key="hierarchy.management.section.identity.title"></localize></h5>
+          <p class="panel-subtitle"><localize key="hierarchy.management.section.identity.description"></localize></p>
+        </div>
+        <div class="panel-body">
+          <div class="row-holder">
+            <div class="label-holder">
+              <label for="codeInput">
+                <localize key="data.property.label.code"></localize>
+              </label>
+            </div>
+            <div class="holder">
+              <span class="text">
+                <input [(ngModel)]="type.code" name="code" type="text" class="form-control" id="codeInput" required>
+              </span>
+            </div>
+          </div>
+
+          <div class="row-holder" *ngFor="let localeValue of type.displayLabel.localeValues">
+            <div class="label-holder">
+              <label>
+                <localize key="data.property.label.label"></localize>
+                <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale"></convert-key-label>)</span>
+              </label>
+            </div>
+            <div class="holder">
+              <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input"
+                class="form-control" [required]="localeValue.locale === 'defaultLocale'">
+            </div>
+          </div>
+
+          <localized-text [(value)]="type.description" key="data.property.label.description"></localized-text>
+        </div>
+      </div>
+
+      <div class="panel panel-default section-panel">
+        <div class="panel-heading">
+          <h5 class="panel-title"><localize key="hierarchy.management.section.ownership.title"></localize></h5>
+          <p class="panel-subtitle"><localize key="hierarchy.management.section.ownership.description"></localize></p>
+        </div>
+        <div class="panel-body">
+          <div class="row-holder">
+            <div class="label-holder">
+              <label for="organization">
+                <localize key="attribute.organization.label"></localize>
+              </label>
+            </div>
+            <div class="holder">
+              <span class="text">
+                <input type="text" name="organization" [(ngModel)]="type.organizationLabel" class="form-control" disabled required>
+              </span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="row">
-      <div class="col-md-12">
-        <div class="form-group" *ngFor="let localeValue of type.displayLabel.localeValues">
-          <label>
-            <localize key="data.property.label.label"></localize> 
-            <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale"></convert-key-label>)</span>
-          </label>
-          <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input"
-            class="form-control" [required]="localeValue.locale === 'defaultLocale'">
-        </div>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col-md-12">
-        <localized-text [(value)]="type.description" key="data.property.label.description" [inlinelayout]="true"></localized-text>
-      </div>
-    </div>
-            
-    <div class="row">
-      <div class="col-md-12">
-        <div class="form-group">
-          <label for="organization">
-            <localize key="attribute.organization.label"></localize>
-          </label>
-          <span class="text">
-            <input type="text" name="organization" [(ngModel)]="type.organizationLabel" disabled required>
-          </span>
-        </div>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col-md-12">
+      <div class="row-holder">
         <div class="button-holder">
           <button type="button" class="btn btn-default" (click)="handleCancel()">
             <localize key="modal.button.cancel"></localize>
@@ -85,7 +101,7 @@
           </button>
         </div>
       </div>
-    </div>
+    </fieldset>
+  </form>
 
-  </div>
-</form>
+</div>

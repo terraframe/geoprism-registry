@@ -47,6 +47,15 @@ export class MultiSelectFieldComponent {
 
     buildButtonLabel(showAll: boolean = false): string {
 
+        if (showAll) {
+            // if (labels.length == 0) return this.lService.decode("synchronization.config.none");
+            return this.getSelectedLabels().join(", ");
+        } else {
+            return this.noValueText;
+        }
+    }
+
+    getSelectedLabels(): string[] {
         let labels: string[] = [];
 
         if (this.options != null) {
@@ -59,12 +68,7 @@ export class MultiSelectFieldComponent {
             }
         }
 
-        if (showAll) {
-            // if (labels.length == 0) return this.lService.decode("synchronization.config.none");
-            return labels.sort().join(", ");
-        } else {
-            return this.noValueText;
-        }
+        return labels.sort();
     }
 
     clickOption($event, option: { value: string, label: string }) {

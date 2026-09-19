@@ -36,9 +36,9 @@ import { BusinessType } from "@registry/model/object-class";
 @Component({
     selector: "create-business-type",
     templateUrl: "./create-business-type.component.html",
-    styleUrls: [],
+    styleUrls: ["./create-business-type.css"],
     standalone: true,
-    imports: [FormsModule, LocalizeComponent, NgFor, ConvertKeyLabel, LocalizedTextComponent]
+    imports: [FormsModule, LocalizeComponent, NgIf, NgFor, ConvertKeyLabel, LocalizedTextComponent]
 })
 export class CreateBusinessTypeComponent implements OnInit {
 

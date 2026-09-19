@@ -21,7 +21,13 @@
     </div>
   </div>
   <div class="row">
-    <div class="col-md-12" style="line-height: 41px;"> {{buildButtonLabel(true)}}
+    <div class="col-md-12">
+      <ul *ngIf="getSelectedLabels().length > 0; else noSelection" style="margin: 0; padding-left: 20px;">
+        <li *ngFor="let label of getSelectedLabels()">{{label}}</li>
+      </ul>
+      <ng-template #noSelection>
+        <div style="line-height: 41px;">{{noValueText}}</div>
+      </ng-template>
     </div>
   </div>
 </div>
