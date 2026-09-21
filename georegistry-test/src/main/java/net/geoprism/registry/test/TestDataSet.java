@@ -69,7 +69,6 @@ import net.geoprism.registry.IdRecord;
 import net.geoprism.registry.IdRecordQuery;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeQuery;
-import net.geoprism.registry.MasterList;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.UserInfo;
 import net.geoprism.registry.UserInfoQuery;
@@ -949,8 +948,6 @@ abstract public class TestDataSet
 
     if (uni != null)
     {
-      MasterList.deleteAll(uni);
-
       uni = Universal.get(uni.getOid());
       uni.delete();
     }

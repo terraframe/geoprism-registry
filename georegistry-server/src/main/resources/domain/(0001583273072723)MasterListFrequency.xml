@@ -56,26 +56,10 @@
       </mdEnumeration>
     </create>
     <update>
-      <mdBusiness name="net.geoprism.registry.MasterList">
-        <create>
-          <attributes>
-            <enumeration name="frequency" label="Frequency" required="false" type="net.geoprism.registry.ChangeFrequency" immutable="false" selectMultiple="false" />
-          </attributes>
-        </create>
-      </mdBusiness>
-      <mdBusiness name="net.geoprism.registry.MasterListVersion">
-        <create>
-          <attributes>
-            <char name="versionType" label="Version Type" size="255" />
-          </attributes>
-        </create>
-      </mdBusiness>
     </update>
   </doIt>
   <undoIt>
     <delete>
-      <object key="net.geoprism.registry.MasterListVersion.versionType" type="com.runwaysdk.system.metadata.MdAttribute"></object>
-      <object key="net.geoprism.registry.MasterList.frequency" type="com.runwaysdk.system.metadata.MdAttribute"></object>
       <object key="net.geoprism.registry.ChangeFrequency" type="com.runwaysdk.system.metadata.MdEnumeration"></object>
       <object key="net.geoprism.registry.ChangeFrequencyMaster" type="com.runwaysdk.system.metadata.MdBusiness"></object>
     </delete>

@@ -25,9 +25,6 @@
     <permissions>
       <role roleName="cgr.RegistryContributor">
         <grant>      
-          <mdBusinessPermission type="net.geoprism.registry.etl.PublishMasterListVersionJob">
-            <operation name="ALL" />
-          </mdBusinessPermission>
           <mdBusinessPermission type="com.runwaysdk.system.scheduler.JobHistory">
             <operation name="ALL" />
           </mdBusinessPermission>

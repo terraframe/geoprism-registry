@@ -28,19 +28,11 @@
     </create>
   
     <update>
-      <mdBusiness name="net.geoprism.registry.MasterList">
-        <create>
-        <attributes>
-          <boolean name="valid" label="Valid" />
-        </attributes>
-        </create>
-      </mdBusiness>
     </update>
   </doIt>
   <undoIt>
     <delete>
       <object key="net.geoprism.registry.InvalidMasterListException" type="com.runwaysdk.system.metadata.MdException"></object>
-      <object key="net.geoprism.registry.MasterList.valid" type="com.runwaysdk.system.metadata.MdAttribute"></object>
     </delete>
   </undoIt>
 </version>

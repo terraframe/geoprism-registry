@@ -62,14 +62,12 @@ import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.excel.ListTypeExcelExporter;
 import net.geoprism.registry.excel.ListTypeExcelExporter.ListMetadataSource;
-import net.geoprism.registry.excel.MasterListExcelExporter;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
 import net.geoprism.registry.shapefile.ListTypeShapefileExporter;
-import net.geoprism.registry.shapefile.MasterListShapefileExporter;
 import net.geoprism.registry.xml.XMLImporter;
 
 public class GeoRegistryUtil extends GeoRegistryUtilBase
@@ -214,55 +212,6 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
   }
 
 
-  @Transaction
-  public static InputStream exportMasterListShapefile(String oid, String filterJson)
-  {
-    MasterListVersion version = MasterListVersion.get(oid);
-    MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(version.getMdBusinessOid());
-
-    List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> version.isValid(mdAttribute)).collect(Collectors.toList());
-
-    if (filterJson.contains("invalid"))
-    {
-      mdAttributes = mdAttributes.stream().filter(mdAttribute -> !mdAttribute.definesAttribute().equals("invalid")).collect(Collectors.toList());
-    }
-
-    try
-    {
-      MasterListShapefileExporter exporter = new MasterListShapefileExporter(version, mdBusiness, mdAttributes, filterJson);
-
-      return exporter.export();
-    }
-    catch (IOException e)
-    {
-      throw new ProgrammingErrorException(e);
-    }
-  }
-
-  @Transaction
-  public static InputStream exportMasterListExcel(String oid, String filterJson)
-  {
-    MasterListVersion version = MasterListVersion.get(oid);
-    MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(version.getMdBusinessOid());
-
-    List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> version.isValid(mdAttribute)).collect(Collectors.toList());
-
-    if (filterJson.contains("invalid"))
-    {
-      mdAttributes = mdAttributes.stream().filter(mdAttribute -> !mdAttribute.definesAttribute().equals("invalid")).collect(Collectors.toList());
-    }
-
-    try
-    {
-      MasterListExcelExporter exporter = new MasterListExcelExporter(version, mdBusiness, mdAttributes, filterJson, null);
-
-      return exporter.export();
-    }
-    catch (IOException e)
-    {
-      throw new ProgrammingErrorException(e);
-    }
-  }
 
   @Transaction
   public static InputStream exportListTypeShapefile(String oid, String json, String actualGeometryType)

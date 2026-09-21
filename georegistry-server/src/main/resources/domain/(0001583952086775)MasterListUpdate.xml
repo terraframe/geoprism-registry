@@ -20,24 +20,6 @@
 -->
 <version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
-    <delete>
-      <object key="net.geoprism.registry.MasterList.organization" type="com.runwaysdk.system.metadata.MdAttribute"></object>
-    </delete>
-
-    <update>
-      <mdBusiness name="net.geoprism.registry.MasterList">
-        <attributes>
-          <reference name="universal" type="com.runwaysdk.system.gis.geo.Universal" indexType="non-unique index" required="true" label="Universal" />
-        </attributes>
-        <create>
-          <attributes>
-            <reference name="organization" label="Organization" required="false" type="net.geoprism.registry.Organization" />
-            <boolean name="isMaster" label="Is Master" description="Flag denoting if the list is a master list" />
-            <char name="visibility" label="Visibility" size="255" required="false" />
-          </attributes>
-        </create>
-      </mdBusiness>
-    </update>
     <createOrUpdate>
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.visibility">
         <attribute name="storeTag" value="UIText" />

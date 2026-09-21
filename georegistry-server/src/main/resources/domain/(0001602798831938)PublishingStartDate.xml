@@ -21,16 +21,6 @@
 <version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
     <update>
-      <mdBusiness name="net.geoprism.registry.MasterList">
-          <attributes>
-            <enumeration name="frequency" label="Publishing frequency" />
-          </attributes>
-        <create>
-          <attributes>
-            <date name="publishingStartDate" label="Publishing start date" />
-          </attributes>
-        </create>
-      </mdBusiness>
     </update>
     <createOrUpdate>
 
@@ -52,7 +42,6 @@
   </doIt>
   <undoIt>
     <delete>
-      <object key="net.geoprism.registry.MasterList.publishingStartDate" type="com.runwaysdk.system.metadata.MdAttribute"></object>
     </delete>
   </undoIt>
 </version>
