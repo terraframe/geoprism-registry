@@ -1,0 +1,74 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="datasource.manager.subtitle">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="datasource.manager.subtitle" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Metadata describing the specific source (organization, project, database, etc..) of data integrated with the system." />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="datasource.manager.button.new">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="datasource.manager.button.new" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Add Data Source" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="datasource.manager.empty.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="datasource.manager.empty.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="No data sources have been registered yet." />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="source.authority.manager.subtitle">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="source.authority.manager.subtitle" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Metadata describing the authority the group who governs and publishes the data has over those data sources." />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="source.authority.manager.button.new">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="source.authority.manager.button.new" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Add Source Authority" />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="source.authority.manager.empty.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="source.authority.manager.empty.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="No source authorities have been registered yet." />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="rollback.manager.subtitle">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="rollback.manager.subtitle" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Rollback the data imported during this import. This cannot be undone." />
+        </attributeStruct>
+      </object>
+
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.manager.subtitle">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="scheduledjobs.manager.subtitle" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Track running imports and review completed job history." />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

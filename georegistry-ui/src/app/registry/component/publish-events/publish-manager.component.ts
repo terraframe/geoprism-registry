@@ -54,7 +54,7 @@ import { WebSockets } from "@shared/component/web-sockets/web-sockets";
 @Component({
   selector: "publish-manager",
   templateUrl: "./publish-manager.component.html",
-  styleUrls: [],
+  styleUrls: ["./publish-manager.css"],
   standalone: true,
   imports: [
     PageContainerComponent,

@@ -43,6 +43,13 @@
     margin-top: 0;
 }
 
+.ds-new-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: none;
+}
+
 .ds-card {
     background: #ffffff;
     border: 1px solid #e3e2ea;
@@ -53,9 +60,9 @@
 
 .ds-row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 220px 160px;
+    grid-template-columns: 170px minmax(0, 1fr) 220px 148px;
     align-items: center;
-    padding: 16px 20px;
+    padding: 14px 20px;
     border-bottom: 1px solid #f0eff5;
 }
 .ds-row:last-child {
@@ -81,35 +88,38 @@
     text-align: right;
 }
 
+.ds-label {
+    font-size: 13.5px;
+    color: var(--ink-900, #16141f);
+    font-weight: 600;
+}
+
 .ds-actions {
     display: flex;
     justify-content: flex-end;
+    gap: 4px;
 }
 
-.ds-file {
+.ds-icon-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
     display: flex;
     align-items: center;
-    gap: 8px;
-    min-width: 0;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--theme-text-dark, #767676);
+    padding: 0;
 }
-.ds-file i.fa {
-    color: var(--theme-primary-color, #3E2A5A);
-    flex: none;
+.ds-icon-btn:hover {
+    background-color: var(--theme-submit-button-color-light-hover, #f4fcef);
+    color: var(--theme-submit-button-color, #6BA542);
 }
-
-.ds-file-link {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--ink-900, #16141f);
-    text-decoration: none;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    min-width: 0;
-}
-.ds-file-link:hover {
-    color: var(--theme-primary-color, #3E2A5A);
-    text-decoration: underline;
+.ds-icon-btn-danger:hover {
+    background-color: rgba(255, 0, 0, 0.08);
+    color: var(--theme-text-error, red);
 }
 
 .ds-empty-state {
@@ -117,57 +127,4 @@
     text-align: center;
     color: #a9a6bd;
     font-size: 13px;
-}
-
-.ds-pagination {
-    margin-top: 18px;
-    display: flex;
-    justify-content: center;
-}
-:host::ng-deep .ds-pagination .ngx-pagination {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-:host::ng-deep .ds-pagination .ngx-pagination li {
-    margin: 0;
-}
-:host::ng-deep .ds-pagination .ngx-pagination a,
-:host::ng-deep .ds-pagination .ngx-pagination button,
-:host::ng-deep .ds-pagination .ngx-pagination span {
-    display: inline-flex;
-    align-items: center;
-    padding: 7px 10px;
-    font-size: 12.5px;
-    font-weight: 600;
-    color: var(--theme-text-dark, #767676);
-    border-radius: 7px;
-    background: transparent;
-}
-:host::ng-deep .ds-pagination .ngx-pagination a:hover {
-    background: var(--theme-submit-button-color-light-hover, #f4fcef);
-    color: var(--theme-submit-button-color, #6BA542);
-}
-:host::ng-deep .ds-pagination .ngx-pagination .disabled span {
-    color: #c3c1cf;
-    cursor: default;
-}
-:host::ng-deep .ds-pagination .ngx-pagination li.current {
-    width: 28px;
-    height: 28px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 7px;
-    background: #A29BAB !important;
-    color: var(--theme-primary-color, #3E2A5A);
-    font-weight: 700;
-}
-:host::ng-deep .ds-pagination .ngx-pagination li.current span {
-    padding: 0;
-    color: var(--theme-primary-color, #3E2A5A);
 }

@@ -24,10 +24,12 @@ import { HttpErrorResponse } from "@angular/common/http";
 
 import { ErrorHandler, ConfirmModalComponent } from "@shared/component";
 import { LocalizationService } from "@shared/service/localization.service";
-import { DataSource } from "@registry/model/source";
+import { DataSource, SourceAuthority } from "@registry/model/source";
 import { DataSourceService } from "@registry/service/data-source.service";
+import { SourceAuthorityService } from "@registry/service/source-authority.service";
 import { NgIf, NgFor } from "@angular/common";
 import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { LocalizePipe } from "@shared/pipe/localize.pipe";
 import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
 import { ModalTypes } from "@shared/model/modal";
 import { ManageDataSourceModalComponent } from "./modals/manage-data-source-modal.component";
@@ -35,23 +37,35 @@ import { ManageDataSourceModalComponent } from "./modals/manage-data-source-moda
 @Component({
     selector: "data-source-manager",
     templateUrl: "./data-source-manager.component.html",
-    styleUrls: [],
+    styleUrls: ["./data-source-manager.css"],
     standalone: true,
-    imports: [PageContainerComponent, LocalizeComponent, NgIf, NgFor]
+    imports: [PageContainerComponent, LocalizeComponent, NgIf, NgFor, LocalizePipe]
 })
 export class DataSourceManagerComponent implements OnInit {
 
     message: string = null;
     sources: DataSource[];
+    authorities: SourceAuthority[] = [];
 
     /*
      * Reference to the modal current showing
     */
     bsModalRef: BsModalRef;
 
+    private static readonly GOVERNANCE_LEVEL_LABEL_KEYS: { [level: string]: string } = {
+        AUTHORITATIVE: "datasource.authoritative",
+        OFFICIAL: "datasource.official",
+        COMMUNITY: "datasource.community.curated",
+        RESEARCH: "datasource.research",
+        DERIVED: "datasource.derived",
+        EXPERIMENTAL: "datasource.experimental",
+        AD_HOC: "datasource.ad.hoc"
+    };
+
     // eslint-disable-next-line no-useless-constructor
     constructor(
         private service: DataSourceService,
+        private authorityService: SourceAuthorityService,
         private modalService: BsModalService,
         private localizeService: LocalizationService) { }
 
@@ -62,6 +76,22 @@ export class DataSourceManagerComponent implements OnInit {
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
+
+        this.authorityService.getAll().then(authorities => {
+            this.authorities = authorities;
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
+    }
+
+    getGovernanceLevelLabelKey(level: string): string {
+        return DataSourceManagerComponent.GOVERNANCE_LEVEL_LABEL_KEYS[level] || null;
+    }
+
+    getAuthorityLabel(code: string): string {
+        const authority = this.authorities.find(a => a.code === code);
+
+        return authority != null ? authority.label.localizedValue : "";
     }
 
     onCreate(): void {

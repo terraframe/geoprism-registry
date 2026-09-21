@@ -397,19 +397,22 @@ button.btn.btn-default:hover {
 }
 
 .btn-danger {
-	background-color: #f18d8a;
-	border-color: #6d0400;
+	color: #c0392b;
+	background-color: #fff0f0;
+	border-color: #f3c9c4;
 }
 
 .btn-danger:hover {
-	background-color: #f3aca9;
+	color: #c0392b;
+	background-color: #ffe2e0;
+	border-color: #f3c9c4;
 }
 
 input[type=button].btn.btn-danger:disabled,
 input[type=submit].btn.btn-danger:disabled,
 button.btn-danger:disabled,
 button.btn.btn-danger:disabled {
-	background: #f18d8a;
+	background: #fff0f0;
 	/* IE fallback */
 	cursor: not-allowed;
 }

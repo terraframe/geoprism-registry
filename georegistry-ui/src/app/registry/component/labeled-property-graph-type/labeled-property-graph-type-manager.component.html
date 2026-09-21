@@ -38,6 +38,7 @@
                             <localize key="hierarchy.management.button.create"></localize>
                         </button>
                     </li>
+                    <hr />
                     <li class="list-group-item got-li-item" *ngFor="let type of types" [id]="type.oid">
                         <a [routerLink]="'/registry/labeled-property-graph-type'" [queryParams]="{oid:type.oid}"
                             routerLinkActive="active">

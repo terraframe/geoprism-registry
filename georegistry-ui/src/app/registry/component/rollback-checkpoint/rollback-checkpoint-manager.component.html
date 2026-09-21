@@ -23,89 +23,67 @@
     <progress-bar></progress-bar>
   }
 
-  <div class="heading">
-    <h2>
-      <localize key="header.rollback.checkpoint"></localize>
-    </h2>
-  </div>
+  <div class="ds-page">
 
-  <div *ngIf="message != null" class="alert alert-danger" role="alert">
-    {{ message }}
-  </div>
-
-  <div *ngIf="page.count === 0" class="row">
-    <div class="col-md-12">
-      <div class="py-5">
-        <p class="inline-message">
-          <localize key="rollback.no.data"></localize>
-        </p>
+    <div class="ds-header">
+      <div>
+        <h1 class="ds-title"><localize key="header.rollback.checkpoint"></localize></h1>
+        <div class="ds-subtitle"><localize key="rollback.manager.subtitle"></localize></div>
       </div>
     </div>
-  </div>
 
-  <ul
-    *ngIf="page.count > 0"
-    class="type-group"
-    style="border-bottom: 2px solid lightgrey; margin-top: 30px"
-  >
-    <table class="table">
-      <thead>
-        <tr>
-          <th style="width: 30%">
-            <localize key="rollback.filename"></localize>
-          </th>
-          <th style="width: 15%">
-            <localize key="rollback.import.date"></localize>
-          </th>
-          <th style="width: 30%">
-            <localize key="transition.event.description"></localize>
-          </th>
+    <div *ngIf="message != null" class="alert alert-danger" role="alert">
+      {{ message }}
+    </div>
 
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          *ngFor="
-            let checkpoint of page.resultSet
-              | paginate
-                : {
-                    id: 'rollback',
-                    itemsPerPage: page.pageSize,
-                    currentPage: page.pageNumber,
-                    totalItems: page.count,
-                  }
-          "
-        >
-          <td style="width: 30%; vertical-align: middle">
-            <a [routerLink]="'/registry/job/' + checkpoint.historyId">{{
-              checkpoint.filename
-            }}</a>
-          </td>
-          <td style="width: 15%; vertical-align: middle">
-            {{ checkpoint.importDate }}
-          </td>
-          <td style="width: 30%; vertical-align: middle">
-            {{ checkpoint.description }}
-          </td>
+    <div class="ds-card">
+      <div class="ds-row ds-row-head" *ngIf="page.count > 0">
+        <div><localize key="rollback.filename"></localize></div>
+        <div><localize key="rollback.import.date"></localize></div>
+        <div class="ds-actions-head"><localize key="data.property.label.actions"></localize></div>
+      </div>
 
-          <td style="width: 25%; text-align: right">
-            <button
-              type="submit"
-              (click)="onRollback(checkpoint)"
-              class="btn btn-danger"
-              role="button"
-            >
-              <localize key="modal.button.rollback"></localize>
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+      <div
+        class="ds-row"
+        *ngFor="
+          let checkpoint of page.resultSet
+            | paginate
+              : {
+                  id: 'rollback',
+                  itemsPerPage: page.pageSize,
+                  currentPage: page.pageNumber,
+                  totalItems: page.count,
+                };
+          let i = index
+        "
+        [class.ds-row-alt]="i % 2 === 1"
+      >
+        <div class="ds-file">
+          <i class="fa fa-file-text" aria-hidden="true"></i>
+          <a [routerLink]="'/registry/job/' + checkpoint.historyId" class="ds-file-link">{{
+            checkpoint.filename
+          }}</a>
+        </div>
+        <div>{{ checkpoint.importDate }}</div>
+        <div class="ds-actions">
+          <button type="button" class="btn btn-danger" (click)="onRollback(checkpoint)">
+            <i class="fa fa-undo" style="margin-right: 6px;" aria-hidden="true"></i>
+            <localize key="modal.button.rollback"></localize>
+          </button>
+        </div>
+      </div>
+
+      <div class="ds-empty-state" *ngIf="page.count === 0">
+        <localize key="rollback.no.data"></localize>
+      </div>
+    </div>
 
     <pagination-controls
+      *ngIf="page.count > 0"
       id="rollback"
       (pageChange)="onPageChange($event)"
+      class="ds-pagination"
     ></pagination-controls>
-  </ul>
+
+  </div>
 </page-container>

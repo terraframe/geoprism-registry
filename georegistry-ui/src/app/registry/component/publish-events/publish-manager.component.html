@@ -25,21 +25,17 @@
 
   <div class="row">
     <nav class="col-md-3 list-sidebar">
+      <div class="row">
+        <div class="col-md-12">
+          <h2><localize key="skg.list.label"></localize></h2>
+        </div>
+      </div>
       <div class="sidebar-section-content">
         <ul class="list-group">
           <li class="list-group-item got-li-item">
-            <localize key="skg.list.label"></localize>
-
-            <span
-              style="
-                position: absolute;
-                right: 10px;
-                top: 50%;
-                transform: translateY(-50%);
-              "
-            >
-              <a class="fa fa-plus" (click)="onCreate()"></a>
-            </span>
+            <button type="submit" (click)="onCreate()" class="btn btn-primary" role="button">
+              <localize key="hierarchy.management.button.create"></localize>
+            </button>
           </li>
           <hr />
 

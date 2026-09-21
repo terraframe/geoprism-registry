@@ -25,6 +25,7 @@ import { ErrorHandler, ConfirmModalComponent } from "@shared/component";
 import { LocalizationService } from "@shared/service/localization.service";
 import { NgIf, NgFor } from "@angular/common";
 import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { LocalizePipe } from "@shared/pipe/localize.pipe";
 import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
 import { ModalTypes } from "@shared/model/modal";
 import { SourceAuthority } from "@registry/model/source";
@@ -34,9 +35,9 @@ import { ManageSourceAuthorityModalComponent } from "./modals/manage-source-auth
 @Component({
     selector: "source-authority-manager",
     templateUrl: "./source-authority-manager.component.html",
-    styleUrls: [],
+    styleUrls: ["./source-authority-manager.css"],
     standalone: true,
-    imports: [PageContainerComponent, LocalizeComponent, NgIf, NgFor]
+    imports: [PageContainerComponent, LocalizeComponent, NgIf, NgFor, LocalizePipe]
 })
 export class SourceAuthorityManagerComponent implements OnInit {
 
@@ -48,6 +49,20 @@ export class SourceAuthorityManagerComponent implements OnInit {
     */
     bsModalRef: BsModalRef;
 
+    private static readonly AUTHORITY_TYPE_LABEL_KEYS: { [type: string]: string } = {
+        GOVERNMENT: "authority.type.government",
+        STATISTICAL: "authority.type.statistical",
+        MAPPING: "authority.type.mapping",
+        RESEARCH: "authority.type.research",
+        NGO: "authority.type.ngo",
+        PRIVATE: "authority.type.private",
+        STANDARDS: "authority.type.standards",
+        COMMUNITY: "authority.type.community",
+        INDIVIDUAL: "authority.type.individual",
+        CONSORTIUM: "authority.type.consortium",
+        PROGRAM: "authority.type.program"
+    };
+
     // eslint-disable-next-line no-useless-constructor
     constructor(public service: SourceAuthorityService, private modalService: BsModalService, private localizeService: LocalizationService) { }
 
@@ -57,6 +72,10 @@ export class SourceAuthorityManagerComponent implements OnInit {
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
+    }
+
+    getAuthorityTypeLabelKey(type: string): string {
+        return SourceAuthorityManagerComponent.AUTHORITY_TYPE_LABEL_KEYS[type] || null;
     }
 
     onCreate(): void {

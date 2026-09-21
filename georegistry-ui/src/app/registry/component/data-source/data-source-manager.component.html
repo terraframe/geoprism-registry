@@ -20,55 +20,52 @@
 -->
 <page-container>
 
-    <div class="heading">
-        <h2>
-            <localize key="nav.datasource.label"></localize>
-        </h2>
-    </div>
+    <div class="ds-page">
 
-    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
-
-    <ul class="type-group" style="border-bottom: 2px solid lightgrey; margin-top: 30px;">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th style="width: 35%;">
-                        <localize key="data.property.label.code"></localize>
-                    </th>
-                    <th style="width: 35%;">
-                        <localize key="data.property.label.label"></localize>
-                    </th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let source of sources; let i = index;" class="clickable">
-                    <td style="width: 35%; vertical-align: middle;">
-                        {{source.code}}
-                    </td>
-                    <td style="width: 35%; vertical-align: middle;">
-                        {{source.label.localizedValue}}
-                    </td>
-                    <td style="width: 30%; text-align: right;">
-                        <button type="submit" (click)="onEdit(source, true)" class="btn btn-primary" role="button">
-                            <localize key="modal.button.view"></localize>
-                        </button>
-                        <button type="submit" (click)="onEdit(source, false)" class="btn btn-default" role="button">
-                            <localize key="modal.button.edit"></localize>
-                        </button>
-                        <button type="submit" (click)="onDelete(source)" class="btn btn-danger" role="button">
-                            <localize key="modal.button.delete"></localize>
-                        </button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </ul>
-    <div style="margin-top: 30px; margin-bottom: 30px;" class="row">
-        <div class="col-md-6">
-            <button type="submit" (click)="onCreate()" class="btn btn-primary" role="button">
-                <localize key="hierarchy.management.button.create"></localize>
+        <div class="ds-header">
+            <div>
+                <h1 class="ds-title"><localize key="nav.datasource.label"></localize></h1>
+                <div class="ds-subtitle"><localize key="datasource.manager.subtitle"></localize></div>
+            </div>
+            <button type="button" class="btn btn-primary ds-new-btn" (click)="onCreate()">
+                <localize key="datasource.manager.button.new"></localize>
             </button>
         </div>
+
+        <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+        <div class="ds-card">
+            <div class="ds-row ds-row-head" *ngIf="sources?.length > 0">
+                <div><localize key="datasource.governance.level"></localize></div>
+                <div><localize key="data.property.label.label"></localize></div>
+                <div><localize key="datasource.authority"></localize></div>
+                <div class="ds-actions-head"><localize key="data.property.label.actions"></localize></div>
+            </div>
+
+            <div class="ds-row" *ngFor="let source of sources; let i = index;" [class.ds-row-alt]="i % 2 === 1">
+                <div>
+                    <span *ngIf="getGovernanceLevelLabelKey(source.governanceLevel) as levelKey">{{ levelKey | localize }}</span>
+                </div>
+                <div class="ds-label">{{source.label.localizedValue}}</div>
+                <div>{{ getAuthorityLabel(source.authority) }}</div>
+                <div class="ds-actions">
+                    <button type="button" class="ds-icon-btn" (click)="onEdit(source, true)" [title]="'modal.button.view' | localize">
+                        <i class="fa fa-eye" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="ds-icon-btn" (click)="onEdit(source, false)" [title]="'modal.button.edit' | localize">
+                        <i class="fa fa-pencil" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="ds-icon-btn ds-icon-btn-danger" (click)="onDelete(source)" [title]="'modal.button.delete' | localize">
+                        <i class="fa fa-trash" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="ds-empty-state" *ngIf="sources?.length === 0">
+                <localize key="datasource.manager.empty.label"></localize>
+            </div>
+        </div>
+
     </div>
+
 </page-container>
