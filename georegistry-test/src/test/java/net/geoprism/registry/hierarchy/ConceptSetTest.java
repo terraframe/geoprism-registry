@@ -16,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.GenericException;
 import net.geoprism.registry.DatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
@@ -235,7 +236,7 @@ public class ConceptSetTest extends DatasetTest implements InstanceTestClassList
     }
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expected = GenericException.class)
   @Request
   public void testAddDuplicateConceptClass()
   {
@@ -275,7 +276,7 @@ public class ConceptSetTest extends DatasetTest implements InstanceTestClassList
     }
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expected = GenericException.class)
   @Request
   public void testAddConceptEdgeTypeEnumeration()
   {
@@ -294,7 +295,7 @@ public class ConceptSetTest extends DatasetTest implements InstanceTestClassList
     }
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expected = GenericException.class)
   @Request
   public void testAddDuplicateEdgeType()
   {

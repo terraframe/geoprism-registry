@@ -54,7 +54,7 @@ public class USATestData extends TestDataSet
 
   public static final TestGeoObjectInfo       COLORADO         = new TestGeoObjectInfo(TEST_DATA_KEY + "Colorado", STATE, SOURCE);
 
-  public static final TestGeoObjectInfo       CO_D_ONE         = new TestGeoObjectInfo(TEST_DATA_KEY + "ColoradoDistrictOne", DISTRICT, SOURCE);
+  public static final TestGeoObjectInfo       CO_D_ONE         = new TestGeoObjectInfo(TEST_DATA_KEY + "Colorado District One", DISTRICT, SOURCE);
 
   public static final TestGeoObjectInfo       CO_D_TWO         = new TestGeoObjectInfo(TEST_DATA_KEY + "ColoradoDistrictTwo", DISTRICT, SOURCE);
 
@@ -74,9 +74,9 @@ public class USATestData extends TestDataSet
 
   public static final TestGeoObjectInfo       CANADA           = new TestGeoObjectInfo(TEST_DATA_KEY + "CANADA", COUNTRY, SOURCE);
 
-  public static final TestGeoObjectInfo       HP_ONE           = new TestGeoObjectInfo(TEST_DATA_KEY + "HpOne", HEALTH_POST, SOURCE);
+  public static final TestGeoObjectInfo       HP_ONE           = new TestGeoObjectInfo(TEST_DATA_KEY + "Hp One", HEALTH_POST, SOURCE);
 
-  public static final TestGeoObjectInfo       HP_TWO           = new TestGeoObjectInfo(TEST_DATA_KEY + "HpTwo", HEALTH_POST, SOURCE);
+  public static final TestGeoObjectInfo       HP_TWO           = new TestGeoObjectInfo(TEST_DATA_KEY + "Hp Two", HEALTH_POST, SOURCE);
 
   public static final TestGeoObjectInfo       HS_ONE           = new TestGeoObjectInfo(TEST_DATA_KEY + "HsOne", HEALTH_STOP, SOURCE);
 

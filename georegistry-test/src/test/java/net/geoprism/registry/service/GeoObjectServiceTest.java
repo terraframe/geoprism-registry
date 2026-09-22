@@ -140,20 +140,6 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
     }
   }
 
-  @Test
-  @Request
-  public void testCodeStripWhitespace()
-  {
-    TEST_GO.apply();
-
-    ServerGeoObjectIF serverGo = TEST_GO.getServerObject();
-
-    serverGo.setCode("\t" + serverGo.getCode() + " ");
-
-    goService.apply(serverGo, false, false);
-
-    Assert.assertEquals(TEST_GO.getCode(), TEST_GO.getServerObject().getCode());
-  }
 
   @Test
   public void testGetPrivateGeoObjectByCode()

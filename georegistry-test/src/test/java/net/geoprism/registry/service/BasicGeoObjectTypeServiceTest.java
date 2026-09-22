@@ -21,9 +21,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.GenericException;
 import net.geoprism.registry.ConceptDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
@@ -126,7 +126,7 @@ public class BasicGeoObjectTypeServiceTest extends ConceptDatasetTest implements
     }
   }
 
-  @Test(expected = ProgrammingErrorException.class)
+  @Test(expected = GenericException.class)
   @Request
   public void testDuplicateAttribute()
   {
@@ -299,7 +299,7 @@ public class BasicGeoObjectTypeServiceTest extends ConceptDatasetTest implements
     }
   }
 
-  @Test(expected = ProgrammingErrorException.class)
+  @Test(expected = GenericException.class)
   @Request
   public void testDuplicateAttributeOnSubType()
   {

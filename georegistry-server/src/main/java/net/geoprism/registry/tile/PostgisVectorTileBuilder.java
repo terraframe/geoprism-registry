@@ -51,7 +51,7 @@ public class PostgisVectorTileBuilder
     this.mdBusiness = MdBusinessDAO.get(version.getMdBusinessOid());
 
     MdAttributeConcreteDAOIF geomAttribute = mdBusiness.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
-    MdAttributeConcreteDAOIF labelAttribute = mdBusiness.definesAttribute(DefaultAttribute.DISPLAY_LABEL.getName() + LocalizedValue.DEFAULT_LOCALE);
+    MdAttributeConcreteDAOIF labelAttribute = mdBusiness.definesAttribute(DefaultAttribute.DISPLAY_LABEL.getName() + ListTypeVersion.DEFAULT_LOCALE);
 
     this.locales = LocalizationFacade.getInstalledLocales();
     this.column = geomAttribute.getColumnName();
