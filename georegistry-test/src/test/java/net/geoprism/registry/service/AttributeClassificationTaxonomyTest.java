@@ -4,11 +4,13 @@
 package net.geoprism.registry.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.ValueOverTimeDTO;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
+import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.runwaysdk.session.Request;
 
+import net.geoprism.GenericException;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
@@ -168,6 +171,31 @@ public class AttributeClassificationTaxonomyTest extends FastDatasetTest impleme
 
   @Test
   @Request
+  public void testGetAttributeClassifications()
+  {
+    List<net.geoprism.registry.graph.AttributeClassificationType> classifications = this.cSetService.getAttributeClassifications(cSet);
+
+    Assert.assertEquals(1, classifications.size());
+
+    AttributeType result = classifications.get(0).toDTO();
+
+    Assert.assertEquals(testClassification.getCode(), result.getCode());
+    Assert.assertEquals(testClassification.getType(), result.getType());
+  }
+
+  @Test(expected = GenericException.class)
+  @Request
+  public void testDeleteWithClassifications()
+  {
+    List<net.geoprism.registry.graph.AttributeClassificationType> classifications = this.cSetService.getAttributeClassifications(cSet);
+
+    Assert.assertEquals(1, classifications.size());
+
+    this.cSetService.delete(cSet);
+  }
+
+  @Test
+  @Request
   public void testSearch()
   {
     List<ConceptObject> results = this.cObjectService.search(testClassification, rootConcept.getCode());
@@ -222,6 +250,25 @@ public class AttributeClassificationTaxonomyTest extends FastDatasetTest impleme
     ConceptObject result = results.get(0);
 
     Assert.assertEquals(parentConcept.getCode(), result.getCode());
+  }
+
+  @Test
+  @Request
+  public void testGetByCode()
+  {
+    Optional<ConceptObject> result = this.cObjectService.getByCode(testClassification, childConcept.getCode());
+
+    Assert.assertTrue(result.isPresent());
+    Assert.assertEquals(childConcept.getCode(), result.get().getCode());
+  }
+
+  @Test
+  @Request
+  public void testGetByCode_Bad()
+  {
+    Optional<ConceptObject> result = this.cObjectService.getByCode(testClassification, "BAD");
+
+    Assert.assertFalse(result.isPresent());
   }
 
   @Test

@@ -17,32 +17,20 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { HttpErrorResponse } from "@angular/common/http";
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output,
-} from "@angular/core";
-import { Commit, PublishEvents } from "@registry/model/publish";
-import { PublishService } from "@registry/service/publish.service";
-import { MultiSelectFieldComponent } from "../../../shared/component/form-fields/multi-select/multi-select-field.component";
-import { DateFieldComponent } from "../../../shared/component/form-fields/date-field/date-field.component";
-import { FormsModule } from "@angular/forms";
-import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
-import { NgIf, NgFor } from "@angular/common";
-import { webSocket, WebSocketSubject } from "rxjs/webSocket";
-import { Subscription } from "rxjs";
-import { WebSockets } from "@shared/component/web-sockets/web-sockets";
-import { Progress } from "@shared/model/progress";
-import { ProgressService } from "@shared/service";
-import { ProgressBarComponent } from "@shared/component";
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Commit, PublishEvents } from '@registry/model/publish';
+import { PublishService } from '@registry/service/publish.service';
+import { MultiSelectFieldComponent } from '../../../shared/component/form-fields/multi-select/multi-select-field.component';
+import { DateFieldComponent } from '../../../shared/component/form-fields/date-field/date-field.component';
+import { FormsModule } from '@angular/forms';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+import { NgFor } from '@angular/common';
+import { LocalizedTextComponent } from '../form-fields/localized-text/localized-text.component';
 
 @Component({
-  selector: "publish-events",
-  templateUrl: "./publish-events.component.html",
+  selector: 'publish-events',
+  templateUrl: './publish-events.component.html',
   styleUrls: [],
   standalone: true,
   imports: [
@@ -51,6 +39,7 @@ import { ProgressBarComponent } from "@shared/component";
     DateFieldComponent,
     MultiSelectFieldComponent,
     NgFor,
+    LocalizedTextComponent,
   ],
 })
 export class PublishEventsComponent implements OnInit {

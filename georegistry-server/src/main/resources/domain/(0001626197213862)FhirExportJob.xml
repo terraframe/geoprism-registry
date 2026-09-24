@@ -28,13 +28,6 @@
         </attributes>
       </mdVertex>   
     
-      <mdBusiness name="net.geoprism.registry.etl.FhirExportJob" extends="net.geoprism.registry.etl.MasterListJob" exported="false">
-        <attributes>
-          <reference name="version" type="net.geoprism.registry.MasterListVersion" label="Master List" required="true"/>
-          <graphReference name="externalSystem" type="net.geoprism.registry.graph.FhirExternalSystem" label="External System" required="true"/>          
-          <text name="implementation" label="Implementation" required="true"/>
-        </attributes>      
-      </mdBusiness>    
       <mdException name="net.geoprism.registry.etl.UnresolvableResourceException" 
                    label="Unresolvable Resource Exception" 
                    message="Unable to find the remote Organization resource with the identifier [{identifier}].  Make sure the resource has already been exported to the FHIR server">
@@ -101,22 +94,6 @@
         </attributeStruct>
       </object>    
     </createOrUpdate>
-    <permissions>
-      <role roleName="geoprism.admin.Administrator">
-        <grant>      
-          <mdBusinessPermission type="net.geoprism.registry.etl.FhirExportJob">
-            <operation name="ALL" />
-          </mdBusinessPermission>
-        </grant>
-      </role>
-      <role roleName="cgr.RegistryMaintainer">
-        <grant>      
-          <mdBusinessPermission type="net.geoprism.registry.etl.FhirExportJob">
-            <operation name="ALL" />
-          </mdBusinessPermission>
-        </grant>
-      </role>
-    </permissions>    
   </doIt>
   <undoIt>
     <delete>
@@ -124,7 +101,6 @@
       <object key="net.geoprism.registry.SynchronizationConfig.isImport" type="com.runwaysdk.system.metadata.MdAttribute"/>    
       <object key="net.geoprism.registry.etl.UnresolvableResourceException" type="com.runwaysdk.system.metadata.MdException"/>    
       <object key="net.geoprism.registry.etl.FhirResponseException" type="com.runwaysdk.system.metadata.MdException"/>    
-      <object key="net.geoprism.registry.etl.FhirExportJob" type="com.runwaysdk.system.metadata.MdBusiness"/>    
       <object key="net.geoprism.registry.graph.FhirExternalSystem" type="com.runwaysdk.system.metadata.MdVertex"/>    
     </delete>
   </undoIt>

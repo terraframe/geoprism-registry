@@ -53,6 +53,7 @@ public class BusinessTypeTest extends FastDatasetTest implements InstanceTestCla
     object.setCode(code);
     object.setOrganization(orgCode);
     object.setDisplayLabel(new LocalizedValue(label));
+    object.setDescription(new LocalizedValue("Test Description"));
 
     return object;
   }
@@ -69,6 +70,7 @@ public class BusinessTypeTest extends FastDatasetTest implements InstanceTestCla
       Assert.assertEquals(dto.getCode(), type.getCode());
       Assert.assertEquals(dto.getOrganization(), type.getServerOrganization().getCode());
       Assert.assertEquals(dto.getDisplayLabel().getValue(), type.getLabel().getValue());
+      Assert.assertEquals(dto.getDescription().getValue(), type.getDescriptionLV().getValue());
       Assert.assertNotNull(type.getMdVertex());
       Assert.assertEquals(type.getOrigin(), GeoprismProperties.getOrigin());
       Assert.assertEquals(Long.valueOf(0), type.getSequence());

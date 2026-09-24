@@ -38,9 +38,9 @@ public abstract class USADatasetTest extends ConceptDatasetTest implements Insta
   @Override
   public void afterClassSetup() throws Exception
   {
-    super.afterClassSetup();
-
     testData.tearDownMetadata();
+
+    super.afterClassSetup();
   }
 
   @Before

@@ -3,7 +3,6 @@
  */
 package net.geoprism.registry.etl;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Calendar;

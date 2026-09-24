@@ -17,9 +17,9 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { LocalizedValue } from "@core/model/core";
-import { AttributedType, AttributeType } from "./registry";
-import { PageResult } from "@shared/model/core";
+import { LocalizedValue } from '@core/model/core';
+import { AttributedType, AttributeType } from './registry';
+import { PageResult } from '@shared/model/core';
 
 export class ConceptSet {
   oid?: string;
@@ -34,7 +34,7 @@ export class ConceptSet {
 
 export class ObjectClass implements AttributedType {
   oid?: string;
-  type: "business-type" | "concept-class";
+  type: 'business-type' | 'concept-class';
   code: string;
   organization: string;
   organizationLabel?: string;

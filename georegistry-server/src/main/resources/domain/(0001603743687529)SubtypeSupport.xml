@@ -44,15 +44,6 @@
         </attributeStruct>
       </object>
     </createOrUpdate>
-    <update>
-      <mdBusiness name="net.geoprism.registry.MasterList">
-        <create>
-          <attributes>
-            <text name="subtypeHierarchies" label="Sub Type Hierarchies" />
-          </attributes>
-        </create>
-      </mdBusiness>    
-    </update>
   </doIt>
   <undoIt>
     <delete>

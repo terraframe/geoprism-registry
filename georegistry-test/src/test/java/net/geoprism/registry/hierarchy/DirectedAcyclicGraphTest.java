@@ -22,6 +22,7 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 
+import net.geoprism.GenericException;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
@@ -142,7 +143,7 @@ public class DirectedAcyclicGraphTest extends FastDatasetTest implements Instanc
     Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, pNode.getEndDate());
   }
 
-  @Test(expected = ProgrammingErrorException.class)
+  @Test(expected = GenericException.class)
   @Request
   public void testAddParentCyclic()
   {
@@ -220,7 +221,7 @@ public class DirectedAcyclicGraphTest extends FastDatasetTest implements Instanc
     Assert.assertEquals(2, parents.size());
   }
 
-  @Test(expected = ProgrammingErrorException.class)
+  @Test(expected = GenericException.class)
   @Request
   public void testAddSameParents()
   {

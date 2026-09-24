@@ -31,12 +31,12 @@ public class FastDatasetTest extends ConceptDatasetTest implements InstanceTestC
   @Override
   public void afterClassSetup() throws Exception
   {
-    super.afterClassSetup();
-
     if (testData != null)
     {
       testData.tearDownMetadata();
     }
+    
+    super.afterClassSetup();
   }
 
   @Before

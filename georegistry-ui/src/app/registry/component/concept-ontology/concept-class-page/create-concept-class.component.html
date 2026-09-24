@@ -19,14 +19,12 @@
 
 -->
 <form #form="ngForm" (ngSubmit)="form.valid && handleOnSubmit()" class="modal-form">
-
   <div class="modal-body">
-
     <div class="heading text-center">
       <h1>
         <localize key="concept.class.header"></localize>
       </h1>
-    </div> 
+    </div>
 
     <div class="row">
       <div class="col-md-12">
@@ -35,8 +33,7 @@
             <label for="codeInput">
               <localize key="data.property.label.code"></localize>
             </label>
-            <input [(ngModel)]="type.code" name="code" type="text" class="form-control" id="codeInput"
-              required>
+            <input [(ngModel)]="type.code" name="code" type="text" class="form-control" id="codeInput" required />
           </div>
         </div>
       </div>
@@ -46,21 +43,32 @@
       <div class="col-md-12">
         <div class="form-group" *ngFor="let localeValue of type.displayLabel.localeValues">
           <label>
-            <localize key="data.property.label.label"></localize> 
-            <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale"></convert-key-label>)</span>
+            <localize key="data.property.label.label"></localize>
+            <span style="color: #bababa"
+              >&nbsp;(<convert-key-label [key]="localeValue.locale"></convert-key-label>)</span
+            >
           </label>
-          <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input"
-            class="form-control" [required]="localeValue.locale === 'defaultLocale'">
+          <input
+            [(ngModel)]="localeValue.value"
+            [name]="'label-' + localeValue.locale"
+            type="input"
+            class="form-control"
+            [required]="localeValue.locale === 'defaultLocale'"
+          />
         </div>
       </div>
     </div>
 
     <div class="row">
       <div class="col-md-12">
-        <localized-text [(value)]="type.description" key="data.property.label.description" [inlinelayout]="true"></localized-text>
+        <localized-text
+          [(value)]="type.description"
+          key="data.property.label.description"
+          [inlinelayout]="true"
+        ></localized-text>
       </div>
     </div>
-            
+
     <div class="row">
       <div class="col-md-12">
         <div class="form-group">
@@ -68,7 +76,7 @@
             <localize key="attribute.organization.label"></localize>
           </label>
           <span class="text">
-            <input type="text" name="organization" [(ngModel)]="type.organizationLabel" disabled required>
+            <input type="text" name="organization" [(ngModel)]="type.organizationLabel" disabled required />
           </span>
         </div>
       </div>
@@ -86,6 +94,5 @@
         </div>
       </div>
     </div>
-
   </div>
 </form>

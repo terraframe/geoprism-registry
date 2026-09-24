@@ -70,7 +70,7 @@ public class PublishEventService
 {
   private static final String            PROGRESS_KEY = "publish";
 
-  private static Logger                  logger       = LoggerFactory.getLogger(PublishEventService.class);
+  private static final Logger            logger       = LoggerFactory.getLogger(PublishEventService.class);
 
   @Autowired
   private RegistryEventStore             store;

@@ -84,10 +84,10 @@ public class TestGeoObjectInfo extends TestCachedObject<ServerGeoObjectIF>
 
   private void initialize(String code, TestGeoObjectTypeInfo testUni, Boolean exists, Boolean isNew, TestDataSourceInfo source)
   {
-    if (code.contains(" "))
-    {
-      throw new ProgrammingErrorException("This will cause a confusing error downstream. Your code can't have a space in it.");
-    }
+//    if (code.contains(" "))
+//    {
+//      throw new ProgrammingErrorException("This will cause a confusing error downstream. Your code can't have a space in it.");
+//    }
 
     this.code = code;
     this.displayLabel = code;

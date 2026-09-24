@@ -17,145 +17,170 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import {
-    trigger,
-    style,
-    animate,
-    transition
-} from "@angular/animations";
-import { BsModalService } from "ngx-bootstrap/modal";
-import { HttpErrorResponse } from "@angular/common/http";
-import { ConfirmModalComponent } from "@shared/component";
-import { ConceptClass } from "@registry/model/object-class";
-import { AttributeType, ManageGeoObjectTypeModalState } from "@registry/model/registry";
-import { GeoObjectTypeModalStates } from "@registry/model/constants";
-import { ModalTypes } from "@shared/model/modal";
-import { LocalizationService } from "@shared/service/localization.service";
-import { LocalizePipe } from "@shared/pipe/localize.pipe";
-import { EditAttributeModalContentComponent } from "../../geo-ontology/geoobjecttype-management/edit-attribute-modal-content.component";
-import { DefineAttributeModalContentComponent } from "../../geo-ontology/geoobjecttype-management/define-attribute-modal-content.component";
-import { RouterLink } from "@angular/router";
-import { LocalizedInputComponent } from "../../form-fields/localized-input/localized-input.component";
-import { LocalizeComponent } from "@shared/component/localize/localize.component";
-import { FormsModule } from "@angular/forms";
-import { NgIf, NgFor, NgClass } from "@angular/common";
-import { ConceptClassService } from "@registry/service/concept-class.service";
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { trigger, style, animate, transition } from '@angular/animations';
+import { BsModalService } from 'ngx-bootstrap/modal';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ConfirmModalComponent } from '@shared/component';
+import { ConceptClass } from '@registry/model/object-class';
+import { AttributeType, ManageGeoObjectTypeModalState } from '@registry/model/registry';
+import { GeoObjectTypeModalStates } from '@registry/model/constants';
+import { ModalTypes } from '@shared/model/modal';
+import { LocalizationService } from '@shared/service/localization.service';
+import { LocalizePipe } from '@shared/pipe/localize.pipe';
+import { EditAttributeModalContentComponent } from '../../geo-ontology/geoobjecttype-management/edit-attribute-modal-content.component';
+import { DefineAttributeModalContentComponent } from '../../geo-ontology/geoobjecttype-management/define-attribute-modal-content.component';
+import { RouterLink } from '@angular/router';
+import { LocalizedInputComponent } from '../../form-fields/localized-input/localized-input.component';
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
+import { FormsModule } from '@angular/forms';
+import { NgIf, NgFor, NgClass } from '@angular/common';
+import { ConceptClassService } from '@registry/service/concept-class.service';
+import { LocalizedTextComponent } from '@registry/component/form-fields/localized-text/localized-text.component';
 
 @Component({
-    selector: "manage-concept-class",
-    templateUrl: "./manage-concept-class.component.html",
-    styleUrls: ["./manage-concept-class.css"],
-    // host: { '[@fadeInOut]': 'true' },
-    animations: [
-        [
-            trigger("fadeInOut", [
-                transition("void => *", [
-                    style({
-                        opacity: 0
-                    }),
-                    animate("500ms")
-                ]),
-                transition(":leave", animate("500ms", style({
-                    opacity: 0
-                })))
-            ])
-        ]
+  selector: 'manage-concept-class',
+  templateUrl: './manage-concept-class.component.html',
+  styleUrls: ['./manage-concept-class.css'],
+  // host: { '[@fadeInOut]': 'true' },
+  animations: [
+    [
+      trigger('fadeInOut', [
+        transition('void => *', [
+          style({
+            opacity: 0,
+          }),
+          animate('500ms'),
+        ]),
+        transition(
+          ':leave',
+          animate(
+            '500ms',
+            style({
+              opacity: 0,
+            })
+          )
+        ),
+      ]),
     ],
-    standalone: true,
-    imports: [NgIf, FormsModule, LocalizeComponent, LocalizedInputComponent, NgFor, NgClass, RouterLink, DefineAttributeModalContentComponent, EditAttributeModalContentComponent, LocalizePipe]
+  ],
+  standalone: true,
+  imports: [
+    NgIf,
+    FormsModule,
+    LocalizeComponent,
+    LocalizedTextComponent,
+    LocalizedInputComponent,
+    NgFor,
+    NgClass,
+    RouterLink,
+    DefineAttributeModalContentComponent,
+    EditAttributeModalContentComponent,
+    LocalizePipe,
+  ],
 })
 export class ManageConceptClassComponent implements OnInit {
+  private static readonly ATTRIBUTE_TYPE_LABEL_KEYS: { [type: string]: string } = {
+    character: 'data.type.label.text',
+    local: 'data.type.label.localtext',
+    integer: 'data.type.label.integer',
+    float: 'data.type.label.float',
+    date: 'data.type.label.date',
+    boolean: 'data.type.label.boolean',
+    term: 'data.type.label.term',
+    classification: 'data.type.label.classification',
+  };
 
-    @Input() type: ConceptClass;
-    @Input() readOnly: boolean = false;
+  @Input() type: ConceptClass;
+  @Input() readOnly: boolean = false;
 
-    @Output() onCancel: EventEmitter<void> = new EventEmitter<void>()
-    @Output() onError: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>()
-    @Output() typeChange: EventEmitter<ConceptClass> = new EventEmitter<ConceptClass>()
+  @Output() onCancel: EventEmitter<void> = new EventEmitter<void>();
+  @Output() onError: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>();
+  @Output() typeChange: EventEmitter<ConceptClass> = new EventEmitter<ConceptClass>();
 
+  modalState: ManageGeoObjectTypeModalState = {
+    state: GeoObjectTypeModalStates.manageGeoObjectType,
+    attribute: '',
+    termOption: '',
+  };
 
-    modalState: ManageGeoObjectTypeModalState = { state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: "", termOption: "" };
+  constructor(
+    public service: ConceptClassService,
+    private localizationService: LocalizationService,
+    private modalService: BsModalService
+  ) {}
 
-    constructor(
-        public service: ConceptClassService,
-        private localizationService: LocalizationService,
-        private modalService: BsModalService) {
-    }
+  ngOnInit(): void {}
 
-    ngOnInit(): void {
-    }
+  getAttributeTypeLabelKey(type: string): string | null {
+    return ManageConceptClassComponent.ATTRIBUTE_TYPE_LABEL_KEYS[type] || null;
+  }
 
-    private static readonly ATTRIBUTE_TYPE_LABEL_KEYS: { [type: string]: string } = {
-        character: "data.type.label.text",
-        local: "data.type.label.localtext",
-        integer: "data.type.label.integer",
-        float: "data.type.label.float",
-        date: "data.type.label.date",
-        boolean: "data.type.label.boolean",
-        term: "data.type.label.term",
-        classification: "data.type.label.classification"
-    };
+  createAttribute(): void {
+    this.onModalStateChange({ state: GeoObjectTypeModalStates.defineAttribute, attribute: '', termOption: '' });
+  }
 
-    getAttributeTypeLabelKey(type: string): string {
-        return ManageConceptClassComponent.ATTRIBUTE_TYPE_LABEL_KEYS[type] || null;
-    }
+  editAttribute(attr: AttributeType, e: any): void {
+    this.onModalStateChange({ state: GeoObjectTypeModalStates.editAttribute, attribute: attr, termOption: '' });
+  }
 
-    createAttribute(): void {
-        this.onModalStateChange({ state: GeoObjectTypeModalStates.defineAttribute, attribute: "", termOption: "" });
-    }
+  removeAttributeType(attr: AttributeType, e: any): void {
+    let confirmBsModalRef = this.modalService.show(ConfirmModalComponent, {
+      animated: false,
+      backdrop: true,
+      ignoreBackdropClick: true,
+    });
+    confirmBsModalRef.content!.message =
+      this.localizationService.decode('confirm.modal.verify.delete') + '[' + attr.label.localizedValue + ']';
+    confirmBsModalRef.content!.data = { attributeType: attr, geoObjectType: this.type };
+    confirmBsModalRef.content!.submitText = this.localizationService.decode('modal.button.delete');
+    confirmBsModalRef.content!.type = ModalTypes.danger;
 
-    editAttribute(attr: AttributeType, e: any): void {
-        this.onModalStateChange({ state: GeoObjectTypeModalStates.editAttribute, attribute: attr, termOption: "" });
-    }
+    confirmBsModalRef.content!.onConfirm.subscribe((data) => {
+      this.service
+        .deleteAttributeType(this.type.code, attr.code)
+        .then(() => {
+          this.type.attributes!.splice(this.type.attributes!.indexOf(attr), 1);
 
-    removeAttributeType(attr: AttributeType, e: any): void {
-        let confirmBsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: false, backdrop: true, ignoreBackdropClick: true
+          this.typeChange.emit(this.type);
+        })
+        .catch((err: HttpErrorResponse) => {
+          this.onError.emit(err);
         });
-        confirmBsModalRef.content.message = this.localizationService.decode("confirm.modal.verify.delete") + "[" + attr.label.localizedValue + "]";
-        confirmBsModalRef.content.data = { attributeType: attr, geoObjectType: this.type };
-        confirmBsModalRef.content.submitText = this.localizationService.decode("modal.button.delete");
-        confirmBsModalRef.content.type = ModalTypes.danger;
+    });
+  }
 
-        confirmBsModalRef.content.onConfirm.subscribe(data => {
-            this.service.deleteAttributeType(this.type.code, attr.code).then(() => {
-                this.type.attributes.splice(this.type.attributes.indexOf(attr), 1);
+  onModalStateChange(state: ManageGeoObjectTypeModalState): void {
+    this.modalState = state;
+  }
 
-                this.typeChange.emit(this.type);
-            }).catch((err: HttpErrorResponse) => {
-                this.onError.emit(err);
-            });
-        });
-    }
+  onTypeChange(): void {
+    this.typeChange.emit(this.type);
+  }
 
-    onModalStateChange(state: ManageGeoObjectTypeModalState): void {
-        this.modalState = state;
-    }
-
-    onTypeChange(): void {
+  update(): void {
+    this.service
+      .apply(this.type)
+      .then((type) => {
         this.typeChange.emit(this.type);
-    }
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.onError.emit(err);
+      });
+  }
 
-    update(): void {
-        this.service.apply(this.type).then(type => {
-            this.typeChange.emit(this.type);
-        }).catch((err: HttpErrorResponse) => {
-            this.onError.emit(err);
+  close(): void {
+    if (this.type.oid != null) {
+      this.service
+        .unlock(this.type.oid)
+        .then(() => {
+          this.onCancel.emit();
+        })
+        .catch((err: HttpErrorResponse) => {
+          this.onError.emit(err);
         });
+    } else {
+      this.onCancel.emit();
     }
-
-    close(): void {
-        if (this.type.oid != null) {
-            this.service.unlock(this.type.oid).then(() => {
-                this.onCancel.emit();
-            }).catch((err: HttpErrorResponse) => {
-                this.onError.emit(err);
-            });
-        } else {
-            this.onCancel.emit();
-        }
-    }
-
-
+  }
 }

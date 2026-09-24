@@ -44,7 +44,7 @@
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="skg.end.date" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="Start of period of validity" />
+          <attribute name="defaultLocale" value="End of period of validity" />
         </attributeStruct>
       </object>
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="skg.hierarchy.types">

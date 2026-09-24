@@ -6,15 +6,15 @@ import java.util.Optional;
 
 import org.axonframework.eventhandling.GenericEventMessage;
 import org.axonframework.eventhandling.gateway.EventGateway;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.runwaysdk.session.Request;
 
-import net.geoprism.graph.BusinessEdgeTypeSnapshot;
 import net.geoprism.graph.BusinessTypeSnapshot;
 import net.geoprism.graph.ConceptClassSnapshot;
-import net.geoprism.graph.ConceptEdgeTypeSnapshot;
 import net.geoprism.graph.DirectedAcyclicGraphTypeSnapshot;
 import net.geoprism.graph.GeoObjectTypeSnapshot;
 import net.geoprism.graph.HierarchyTypeSnapshot;
@@ -31,6 +31,8 @@ import net.geoprism.registry.view.TypeInfo;
 @Service
 public class RemoteCommitService
 {
+  private static final Logger                       logger = LoggerFactory.getLogger(RemoteCommitService.class);
+
   @Autowired
   private RemoteClientBuilderServiceIF              service;
 
@@ -94,6 +96,8 @@ public class RemoteCommitService
   @Request
   public Commit pull(RemoteClientIF client, CommitDTO remoteCommit, List<TypeInfo> exclusions)
   {
+    logger.info("Pulling remote committ [" + remoteCommit.getUid() + "]");
+
     Publish publish = getOrCreate(client, remoteCommit.getPublishId(), exclusions);
 
     // Determine if the commit has already been pulled
@@ -101,7 +105,7 @@ public class RemoteCommitService
 
     if (optional.isPresent())
     {
-      System.out.println("Skipping commit [" + remoteCommit.getUid() + "] it has already been pulled");
+      logger.info("Skipping commit [" + remoteCommit.getUid() + "] it has already been pulled");
 
       return optional.get();
     }
@@ -216,7 +220,7 @@ public class RemoteCommitService
       List<RemoteEvent> remoteEvents = null;
 
       PublishDTO dto = publish.toDTO();
-
+      
       while ( ( remoteEvents = client.getRemoteEvents(commit.getUid(), chunk) ).size() > 0)
       {
         remoteEvents.stream() //

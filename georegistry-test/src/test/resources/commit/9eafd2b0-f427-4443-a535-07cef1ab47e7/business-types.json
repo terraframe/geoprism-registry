@@ -9,6 +9,7 @@
   "attributes" : [ {
     "type" : "boolean",
     "code" : "testBoolean",
+    "typeInfo" : null,
     "label" : {"localizedValue":"Test Boolean","localeValues":[{"locale":"defaultLocale","value":"Test Boolean"}]},
     "description" : {"localizedValue":"Test Boolean","localeValues":[{"locale":"defaultLocale","value":"Test Boolean"}]},
     "required" : false,
@@ -18,6 +19,7 @@
   }, {
     "type" : "character",
     "code" : "code",
+    "typeInfo" : null,
     "label" : {"localizedValue":"Code","localeValues":[{"locale":"defaultLocale","value":"Code"}]},
     "description" : {"localizedValue":"Human readable unique identified","localeValues":[{"locale":"defaultLocale","value":"Human readable unique identified"}]},
     "required" : true,
@@ -27,6 +29,7 @@
   }, {
     "type" : "source",
     "code" : "dataSource",
+    "typeInfo" : null,
     "label" : {"localizedValue":"Data Source","localeValues":[{"locale":"defaultLocale","value":"Data Source"}]},
     "description" : {"localizedValue":"Source of the data","localeValues":[{"locale":"defaultLocale","value":"Source of the data"}]},
     "required" : false,

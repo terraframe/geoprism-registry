@@ -17,106 +17,123 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from "@angular/core";
-import { HttpErrorResponse } from "@angular/common/http";
-import { BsModalService } from "ngx-bootstrap/modal";
+import { Component, OnInit } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { BsModalService } from 'ngx-bootstrap/modal';
 
-import { ErrorHandler } from "@shared/component";
-import { LocalizationService, AuthService } from "@shared/service";
+import { ErrorHandler } from '@shared/component';
+import { LocalizationService, AuthService } from '@shared/service';
 
-import { Organization } from "@shared/model/core";
+import { Organization } from '@shared/model/core';
 
-import Utils from "@registry/utility/Utils";
-import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
-import { OntologySectionNavComponent, OntologySectionNavItem } from "../ontology-section-nav/ontology-section-nav.component";
-import { RegistryService } from "@registry/service";
-import { ConceptClass, ConceptEdgeType, ConceptSet } from "@registry/model/object-class";
-import { ConceptClassPageComponent } from "./concept-class-page/concept-class-page.component";
-import { ConceptClassService } from "@registry/service/concept-class.service";
-import { ConceptEdgeTypePageComponent } from "./concept-edge-type-page/concept-edge-type-page.component";
-import { ConceptSetService } from "@registry/service/concept-set.service";
-import { ConceptSetPageComponent } from "./concept-set-page/concept-set-page.component";
-import { forkJoin, from } from "rxjs";
-import { ConceptEdgeTypeService } from "@registry/service/concept-edge-type.service";
-
+import { PageContainerComponent } from '@shared/component/page-container/page-container.component';
+import {
+  OntologySectionNavComponent,
+  OntologySectionNavItem,
+} from '../ontology-section-nav/ontology-section-nav.component';
+import { RegistryService } from '@registry/service';
+import { ConceptClass, ConceptEdgeType } from '@registry/model/object-class';
+import { ConceptClassPageComponent } from './concept-class-page/concept-class-page.component';
+import { ConceptClassService } from '@registry/service/concept-class.service';
+import { ConceptEdgeTypePageComponent } from './concept-edge-type-page/concept-edge-type-page.component';
+import { ConceptSetPageComponent } from './concept-set-page/concept-set-page.component';
+import { forkJoin, from } from 'rxjs';
+import { ConceptEdgeTypeService } from '@registry/service/concept-edge-type.service';
 
 @Component({
-    selector: "concept-ontology",
-    templateUrl: "./concept-ontology.component.html",
-    styleUrls: ["./concept-ontology.css"],
-    standalone: true,
-    imports: [PageContainerComponent, OntologySectionNavComponent, ConceptClassPageComponent, ConceptEdgeTypePageComponent, ConceptSetPageComponent]
+  selector: 'concept-ontology',
+  templateUrl: './concept-ontology.component.html',
+  styleUrls: ['./concept-ontology.css'],
+  standalone: true,
+  imports: [
+    PageContainerComponent,
+    OntologySectionNavComponent,
+    ConceptClassPageComponent,
+    ConceptEdgeTypePageComponent,
+    ConceptSetPageComponent,
+  ],
 })
 export class ConceptOntologyComponent implements OnInit {
+  isSRA: boolean = false;
 
-    isSRA: boolean = false;
+  organizations: Organization[] = [];
+  conceptClasses: ConceptClass[] = [];
+  conceptEdgeTypes: ConceptEdgeType[] = [];
 
-    organizations: Organization[] = [];
-    conceptClasses: ConceptClass[] = [];
-    conceptEdgeTypes: ConceptEdgeType[] = [];
+  section: string = 'concept-class';
 
-    section: string = "concept-class";
+  sections: OntologySectionNavItem[] = [
+    {
+      id: 'concept-class',
+      labelKey: 'nav.concept.class.label',
+      icon: 'fa-circle',
+    },
+    {
+      id: 'concept-edge-type',
+      labelKey: 'nav.concept.edge.label',
+      icon: 'fa-right-left',
+    },
+    {
+      id: 'concept-set',
+      labelKey: 'nav.concept.set.label',
+      icon: 'fa-layer-group',
+    },
+  ];
 
-    sections: OntologySectionNavItem[] = [
-        { id: "concept-class", labelKey: "nav.concept.class.label", icon: "fa-circle" },
-        { id: "concept-edge-type", labelKey: "nav.concept.edge.label", icon: "fa-right-left" },
-        { id: "concept-set", labelKey: "nav.concept.set.label", icon: "fa-layer-group" }
-    ];
+  constructor(
+    private localizeService: LocalizationService,
+    private registryService: RegistryService,
+    private cClassService: ConceptClassService,
+    private cEdgeTypeService: ConceptEdgeTypeService,
+    private modalService: BsModalService,
+    private authService: AuthService
+  ) {
+    this.isSRA = authService.isSRA();
+  }
 
-    constructor(
-        private localizeService: LocalizationService,
-        private registryService: RegistryService,
-        private cClassService: ConceptClassService,
-        private cEdgeTypeService: ConceptEdgeTypeService,
-        private modalService: BsModalService,
-        private authService: AuthService) {
-        this.isSRA = authService.isSRA();
-    }
+  ngOnInit(): void {
+    this.refreshAll();
+  }
 
-    ngOnInit(): void {
-        this.refreshAll();
-    }
+  localize(key: string): string {
+    return this.localizeService.decode(key);
+  }
 
-    localize(key: string): string {
-        return this.localizeService.decode(key);
-    }
+  isOrganizationRA(orgCode: string): boolean {
+    return this.isSRA || this.authService.isOrganizationRA(orgCode);
+  }
 
-    isOrganizationRA(orgCode: string): boolean {
-        return this.isSRA || this.authService.isOrganizationRA(orgCode);
-    }
+  setConceptClasss(types: ConceptClass[]): void {
+    this.conceptClasses = types;
+  }
 
-    setConceptClasss(types: ConceptClass[]): void {
-        this.conceptClasses = types;
-    }
+  setConceptEdgeTypes(conceptEdgeTypes: ConceptEdgeType[]): void {
+    this.conceptEdgeTypes = conceptEdgeTypes;
+  }
 
-    setConceptEdgeTypes(conceptEdgeTypes: ConceptEdgeType[]): void {
-        this.conceptEdgeTypes = conceptEdgeTypes;
-    }
+  refreshAll(): void {
+    // Clear the types to then refresh
+    this.conceptClasses = [];
+    this.organizations = [];
 
-    refreshAll(): void {
-        // Clear the types to then refresh
-        this.conceptClasses = [];
-        this.organizations = [];
+    // Convert promises to observables and join them
+    forkJoin([
+      from(this.registryService.getOrganizations()),
+      from(this.cClassService.getAll()),
+      from(this.cEdgeTypeService.getAll()),
+    ]).subscribe({
+      next: ([orgs, conceptClasses, conceptEdgeTypes]) => {
+        this.organizations = orgs;
+        this.setConceptClasss(conceptClasses);
+        this.setConceptEdgeTypes(conceptEdgeTypes);
+      },
+      error: (err) => {
+        this.error(err);
+      },
+    });
+  }
 
-        // Convert promises to observables and join them
-        forkJoin([
-            from(this.registryService.getOrganizations()),
-            from(this.cClassService.getAll()),
-            from(this.cEdgeTypeService.getAll())
-        ]).subscribe({
-            next: ([orgs, conceptClasses, conceptEdgeTypes]) => {
-                this.organizations = orgs;
-                this.setConceptClasss(conceptClasses);
-                this.setConceptEdgeTypes(conceptEdgeTypes);
-            },
-            error: (err) => {
-                this.error(err);
-            }
-        });
-    }
-
-    error(err: HttpErrorResponse): void {
-        ErrorHandler.showErrorAsDialog(err, this.modalService);
-    }
-
+  error(err: HttpErrorResponse): void {
+    ErrorHandler.showErrorAsDialog(err, this.modalService);
+  }
 }

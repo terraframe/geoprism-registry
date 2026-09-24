@@ -53,6 +53,14 @@
           </div>
         </div>
 
+        <localized-text
+          [disabled]="readonly"
+          [(value)]="type.description"
+          key="data.property.label.description"
+          [inlinelayout]="false"
+        >
+        </localized-text>
+
         <div class="row-holder">
           <div class="label-holder">
             <label for="date">
@@ -122,11 +130,7 @@
               <localize key="hierarchy.sidebar.geoObjectTypes"></localize>
             </label>
           </div>
-          <multi-select-field
-            container="#select-root"
-            [(value)]="type.typeCodes"
-            [options]="types"
-          >
+          <multi-select-field container="#select-root" [(value)]="type.typeCodes" [options]="types">
           </multi-select-field>
         </div>
 
@@ -136,11 +140,7 @@
               <localize key="skg.hierarchy.types"></localize>
             </label>
           </div>
-          <multi-select-field
-            container="#select-root"
-            [(value)]="type.hierarchyCodes"
-            [options]="hierarchies"
-          >
+          <multi-select-field container="#select-root" [(value)]="type.hierarchyCodes" [options]="hierarchies">
           </multi-select-field>
         </div>
 
@@ -150,14 +150,11 @@
               <localize key="skg.dag.types"></localize>
             </label>
           </div>
-          <multi-select-field
-            container="#select-root"
-            [(value)]="type.dagCodes"
-            [options]="dagTypes"
-          >
+          <multi-select-field container="#select-root" [(value)]="type.dagCodes" [options]="dagTypes">
           </multi-select-field>
         </div>
 
+        <!-- 
         <div class="row-holder">
           <div class="label-holder">
             <label>
@@ -170,7 +167,8 @@
             [options]="undirectedTypes"
           >
           </multi-select-field>
-        </div>
+        </div> 
+        -->
 
         <div class="row-holder">
           <div class="label-holder">
@@ -178,11 +176,7 @@
               <localize key="skg.business.types"></localize>
             </label>
           </div>
-          <multi-select-field
-            container="#select-root"
-            [(value)]="type.businessTypeCodes"
-            [options]="businessTypes"
-          >
+          <multi-select-field container="#select-root" [(value)]="type.businessTypeCodes" [options]="businessTypes">
           </multi-select-field>
         </div>
 
@@ -192,11 +186,7 @@
               <localize key="skg.business.edge.types"></localize>
             </label>
           </div>
-          <multi-select-field
-            container="#select-root"
-            [(value)]="type.businessEdgeCodes"
-            [options]="edgeTypes"
-          >
+          <multi-select-field container="#select-root" [(value)]="type.businessEdgeCodes" [options]="edgeTypes">
           </multi-select-field>
         </div>
 
@@ -204,12 +194,7 @@
           <div class="label-holder"></div>
           <div>
             <div class="button-holder">
-              <button
-                type="button"
-                (click)="onCancel()"
-                class="btn btn-default"
-                role="button"
-              >
+              <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
                 <localize [key]="readonly ? 'io.back' : 'io.cancel'"></localize>
               </button>
               <button

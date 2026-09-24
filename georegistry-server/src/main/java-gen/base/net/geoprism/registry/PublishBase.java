@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 1156191793)
+@com.runwaysdk.business.ClassSignature(hash = -1453583646)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -14,6 +14,9 @@ public abstract class PublishBase extends com.runwaysdk.business.Business
   public final static java.lang.String CONCEPTSET = "conceptSet";
   public final static java.lang.String CREATEDATE = "createDate";
   public final static java.lang.String CREATEDBY = "createdBy";
+  public final static java.lang.String DESCRIPTION = "description";
+  private com.runwaysdk.business.Struct description = null;
+  
   public final static java.lang.String DISPLAYLABEL = "displayLabel";
   private com.runwaysdk.business.Struct displayLabel = null;
   
@@ -35,11 +38,12 @@ public abstract class PublishBase extends com.runwaysdk.business.Business
   public final static java.lang.String TYPECODES = "typeCodes";
   public final static java.lang.String UID = "uid";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = 1156191793;
+  private static final long serialVersionUID = -1453583646;
   
   public PublishBase()
   {
     super();
+    description = super.getStruct("description");
     displayLabel = super.getStruct("displayLabel");
   }
   
@@ -113,6 +117,22 @@ public abstract class PublishBase extends com.runwaysdk.business.Business
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.Publish.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(CREATEDBY);
+  }
+  
+  public net.geoprism.registry.PublishDescription getDescription()
+  {
+    return (net.geoprism.registry.PublishDescription) description;
+  }
+  
+  public void validateDescription()
+  {
+    this.validateAttribute(DESCRIPTION);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF getDescriptionMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.Publish.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF)mdClassIF.definesAttribute(DESCRIPTION);
   }
   
   public net.geoprism.registry.PublishDisplayLabel getDisplayLabel()

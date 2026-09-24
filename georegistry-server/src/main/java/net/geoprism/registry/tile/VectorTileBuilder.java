@@ -59,7 +59,7 @@ import com.wdtinc.mapbox_vector_tile.build.MvtLayerBuild;
 import com.wdtinc.mapbox_vector_tile.build.MvtLayerParams;
 import com.wdtinc.mapbox_vector_tile.build.MvtLayerProps;
 
-import net.geoprism.registry.MasterListVersion;
+import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.TableEntity;
 import net.postgis.jdbc.jts.JtsGeometry;
@@ -83,7 +83,7 @@ public class VectorTileBuilder implements VectorLayerPublisherIF
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(this.version.getMdBusinessOid());
     MdAttributeConcreteDAOIF geomAttribute = mdBusiness.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
 
-    MdAttributeConcreteDAOIF labelAttribute = mdBusiness.definesAttribute(DefaultAttribute.DISPLAY_LABEL.getName() + MasterListVersion.DEFAULT_LOCALE);
+    MdAttributeConcreteDAOIF labelAttribute = mdBusiness.definesAttribute(DefaultAttribute.DISPLAY_LABEL.getName() + ListTypeVersion.DEFAULT_LOCALE);
 
     String column = geomAttribute.getColumnName();
     String labelColumn = labelAttribute.getColumnName();

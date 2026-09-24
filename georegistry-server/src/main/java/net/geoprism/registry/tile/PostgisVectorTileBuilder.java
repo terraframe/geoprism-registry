@@ -24,6 +24,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
@@ -33,7 +34,6 @@ import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 
 import net.geoprism.registry.ListTypeVersion;
-import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.RegistryConstants;
 
 public class PostgisVectorTileBuilder
@@ -51,7 +51,7 @@ public class PostgisVectorTileBuilder
     this.mdBusiness = MdBusinessDAO.get(version.getMdBusinessOid());
 
     MdAttributeConcreteDAOIF geomAttribute = mdBusiness.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
-    MdAttributeConcreteDAOIF labelAttribute = mdBusiness.definesAttribute(DefaultAttribute.DISPLAY_LABEL.getName() + MasterListVersion.DEFAULT_LOCALE);
+    MdAttributeConcreteDAOIF labelAttribute = mdBusiness.definesAttribute(DefaultAttribute.DISPLAY_LABEL.getName() + ListTypeVersion.DEFAULT_LOCALE);
 
     this.locales = LocalizationFacade.getInstalledLocales();
     this.column = geomAttribute.getColumnName();

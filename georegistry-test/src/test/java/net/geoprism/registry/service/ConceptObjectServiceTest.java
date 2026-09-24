@@ -19,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.GenericException;
 import net.geoprism.registry.ConceptDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
@@ -180,6 +181,27 @@ public class ConceptObjectServiceTest extends ConceptDatasetTest implements Inst
 
   @Test
   @Request
+  public void testGetByCode_BAD()
+  {
+    ConceptObject object = this.cObjectService.newInstance(cClass);
+    object.setValue(attribute.getCode(), "Test Text");
+    object.setCode(TEST_CODE);
+    this.cObjectService.apply(object);
+
+    try
+    {
+      ConceptObject result = this.cObjectService.getByCode(cClass, "BAD").orElse(null);
+
+      Assert.assertNull(result);
+    }
+    finally
+    {
+      this.cObjectService.delete(object);
+    }
+  }
+
+  @Test
+  @Request
   public void testConceptSetGetByCode()
   {
     ConceptObject object = this.cObjectService.newInstance(cClass);
@@ -200,7 +222,7 @@ public class ConceptObjectServiceTest extends ConceptDatasetTest implements Inst
     }
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expected = GenericException.class)
   @Request
   public void testBadConceptSetGetByCode()
   {
@@ -389,7 +411,7 @@ public class ConceptObjectServiceTest extends ConceptDatasetTest implements Inst
     }
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(expected = GenericException.class)
   @Request
   public void testAddCycle()
   {

@@ -19,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.GenericException;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
@@ -89,7 +90,7 @@ public class UndirectedGraphTest extends FastDatasetTest implements InstanceTest
     Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, pNode.getEndDate());
   }
 
-  @Test(expected = ProgrammingErrorException.class)
+  @Test(expected = GenericException.class)
   @Request
   public void testAddParent_Duplicate()
   {
@@ -182,7 +183,7 @@ public class UndirectedGraphTest extends FastDatasetTest implements InstanceTest
     Assert.assertEquals(2, parents.size());
   }
 
-  @Test(expected = ProgrammingErrorException.class)
+  @Test(expected = GenericException.class)
   @Request
   public void testAddSameParents()
   {

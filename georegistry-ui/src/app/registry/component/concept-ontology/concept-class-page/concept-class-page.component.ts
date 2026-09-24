@@ -17,207 +17,226 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, Input, Output, EventEmitter, OnChanges, SimpleChanges } from "@angular/core";
-import { HttpErrorResponse } from "@angular/common/http";
-import { BsModalService } from "ngx-bootstrap/modal";
+import { Component, OnInit, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { BsModalService } from 'ngx-bootstrap/modal';
 
-import { ConfirmModalComponent } from "@shared/component";
-import { LocalizationService, AuthService } from "@shared/service";
-import { ModalTypes } from "@shared/model/modal";
+import { ConfirmModalComponent } from '@shared/component';
+import { LocalizationService, AuthService } from '@shared/service';
+import { ModalTypes } from '@shared/model/modal';
 import * as lodash from 'lodash';
 
-import { Organization } from "@shared/model/core";
-import { RegistryService } from "@registry/service";
-import { ImportHistoryModalComponent } from "@registry/component/import-history/modals/import-history-modal.component";
-import { ManageConceptClassComponent } from "./manage-concept-class.component";
-import { CreateConceptClassComponent } from "./create-concept-class.component";
-import { BsDropdownModule } from "ngx-bootstrap/dropdown";
-import { NgFor, NgIf, NgClass } from "@angular/common";
-import { LocalizeComponent } from "@shared/component/localize/localize.component";
-import { FormsModule } from "@angular/forms";
-import { RouterLink } from "@angular/router";
-import { ConceptClass } from "@registry/model/object-class";
-import { ConceptClassService } from "@registry/service/concept-class.service";
+import { Organization } from '@shared/model/core';
+import { RegistryService } from '@registry/service';
+import { ImportHistoryModalComponent } from '@registry/component/import-history/modals/import-history-modal.component';
+import { ManageConceptClassComponent } from './manage-concept-class.component';
+import { CreateConceptClassComponent } from './create-concept-class.component';
+import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
+import { NgFor, NgIf, NgClass } from '@angular/common';
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { ConceptClass } from '@registry/model/object-class';
+import { ConceptClassService } from '@registry/service/concept-class.service';
 
 enum Action {
-    VIEW = 0, CREATE = 1, EDIT = 2
+  VIEW = 0,
+  CREATE = 1,
+  EDIT = 2,
 }
 
 interface Selection {
-    action: Action
-    // params for creating
-    org?: Organization;
+  action: Action;
+  // params for creating
+  org?: Organization;
 
-    // params for editing
-    type?: ConceptClass;
-    readOnly?: boolean
+  // params for editing
+  type?: ConceptClass;
+  readOnly?: boolean;
 }
 
 @Component({
-    selector: "concept-class-page",
-    templateUrl: "./concept-class-page.component.html",
-    styleUrls: ["./concept-class-page.css"],
-    standalone: true,
-    imports: [FormsModule, LocalizeComponent, NgFor, NgIf, NgClass, BsDropdownModule, CreateConceptClassComponent, ManageConceptClassComponent, RouterLink]
+  selector: 'concept-class-page',
+  templateUrl: './concept-class-page.component.html',
+  styleUrls: ['./concept-class-page.css'],
+  standalone: true,
+  imports: [
+    FormsModule,
+    LocalizeComponent,
+    NgFor,
+    NgIf,
+    NgClass,
+    BsDropdownModule,
+    CreateConceptClassComponent,
+    ManageConceptClassComponent,
+    RouterLink,
+  ],
 })
 export class ConceptClassPageComponent implements OnInit, OnChanges {
-    Action = Action;
+  Action = Action;
 
-    @Input() organizations: Organization[] = [];
-    @Input() types: ConceptClass[] = [];
+  @Input() organizations: Organization[] = [];
+  @Input() types: ConceptClass[] = [];
 
-    @Output() onError: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>()
-    @Output() typesChange: EventEmitter<ConceptClass[]> = new EventEmitter<ConceptClass[]>()
+  @Output() onError: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>();
+  @Output() typesChange: EventEmitter<ConceptClass[]> = new EventEmitter<ConceptClass[]>();
 
-    filter: string = "";
+  filter: string = '';
 
-    typesByOrg: { org: Organization, write: boolean, types: ConceptClass[] }[] = [];
+  typesByOrg: { org: Organization; write: boolean; types: ConceptClass[] }[] = [];
 
-    selection: Selection;
+  selection: Selection | null;
 
-    constructor(
-        public localizeService: LocalizationService,
-        private modalService: BsModalService,
-        private registryService: RegistryService,
-        private service: ConceptClassService,
-        private authService: AuthService) {
+  constructor(
+    public localizeService: LocalizationService,
+    private modalService: BsModalService,
+    private registryService: RegistryService,
+    private service: ConceptClassService,
+    private authService: AuthService
+  ) {}
+
+  ngOnInit(): void {}
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['types'] || changes['organizations']) {
+      const organizations: Organization[] = changes['organizations']
+        ? changes['organizations'].currentValue
+        : this.organizations;
+      const types: ConceptClass[] = changes['types'] ? changes['types'].currentValue : this.types;
+
+      this.typesByOrg = [];
+
+      for (let i = 0; i < organizations.length; ++i) {
+        let org: Organization = organizations[i];
+
+        this.typesByOrg.push({
+          org: org,
+          write: this.authService.isSRA() || this.authService.isOrganizationRA(org.code),
+          types: types.filter((t) => t.organization === org.code),
+        });
+      }
+
+      if (this.selection == null) {
+        this.selectFirstAvailable();
+      }
     }
+  }
 
-    ngOnInit(): void {
+  private selectFirstAvailable(): void {
+    for (const item of this.typesByOrg) {
+      if (item.types.length > 0) {
+        this.handleTypeView(item.types[0]);
+        return;
+      }
     }
+  }
 
-    ngOnChanges(changes: SimpleChanges) {
-        if (changes['types'] || changes['organizations']) {
-            const organizations: Organization[] = changes['organizations'] ? changes['organizations'].currentValue : this.organizations;
-            const types: ConceptClass[] = changes['types'] ? changes['types'].currentValue : this.types;
+  localize(key: string): string {
+    return this.localizeService.decode(key);
+  }
 
-            this.typesByOrg = [];
+  createConceptClass(org: Organization): void {
+    this.selection = {
+      action: Action.CREATE,
+      org,
+    };
+  }
 
-            for (let i = 0; i < organizations.length; ++i) {
-                let org: Organization = organizations[i];
-
-                this.typesByOrg.push({
-                    org: org,
-                    write: this.authService.isSRA() || this.authService.isOrganizationRA(org.code),
-                    types: types.filter(t => t.organization === org.code)
-                });
-            }
-
-            if (this.selection == null) {
-                this.selectFirstAvailable();
-            }
-        }
-    }
-
-    private selectFirstAvailable(): void {
-        for (const item of this.typesByOrg) {
-            if (item.types.length > 0) {
-                this.handleTypeView(item.types[0]);
-                return;
-            }
-        }
-    }
-
-    localize(key: string): string {
-        return this.localizeService.decode(key);
-    }
-
-    findConceptClassByCode(code: string): ConceptClass {
-        return this.types.find(c => c.code === code);
-    }
-
-    findOrganizationByCode(code: string): Organization {
-        return this.organizations.find(c => c.code === code);
-    }
-
-    createConceptClass(org: Organization): void {
+  handleTypeView(type: ConceptClass): void {
+    this.service
+      .get(type.oid!)
+      .then((t) => {
         this.selection = {
-            action: Action.CREATE,
-            org
+          action: Action.VIEW,
+          type: t,
+          readOnly: true,
         };
-    }
+      })
+      .catch((e) => this.onError.emit(e));
+  }
 
-    handleTypeView(type: ConceptClass): void {
-        this.service.get(type.oid).then(t => {
-            this.selection = {
-                action: Action.VIEW,
-                type: t,
-                readOnly: true
-            };
-        }).catch(e => this.onError.emit(e))
-    }
-
-    handleEditConceptClass(type: ConceptClass, readOnly: boolean): void {
-        this.service.get(type.oid).then(t => {
-            this.selection = {
-                action: Action.EDIT,
-                type: t,
-                readOnly: readOnly
-            };
-        }).catch(e => this.onError.emit(e))
-    }
-
-    handleDeleteConceptClass(type: ConceptClass): void {
-        const bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: false, backdrop: true, ignoreBackdropClick: true
-        });
-        bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " [" + type.displayLabel.localizedValue + "]";
-        bsModalRef.content.data = type.code;
-        bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
-        bsModalRef.content.type = ModalTypes.danger;
-
-        bsModalRef.content.onConfirm.subscribe(data => {
-            this.service.remove(type).then(() => {
-                const types = [...this.types];
-                const index = types.findIndex(t => t.code === type.code);
-
-                if (index !== -1) {
-                    types.splice(index, 1);
-
-                    this.typesChange.emit(types);
-                }
-
-            }).catch((err: HttpErrorResponse) => {
-                this.error(err);
-            });
-        });
-    }
-
-
-    handleTypeChange(type: ConceptClass): void {
-        const types = [...this.types];
-        const index = types.findIndex(t => t.code === type.code);
-
-        if (index !== -1) {
-            types[index] = type;
-        }
-        else {
-            types.push(type);
-        }
-
+  handleEditConceptClass(type: ConceptClass, readOnly: boolean): void {
+    this.service
+      .get(type.oid!)
+      .then((t) => {
         this.selection = {
-            action: Action.VIEW,
-            type: lodash.cloneDeep(type),
-            readOnly: true
+          action: Action.EDIT,
+          type: t,
+          readOnly: readOnly,
         };
+      })
+      .catch((e) => this.onError.emit(e));
+  }
 
-        this.typesChange.emit(types);
-    }
+  handleDeleteConceptClass(type: ConceptClass): void {
+    const bsModalRef = this.modalService.show(ConfirmModalComponent, {
+      animated: false,
+      backdrop: true,
+      ignoreBackdropClick: true,
+    });
+    bsModalRef.content!.message =
+      this.localizeService.decode('confirm.modal.verify.delete') + ' [' + type.displayLabel.localizedValue + ']';
+    bsModalRef.content!.data = type.code;
+    bsModalRef.content!.submitText = this.localizeService.decode('modal.button.delete');
+    bsModalRef.content!.type = ModalTypes.danger;
 
-    onImportHistory(type: ConceptClass): void {
-        this.registryService.getImportHistory('CONCEPT_OBJECT', type.code).then(histories => {
-            const bsModalRef = this.modalService.show(ImportHistoryModalComponent, {
-                animated: false, backdrop: true,
-                ignoreBackdropClick: true
-            });
-            bsModalRef.content.init(type.displayLabel, histories);
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
+    bsModalRef.content!.onConfirm.subscribe((data) => {
+      this.service
+        .remove(type)
+        .then(() => {
+          const types = [...this.types];
+          const index = types.findIndex((t) => t.code === type.code);
+
+          if (index !== -1) {
+            types.splice(index, 1);
+
+            this.typesChange.emit(types);
+          }
+
+          this.selection = null;
+        })
+        .catch((err: HttpErrorResponse) => {
+          this.error(err);
         });
+    });
+  }
+
+  handleTypeChange(type: ConceptClass): void {
+    const types = [...this.types];
+    const index = types.findIndex((t) => t.code === type.code);
+
+    if (index !== -1) {
+      types[index] = type;
+    } else {
+      types.push(type);
     }
 
-    public error(err: HttpErrorResponse): void {
-        this.onError.emit(err);
-    }
+    this.selection = {
+      action: Action.VIEW,
+      type: lodash.cloneDeep(type),
+      readOnly: true,
+    };
 
+    this.typesChange.emit(types);
+  }
+
+  onImportHistory(type: ConceptClass): void {
+    this.registryService
+      .getImportHistory('CONCEPT_OBJECT', type.code)
+      .then((histories) => {
+        const bsModalRef = this.modalService.show(ImportHistoryModalComponent, {
+          animated: false,
+          backdrop: true,
+          ignoreBackdropClick: true,
+        });
+        bsModalRef.content!.init(type.displayLabel, histories);
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
+
+  public error(err: HttpErrorResponse): void {
+    this.onError.emit(err);
+  }
 }

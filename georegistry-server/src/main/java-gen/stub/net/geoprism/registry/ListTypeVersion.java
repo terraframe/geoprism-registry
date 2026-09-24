@@ -1119,10 +1119,13 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
         Coordinate[] coords = mp.getCoordinates();
 
-        Coordinate firstCoord = coords[0];
+        if (coords.length > 0)
+        {
+          Coordinate firstCoord = coords[0];
 
-        this.setValue(business, "latitude", String.valueOf(firstCoord.y));
-        this.setValue(business, "longitude", String.valueOf(firstCoord.x));
+          this.setValue(business, "latitude", String.valueOf(firstCoord.y));
+          this.setValue(business, "longitude", String.valueOf(firstCoord.x));
+        }
       }
       else if (geom instanceof Point)
       {

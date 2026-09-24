@@ -48,6 +48,14 @@
           </div>
         </div>
 
+        <localized-text
+          [disabled]="true"
+          [(value)]="type.description"
+          key="data.property.label.description"
+          [inlinelayout]="false"
+        >
+        </localized-text>
+
         <div class="row-holder">
           <div class="label-holder">
             <label for="date">
@@ -118,12 +126,7 @@
                 <localize key="hierarchy.sidebar.geoObjectTypes"></localize>
               </label>
             </div>
-            <multi-select-field
-              container="#select-root"
-              [(value)]="type.typeCodes"
-              [options]="types"
-              [disabled]="true"
-            >
+            <multi-select-field container="#select-root" [(value)]="type.typeCodes" [options]="types" [disabled]="true">
             </multi-select-field>
           </div>
         }
@@ -179,9 +182,7 @@
           </div>
         }
 
-        @if (
-          type.businessTypeCodes != null && type.businessTypeCodes.length > 0
-        ) {
+        @if (type.businessTypeCodes != null && type.businessTypeCodes.length > 0) {
           <div class="row-holder">
             <div class="label-holder">
               <label>
@@ -198,9 +199,7 @@
           </div>
         }
 
-        @if (
-          type.businessEdgeCodes != null && type.businessEdgeCodes.length > 0
-        ) {
+        @if (type.businessEdgeCodes != null && type.businessEdgeCodes.length > 0) {
           <div class="row-holder">
             <div class="label-holder">
               <label>
@@ -258,11 +257,7 @@
           <div class="label-holder"></div>
           <div>
             <div class="button-holder">
-              <button
-                (click)="onCreateNewCommit()"
-                class="btn btn-primary"
-                role="button"
-              >
+              <button (click)="onCreateNewCommit()" class="btn btn-primary" role="button">
                 <localize key="skg.publish.updates"></localize>
               </button>
             </div>
