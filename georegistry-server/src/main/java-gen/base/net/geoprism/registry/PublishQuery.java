@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 1317539560)
+@com.runwaysdk.business.ClassSignature(hash = 386962649)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -93,6 +93,29 @@ public  class PublishQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.Publish.CREATEDBY);
 
     return (com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.Publish.CREATEDBY, mdAttributeIF, this, alias, displayLabel);
+
+  }
+  public net.geoprism.registry.PublishDescriptionQuery.PublishDescriptionQueryStructIF getDescription()
+  {
+    return getDescription(null);
+
+  }
+ 
+  public net.geoprism.registry.PublishDescriptionQuery.PublishDescriptionQueryStructIF getDescription(String alias)
+  {
+
+    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.Publish.DESCRIPTION);
+
+    return (net.geoprism.registry.PublishDescriptionQuery.PublishDescriptionQueryStructIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.Publish.DESCRIPTION, mdAttributeIF, this, alias, null);
+
+  }
+ 
+  public net.geoprism.registry.PublishDescriptionQuery.PublishDescriptionQueryStructIF getDescription(String alias, String displayLabel)
+  {
+
+    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.Publish.DESCRIPTION);
+
+    return (net.geoprism.registry.PublishDescriptionQuery.PublishDescriptionQueryStructIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.Publish.DESCRIPTION, mdAttributeIF, this, alias, displayLabel);
 
   }
   public net.geoprism.registry.PublishDisplayLabelQuery.PublishDisplayLabelQueryStructIF getDisplayLabel()
@@ -466,7 +489,11 @@ public  class PublishQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   {
     String name = mdAttributeIF.definesAttribute();
     
-    if (name.equals(net.geoprism.registry.Publish.DISPLAYLABEL)) 
+    if (name.equals(net.geoprism.registry.Publish.DESCRIPTION)) 
+    {
+       return new net.geoprism.registry.PublishDescriptionQuery.PublishDescriptionQueryStruct((com.runwaysdk.dataaccess.MdAttributeLocalDAOIF)mdAttributeIF,  attributeNamespace, definingTableName, definingTableAlias, mdLocalStructIF, structTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+    else if (name.equals(net.geoprism.registry.Publish.DISPLAYLABEL)) 
     {
        return new net.geoprism.registry.PublishDisplayLabelQuery.PublishDisplayLabelQueryStruct((com.runwaysdk.dataaccess.MdAttributeLocalDAOIF)mdAttributeIF,  attributeNamespace, definingTableName, definingTableAlias, mdLocalStructIF, structTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
@@ -518,6 +545,9 @@ public  class PublishQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getCreatedBy();
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getCreatedBy(String alias);
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getCreatedBy(String alias, String displayLabel);
+    public net.geoprism.registry.PublishDescriptionQuery.PublishDescriptionQueryStructIF getDescription();
+    public net.geoprism.registry.PublishDescriptionQuery.PublishDescriptionQueryStructIF getDescription(String alias);
+    public net.geoprism.registry.PublishDescriptionQuery.PublishDescriptionQueryStructIF getDescription(String alias, String displayLabel);
     public net.geoprism.registry.PublishDisplayLabelQuery.PublishDisplayLabelQueryStructIF getDisplayLabel();
     public net.geoprism.registry.PublishDisplayLabelQuery.PublishDisplayLabelQueryStructIF getDisplayLabel(String alias);
     public net.geoprism.registry.PublishDisplayLabelQuery.PublishDisplayLabelQueryStructIF getDisplayLabel(String alias, String displayLabel);
@@ -656,6 +686,23 @@ public  class PublishQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getCreatedBy(String alias, String displayLabel)
   {
     return (com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF)this.get(net.geoprism.registry.Publish.CREATEDBY,  alias, displayLabel);
+
+  }
+  public net.geoprism.registry.PublishDescriptionQuery.PublishDescriptionQueryStructIF getDescription()
+  {
+    return getDescription(null);
+
+  }
+ 
+  public net.geoprism.registry.PublishDescriptionQuery.PublishDescriptionQueryStructIF getDescription(String alias)
+  {
+    return (net.geoprism.registry.PublishDescriptionQuery.PublishDescriptionQueryStructIF)this.attributeFactory(net.geoprism.registry.Publish.DESCRIPTION, com.runwaysdk.system.metadata.MdAttributeLocalText.CLASS, alias, null);
+
+  }
+ 
+  public net.geoprism.registry.PublishDescriptionQuery.PublishDescriptionQueryStructIF getDescription(String alias, String displayLabel)
+  {
+    return (net.geoprism.registry.PublishDescriptionQuery.PublishDescriptionQueryStructIF)this.attributeFactory(net.geoprism.registry.Publish.DESCRIPTION, com.runwaysdk.system.metadata.MdAttributeLocalText.CLASS, alias, displayLabel);
 
   }
   public net.geoprism.registry.PublishDisplayLabelQuery.PublishDisplayLabelQueryStructIF getDisplayLabel()
@@ -999,7 +1046,11 @@ public  class PublishQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   {
     String name = mdAttributeIF.definesAttribute();
     
-    if (name.equals(net.geoprism.registry.Publish.DISPLAYLABEL)) 
+    if (name.equals(net.geoprism.registry.Publish.DESCRIPTION)) 
+    {
+       return new net.geoprism.registry.PublishDescriptionQuery.PublishDescriptionQueryStruct((com.runwaysdk.dataaccess.MdAttributeLocalDAOIF)mdAttributeIF,  attributeNamespace, definingTableName, definingTableAlias, mdLocalStructIF, structTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+    else if (name.equals(net.geoprism.registry.Publish.DISPLAYLABEL)) 
     {
        return new net.geoprism.registry.PublishDisplayLabelQuery.PublishDisplayLabelQueryStruct((com.runwaysdk.dataaccess.MdAttributeLocalDAOIF)mdAttributeIF,  attributeNamespace, definingTableName, definingTableAlias, mdLocalStructIF, structTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
@@ -1028,6 +1079,9 @@ public  class PublishQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getCreatedBy();
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getCreatedBy(String alias);
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getCreatedBy(String alias, String displayLabel);
+    public net.geoprism.registry.PublishDescriptionQuery.PublishDescriptionQueryStructIF getDescription();
+    public net.geoprism.registry.PublishDescriptionQuery.PublishDescriptionQueryStructIF getDescription(String alias);
+    public net.geoprism.registry.PublishDescriptionQuery.PublishDescriptionQueryStructIF getDescription(String alias, String displayLabel);
     public net.geoprism.registry.PublishDisplayLabelQuery.PublishDisplayLabelQueryStructIF getDisplayLabel();
     public net.geoprism.registry.PublishDisplayLabelQuery.PublishDisplayLabelQueryStructIF getDisplayLabel(String alias);
     public net.geoprism.registry.PublishDisplayLabelQuery.PublishDisplayLabelQueryStructIF getDisplayLabel(String alias, String displayLabel);
@@ -1217,6 +1271,23 @@ public  class PublishQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     return (com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF)this.get(net.geoprism.registry.Publish.CREATEDBY,  alias, displayLabel);
 
   }
+  public net.geoprism.registry.PublishDescriptionQuery.PublishDescriptionQueryStructIF getDescription()
+  {
+    return getDescription(null);
+
+  }
+ 
+  public net.geoprism.registry.PublishDescriptionQuery.PublishDescriptionQueryStructIF getDescription(String alias)
+  {
+    return (net.geoprism.registry.PublishDescriptionQuery.PublishDescriptionQueryStructIF)this.attributeFactory(net.geoprism.registry.Publish.DESCRIPTION, com.runwaysdk.system.metadata.MdAttributeLocalText.CLASS, alias, null);
+
+  }
+ 
+  public net.geoprism.registry.PublishDescriptionQuery.PublishDescriptionQueryStructIF getDescription(String alias, String displayLabel)
+  {
+    return (net.geoprism.registry.PublishDescriptionQuery.PublishDescriptionQueryStructIF)this.attributeFactory(net.geoprism.registry.Publish.DESCRIPTION, com.runwaysdk.system.metadata.MdAttributeLocalText.CLASS, alias, displayLabel);
+
+  }
   public net.geoprism.registry.PublishDisplayLabelQuery.PublishDisplayLabelQueryStructIF getDisplayLabel()
   {
     return getDisplayLabel(null);
@@ -1558,7 +1629,11 @@ public  class PublishQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   {
     String name = mdAttributeIF.definesAttribute();
     
-    if (name.equals(net.geoprism.registry.Publish.DISPLAYLABEL)) 
+    if (name.equals(net.geoprism.registry.Publish.DESCRIPTION)) 
+    {
+       return new net.geoprism.registry.PublishDescriptionQuery.PublishDescriptionQueryStruct((com.runwaysdk.dataaccess.MdAttributeLocalDAOIF)mdAttributeIF,  attributeNamespace, definingTableName, definingTableAlias, mdLocalStructIF, structTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+    else if (name.equals(net.geoprism.registry.Publish.DISPLAYLABEL)) 
     {
        return new net.geoprism.registry.PublishDisplayLabelQuery.PublishDisplayLabelQueryStruct((com.runwaysdk.dataaccess.MdAttributeLocalDAOIF)mdAttributeIF,  attributeNamespace, definingTableName, definingTableAlias, mdLocalStructIF, structTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }

@@ -1,0 +1,37 @@
+<version
+  xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <update>
+      <mdBusiness name="net.geoprism.registry.Publish">
+        <create>
+          <attributes>
+            <localText
+              name="description"
+              label="Description"
+              required="false" />
+          </attributes>
+        </create>
+      </mdBusiness>
+    </update>
+    <createOrUpdate>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="skg.end.date">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="skg.end.date" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="End of period of validity" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+  </doIt>
+  <undoIt>
+  </undoIt>
+</version>

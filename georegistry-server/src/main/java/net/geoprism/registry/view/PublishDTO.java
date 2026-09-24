@@ -9,6 +9,10 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.serialization.LocalizedValueDeserializer;
+import org.commongeoregistry.adapter.serialization.LocalizedValueSerializer;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -29,6 +33,10 @@ public class PublishDTO
 
   @NotBlank
   private String         label;
+
+  @JsonSerialize(using = LocalizedValueSerializer.class)
+  @JsonDeserialize(using = LocalizedValueDeserializer.class)
+  private LocalizedValue description;
 
   @NotNull
   @JsonSerialize(using = DateSerializer.class)
@@ -80,6 +88,16 @@ public class PublishDTO
   public void setLabel(String label)
   {
     this.label = label;
+  }
+
+  public LocalizedValue getDescription()
+  {
+    return description;
+  }
+
+  public void setDescription(LocalizedValue description)
+  {
+    this.description = description;
   }
 
   public String getUid()

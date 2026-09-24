@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.view.PublishDTO;
 import net.geoprism.registry.view.TypeClass;
 
@@ -21,6 +22,7 @@ public class Publish extends PublishBase
   {
     PublishDTO configuration = new PublishDTO(this.getDisplayLabel().getValue(), this.getForDate(), this.getStartDate(), this.getEndDate());
     configuration.setUid(this.getUid());
+    configuration.setDescription(RegistryLocalizedValueConverter.convertNoAutoCoalesce(this.getDescription()));
     configuration.setConceptSet(this.getConceptSet());
 
     JsonArray types = JsonParser.parseString(this.getTypeCodes()).getAsJsonArray();

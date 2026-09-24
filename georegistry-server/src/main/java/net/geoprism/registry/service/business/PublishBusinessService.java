@@ -38,6 +38,8 @@ import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Publish;
 import net.geoprism.registry.PublishQuery;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
+import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.graph.ConceptSet;
 import net.geoprism.registry.view.PublishDTO;
 
@@ -104,6 +106,9 @@ public class PublishBusinessService implements PublishBusinessServiceIF
     publish.setEndDate(configuration.getEndDate());
     publish.setOrigin(configuration.getOrigin());
     publish.setConceptSet(configuration.getConceptSet());
+    
+    RegistryLocalizedValueConverter.populate(publish.getDescription(), configuration.getDescription());
+    
     publish.apply();
 
     return publish;

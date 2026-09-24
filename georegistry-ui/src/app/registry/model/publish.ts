@@ -15,37 +15,42 @@
 ///
 /// You should have received a copy of the GNU Lesser General Public
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+import { LocalizedValue } from '@core/model/core';
+
 ///
 export class TypeAndCode {
-    typeCode: string
-    typeClass: string;
+  typeCode: string;
+  typeClass: string;
 }
 export class Publish {
-    uid: string
-    label: string;
-    date: string;
-    startDate: string;
-    endDate: string;
-    types: TypeAndCode[];
-    exclusions: TypeAndCode[];
+  uid: string;
+  label: string;
+  description?: LocalizedValue;
+  date: string;
+  startDate: string;
+  endDate: string;
+  types: TypeAndCode[];
+  exclusions: TypeAndCode[];
 }
 export class Commit {
-    uid: string;
-    publishId: string;
-    versionNumber: number;
-    lastOriginGlobalIndex: number;
-    createDate: string;
+  uid: string;
+  publishId: string;
+  versionNumber: number;
+  lastOriginGlobalIndex: number;
+  createDate: string;
 }
 export class PublishEvents {
-    uid: string
-    label: string;
-    date: string;
-    startDate: string;
-    endDate: string;
-    typeCodes: string[];
-    businessTypeCodes: string[];
-    dagCodes: string[];
-    undirectedCodes: string[];
-    hierarchyCodes: string[];
-    businessEdgeCodes: string[];
+  uid: string;
+  label: string;
+  description?: LocalizedValue;
+  date: string;
+  startDate: string;
+  endDate: string;
+  typeCodes: string[];
+  businessTypeCodes: string[];
+  dagCodes: string[];
+  undirectedCodes: string[];
+  hierarchyCodes: string[];
+  businessEdgeCodes: string[];
 }
