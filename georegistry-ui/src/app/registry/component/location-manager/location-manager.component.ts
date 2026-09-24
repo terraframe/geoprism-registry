@@ -305,12 +305,12 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     mapbox: {
                         'type': 'raster',
                         'tiles': [
-                            window.location.protocol + "//" + window.location.host + EnvironmentUtil.getApiUrl() + "/api/mapbox/v4/mapbox.satellite/{z}/{x}/{y}@2x.jpg90"
+                            EnvironmentUtil.getAbsoluteApiUrl() + "/api/mapbox/v4/mapbox.satellite/{z}/{x}/{y}@2x.jpg90"
                         ],
                         'tileSize': 512,
                     }
                 },
-                glyphs: window.location.protocol + "//" + window.location.host + EnvironmentUtil.getApiUrl() + "/glyphs/{fontstack}/{range}.pbf",
+                glyphs: EnvironmentUtil.getAbsoluteApiUrl() + "/glyphs/{fontstack}/{range}.pbf",
                 layers: [
                     {
                         id: layer.id,
@@ -730,7 +730,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 }
             },
             sprite: layer.sprite,
-            glyphs: window.location.protocol + "//" + window.location.host + EnvironmentUtil.getApiUrl() + "/glyphs/{fontstack}/{range}.pbf",
+            glyphs: EnvironmentUtil.getAbsoluteApiUrl() + "/glyphs/{fontstack}/{range}.pbf",
             layers: [
                 {
                     id: layer.id,

@@ -32,4 +32,25 @@ export default class EnvironmentUtil {
 
     }
 
+    /**
+     * Returns the fully qualified URL of the application root, without a trailing
+     * slash (e.g. "https://example.com/gpr").
+     *
+     * The URL is resolved against document.baseURI, so it honors the <base href>
+     * that the server injects into index.html. Use this anywhere an absolute URL is
+     * required (MapLibre tile / glyph sources, websockets) so that the app keeps
+     * working when it is deployed under a context path.
+     */
+    static getAbsoluteApiUrl(): string {
+        let context = environment.apiUrl;
+
+        if (context == null || context === '' || context === '.') {
+            context = './';
+        } else if (!context.endsWith('/')) {
+            context = context + '/';
+        }
+
+        return new URL(context, document.baseURI).href.replace(/\/+$/, '');
+    }
+
 }

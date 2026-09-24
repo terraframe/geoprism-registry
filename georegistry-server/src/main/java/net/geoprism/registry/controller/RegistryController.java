@@ -18,19 +18,23 @@
  */
 package net.geoprism.registry.controller;
 
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.MediaType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 @Controller
 public class RegistryController
 {
+  @Autowired
+  private IndexHtmlProvider indexHtml;
+
   @GetMapping("cgr/manage")
-  public ResponseEntity<ClassPathResource> manage()
+  public ResponseEntity<String> manage(HttpServletRequest request, HttpServletResponse response)
   {
-    var resource = new ClassPathResource("static/index.html");
-    return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body(resource);
+    return this.indexHtml.render(request, response);
   }
 }

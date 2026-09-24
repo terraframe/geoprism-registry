@@ -93,12 +93,12 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
                         'base-raster': {
                             'type': 'raster',
                             'tiles': [
-                                window.location.protocol + "//" + window.location.host + EnvironmentUtil.getApiUrl() + "/api/mapbox/v4/mapbox.satellite/{z}/{x}/{y}@2x.jpg90"
+                                EnvironmentUtil.getAbsoluteApiUrl() + "/api/mapbox/v4/mapbox.satellite/{z}/{x}/{y}@2x.jpg90"
                             ],
                             'tileSize': 512,
                         }
                     },
-                    "glyphs": window.location.protocol + "//" + window.location.host + EnvironmentUtil.getApiUrl() + "/glyphs/{fontstack}/{range}.pbf",
+                    "glyphs": EnvironmentUtil.getAbsoluteApiUrl() + "/glyphs/{fontstack}/{range}.pbf",
                     'layers': [
                         {
                             'id': 'base-layer',

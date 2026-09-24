@@ -32,6 +32,8 @@
 		<db.name>georegistry</db.name>
 		<db.user>georegistry</db.user>
 		<db.port>5432</db.port>
+		<!-- Tomcat context the cargo-run profile deploys to. ROOT = "/". Use e.g. -Dgpr.context=gpr to test running under /gpr -->
+		<gpr.context>ROOT</gpr.context>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -133,7 +135,7 @@
 									<artifactId>georegistry-web</artifactId>
 									<type>war</type>
 									<properties>
-										<context>ROOT</context>
+										<context>${gpr.context}</context>
 									</properties>
 								</deployable>
 							</deployables>

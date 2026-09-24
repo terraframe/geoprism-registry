@@ -72,12 +72,12 @@ export class ScheduledJobMapComponent implements OnInit, OnDestroy {
                         'base-raster': {
                             'type': 'raster',
                             'tiles': [
-                                window.location.protocol + "//" + window.location.host + EnvironmentUtil.getApiUrl() + "/api/mapbox/v4/mapbox.satellite/{z}/{x}/{y}@2x.jpg90"
+                                EnvironmentUtil.getAbsoluteApiUrl() + "/api/mapbox/v4/mapbox.satellite/{z}/{x}/{y}@2x.jpg90"
                             ],
                             'tileSize': 512,
                         }
                     },
-                    "glyphs": window.location.protocol + "//" + window.location.host + EnvironmentUtil.getApiUrl() + "/glyphs/{fontstack}/{range}.pbf",
+                    "glyphs": EnvironmentUtil.getAbsoluteApiUrl() + "/glyphs/{fontstack}/{range}.pbf",
                     'layers': [
                         {
                             'id': 'base-layer',
@@ -107,7 +107,7 @@ export class ScheduledJobMapComponent implements OnInit, OnDestroy {
         // Add the layer
         this.map.addSource('features', {
             type: 'vector',
-            tiles: [window.location.protocol + "//" + window.location.host + EnvironmentUtil.getApiUrl() + "/api/etl/tile?x={x}&y={y}&z={z}&historyId=" + encodeURIComponent(this.historyId)],
+            tiles: [EnvironmentUtil.getAbsoluteApiUrl() + "/api/etl/tile?x={x}&y={y}&z={z}&historyId=" + encodeURIComponent(this.historyId)],
             promoteId: "uid"
 
         });

@@ -296,12 +296,9 @@ export class ListVectorLayerDataSource extends LayerDataSource {
     }
 
     buildMapboxSource(): SourceSpecification {
-        let protocol = window.location.protocol;
-        let host = window.location.host;
-
         return {
             type: "vector",
-            tiles: [protocol + "//" + host + EnvironmentUtil.getApiUrl() + "/api/list-type/tile?x={x}&y={y}&z={z}&config=" + encodeURIComponent(JSON.stringify({ oid: this.versionId }))],
+            tiles: [EnvironmentUtil.getAbsoluteApiUrl() + "/api/list-type/tile?x={x}&y={y}&z={z}&config=" + encodeURIComponent(JSON.stringify({ oid: this.versionId }))],
             promoteId: "uid"
         };
     }
