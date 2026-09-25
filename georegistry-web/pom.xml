@@ -124,6 +124,8 @@
 										-Denvcfg=${project.basedir}/../envcfg
 										-Dproject.basedir=${project.basedir}
 										-Dnetwork.binary.maxLength=56384
+										-Daxon-bom.update-checker.disabled=true
+										-Daxoniq.update-checker.disabled=true
 									</cargo.jvmargs>
 								</properties>
 							</configuration>

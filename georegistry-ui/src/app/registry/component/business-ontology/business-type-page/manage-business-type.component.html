@@ -56,8 +56,10 @@
             <localized-input [disabled]="readOnly" [(value)]="type.displayLabel" key="data.property.label.label">
             </localized-input>
 
-            <localized-text [disabled]="readOnly" [(value)]="type.description" key="data.property.label.description">
-            </localized-text>
+            <div class="row-holder">
+              <localized-text [disabled]="readOnly" [(value)]="type.description" key="data.property.label.description">
+              </localized-text>
+            </div>
           </div>
         </div>
 

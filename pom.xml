@@ -24,8 +24,12 @@
   </modules>
 
   <properties>
-    <spring.boot.version>3.5.16</spring.boot.version>
-    <geoprism.version>2.1.7-SNAPSHOT</geoprism.version>
+    <geoprism.version>2.1.8-SNAPSHOT</geoprism.version>
+    <spring.boot.version>4.1.1</spring.boot.version>
+    <hapifhir_version>8.8.1</hapifhir_version>
+    <axon.version>4.13.2</axon.version>
+    <aws.version>2.47.4</aws.version>    
+    
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
