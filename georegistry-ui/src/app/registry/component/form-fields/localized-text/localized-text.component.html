@@ -1,42 +1,51 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<ng-container *ngIf="value != null">
-  <div *ngFor="let localeValue of value.localeValues">
-    <div [ngClass]="{'row' : inlinelayout, 'row-holder' : !inlinelayout}" >
-      <div [ngClass]="{'col-md-12' : inlinelayout}">
-        <div class="form-group">
-          <div [ngClass]="{'label-holder' : !inlinelayout}" >
-            <label>
-              <localize [key]="key"></localize>
-              <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale"></convert-key-label>)</span>
-            </label>
-          </div>
-          <div [ngClass]="{'holder' : !inlinelayout}">
-            <span class="text">
-              <textarea [(ngModel)]="localeValue.value" [disabled]="disabled" [name]="'description-' + localeValue.locale" class="form-control"></textarea>
-            </span>
+@if (value != null) {
+  @for (localeValue of value.localeValues; track localeValue.locale) {
+    <div>
+      <div [ngClass]="{ row: inlinelayout, 'row-holder': !inlinelayout }">
+        <div [ngClass]="{ 'col-md-12': inlinelayout }">
+          <div class="form-group">
+            <div [ngClass]="{ 'label-holder': !inlinelayout }">
+              <label>
+                <localize [key]="key"></localize>
+                <span style="color: #bababa"
+                  >&nbsp;(<convert-key-label [key]="localeValue.locale"></convert-key-label>)</span
+                >
+              </label>
+            </div>
+            <div [ngClass]="{ holder: !inlinelayout }">
+              <span class="text">
+                <textarea
+                  [(ngModel)]="localeValue.value"
+                  [disabled]="disabled"
+                  [name]="'description-' + localeValue.locale"
+                  class="form-control"
+                ></textarea>
+              </span>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>  
-</ng-container>
+  }
+}

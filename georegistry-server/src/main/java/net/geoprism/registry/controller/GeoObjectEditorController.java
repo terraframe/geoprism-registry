@@ -18,10 +18,6 @@
  */
 package net.geoprism.registry.controller;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-
-import jakarta.validation.constraints.NotEmpty;
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,14 +27,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.GeoObjectEditorServiceIF;
-import net.geoprism.registry.spring.JsonArrayDeserializer;
-import net.geoprism.registry.spring.JsonObjectDeserializer;
+import net.geoprism.spring.core.JsonArrayDeserializer;
+import net.geoprism.spring.core.JsonObjectDeserializer;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 @RestController
 @Validated
@@ -51,7 +50,7 @@ public class GeoObjectEditorController extends RunwaySpringController
     @JsonDeserialize(using = JsonArrayDeserializer.class)
     private JsonArray  parentTreeNode;
 
-    @NotNull
+    @NotNull    
     @JsonDeserialize(using = JsonObjectDeserializer.class)
     private JsonObject geoObject;
 

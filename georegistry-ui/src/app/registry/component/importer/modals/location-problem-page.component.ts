@@ -22,63 +22,59 @@ import { ImportConfiguration, LocationProblem } from '@registry/model/io';
 import { ErrorHandler } from '@shared/component';
 import { LocationProblemComponent } from './location-problem.component';
 import { FormsModule } from '@angular/forms';
-import { NgIf, NgFor } from '@angular/common';
+
 import { LocalizeComponent } from '@shared/component/localize/localize.component';
 
 @Component({
-    selector: 'location-problem-page',
-    templateUrl: './location-problem-page.component.html',
-    styleUrls: [],
-    standalone: true,
-    imports: [LocalizeComponent, NgIf, FormsModule, NgFor, LocationProblemComponent]
+  selector: 'location-problem-page',
+  templateUrl: './location-problem-page.component.html',
+  styleUrls: [],
+  standalone: true,
+  imports: [LocalizeComponent, FormsModule, LocationProblemComponent],
 })
 export class LocationProblemPageComponent implements OnInit {
+  @Input() configuration: ImportConfiguration;
+  @Output() stateChange = new EventEmitter<string>();
+  message: string = null;
 
-    @Input() configuration: ImportConfiguration;
-    @Output() stateChange = new EventEmitter<string>();
-    message: string = null;
+  constructor() {}
 
-    constructor() { }
+  ngOnInit(): void {}
 
-    ngOnInit(): void {
+  hasProblems(): boolean {
+    for (let i = 0; i < this.configuration.locationProblems.length; i++) {
+      if (!this.configuration.locationProblems[i].resolved) {
+        return true;
+      }
     }
 
-    hasProblems(): boolean {
-        for ( let i = 0; i < this.configuration.locationProblems.length; i++ ) {
+    return false;
+  }
 
-            if ( !this.configuration.locationProblems[i].resolved ) {
-                return true;
-            }
-        }
+  handleError(err: any): void {
+    this.message = ErrorHandler.getMessageFromError(err);
+  }
 
-        return false;
+  onNext(): void {
+    if (this.configuration.exclusions == null) {
+      this.configuration.exclusions = [];
     }
 
-    handleError( err: any ): void {
-            this.message = ErrorHandler.getMessageFromError(err);
+    for (let i = 0; i < this.configuration.locationProblems.length; i++) {
+      const problem = this.configuration.locationProblems[i];
+
+      if (problem.resolved && problem.action.name == 'IGNOREATLOCATION') {
+        const value = problem.parent != null ? problem.parent + '-' + problem.label : problem.label;
+        const exclusion = { code: '##PARENT##', value: value };
+
+        this.configuration.exclusions.push(exclusion);
+      }
     }
 
-    onNext(): void {
-        if ( this.configuration.exclusions == null ) {
-            this.configuration.exclusions = [];
-        }
+    this.stateChange.emit('NEXT');
+  }
 
-        for ( let i = 0; i < this.configuration.locationProblems.length; i++ ) {
-            const problem = this.configuration.locationProblems[i];
-
-            if ( problem.resolved && problem.action.name == 'IGNOREATLOCATION' ) {
-                const value = ( problem.parent != null ? problem.parent + "-" + problem.label : problem.label );
-                const exclusion = { code: '##PARENT##', value: value };
-
-                this.configuration.exclusions.push( exclusion );
-            }
-        }
-
-
-        this.stateChange.emit( 'NEXT' );
-    }
-
-    onCancel(): void {
-        this.stateChange.emit( 'CANCEL' );
-    }
+  onCancel(): void {
+    this.stateChange.emit('CANCEL');
+  }
 }

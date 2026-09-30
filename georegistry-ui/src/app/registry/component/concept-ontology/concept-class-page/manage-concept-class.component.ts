@@ -34,7 +34,7 @@ import { RouterLink } from '@angular/router';
 import { LocalizedInputComponent } from '../../form-fields/localized-input/localized-input.component';
 import { LocalizeComponent } from '@shared/component/localize/localize.component';
 import { FormsModule } from '@angular/forms';
-import { NgIf, NgFor, NgClass } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { ConceptClassService } from '@registry/service/concept-class.service';
 import { LocalizedTextComponent } from '@registry/component/form-fields/localized-text/localized-text.component';
 
@@ -66,12 +66,10 @@ import { LocalizedTextComponent } from '@registry/component/form-fields/localize
   ],
   standalone: true,
   imports: [
-    NgIf,
     FormsModule,
     LocalizeComponent,
     LocalizedTextComponent,
     LocalizedInputComponent,
-    NgFor,
     NgClass,
     RouterLink,
     DefineAttributeModalContentComponent,

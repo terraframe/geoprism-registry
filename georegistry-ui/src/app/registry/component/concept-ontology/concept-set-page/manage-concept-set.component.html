@@ -1,202 +1,249 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <ng-template #customListTemplate let-matches="matches" let-query="query" let-typeaheadTemplateMethods>
   <ul class="list-group">
-    @for (match of matches; track match) {
-    <li class="list-group-item" [class.active]="typeaheadTemplateMethods.isActive(match)"
-      (click)="typeaheadTemplateMethods.selectMatch(match, $event)"
-      (mouseenter)="typeaheadTemplateMethods.selectActive(match)">
-      {{ match.item.code + ' : ' + match.item.properties['displayLabel'].values[0].value.localizedValue }}
-    </li>
+    @for (match of matches; track match.item.code) {
+      <li
+        class="list-group-item"
+        [class.active]="typeaheadTemplateMethods.isActive(match)"
+        (click)="typeaheadTemplateMethods.selectMatch(match, $event)"
+        (mouseenter)="typeaheadTemplateMethods.selectActive(match)"
+      >
+        {{ match.item.code + ' : ' + match.item.properties['displayLabel'].values[0].value.localizedValue }}
+      </li>
     }
   </ul>
 </ng-template>
 
 <div>
-  <div class="crumbs" *ngIf="!isNew && set != null">
-    <span class="crumb-link">
-      <localize key="nav.concept.set.label"></localize>
-    </span><span class="sep">/</span>
-    <span class="current">{{set.displayLabel.localizedValue}}</span>
-  </div>
-
-  <div class="heading" *ngIf="!isNew && set != null">
-    <h1>{{set.displayLabel.localizedValue}}</h1>
-    <div class="sub">
-      <localize key="concept.set.header"></localize>
+  @if (!isNew && set != null) {
+    <div class="crumbs">
+      <span class="crumb-link"> <localize key="nav.concept.set.label"></localize> </span><span class="sep">/</span>
+      <span class="current">{{ set.displayLabel.localizedValue }}</span>
     </div>
-  </div>
+  }
 
-  <form #form="ngForm" *ngIf="set != null" class="page-form" (ngSubmit)="form.valid">
-    <fieldset>
+  @if (!isNew && set != null) {
+    <div class="heading">
+      <h1>{{ set.displayLabel.localizedValue }}</h1>
+      <div class="sub">
+        <localize key="concept.set.header"></localize>
+      </div>
+    </div>
+  }
 
-      <div class="panel panel-default section-panel">
-        <div class="panel-heading">
-          <h5 class="panel-title">
-            <localize key="hierarchy.management.section.identity.title"></localize>
-          </h5>
-          <p class="panel-subtitle">
-            <localize key="hierarchy.management.section.identity.description"></localize>
-          </p>
-        </div>
-        <div class="panel-body">
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <label>
-                  <localize key="data.property.label.code"></localize>
-                </label>
-                <span class="text">
-                  <input set="text" class="form-control" [(ngModel)]="set.code" name="code"
-                    [disabled]="readOnly || !isNew" required>
-                </span>
-              </div>
-            </div>
+  @if (set != null) {
+    <form #form="ngForm" class="page-form" (ngSubmit)="(form.valid)">
+      <fieldset>
+        <div class="panel panel-default section-panel">
+          <div class="panel-heading">
+            <h5 class="panel-title">
+              <localize key="hierarchy.management.section.identity.title"></localize>
+            </h5>
+            <p class="panel-subtitle">
+              <localize key="hierarchy.management.section.identity.description"></localize>
+            </p>
           </div>
-
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group" *ngFor="let localeValue of set.displayLabel.localeValues">
-                <label>
-                  <localize key="data.property.label.label"></localize>
-                  <span style="color: #BABABA">&nbsp;(
-                    <convert-key-label [key]="localeValue.locale"></convert-key-label>
-                    )
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>
+                    <localize key="data.property.label.code"></localize>
+                  </label>
+                  <span class="text">
+                    <input
+                      set="text"
+                      class="form-control"
+                      [(ngModel)]="set.code"
+                      name="code"
+                      [disabled]="readOnly || !isNew"
+                      required
+                    />
                   </span>
-                </label>
-                <input [disabled]="readOnly" [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale"
-                  set="input" class="form-control" required>
+                </div>
               </div>
             </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <localized-text [disabled]="readOnly" [(value)]="set.description" key="data.property.label.description"
-                  [inlinelayout]="true">
-                </localized-text>
+            <div class="row">
+              <div class="col-md-6">
+                @for (localeValue of set.displayLabel.localeValues; track localeValue.locale) {
+                  <div class="form-group">
+                    <label>
+                      <localize key="data.property.label.label"></localize>
+                      <span style="color: #bababa"
+                        >&nbsp;(
+                        <convert-key-label [key]="localeValue.locale"></convert-key-label>
+                        )
+                      </span>
+                    </label>
+                    <input
+                      [disabled]="readOnly"
+                      [(ngModel)]="localeValue.value"
+                      [name]="'label-' + localeValue.locale"
+                      set="input"
+                      class="form-control"
+                      required
+                    />
+                  </div>
+                }
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <localized-text
+                    [disabled]="readOnly"
+                    [(value)]="set.description"
+                    key="data.property.label.description"
+                    [inlinelayout]="true"
+                  >
+                  </localized-text>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-
-      <div class="panel panel-default section-panel">
-        <div class="panel-heading">
-          <h5 class="panel-title">
-            <localize key="hierarchy.management.section.configuration.title"></localize>
-          </h5>
-          <p class="panel-subtitle">
-            <localize key="hierarchy.management.section.configuration.description"></localize>
-          </p>
-        </div>
-        <div class="panel-body">
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <label>
-                  <localize key="concept.edge.discrete.type"></localize>
-                </label>
-                <select id="discreteType" name="discreteType" class="form-control" [(ngModel)]="set.discreteType"
-                  [disabled]="readOnly || !isNew" required>
-                  <option></option>
-                  <option value="ENUMERATION">
-                    <localize key="concept.edge.discrete.type.enumeration"></localize>
-                  </option>
-                  <option value="TAXONOMY">
-                    <localize key="concept.edge.discrete.type.taxonomy"></localize>
-                  </option>
-                </select>
+        <div class="panel panel-default section-panel">
+          <div class="panel-heading">
+            <h5 class="panel-title">
+              <localize key="hierarchy.management.section.configuration.title"></localize>
+            </h5>
+            <p class="panel-subtitle">
+              <localize key="hierarchy.management.section.configuration.description"></localize>
+            </p>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>
+                    <localize key="concept.edge.discrete.type"></localize>
+                  </label>
+                  <select
+                    id="discreteType"
+                    name="discreteType"
+                    class="form-control"
+                    [(ngModel)]="set.discreteType"
+                    [disabled]="readOnly || !isNew"
+                    required
+                  >
+                    <option></option>
+                    <option value="ENUMERATION">
+                      <localize key="concept.edge.discrete.type.enumeration"></localize>
+                    </option>
+                    <option value="TAXONOMY">
+                      <localize key="concept.edge.discrete.type.taxonomy"></localize>
+                    </option>
+                  </select>
+                </div>
               </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>
+                    <localize key="concept.class.header"></localize>
+                  </label>
+                  <select
+                    name="conceptClasses[0]"
+                    class="form-control"
+                    [(ngModel)]="set.conceptClasses[0]"
+                    [disabled]="readOnly || !isNew"
+                    required
+                  >
+                    <option></option>
+                    @for (conceptClass of conceptClasses; track conceptClass.code) {
+                      <option [value]="conceptClass.code">
+                        {{ conceptClass.displayLabel.localizedValue }}
+                      </option>
+                    }
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                @if (set.discreteType !== 'ENUMERATION') {
+                  <div class="form-group">
+                    <label>
+                      <localize key="concept.edge.header"></localize>
+                    </label>
+                    <select
+                      name="conceptEdgeTypes[0]"
+                      class="form-control"
+                      [(ngModel)]="set.conceptEdgeTypes[0]"
+                      [disabled]="readOnly || !isNew"
+                      required
+                    >
+                      <option></option>
+                      @for (conceptEdge of conceptEdgeTypes; track conceptEdge.code) {
+                        <option [value]="conceptEdge.code">
+                          {{ conceptEdge.label.localizedValue }}
+                        </option>
+                      }
+                    </select>
+                  </div>
+                }
+              </div>
+            </div>
+            @if (set.discreteType !== 'ENUMERATION' && set.conceptClasses[0].length > 0) {
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>
+                      <localize key="concept.root.term"></localize>
+                    </label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      autocomplete="off"
+                      name="rootTerm"
+                      [disabled]="readOnly || !isNew"
+                      [(ngModel)]="text"
+                      [typeaheadAsync]="true"
+                      [typeahead]="typeahead"
+                      (change)="onTextChange()"
+                      (typeaheadOnSelect)="typeaheadOnSelect($event)"
+                      (typeaheadLoading)="loading = $event"
+                      [ngClass]="{ 'inline-loading': loading }"
+                      [typeaheadOptionsLimit]="7"
+                      [typeaheadMinLength]="0"
+                      [typeaheadWaitMs]="300"
+                      [optionsListTemplate]="customListTemplate"
+                    />
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+        @if (!readOnly) {
+          <div class="row-holder">
+            <div class="button-holder">
+              <button set="button" class="btn btn-default" (click)="close()">
+                <localize key="modal.button.cancel"></localize>
+              </button>
+              <button set="button" class="btn btn-primary" [disabled]="form.invalid" (click)="update()">
+                <localize key="modal.button.submit"></localize>
+              </button>
             </div>
           </div>
-
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label>
-                  <localize key="concept.class.header"></localize>
-                </label>
-                <select name="conceptClasses[0]" class="form-control" [(ngModel)]="set.conceptClasses[0]"
-                  [disabled]="readOnly || !isNew" required>
-                  <option></option>
-                  @for (conceptClass of conceptClasses; track conceptClass) {
-                  <option [value]="conceptClass.code">
-                    {{conceptClass.displayLabel.localizedValue}}
-                  </option>
-                  }
-                </select>
-              </div>
-            </div>
-            <div class="col-md-6">
-              @if (set.discreteType !== 'ENUMERATION') {
-
-              <div class="form-group">
-                <label>
-                  <localize key="concept.edge.header"></localize>
-                </label>
-                <select name="conceptEdgeTypes[0]" class="form-control" [(ngModel)]="set.conceptEdgeTypes[0]"
-                  [disabled]="readOnly || !isNew" required>
-                  <option></option>
-                  @for (conceptEdge of conceptEdgeTypes; track conceptEdge) {
-                  <option [value]="conceptEdge.code">
-                    {{conceptEdge.label.localizedValue}}
-                  </option>
-                  }
-                </select>
-              </div>
-              }
-            </div>
-          </div>
-          @if (set.discreteType !== 'ENUMERATION' && set.conceptClasses[0].length > 0) {
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label>
-                  <localize key="concept.root.term"></localize>
-                </label>
-                <input type="text" class="form-control" autocomplete="off" name="rootTerm"
-                  [disabled]="readOnly || !isNew" [(ngModel)]="text" [typeaheadAsync]="true" [typeahead]="typeahead"
-                  (change)="onTextChange()" (typeaheadOnSelect)="typeaheadOnSelect($event)"
-                  (typeaheadLoading)="loading = $event" [ngClass]="{'inline-loading':loading}"
-                  [typeaheadOptionsLimit]="7" [typeaheadMinLength]="0" [typeaheadWaitMs]="300"
-                  [optionsListTemplate]="customListTemplate">
-              </div>
-            </div>
-          </div>
-          }
-        </div>
-      </div>
-
-      @if (!readOnly) {
-      <div class="row-holder">
-        <div class="button-holder">
-          <button set="button" class="btn btn-default" (click)="close()">
-            <localize key="modal.button.cancel"></localize>
-          </button>
-          <button set="button" class="btn btn-primary" [disabled]="form.invalid" (click)="update()">
-            <localize key="modal.button.submit"></localize>
-          </button>
-        </div>
-      </div>
-      }
-    </fieldset>
-  </form>
-
+        }
+      </fieldset>
+    </form>
+  }
 </div>

@@ -17,59 +17,60 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from "@angular/core";
-import { HttpErrorResponse } from "@angular/common/http";
-import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
+import { Component, OnInit } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 
-import { ErrorHandler } from "@shared/component";
-import { LocalizationService, AuthService } from "@shared/service";
-import { DataImporterComponent } from "../importer/dataimporter.component";
-import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
-import { RouterLink } from "@angular/router";
-import { NgIf, NgClass } from "@angular/common";
-import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
+import { ErrorHandler } from '@shared/component';
+import { LocalizationService, AuthService } from '@shared/service';
+import { DataImporterComponent } from '../importer/dataimporter.component';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+import { RouterLink } from '@angular/router';
+import { NgClass } from '@angular/common';
+import { PageContainerComponent } from '../../../shared/component/page-container/page-container.component';
 
 @Component({
-    selector: "data-page",
-    templateUrl: "./data-page.component.html",
-    styleUrls: ["./data-page.css"],
-    standalone: true,
-    imports: [PageContainerComponent, NgIf, RouterLink, NgClass, LocalizeComponent, DataImporterComponent]
+  selector: 'data-page',
+  templateUrl: './data-page.component.html',
+  styleUrls: ['./data-page.css'],
+  standalone: true,
+  imports: [PageContainerComponent, RouterLink, NgClass, LocalizeComponent, DataImporterComponent],
 })
 export class DataPageComponent implements OnInit {
+  content: string = 'SPREADSHEET';
+  pageTitle: string;
+  bsModalRef: BsModalRef;
+  isAdmin: boolean;
+  isMaintainer: boolean;
+  isContributor: boolean;
 
-    content: string = "SPREADSHEET";
-    pageTitle: string;
-    bsModalRef: BsModalRef;
-    isAdmin: boolean;
-    isMaintainer: boolean;
-    isContributor: boolean;
+  constructor(
+    private localizationService: LocalizationService,
+    private modalService: BsModalService,
+    private service: AuthService
+  ) {
+    this.isAdmin = service.isAdmin();
+    this.isMaintainer = this.isAdmin || service.isMaintainer();
+    this.isContributor = this.isAdmin || this.isMaintainer || service.isContributer();
 
-    constructor(private localizationService: LocalizationService, private modalService: BsModalService, private service: AuthService) {
-        this.isAdmin = service.isAdmin();
-        this.isMaintainer = this.isAdmin || service.isMaintainer();
-        this.isContributor = this.isAdmin || this.isMaintainer || service.isContributer();
+    this.isMaintainer ? this.renderContent('SPREADSHEET') : this.renderContent('EXPORT');
+  }
 
-        this.isMaintainer ? this.renderContent("SPREADSHEET") : this.renderContent("EXPORT");
+  ngOnInit(): void {}
+
+  renderContent(content: string): void {
+    this.content = content;
+
+    if (content === 'SPREADSHEET') {
+      this.pageTitle = this.localizationService.decode('spreadsheet.title');
+    } else if (content === 'SHAPEFILE') {
+      this.pageTitle = this.localizationService.decode('shapefile.title');
+    } else if (content === 'EXPORT') {
+      this.pageTitle = this.localizationService.decode('io.export.title');
     }
+  }
 
-    ngOnInit(): void {
-    }
-
-    renderContent(content: string): void {
-        this.content = content;
-
-        if (content === "SPREADSHEET") {
-            this.pageTitle = this.localizationService.decode("spreadsheet.title");
-        } else if (content === "SHAPEFILE") {
-            this.pageTitle = this.localizationService.decode("shapefile.title");
-        } else if (content === "EXPORT") {
-            this.pageTitle = this.localizationService.decode("io.export.title");
-        }
-    }
-
-    public error(err: HttpErrorResponse): void {
-        this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
-    }
-
+  public error(err: HttpErrorResponse): void {
+    this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
+  }
 }

@@ -20,7 +20,7 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { HttpErrorResponse } from "@angular/common/http";
+import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 
 import { LocalizationService } from '@shared/service';
@@ -34,42 +34,51 @@ import { RegistryCacheService } from '@registry/service/registry-cache.service';
 import { GeoObjectType } from '@registry/model/registry';
 import { DateTextComponent } from '../../../shared/component/date-text/date-text.component';
 import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
-import { NgIf, NgFor } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { BooleanFieldComponent } from '@shared/component/form-fields/boolean-field/boolean-field.component';
 
 @Component({
-    selector: 'configuration-modal',
-    templateUrl: './configuration-modal.component.html',
-    styleUrls: [],
-    standalone: true,
-    imports: [FormsModule, NgIf, LocalizeComponent, DateTextComponent, NgFor, BooleanFieldComponent]
+  selector: 'configuration-modal',
+  templateUrl: './configuration-modal.component.html',
+  styleUrls: [],
+  standalone: true,
+  imports: [FormsModule, LocalizeComponent, DateTextComponent, BooleanFieldComponent],
 })
 export class ConfigurationModalComponent implements OnInit {
+  configuration: ImportConfiguration;
 
-    configuration: ImportConfiguration;
+  strategy: any;
 
-    strategy: any;
+  constructor(
+    private service: IOService,
+    public bsModalRef: BsModalRef,
+    private localizationService: LocalizationService,
+    private cacheService: RegistryCacheService
+  ) {}
 
-    constructor(private service: IOService, public bsModalRef: BsModalRef,
-        private localizationService: LocalizationService,
-        private cacheService: RegistryCacheService) {
+  ngOnInit(): void {}
+
+  init(configuration: ImportConfiguration): void {
+    this.configuration = configuration;
+
+    if (this.configuration.importStrategy && this.configuration.importStrategy.length > 0) {
+      const strategies = [
+        {
+          strategy: ImportStrategy.NEW_AND_UPDATE,
+          label: this.localizationService.decode('etl.import.ImportStrategy.NEW_AND_UPDATE'),
+        },
+        {
+          strategy: ImportStrategy.NEW_ONLY,
+          label: this.localizationService.decode('etl.import.ImportStrategy.NEW_ONLY'),
+        },
+        {
+          strategy: ImportStrategy.UPDATE_ONLY,
+          label: this.localizationService.decode('etl.import.ImportStrategy.UPDATE_ONLY'),
+        },
+      ];
+
+      this.strategy = strategies.find((s) => s.strategy === this.configuration.importStrategy);
     }
-
-    ngOnInit(): void {
-    }
-
-    init(configuration: ImportConfiguration): void {
-        this.configuration = configuration;
-
-        if (this.configuration.importStrategy && this.configuration.importStrategy.length > 0) {
-            const strategies = [
-                { strategy: ImportStrategy.NEW_AND_UPDATE, label: this.localizationService.decode("etl.import.ImportStrategy.NEW_AND_UPDATE") },
-                { strategy: ImportStrategy.NEW_ONLY, label: this.localizationService.decode("etl.import.ImportStrategy.NEW_ONLY") },
-                { strategy: ImportStrategy.UPDATE_ONLY, label: this.localizationService.decode("etl.import.ImportStrategy.UPDATE_ONLY") }
-            ];
-
-            this.strategy = strategies.find(s => s.strategy === this.configuration.importStrategy);
-        }
-    }
+  }
 }

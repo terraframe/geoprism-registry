@@ -4,13 +4,12 @@ import java.util.Date;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import net.geoprism.registry.etl.ObjectImporterFactory.JobHistoryType;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
-import net.geoprism.registry.spring.NullableDateDeserializer;
+import net.geoprism.registry.view.serialization.DateDeserializer;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 public class ImportConfigurationView
 {
@@ -19,10 +18,10 @@ public class ImportConfigurationView
   @NotEmpty(message = "Import type requires a value")
   private String         type;
 
-  @JsonDeserialize(using = NullableDateDeserializer.class)
+  @JsonDeserialize(using = DateDeserializer.class)
   private Date           startDate;
 
-  @JsonDeserialize(using = NullableDateDeserializer.class)
+  @JsonDeserialize(using = DateDeserializer.class)
   private Date           endDate;
 
   @NotNull(message = "Shapefile requires a value")

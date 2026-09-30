@@ -1,18 +1,26 @@
-<hr class="sidebar-divider">
+<hr class="sidebar-divider" />
 <div class="sidebar-section-content">
-	<ul *ngFor="let typeByOrg of typesByOrg;" class="list-group">
-		<div>
-			<div class="got-org-label-wrapper">
-				<label>{{typeByOrg.org.label.localizedValue}}</label>
-			</div>
-
-			<li class="list-group-item got-li-item"
-				[attr.data-superTypeCode]="(type.superTypeCode && type.superTypeCode.length > 0) ? type.superTypeCode : null"
-				*ngFor="let type of typeByOrg.types" [id]="type.code"
-				[attr.data-canDrag]="type.canDrag"
-				[ngClass]="{'got-group-parent' : (type.isAbstract), 'got-group-child' : type.superTypeCode && type.superTypeCode.length > 0}">
-				{{type.label.localizedValue}}
-			</li>
-		</div>
-	</ul>
+  @for (typeByOrg of typesByOrg; track typeByOrg.org.code) {
+    <ul class="list-group">
+      <div>
+        <div class="got-org-label-wrapper">
+          <label>{{ typeByOrg.org.label.localizedValue }}</label>
+        </div>
+        @for (type of typeByOrg.types; track type.code) {
+          <li
+            class="list-group-item got-li-item"
+            [attr.data-superTypeCode]="type.superTypeCode && type.superTypeCode.length > 0 ? type.superTypeCode : null"
+            [id]="type.code"
+            [attr.data-canDrag]="type.canDrag"
+            [ngClass]="{
+              'got-group-parent': type.isAbstract,
+              'got-group-child': type.superTypeCode && type.superTypeCode.length > 0,
+            }"
+          >
+            {{ type.label.localizedValue }}
+          </li>
+        }
+      </div>
+    </ul>
+  }
 </div>

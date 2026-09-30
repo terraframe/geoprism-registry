@@ -18,7 +18,7 @@
 ///
 
 import { Component, OnInit } from '@angular/core';
-import { HttpErrorResponse } from "@angular/common/http";
+import { HttpErrorResponse } from '@angular/common/http';
 
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
@@ -26,73 +26,85 @@ import { ErrorHandler } from '@shared/component';
 import { Account, UserInvite } from '@admin/model/account';
 import { Organization } from '@shared/model/core';
 
-import { SettingsService } from '@admin/service/settings.service'
+import { SettingsService } from '@admin/service/settings.service';
 import { AccountService } from '@admin/service/account.service';
 import { AuthService } from '@shared/service';
 import { LocalizePipe } from '../../../shared/pipe/localize.pipe';
 import { RoleManagementComponent } from './role-management.component';
-import { NgIf } from '@angular/common';
+
 import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
 import { FormsModule } from '@angular/forms';
 import { LoadingBarComponent } from '../../../shared/component/loading-bar/loading-bar.component';
 import { MessageComponent } from '../../../shared/component/message/message.component';
 
-
 @Component({
-    selector: 'account-invite',
-    templateUrl: './account-invite.component.html',
-    styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}'],
-    standalone: true,
-    imports: [MessageComponent, LoadingBarComponent, FormsModule, LocalizeComponent, NgIf, RoleManagementComponent, LocalizePipe]
+  selector: 'account-invite',
+  templateUrl: './account-invite.component.html',
+  styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}'],
+  standalone: true,
+  imports: [
+    MessageComponent,
+    LoadingBarComponent,
+    FormsModule,
+    LocalizeComponent,
+    RoleManagementComponent,
+    LocalizePipe,
+  ],
 })
 export class AccountInviteComponent implements OnInit {
-	invite: UserInvite;
-	message: string = null;
-	roleIds: string[] = [];
-	organization: Organization;
-	organizations: Organization[];
+  invite: UserInvite;
+  message: string = null;
+  roleIds: string[] = [];
+  organization: Organization;
+  organizations: Organization[];
 
-	constructor(
-		private service: AccountService,
-		private authService: AuthService,
-		public bsModalRef: BsModalRef,
-		public settingsService: SettingsService) {
-	}
+  constructor(
+    private service: AccountService,
+    private authService: AuthService,
+    public bsModalRef: BsModalRef,
+    public settingsService: SettingsService
+  ) {}
 
-	ngOnInit(): void {
-		this.invite = new UserInvite();
-		let orgCodes = this.authService.getMyOrganizations();
+  ngOnInit(): void {
+    this.invite = new UserInvite();
+    let orgCodes = this.authService.getMyOrganizations();
 
-		this.service.newInvite(orgCodes).then((account: Account) => {
-			this.invite.roles = account.roles;
-		}).catch((err: HttpErrorResponse) => {
-			this.error(err);
-		});
+    this.service
+      .newInvite(orgCodes)
+      .then((account: Account) => {
+        this.invite.roles = account.roles;
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
 
-		// this.settingsService.getOrganizations().then(orgs => {
-		//     this.organizations = orgs
-		// }).catch((err: HttpErrorResponse) => {
-		//     this.error(err);
-		// });
-	}
+    // this.settingsService.getOrganizations().then(orgs => {
+    //     this.organizations = orgs
+    // }).catch((err: HttpErrorResponse) => {
+    //     this.error(err);
+    // });
+  }
 
-	cancel(): void {
-		this.bsModalRef.hide();
-	}
+  cancel(): void {
+    this.bsModalRef.hide();
+  }
 
-	onRoleIdsUpdate(roleIds: string[]): void {
-		this.roleIds = roleIds;
-	}
+  onRoleIdsUpdate(roleIds: string[]): void {
+    this.roleIds = roleIds;
+  }
 
-	onSubmit(): void {
-		this.service.inviteUser(this.invite, this.roleIds).then(() => {
-			this.bsModalRef.hide();
-		}).catch((err: HttpErrorResponse) => {
-			this.error(err);
-		});
-	}
+  onSubmit(): void {
+    this.service
+      .inviteUser(this.invite, this.roleIds)
+      .then(() => {
+        this.bsModalRef.hide();
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
 
-	error(err: HttpErrorResponse): void {
-		this.message = ErrorHandler.getMessageFromError(err);
-	}
+  error(err: HttpErrorResponse): void {
+    this.message = ErrorHandler.getMessageFromError(err);
+  }
 }

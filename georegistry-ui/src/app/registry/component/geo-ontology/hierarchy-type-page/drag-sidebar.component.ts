@@ -17,133 +17,129 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input, Output, EventEmitter, SimpleChanges, AfterViewInit, OnChanges } from "@angular/core";
+import { Component, Input, Output, EventEmitter, SimpleChanges, AfterViewInit, OnChanges } from '@angular/core';
 
-import * as d3 from "d3";
+import * as d3 from 'd3';
 
-import { GeoObjectType } from "@registry/model/registry";
-import { Organization } from "@shared/model/core";
-import { NgFor, NgClass } from "@angular/common";
+import { GeoObjectType } from '@registry/model/registry';
+import { Organization } from '@shared/model/core';
+import { NgClass } from '@angular/common';
 
 @Component({
-    selector: "drag-sidebar",
-    templateUrl: "./drag-sidebar.component.html",
-    styleUrls: ["./hierarchy-type-page.css"],
-    standalone: true,
-    imports: [NgFor, NgClass]
+  selector: 'drag-sidebar',
+  templateUrl: './drag-sidebar.component.html',
+  styleUrls: ['./hierarchy-type-page.css'],
+  standalone: true,
+  imports: [NgClass],
 })
 export class DragSidebarComponent implements AfterViewInit, OnChanges {
+  @Input() typesByOrg: { org: Organization; types: GeoObjectType[] }[] = [];
 
-    @Input() typesByOrg: { org: Organization, types: GeoObjectType[] }[] = [];
+  @Output() onDrag = new EventEmitter<{ dragEl: Element; dropEl: Element; event: any }>();
 
-    @Output() onDrag = new EventEmitter<{ dragEl: Element, dropEl: Element, event: any }>();
+  @Output() onDrop = new EventEmitter<{ dragEl: Element; event: any }>();
 
-    @Output() onDrop = new EventEmitter<{ dragEl: Element, event: any }>();
+  constructor() {}
 
+  ngAfterViewInit(): void {
+    this.registerDragHandlers();
+  }
 
-    constructor() {
-    }
+  ngOnChanges(changes: SimpleChanges): void {
+    setTimeout(() => {
+      this.registerDragHandlers();
+    }, 100);
+  }
 
+  registerDragHandlers(): any {
+    const that = this;
 
-    ngAfterViewInit(): void {
-        this.registerDragHandlers();
-    }
+    // GeoObjectTypes and Hierarchies
+    let deltaX: number, deltaY: number, width: number;
+    let sidebarDragHandler = d3
+      .drag()
+      .on('start', function (event: any) {
+        let canDrag = d3.select(this).attr('data-candrag');
+        if (canDrag === 'false') {
+          return;
+        }
 
-    ngOnChanges(changes: SimpleChanges): void {
+        let rect = this.getBoundingClientRect();
+        deltaX = rect.left - event.sourceEvent.pageX;
+        deltaY = rect.top - event.sourceEvent.pageY;
+        width = rect.width;
+      })
+      .on('drag', function (event: any) {
+        let canDrag = d3.select(this).attr('data-candrag');
+        if (canDrag === 'false') {
+          return;
+        }
 
-        setTimeout(() => { this.registerDragHandlers(); }, 100);
-    }
+        d3.select('.g-context-menu').remove();
 
-    registerDragHandlers(): any {
-        const that = this;
+        let selThis = d3.select(this);
 
-        // GeoObjectTypes and Hierarchies
-        let deltaX: number, deltaY: number, width: number;
-        let sidebarDragHandler = d3.drag()
-            .on("start", function (event: any) {
-                let canDrag = d3.select(this).attr("data-candrag");
-                if (canDrag === "false") {
-                    return;
-                }
+        // Kind of a dumb hack, but if we hide our drag element for a sec, then we can check what's underneath it.
+        selThis.style('display', 'none');
 
-                let rect = this.getBoundingClientRect();
-                deltaX = rect.left - event.sourceEvent.pageX;
-                deltaY = rect.top - event.sourceEvent.pageY;
-                width = rect.width;
-            })
-            .on("drag", function (event: any) {
-                let canDrag = d3.select(this).attr("data-candrag");
-                if (canDrag === "false") {
-                    return;
-                }
+        let target = document.elementFromPoint(event.sourceEvent.pageX, event.sourceEvent.pageY);
 
-                d3.select(".g-context-menu").remove();
+        selThis.style('display', null);
 
-                let selThis = d3.select(this);
+        that.onDrag.emit({ dragEl: this, dropEl: target, event });
 
-                // Kind of a dumb hack, but if we hide our drag element for a sec, then we can check what's underneath it.
-                selThis.style("display", "none");
+        // for (let i = 0; i < dropTargets.length; ++i) {
+        //     dropTargets[i].onDrag(this, target, event);
+        // }
 
-                let target = document.elementFromPoint(event.sourceEvent.pageX, event.sourceEvent.pageY);
+        // Move the GeoObjectType with the pointer when they move their mouse
+        selThis
+          .classed('dragging', true)
+          .style('left', event.sourceEvent.pageX + deltaX + 'px')
+          .style('top', event.sourceEvent.pageY + deltaY + 'px')
+          .style('width', width + 'px');
 
-                selThis.style("display", null);
+        // If they are moving a GOT group then we have to move the children as well
+        if (selThis.classed('got-group-parent')) {
+          let index = 1;
+          d3.selectAll('.got-group-child[data-superTypeCode="' + selThis.attr('id') + '"]').each(function () {
+            let li: any = this;
+            let child = d3.select(li);
 
-                that.onDrag.emit({ dragEl: this, dropEl: target, event })
+            child
+              .classed('dragging', true)
+              .style('left', event.sourceEvent.pageX + deltaX + 'px')
+              .style('top', event.sourceEvent.pageY + deltaY + (li.getBoundingClientRect().height + 2) * index + 'px')
+              .style('width', width + 'px');
 
-                // for (let i = 0; i < dropTargets.length; ++i) {
-                //     dropTargets[i].onDrag(this, target, event);
-                // }
+            index++;
+          });
+        }
+      })
+      .on('end', function (event: any) {
+        let selThis = d3
+          .select(this)
+          .classed('dragging', false)
+          .style('left', null)
+          .style('top', null)
+          .style('width', null);
 
-                // Move the GeoObjectType with the pointer when they move their mouse
-                selThis
-                    .classed("dragging", true)
-                    .style("left", (event.sourceEvent.pageX + deltaX) + "px")
-                    .style("top", (event.sourceEvent.pageY + deltaY) + "px")
-                    .style("width", width + "px");
+        // If they are moving a GOT group then we have to reset the children as well
+        if (selThis.classed('got-group-parent')) {
+          d3.selectAll('.got-group-child[data-superTypeCode="' + selThis.attr('id') + '"]').each(function () {
+            let child = d3.select(this);
 
-                // If they are moving a GOT group then we have to move the children as well
-                if (selThis.classed("got-group-parent")) {
-                    let index = 1;
-                    d3.selectAll(".got-group-child[data-superTypeCode=\"" + selThis.attr("id") + "\"]").each(function () {
-                        let li: any = this;
-                        let child = d3.select(li);
+            child.classed('dragging', false).style('left', null).style('top', null).style('width', null);
+          });
+        }
 
-                        child
-                            .classed("dragging", true)
-                            .style("left", (event.sourceEvent.pageX + deltaX) + "px")
-                            .style("top", (event.sourceEvent.pageY + deltaY + (li.getBoundingClientRect().height + 2) * index) + "px")
-                            .style("width", width + "px");
+        that.onDrop.emit({ dragEl: this, event });
 
-                        index++;
-                    });
-                }
-            }).on("end", function (event: any) {
-                let selThis = d3.select(this)
-                    .classed("dragging", false)
-                    .style("left", null)
-                    .style("top", null)
-                    .style("width", null);
+        // for (let i = 0; i < dropTargets.length; ++i) {
+        //     dropTargets[i].onDrop(this, event);
+        // }
+      });
 
-                // If they are moving a GOT group then we have to reset the children as well
-                if (selThis.classed("got-group-parent")) {
-                    d3.selectAll(".got-group-child[data-superTypeCode=\"" + selThis.attr("id") + "\"]").each(function () {
-                        let child = d3.select(this);
-
-                        child
-                            .classed("dragging", false)
-                            .style("left", null)
-                            .style("top", null)
-                            .style("width", null);
-                    });
-                }
-
-                that.onDrop.emit({ dragEl: this, event });
-
-                // for (let i = 0; i < dropTargets.length; ++i) {
-                //     dropTargets[i].onDrop(this, event);
-                // }
-            });
-
-        sidebarDragHandler(d3.selectAll(".sidebar-section-content ul.list-group li.got-li-item"));
-    }
+    sidebarDragHandler(d3.selectAll('.sidebar-section-content ul.list-group li.got-li-item'));
+  }
 }

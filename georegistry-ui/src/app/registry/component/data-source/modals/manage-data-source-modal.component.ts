@@ -17,54 +17,48 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from "@angular/core";
-import { trigger, style, animate, transition } from "@angular/animations";
-import { BsModalRef } from "ngx-bootstrap/modal";
-import { Subject } from "rxjs";
-import { HttpErrorResponse } from "@angular/common/http";
-import { ErrorHandler } from "@shared/component";
-import { DataSource, SourceAuthority } from "@registry/model/source";
-import { DataSourceService } from "@registry/service/data-source.service";
-import { LocalizeComponent } from "@shared/component/localize/localize.component";
-import { FormsModule } from "@angular/forms";
-import { NgFor, NgIf } from "@angular/common";
-import { SourceAuthorityService } from "@registry/service/source-authority.service";
-import { LocalizedInputComponent } from "@registry/component/form-fields/localized-input/localized-input.component";
+import { Component, OnInit } from '@angular/core';
+import { trigger, style, animate, transition } from '@angular/animations';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { Subject } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ErrorHandler } from '@shared/component';
+import { DataSource, SourceAuthority } from '@registry/model/source';
+import { DataSourceService } from '@registry/service/data-source.service';
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
+import { FormsModule } from '@angular/forms';
+
+import { SourceAuthorityService } from '@registry/service/source-authority.service';
+import { LocalizedInputComponent } from '@registry/component/form-fields/localized-input/localized-input.component';
 
 @Component({
-  selector: "manage-data-source-modal",
-  templateUrl: "./manage-data-source-modal.component.html",
+  selector: 'manage-data-source-modal',
+  templateUrl: './manage-data-source-modal.component.html',
   styleUrls: [],
   // host: { '[@fadeInOut]': 'true' },
   animations: [
     [
-      trigger("fadeInOut", [
-        transition("void => *", [
+      trigger('fadeInOut', [
+        transition('void => *', [
           style({
             opacity: 0,
           }),
-          animate("500ms"),
+          animate('500ms'),
         ]),
         transition(
-          ":leave",
+          ':leave',
           animate(
-            "500ms",
+            '500ms',
             style({
               opacity: 0,
-            }),
-          ),
+            })
+          )
         ),
       ]),
     ],
   ],
   standalone: true,
-  imports: [
-    NgIf,
-    NgFor,
-    FormsModule,
-    LocalizeComponent,
-    LocalizedInputComponent,
-  ],
+  imports: [FormsModule, LocalizeComponent, LocalizedInputComponent],
 })
 export class ManageDataSourceModalComponent implements OnInit {
   message: string = null;
@@ -78,7 +72,7 @@ export class ManageDataSourceModalComponent implements OnInit {
   constructor(
     private service: DataSourceService,
     private authorityService: SourceAuthorityService,
-    private bsModalRef: BsModalRef,
+    private bsModalRef: BsModalRef
   ) {}
 
   ngOnInit(): void {

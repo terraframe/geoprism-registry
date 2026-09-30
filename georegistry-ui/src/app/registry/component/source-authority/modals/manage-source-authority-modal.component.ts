@@ -17,87 +17,93 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from "@angular/core";
-import {
-    trigger,
-    style,
-    animate,
-    transition
-} from "@angular/animations";
-import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
-import { Subject } from "rxjs";
-import { HttpErrorResponse } from "@angular/common/http";
-import { ErrorHandler } from "@shared/component";
-import { LocalizationService } from "@shared/service/localization.service";
-import { LocalizeComponent } from "@shared/component/localize/localize.component";
-import { FormsModule } from "@angular/forms";
-import { NgIf } from "@angular/common";
-import { SourceAuthorityService } from "@registry/service/source-authority.service";
-import { SourceAuthority } from "@registry/model/source";
-import { LocalizedInputComponent } from "@registry/component/form-fields/localized-input/localized-input.component";
+import { Component, OnInit } from '@angular/core';
+import { trigger, style, animate, transition } from '@angular/animations';
+import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
+import { Subject } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ErrorHandler } from '@shared/component';
+import { LocalizationService } from '@shared/service/localization.service';
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
+import { FormsModule } from '@angular/forms';
+
+import { SourceAuthorityService } from '@registry/service/source-authority.service';
+import { SourceAuthority } from '@registry/model/source';
+import { LocalizedInputComponent } from '@registry/component/form-fields/localized-input/localized-input.component';
 
 @Component({
-    selector: "manage-source-authority-modal",
-    templateUrl: "./manage-source-authority-modal.component.html",
-    styleUrls: [],
-    // host: { '[@fadeInOut]': 'true' },
-    animations: [
-        [
-            trigger("fadeInOut", [
-                transition("void => *", [
-                    style({
-                        opacity: 0
-                    }),
-                    animate("500ms")
-                ]),
-                transition(":leave", animate("500ms", style({
-                    opacity: 0
-                })))
-            ])
-        ]
+  selector: 'manage-source-authority-modal',
+  templateUrl: './manage-source-authority-modal.component.html',
+  styleUrls: [],
+  // host: { '[@fadeInOut]': 'true' },
+  animations: [
+    [
+      trigger('fadeInOut', [
+        transition('void => *', [
+          style({
+            opacity: 0,
+          }),
+          animate('500ms'),
+        ]),
+        transition(
+          ':leave',
+          animate(
+            '500ms',
+            style({
+              opacity: 0,
+            })
+          )
+        ),
+      ]),
     ],
-    standalone: true,
-    imports: [NgIf, FormsModule, LocalizeComponent, LocalizedInputComponent]
+  ],
+  standalone: true,
+  imports: [FormsModule, LocalizeComponent, LocalizedInputComponent],
 })
 export class ManageSourceAuthorityModalComponent implements OnInit {
+  message: string = null;
+  authority: SourceAuthority;
+  public onSourceChange: Subject<SourceAuthority>;
+  readOnly: boolean = false;
 
-    message: string = null;
-    authority: SourceAuthority;
-    public onSourceChange: Subject<SourceAuthority>;
-    readOnly: boolean = false;
+  constructor(
+    public service: SourceAuthorityService,
+    private localizationService: LocalizationService,
+    private modalService: BsModalService,
+    public bsModalRef: BsModalRef
+  ) {}
 
-    constructor(public service: SourceAuthorityService, private localizationService: LocalizationService, private modalService: BsModalService, public bsModalRef: BsModalRef) {
-    }
+  ngOnInit(): void {
+    this.onSourceChange = new Subject();
+  }
 
-    ngOnInit(): void {
-        this.onSourceChange = new Subject();
-    }
+  init(authority: SourceAuthority, readOnly: boolean) {
+    this.authority = authority;
+    this.readOnly = readOnly;
+  }
 
-    init(authority: SourceAuthority, readOnly: boolean) {
-        this.authority = authority;
-        this.readOnly = readOnly;
-    }
+  handleSourceChange(): void {
+    this.onSourceChange.next(this.authority);
+  }
 
-    handleSourceChange(): void {
-        this.onSourceChange.next(this.authority);
-    }
+  update(): void {
+    this.service
+      .apply(this.authority)
+      .then((type) => {
+        this.onSourceChange.next(type);
 
-    update(): void {
-        this.service.apply(this.authority).then(type => {
-            this.onSourceChange.next(type);
-
-            this.bsModalRef.hide();
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
-
-    close(): void {
         this.bsModalRef.hide();
-    }
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
 
-    error(err: HttpErrorResponse): void {
-        this.message = ErrorHandler.getMessageFromError(err);
-    }
+  close(): void {
+    this.bsModalRef.hide();
+  }
 
+  error(err: HttpErrorResponse): void {
+    this.message = ErrorHandler.getMessageFromError(err);
+  }
 }

@@ -1,62 +1,64 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <form class="modal-form">
-
-  <div *ngIf="parent != null" class="modal-body">
-
-    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
-
-    <div class="heading text-center">
-      <h1>
-        <localize key="hierarchy.management.button.addRelationship"></localize>
-      </h1>
+  @if (parent != null) {
+    <div class="modal-body">
+      @if (message != null) {
+        <div class="alert alert-danger" role="alert">{{ message }}</div>
+      }
+      <div class="heading text-center">
+        <h1>
+          <localize key="hierarchy.management.button.addRelationship"></localize>
+        </h1>
+      </div>
+      <fieldset>
+        <div class="form-group">
+          @if (allGeoObjectTypes) {
+            <select (change)="onSelect($event)">
+              <option disabled hidden [value]="selectUndefinedOptionValue">
+                -- <localize key="hierarchy.management.create.child.option.label.selectType"></localize> --
+              </option>
+              <!-- to filter out all geoobjecttypes that are already in hierarchies use this pip in the iterator > | geoobjecttype:nodes -->
+              <option></option>
+              @for (geoObjType of allGeoObjectTypes; track geoObjType.code) {
+                <option value="{{ geoObjType.code }}">
+                  {{ geoObjType.label.localizedValue }}
+                </option>
+              }
+            </select>
+          }
+        </div>
+        <div class="button-holder">
+          <button type="button" (click)="bsModalRef.hide()" class="btn btn-default" role="button" aria-disabled="false">
+            <span>
+              <localize key="modal.button.cancel"></localize>
+            </span>
+          </button>
+          <button type="submit" (click)="handleOnSubmit()" class="btn btn-primary" role="button" aria-disabled="false">
+            <span>
+              <localize key="modal.button.ok"></localize>
+            </span>
+          </button>
+        </div>
+      </fieldset>
     </div>
-    <fieldset>
-
-      <div class="form-group">
-
-        <select *ngIf="allGeoObjectTypes" (change)="onSelect($event)">
-          <option disabled hidden [value]="selectUndefinedOptionValue">-- <localize
-              key="hierarchy.management.create.child.option.label.selectType"></localize> --</option>
-          <!-- to filter out all geoobjecttypes that are already in hierarchies use this pip in the iterator > | geoobjecttype:nodes -->
-          <option></option>
-          <option *ngFor="let geoObjType of allGeoObjectTypes" value={{geoObjType.code}}>
-            {{geoObjType.label.localizedValue}}
-          </option>
-        </select>
-
-      </div>
-
-      <div class="button-holder">
-        <button type="button" (click)="bsModalRef.hide()" class="btn btn-default" role="button" aria-disabled="false">
-          <span>
-            <localize key="modal.button.cancel"></localize>
-          </span>
-        </button>
-        <button type="submit" (click)="handleOnSubmit()" class="btn btn-primary" role="button" aria-disabled="false">
-          <span>
-            <localize key="modal.button.ok"></localize>
-          </span>
-        </button>
-      </div>
-    </fieldset>
-  </div>
+  }
 </form>

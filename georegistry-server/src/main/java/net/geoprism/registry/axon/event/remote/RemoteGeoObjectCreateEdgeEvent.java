@@ -5,8 +5,8 @@ import java.util.Date;
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 import net.geoprism.registry.view.serialization.DateDeserializer;
 import net.geoprism.registry.view.serialization.DateSerializer;

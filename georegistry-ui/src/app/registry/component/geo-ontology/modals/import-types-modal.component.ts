@@ -17,28 +17,27 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, ElementRef, ViewChild } from "@angular/core";
-import { BsModalRef } from "ngx-bootstrap/modal";
-import { Subject } from "rxjs";
-import { ErrorHandler } from "@shared/component";
-import { Organization } from "@shared/model/core";
-import { FileUploader, FileUploaderOptions, FileUploadModule } from "ng2-file-upload";
-import { EventService, LocalizationService } from "@shared/service";
+import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { Subject } from 'rxjs';
+import { ErrorHandler } from '@shared/component';
+import { Organization } from '@shared/model/core';
+import { FileUploader, FileUploaderOptions, FileUploadModule } from 'ng2-file-upload';
+import { EventService, LocalizationService } from '@shared/service';
 
-import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
-import { FormsModule } from "@angular/forms";
-import { LocalizeComponent } from "@shared/component/localize/localize.component";
-import { NgIf, NgFor } from "@angular/common";
+import { GeoRegistryConfiguration } from '@core/model/core';
+import { environment } from 'src/environments/environment';
+import { FormsModule } from '@angular/forms';
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
 
 @Component({
-    selector: "import-types-modal",
-    templateUrl: "./import-types-modal.component.html",
-    styleUrls: [],
-    standalone: true,
-    imports: [NgIf, LocalizeComponent, FormsModule, NgFor, FileUploadModule]
+  selector: 'import-types-modal',
+  templateUrl: './import-types-modal.component.html',
+  styleUrls: [],
+  standalone: true,
+  imports: [LocalizeComponent, FormsModule, FileUploadModule],
 })
 export class ImportTypesModalComponent implements OnInit {
-
   public organizations: Organization[] = [];
   public orgCode: string;
 
@@ -47,69 +46,71 @@ export class ImportTypesModalComponent implements OnInit {
    */
   uploader: FileUploader;
 
-  @ViewChild("myFile")
+  @ViewChild('myFile')
   fileRef: ElementRef;
 
   message: string = null;
 
   public onNodeChange: Subject<boolean>;
 
-  constructor(private eventService: EventService, private localizationService: LocalizationService, public bsModalRef: BsModalRef) {
-  }
+  constructor(
+    private eventService: EventService,
+    private localizationService: LocalizationService,
+    public bsModalRef: BsModalRef
+  ) {}
 
   ngOnInit(): void {
-      this.onNodeChange = new Subject();
+    this.onNodeChange = new Subject();
   }
 
   init(organizations: Organization[]): void {
-      this.organizations = organizations;
+    this.organizations = organizations;
 
-      let options: FileUploaderOptions = {
-          queueLimit: 1,
-          removeAfterUpload: true,
-          url: environment.apiUrl + "/api/cgr/import-types"
-      };
+    let options: FileUploaderOptions = {
+      queueLimit: 1,
+      removeAfterUpload: true,
+      url: environment.apiUrl + '/api/cgr/import-types',
+    };
 
-      this.uploader = new FileUploader(options);
+    this.uploader = new FileUploader(options);
 
-      this.uploader.onBuildItemForm = (fileItem: any, form: any) => {
-          form.append("orgCode", this.orgCode);
-      };
-      this.uploader.onBeforeUploadItem = (fileItem: any) => {
-          this.eventService.start();
-      };
-      this.uploader.onCompleteItem = (item: any, response: any, status: any, headers: any) => {
-          this.fileRef.nativeElement.value = "";
-          this.eventService.complete();
-      };
-      this.uploader.onSuccessItem = (item: any, response: string, status: number, headers: any) => {
-          this.onNodeChange.next(true);
-          this.bsModalRef.hide();
-      };
-      this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {
-          const error = JSON.parse(response);
+    this.uploader.onBuildItemForm = (fileItem: any, form: any) => {
+      form.append('orgCode', this.orgCode);
+    };
+    this.uploader.onBeforeUploadItem = (fileItem: any) => {
+      this.eventService.start();
+    };
+    this.uploader.onCompleteItem = (item: any, response: any, status: any, headers: any) => {
+      this.fileRef.nativeElement.value = '';
+      this.eventService.complete();
+    };
+    this.uploader.onSuccessItem = (item: any, response: string, status: number, headers: any) => {
+      this.onNodeChange.next(true);
+      this.bsModalRef.hide();
+    };
+    this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {
+      const error = JSON.parse(response);
 
-          this.error({ error: error });
-      };
+      this.error({ error: error });
+    };
   }
 
   onSelect(event: Event): void {
-    this.orgCode = (event.target as HTMLInputElement).value;    
+    this.orgCode = (event.target as HTMLInputElement).value;
   }
 
   onClick(): void {
-      if (this.uploader.queue != null && this.uploader.queue.length > 0) {
-          this.uploader.uploadAll();
-      } else {
-          this.error({
-              message: this.localizationService.decode("io.missing.file"),
-              error: {}
-          });
-      }
+    if (this.uploader.queue != null && this.uploader.queue.length > 0) {
+      this.uploader.uploadAll();
+    } else {
+      this.error({
+        message: this.localizationService.decode('io.missing.file'),
+        error: {},
+      });
+    }
   }
 
   public error(err: any): void {
-      this.message = ErrorHandler.getMessageFromError(err);
+    this.message = ErrorHandler.getMessageFromError(err);
   }
-
 }

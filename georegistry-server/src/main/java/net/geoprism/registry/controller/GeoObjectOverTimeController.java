@@ -20,14 +20,10 @@ package net.geoprism.registry.controller;
 
 import java.util.Date;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-
 import org.commongeoregistry.adapter.constants.RegistryUrls;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
-import jakarta.validation.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,13 +34,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonObject;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.controller.GeoObjectController.TypeCodeBody;
 import net.geoprism.registry.service.request.RegistryComponentService;
-import net.geoprism.registry.spring.JsonObjectDeserializer;
+import net.geoprism.spring.core.JsonObjectDeserializer;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 @RestController
 @Validated

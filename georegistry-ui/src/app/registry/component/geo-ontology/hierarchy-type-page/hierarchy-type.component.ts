@@ -17,114 +17,120 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output, ViewChild } from "@angular/core";
-import { HttpErrorResponse } from "@angular/common/http";
-import { HierarchyType } from "@registry/model/hierarchy";
-import { RegistryService, HierarchyService } from "@registry/service";
+import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { HierarchyType } from '@registry/model/hierarchy';
+import { RegistryService, HierarchyService } from '@registry/service';
 
-import { AuthService } from "@shared/service";
-import { NgForm, FormsModule } from "@angular/forms";
-import { LocalizedTextComponent } from "../../form-fields/localized-text/localized-text.component";
-import { ConvertKeyLabel } from "@shared/component/localize/convert-key-label.component";
-import { NgIf, NgFor } from "@angular/common";
-import { LocalizeComponent } from "@shared/component/localize/localize.component";
+import { AuthService } from '@shared/service';
+import { NgForm, FormsModule } from '@angular/forms';
+import { LocalizedTextComponent } from '../../form-fields/localized-text/localized-text.component';
+import { ConvertKeyLabel } from '@shared/component/localize/convert-key-label.component';
+
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
 
 @Component({
-    selector: "hierarchy-type",
-    templateUrl: "./hierarchy-type.component.html",
-    styleUrls: ["./hierarchy-type.css"],
-    standalone: true,
-    imports: [FormsModule, LocalizeComponent, NgIf, NgFor, ConvertKeyLabel, LocalizedTextComponent]
+  selector: 'hierarchy-type',
+  templateUrl: './hierarchy-type.component.html',
+  styleUrls: ['./hierarchy-type.css'],
+  standalone: true,
+  imports: [FormsModule, LocalizeComponent, ConvertKeyLabel, LocalizedTextComponent],
 })
 export class HierarchyTypeComponent implements OnInit, AfterViewInit {
+  @Input() hierarchyType: HierarchyType;
 
-    @Input() hierarchyType: HierarchyType;
+  @Input() edit: boolean = false; // if true, we are updating an existing. If false, we are creating new
 
-    @Input() edit: boolean = false; // if true, we are updating an existing. If false, we are creating new
+  @Input() readOnly: boolean = false;
 
-    @Input() readOnly: boolean = false;
+  @Output() onClose: EventEmitter<{ edit: boolean; hierarchy: HierarchyType }> = new EventEmitter<{
+    edit: boolean;
+    hierarchy: HierarchyType;
+  }>();
+  @Output() onError: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>();
+  // @Output() hierarchyTypeChange: EventEmitter<HierarchyType> = new EventEmitter<HierarchyType>()
 
+  @ViewChild('form') myForm!: NgForm;
 
-    @Output() onClose: EventEmitter<{ edit: boolean, hierarchy: HierarchyType }> = new EventEmitter<{ edit: boolean, hierarchy: HierarchyType }>()
-    @Output() onError: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>()
-    // @Output() hierarchyTypeChange: EventEmitter<HierarchyType> = new EventEmitter<HierarchyType>()
+  organizations: any = [];
 
-    @ViewChild('form') myForm!: NgForm;
+  organizationLabel: string;
 
-    organizations: any = [];
+  // eslint-disable-next-line no-useless-constructor
+  constructor(
+    private auth: AuthService,
+    private registryService: RegistryService,
+    private hierarchyService: HierarchyService
+  ) {}
 
-    organizationLabel: string;
+  ngOnInit(): void {
+    this.registryService
+      .getOrganizations()
+      .then((orgs) => {
+        // Filter out organizations they're not RA's of, unless we're readOnly.
+        if (!this.readOnly) {
+          this.organizations = [];
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor(private auth: AuthService, private registryService: RegistryService, private hierarchyService: HierarchyService) { }
-
-    ngOnInit(): void {
-
-        this.registryService.getOrganizations().then(orgs => {
-            // Filter out organizations they're not RA's of, unless we're readOnly.
-            if (!this.readOnly) {
-                this.organizations = [];
-
-                for (var i = 0; i < orgs.length; ++i) {
-                    if (this.auth.isOrganizationRA(orgs[i].code)) {
-                        this.organizations.push(orgs[i]);
-                    }
-                }
-            } else {
-                this.organizations = orgs;
+          for (var i = 0; i < orgs.length; ++i) {
+            if (this.auth.isOrganizationRA(orgs[i].code)) {
+              this.organizations.push(orgs[i]);
             }
-
-            if (!this.edit && this.organizations.length === 1) {
-                this.hierarchyType.organizationCode = this.organizations[0].code;
-                this.organizationLabel = this.organizations[0].label.localizedValue;
-            } else if (this.edit || this.readOnly) {
-                this.organizationLabel = this.organizations.find(o => o.code === this.hierarchyType.organizationCode).label.localizedValue;
-            }
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
-
-    ngAfterViewInit(): void {
-    }
-
-    handleClose(): void {
-        if (!this.readOnly && this.myForm.dirty) {
-            this.onClose.emit({ edit: this.edit, hierarchy: this.hierarchyType });
+          }
+        } else {
+          this.organizations = orgs;
         }
 
-        this.onClose.emit();
+        if (!this.edit && this.organizations.length === 1) {
+          this.hierarchyType.organizationCode = this.organizations[0].code;
+          this.organizationLabel = this.organizations[0].label.localizedValue;
+        } else if (this.edit || this.readOnly) {
+          this.organizationLabel = this.organizations.find(
+            (o) => o.code === this.hierarchyType.organizationCode
+          ).label.localizedValue;
+        }
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
+
+  ngAfterViewInit(): void {}
+
+  handleClose(): void {
+    if (!this.readOnly && this.myForm.dirty) {
+      this.onClose.emit({ edit: this.edit, hierarchy: this.hierarchyType });
     }
 
+    this.onClose.emit();
+  }
 
-    // handleOnSubmit(): void {
+  // handleOnSubmit(): void {
 
-    //     if (this.readOnly) {
-    //         this.onCancel.emit();
-    //         return;
-    //     }
+  //     if (this.readOnly) {
+  //         this.onCancel.emit();
+  //         return;
+  //     }
 
-    //     if (this.edit) {
-    //         this.hierarchyService.updateHierarchyType(this.hierarchyType).then(data => {
-    //             this.hierarchyTypeChange.emit(data);
-    //         }).catch((err: HttpErrorResponse) => {
-    //             this.error(err);
-    //         });
-    //     } else {
-    //         this.hierarchyService.createHierarchyType(this.hierarchyType).then(data => {
-    //             this.hierarchyTypeChange.emit(data);
-    //         }).catch((err: HttpErrorResponse) => {
-    //             this.error(err);
-    //         });
-    //     }
-    // }
+  //     if (this.edit) {
+  //         this.hierarchyService.updateHierarchyType(this.hierarchyType).then(data => {
+  //             this.hierarchyTypeChange.emit(data);
+  //         }).catch((err: HttpErrorResponse) => {
+  //             this.error(err);
+  //         });
+  //     } else {
+  //         this.hierarchyService.createHierarchyType(this.hierarchyType).then(data => {
+  //             this.hierarchyTypeChange.emit(data);
+  //         }).catch((err: HttpErrorResponse) => {
+  //             this.error(err);
+  //         });
+  //     }
+  // }
 
-    // handleCancel(): void {
-    //     this.onCancel.emit();
-    // }
+  // handleCancel(): void {
+  //     this.onCancel.emit();
+  // }
 
-    error(err: HttpErrorResponse): void {
-        this.onError.emit(err);
-    }
-
+  error(err: HttpErrorResponse): void {
+    this.onError.emit(err);
+  }
 }

@@ -22,50 +22,50 @@ import { Component, OnInit, Input, Output, EventEmitter, Directive } from '@angu
 import { ImportConfiguration } from '@registry/model/io';
 
 import { IOService } from '@registry/service';
-import { NgFor, NgIf } from '@angular/common';
+
 import { LocalizeComponent } from '@shared/component/localize/localize.component';
 import { FormsModule } from '@angular/forms';
 import { SourceAuthority } from '@registry/model/source';
 
 @Component({
-    selector: 'location-page',
-    templateUrl: './location-page.component.html',
-    styleUrls: [],
-    standalone: true,
-    imports: [FormsModule, LocalizeComponent, NgFor, NgIf]
+  selector: 'location-page',
+  templateUrl: './location-page.component.html',
+  styleUrls: [],
+  standalone: true,
+  imports: [FormsModule, LocalizeComponent],
 })
 export class LocationPageComponent implements OnInit {
+  @Input() configuration: ImportConfiguration;
+  @Input() hasNext: boolean = false;
+  @Input() hasBack: boolean = false;
+  @Input() property: string = 'type';
+  @Input() includeChild: boolean = false;
+  @Input() authorities: SourceAuthority[] = [];
 
-    @Input() configuration: ImportConfiguration;
-    @Input() hasNext: boolean = false;
-    @Input() hasBack: boolean = false;
-    @Input() property: string = 'type';
-    @Input() includeChild: boolean = false;
-    @Input() authorities: SourceAuthority[] = [];
+  @Output() configurationChange = new EventEmitter<ImportConfiguration>();
+  @Output() stateChange = new EventEmitter<string>();
 
+  constructor(private service: IOService) {}
 
-    @Output() configurationChange = new EventEmitter<ImportConfiguration>();
-    @Output() stateChange = new EventEmitter<string>();
+  ngOnInit(): void {
+    this.service
+      .getTypeAncestors(this.configuration[this.property].code, this.configuration.hierarchy, true, this.includeChild)
+      .then((locations) => {
+        this.configuration.locations = locations;
+      });
+  }
 
-    constructor(private service: IOService) { }
+  onNext(): void {
+    // Map the universals
+    this.configurationChange.emit(this.configuration);
+    this.stateChange.emit('NEXT');
+  }
 
-    ngOnInit(): void {
-        this.service.getTypeAncestors(this.configuration[this.property].code, this.configuration.hierarchy, true, this.includeChild).then(locations => {
-            this.configuration.locations = locations;
-        });
-    }
+  onBack(): void {
+    this.stateChange.emit('BACK');
+  }
 
-    onNext(): void {
-        // Map the universals
-        this.configurationChange.emit(this.configuration);
-        this.stateChange.emit('NEXT');
-    }
-
-    onBack(): void {
-        this.stateChange.emit('BACK');
-    }
-
-    onCancel(): void {
-        this.stateChange.emit('CANCEL');
-    }
+  onCancel(): void {
+    this.stateChange.emit('CANCEL');
+  }
 }

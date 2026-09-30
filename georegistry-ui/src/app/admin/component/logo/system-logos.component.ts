@@ -27,7 +27,7 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 import { ConfirmModalComponent } from '@shared/component';
 import { LocalizationService } from '@shared/service';
 
-import { SystemLogoComponent } from './system-logo.component'
+import { SystemLogoComponent } from './system-logo.component';
 
 import { SystemLogo } from '@admin/model/system-logo';
 import { SystemLogoService } from '@admin/service/system-logo.service';
@@ -38,14 +38,13 @@ import { environment } from 'src/environments/environment';
 import EnvironmentUtil from '@core/utility/environment-util';
 import { LocalizePipe } from '../../../shared/pipe/localize.pipe';
 import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
-import { NgIf, NgFor } from '@angular/common';
 
 @Component({
-    selector: 'system-logos',
-    templateUrl: './system-logos.component.html',
-    styleUrls: [],
-    standalone: true,
-    imports: [NgIf, LocalizeComponent, NgFor, LocalizePipe]
+  selector: 'system-logos',
+  templateUrl: './system-logos.component.html',
+  styleUrls: [],
+  standalone: true,
+  imports: [LocalizeComponent, LocalizePipe],
 })
 export class SystemLogosComponent implements OnInit {
   public icons: SystemLogo[];
@@ -61,7 +60,6 @@ export class SystemLogosComponent implements OnInit {
     private localizeService: LocalizationService,
     private changeDetectorRef: ChangeDetectorRef
   ) {
-
     this.context = EnvironmentUtil.getApiUrl();
   }
 
@@ -71,40 +69,44 @@ export class SystemLogosComponent implements OnInit {
 
   onClickRemove(icon): void {
     this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-      
-      animated: false, backdrop: true, 
+      animated: false,
+      backdrop: true,
       ignoreBackdropClick: true,
     });
-    this.bsModalRef.content.message = this.localizeService.decode("system.image.removeContent");
-    this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
+    this.bsModalRef.content.message = this.localizeService.decode('system.image.removeContent');
+    this.bsModalRef.content.submitText = this.localizeService.decode('modal.button.delete');
 
-    this.bsModalRef.content.onConfirm.subscribe(data => {
+    this.bsModalRef.content.onConfirm.subscribe((data) => {
       this.remove(icon);
     });
   }
 
   getIcons(): void {
-    this.service.getIcons().then(resp => {
-      var filtered = resp.icons.filter(function (el) { return el.oid != "banner"; });
-      this.icons = filtered;
-    }).catch((err: HttpErrorResponse) => {
-      this.error(err);
-    });
+    this.service
+      .getIcons()
+      .then((resp) => {
+        var filtered = resp.icons.filter(function (el) {
+          return el.oid != 'banner';
+        });
+        this.icons = filtered;
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
   }
 
   edit(icon: SystemLogo): void {
     // this.router.navigate(['/admin/logo', icon.oid]);
 
     let bsModalRef = this.modalService.show(SystemLogoComponent, {
-      
-      animated: false, backdrop: true, 
+      animated: false,
+      backdrop: true,
       ignoreBackdropClick: true,
     });
 
     bsModalRef.content.icon = icon;
 
-    bsModalRef.content.onSuccess.subscribe(data => {
-
+    bsModalRef.content.onSuccess.subscribe((data) => {
       /*
       this.icons.forEach(ico => {
 
@@ -117,17 +119,20 @@ export class SystemLogosComponent implements OnInit {
 
       this.changeDetectorRef.detectChanges();
       */
-     window.location.reload();
+      window.location.reload();
     });
   }
 
   remove(icon: SystemLogo): void {
-    this.service.remove(icon.oid).then(response => {
-      icon.custom = false;
-      window.location.reload();
-    }).catch((err: HttpErrorResponse) => {
-      this.error(err);
-    });
+    this.service
+      .remove(icon.oid)
+      .then((response) => {
+        icon.custom = false;
+        window.location.reload();
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
   }
 
   error(err: HttpErrorResponse): void {

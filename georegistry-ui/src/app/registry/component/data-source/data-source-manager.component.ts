@@ -17,145 +17,153 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from "@angular/core";
-import { Router } from "@angular/router";
-import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
-import { HttpErrorResponse } from "@angular/common/http";
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
+import { HttpErrorResponse } from '@angular/common/http';
 
-import { ErrorHandler, ConfirmModalComponent } from "@shared/component";
-import { LocalizationService } from "@shared/service/localization.service";
-import { DataSource, SourceAuthority } from "@registry/model/source";
-import { DataSourceService } from "@registry/service/data-source.service";
-import { SourceAuthorityService } from "@registry/service/source-authority.service";
-import { NgIf, NgFor } from "@angular/common";
-import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
-import { LocalizePipe } from "@shared/pipe/localize.pipe";
-import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
-import { ModalTypes } from "@shared/model/modal";
-import { ManageDataSourceModalComponent } from "./modals/manage-data-source-modal.component";
+import { ErrorHandler, ConfirmModalComponent } from '@shared/component';
+import { LocalizationService } from '@shared/service/localization.service';
+import { DataSource, SourceAuthority } from '@registry/model/source';
+import { DataSourceService } from '@registry/service/data-source.service';
+import { SourceAuthorityService } from '@registry/service/source-authority.service';
+
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+import { LocalizePipe } from '@shared/pipe/localize.pipe';
+import { PageContainerComponent } from '../../../shared/component/page-container/page-container.component';
+import { ModalTypes } from '@shared/model/modal';
+import { ManageDataSourceModalComponent } from './modals/manage-data-source-modal.component';
 
 @Component({
-    selector: "data-source-manager",
-    templateUrl: "./data-source-manager.component.html",
-    styleUrls: ["./data-source-manager.css"],
-    standalone: true,
-    imports: [PageContainerComponent, LocalizeComponent, NgIf, NgFor, LocalizePipe]
+  selector: 'data-source-manager',
+  templateUrl: './data-source-manager.component.html',
+  styleUrls: ['./data-source-manager.css'],
+  standalone: true,
+  imports: [PageContainerComponent, LocalizeComponent, LocalizePipe],
 })
 export class DataSourceManagerComponent implements OnInit {
+  message: string = null;
+  sources: DataSource[];
+  authorities: SourceAuthority[] = [];
 
-    message: string = null;
-    sources: DataSource[];
-    authorities: SourceAuthority[] = [];
+  /*
+   * Reference to the modal current showing
+   */
+  bsModalRef: BsModalRef;
 
-    /*
-     * Reference to the modal current showing
-    */
-    bsModalRef: BsModalRef;
+  private static readonly GOVERNANCE_LEVEL_LABEL_KEYS: { [level: string]: string } = {
+    AUTHORITATIVE: 'datasource.authoritative',
+    OFFICIAL: 'datasource.official',
+    COMMUNITY: 'datasource.community.curated',
+    RESEARCH: 'datasource.research',
+    DERIVED: 'datasource.derived',
+    EXPERIMENTAL: 'datasource.experimental',
+    AD_HOC: 'datasource.ad.hoc',
+  };
 
-    private static readonly GOVERNANCE_LEVEL_LABEL_KEYS: { [level: string]: string } = {
-        AUTHORITATIVE: "datasource.authoritative",
-        OFFICIAL: "datasource.official",
-        COMMUNITY: "datasource.community.curated",
-        RESEARCH: "datasource.research",
-        DERIVED: "datasource.derived",
-        EXPERIMENTAL: "datasource.experimental",
-        AD_HOC: "datasource.ad.hoc"
+  // eslint-disable-next-line no-useless-constructor
+  constructor(
+    private service: DataSourceService,
+    private authorityService: SourceAuthorityService,
+    private modalService: BsModalService,
+    private localizeService: LocalizationService
+  ) {}
+
+  ngOnInit(): void {
+    this.service
+      .getAll()
+      .then((sources) => {
+        this.sources = sources;
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+
+    this.authorityService
+      .getAll()
+      .then((authorities) => {
+        this.authorities = authorities;
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
+
+  getGovernanceLevelLabelKey(level: string): string {
+    return DataSourceManagerComponent.GOVERNANCE_LEVEL_LABEL_KEYS[level] || null;
+  }
+
+  getAuthorityLabel(code: string): string {
+    const authority = this.authorities.find((a) => a.code === code);
+
+    return authority != null ? authority.label.localizedValue : '';
+  }
+
+  onCreate(): void {
+    const source: DataSource = {
+      code: '',
+      label: this.localizeService.create(),
+      description: this.localizeService.create(),
+      authority: null,
+      governanceLevel: null,
+      metadataProfile: null,
+      uri: null,
     };
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor(
-        private service: DataSourceService,
-        private authorityService: SourceAuthorityService,
-        private modalService: BsModalService,
-        private localizeService: LocalizationService) { }
+    this.bsModalRef = this.modalService.show(ManageDataSourceModalComponent, {
+      animated: false,
+      backdrop: true,
+      ignoreBackdropClick: true,
+    });
+    this.bsModalRef.content.init(source, false);
+    this.bsModalRef.content.onSourceChange.subscribe((source: DataSource) => {
+      this.sources.push(source);
+    });
+  }
 
-    ngOnInit(): void {
+  onEdit(source: DataSource, readOnly: boolean): void {
+    this.bsModalRef = this.modalService.show(ManageDataSourceModalComponent, {
+      animated: false,
+      backdrop: true,
+      ignoreBackdropClick: true,
+    });
+    this.bsModalRef.content.init({ ...source }, readOnly);
 
-        this.service.getAll().then(sources => {
-            this.sources = sources;
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
+    this.bsModalRef.content.onSourceChange.subscribe((t) => {
+      const index = this.sources.findIndex((tt) => source.code === tt.code);
+
+      if (index !== -1) {
+        this.sources[index] = t;
+      }
+    });
+  }
+
+  onDelete(source: DataSource): void {
+    this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
+      animated: false,
+      backdrop: true,
+      ignoreBackdropClick: true,
+    });
+    this.bsModalRef.content.message =
+      this.localizeService.decode('confirm.modal.verify.delete') + ' [' + source.code + ']';
+    this.bsModalRef.content.submitText = this.localizeService.decode('modal.button.delete');
+    this.bsModalRef.content.type = ModalTypes.danger;
+
+    this.bsModalRef.content.onConfirm.subscribe((data) => {
+      this.service
+        .remove(source)
+        .then(() => {
+          this.sources = this.sources.filter((t) => {
+            return t.code !== source.code;
+          });
+        })
+        .catch((err: HttpErrorResponse) => {
+          this.error(err);
         });
+    });
+  }
 
-        this.authorityService.getAll().then(authorities => {
-            this.authorities = authorities;
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
-
-    getGovernanceLevelLabelKey(level: string): string {
-        return DataSourceManagerComponent.GOVERNANCE_LEVEL_LABEL_KEYS[level] || null;
-    }
-
-    getAuthorityLabel(code: string): string {
-        const authority = this.authorities.find(a => a.code === code);
-
-        return authority != null ? authority.label.localizedValue : "";
-    }
-
-    onCreate(): void {
-
-        const source: DataSource = {
-            code: '',
-            label: this.localizeService.create(),
-            description: this.localizeService.create(),
-            authority: null,
-            governanceLevel: null,
-            metadataProfile: null,
-            uri: null
-        };
-
-        this.bsModalRef = this.modalService.show(ManageDataSourceModalComponent, {
-            animated: false,
-            backdrop: true,
-            ignoreBackdropClick: true
-        });
-        this.bsModalRef.content.init(source, false);
-        this.bsModalRef.content.onSourceChange.subscribe((source: DataSource) => {
-            this.sources.push(source);
-        });
-    }
-
-    onEdit(source: DataSource, readOnly: boolean): void {
-
-        this.bsModalRef = this.modalService.show(ManageDataSourceModalComponent, {
-            animated: false,
-            backdrop: true,
-            ignoreBackdropClick: true
-        });
-        this.bsModalRef.content.init({ ...source }, readOnly);
-
-        this.bsModalRef.content.onSourceChange.subscribe(t => {
-            const index = this.sources.findIndex((tt) => source.code === tt.code);
-
-            if (index !== -1) {
-                this.sources[index] = t;
-            }
-        });
-    }
-
-    onDelete(source: DataSource): void {
-        this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: false, backdrop: true, ignoreBackdropClick: true
-        });
-        this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " [" + source.code + "]";
-        this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
-        this.bsModalRef.content.type = ModalTypes.danger;
-
-        this.bsModalRef.content.onConfirm.subscribe(data => {
-            this.service.remove(source).then(() => {
-                this.sources = this.sources.filter((t) => {
-                    return t.code !== source.code;
-                });
-            }).catch((err: HttpErrorResponse) => {
-                this.error(err);
-            });
-        });
-    }
-
-    error(err: HttpErrorResponse): void {
-        this.message = ErrorHandler.getMessageFromError(err);
-    }
-
+  error(err: HttpErrorResponse): void {
+    this.message = ErrorHandler.getMessageFromError(err);
+  }
 }

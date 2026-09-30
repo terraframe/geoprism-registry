@@ -17,39 +17,36 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit } from '@angular/core';
 
-import { EventService, IEventListener } from "@shared/service";
-import { NgIf } from "@angular/common";
+import { EventService, IEventListener } from '@shared/service';
 
 @Component({
-    selector: "loading-bar",
-    templateUrl: "./loading-bar.component.html",
-    styleUrls: ["./loading-bar.css"],
-    standalone: true,
-    imports: [NgIf]
+  selector: 'loading-bar',
+  templateUrl: './loading-bar.component.html',
+  styleUrls: ['./loading-bar.css'],
+  standalone: true,
+  imports: [],
 })
 export class LoadingBarComponent implements OnInit, IEventListener {
+  showIndicator: boolean = false;
 
-    showIndicator: boolean = false;
+  // eslint-disable-next-line no-useless-constructor
+  constructor(private service: EventService) {}
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor(private service: EventService) { }
+  ngOnInit(): void {
+    this.service.registerListener(this);
+  }
 
-    ngOnInit(): void {
-        this.service.registerListener(this);
-    }
+  ngOnDestroy(): void {
+    this.service.deregisterListener(this);
+  }
 
-    ngOnDestroy(): void {
-        this.service.deregisterListener(this);
-    }
+  start(): void {
+    this.showIndicator = true;
+  }
 
-    start(): void {
-        this.showIndicator = true;
-    }
-
-    complete(): void {
-        this.showIndicator = false;
-    }
-
+  complete(): void {
+    this.showIndicator = false;
+  }
 }

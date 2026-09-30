@@ -9,11 +9,11 @@ import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.json.JSONObject;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
 public class SheetDTO
 {
@@ -63,10 +63,10 @@ public class SheetDTO
   {
     try
     {
-      ObjectMapper mapper = new ObjectMapper();
+      JsonMapper mapper = JsonMapper.shared();
       return new JSONObject(mapper.writeValueAsString(sheetDTO));
     }
-    catch (JsonProcessingException e)
+    catch (JacksonException e)
     {
       throw new ProgrammingErrorException(e);
     }

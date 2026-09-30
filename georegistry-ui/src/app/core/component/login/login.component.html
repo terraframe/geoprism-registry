@@ -1,110 +1,123 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <div id="login-page" class="new-admin-design-main">
-    <login-header></login-header>
-    <loading-bar></loading-bar>
+  <login-header></login-header>
+  <loading-bar></loading-bar>
 
-    <message></message>
-    <div class="vertical-center">
-        <div id="app-container" class="container">
+  <message></message>
+  <div class="vertical-center">
+    <div id="app-container" class="container">
+      <div class="row">
+        <div class="col-md-3 col-sm-4 col-xs-2"></div>
+        <div class="col-md-6 col-sm-4 col-xs-8">
+          <div class="row" style="margin-bottom: 25px">
+            <div class="col-md-12">
+              <div class="heading text-center">
+                <h2>
+                  <!--
+                  <localize key="login.page.title"></localize>
+                  -->
+                </h2>
+                <!-- <p class="lead">
+                <localize key="login.page.description"></localize>
+              </p> -->
+              </div>
+            </div>
+          </div>
 
-            <div class="row">
-                <div class="col-md-3 col-sm-4 col-xs-2"></div>
-                <div class="col-md-6 col-sm-4 col-xs-8">
-                    <div class="row" style="margin-bottom: 25px;">
-                        <div class="col-md-12">
-
-                            <div class="heading text-center">
-                                <h2>
-                                    <!-- 
-                                    <localize key="login.page.title"></localize>
-                                    -->
-                                </h2>
-                                <!-- <p class="lead">
-                                    <localize key="login.page.description"></localize>
-                                </p> -->
-                            </div>
-
-                        </div>
+          <div class="row">
+            <div class="col-md-12">
+              <form id="login-form" class="login" #form="ngForm" (ngSubmit)="form.valid && onSubmit()">
+                <div id="login-input-container">
+                  <div class="row">
+                    <div class="col-md-12">
+                      <input
+                        [(ngModel)]="username"
+                        name="username"
+                        type="text"
+                        [placeholder]="'login.username' | localize"
+                        id="login"
+                        required
+                      />
+                      <input
+                        [(ngModel)]="password"
+                        name="password"
+                        type="password"
+                        [placeholder]="'login.password' | localize"
+                        id="password"
+                        required
+                      />
+                      <a routerLink="/forgotpassword" class="forgot-password">
+                        <localize key="login.forgotPassword"></localize>
+                      </a>
                     </div>
-                    
-                    <div class="row">
-                        <div class="col-md-12">
-
-                            <form id="login-form" class="login" #form="ngForm" (ngSubmit)="form.valid && onSubmit()">
-                                <div id="login-input-container">
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <input [(ngModel)]="username" name="username" type="text" [placeholder]="'login.username' | localize" id="login" required /> 
-                                            <input [(ngModel)]="password" name="password" type="password" [placeholder]="'login.password' | localize" id="password" required /> 
-                                            <a routerLink="/forgotpassword" class="forgot-password"> 
-                                              <localize key="login.forgotPassword"></localize>
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <!-- <p class="login-submit"> -->
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                          <div class="btn-holder text-right">
-                                            <button type="submit" id="login-btn" class="btn btn-primary" [disabled]="!(form.valid)">
-                                                <localize key="login.button"></localize>
-                                            </button>
-                                          </div>
-                                        </div>
-                                    </div>
-                                    <!-- </p> -->
-                                </div>
-                            </form>
-
-                        </div>
-                    </div>
-                    
-                    <div *ngIf="oauthServers" class="row">
-                      <div class="col-md-12 text-center">
-                        <h4 class="oauth-or-line-block">
-                          <span class="oauth-or-text">&nbsp;<localize key="login.oauth.or.label"></localize>&nbsp;</span>
-                        </h4>
-                    
-                        <button (click)="onClickDhis2(null)" class="dhis2-login-button">
-                          <span class="dhis2-login-button-text">
-                            <localize key="login.oauth.loginwith.label"></localize>
-                          </span>
-                          <span>
-                            <img class="dhis2-login-button-image" src="../../../../assets/dhis2-logo.png">
-                          </span>
+                  </div>
+                  <!-- <p class="login-submit"> -->
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="btn-holder text-right">
+                        <button type="submit" id="login-btn" class="btn btn-primary" [disabled]="!form.valid">
+                          <localize key="login.button"></localize>
                         </button>
-                        <div *ngIf="viewOauthServers" style="margin-top: 20px;">
-                          <select (change)="onClickDhis2($event.target)" name=externalSystemOid>
-                            <option></option>
-                            <option *ngFor="let server of oauthServers" [value]="server.url">
-                              {{server.label.localizedValue}}
-                            </option>
-                          </select>
-                        </div>
                       </div>
                     </div>
+                  </div>
+                  <!-- </p> -->
                 </div>
-                <div class="col-md-3 col-sm-4 col-xs-2"></div>
+              </form>
             </div>
-        </div>
-    </div>
-</div>
+          </div>
 
+          @if (oauthServers) {
+            <div class="row">
+              <div class="col-md-12 text-center">
+                <h4 class="oauth-or-line-block">
+                  <span class="oauth-or-text">&nbsp;<localize key="login.oauth.or.label"></localize>&nbsp;</span>
+                </h4>
+                <button (click)="onClickDhis2(null)" class="dhis2-login-button">
+                  <span class="dhis2-login-button-text">
+                    <localize key="login.oauth.loginwith.label"></localize>
+                  </span>
+                  <span>
+                    <img class="dhis2-login-button-image" src="../../../../assets/dhis2-logo.png" />
+                  </span>
+                </button>
+                @if (viewOauthServers) {
+                  <div style="margin-top: 20px">
+                    <select (change)="onClickDhis2($event.target)" name="externalSystemOid">
+                      <option></option>
+                      @for (server of oauthServers; track server) {
+                        <option [value]="server.url">
+                          {{ server.label.localizedValue }}
+                        </option>
+                      }
+                    </select>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+        <div class="col-md-3 col-sm-4 col-xs-2"></div>
+      </div>
+    </div>
+  </div>
+</div>

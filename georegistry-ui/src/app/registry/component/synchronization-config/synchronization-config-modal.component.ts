@@ -17,125 +17,136 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnDestroy, OnInit } from "@angular/core";
-import { BsModalRef } from "ngx-bootstrap/modal";
-import { Subject } from "rxjs";
-import { HttpErrorResponse } from "@angular/common/http";
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { Subject } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 
-import { LocalizationService } from "@shared/service/localization.service";
-import { ErrorHandler } from "@shared/component";
+import { LocalizationService } from '@shared/service/localization.service';
+import { ErrorHandler } from '@shared/component';
 
-import { SynchronizationConfig, OrgSyncInfo } from "@registry/model/registry";
-import { SynchronizationConfigService } from "@registry/service";
-import { LocalizePipe } from "../../../shared/pipe/localize.pipe";
-import { JenaExportSynchronizationConfigComponent } from "./jena-export-synchronization-config.component";
-import { FhirImportSynchronizationConfigComponent } from "./fhir-import-synchronization-config.component";
-import { FhirExportSynchronizationConfigComponent } from "./fhir-export-synchronization-config.component";
-import { Dhis2SynchronizationConfigComponent } from "./dhis2-synchronization-config.component";
-import { ConvertKeyLabel } from "../../../shared/component/localize/convert-key-label.component";
-import { FormsModule } from "@angular/forms";
-import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
-import { NgIf, NgFor } from "@angular/common";
+import { SynchronizationConfig, OrgSyncInfo } from '@registry/model/registry';
+import { SynchronizationConfigService } from '@registry/service';
+import { LocalizePipe } from '../../../shared/pipe/localize.pipe';
+import { JenaExportSynchronizationConfigComponent } from './jena-export-synchronization-config.component';
+import { FhirImportSynchronizationConfigComponent } from './fhir-import-synchronization-config.component';
+import { FhirExportSynchronizationConfigComponent } from './fhir-export-synchronization-config.component';
+import { Dhis2SynchronizationConfigComponent } from './dhis2-synchronization-config.component';
+import { ConvertKeyLabel } from '../../../shared/component/localize/convert-key-label.component';
+import { FormsModule } from '@angular/forms';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
 
 @Component({
-    selector: "synchronization-config-modal",
-    templateUrl: "./synchronization-config-modal.component.html",
-    styleUrls: [],
-    standalone: true,
-    imports: [NgIf, LocalizeComponent, FormsModule, NgFor, ConvertKeyLabel, Dhis2SynchronizationConfigComponent, FhirExportSynchronizationConfigComponent, FhirImportSynchronizationConfigComponent, JenaExportSynchronizationConfigComponent, LocalizePipe]
+  selector: 'synchronization-config-modal',
+  templateUrl: './synchronization-config-modal.component.html',
+  styleUrls: [],
+  standalone: true,
+  imports: [
+    LocalizeComponent,
+    FormsModule,
+    ConvertKeyLabel,
+    Dhis2SynchronizationConfigComponent,
+    FhirExportSynchronizationConfigComponent,
+    FhirImportSynchronizationConfigComponent,
+    JenaExportSynchronizationConfigComponent,
+    LocalizePipe,
+  ],
 })
 export class SynchronizationConfigModalComponent implements OnInit, OnDestroy {
+  message: string = null;
 
-    message: string = null;
+  config: SynchronizationConfig = {
+    organization: null,
+    system: null,
+    hierarchy: null,
+    label: this.lService.create(),
+    configuration: {},
+    synchronizationType: null,
+  };
 
-    config: SynchronizationConfig = {
-        organization: null,
-        system: null,
-        hierarchy: null,
-        label: this.lService.create(),
-        configuration: {},
-        synchronizationType: null
-    };
+  isImport: boolean = false;
 
-    isImport: boolean = false;
+  organizations: OrgSyncInfo[] = [];
 
-    organizations: OrgSyncInfo[] = [];
+  cOrg: OrgSyncInfo = null;
+  cSystem: { label: string; oid: string; type: string } = null;
 
-    cOrg: OrgSyncInfo = null;
-    cSystem: { label: string, oid: string, type: string } = null;
+  fieldChange: Subject<string>;
 
-    fieldChange: Subject<string>;
+  /*
+   * Observable subject for MasterList changes.  Called when an update is successful
+   */
+  onSuccess: Subject<SynchronizationConfig>;
 
+  // eslint-disable-next-line no-useless-constructor
+  constructor(
+    private service: SynchronizationConfigService,
+    private lService: LocalizationService,
+    private bsModalRef: BsModalRef
+  ) {}
+
+  ngOnInit(): void {
+    this.onSuccess = new Subject();
+    this.fieldChange = new Subject();
+  }
+
+  ngOnDestroy(): void {
+    this.onSuccess.unsubscribe();
+    this.fieldChange.unsubscribe();
+  }
+
+  init(config: SynchronizationConfig, organizations: OrgSyncInfo[]): void {
+    this.organizations = organizations;
+
+    if (config != null) {
+      this.config = config;
+
+      let oIndex = this.organizations.findIndex((org) => org.code === this.config.organization);
+
+      if (oIndex !== -1) {
+        this.cOrg = this.organizations[oIndex];
+      }
+
+      let sIndex = this.cOrg.systems.findIndex((system) => system.oid === this.config.system);
+
+      if (sIndex !== -1) {
+        this.cSystem = this.cOrg.systems[sIndex];
+      }
+    }
+  }
+
+  handleFieldChange(field: string): void {
+    this.fieldChange.next(field);
+  }
+
+  onOrganizationSelected(): void {
+    let index = this.organizations.findIndex((org) => org.code === this.config.organization);
+
+    if (index !== -1) {
+      this.cOrg = this.organizations[index];
+    } else {
+      this.cOrg = null;
+    }
+
+    this.cSystem = null;
+
+    this.handleFieldChange('organization');
+  }
+
+  onChangeExternalSystem(): void {
+    let index = this.cOrg.systems.findIndex((system) => system.oid === this.config.system);
+
+    if (index !== -1) {
+      this.cSystem = this.cOrg.systems[index];
+    } else {
+      this.cSystem = null;
+    }
+
+    this.handleFieldChange('system');
+  }
+
+  onSubmit(): void {
     /*
-     * Observable subject for MasterList changes.  Called when an update is successful
-     */
-    onSuccess: Subject<SynchronizationConfig>;
-
-    // eslint-disable-next-line no-useless-constructor
-    constructor(private service: SynchronizationConfigService, private lService: LocalizationService, private bsModalRef: BsModalRef) { }
-
-    ngOnInit(): void {
-        this.onSuccess = new Subject();
-        this.fieldChange = new Subject();
-    }
-
-    ngOnDestroy(): void {
-        this.onSuccess.unsubscribe();
-        this.fieldChange.unsubscribe();
-    }
-
-    init(config: SynchronizationConfig, organizations: OrgSyncInfo[]): void {
-        this.organizations = organizations;
-
-        if (config != null) {
-            this.config = config;
-
-            let oIndex = this.organizations.findIndex(org => org.code === this.config.organization);
-
-            if (oIndex !== -1) {
-                this.cOrg = this.organizations[oIndex];
-            }
-
-            let sIndex = this.cOrg.systems.findIndex(system => system.oid === this.config.system);
-
-            if (sIndex !== -1) {
-                this.cSystem = this.cOrg.systems[sIndex];
-            }
-        }
-    }
-
-    handleFieldChange(field: string): void {
-        this.fieldChange.next(field);
-    }
-
-    onOrganizationSelected(): void {
-        let index = this.organizations.findIndex(org => org.code === this.config.organization);
-
-        if (index !== -1) {
-            this.cOrg = this.organizations[index];
-        } else {
-            this.cOrg = null;
-        }
-
-        this.cSystem = null;
-
-        this.handleFieldChange("organization");
-    }
-
-    onChangeExternalSystem(): void {
-        let index = this.cOrg.systems.findIndex(system => system.oid === this.config.system);
-
-        if (index !== -1) {
-            this.cSystem = this.cOrg.systems[index];
-        } else {
-            this.cSystem = null;
-        }
-
-        this.handleFieldChange("system");
-    }
-
-    onSubmit(): void {
-        /*
         let levelIndex = 0;
         let len = this.levelRows.length;
         for (let i = 0; i < len; ++i)
@@ -165,34 +176,33 @@ export class SynchronizationConfigModalComponent implements OnInit, OnDestroy {
         }
         */
 
-        if (this.cSystem != null) {
-            if (this.cSystem.type === 'FhirExternalSystem' && this.isImport) {
-                this.config.synchronizationType = "FHIR_IMPORT";
-            }
-            else if (this.cSystem.type === 'FhirExternalSystem' && !this.isImport) {
-                this.config.synchronizationType = "FHIR_EXPORT";
-            }
-            else if (this.cSystem.type === 'DHIS2ExternalSystem') {
-                this.config.synchronizationType = "DHIS2";
-            }
-            else if (this.cSystem.type === 'JenaExternalSystem') {
-                this.config.synchronizationType = "JENA";
-            }
-            else {
-                this.config.synchronizationType = "REVEAL";
-            }
-        }
-
-        this.service.apply(this.config).then(cfg => {
-            this.onSuccess.next(cfg);
-            this.bsModalRef.hide();
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
+    if (this.cSystem != null) {
+      if (this.cSystem.type === 'FhirExternalSystem' && this.isImport) {
+        this.config.synchronizationType = 'FHIR_IMPORT';
+      } else if (this.cSystem.type === 'FhirExternalSystem' && !this.isImport) {
+        this.config.synchronizationType = 'FHIR_EXPORT';
+      } else if (this.cSystem.type === 'DHIS2ExternalSystem') {
+        this.config.synchronizationType = 'DHIS2';
+      } else if (this.cSystem.type === 'JenaExternalSystem') {
+        this.config.synchronizationType = 'JENA';
+      } else {
+        this.config.synchronizationType = 'REVEAL';
+      }
     }
 
-    cancel(): void {
-        /*
+    this.service
+      .apply(this.config)
+      .then((cfg) => {
+        this.onSuccess.next(cfg);
+        this.bsModalRef.hide();
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
+
+  cancel(): void {
+    /*
         if (this.config.oid != null) {
             this.service.unlock(this.config.oid).then(() => {
                 this.bsModalRef.hide();
@@ -204,11 +214,10 @@ export class SynchronizationConfigModalComponent implements OnInit, OnDestroy {
         }
         */
 
-        this.bsModalRef.hide();
-    }
+    this.bsModalRef.hide();
+  }
 
-    error(err: HttpErrorResponse): void {
-        this.message = ErrorHandler.getMessageFromError(err);
-    }
-
+  error(err: HttpErrorResponse): void {
+    this.message = ErrorHandler.getMessageFromError(err);
+  }
 }

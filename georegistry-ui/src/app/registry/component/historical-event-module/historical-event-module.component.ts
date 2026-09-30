@@ -17,38 +17,43 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component } from "@angular/core";
-import { AuthService } from "@shared/service";
-import { HistoricalReportComponent } from "../historical-report/historical-report.component";
-import { TransitionEventTableComponent } from "../transition-event/transition-event-table.component";
-import { RouterLink } from "@angular/router";
-import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
-import { NgIf, NgClass } from "@angular/common";
-import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
+import { Component } from '@angular/core';
+import { AuthService } from '@shared/service';
+import { HistoricalReportComponent } from '../historical-report/historical-report.component';
+import { TransitionEventTableComponent } from '../transition-event/transition-event-table.component';
+import { RouterLink } from '@angular/router';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+import { NgClass } from '@angular/common';
+import { PageContainerComponent } from '../../../shared/component/page-container/page-container.component';
 
 @Component({
-    selector: "historical-event-module",
-    templateUrl: "./historical-event-module.component.html",
-    styleUrls: [],
-    standalone: true,
-    imports: [PageContainerComponent, NgIf, LocalizeComponent, RouterLink, NgClass, TransitionEventTableComponent, HistoricalReportComponent]
+  selector: 'historical-event-module',
+  templateUrl: './historical-event-module.component.html',
+  styleUrls: [],
+  standalone: true,
+  imports: [
+    PageContainerComponent,
+    LocalizeComponent,
+    RouterLink,
+    NgClass,
+    TransitionEventTableComponent,
+    HistoricalReportComponent,
+  ],
 })
 export class HistoricalEventModuleComponent {
+  tab: string = 'HISTORICAL-EVENT';
 
-    tab: string = "HISTORICAL-EVENT";
+  readOnly: boolean = false;
 
-    readOnly: boolean = false;
+  // eslint-disable-next-line no-useless-constructor
+  constructor(private authService: AuthService) {}
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor(private authService: AuthService) { }
+  ngOnInit(): void {
+    this.readOnly = this.authService.isRC(true);
+    this.tab = this.readOnly ? 'HISTORICAL-REPORT' : 'HISTORICAL-EVENT';
+  }
 
-    ngOnInit(): void {
-        this.readOnly = this.authService.isRC(true);
-        this.tab = this.readOnly ? "HISTORICAL-REPORT" : "HISTORICAL-EVENT";
-    }
-
-    handleTab(tab: string): void {
-        this.tab = tab;
-    }
-
+  handleTab(tab: string): void {
+    this.tab = tab;
+  }
 }

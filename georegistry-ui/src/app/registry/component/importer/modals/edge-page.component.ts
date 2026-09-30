@@ -21,76 +21,68 @@ import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 
 import { EdgeImportConfiguration, ImportConfiguration } from '@registry/model/io';
 import { FormsModule } from '@angular/forms';
-import { NgIf, NgFor } from '@angular/common';
+
 import { LocalizeComponent } from '@shared/component/localize/localize.component';
 import { SourceAuthority } from '@registry/model/source';
 
 @Component({
-    selector: 'edge-page',
-    templateUrl: './edge-page.component.html',
-    styleUrls: [],
-    standalone: true,
-    imports: [LocalizeComponent, NgIf, FormsModule, NgFor]
+  selector: 'edge-page',
+  templateUrl: './edge-page.component.html',
+  styleUrls: [],
+  standalone: true,
+  imports: [LocalizeComponent, FormsModule],
 })
 export class EdgePageComponent implements OnInit {
+  @Input() configuration: EdgeImportConfiguration;
+  @Input() hasNext: boolean = false;
+  @Input() hasBack: boolean = false;
+  @Input() authorities: SourceAuthority[] = [];
 
-    @Input() configuration: EdgeImportConfiguration;
-    @Input() hasNext: boolean = false;
-    @Input() hasBack: boolean = false;
-    @Input() authorities: SourceAuthority[] = [];
+  @Output() configurationChange = new EventEmitter<ImportConfiguration>();
+  @Output() stateChange = new EventEmitter<string>();
 
-    @Output() configurationChange = new EventEmitter<ImportConfiguration>();
-    @Output() stateChange = new EventEmitter<string>();
+  textAttrs: { code: string; label: string }[];
 
-    textAttrs: { code: string, label: string }[];
+  sourceTypes: { code: string; label: string }[];
+  targetTypes: { code: string; label: string }[];
 
-    sourceTypes: { code: string, label: string }[];
-    targetTypes: { code: string, label: string }[];
+  public initialized: boolean = false;
 
-    public initialized: boolean = false;
+  constructor() {}
 
-    constructor() {
+  ngOnInit(): void {
+    this.configuration.edgeSourceStrategy = 'CODE';
+    this.configuration.edgeSourceTypeStrategy = 'FIXED_TYPE';
+    this.configuration.edgeTargetStrategy = 'CODE';
+    this.configuration.edgeTargetTypeStrategy = 'FIXED_TYPE';
+
+    this.sourceTypes = [...this.configuration.sourceTypes];
+
+    this.targetTypes = [...this.configuration.targetTypes];
+
+    this.textAttrs = [...this.configuration.sheet.attributes['text'].map((a) => ({ code: a, label: a }))];
+
+    this.initialized = true;
+  }
+
+  getTypeOptions(field: string, strategy: string) {
+    if (strategy === 'FIXED_TYPE') {
+      return field === 'SOURCE' ? this.sourceTypes : this.targetTypes;
+    } else {
+      return this.textAttrs;
     }
+  }
 
-    ngOnInit(): void {
-        this.configuration.edgeSourceStrategy = 'CODE';
-        this.configuration.edgeSourceTypeStrategy = 'FIXED_TYPE';
-        this.configuration.edgeTargetStrategy = 'CODE';
-        this.configuration.edgeTargetTypeStrategy = 'FIXED_TYPE';
+  onNext(): void {
+    this.configurationChange.emit(this.configuration);
+    this.stateChange.emit('NEXT');
+  }
 
-        this.sourceTypes = [
-            ...this.configuration.sourceTypes
-        ];
+  onBack(): void {
+    this.stateChange.emit('BACK');
+  }
 
-        this.targetTypes = [
-            ...this.configuration.targetTypes
-        ];
-
-        this.textAttrs = [
-            ...this.configuration.sheet.attributes['text'].map(a => ({ code: a, label: a }))
-        ];
-
-        this.initialized = true;
-    }
-
-    getTypeOptions(field: string, strategy: string) {
-        if (strategy === 'FIXED_TYPE') {
-            return (field === "SOURCE") ? this.sourceTypes : this.targetTypes;
-        } else {
-            return this.textAttrs;
-        }
-    }
-
-    onNext(): void {
-        this.configurationChange.emit(this.configuration);
-        this.stateChange.emit('NEXT');
-    }
-
-    onBack(): void {
-        this.stateChange.emit('BACK');
-    }
-
-    onCancel(): void {
-        this.stateChange.emit('CANCEL');
-    }
+  onCancel(): void {
+    this.stateChange.emit('CANCEL');
+  }
 }

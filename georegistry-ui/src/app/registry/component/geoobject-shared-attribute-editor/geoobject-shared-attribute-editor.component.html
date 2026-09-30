@@ -1,32 +1,46 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <div class="row">
   <div class="col-md-12">
-    <stability-period *ngIf="showStabilityPeriods" [showHint]="!readOnly" [changeRequestEditor]="changeRequestEditor" [context]="datasetId == null ? 'EXPLORER' : 'LIST'" [latestPeriodIsActive]="requestedDate == null && changeRequestEditor.changeRequest.isNew" (periodsChange)="stabilityPeriodsChange.emit($event)"></stability-period>
+    @if (showStabilityPeriods) {
+      <stability-period
+        [showHint]="!readOnly"
+        [changeRequestEditor]="changeRequestEditor"
+        [context]="datasetId == null ? 'EXPLORER' : 'LIST'"
+        [latestPeriodIsActive]="requestedDate == null && changeRequestEditor.changeRequest.isNew"
+        (periodsChange)="stabilityPeriodsChange.emit($event)"
+      ></stability-period>
+    }
   </div>
 </div>
 
 <div class="row">
   <div class="col-md-12">
-    <boolean-field *ngIf="changeRequestEditor && !changeRequestEditor.changeRequest.isNew && changeRequestEditor.changeRequest.type !== 'CreateGeoObject'" [(value)]="showAllInstances" label="Show all instances" [disable]="false"></boolean-field>
+    @if (
+      changeRequestEditor &&
+      !changeRequestEditor.changeRequest.isNew &&
+      changeRequestEditor.changeRequest.type !== 'CreateGeoObject'
+    ) {
+      <boolean-field [(value)]="showAllInstances" label="Show all instances" [disable]="false"></boolean-field>
+    }
   </div>
 </div>
 
@@ -34,25 +48,73 @@
   <!-- <div class="label-holder"></div> -->
   <div class="col-md-12">
     <div class="btn-group geobject-editor-tab-holder">
-      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 0, disabled: shouldForceSetExist()}" (click)="changePage(0);"> 
-        <span style="display:inline-block; width:90%;"><localize key="geoobject.editor.tabZero"></localize></span>
-        <div class="errorSpan"><span *ngIf="hasErrors(0)" class="tabHasErrors"></span></div>
-        <span class="changeSpan"><span *ngIf="hasChanges(0)" class="tabHasChanges"></span></span>
-      </label> 
-      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 1, disabled: shouldForceSetExist()}" (click)="changePage(1);"> 
-        <span style="display:inline-block; width:90%;"><localize key="geoobject.editor.tabOne"></localize></span>
-        <div class="errorSpan"><span *ngIf="hasErrors(1)" class="tabHasErrors"></span></div>
-        <span class="changeSpan"><span *ngIf="hasChanges(1)" class="tabHasChanges"></span></span>
-      </label> 
-      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 2, disabled: shouldForceSetExist()}" (click)="changePage(2);"> 
-        <span style="display:inline-block; width:90%;"><localize key="geoobject.editor.tabTwo"></localize></span>
-        <div class="errorSpan"><span *ngIf="hasErrors(2)" class="tabHasErrors"></span></div>
-        <span class="changeSpan"><span *ngIf="hasChanges(2)" class="tabHasChanges"></span></span>
+      <label
+        class="btn full-width-radio-button"
+        [ngClass]="{ active: tabIndex === 0, disabled: shouldForceSetExist() }"
+        (click)="changePage(0)"
+      >
+        <span style="display: inline-block; width: 90%"><localize key="geoobject.editor.tabZero"></localize></span>
+        <div class="errorSpan">
+          @if (hasErrors(0)) {
+            <span class="tabHasErrors"></span>
+          }
+        </div>
+        <span class="changeSpan">
+          @if (hasChanges(0)) {
+            <span class="tabHasChanges"></span>
+          }
+        </span>
       </label>
-      <label class="btn full-width-radio-button settings" [ngClass]="{active: tabIndex === 3}" (click)="changePage(3);"> 
-        <span style="display:inline-block; width:90%;"><i class="fa fa-cog"></i></span>
-        <div class="errorSpan"><span *ngIf="hasErrors(3)" class="tabHasErrors"></span></div>
-        <span class="changeSpan"><span *ngIf="hasChanges(3)" class="tabHasChanges"></span></span>
+      <label
+        class="btn full-width-radio-button"
+        [ngClass]="{ active: tabIndex === 1, disabled: shouldForceSetExist() }"
+        (click)="changePage(1)"
+      >
+        <span style="display: inline-block; width: 90%"><localize key="geoobject.editor.tabOne"></localize></span>
+        <div class="errorSpan">
+          @if (hasErrors(1)) {
+            <span class="tabHasErrors"></span>
+          }
+        </div>
+        <span class="changeSpan">
+          @if (hasChanges(1)) {
+            <span class="tabHasChanges"></span>
+          }
+        </span>
+      </label>
+      <label
+        class="btn full-width-radio-button"
+        [ngClass]="{ active: tabIndex === 2, disabled: shouldForceSetExist() }"
+        (click)="changePage(2)"
+      >
+        <span style="display: inline-block; width: 90%"><localize key="geoobject.editor.tabTwo"></localize></span>
+        <div class="errorSpan">
+          @if (hasErrors(2)) {
+            <span class="tabHasErrors"></span>
+          }
+        </div>
+        <span class="changeSpan">
+          @if (hasChanges(2)) {
+            <span class="tabHasChanges"></span>
+          }
+        </span>
+      </label>
+      <label
+        class="btn full-width-radio-button settings"
+        [ngClass]="{ active: tabIndex === 3 }"
+        (click)="changePage(3)"
+      >
+        <span style="display: inline-block; width: 90%"><i class="fa fa-cog"></i></span>
+        <div class="errorSpan">
+          @if (hasErrors(3)) {
+            <span class="tabHasErrors"></span>
+          }
+        </div>
+        <span class="changeSpan">
+          @if (hasChanges(3)) {
+            <span class="tabHasChanges"></span>
+          }
+        </span>
       </label>
     </div>
   </div>
@@ -61,120 +123,203 @@
 <form class="modal-form" name="geobject-shared-attribute-editor" #attributeForm="ngForm">
   <fieldset>
     <!-- <div class="col-md-12"> -->
-    <div *ngIf="changeRequestEditor && changeRequestEditor.geoObject">
-      <div *ngIf="tabIndex === 0" class="row">
-        <!-- <div class="label-holder">
-                        <label>
-                            <localize key="change.request.geoobject.update.form.label"></localize>
-                        </label>
-                    </div> -->
-                    
-        <div class="col-md-12">
-
-          <span class="text"></span>
-          <ul class="list-group">
-            <li *ngFor="let attr of geoObjectType.attributes | geoObjectAttributeExcludesFilter:geoObjectAttributeExcludes; let i = index" class="list-group-item" style="text-align:left;border:none;padding:0;">
-              <div *ngIf="showAllInstances || changeRequestEditor.getEditorForAttribute(attr).hasChanges()" class="panel panel-default">
+    @if (changeRequestEditor && changeRequestEditor.geoObject) {
+      <div>
+        @if (tabIndex === 0) {
+          <div class="row">
+            <!-- <div class="label-holder">
+            <label>
+              <localize key="change.request.geoobject.update.form.label"></localize>
+            </label>
+          </div> -->
+            <div class="col-md-12">
+              <span class="text"></span>
+              <ul class="list-group">
+                @for (
+                  attr of geoObjectType.attributes | geoObjectAttributeExcludesFilter: geoObjectAttributeExcludes;
+                  track attr.code;
+                  let i = $index
+                ) {
+                  <li class="list-group-item" style="text-align: left; border: none; padding: 0">
+                    @if (showAllInstances || changeRequestEditor.getEditorForAttribute(attr).hasChanges()) {
+                      <div class="panel panel-default">
+                        <div class="panel-heading">
+                          <h4 style="margin: 0">
+                            @if (attr.code === 'code') {
+                              <span>
+                                <localize key="geoobject.code.alternate.label"></localize>
+                              </span>
+                            }
+                            @if (attr.code === 'displayLabel') {
+                              <span>
+                                <localize key="geoobject.displayLabel.alternate.label"></localize>
+                              </span>
+                            }
+                            @if (attr.code !== 'code' && attr.code !== 'displayLabel') {
+                              <span> {{ attr.label.localizedValue }} </span>
+                            }
+                          </h4>
+                        </div>
+                        <div class="panel-body">
+                          @if (attr.code !== 'code' && attr.isChangeOverTime) {
+                            <div>
+                              <manage-versions
+                                [geoObjectType]="geoObjectType"
+                                [changeRequestEditor]="changeRequestEditor"
+                                [attributeType]="attr"
+                                [readonly]="readOnly"
+                                [isNew]="isNew"
+                                [showAllInstances]="showAllInstances"
+                              >
+                              </manage-versions>
+                            </div>
+                          }
+                          @if (!attr.isChangeOverTime) {
+                            <div>
+                              @if (changeRequestEditor.geoObject && attr.code === 'code') {
+                                <input
+                                  type="text"
+                                  [(ngModel)]="changeRequestEditor.getEditorForAttribute(attr).value"
+                                  id="mod-{{ attr.code }}"
+                                  name="mod-{{ attr.code }}"
+                                  [disabled]="
+                                    (attr.code === 'code' && !canEditCode()) || (attr.code !== 'code' && readOnly)
+                                  "
+                                  [style]="readOnly || (attr.code === 'code' && !isNew) ? '' : 'color:#333'"
+                                  [required]="!(isNew && !isMaintainer)"
+                                />
+                              }
+                              @if (attr.code !== 'code') {
+                                <div>
+                                  <standard-attribute-editor
+                                    [authorities]="authorities"
+                                    [changeRequestEditor]="changeRequestEditor"
+                                    [geoObjectType]="geoObjectType"
+                                    [changeRequest]="changeRequest"
+                                    [attributeType]="attr"
+                                    [geoObject]="changeRequestEditor.geoObject"
+                                    [readonly]="readOnly"
+                                    [isNew]="isNew"
+                                  ></standard-attribute-editor>
+                                </div>
+                              }
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    }
+                  </li>
+                }
+              </ul>
+            </div>
+          </div>
+        }
+        @if (tabIndex === 1) {
+          <div class="row">
+            <div class="col-md-12">
+              <ul class="list-group">
+                @for (hierarchy of hierarchies; track hierarchy.code) {
+                  <li class="list-group-item" style="text-align: left; border: none; padding: 0">
+                    @if (
+                      showAllInstances ||
+                      changeRequestEditor.getEditorForAttribute(parentAttributeType, hierarchy).hasChanges()
+                    ) {
+                      <div class="panel panel-default">
+                        <div class="panel-heading">
+                          <h4 style="margin: 0">
+                            <span> {{ hierarchy.label }} </span>
+                          </h4>
+                        </div>
+                        <div class="panel-body">
+                          <manage-versions
+                            [geoObjectType]="geoObjectType"
+                            [changeRequestEditor]="changeRequestEditor"
+                            [attributeType]="parentAttributeType"
+                            [readonly]="readOnly"
+                            [isNew]="isNew"
+                            [hierarchy]="hierarchy"
+                            [showAllInstances]="showAllInstances"
+                          ></manage-versions>
+                        </div>
+                      </div>
+                    }
+                  </li>
+                }
+              </ul>
+            </div>
+          </div>
+        }
+        @if (tabIndex === 2) {
+          <div>
+            @if (showAllInstances || changeRequestEditor.getEditorForAttribute(geometryAttributeType).hasChanges()) {
+              <div class="panel panel-default">
                 <div class="panel-heading">
-                  <h4 style="margin:0;">
-                    <span *ngIf="attr.code === 'code'"> 
-                      <localize key="geoobject.code.alternate.label"></localize>
-                    </span> 
-                    <span *ngIf="attr.code === 'displayLabel'"> 
-                      <localize key="geoobject.displayLabel.alternate.label"></localize>
-                    </span>
-                    <span *ngIf="attr.code !== 'code' && attr.code !== 'displayLabel'"> {{attr.label.localizedValue}} </span> 
+                  <h4 style="margin: 0">
+                    <span> <localize key="shared.attributes.attribute.geometry.label"></localize> </span>
                   </h4>
                 </div>
-
                 <div class="panel-body">
-                  <div *ngIf="attr.code !== 'code' && attr.isChangeOverTime">
-                    <manage-versions
-                        [geoObjectType]="geoObjectType" [changeRequestEditor]="changeRequestEditor" [attributeType]="attr"
-                        [readonly]="readOnly" [isNew]="isNew" [showAllInstances]="showAllInstances" >
-                    </manage-versions>
-                  </div>
-
-                  <div *ngIf="!attr.isChangeOverTime">
-                    <input *ngIf="changeRequestEditor.geoObject && attr.code === 'code'" type="text" [(ngModel)]="changeRequestEditor.getEditorForAttribute(attr).value" id="mod-{{attr.code}}" 
-                        name="mod-{{attr.code}}" [disabled]="(attr.code === 'code' && !canEditCode()) || (attr.code !== 'code' && readOnly)" [style]="(readOnly || (attr.code === 'code' && !isNew)) ? '' : 'color:#333'" [required]="!(isNew && !isMaintainer)">
-
-                    <div *ngIf="attr.code !== 'code'">
-                        <standard-attribute-editor [authorities]="authorities" [changeRequestEditor]="changeRequestEditor" [geoObjectType]="geoObjectType" [changeRequest]="changeRequest" [attributeType]="attr" [geoObject]="changeRequestEditor.geoObject"
-                          [readonly]="readOnly" [isNew]="isNew"></standard-attribute-editor>
-                    </div>
-                  </div>
+                  <manage-versions
+                    [geoObjectType]="geoObjectType"
+                    [changeRequestEditor]="changeRequestEditor"
+                    [attributeType]="geometryAttributeType"
+                    [readonly]="readOnly"
+                    [isNew]="isNew"
+                    [isGeometryInlined]="isGeometryInlined"
+                    [showAllInstances]="showAllInstances"
+                  ></manage-versions>
                 </div>
               </div>
-            </li>
-          </ul>
-        </div>
+            }
+          </div>
+        }
+        @if (tabIndex === 3) {
+          <div>
+            @if (showAllInstances || changeRequestEditor.getEditorForAttribute(getAttribute('exists')).hasChanges()) {
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h4 style="margin: 0">
+                    <span>{{ getAttribute('exists').label.localizedValue }}</span>
+                  </h4>
+                </div>
+                <div class="panel-body">
+                  <manage-versions
+                    [geoObjectType]="geoObjectType"
+                    [changeRequestEditor]="changeRequestEditor"
+                    [attributeType]="getAttribute('exists')"
+                    [readonly]="readOnly"
+                    [isNew]="isNew"
+                    [isGeometryInlined]="isGeometryInlined"
+                    [showAllInstances]="showAllInstances"
+                  ></manage-versions>
+                </div>
+              </div>
+            }
+            @if (showAllInstances || changeRequestEditor.getEditorForAttribute(getAttribute('invalid')).hasChanges()) {
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h4 style="margin: 0">
+                    <!-- <span>{{getAttribute('invalid').label.localizedValue}}</span>  -->
+                    <localize key="geoobject.invalid.alternate.label"></localize>
+                  </h4>
+                </div>
+                <div class="panel-body">
+                  <standard-attribute-editor
+                    [changeRequestEditor]="changeRequestEditor"
+                    [geoObjectType]="geoObjectType"
+                    [changeRequest]="changeRequest"
+                    [attributeType]="getAttribute('invalid')"
+                    [geoObject]="changeRequestEditor.geoObject"
+                    [readonly]="readOnly"
+                    [isNew]="isNew"
+                  ></standard-attribute-editor>
+                </div>
+              </div>
+            }
+          </div>
+        }
       </div>
-      <div *ngIf="tabIndex === 1" class="row">
-        <div class="col-md-12">
-	        <ul class="list-group">
-		        <li *ngFor="let hierarchy of hierarchies" class="list-group-item" style="text-align:left;border:none;padding:0;">
-		          <div *ngIf="showAllInstances || changeRequestEditor.getEditorForAttribute(parentAttributeType, hierarchy).hasChanges()" class="panel panel-default">
-	              <div class="panel-heading">
-	                <h4 style="margin:0;">
-	                  <span> {{hierarchy.label}} </span> 
-	                </h4>
-	              </div>
-				      
-				        <div class="panel-body">
-				          <manage-versions [geoObjectType]="geoObjectType" [changeRequestEditor]="changeRequestEditor" [attributeType]="parentAttributeType"
-	                        [readonly]="readOnly" [isNew]="isNew" [hierarchy]="hierarchy" [showAllInstances]="showAllInstances"></manage-versions>
-				        </div>
-			        </div>
-		        </li>
-	        </ul>
-        </div>
-      </div>
-      
-      <div *ngIf="tabIndex === 2">
-        <div *ngIf="showAllInstances || changeRequestEditor.getEditorForAttribute(geometryAttributeType).hasChanges()" class="panel panel-default">
-          <div class="panel-heading">
-            <h4 style="margin:0;">
-              <span> <localize key="shared.attributes.attribute.geometry.label"></localize> </span> 
-            </h4>
-          </div>
-            
-          <div class="panel-body">
-            <manage-versions [geoObjectType]="geoObjectType" [changeRequestEditor]="changeRequestEditor" [attributeType]="geometryAttributeType"
-              [readonly]="readOnly" [isNew]="isNew" [isGeometryInlined]="isGeometryInlined" [showAllInstances]="showAllInstances"></manage-versions>
-          </div>
-        </div>
-      </div>
-      
-      <div *ngIf="tabIndex === 3">
-        <div *ngIf="showAllInstances || changeRequestEditor.getEditorForAttribute(getAttribute('exists')).hasChanges()" class="panel panel-default">
-          <div class="panel-heading">
-            <h4 style="margin:0;">
-              <span>{{getAttribute('exists').label.localizedValue}}</span> 
-            </h4>
-          </div>
-            
-          <div class="panel-body">
-            <manage-versions [geoObjectType]="geoObjectType" [changeRequestEditor]="changeRequestEditor" [attributeType]="getAttribute('exists')"
-              [readonly]="readOnly" [isNew]="isNew" [isGeometryInlined]="isGeometryInlined" [showAllInstances]="showAllInstances"></manage-versions>
-          </div>
-        </div>
-        <div *ngIf="showAllInstances || changeRequestEditor.getEditorForAttribute(getAttribute('invalid')).hasChanges()" class="panel panel-default">
-          <div class="panel-heading">
-            <h4 style="margin:0;">
-              <!-- <span>{{getAttribute('invalid').label.localizedValue}}</span>  -->
-                <localize key="geoobject.invalid.alternate.label"></localize>
-              
-            </h4>
-          </div>
-            
-          <div class="panel-body">
-            <standard-attribute-editor [changeRequestEditor]="changeRequestEditor" [geoObjectType]="geoObjectType" [changeRequest]="changeRequest" [attributeType]="getAttribute('invalid')" [geoObject]="changeRequestEditor.geoObject"
-              [readonly]="readOnly" [isNew]="isNew"></standard-attribute-editor>
-          </div>
-        </div>
-      </div>
-    </div>
+    }
     <!-- </div> -->
   </fieldset>
 </form>

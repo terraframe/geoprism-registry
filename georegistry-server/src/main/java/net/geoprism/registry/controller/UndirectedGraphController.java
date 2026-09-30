@@ -31,7 +31,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonObject;
 
 import jakarta.validation.Valid;
@@ -39,7 +38,8 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.UndirectedGraphService;
-import net.geoprism.registry.spring.NullableDateDeserializer;
+import net.geoprism.registry.view.serialization.DateDeserializer;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 @RestController
 @RequestMapping(RegistryConstants.CONTROLLER_ROOT + "undirected-graph-type")
@@ -64,11 +64,11 @@ public class UndirectedGraphController extends RunwaySpringController
     String undirectedRelationshipCode;
 
     @NotNull
-    @JsonDeserialize(using = NullableDateDeserializer.class)
+    @JsonDeserialize(using = DateDeserializer.class)
     Date   startDate;
 
     @NotNull
-    @JsonDeserialize(using = NullableDateDeserializer.class)
+    @JsonDeserialize(using = DateDeserializer.class)
     Date   endDate;
 
     String dataSource;

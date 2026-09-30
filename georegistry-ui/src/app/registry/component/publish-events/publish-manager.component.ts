@@ -17,52 +17,40 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnDestroy, OnInit } from "@angular/core";
-import {
-  ActivatedRoute,
-  Params,
-  Router,
-  RouterLinkActive,
-  RouterLink,
-} from "@angular/router";
-import { HttpErrorResponse } from "@angular/common/http";
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Params, Router, RouterLinkActive, RouterLink } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 
-import {
-  ConfirmModalComponent,
-  ErrorHandler,
-  ProgressBarComponent,
-} from "@shared/component";
-import { Subscription } from "rxjs";
-import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
-import { LocalizationService, ProgressService } from "@shared/service";
-import { PublishEvents } from "@registry/model/publish";
-import { PublishService } from "@registry/service/publish.service";
-import { PublishEventsModalComponent } from "./publish-events-modal.component";
-import { BusinessTypeService } from "@registry/service/business-type.service";
-import { RegistryService } from "@registry/service";
-import { LocalizePipe } from "@shared//pipe/localize.pipe";
-import { PublishEventsComponent } from "./publish-events.component";
-import { NgFor, NgIf } from "@angular/common";
-import { LocalizeComponent } from "@shared/component/localize/localize.component";
-import { PageContainerComponent } from "@shared/component/page-container/page-container.component";
-import { ModalTypes } from "@shared/model/modal";
-import { BusinessEdgeTypeService } from "@registry/service/business-edge-type.service";
-import { webSocket, WebSocketSubject } from "rxjs/webSocket";
-import { Progress, WebSocketMessage } from "@shared/model/progress";
-import { WebSockets } from "@shared/component/web-sockets/web-sockets";
+import { ConfirmModalComponent, ErrorHandler, ProgressBarComponent } from '@shared/component';
+import { Subscription } from 'rxjs';
+import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
+import { LocalizationService, ProgressService } from '@shared/service';
+import { PublishEvents } from '@registry/model/publish';
+import { PublishService } from '@registry/service/publish.service';
+import { PublishEventsModalComponent } from './publish-events-modal.component';
+import { BusinessTypeService } from '@registry/service/business-type.service';
+import { RegistryService } from '@registry/service';
+import { LocalizePipe } from '@shared//pipe/localize.pipe';
+import { PublishEventsComponent } from './publish-events.component';
+
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
+import { PageContainerComponent } from '@shared/component/page-container/page-container.component';
+import { ModalTypes } from '@shared/model/modal';
+import { BusinessEdgeTypeService } from '@registry/service/business-edge-type.service';
+import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
+import { Progress, WebSocketMessage } from '@shared/model/progress';
+import { WebSockets } from '@shared/component/web-sockets/web-sockets';
 
 @Component({
-  selector: "publish-manager",
-  templateUrl: "./publish-manager.component.html",
-  styleUrls: ["./publish-manager.css"],
+  selector: 'publish-manager',
+  templateUrl: './publish-manager.component.html',
+  styleUrls: ['./publish-manager.css'],
   standalone: true,
   imports: [
     PageContainerComponent,
     LocalizeComponent,
-    NgFor,
     RouterLinkActive,
     RouterLink,
-    NgIf,
     PublishEventsComponent,
     LocalizePipe,
     ProgressBarComponent,
@@ -104,13 +92,13 @@ export class PublishManagerComponent implements OnInit, OnDestroy {
     private businessService: BusinessTypeService,
     private bEdgeTypeService: BusinessEdgeTypeService,
     private registryService: RegistryService,
-    private pService: ProgressService,
+    private pService: ProgressService
   ) {}
 
   ngOnInit(): void {
     let baseUrl = WebSockets.buildBaseUrl();
 
-    this.progressNotifier = webSocket(baseUrl + "/websocket/progress/publish");
+    this.progressNotifier = webSocket(baseUrl + '/websocket/progress/publish');
 
     this.progressSubscription = this.progressNotifier.subscribe((message) => {
       this.handleProgressChange(message);
@@ -164,12 +152,12 @@ export class PublishManagerComponent implements OnInit, OnDestroy {
         return { label: b.label.localizedValue, value: b.code };
       });
       this.dagTypes = response
-        .graphTypes!.filter((b) => b.typeCode === "DirectedAcyclicGraphType")
+        .graphTypes!.filter((b) => b.typeCode === 'DirectedAcyclicGraphType')
         .map((b) => {
           return { label: b.label.localizedValue, value: b.code };
         });
       this.undirectedTypes = response
-        .graphTypes!.filter((b) => b.typeCode === "UndirectedGraphType")
+        .graphTypes!.filter((b) => b.typeCode === 'UndirectedGraphType')
         .map((b) => {
           return { label: b.label.localizedValue, value: b.code };
         });
@@ -195,7 +183,7 @@ export class PublishManagerComponent implements OnInit, OnDestroy {
   handleProgressChange(message: WebSocketMessage): void {
     if (message.content) {
       this.isRefreshing = message.content!.current < message.content!.total;
-      message.content!.description = "";
+      message.content!.description = '';
 
       this.pService.progress(message.content!);
     }
@@ -220,11 +208,11 @@ export class PublishManagerComponent implements OnInit, OnDestroy {
         this.router.navigate([], {
           relativeTo: this.route,
           queryParams: { uid: publish.uid },
-          queryParamsHandling: "merge",
+          queryParamsHandling: 'merge',
           replaceUrl: true,
         });
       },
-      null,
+      null
     );
   }
 
@@ -235,13 +223,8 @@ export class PublishManagerComponent implements OnInit, OnDestroy {
       ignoreBackdropClick: true,
     });
     this.bsModalRef.content.message =
-      this.localizeService.decode("confirm.modal.verify.delete") +
-      " [" +
-      publish.label +
-      "]";
-    this.bsModalRef.content.submitText = this.localizeService.decode(
-      "modal.button.delete",
-    );
+      this.localizeService.decode('confirm.modal.verify.delete') + ' [' + publish.label + ']';
+    this.bsModalRef.content.submitText = this.localizeService.decode('modal.button.delete');
     this.bsModalRef.content.type = ModalTypes.danger;
 
     this.bsModalRef.content.onConfirm.subscribe(() => {
@@ -262,7 +245,7 @@ export class PublishManagerComponent implements OnInit, OnDestroy {
             this.router.navigate([], {
               relativeTo: this.route,
               queryParams: { uid: null },
-              queryParamsHandling: "merge",
+              queryParamsHandling: 'merge',
               replaceUrl: true,
             });
           }

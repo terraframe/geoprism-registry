@@ -1,90 +1,120 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<div style="background-color: white; background-color: white; overflow: hidden auto; height: calc(-50px + 100vh); padding-left: 20px; "
-    [style.height]="'calc(' + size + 'vh - 50px)'">
+<div
+  style="
+    background-color: white;
+    background-color: white;
+    overflow: hidden auto;
+    height: calc(-50px + 100vh);
+    padding-left: 20px;
+  "
+  [style.height]="'calc(' + size + 'vh - 50px)'"
+>
+  <div class="row">
+    <div class="col-md-12">
+      <ngx-spinner [fullScreen]="false" [name]="CONSTANTS.LIST_MODAL" type="ball-clip-rotate-multiple" size="medium">
+        @if (progress != null) {
+          <p style="font-size: 20px; color: white">{{ percent() }}%</p>
+        }
+      </ngx-spinner>
 
-    <div class="row">
-        <div class="col-md-12">
-            <ngx-spinner [fullScreen]="false" [name]="CONSTANTS.LIST_MODAL" type="ball-clip-rotate-multiple"
-                size="medium">
-                <p *ngIf="progress != null" style="font-size: 20px; color: white">{{percent()}}%</p>
-            </ngx-spinner>
-
-            <div class="row" *ngIf="list">
-                <div class="col-md-6">
-                    <div class="button-holder pull-right" style="margin-top: 10px; margin-right: 5px;">
-                        <span class="clickable" (click)="onToggleSize()" style="padding: 10px;">
-                            <i class="fa" [ngClass]="{'fa-arrow-up':(size === 50), 'fa-arrow-down':(size === 100)}"
-                                style="font-size: 24px;vertical-align: middle;padding-right: 5px;"
-                                aria-hidden="true"></i>
-                        </span>
-                    </div>
-                    <h2>
-                        {{list.displayLabel}} (<date-text [date]="list.forDate"></date-text>)
-                    </h2>
-                </div>
-                <div class="col-md-6" *ngIf="list">
-                    <div class="button-holder pull-right" style="margin-top: 10px; margin-right: 5px;">
-
-                        <span *ngIf="isWritable && list.working" class="clickable"
-                            style="vertical-align:middle;display:inline-block;line-height:0;">
-                            <boolean-field [(value)]="showInvalid" (change)="handleShowInvalidChange()"
-                                [localizeLabelKey]="'masterlist.showInvalid'"></boolean-field>
-                        </span>
-
-                        <span *ngIf="isWritable && list.working" class="clickable" (click)="onPublish()"
-                            style="padding: 10px;">
-                            <i [ngClass]="{'fa fa-refresh clickable':true}"
-                                style="font-size: 24px;vertical-align: middle;padding-right: 5px;"
-                                aria-hidden="true"></i>
-                            <localize key="masterlist.publish"></localize>
-                        </span>
-
-                        <button
-                            *ngIf="list.listMetadata.visibility === 'PUBLIC' || list.geospatialMetadata.visibility === 'PUBLIC' || isListInOrg() || isSRA"
-                            type="submit" (click)="onExport()" class="btn btn-primary" role="button">
-                            <localize *ngIf="!isFiltered" key="io.export.allrows"></localize>
-                            <localize *ngIf="isFiltered" key="io.export.filteredrows"></localize>
-                        </button>
-
-                        <button type="button" class="btn btn-default" (click)="onClose()">
-                            <localize key="modal.button.close"></localize>
-                        </button>
-                    </div>
-                </div>
-
+      @if (list) {
+        <div class="row">
+          <div class="col-md-6">
+            <div class="button-holder pull-right" style="margin-top: 10px; margin-right: 5px">
+              <span class="clickable" (click)="onToggleSize()" style="padding: 10px">
+                <i
+                  class="fa"
+                  [ngClass]="{ 'fa-arrow-up': size === 50, 'fa-arrow-down': size === 100 }"
+                  style="font-size: 24px; vertical-align: middle; padding-right: 5px"
+                  aria-hidden="true"
+                ></i>
+              </span>
             </div>
-
-            <div class="row">
-                <div *ngIf="list" class="col-md-12">
-
-                    <ng-container *ngIf="setup != null && config != null">
-                        <generic-table [setup]="setup" [config]="config" [refresh]="refresh"
-                            [pageConfig]="{oid: list.oid, showInvalid: showInvalid}" (click)="onClick($event)"
-                            (onLoadEvent)="onLoadEvent($event)" [initialState]="tableState">
-                        </generic-table>
-                    </ng-container>
-
-                </div>
+            <h2>{{ list.displayLabel }} (<date-text [date]="list.forDate"></date-text>)</h2>
+          </div>
+          @if (list) {
+            <div class="col-md-6">
+              <div class="button-holder pull-right" style="margin-top: 10px; margin-right: 5px">
+                @if (isWritable && list.working) {
+                  <span class="clickable" style="vertical-align: middle; display: inline-block; line-height: 0">
+                    <boolean-field
+                      [(value)]="showInvalid"
+                      (change)="handleShowInvalidChange()"
+                      [localizeLabelKey]="'masterlist.showInvalid'"
+                    ></boolean-field>
+                  </span>
+                }
+                @if (isWritable && list.working) {
+                  <span class="clickable" (click)="onPublish()" style="padding: 10px">
+                    <i
+                      [ngClass]="{ 'fa fa-refresh clickable': true }"
+                      style="font-size: 24px; vertical-align: middle; padding-right: 5px"
+                      aria-hidden="true"
+                    ></i>
+                    <localize key="masterlist.publish"></localize>
+                  </span>
+                }
+                @if (
+                  list.listMetadata.visibility === 'PUBLIC' ||
+                  list.geospatialMetadata.visibility === 'PUBLIC' ||
+                  isListInOrg() ||
+                  isSRA
+                ) {
+                  <button type="submit" (click)="onExport()" class="btn btn-primary" role="button">
+                    @if (!isFiltered) {
+                      <localize key="io.export.allrows"></localize>
+                    }
+                    @if (isFiltered) {
+                      <localize key="io.export.filteredrows"></localize>
+                    }
+                  </button>
+                }
+                <button type="button" class="btn btn-default" (click)="onClose()">
+                  <localize key="modal.button.close"></localize>
+                </button>
+              </div>
             </div>
+          }
         </div>
+      }
+
+      <div class="row">
+        @if (list) {
+          <div class="col-md-12">
+            @if (setup != null && config != null) {
+              <generic-table
+                [setup]="setup"
+                [config]="config"
+                [refresh]="refresh"
+                [pageConfig]="{ oid: list.oid, showInvalid: showInvalid }"
+                (click)="onClick($event)"
+                (onLoadEvent)="onLoadEvent($event)"
+                [initialState]="tableState"
+              >
+              </generic-table>
+            }
+          </div>
+        }
+      </div>
     </div>
+  </div>
 </div>

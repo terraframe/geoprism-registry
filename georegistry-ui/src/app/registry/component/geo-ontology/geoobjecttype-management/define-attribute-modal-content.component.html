@@ -1,85 +1,114 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <div class="modal-body">
+  <!-- <error-message [message]="message"></error-message> -->
 
-    <!-- <error-message [message]="message"></error-message> -->
+  <form #form="ngForm" class="modal-form" (ngSubmit)="handleOnSubmit()">
+    <div class="">
+      <div class="">
+        @if (message != null) {
+          <div class="alert alert-danger" role="alert">{{ message }}</div>
+        }
 
-    <form #form="ngForm" class="modal-form" (ngSubmit)="handleOnSubmit()">
-        <div class="">
-            <div class="">
-                <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
-                
-                <div class="heading">
-                    <h1>
-                        <localize key="hierarchy.management.define.attribute.title"></localize>
-                    </h1>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-12" style="margin-bottom: 20px;">
-                        <div class="btn-group define-attribute-btns">
-                            <label class="btn full-width-radio-button" [ngClass]="{active: newAttribute.type === 'character'}" (click)="setAttribute('character')">
-                                <localize key="data.type.label.text"></localize>
-                            </label>
-                            <label class="btn full-width-radio-button" [ngClass]="{active: newAttribute.type === 'local'}" (click)="setAttribute('local')">
-                                <localize key="data.type.label.localtext"></localize>
-                            </label>
-                            <label class="btn full-width-radio-button" [ngClass]="{active: newAttribute.type === 'integer'}" (click)="setAttribute('integer')">
-                                <localize key="data.type.label.integer"></localize>
-                            </label>
-                            <label class="btn full-width-radio-button" [ngClass]="{active: newAttribute.type === 'float'}" (click)="setAttribute('float')">
-                                <localize key="data.type.label.float"></localize>
-                            </label>
-                            <label class="btn full-width-radio-button" [ngClass]="{active: newAttribute.type === 'date'}" (click)="setAttribute('date')">
-                                <localize key="data.type.label.date"></localize>
-                            </label>
-                            <label class="btn full-width-radio-button" [ngClass]="{active: newAttribute.type === 'boolean'}" (click)="setAttribute('boolean')">
-                                <localize key="data.type.label.boolean"></localize>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <fieldset>
-
-                    <attribute-input [isNew]="true" [excludeDescription]="false" [manageChangeOverTime]="manageChangeOverTime" [type]="newAttribute.type" [(attribute)]="newAttribute"></attribute-input>
-
-                    <div class="row">
-                        <div class="col-md-12">
-                        <!-- <div class="label-holder"> 
-                        </div> -->
-                        <!-- <div class="holder"> -->
-                            <div class="button-holder">
-                                <button type="button" class="btn btn-default" (click)="cancel()">
-                                    <localize key="modal.button.cancel"></localize>
-                                </button>
-                                <button type="submit" class="btn btn-primary" [disabled]="!isFormValid()">
-                                    <localize key="modal.button.submit"></localize>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </fieldset>
-            </div>
+        <div class="heading">
+          <h1>
+            <localize key="hierarchy.management.define.attribute.title"></localize>
+          </h1>
         </div>
-    </form>
 
+        <div class="row">
+          <div class="col-md-12" style="margin-bottom: 20px">
+            <div class="btn-group define-attribute-btns">
+              <label
+                class="btn full-width-radio-button"
+                [ngClass]="{ active: newAttribute.type === 'character' }"
+                (click)="setAttribute('character')"
+              >
+                <localize key="data.type.label.text"></localize>
+              </label>
+              <label
+                class="btn full-width-radio-button"
+                [ngClass]="{ active: newAttribute.type === 'local' }"
+                (click)="setAttribute('local')"
+              >
+                <localize key="data.type.label.localtext"></localize>
+              </label>
+              <label
+                class="btn full-width-radio-button"
+                [ngClass]="{ active: newAttribute.type === 'integer' }"
+                (click)="setAttribute('integer')"
+              >
+                <localize key="data.type.label.integer"></localize>
+              </label>
+              <label
+                class="btn full-width-radio-button"
+                [ngClass]="{ active: newAttribute.type === 'float' }"
+                (click)="setAttribute('float')"
+              >
+                <localize key="data.type.label.float"></localize>
+              </label>
+              <label
+                class="btn full-width-radio-button"
+                [ngClass]="{ active: newAttribute.type === 'date' }"
+                (click)="setAttribute('date')"
+              >
+                <localize key="data.type.label.date"></localize>
+              </label>
+              <label
+                class="btn full-width-radio-button"
+                [ngClass]="{ active: newAttribute.type === 'boolean' }"
+                (click)="setAttribute('boolean')"
+              >
+                <localize key="data.type.label.boolean"></localize>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <fieldset>
+          <attribute-input
+            [isNew]="true"
+            [excludeDescription]="false"
+            [manageChangeOverTime]="manageChangeOverTime"
+            [type]="newAttribute.type"
+            [(attribute)]="newAttribute"
+          ></attribute-input>
+
+          <div class="row">
+            <div class="col-md-12">
+              <!-- <div class="label-holder">
+            </div> -->
+              <!-- <div class="holder"> -->
+              <div class="button-holder">
+                <button type="button" class="btn btn-default" (click)="cancel()">
+                  <localize key="modal.button.cancel"></localize>
+                </button>
+                <button type="submit" class="btn btn-primary" [disabled]="!isFormValid()">
+                  <localize key="modal.button.submit"></localize>
+                </button>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+    </div>
+  </form>
 </div>

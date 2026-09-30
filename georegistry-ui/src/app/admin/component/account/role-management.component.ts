@@ -26,272 +26,265 @@ import { Role, FormattedRoles, FormattedOrganization, FormattedGeoObjectTypeRole
 import { RegistryRoleType } from '@shared/model/core';
 import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
 import { BooleanFieldComponent } from '../../../shared/component/form-fields/boolean-field/boolean-field.component';
-import { NgIf, NgFor, NgClass } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LoadingBarComponent } from '../../../shared/component/loading-bar/loading-bar.component';
 import { MessageComponent } from '../../../shared/component/message/message.component';
 
 @Component({
-    selector: 'role-management',
-    templateUrl: './role-management.component.html',
-    styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}'],
-    styleUrls: ['./role-management.css'],
-    standalone: true,
-    imports: [MessageComponent, LoadingBarComponent, FormsModule, NgIf, BooleanFieldComponent, NgFor, NgClass, LocalizeComponent]
+  selector: 'role-management',
+  templateUrl: './role-management.component.html',
+  styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}'],
+  styleUrls: ['./role-management.css'],
+  standalone: true,
+  imports: [MessageComponent, LoadingBarComponent, FormsModule, BooleanFieldComponent, NgClass, LocalizeComponent],
 })
 export class RoleManagementComponent {
+  message: string = null;
+  isAdmin: boolean;
+  isMaintainer: boolean;
+  isContributor: boolean;
+  isSRA: boolean;
+  _raAssigned: boolean;
+  _activeOrganization: string;
 
-	message: string = null;
-	isAdmin: boolean;
-	isMaintainer: boolean;
-	isContributor: boolean;
-	isSRA: boolean;
-	_raAssigned: boolean;
-	_activeOrganization: string;
+  _roles: FormattedRoles;
 
-	_roles: FormattedRoles;
+  @Input('roles')
+  set roles(data: any) {
+    if (data) {
+      this._roles = this.formatRoles(data);
+      this.onChangeRole();
+    }
+  }
 
-	@Input('roles')
-	set roles(data: any) {
-		if (data) {
-			this._roles = this.formatRoles(data);
-			this.onChangeRole();
-		}
-	}
+  @Output() onRoleIdsUpdate = new EventEmitter();
 
-	@Output() onRoleIdsUpdate = new EventEmitter();
+  _roleIds: string[] = [];
+  @Input() newInstance: boolean = true;
 
-	_roleIds: string[] = [];
-	@Input() newInstance: boolean = true;
+  constructor(
+    public bsModalRef: BsModalRef,
+    private authService: AuthService
+  ) {
+    this.isSRA = authService.isSRA();
+    this.isAdmin = authService.isAdmin();
+    this.isMaintainer = this.isAdmin || authService.isMaintainer();
+    this.isContributor = this.isAdmin || this.isMaintainer || authService.isContributer();
+  }
 
+  setActiveOrganization(orgCode: string, isAssigned): void {
+    let orgHasAssignedRole: boolean = false;
+    this._roles.ORGANIZATIONS.forEach((org) => {
+      if (org.CODE === orgCode) {
+        org.GEOOBJECTTYPEROLES.forEach((got) => {
+          // console.log(got.GEOOBJECTTYPELABEL, got.ENABLEDROLE)
 
-	constructor(public bsModalRef: BsModalRef, private authService: AuthService) {
-		this.isSRA = authService.isSRA();
-		this.isAdmin = authService.isAdmin();
-		this.isMaintainer = this.isAdmin || authService.isMaintainer();
-		this.isContributor = this.isAdmin || this.isMaintainer || authService.isContributer();
-	}
-	
-	setActiveOrganization(orgCode: string, isAssigned): void {
-		
-		let orgHasAssignedRole: boolean = false;
-		this._roles.ORGANIZATIONS.forEach(org => {
-			if(org.CODE === orgCode){
-				org.GEOOBJECTTYPEROLES.forEach(got => {
-					// console.log(got.GEOOBJECTTYPELABEL, got.ENABLEDROLE)
-					
-					if(got.ENABLEDROLE){
-						orgHasAssignedRole = true;
-						this._activeOrganization = orgCode;
-					}
-				})
-			}
-			
-			if(!orgHasAssignedRole){
-				this._activeOrganization = null;
-			}
-		})
-	}
+          if (got.ENABLEDROLE) {
+            orgHasAssignedRole = true;
+            this._activeOrganization = orgCode;
+          }
+        });
+      }
 
-	formatRoles(roles: Role[]): any {
+      if (!orgHasAssignedRole) {
+        this._activeOrganization = null;
+      }
+    });
+  }
 
-		let formattedObj: FormattedRoles = { "SRA": null, "ORGANIZATIONS": [] };
+  formatRoles(roles: Role[]): any {
+    let formattedObj: FormattedRoles = { SRA: null, ORGANIZATIONS: [] };
 
-		roles.forEach(role => {
+    roles.forEach((role) => {
+      // If orgCode exists this is NOT an SRA
+      if (role.orgCode) {
+        let addedToGroup = false;
 
-			// If orgCode exists this is NOT an SRA
-			if (role.orgCode) {
+        formattedObj.ORGANIZATIONS.forEach((orgGroup) => {
+          if (orgGroup.ORGANIZATIONLABEL === role.orgLabel.localizedValue) {
+            if (role.type === 'RA') {
+              orgGroup.RA = role;
 
-				let addedToGroup = false;
+              if (orgGroup.RA.assigned) {
+                this._activeOrganization = orgGroup.CODE;
+                this._raAssigned = true;
+              }
+            } else {
+              let added = this.addToGeoObjectTypeGroup(orgGroup, role);
 
-				formattedObj.ORGANIZATIONS.forEach(orgGroup => {
+              if (!added) {
+                let geoObjectTypeGroup: FormattedGeoObjectTypeRoleGroup = {
+                  GEOOBJECTTYPEROLESGROUP: [role],
+                  ENABLEDROLE: '',
+                  GEOOBJECTTYPELABEL: role.geoObjectTypeLabel.localizedValue,
+                };
 
-					if (orgGroup.ORGANIZATIONLABEL === role.orgLabel.localizedValue) {
+                if (role.assigned) {
+                  geoObjectTypeGroup.ENABLEDROLE = role.name;
 
-						if (role.type === "RA") {
-							orgGroup.RA = role;
-							
-							if(orgGroup.RA.assigned){
-								this._activeOrganization = orgGroup.CODE
-								this._raAssigned = true;
-							}
-						}
-						else {
+                  this._activeOrganization = orgGroup.CODE;
+                }
 
-							let added = this.addToGeoObjectTypeGroup(orgGroup, role);
+                orgGroup.GEOOBJECTTYPEROLES.push(geoObjectTypeGroup);
+              }
+            }
 
-							if (!added) {
-								let geoObjectTypeGroup: FormattedGeoObjectTypeRoleGroup = { "GEOOBJECTTYPEROLESGROUP": [role], "ENABLEDROLE": "", "GEOOBJECTTYPELABEL": role.geoObjectTypeLabel.localizedValue };
+            addedToGroup = true;
+          }
+        });
 
-								if (role.assigned) {
-									geoObjectTypeGroup.ENABLEDROLE = role.name
-									
-									this._activeOrganization = orgGroup.CODE;
-								}
+        // The organization hasn't been created yet
+        if (!addedToGroup) {
+          let newObj: FormattedOrganization = { ORGANIZATIONLABEL: null, RA: null, GEOOBJECTTYPEROLES: [], CODE: null };
 
-								orgGroup.GEOOBJECTTYPEROLES.push(geoObjectTypeGroup);
-							}
-						}
+          if (role.type === 'RA') {
+            newObj.ORGANIZATIONLABEL = role.orgLabel.localizedValue;
+            newObj.RA = role;
+            newObj.CODE = role.orgCode;
+          } else {
+            newObj.ORGANIZATIONLABEL = role.orgLabel.localizedValue;
 
-						addedToGroup = true;
-					}
+            let geoObjectTypeGroup: FormattedGeoObjectTypeRoleGroup = {
+              GEOOBJECTTYPEROLESGROUP: [role],
+              ENABLEDROLE: '',
+              GEOOBJECTTYPELABEL: role.geoObjectTypeLabel.localizedValue,
+            };
 
-				});
+            if (role.assigned) {
+              geoObjectTypeGroup.ENABLEDROLE = role.name;
+            }
 
+            newObj.GEOOBJECTTYPEROLES.push(geoObjectTypeGroup);
+          }
 
-				// The organization hasn't been created yet
-				if (!addedToGroup) {
+          formattedObj.ORGANIZATIONS.push(newObj);
+        }
+      } else if (role.type === 'SRA') {
+        formattedObj.SRA = role;
+      }
+    });
 
-					let newObj: FormattedOrganization = { "ORGANIZATIONLABEL": null, "RA": null, "GEOOBJECTTYPEROLES": [], "CODE": null };
+    this.sortRoles(formattedObj);
 
-					if (role.type === "RA") {
-						newObj.ORGANIZATIONLABEL = role.orgLabel.localizedValue;
-						newObj.RA = role;
-						newObj.CODE = role.orgCode;
-					}
-					else {
-						newObj.ORGANIZATIONLABEL = role.orgLabel.localizedValue;
+    return formattedObj;
+  }
 
-						let geoObjectTypeGroup: FormattedGeoObjectTypeRoleGroup = { "GEOOBJECTTYPEROLESGROUP": [role], "ENABLEDROLE": "", "GEOOBJECTTYPELABEL": role.geoObjectTypeLabel.localizedValue };
+  sortRoles(roles: FormattedRoles): void {
+    roles.ORGANIZATIONS.forEach((org) => {
+      org.GEOOBJECTTYPEROLES.forEach((gotrole) => {
+        gotrole.GEOOBJECTTYPEROLESGROUP.sort((a, b) => {
+          if (RegistryRoleType[a.type] < RegistryRoleType[b.type]) return -1;
+          if (RegistryRoleType[a.type] > RegistryRoleType[b.type]) return 1;
+          return 0;
+        });
+      });
+    });
+  }
 
-						if (role.assigned) {
-							geoObjectTypeGroup.ENABLEDROLE = role.name
-						}
+  addToGeoObjectTypeGroup(organization: FormattedOrganization, role: Role): boolean {
+    let exists = false;
+    organization.GEOOBJECTTYPEROLES.forEach((rg) => {
+      if (rg.GEOOBJECTTYPELABEL === role.geoObjectTypeLabel.localizedValue) {
+        if (role.assigned) {
+          rg.ENABLEDROLE = role.name;
+        }
 
-						newObj.GEOOBJECTTYPEROLES.push(geoObjectTypeGroup);
-					}
+        rg.GEOOBJECTTYPEROLESGROUP.push(role);
 
-					formattedObj.ORGANIZATIONS.push(newObj)
-				}
-			}
-			else if (role.type === "SRA") {
-				formattedObj.SRA = role;
-			}
-		})
+        exists = true;
+      }
+    });
 
-		this.sortRoles(formattedObj);
+    return exists;
+  }
 
-		return formattedObj;
-	}
+  onToggleOrgRA(event: any, organization: FormattedOrganization): void {
+    organization.RA.assigned = event;
+    this._raAssigned = event;
+    this.setActiveOrganization(organization.CODE, event);
 
-	sortRoles(roles: FormattedRoles): void {
-		roles.ORGANIZATIONS.forEach(org => {
-			org.GEOOBJECTTYPEROLES.forEach(gotrole => {
-				gotrole.GEOOBJECTTYPEROLESGROUP.sort((a, b) => {
-					if (RegistryRoleType[a.type] < RegistryRoleType[b.type]) return -1;
-					if (RegistryRoleType[a.type] > RegistryRoleType[b.type]) return 1;
-					return 0;
-				});
-			})
-		});
-	}
+    // Disable all GeoObjectType radio buttons in this organization
+    if (organization.RA.assigned) {
+      organization.GEOOBJECTTYPEROLES.forEach((rg) => {
+        rg.ENABLEDROLE = '';
+      });
+    }
 
-	addToGeoObjectTypeGroup(organization: FormattedOrganization, role: Role): boolean {
-		let exists = false;
-		organization.GEOOBJECTTYPEROLES.forEach(rg => {
-			if (rg.GEOOBJECTTYPELABEL === role.geoObjectTypeLabel.localizedValue) {
+    this.onChangeRole();
+  }
 
-				if (role.assigned) {
-					rg.ENABLEDROLE = role.name
-				}
+  onToggleSRA(event: any): void {
+    this._roles.ORGANIZATIONS.forEach((org) => {
+      org.GEOOBJECTTYPEROLES.forEach((rg) => {
+        rg.ENABLEDROLE = '';
+      });
 
-				rg.GEOOBJECTTYPEROLESGROUP.push(role);
+      // Disable RA for each organization
+      org.RA.assigned = false;
+    });
 
-				exists = true;
-			}
-		});
+    if (event) {
+      this._raAssigned = false;
+      this.setActiveOrganization(null, false);
+    }
 
-		return exists;
-	}
+    this.onChangeRole();
+  }
 
-	onToggleOrgRA(event: any, organization: FormattedOrganization): void {
+  setGroupRole(
+    event: any,
+    group: FormattedGeoObjectTypeRoleGroup,
+    role: Role,
+    organization: FormattedOrganization
+  ): void {
+    if (!role) {
+      group.ENABLEDROLE = '';
+      this.setActiveOrganization(organization.CODE, false);
+    } else {
+      group.ENABLEDROLE = event.target.checked ? role.name : '';
+      this.setActiveOrganization(organization.CODE, true);
+    }
 
-		organization.RA.assigned = event;
-		this._raAssigned = event;
-		this.setActiveOrganization(organization.CODE, event);
-		
-		// Disable all GeoObjectType radio buttons in this organization
-		if (organization.RA.assigned) {
-			organization.GEOOBJECTTYPEROLES.forEach(rg => {
-				rg.ENABLEDROLE = "";
-			});
-		}
+    this.onChangeRole();
+  }
 
-		this.onChangeRole();
-	}
+  onChangeRole(): void {
+    let newRoleIds: string[] = [];
 
-	onToggleSRA(event: any): void {
+    this._roles.ORGANIZATIONS.forEach((orgGroup) => {
+      if (orgGroup.RA && orgGroup.RA.assigned) {
+        newRoleIds.push(orgGroup.RA.name);
+      }
+      // If organization RA is enabled we don't add GeoObjectType level roles
+      else {
+        orgGroup.GEOOBJECTTYPEROLES.forEach((rg) => {
+          if (rg.ENABLEDROLE && rg.ENABLEDROLE.length > 0) {
+            // add GeoObjectType level role selected
+            newRoleIds.push(rg.ENABLEDROLE);
+          }
+        });
+      }
+    });
 
-		this._roles.ORGANIZATIONS.forEach(org => {
-			org.GEOOBJECTTYPEROLES.forEach(rg => {
-				rg.ENABLEDROLE = "";
-			});
-			
-			// Disable RA for each organization
-			org.RA.assigned = false;
-		});
-		
-		if(event){
-			this._raAssigned = false;
-			this.setActiveOrganization(null, false);
-		}
+    if (this._roles.SRA && this._roles.SRA.assigned) {
+      newRoleIds.push(this._roles.SRA.name);
+    }
 
-		this.onChangeRole();
-	}
+    this._roleIds = newRoleIds;
+    this.onRoleIdsUpdate.emit(this._roleIds);
+  }
 
-	setGroupRole(event: any, group: FormattedGeoObjectTypeRoleGroup, role: Role, organization: FormattedOrganization): void {
-		
-		if(!role) {
-			group.ENABLEDROLE = "";
-			this.setActiveOrganization(organization.CODE, false);
-		}
-		else {
-			group.ENABLEDROLE = (event.target.checked) ? role.name : "";
-			this.setActiveOrganization(organization.CODE, true);
-		}
+  removeRoleId(id: string): void {
+    let pos = this._roleIds.indexOf(id);
+    if (pos !== -1) {
+      this._roleIds.splice(pos, 1);
+    }
 
-		this.onChangeRole();
-	}
+    this.onRoleIdsUpdate.emit(JSON.stringify(this._roleIds));
+  }
 
-	onChangeRole(): void {
-
-		let newRoleIds: string[] = [];
-
-		this._roles.ORGANIZATIONS.forEach(orgGroup => {
-
-			if (orgGroup.RA && orgGroup.RA.assigned) {
-				newRoleIds.push(orgGroup.RA.name);
-			}
-			// If organization RA is enabled we don't add GeoObjectType level roles
-			else {
-				orgGroup.GEOOBJECTTYPEROLES.forEach(rg => {
-					if (rg.ENABLEDROLE && rg.ENABLEDROLE.length > 0) {
-						// add GeoObjectType level role selected
-						newRoleIds.push(rg.ENABLEDROLE);
-					}
-				});
-			}
-		});
-
-		if (this._roles.SRA && this._roles.SRA.assigned) {
-			newRoleIds.push(this._roles.SRA.name);
-		}
-
-		this._roleIds = newRoleIds;
-		this.onRoleIdsUpdate.emit(this._roleIds);
-	}
-
-	removeRoleId(id: string): void {
-
-		let pos = this._roleIds.indexOf(id);
-		if (pos !== -1) {
-			this._roleIds.splice(pos, 1);
-		}
-
-		this.onRoleIdsUpdate.emit(JSON.stringify(this._roleIds));
-	}
-
-	showData() {
-		// console.log(this._roles)
-	}
+  showData() {
+    // console.log(this._roles)
+  }
 }

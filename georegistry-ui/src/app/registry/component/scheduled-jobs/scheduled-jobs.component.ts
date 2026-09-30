@@ -17,309 +17,337 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from "@angular/core";
-import { Router, RouterLinkActive, RouterLink } from "@angular/router";
-import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
+import { Component, OnInit } from '@angular/core';
+import { Router, RouterLinkActive, RouterLink } from '@angular/router';
+import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 
-import { HttpErrorResponse } from "@angular/common/http";
-import { interval } from "rxjs";
+import { HttpErrorResponse } from '@angular/common/http';
+import { interval } from 'rxjs';
 
-import { RegistryService, IOService } from "@registry/service";
-import { ScheduledJob, ScheduledJobOverview } from "@registry/model/registry";
+import { RegistryService, IOService } from '@registry/service';
+import { ScheduledJob, ScheduledJobOverview } from '@registry/model/registry';
 
-import { ErrorHandler, ConfirmModalComponent } from "@shared/component";
-import { LocalizationService, AuthService } from "@shared/service";
-import { ModalTypes } from "@shared/model/modal";
-import { PageResult } from "@shared/model/core";
-import { NgxPaginationModule } from "ngx-pagination";
-import { StepIndicatorComponent } from "./step-indicator.component";
-import { DateTextComponent } from "../../../shared/component/date-text/date-text.component";
-import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
-import { NgIf, NgFor } from "@angular/common";
-import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
+import { ErrorHandler, ConfirmModalComponent } from '@shared/component';
+import { LocalizationService, AuthService } from '@shared/service';
+import { ModalTypes } from '@shared/model/modal';
+import { PageResult } from '@shared/model/core';
+import { NgxPaginationModule } from 'ngx-pagination';
+import { StepIndicatorComponent } from './step-indicator.component';
+import { DateTextComponent } from '../../../shared/component/date-text/date-text.component';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+
+import { PageContainerComponent } from '../../../shared/component/page-container/page-container.component';
 
 @Component({
-    selector: "scheduled-jobs",
-    templateUrl: "./scheduled-jobs.component.html",
-    styleUrls: ["./scheduled-jobs.css"],
-    standalone: true,
-    imports: [PageContainerComponent, NgIf, LocalizeComponent, NgFor, DateTextComponent, StepIndicatorComponent, RouterLinkActive, RouterLink, NgxPaginationModule]
+  selector: 'scheduled-jobs',
+  templateUrl: './scheduled-jobs.component.html',
+  styleUrls: ['./scheduled-jobs.css'],
+  standalone: true,
+  imports: [
+    PageContainerComponent,
+    LocalizeComponent,
+    DateTextComponent,
+    StepIndicatorComponent,
+    RouterLinkActive,
+    RouterLink,
+    NgxPaginationModule,
+  ],
 })
 export class ScheduledJobsComponent implements OnInit {
+  message: string | null = null;
 
-    message: string = null;
+  activeJobsPage: PageResult<any> = {
+    count: 0,
+    pageNumber: 1,
+    pageSize: 10,
+    resultSet: [],
+  };
 
-    activeJobsPage: PageResult<any> = {
-        count: 0,
-        pageNumber: 1,
-        pageSize: 10,
-        resultSet: []
-    };
+  completeJobsPage: PageResult<any> = {
+    count: 0,
+    pageNumber: 1,
+    pageSize: 10,
+    resultSet: [],
+  };
 
-    completeJobsPage: PageResult<any> = {
-        count: 0,
-        pageNumber: 1,
-        pageSize: 10,
-        resultSet: []
-    };
+  /*
+   * Reference to the modal current showing
+   */
+  bsModalRef: BsModalRef;
 
-    /*
-     * Reference to the modal current showing
-    */
-    bsModalRef: BsModalRef;
+  isAdmin: boolean;
+  isMaintainer: boolean;
+  isContributor: boolean;
 
-    isAdmin: boolean;
-    isMaintainer: boolean;
-    isContributor: boolean;
+  activeTimeCounter: number = 0;
+  completeTimeCounter: number = 0;
 
-    activeTimeCounter: number = 0;
-    completeTimeCounter: number = 0;
+  pollingData: any;
 
-    pollingData: any;
+  isViewAllOpen: boolean = false;
 
-    isViewAllOpen: boolean = false;
+  constructor(
+    public service: RegistryService,
+    private modalService: BsModalService,
+    private router: Router,
+    private localizeService: LocalizationService,
+    private ioService: IOService,
+    authService: AuthService
+  ) {
+    this.isAdmin = authService.isAdmin();
+    this.isMaintainer = this.isAdmin || authService.isMaintainer();
+    this.isContributor = this.isAdmin || this.isMaintainer || authService.isContributer();
+  }
 
-    constructor(public service: RegistryService,
-        private modalService: BsModalService,
-        private router: Router,
-        private localizeService: LocalizationService,
-        private ioService: IOService,
-        authService: AuthService) {
-        this.isAdmin = authService.isAdmin();
-        this.isMaintainer = this.isAdmin || authService.isMaintainer();
-        this.isContributor = this.isAdmin || this.isMaintainer || authService.isContributer();
-    }
+  ngOnInit(): void {
+    this.onActiveJobsPageChange(1);
 
-    ngOnInit(): void {
-        this.onActiveJobsPageChange(1);
+    this.pollingData = interval(5000).subscribe(() => {
+      this.activeTimeCounter++;
+      this.completeTimeCounter++;
 
-        this.pollingData = interval(5000).subscribe(() => {
-            this.activeTimeCounter++;
-            this.completeTimeCounter++;
+      if (this.isViewAllOpen) {
+        if (this.activeTimeCounter >= 4) {
+          this.onActiveJobsPageChange(this.activeJobsPage.pageNumber);
 
-            if (this.isViewAllOpen) {
-                if (this.activeTimeCounter >= 4) {
-                    this.onActiveJobsPageChange(this.activeJobsPage.pageNumber);
-
-                    this.activeTimeCounter = 0;
-                }
-                if (this.completeTimeCounter >= 7) {
-                    this.onCompleteJobsPageChange(this.completeJobsPage.pageNumber);
-
-                    this.completeTimeCounter = 0;
-                }
-            } else {
-                if (this.activeTimeCounter >= 2) {
-                    this.onActiveJobsPageChange(this.activeJobsPage.pageNumber);
-
-                    this.activeTimeCounter = 0;
-                }
-            }
-        });
-    }
-
-    ngOnDestroy() {
-        this.pollingData.unsubscribe();
-    }
-
-    formatJobStatus(job: ScheduledJobOverview) {
-        if (job.status === "FEEDBACK") {
-            if (this.isBasicJob(job)) {
-                return this.localizeService.decode("etl.JobStatus.FEEDBACK");
-            }
-            return this.localizeService.decode("etl.JobStatus.READY");
-        } else if (job.status === "RUNNING" || job.status === "NEW") {
-            return this.localizeService.decode("etl.JobStatus.RUNNING");
-        } else if (job.status === "QUEUED") {
-            return this.localizeService.decode("etl.JobStatus.QUEUED");
-        } else if (job.status === "SUCCESS") {
-            return this.localizeService.decode("etl.JobStatus.SUCCESS");
-        } else if (job.status === "CANCELED") {
-            return this.localizeService.decode("etl.JobStatus.CANCELED");
-        } else if (job.status === "FAILURE") {
-            return this.localizeService.decode("etl.JobStatus.FAILURE");
-        } else {
-            return this.localizeService.decode("etl.JobStatus.RUNNING");
+          this.activeTimeCounter = 0;
         }
-    }
+        if (this.completeTimeCounter >= 7) {
+          this.onCompleteJobsPageChange(this.completeJobsPage.pageNumber);
 
-    isBasicJob(job: ScheduledJobOverview): boolean {
-        return (
-            job.configuration == null || !(
-            job.configuration.objectType === "RDF_LPG" ||
-            job.configuration.objectType === "RDF_REPO")
-        );
-    }
-
-    formatStepConfig(page: PageResult<any>): void {
-        page.resultSet.forEach(job => {
-
-            if (this.isBasicJob(job)) {
-                let stepConfig = {
-                    steps: [
-                        { label: this.localizeService.decode("scheduler.step.fileImport"), status: "COMPLETE" },
-                        {
-                            label: this.localizeService.decode("scheduler.step.staging"),
-                            status: job.stage === "NEW" ? this.getJobStatus(job) : this.getCompletedStatus(job.stage, "NEW")
-                        },
-                        {
-                            label: this.localizeService.decode("scheduler.step.validation"),
-                            status: job.stage === "VALIDATE" || job.stage === "VALIDATION_RESOLVE" ? this.getJobStatus(job) : this.getCompletedStatus(job.stage, "VALIDATE")
-                        },
-                        {
-                            label: this.localizeService.decode("scheduler.step.databaseImport"),
-                            status: job.stage === "IMPORT" || job.stage === "IMPORT_RESOLVE" || job.stage === "RESUME_IMPORT" ? this.getJobStatus(job) : ""
-                        }
-                    ]
-                };
-
-                job = job as ScheduledJobOverview;
-                job.stepConfig = stepConfig;
-            }
-            else {
-                // RDF Export
-
-                let stepConfig = {
-                    steps: [
-                        {
-                            label: this.localizeService.decode("etl.JobStatus.QUEUED"),
-                            status: "COMPLETE"
-                        },
-                        {
-                            label: this.localizeService.decode("etl.JobStatus.GENERATING"),
-                            status: job.stage === "NEW" ? this.getJobStatus(job) : this.getCompletedStatus(job.stage, "NEW")
-                        },
-                        {
-                            label: this.localizeService.decode("etl.JobStatus.GENERATING"),
-                            status: job.stage === "IMPORT" || job.stage === "IMPORT_RESOLVE" || job.stage === "RESUME_IMPORT" ? "WORKING" : ""
-                        }
-                    ]
-                };
-
-                job = job as ScheduledJobOverview;
-                job.stepConfig = stepConfig;
-            }
-
-        });
-    }
-
-    getCompletedStatus(jobStage: string, targetStage: string): string {
-        let order = ["NEW", "VALIDATE", "VALIDATION_RESOLVE", "IMPORT", "IMPORT_RESOLVE", "RESUME_IMPORT"];
-
-        let jobPos = order.indexOf(jobStage);
-        let targetPos = order.indexOf(targetStage);
-        if (targetPos < jobPos) {
-            return "COMPLETE";
-        } else {
-            return "";
+          this.completeTimeCounter = 0;
         }
-    }
+      } else {
+        if (this.activeTimeCounter >= 2) {
+          this.onActiveJobsPageChange(this.activeJobsPage.pageNumber);
 
-    getJobStatus(job: ScheduledJob): string {
-        if (job.status === "QUEUED" || job.status === "RUNNING") {
-            return "WORKING";
-        } else if (job.status === "FEEDBACK") {
-            return "STUCK";
+          this.activeTimeCounter = 0;
         }
+      }
+    });
+  }
 
-        return "";
+  ngOnDestroy() {
+    this.pollingData.unsubscribe();
+  }
+
+  formatJobStatus(job: ScheduledJobOverview) {
+    if (job.status === 'FEEDBACK') {
+      if (this.isBasicJob(job)) {
+        return this.localizeService.decode('etl.JobStatus.FEEDBACK');
+      }
+      return this.localizeService.decode('etl.JobStatus.READY');
+    } else if (job.status === 'RUNNING' || job.status === 'NEW') {
+      return this.localizeService.decode('etl.JobStatus.RUNNING');
+    } else if (job.status === 'QUEUED') {
+      return this.localizeService.decode('etl.JobStatus.QUEUED');
+    } else if (job.status === 'SUCCESS') {
+      return this.localizeService.decode('etl.JobStatus.SUCCESS');
+    } else if (job.status === 'CANCELED') {
+      return this.localizeService.decode('etl.JobStatus.CANCELED');
+    } else if (job.status === 'FAILURE') {
+      return this.localizeService.decode('etl.JobStatus.FAILURE');
+    } else {
+      return this.localizeService.decode('etl.JobStatus.RUNNING');
+    }
+  }
+
+  isBasicJob(job: ScheduledJobOverview): boolean {
+    return (
+      job.configuration == null ||
+      !(job.configuration.objectType === 'RDF_LPG' || job.configuration.objectType === 'RDF_REPO')
+    );
+  }
+
+  formatStepConfig(page: PageResult<any>): void {
+    page.resultSet.forEach((job) => {
+      if (this.isBasicJob(job)) {
+        let stepConfig = {
+          steps: [
+            { label: this.localizeService.decode('scheduler.step.fileImport'), status: 'COMPLETE' },
+            {
+              label: this.localizeService.decode('scheduler.step.staging'),
+              status: job.stage === 'NEW' ? this.getJobStatus(job) : this.getCompletedStatus(job.stage, 'NEW'),
+            },
+            {
+              label: this.localizeService.decode('scheduler.step.validation'),
+              status:
+                job.stage === 'VALIDATE' || job.stage === 'VALIDATION_RESOLVE'
+                  ? this.getJobStatus(job)
+                  : this.getCompletedStatus(job.stage, 'VALIDATE'),
+            },
+            {
+              label: this.localizeService.decode('scheduler.step.databaseImport'),
+              status:
+                job.stage === 'IMPORT' || job.stage === 'IMPORT_RESOLVE' || job.stage === 'RESUME_IMPORT'
+                  ? this.getJobStatus(job)
+                  : '',
+            },
+          ],
+        };
+
+        job = job as ScheduledJobOverview;
+        job.stepConfig = stepConfig;
+      } else {
+        // RDF Export
+
+        let stepConfig = {
+          steps: [
+            {
+              label: this.localizeService.decode('etl.JobStatus.QUEUED'),
+              status: 'COMPLETE',
+            },
+            {
+              label: this.localizeService.decode('etl.JobStatus.GENERATING'),
+              status: job.stage === 'NEW' ? this.getJobStatus(job) : this.getCompletedStatus(job.stage, 'NEW'),
+            },
+            {
+              label: this.localizeService.decode('etl.JobStatus.GENERATING'),
+              status:
+                job.stage === 'IMPORT' || job.stage === 'IMPORT_RESOLVE' || job.stage === 'RESUME_IMPORT'
+                  ? 'WORKING'
+                  : '',
+            },
+          ],
+        };
+
+        job = job as ScheduledJobOverview;
+        job.stepConfig = stepConfig;
+      }
+    });
+  }
+
+  getCompletedStatus(jobStage: string, targetStage: string): string {
+    let order = ['NEW', 'VALIDATE', 'VALIDATION_RESOLVE', 'IMPORT', 'IMPORT_RESOLVE', 'RESUME_IMPORT'];
+
+    let jobPos = order.indexOf(jobStage);
+    let targetPos = order.indexOf(targetStage);
+    if (targetPos < jobPos) {
+      return 'COMPLETE';
+    } else {
+      return '';
+    }
+  }
+
+  getJobStatus(job: ScheduledJob): string {
+    if (job.status === 'QUEUED' || job.status === 'RUNNING') {
+      return 'WORKING';
+    } else if (job.status === 'FEEDBACK') {
+      return 'STUCK';
     }
 
-    onViewAllCompleteJobs(): void {
-        this.onCompleteJobsPageChange(1);
+    return '';
+  }
 
-        this.isViewAllOpen = true;
-    }
+  onViewAllCompleteJobs(): void {
+    this.onCompleteJobsPageChange(1);
 
-    onView(code: string): void {
-        this.router.navigate(["/registry/job/", code]);
-    }
+    this.isViewAllOpen = true;
+  }
 
-    onActiveJobsPageChange(pageNumber: any): void {
-        this.message = null;
+  onView(code: string): void {
+    this.router.navigate(['/registry/job/', code]);
+  }
 
-        this.service.getScheduledJobs(this.activeJobsPage.pageSize, pageNumber, "createDate", false).then(response => {
-            this.activeJobsPage = response;
-            this.formatStepConfig(this.activeJobsPage);
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
+  onActiveJobsPageChange(pageNumber: any): void {
+    this.message = null;
+
+    this.service
+      .getScheduledJobs(this.activeJobsPage.pageSize, pageNumber, 'createDate', false)
+      .then((response) => {
+        this.activeJobsPage = response;
+        this.formatStepConfig(this.activeJobsPage);
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
+
+  onCompleteJobsPageChange(pageNumber: any): void {
+    this.message = null;
+
+    this.service
+      .getCompletedScheduledJobs(this.completeJobsPage.pageSize, pageNumber, 'createDate', false)
+      .then((response) => {
+        this.completeJobsPage = response;
+        this.formatStepConfig(this.completeJobsPage);
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
+
+  onCancelScheduledJob(historyId: string, job: ScheduledJob): void {
+    this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
+      animated: false,
+      backdrop: true,
+      ignoreBackdropClick: true,
+    });
+
+    this.bsModalRef.content.message = this.localizeService.decode('etl.import.cancel.modal.description');
+    this.bsModalRef.content.submitText = this.localizeService.decode('etl.import.cancel.modal.button');
+
+    this.bsModalRef.content.type = ModalTypes.danger;
+
+    this.bsModalRef.content.onConfirm.subscribe((data) => {
+      this.ioService
+        .cancelImport(job.configuration)
+        .then((response) => {
+          this.bsModalRef.hide();
+
+          for (let i = 0; i < this.activeJobsPage.resultSet.length; ++i) {
+            let activeJob = this.activeJobsPage.resultSet[i];
+
+            if (activeJob.jobId === job.jobId) {
+              this.activeJobsPage.resultSet.splice(i, 1);
+              break;
+            }
+          }
+
+          this.onViewAllCompleteJobs();
+        })
+        .catch((err: HttpErrorResponse) => {
+          this.error(err);
         });
-    }
+    });
+  }
 
-    onCompleteJobsPageChange(pageNumber: any): void {
-        this.message = null;
+  onResolveScheduledJob(historyId: string, job: ScheduledJob): void {
+    this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
+      animated: false,
+      backdrop: true,
+      ignoreBackdropClick: true,
+    });
 
-        this.service.getCompletedScheduledJobs(this.completeJobsPage.pageSize, pageNumber, "createDate", false).then(response => {
-            this.completeJobsPage = response;
-            this.formatStepConfig(this.completeJobsPage);
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
+    this.bsModalRef.content.message = this.localizeService.decode('etl.import.resume.modal.importDescription');
+    this.bsModalRef.content.submitText = this.localizeService.decode('etl.import.resume.modal.importButton');
+
+    this.bsModalRef.content.type = ModalTypes.danger;
+
+    this.bsModalRef.content.onConfirm.subscribe((data) => {
+      this.service
+        .resolveScheduledJob(historyId)
+        .then((response) => {
+          this.bsModalRef.hide();
+
+          for (let i = 0; i < this.activeJobsPage.resultSet.length; ++i) {
+            let activeJob = this.activeJobsPage.resultSet[i];
+
+            if (activeJob.jobId === job.jobId) {
+              this.activeJobsPage.resultSet.splice(i, 1);
+              break;
+            }
+          }
+
+          this.onViewAllCompleteJobs();
+        })
+        .catch((err: HttpErrorResponse) => {
+          this.error(err);
         });
-    }
+    });
+  }
 
-    onCancelScheduledJob(historyId: string, job: ScheduledJob): void {
-        this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: false, backdrop: true,
-            ignoreBackdropClick: true
-        });
-
-        this.bsModalRef.content.message = this.localizeService.decode("etl.import.cancel.modal.description");
-        this.bsModalRef.content.submitText = this.localizeService.decode("etl.import.cancel.modal.button");
-
-        this.bsModalRef.content.type = ModalTypes.danger;
-
-        this.bsModalRef.content.onConfirm.subscribe(data => {
-            this.ioService.cancelImport(job.configuration).then(response => {
-                this.bsModalRef.hide();
-
-                for (let i = 0; i < this.activeJobsPage.resultSet.length; ++i) {
-                    let activeJob = this.activeJobsPage.resultSet[i];
-
-                    if (activeJob.jobId === job.jobId) {
-                        this.activeJobsPage.resultSet.splice(i, 1);
-                        break;
-                    }
-                }
-
-                this.onViewAllCompleteJobs();
-            }).catch((err: HttpErrorResponse) => {
-                this.error(err);
-            });
-        });
-    }
-
-    onResolveScheduledJob(historyId: string, job: ScheduledJob): void {
-        this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: false, backdrop: true, ignoreBackdropClick: true
-        });
-
-        this.bsModalRef.content.message = this.localizeService.decode("etl.import.resume.modal.importDescription");
-        this.bsModalRef.content.submitText = this.localizeService.decode("etl.import.resume.modal.importButton");
-
-        this.bsModalRef.content.type = ModalTypes.danger;
-
-        this.bsModalRef.content.onConfirm.subscribe(data => {
-            this.service.resolveScheduledJob(historyId).then(response => {
-                this.bsModalRef.hide();
-
-                for (let i = 0; i < this.activeJobsPage.resultSet.length; ++i) {
-                    let activeJob = this.activeJobsPage.resultSet[i];
-
-                    if (activeJob.jobId === job.jobId) {
-                        this.activeJobsPage.resultSet.splice(i, 1);
-                        break;
-                    }
-                }
-
-                this.onViewAllCompleteJobs();
-            }).catch((err: HttpErrorResponse) => {
-                this.error(err);
-            });
-        });
-    }
-
-    error(err: HttpErrorResponse): void {
-        this.message = ErrorHandler.getMessageFromError(err);
-    }
-
+  error(err: HttpErrorResponse): void {
+    this.message = ErrorHandler.getMessageFromError(err);
+  }
 }

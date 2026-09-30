@@ -17,50 +17,41 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output,
-} from "@angular/core";
-import { Observable } from "rxjs";
-import { v4 as uuid } from "uuid";
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Observable } from 'rxjs';
+import { v4 as uuid } from 'uuid';
 
-import { RegistryService } from "@registry/service";
-import { DateService } from "@shared/service/date.service";
+import { RegistryService } from '@registry/service';
+import { DateService } from '@shared/service/date.service';
 
-import { LocalizationService } from "@shared/service/localization.service";
-import { LabeledPropertyGraphType } from "@registry/model/labeled-property-graph-type";
-import { GeoObjectType, GraphType } from "@registry/model/registry";
-import { Organization } from "@shared/model/core";
-import Utils from "@registry/utility/Utils";
-import { PRESENT } from "@shared/model/date";
-import { HierarchyNode, HierarchyType } from "@registry/model/hierarchy";
-import { TypeaheadMatch, TypeaheadModule } from "ngx-bootstrap/typeahead";
-import { BusinessEdgeType, BusinessType } from "@registry/model/object-class";
-import { BusinessTypeService } from "@registry/service/business-type.service";
-import { LocalizePipe } from "../../../shared/pipe/localize.pipe";
-import { BsDropdownModule } from "ngx-bootstrap/dropdown";
-import { DateTextComponent } from "../../../shared/component/date-text/date-text.component";
-import { DateFieldComponent } from "../../../shared/component/form-fields/date-field/date-field.component";
-import { ConvertKeyLabel } from "../../../shared/component/localize/convert-key-label.component";
-import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
-import { NgIf, NgFor, NgClass } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { BusinessEdgeTypeService } from "@registry/service/business-edge-type.service";
+import { LocalizationService } from '@shared/service/localization.service';
+import { LabeledPropertyGraphType } from '@registry/model/labeled-property-graph-type';
+import { GeoObjectType, GraphType } from '@registry/model/registry';
+import { Organization } from '@shared/model/core';
+import Utils from '@registry/utility/Utils';
+import { PRESENT } from '@shared/model/date';
+import { HierarchyNode, HierarchyType } from '@registry/model/hierarchy';
+import { TypeaheadMatch, TypeaheadModule } from 'ngx-bootstrap/typeahead';
+import { BusinessEdgeType, BusinessType } from '@registry/model/object-class';
+import { BusinessTypeService } from '@registry/service/business-type.service';
+import { LocalizePipe } from '../../../shared/pipe/localize.pipe';
+import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
+import { DateTextComponent } from '../../../shared/component/date-text/date-text.component';
+import { DateFieldComponent } from '../../../shared/component/form-fields/date-field/date-field.component';
+import { ConvertKeyLabel } from '../../../shared/component/localize/convert-key-label.component';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+import { NgClass } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { BusinessEdgeTypeService } from '@registry/service/business-edge-type.service';
 
 @Component({
-  selector: "labeled-property-graph-type-form",
-  templateUrl: "./labeled-property-graph-form.component.html",
-  styleUrls: ["./labeled-property-graph-type-manager.css"],
+  selector: 'labeled-property-graph-type-form',
+  templateUrl: './labeled-property-graph-form.component.html',
+  styleUrls: ['./labeled-property-graph-type-manager.css'],
   standalone: true,
   imports: [
     FormsModule,
-    NgIf,
     LocalizeComponent,
-    NgFor,
     ConvertKeyLabel,
     DateFieldComponent,
     DateTextComponent,
@@ -70,9 +61,7 @@ import { BusinessEdgeTypeService } from "@registry/service/business-edge-type.se
     LocalizePipe,
   ],
 })
-export class LabeledPropertyGraphTypeFormComponent
-  implements OnInit, OnDestroy
-{
+export class LabeledPropertyGraphTypeFormComponent implements OnInit, OnDestroy {
   currentDate: Date = new Date();
 
   types: GeoObjectType[] = [];
@@ -83,7 +72,7 @@ export class LabeledPropertyGraphTypeFormComponent
   businessTypes: BusinessType[] = [];
   edgeTypes: BusinessEdgeType[] = [];
 
-  tab: string = "LIST";
+  tab: string = 'LIST';
 
   valid: boolean = true;
 
@@ -95,7 +84,7 @@ export class LabeledPropertyGraphTypeFormComponent
 
   @Input() type: LabeledPropertyGraphType = null;
   @Input() isNew: boolean = true;
-  @Input() entityLabel: string = "";
+  @Input() entityLabel: string = '';
   @Input() isExport: boolean = false;
 
   @Output() complete = new EventEmitter<LabeledPropertyGraphType>();
@@ -107,14 +96,11 @@ export class LabeledPropertyGraphTypeFormComponent
     private bEdgeTypeService: BusinessEdgeTypeService,
     private registryService: RegistryService,
     private lService: LocalizationService,
-    private dateService: DateService,
+    private dateService: DateService
   ) {
     this.dataSource = new Observable((observer: any) => {
       this.registryService
-        .getGeoObjectSuggestionsTypeAhead(
-          this.entityLabel,
-          this.type.strategyConfiguration.typeCode,
-        )
+        .getGeoObjectSuggestionsTypeAhead(this.entityLabel, this.type.strategyConfiguration.typeCode)
         .then((results) => {
           observer.next(results);
         });
@@ -140,12 +126,12 @@ export class LabeledPropertyGraphTypeFormComponent
     if (this.type == null) {
       this.type = {
         oid: null,
-        graphType: "single",
+        graphType: 'single',
         displayLabel: this.lService.create(),
         description: this.lService.create(),
-        code: "graph_" + Math.floor(Math.random() * 999999),
-        hierarchy: "",
-        strategyType: "",
+        code: 'graph_' + Math.floor(Math.random() * 999999),
+        hierarchy: '',
+        strategyType: '',
         strategyConfiguration: {
           code: null,
           typeCode: null,
@@ -158,26 +144,22 @@ export class LabeledPropertyGraphTypeFormComponent
 
   buildGraphTypeButtonLabel(showAll: boolean = false): string {
     let labels: string[] = [];
-    let sep = "$@~";
+    let sep = '$@~';
     let agtr: string[] =
-      this.type.graphTypes == null || this.type.graphTypes.length == 0
-        ? []
-        : JSON.parse(this.type.graphTypes);
+      this.type.graphTypes == null || this.type.graphTypes.length == 0 ? [] : JSON.parse(this.type.graphTypes);
 
     for (let i = 0; i < agtr.length; ++i) {
       let typeCode = agtr[i].split(sep)[0];
       let code = agtr[i].split(sep)[1];
 
-      labels.push(
-        this.graphTypes.find((t) => t.code == code).label.localizedValue,
-      );
+      labels.push(this.graphTypes.find((t) => t.code == code).label.localizedValue);
     }
 
     if (showAll) {
       // if (labels.length == 0) return this.lService.decode("synchronization.config.none");
-      return labels.sort().join(", ");
+      return labels.sort().join(', ');
     } else {
-      return this.lService.decode("lpg.assignGraphTypes");
+      return this.lService.decode('lpg.assignGraphTypes');
     }
 
     /*
@@ -193,10 +175,8 @@ export class LabeledPropertyGraphTypeFormComponent
 
   clickGraphTypeOption($event, graphType: GraphType) {
     let agtr: string[] =
-      this.type.graphTypes == null || this.type.graphTypes.length == 0
-        ? []
-        : JSON.parse(this.type.graphTypes);
-    let key = graphType.typeCode + "$@~" + graphType.code;
+      this.type.graphTypes == null || this.type.graphTypes.length == 0 ? [] : JSON.parse(this.type.graphTypes);
+    let key = graphType.typeCode + '$@~' + graphType.code;
 
     if (agtr.indexOf(key) == -1) {
       agtr.push(key);
@@ -213,9 +193,9 @@ export class LabeledPropertyGraphTypeFormComponent
     return this.buildTypeButtonLabel(
       this.types,
       this.type.geoObjectTypeCodes,
-      "label",
-      this.lService.decode("lpg.assignGeoObjectTypes"),
-      showAll,
+      'label',
+      this.lService.decode('lpg.assignGeoObjectTypes'),
+      showAll
     );
   }
 
@@ -223,9 +203,9 @@ export class LabeledPropertyGraphTypeFormComponent
     return this.buildTypeButtonLabel(
       this.businessTypes,
       this.type.businessTypeCodes,
-      "displayLabel",
-      "Assign Business Types",
-      showAll,
+      'displayLabel',
+      'Assign Business Types',
+      showAll
     );
   }
 
@@ -233,9 +213,9 @@ export class LabeledPropertyGraphTypeFormComponent
     return this.buildTypeButtonLabel(
       this.edgeTypes,
       this.type.businessEdgeCodes,
-      "label",
-      "Assign Business Edges",
-      showAll,
+      'label',
+      'Assign Business Edges',
+      showAll
     );
   }
 
@@ -244,17 +224,14 @@ export class LabeledPropertyGraphTypeFormComponent
     codes: string,
     labelAttribute: string,
     text: string,
-    showAll: boolean = false,
+    showAll: boolean = false
   ): string {
     if (types != null && types.length > 0) {
-      let typeCodes: string[] =
-        codes == null || codes.length == 0 ? [] : JSON.parse(codes);
-      let typeLabels = typeCodes.map(
-        (c) => types.find((t) => t.code == c)[labelAttribute].localizedValue,
-      );
+      let typeCodes: string[] = codes == null || codes.length == 0 ? [] : JSON.parse(codes);
+      let typeLabels = typeCodes.map((c) => types.find((t) => t.code == c)[labelAttribute].localizedValue);
 
       if (showAll) {
-        return typeLabels.sort().join(", ");
+        return typeLabels.sort().join(', ');
       }
     }
 
@@ -262,38 +239,25 @@ export class LabeledPropertyGraphTypeFormComponent
   }
 
   clickGeoObjectTypeOption($event, geoObjectType: GeoObjectType) {
-    this.clickTypeOption(
-      this.type.geoObjectTypeCodes,
-      geoObjectType,
-      "geoObjectTypeCodes",
-    );
+    this.clickTypeOption(this.type.geoObjectTypeCodes, geoObjectType, 'geoObjectTypeCodes');
 
     $event.stopPropagation();
   }
 
   clickBusinessTypeOption($event, businessType: BusinessType) {
-    this.clickTypeOption(
-      this.type.businessTypeCodes,
-      businessType,
-      "businessTypeCodes",
-    );
+    this.clickTypeOption(this.type.businessTypeCodes, businessType, 'businessTypeCodes');
 
     $event.stopPropagation();
   }
 
   clickBusinessEdgeOption($event, edgeType: BusinessEdgeType) {
-    this.clickTypeOption(
-      this.type.businessEdgeCodes,
-      edgeType,
-      "businessEdgeCodes",
-    );
+    this.clickTypeOption(this.type.businessEdgeCodes, edgeType, 'businessEdgeCodes');
 
     $event.stopPropagation();
   }
 
   clickTypeOption(codes: string, type: any, attribute: string) {
-    let typeCodes: string[] =
-      codes == null || codes.length == 0 ? [] : JSON.parse(codes);
+    let typeCodes: string[] = codes == null || codes.length == 0 ? [] : JSON.parse(codes);
 
     if (typeCodes.indexOf(type.code) == -1) {
       typeCodes.push(type.code);
@@ -308,7 +272,7 @@ export class LabeledPropertyGraphTypeFormComponent
     let elClasses = event.target.classList;
     for (let i = 0; i < elClasses.length; i++) {
       let c = elClasses[i];
-      if (c === "disabled") {
+      if (c === 'disabled') {
         return true;
       }
     }
@@ -326,15 +290,11 @@ export class LabeledPropertyGraphTypeFormComponent
   }
 
   onSetHierarchy(): void {
-    const hierarchy = this.hierarchies.find(
-      (h) => h.code === this.type.hierarchy,
-    );
+    const hierarchy = this.hierarchies.find((h) => h.code === this.type.hierarchy);
 
     const types = [];
 
-    hierarchy.rootGeoObjectTypes.forEach((node) =>
-      this.processNode(types, node),
-    );
+    hierarchy.rootGeoObjectTypes.forEach((node) => this.processNode(types, node));
 
     this.types = types;
   }
@@ -353,8 +313,8 @@ export class LabeledPropertyGraphTypeFormComponent
     }
 
     this.type.intervalJson.push({
-      startDate: "",
-      endDate: "",
+      startDate: '',
+      endDate: '',
       oid: uuid(),
     });
   }
@@ -370,13 +330,11 @@ export class LabeledPropertyGraphTypeFormComponent
   }
 
   handleDateChange(): void {
-    if (this.type.graphType === "single") {
+    if (this.type.graphType === 'single') {
       this.valid = this.type.validOn != null && this.type.validOn.length > 0;
-    } else if (this.type.graphType === "incremental") {
-      this.valid =
-        this.type.publishingStartDate != null &&
-        this.type.publishingStartDate.length > 0;
-    } else if (this.type.graphType === "interval") {
+    } else if (this.type.graphType === 'incremental') {
+      this.valid = this.type.publishingStartDate != null && this.type.publishingStartDate.length > 0;
+    } else if (this.type.graphType === 'interval') {
       this.valid = this.type.intervalJson
         .map((interval) => {
           return (
@@ -402,25 +360,13 @@ export class LabeledPropertyGraphTypeFormComponent
         if (index > 0) {
           const future = this.type.intervalJson[index - 1];
 
-          if (
-            future.startDate &&
-            future.endDate &&
-            element.startDate &&
-            element.endDate
-          ) {
+          if (future.startDate && future.endDate && element.startDate && element.endDate) {
             let s1: any = new Date(future.startDate);
             let e1: any = new Date(future.endDate);
             let s2: any = new Date(element.startDate);
             let e2: any = new Date(element.endDate);
 
-            if (
-              Utils.dateRangeOverlaps(
-                s1.getTime(),
-                e1.getTime(),
-                s2.getTime(),
-                e2.getTime(),
-              )
-            ) {
+            if (Utils.dateRangeOverlaps(s1.getTime(), e1.getTime(), s2.getTime(), e2.getTime())) {
               this.valid = false;
             }
           }

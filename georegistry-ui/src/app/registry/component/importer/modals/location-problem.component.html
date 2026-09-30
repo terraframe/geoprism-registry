@@ -1,61 +1,97 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<div class="row" style="padding-bottom: 10px;">
+<div class="row" style="padding-bottom: 10px">
   <form #problemForm="ngForm">
     <div class="col-sm-4">
-      <ol *ngIf="problem.context.length > 0">
-        <li *ngFor="let context of problem.context">{{context.label}} ({{context.type}})</li>
-      </ol>
+      @if (problem.context.length > 0) {
+        <ol>
+          @for (context of problem.context; track context) {
+            <li>{{ context.label }} ({{ context.type }})</li>
+          }
+        </ol>
+      }
     </div>
-    <div class="col-sm-2 error-message">{{problem.label}} ({{problem.typeLabel}})</div>
-    <div *ngIf="!problem.resolved">
-      <div class="col-sm-4">
-        <input [name]="index + '-name'" [(ngModel)]="entityLabel" [typeaheadAsync]="true" [typeahead]="dataSource" (typeaheadOnSelect)="typeaheadOnSelect($event)" [typeaheadOptionsLimit]="7" typeaheadOptionField="name" class="form-control">
+    <div class="col-sm-2 error-message">{{ problem.label }} ({{ problem.typeLabel }})</div>
+    @if (!problem.resolved) {
+      <div>
+        <div class="col-sm-4">
+          <input
+            [name]="index + '-name'"
+            [(ngModel)]="entityLabel"
+            [typeaheadAsync]="true"
+            [typeahead]="dataSource"
+            (typeaheadOnSelect)="typeaheadOnSelect($event)"
+            [typeaheadOptionsLimit]="7"
+            typeaheadOptionField="name"
+            class="form-control"
+          />
+        </div>
+        <div class="col-sm-2">
+          <i
+            [ngClass]="{ disabled: !hasSynonym }"
+            class="fa fa-2x fa-compress clickable"
+            (click)="createSynonym()"
+            [title]="'dataUploader.createSynonymFromLocationTooltip' | localize"
+          ></i>
+          <i
+            class="fa fa-2x fa-times-circle clickable"
+            (click)="ignoreDataAtLocation()"
+            [title]="'dataUploader.ignoreAtLocationTooltip' | localize"
+          ></i>
+        </div>
       </div>
-      <div class="col-sm-2">
-        <i [ngClass]="{disabled: !hasSynonym}" class="fa fa-2x fa-compress clickable" (click)="createSynonym()" [title]="'dataUploader.createSynonymFromLocationTooltip' | localize"></i>
-        <i class="fa fa-2x fa-times-circle clickable" (click)="ignoreDataAtLocation()" [title]="'dataUploader.ignoreAtLocationTooltip' | localize"></i>
+    }
+    @if (problem.resolved) {
+      <div>
+        @if (problem.action.name == 'SYNONYM') {
+          <div class="col-sm-4">
+            <a>
+              <i class="fa fa-caret-right clickable" aria-hidden="true"></i>
+              <i class="fa fa-caret-down" style="display: none" aria-hidden="true"></i>
+              <localize key="dataUploader.resolvedSynonym"></localize> [{{ problem.action.label }}]
+            </a>
+            <span>
+              <ul>
+                <localize key="dataUploader.locatedWithin"></localize>
+                @for (ancestor of problem.action.ancestors; track ancestor.code) {
+                  <li>{{ ancestor.label }}</li>
+                }
+              </ul>
+            </span>
+          </div>
+        }
+        @if (problem.action.name == 'IGNOREATLOCATION') {
+          <div class="col-sm-4">
+            <localize key="dataUploader.resolvedIgnoreAtLocation"></localize>
+            [{{ problem.action.label }}]
+          </div>
+        }
+        <div class="col-sm-2">
+          <i
+            class="fa fa-2x fa-undo clickable"
+            (click)="undoAction()"
+            [title]="'dataUploader.undoFixedLocationTooltip' | localize"
+          ></i>
+        </div>
       </div>
-    </div>
-    <div *ngIf="problem.resolved">
-      <div class="col-sm-4" *ngIf="problem.action.name == 'SYNONYM'">
-        <a> 
-          <i class="fa fa-caret-right clickable" aria-hidden="true"></i> 
-          <i class="fa fa-caret-down" style="display: none;" aria-hidden="true"></i> 
-          <localize key="dataUploader.resolvedSynonym"></localize> [{{problem.action.label}}]
-        </a>
-        <span>
-          <ul>
-            <localize key="dataUploader.locatedWithin"></localize>
-            <li *ngFor="let ancestor of problem.action.ancestors">{{ancestor.label}}</li>
-          </ul>
-        </span>
-      </div>
-      <div class="col-sm-4" *ngIf="problem.action.name == 'IGNOREATLOCATION'">
-        <localize key="dataUploader.resolvedIgnoreAtLocation"></localize>
-        [{{problem.action.label}}]
-      </div>
-      <div class="col-sm-2">
-        <i class="fa fa-2x fa-undo clickable" (click)="undoAction()" [title]="'dataUploader.undoFixedLocationTooltip' | localize"></i>
-      </div>
-    </div>
+    }
   </form>
 </div>

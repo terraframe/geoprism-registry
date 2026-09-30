@@ -30,82 +30,92 @@ import { ErrorHandler, ErrorModalComponent } from '@shared/component';
 import { LocaleView } from '@core/model/core';
 import { ConvertKeyLabel } from '../../../shared/component/localize/convert-key-label.component';
 import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
-import { NgIf, NgFor } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { LoadingBarComponent } from '../../../shared/component/loading-bar/loading-bar.component';
 
 @Component({
-    selector: 'locale-modal',
-    templateUrl: './locale-modal.component.html',
-    styleUrls: [],
-    standalone: true,
-    imports: [LoadingBarComponent, FormsModule, NgIf, LocalizeComponent, NgFor, ConvertKeyLabel]
+  selector: 'locale-modal',
+  templateUrl: './locale-modal.component.html',
+  styleUrls: [],
+  standalone: true,
+  imports: [LoadingBarComponent, FormsModule, LocalizeComponent, ConvertKeyLabel],
 })
 export class NewLocaleModalComponent {
+  allLocaleInfo: AllLocaleInfo;
 
-	allLocaleInfo: AllLocaleInfo;
+  @Input() locale: LocaleView;
 
-	@Input() locale: LocaleView;
+  @Input() isNew: boolean = true;
 
-	@Input() isNew: boolean = true;
+  public onSuccess: Subject<LocaleView>;
 
-	public onSuccess: Subject<LocaleView>;
+  constructor(
+    public bsModalRef: BsModalRef,
+    private localizationManagerService: LocalizationManagerService,
+    private modalService: BsModalService,
+    private lService: LocalizationService
+  ) {
+    this.locale = {
+      label: lService.create(),
+      toString: '',
+      tag: '',
+      isDefaultLocale: false,
+      language: { label: '', code: '' },
+      country: { label: '', code: '' },
+      variant: { label: '', code: '' },
+    };
+  }
 
-	constructor(public bsModalRef: BsModalRef, private localizationManagerService: LocalizationManagerService, private modalService: BsModalService, private lService: LocalizationService) {
-		this.locale = {
-			label: lService.create(),
-			toString: "",
-			tag: "",
-			isDefaultLocale: false,
-			language: { label: "", code: "" },
-			country: { label: "", code: "" },
-			variant: { label: "", code: "" },
-		}
-	}
+  ngOnInit(): void {
+    this.allLocaleInfo = new AllLocaleInfo();
 
-	ngOnInit(): void {
-		this.allLocaleInfo = new AllLocaleInfo();
+    this.localizationManagerService
+      .getNewLocaleInfo()
+      .then((allLocaleInfoIN) => {
+        this.allLocaleInfo = allLocaleInfoIN;
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.bsModalRef.hide();
+        this.error(err);
+      });
 
-		this.localizationManagerService.getNewLocaleInfo().then(allLocaleInfoIN => {
-			this.allLocaleInfo = allLocaleInfoIN;
-		}).catch((err: HttpErrorResponse) => {
+    this.onSuccess = new Subject();
+  }
 
-			this.bsModalRef.hide();
-			this.error(err);
-		});
+  submit(): void {
+    if (this.isNew) {
+      this.localizationManagerService
+        .installLocale(this.locale)
+        .then((locale: LocaleView) => {
+          this.onSuccess.next(locale);
 
-		this.onSuccess = new Subject();
-	}
+          this.bsModalRef.hide();
+        })
+        .catch((err: HttpErrorResponse) => {
+          this.bsModalRef.hide();
+          this.error(err);
+        });
+    } else {
+      this.localizationManagerService
+        .editLocale(this.locale)
+        .then((locale: LocaleView) => {
+          this.onSuccess.next(locale);
 
-	submit(): void {
+          this.bsModalRef.hide();
+        })
+        .catch((err: HttpErrorResponse) => {
+          this.bsModalRef.hide();
+          this.error(err);
+        });
+    }
+  }
 
-		if (this.isNew) {
-			this.localizationManagerService.installLocale(this.locale).then((locale: LocaleView) => {
-				this.onSuccess.next(locale);
+  cancel(): void {
+    this.bsModalRef.hide();
+  }
 
-				this.bsModalRef.hide();
-			}).catch((err: HttpErrorResponse) => {
-				this.bsModalRef.hide();
-				this.error(err);
-			});
-		}
-		else {
-			this.localizationManagerService.editLocale(this.locale).then((locale: LocaleView) => {
-				this.onSuccess.next(locale);
-
-				this.bsModalRef.hide();
-			}).catch((err: HttpErrorResponse) => {
-				this.bsModalRef.hide();
-				this.error(err);
-			});
-		}
-	}
-
-	cancel(): void {
-		this.bsModalRef.hide();
-	}
-
-	public error(err: HttpErrorResponse): void {
-		this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
-	}
+  public error(err: HttpErrorResponse): void {
+    this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
+  }
 }

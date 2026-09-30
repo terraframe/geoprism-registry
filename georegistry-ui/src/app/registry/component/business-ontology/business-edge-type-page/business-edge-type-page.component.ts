@@ -17,229 +17,238 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from "@angular/core";
-import { BsModalService } from "ngx-bootstrap/modal";
-import { HttpErrorResponse } from "@angular/common/http";
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+import { BsModalService } from 'ngx-bootstrap/modal';
+import { HttpErrorResponse } from '@angular/common/http';
 import * as lodash from 'lodash';
 
-import { ConfirmModalComponent } from "@shared/component";
-import { LocalizationService } from "@shared/service/localization.service";
-import { AuthService } from "@shared/service";
-import { ManageBusinessEdgeTypeComponent } from "./manage-business-edge-type.component";
-import { BsDropdownModule } from "ngx-bootstrap/dropdown";
-import { LocalizeComponent } from "@shared/component/localize/localize.component";
-import { NgIf, NgFor, NgClass } from "@angular/common";
-import { ModalTypes } from "@shared/model/modal";
-import { BusinessEdgeTypeService } from "@registry/service/business-edge-type.service";
-import { Organization } from "@shared/model/core";
-import { ImportHistoryModalComponent } from "@registry/component/import-history/modals/import-history-modal.component";
-import { RegistryService } from "@registry/service";
-import { BusinessEdgeType, BusinessType } from "@registry/model/object-class";
+import { ConfirmModalComponent } from '@shared/component';
+import { LocalizationService } from '@shared/service/localization.service';
+import { AuthService } from '@shared/service';
+import { ManageBusinessEdgeTypeComponent } from './manage-business-edge-type.component';
+import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
+import { NgClass } from '@angular/common';
+import { ModalTypes } from '@shared/model/modal';
+import { BusinessEdgeTypeService } from '@registry/service/business-edge-type.service';
+import { Organization } from '@shared/model/core';
+import { ImportHistoryModalComponent } from '@registry/component/import-history/modals/import-history-modal.component';
+import { RegistryService } from '@registry/service';
+import { BusinessEdgeType, BusinessType } from '@registry/model/object-class';
 
 enum Action {
-    VIEW = 0, CREATE = 1, EDIT = 2
+  VIEW = 0,
+  CREATE = 1,
+  EDIT = 2,
 }
 
 interface Selection {
-    action: Action
+  action: Action;
 
-    // params for editing
-    type?: BusinessEdgeType;
-    readOnly?: boolean;
-    isNew?: boolean;
+  // params for editing
+  type?: BusinessEdgeType;
+  readOnly?: boolean;
+  isNew?: boolean;
 }
 
-
 @Component({
-    selector: "business-edge-type-page",
-    templateUrl: "./business-edge-type-page.component.html",
-    styleUrls: ["./business-edge-type-page.css"],
-    standalone: true,
-    imports: [NgIf, LocalizeComponent, NgFor, NgClass, BsDropdownModule, ManageBusinessEdgeTypeComponent]
+  selector: 'business-edge-type-page',
+  templateUrl: './business-edge-type-page.component.html',
+  styleUrls: ['./business-edge-type-page.css'],
+  standalone: true,
+  imports: [LocalizeComponent, NgClass, BsDropdownModule, ManageBusinessEdgeTypeComponent],
 })
 export class BusinessEdgeTypePageComponent implements OnInit, OnDestroy, OnChanges {
-    Action = Action;
+  Action = Action;
 
-    @Input() organizations: Organization[] = [];
-    @Input() businessTypes: BusinessType[] = [];
+  @Input() organizations: Organization[] = [];
+  @Input() businessTypes: BusinessType[] = [];
 
-    @Output() onError: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>()
+  @Output() onError: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>();
 
-    types: BusinessEdgeType[] = [];
-    typesByOrg: { org: Organization, write: boolean, types: BusinessEdgeType[] }[] = [];
+  types: BusinessEdgeType[] = [];
+  typesByOrg: { org: Organization; write: boolean; types: BusinessEdgeType[] }[] = [];
 
-    selection: Selection;
-    isSRA: boolean;
+  selection: Selection;
+  isSRA: boolean;
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor(
-        public service: BusinessEdgeTypeService,
-        private registryService: RegistryService,
-        private authService: AuthService,
-        private modalService: BsModalService,
-        private localizeService: LocalizationService) { }
+  // eslint-disable-next-line no-useless-constructor
+  constructor(
+    public service: BusinessEdgeTypeService,
+    private registryService: RegistryService,
+    private authService: AuthService,
+    private modalService: BsModalService,
+    private localizeService: LocalizationService
+  ) {}
 
-    ngOnInit(): void {
-        this.isSRA = this.authService.isSRA();
+  ngOnInit(): void {
+    this.isSRA = this.authService.isSRA();
 
-        this.service.getAll().then(types => {
-            this.setTypes(types);
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
+    this.service
+      .getAll()
+      .then((types) => {
+        this.setTypes(types);
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
+
+  ngOnDestroy(): void {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['organizations']) {
+      this.refreshTypesByOrg();
+    }
+  }
+
+  setTypes(types: BusinessEdgeType[]): void {
+    this.types = types;
+
+    this.refreshTypesByOrg();
+  }
+
+  refreshTypesByOrg(): void {
+    this.typesByOrg = [];
+
+    for (let i = 0; i < this.organizations.length; ++i) {
+      let org: Organization = this.organizations[i];
+
+      this.typesByOrg.push({
+        org: org,
+        write: this.authService.isSRA() || this.authService.isOrganizationRA(org.code),
+        types: this.types.filter((t) => t.organizationCode === org.code),
+      });
     }
 
-    ngOnDestroy(): void {
+    if (this.selection == null) {
+      this.selectFirstAvailable();
     }
+  }
 
-    ngOnChanges(changes: SimpleChanges): void {
-        if (changes["organizations"]) {
-            this.refreshTypesByOrg();
-        }
+  private selectFirstAvailable(): void {
+    for (const item of this.typesByOrg) {
+      if (item.types.length > 0) {
+        this.handleTypeView(item.types[0]);
+        return;
+      }
     }
+  }
 
-    setTypes(types: BusinessEdgeType[]): void {
-        this.types = types;
+  onCreate(organization: Organization): void {
+    this.selection = {
+      action: Action.CREATE,
+      type: {
+        code: '',
+        childType: '',
+        parentType: '',
+        label: this.localizeService.create(),
+        description: this.localizeService.create(),
+        organizationCode: organization.code,
+      },
+      readOnly: false,
+      isNew: true,
+    };
+  }
 
-        this.refreshTypesByOrg();
-    }
-
-    refreshTypesByOrg(): void {
-        this.typesByOrg = [];
-
-        for (let i = 0; i < this.organizations.length; ++i) {
-            let org: Organization = this.organizations[i];
-
-            this.typesByOrg.push({
-                org: org,
-                write: this.authService.isSRA() || this.authService.isOrganizationRA(org.code),
-                types: this.types.filter(t => t.organizationCode === org.code)
-            });
-        }
-
-        if (this.selection == null) {
-            this.selectFirstAvailable();
-        }
-    }
-
-    private selectFirstAvailable(): void {
-        for (const item of this.typesByOrg) {
-            if (item.types.length > 0) {
-                this.handleTypeView(item.types[0]);
-                return;
-            }
-        }
-    }
-
-    onCreate(organization: Organization): void {
-
+  onEdit(type: BusinessEdgeType): void {
+    this.service
+      .get(type.code)
+      .then((t) => {
         this.selection = {
-            action: Action.CREATE,
-            type: {
-                code: "",
-                childType: "",
-                parentType: "",
-                label: this.localizeService.create(),
-                description: this.localizeService.create(),
-                organizationCode: organization.code,
-            },
-            readOnly: false,
-            isNew: true
+          action: Action.EDIT,
+          type: type,
+          readOnly: !this.isSRA,
+          isNew: false,
         };
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
+
+  handleTypeView(type: BusinessEdgeType): void {
+    this.selection = {
+      action: Action.VIEW,
+      type: type,
+      readOnly: true,
+      isNew: false,
+    };
+  }
+
+  handleTypeChange(type: BusinessEdgeType): void {
+    this.selection = null;
+
+    const edgeTypes = [...this.types];
+    const index = edgeTypes.findIndex((t) => t.code === type.code);
+
+    if (index !== -1) {
+      edgeTypes[index] = type;
+
+      this.selection = {
+        action: Action.VIEW,
+        type: type,
+        readOnly: true,
+        isNew: false,
+      };
+    } else {
+      edgeTypes.push(type);
+
+      this.selection = {
+        action: Action.EDIT,
+        type: lodash.cloneDeep(type),
+        readOnly: !this.isSRA,
+        isNew: false,
+      };
     }
 
-    onEdit(type: BusinessEdgeType): void {
-        this.service.get(type.code).then(t => {
-            this.selection = {
-                action: Action.EDIT,
-                type: type,
-                readOnly: !this.isSRA,
-                isNew: false
-            };
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
+    this.setTypes(edgeTypes);
+  }
+
+  onDelete(type: BusinessEdgeType): void {
+    const bsModalRef = this.modalService.show(ConfirmModalComponent, {
+      animated: false,
+      backdrop: true,
+      ignoreBackdropClick: true,
+    });
+    bsModalRef.content.message =
+      this.localizeService.decode('confirm.modal.verify.delete') + ' [' + type.label.localizedValue + ']';
+    bsModalRef.content.submitText = this.localizeService.decode('modal.button.delete');
+    bsModalRef.content.type = ModalTypes.danger;
+
+    bsModalRef.content.onConfirm.subscribe((data) => {
+      this.service
+        .remove(type)
+        .then(() => {
+          const types = [...this.types].filter((t) => {
+            return t.code !== type.code;
+          });
+
+          this.setTypes(types);
+        })
+        .catch((err: HttpErrorResponse) => {
+          this.error(err);
         });
-    }
+    });
+  }
 
-    handleTypeView(type: BusinessEdgeType): void {
-
-        this.selection = {
-            action: Action.VIEW,
-            type: type,
-            readOnly: true,
-            isNew: false
-        };
-    }
-
-    handleTypeChange(type: BusinessEdgeType): void {
-        this.selection = null;
-
-        const edgeTypes = [...this.types];
-        const index = edgeTypes.findIndex(t => t.code === type.code);
-
-        if (index !== -1) {
-            edgeTypes[index] = type;
-
-            this.selection = {
-                action: Action.VIEW,
-                type: type,
-                readOnly: true,
-                isNew: false
-            };
-        }
-        else {
-            edgeTypes.push(type);
-
-            this.selection = {
-                action: Action.EDIT,
-                type: lodash.cloneDeep(type),
-                readOnly: !this.isSRA,
-                isNew: false
-            };
-
-        }
-
-        this.setTypes(edgeTypes);
-    }
-
-
-    onDelete(type: BusinessEdgeType): void {
-        const bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: false, backdrop: true,
-            ignoreBackdropClick: true
+  onImportHistory(type: BusinessEdgeType): void {
+    this.registryService
+      .getImportHistory('BusinessEdgeType', type.code)
+      .then((histories) => {
+        const bsModalRef = this.modalService.show(ImportHistoryModalComponent, {
+          animated: false,
+          backdrop: true,
+          ignoreBackdropClick: true,
         });
-        bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " [" + type.label.localizedValue + "]";
-        bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
-        bsModalRef.content.type = ModalTypes.danger;
+        bsModalRef.content.init(type.label, histories);
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
 
-        bsModalRef.content.onConfirm.subscribe(data => {
-            this.service.remove(type).then(() => {
-                const types = [...this.types].filter((t) => {
-                    return t.code !== type.code;
-                });
-
-                this.setTypes(types);
-            }).catch((err: HttpErrorResponse) => {
-                this.error(err);
-            });
-        });
-    }
-
-    onImportHistory(type: BusinessEdgeType): void {
-        this.registryService.getImportHistory('BusinessEdgeType', type.code).then(histories => {
-            const bsModalRef = this.modalService.show(ImportHistoryModalComponent, {
-                animated: false,
-                backdrop: true,
-                ignoreBackdropClick: true
-            });
-            bsModalRef.content.init(type.label, histories);
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
-
-    error(err: HttpErrorResponse): void {
-        this.onError.emit(err);
-    }
-
+  error(err: HttpErrorResponse): void {
+    this.onError.emit(err);
+  }
 }

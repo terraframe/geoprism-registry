@@ -31,7 +31,6 @@ import java.util.zip.ZipOutputStream;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.resource.CloseableFile;
 import com.runwaysdk.session.Session;
@@ -51,6 +50,8 @@ import net.geoprism.registry.view.RDFExport;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
 public class RepoRDFExportJob extends RepoRDFExportJobBase
 {
@@ -142,7 +143,7 @@ public class RepoRDFExportJob extends RepoRDFExportJobBase
 
   public RDFExport getExportConfig() throws JsonMappingException, JsonProcessingException
   {
-    ObjectMapper mapper = new ObjectMapper();
+    JsonMapper mapper = JsonMapper.shared();
 
     RDFExport config = new RDFExport();
     config.setGeomExportType(GeometryExportType.valueOf(getGeometryExportType()));
@@ -158,7 +159,7 @@ public class RepoRDFExportJob extends RepoRDFExportJobBase
 
   public static ImportHistory runNewJob(RDFExport config)
   {
-    ObjectMapper mapper = new ObjectMapper();
+    JsonMapper mapper = JsonMapper.shared();
 
     try
     {
@@ -175,7 +176,7 @@ public class RepoRDFExportJob extends RepoRDFExportJobBase
 
       return (ImportHistory) job.start();
     }
-    catch (JsonProcessingException e)
+    catch (JacksonException e)
     {
       throw new ProgrammingErrorException(e);
     }

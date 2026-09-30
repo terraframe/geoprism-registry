@@ -1,33 +1,47 @@
 <div class="holder">
-  <div class="row" *ngIf="!(disabled)">
-    <div class="col-md-12">
-
-      <!-- Custom Multi-Select widget built ontop of Bootstrap Dropdown component
-                      - ngx-bootstrap-multiselect was investigated as a potential solution and found to have lots of styling issues and as such was intentionally decided against.                       
-                  -->
-      <div class="btn-group" dropdown #dropdown="bs-dropdown" [autoClose]="true" [container]="container">
-        <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle">
-          {{buildButtonLabel()}} <span class="caret"></span>
-        </button>
-
-        <ul id="dropdown-triggers-manual" *dropdownMenu class="dropdown-menu orgUnit-ul" role="menu"
-          aria-labelledby="button-triggers-manual" style="overflow-y: scroll; max-height:400px;">
-          <li *ngFor="let option of options" (click)="clickOption($event, option)" role="menuitem"
-            [ngClass]="{'multiselect-listitem-selected': strArrayContains(option.value)}">
-            <a class="dropdown-item">{{option.label}}</a>
-          </li>
-        </ul>
+  @if (!disabled) {
+    <div class="row">
+      <div class="col-md-12">
+        <!-- Custom Multi-Select widget built ontop of Bootstrap Dropdown component
+        - ngx-bootstrap-multiselect was investigated as a potential solution and found to have lots of styling issues and as such was intentionally decided against.
+        -->
+        <div class="btn-group" dropdown #dropdown="bs-dropdown" [autoClose]="true" [container]="container">
+          <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle">
+            {{ buildButtonLabel() }} <span class="caret"></span>
+          </button>
+          <ul
+            id="dropdown-triggers-manual"
+            *dropdownMenu
+            class="dropdown-menu orgUnit-ul"
+            role="menu"
+            aria-labelledby="button-triggers-manual"
+            style="overflow-y: scroll; max-height: 400px"
+          >
+            @for (option of options; track option.value) {
+              <li
+                (click)="clickOption($event, option)"
+                role="menuitem"
+                [ngClass]="{ 'multiselect-listitem-selected': strArrayContains(option.value) }"
+              >
+                <a class="dropdown-item">{{ option.label }}</a>
+              </li>
+            }
+          </ul>
+        </div>
       </div>
     </div>
-  </div>
+  }
   <div class="row">
     <div class="col-md-12">
-      <ul *ngIf="getSelectedLabels().length > 0; else noSelection" style="margin: 0; padding-left: 20px;">
-        <li *ngFor="let label of getSelectedLabels()">{{label}}</li>
-      </ul>
-      <ng-template #noSelection>
-        <div style="line-height: 41px;">{{noValueText}}</div>
-      </ng-template>
+      @if (getSelectedLabels().length > 0) {
+        <ul style="margin: 0; padding-left: 20px">
+          @for (label of getSelectedLabels(); track label) {
+            <li>{{ label }}</li>
+          }
+        </ul>
+      } @else {
+        <div style="line-height: 41px">{{ noValueText }}</div>
+      }
     </div>
   </div>
 </div>

@@ -28,59 +28,62 @@ import { EmailService } from '@admin/service/email.service';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { LocalizePipe } from '../../../shared/pipe/localize.pipe';
 import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
-import { NgIf } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { LoadingBarComponent } from '../../../shared/component/loading-bar/loading-bar.component';
 import { MessageComponent } from '../../../shared/component/message/message.component';
 
-
 @Component({
-    selector: 'email',
-    templateUrl: './email.component.html',
-    styleUrls: [],
-    standalone: true,
-    imports: [MessageComponent, LoadingBarComponent, FormsModule, NgIf, LocalizeComponent, LocalizePipe]
+  selector: 'email',
+  templateUrl: './email.component.html',
+  styleUrls: [],
+  standalone: true,
+  imports: [MessageComponent, LoadingBarComponent, FormsModule, LocalizeComponent, LocalizePipe],
 })
 export class EmailComponent implements OnInit {
-	message: string = null;
-	public email: Email = {
-		oid: '',
-		server: '',
-		username: '',
-		password: '',
-		port: 0,
-		from: '',
-		to: '',
-	};
+  message: string = null;
+  public email: Email = {
+    oid: '',
+    server: '',
+    username: '',
+    password: '',
+    port: 0,
+    from: '',
+    to: '',
+  };
 
-	public onSuccess: Subject<any>;
+  public onSuccess: Subject<any>;
 
-	constructor(private service: EmailService, public bsModalRef: BsModalRef) { }
+  constructor(
+    private service: EmailService,
+    public bsModalRef: BsModalRef
+  ) {}
 
-	ngOnInit(): void {
-		this.service.getInstance().then(email => {
-			this.email = email;
-		});
+  ngOnInit(): void {
+    this.service.getInstance().then((email) => {
+      this.email = email;
+    });
 
-		this.onSuccess = new Subject();
-	}
+    this.onSuccess = new Subject();
+  }
 
-	cancel(): void {
-		this.bsModalRef.hide();
-	}
+  cancel(): void {
+    this.bsModalRef.hide();
+  }
 
-	onSubmit(): void {
-		this.service.apply(this.email)
-			.then(() => {
-				this.onSuccess.next(true);
-				this.bsModalRef.hide();
-			})
-			.catch((err: HttpErrorResponse) => {
-				this.error(err);
-			});
-	}
+  onSubmit(): void {
+    this.service
+      .apply(this.email)
+      .then(() => {
+        this.onSuccess.next(true);
+        this.bsModalRef.hide();
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
 
-	error(err: HttpErrorResponse): void {
-		this.message = ErrorHandler.getMessageFromError(err);
-	}
+  error(err: HttpErrorResponse): void {
+    this.message = ErrorHandler.getMessageFromError(err);
+  }
 }

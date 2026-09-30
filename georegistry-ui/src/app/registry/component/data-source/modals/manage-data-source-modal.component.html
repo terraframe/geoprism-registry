@@ -1,221 +1,195 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <div>
-  <div *ngIf="message != null" class="alert alert-danger" role="alert">
-    {{ message }}
-  </div>
-
-  <form
-    #form="ngForm"
-    *ngIf="source"
-    class="modal-form"
-    (ngSubmit)="(form.valid)"
-  >
-    <div class="heading text-center">
-      <h1>
-        <localize key="datasource.header"></localize>
-      </h1>
+  @if (message != null) {
+    <div class="alert alert-danger" role="alert">
+      {{ message }}
     </div>
-    <fieldset>
-      <div class="row-holder">
-        <div class="label-holder">
-          <label>
-            <localize key="data.property.label.code"></localize>
-          </label>
-        </div>
-        <div class="holder">
-          <span class="text">
-            <input
-              type="text"
-              [(ngModel)]="source.code"
-              name="code"
-              [disabled]="readOnly || source.oid != null"
-              required
-            />
-          </span>
-        </div>
+  }
+
+  @if (source) {
+    <form #form="ngForm" class="modal-form" (ngSubmit)="(form.valid)">
+      <div class="heading text-center">
+        <h1>
+          <localize key="datasource.header"></localize>
+        </h1>
       </div>
-
-      <localized-input
-        [disabled]="readOnly"
-        [(value)]="source.label"
-        key="data.property.label.label"
-      >
-      </localized-input>
-
-      <localized-input
-        [disabled]="readOnly"
-        [(value)]="source.description"
-        key="data.property.label.description"
-      >
-      </localized-input>
-
-      <div class="row-holder">
-        <div class="label-holder">
-          <label>
-            <localize key="datasource.uri"></localize>
-          </label>
+      <fieldset>
+        <div class="row-holder">
+          <div class="label-holder">
+            <label>
+              <localize key="data.property.label.code"></localize>
+            </label>
+          </div>
+          <div class="holder">
+            <span class="text">
+              <input
+                type="text"
+                [(ngModel)]="source.code"
+                name="code"
+                [disabled]="readOnly || source.oid != null"
+                required
+              />
+            </span>
+          </div>
         </div>
-        <div class="holder">
-          <span class="text">
-            <input
-              type="text"
-              [(ngModel)]="source.uri"
-              name="uri"
+        <localized-input [disabled]="readOnly" [(value)]="source.label" key="data.property.label.label">
+        </localized-input>
+        <localized-input [disabled]="readOnly" [(value)]="source.description" key="data.property.label.description">
+        </localized-input>
+        <div class="row-holder">
+          <div class="label-holder">
+            <label>
+              <localize key="datasource.uri"></localize>
+            </label>
+          </div>
+          <div class="holder">
+            <span class="text">
+              <input type="text" [(ngModel)]="source.uri" name="uri" [disabled]="readOnly" />
+            </span>
+          </div>
+        </div>
+        <div class="row-holder">
+          <div class="label-holder">
+            <label>
+              <localize key="datasource.governance.level"></localize>
+            </label>
+          </div>
+          <div class="holder">
+            <select
+              id="governanceLevel"
+              name="governanceLevel"
+              class="select-area"
+              [(ngModel)]="source.governanceLevel"
               [disabled]="readOnly"
-            />
-          </span>
-        </div>
-      </div>
-
-      <div class="row-holder">
-        <div class="label-holder">
-          <label>
-            <localize key="datasource.governance.level"></localize>
-          </label>
-        </div>
-        <div class="holder">
-          <select
-            id="governanceLevel"
-            name="governanceLevel"
-            class="select-area"
-            [(ngModel)]="source.governanceLevel"
-            [disabled]="readOnly"
-          >
-            <option></option>
-            <option value="AUTHORITATIVE">
-              <localize key="datasource.authoritative"></localize>
-            </option>
-            <option value="OFFICIAL">
-              <localize key="datasource.official"></localize>
-            </option>
-            <option value="COMMUNITY">
-              <localize key="datasource.community.curated"></localize>
-            </option>
-            <option value="RESEARCH">
-              <localize key="datasource.research"></localize>
-            </option>
-            <option value="DERIVED">
-              <localize key="datasource.derived"></localize>
-            </option>
-            <option value="EXPERIMENTAL">
-              <localize key="datasource.experimental"></localize>
-            </option>
-            <option value="AD_HOC">
-              <localize key="datasource.ad.hoc"></localize>
-            </option>
-          </select>
-        </div>
-      </div>
-
-      <div class="row-holder">
-        <div class="label-holder">
-          <label>
-            <localize key="datasource.metadata.profile"></localize>
-          </label>
-        </div>
-        <div class="holder">
-          <select
-            id="metadataProfile"
-            name="metadataProfile"
-            class="select-area"
-            [(ngModel)]="source.metadataProfile"
-            [disabled]="readOnly"
-          >
-            <option></option>
-            <option value="DCAT">
-              <localize key="datasource.dcat"></localize>
-            </option>
-            <option value="GEO_DCAT">
-              <localize key="datasource.geo.dcat"></localize>
-            </option>
-            <option value="ISO19115">
-              <localize key="datasource.iso19115"></localize>
-            </option>
-            <option value="STAC">
-              <localize key="datasource.stac"></localize>
-            </option>
-            <option value="SENSOR_ML">
-              <localize key="datasource.sensorML"></localize>
-            </option>
-            <option value="FHIR">
-              <localize key="datasource.fhir"></localize>
-            </option>
-            <option value="DATA_CITE">
-              <localize key="datasource.data.cite"></localize>
-            </option>
-            <option value="CUSTOM">
-              <localize key="datasource.custom"></localize>
-            </option>
-            <option value="AD_HOC">
-              <localize key="datasource.ad.hoc"></localize>
-            </option>
-            <option value="NONE">
-              <localize key="datasource.none"></localize>
-            </option>
-          </select>
-        </div>
-      </div>
-
-      <div class="row-holder">
-        <div class="label-holder">
-          <label>
-            <localize key="datasource.authority"></localize>
-          </label>
-        </div>
-        <div class="holder">
-          <select
-            id="authority"
-            name="authority"
-            class="select-area"
-            [(ngModel)]="source.authority"
-            [disabled]="readOnly"
-            required
-          >
-            <option
-              *ngFor="let authority of authorities"
-              [value]="authority.code"
             >
-              {{ authority.label.localizedValue }}
-            </option>
-          </select>
+              <option></option>
+              <option value="AUTHORITATIVE">
+                <localize key="datasource.authoritative"></localize>
+              </option>
+              <option value="OFFICIAL">
+                <localize key="datasource.official"></localize>
+              </option>
+              <option value="COMMUNITY">
+                <localize key="datasource.community.curated"></localize>
+              </option>
+              <option value="RESEARCH">
+                <localize key="datasource.research"></localize>
+              </option>
+              <option value="DERIVED">
+                <localize key="datasource.derived"></localize>
+              </option>
+              <option value="EXPERIMENTAL">
+                <localize key="datasource.experimental"></localize>
+              </option>
+              <option value="AD_HOC">
+                <localize key="datasource.ad.hoc"></localize>
+              </option>
+            </select>
+          </div>
         </div>
-      </div>
-
-      <div class="row-holder">
-        <div class="button-holder">
-          <button type="button" class="btn btn-default" (click)="close()">
-            <localize key="modal.button.cancel"></localize>
-          </button>
-          <button
-            *ngIf="!readOnly"
-            type="button"
-            class="btn btn-primary"
-            [disabled]="form.invalid"
-            (click)="update()"
-          >
-            <localize key="modal.button.submit"></localize>
-          </button>
+        <div class="row-holder">
+          <div class="label-holder">
+            <label>
+              <localize key="datasource.metadata.profile"></localize>
+            </label>
+          </div>
+          <div class="holder">
+            <select
+              id="metadataProfile"
+              name="metadataProfile"
+              class="select-area"
+              [(ngModel)]="source.metadataProfile"
+              [disabled]="readOnly"
+            >
+              <option></option>
+              <option value="DCAT">
+                <localize key="datasource.dcat"></localize>
+              </option>
+              <option value="GEO_DCAT">
+                <localize key="datasource.geo.dcat"></localize>
+              </option>
+              <option value="ISO19115">
+                <localize key="datasource.iso19115"></localize>
+              </option>
+              <option value="STAC">
+                <localize key="datasource.stac"></localize>
+              </option>
+              <option value="SENSOR_ML">
+                <localize key="datasource.sensorML"></localize>
+              </option>
+              <option value="FHIR">
+                <localize key="datasource.fhir"></localize>
+              </option>
+              <option value="DATA_CITE">
+                <localize key="datasource.data.cite"></localize>
+              </option>
+              <option value="CUSTOM">
+                <localize key="datasource.custom"></localize>
+              </option>
+              <option value="AD_HOC">
+                <localize key="datasource.ad.hoc"></localize>
+              </option>
+              <option value="NONE">
+                <localize key="datasource.none"></localize>
+              </option>
+            </select>
+          </div>
         </div>
-      </div>
-    </fieldset>
-  </form>
+        <div class="row-holder">
+          <div class="label-holder">
+            <label>
+              <localize key="datasource.authority"></localize>
+            </label>
+          </div>
+          <div class="holder">
+            <select
+              id="authority"
+              name="authority"
+              class="select-area"
+              [(ngModel)]="source.authority"
+              [disabled]="readOnly"
+              required
+            >
+              @for (authority of authorities; track authority.code) {
+                <option [value]="authority.code">
+                  {{ authority.label.localizedValue }}
+                </option>
+              }
+            </select>
+          </div>
+        </div>
+        <div class="row-holder">
+          <div class="button-holder">
+            <button type="button" class="btn btn-default" (click)="close()">
+              <localize key="modal.button.cancel"></localize>
+            </button>
+            @if (!readOnly) {
+              <button type="button" class="btn btn-primary" [disabled]="form.invalid" (click)="update()">
+                <localize key="modal.button.submit"></localize>
+              </button>
+            }
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  }
 </div>

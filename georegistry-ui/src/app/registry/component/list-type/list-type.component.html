@@ -1,213 +1,248 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<ng-template #versionDetail let-version='version' let-entry="entry">
-    <div class="row" style="margin-bottom:5px;line-height:40px;">
-        <div class="col-md-7" style="vertical-align: middle;">
+<ng-template #versionDetail let-version="version" let-entry="entry">
+  <div class="row" style="margin-bottom: 5px; line-height: 40px">
+    <div class="col-md-7" style="vertical-align: middle">
+      <span
+        class="clickable"
+        (click)="version.collapsed = !version.collapsed"
+        [attr.aria-expanded]="!version.collapsed"
+      >
+        <i
+          class="fa fa-chevron-right"
+          [ngClass]="{ 'fa-chevron-down': version.collapsed, 'fa-chevron-right': !version.collapsed }"
+          style="font-size: 14px"
+        ></i>
 
-            <span class="clickable" (click)="version.collapsed = !version.collapsed"
-                [attr.aria-expanded]="!version.collapsed">
-
-                <i class="fa fa-chevron-right"
-                    [ngClass]="{'fa-chevron-down' : version.collapsed, 'fa-chevron-right' : !version.collapsed}"
-                    style="font-size:14px;"></i>
-
-                <span class="h4" *ngIf="!version.working">
-                    <localize key="list.type.version"></localize> {{version.versionNumber}}
-                </span>
-                <span class="h4" *ngIf="version.working">
-                    <localize key="list.type.working.version"></localize>
-                </span>
-                <span style="margin-left:10px;color:grey;">
-                    <localize key="list.type.date.generated"></localize>: {{version.createDate}}
-                </span>
-            </span>
-        </div>
-        <div class="col-md-5" style="text-align: right;">
-            <button type="submit" (click)="onEdit(entry, version)" class="btn btn-default" role="button">
-                <localize *ngIf="version.working" key="masterlist.button.metadata"></localize>
-                <localize *ngIf="!version.working" key="masterlist.snapshot.button.metadata"></localize>
-            </button>
-            <button *ngIf="list.write && !version.working" type="submit" (click)="onDelete(entry, version)"
-                class="btn btn-danger" role="button">
-                <localize key="modal.button.delete"></localize>
-            </button>
-        </div>
-
+        @if (!version.working) {
+          <span class="h4"> <localize key="list.type.version"></localize> {{ version.versionNumber }} </span>
+        }
+        @if (version.working) {
+          <span class="h4">
+            <localize key="list.type.working.version"></localize>
+          </span>
+        }
+        <span style="margin-left: 10px; color: grey">
+          <localize key="list.type.date.generated"></localize>: {{ version.createDate }}
+        </span>
+      </span>
     </div>
-
-    <div class="row" style="margin-bottom:5px;" [collapse]="!version.collapsed">
-        <ul style="list-style:none;">
-            <li>
-                <a *ngIf="(version.isMember || version.listMetadata.visibility === 'PUBLIC')"
-                    [routerLink]="'/registry/master-list/' + version.oid" routerLinkActive="active">
-                    <localize key="list.type.list"></localize>
-                </a>
-                <span *ngIf="!(version.isMember || version.listMetadata.visibility === 'PUBLIC')">
-                    <localize key="list.type.list"></localize>
-                </span>
-                <span>
-                    (
-                    <localize *ngIf="version.listMetadata.visibility === 'PUBLIC'" key="masterlist.public">
-                    </localize>
-                    <localize *ngIf="version.listMetadata.visibility !== 'PUBLIC'" key="masterlist.private">
-                    </localize>
-                    )
-                </span>
-                <span>
-                    (
-                    <localize *ngIf="version.listMetadata.master" key="list.type.master"></localize>
-                    <localize *ngIf="!version.listMetadata.master" key="list.type.non.master"></localize>
-                    )
-                </span>
-            </li>
-            <li>
-                <a *ngIf="(version.isMember || version.geospatialMetadata.visibility === 'PUBLIC')"
-                    (click)="onGotoMap(version)">
-                    <localize key="list.type.geospatial"></localize>
-                </a>
-                <span *ngIf="!(version.isMember || version.geospatialMetadata.visibility === 'PUBLIC')">
-                    <localize key="list.type.geospatial"></localize>
-                </span>
-                <span>
-                    (
-                    <localize *ngIf="version.geospatialMetadata.visibility === 'PUBLIC'" key="masterlist.public">
-                    </localize>
-                    <localize *ngIf="version.geospatialMetadata.visibility !== 'PUBLIC'" key="masterlist.private">
-                    </localize>
-                    )
-                </span>
-                <span>
-                    (
-                    <localize *ngIf="version.geospatialMetadata.master" key="list.type.master"></localize>
-                    <localize *ngIf="!version.geospatialMetadata.master" key="list.type.non.master"></localize>
-                    )
-                </span>
-
-            </li>
-        </ul>
+    <div class="col-md-5" style="text-align: right">
+      <button type="submit" (click)="onEdit(entry, version)" class="btn btn-default" role="button">
+        @if (version.working) {
+          <localize key="masterlist.button.metadata"></localize>
+        }
+        @if (!version.working) {
+          <localize key="masterlist.snapshot.button.metadata"></localize>
+        }
+      </button>
+      @if (list.write && !version.working) {
+        <button type="submit" (click)="onDelete(entry, version)" class="btn btn-danger" role="button">
+          <localize key="modal.button.delete"></localize>
+        </button>
+      }
     </div>
+  </div>
+
+  <div class="row" style="margin-bottom: 5px" [collapse]="!version.collapsed">
+    <ul style="list-style: none">
+      <li>
+        @if (version.isMember || version.listMetadata.visibility === 'PUBLIC') {
+          <a [routerLink]="'/registry/master-list/' + version.oid" routerLinkActive="active">
+            <localize key="list.type.list"></localize>
+          </a>
+        }
+        @if (!(version.isMember || version.listMetadata.visibility === 'PUBLIC')) {
+          <span>
+            <localize key="list.type.list"></localize>
+          </span>
+        }
+        <span>
+          (
+          @if (version.listMetadata.visibility === 'PUBLIC') {
+            <localize key="masterlist.public"> </localize>
+          }
+          @if (version.listMetadata.visibility !== 'PUBLIC') {
+            <localize key="masterlist.private"> </localize>
+          }
+          )
+        </span>
+        <span>
+          (
+          @if (version.listMetadata.master) {
+            <localize key="list.type.master"></localize>
+          }
+          @if (!version.listMetadata.master) {
+            <localize key="list.type.non.master"></localize>
+          }
+          )
+        </span>
+      </li>
+      <li>
+        @if (version.isMember || version.geospatialMetadata.visibility === 'PUBLIC') {
+          <a (click)="onGotoMap(version)">
+            <localize key="list.type.geospatial"></localize>
+          </a>
+        }
+        @if (!(version.isMember || version.geospatialMetadata.visibility === 'PUBLIC')) {
+          <span>
+            <localize key="list.type.geospatial"></localize>
+          </span>
+        }
+        <span>
+          (
+          @if (version.geospatialMetadata.visibility === 'PUBLIC') {
+            <localize key="masterlist.public"> </localize>
+          }
+          @if (version.geospatialMetadata.visibility !== 'PUBLIC') {
+            <localize key="masterlist.private"> </localize>
+          }
+          )
+        </span>
+        <span>
+          (
+          @if (version.geospatialMetadata.master) {
+            <localize key="list.type.master"></localize>
+          }
+          @if (!version.geospatialMetadata.master) {
+            <localize key="list.type.non.master"></localize>
+          }
+          )
+        </span>
+      </li>
+    </ul>
+  </div>
 </ng-template>
 
-
 <ng-container>
-
-    <div class="heading">
-        <div class="row">
-            <div class="col-md-12">
-                <h2>
-                    {{list.displayLabel.localizedValue}}
-                </h2>
-            </div>
-        </div>
-    </div>
-
+  <div class="heading">
     <div class="row">
-        <div class="col-md-12" style="padding: 20px 15px;">
-            <button type="submit" (click)="onViewConfiguration(list)" class="btn btn-default" style="padding-right: 10px;"
-                role="button">
-                <localize key="masterlist.button.configuration"></localize>
-            </button>
-
-            <button *ngIf="list.listType === 'incremental'" type="submit" (click)="onCreateEntries()" class="btn btn-primary" style="margin:0;" role="button">
-                <localize key="list.type.create.entries"></localize>
-            </button>
-        </div>
+      <div class="col-md-12">
+        <h2>
+          {{ list.displayLabel.localizedValue }}
+        </h2>
+      </div>
     </div>
+  </div>
 
+  <div class="row">
+    <div class="col-md-12" style="padding: 20px 15px">
+      <button
+        type="submit"
+        (click)="onViewConfiguration(list)"
+        class="btn btn-default"
+        style="padding-right: 10px"
+        role="button"
+      >
+        <localize key="masterlist.button.configuration"></localize>
+      </button>
 
-    <div *ngFor="let entry of list.entries" class="row" style="margin-bottom: 5px;">
-        <div class="col-md-12">
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <h3>
-                                <ng-container *ngIf="entry.period.type === 'text'">
-                                    {{entry.period.value}}
-                                </ng-container>
-                                <ng-container *ngIf="entry.period.type === 'date'">
-                                    <date-text [date]="entry.period.value"></date-text>
-                                </ng-container>
-                                <ng-container *ngIf="entry.period.type === 'range'">
-                                    <date-text [date]="entry.period.value.startDate"></date-text>
-                                    -
-                                    <date-text [date]="entry.period.value.endDate"></date-text>
-                                </ng-container>
+      @if (list.listType === 'incremental') {
+        <button type="submit" (click)="onCreateEntries()" class="btn btn-primary" style="margin: 0" role="button">
+          <localize key="list.type.create.entries"></localize>
+        </button>
+      }
+    </div>
+  </div>
 
-                            </h3>
-                        </div>
-                    </div>
-
-
-                    <ng-container *ngIf="entry.versions.length > 0 && entry.versions[entry.versions.length - 1].working"
-                        [ngTemplateOutlet]="versionDetail"
-                        [ngTemplateOutletContext]="{entry:entry, version:entry.versions[entry.versions.length - 1]}">
-                    </ng-container>
-
-                    <hr style="border-color:lightgrey;">
-
-                    <h4 style="margin-top:20px;">
-                        <localize key="list.type.published.versions.header"></localize>
-                    </h4>
-
-
-                    <div>
-                        <button *ngIf="list.write" type="submit" (click)="onCreate(entry)" class="btn btn-primary"
-                            style="margin:0;" role="button">
-                            <localize key="list.type.new.version"></localize>
-                        </button>
-
-                        <button *ngIf="entry.versions.length > 2" type="submit" (click)="toggleVersions(entry)"
-                            class="btn btn-default" role="button">
-                            <localize *ngIf="!entry.showAll" key="list.type.see.versions"></localize>
-                            <localize *ngIf="entry.showAll" key="list.type.hide.versions"></localize>
-                        </button>
-                    </div>
-
-                    <ng-container *ngIf="entry.versions.length > 0 && !entry.versions[0].working">
-                        <ng-container *ngFor="let version of entry.versions; let j = index;">
-                            <ng-container *ngIf="j === 0 || (entry.showAll && j !== (entry.versions.length -1))"
-                                [ngTemplateOutlet]="versionDetail"
-                                [ngTemplateOutletContext]="{entry:entry, version:version}">
-                            </ng-container>
-                        </ng-container>
-                        <!--                         <div class="row" style="margin-bottom: 5px;"> -->
-                        <!--                             <div class="col-md-12" style="text-align: left;"> -->
-                        <!--                                 <button *ngIf="entry.versions.length > 2" type="submit" (click)="toggleVersions(entry)" -->
-                        <!--                                     class="btn btn-default" role="button"> -->
-                        <!--                                     <localize *ngIf="!entry.showAll" key="list.type.see.versions"></localize> -->
-                        <!--                                     <localize *ngIf="entry.showAll" key="list.type.hide.versions"></localize> -->
-                        <!--                                 </button> -->
-                        <!--                             </div> -->
-                        <!--                         </div> -->
-                    </ng-container>
-
-                    <div class="row" *ngIf="entry.versions.length === 0 || entry.versions[0].working">
-                        <div class="col-md-12">
-                            <localize key="list.type.no.versions" style="color:grey;font-style:italic;"></localize>
-                        </div>
-                    </div>
-                </div>
+  @for (entry of list.entries; track entry.oid) {
+    <div class="row" style="margin-bottom: 5px">
+      <div class="col-md-12">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-12">
+                <h3>
+                  @if (entry.period.type === 'text') {
+                    {{ entry.period.value }}
+                  }
+                  @if (entry.period.type === 'date') {
+                    <date-text [date]="entry.period.value"></date-text>
+                  }
+                  @if (entry.period.type === 'range') {
+                    <date-text [date]="entry.period.value.startDate"></date-text>
+                    -
+                    <date-text [date]="entry.period.value.endDate"></date-text>
+                  }
+                </h3>
+              </div>
             </div>
+            @if (entry.versions.length > 0 && entry.versions[entry.versions.length - 1].working) {
+              <ng-container
+                [ngTemplateOutlet]="versionDetail"
+                [ngTemplateOutletContext]="{ entry: entry, version: entry.versions[entry.versions.length - 1] }"
+              >
+              </ng-container>
+            }
+            <hr style="border-color: lightgrey" />
+            <h4 style="margin-top: 20px">
+              <localize key="list.type.published.versions.header"></localize>
+            </h4>
+            <div>
+              @if (list.write) {
+                <button type="submit" (click)="onCreate(entry)" class="btn btn-primary" style="margin: 0" role="button">
+                  <localize key="list.type.new.version"></localize>
+                </button>
+              }
+              @if (entry.versions.length > 2) {
+                <button type="submit" (click)="toggleVersions(entry)" class="btn btn-default" role="button">
+                  @if (!entry.showAll) {
+                    <localize key="list.type.see.versions"></localize>
+                  }
+                  @if (entry.showAll) {
+                    <localize key="list.type.hide.versions"></localize>
+                  }
+                </button>
+              }
+            </div>
+            @if (entry.versions.length > 0 && !entry.versions[0].working) {
+              @for (version of entry.versions; track version.oid; let j = $index) {
+                @if (j === 0 || (entry.showAll && j !== entry.versions.length - 1)) {
+                  <ng-container
+                    [ngTemplateOutlet]="versionDetail"
+                    [ngTemplateOutletContext]="{ entry: entry, version: version }"
+                  >
+                  </ng-container>
+                }
+              }
+              <!--                         <div class="row" style="margin-bottom: 5px;"> -->
+              <!--                             <div class="col-md-12" style="text-align: left;"> -->
+              <!--                                 <button *ngIf="entry.versions.length > 2" type="submit" (click)="toggleVersions(entry)" -->
+              <!--                                     class="btn btn-default" role="button"> -->
+              <!--                                     <localize *ngIf="!entry.showAll" key="list.type.see.versions"></localize> -->
+              <!--                                     <localize *ngIf="entry.showAll" key="list.type.hide.versions"></localize> -->
+              <!--                                 </button> -->
+              <!--                             </div> -->
+              <!--                         </div> -->
+            }
+            @if (entry.versions.length === 0 || entry.versions[0].working) {
+              <div class="row">
+                <div class="col-md-12">
+                  <localize key="list.type.no.versions" style="color: grey; font-style: italic"></localize>
+                </div>
+              </div>
+            }
+          </div>
         </div>
+      </div>
     </div>
-
+  }
 </ng-container>

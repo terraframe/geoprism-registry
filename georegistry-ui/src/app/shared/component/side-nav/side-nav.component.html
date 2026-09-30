@@ -1,21 +1,21 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <!-- HEADER AND NAVBAR -->
@@ -23,10 +23,11 @@
   <div class="row nav-row">
     <div class="col-xs-12">
       <a [href]="context + '#/menu'" class="brand">
-
         <h3>
           <img class="brand-img" [src]="context + 'api/asset/view?oid=logo'" />
-          <localize *ngIf="expanded" key="cgr.standard.title"></localize>
+          @if (expanded) {
+            <localize key="cgr.standard.title"></localize>
+          }
         </h3>
       </a>
     </div>
@@ -34,50 +35,65 @@
 
   <div class="row nav-row">
     <div class="col-xs-12">
-
-      <ng-container *ngFor="let section of sections">
+      @for (section of sections; track section.title) {
         <div class="card card-default section">
           <div class="card-body">
-            <h4 class="card-title" *ngIf="expanded"><localize [key]="section.title"></localize></h4>
+            @if (expanded) {
+              <h4 class="card-title"><localize [key]="section.title"></localize></h4>
+            }
+            @for (menu of section.items; track menu.id) {
+              @if (shouldShowMenuItem(menu.id)) {
+                <div class="row nav-row">
+                  <div class="col-xs-12">
+                    <a
+                      [routerLink]="menu.link"
+                      [ngClass]="{ expanded: expanded }"
+                      class="route-item"
+                      routerLinkActive="active"
+                      [title]="menu.key | localize"
+                    >
+                      <i class="route-icon" [class]="menu.icon"></i>
+                      @if (expanded) {
+                        <span class="route-text">
+                          <localize [key]="menu.key"></localize>
+                        </span>
+                      }
+                    </a>
+                  </div>
+                </div>
+              }
+            }
+          </div>
+        </div>
+      }
 
-            <ng-container *ngFor="let menu of section.items">
-              <div class="row nav-row" *ngIf="shouldShowMenuItem(menu.id)">
+      @if (!isPublic) {
+        <div class="card card-default section" style="margin-bottom: 20px">
+          <div class="card-body">
+            <hr />
+            @if (shouldShowMenuItem('SETTINGS')) {
+              <div class="row nav-row">
                 <div class="col-xs-12">
-                  <a [routerLink]="menu.link" [ngClass]="{'expanded': expanded}" class="route-item"
-                    routerLinkActive="active" [title]="menu.key | localize">
-                    <i class="route-icon" [class]="menu.icon"></i>
-                    <span class="route-text" *ngIf="expanded">
-                      <localize [key]="menu.key"></localize>
-                    </span>
+                  <a
+                    routerLink="/admin/settings"
+                    [ngClass]="{ expanded: expanded }"
+                    class="route-item"
+                    routerLinkActive="active"
+                    [title]="'settings.menu' | localize"
+                  >
+                    <i class="route-icon fa-solid fa-gear"></i>
+                    @if (expanded) {
+                      <span class="route-text">
+                        <localize key="settings.menu"></localize>
+                      </span>
+                    }
                   </a>
                 </div>
               </div>
-            </ng-container>
-
+            }
           </div>
         </div>
-      </ng-container>
-
-      <ng-container *ngIf="!isPublic">
-        <div class="card card-default section" style="margin-bottom: 20px;">
-          <div class="card-body">
-            <hr>
-            <div class="row nav-row" *ngIf="shouldShowMenuItem('SETTINGS')">
-              <div class="col-xs-12">
-                <a routerLink="/admin/settings" [ngClass]="{'expanded': expanded}" class="route-item"
-                  routerLinkActive="active" [title]="'settings.menu' | localize">
-                  <i class="route-icon fa-solid fa-gear"></i>
-                  <span class="route-text" *ngIf="expanded">
-                    <localize key="settings.menu"></localize>
-                  </span>
-                </a>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </ng-container>
-
+      }
     </div>
   </div>
 
@@ -86,11 +102,11 @@
     "margin-top: auto" (see side-nav.css) drops it to the bottom of the
     sidebar. It stays an ordinary in-flow Bootstrap row so it lines up with
     the sidebar's real width at any screen size.
-  -->
+    -->
   <div class="row fixed-bottom-row">
-    <div class="col-xs-12" [ngClass]="{'expanded':expanded}">
-      <a class="user-command-link route-item" (click)="handleToggle()" [ngClass]="{'expanded':expanded}">
-        <i class="fa-solid" [ngClass]="{'fa-chevron-left':expanded, 'fa-chevron-right': !expanded}"></i>
+    <div class="col-xs-12" [ngClass]="{ expanded: expanded }">
+      <a class="user-command-link route-item" (click)="handleToggle()" [ngClass]="{ expanded: expanded }">
+        <i class="fa-solid" [ngClass]="{ 'fa-chevron-left': expanded, 'fa-chevron-right': !expanded }"></i>
       </a>
     </div>
   </div>

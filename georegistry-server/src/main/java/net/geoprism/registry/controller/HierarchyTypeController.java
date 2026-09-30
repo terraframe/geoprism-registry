@@ -33,7 +33,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -46,7 +45,8 @@ import net.geoprism.registry.controller.EdgeClassController.CodeBody;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.service.request.GPRHierarchyTypeService;
 import net.geoprism.registry.service.request.RegistryComponentService;
-import net.geoprism.registry.spring.JsonObjectDeserializer;
+import net.geoprism.spring.core.JsonObjectDeserializer;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 @RestController
 @Validated

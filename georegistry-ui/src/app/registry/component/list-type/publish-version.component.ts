@@ -17,106 +17,110 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from "@angular/core";
-import { BsModalRef } from "ngx-bootstrap/modal";
-import { HttpErrorResponse } from "@angular/common/http";
+import { Component, OnInit } from '@angular/core';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { HttpErrorResponse } from '@angular/common/http';
 
-import { ErrorHandler } from "@shared/component";
-import { ListType, ListTypeEntry, ListTypeVersion, ListVersionMetadata } from "@registry/model/list-type";
-import { ListTypeService } from "@registry/service/list-type.service";
-import { ConvertKeyLabel } from "../../../shared/component/localize/convert-key-label.component";
-import { NgIf, NgFor, NgClass, NgTemplateOutlet } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { BooleanFieldComponent } from "../../../shared/component/form-fields/boolean-field/boolean-field.component";
-import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { ErrorHandler } from '@shared/component';
+import { ListType, ListTypeEntry, ListTypeVersion, ListVersionMetadata } from '@registry/model/list-type';
+import { ListTypeService } from '@registry/service/list-type.service';
+import { ConvertKeyLabel } from '../../../shared/component/localize/convert-key-label.component';
+import { NgClass, NgTemplateOutlet } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { BooleanFieldComponent } from '../../../shared/component/form-fields/boolean-field/boolean-field.component';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
 
 @Component({
-    selector: "publish-version",
-    templateUrl: "./publish-version.component.html",
-    styleUrls: ["./list-type-manager.css"],
-    standalone: true,
-    imports: [LocalizeComponent, BooleanFieldComponent, FormsModule, NgIf, NgFor, ConvertKeyLabel, NgClass, NgTemplateOutlet]
+  selector: 'publish-version',
+  templateUrl: './publish-version.component.html',
+  styleUrls: ['./list-type-manager.css'],
+  standalone: true,
+  imports: [LocalizeComponent, BooleanFieldComponent, FormsModule, ConvertKeyLabel, NgClass, NgTemplateOutlet],
 })
 export class PublishVersionComponent implements OnInit {
+  message: string = null;
 
-    message: string = null;
+  list: ListType = null;
+  entry: ListTypeEntry = null;
 
-    list: ListType = null;
-    entry: ListTypeEntry = null;
+  metadata: ListVersionMetadata = null;
 
-    metadata: ListVersionMetadata = null;
+  tab: string = 'LIST';
 
-    tab: string = "LIST";
+  readonly: boolean = false;
 
-    readonly: boolean = false;
+  // eslint-disable-next-line no-useless-constructor
+  constructor(
+    private service: ListTypeService,
+    private bsModalRef: BsModalRef
+  ) {}
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor(
-        private service: ListTypeService,
-        private bsModalRef: BsModalRef) { }
+  ngOnInit(): void {}
 
-    ngOnInit(): void {
+  init(list: ListType, entry: ListTypeEntry, version?: ListTypeVersion): void {
+    this.list = list;
+    this.entry = entry;
+    this.readonly = !list.write;
+
+    if (version == null) {
+      const working: ListTypeVersion = entry.versions[entry.versions.length - 1];
+
+      this.metadata = {
+        listMetadata: {
+          visibility: 'PRIVATE',
+          master: false,
+          ...JSON.parse(JSON.stringify(working.listMetadata)),
+        },
+        geospatialMetadata: {
+          visibility: 'PRIVATE',
+          master: false,
+          ...JSON.parse(JSON.stringify(working.geospatialMetadata)),
+        },
+      };
+    } else {
+      this.metadata = version;
     }
+  }
 
-    init(list: ListType, entry: ListTypeEntry, version?: ListTypeVersion): void {
-        this.list = list;
-        this.entry = entry;
-        this.readonly = !list.write;
+  onSubmit(): void {
+    if (this.metadata.oid != null) {
+      this.service
+        .applyVersion(this.metadata)
+        .then((version) => {
+          if (this.entry.versions != null) {
+            const index = this.entry.versions.findIndex((v) => v.oid === version.oid);
 
-        if (version == null) {
-            const working: ListTypeVersion = entry.versions[entry.versions.length - 1];
+            version.collapsed = this.entry.versions[index].collapsed;
 
-            this.metadata = {
-                listMetadata: {
-                    visibility: "PRIVATE",
-                    master: false,
-                    ...JSON.parse(JSON.stringify(working.listMetadata))
-                },
-                geospatialMetadata: {
-                    visibility: "PRIVATE",
-                    master: false,
-                    ...JSON.parse(JSON.stringify(working.geospatialMetadata))
-                }
-            };
-        } else {
-            this.metadata = version;
-        }
+            this.entry.versions[index] = version;
+          }
+          this.bsModalRef.hide();
+        })
+        .catch((err: HttpErrorResponse) => {
+          this.error(err);
+        });
+    } else {
+      this.service
+        .createVersion(this.entry, this.metadata)
+        .then((version) => {
+          this.entry.versions.unshift(version);
+          this.bsModalRef.hide();
+        })
+        .catch((err: HttpErrorResponse) => {
+          this.error(err);
+        });
     }
+  }
 
-    onSubmit(): void {
-        if (this.metadata.oid != null) {
-            this.service.applyVersion(this.metadata).then(version => {
-                if (this.entry.versions != null) {
-                    const index = this.entry.versions.findIndex(v => v.oid === version.oid);
+  onCancel(): void {
+    this.bsModalRef.hide();
+  }
 
-                    version.collapsed = this.entry.versions[index].collapsed;
+  handleTab(tab: string): void {
+    this.tab = tab;
+  }
 
-                    this.entry.versions[index] = version;
-                }
-                this.bsModalRef.hide();
-            }).catch((err: HttpErrorResponse) => {
-                this.error(err);
-            });
-        } else {
-            this.service.createVersion(this.entry, this.metadata).then(version => {
-                this.entry.versions.unshift(version);
-                this.bsModalRef.hide();
-            }).catch((err: HttpErrorResponse) => {
-                this.error(err);
-            });
-        }
-    }
-
-    onCancel(): void {
-        this.bsModalRef.hide();
-    }
-
-    handleTab(tab: string): void {
-        this.tab = tab;
-    }
-
-    error(err: HttpErrorResponse): void {
-        this.message = ErrorHandler.getMessageFromError(err);
-    }
-
+  error(err: HttpErrorResponse): void {
+    this.message = ErrorHandler.getMessageFromError(err);
+  }
 }

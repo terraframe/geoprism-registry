@@ -19,7 +19,7 @@
 
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { HttpErrorResponse } from "@angular/common/http";
+import { HttpErrorResponse } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 
 import { User } from '@admin/model/account';
@@ -27,59 +27,71 @@ import { AccountService } from '@admin/service/account.service';
 
 import { ErrorHandler } from '@shared/component';
 
-import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
+import { GeoRegistryConfiguration } from '@core/model/core';
+import { environment } from 'src/environments/environment';
 import { LocalizePipe } from '../../../shared/pipe/localize.pipe';
 import { PasswordStrengthBarComponent } from '../../../shared/component/password-strength-bar/password-strength-bar.component';
 import { FormsModule } from '@angular/forms';
-import { NgIf } from '@angular/common';
+
 import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
 import { LoadingBarComponent } from '../../../shared/component/loading-bar/loading-bar.component';
 import { MessageComponent } from '../../../shared/component/message/message.component';
 import { CgrHeaderComponent } from '../../../shared/component/header/header.component';
 
 @Component({
-    selector: 'account-invite-complete',
-    templateUrl: './account-invite-complete.component.html',
-    styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}'],
-    standalone: true,
-    imports: [CgrHeaderComponent, MessageComponent, LoadingBarComponent, LocalizeComponent, NgIf, FormsModule, PasswordStrengthBarComponent, LocalizePipe]
+  selector: 'account-invite-complete',
+  templateUrl: './account-invite-complete.component.html',
+  styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}'],
+  standalone: true,
+  imports: [
+    CgrHeaderComponent,
+    MessageComponent,
+    LoadingBarComponent,
+    LocalizeComponent,
+    FormsModule,
+    PasswordStrengthBarComponent,
+    LocalizePipe,
+  ],
 })
 export class AccountInviteCompleteComponent implements OnInit, OnDestroy {
-	user: User;
-	sub: Subscription;
-	token: string;
-	message: string = null;
+  user: User;
+  sub: Subscription;
+  token: string;
+  message: string = null;
 
-	constructor(
-		private service: AccountService,
-		private route: ActivatedRoute) {
-	}
+  constructor(
+    private service: AccountService,
+    private route: ActivatedRoute
+  ) {}
 
-	ngOnInit(): void {
-	  this.user = new User();
+  ngOnInit(): void {
+    this.user = new User();
 
-		this.sub = this.route.params.subscribe(params => {
-			this.token = params['token'];
-		});
-	}
+    this.sub = this.route.params.subscribe((params) => {
+      this.token = params['token'];
+    });
+  }
 
-	ngOnDestroy(): void {
-		this.sub.unsubscribe();
-	}
+  ngOnDestroy(): void {
+    this.sub.unsubscribe();
+  }
 
-	cancel(): void {
-		window.location.href = environment.apiUrl;
-	}
+  cancel(): void {
+    window.location.href = environment.apiUrl;
+  }
 
-	onSubmit(): void {
-		this.service.inviteComplete(this.user, this.token).then(response => {
-			window.location.href = environment.apiUrl;
-		}).catch((err: HttpErrorResponse) => {
-			this.error(err);
-		});
-	}
+  onSubmit(): void {
+    this.service
+      .inviteComplete(this.user, this.token)
+      .then((response) => {
+        window.location.href = environment.apiUrl;
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
 
-	error(err: HttpErrorResponse): void {
-		this.message = ErrorHandler.getMessageFromError(err);
-	}
+  error(err: HttpErrorResponse): void {
+    this.message = ErrorHandler.getMessageFromError(err);
+  }
 }

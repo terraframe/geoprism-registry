@@ -17,26 +17,23 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input } from "@angular/core";
-import { LocalizationService } from "@shared/service/localization.service";
-import { LocalizeComponent } from "../localize/localize.component";
-import { NgIf } from "@angular/common";
+import { Component, Input } from '@angular/core';
+import { LocalizationService } from '@shared/service/localization.service';
+import { LocalizeComponent } from '../localize/localize.component';
 
 @Component({
-    selector: "error-message",
-    templateUrl: "./error-message.component.html",
-    styleUrls: ["./error-message.css"],
-    standalone: true,
-    imports: [NgIf, LocalizeComponent]
+  selector: 'error-message',
+  templateUrl: './error-message.component.html',
+  styleUrls: ['./error-message.css'],
+  standalone: true,
+  imports: [LocalizeComponent],
 })
 export class ErrorMessageComponent {
+  /*
+   * Message
+   */
+  @Input() message: string = this.localizeService.decode('error.modal.default.message');
 
-    /*
-     * Message
-     */
-    @Input() message: string = this.localizeService.decode("error.modal.default.message");
-
-    // eslint-disable-next-line no-useless-constructor
-    constructor(private localizeService: LocalizationService) { }
-
+  // eslint-disable-next-line no-useless-constructor
+  constructor(private localizeService: LocalizationService) {}
 }

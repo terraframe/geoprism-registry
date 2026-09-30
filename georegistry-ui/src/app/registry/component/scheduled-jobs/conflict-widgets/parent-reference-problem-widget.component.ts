@@ -17,133 +17,154 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, Input, EventEmitter, Output } from "@angular/core";
-import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
+import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
+import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 
-import { Observable } from "rxjs";
-import { HttpErrorResponse } from "@angular/common/http";
+import { Observable } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 
-import { TypeaheadMatch, TypeaheadModule } from "ngx-bootstrap/typeahead";
+import { TypeaheadMatch, TypeaheadModule } from 'ngx-bootstrap/typeahead';
 
-import { ScheduledJob, ValidationResolve } from "@registry/model/registry";
-import { RegistryService, IOService } from "@registry/service";
-import { DateService } from "@shared/service/date.service";
+import { ScheduledJob, ValidationResolve } from '@registry/model/registry';
+import { RegistryService, IOService } from '@registry/service';
+import { DateService } from '@shared/service/date.service';
 
-import { ErrorHandler } from "@shared/component";
-import { LocalizationService } from "@shared/service/localization.service";
-import { FormsModule } from "@angular/forms";
-import { DateTextComponent } from "@shared/component/date-text/date-text.component";
-import { LocalizeComponent } from "@shared/component/localize/localize.component";
-import { NgIf, NgFor } from "@angular/common";
+import { ErrorHandler } from '@shared/component';
+import { LocalizationService } from '@shared/service/localization.service';
+import { FormsModule } from '@angular/forms';
+import { DateTextComponent } from '@shared/component/date-text/date-text.component';
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
 
 @Component({
-    selector: "parent-reference-problem-widget",
-    templateUrl: "./parent-reference-problem-widget.component.html",
-    styleUrls: [],
-    standalone: true,
-    imports: [NgIf, LocalizeComponent, DateTextComponent, NgFor, FormsModule, TypeaheadModule]
+  selector: 'parent-reference-problem-widget',
+  templateUrl: './parent-reference-problem-widget.component.html',
+  styleUrls: [],
+  standalone: true,
+  imports: [LocalizeComponent, DateTextComponent, FormsModule, TypeaheadModule],
 })
 export class ParentReferenceProblemWidgetComponent implements OnInit {
+  message: string = null;
+  @Input() problem: any;
+  @Input() job: ScheduledJob;
+  @Output() public onProblemResolved = new EventEmitter<any>();
 
-    message: string = null;
-    @Input() problem: any;
-    @Input() job: ScheduledJob;
-    @Output() public onProblemResolved = new EventEmitter<any>();
+  searchLabel: string;
 
-    searchLabel: string;
+  /*
+   * Observable subject for submission.  Called when an update is successful
+   */
+  // onConflictAction: Subject<any>;
 
-    /*
-     * Observable subject for submission.  Called when an update is successful
-     */
-    // onConflictAction: Subject<any>;
+  readonly: boolean = false;
+  edit: boolean = false;
 
-    readonly: boolean = false;
-    edit: boolean = false;
+  // eslint-disable-next-line no-useless-constructor
+  constructor(
+    private service: RegistryService,
+    private iService: IOService,
+    private dateService: DateService,
+    private lService: LocalizationService,
+    public bsModalRef: BsModalRef,
+    private modalService: BsModalService
+  ) {}
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor(private service: RegistryService, private iService: IOService, private dateService: DateService,
-        private lService: LocalizationService, public bsModalRef: BsModalRef, private modalService: BsModalService
-    ) { }
+  ngOnInit(): void {
+    // this.onConflictAction = new Subject();
 
-    ngOnInit(): void {
-        // this.onConflictAction = new Subject();
+    // this.searchLabel = this.problem.label;
 
-        // this.searchLabel = this.problem.label;
+    this.problem.parent = null;
+    this.searchLabel = '';
+  }
 
-        this.problem.parent = null;
-        this.searchLabel = "";
-    }
+  getString(conflict: any): string {
+    return JSON.stringify(conflict);
+  }
 
-    getString(conflict: any): string {
-        return JSON.stringify(conflict);
-    }
+  getValidationProblemDisplayLabel(conflict: any): string {
+    return conflict.type;
+  }
 
-    getValidationProblemDisplayLabel(conflict: any): string {
-        return conflict.type;
-    }
+  getTypeAheadObservable(typeCode: string, conflict: any): Observable<any> {
+    let parentCode = null;
+    let hierarchyCode = this.job.configuration.hierarchy;
 
-    getTypeAheadObservable(typeCode: string, conflict: any): Observable<any> {
-        let parentCode = null;
-        let hierarchyCode = this.job.configuration.hierarchy;
-
-        return new Observable((observer: any) => {
-            this.service.getGeoObjectSuggestions(this.searchLabel, typeCode, parentCode, null, hierarchyCode, this.job.startDate, this.job.endDate).then(results => {
-                observer.next(results);
-            });
+    return new Observable((observer: any) => {
+      this.service
+        .getGeoObjectSuggestions(
+          this.searchLabel,
+          typeCode,
+          parentCode,
+          null,
+          hierarchyCode,
+          this.job.startDate,
+          this.job.endDate
+        )
+        .then((results) => {
+          observer.next(results);
         });
-    }
+    });
+  }
 
-    typeaheadOnSelect(e: TypeaheadMatch, conflict: any): void {
-        this.searchLabel = '';
+  typeaheadOnSelect(e: TypeaheadMatch, conflict: any): void {
+    this.searchLabel = '';
 
-        this.service.getParentGeoObjects(e.item.code, conflict.typeCode, [], false, this.job.startDate).then(ancestors => {
-            conflict.parent = ancestors.geoObject;
+    this.service
+      .getParentGeoObjects(e.item.code, conflict.typeCode, [], false, this.job.startDate)
+      .then((ancestors) => {
+        conflict.parent = ancestors.geoObject;
 
-            this.searchLabel = e.item.name + ':' + e.item.code;
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
+        this.searchLabel = e.item.name + ':' + e.item.code;
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
 
-    onIgnore(): void {
-        const cfg: ValidationResolve = {
-            resolution: "IGNORE",
-            validationProblemId: this.problem.id
-        };
+  onIgnore(): void {
+    const cfg: ValidationResolve = {
+      resolution: 'IGNORE',
+      validationProblemId: this.problem.id,
+    };
 
-        this.service.submitValidationResolve(cfg).then(response => {
-            this.onProblemResolved.emit(this.problem);
+    this.service
+      .submitValidationResolve(cfg)
+      .then((response) => {
+        this.onProblemResolved.emit(this.problem);
 
-            this.bsModalRef.hide();
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
-
-    onCreateSynonym(): void {
-        const cfg: ValidationResolve = {
-            validationProblemId: this.problem.id,
-            resolution: "SYNONYM",
-            code: this.problem.parent.properties.code,
-            typeCode: this.problem.parent.properties.type,
-            label: this.problem.label
-        };
-
-        this.service.submitValidationResolve(cfg).then(response => {
-            this.onProblemResolved.emit(this.problem);
-
-            this.bsModalRef.hide();
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
-
-    onCancel(): void {
         this.bsModalRef.hide();
-    }
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
 
-    error(err: HttpErrorResponse): void {
-        this.message = ErrorHandler.getMessageFromError(err);
-    }
+  onCreateSynonym(): void {
+    const cfg: ValidationResolve = {
+      validationProblemId: this.problem.id,
+      resolution: 'SYNONYM',
+      code: this.problem.parent.properties.code,
+      typeCode: this.problem.parent.properties.type,
+      label: this.problem.label,
+    };
 
+    this.service
+      .submitValidationResolve(cfg)
+      .then((response) => {
+        this.onProblemResolved.emit(this.problem);
+
+        this.bsModalRef.hide();
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
+
+  onCancel(): void {
+    this.bsModalRef.hide();
+  }
+
+  error(err: HttpErrorResponse): void {
+    this.message = ErrorHandler.getMessageFromError(err);
+  }
 }

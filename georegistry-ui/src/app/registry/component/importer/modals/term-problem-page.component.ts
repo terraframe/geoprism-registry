@@ -21,57 +21,54 @@ import { Component, Input, OnInit, EventEmitter, Output } from '@angular/core';
 import { ImportConfiguration, TermProblem } from '@registry/model/io';
 import { TermProblemComponent } from './term-problem.component';
 import { FormsModule } from '@angular/forms';
-import { NgIf, NgFor } from '@angular/common';
+
 import { LocalizeComponent } from '@shared/component/localize/localize.component';
 
 @Component({
-    selector: 'term-problem-page',
-    templateUrl: './term-problem-page.component.html',
-    styleUrls: [],
-    standalone: true,
-    imports: [LocalizeComponent, NgIf, FormsModule, NgFor, TermProblemComponent]
+  selector: 'term-problem-page',
+  templateUrl: './term-problem-page.component.html',
+  styleUrls: [],
+  standalone: true,
+  imports: [LocalizeComponent, FormsModule, TermProblemComponent],
 })
 export class TermProblemPageComponent implements OnInit {
+  @Input() configuration: ImportConfiguration;
+  @Output() stateChange = new EventEmitter<string>();
+  message: string = null;
 
-    @Input() configuration: ImportConfiguration;
-    @Output() stateChange = new EventEmitter<string>();
-    message: string = null;
+  constructor() {}
 
-    constructor() { }
+  ngOnInit(): void {}
 
-    ngOnInit(): void {
+  hasProblems(): boolean {
+    for (let i = 0; i < this.configuration.termProblems.length; i++) {
+      if (!this.configuration.termProblems[i].resolved) {
+        return true;
+      }
     }
 
-    hasProblems(): boolean {
-        for ( let i = 0; i < this.configuration.termProblems.length; i++ ) {
+    return false;
+  }
 
-            if ( !this.configuration.termProblems[i].resolved ) {
-                return true;
-            }
-        }
-
-        return false;
+  onNext(): void {
+    if (this.configuration.exclusions == null) {
+      this.configuration.exclusions = [];
     }
 
-    onNext(): void {
-        if ( this.configuration.exclusions == null ) {
-            this.configuration.exclusions = [];
-        }
+    for (let i = 0; i < this.configuration.termProblems.length; i++) {
+      const problem = this.configuration.termProblems[i];
 
-        for ( let i = 0; i < this.configuration.termProblems.length; i++ ) {
-            const problem = this.configuration.termProblems[i];
+      if (problem.resolved && problem.action.name == 'IGNORE') {
+        const exclusion = { code: problem.attributeCode, value: problem.label };
 
-            if ( problem.resolved && problem.action.name == 'IGNORE' ) {
-                const exclusion = { code: problem.attributeCode, value: problem.label };
-
-                this.configuration.exclusions.push( exclusion );
-            }
-        }
-
-        this.stateChange.emit( 'NEXT' );
+        this.configuration.exclusions.push(exclusion);
+      }
     }
 
-    onCancel(): void {
-        this.stateChange.emit( 'CANCEL' );
-    }
+    this.stateChange.emit('NEXT');
+  }
+
+  onCancel(): void {
+    this.stateChange.emit('CANCEL');
+  }
 }

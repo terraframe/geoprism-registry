@@ -6,9 +6,6 @@ import java.util.Optional;
 import org.apache.http.message.BasicNameValuePair;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
 import com.google.gson.JsonArray;
 
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
@@ -26,6 +23,9 @@ import net.geoprism.registry.view.ConceptClassDTO;
 import net.geoprism.registry.view.ConceptEdgeTypeDTO;
 import net.geoprism.registry.view.ConceptSetDTO;
 import net.geoprism.registry.view.PublishDTO;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectReader;
+import tools.jackson.databind.json.JsonMapper;
 
 @Service
 public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
@@ -54,7 +54,7 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
 
       if (response.isSuccess())
       {
-        ObjectMapper mapper = new ObjectMapper();
+        JsonMapper mapper = JsonMapper.shared();
 
         try
         {
@@ -62,7 +62,7 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
 
           return reader.readValue(response.getResponse());
         }
-        catch (JsonProcessingException e)
+        catch (JacksonException e)
         {
           throw new RemoteConnectionException(e);
         }
@@ -78,13 +78,13 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
 
       if (response.isSuccess())
       {
-        ObjectMapper mapper = new ObjectMapper();
+        JsonMapper mapper = JsonMapper.shared();
 
         try
         {
           return Optional.ofNullable(mapper.readValue(response.getResponse(), PublishDTO.class));
         }
-        catch (JsonProcessingException e)
+        catch (JacksonException e)
         {
           throw new RemoteConnectionException(e);
         }
@@ -100,13 +100,13 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
 
       if (response.isSuccess())
       {
-        ObjectMapper mapper = new ObjectMapper();
+        JsonMapper mapper = JsonMapper.shared();
 
         try
         {
           return Optional.ofNullable(mapper.readValue(response.getResponse(), CommitDTO.class));
         }
-        catch (JsonProcessingException e)
+        catch (JacksonException e)
         {
           throw new RemoteConnectionException(e);
         }
@@ -122,7 +122,7 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
 
       if (response.isSuccess())
       {
-        ObjectMapper mapper = new ObjectMapper();
+        JsonMapper mapper = JsonMapper.shared();
 
         try
         {
@@ -130,7 +130,7 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
 
           return reader.readValue(response.getResponse());
         }
-        catch (JsonProcessingException e)
+        catch (JacksonException e)
         {
           throw new RemoteConnectionException(e);
         }
@@ -146,7 +146,7 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
 
       if (response.isSuccess())
       {
-        ObjectMapper mapper = new ObjectMapper();
+        JsonMapper mapper = JsonMapper.shared();
 
         try
         {
@@ -154,7 +154,7 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
 
           return reader.readValue(response.getResponse());
         }
-        catch (JsonProcessingException e)
+        catch (JacksonException e)
         {
           throw new RemoteConnectionException(e);
         }
@@ -170,7 +170,7 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
 
       if (response.isSuccess())
       {
-        ObjectMapper mapper = new ObjectMapper();
+        JsonMapper mapper = JsonMapper.shared();
 
         try
         {
@@ -178,7 +178,7 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
 
           return reader.readValue(response.getResponse());
         }
-        catch (JsonProcessingException e)
+        catch (JacksonException e)
         {
           throw new RemoteConnectionException(e);
         }
@@ -194,7 +194,7 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
 
       if (response.isSuccess())
       {
-        ObjectMapper mapper = new ObjectMapper();
+        JsonMapper mapper = JsonMapper.shared();
 
         try
         {
@@ -202,7 +202,7 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
 
           return reader.readValue(response.getResponse());
         }
-        catch (JsonProcessingException e)
+        catch (JacksonException e)
         {
           throw new RemoteConnectionException(e);
         }
@@ -218,7 +218,7 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
 
       if (response.isSuccess())
       {
-        ObjectMapper mapper = new ObjectMapper();
+        JsonMapper mapper = JsonMapper.shared();
 
         try
         {
@@ -226,7 +226,7 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
 
           return reader.readValue(response.getResponse());
         }
-        catch (JsonProcessingException e)
+        catch (JacksonException e)
         {
           throw new RemoteConnectionException(e);
         }
@@ -242,7 +242,7 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
 
       if (response.isSuccess())
       {
-        ObjectMapper mapper = new ObjectMapper();
+        JsonMapper mapper = JsonMapper.shared();
 
         try
         {
@@ -250,7 +250,7 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
 
           return reader.readValue(response.getResponse());
         }
-        catch (JsonProcessingException e)
+        catch (JacksonException e)
         {
           throw new RemoteConnectionException(e);
         }
@@ -266,7 +266,7 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
 
       if (response.isSuccess())
       {
-        ObjectMapper mapper = new ObjectMapper();
+        JsonMapper mapper = JsonMapper.shared();
 
         try
         {
@@ -274,7 +274,7 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
 
           return reader.readValue(response.getResponse());
         }
-        catch (JsonProcessingException e)
+        catch (JacksonException e)
         {
           throw new RemoteConnectionException(e);
         }
@@ -303,7 +303,7 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
 
       if (response.isSuccess())
       {
-        ObjectMapper mapper = new ObjectMapper();
+        JsonMapper mapper = JsonMapper.shared();
 
         try
         {
@@ -311,7 +311,7 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
 
           return reader.readValue(response.getResponse());
         }
-        catch (JsonProcessingException e)
+        catch (JacksonException e)
         {
           throw new RemoteConnectionException(e);
         }
@@ -366,7 +366,7 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
 
       if (response.isSuccess())
       {
-        ObjectMapper mapper = new ObjectMapper();
+        JsonMapper mapper = JsonMapper.shared();
 
         try
         {
@@ -374,7 +374,7 @@ public class RemoteClientBuilderService implements RemoteClientBuilderServiceIF
 
           return reader.readValue(response.getMessage());
         }
-        catch (JsonProcessingException e)
+        catch (JacksonException e)
         {
           throw new RemoteConnectionException(e.getMessage());
         }

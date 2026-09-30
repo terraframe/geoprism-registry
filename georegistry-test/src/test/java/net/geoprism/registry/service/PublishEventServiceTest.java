@@ -19,12 +19,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.scheduling.concurrent.ConcurrentTaskExecutor;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -80,6 +78,8 @@ import net.geoprism.registry.view.ConceptClassDTO;
 import net.geoprism.registry.view.ConceptEdgeTypeDTO;
 import net.geoprism.registry.view.PublishDTO;
 import net.geoprism.registry.view.TypeClass;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
@@ -532,8 +532,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.enable(SerializationFeature.INDENT_OUTPUT);
+    JsonMapper mapper = JsonMapper.builder().enable(SerializationFeature.INDENT_OUTPUT).build();
 
     PublishDTO pDto = publish.toDTO();
     pDto.setUid(uid);

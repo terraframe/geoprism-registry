@@ -17,118 +17,125 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, ViewChild, Input, EventEmitter, Output } from "@angular/core";
-import { BsModalRef } from "ngx-bootstrap/modal";
-import { HttpErrorResponse } from "@angular/common/http";
-import { ErrorHandler } from "@shared/component";
-import { StepConfig } from "@shared/model/modal";
+import { Component, OnInit, ViewChild, Input, EventEmitter, Output } from '@angular/core';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ErrorHandler } from '@shared/component';
+import { StepConfig } from '@shared/model/modal';
 
-import { LocalizationService, ModalStepIndicatorService } from "@shared/service";
+import { LocalizationService, ModalStepIndicatorService } from '@shared/service';
 
-import { AttributeType, ManageGeoObjectTypeModalState, AttributedType } from "@registry/model/registry";
-import { GeoObjectTypeModalStates } from "@registry/model/constants";
-import { AttributeTypeService } from "@registry/service";
-import { AttributeInputComponent } from "./attribute-input.component";
-import { LocalizeComponent } from "@shared/component/localize/localize.component";
-import { NgIf, NgClass } from "@angular/common";
-import { FormsModule } from "@angular/forms";
+import { AttributeType, ManageGeoObjectTypeModalState, AttributedType } from '@registry/model/registry';
+import { GeoObjectTypeModalStates } from '@registry/model/constants';
+import { AttributeTypeService } from '@registry/service';
+import { AttributeInputComponent } from './attribute-input.component';
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
+import { NgClass } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
-    selector: "define-attribute-modal-content",
-    templateUrl: "./define-attribute-modal-content.component.html",
-    styleUrls: ["./define-attribute-modal-content.css"],
-    standalone: true,
-    imports: [FormsModule, NgIf, LocalizeComponent, NgClass, AttributeInputComponent]
+  selector: 'define-attribute-modal-content',
+  templateUrl: './define-attribute-modal-content.component.html',
+  styleUrls: ['./define-attribute-modal-content.css'],
+  standalone: true,
+  imports: [FormsModule, LocalizeComponent, NgClass, AttributeInputComponent],
 })
 export class DefineAttributeModalContentComponent implements OnInit {
+  @Input() geoObjectType: AttributedType;
+  @Input() service: AttributeTypeService;
+  @Input() manageChangeOverTime: boolean = false;
 
-    @Input() geoObjectType: AttributedType;
-    @Input() service: AttributeTypeService;
-    @Input() manageChangeOverTime: boolean = false;
+  @Output() stateChange: EventEmitter<ManageGeoObjectTypeModalState> =
+    new EventEmitter<ManageGeoObjectTypeModalState>();
+  @Output() geoObjectTypeChange: EventEmitter<AttributedType> = new EventEmitter<AttributedType>();
 
-    @Output() stateChange: EventEmitter<ManageGeoObjectTypeModalState> = new EventEmitter<ManageGeoObjectTypeModalState>();
-    @Output() geoObjectTypeChange: EventEmitter<AttributedType> = new EventEmitter<AttributedType>();
+  message: string = null;
+  newAttribute: AttributeType = null;
+  modalStepConfig: StepConfig = {
+    steps: [
+      { label: this.localizeService.decode('modal.step.indicator.manage.geoobjecttype'), active: true, enabled: false },
+      { label: this.localizeService.decode('modal.step.indicator.manage.attributes'), active: true, enabled: false },
+      { label: this.localizeService.decode('modal.step.indicator.create.attribute'), active: true, enabled: true },
+    ],
+  };
 
-    message: string = null;
-    newAttribute: AttributeType = null;
-    modalStepConfig: StepConfig = {
-        steps: [
-            { label: this.localizeService.decode("modal.step.indicator.manage.geoobjecttype"), active: true, enabled: false },
-            { label: this.localizeService.decode("modal.step.indicator.manage.attributes"), active: true, enabled: false },
-            { label: this.localizeService.decode("modal.step.indicator.create.attribute"), active: true, enabled: true }
-        ]
+  modalState: ManageGeoObjectTypeModalState = {
+    state: GeoObjectTypeModalStates.defineAttribute,
+    attribute: '',
+    termOption: '',
+  };
+
+  @ViewChild(AttributeInputComponent) attributeInputComponent: AttributeInputComponent;
+
+  // eslint-disable-next-line no-useless-constructor
+  constructor(
+    private modalStepIndicatorService: ModalStepIndicatorService,
+    private localizeService: LocalizationService
+  ) {}
+
+  ngOnInit(): void {
+    this.setAttribute('character');
+    this.modalStepIndicatorService.setStepConfig(this.modalStepConfig);
+  }
+
+  ngAfterViewInit(): void {
+    if (this.attributeInputComponent) {
+      this.attributeInputComponent.animate();
+    }
+  }
+
+  handleOnSubmit(): void {
+    this.service
+      .addAttributeType(this.geoObjectType.code, this.newAttribute)
+      .then((data) => {
+        this.geoObjectType.attributes.push(data);
+
+        this.stateChange.emit({ state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: '', termOption: '' });
+
+        this.geoObjectTypeChange.emit(this.geoObjectType);
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
+
+  setAttribute(type: string): void {
+    this.newAttribute = {
+      code: '',
+      type: type,
+      label: this.localizeService.create(),
+      description: this.localizeService.create(),
+      isDefault: false,
+      required: false,
+      unique: false,
+      isChangeOverTime: true,
     };
 
-    modalState: ManageGeoObjectTypeModalState = { state: GeoObjectTypeModalStates.defineAttribute, attribute: "", termOption: "" };
+    if (type === 'float') {
+      this.newAttribute.precision = 32;
+      this.newAttribute.scale = 8;
+    }
+  }
 
-    @ViewChild(AttributeInputComponent) attributeInputComponent: AttributeInputComponent;
+  isFormValid(): boolean {
+    let isAttrValid: boolean = false;
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor(
-        private modalStepIndicatorService: ModalStepIndicatorService,
-        private localizeService: LocalizationService) { }
-
-    ngOnInit(): void {
-        this.setAttribute("character");
-        this.modalStepIndicatorService.setStepConfig(this.modalStepConfig);
+    if (this.attributeInputComponent) {
+      isAttrValid = this.attributeInputComponent.isValid();
     }
 
-    ngAfterViewInit(): void {
-        if (this.attributeInputComponent) {
-            this.attributeInputComponent.animate();
-        }
+    if (isAttrValid) {
+      return true;
     }
 
-    handleOnSubmit(): void {
-        this.service.addAttributeType(this.geoObjectType.code, this.newAttribute).then(data => {
-            this.geoObjectType.attributes.push(data);
+    return false;
+  }
 
-            this.stateChange.emit({ state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: "", termOption: "" });
+  cancel(): void {
+    this.stateChange.emit({ state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: '', termOption: '' });
+  }
 
-            this.geoObjectTypeChange.emit(this.geoObjectType);
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
-
-    setAttribute(type: string): void {
-        this.newAttribute = {
-            code: "",
-            type: type,
-            label: this.localizeService.create(),
-            description: this.localizeService.create(),
-            isDefault: false,
-            required: false,
-            unique: false,
-            isChangeOverTime: true,
-        }
-
-        if (type === "float") {
-            this.newAttribute.precision = 32;
-            this.newAttribute.scale = 8;
-        }
-    }
-
-    isFormValid(): boolean {
-        let isAttrValid: boolean = false;
-
-        if (this.attributeInputComponent) {
-            isAttrValid = this.attributeInputComponent.isValid();
-        }
-
-        if (isAttrValid) {
-            return true;
-        }
-
-        return false;
-    }
-
-    cancel(): void {
-        this.stateChange.emit({ state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: "", termOption: "" });
-    }
-
-    error(err: HttpErrorResponse): void {
-        this.message = ErrorHandler.getMessageFromError(err);
-    }
-
+  error(err: HttpErrorResponse): void {
+    this.message = ErrorHandler.getMessageFromError(err);
+  }
 }

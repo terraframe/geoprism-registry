@@ -1,54 +1,58 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<div style="background-color: white; height: 160px;">
-    <div class="row">
-        <div class="col-md-12">
-
-            <div class="row" *ngIf="list">
-                <div class="col-md-4">
-                    <h2>
-                        {{list.displayLabel}}
-                    </h2>
-                </div>
-                <div class="col-md-8">
-                    <div class="text-right" style="margin-top: 10px; margin-right: 5px;">
-                        <button type="button" class="btn btn-default" (click)="onClose()">
-                            <localize key="modal.button.close"></localize>
-                        </button>
-                    </div>
-                </div>
-
+<div style="background-color: white; height: 160px">
+  <div class="row">
+    <div class="col-md-12">
+      @if (list) {
+        <div class="row">
+          <div class="col-md-4">
+            <h2>
+              {{ list.displayLabel }}
+            </h2>
+          </div>
+          <div class="col-md-8">
+            <div class="text-right" style="margin-top: 10px; margin-right: 5px">
+              <button type="button" class="btn btn-default" (click)="onClose()">
+                <localize key="modal.button.close"></localize>
+              </button>
             </div>
-
-            <div class="row" style="padding-bottom: 10px;">
-                <div *ngIf="list != null && tableState != null" class="col-md-12">
-
-                    <ng-container *ngIf="setup != null && config != null">
-                        <generic-table [setup]="setup" [config]="config"
-                            [pageConfig]="{oid: list.oid, showInvalid: false}" [initialState]="tableState"
-                            [paginator]="false"></generic-table>
-                    </ng-container>
-
-                </div>
-            </div>
+          </div>
         </div>
+      }
+
+      <div class="row" style="padding-bottom: 10px">
+        @if (list != null && tableState != null) {
+          <div class="col-md-12">
+            @if (setup != null && config != null) {
+              <generic-table
+                [setup]="setup"
+                [config]="config"
+                [pageConfig]="{ oid: list.oid, showInvalid: false }"
+                [initialState]="tableState"
+                [paginator]="false"
+              ></generic-table>
+            }
+          </div>
+        }
+      </div>
     </div>
+  </div>
 </div>

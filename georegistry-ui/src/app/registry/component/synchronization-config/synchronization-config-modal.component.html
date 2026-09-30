@@ -1,25 +1,27 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <div class="modal-body">
-  <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+  @if (message != null) {
+    <div class="alert alert-danger" role="alert">{{ message }}</div>
+  }
 
   <div class="text-center">
     <h2>
@@ -27,85 +29,155 @@
     </h2>
   </div>
   <form #form="ngForm" class="modal-form" (ngSubmit)="form.valid && onSubmit()">
-
     <fieldset>
-      <div class="row-holder" *ngFor="let localeValue of config.label.localeValues">
-        <div class="label-holder">
-          <label> <localize key="synchronization.config.label"></localize> (<convert-key-label [key]="localeValue.locale"></convert-key-label>)
-          </label>
+      @for (localeValue of config.label.localeValues; track localeValue.locale) {
+        <div class="row-holder">
+          <div class="label-holder">
+            <label>
+              <localize key="synchronization.config.label"></localize> (<convert-key-label
+                [key]="localeValue.locale"
+              ></convert-key-label
+              >)
+            </label>
+          </div>
+          <div class="holder">
+            <input
+              [(ngModel)]="localeValue.value"
+              [name]="'label-' + localeValue.locale"
+              type="text"
+              class="form-control"
+              [required]="localeValue.locale === 'defaultLocale'"
+            />
+          </div>
         </div>
-        <div class="holder">
-          <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="text" class="form-control" [required]="localeValue.locale === 'defaultLocale'" />
-        </div>
-      </div>
+      }
       <div class="row-holder">
         <div class="label-holder">
           <label><localize key="synchronization.config.organization"></localize></label>
         </div>
         <div class="holder">
           <span class="select">
-            <select type="text" [(ngModel)]="config.organization" name="organization" (change)='onOrganizationSelected()' [disabled]="config.oid != null" required>
+            <select
+              type="text"
+              [(ngModel)]="config.organization"
+              name="organization"
+              (change)="onOrganizationSelected()"
+              [disabled]="config.oid != null"
+              required
+            >
               <option></option>
-              <option *ngFor="let org of organizations" [value]="org.code">{{org.label}}</option>
-            </select>
-          </span>
-        </div>
-      </div>
-      
-      <div *ngIf="cOrg != null" class="row-holder">
-        <div class="label-holder">
-          <label><localize key="synchronization.config.system"></localize></label>
-        </div>
-        <div class="holder">
-          <span class="select">
-            <select type="text" [(ngModel)]="config.system" name="system" (change)='onChangeExternalSystem()' [disabled]="config.oid != null" required>
-              <option></option>
-              <option *ngFor="let system of cOrg.systems" [value]="system.oid">{{system.label}}</option>
+              @for (org of organizations; track org.code) {
+                <option [value]="org.code">{{ org.label }}</option>
+              }
             </select>
           </span>
         </div>
       </div>
 
-      <ng-container *ngIf="cSystem != null && cSystem.type === 'DHIS2ExternalSystem'">
-        <dhis2-synchronization-config [config]="config" [cOrg]="cOrg" [fieldChange]="fieldChange" (onError)="error($event)"></dhis2-synchronization-config>
-      </ng-container>
-      <ng-container *ngIf="cSystem != null && cSystem.type === 'FhirExternalSystem'">
+      @if (cOrg != null) {
+        <div class="row-holder">
+          <div class="label-holder">
+            <label><localize key="synchronization.config.system"></localize></label>
+          </div>
+          <div class="holder">
+            <span class="select">
+              <select
+                type="text"
+                [(ngModel)]="config.system"
+                name="system"
+                (change)="onChangeExternalSystem()"
+                [disabled]="config.oid != null"
+                required
+              >
+                <option></option>
+                @for (system of cOrg.systems; track system.oid) {
+                  <option [value]="system.oid">{{ system.label }}</option>
+                }
+              </select>
+            </span>
+          </div>
+        </div>
+      }
+
+      @if (cSystem != null && cSystem.type === 'DHIS2ExternalSystem') {
+        <dhis2-synchronization-config
+          [config]="config"
+          [cOrg]="cOrg"
+          [fieldChange]="fieldChange"
+          (onError)="error($event)"
+        ></dhis2-synchronization-config>
+      }
+      @if (cSystem != null && cSystem.type === 'FhirExternalSystem') {
         <div class="row-holder">
           <div class="label-holder">
             <label>Synchronization Type</label>
           </div>
           <div class="holder">
-            <div class="col-md-3" style="display: flex; align-items: center;">
+            <div class="col-md-3" style="display: flex; align-items: center">
               <label class="radio-inline radio">
-                <input class="inline-radio-input" style="height:auto;" type="radio" [(ngModel)]="isImport" [checked]="!isImport" name="isImport" [value]="false">
+                <input
+                  class="inline-radio-input"
+                  style="height: auto"
+                  type="radio"
+                  [(ngModel)]="isImport"
+                  [checked]="!isImport"
+                  name="isImport"
+                  [value]="false"
+                />
                 <span>Export</span>
-              </label>                
+              </label>
               <label class="radio-inline radio">
-                <input class="inline-radio-input" style="height:auto;" type="radio" [(ngModel)]="isImport" [checked]="isImport" name="isImport" [value]="true">
+                <input
+                  class="inline-radio-input"
+                  style="height: auto"
+                  type="radio"
+                  [(ngModel)]="isImport"
+                  [checked]="isImport"
+                  name="isImport"
+                  [value]="true"
+                />
                 <span>Import</span>
-              </label>                
-            </div>          
+              </label>
+            </div>
           </div>
         </div>
-      
-        <fhir-export-synchronization-config *ngIf="isImport !== true" [config]="config" [fieldChange]="fieldChange" (onError)="error($event)"></fhir-export-synchronization-config>
-        <fhir-import-synchronization-config *ngIf="isImport === true" [config]="config" [fieldChange]="fieldChange" (onError)="error($event)"></fhir-import-synchronization-config>
-      </ng-container>
-      <ng-container *ngIf="cSystem != null && cSystem.type === 'JenaExternalSystem'">
-        <jena-export-synchronization-config [config]="config" [fieldChange]="fieldChange" (onError)="error($event)"></jena-export-synchronization-config>
-      </ng-container>
-
+        @if (isImport !== true) {
+          <fhir-export-synchronization-config
+            [config]="config"
+            [fieldChange]="fieldChange"
+            (onError)="error($event)"
+          ></fhir-export-synchronization-config>
+        }
+        @if (isImport === true) {
+          <fhir-import-synchronization-config
+            [config]="config"
+            [fieldChange]="fieldChange"
+            (onError)="error($event)"
+          ></fhir-import-synchronization-config>
+        }
+      }
+      @if (cSystem != null && cSystem.type === 'JenaExternalSystem') {
+        <jena-export-synchronization-config
+          [config]="config"
+          [fieldChange]="fieldChange"
+          (onError)="error($event)"
+        ></jena-export-synchronization-config>
+      }
 
       <div class="row-holder">
         <div class="label-holder"></div>
         <div class="holder">
           <div class="button-holder">
             <input type="button" [value]="'dataset.cancel' | localize" class="btn btn-default" (click)="cancel()" />
-            <input type="submit" [value]="'dataset.submit' | localize" class="btn btn-primary" [disabled]="!(form.valid)" />
+            <input
+              type="submit"
+              [value]="'dataset.submit' | localize"
+              class="btn btn-primary"
+              [disabled]="!form.valid"
+            />
           </div>
         </div>
       </div>
-
     </fieldset>
   </form>
 </div>

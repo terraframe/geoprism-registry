@@ -21,67 +21,65 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
 import { IdMapping, ImportConfiguration } from '@registry/model/io';
 
-import { NgFor, NgIf } from '@angular/common';
 import { LocalizeComponent } from '@shared/component/localize/localize.component';
 import { FormsModule } from '@angular/forms';
 import { SourceAuthority } from '@registry/model/source';
-import { v4 as uuid } from "uuid";
+import { v4 as uuid } from 'uuid';
 import { UniqueMappingValidatorDirective } from './unique-mapping-validator.directive';
 
 @Component({
-    selector: 'id-mapping-page',
-    templateUrl: './id-mapping-page.component.html',
-    styleUrls: [],
-    standalone: true,
-    imports: [FormsModule, NgFor, NgIf, LocalizeComponent, UniqueMappingValidatorDirective]
+  selector: 'id-mapping-page',
+  templateUrl: './id-mapping-page.component.html',
+  styleUrls: [],
+  standalone: true,
+  imports: [FormsModule, LocalizeComponent, UniqueMappingValidatorDirective],
 })
 export class IdMappingPageComponent implements OnInit {
+  @Input() configuration: ImportConfiguration;
+  @Input() hasNext: boolean = false;
+  @Input() hasBack: boolean = false;
+  @Input() authorities: SourceAuthority[] = [];
 
-    @Input() configuration: ImportConfiguration;
-    @Input() hasNext: boolean = false;
-    @Input() hasBack: boolean = false;
-    @Input() authorities: SourceAuthority[] = [];
+  @Output() configurationChange = new EventEmitter<ImportConfiguration>();
+  @Output() stateChange = new EventEmitter<string>();
 
-    @Output() configurationChange = new EventEmitter<ImportConfiguration>();
-    @Output() stateChange = new EventEmitter<string>();
+  constructor() {}
 
-    constructor() { }
-
-    ngOnInit(): void {
-        if (this.configuration.ids != null) {
-            this.configuration.ids = []
-        }
+  ngOnInit(): void {
+    if (this.configuration.ids != null) {
+      this.configuration.ids = [];
     }
+  }
 
-    onAdd(): void {
-        this.configuration.ids.push({
-            id: uuid(),
-            authority: "",
-            function: {
-                type: "basic",
-                target: ""
-            }
-        })
+  onAdd(): void {
+    this.configuration.ids.push({
+      id: uuid(),
+      authority: '',
+      function: {
+        type: 'basic',
+        target: '',
+      },
+    });
+  }
+
+  onRemove(mapping: IdMapping): void {
+    const index = this.configuration.ids.findIndex((m) => m.id === mapping.id);
+
+    if (index !== -1) {
+      this.configuration.ids.splice(index, 1);
     }
+  }
 
-    onRemove(mapping: IdMapping): void {
-        const index = this.configuration.ids.findIndex(m => m.id === mapping.id);
+  onNext(): void {
+    this.configurationChange.emit(this.configuration);
+    this.stateChange.emit('NEXT');
+  }
 
-        if (index !== -1) {
-            this.configuration.ids.splice(index, 1);
-        }
-    }
+  onBack(): void {
+    this.stateChange.emit('BACK');
+  }
 
-    onNext(): void {
-        this.configurationChange.emit(this.configuration);
-        this.stateChange.emit('NEXT');
-    }
-
-    onBack(): void {
-        this.stateChange.emit('BACK');
-    }
-
-    onCancel(): void {
-        this.stateChange.emit('CANCEL');
-    }
+  onCancel(): void {
+    this.stateChange.emit('CANCEL');
+  }
 }

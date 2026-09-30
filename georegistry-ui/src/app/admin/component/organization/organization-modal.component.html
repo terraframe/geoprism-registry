@@ -1,25 +1,24 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <div>
-
   <message></message>
 
   <loading-bar></loading-bar>
@@ -32,7 +31,9 @@
         </h1>
       </div>
 
-      <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+      @if (message != null) {
+        <div class="alert alert-danger" role="alert">{{ message }}</div>
+      }
 
       <div class="row-holder">
         <div class="label-holder">
@@ -41,7 +42,7 @@
           </label>
         </div>
         <div class="holder">
-          <input type="text" [(ngModel)]="organization.code" name="code" [disabled]="!isNewOrganization" required>
+          <input type="text" [(ngModel)]="organization.code" name="code" [disabled]="!isNewOrganization" required />
         </div>
       </div>
       <div class="row-holder">
@@ -50,12 +51,19 @@
             <localize key="organization.name"></localize>
           </label>
         </div>
-        <div class="holder" style="padding-top:10px;">
-          <div class="form-group" *ngFor="let localeValue of organization.label.localeValues">
-            <label> <convert-key-label [key]="localeValue.locale"></convert-key-label></label>
-            <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input"
-              class="form-control" required>
-          </div>
+        <div class="holder" style="padding-top: 10px">
+          @for (localeValue of organization.label.localeValues; track localeValue.locale) {
+            <div class="form-group">
+              <label> <convert-key-label [key]="localeValue.locale"></convert-key-label></label>
+              <input
+                [(ngModel)]="localeValue.value"
+                [name]="'label-' + localeValue.locale"
+                type="input"
+                class="form-control"
+                required
+              />
+            </div>
+          }
         </div>
       </div>
       <div class="row-holder">
@@ -64,33 +72,43 @@
             <localize key="organization.contact"></localize>
           </label>
         </div>
-        <div class="holder" style="padding-top:10px;">
-          <div class="form-group" *ngFor="let localeValue of organization.contactInfo.localeValues">
-            <label> <convert-key-label [key]="localeValue.locale"></convert-key-label></label>
-            <input [(ngModel)]="localeValue.value" [name]="'contact-' + localeValue.locale" type="input"
-              class="form-control">
-          </div>
+        <div class="holder" style="padding-top: 10px">
+          @for (localeValue of organization.contactInfo.localeValues; track localeValue.locale) {
+            <div class="form-group">
+              <label> <convert-key-label [key]="localeValue.locale"></convert-key-label></label>
+              <input
+                [(ngModel)]="localeValue.value"
+                [name]="'contact-' + localeValue.locale"
+                type="input"
+                class="form-control"
+              />
+            </div>
+          }
         </div>
       </div>
       <div class="row-holder">
-        <div class="label-holder">
-        </div>
-        <div class="holder" style="padding-top:10px;">
+        <div class="label-holder"></div>
+        <div class="holder" style="padding-top: 10px">
           <div>
-            <boolean-field [(value)]="organization.enabled" localizeLabelKey="organization.manager.enabled"></boolean-field>
+            <boolean-field
+              [(value)]="organization.enabled"
+              localizeLabelKey="organization.manager.enabled"
+            ></boolean-field>
           </div>
         </div>
       </div>
 
-
       <div class="row-holder">
-        <div class="label-holder">
-        </div>
+        <div class="label-holder"></div>
         <div class="holder">
           <div class="button-holder">
             <input type="button" [value]="'dataset.cancel' | localize" class="btn btn-default" (click)="cancel()" />
-            <input type="submit" [value]="'dataset.submit' | localize" class="btn btn-primary"
-              [disabled]="!(form.valid)" />
+            <input
+              type="submit"
+              [value]="'dataset.submit' | localize"
+              class="btn btn-primary"
+              [disabled]="!form.valid"
+            />
           </div>
         </div>
       </div>

@@ -17,62 +17,59 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input } from "@angular/core";
+import { Component, Input } from '@angular/core';
 
-import { AuthService } from "@shared/service";
+import { AuthService } from '@shared/service';
 
-import { LocaleView, MenuSection } from "@core/model/core";
-import { RouterLinkActive, RouterLink } from "@angular/router";
-import EnvironmentUtil from "@core/utility/environment-util";
-import { HubService } from "@core/service/hub.service";
-import { LocalizePipe } from "../../pipe/localize.pipe";
-import { LocalizeComponent } from "../localize/localize.component";
-import { NgIf, NgFor, NgClass } from "@angular/common";
+import { LocaleView, MenuSection } from '@core/model/core';
+import { RouterLinkActive, RouterLink } from '@angular/router';
+import EnvironmentUtil from '@core/utility/environment-util';
+import { HubService } from '@core/service/hub.service';
+import { LocalizePipe } from '../../pipe/localize.pipe';
+import { LocalizeComponent } from '../localize/localize.component';
+import { NgClass } from '@angular/common';
 
 @Component({
-    selector: "side-nav",
-    templateUrl: "./side-nav.component.html",
-    styleUrls: ['./side-nav.css'],
-    standalone: true,
-    imports: [NgIf, LocalizeComponent, NgFor, RouterLinkActive, RouterLink, NgClass, LocalizePipe]
+  selector: 'side-nav',
+  templateUrl: './side-nav.component.html',
+  styleUrls: ['./side-nav.css'],
+  standalone: true,
+  imports: [LocalizeComponent, RouterLinkActive, RouterLink, NgClass, LocalizePipe],
 })
 export class SideNavComponent {
+  context: string;
 
+  sections: MenuSection[];
 
+  isAdmin: boolean;
+  isMaintainer: boolean;
+  isContributor: boolean;
+  isPublic: boolean = true;
 
-    context: string;
+  defaultLocaleView: LocaleView;
+  locales: LocaleView[];
+  locale: string;
 
-    sections: MenuSection[];
+  enableBusinessData: boolean = false;
 
-    isAdmin: boolean;
-    isMaintainer: boolean;
-    isContributor: boolean;
-    isPublic: boolean = true;
+  @Input() loggedIn: boolean = true;
+  @Input() expanded: boolean = true;
 
-    defaultLocaleView: LocaleView;
-    locales: LocaleView[];
-    locale: string;
+  constructor(
+    private hService: HubService,
+    private service: AuthService
+  ) {
+    this.context = EnvironmentUtil.getApiUrl();
+    this.sections = hService.getMenuSections();
 
-    enableBusinessData: boolean = false;
+    this.isPublic = service.isPublic();
+  }
 
-    @Input() loggedIn: boolean = true;
-    @Input() expanded: boolean = true;
+  handleToggle(): void {
+    this.hService.setExpanded(!this.expanded);
+  }
 
-    constructor(
-        private hService: HubService,
-        private service: AuthService
-    ) {
-        this.context = EnvironmentUtil.getApiUrl();
-        this.sections = hService.getMenuSections();
-
-        this.isPublic = service.isPublic();
-    }
-
-    handleToggle(): void {
-        this.hService.setExpanded(!this.expanded);
-    }
-
-    shouldShowMenuItem(item: string): boolean {
-        return this.service.shouldShowMenuItem(item);
-    }
+  shouldShowMenuItem(item: string): boolean {
+    return this.service.shouldShowMenuItem(item);
+  }
 }

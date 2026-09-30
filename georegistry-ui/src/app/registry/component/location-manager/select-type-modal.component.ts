@@ -17,57 +17,55 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnDestroy, OnInit } from "@angular/core";
-import { ListTypeVersion } from "@registry/model/list-type";
-import { BsModalRef } from "ngx-bootstrap/modal";
-import { Observer, Subject, Subscription } from "rxjs";
-import { NgIf, NgFor } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ListTypeVersion } from '@registry/model/list-type';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { Observer, Subject, Subscription } from 'rxjs';
 
+import { FormsModule } from '@angular/forms';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
 
 @Component({
-    selector: "select-type-modal",
-    templateUrl: "./select-type-modal.component.html",
-    styleUrls: [],
-    standalone: true,
-    imports: [LocalizeComponent, FormsModule, NgIf, NgFor]
+  selector: 'select-type-modal',
+  templateUrl: './select-type-modal.component.html',
+  styleUrls: [],
+  standalone: true,
+  imports: [LocalizeComponent, FormsModule],
 })
 export class SelectTypeModalComponent implements OnInit, OnDestroy {
+  version: ListTypeVersion;
 
-    version: ListTypeVersion;
+  type: string;
 
-    type: string;
+  /*
+   * Called on confirm
+   */
+  onCreate: Subject<string>;
 
-    /*
-     * Called on confirm
-     */
-    onCreate: Subject<string>;
+  subscription: Subscription;
 
-    subscription: Subscription;
+  // eslint-disable-next-line no-useless-constructor
+  constructor(public bsModalRef: BsModalRef) {}
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor(public bsModalRef: BsModalRef) { }
+  ngOnInit(): void {
+    this.onCreate = new Subject();
+  }
 
-    ngOnInit(): void {
-        this.onCreate = new Subject();
+  ngOnDestroy(): void {
+    if (this.subscription != null) {
+      this.subscription.unsubscribe();
     }
 
-    ngOnDestroy(): void {
-        if (this.subscription != null) {
-            this.subscription.unsubscribe();
-        }
+    this.onCreate.unsubscribe();
+  }
 
-        this.onCreate.unsubscribe();
-    }
+  init(version: ListTypeVersion, observer: Observer<string>): void {
+    this.version = version;
+    this.subscription = this.onCreate.subscribe(observer);
+  }
 
-    init(version: ListTypeVersion, observer: Observer<string>): void {
-        this.version = version;
-        this.subscription = this.onCreate.subscribe(observer);
-    }
-
-    confirm(): void {
-        this.bsModalRef.hide();
-        this.onCreate.next(this.type);
-    }
+  confirm(): void {
+    this.bsModalRef.hide();
+    this.onCreate.next(this.type);
+  }
 }

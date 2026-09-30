@@ -26,7 +26,7 @@ import org.apache.commons.lang.StringUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.scheduler.AllJobStatus;
@@ -49,21 +49,9 @@ public class GPRJobHistory extends GPRJobHistoryBase
   {
     if (!StringUtils.isBlank(this.getTypes()))
     {
-      ObjectMapper mapper = new ObjectMapper();
+      JsonMapper mapper = JsonMapper.shared();
 
-      try
-      {
-        return mapper.readerForListOf(TypeInfo.class).readValue(this.getTypes());
-      }
-      catch (JsonMappingException e)
-      {
-        e.printStackTrace();
-      }
-      catch (JsonProcessingException e)
-      {
-        e.printStackTrace();
-      }
-
+      return mapper.readerForListOf(TypeInfo.class).readValue(this.getTypes());
     }
 
     return new LinkedList<>();
@@ -71,19 +59,7 @@ public class GPRJobHistory extends GPRJobHistoryBase
 
   public void setTypesFromList(Collection<TypeInfo> types)
   {
-
-    try
-    {
-      this.setTypes(new ObjectMapper().writeValueAsString(types));
-    }
-    catch (JsonMappingException e)
-    {
-      e.printStackTrace();
-    }
-    catch (JsonProcessingException e)
-    {
-      e.printStackTrace();
-    }
+    this.setTypes(JsonMapper.shared().writeValueAsString(types));
   }
 
   @Override

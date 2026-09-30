@@ -1,103 +1,120 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <div>
   <loading-bar></loading-bar>
 
-<form #form="ngForm" class="modal-form" name="new-locale-form" (ngSubmit)="form.valid && submit()">
-  <div class="modal-body">
-  <fieldset *ngIf="locale">
-    <div class="heading text-center">
-      <h1>
-        <localize *ngIf="this.isNew" key="new-locale.title"></localize>
-        <localize *ngIf="!this.isNew" key="edit-locale.title"></localize>
-      </h1>
+  <form #form="ngForm" class="modal-form" name="new-locale-form" (ngSubmit)="form.valid && submit()">
+    <div class="modal-body">
+      @if (locale) {
+        <fieldset>
+          <div class="heading text-center">
+            <h1>
+              @if (this.isNew) {
+                <localize key="new-locale.title"></localize>
+              }
+              @if (!this.isNew) {
+                <localize key="edit-locale.title"></localize>
+              }
+            </h1>
+          </div>
+          @if (locale.language && locale.toString !== 'defaultLocale') {
+            <div class="row-holder">
+              <div class="label-holder">
+                <label>
+                  <localize key="new-locale.language"></localize>
+                </label>
+              </div>
+              <div class="holder">
+                <select [(ngModel)]="locale.language.code" name="new-locale-language">
+                  @for (lang of allLocaleInfo.languages; track lang) {
+                    <option [ngValue]="lang.key">{{ lang.label }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+          }
+          @if (locale.country && locale.toString !== 'defaultLocale') {
+            <div class="row-holder">
+              <div class="label-holder">
+                <label>
+                  <localize key="new-locale.country"></localize>
+                </label>
+              </div>
+              <div class="holder">
+                <select [(ngModel)]="locale.country.code" name="new-locale-country">
+                  @for (count of allLocaleInfo.countries; track count) {
+                    <option [ngValue]="count.key">{{ count.label }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+          }
+          <!--     <div> -->
+          <!--       <label> -->
+          <!--         <localize key="new-locale.variant"></localize> -->
+          <!--       </label> -->
+          <!--       <input type="text" [(ngModel)]="locale.variant" name="new-locale-variant" /> -->
+          <!--     </div> -->
+          @if (locale.label) {
+            <div class="row-holder">
+              <div class="label-holder">
+                <label>
+                  <localize key="settings.localization.locale.displayLabel"></localize>
+                </label>
+              </div>
+              <div class="holder" style="padding-top: 10px">
+                @for (localeValue of locale.label.localeValues; track localeValue.locale) {
+                  <div class="form-group">
+                    <label> <convert-key-label [key]="localeValue.locale"></convert-key-label></label>
+                    <input
+                      [(ngModel)]="localeValue.value"
+                      [name]="'label-' + localeValue.locale"
+                      type="input"
+                      class="form-control"
+                      required
+                    />
+                  </div>
+                }
+              </div>
+            </div>
+          }
+          <div class="row-holder">
+            <div class="label-holder"></div>
+            <div class="holder">
+              <div class="button-holder">
+                <button type="button" (click)="cancel()" class="btn btn-default" role="button" aria-disabled="false">
+                  <span>
+                    <localize key="new-locale.cancel"></localize>
+                  </span>
+                </button>
+                <button type="submit" class="btn btn-primary" role="button" aria-disabled="false">
+                  <span>
+                    <localize key="new-locale.submit"></localize>
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+      }
     </div>
-
-    <div *ngIf="locale.language && locale.toString !== 'defaultLocale'" class="row-holder">
-	    <div class="label-holder">
-	     <label>
-	       <localize key="new-locale.language"></localize>
-	     </label>
-	    </div>
-	    <div class="holder">
-	     <select [(ngModel)]="locale.language.code" name="new-locale-language">
-	       <option *ngFor="let lang of allLocaleInfo.languages" [ngValue]="lang.key">{{lang.label}}</option>
-	     </select>
-	    </div>
-    </div>
-
-    <div *ngIf="locale.country && locale.toString !== 'defaultLocale'" class="row-holder">
-      <div class="label-holder">
-	      <label>
-	        <localize key="new-locale.country"></localize>
-	      </label>
-      </div>
-      <div  class="holder">
-	      <select [(ngModel)]="locale.country.code" name="new-locale-country">
-	        <option *ngFor="let count of allLocaleInfo.countries" [ngValue]="count.key">{{count.label}}</option>
-	      </select>
-      </div>
-    </div>
-
-<!--     <div> -->
-<!--       <label> -->
-<!--         <localize key="new-locale.variant"></localize> -->
-<!--       </label> -->
-<!--       <input type="text" [(ngModel)]="locale.variant" name="new-locale-variant" /> -->
-<!--     </div> -->
-
-    <div *ngIf="locale.label" class="row-holder">
-      <div class="label-holder">
-        <label>
-        <localize key="settings.localization.locale.displayLabel"></localize>
-      </label>
-      </div> 
-      <div class="holder" style="padding-top:10px;">
-	      <div class="form-group" *ngFor="let localeValue of locale.label.localeValues">
-	        <label> <convert-key-label [key]="localeValue.locale"></convert-key-label></label>
-	        <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input" class="form-control" required>
-	      </div>
-      </div>
-    </div>
-
-    <div class="row-holder">
-      <div class="label-holder">
-      </div> 
-      <div class="holder">
-        <div class="button-holder">
-          <button type="button" (click)="cancel()" class="btn btn-default" role="button" aria-disabled="false">
-            <span>
-              <localize key="new-locale.cancel"></localize>
-            </span>
-          </button>
-          <button type="submit" class="btn btn-primary" role="button" aria-disabled="false">
-            <span>
-              <localize key="new-locale.submit"></localize>
-            </span>
-          </button>
-        </div>
-      </div>
-    </div>
-  </fieldset>
-  </div>
-</form>
-
+  </form>
 </div>

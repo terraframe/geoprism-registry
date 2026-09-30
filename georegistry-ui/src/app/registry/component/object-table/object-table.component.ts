@@ -24,7 +24,7 @@ import { GenericTableConfig, TableColumnSetup, TableEvent } from '@shared/model/
 import { BusinessTypeService } from '@registry/service/business-type.service';
 import { ObjectOverTime, ObjectClass } from '@registry/model/object-class';
 import { GenericTableComponent } from '../../../shared/component/generic-table/generic-table.component';
-import { NgClass, NgIf } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { PageContainerComponent } from '../../../shared/component/page-container/page-container.component';
 import { BusinessObjectService } from '@registry/service/business-object.service';
 import { ConceptClassService } from '@registry/service/concept-class.service';
@@ -38,7 +38,7 @@ import { ObjectPanelComponent } from './object-panel.component';
   templateUrl: './object-table.component.html',
   styles: [],
   standalone: true,
-  imports: [PageContainerComponent, NgIf, NgClass, GenericTableComponent, ObjectPanelComponent],
+  imports: [PageContainerComponent, NgClass, GenericTableComponent, ObjectPanelComponent],
 })
 export class ObjectTableComponent implements OnInit {
   message: string | null = null;

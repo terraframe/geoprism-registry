@@ -1,231 +1,405 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<ng-template #versionDetail let-versionOrLayer='versionOrLayer'>
+<ng-template #versionDetail let-versionOrLayer="versionOrLayer">
   (
-  <a *ngIf="versionOrLayer.versionNumber !== 0" (click)="onViewList(versionOrLayer.oid)" routerLinkActive="active">
-    <localize key="list.type.version"></localize>
-    {{versionOrLayer.versionNumber}}
-  </a>
-  
-  <a *ngIf="versionOrLayer.versionNumber === 0" (click)="onViewList(versionOrLayer.oid)" routerLinkActive="active">
-    <localize *ngIf="versionOrLayer.versionNumber === 0" key="list.type.working.version"></localize>
-  </a>
+  @if (versionOrLayer.versionNumber !== 0) {
+    <a (click)="onViewList(versionOrLayer.oid)" routerLinkActive="active">
+      <localize key="list.type.version"></localize>
+      {{ versionOrLayer.versionNumber }}
+    </a>
+  }
+
+  @if (versionOrLayer.versionNumber === 0) {
+    <a (click)="onViewList(versionOrLayer.oid)" routerLinkActive="active">
+      @if (versionOrLayer.versionNumber === 0) {
+        <localize key="list.type.working.version"></localize>
+      }
+    </a>
+  }
   )
 </ng-template>
 
-<ng-template #listView let-list='list'>
-  <div *ngIf="list.versions.length > 0" class="list-group-item" style="border: none; padding-top:0; padding-bottom:0;">
-    <h4><a (click)="list.open = !list.open"><i class="fa fa-chevron-right" [ngClass]="{'fa-chevron-down' : list.open, 'fa-chevron-right' : !list.open}" style="font-size:14px;"></i>{{ list.label }}</a></h4>
-  
-    <div *ngIf="list.open" class="list-group">
-      <div *ngFor="let version of list.versions">
-        <div class="layer-toggle-wrapper">
-			      <a class="fa" style="padding-right: 10px;" [ngClass]='{"fa-minus" : (version.layers != null && version.layers.length > 0), "fa-plus" : (version.layers == null || version.layers.length == 0)}' [title]="(version.layers ? 'explorer.layerPanel.removeFromLegend' : 'explorer.layerPanel.addToLegend') | localize" (click)="toggleVersionLayer(version, list)"></a>
-			      <boolean-field *ngIf="version.layers && version.layers.length > 0" [value]="versionIsRendered(version)" label="" [disable]="false" (change)="clickToggleVersionRendered(version, list)" style="line-height:0;"></boolean-field>
-			  
-			      <div class="label-wrapper">
-              		<date-text [date]="version.forDate"></date-text>
-				        (
-							  <a *ngIf="version.versionNumber !== 0" (click)="onViewList(version.oid)" routerLinkActive="active">
-							    <localize key="list.type.version"></localize>
-							    {{version.versionNumber}}
-							  </a>
-							  
-							  <a *ngIf="version.versionNumber === 0" (click)="onViewList(version.oid)" routerLinkActive="active">
-							    <localize *ngIf="version.versionNumber === 0" key="list.type.working.version"></localize>
-							  </a>
-							  )
-				        
-				        <div *ngIf="version.color != null" class="layer-legend-square" style="width:15px;height:15px;display:inline-block;vertical-align:middle;"
-			          [ngStyle]="{'background-color': version.color}"> </div>
-			      </div>
-			  </div>
-      </div>
-    </div>
-  </div>
-</ng-template>
-
-<div class="row">
-	<div class="col-md-12">
-<div class="layer-toggle">
-  <ngx-spinner [fullScreen]="false" [name]="CONSTANTS.OVERLAY" type="ball-clip-rotate-multiple" size="medium"></ngx-spinner>  
-
-  <div class="row">
-  	<div class="col-md-12">
-      <span [title]="(panelSize === 0 ? 'explorer.resize.openLayerPanel' : 'explorer.resize.closeLayerPanel') | localize" class="clickable" style="width:27px; height:27px; float: right;margin:5px;" (click)="togglePanelOpen()">
-        <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 122.88 105.02" style="enable-background:new 0 0 122.88 105.02" xml:space="preserve"><g><path d="M97.25,40.58l23.85,10.28c1.48,0.64,2.17,2.36,1.53,3.85c-0.32,0.75-0.93,1.3-1.63,1.57l-23.19,9.39l23.29,10.04 c1.48,0.64,2.17,2.36,1.53,3.84c-0.32,0.75-0.93,1.3-1.63,1.57l-58.52,23.69c-0.73,0.3-1.52,0.27-2.2,0L1.83,81.05 c-1.5-0.61-2.22-2.31-1.61-3.81c0.33-0.82,0.99-1.4,1.76-1.67l22.97-9.96l-23.12-9.4c-1.5-0.61-2.22-2.31-1.61-3.81 c0.33-0.82,0.99-1.4,1.76-1.67l23.53-10.21L1.83,30.9c-1.5-0.61-2.22-2.31-1.61-3.81c0.33-0.82,0.99-1.4,1.76-1.67L60.02,0.24 c0.77-0.33,1.6-0.31,2.31,0l0-0.01l58.77,25.32c1.48,0.64,2.17,2.36,1.53,3.84c-0.32,0.75-0.93,1.3-1.63,1.57L97.25,40.58 L97.25,40.58z M112.36,53.47l-22.73-9.79L62.49,54.66c-0.73,0.3-1.52,0.27-2.2,0L33.08,43.6L10.47,53.4L61.39,74.1L112.36,53.47 L112.36,53.47z M90.19,68.75l-27.7,11.21c-0.73,0.3-1.52,0.27-2.2,0L32.52,68.68l-22.05,9.56l50.92,20.69l50.97-20.63L90.19,68.75 L90.19,68.75z M61.17,6.1l-50.7,21.99l50.92,20.69l50.97-20.63L61.17,6.1L61.17,6.1z"/></g></svg>
-      </span>
-      
-      <i *ngIf="(panelSize === 2 && this.layers.length > 0) || (panelSize === 1)" (click)="setPanelSize( (panelSize === 2 ? 1 : 2) )" class="clickable fa" [ngClass]="{'fa-compress' : panelSize === 2, 'fa-expand' : panelSize === 1}" 
-      		[title]="(panelSize === 2 ? 'explorer.resize.collapseLayerPanel' : 'explorer.resize.expandLayerPanel') | localize" style="width:30px;height:30px;margin-right:5px;font-size:25px;padding:5px;"></i>
-  	</div>
-  </div>
-
-  <div *ngIf="panelSize !== 0 && layers.length > 0">
-    <div style="margin-bottom: 10px;">
-      <!--
+<ng-template #listView let-list="list">
+  @if (list.versions.length > 0) {
+    <div class="list-group-item" style="border: none; padding-top: 0; padding-bottom: 0">
       <h4>
-        <localize key="explorer.layers"></localize>
+        <a (click)="list.open = !list.open"
+          ><i
+            class="fa fa-chevron-right"
+            [ngClass]="{ 'fa-chevron-down': list.open, 'fa-chevron-right': !list.open }"
+            style="font-size: 14px"
+          ></i
+          >{{ list.label }}</a
+        >
       </h4>
-      -->
-      <div *ngFor="let layerGroup of layerGroups">
-          <label style="font-weight: bold;">{{layerGroup.getLabel()}}</label>
-      
-		      <div class="list-group" cdkDropList (cdkDropListDropped)="drop($event, layerGroup)">
-			        <div *ngFor="let layer of layerGroup.getLayers()" class="list-group-item" style="padding:5px;" cdkDrag>
-			
-			            <div class="layer-toggle-wrapper" style="cursor:move;">
-			            
-			              <div class="custom-placeholder" *cdkDragPlaceholder></div>
-			              
-			              <!-- <i class="fa fa-arrows" style="font-size:15px;color: grey;margin-right: 3px;" aria-hidden="true"></i> -->
-			              <boolean-field [value]="layer.rendered" label="" [disable]="false" (change)="toggleLayerRendered(layer)" style="line-height:0;" ></boolean-field>
-			              
-			              <i *ngIf="!(layer.dataSource.getDataSourceType() === CONSTANTS.LIST_VECTOR_SOURCE_TYPE) && layer.getPinned()" [title]="'explorer.layerPanel.unpin' | localize" class="fa fa-thumb-tack" aria-hidden="true" style="cursor: pointer;" (click)="togglePinned(layer)"></i>
-			              
-			              <div class="label-wrapper">
-			                {{layer.legendLabel}}
-			                <span *ngIf="versionMap[layer.getId()]">- {{ versionMap[layer.getId()].forDate }}</span>
-			                
-			                <ng-container *ngIf="versionMap[layer.getId()] != null">
-					                (
-												  <a *ngIf="versionMap[layer.getId()].versionNumber !== 0" (click)="onViewList(layer.dataSource.getVersionId())" routerLinkActive="active">
-												    <localize key="list.type.version"></localize>
-												    {{versionMap[layer.getId()].versionNumber}}
-												  </a>
-												  
-												  <a *ngIf="versionMap[layer.getId()].versionNumber === 0" (click)="onViewList(layer.dataSource.getVersionId())" routerLinkActive="active">
-												    <localize *ngIf="versionMap[layer.getId()].versionNumber === 0" key="list.type.working.version"></localize>
-												  </a>
-												  )
-										  </ng-container>
-			                
-			                <div class="layer-legend-square" [ngStyle]="{'background-color': layer.color}" style="width:15px;height:15px;display:inline-block;vertical-align:middle;"> </div>
-			<!--                 <i class="fa fa-arrow-up" aria-hidden="true" (click)="moveLayer(layer, -1)"></i> -->
-			<!--                 <i class="fa fa-arrow-down" aria-hidden="true" (click)="moveLayer(layer, 1)"></i> -->
-			                <i [title]="'explorer.layerPanel.zoomToFeature' | localize" class="fa fa-eye" aria-hidden="true" (click)="onGotoBounds(layer)"></i>
-			                <i [title]="'explorer.layerPanel.pin' | localize" *ngIf="!(layer.dataSource.getDataSourceType() === CONSTANTS.LIST_VECTOR_SOURCE_TYPE) && !layer.getPinned()" class="fa fa-thumb-tack" aria-hidden="true" (click)="togglePinned(layer)"></i>
-			                <i [title]="'explorer.layerPanel.addNewGeoObject' | localize" *ngIf="versionMap[layer.getId()] && versionMap[layer.getId()].versionNumber === 0" class="fa fa-plus" aria-hidden="true" (click)="onCreate(layer)"></i>
-			                <i [title]="'explorer.layerPanel.removeLayer' | localize" class="fa fa-times" aria-hidden="true" (click)="removeLayer(layer)"></i>
-			              </div>
-			            </div>
-			        </div>
-		      </div>
-      </div>
-      
-    </div>
-  </div>
-
-  <div *ngIf="panelSize === 2" style="margin-top: 10px;">
-
-    <div *ngIf="baseLayers.length > 1" style="margin-bottom: 10px;">
-      <h4>
-        <localize key="explorer.base.layers.label"></localize>
-      </h4>
-      <div class="row-form" *ngFor="let baseLayer of baseLayers">
-        <input class="layer-toggle-input" type='radio' name='baselayers' [value]='baseLayer.id'
-          [checked]="baseLayer.selected" (change)="toggleBaseLayer(baseLayer)">
-        <label class="layer-toggle-label">
-          <localize [key]="baseLayer.label"></localize>
-        </label>
-      </div>
-    </div>
-    
-    <form class="modal-form" name="export-form" style="overflow:visible;">
-    
-      <fieldset style="padding:10px;">
-        <div class="row">
-          <div class="col-md-4" style="padding-left:10px;padding-right:0;">
-            <label><localize key="io.startDate"></localize></label>
-          </div>
-          <div class="col-md-4" style="padding-left:5px;padding-right:0;">
-            <label><localize key="io.endDate"></localize></label>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-4" style="padding-left:10px;padding-right:0;">
-            <date-field [(value)]="form.startDate" [classNames]="'form-control'" label="" inputName="startDate"
-              [allowFutureDates]="false" name="startDate"></date-field>
-          </div>
-          <div class="col-md-4" style="padding-left:5px;padding-right:0;">
-            <date-field [(value)]="form.endDate" [classNames]="'form-control'" label="" inputName="endDate"
-              [allowFutureDates]="false" name="endDate"></date-field>
-          </div>
-          <div class="col-md-4" style="text-align:center;padding-left:5px;">
-            <button type="button" (click)="handleSearch()" class="btn btn-primary find-layers-btn" style="width:100%;" role="button">
-              <span>
-                <localize key="explorer.find.layers.by.date.range.button"></localize>
-              </span>
-            </button>
-          </div>
-        </div>
-        <!--
-        <div *ngIf="listOrgGroups.length > 0" class="row">
-          <div class="col-md-12">
-            <p style="font-style:italic;color:grey;"><localize key="explorer.search.note"></localize></p>
-          </div>
-        </div>
-        -->
-
-        <div class="row">
-          <div class="col-md-12">
-            <!--
-            <h3>
-              <localize key="explorer.layers"></localize>
-            </h3>
-            -->
-            
-            <p *ngIf="listOrgGroups.length < 1" style="font-style: italic; color: grey;"><localize key="explorer.find.layers.no.layers.found.message"></localize></p>
-            
-            <div class="list-group">
-              <ng-container *ngIf="graphList" [ngTemplateOutlet]="listView"
-                [ngTemplateOutletContext]="{list:graphList}">
-              </ng-container>
-            
-              <div *ngFor="let listOrgGroup of listOrgGroups">
-                <div *ngIf="listOrgGroup.types.length > 0" class="list-group-item" style="border: none;">
-                
-                  <h3>{{ listOrgGroup.orgLabel.localizedValue }}</h3>
-                  
-                  <div *ngFor="let listTypeGroup of listOrgGroup.types">
-                    <div *ngIf="listTypeGroup.lists.length > 0" class="list-group-item" style="border: none;">
-                    
-                      <h4>{{ listTypeGroup.typeLabel.localizedValue }}</h4>
-                      
-                      <div *ngFor="let list of listTypeGroup.lists">
-                        <ng-container *ngIf="list" [ngTemplateOutlet]="listView"
-                          [ngTemplateOutletContext]="{list:list}">
-                        </ng-container>
-                      </div>
-                    </div>
-                  </div>
+      @if (list.open) {
+        <div class="list-group">
+          @for (version of list.versions; track version.oid) {
+            <div>
+              <div class="layer-toggle-wrapper">
+                <a
+                  class="fa"
+                  style="padding-right: 10px"
+                  [ngClass]="{
+                    'fa-minus': version.layers != null && version.layers.length > 0,
+                    'fa-plus': version.layers == null || version.layers.length == 0,
+                  }"
+                  [title]="
+                    (version.layers ? 'explorer.layerPanel.removeFromLegend' : 'explorer.layerPanel.addToLegend')
+                      | localize
+                  "
+                  (click)="toggleVersionLayer(version, list)"
+                ></a>
+                @if (version.layers && version.layers.length > 0) {
+                  <boolean-field
+                    [value]="versionIsRendered(version)"
+                    label=""
+                    [disable]="false"
+                    (change)="clickToggleVersionRendered(version, list)"
+                    style="line-height: 0"
+                  ></boolean-field>
+                }
+                <div class="label-wrapper">
+                  <date-text [date]="version.forDate"></date-text>
+                  (
+                  @if (version.versionNumber !== 0) {
+                    <a (click)="onViewList(version.oid)" routerLinkActive="active">
+                      <localize key="list.type.version"></localize>
+                      {{ version.versionNumber }}
+                    </a>
+                  }
+                  @if (version.versionNumber === 0) {
+                    <a (click)="onViewList(version.oid)" routerLinkActive="active">
+                      @if (version.versionNumber === 0) {
+                        <localize key="list.type.working.version"></localize>
+                      }
+                    </a>
+                  }
+                  )
+                  @if (version.color != null) {
+                    <div
+                      class="layer-legend-square"
+                      style="width: 15px; height: 15px; display: inline-block; vertical-align: middle"
+                      [ngStyle]="{ 'background-color': version.color }"
+                    ></div>
+                  }
                 </div>
               </div>
             </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</ng-template>
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="layer-toggle">
+      <ngx-spinner
+        [fullScreen]="false"
+        [name]="CONSTANTS.OVERLAY"
+        type="ball-clip-rotate-multiple"
+        size="medium"
+      ></ngx-spinner>
+
+      <div class="row">
+        <div class="col-md-12">
+          <span
+            [title]="
+              (panelSize === 0 ? 'explorer.resize.openLayerPanel' : 'explorer.resize.closeLayerPanel') | localize
+            "
+            class="clickable"
+            style="width: 27px; height: 27px; float: right; margin: 5px"
+            (click)="togglePanelOpen()"
+          >
+            <svg
+              version="1.1"
+              id="Layer_1"
+              xmlns="http://www.w3.org/2000/svg"
+              xmlns:xlink="http://www.w3.org/1999/xlink"
+              x="0px"
+              y="0px"
+              viewBox="0 0 122.88 105.02"
+              style="enable-background: new 0 0 122.88 105.02"
+              xml:space="preserve"
+            >
+              <g>
+                <path
+                  d="M97.25,40.58l23.85,10.28c1.48,0.64,2.17,2.36,1.53,3.85c-0.32,0.75-0.93,1.3-1.63,1.57l-23.19,9.39l23.29,10.04 c1.48,0.64,2.17,2.36,1.53,3.84c-0.32,0.75-0.93,1.3-1.63,1.57l-58.52,23.69c-0.73,0.3-1.52,0.27-2.2,0L1.83,81.05 c-1.5-0.61-2.22-2.31-1.61-3.81c0.33-0.82,0.99-1.4,1.76-1.67l22.97-9.96l-23.12-9.4c-1.5-0.61-2.22-2.31-1.61-3.81 c0.33-0.82,0.99-1.4,1.76-1.67l23.53-10.21L1.83,30.9c-1.5-0.61-2.22-2.31-1.61-3.81c0.33-0.82,0.99-1.4,1.76-1.67L60.02,0.24 c0.77-0.33,1.6-0.31,2.31,0l0-0.01l58.77,25.32c1.48,0.64,2.17,2.36,1.53,3.84c-0.32,0.75-0.93,1.3-1.63,1.57L97.25,40.58 L97.25,40.58z M112.36,53.47l-22.73-9.79L62.49,54.66c-0.73,0.3-1.52,0.27-2.2,0L33.08,43.6L10.47,53.4L61.39,74.1L112.36,53.47 L112.36,53.47z M90.19,68.75l-27.7,11.21c-0.73,0.3-1.52,0.27-2.2,0L32.52,68.68l-22.05,9.56l50.92,20.69l50.97-20.63L90.19,68.75 L90.19,68.75z M61.17,6.1l-50.7,21.99l50.92,20.69l50.97-20.63L61.17,6.1L61.17,6.1z"
+                />
+              </g>
+            </svg>
+          </span>
+
+          @if ((panelSize === 2 && this.layers.length > 0) || panelSize === 1) {
+            <i
+              (click)="setPanelSize(panelSize === 2 ? 1 : 2)"
+              class="clickable fa"
+              [ngClass]="{ 'fa-compress': panelSize === 2, 'fa-expand': panelSize === 1 }"
+              [title]="
+                (panelSize === 2 ? 'explorer.resize.collapseLayerPanel' : 'explorer.resize.expandLayerPanel') | localize
+              "
+              style="width: 30px; height: 30px; margin-right: 5px; font-size: 25px; padding: 5px"
+            ></i>
+          }
+        </div>
+      </div>
+
+      @if (panelSize !== 0 && layers.length > 0) {
+        <div>
+          <div style="margin-bottom: 10px">
+            <!--
+            <h4>
+              <localize key="explorer.layers"></localize>
+            </h4>
+            -->
+            @for (layerGroup of layerGroups; track layerGroup) {
+              <div>
+                <label style="font-weight: bold">{{ layerGroup.getLabel() }}</label>
+                <div class="list-group" cdkDropList (cdkDropListDropped)="drop($event, layerGroup)">
+                  @for (layer of layerGroup.getLayers(); track layer.getId()) {
+                    <div class="list-group-item" style="padding: 5px" cdkDrag>
+                      <div class="layer-toggle-wrapper" style="cursor: move">
+                        <div class="custom-placeholder" *cdkDragPlaceholder></div>
+                        <!-- <i class="fa fa-arrows" style="font-size:15px;color: grey;margin-right: 3px;" aria-hidden="true"></i> -->
+                        <boolean-field
+                          [value]="layer.rendered"
+                          label=""
+                          [disable]="false"
+                          (change)="toggleLayerRendered(layer)"
+                          style="line-height: 0"
+                        ></boolean-field>
+                        @if (
+                          !(layer.dataSource.getDataSourceType() === CONSTANTS.LIST_VECTOR_SOURCE_TYPE) &&
+                          layer.getPinned()
+                        ) {
+                          <i
+                            [title]="'explorer.layerPanel.unpin' | localize"
+                            class="fa fa-thumb-tack"
+                            aria-hidden="true"
+                            style="cursor: pointer"
+                            (click)="togglePinned(layer)"
+                          ></i>
+                        }
+                        <div class="label-wrapper">
+                          {{ layer.legendLabel }}
+                          @if (versionMap[layer.getId()]) {
+                            <span>- {{ versionMap[layer.getId()].forDate }}</span>
+                          }
+                          @if (versionMap[layer.getId()] != null) {
+                            (
+                            @if (versionMap[layer.getId()].versionNumber !== 0) {
+                              <a (click)="onViewList(layer.dataSource.getVersionId())" routerLinkActive="active">
+                                <localize key="list.type.version"></localize>
+                                {{ versionMap[layer.getId()].versionNumber }}
+                              </a>
+                            }
+                            @if (versionMap[layer.getId()].versionNumber === 0) {
+                              <a (click)="onViewList(layer.dataSource.getVersionId())" routerLinkActive="active">
+                                @if (versionMap[layer.getId()].versionNumber === 0) {
+                                  <localize key="list.type.working.version"></localize>
+                                }
+                              </a>
+                            }
+                            )
+                          }
+                          <div
+                            class="layer-legend-square"
+                            [ngStyle]="{ 'background-color': layer.color }"
+                            style="width: 15px; height: 15px; display: inline-block; vertical-align: middle"
+                          ></div>
+                          <!--                 <i class="fa fa-arrow-up" aria-hidden="true" (click)="moveLayer(layer, -1)"></i> -->
+                          <!--                 <i class="fa fa-arrow-down" aria-hidden="true" (click)="moveLayer(layer, 1)"></i> -->
+                          <i
+                            [title]="'explorer.layerPanel.zoomToFeature' | localize"
+                            class="fa fa-eye"
+                            aria-hidden="true"
+                            (click)="onGotoBounds(layer)"
+                          ></i>
+                          @if (
+                            !(layer.dataSource.getDataSourceType() === CONSTANTS.LIST_VECTOR_SOURCE_TYPE) &&
+                            !layer.getPinned()
+                          ) {
+                            <i
+                              [title]="'explorer.layerPanel.pin' | localize"
+                              class="fa fa-thumb-tack"
+                              aria-hidden="true"
+                              (click)="togglePinned(layer)"
+                            ></i>
+                          }
+                          @if (versionMap[layer.getId()] && versionMap[layer.getId()].versionNumber === 0) {
+                            <i
+                              [title]="'explorer.layerPanel.addNewGeoObject' | localize"
+                              class="fa fa-plus"
+                              aria-hidden="true"
+                              (click)="onCreate(layer)"
+                            ></i>
+                          }
+                          <i
+                            [title]="'explorer.layerPanel.removeLayer' | localize"
+                            class="fa fa-times"
+                            aria-hidden="true"
+                            (click)="removeLayer(layer)"
+                          ></i>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
           </div>
         </div>
-      </fieldset>
-    </form>
+      }
 
-
-  </div>
+      @if (panelSize === 2) {
+        <div style="margin-top: 10px">
+          @if (baseLayers.length > 1) {
+            <div style="margin-bottom: 10px">
+              <h4>
+                <localize key="explorer.base.layers.label"></localize>
+              </h4>
+              @for (baseLayer of baseLayers; track baseLayer.id) {
+                <div class="row-form">
+                  <input
+                    class="layer-toggle-input"
+                    type="radio"
+                    name="baselayers"
+                    [value]="baseLayer.id"
+                    [checked]="baseLayer.selected"
+                    (change)="toggleBaseLayer(baseLayer)"
+                  />
+                  <label class="layer-toggle-label">
+                    <localize [key]="baseLayer.label"></localize>
+                  </label>
+                </div>
+              }
+            </div>
+          }
+          <form class="modal-form" name="export-form" style="overflow: visible">
+            <fieldset style="padding: 10px">
+              <div class="row">
+                <div class="col-md-4" style="padding-left: 10px; padding-right: 0">
+                  <label><localize key="io.startDate"></localize></label>
+                </div>
+                <div class="col-md-4" style="padding-left: 5px; padding-right: 0">
+                  <label><localize key="io.endDate"></localize></label>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-4" style="padding-left: 10px; padding-right: 0">
+                  <date-field
+                    [(value)]="form.startDate"
+                    [classNames]="'form-control'"
+                    label=""
+                    inputName="startDate"
+                    [allowFutureDates]="false"
+                    name="startDate"
+                  ></date-field>
+                </div>
+                <div class="col-md-4" style="padding-left: 5px; padding-right: 0">
+                  <date-field
+                    [(value)]="form.endDate"
+                    [classNames]="'form-control'"
+                    label=""
+                    inputName="endDate"
+                    [allowFutureDates]="false"
+                    name="endDate"
+                  ></date-field>
+                </div>
+                <div class="col-md-4" style="text-align: center; padding-left: 5px">
+                  <button
+                    type="button"
+                    (click)="handleSearch()"
+                    class="btn btn-primary find-layers-btn"
+                    style="width: 100%"
+                    role="button"
+                  >
+                    <span>
+                      <localize key="explorer.find.layers.by.date.range.button"></localize>
+                    </span>
+                  </button>
+                </div>
+              </div>
+              <!--
+              <div *ngIf="listOrgGroups.length > 0" class="row">
+                <div class="col-md-12">
+                  <p style="font-style:italic;color:grey;"><localize key="explorer.search.note"></localize></p>
+                </div>
+              </div>
+              -->
+              <div class="row">
+                <div class="col-md-12">
+                  <!--
+                  <h3>
+                    <localize key="explorer.layers"></localize>
+                  </h3>
+                  -->
+                  @if (listOrgGroups.length < 1) {
+                    <p style="font-style: italic; color: grey">
+                      <localize key="explorer.find.layers.no.layers.found.message"></localize>
+                    </p>
+                  }
+                  <div class="list-group">
+                    @if (graphList) {
+                      <ng-container [ngTemplateOutlet]="listView" [ngTemplateOutletContext]="{ list: graphList }">
+                      </ng-container>
+                    }
+                    @for (listOrgGroup of listOrgGroups; track listOrgGroup.orgCode) {
+                      <div>
+                        @if (listOrgGroup.types.length > 0) {
+                          <div class="list-group-item" style="border: none">
+                            <h3>{{ listOrgGroup.orgLabel.localizedValue }}</h3>
+                            @for (listTypeGroup of listOrgGroup.types; track listTypeGroup.typeCode) {
+                              <div>
+                                @if (listTypeGroup.lists.length > 0) {
+                                  <div class="list-group-item" style="border: none">
+                                    <h4>{{ listTypeGroup.typeLabel.localizedValue }}</h4>
+                                    @for (list of listTypeGroup.lists; track list.oid) {
+                                      <div>
+                                        @if (list) {
+                                          <ng-container
+                                            [ngTemplateOutlet]="listView"
+                                            [ngTemplateOutletContext]="{ list: list }"
+                                          >
+                                          </ng-container>
+                                        }
+                                      </div>
+                                    }
+                                  </div>
+                                }
+                              </div>
+                            }
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+          </form>
+        </div>
+      }
+    </div>
   </div>
 </div>

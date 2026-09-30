@@ -1,21 +1,21 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <div>
@@ -27,15 +27,19 @@
       <localize key="io.locationProblem.description"></localize>
     </p>
   </div>
-  <div >
-    <div *ngIf="hasProblems()" class="row">
-      <div class="alert alert-danger">
-        <localize key="dataUploader.existingProblems"></localize>
+  <div>
+    @if (hasProblems()) {
+      <div class="row">
+        <div class="alert alert-danger">
+          <localize key="dataUploader.existingProblems"></localize>
+        </div>
       </div>
-    </div>
-    <div *ngIf="message != null" class="row">
-      <div class="alert alert-danger">{{message}}</div>
-    </div>
+    }
+    @if (message != null) {
+      <div class="row">
+        <div class="alert alert-danger">{{ message }}</div>
+      </div>
+    }
     <form #form="ngForm">
       <div class="row">
         <div class="col-sm-4">
@@ -59,11 +63,18 @@
           </label>
         </div>
       </div>
-      <div *ngFor="let problem of configuration.locationProblems; let i = index;">
-        <location-problem [problem]="problem" [configuration]="configuration" [index]="i" (onError)="handleError($event)"></location-problem>
-      </div>
+      @for (problem of configuration.locationProblems; track problem; let i = $index) {
+        <div>
+          <location-problem
+            [problem]="problem"
+            [configuration]="configuration"
+            [index]="i"
+            (onError)="handleError($event)"
+          ></location-problem>
+        </div>
+      }
       <div class="row">
-        <div class="col-sm-12 text-right" style="margin-top: 20px;">
+        <div class="col-sm-12 text-right" style="margin-top: 20px">
           <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
             <span>
               <localize key="io.cancel"></localize>
@@ -71,8 +82,12 @@
           </button>
           <button type="submit" (click)="onNext()" class="btn btn-primary" role="button" [disabled]="hasProblems()">
             <span>
-              <localize *ngIf="configuration.termProblems != null" key="io.next"></localize>
-              <localize *ngIf="configuration.termProblems == null" key="io.ok"></localize>
+              @if (configuration.termProblems != null) {
+                <localize key="io.next"></localize>
+              }
+              @if (configuration.termProblems == null) {
+                <localize key="io.ok"></localize>
+              }
             </span>
           </button>
         </div>

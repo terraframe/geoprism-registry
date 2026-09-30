@@ -1,21 +1,21 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <page-container>
@@ -24,7 +24,6 @@
   }
 
   <div class="ds-page">
-
     <div class="ds-header">
       <div>
         <h1 class="ds-title"><localize key="header.rollback.checkpoint"></localize></h1>
@@ -32,58 +31,61 @@
       </div>
     </div>
 
-    <div *ngIf="message != null" class="alert alert-danger" role="alert">
-      {{ message }}
-    </div>
+    @if (message != null) {
+      <div class="alert alert-danger" role="alert">
+        {{ message }}
+      </div>
+    }
 
     <div class="ds-card">
-      <div class="ds-row ds-row-head" *ngIf="page.count > 0">
-        <div><localize key="rollback.filename"></localize></div>
-        <div><localize key="rollback.import.date"></localize></div>
-        <div class="ds-actions-head"><localize key="data.property.label.actions"></localize></div>
-      </div>
-
-      <div
-        class="ds-row"
-        *ngFor="
-          let checkpoint of page.resultSet
-            | paginate
-              : {
-                  id: 'rollback',
-                  itemsPerPage: page.pageSize,
-                  currentPage: page.pageNumber,
-                  totalItems: page.count,
-                };
-          let i = index
-        "
-        [class.ds-row-alt]="i % 2 === 1"
-      >
-        <div class="ds-file">
-          <i class="fa fa-file-text" aria-hidden="true"></i>
-          <a [routerLink]="'/registry/job/' + checkpoint.historyId" class="ds-file-link">{{
-            checkpoint.filename
-          }}</a>
+      @if (page.count > 0) {
+        <div class="ds-row ds-row-head">
+          <div><localize key="rollback.filename"></localize></div>
+          <div><localize key="rollback.import.date"></localize></div>
+          <div class="ds-actions-head"><localize key="data.property.label.actions"></localize></div>
         </div>
-        <div>{{ checkpoint.importDate }}</div>
-        <div class="ds-actions">
-          <button type="button" class="btn btn-danger" (click)="onRollback(checkpoint)">
-            <i class="fa fa-undo" style="margin-right: 6px;" aria-hidden="true"></i>
-            <localize key="modal.button.rollback"></localize>
-          </button>
-        </div>
-      </div>
+      }
 
-      <div class="ds-empty-state" *ngIf="page.count === 0">
-        <localize key="rollback.no.data"></localize>
-      </div>
+      @for (
+        checkpoint of page.resultSet
+          | paginate
+            : {
+                id: 'rollback',
+                itemsPerPage: page.pageSize,
+                currentPage: page.pageNumber,
+                totalItems: page.count,
+              };
+        track checkpoint.oid;
+        let i = $index
+      ) {
+        <div class="ds-row" [class.ds-row-alt]="i % 2 === 1">
+          <div class="ds-file">
+            <i class="fa fa-file-text" aria-hidden="true"></i>
+            <a [routerLink]="'/registry/job/' + checkpoint.historyId" class="ds-file-link">{{ checkpoint.filename }}</a>
+          </div>
+          <div>{{ checkpoint.importDate }}</div>
+          <div class="ds-actions">
+            <button type="button" class="btn btn-danger" (click)="onRollback(checkpoint)">
+              <i class="fa fa-undo" style="margin-right: 6px" aria-hidden="true"></i>
+              <localize key="modal.button.rollback"></localize>
+            </button>
+          </div>
+        </div>
+      }
+
+      @if (page.count === 0) {
+        <div class="ds-empty-state">
+          <localize key="rollback.no.data"></localize>
+        </div>
+      }
     </div>
 
-    <pagination-controls
-      *ngIf="page.count > 0"
-      id="rollback"
-      (pageChange)="onPageChange($event)"
-      class="ds-pagination"
-    ></pagination-controls>
-
+    @if (page.count > 0) {
+      <pagination-controls
+        id="rollback"
+        (pageChange)="onPageChange($event)"
+        class="ds-pagination"
+      ></pagination-controls>
+    }
   </div>
 </page-container>

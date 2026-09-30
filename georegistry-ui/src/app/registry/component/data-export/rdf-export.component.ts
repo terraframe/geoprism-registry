@@ -17,96 +17,105 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from "@angular/core";
-import { HttpErrorResponse } from "@angular/common/http";
+import { Component, OnInit } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 
-import { ErrorHandler } from "@shared/component";
-import { LocalizationService } from "@shared/service/localization.service";
-import { LabeledPropertyGraphType } from "@registry/model/labeled-property-graph-type";
-import { RegistryService } from "@registry/service";
-import { RDFExport } from "@registry/model/rdf-export";
-import { LabeledPropertyGraphTypeFormComponent } from "../labeled-property-graph-type/labeled-property-graph-form.component";
-import { BsDropdownModule } from "ngx-bootstrap/dropdown";
-import { FormsModule } from "@angular/forms";
-import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
-import { NgIf } from "@angular/common";
-import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
+import { ErrorHandler } from '@shared/component';
+import { LocalizationService } from '@shared/service/localization.service';
+import { LabeledPropertyGraphType } from '@registry/model/labeled-property-graph-type';
+import { RegistryService } from '@registry/service';
+import { RDFExport } from '@registry/model/rdf-export';
+import { LabeledPropertyGraphTypeFormComponent } from '../labeled-property-graph-type/labeled-property-graph-form.component';
+import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
+import { FormsModule } from '@angular/forms';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+
+import { PageContainerComponent } from '../../../shared/component/page-container/page-container.component';
 
 @Component({
-    selector: "rdf-export",
-    templateUrl: "./rdf-export.component.html",
-    styleUrls: [],
-    standalone: true,
-    imports: [PageContainerComponent, NgIf, LocalizeComponent, FormsModule, BsDropdownModule, LabeledPropertyGraphTypeFormComponent]
+  selector: 'rdf-export',
+  templateUrl: './rdf-export.component.html',
+  styleUrls: [],
+  standalone: true,
+  imports: [
+    PageContainerComponent,
+    LocalizeComponent,
+    FormsModule,
+    BsDropdownModule,
+    LabeledPropertyGraphTypeFormComponent,
+  ],
 })
 export class RDFExportComponent implements OnInit {
+  currentDate: Date = new Date();
+  message: string = null;
 
-    currentDate: Date = new Date();
-    message: string = null;
+  type: LabeledPropertyGraphType = null;
 
-    type: LabeledPropertyGraphType = null;
+  exportGeometryType: string | null = 'NO_GEOMETRIES';
 
-    exportGeometryType: string | null = "NO_GEOMETRIES";
+  // eslint-disable-next-line no-useless-constructor
+  constructor(
+    private service: RegistryService,
+    private router: Router,
+    private lService: LocalizationService
+  ) {}
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor(
-        private service: RegistryService,
-        private router: Router,
-        private lService: LocalizationService) {
-    }
+  ngOnInit(): void {
+    this.type = {
+      oid: null,
+      graphType: 'single',
+      displayLabel: this.lService.create(),
+      description: this.lService.create(),
+      code: null,
+      hierarchy: '',
+      strategyType: '',
+      strategyConfiguration: {
+        code: null,
+        typeCode: null,
+      },
+    };
+  }
 
-    ngOnInit(): void {
-        this.type = {
-            oid: null,
-            graphType: "single",
-            displayLabel: this.lService.create(),
-            description: this.lService.create(),
-            code: null,
-            hierarchy: '',
-            strategyType: "",
-            strategyConfiguration: {
-                code: null,
-                typeCode: null
-            }
-        }
-    }
+  onSubmit(type: LabeledPropertyGraphType): void {
+    const agtr: string[] = type.graphTypes == null || type.graphTypes.length == 0 ? [] : JSON.parse(type.graphTypes);
 
-    onSubmit(type: LabeledPropertyGraphType): void {
-        const agtr: string[] = (type.graphTypes == null || type.graphTypes.length == 0) ? [] : JSON.parse(type.graphTypes);
+    const graphTypes = agtr.map((value) => {
+      const split = value.split('$@~');
 
-        const graphTypes = agtr.map(value => {
-            const split = value.split('$@~');
+      return { code: split[1], typeCode: split[0] };
+    });
 
-            return { code: split[1], typeCode: split[0] }
-        })
+    const typeCodes: string[] =
+      type.geoObjectTypeCodes == null || type.geoObjectTypeCodes.length == 0 ? [] : JSON.parse(type.geoObjectTypeCodes);
+    const businessTypeCodes: string[] =
+      type.businessTypeCodes == null || type.businessTypeCodes.length == 0 ? [] : JSON.parse(type.businessTypeCodes);
+    const businessEdgeCodes: string[] =
+      type.businessEdgeCodes == null || type.businessEdgeCodes.length == 0 ? [] : JSON.parse(type.businessEdgeCodes);
 
-        const typeCodes: string[] = (type.geoObjectTypeCodes == null || type.geoObjectTypeCodes.length == 0) ? [] : JSON.parse(type.geoObjectTypeCodes);
-        const businessTypeCodes: string[] = (type.businessTypeCodes == null || type.businessTypeCodes.length == 0) ? [] : JSON.parse(type.businessTypeCodes);
-        const businessEdgeCodes: string[] = (type.businessEdgeCodes == null || type.businessEdgeCodes.length == 0) ? [] : JSON.parse(type.businessEdgeCodes);
+    const config: RDFExport = {
+      geomExportType: this.exportGeometryType,
+      typeCodes,
+      graphTypes,
+      businessTypeCodes,
+      businessEdgeCodes,
+      validFor: type.validOn,
+      namespace: type.code,
+    };
 
-        const config: RDFExport = {
-            geomExportType: this.exportGeometryType,
-            typeCodes,
-            graphTypes,
-            businessTypeCodes,
-            businessEdgeCodes,
-            validFor: type.validOn,
-            namespace: type.code
-        };
+    this.service
+      .rdfRepoExport(config)
+      .then(() => {
+        this.router.navigate(['/registry/scheduled-jobs']);
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
 
-        this.service.rdfRepoExport(config).then(() => {
-            this.router.navigate(["/registry/scheduled-jobs"]);
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
+  onCancel(): void {}
 
-    onCancel(): void {
-    }
-
-    error(err: HttpErrorResponse): void {
-        this.message = ErrorHandler.getMessageFromError(err);
-    }
-
+  error(err: HttpErrorResponse): void {
+    this.message = ErrorHandler.getMessageFromError(err);
+  }
 }

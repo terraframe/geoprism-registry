@@ -1,30 +1,30 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <page-container>
   <div class="container">
-    <div class="row" style="margin-top: 50px;">
+    <div class="row" style="margin-top: 50px">
       <div class="col-md-12">
-        <div class="text-center" style="font-size: 40px;">
-          <div _ngcontent-yvv-c54="" class="text-center" style="font-size: 40px;">
-            <h1 style="font-size:36px;line-height:unset;">
+        <div class="text-center" style="font-size: 40px">
+          <div _ngcontent-yvv-c54="" class="text-center" style="font-size: 40px">
+            <h1 style="font-size: 36px; line-height: unset">
               <localize key="cgr.standard.title"></localize>
             </h1>
             <h3>
@@ -34,66 +34,68 @@
         </div>
       </div>
     </div>
-    <div class="row" style="margin-top: 50px;">
-      <div class="col-md-4" *ngFor="let section of sections; let idx = index">
-
-        <div class="row">
-          <div class="col-md-12">
-            <div class="text-center" style="color: #6BA542;">
-              <svg width="50" height="100">
-                <svg class="small-hexagon" viewBox="0 0 100 115" xmlns="http://www.w3.org/2000/svg">
-                  <polygon points="50,5 95,30 95,85 50,110 5,85 5,30"></polygon>
+    <div class="row" style="margin-top: 50px">
+      @for (section of sections; track section.title; let idx = $index) {
+        <div class="col-md-4">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="text-center" style="color: #6ba542">
+                <svg width="50" height="100">
+                  <svg class="small-hexagon" viewBox="0 0 100 115" xmlns="http://www.w3.org/2000/svg">
+                    <polygon points="50,5 95,30 95,85 50,110 5,85 5,30"></polygon>
+                  </svg>
                 </svg>
-              </svg>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h3>
+                    <localize [key]="section.title"></localize>
+                  </h3>
+                  <p>
+                    <localize [key]="section.description"></localize>
+                  </p>
+                </div>
+                <div class="panel-body">
+                  @for (item of section.items; track item.id) {
+                    @if (shouldShowMenuItem(item.id)) {
+                      <div class="row">
+                        <div class="col-xs-12">
+                          <a
+                            [routerLink]="item.link"
+                            class="route-item"
+                            routerLinkActive="active"
+                            [title]="item.key | localize"
+                          >
+                            <i class="route-icon" style="font-size: 16" [class]="item.icon"></i>
+                            <span style="padding-left: 10px; font-size: 14px">
+                              <localize [key]="item.key"></localize>
+                            </span>
+                          </a>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-xs-12">
+                          <p style="padding-left: 27px">
+                            <localize [key]="item.description"></localize>
+                          </p>
+                        </div>
+                      </div>
+                    }
+                  }
+                </div>
+              </div>
             </div>
           </div>
         </div>
-
-        <div class="row">
-          <div class="col-md-12">
-            <div class="panel panel-default">
-              <div class="panel-heading">
-                <h3>
-                  <localize [key]="section.title"></localize>
-                </h3>
-                <p>
-                  <localize [key]="section.description"></localize>
-                </p>
-              </div>
-              <div class="panel-body">
-                <ng-container *ngFor="let item of section.items">
-                  <ng-container *ngIf="shouldShowMenuItem(item.id)">
-                    <div class="row">
-                      <div class="col-xs-12">
-                        <a [routerLink]="item.link" class="route-item" routerLinkActive="active"
-                          [title]="item.key | localize">
-                          <i class="route-icon" style="font-size: 16;" [class]="item.icon"></i>
-                          <span style="padding-left: 10px; font-size: 14px;">
-                            <localize [key]="item.key"></localize>
-                          </span>
-                        </a>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-xs-12">
-                        <p style="padding-left: 27px;">
-                          <localize [key]="item.description"></localize>
-                        </p>
-                      </div>
-                    </div>
-                  </ng-container>
-
-                </ng-container>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
+      }
     </div>
-    <div class="row" style="padding-top: 20px;">
+    <div class="row" style="padding-top: 20px">
       <div class="col-md-12">
-        <img src="assets/geoprism-ai-logo-v1.png" alt="GeoPrism.AI" style="width: 250px;" />
+        <img src="assets/geoprism-ai-logo-v1.png" alt="GeoPrism.AI" style="width: 250px" />
       </div>
     </div>
     <div class="row">
@@ -103,6 +105,5 @@
         </span>
       </div>
     </div>
-
   </div>
 </page-container>

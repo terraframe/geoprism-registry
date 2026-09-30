@@ -17,53 +17,52 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component } from "@angular/core";
-import { BsModalRef } from "ngx-bootstrap/modal";
-import { LocalizationService } from "@shared/service/localization.service";
-import { NgFor } from "@angular/common";
-import { FormsModule } from "@angular/forms";
+import { Component } from '@angular/core';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { LocalizationService } from '@shared/service/localization.service';
+
+import { FormsModule } from '@angular/forms';
 
 export class GenericButton {
-
-    label: string;
-    onClick: Function;
-    shouldClose: boolean;
-    class: string;
-
+  label: string;
+  onClick: Function;
+  shouldClose: boolean;
+  class: string;
 }
 
 @Component({
-    selector: "generic-modal",
-    templateUrl: "./generic-modal.component.html",
-    styleUrls: ["./modal.css"],
-    standalone: true,
-    imports: [FormsModule, NgFor]
+  selector: 'generic-modal',
+  templateUrl: './generic-modal.component.html',
+  styleUrls: ['./modal.css'],
+  standalone: true,
+  imports: [FormsModule],
 })
 export class GenericModalComponent {
+  /*
+   * Message
+   */
+  message: string = this.localizeService.decode('confirm.modal.default.message');
 
-    /*
-     * Message
-     */
-    message: string = this.localizeService.decode("confirm.modal.default.message");
+  buttons: GenericButton[] = [];
 
-    buttons: GenericButton[] = [];
+  data: any;
 
-    data: any;
+  // eslint-disable-next-line no-useless-constructor
+  constructor(
+    public bsModalRef: BsModalRef,
+    private localizeService: LocalizationService
+  ) {}
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor(public bsModalRef: BsModalRef, private localizeService: LocalizationService) { }
+  init(message: string, buttons: GenericButton[]): void {
+    this.message = message;
+    this.buttons = buttons;
+  }
 
-    init(message: string, buttons: GenericButton[]): void {
-        this.message = message;
-        this.buttons = buttons;
+  onClick(button: GenericButton): void {
+    if (button.shouldClose) {
+      this.bsModalRef.hide();
     }
 
-    onClick(button: GenericButton): void {
-        if (button.shouldClose) {
-            this.bsModalRef.hide();
-        }
-
-        button.onClick(this.data);
-    }
-
+    button.onClick(this.data);
+  }
 }

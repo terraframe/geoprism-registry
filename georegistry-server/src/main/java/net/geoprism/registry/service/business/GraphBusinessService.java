@@ -30,10 +30,6 @@ import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.SmartException;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
@@ -46,6 +42,9 @@ import net.geoprism.registry.excel.SheetDTO;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.view.EdgeObjectImportConfigurationDTO;
 import net.geoprism.registry.view.EdgeImportConfigurationView;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 @Service
 public class GraphBusinessService
@@ -110,7 +109,7 @@ public class GraphBusinessService
    */
   // private ObjectNode getType(ServerGeoObjectType geoObjectType) {
   // try {
-  // final ObjectMapper mapper = new ObjectMapper();
+  // final JsonMapper mapper = JsonMapper.shared();
   //
   // for (var name : new String[] { "source", "sourceType", "target",
   // "targetType", }) {
@@ -141,7 +140,7 @@ public class GraphBusinessService
   {
     try
     {
-      ObjectMapper mapper = new ObjectMapper();
+      JsonMapper mapper = JsonMapper.shared();
       JsonNode root = mapper.readTree(jsonStream);
 
       if (root == null || !root.isArray())
@@ -158,8 +157,8 @@ public class GraphBusinessService
       {
         if (!item.isObject())
           continue;
-
-        item.fieldNames().forEachRemaining(field -> {
+        
+        item.propertyNames().forEach(field -> {
           JsonNode v = item.get(field);
           BaseType observed = inferBaseType(v);
 
@@ -209,7 +208,7 @@ public class GraphBusinessService
       return sheet;
 
     }
-    catch (JsonParseException | JsonMappingException e)
+    catch (JacksonException e)
     {
       var ex = new JSONFormatException("Invalid JSON format", e);
       ex.setRootCause(e.getMessage());

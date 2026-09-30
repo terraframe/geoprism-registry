@@ -17,70 +17,74 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { BsModalRef } from "ngx-bootstrap/modal";
-import { Subject } from "rxjs";
-import { HttpErrorResponse } from "@angular/common/http";
-import { ErrorHandler } from "@shared/component";
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { Subject } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ErrorHandler } from '@shared/component';
 
-import { LocalizationService } from "@shared/service/localization.service";
-import { BusinessTypeService } from "@registry/service/business-type.service";
-import { Organization, OrganizationGroup } from "@shared/model/core";
-import { LocalizedTextComponent } from "../../form-fields/localized-text/localized-text.component";
-import { ConvertKeyLabel } from "@shared/component/localize/convert-key-label.component";
-import { LocalizeComponent } from "@shared/component/localize/localize.component";
-import { NgIf, NgFor } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { BusinessType } from "@registry/model/object-class";
+import { LocalizationService } from '@shared/service/localization.service';
+import { BusinessTypeService } from '@registry/service/business-type.service';
+import { Organization, OrganizationGroup } from '@shared/model/core';
+import { LocalizedTextComponent } from '../../form-fields/localized-text/localized-text.component';
+import { ConvertKeyLabel } from '@shared/component/localize/convert-key-label.component';
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
+
+import { FormsModule } from '@angular/forms';
+import { BusinessType } from '@registry/model/object-class';
 
 @Component({
-    selector: "create-business-type",
-    templateUrl: "./create-business-type.component.html",
-    styleUrls: ["./create-business-type.css"],
-    standalone: true,
-    imports: [FormsModule, LocalizeComponent, NgIf, NgFor, ConvertKeyLabel, LocalizedTextComponent]
+  selector: 'create-business-type',
+  templateUrl: './create-business-type.component.html',
+  styleUrls: ['./create-business-type.css'],
+  standalone: true,
+  imports: [FormsModule, LocalizeComponent, ConvertKeyLabel, LocalizedTextComponent],
 })
 export class CreateBusinessTypeComponent implements OnInit {
+  @Input() organization: Organization = null;
 
-    @Input() organization: Organization = null;
+  @Output() onCancel: EventEmitter<void> = new EventEmitter<void>();
+  @Output() onError: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>();
+  @Output() typeChange: EventEmitter<BusinessType> = new EventEmitter<BusinessType>();
 
-    @Output() onCancel: EventEmitter<void> = new EventEmitter<void>()
-    @Output() onError: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>()
-    @Output() typeChange: EventEmitter<BusinessType> = new EventEmitter<BusinessType>()
+  type: BusinessType = null;
 
-    type: BusinessType = null;
+  // eslint-disable-next-line no-useless-constructor
+  constructor(
+    private service: BusinessTypeService,
+    private lService: LocalizationService,
+    public bsModalRef: BsModalRef
+  ) {}
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor(private service: BusinessTypeService, private lService: LocalizationService, public bsModalRef: BsModalRef) {
-    }
+  ngOnInit(): void {
+    this.type = {
+      code: '',
+      organization: '',
+      displayLabel: this.lService.create(),
+      description: this.lService.create(),
+      attributes: [],
+      labelAttribute: '',
+      organizationLabel: '',
+      type: 'business-type',
+    };
 
-    ngOnInit(): void {
-        this.type = {
-            code: "",
-            organization: "",
-            displayLabel: this.lService.create(),
-            description: this.lService.create(),
-            attributes: [],
-            labelAttribute: "",
-            organizationLabel: "",
-            type: "business-type"
-        };
+    this.type.organization = this.organization.code;
+    this.type.organizationLabel = this.organization.label.localizedValue;
+  }
 
-        this.type.organization = this.organization.code;
-        this.type.organizationLabel = this.organization.label.localizedValue;
-    }
+  handleOnSubmit(): void {
+    this.service
+      .apply(this.type)
+      .then((data) => {
+        this.typeChange.next(data);
+        this.bsModalRef.hide();
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.onError.emit(err);
+      });
+  }
 
-    handleOnSubmit(): void {
-
-        this.service.apply(this.type).then(data => {
-            this.typeChange.next(data);
-            this.bsModalRef.hide();
-        }).catch((err: HttpErrorResponse) => {
-            this.onError.emit(err);
-        });
-    }
-
-    handleCancel(): void {
-        this.onCancel.emit();
-    }
+  handleCancel(): void {
+    this.onCancel.emit();
+  }
 }

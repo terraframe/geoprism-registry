@@ -4,12 +4,11 @@ import java.util.Date;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
-import net.geoprism.registry.spring.NullableDateDeserializer;
+import net.geoprism.registry.view.serialization.DateDeserializer;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 public class EdgeImportConfigurationView
 {
@@ -19,10 +18,10 @@ public class EdgeImportConfigurationView
   @NotEmpty
   private String         graphTypeClass;
 
-  @JsonDeserialize(using = NullableDateDeserializer.class)
+  @JsonDeserialize(using = DateDeserializer.class)
   private Date           startDate;
 
-  @JsonDeserialize(using = NullableDateDeserializer.class)
+  @JsonDeserialize(using = DateDeserializer.class)
   private Date           endDate;
 
   @NotNull(message = "file requires a value")

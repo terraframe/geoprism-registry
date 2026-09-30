@@ -17,11 +17,9 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { ApplicationConfig, importProvidersFrom } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
 
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
-import { provideAnimations } from '@angular/platform-browser/animations';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { TabsModule } from 'ngx-bootstrap/tabs';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
@@ -40,21 +38,56 @@ import { inject } from '@angular/core';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 import { ModalModule } from 'ngx-bootstrap/modal';
+import { InjectionToken, type Provider } from '@angular/core';
+
+/**
+ * Injection token for the MapLibre GL JS worker URL, applied via `setWorkerUrl()`
+ * before a map is created. Prefer {@link provideMaplibreWorker} over using this
+ * token directly.
+ *
+ * @category Map Component
+ */
+export const MAPLIBRE_WORKER_URL = new InjectionToken<string>('ngx-maplibre-gl worker URL');
+
+/**
+ * Provides the URL of the MapLibre GL JS web worker script
+ * (`maplibre-gl-worker.mjs`). This defers the `setWorkerUrl()` call until the
+ * first `mgl-map` is set up, keeping `maplibre-gl` out of the initial bundle.
+ *
+ * Relative URLs are resolved against `document.baseURI` so sub-path deployments
+ * (`--base-href`) work. The worker file and `maplibre-gl-shared.mjs` must be
+ * served at that location (typically via `angular.json` `assets`).
+ *
+ * @example
+ * ```typescript
+ * // app.config.ts
+ * export const appConfig: ApplicationConfig = {
+ *   providers: [provideMaplibreWorker('maplibre-gl-worker.mjs')],
+ * };
+ * ```
+ *
+ * @see [setWorkerUrl is bundler-only](https://maplibre.org/maplibre-gl-js/docs/guides/v5-to-v6-migration-guide/#setworkerurl-is-bundler-only)
+ *
+ * @category Map Component
+ */
+export function provideMaplibreWorker(workerUrl: string): Provider {
+  return { provide: MAPLIBRE_WORKER_URL, useValue: workerUrl };
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [
     {
       provide: APP_BASE_HREF,
       useFactory: (s: PlatformLocation) => s.getBaseHrefFromDOM(),
-      deps: [PlatformLocation]
+      deps: [PlatformLocation],
     },
-    provideAnimationsAsync(),
-    provideAnimations(),
+    provideZoneChangeDetection(),
+    provideMaplibreWorker('maplibre-gl-worker.mjs'),
     provideHttpClient(withInterceptorsFromDi()),
     {
       provide: HTTP_INTERCEPTORS,
       useClass: HttpErrorInterceptor,
-      multi: true
+      multi: true,
     },
     // ForgotPasswordService,
     // PasswordStrengthBarComponent,
@@ -70,22 +103,22 @@ export const appConfig: ApplicationConfig = {
       theme: {
         preset: Aura,
         options: {
-          darkModeSelector: false || 'none'
-        }
-      }
+          darkModeSelector: false || 'none',
+        },
+      },
     }),
     importProvidersFrom(
       // FileUploadModule,
       // TreeModule,
       NgxPaginationModule,
-      ModalModule.forRoot(),
-      BsDropdownModule.forRoot(),
-      ButtonsModule.forRoot(),
-      TypeaheadModule.forRoot(),
-      ProgressbarModule.forRoot(),
-      CollapseModule.forRoot(),
-      TabsModule.forRoot(),
-      BsDatepickerModule.forRoot()
+      ModalModule,
+      BsDropdownModule,
+      ButtonsModule,
+      TypeaheadModule,
+      ProgressbarModule,
+      CollapseModule,
+      TabsModule,
+      BsDatepickerModule
     ),
-  ]
-}
+  ],
+};

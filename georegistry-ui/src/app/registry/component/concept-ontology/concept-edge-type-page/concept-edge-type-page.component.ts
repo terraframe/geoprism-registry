@@ -28,7 +28,7 @@ import { AuthService } from '@shared/service';
 import { ManageConceptEdgeTypeComponent } from './manage-concept-edge-type.component';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { LocalizeComponent } from '@shared/component/localize/localize.component';
-import { NgIf, NgFor, NgClass } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { ModalTypes } from '@shared/model/modal';
 import { ConceptEdgeTypeService } from '@registry/service/concept-edge-type.service';
 import { Organization } from '@shared/model/core';
@@ -56,7 +56,7 @@ interface Selection {
   templateUrl: './concept-edge-type-page.component.html',
   styleUrls: ['./concept-edge-type-page.css'],
   standalone: true,
-  imports: [NgIf, LocalizeComponent, NgFor, NgClass, BsDropdownModule, ManageConceptEdgeTypeComponent],
+  imports: [LocalizeComponent, NgClass, BsDropdownModule, ManageConceptEdgeTypeComponent],
 })
 export class ConceptEdgeTypePageComponent implements OnInit, OnDestroy, OnChanges {
   Action = Action;

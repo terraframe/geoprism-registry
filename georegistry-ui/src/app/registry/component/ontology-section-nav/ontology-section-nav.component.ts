@@ -17,36 +17,34 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, EventEmitter, Input, Output } from "@angular/core";
-import { NgFor, NgClass } from "@angular/common";
-import { LocalizeComponent } from "@shared/component/localize/localize.component";
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { NgClass } from '@angular/common';
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
 
 export interface OntologySectionNavItem {
-    id: string;
-    labelKey: string;
-    icon: string;
+  id: string;
+  labelKey: string;
+  icon: string;
 }
 
 @Component({
-    selector: "ontology-section-nav",
-    templateUrl: "./ontology-section-nav.component.html",
-    styleUrls: ["./ontology-section-nav.css"],
-    standalone: true,
-    imports: [NgFor, NgClass, LocalizeComponent]
+  selector: 'ontology-section-nav',
+  templateUrl: './ontology-section-nav.component.html',
+  styleUrls: ['./ontology-section-nav.css'],
+  standalone: true,
+  imports: [NgClass, LocalizeComponent],
 })
 export class OntologySectionNavComponent {
+  @Input() items: OntologySectionNavItem[] = [];
 
-    @Input() items: OntologySectionNavItem[] = [];
+  @Input() active: string;
 
-    @Input() active: string;
+  @Output() activeChange = new EventEmitter<string>();
 
-    @Output() activeChange = new EventEmitter<string>();
-
-    select(item: OntologySectionNavItem): void {
-        if (item.id !== this.active) {
-            this.active = item.id;
-            this.activeChange.emit(item.id);
-        }
+  select(item: OntologySectionNavItem): void {
+    if (item.id !== this.active) {
+      this.active = item.id;
+      this.activeChange.emit(item.id);
     }
-
+  }
 }

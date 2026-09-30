@@ -17,41 +17,40 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input, Output, EventEmitter } from "@angular/core";
-import { ControlContainer, NgForm } from "@angular/forms";
-import { LocalizeComponent } from "../../localize/localize.component";
-import { NgClass, NgIf } from "@angular/common";
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { ControlContainer, NgForm } from '@angular/forms';
+import { LocalizeComponent } from '../../localize/localize.component';
+import { NgClass } from '@angular/common';
 
 @Component({
-    selector: "boolean-field",
-    templateUrl: "./boolean-field.component.html",
-    styleUrls: ["./boolean-field.css"],
-    viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
-    standalone: true,
-    imports: [NgClass, NgIf, LocalizeComponent]
+  selector: 'boolean-field',
+  templateUrl: './boolean-field.component.html',
+  styleUrls: ['./boolean-field.css'],
+  viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
+  standalone: true,
+  imports: [NgClass, LocalizeComponent],
 })
 export class BooleanFieldComponent {
+  @Input() value: boolean = false;
+  @Output() public valueChange = new EventEmitter<boolean>();
 
-    @Input() value: boolean = false;
-    @Output() public valueChange = new EventEmitter<boolean>();
+  @Input() localizeLabelKey: string = ''; // localization key used to localize in the component template
+  @Input() label: string = ''; // raw string input
 
-    @Input() localizeLabelKey: string = ""; // localization key used to localize in the component template
-    @Input() label: string = ""; // raw string input
+  @Input() disable: boolean = false;
 
-    @Input() disable: boolean = false;
+  /* You can pass a function in with (change)='function()' */
+  @Output() public change = new EventEmitter<any>();
 
-    /* You can pass a function in with (change)='function()' */
-    @Output() public change = new EventEmitter<any>();
+  // eslint-disable-next-line no-useless-constructor
+  constructor() {}
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor() { }
+  toggle(): void {
+    if (!this.disable) {
+      this.value = !this.value;
 
-    toggle(): void {
-        if (!this.disable) {
-            this.value = !this.value;
-
-            this.valueChange.emit(this.value);
-            this.change.emit(this.value);
-        }
+      this.valueChange.emit(this.value);
+      this.change.emit(this.value);
     }
+  }
 }

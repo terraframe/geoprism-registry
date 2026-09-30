@@ -17,187 +17,196 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
-import { BsModalService } from "ngx-bootstrap/modal";
-import { HttpErrorResponse } from "@angular/common/http";
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { BsModalService } from 'ngx-bootstrap/modal';
+import { HttpErrorResponse } from '@angular/common/http';
 
-import { ConfirmModalComponent } from "@shared/component";
-import { LocalizationService } from "@shared/service/localization.service";
-import { RegistryService } from "@registry/service";
-import { ImportHistoryModalComponent } from "@registry/component/import-history/modals/import-history-modal.component";
-import { AuthService } from "@shared/service";
-import { BsDropdownModule } from "ngx-bootstrap/dropdown";
-import { LocalizeComponent } from "@shared/component/localize/localize.component";
-import { NgIf, NgFor, NgClass } from "@angular/common";
-import { ModalTypes } from "@shared/model/modal";
-import { DagTypeService } from "@registry/service/dag-type.service";
-import { EdgeClassService } from "@registry/service/edge-class.service";
-import { GraphClass } from "@registry/model/object-class";
-import { ManageGraphTypeComponent } from "./manage-graph-type.component";
-import { UndirectedGraphTypeService } from "@registry/service/undirected-graph-type.service";
+import { ConfirmModalComponent } from '@shared/component';
+import { LocalizationService } from '@shared/service/localization.service';
+import { RegistryService } from '@registry/service';
+import { ImportHistoryModalComponent } from '@registry/component/import-history/modals/import-history-modal.component';
+import { AuthService } from '@shared/service';
+import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
+import { NgClass } from '@angular/common';
+import { ModalTypes } from '@shared/model/modal';
+import { DagTypeService } from '@registry/service/dag-type.service';
+import { EdgeClassService } from '@registry/service/edge-class.service';
+import { GraphClass } from '@registry/model/object-class';
+import { ManageGraphTypeComponent } from './manage-graph-type.component';
+import { UndirectedGraphTypeService } from '@registry/service/undirected-graph-type.service';
 
 enum Action {
-    VIEW = 0, CREATE = 1, EDIT = 2
+  VIEW = 0,
+  CREATE = 1,
+  EDIT = 2,
 }
 
 interface Selection {
-    action: Action
+  action: Action;
 
-    // params for editing
-    type?: GraphClass;
-    readOnly?: boolean;
-    isNew?: boolean;
+  // params for editing
+  type?: GraphClass;
+  readOnly?: boolean;
+  isNew?: boolean;
 }
 
-
 @Component({
-    selector: "graph-type-page",
-    templateUrl: "./graph-type-page.component.html",
-    styleUrls: ["./graph-type-page.css"],
-    standalone: true,
-    imports: [NgIf, LocalizeComponent, NgFor, NgClass, BsDropdownModule, ManageGraphTypeComponent]
+  selector: 'graph-type-page',
+  templateUrl: './graph-type-page.component.html',
+  styleUrls: ['./graph-type-page.css'],
+  standalone: true,
+  imports: [LocalizeComponent, NgClass, BsDropdownModule, ManageGraphTypeComponent],
 })
 export class GraphTypePageComponent implements OnInit, OnDestroy {
-    Action = Action;
+  Action = Action;
 
-    @Input() typeCode: string;
-    @Output() onError: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>()
+  @Input() typeCode: string;
+  @Output() onError: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>();
 
-    types: GraphClass[];
+  types: GraphClass[];
 
-    selection: Selection;
-    isSRA: boolean;
-    service: EdgeClassService<GraphClass> = null
+  selection: Selection;
+  isSRA: boolean;
+  service: EdgeClassService<GraphClass> = null;
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor(
-        private dagService: DagTypeService,
-        private undirectedService: UndirectedGraphTypeService,
-        private registryService: RegistryService,
-        private authService: AuthService,
-        private modalService: BsModalService,
-        private localizeService: LocalizationService) { }
+  // eslint-disable-next-line no-useless-constructor
+  constructor(
+    private dagService: DagTypeService,
+    private undirectedService: UndirectedGraphTypeService,
+    private registryService: RegistryService,
+    private authService: AuthService,
+    private modalService: BsModalService,
+    private localizeService: LocalizationService
+  ) {}
 
-    ngOnInit(): void {
-        this.isSRA = this.authService.isSRA();
+  ngOnInit(): void {
+    this.isSRA = this.authService.isSRA();
 
-        this.service = this.typeCode === 'DirectedAcyclicGraphType' ? this.dagService : this.undirectedService;
+    this.service = this.typeCode === 'DirectedAcyclicGraphType' ? this.dagService : this.undirectedService;
 
-        this.service.getAll().then(types => {
-            this.types = types;
-
-            if (this.selection == null && types.length > 0) {
-                this.handleTypeView(types[0]);
-            }
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
-
-    ngOnDestroy(): void {
-    }
-
-    onCreate(): void {
-
-        this.selection = {
-            action: Action.CREATE,
-            type: {
-                code: "",
-                typeCode: this.typeCode,
-                label: this.localizeService.create(),
-                description: this.localizeService.create(),
-            },
-            readOnly: false,
-            isNew: true
-        };
-    }
-
-    onEdit(type: GraphClass): void {
-        this.service.get(type.code).then(t => {
-            this.selection = {
-                action: Action.EDIT,
-                type: type,
-                readOnly: !this.isSRA,
-                isNew: false
-            };
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
-
-    handleTypeView(type: GraphClass): void {
-
-        this.selection = {
-            action: Action.VIEW,
-            type: type,
-            readOnly: true,
-            isNew: false
-        };
-    }
-
-    handleCancel(): void {
-        if (this.selection != null && this.selection.action === Action.EDIT) {
-            this.handleTypeView(this.selection.type);
-        }
-        else {
-            this.selection = null;
-        }
-    }
-
-    handleTypeChange(type: GraphClass): void {
-        const types = [...this.types];
-        const index = types.findIndex(t => t.code === type.code);
-
-        if (index !== -1) {
-            types[index] = type;
-        }
-        else {
-            types.push(type);
-        }
-
+    this.service
+      .getAll()
+      .then((types) => {
         this.types = types;
 
-        // this.typesChange.emit(types);
+        if (this.selection == null && types.length > 0) {
+          this.handleTypeView(types[0]);
+        }
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
 
-        this.handleTypeView(type);
+  ngOnDestroy(): void {}
+
+  onCreate(): void {
+    this.selection = {
+      action: Action.CREATE,
+      type: {
+        code: '',
+        typeCode: this.typeCode,
+        label: this.localizeService.create(),
+        description: this.localizeService.create(),
+      },
+      readOnly: false,
+      isNew: true,
+    };
+  }
+
+  onEdit(type: GraphClass): void {
+    this.service
+      .get(type.code)
+      .then((t) => {
+        this.selection = {
+          action: Action.EDIT,
+          type: type,
+          readOnly: !this.isSRA,
+          isNew: false,
+        };
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
+
+  handleTypeView(type: GraphClass): void {
+    this.selection = {
+      action: Action.VIEW,
+      type: type,
+      readOnly: true,
+      isNew: false,
+    };
+  }
+
+  handleCancel(): void {
+    if (this.selection != null && this.selection.action === Action.EDIT) {
+      this.handleTypeView(this.selection.type);
+    } else {
+      this.selection = null;
+    }
+  }
+
+  handleTypeChange(type: GraphClass): void {
+    const types = [...this.types];
+    const index = types.findIndex((t) => t.code === type.code);
+
+    if (index !== -1) {
+      types[index] = type;
+    } else {
+      types.push(type);
     }
 
+    this.types = types;
 
-    onDelete(type: GraphClass): void {
-        const bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: false, backdrop: true,
-            ignoreBackdropClick: true
+    // this.typesChange.emit(types);
+
+    this.handleTypeView(type);
+  }
+
+  onDelete(type: GraphClass): void {
+    const bsModalRef = this.modalService.show(ConfirmModalComponent, {
+      animated: false,
+      backdrop: true,
+      ignoreBackdropClick: true,
+    });
+    bsModalRef.content.message =
+      this.localizeService.decode('confirm.modal.verify.delete') + ' [' + type.label.localizedValue + ']';
+    bsModalRef.content.submitText = this.localizeService.decode('modal.button.delete');
+    bsModalRef.content.type = ModalTypes.danger;
+
+    bsModalRef.content.onConfirm.subscribe((data) => {
+      this.service
+        .remove(type)
+        .then(() => {
+          this.types = this.types.filter((t) => {
+            return t.code !== type.code;
+          });
+        })
+        .catch((err: HttpErrorResponse) => {
+          this.error(err);
         });
-        bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " [" + type.label.localizedValue + "]";
-        bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
-        bsModalRef.content.type = ModalTypes.danger;
+    });
+  }
 
-        bsModalRef.content.onConfirm.subscribe(data => {
-            this.service.remove(type).then(() => {
-                this.types = this.types.filter((t) => {
-                    return t.code !== type.code;
-                });
-            }).catch((err: HttpErrorResponse) => {
-                this.error(err);
-            });
+  onImportHistory(type: GraphClass): void {
+    this.registryService
+      .getImportHistory(this.typeCode, type.code)
+      .then((histories) => {
+        const bsModalRef = this.modalService.show(ImportHistoryModalComponent, {
+          animated: false,
+          backdrop: true,
+          ignoreBackdropClick: true,
         });
-    }
+        bsModalRef.content.init(type.label, histories);
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
 
-    onImportHistory(type: GraphClass): void {
-        this.registryService.getImportHistory(this.typeCode, type.code).then(histories => {
-            const bsModalRef = this.modalService.show(ImportHistoryModalComponent, {
-
-                animated: false, backdrop: true,
-                ignoreBackdropClick: true
-            });
-            bsModalRef.content.init(type.label, histories);
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
-
-    error(err: HttpErrorResponse): void {
-        this.onError.emit(err);
-    }
-
+  error(err: HttpErrorResponse): void {
+    this.onError.emit(err);
+  }
 }

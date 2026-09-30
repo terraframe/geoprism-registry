@@ -1,170 +1,231 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <page-container>
-    <progress-bar *ngIf="isRefreshing"></progress-bar>
+  @if (isRefreshing) {
+    <progress-bar></progress-bar>
+  }
 
-    <div *ngIf="list != null">
-        <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
-
+  @if (list != null) {
+    <div>
+      @if (message != null) {
+        <div class="alert alert-danger" role="alert">{{ message }}</div>
+      }
+      <div class="row">
+        @if (list) {
+          <div class="col-md-12">
+            <h2>
+              {{ list.displayLabel }}
+            </h2>
+          </div>
+        }
+      </div>
+      @if (list) {
         <div class="row">
-            <div *ngIf="list" class="col-md-12">
-                <h2>
-                    {{list.displayLabel}}
-                </h2>
-            </div>
+          <div class="col-md-4">
+            <h4>
+              @if (!list.working) {
+                <span>
+                  @if (!list.working) {
+                    <localize key="list.type.version"></localize>
+                  }
+                  &nbsp;{{ list.versionNumber }}
+                </span>
+              }
+              @if (list.working) {
+                <span>
+                  <localize key="list.type.working.version"></localize>
+                </span>
+              }
+            </h4>
+            <h4>
+              <localize key="masterlist.list.visibility"></localize> :
+              <span class="date-string-display">
+                @if (list.listMetadata.visibility === 'PUBLIC') {
+                  <localize key="masterlist.public"></localize>
+                }
+                @if (list.listMetadata.visibility !== 'PUBLIC') {
+                  <localize key="masterlist.private"></localize>
+                }
+              </span>
+            </h4>
+            <h4>
+              <localize key="masterlists.list.authoritativeness"></localize> :
+              <span class="date-string-display">
+                @if (list.listMetadata.master) {
+                  <localize key="list.type.master"></localize>
+                }
+                @if (!list.listMetadata.master) {
+                  <localize key="list.type.non.master"></localize>
+                }
+              </span>
+            </h4>
+          </div>
+          <div class="col-md-8">
+            <h4>
+              <localize key="masterlist.generatedDate"></localize>
+              :
+              <span class="date-string-display">
+                <date-text [date]="list.publishDate"></date-text>
+              </span>
+            </h4>
+            <h4>
+              <localize key="masterlist.forDate"></localize>
+              :
+              <span class="date-string-display">
+                @if (list.period.type === 'text') {
+                  {{ list.period.value }}
+                }
+                @if (list.period.type === 'date') {
+                  <date-text [date]="list.period.value"></date-text>
+                }
+                @if (list.period.type === 'range') {
+                  <date-text [date]="list.period.value.startDate"></date-text>
+                  -
+                  <date-text [date]="list.period.value.endDate"></date-text>
+                }
+              </span>
+            </h4>
+          </div>
         </div>
-        <div *ngIf="list" class="row">
-
-            <div class="col-md-4">
-
-                <h4>
-                    <span *ngIf="!list.working">
-                        <localize *ngIf="!list.working" key="list.type.version"></localize>&nbsp;{{list.versionNumber}}
-                    </span>
-                    <span *ngIf="list.working">
-                        <localize key="list.type.working.version"></localize>
-                    </span>
-                </h4>
-
-                <h4>
-                    <localize key="masterlist.list.visibility"></localize> :
-                    <span class="date-string-display">
-                        <localize *ngIf="list.listMetadata.visibility === 'PUBLIC'" key="masterlist.public"></localize>
-                        <localize *ngIf="list.listMetadata.visibility !== 'PUBLIC'" key="masterlist.private"></localize>
-                    </span>
-                </h4>
-
-                <h4>
-                    <localize key="masterlists.list.authoritativeness"></localize> :
-                    <span class="date-string-display">
-                        <localize *ngIf="list.listMetadata.master" key="list.type.master"></localize>
-                        <localize *ngIf="!list.listMetadata.master" key="list.type.non.master"></localize>
-                    </span>
-                </h4>
+      }
+      <div class="row" style="margin-bottom: 10px">
+        <div class="col-md-4">
+          @if (list.working && (isRM || isSRA)) {
+            <div class="button-holder pull-left">
+              <button
+                type="submit"
+                class="btn btn-primary"
+                role="button"
+                (click)="onRunCuration()"
+                style="margin-left: 0"
+              >
+                <localize key="list.type.run.curation"></localize>
+              </button>
+              <span
+                style="vertical-align: middle; display: inline-block; font-style: italic; margin-left: 5px; color: grey"
+              >
+                @if (list.curation.lastRun == null) {
+                  <span class="date-string-display">
+                    <localize key="list.type.run.na"></localize>
+                  </span>
+                }
+                @if (list.curation.lastRun != null) {
+                  <a [routerLink]="['/registry/curation-job', list.oid]" routerLinkActive="active">
+                    <localize key="list.type.last.validation.date"></localize>
+                    <date-text [date]="list.curation.lastRun"></date-text>
+                  </a>
+                }
+              </span>
             </div>
-            <div class="col-md-8">
-                <h4>
-                    <localize key="masterlist.generatedDate"></localize>
-                    : <span class="date-string-display">
-                        <date-text [date]="list.publishDate"></date-text>
-                    </span>
-                </h4>
-
-                <h4>
-                    <localize key="masterlist.forDate"></localize>
-                    : <span class="date-string-display">
-                        <ng-container *ngIf="list.period.type === 'text'">
-                            {{list.period.value}}
-                        </ng-container>
-                        <ng-container *ngIf="list.period.type === 'date'">
-                            <date-text [date]="list.period.value"></date-text>
-                        </ng-container>
-                        <ng-container *ngIf="list.period.type === 'range'">
-                            <date-text [date]="list.period.value.startDate"></date-text>
-                            -
-                            <date-text [date]="list.period.value.endDate"></date-text>
-                        </ng-container>
-                    </span>
-                </h4>
-            </div>
+          }
         </div>
-
-        <div class="row" style="margin-bottom:10px;">
-            <div class="col-md-4">
-                <div *ngIf="list.working && (isRM || isSRA)" class="button-holder pull-left">
-                    <button type="submit" class="btn btn-primary" role="button" (click)="onRunCuration()"
-                        style="margin-left:0;">
-                        <localize key="list.type.run.curation"></localize>
-                    </button>
-                    <span
-                        style="vertical-align:middle;display:inline-block;font-style: italic;margin-left: 5px;color: grey;">
-                        <span *ngIf="list.curation.lastRun == null" class="date-string-display">
-                            <localize key="list.type.run.na"></localize>
-                        </span>
-                        <a *ngIf="list.curation.lastRun != null" [routerLink]="['/registry/curation-job', list.oid]"
-                            routerLinkActive="active">
-                            <localize key="list.type.last.validation.date"></localize>
-                            <date-text [date]="list.curation.lastRun"></date-text>
-                        </a>
-                    </span>
-                </div>
-            </div>
-            <div class="col-md-8">
-                <div class="button-holder pull-right">
-
-                    <span *ngIf="isWritable" class="clickable"
-                        style="vertical-align:middle;display:inline-block;line-height:0;">
-                        <boolean-field [(value)]="showInvalid" (change)="handleShowInvalidChange()"
-                            [localizeLabelKey]="'masterlist.showInvalid'"></boolean-field>
-                    </span>
-
-                    <span *ngIf="isWritable && list.working" class="clickable" (click)="onPublish()"
-                        style="padding: 10px;">
-                        <i [ngClass]="{'fa fa-refresh clickable':true}"
-                            style="font-size: 24px;vertical-align: middle;padding-right: 5px;" aria-hidden="true"></i>
-                        <localize key="masterlist.publish"></localize>
-                    </span>
-
-                    <button *ngIf="list.isMember || list.geospatialMetadata.visibility === 'PUBLIC'" type="submit"
-                        (click)="onGotoMap(null)" class="btn btn-primary" role="button">
-                        <localize key="masterlist.viewOnMap"></localize>
-                    </button>
-
-                    <button *ngIf="list.working && isWritable && !list.isAbstract" type="submit"
-                        (click)="onNewGeoObject()" class="btn btn-primary" role="button">
-                        <localize key="masterlist.newGeoObject"></localize>
-                    </button>
-
-                    <span dropdown #dropdown="bs-dropdown" class="dropdown"
-                        *ngIf="list.working && isWritable && list.isAbstract">
-                        <button dropdownToggle class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenu1"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                            <localize key="masterlist.newGeoObject"></localize>
-                            <span class="caret"></span>
-                        </button>
-                        <ul *dropdownMenu class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                            <li *ngFor="let subtype of list.subtypes"><a
-                                    (click)="onNewGeoObject(subtype.code)">{{subtype.label}}</a></li>
-                        </ul>
-                    </span>
-
-                    <button
-                        *ngIf="list.listMetadata.visibility === 'PUBLIC' || list.geospatialMetadata.visibility === 'PUBLIC' || isListInOrg() || isSRA"
-                        type="submit" (click)="onExport()" class="btn btn-primary" role="button">
-                        <localize *ngIf="!isFiltered" key="io.export.allrows"></localize>
-                        <localize *ngIf="isFiltered" key="io.export.filteredrows"></localize>
-                    </button>
-                </div>
-            </div>
+        <div class="col-md-8">
+          <div class="button-holder pull-right">
+            @if (isWritable) {
+              <span class="clickable" style="vertical-align: middle; display: inline-block; line-height: 0">
+                <boolean-field
+                  [(value)]="showInvalid"
+                  (change)="handleShowInvalidChange()"
+                  [localizeLabelKey]="'masterlist.showInvalid'"
+                ></boolean-field>
+              </span>
+            }
+            @if (isWritable && list.working) {
+              <span class="clickable" (click)="onPublish()" style="padding: 10px">
+                <i
+                  [ngClass]="{ 'fa fa-refresh clickable': true }"
+                  style="font-size: 24px; vertical-align: middle; padding-right: 5px"
+                  aria-hidden="true"
+                ></i>
+                <localize key="masterlist.publish"></localize>
+              </span>
+            }
+            @if (list.isMember || list.geospatialMetadata.visibility === 'PUBLIC') {
+              <button type="submit" (click)="onGotoMap(null)" class="btn btn-primary" role="button">
+                <localize key="masterlist.viewOnMap"></localize>
+              </button>
+            }
+            @if (list.working && isWritable && !list.isAbstract) {
+              <button type="submit" (click)="onNewGeoObject()" class="btn btn-primary" role="button">
+                <localize key="masterlist.newGeoObject"></localize>
+              </button>
+            }
+            @if (list.working && isWritable && list.isAbstract) {
+              <span dropdown #dropdown="bs-dropdown" class="dropdown">
+                <button
+                  dropdownToggle
+                  class="btn btn-primary dropdown-toggle"
+                  type="button"
+                  id="dropdownMenu1"
+                  data-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="true"
+                >
+                  <localize key="masterlist.newGeoObject"></localize>
+                  <span class="caret"></span>
+                </button>
+                <ul *dropdownMenu class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                  @for (subtype of list.subtypes; track subtype.code) {
+                    <li>
+                      <a (click)="onNewGeoObject(subtype.code)">{{ subtype.label }}</a>
+                    </li>
+                  }
+                </ul>
+              </span>
+            }
+            @if (
+              list.listMetadata.visibility === 'PUBLIC' ||
+              list.geospatialMetadata.visibility === 'PUBLIC' ||
+              isListInOrg() ||
+              isSRA
+            ) {
+              <button type="submit" (click)="onExport()" class="btn btn-primary" role="button">
+                @if (!isFiltered) {
+                  <localize key="io.export.allrows"></localize>
+                }
+                @if (isFiltered) {
+                  <localize key="io.export.filteredrows"></localize>
+                }
+              </button>
+            }
+          </div>
         </div>
-        <div class="row">
-            <div *ngIf="list" class="col-md-12" style="max-height:calc(100vh - 460px); min-height:calc(100vh - 460px);">
-
-                <ng-container *ngIf="setup != null && config != null">
-                    <generic-table [setup]="setup" [config]="config" [refresh]="refresh"
-                        [pageConfig]="{oid: list.oid, showInvalid: showInvalid}" (click)="onClick($event)"
-                        (onLoadEvent)="onLoadEvent($event)" [initialState]="tableState"></generic-table>
-                </ng-container>
-
-            </div>
-        </div>
+      </div>
+      <div class="row">
+        @if (list) {
+          <div class="col-md-12" style="max-height: calc(100vh - 460px); min-height: calc(100vh - 460px)">
+            @if (setup != null && config != null) {
+              <generic-table
+                [setup]="setup"
+                [config]="config"
+                [refresh]="refresh"
+                [pageConfig]="{ oid: list.oid, showInvalid: showInvalid }"
+                (click)="onClick($event)"
+                (onLoadEvent)="onLoadEvent($event)"
+                [initialState]="tableState"
+              ></generic-table>
+            }
+          </div>
+        }
+      </div>
     </div>
+  }
 </page-container>

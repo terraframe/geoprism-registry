@@ -18,9 +18,6 @@
  */
 package net.geoprism.registry.controller;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -35,15 +32,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.model.localization.LocaleView;
 import net.geoprism.registry.service.request.GPRLocalizationService;
 import net.geoprism.registry.service.request.RegistryComponentService;
-import net.geoprism.registry.spring.JsonObjectDeserializer;
+import net.geoprism.spring.core.JsonObjectDeserializer;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 @RestController
 @Validated

@@ -27,7 +27,7 @@ import { AuthService } from '@shared/service';
 
 import { HubService } from '@core/service/hub.service';
 
-import { APP_BASE_HREF, NgFor, NgIf } from '@angular/common';
+import { APP_BASE_HREF } from '@angular/common';
 import EnvironmentUtil from '@core/utility/environment-util';
 import { Router, RouterLinkActive, RouterLink } from '@angular/router';
 import { MenuSection } from '@core/model/core';
@@ -36,77 +36,72 @@ import { LocalizeComponent } from '../component/localize/localize.component';
 import { PageContainerComponent } from '../component/page-container/page-container.component';
 
 @Component({
-    selector: 'hub',
-    templateUrl: './hub.component.html',
-    styleUrls: ['./hub.component.css'],
-    standalone: true,
-    imports: [PageContainerComponent, LocalizeComponent, NgFor, NgIf, RouterLinkActive, RouterLink, LocalizePipe]
+  selector: 'hub',
+  templateUrl: './hub.component.html',
+  styleUrls: ['./hub.component.css'],
+  standalone: true,
+  imports: [PageContainerComponent, LocalizeComponent, RouterLinkActive, RouterLink, LocalizePipe],
 })
 export class HubComponent implements OnInit {
-    context: string;
-    tasks: any = [];
-    buckets: string = 'col-sm-6';
-    bsModalRef: BsModalRef;
-    loading: boolean = true;
+  context: string;
+  tasks: any = [];
+  buckets: string = 'col-sm-6';
+  bsModalRef: BsModalRef;
+  loading: boolean = true;
 
-    sections: MenuSection[] = [];
+  sections: MenuSection[] = [];
 
-    constructor(
-        @Inject(APP_BASE_HREF) private baseHref: string,
-        private service: HubService,
-        private router: Router,
-        public authService: AuthService
+  constructor(
+    @Inject(APP_BASE_HREF) private baseHref: string,
+    private service: HubService,
+    private router: Router,
+    public authService: AuthService
+  ) {
+    this.context = EnvironmentUtil.getApiUrl();
 
-    ) {
-        this.context = EnvironmentUtil.getApiUrl();
+    this.sections = this.service.getMenuSections();
+  }
 
-        this.sections = this.service.getMenuSections();
+  ngOnInit(): void {
+    this.service.applications().then((applications) => {
+      this.loading = false;
+    });
+  }
+
+  //   logout():void {
+  //     this.sessionService.logout().then(response => {
+  //       this.router.navigate(['/login']);
+  //     });
+  //   }
+
+  open(application: Application): void {
+    if (application.url.startsWith('#/')) {
+      let queryParams = {};
+
+      if (application.url.includes('location-manager')) {
+        queryParams = { pageContext: 'EXPLORER' };
+      }
+
+      this.router.navigate([application.url.substring(2)], { queryParams: queryParams });
+    } else {
+      let url = this.context;
+
+      if (this.baseHref != null) {
+        url += this.baseHref;
+      }
+
+      window.location.href = url + '/' + application.url;
     }
+  }
 
-    ngOnInit(): void {
-        this.service.applications().then(applications => {
-            this.loading = false;
-        });
-    }
+  //   account():void{
+  //     this.profileService.get().then(profile => {
+  //       this.bsModalRef = this.modalService.show(ProfileComponent, {backdrop: 'static', class: 'gray modal-lg'});
+  //       this.bsModalRef.content.profile = profile;
+  //     });
+  //   }
 
-    //   logout():void {
-    //     this.sessionService.logout().then(response => {
-    //       this.router.navigate(['/login']);	  
-    //     }); 	  
-    //   }
-
-
-    open(application: Application): void {
-
-        if (application.url.startsWith("#/")) {
-            let queryParams = {};
-
-            if (application.url.includes("location-manager")) {
-                queryParams = { 'pageContext': 'EXPLORER' };
-            }
-
-            this.router.navigate([application.url.substring(2)], { queryParams: queryParams });
-        }
-        else {
-            let url = this.context;
-
-            if (this.baseHref != null) {
-                url += this.baseHref;
-            }
-
-            window.location.href = url + '/' + application.url;
-        }
-    }
-
-    //   account():void{
-    //     this.profileService.get().then(profile => {
-    //       this.bsModalRef = this.modalService.show(ProfileComponent, {backdrop: 'static', class: 'gray modal-lg'});
-    //       this.bsModalRef.content.profile = profile;
-    //     });
-    //   }
-
-    shouldShowMenuItem(item: string): boolean {
-        return this.authService.shouldShowMenuItem(item);
-    }
-
+  shouldShowMenuItem(item: string): boolean {
+    return this.authService.shouldShowMenuItem(item);
+  }
 }

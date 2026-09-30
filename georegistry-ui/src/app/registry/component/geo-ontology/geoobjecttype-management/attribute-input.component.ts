@@ -17,112 +17,108 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input, Output, EventEmitter, ChangeDetectorRef, OnChanges, SimpleChanges } from "@angular/core";
-import {
-    trigger,
-    state,
-    style,
-    animate,
-    transition
-} from "@angular/animations";
-import { NgIf } from "@angular/common";
-import { FormsModule } from "@angular/forms";
+import { Component, Input, Output, EventEmitter, ChangeDetectorRef, OnChanges, SimpleChanges } from '@angular/core';
+import { trigger, state, style, animate, transition } from '@angular/animations';
 
-import { AttributeType } from "@registry/model/registry";
-import { LocalizedTextComponent } from "../../form-fields/localized-text/localized-text.component";
-import { LocalizedInputComponent } from "../../form-fields/localized-input/localized-input.component";
-import { GeoObjectAttributeCodeValidator } from "../../../factory/form-validation.factory";
-import { LocalizeComponent } from "@shared/component/localize/localize.component";
-import { BooleanFieldComponent } from "@shared/component/form-fields/boolean-field/boolean-field.component";
+import { FormsModule } from '@angular/forms';
+
+import { AttributeType } from '@registry/model/registry';
+import { LocalizedTextComponent } from '../../form-fields/localized-text/localized-text.component';
+import { LocalizedInputComponent } from '../../form-fields/localized-input/localized-input.component';
+import { GeoObjectAttributeCodeValidator } from '../../../factory/form-validation.factory';
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
+import { BooleanFieldComponent } from '@shared/component/form-fields/boolean-field/boolean-field.component';
 
 @Component({
-    selector: "attribute-input",
-    templateUrl: "./attribute-input.component.html",
-    styleUrls: ["./attribute-input.css"],
-    animations: [
-        trigger("toggleInputs", [
-            state("none, void", style({ opacity: 0 })),
-            state("show", style({ opacity: 1 })),
-            transition("none => show", animate("300ms"))
-            // transition('show => none', animate('100ms'))
-        ])
-    ],
-    standalone: true,
-    imports: [LocalizeComponent, FormsModule, GeoObjectAttributeCodeValidator, LocalizedInputComponent, NgIf, LocalizedTextComponent, BooleanFieldComponent]
+  selector: 'attribute-input',
+  templateUrl: './attribute-input.component.html',
+  styleUrls: ['./attribute-input.css'],
+  animations: [
+    trigger('toggleInputs', [
+      state('none, void', style({ opacity: 0 })),
+      state('show', style({ opacity: 1 })),
+      transition('none => show', animate('300ms')),
+      // transition('show => none', animate('100ms'))
+    ]),
+  ],
+  standalone: true,
+  imports: [
+    LocalizeComponent,
+    FormsModule,
+    GeoObjectAttributeCodeValidator,
+    LocalizedInputComponent,
+    LocalizedTextComponent,
+    BooleanFieldComponent,
+  ],
 })
 export class AttributeInputComponent implements OnChanges {
+  @Input() isNew: boolean = false;
+  @Input() excludeDescription: boolean = false;
+  @Input() type: string = null;
+  @Input() attribute: AttributeType;
+  @Input() manageChangeOverTime: boolean = false;
+  @Output() attributeChange = new EventEmitter<AttributeType>();
 
-    @Input() isNew: boolean = false;
-    @Input() excludeDescription: boolean = false;
-    @Input() type: string = null;
-    @Input() attribute: AttributeType;
-    @Input() manageChangeOverTime: boolean = false;
-    @Output() attributeChange = new EventEmitter<AttributeType>();
+  message: string = null;
 
-    message: string = null;
+  state: string = 'none';
 
-    state: string = "none";
+  constructor(private cdr: ChangeDetectorRef) {}
 
-    constructor(private cdr: ChangeDetectorRef) { }
+  ngOnInit(): void {}
 
-    ngOnInit(): void {
-    }
+  ngAfterViewInit() {
+    this.state = 'show';
+    this.cdr.detectChanges();
+  }
 
-    ngAfterViewInit() {
-        this.state = "show";
-        this.cdr.detectChanges();
-    }
+  ngOnChanges(changes: SimpleChanges): void {}
 
-    ngOnChanges(changes: SimpleChanges): void {
-    }
+  ngOnDestroy() {}
 
-    ngOnDestroy() {
+  handleOnSubmit(): void {}
 
-    }
+  toggleIsUnique(): void {
+    this.attribute.unique = !this.attribute.unique;
+  }
 
-    handleOnSubmit(): void {
+  animate(): void {
+    this.state = 'none';
+  }
 
-    }
+  onAnimationDone(event: AnimationEvent): void {
+    this.state = 'show';
+  }
 
-    toggleIsUnique(): void {
-        this.attribute.unique = !this.attribute.unique;
-    }
-
-    animate(): void {
-        this.state = "none";
-    }
-
-    onAnimationDone(event: AnimationEvent): void {
-        this.state = "show";
-    }
-
-    isValid(): boolean {
-        if (this.attribute.code) {
-            // if code has a space
-            if (this.attribute.code.indexOf(" ") !== -1) {
-                return false;
-            }
-
-            if (this.attribute.label.localeValues[0].value.length === 0) {
-                return false;
-            }
-
-            if (this.type === "float" && (this.attribute.precision == null || this.attribute.precision.toString() === "")) {
-                return false;
-            }
-
-            if (this.type === "float" && (this.attribute.scale == null || this.attribute.scale.toString() === "")) {
-                return false;
-            }
-
-            if (this.type === "classification" && (this.attribute.conceptSet == null || this.attribute.conceptSet.length === 0)) {
-                return false;
-            }
-
-            return true;
-        }
-
+  isValid(): boolean {
+    if (this.attribute.code) {
+      // if code has a space
+      if (this.attribute.code.indexOf(' ') !== -1) {
         return false;
+      }
+
+      if (this.attribute.label.localeValues[0].value.length === 0) {
+        return false;
+      }
+
+      if (this.type === 'float' && (this.attribute.precision == null || this.attribute.precision.toString() === '')) {
+        return false;
+      }
+
+      if (this.type === 'float' && (this.attribute.scale == null || this.attribute.scale.toString() === '')) {
+        return false;
+      }
+
+      if (
+        this.type === 'classification' &&
+        (this.attribute.conceptSet == null || this.attribute.conceptSet.length === 0)
+      ) {
+        return false;
+      }
+
+      return true;
     }
 
+    return false;
+  }
 }
