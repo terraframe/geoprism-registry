@@ -38,7 +38,7 @@
 		"d3-transition": "^3.0.1",
 		"libphonenumber-js": "1.7.55",
 		"maplibre-gl": "^5.24.0",
-		"moment": "^2.29.2",
+		"moment": "^2.31.0",
 		"ng2-file-upload": "8.0.0",
 		"ngx-bootstrap": "^19.0.2",
 		"ngx-cookie-service": "19.1.2",
