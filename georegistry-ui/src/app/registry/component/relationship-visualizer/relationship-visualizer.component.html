@@ -1,219 +1,290 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<div id="relationship-visualizer-root-node" *ngIf="state.code" style="height:100%; overflow:hidden; position:relative;">
-
-  <ngx-spinner [fullScreen]="false" [name]="CONSTANTS.OVERLAY" type="ball-clip-rotate-multiple" size="medium">
-  </ngx-spinner>
-
-  <div>
-
-    <div class="visualizer-controls">
-      <select *ngIf="relationships" id="relationshipId" name="relationshipId" class="select-area" [(ngModel)]="graphOid"
-        (change)="onSelectRelationship()" required>
-        <option *ngIf="relationships.length === 0"></option>
-        <option *ngFor="let loopRel of relationships" [value]="loopRel.oid">{{ loopRel.label.localizedValue }} ({{ loopRel.count }})</option>
-      </select>
-
-      <select *ngIf="stabilityPeriods && stabilityPeriods.length > 1" id="stabilityPeriodId"
-        name="stabilityPeriodId" class="select-area" [(ngModel)]="selectedPeriodStartDate"
-        (change)="onSelectStabilityPeriod()">
-        <option [ngValue]="null">{{allPeriodsLabel()}}</option>
-        <option *ngFor="let period of stabilityPeriods" [value]="period.startDate">{{formatPeriod(period)}}</option>
-      </select>
-
-      <boolean-field [(value)]="restrictToMapBounds" (change)="fetchData()"
-        localizeLabelKey="graph.visualizer.restrictToMapBounds"></boolean-field>
-    </div>
-
-
-    <div class="legend">
-      <div class="legend-item" *ngFor="let item of typeLegend | keyvalue">
-        <div class="square" [ngStyle]="{ background: item.value.color }"></div>
-
-        <label>{{ item.value.label }}</label>
+@if (state.code) {
+  <div id="relationship-visualizer-root-node" style="height: 100%; overflow: hidden; position: relative">
+    <ngx-spinner [fullScreen]="false" [name]="CONSTANTS.OVERLAY" type="ball-clip-rotate-multiple" size="medium">
+    </ngx-spinner>
+    <div>
+      <div class="visualizer-controls">
+        @if (relationships) {
+          <select
+            id="relationshipId"
+            name="relationshipId"
+            class="select-area"
+            [(ngModel)]="graphOid"
+            (change)="onSelectRelationship()"
+            required
+          >
+            @if (relationships.length === 0) {
+              <option></option>
+            }
+            @for (loopRel of relationships; track loopRel.oid) {
+              <option [value]="loopRel.oid">{{ loopRel.label.localizedValue }} ({{ loopRel.count }})</option>
+            }
+          </select>
+        }
+        @if (stabilityPeriods && stabilityPeriods.length > 1) {
+          <select
+            id="stabilityPeriodId"
+            name="stabilityPeriodId"
+            class="select-area"
+            [(ngModel)]="selectedPeriodStartDate"
+            (change)="onSelectStabilityPeriod()"
+          >
+            <option [ngValue]="null">{{ allPeriodsLabel() }}</option>
+            @for (period of stabilityPeriods; track period.startDate) {
+              <option [value]="period.startDate">{{ formatPeriod(period) }}</option>
+            }
+          </select>
+        }
+        <boolean-field
+          [(value)]="restrictToMapBounds"
+          (change)="fetchData()"
+          localizeLabelKey="graph.visualizer.restrictToMapBounds"
+        ></boolean-field>
       </div>
-    </div>
-
-    <div *ngIf="relationships">
-      <div class="hierarchy-content">
-        <div id="graph-container">
-          <ngx-graph *ngIf="data" #graph class="chart-container" [view]="[svgWidth, svgHeight]" [links]="data.edges"
-            [nodes]="data.verticies" [animate]="false" [layout]="layout"
-            [layoutSettings]="{orientation: (relationship.layout === 'VERTICAL') ? CONSTANTS.ORIENTATION.TOP_TO_BOTTOM : CONSTANTS.ORIENTATION.LEFT_TO_RIGHT}"
-            [curve]="curve" [draggingEnabled]="false" (stateChange)="handleStateChange($event)"
-            [zoomToFit$]="zoomToFit$">
-            <!-- Draw an arrow on relationships for directed graph types -->
-            <ng-template #defsTemplate>
-              <ng-container *ngIf="relationship.type !== 'UndirectedGraphType'">
-                <svg:marker
-                  id="arrow"
-                  viewBox="0 -5 10 10"
-                  refX="8"
-                  refY="0"
-                  markerWidth="4"
-                  markerHeight="4"
-                  orient="auto">
-
-                  <svg:path
-                    d="M0,-5L10,0L0,5"
-                    fill="context-stroke">
-                  </svg:path>
-                </svg:marker>
-              </ng-container>
-            </ng-template>
-
-            <!-- Node Template -->
-            <ng-template #nodeTemplate let-node>
-              <svg:g (click)=" onClickNode(node)" class="node"
-                [style.cursor]="node.relation === 'SELECTED' || !node.readable  ? 'default' : 'pointer'">
-                <svg:polygon *ngIf="node.objectType === 'GEOOBJECT'" [attr.points]="getHexagonPoints(node)"
-                  [attr.fill]="state.code == null ? node.data.color : this.typeLegend[node.typeCode].color">
-                  </polygon>
-                  <svg:rect *ngIf="node.objectType === 'BUSINESS'" [attr.width]="DIMENSIONS.NODE.WIDTH"
-                    [attr.height]="DIMENSIONS.NODE.HEIGHT" [attr.y]="DIMENSIONS.NODE.HEIGHT/2"
-                    [attr.x]="(this.relationship.layout === 'VERTICAL') ? (node.relation === 'CHILD' ? (this.DIMENSIONS.LABEL.WIDTH / 2 - this.DIMENSIONS.NODE.WIDTH / 2) : (this.DIMENSIONS.LABEL.WIDTH + DIMENSIONS.PADDING.NODE_LABEL + this.DIMENSIONS.NODE.WIDTH) / 2 - this.DIMENSIONS.NODE.WIDTH / 2) : node.relation === 'PARENT' ? (this.DIMENSIONS.LABEL.WIDTH + this.DIMENSIONS.PADDING.NODE_LABEL + this.DIMENSIONS.PADDING.NODE_EDGE) : this.DIMENSIONS.PADDING.NODE_EDGE"
-                    [attr.fill]="state.code == null ? node.data.color : this.typeLegend[node.typeCode].color">
-                  </svg:rect>
-
-                  <foreignObject
-                    [attr.x]="(relationship.layout === 'VERTICAL') ? (node.relation === 'CHILD' ? 0 : (this.DIMENSIONS.LABEL.WIDTH + DIMENSIONS.PADDING.NODE_LABEL + this.DIMENSIONS.NODE.WIDTH) / 2 + this.DIMENSIONS.NODE.WIDTH / 2 + this.DIMENSIONS.PADDING.NODE_LABEL) : (node.relation === 'PARENT' ? DIMENSIONS.PADDING.NODE_LABEL : (node.relation === 'SELECTED' ? (DIMENSIONS.NODE.WIDTH + DIMENSIONS.PADDING.NODE_LABEL + DIMENSIONS.PADDING.NODE_EDGE) : (DIMENSIONS.NODE.WIDTH + DIMENSIONS.PADDING.NODE_LABEL + this.DIMENSIONS.PADDING.NODE_EDGE)))"
-                    [attr.y]="(relationship.layout === 'VERTICAL') ? (node.relation === 'CHILD' ? DIMENSIONS.NODE.HEIGHT + DIMENSIONS.PADDING.NODE_LABEL: 0) : node.relation === 'SELECTED' ? 0 : 0"
-                    [attr.width]="getLabelWidth(node)" [attr.height]="DIMENSIONS.LABEL.HEIGHT">
-                    <span
-                      [style]="'width:' + DIMENSIONS.LABEL.WIDTH + 'px; height:' + DIMENSIONS.LABEL.HEIGHT + 'px; overflow:hidden; display: inline-block;'">
-                      <p xmlns="http://www.w3.org/1999/xhtml" text-anchor="start"
-                        [ngStyle]="{'text-align': (relationship.layout === 'VERTICAL') ? (node.relation === 'CHILD' ? 'center' : 'left') : node.relation === 'SELECTED' ? 'left' : (node.relation === 'PARENT' ? 'right' : 'left'), 'color': node.relation === 'SELECTED' ? SELECTED_NODE_COLOR : 'unset', 'font-weight': ('g-' + state.uid) === node.id ? 'bold' : 'unset'}"
-                        [style]="'font-size: ' + DIMENSIONS.LABEL.FONTSIZE + 'px; display: table-cell; vertical-align: middle; height:' + DIMENSIONS.LABEL.HEIGHT + 'px; width:' + DIMENSIONS.LABEL.WIDTH + 'px; line-height:' + DIMENSIONS.LABEL.FONTSIZE + 'px;'">
-                        {{node.label}}</p>
-                    </span>
-                  </foreignObject>
-              </svg:g>
-            </ng-template>
-
-            <!-- Link Template -->
-            <ng-template #linkTemplate let-link>
-              <svg:g
-                class="edge"
-                stroke-width="2"
-                (click)="onClickEdge(link, $event)"
-                style="cursor: pointer;">
-
-                <!-- Visible edge: inherits stroke-width 2 -->
-                <svg:path
-                  [attr.id]="'edge-path-' + link.id"
-                  class="line"
-                  marker-end="url(#arrow)">
-                </svg:path>
-
-                <!-- Invisible hit target: overrides inherited width -->
-                <svg:use
-                  [attr.href]="'#edge-path-' + link.id"
-                  class="edge-hit-target"
-                  stroke-width="20"
-                  opacity="0"
-                  fill="none"
-                  pointer-events="stroke"
-                  style="cursor: pointer;">
-                </svg:use>
-
-              </svg:g>
-            </ng-template>
-          </ngx-graph>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div
-    *ngIf="selectedEdge"
-    class="edge-popup-backdrop"
-    (click)="closeEdgePopup()">
-
-    <div
-      class="edge-popup"
-      (click)="$event.stopPropagation()">
-
-      <div class="edge-popup-header">
-        <h3>{{this.relationship.label.localizedValue}}</h3>
-
-        <button
-          type="button"
-          class="edge-popup-close"
-          (click)="closeEdgePopup()"
-          aria-label="Close">
-          &times;
-        </button>
-      </div>
-
-      <div class="edge-popup-body">
-        <ng-container *ngIf="!confirmingDelete">
-          <div
-            class="edge-attribute"
-            *ngFor="let attribute of getEdgeAttributes(selectedEdge)">
-
-            <label>{{ attribute.key }}</label>
-            <span>{{ attribute.value }}</span>
+      <div class="legend">
+        @for (item of typeLegend | keyvalue; track item) {
+          <div class="legend-item">
+            <div class="square" [ngStyle]="{ background: item.value.color }"></div>
+            <label>{{ item.value.label }}</label>
           </div>
-        </ng-container>
-
-        <div *ngIf="confirmingDelete" class="edge-delete-confirmation">
-          <strong>Delete this relationship?</strong>
-          <p>This action cannot be undone.</p>
+        }
+      </div>
+      @if (relationships) {
+        <div>
+          <div class="hierarchy-content">
+            <div id="graph-container">
+              @if (data) {
+                <ngx-graph
+                  #graph
+                  class="chart-container"
+                  [view]="[svgWidth, svgHeight]"
+                  [links]="data.edges"
+                  [nodes]="data.verticies"
+                  [animate]="false"
+                  [layout]="layout"
+                  [layoutSettings]="{
+                    orientation:
+                      relationship.layout === 'VERTICAL'
+                        ? CONSTANTS.ORIENTATION.TOP_TO_BOTTOM
+                        : CONSTANTS.ORIENTATION.LEFT_TO_RIGHT,
+                  }"
+                  [curve]="curve"
+                  [enableDrag]="false"
+                  (stateChange)="handleStateChange($event)"
+                  [zoomToFit$]="zoomToFit$"
+                >
+                  <!-- Draw an arrow on relationships for directed graph types -->
+                  <ng-template #defsTemplate>
+                    @if (relationship.type !== 'UndirectedGraphType') {
+                      <svg:marker
+                        id="arrow"
+                        viewBox="0 -5 10 10"
+                        refX="8"
+                        refY="0"
+                        markerWidth="4"
+                        markerHeight="4"
+                        orient="auto"
+                      >
+                        <svg:path d="M0,-5L10,0L0,5" fill="context-stroke"></svg:path>
+                      </svg:marker>
+                    }
+                  </ng-template>
+                  <!-- Node Template -->
+                  <ng-template #nodeTemplate let-node>
+                    <svg:g
+                      (click)="onClickNode(node)"
+                      class="node"
+                      [style.cursor]="node.relation === 'SELECTED' || !node.readable ? 'default' : 'pointer'"
+                    >
+                      @if (node.objectType === 'GEOOBJECT') {
+                        <svg:polygon
+                          [attr.points]="getHexagonPoints(node)"
+                          [attr.fill]="state.code == null ? node.data.color : this.typeLegend[node.typeCode].color"
+                        ></svg:polygon>
+                      }
+                      @if (node.objectType === 'BUSINESS') {
+                        <svg:rect
+                          [attr.width]="DIMENSIONS.NODE.WIDTH"
+                          [attr.height]="DIMENSIONS.NODE.HEIGHT"
+                          [attr.y]="DIMENSIONS.NODE.HEIGHT / 2"
+                          [attr.x]="
+                            this.relationship.layout === 'VERTICAL'
+                              ? node.relation === 'CHILD'
+                                ? this.DIMENSIONS.LABEL.WIDTH / 2 - this.DIMENSIONS.NODE.WIDTH / 2
+                                : (this.DIMENSIONS.LABEL.WIDTH +
+                                    DIMENSIONS.PADDING.NODE_LABEL +
+                                    this.DIMENSIONS.NODE.WIDTH) /
+                                    2 -
+                                  this.DIMENSIONS.NODE.WIDTH / 2
+                              : node.relation === 'PARENT'
+                                ? this.DIMENSIONS.LABEL.WIDTH +
+                                  this.DIMENSIONS.PADDING.NODE_LABEL +
+                                  this.DIMENSIONS.PADDING.NODE_EDGE
+                                : this.DIMENSIONS.PADDING.NODE_EDGE
+                          "
+                          [attr.fill]="state.code == null ? node.data.color : this.typeLegend[node.typeCode].color"
+                        ></svg:rect>
+                      }
+                      <foreignObject
+                        [attr.x]="
+                          relationship.layout === 'VERTICAL'
+                            ? node.relation === 'CHILD'
+                              ? 0
+                              : (this.DIMENSIONS.LABEL.WIDTH +
+                                  DIMENSIONS.PADDING.NODE_LABEL +
+                                  this.DIMENSIONS.NODE.WIDTH) /
+                                  2 +
+                                this.DIMENSIONS.NODE.WIDTH / 2 +
+                                this.DIMENSIONS.PADDING.NODE_LABEL
+                            : node.relation === 'PARENT'
+                              ? DIMENSIONS.PADDING.NODE_LABEL
+                              : node.relation === 'SELECTED'
+                                ? DIMENSIONS.NODE.WIDTH + DIMENSIONS.PADDING.NODE_LABEL + DIMENSIONS.PADDING.NODE_EDGE
+                                : DIMENSIONS.NODE.WIDTH +
+                                  DIMENSIONS.PADDING.NODE_LABEL +
+                                  this.DIMENSIONS.PADDING.NODE_EDGE
+                        "
+                        [attr.y]="
+                          relationship.layout === 'VERTICAL'
+                            ? node.relation === 'CHILD'
+                              ? DIMENSIONS.NODE.HEIGHT + DIMENSIONS.PADDING.NODE_LABEL
+                              : 0
+                            : node.relation === 'SELECTED'
+                              ? 0
+                              : 0
+                        "
+                        [attr.width]="getLabelWidth(node)"
+                        [attr.height]="DIMENSIONS.LABEL.HEIGHT"
+                      >
+                        <span
+                          [style]="
+                            'width:' +
+                            DIMENSIONS.LABEL.WIDTH +
+                            'px; height:' +
+                            DIMENSIONS.LABEL.HEIGHT +
+                            'px; overflow:hidden; display: inline-block;'
+                          "
+                        >
+                          <p
+                            xmlns="http://www.w3.org/1999/xhtml"
+                            text-anchor="start"
+                            [ngStyle]="{
+                              'text-align':
+                                relationship.layout === 'VERTICAL'
+                                  ? node.relation === 'CHILD'
+                                    ? 'center'
+                                    : 'left'
+                                  : node.relation === 'SELECTED'
+                                    ? 'left'
+                                    : node.relation === 'PARENT'
+                                      ? 'right'
+                                      : 'left',
+                              color: node.relation === 'SELECTED' ? SELECTED_NODE_COLOR : 'unset',
+                              'font-weight': 'g-' + state.uid === node.id ? 'bold' : 'unset',
+                            }"
+                            [style]="
+                              'font-size: ' +
+                              DIMENSIONS.LABEL.FONTSIZE +
+                              'px; display: table-cell; vertical-align: middle; height:' +
+                              DIMENSIONS.LABEL.HEIGHT +
+                              'px; width:' +
+                              DIMENSIONS.LABEL.WIDTH +
+                              'px; line-height:' +
+                              DIMENSIONS.LABEL.FONTSIZE +
+                              'px;'
+                            "
+                          >
+                            {{ node.label }}
+                          </p>
+                        </span>
+                      </foreignObject>
+                    </svg:g>
+                  </ng-template>
+                  <!-- Link Template -->
+                  <ng-template #linkTemplate let-link>
+                    <svg:g class="edge" stroke-width="2" (click)="onClickEdge(link, $event)" style="cursor: pointer">
+                      <!-- Visible edge: inherits stroke-width 2 -->
+                      <svg:path [attr.id]="'edge-path-' + link.id" class="line" marker-end="url(#arrow)"></svg:path>
+                      <!-- Invisible hit target: overrides inherited width -->
+                      <svg:use
+                        [attr.href]="'#edge-path-' + link.id"
+                        class="edge-hit-target"
+                        stroke-width="20"
+                        opacity="0"
+                        fill="none"
+                        pointer-events="stroke"
+                        style="cursor: pointer"
+                      ></svg:use>
+                    </svg:g>
+                  </ng-template>
+                </ngx-graph>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+    @if (selectedEdge) {
+      <div class="edge-popup-backdrop" (click)="closeEdgePopup()">
+        <div class="edge-popup" (click)="$event.stopPropagation()">
+          <div class="edge-popup-header">
+            <h3>{{ this.relationship.label.localizedValue }}</h3>
+            <button type="button" class="edge-popup-close" (click)="closeEdgePopup()" aria-label="Close">
+              &times;
+            </button>
+          </div>
+          <div class="edge-popup-body">
+            @if (!confirmingDelete) {
+              @for (attribute of getEdgeAttributes(selectedEdge); track attribute.key) {
+                <div class="edge-attribute">
+                  <label>{{ attribute.key }}</label>
+                  <span>{{ attribute.value }}</span>
+                </div>
+              }
+            }
+            @if (confirmingDelete) {
+              <div class="edge-delete-confirmation">
+                <strong>Delete this relationship?</strong>
+                <p>This action cannot be undone.</p>
+              </div>
+            }
+          </div>
+          <div class="edge-popup-footer">
+            @if (!confirmingDelete) {
+              <button type="button" class="btn btn-default" (click)="closeEdgePopup()">Cancel</button>
+            }
+            @if (confirmingDelete) {
+              <button type="button" class="btn btn-default" (click)="cancelDeleteConfirmation()">Go back</button>
+            }
+            @if (!confirmingDelete) {
+              <button type="button" class="btn btn-danger" (click)="requestDeleteConfirmation()">Delete</button>
+            }
+            @if (confirmingDelete) {
+              <button type="button" class="btn btn-danger" (click)="deleteSelectedEdge()">Yes, delete</button>
+            }
+          </div>
         </div>
       </div>
-
-      <div class="edge-popup-footer">
-        <button
-          *ngIf="!confirmingDelete"
-          type="button"
-          class="btn btn-default"
-          (click)="closeEdgePopup()">
-          Cancel
-        </button>
-
-        <button
-          *ngIf="confirmingDelete"
-          type="button"
-          class="btn btn-default"
-          (click)="cancelDeleteConfirmation()">
-          Go back
-        </button>
-
-        <button
-          *ngIf="!confirmingDelete"
-          type="button"
-          class="btn btn-danger"
-          (click)="requestDeleteConfirmation()">
-          Delete
-        </button>
-
-        <button
-          *ngIf="confirmingDelete"
-          type="button"
-          class="btn btn-danger"
-          (click)="deleteSelectedEdge()">
-          Yes, delete
-        </button>
-      </div>
-
-    </div>
+    }
   </div>
-</div>
+}

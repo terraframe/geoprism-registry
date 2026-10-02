@@ -17,79 +17,87 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input } from "@angular/core";
-import { BsModalRef } from "ngx-bootstrap/modal";
-import { Profile } from "@shared/model/profile";
-import { AuthService, ProfileService } from "@shared/service";
-import { LocalizePipe } from "../../pipe/localize.pipe";
-import { PasswordStrengthBarComponent } from "../password-strength-bar/password-strength-bar.component";
-import { LocalizeComponent } from "../localize/localize.component";
-import { MustMatchDirective } from "../../directive/must-match.directive";
-import { FormsModule } from "@angular/forms";
-import { MessageComponent } from "../message/message.component";
-import { NgIf, NgFor } from "@angular/common";
+import { Component, Input } from '@angular/core';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { Profile } from '@shared/model/profile';
+import { AuthService, ProfileService } from '@shared/service';
+import { LocalizePipe } from '../../pipe/localize.pipe';
+import { PasswordStrengthBarComponent } from '../password-strength-bar/password-strength-bar.component';
+import { LocalizeComponent } from '../localize/localize.component';
+import { MustMatchDirective } from '../../directive/must-match.directive';
+import { FormsModule } from '@angular/forms';
+import { MessageComponent } from '../message/message.component';
 
 @Component({
-    selector: "profile",
-    templateUrl: "./profile.component.html",
-    styles: [".modal-form .check-block .chk-area { margin: 10px 0px 0 0;}"],
-    standalone: true,
-    imports: [NgIf, MessageComponent, FormsModule, MustMatchDirective, LocalizeComponent, PasswordStrengthBarComponent, NgFor, LocalizePipe]
+  selector: 'profile',
+  templateUrl: './profile.component.html',
+  styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}'],
+  standalone: true,
+  imports: [
+    MessageComponent,
+    FormsModule,
+    MustMatchDirective,
+    LocalizeComponent,
+    PasswordStrengthBarComponent,
+    LocalizePipe,
+  ],
 })
 export class ProfileComponent {
+  public _profile: Profile = {
+    oid: '',
+    username: '',
+    password: '',
+    firstName: '',
+    lastName: '',
+    email: '',
+    changePassword: false,
+  };
 
-    public _profile: Profile = {
-        oid: "",
-        username: "",
-        password: "",
-        firstName: "",
-        lastName: "",
-        email: "",
-        changePassword: false
-    };
+  // eslint-disable-next-line accessor-pairs
+  @Input('profile')
+  set profile(value: Profile) {
+    this._profile = value;
+    this.getRoles();
+  }
 
-    // eslint-disable-next-line accessor-pairs
-    @Input("profile")
-    set profile(value: Profile) {
-        this._profile = value;
-        this.getRoles();
+  roles: any[] = [];
+
+  // eslint-disable-next-line no-useless-constructor
+  constructor(
+    private service: ProfileService,
+    public bsModalRef: BsModalRef,
+    private authService: AuthService
+  ) {}
+
+  getRoles(): void {
+    this.service.getRolesForUser(this._profile.oid).then((roles) => {
+      this.roles = roles;
+    });
+  }
+
+  onSubmit(): void {
+    if (!this._profile.changePassword) {
+      delete this._profile.password;
     }
 
-    roles: any[] = [];
+    this.service.apply(this._profile).then((profile) => {
+      this.bsModalRef.hide();
+    });
+  }
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor(private service: ProfileService, public bsModalRef: BsModalRef, private authService: AuthService) { }
+  onChangePassword(): void {
+    this._profile.changePassword = !this._profile.changePassword;
+  }
 
-    getRoles(): void {
-        this.service.getRolesForUser(this._profile.oid).then(roles => {
-            this.roles = roles;
-        });
-    }
+  // getRoles():string {
+  //   return this.authService.getRoleDisplayLabels();
+  // }
 
-    onSubmit(): void {
-        if (!this._profile.changePassword) {
-            delete this._profile.password;
-        }
+  getRolesArray(): any {
+    return this.authService.getRoles();
+  }
 
-        this.service.apply(this._profile).then(profile => {
-            this.bsModalRef.hide();
-        });
-    }
-
-    onChangePassword(): void {
-        this._profile.changePassword = !this._profile.changePassword;
-    }
-
-    // getRoles():string {
-    //   return this.authService.getRoleDisplayLabels();
-    // }
-
-    getRolesArray(): any {
-        return this.authService.getRoles();
-    }
-
-    cancel(): void {
-        this.bsModalRef.hide();
-    }
-
+  cancel(): void {
+    this.bsModalRef.hide();
+  }
 }

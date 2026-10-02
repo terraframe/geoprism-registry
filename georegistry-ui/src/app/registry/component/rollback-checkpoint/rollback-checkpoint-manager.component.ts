@@ -17,45 +17,33 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnDestroy, OnInit } from "@angular/core";
-import { BsModalService } from "ngx-bootstrap/modal";
-import { HttpErrorResponse } from "@angular/common/http";
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { BsModalService } from 'ngx-bootstrap/modal';
+import { HttpErrorResponse } from '@angular/common/http';
 
-import {
-  ErrorHandler,
-  ConfirmModalComponent,
-  ProgressBarComponent,
-} from "@shared/component";
-import { LocalizationService } from "@shared/service/localization.service";
-import { RollbackCheckpointService } from "@registry/service/rollback-checkpoint.service";
-import { PageResult } from "@shared/model/core";
-import { RollbackCheckpoint } from "@registry/model/rollback-checkpoint";
-import { NgxPaginationModule } from "ngx-pagination";
-import { RouterLink } from "@angular/router";
-import { NgIf, NgFor } from "@angular/common";
-import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
-import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
-import { ModalTypes } from "@shared/model/modal";
-import { webSocket, WebSocketSubject } from "rxjs/webSocket";
-import { Subscription } from "rxjs";
-import { WebSockets } from "@shared/component/web-sockets/web-sockets";
-import { Progress } from "@shared/model/progress";
-import { ProgressService } from "@shared/service";
+import { ErrorHandler, ConfirmModalComponent, ProgressBarComponent } from '@shared/component';
+import { LocalizationService } from '@shared/service/localization.service';
+import { RollbackCheckpointService } from '@registry/service/rollback-checkpoint.service';
+import { PageResult } from '@shared/model/core';
+import { RollbackCheckpoint } from '@registry/model/rollback-checkpoint';
+import { NgxPaginationModule } from 'ngx-pagination';
+import { RouterLink } from '@angular/router';
+
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+import { PageContainerComponent } from '../../../shared/component/page-container/page-container.component';
+import { ModalTypes } from '@shared/model/modal';
+import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
+import { Subscription } from 'rxjs';
+import { WebSockets } from '@shared/component/web-sockets/web-sockets';
+import { Progress } from '@shared/model/progress';
+import { ProgressService } from '@shared/service';
 
 @Component({
-  selector: "rollback-checkpoint-manager",
-  templateUrl: "./rollback-checkpoint-manager.component.html",
-  styleUrls: ["./rollback-checkpoint-manager.css"],
+  selector: 'rollback-checkpoint-manager',
+  templateUrl: './rollback-checkpoint-manager.component.html',
+  styleUrls: ['./rollback-checkpoint-manager.css'],
   standalone: true,
-  imports: [
-    PageContainerComponent,
-    LocalizeComponent,
-    NgIf,
-    NgFor,
-    RouterLink,
-    NgxPaginationModule,
-    ProgressBarComponent,
-  ],
+  imports: [PageContainerComponent, LocalizeComponent, RouterLink, NgxPaginationModule, ProgressBarComponent],
 })
 export class RollbackCheckpointManagerComponent implements OnInit, OnDestroy {
   message: string | null = null;
@@ -76,13 +64,13 @@ export class RollbackCheckpointManagerComponent implements OnInit, OnDestroy {
     private service: RollbackCheckpointService,
     private localizeService: LocalizationService,
     private modalService: BsModalService,
-    private pService: ProgressService,
+    private pService: ProgressService
   ) {}
 
   ngOnInit(): void {
     let baseUrl = WebSockets.buildBaseUrl();
 
-    this.progressNotifier = webSocket(baseUrl + "/websocket/progress/rollback");
+    this.progressNotifier = webSocket(baseUrl + '/websocket/progress/rollback');
 
     this.progressSubscription = this.progressNotifier.subscribe((message) => {
       if (message.content != null) {
@@ -112,11 +100,9 @@ export class RollbackCheckpointManagerComponent implements OnInit, OnDestroy {
       ignoreBackdropClick: true,
     });
     bsModalRef.content!.message = this.localizeService
-      .decode("modal.confirm.rollback")
-      .replaceAll("{filename}", checkpoint.filename);
-    bsModalRef.content!.submitText = this.localizeService.decode(
-      "modal.button.rollback",
-    );
+      .decode('modal.confirm.rollback')
+      .replaceAll('{filename}', checkpoint.filename);
+    bsModalRef.content!.submitText = this.localizeService.decode('modal.button.rollback');
     bsModalRef.content!.type = ModalTypes.danger;
 
     bsModalRef.content!.onConfirm.subscribe(() => {

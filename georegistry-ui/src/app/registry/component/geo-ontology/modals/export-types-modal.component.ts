@@ -17,52 +17,48 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, ElementRef, ViewChild, OnDestroy } from "@angular/core";
-import { BsModalRef } from "ngx-bootstrap/modal";
-import { Subject } from "rxjs";
-import { Organization } from "@shared/model/core";
-import { NgFor } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { LocalizeComponent } from "@shared/component/localize/localize.component";
+import { Component, OnInit, ElementRef, ViewChild, OnDestroy } from '@angular/core';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { Subject } from 'rxjs';
+import { Organization } from '@shared/model/core';
+
+import { FormsModule } from '@angular/forms';
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
 
 @Component({
-    selector: "export-types-modal",
-    templateUrl: "./export-types-modal.component.html",
-    styleUrls: [],
-    standalone: true,
-    imports: [LocalizeComponent, FormsModule, NgFor]
+  selector: 'export-types-modal',
+  templateUrl: './export-types-modal.component.html',
+  styleUrls: [],
+  standalone: true,
+  imports: [LocalizeComponent, FormsModule],
 })
 export class ExportTypesModalComponent implements OnInit, OnDestroy {
+  public organizations: Organization[] = [];
+  public orgCode: string;
 
-    public organizations: Organization[] = [];
-    public orgCode: string;
+  public onNodeChange: Subject<string>;
 
+  constructor(public bsModalRef: BsModalRef) {}
 
-    public onNodeChange: Subject<string>;
+  ngOnInit(): void {
+    this.onNodeChange = new Subject();
+  }
 
-    constructor(public bsModalRef: BsModalRef) {
-    }
+  ngOnDestroy(): void {
+    this.onNodeChange.unsubscribe();
+  }
 
-    ngOnInit(): void {
-        this.onNodeChange = new Subject();
-    }
+  init(organizations: Organization[]): void {
+    this.organizations = organizations;
+  }
 
-    ngOnDestroy(): void {
-        this.onNodeChange.unsubscribe();
-    }
+  onSelect(event: Event): void {
+    this.orgCode = (event.target as HTMLInputElement).value;
+  }
 
-    init(organizations: Organization[]): void {
-        this.organizations = organizations;
-    }
+  onClick(): void {
+    this.onNodeChange.next(this.orgCode);
 
-    onSelect(event: Event): void {
-        this.orgCode = (event.target as HTMLInputElement).value;
-    }
-
-    onClick(): void {
-        this.onNodeChange.next(this.orgCode);
-
-        this.bsModalRef.hide();
-    }
-
+    this.bsModalRef.hide();
+  }
 }

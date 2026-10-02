@@ -1,21 +1,21 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <div>
@@ -23,7 +23,9 @@
 
   <form #form="ngForm" class="modal-form" (ngSubmit)="form.valid && onSubmit()">
     <fieldset>
-      <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+      @if (message != null) {
+        <div class="alert alert-danger" role="alert">{{ message }}</div>
+      }
 
       <div class="heading text-center">
         <h1>
@@ -47,7 +49,6 @@
               <option value="JenaExternalSystem">
                 <localize key="external.system.jena"></localize>
               </option>
-
             </select>
           </span>
         </div>
@@ -60,10 +61,17 @@
         </div>
         <div class="holder">
           <span class="select">
-            <select type="text" [(ngModel)]="system.organization" name="organization" [disabled]="system.oid != null"
-              required>
+            <select
+              type="text"
+              [(ngModel)]="system.organization"
+              name="organization"
+              [disabled]="system.oid != null"
+              required
+            >
               <option></option>
-              <option *ngFor="let org of organizations" [value]="org.code">{{org.label.localizedValue}}</option>
+              @for (org of organizations; track org.code) {
+                <option [value]="org.code">{{ org.label.localizedValue }}</option>
+              }
             </select>
           </span>
         </div>
@@ -76,7 +84,7 @@
         </div>
         <div class="holder">
           <span class="text">
-            <input type="text" [(ngModel)]="system.id" name="id" [disabled]="system.oid != null" required>
+            <input type="text" [(ngModel)]="system.id" name="id" [disabled]="system.oid != null" required />
           </span>
         </div>
       </div>
@@ -88,17 +96,22 @@
         </div>
         <div class="holder">
           <span class="text">
-
-            <div class="form-group" *ngFor="let localeValue of system.label.localeValues">
-              <label>
-                <convert-key-label [key]="localeValue.locale"></convert-key-label>
-              </label>
-              <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input"
-                class="form-control" [required]="localeValue.locale === 'defaultLocale'">
-            </div>
+            @for (localeValue of system.label.localeValues; track localeValue.locale) {
+              <div class="form-group">
+                <label>
+                  <convert-key-label [key]="localeValue.locale"></convert-key-label>
+                </label>
+                <input
+                  [(ngModel)]="localeValue.value"
+                  [name]="'label-' + localeValue.locale"
+                  type="input"
+                  class="form-control"
+                  [required]="localeValue.locale === 'defaultLocale'"
+                />
+              </div>
+            }
           </span>
         </div>
-
 
         <!--             <div class="form-group" *ngFor="let localeValue of hierarchyType.label.localeValues"> -->
         <!--               <label for="labelInput"> -->
@@ -108,7 +121,6 @@
         <!--               <input [disabled]="readOnly" [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input" class="form-control" -->
         <!--                 required> -->
         <!--             </div> -->
-
       </div>
       <div class="row-holder">
         <div class="label-holder">
@@ -118,94 +130,123 @@
         </div>
         <div class="holder">
           <span class="text">
-            <div class="form-group" *ngFor="let localeValue of system.description.localeValues">
-              <label>
-                <convert-key-label [key]="localeValue.locale"></convert-key-label>
-              </label>
-              <input [(ngModel)]="localeValue.value" [name]="'contact-' + localeValue.locale" type="input"
-                class="form-control">
-            </div>
+            @for (localeValue of system.description.localeValues; track localeValue.locale) {
+              <div class="form-group">
+                <label>
+                  <convert-key-label [key]="localeValue.locale"></convert-key-label>
+                </label>
+                <input
+                  [(ngModel)]="localeValue.value"
+                  [name]="'contact-' + localeValue.locale"
+                  type="input"
+                  class="form-control"
+                />
+              </div>
+            }
             <!-- <input type="text" [(ngModel)]="external.system.contactInfo" name="contact" required> -->
           </span>
         </div>
       </div>
 
-      <div *ngIf="system.type === 'FhirExternalSystem'  || system.type === 'JenaExternalSystem'" class="row-holder">
-        <div class="label-holder">
-          <label>
-            <localize key="external.system.url"></localize>
-          </label>
+      @if (system.type === 'FhirExternalSystem' || system.type === 'JenaExternalSystem') {
+        <div class="row-holder">
+          <div class="label-holder">
+            <label>
+              <localize key="external.system.url"></localize>
+            </label>
+          </div>
+          <div class="holder">
+            <span class="text">
+              <input
+                type="text"
+                (focusout)="dhis2FocusOut()"
+                [(ngModel)]="system.url"
+                name="url"
+                required
+                pattern="^https?://[^/:]+:\d+(/.*)?$"
+                #url="ngModel"
+              />
+              @if (url.invalid && (url.dirty || url.touched)) {
+                <div class="text-danger" style="margin-top: 5px">
+                  @if (url.errors?.['required']) {
+                    <span> URL is required. </span>
+                  }
+                  @if (url.errors?.['pattern']) {
+                    <span>
+                      URL must include a protocol and port, e.g. https://example.com:8182/.
+                      @if (system.type === 'JenaExternalSystem') {
+                        <span>Do not include the '/sparql' path.</span>
+                      }
+                    </span>
+                  }
+                </div>
+              }
+            </span>
+          </div>
         </div>
-        <div class="holder">
-          <span class="text">
-            <input type="text" (focusout)="dhis2FocusOut()" [(ngModel)]="system.url" name="url" required pattern="^https?://[^/:]+:\d+(/.*)?$" #url="ngModel">
-            <div *ngIf="url.invalid && (url.dirty || url.touched)"
-                class="text-danger"
-                style="margin-top: 5px;">
+      }
+      @if (connectMessage != null) {
+        <div class="row-holder">
+          <div class="label-holder">
+            <label> </label>
+          </div>
+          <div class="alert alert-danger holder" role="alert" style="padding-top: 18px">
+            {{ connectMessage }}
+          </div>
+        </div>
+      }
+      @if (capabilities && !capabilities.supportedVersion) {
+        <div class="row-holder">
+          <div class="label-holder">
+            <label> </label>
+          </div>
+          <div class="alert alert-danger holder" role="alert" style="padding-top: 18px">
+            <localize key="external.system.versionNotSupported"></localize>
+          </div>
+        </div>
+      }
+      @if (system.type === 'FhirExternalSystem') {
+        <div class="row-holder">
+          <div class="label-holder">
+            <label>
+              <localize key="external.system.system"></localize>
+            </label>
+          </div>
+          <div class="holder">
+            <span class="text">
+              <input type="text" [(ngModel)]="system.system" name="system" required />
+            </span>
+          </div>
+        </div>
+      }
 
-              <span *ngIf="url.errors?.['required']">
-                URL is required.
-              </span>
+      @if (system.type === 'JenaExternalSystem') {
+        <div class="row-holder">
+          <div class="label-holder">
+            <label>
+              <localize key="external.system.authType"></localize>
+            </label>
+          </div>
+          <div class="holder">
+            <span class="text">
+              <select
+                type="text"
+                [ngModel]="system.authTypeS || ''"
+                (ngModelChange)="system.authTypeS = $event"
+                name="authType"
+                [disabled]="false"
+              >
+                <option value=""><localize key="external.system.authType.none"></localize></option>
+                <option value="IAM">
+                  <localize key="external.system.authType.iam"></localize>
+                </option>
+              </select>
+            </span>
+          </div>
+        </div>
+      }
 
-              <span *ngIf="url.errors?.['pattern']">
-                URL must include a protocol and port, e.g. https://example.com:8182/.
-                <span *ngIf="system.type === 'JenaExternalSystem'">Do not include the '/sparql' path.</span>
-              </span>
-            </div>
-          </span>
-        </div>
-      </div>
-      <div *ngIf="connectMessage != null" class="row-holder">
-        <div class="label-holder">
-          <label>
-          </label>
-        </div>
-        <div class="alert alert-danger holder" role="alert" style="padding-top:18px;">
-          {{connectMessage}}
-        </div>
-      </div>
-      <div *ngIf="capabilities && !capabilities.supportedVersion" class="row-holder">
-        <div class="label-holder">
-          <label>
-          </label>
-        </div>
-        <div class="alert alert-danger holder" role="alert" style="padding-top:18px;">
-          <localize key="external.system.versionNotSupported"></localize>
-        </div>
-      </div>
-      <div *ngIf="system.type === 'FhirExternalSystem'" class="row-holder">
-        <div class="label-holder">
-          <label>
-            <localize key="external.system.system"></localize>
-          </label>
-        </div>
-        <div class="holder">
-          <span class="text">
-            <input type="text" [(ngModel)]="system.system" name="system" required>
-          </span>
-        </div>
-      </div>
-      
-      <div *ngIf="system.type === 'JenaExternalSystem'" class="row-holder">
-        <div class="label-holder">
-          <label>
-            <localize key="external.system.authType"></localize>
-          </label>
-        </div>
-        <div class="holder">
-          <span class="text">
-            <select type="text" [ngModel]="system.authTypeS || ''" (ngModelChange)="system.authTypeS = $event" name="authType" [disabled]="false">
-              <option value=""><localize key="external.system.authType.none"></localize></option>
-              <option value="IAM">
-                <localize key="external.system.authType.iam"></localize>
-              </option>
-            </select>
-          </span>
-        </div>
-      </div>
-      
-
-      <ng-container *ngIf="isOauthSupported(system)">
+      @if (isOauthSupported(system)) {
         <div class="row-holder">
           <div class="label-holder">
             <label>
@@ -213,143 +254,180 @@
             </label>
           </div>
           <div class="holder">
-            <input *ngIf="system.oAuthServer == null" type="button" [value]="'external.system.enableOauth' | localize"
-              class="btn btn-primary" [disabled]="system.url == null" (click)="enableOAuth()" />
-            <hr *ngIf="system.oAuthServer != null" style="border-color:lightgrey;">
+            @if (system.oAuthServer == null) {
+              <input
+                type="button"
+                [value]="'external.system.enableOauth' | localize"
+                class="btn btn-primary"
+                [disabled]="system.url == null"
+                (click)="enableOAuth()"
+              />
+            }
+            @if (system.oAuthServer != null) {
+              <hr style="border-color: lightgrey" />
+            }
           </div>
         </div>
-        <div *ngIf="capabilities && !capabilities.oauth" class="row-holder">
-          <div class="label-holder">
-	          <label>
-	          </label>
-	        </div>
-          <div class="alert alert-danger holder" role="alert" style="padding-top:18px;">
-            <localize key="external.system.oauthNotSupported"></localize>
+        @if (capabilities && !capabilities.oauth) {
+          <div class="row-holder">
+            <div class="label-holder">
+              <label> </label>
+            </div>
+            <div class="alert alert-danger holder" role="alert" style="padding-top: 18px">
+              <localize key="external.system.oauthNotSupported"></localize>
+            </div>
           </div>
-        </div>
-        <div *ngIf="this.oauthEnabled && system.oAuthServer != null">
-          <ng-container *ngIf="system.type === 'FhirExternalSystem'">
+        }
+        @if (this.oauthEnabled && system.oAuthServer != null) {
+          <div>
+            @if (system.type === 'FhirExternalSystem') {
+              <div class="row-holder">
+                <div class="label-holder">
+                  <label>
+                    <localize key="external.system.username"></localize>
+                  </label>
+                </div>
+                <div class="holder">
+                  <span class="text">
+                    <input type="text" [(ngModel)]="system.username" name="username" required />
+                  </span>
+                </div>
+              </div>
+              <div class="row-holder">
+                <div class="label-holder">
+                  <label>
+                    <localize key="external.system.password"></localize>
+                  </label>
+                </div>
+                <div class="holder">
+                  <div>
+                    @if (!editPassword) {
+                      <input
+                        type="button"
+                        [value]="'external.system.editPassword' | localize"
+                        class="btn btn-primary"
+                        (click)="editPassword = !editPassword"
+                      />
+                    }
+                    @if (editPassword && !isNew) {
+                      <input
+                        style="margin-bottom: 5px"
+                        type="button"
+                        [value]="'external.system.editPasswordCancel' | localize"
+                        class="btn btn-default"
+                        (click)="editPassword = !editPassword"
+                      />
+                    }
+                  </div>
+                  @if (editPassword) {
+                    <span class="text">
+                      <input type="password" [(ngModel)]="system.password" name="password" required />
+                    </span>
+                  }
+                </div>
+              </div>
+            }
             <div class="row-holder">
               <div class="label-holder">
                 <label>
-                  <localize key="external.system.username"></localize>
+                  <localize key="external.system.oauthHeader"></localize>&nbsp;<localize
+                    key="external.system.oauth.clientId"
+                  ></localize>
                 </label>
               </div>
               <div class="holder">
                 <span class="text">
-                  <input type="text" [(ngModel)]="system.username" name="username" required>
+                  <input type="text" [(ngModel)]="system.oAuthServer.clientId" name="clientId" required />
                 </span>
               </div>
             </div>
-
             <div class="row-holder">
               <div class="label-holder">
                 <label>
-                  <localize key="external.system.password"></localize>
+                  <localize key="external.system.oauthHeader"></localize>&nbsp;<localize
+                    key="external.system.oauth.secretKey"
+                  ></localize>
                 </label>
               </div>
               <div class="holder">
-                <div>
-                  <input *ngIf="!editPassword" type="button" [value]="'external.system.editPassword' | localize"
-                    class="btn btn-primary" (click)="editPassword = !editPassword" />
-                  <input *ngIf="editPassword && !isNew" style="margin-bottom:5px;" type="button"
-                    [value]="'external.system.editPasswordCancel' | localize" class="btn btn-default"
-                    (click)="editPassword = !editPassword" />
-                </div>
-                <span *ngIf="editPassword" class="text">
-                  <input type="password" [(ngModel)]="system.password" name="password" required>
+                <span class="text">
+                  <input type="text" [(ngModel)]="system.oAuthServer.secretKey" name="secretKey" required />
                 </span>
               </div>
             </div>
-          </ng-container>
-
-
-          <div class="row-holder">
-            <div class="label-holder">
-              <label>
-                <localize key="external.system.oauthHeader"></localize>&nbsp;<localize
-                  key="external.system.oauth.clientId"></localize>
-              </label>
+            <div class="row-holder">
+              <div class="label-holder">
+                <label>
+                  <localize key="external.system.oauthHeader"></localize>&nbsp;<localize
+                    key="external.system.oauth.profileLocation"
+                  ></localize>
+                </label>
+              </div>
+              <div class="holder">
+                <span class="text">
+                  <input type="text" [(ngModel)]="system.oAuthServer.profileLocation" name="profileLocation" required />
+                </span>
+              </div>
             </div>
-            <div class="holder">
-              <span class="text">
-                <input type="text" [(ngModel)]="system.oAuthServer.clientId" name="clientId" required>
-              </span>
+            <div class="row-holder">
+              <div class="label-holder">
+                <label>
+                  <localize key="external.system.oauthHeader"></localize>&nbsp;<localize
+                    key="external.system.oauth.tokenLocation"
+                  ></localize>
+                </label>
+              </div>
+              <div class="holder">
+                <span class="text">
+                  <input type="text" [(ngModel)]="system.oAuthServer.tokenLocation" name="tokenLocation" required />
+                </span>
+              </div>
             </div>
-          </div>
-          <div class="row-holder">
-            <div class="label-holder">
-              <label>
-                <localize key="external.system.oauthHeader"></localize>&nbsp;<localize
-                  key="external.system.oauth.secretKey"></localize>
-              </label>
+            <div class="row-holder">
+              <div class="label-holder">
+                <label>
+                  <localize key="external.system.oauthHeader"></localize>&nbsp;<localize
+                    key="external.system.oauth.authorizationLocation"
+                  ></localize>
+                </label>
+              </div>
+              <div class="holder">
+                <span class="text">
+                  <input
+                    type="text"
+                    [(ngModel)]="system.oAuthServer.authorizationLocation"
+                    name="authorizationLocation"
+                    required
+                  />
+                </span>
+              </div>
             </div>
-            <div class="holder">
-              <span class="text">
-                <input type="text" [(ngModel)]="system.oAuthServer.secretKey" name="secretKey" required>
-              </span>
-            </div>
-          </div>
-          <div class="row-holder">
-            <div class="label-holder">
-              <label>
-                <localize key="external.system.oauthHeader"></localize>&nbsp;<localize
-                  key="external.system.oauth.profileLocation"></localize>
-              </label>
-            </div>
-            <div class="holder">
-              <span class="text">
-                <input type="text" [(ngModel)]="system.oAuthServer.profileLocation" name="profileLocation" required>
-              </span>
-            </div>
-          </div>
-          <div class="row-holder">
-            <div class="label-holder">
-              <label>
-                <localize key="external.system.oauthHeader"></localize>&nbsp;<localize
-                  key="external.system.oauth.tokenLocation"></localize>
-              </label>
-            </div>
-            <div class="holder">
-              <span class="text">
-                <input type="text" [(ngModel)]="system.oAuthServer.tokenLocation" name="tokenLocation" required>
-              </span>
-            </div>
-          </div>
-          <div class="row-holder">
-            <div class="label-holder">
-              <label>
-                <localize key="external.system.oauthHeader"></localize>&nbsp;<localize
-                  key="external.system.oauth.authorizationLocation"></localize>
-              </label>
-            </div>
-            <div class="holder">
-              <span class="text">
-                <input type="text" [(ngModel)]="system.oAuthServer.authorizationLocation" name="authorizationLocation"
-                  required>
-              </span>
+            <div class="row-holder">
+              <div class="label-holder"></div>
+              <div class="holder">
+                <input
+                  type="button"
+                  [value]="'external.system.oauth.removeOauth' | localize"
+                  class="btn btn-danger"
+                  (click)="removeOauth()"
+                />
+              </div>
             </div>
           </div>
-
-          <div class="row-holder">
-            <div class="label-holder">
-            </div>
-            <div class="holder">
-              <input type="button" [value]="'external.system.oauth.removeOauth' | localize" class="btn btn-danger"
-                (click)="removeOauth()" />
-            </div>
-          </div>
-        </div>
-      </ng-container>
+        }
+      }
 
       <div class="row-holder">
-        <div class="label-holder">
-        </div>
+        <div class="label-holder"></div>
         <div class="holder">
           <div class="button-holder">
             <input type="button" [value]="'dataset.cancel' | localize" class="btn btn-default" (click)="cancel()" />
-            <input type="submit" [value]="'dataset.submit' | localize" class="btn btn-primary"
-              [disabled]="!(form.valid) || connectMessage != null" />
+            <input
+              type="submit"
+              [value]="'dataset.submit' | localize"
+              class="btn btn-primary"
+              [disabled]="!form.valid || connectMessage != null"
+            />
           </div>
         </div>
       </div>

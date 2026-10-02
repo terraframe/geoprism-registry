@@ -17,104 +17,99 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from "@angular/core";
-import { ListTypeVersion } from "@registry/model/list-type";
-import { GenericTableConfig, TableColumnSetup } from "@shared/model/generic-table";
-import { ListTypeService } from "@registry/service/list-type.service";
-import { HttpErrorResponse } from "@angular/common/http";
-import { LazyLoadEvent } from "primeng/api";
-import Utils from "@registry/utility/Utils";
-import { GenericTableComponent } from "../../../shared/component/generic-table/generic-table.component";
-import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
-import { NgIf } from "@angular/common";
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+import { ListTypeVersion } from '@registry/model/list-type';
+import { GenericTableConfig, TableColumnSetup } from '@shared/model/generic-table';
+import { ListTypeService } from '@registry/service/list-type.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { LazyLoadEvent } from 'primeng/api';
+import Utils from '@registry/utility/Utils';
+import { GenericTableComponent } from '../../../shared/component/generic-table/generic-table.component';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
 
 @Component({
-    selector: "list-row",
-    templateUrl: "./list-row.component.html",
-    styleUrls: [],
-    standalone: true,
-    imports: [NgIf, LocalizeComponent, GenericTableComponent]
+  selector: 'list-row',
+  templateUrl: './list-row.component.html',
+  styleUrls: [],
+  standalone: true,
+  imports: [LocalizeComponent, GenericTableComponent],
 })
 export class ListRowComponent implements OnInit, OnDestroy, OnChanges {
+  @Input() oid: string;
+  @Input() uid: string;
 
-    @Input() oid: string;
-    @Input() uid: string;
+  @Output() error: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>();
 
-    @Output() error: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>();
+  @Output() close: EventEmitter<void> = new EventEmitter<void>();
 
-    @Output() close: EventEmitter<void> = new EventEmitter<void>();
+  list: ListTypeVersion = null;
+  tableState: LazyLoadEvent = null;
 
-    list: ListTypeVersion = null;
-    tableState: LazyLoadEvent = null;
+  config: GenericTableConfig = null;
+  setup: TableColumnSetup = null;
 
-    config: GenericTableConfig = null;
-    setup: TableColumnSetup = null;
+  // eslint-disable-next-line no-useless-constructor
+  constructor(private service: ListTypeService) {}
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor(private service: ListTypeService) {
-    }
+  ngOnInit(): void {
+    this.refreshVersion();
+  }
 
-    ngOnInit(): void {
-        this.refreshVersion();
-    }
+  ngOnDestroy(): void {}
 
-    ngOnDestroy(): void {
-    }
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['oid'] != null) {
+      this.refreshVersion();
+    } else if (changes['uid'] != null) {
+      this.tableState = null;
 
-    ngOnChanges(changes: SimpleChanges): void {
-        if (changes["oid"] != null) {
-            this.refreshVersion();
-        } else if (changes["uid"] != null) {
-            this.tableState = null;
-
-            window.setTimeout(() => {
-                this.tableState = {
-                    filters: {
-                        uid: {
-                            matchMode: "equals",
-                            value: this.uid
-                        }
-                    }
-                };
-            });
-        }
-    }
-
-    refreshVersion(): void {
-        this.list = null;
-
+      window.setTimeout(() => {
         this.tableState = {
-            filters: {
-                uid: {
-                    matchMode: "equals",
-                    value: this.uid
-                }
-            }
+          filters: {
+            uid: {
+              matchMode: 'equals',
+              value: this.uid,
+            },
+          },
         };
-
-        this.service.getVersion(this.oid).then(version => {
-            this.list = version;
-            this.refreshColumns();
-
-            this.config = {
-                service: this.service,
-                remove: false,
-                view: true,
-                create: false,
-                label: this.list.displayLabel,
-                sort: [{ field: "code", order: 1 }],
-                baseZIndex: 1051,
-                pageSize: 10
-            };
-        });
+      });
     }
+  }
 
-    refreshColumns(): void {
-        this.setup = Utils.createColumns(this.list, false, true);
-    }
+  refreshVersion(): void {
+    this.list = null;
 
-    onClose(): void {
-        this.close.emit();
-    }
+    this.tableState = {
+      filters: {
+        uid: {
+          matchMode: 'equals',
+          value: this.uid,
+        },
+      },
+    };
 
+    this.service.getVersion(this.oid).then((version) => {
+      this.list = version;
+      this.refreshColumns();
+
+      this.config = {
+        service: this.service,
+        remove: false,
+        view: true,
+        create: false,
+        label: this.list.displayLabel,
+        sort: [{ field: 'code', order: 1 }],
+        baseZIndex: 1051,
+        pageSize: 10,
+      };
+    });
+  }
+
+  refreshColumns(): void {
+    this.setup = Utils.createColumns(this.list, false, true);
+  }
+
+  onClose(): void {
+    this.close.emit();
+  }
 }

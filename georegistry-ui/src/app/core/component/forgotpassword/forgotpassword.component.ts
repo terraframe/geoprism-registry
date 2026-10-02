@@ -17,54 +17,55 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
-import { Location, NgIf } from "@angular/common";
-import { HttpErrorResponse } from "@angular/common/http";
+import { Component } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Location } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 
-import { ForgotPasswordService } from "@core/service/forgotpassword.service";
+import { ForgotPasswordService } from '@core/service/forgotpassword.service';
 
-import { ErrorHandler } from "@shared/component";
-import { LocalizePipe } from "../../../shared/pipe/localize.pipe";
-import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
-import { FormsModule } from "@angular/forms";
-import { LoadingBarComponent } from "../../../shared/component/loading-bar/loading-bar.component";
-import { MessageComponent } from "../../../shared/component/message/message.component";
+import { ErrorHandler } from '@shared/component';
+import { LocalizePipe } from '../../../shared/pipe/localize.pipe';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+import { FormsModule } from '@angular/forms';
+import { LoadingBarComponent } from '../../../shared/component/loading-bar/loading-bar.component';
+import { MessageComponent } from '../../../shared/component/message/message.component';
 
 @Component({
-    selector: "forgotpassword",
-    templateUrl: "./forgotpassword.component.html",
-    styleUrls: ["./forgotpassword.component.css"],
-    standalone: true,
-    imports: [MessageComponent, LoadingBarComponent, FormsModule, LocalizeComponent, NgIf, LocalizePipe]
+  selector: 'forgotpassword',
+  templateUrl: './forgotpassword.component.html',
+  styleUrls: ['./forgotpassword.component.css'],
+  standalone: true,
+  imports: [MessageComponent, LoadingBarComponent, FormsModule, LocalizeComponent, LocalizePipe],
 })
 export class ForgotPasswordComponent {
+  username: string;
+  emailIsSent: boolean = false;
+  message: string = null;
 
-    username: string;
-    emailIsSent: boolean = false;
-    message: string = null;
+  constructor(
+    private service: ForgotPasswordService,
+    private router: Router,
+    private route: ActivatedRoute,
+    private location: Location
+  ) {}
 
-    constructor(private service: ForgotPasswordService,
-        private router: Router,
-        private route: ActivatedRoute,
-        private location: Location) {}
+  cancel(): void {
+    this.router.navigate(['/']);
+  }
 
-    cancel(): void {
-        this.router.navigate(["/"]);
-    }
+  onSubmit(): void {
+    this.service
+      .submit(this.username)
+      .then((response) => {
+        this.emailIsSent = true;
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
 
-    onSubmit(): void {
-        this.service.submit(this.username)
-            .then(response => {
-                this.emailIsSent = true;
-            })
-            .catch((err: HttpErrorResponse) => {
-                this.error(err);
-            });
-    }
-
-    error(err: HttpErrorResponse): void {
-        this.message = ErrorHandler.getMessageFromError(err);
-    }
-
+  error(err: HttpErrorResponse): void {
+    this.message = ErrorHandler.getMessageFromError(err);
+  }
 }

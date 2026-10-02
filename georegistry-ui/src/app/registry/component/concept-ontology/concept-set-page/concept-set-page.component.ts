@@ -28,7 +28,7 @@ import * as lodash from 'lodash';
 
 import { ManageConceptSetComponent } from './manage-concept-set.component';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
-import { NgFor, NgIf, NgClass } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { LocalizeComponent } from '@shared/component/localize/localize.component';
 import { FormsModule } from '@angular/forms';
 import { ConceptClass, ConceptEdgeType, ConceptSet } from '@registry/model/object-class';
@@ -52,7 +52,7 @@ interface Selection {
   templateUrl: './concept-set-page.component.html',
   styleUrls: ['./concept-set-page.css'],
   standalone: true,
-  imports: [FormsModule, LocalizeComponent, NgFor, NgIf, NgClass, BsDropdownModule, ManageConceptSetComponent],
+  imports: [FormsModule, LocalizeComponent, NgClass, BsDropdownModule, ManageConceptSetComponent],
 })
 export class ConceptSetPageComponent implements OnInit {
   Action = Action;

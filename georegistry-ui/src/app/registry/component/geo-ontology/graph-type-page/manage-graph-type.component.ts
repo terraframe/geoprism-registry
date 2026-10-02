@@ -17,84 +17,62 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import {
-    trigger,
-    style,
-    animate,
-    transition
-} from "@angular/animations";
-import { HttpErrorResponse } from "@angular/common/http";
-import { LocalizedTextComponent } from "../../form-fields/localized-text/localized-text.component";
-import { ConvertKeyLabel } from "@shared/component/localize/convert-key-label.component";
-import { LocalizeComponent } from "@shared/component/localize/localize.component";
-import { FormsModule } from "@angular/forms";
-import { NgIf, NgFor } from "@angular/common";
-import { GraphClass } from "@registry/model/object-class";
-import { UndirectedGraphTypeService } from "@registry/service/undirected-graph-type.service";
-import { DagTypeService } from "@registry/service/dag-type.service";
-import { EdgeClassService } from "@registry/service/edge-class.service";
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { LocalizedTextComponent } from '../../form-fields/localized-text/localized-text.component';
+import { ConvertKeyLabel } from '@shared/component/localize/convert-key-label.component';
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
+import { FormsModule } from '@angular/forms';
+
+import { GraphClass } from '@registry/model/object-class';
+import { UndirectedGraphTypeService } from '@registry/service/undirected-graph-type.service';
+import { DagTypeService } from '@registry/service/dag-type.service';
+import { EdgeClassService } from '@registry/service/edge-class.service';
 
 @Component({
-    selector: "manage-graph-type",
-    templateUrl: "./manage-graph-type.component.html",
-    styleUrls: ["./manage-graph-type.css"],
-    // host: { '[@fadeInOut]': 'true' },
-    animations: [
-        [
-            trigger("fadeInOut", [
-                transition("void => *", [
-                    style({
-                        opacity: 0
-                    }),
-                    animate("500ms")
-                ]),
-                transition(":leave", animate("500ms", style({
-                    opacity: 0
-                })))
-            ])
-        ]
-    ],
-    standalone: true,
-    imports: [NgIf, FormsModule, LocalizeComponent, NgFor, ConvertKeyLabel, LocalizedTextComponent]
+  selector: 'manage-graph-type',
+  templateUrl: './manage-graph-type.component.html',
+  styleUrls: ['./manage-graph-type.css'],
+  standalone: true,
+  imports: [FormsModule, LocalizeComponent, ConvertKeyLabel, LocalizedTextComponent],
 })
 export class ManageGraphTypeComponent implements OnInit {
+  @Input() typeCode: string;
+  @Input() type: GraphClass = null;
+  @Input() readOnly: boolean = false;
+  @Input() isNew: boolean = false;
 
-    @Input() typeCode: string;
-    @Input() type: GraphClass = null;
-    @Input() readOnly: boolean = false;
-    @Input() isNew: boolean = false;
+  @Output() onCancel: EventEmitter<void> = new EventEmitter<void>();
+  @Output() onError: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>();
+  @Output() typeChange: EventEmitter<GraphClass> = new EventEmitter<GraphClass>();
 
-    @Output() onCancel: EventEmitter<void> = new EventEmitter<void>()
-    @Output() onError: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>()
-    @Output() typeChange: EventEmitter<GraphClass> = new EventEmitter<GraphClass>()
+  service: EdgeClassService<GraphClass> = null;
 
+  constructor(
+    private dagService: DagTypeService,
+    private undirectedService: UndirectedGraphTypeService
+  ) {}
 
-    service: EdgeClassService<GraphClass> = null;
+  ngOnInit(): void {
+    this.service = this.typeCode === 'DirectedAcyclicGraphType' ? this.dagService : this.undirectedService;
+  }
 
-    constructor(
-        private dagService: DagTypeService,
-        private undirectedService: UndirectedGraphTypeService) {
-    }
+  update(): void {
+    this.service
+      .apply(this.type)
+      .then((type) => {
+        this.typeChange.emit(type);
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
 
-    ngOnInit(): void {
-        this.service = this.typeCode === 'DirectedAcyclicGraphType' ? this.dagService : this.undirectedService;
-    }
+  close(): void {
+    this.onCancel.emit();
+  }
 
-    update(): void {
-        this.service.apply(this.type).then(type => {
-            this.typeChange.emit(type);
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
-
-    close(): void {
-        this.onCancel.emit();
-    }
-
-    error(err: HttpErrorResponse): void {
-        this.onError.emit(err);
-    }
-
+  error(err: HttpErrorResponse): void {
+    this.onError.emit(err);
+  }
 }

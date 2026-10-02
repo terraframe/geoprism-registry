@@ -26,118 +26,133 @@ import { ImportConfiguration, TermProblem } from '@registry/model/io';
 import { IOService } from '@registry/service';
 import { LocalizePipe } from '@shared/pipe/localize.pipe';
 import { LocalizeComponent } from '@shared/component/localize/localize.component';
-import { NgIf, NgClass } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-    selector: 'term-problem',
-    templateUrl: './term-problem.component.html',
-    styleUrls: [],
-    standalone: true,
-    imports: [FormsModule, NgIf, TypeaheadModule, NgClass, LocalizeComponent, LocalizePipe]
+  selector: 'term-problem',
+  templateUrl: './term-problem.component.html',
+  styleUrls: [],
+  standalone: true,
+  imports: [FormsModule, TypeaheadModule, NgClass, LocalizeComponent, LocalizePipe],
 })
 export class TermProblemComponent implements OnInit {
+  @Input() configuration: ImportConfiguration;
+  @Input() problem: TermProblem;
+  @Input() index: number;
+  @Output() onError: EventEmitter<any> = new EventEmitter<any>();
 
-    @Input() configuration: ImportConfiguration;
-    @Input() problem: TermProblem;
-    @Input() index: number;
-    @Output() onError: EventEmitter<any> = new EventEmitter<any>();
+  //    show: boolean;
+  dataSource: Observable<any>;
+  hasSynonym: boolean;
 
-    //    show: boolean;
-    dataSource: Observable<any>;
-    hasSynonym: boolean;
+  termLabel: string;
+  termId: string;
 
-    termLabel: string;
-    termId: string;
+  constructor(private service: IOService) {
+    this.dataSource = Observable.create((observer: any) => {
+      this.service
+        .getTermSuggestions(
+          this.problem.importType,
+          this.problem.typeCode,
+          this.problem.attributeCode,
+          this.termLabel,
+          20
+        )
+        .then((results) => {
+          observer.next(results);
+        });
+    });
+  }
 
-    constructor( private service: IOService ) {
-        this.dataSource = Observable.create(( observer: any ) => {
-            this.service.getTermSuggestions(this.problem.importType, this.problem.typeCode, this.problem.attributeCode, this.termLabel, 20 ).then( results => {
-                observer.next( results );
-            } );
-        } );
+  ngOnInit(): void {
+    this.termLabel = null;
+    this.termId = null;
+    this.hasSynonym = false;
+  }
+
+  typeaheadOnSelect(e: TypeaheadMatch): void {
+    this.termId = e.item.value;
+    this.hasSynonym = this.termId != null;
+  }
+
+  createSynonym(): void {
+    if (this.hasSynonym) {
+      this.onError.emit(null);
+
+      this.service
+        .createTermSynonym(this.termId, this.problem.label)
+        .then((response) => {
+          this.problem.resolved = true;
+          this.problem.action = {
+            name: 'SYNONYM',
+            synonymId: response.synonymId,
+            label: response.label,
+          };
+        })
+        .catch((e) => {
+          this.onError.emit(e.error);
+        });
     }
+  }
 
-    ngOnInit(): void {
-        this.termLabel = null;
-        this.termId = null;
-        this.hasSynonym = false;
-    }
+  createOption(): void {
+    this.onError.emit(null);
 
-    typeaheadOnSelect( e: TypeaheadMatch ): void {
-        this.termId = e.item.value;
-        this.hasSynonym = ( this.termId != null );
-    }
-
-    createSynonym(): void {
-        if ( this.hasSynonym ) {
-            this.onError.emit( null );
-
-            this.service.createTermSynonym( this.termId, this.problem.label ).then( response => {
-                this.problem.resolved = true;
-                this.problem.action = {
-                    name: 'SYNONYM',
-                    synonymId: response.synonymId,
-                    label: response.label
-                };
-            } ).catch( e => {
-                this.onError.emit( e.error );
-            } );
-        }
-    }
-
-    createOption(): void {
-        this.onError.emit( null );
-        
-        this.service.createTerm( this.problem.label, uuid(), this.problem.parentCode).then( term => {
-            this.problem.resolved = true;
-            this.problem.action = {
-                name: 'OPTION',
-                term: term
-            };
-        } ).catch( e => {
-            this.onError.emit( e.error );
-        } );
-    }
-
-    ignoreValue(): void {
+    this.service
+      .createTerm(this.problem.label, uuid(), this.problem.parentCode)
+      .then((term) => {
         this.problem.resolved = true;
-
         this.problem.action = {
-            name: 'IGNORE'
+          name: 'OPTION',
+          term: term,
         };
+      })
+      .catch((e) => {
+        this.onError.emit(e.error);
+      });
+  }
+
+  ignoreValue(): void {
+    this.problem.resolved = true;
+
+    this.problem.action = {
+      name: 'IGNORE',
+    };
+  }
+
+  undoAction(): void {
+    if (this.problem.resolved) {
+      let action = this.problem.action;
+
+      if (action.name == 'IGNORE') {
+        this.problem.resolved = false;
+        this.problem.action = null;
+      } else if (action.name == 'SYNONYM') {
+        this.onError.emit(null);
+
+        this.service
+          .deleteTermSynonym(action.synonymId)
+          .then((response) => {
+            this.problem.resolved = false;
+            this.problem.action = null;
+          })
+          .catch((e) => {
+            this.onError.emit(e.error);
+          });
+      } else if (action.name == 'OPTION') {
+        this.onError.emit(null);
+
+        this.service
+          .removeTerm(this.problem.parentCode, action.term.code)
+          .then((response) => {
+            this.problem.resolved = false;
+            this.problem.action = null;
+          })
+          .catch((e) => {
+            this.onError.emit(e.error);
+          });
+      }
     }
-
-    undoAction(): void {
-
-        if ( this.problem.resolved ) {
-
-            let action = this.problem.action;
-
-            if ( action.name == 'IGNORE' ) {
-                this.problem.resolved = false;
-                this.problem.action = null;
-            }
-            else if ( action.name == 'SYNONYM' ) {
-                this.onError.emit( null );
-
-                this.service.deleteTermSynonym( action.synonymId ).then( response => {
-                    this.problem.resolved = false;
-                    this.problem.action = null;
-                } ).catch( e => {
-                    this.onError.emit( e.error );
-                } );
-            }
-            else if ( action.name == 'OPTION' ) {
-                this.onError.emit( null );
-
-                this.service.removeTerm(this.problem.parentCode, action.term.code ).then( response => {
-                    this.problem.resolved = false;
-                    this.problem.action = null;
-                } ).catch( e => {
-                    this.onError.emit( e.error );
-                } );
-            }
-        }
-    }
+  }
 }

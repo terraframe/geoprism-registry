@@ -17,268 +17,267 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, Input, Output, EventEmitter, OnChanges, SimpleChanges } from "@angular/core";
-import { HttpErrorResponse } from "@angular/common/http";
-import { BsModalService } from "ngx-bootstrap/modal";
+import { Component, OnInit, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { BsModalService } from 'ngx-bootstrap/modal';
 
-import { ConfirmModalComponent } from "@shared/component";
-import { LocalizationService, AuthService } from "@shared/service";
-import { ModalTypes } from "@shared/model/modal";
+import { ConfirmModalComponent } from '@shared/component';
+import { LocalizationService, AuthService } from '@shared/service';
+import { ModalTypes } from '@shared/model/modal';
 import * as lodash from 'lodash';
 
-import { GeoObjectType } from "@registry/model/registry";
-import { Organization } from "@shared/model/core";
-import { RegistryService } from "@registry/service";
-import { ImportHistoryModalComponent } from "@registry/component/import-history/modals/import-history-modal.component";
-import { LocalizePipe } from "@shared/pipe/localize.pipe";
-import { ManageGeoObjectTypeComponent } from "./manage-geo-object-type.component";
-import { CreateGeoObjectTypeComponent } from "./create-geo-object-type.component";
-import { BsDropdownModule } from "ngx-bootstrap/dropdown";
-import { NgFor, NgIf, NgClass } from "@angular/common";
-import { LocalizeComponent } from "@shared/component/localize/localize.component";
-import { FormsModule } from "@angular/forms";
+import { GeoObjectType } from '@registry/model/registry';
+import { Organization } from '@shared/model/core';
+import { RegistryService } from '@registry/service';
+import { ImportHistoryModalComponent } from '@registry/component/import-history/modals/import-history-modal.component';
+import { LocalizePipe } from '@shared/pipe/localize.pipe';
+import { ManageGeoObjectTypeComponent } from './manage-geo-object-type.component';
+import { CreateGeoObjectTypeComponent } from './create-geo-object-type.component';
+import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
+import { NgClass } from '@angular/common';
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
+import { FormsModule } from '@angular/forms';
 
 enum Action {
-    VIEW = 0, CREATE = 1, EDIT = 2
+  VIEW = 0,
+  CREATE = 1,
+  EDIT = 2,
 }
 
 interface Selection {
-    action: Action
-    // params for creating
-    groupSuperType?: GeoObjectType;
-    isAbstract?: boolean;
-    org?: Organization;
+  action: Action;
+  // params for creating
+  groupSuperType?: GeoObjectType;
+  isAbstract?: boolean;
+  org?: Organization;
 
-    // params for editing
-    type?: GeoObjectType;
-    readOnly?: boolean
+  // params for editing
+  type?: GeoObjectType;
+  readOnly?: boolean;
 }
 
 @Component({
-    selector: "geo-object-type-page",
-    templateUrl: "./geo-object-type-page.component.html",
-    styleUrls: ["./geo-object-type-page.css"],
-    standalone: true,
-    imports: [FormsModule, LocalizeComponent, NgFor, NgIf, NgClass, BsDropdownModule, CreateGeoObjectTypeComponent, ManageGeoObjectTypeComponent, LocalizePipe]
+  selector: 'geo-object-type-page',
+  templateUrl: './geo-object-type-page.component.html',
+  styleUrls: ['./geo-object-type-page.css'],
+  standalone: true,
+  imports: [
+    FormsModule,
+    LocalizeComponent,
+    NgClass,
+    BsDropdownModule,
+    CreateGeoObjectTypeComponent,
+    ManageGeoObjectTypeComponent,
+    LocalizePipe,
+  ],
 })
 export class GeoObjectTypePageComponent implements OnInit, OnChanges {
-    Action = Action;
+  Action = Action;
 
-    @Input() userOrganization: string = null;
-    @Input() organizations: Organization[] = [];
-    @Input() types: GeoObjectType[] = [];
+  @Input() userOrganization: string | null = null;
+  @Input() organizations: Organization[] = [];
+  @Input() types: GeoObjectType[] = [];
 
-    @Output() onError: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>()
-    @Output() typesChange: EventEmitter<GeoObjectType[]> = new EventEmitter<GeoObjectType[]>()
+  @Output() onError: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>();
+  @Output() typesChange: EventEmitter<GeoObjectType[]> = new EventEmitter<GeoObjectType[]>();
 
-    filter: string = "";
+  filter: string = '';
 
-    typesByOrg: { org: Organization, types: GeoObjectType[] }[] = [];
-    filteredTypesByOrg: { org: Organization, types: GeoObjectType[] }[] = [];
+  typesByOrg: { org: Organization; types: GeoObjectType[] }[] = [];
+  filteredTypesByOrg: { org: Organization; types: GeoObjectType[] }[] = [];
 
-    isSRA: boolean = false;
+  isSRA: boolean = false;
 
-    selection: Selection;
+  selection: Selection;
 
-    constructor(
+  constructor(
+    public localizeService: LocalizationService,
+    private modalService: BsModalService,
+    private registryService: RegistryService,
+    private authService: AuthService
+  ) {
+    this.isSRA = authService.isSRA();
+  }
 
-        public localizeService: LocalizationService,
-        private modalService: BsModalService,
-        private registryService: RegistryService,
-        private authService: AuthService) {
-        this.isSRA = authService.isSRA();
+  ngOnInit(): void {}
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['types'] || changes['organizations']) {
+      const organizations = changes['organizations'] ? changes['organizations'].currentValue : this.organizations;
+      const types = changes['types'] ? changes['types'].currentValue : this.types;
+
+      this.typesByOrg = [];
+
+      for (let i = 0; i < organizations.length; ++i) {
+        let org: Organization = organizations[i];
+
+        this.typesByOrg.push({ org: org, types: types.filter((t) => t.organizationCode === org.code) });
+      }
+
+      this.onFilterChange();
+
+      if (this.selection == null) {
+        this.selectFirstAvailable();
+      }
     }
+  }
 
-    ngOnInit(): void {
+  private selectFirstAvailable(): void {
+    for (const item of this.filteredTypesByOrg) {
+      if (item.types.length > 0) {
+        this.handleTypeView(item.types[0]);
+        return;
+      }
     }
+  }
 
-    ngOnChanges(changes: SimpleChanges) {
-        if (changes['types'] || changes['organizations']) {
-            const organizations = changes['organizations'] ? changes['organizations'].currentValue : this.organizations;
-            const types = changes['types'] ? changes['types'].currentValue : this.types;
+  localize(key: string): string {
+    return this.localizeService.decode(key);
+  }
 
-            this.typesByOrg = [];
+  public findGeoObjectTypeByCode(code: string): GeoObjectType | undefined {
+    return this.types.find((g) => g.code === code);
+  }
 
-            for (let i = 0; i < organizations.length; ++i) {
-                let org: Organization = organizations[i];
+  public findOrganizationByCode(code: string): Organization | undefined {
+    return this.organizations.find((o) => o.code === code);
+  }
 
-                this.typesByOrg.push({ org: org, types: types.filter(t => t.organizationCode === org.code) });
-            }
+  isRA(): boolean {
+    return this.authService.isRA();
+  }
 
-            this.onFilterChange();
+  isOrganizationRA(orgCode: string, dropZone: boolean = false): boolean {
+    return this.isSRA || this.authService.isOrganizationRA(orgCode);
+  }
 
-            if (this.selection == null) {
-                this.selectFirstAvailable();
-            }
-        }
-    }
+  createGeoObjectType(groupSuperType: GeoObjectType, isAbstract: boolean, org: Organization): void {
+    this.selection = {
+      action: Action.CREATE,
+      groupSuperType,
+      isAbstract,
+      org,
+    };
+  }
 
-    private selectFirstAvailable(): void {
-        for (const item of this.filteredTypesByOrg) {
-            if (item.types.length > 0) {
-                this.handleTypeView(item.types[0]);
-                return;
-            }
-        }
-    }
+  handleTypeView(type: GeoObjectType): void {
+    type.attributes.sort((a, b) => {
+      if (a.label.localizedValue < b.label.localizedValue) return -1;
+      else if (a.label.localizedValue > b.label.localizedValue) return 1;
+      else return 0;
+    });
 
-    localize(key: string): string {
-        return this.localizeService.decode(key);
-    }
+    this.selection = {
+      action: Action.VIEW,
+      type: lodash.cloneDeep(type),
+      readOnly: true,
+    };
+  }
 
-    public findGeoObjectTypeByCode(code: string): GeoObjectType {
-        for (let i = 0; i < this.types.length; ++i) {
-            let got: GeoObjectType = this.types[i];
+  deleteGeoObjectType(obj: GeoObjectType): void {
+    const bsModalRef = this.modalService.show(ConfirmModalComponent, {
+      animated: false,
+      backdrop: true,
+      ignoreBackdropClick: true,
+    });
+    bsModalRef.content!.message =
+      this.localizeService.decode('confirm.modal.verify.delete') + ' [' + obj.label.localizedValue + ']';
+    bsModalRef.content!.data = obj.code;
+    bsModalRef.content!.submitText = this.localizeService.decode('modal.button.delete');
+    bsModalRef.content!.type = ModalTypes.danger;
 
-            if (got.code === code) {
-                return got;
-            }
-        }
-    }
+    bsModalRef.content!.onConfirm.subscribe((data) => {
+      this.removeGeoObjectType(data);
+    });
+  }
 
-    public findOrganizationByCode(code: string): Organization {
-        for (let i = 0; i < this.organizations.length; ++i) {
-            let org: Organization = this.organizations[i];
-
-            if (org.code === code) {
-                return org;
-            }
-        }
-    }
-
-    isRA(): boolean {
-        return this.authService.isRA();
-    }
-
-    isOrganizationRA(orgCode: string, dropZone: boolean = false): boolean {
-        return this.isSRA || this.authService.isOrganizationRA(orgCode);
-    }
-
-    createGeoObjectType(groupSuperType: GeoObjectType, isAbstract: boolean, org: Organization): void {
-        this.selection = {
-            action: Action.CREATE,
-            groupSuperType,
-            isAbstract,
-            org
-        };
-    }
-
-    handleTypeView(type: GeoObjectType): void {
-        type.attributes.sort((a, b) => {
-            if (a.label.localizedValue < b.label.localizedValue) return -1;
-            else if (a.label.localizedValue > b.label.localizedValue) return 1;
-            else return 0;
-        });
-
-        this.selection = {
-            action: Action.VIEW,
-            type: lodash.cloneDeep(type),
-            readOnly: true
-        };
-    }
-
-
-    deleteGeoObjectType(obj: GeoObjectType): void {
-        const bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: false, backdrop: true,             ignoreBackdropClick: true
-        });
-        bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " [" + obj.label.localizedValue + "]";
-        bsModalRef.content.data = obj.code;
-        bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
-        bsModalRef.content.type = ModalTypes.danger;
-
-        bsModalRef.content.onConfirm.subscribe(data => {
-            this.removeGeoObjectType(data);
-        });
-    }
-
-    removeGeoObjectType(code: string, errCallback: (err: HttpErrorResponse) => void = null): void {
-        this.registryService.deleteGeoObjectType(code).then(() => {
-            const types = [...this.types];
-            const index = types.findIndex(type => type.code === code);
-
-            if (index !== -1) {
-                types.splice(index, 1);
-
-                this.typesChange.emit(types);
-            }
-
-        }).catch((err: HttpErrorResponse) => {
-            if (errCallback != null) {
-                errCallback(err);
-            }
-            this.error(err);
-        });
-    }
-
-    manageGeoObjectType(type: GeoObjectType, readOnly: boolean): void {
-        type.attributes.sort((a, b) => {
-            if (a.label.localizedValue < b.label.localizedValue) return -1;
-            else if (a.label.localizedValue > b.label.localizedValue) return 1;
-            else return 0;
-        });
-
-        this.selection = {
-            action: Action.EDIT,
-            type: lodash.cloneDeep(type),
-            readOnly
-        };
-    }
-
-    handleTypeChange(type: GeoObjectType): void {
+  removeGeoObjectType(code: string, errCallback: (err: HttpErrorResponse) => void = null): void {
+    this.registryService
+      .deleteGeoObjectType(code)
+      .then(() => {
         const types = [...this.types];
-        const index = types.findIndex(t => t.code === type.code);
+        const index = types.findIndex((type) => type.code === code);
 
         if (index !== -1) {
-            types[index] = type;
+          types.splice(index, 1);
+
+          this.typesChange.emit(types);
         }
-        else {
-            types.push(type);
+      })
+      .catch((err: HttpErrorResponse) => {
+        if (errCallback != null) {
+          errCallback(err);
         }
+        this.error(err);
+      });
+  }
 
-        this.selection = {
-            action: Action.EDIT,
-            type: lodash.cloneDeep(type),
-            readOnly: false
-        };
+  manageGeoObjectType(type: GeoObjectType, readOnly: boolean): void {
+    type.attributes.sort((a, b) => {
+      if (a.label.localizedValue < b.label.localizedValue) return -1;
+      else if (a.label.localizedValue > b.label.localizedValue) return 1;
+      else return 0;
+    });
 
-        this.typesChange.emit(types);
+    this.selection = {
+      action: Action.EDIT,
+      type: lodash.cloneDeep(type),
+      readOnly,
+    };
+  }
 
+  handleTypeChange(type: GeoObjectType): void {
+    const types = [...this.types];
+    const index = types.findIndex((t) => t.code === type.code);
+
+    if (index !== -1) {
+      types[index] = type;
+    } else {
+      types.push(type);
     }
 
-    onFilterChange(): void {
-        const label = this.filter.toLowerCase();
+    this.selection = {
+      action: Action.EDIT,
+      type: lodash.cloneDeep(type),
+      readOnly: false,
+    };
 
-        this.filteredTypesByOrg = [];
+    this.typesChange.emit(types);
+  }
 
+  onFilterChange(): void {
+    const label = this.filter.toLowerCase();
 
-        this.typesByOrg.forEach((item: { org: Organization, types: GeoObjectType[] }) => {
-            const filtered = item.types.filter((type: GeoObjectType) => {
-                const index = type.label.localizedValue.toLowerCase().indexOf(label);
+    this.filteredTypesByOrg = [];
 
-                return (index !== -1);
-            });
+    this.typesByOrg.forEach((item: { org: Organization; types: GeoObjectType[] }) => {
+      const filtered = item.types.filter((type: GeoObjectType) => {
+        const index = type.label.localizedValue.toLowerCase().indexOf(label);
 
-            this.filteredTypesByOrg.push({ org: item.org, types: filtered });
+        return index !== -1;
+      });
+
+      this.filteredTypesByOrg.push({ org: item.org, types: filtered });
+    });
+  }
+
+  onImportHistory(type: GeoObjectType): void {
+    this.registryService
+      .getImportHistory('GEO_OBJECT', type.code)
+      .then((histories) => {
+        const bsModalRef = this.modalService.show(ImportHistoryModalComponent, {
+          animated: false,
+          backdrop: true,
+          ignoreBackdropClick: true,
         });
-    }
+        bsModalRef.content!.init(type.label, histories);
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
 
-
-    onImportHistory(type: GeoObjectType): void {
-        this.registryService.getImportHistory('GEO_OBJECT', type.code).then(histories => {
-            const bsModalRef = this.modalService.show(ImportHistoryModalComponent, {
-                animated: false, backdrop: true,
-                ignoreBackdropClick: true
-            });
-            bsModalRef.content.init(type.label, histories);
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
-
-
-    public error(err: HttpErrorResponse): void {
-        this.onError.emit(err);
-    }
-
+  public error(err: HttpErrorResponse): void {
+    this.onError.emit(err);
+  }
 }

@@ -32,7 +32,7 @@ import { MultiSelectFieldComponent } from '../../../shared/component/form-fields
 import { DateFieldComponent } from '../../../shared/component/form-fields/date-field/date-field.component';
 import { FormsModule } from '@angular/forms';
 import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
-import { NgIf } from '@angular/common';
+
 import { BusinessEdgeTypeService } from '@registry/service/business-edge-type.service';
 import { LocalizedTextComponent } from '../form-fields/localized-text/localized-text.component';
 import { LocalizationService } from '@shared/service';
@@ -42,14 +42,7 @@ import { LocalizationService } from '@shared/service';
   templateUrl: './publish-events-modal.component.html',
   styleUrls: [],
   standalone: true,
-  imports: [
-    NgIf,
-    LocalizeComponent,
-    FormsModule,
-    DateFieldComponent,
-    MultiSelectFieldComponent,
-    LocalizedTextComponent,
-  ],
+  imports: [LocalizeComponent, FormsModule, DateFieldComponent, MultiSelectFieldComponent, LocalizedTextComponent],
 })
 export class PublishEventsModalComponent implements OnInit, OnDestroy {
   currentDate: Date = new Date();

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -33,11 +33,6 @@ import org.locationtech.jts.geom.Geometry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.resource.CloseableFile;
@@ -48,24 +43,32 @@ import net.geoprism.registry.etl.CloseableDelegateFile;
 import net.geoprism.registry.etl.ImportFileFormatException;
 import net.geoprism.registry.etl.ImportStage;
 import net.geoprism.registry.excel.MapFeatureRow;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
- * JSON importer for a top-level JSON array of objects.
- * Reads using Jackson streaming (JsonParser) to keep memory low.
- * Each array element is converted to Map<String,Object> and exposed via MapFeatureRow.
+ * JSON importer for a top-level JSON array of objects. Reads using Jackson
+ * streaming (JsonParser) to keep memory low. Each array element is converted to
+ * Map<String,Object> and exposed via MapFeatureRow.
  *
  * @author rrowlands
  */
 public class JSONImporter implements FormatSpecificImporterIF
 {
-  protected static final Logger logger = LoggerFactory.getLogger(JSONImporter.class);
+  protected static final Logger            logger     = LoggerFactory.getLogger(JSONImporter.class);
 
   protected final ApplicationResource      resource;
+
   protected final ImportProgressListenerIF progressListener;
+
   protected final ImportConfiguration      config;
 
-  protected ObjectImporterIF objectImporter;
-  protected Long             startIndex = 0L;
+  protected ObjectImporterIF               objectImporter;
+
+  protected Long                           startIndex = 0L;
 
   public JSONImporter(ApplicationResource resource, ImportConfiguration config, ImportProgressListenerIF progressListener)
   {
@@ -107,9 +110,8 @@ public class JSONImporter implements FormatSpecificImporterIF
   }
 
   /**
-   * Locate a JSON file from the resource. Supports:
-   *  - a standalone .json (no copy needed)
-   *  - a .zip containing one or more .json (first match is used)
+   * Locate a JSON file from the resource. Supports: - a standalone .json (no
+   * copy needed) - a .zip containing one or more .json (first match is used)
    */
   public static CloseableFile getJsonFromResource(ApplicationResource res)
   {
@@ -157,17 +159,18 @@ public class JSONImporter implements FormatSpecificImporterIF
     try (ZipInputStream zstream = new ZipInputStream(iStream))
     {
       ZipEntry entry;
-      while ((entry = zstream.getNextEntry()) != null)
+      while ( ( entry = zstream.getNextEntry() ) != null)
       {
         File file = new File(directory, entry.getName());
         // Create parent dirs for nested entries
         File parent = file.getParentFile();
-        if (parent != null) parent.mkdirs();
+        if (parent != null)
+          parent.mkdirs();
 
         try (FileOutputStream output = new FileOutputStream(file))
         {
           int len;
-          while ((len = zstream.read(buffer)) > 0)
+          while ( ( len = zstream.read(buffer) ) > 0)
           {
             output.write(buffer, 0, len);
           }
@@ -183,11 +186,12 @@ public class JSONImporter implements FormatSpecificImporterIF
   @Request
   private void process(ImportStage stage, File jsonFile) throws InvocationTargetException, IOException, InterruptedException
   {
-    final ObjectMapper mapper = new ObjectMapper();
-    final JsonFactory factory = mapper.getFactory();
-
+    final JsonMapper mapper = JsonMapper.builder()
+        .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+        .build();
+    
     // Pass 1: count elements to set progress total (without materializing)
-    long total = countTopLevelArrayElements(factory, jsonFile);
+    long total = countTopLevelArrayElements(mapper, jsonFile);
     long effective = Math.max(total - this.getStartIndex(), 0);
     this.progressListener.setWorkTotal(effective);
 
@@ -195,7 +199,7 @@ public class JSONImporter implements FormatSpecificImporterIF
     long seen = 0;
     long rowNum = 1;
 
-    try (JsonParser p = factory.createParser(jsonFile))
+    try (JsonParser p = mapper.createParser(jsonFile))
     {
       if (p.nextToken() != JsonToken.START_ARRAY)
       {
@@ -212,8 +216,11 @@ public class JSONImporter implements FormatSpecificImporterIF
           continue;
         }
 
-        // Deserialize just this object into a Map, consuming the object from the stream
-        Map<String, Object> rowMap = mapper.readValue(p, new TypeReference<Map<String, Object>>() {});
+        // Deserialize just this object into a Map, consuming the object from
+        // the stream
+        Map<String, Object> rowMap = mapper.readValue(p, new TypeReference<Map<String, Object>>()
+        {
+        });
 
         if (seen++ < this.getStartIndex())
         {
@@ -242,7 +249,7 @@ public class JSONImporter implements FormatSpecificImporterIF
   }
 
   /** Count elements in the top-level array via streaming. */
-  private long countTopLevelArrayElements(JsonFactory factory, File jsonFile) throws IOException
+  private long countTopLevelArrayElements(JsonMapper factory, File jsonFile) throws IOException
   {
     long count = 0;
     try (JsonParser p = factory.createParser(jsonFile))

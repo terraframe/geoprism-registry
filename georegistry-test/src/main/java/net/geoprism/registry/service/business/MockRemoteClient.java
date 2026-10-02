@@ -7,8 +7,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -25,6 +23,8 @@ import net.geoprism.registry.view.ConceptClassDTO;
 import net.geoprism.registry.view.ConceptEdgeTypeDTO;
 import net.geoprism.registry.view.ConceptSetDTO;
 import net.geoprism.registry.view.PublishDTO;
+import tools.jackson.databind.ObjectReader;
+import tools.jackson.databind.json.JsonMapper;
 
 public class MockRemoteClient implements RemoteClientIF
 {
@@ -44,49 +44,28 @@ public class MockRemoteClient implements RemoteClientIF
   @Override
   public List<CommitDTO> getDependencies(String uid)
   {
-    ObjectMapper mapper = new ObjectMapper();
+    JsonMapper mapper = JsonMapper.shared();
     ObjectReader reader = mapper.readerForListOf(CommitDTO.class);
 
-    try
-    {
-      return reader.readValue(this.getClass().getResourceAsStream("/commit/" + getCommitFolder(uid) + "/dependencies.json"));
-    }
-    catch (IOException e)
-    {
-      throw new RuntimeException(e);
-    }
+    return reader.readValue(this.getClass().getResourceAsStream("/commit/" + getCommitFolder(uid) + "/dependencies.json"));
   }
 
   @Override
   public List<SourceAuthorityDTO> getSourceAuthorities(String uid)
   {
-    ObjectMapper mapper = new ObjectMapper();
+    JsonMapper mapper = JsonMapper.shared();
     ObjectReader reader = mapper.readerForListOf(SourceAuthorityDTO.class);
 
-    try
-    {
-      return reader.readValue(this.getClass().getResourceAsStream("/commit/" + getCommitFolder(uid) + "/authorities.json"));
-    }
-    catch (IOException e)
-    {
-      throw new RuntimeException(e);
-    }
+    return reader.readValue(this.getClass().getResourceAsStream("/commit/" + getCommitFolder(uid) + "/authorities.json"));
   }
 
   @Override
   public List<DataSourceDTO> getDataSources(String uid)
   {
-    ObjectMapper mapper = new ObjectMapper();
+    JsonMapper mapper = JsonMapper.shared();
     ObjectReader reader = mapper.readerForListOf(DataSourceDTO.class);
 
-    try
-    {
-      return reader.readValue(this.getClass().getResourceAsStream("/commit/" + getCommitFolder(uid) + "/sources.json"));
-    }
-    catch (IOException e)
-    {
-      throw new RuntimeException(e);
-    }
+    return reader.readValue(this.getClass().getResourceAsStream("/commit/" + getCommitFolder(uid) + "/sources.json"));
   }
 
   @Override
@@ -94,7 +73,7 @@ public class MockRemoteClient implements RemoteClientIF
   {
     if (chunk == 0)
     {
-      ObjectMapper mapper = new ObjectMapper();
+      JsonMapper mapper = JsonMapper.shared();
       ObjectReader reader = mapper.readerForListOf(RemoteEvent.class);
 
       try (InputStream stream = this.getClass().getResourceAsStream("/commit/" + getCommitFolder(uid) + "/events.json"))
@@ -124,19 +103,12 @@ public class MockRemoteClient implements RemoteClientIF
 
   protected PublishDTO readPublish(String file)
   {
-    try
-    {
-      ObjectMapper mapper = new ObjectMapper();
+    JsonMapper mapper = JsonMapper.shared();
 
-      PublishDTO dto = mapper.readValue(this.getClass().getResourceAsStream(file), PublishDTO.class);
-      dto.setOrigin(REMOTE_ORIGIN);
+    PublishDTO dto = mapper.readValue(this.getClass().getResourceAsStream(file), PublishDTO.class);
+    dto.setOrigin(REMOTE_ORIGIN);
 
-      return dto;
-    }
-    catch (IOException e)
-    {
-      throw new RuntimeException(e);
-    }
+    return dto;
   }
 
   @Override
@@ -194,7 +166,7 @@ public class MockRemoteClient implements RemoteClientIF
   @Override
   public List<BusinessTypeDTO> getBusinessTypes(String uid)
   {
-    ObjectMapper mapper = new ObjectMapper();
+    JsonMapper mapper = JsonMapper.shared();
     ObjectReader reader = mapper.readerForListOf(BusinessTypeDTO.class);
 
     try (InputStream stream = this.getClass().getResourceAsStream("/commit/" + getCommitFolder(uid) + "/business-types.json"))
@@ -222,7 +194,7 @@ public class MockRemoteClient implements RemoteClientIF
   @Override
   public List<ConceptClassDTO> getConceptClasses(String uid)
   {
-    ObjectMapper mapper = new ObjectMapper();
+    JsonMapper mapper = JsonMapper.shared();
     ObjectReader reader = mapper.readerForListOf(ConceptClassDTO.class);
 
     try (InputStream stream = this.getClass().getResourceAsStream("/commit/" + getCommitFolder(uid) + "/concept-classes.json"))
@@ -250,7 +222,7 @@ public class MockRemoteClient implements RemoteClientIF
   @Override
   public List<BusinessEdgeTypeDTO> getBusinessEdgeTypes(String uid)
   {
-    ObjectMapper mapper = new ObjectMapper();
+    JsonMapper mapper = JsonMapper.shared();
     ObjectReader reader = mapper.readerForListOf(BusinessEdgeTypeDTO.class);
 
     try (InputStream stream = this.getClass().getResourceAsStream("/commit/" + getCommitFolder(uid) + "/business-edge-types.json"))
@@ -278,7 +250,7 @@ public class MockRemoteClient implements RemoteClientIF
   @Override
   public List<ConceptSetDTO> getConceptSets(String uid)
   {
-    ObjectMapper mapper = new ObjectMapper();
+    JsonMapper mapper = JsonMapper.shared();
     ObjectReader reader = mapper.readerForListOf(ConceptSetDTO.class);
 
     try (InputStream stream = this.getClass().getResourceAsStream("/commit/" + getCommitFolder(uid) + "/concept-sets.json"))
@@ -306,7 +278,7 @@ public class MockRemoteClient implements RemoteClientIF
   @Override
   public List<ConceptEdgeTypeDTO> getConceptEdgeTypes(String uid)
   {
-    ObjectMapper mapper = new ObjectMapper();
+    JsonMapper mapper = JsonMapper.shared();
     ObjectReader reader = mapper.readerForListOf(ConceptEdgeTypeDTO.class);
 
     try (InputStream stream = this.getClass().getResourceAsStream("/commit/" + getCommitFolder(uid) + "/concept-edge-types.json"))
@@ -340,16 +312,9 @@ public class MockRemoteClient implements RemoteClientIF
 
   protected CommitDTO readCommit(String file)
   {
-    try
-    {
-      ObjectMapper mapper = new ObjectMapper();
+    JsonMapper mapper = JsonMapper.shared();
 
-      return mapper.readValue(this.getClass().getResourceAsStream(file), CommitDTO.class);
-    }
-    catch (IOException e)
-    {
-      throw new RuntimeException(e);
-    }
+    return mapper.readValue(this.getClass().getResourceAsStream(file), CommitDTO.class);
   }
 
   @Override

@@ -17,67 +17,71 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { BsModalRef } from "ngx-bootstrap/modal";
-import { HttpErrorResponse } from "@angular/common/http";
-import { NgFor } from "@angular/common";
-import { FormsModule } from "@angular/forms";
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { HttpErrorResponse } from '@angular/common/http';
 
-import { LocalizationService } from "@shared/service/localization.service";
-import { Organization } from "@shared/model/core";
-import { LocalizedTextComponent } from "../../form-fields/localized-text/localized-text.component";
-import { ConvertKeyLabel } from "@shared/component/localize/convert-key-label.component";
-import { LocalizeComponent } from "@shared/component/localize/localize.component";
-import { ConceptClass } from "@registry/model/object-class";
-import { ConceptClassService } from "@registry/service/concept-class.service";
+import { FormsModule } from '@angular/forms';
+
+import { LocalizationService } from '@shared/service/localization.service';
+import { Organization } from '@shared/model/core';
+import { LocalizedTextComponent } from '../../form-fields/localized-text/localized-text.component';
+import { ConvertKeyLabel } from '@shared/component/localize/convert-key-label.component';
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
+import { ConceptClass } from '@registry/model/object-class';
+import { ConceptClassService } from '@registry/service/concept-class.service';
 
 @Component({
-    selector: "create-concept-class",
-    templateUrl: "./create-concept-class.component.html",
-    styleUrls: [],
-    standalone: true,
-    imports: [FormsModule, LocalizeComponent, NgFor, ConvertKeyLabel, LocalizedTextComponent]
+  selector: 'create-concept-class',
+  templateUrl: './create-concept-class.component.html',
+  styleUrls: [],
+  standalone: true,
+  imports: [FormsModule, LocalizeComponent, ConvertKeyLabel, LocalizedTextComponent],
 })
 export class CreateConceptClassComponent implements OnInit {
+  @Input() organization: Organization = null;
 
-    @Input() organization: Organization = null;
+  @Output() onCancel: EventEmitter<void> = new EventEmitter<void>();
+  @Output() onError: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>();
+  @Output() typeChange: EventEmitter<ConceptClass> = new EventEmitter<ConceptClass>();
 
-    @Output() onCancel: EventEmitter<void> = new EventEmitter<void>()
-    @Output() onError: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>()
-    @Output() typeChange: EventEmitter<ConceptClass> = new EventEmitter<ConceptClass>()
+  type: ConceptClass = null;
 
-    type: ConceptClass = null;
+  // eslint-disable-next-line no-useless-constructor
+  constructor(
+    private service: ConceptClassService,
+    private lService: LocalizationService,
+    public bsModalRef: BsModalRef
+  ) {}
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor(private service: ConceptClassService, private lService: LocalizationService, public bsModalRef: BsModalRef) {
-    }
+  ngOnInit(): void {
+    this.type = {
+      code: '',
+      organization: '',
+      displayLabel: this.lService.create(),
+      description: this.lService.create(),
+      attributes: [],
+      organizationLabel: '',
+      type: 'concept-class',
+    };
 
-    ngOnInit(): void {
-        this.type = {
-            code: "",
-            organization: "",
-            displayLabel: this.lService.create(),
-            description: this.lService.create(),
-            attributes: [],
-            organizationLabel: "",
-            type: "concept-class"
-        };
+    this.type.organization = this.organization.code;
+    this.type.organizationLabel = this.organization.label.localizedValue;
+  }
 
-        this.type.organization = this.organization.code;
-        this.type.organizationLabel = this.organization.label.localizedValue;
-    }
+  handleOnSubmit(): void {
+    this.service
+      .apply(this.type)
+      .then((data) => {
+        this.typeChange.next(data);
+        this.bsModalRef.hide();
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.onError.emit(err);
+      });
+  }
 
-    handleOnSubmit(): void {
-
-        this.service.apply(this.type).then(data => {
-            this.typeChange.next(data);
-            this.bsModalRef.hide();
-        }).catch((err: HttpErrorResponse) => {
-            this.onError.emit(err);
-        });
-    }
-
-    handleCancel(): void {
-        this.onCancel.emit();
-    }
+  handleCancel(): void {
+    this.onCancel.emit();
+  }
 }

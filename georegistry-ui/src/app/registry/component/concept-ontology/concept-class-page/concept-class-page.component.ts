@@ -32,7 +32,7 @@ import { ImportHistoryModalComponent } from '@registry/component/import-history/
 import { ManageConceptClassComponent } from './manage-concept-class.component';
 import { CreateConceptClassComponent } from './create-concept-class.component';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
-import { NgFor, NgIf, NgClass } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { LocalizeComponent } from '@shared/component/localize/localize.component';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -63,8 +63,6 @@ interface Selection {
   imports: [
     FormsModule,
     LocalizeComponent,
-    NgFor,
-    NgIf,
     NgClass,
     BsDropdownModule,
     CreateConceptClassComponent,

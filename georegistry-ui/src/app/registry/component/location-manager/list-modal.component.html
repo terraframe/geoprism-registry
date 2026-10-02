@@ -1,91 +1,109 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <div class="modal-body" tabindex="-1" role="dialog">
-    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+  @if (message != null) {
+    <div class="alert alert-danger" role="alert">{{ message }}</div>
+  }
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="row">
-                <div *ngIf="list" class="col-md-12">
-                    <h2>
-                        {{list.displayLabel}}
-                    </h2>
-                </div>
-            </div>
-        
-            <ngx-spinner [fullScreen]="false" [name]="CONSTANTS.LIST_MODAL" type="ball-clip-rotate-multiple"
-                size="medium">
-                <p *ngIf="progress != null" style="font-size: 20px; color: white">{{percent()}}%</p>
-            </ngx-spinner>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="row">
+        @if (list) {
+          <div class="col-md-12">
+            <h2>
+              {{ list.displayLabel }}
+            </h2>
+          </div>
+        }
+      </div>
 
-            <div class="row" style="margin-bottom:10px;">
-                <div class="col-md-12" *ngIf="list">
-                    <div class="button-holder pull-right">
+      <ngx-spinner [fullScreen]="false" [name]="CONSTANTS.LIST_MODAL" type="ball-clip-rotate-multiple" size="medium">
+        @if (progress != null) {
+          <p style="font-size: 20px; color: white">{{ percent() }}%</p>
+        }
+      </ngx-spinner>
 
-                        <span *ngIf="isWritable" class="clickable"
-                            style="vertical-align:middle;display:inline-block;line-height:0;">
-                            <boolean-field [(value)]="showInvalid" (change)="handleShowInvalidChange()"
-                                [localizeLabelKey]="'masterlist.showInvalid'"></boolean-field>
-                        </span>
-
-                        <span *ngIf="isWritable && list.working" class="clickable" (click)="onPublish()" style="padding: 10px;">
-                            <i [ngClass]="{'fa fa-refresh clickable':true}"
-                                style="font-size: 24px;vertical-align: middle;padding-right: 5px;"
-                                aria-hidden="true"></i>
-                            <localize key="masterlist.publish"></localize>
-                        </span>
-
-                        <button
-                            *ngIf="list.listMetadata.visibility === 'PUBLIC' || list.geospatialMetadata.visibility === 'PUBLIC' || isListInOrg() || isSRA"
-                            type="submit" (click)="onExport()" class="btn btn-primary" role="button">
-                            <localize key="io.export.allrows"></localize>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div *ngIf="list" class="col-md-12">
-<!--
-
-    <ng-container *ngIf="cols != null && config != null">
-        <generic-table [cols]="cols" [config]="config"  [groups]="groups" [refresh]="refresh"
-        [pageConfig]="{oid: list.oid, showInvalid: showInvalid}" (click)="onClick($event)"
-        (onLoadEvent)="onLoadEvent($event)" [initialState]="tableState"></generic-table>
-    </ng-container>
--->
-    
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div *ngIf="list" class="col-md-12">
-            <div class="text-right" style="margin-top: 20px;">
-
-                <button type="button" class="btn btn-default" (click)="onClose()">
-                    <localize key="modal.button.close"></localize>
+      <div class="row" style="margin-bottom: 10px">
+        @if (list) {
+          <div class="col-md-12">
+            <div class="button-holder pull-right">
+              @if (isWritable) {
+                <span class="clickable" style="vertical-align: middle; display: inline-block; line-height: 0">
+                  <boolean-field
+                    [(value)]="showInvalid"
+                    (change)="handleShowInvalidChange()"
+                    [localizeLabelKey]="'masterlist.showInvalid'"
+                  ></boolean-field>
+                </span>
+              }
+              @if (isWritable && list.working) {
+                <span class="clickable" (click)="onPublish()" style="padding: 10px">
+                  <i
+                    [ngClass]="{ 'fa fa-refresh clickable': true }"
+                    style="font-size: 24px; vertical-align: middle; padding-right: 5px"
+                    aria-hidden="true"
+                  ></i>
+                  <localize key="masterlist.publish"></localize>
+                </span>
+              }
+              @if (
+                list.listMetadata.visibility === 'PUBLIC' ||
+                list.geospatialMetadata.visibility === 'PUBLIC' ||
+                isListInOrg() ||
+                isSRA
+              ) {
+                <button type="submit" (click)="onExport()" class="btn btn-primary" role="button">
+                  <localize key="io.export.allrows"></localize>
                 </button>
+              }
             </div>
-        </div>
+          </div>
+        }
+      </div>
+
+      <div class="row">
+        @if (list) {
+          <div class="col-md-12">
+            <!--
+            <ng-container *ngIf="cols != null && config != null">
+              <generic-table [cols]="cols" [config]="config"  [groups]="groups" [refresh]="refresh"
+                [pageConfig]="{oid: list.oid, showInvalid: showInvalid}" (click)="onClick($event)"
+              (onLoadEvent)="onLoadEvent($event)" [initialState]="tableState"></generic-table>
+            </ng-container>
+            -->
+          </div>
+        }
+      </div>
     </div>
+  </div>
+
+  <div class="row">
+    @if (list) {
+      <div class="col-md-12">
+        <div class="text-right" style="margin-top: 20px">
+          <button type="button" class="btn btn-default" (click)="onClose()">
+            <localize key="modal.button.close"></localize>
+          </button>
+        </div>
+      </div>
+    }
+  </div>
 </div>

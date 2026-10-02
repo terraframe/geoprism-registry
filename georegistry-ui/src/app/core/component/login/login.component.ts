@@ -19,7 +19,7 @@
 
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
-import { HttpErrorResponse } from "@angular/common/http";
+import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subscription } from 'rxjs';
@@ -32,21 +32,29 @@ import { ErrorHandler, ErrorModalComponent } from '@shared/component';
 
 import { LoginHeaderComponent } from './login-header.component';
 
-import { GeoRegistryConfiguration } from "@core/model/core";
+import { GeoRegistryConfiguration } from '@core/model/core';
 import { environment } from 'src/environments/environment';
 import { LocalizePipe } from '../../../shared/pipe/localize.pipe';
-import { NgIf, NgFor } from '@angular/common';
+
 import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
 import { FormsModule } from '@angular/forms';
 import { MessageComponent } from '../../../shared/component/message/message.component';
 import { LoadingBarComponent } from '../../../shared/component/loading-bar/loading-bar.component';
 
 @Component({
-    selector: 'login',
-    templateUrl: './login.component.html',
-    styleUrls: ['./login.component.css'],
-    standalone: true,
-    imports: [LoginHeaderComponent, LoadingBarComponent, MessageComponent, FormsModule, RouterLink, LocalizeComponent, NgIf, NgFor, LocalizePipe]
+  selector: 'login',
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.css'],
+  standalone: true,
+  imports: [
+    LoginHeaderComponent,
+    LoadingBarComponent,
+    MessageComponent,
+    FormsModule,
+    RouterLink,
+    LocalizeComponent,
+    LocalizePipe,
+  ],
 })
 export class LoginComponent implements OnInit {
   context: string;
@@ -60,34 +68,40 @@ export class LoginComponent implements OnInit {
 
   /*
    * Reference to the modal current showing
-  */
+   */
   private bsModalRef: BsModalRef;
 
   ngOnInit(): void {
-    this.hService.oauthGetPublic(null).then(oauthServers => {
+    this.hService
+      .oauthGetPublic(null)
+      .then((oauthServers) => {
+        if (oauthServers && oauthServers.length > 0) {
+          this.oauthServers = oauthServers;
+        }
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
 
-      if (oauthServers && oauthServers.length > 0) {
-        this.oauthServers = oauthServers;
-      }
-
-    }).catch((err: HttpErrorResponse) => {
-      this.error(err);
-    });
-
-    this.sub = this.route.params.subscribe(params => {
+    this.sub = this.route.params.subscribe((params) => {
       if (params['errorMsg'] != null) {
-        this.bsModalRef = this.modalService.show(ErrorModalComponent, { animated: false, backdrop: true, 
- });
+        this.bsModalRef = this.modalService.show(ErrorModalComponent, { animated: false, backdrop: true });
 
         let encodedError = params['errorMsg'];
-        let decodedError = encodedError.replaceAll("+", " ");
+        let decodedError = encodedError.replaceAll('+', ' ');
 
         this.bsModalRef.content.message = decodedError;
       }
     });
   }
 
-  constructor(private service: SessionService, private hService: HubService, private modalService: BsModalService, private router: Router, private route: ActivatedRoute) {
+  constructor(
+    private service: SessionService,
+    private hService: HubService,
+    private modalService: BsModalService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {
     this.context = environment.apiUrl;
   }
 
@@ -95,32 +109,32 @@ export class LoginComponent implements OnInit {
     if (target == null) {
       if (this.oauthServers.length == 1) {
         window.location.href = this.oauthServers[0].url;
-      }
-      else {
+      } else {
         this.viewOauthServers = !this.viewOauthServers;
       }
-    }
-    else {
+    } else {
       const url = (<HTMLTextAreaElement>target).value;
       window.location.href = url;
     }
   }
 
   onSubmit(): void {
-    this.service.login(this.username, this.password).then(response => {
-      // We mush reload the geo object type cache
+    this.service
+      .login(this.username, this.password)
+      .then((response) => {
+        // We mush reload the geo object type cache
 
-      this.hService.applications().then(applications => {
-        if (applications.length == 1) {
-          this.open(applications[0]);
-        }
-        else {
-          this.router.navigate(['/menu/true']);
-        }
+        this.hService.applications().then((applications) => {
+          if (applications.length == 1) {
+            this.open(applications[0]);
+          } else {
+            this.router.navigate(['/menu/true']);
+          }
+        });
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
       });
-    }).catch((err: HttpErrorResponse) => {
-      this.error(err);
-    });
   }
 
   open(application: Application): void {
@@ -130,6 +144,4 @@ export class LoginComponent implements OnInit {
   public error(err: HttpErrorResponse): void {
     this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
   }
-
-
 }

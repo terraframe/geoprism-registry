@@ -17,92 +17,94 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, ViewChild, ElementRef, OnInit, OnDestroy } from "@angular/core";
-import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
-import { FileUploader, FileUploaderOptions, FileUploadModule } from "ng2-file-upload";
+import { Component, ViewChild, ElementRef, OnInit, OnDestroy } from '@angular/core';
+import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
+import { FileUploader, FileUploaderOptions, FileUploadModule } from 'ng2-file-upload';
 
-import { ErrorHandler } from "@shared/component";
-import { LocalizationService, EventService } from "@shared/service";
+import { ErrorHandler } from '@shared/component';
+import { LocalizationService, EventService } from '@shared/service';
 import { environment } from 'src/environments/environment';
-import { Subject } from "rxjs";
-import { NgIf } from "@angular/common";
-import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
-import { FormsModule } from "@angular/forms";
-import { LoadingBarComponent } from "../../../shared/component/loading-bar/loading-bar.component";
+import { Subject } from 'rxjs';
+
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+import { FormsModule } from '@angular/forms';
+import { LoadingBarComponent } from '../../../shared/component/loading-bar/loading-bar.component';
 
 @Component({
-    selector: "import-organization-modal",
-    templateUrl: "./import-organization-modal.component.html",
-    styleUrls: [],
-    standalone: true,
-    imports: [LoadingBarComponent, FormsModule, LocalizeComponent, NgIf, FileUploadModule]
+  selector: 'import-organization-modal',
+  templateUrl: './import-organization-modal.component.html',
+  styleUrls: [],
+  standalone: true,
+  imports: [LoadingBarComponent, FormsModule, LocalizeComponent, FileUploadModule],
 })
 export class ImportOrganizationModalComponent implements OnInit, OnDestroy {
+  @ViewChild('myFile')
+  fileRef: ElementRef;
 
-    @ViewChild("myFile")
-    fileRef: ElementRef;
+  /*
+   * File uploader
+   */
+  uploader: FileUploader;
 
-    /*
-     * File uploader
-     */
-    uploader: FileUploader;
+  message: string = null;
 
-    message: string = null;
+  public onSuccess: Subject<boolean>;
 
-    public onSuccess: Subject<boolean>;
+  constructor(
+    public bsModalRef: BsModalRef,
+    private localizationService: LocalizationService,
+    private eventService: EventService,
+    private modalService: BsModalService
+  ) {}
 
-    constructor(public bsModalRef: BsModalRef, private localizationService: LocalizationService, private eventService: EventService, private modalService: BsModalService) { }
+  ngOnInit(): void {
+    this.onSuccess = new Subject();
 
-    ngOnInit(): void {
-        this.onSuccess = new Subject();
+    let options: FileUploaderOptions = {
+      queueLimit: 1,
+      removeAfterUpload: true,
+      url: environment.apiUrl + '/api/organization/import-file',
+    };
 
-        let options: FileUploaderOptions = {
-            queueLimit: 1,
-            removeAfterUpload: true,
-            url: environment.apiUrl + "/api/organization/import-file"
-        };
+    this.uploader = new FileUploader(options);
 
-        this.uploader = new FileUploader(options);
+    this.uploader.onBuildItemForm = (fileItem: any, form: any) => {};
+    this.uploader.onBeforeUploadItem = (fileItem: any) => {
+      this.eventService.start();
+    };
+    this.uploader.onCompleteItem = (item: any, response: any, status: any, headers: any) => {
+      this.fileRef.nativeElement.value = '';
+      this.eventService.complete();
+    };
+    this.uploader.onSuccessItem = (item: any, response: string, status: number, headers: any) => {
+      this.onSuccess.next(true);
+      this.bsModalRef.hide();
+    };
+    this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {
+      this.error(JSON.parse(response));
+    };
+  }
 
-        this.uploader.onBuildItemForm = (fileItem: any, form: any) => {
-        };
-        this.uploader.onBeforeUploadItem = (fileItem: any) => {
-            this.eventService.start();
-        };
-        this.uploader.onCompleteItem = (item: any, response: any, status: any, headers: any) => {
-            this.fileRef.nativeElement.value = "";
-            this.eventService.complete();
-        };
-        this.uploader.onSuccessItem = (item: any, response: string, status: number, headers: any) => {
-            this.onSuccess.next(true);
-            this.bsModalRef.hide();
-        };
-        this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {
-            this.error(JSON.parse(response));
-        };
+  ngOnDestroy(): void {
+    this.onSuccess.unsubscribe();
+  }
+
+  submit(): void {
+    if (this.uploader.queue != null && this.uploader.queue.length > 0) {
+      this.uploader.uploadAll();
+    } else {
+      this.error({
+        message: this.localizationService.decode('io.missing.file'),
+        error: {},
+      });
     }
+  }
 
-    ngOnDestroy(): void {
-        this.onSuccess.unsubscribe();
-    }
+  cancel(): void {
+    this.bsModalRef.hide();
+  }
 
-    submit(): void {
-        if (this.uploader.queue != null && this.uploader.queue.length > 0) {
-            this.uploader.uploadAll();
-        } else {
-            this.error({
-                message: this.localizationService.decode("io.missing.file"),
-                error: {}
-            });
-        }
-    }
-
-    cancel(): void {
-        this.bsModalRef.hide();
-    }
-
-    public error(err: any): void {
-        this.message = ErrorHandler.getMessageFromError(err);
-    }
-
+  public error(err: any): void {
+    this.message = ErrorHandler.getMessageFromError(err);
+  }
 }

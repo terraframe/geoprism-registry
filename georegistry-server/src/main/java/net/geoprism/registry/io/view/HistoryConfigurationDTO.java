@@ -2,11 +2,11 @@ package net.geoprism.registry.io.view;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
 import net.geoprism.registry.etl.ObjectImporterFactory.JobHistoryType;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
 @JsonTypeInfo( //
     use = JsonTypeInfo.Id.NAME, // use logical type name
@@ -53,10 +53,10 @@ public abstract class HistoryConfigurationDTO
   {
     try
     {
-      ObjectMapper mapper = new ObjectMapper();
+      JsonMapper mapper = JsonMapper.shared();
       return (T) mapper.readValue(json, HistoryConfigurationDTO.class);
     }
-    catch (JsonProcessingException e)
+    catch (JacksonException e)
     {
       throw new ProgrammingErrorException(e);
     }
@@ -66,10 +66,10 @@ public abstract class HistoryConfigurationDTO
   {
     try
     {
-      ObjectMapper mapper = new ObjectMapper();
+      JsonMapper mapper = JsonMapper.shared();
       return mapper.writeValueAsString(dto);
     }
-    catch (JsonProcessingException e)
+    catch (JacksonException e)
     {
       throw new ProgrammingErrorException(e);
     }

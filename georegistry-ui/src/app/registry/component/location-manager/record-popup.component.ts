@@ -17,27 +17,24 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input, Output, EventEmitter } from "@angular/core";
-import { LayerRecord } from "@registry/model/list-type";
-import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
-import { NgIf, NgFor } from "@angular/common";
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { LayerRecord } from '@registry/model/list-type';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
 
 @Component({
-    selector: "record-popup",
-    templateUrl: "./record-popup.component.html",
-    styleUrls: ["./dataset-location-manager.css"],
-    standalone: true,
-    imports: [NgIf, NgFor, LocalizeComponent]
+  selector: 'record-popup',
+  templateUrl: './record-popup.component.html',
+  styleUrls: ['./dataset-location-manager.css'],
+  standalone: true,
+  imports: [LocalizeComponent],
 })
 export class RecordPopupComponent {
+  @Input() public record: LayerRecord;
+  @Input() public canEdit: boolean = false;
 
-    @Input() public record: LayerRecord;
-    @Input() public canEdit: boolean = false;
+  @Output() public edit = new EventEmitter<void>();
 
-    @Output() public edit = new EventEmitter<void>();
-
-    onEdit(): void {
-        this.edit.emit();
-    }
-
+  onEdit(): void {
+    this.edit.emit();
+  }
 }

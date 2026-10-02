@@ -17,37 +17,37 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from "@angular/core";
-import { HttpErrorResponse } from "@angular/common/http";
-import { BsModalService } from "ngx-bootstrap/modal";
+import { Component, OnInit } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { BsModalService } from 'ngx-bootstrap/modal';
 
-import { ErrorHandler } from "@shared/component";
-import { LocalizationService, AuthService } from "@shared/service";
+import { ErrorHandler } from '@shared/component';
+import { LocalizationService, AuthService } from '@shared/service';
 
-import { HierarchyType, HierarchyNode } from "@registry/model/hierarchy";
-import { GeoObjectType } from "@registry/model/registry";
-import { Organization } from "@shared/model/core";
-import { RegistryService, HierarchyService } from "@registry/service";
+import { HierarchyType, HierarchyNode } from '@registry/model/hierarchy';
+import { GeoObjectType } from '@registry/model/registry';
+import { Organization } from '@shared/model/core';
+import { RegistryService, HierarchyService } from '@registry/service';
 
-import { ImportTypesModalComponent } from "./modals/import-types-modal.component";
-import Utils from "@registry/utility/Utils";
-import { ExportTypesModalComponent } from "./modals/export-types-modal.component";
-import { environment } from "src/environments/environment";
-import { LocalizePipe } from "../../../shared/pipe/localize.pipe";
-import { NgIf } from "@angular/common";
-import { GraphTypePageComponent } from "./graph-type-page/graph-type-page.component";
-import { HierarchyTypePageComponent } from "./hierarchy-type-page/hierarchy-type-page.component";
-import { GeoObjectTypePageComponent } from "./geo-object-type-page/geo-object-type-page.component";
-import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
+import { ImportTypesModalComponent } from './modals/import-types-modal.component';
+import Utils from '@registry/utility/Utils';
+import { ExportTypesModalComponent } from './modals/export-types-modal.component';
+import { environment } from 'src/environments/environment';
+import { LocalizePipe } from '../../../shared/pipe/localize.pipe';
+
+import { GraphTypePageComponent } from './graph-type-page/graph-type-page.component';
+import { HierarchyTypePageComponent } from './hierarchy-type-page/hierarchy-type-page.component';
+import { GeoObjectTypePageComponent } from './geo-object-type-page/geo-object-type-page.component';
+import { PageContainerComponent } from '../../../shared/component/page-container/page-container.component';
 import {
   OntologySectionNavComponent,
   OntologySectionNavItem,
-} from "../ontology-section-nav/ontology-section-nav.component";
+} from '../ontology-section-nav/ontology-section-nav.component';
 
 @Component({
-  selector: "geo-ontology",
-  templateUrl: "./geo-ontology.component.html",
-  styleUrls: ["./geo-ontology.css"],
+  selector: 'geo-ontology',
+  templateUrl: './geo-ontology.component.html',
+  styleUrls: ['./geo-ontology.css'],
   standalone: true,
   imports: [
     PageContainerComponent,
@@ -55,7 +55,6 @@ import {
     GeoObjectTypePageComponent,
     HierarchyTypePageComponent,
     GraphTypePageComponent,
-    NgIf,
     LocalizePipe,
   ],
 })
@@ -65,20 +64,20 @@ export class GeoOntologyComponent implements OnInit {
 
   userOrganization: string | null = null;
 
-  section: string = "geo-object-type";
+  section: string = 'geo-object-type';
 
   sections: OntologySectionNavItem[] = [
     {
-      id: "geo-object-type",
-      labelKey: "hierarchy.sidebar.geoObjectTypes",
-      icon: "fa-circle",
+      id: 'geo-object-type',
+      labelKey: 'hierarchy.sidebar.geoObjectTypes',
+      icon: 'fa-circle',
     },
     {
-      id: "hierarchy-type",
-      labelKey: "hierarchy.sidebar.hierarchies",
-      icon: "fa-sitemap",
+      id: 'hierarchy-type',
+      labelKey: 'hierarchy.sidebar.hierarchies',
+      icon: 'fa-sitemap',
     },
-    { id: "dag", labelKey: "header.dag.type", icon: "fa-code-branch" },
+    { id: 'dag', labelKey: 'header.dag.type', icon: 'fa-code-branch' },
   ];
 
   hierarchies: HierarchyType[];
@@ -90,7 +89,7 @@ export class GeoOntologyComponent implements OnInit {
     public localizeService: LocalizationService,
     private modalService: BsModalService,
     private registryService: RegistryService,
-    private authService: AuthService,
+    private authService: AuthService
   ) {
     this.isSRA = authService.isSRA();
   }
@@ -199,16 +198,8 @@ export class GeoOntologyComponent implements OnInit {
 
     // Sort aphabetically because all other types to add will be children in a group.
     this.geoObjectTypes.sort((a, b) => {
-      if (
-        a.label.localizedValue.toLowerCase() <
-        b.label.localizedValue.toLowerCase()
-      )
-        return -1;
-      else if (
-        a.label.localizedValue.toLowerCase() >
-        b.label.localizedValue.toLowerCase()
-      )
-        return 1;
+      if (a.label.localizedValue.toLowerCase() < b.label.localizedValue.toLowerCase()) return -1;
+      else if (a.label.localizedValue.toLowerCase() > b.label.localizedValue.toLowerCase()) return 1;
       else return 0;
     });
 
@@ -252,16 +243,8 @@ export class GeoOntologyComponent implements OnInit {
     this.hierarchies = hierarchies;
 
     this.hierarchies.sort((a, b) => {
-      if (
-        a.label.localizedValue.toLowerCase() <
-        b.label.localizedValue.toLowerCase()
-      )
-        return -1;
-      else if (
-        a.label.localizedValue.toLowerCase() >
-        b.label.localizedValue.toLowerCase()
-      )
-        return 1;
+      if (a.label.localizedValue.toLowerCase() < b.label.localizedValue.toLowerCase()) return -1;
+      else if (a.label.localizedValue.toLowerCase() > b.label.localizedValue.toLowerCase()) return 1;
       else return 0;
     });
   }
@@ -332,7 +315,7 @@ export class GeoOntologyComponent implements OnInit {
       animated: false,
       backdrop: true,
       ignoreBackdropClick: true,
-      class: "upload-modal",
+      class: 'upload-modal',
     });
 
     bsModalRef.content!.init(this.organizations);
@@ -348,15 +331,14 @@ export class GeoOntologyComponent implements OnInit {
       animated: false,
       backdrop: true,
       ignoreBackdropClick: true,
-      class: "upload-modal",
+      class: 'upload-modal',
     });
 
     bsModalRef.content!.init(this.organizations);
 
     bsModalRef.content!.onNodeChange.subscribe((orgCode) => {
       if (orgCode != null && orgCode.length > 0) {
-        window.location.href =
-          environment.apiUrl + "/api/cgr/export-types?code=" + orgCode;
+        window.location.href = environment.apiUrl + '/api/cgr/export-types?code=' + orgCode;
       }
     });
   }

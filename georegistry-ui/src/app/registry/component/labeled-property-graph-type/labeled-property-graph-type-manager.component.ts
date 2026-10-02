@@ -17,154 +17,168 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnDestroy, OnInit, ViewChildren, QueryList } from "@angular/core";
-import { ActivatedRoute, Params, Router, RouterLinkActive, RouterLink } from "@angular/router";
-import { HttpErrorResponse } from "@angular/common/http";
+import { Component, OnDestroy, OnInit, ViewChildren, QueryList } from '@angular/core';
+import { ActivatedRoute, Params, Router, RouterLinkActive, RouterLink } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 
+import { ConfirmModalComponent, ErrorHandler } from '@shared/component';
+import { Subscription } from 'rxjs';
+import { LabeledPropertyGraphType } from '@registry/model/labeled-property-graph-type';
+import { LabeledPropertyGraphTypeService } from '@registry/service/labeled-property-graph-type.service';
+import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
+import { LabeledPropertyGraphTypePublishModalComponent } from './publish-modal.component';
+import { LocalizationService } from '@shared/service';
+import { LocalizePipe } from '../../../shared/pipe/localize.pipe';
+import { LabeledPropertyGraphTypeComponent } from './labeled-property-graph-type.component';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
 
-import { ConfirmModalComponent, ErrorHandler } from "@shared/component";
-import { Subscription } from "rxjs";
-import { LabeledPropertyGraphType } from "@registry/model/labeled-property-graph-type";
-import { LabeledPropertyGraphTypeService } from "@registry/service/labeled-property-graph-type.service";
-import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
-import { LabeledPropertyGraphTypePublishModalComponent } from "./publish-modal.component";
-import { LocalizationService } from "@shared/service";
-import { LocalizePipe } from "../../../shared/pipe/localize.pipe";
-import { LabeledPropertyGraphTypeComponent } from "./labeled-property-graph-type.component";
-import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
-import { NgIf, NgFor } from "@angular/common";
-import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
-import { ModalTypes } from "@shared/model/modal";
+import { PageContainerComponent } from '../../../shared/component/page-container/page-container.component';
+import { ModalTypes } from '@shared/model/modal';
 
 @Component({
-    selector: "labeled-property-graph-type-manager",
-    templateUrl: "./labeled-property-graph-type-manager.component.html",
-    styleUrls: ["./labeled-property-graph-type-manager.css"],
-    standalone: true,
-    imports: [PageContainerComponent, NgIf, LocalizeComponent, NgFor, RouterLinkActive, RouterLink, LabeledPropertyGraphTypeComponent, LocalizePipe]
+  selector: 'labeled-property-graph-type-manager',
+  templateUrl: './labeled-property-graph-type-manager.component.html',
+  styleUrls: ['./labeled-property-graph-type-manager.css'],
+  standalone: true,
+  imports: [
+    PageContainerComponent,
+    LocalizeComponent,
+    RouterLinkActive,
+    RouterLink,
+    LabeledPropertyGraphTypeComponent,
+    LocalizePipe,
+  ],
 })
 export class LabeledPropertyGraphTypeManagerComponent implements OnInit, OnDestroy {
+  message: string = null;
 
-    message: string = null;
+  types: { label: string; oid: string }[] = [];
+  current: LabeledPropertyGraphType = null;
 
-    types: { label: string, oid: string }[] = [];
-    current: LabeledPropertyGraphType = null;
+  subscription: Subscription = null;
 
-    subscription: Subscription = null;
+  noQueryParams = false;
 
-    noQueryParams = false;
+  /*
+   * Reference to the modal current showing
+   */
+  bsModalRef: BsModalRef;
 
-    /*
-     * Reference to the modal current showing
-     */
-    bsModalRef: BsModalRef;
+  // eslint-disable-next-line no-useless-constructor
+  constructor(
+    private service: LabeledPropertyGraphTypeService,
+    private modalService: BsModalService,
+    private route: ActivatedRoute,
+    private router: Router,
+    private localizeService: LocalizationService
+  ) {}
 
+  ngOnInit(): void {
+    this.subscription = this.route.queryParams.subscribe((params: Params) => {
+      const oid = params.oid;
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor(
-        private service: LabeledPropertyGraphTypeService,
-        private modalService: BsModalService,
-        private route: ActivatedRoute,
-        private router: Router,
-        private localizeService: LocalizationService
-    ) { }
+      if (oid != null && oid.length > 0) {
+        this.service
+          .entries(oid)
+          .then((current) => {
+            this.current = current;
+          })
+          .catch((err: HttpErrorResponse) => {
+            this.error(err);
+          });
+      } else {
+        this.noQueryParams = true;
+      }
 
-    ngOnInit(): void {
-        this.subscription = this.route.queryParams.subscribe((params: Params) => {
-            const oid = params.oid;
+      // this.refresh();
+    });
 
-            if (oid != null && oid.length > 0) {
-                this.service.entries(oid).then(current => {
-                    this.current = current;
-                }).catch((err: HttpErrorResponse) => {
-                    this.error(err);
-                });
-            } else {
-                this.noQueryParams = true;
-            }
-
-            // this.refresh();
+    if (this.types.length === 0) {
+      this.service
+        .getAll()
+        .then((types) => {
+          this.types = types;
+        })
+        .catch((err: HttpErrorResponse) => {
+          this.error(err);
         });
-
-        if (this.types.length === 0) {
-            this.service.getAll().then(types => {
-                this.types = types;
-            }).catch((err: HttpErrorResponse) => {
-                this.error(err);
-            });
-        }
     }
+  }
 
-    ngAfterViewInit() {
+  ngAfterViewInit() {}
+
+  ngOnDestroy(): void {
+    if (this.subscription != null) {
+      this.subscription.unsubscribe();
     }
+  }
 
-    ngOnDestroy(): void {
-        if (this.subscription != null) {
-            this.subscription.unsubscribe();
-        }
-    }
+  onCreate(): void {
+    this.bsModalRef = this.modalService.show(LabeledPropertyGraphTypePublishModalComponent, {
+      animated: false,
+      backdrop: true,
+      ignoreBackdropClick: true,
+    });
+    this.bsModalRef.content.init((type) => {
+      this.types.push({ oid: type.oid, label: type.displayLabel.localizedValue });
 
-    onCreate(): void {
-        this.bsModalRef = this.modalService.show(LabeledPropertyGraphTypePublishModalComponent, {
-            animated: false, backdrop: true,             ignoreBackdropClick: true
-        });
-        this.bsModalRef.content.init((type) => {
-            this.types.push({ oid: type.oid, label: type.displayLabel.localizedValue });
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { oid: type.oid },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
+    }, null);
+  }
+
+  onEdit(type: { label: string; oid: string }): void {
+    // this.bsModalRef = this.modalService.show(PublishVersionComponent, {
+    //
+    //     animated: false, backdrop: true,
+    //     ignoreBackdropClick: true
+    // });
+    // this.bsModalRef.content.init(this.type, entry, version);
+  }
+
+  onDelete(type: { label: string; oid: string }): void {
+    this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
+      animated: false,
+      backdrop: true,
+      ignoreBackdropClick: true,
+    });
+    this.bsModalRef.content.message =
+      this.localizeService.decode('confirm.modal.verify.delete') + ' Version [' + type.label + ']';
+    this.bsModalRef.content.submitText = this.localizeService.decode('modal.button.delete');
+    this.bsModalRef.content.type = ModalTypes.danger;
+
+    this.bsModalRef.content.onConfirm.subscribe(() => {
+      this.service
+        .remove(type)
+        .then(() => {
+          const index = this.types.findIndex((v) => v.oid === type.oid);
+
+          if (index !== -1) {
+            this.types.splice(index, 1);
+          }
+
+          if (this.current != null && this.current.oid === type.oid) {
+            this.current = null;
 
             this.router.navigate([], {
-                relativeTo: this.route,
-                queryParams: { oid: type.oid },
-                queryParamsHandling: "merge",
-                replaceUrl: true
+              relativeTo: this.route,
+              queryParams: { oid: null },
+              queryParamsHandling: 'merge',
+              replaceUrl: true,
             });
-        }, null);
-    }
-
-    onEdit(type: { label: string, oid: string }): void {
-        // this.bsModalRef = this.modalService.show(PublishVersionComponent, {
-        //     
-        //     animated: false, backdrop: true, 
-        //     ignoreBackdropClick: true
-        // });
-        // this.bsModalRef.content.init(this.type, entry, version);
-    }
-
-    onDelete(type: { label: string, oid: string }): void {
-        this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: false, backdrop: true,             ignoreBackdropClick: true
+          }
+        })
+        .catch((err: HttpErrorResponse) => {
+          this.error(err);
         });
-        this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " Version [" + type.label + "]";
-        this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
-        this.bsModalRef.content.type =  ModalTypes.danger;
+    });
+  }
 
-        this.bsModalRef.content.onConfirm.subscribe(() => {
-            this.service.remove(type).then(() => {
-                const index = this.types.findIndex(v => v.oid === type.oid);
-
-                if (index !== -1) {
-                    this.types.splice(index, 1);
-                }
-
-                if (this.current != null && this.current.oid === type.oid) {
-                    this.current = null;
-
-                    this.router.navigate([], {
-                        relativeTo: this.route,
-                        queryParams: { oid: null },
-                        queryParamsHandling: "merge",
-                        replaceUrl: true
-                    });
-
-                }
-            }).catch((err: HttpErrorResponse) => {
-                this.error(err);
-            });
-        });
-    }
-
-
-    error(err: HttpErrorResponse): void {
-        this.message = ErrorHandler.getMessageFromError(err);
-    }
-
+  error(err: HttpErrorResponse): void {
+    this.message = ErrorHandler.getMessageFromError(err);
+  }
 }

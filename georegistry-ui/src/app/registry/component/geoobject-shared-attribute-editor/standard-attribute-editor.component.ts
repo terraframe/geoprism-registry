@@ -17,197 +17,184 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import {
-    Component,
-    OnInit,
-    Input,
-    Output,
-    ChangeDetectorRef,
-    EventEmitter,
-    ElementRef
-} from "@angular/core";
-import {
-    trigger,
-    style,
-    animate,
-    transition
-} from "@angular/animations";
-import { HttpErrorResponse } from "@angular/common/http";
-import { GeoObjectType, AttributeType, GeoObjectOverTime } from "@registry/model/registry";
-import { ChangeRequest } from "@registry/model/crtable";
-import { GovernanceStatus } from "@registry/model/constants";
+import { Component, OnInit, Input, Output, ChangeDetectorRef, EventEmitter, ElementRef } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { GeoObjectType, AttributeType, GeoObjectOverTime } from '@registry/model/registry';
+import { ChangeRequest } from '@registry/model/crtable';
+import { GovernanceStatus } from '@registry/model/constants';
 
-import { ErrorHandler } from "@shared/component";
-import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
+import { ErrorHandler } from '@shared/component';
+import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 
-import { ChangeRequestService } from "@registry/service/change-request.service";
+import { ChangeRequestService } from '@registry/service/change-request.service';
 
-import { LocalizationService } from "@shared/service/localization.service";
+import { LocalizationService } from '@shared/service/localization.service';
 
-import { ControlContainer, NgForm, FormsModule } from "@angular/forms";
-import { StandardAttributeCRModel, StandardDiffView, ListDiffView } from "./StandardAttributeCRModel";
-import { ChangeRequestEditor } from "./change-request-editor";
-import { ExternalId } from "@core/model/core";
-import { LocalizePipe } from "@shared/pipe/localize.pipe";
-import { LocalizeComponent } from "@shared/component/localize/localize.component";
-import { NgIf, NgFor, NgClass } from "@angular/common";
-import { SourceAuthority } from "@registry/model/source";
-import { UniqueAuthorityValidatorDirective } from "./unique-authority-validator.directive";
+import { ControlContainer, NgForm, FormsModule } from '@angular/forms';
+import { StandardAttributeCRModel, StandardDiffView, ListDiffView } from './StandardAttributeCRModel';
+import { ChangeRequestEditor } from './change-request-editor';
+import { ExternalId } from '@core/model/core';
+import { LocalizePipe } from '@shared/pipe/localize.pipe';
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
+import { NgClass } from '@angular/common';
+import { SourceAuthority } from '@registry/model/source';
+import { UniqueAuthorityValidatorDirective } from './unique-authority-validator.directive';
 
 @Component({
-    selector: "standard-attribute-editor",
-    templateUrl: "./standard-attribute-editor.component.html",
-    styleUrls: ["./standard-attribute-editor.component.css"],
-    host: { "[@fadeInOut]": "true" },
-    animations: [
-        [
-            trigger("fadeInOut", [
-                transition("void => *", [
-                    style({
-                        opacity: 0
-                    }),
-                    animate("500ms")
-                ]),
-                transition(":leave", animate("500ms", style({
-                    opacity: 0
-                })))
-            ])
-        ]
-    ],
-    viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
-    standalone: true,
-    imports: [NgIf, LocalizeComponent, NgFor, NgClass, FormsModule, LocalizePipe, UniqueAuthorityValidatorDirective]
+  selector: 'standard-attribute-editor',
+  templateUrl: './standard-attribute-editor.component.html',
+  styleUrls: ['./standard-attribute-editor.component.css'],
+  host: { '[@fadeInOut]': 'true' },
+  viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
+  standalone: true,
+  imports: [LocalizeComponent, NgClass, FormsModule, LocalizePipe, UniqueAuthorityValidatorDirective],
 })
 export class StandardAttributeEditorComponent implements OnInit {
+  bsModalRef: BsModalRef;
 
-    bsModalRef: BsModalRef;
+  @Input() isNew: boolean = false;
 
-    @Input() isNew: boolean = false;
+  message: string = null;
 
-    message: string = null;
+  @Input() authorities: SourceAuthority[] = [];
 
-    @Input() authorities: SourceAuthority[] = [];
+  isValid: boolean = true;
+  @Output() isValidChange = new EventEmitter<boolean>();
 
-    isValid: boolean = true;
-    @Output() isValidChange = new EventEmitter<boolean>();
+  @Input() readonly: boolean = false;
 
-    @Input() readonly: boolean = false;
+  @Input() attributeType: AttributeType;
 
-    @Input() attributeType: AttributeType;
+  @Input() changeRequest: ChangeRequest;
 
-    @Input() changeRequest: ChangeRequest;
+  @Input() geoObjectType: GeoObjectType;
 
-    @Input() geoObjectType: GeoObjectType;
+  @Input() geoObject: GeoObjectOverTime;
 
-    @Input() geoObject: GeoObjectOverTime;
+  @Input() isNewGeoObject: boolean = false;
 
-    @Input() isNewGeoObject: boolean = false;
+  view: StandardDiffView;
 
-    view: StandardDiffView;
+  @Input() changeRequestEditor: ChangeRequestEditor;
 
-    @Input() changeRequestEditor: ChangeRequestEditor;
+  changeRequestAttributeEditor: StandardAttributeCRModel;
 
-    changeRequestAttributeEditor: StandardAttributeCRModel;
+  // eslint-disable-next-line no-useless-constructor
+  constructor(
+    private lService: LocalizationService,
+    private requestService: ChangeRequestService,
+    private modalService: BsModalService
+  ) {}
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor(
-        private lService: LocalizationService,
-        private requestService: ChangeRequestService,
-        private modalService: BsModalService) { }
+  ngOnInit(): void {
+    this.changeRequestAttributeEditor = this.changeRequestEditor.getEditorForAttribute(
+      this.attributeType,
+      null
+    ) as StandardAttributeCRModel;
+    this.calculateView();
+  }
 
-    ngOnInit(): void {
-        this.changeRequestAttributeEditor = this.changeRequestEditor.getEditorForAttribute(this.attributeType, null) as StandardAttributeCRModel;
-        this.calculateView();
+  ngAfterViewInit() {}
+
+  calculateView(): void {
+    if (this.attributeType.type === 'list' && this.attributeType.code === 'altIds') {
+      this.view = new ListDiffView(this.lService, this.changeRequestAttributeEditor);
+    } else {
+      this.view = new StandardDiffView(this.changeRequestAttributeEditor, this.lService);
     }
+  }
 
-    ngAfterViewInit() {
+  getExternalSystemLabel(code: string): string {
+    let matches = this.authorities.filter((authority) => code === authority.code);
+
+    if (matches.length > 0) {
+      return matches[0].label.localizedValue;
+    } else {
+      return code;
     }
+  }
 
-    calculateView(): void {
-        if (this.attributeType.type === 'list' && this.attributeType.code === 'altIds') {
-            this.view = new ListDiffView(this.lService, this.changeRequestAttributeEditor);
-        } else {
-            this.view = new StandardDiffView(this.changeRequestAttributeEditor, this.lService);
-        }
+  removeAltId(externalId: ExternalId): void {
+    let i = this.view.value.findIndex(
+      (id: ExternalId) => id.id === externalId.id && id.authority === externalId.authority
+    );
+
+    if (i !== -1) {
+      this.view.value.splice(i, 1);
     }
+  }
 
-    getExternalSystemLabel(code: string): string {
-        let matches = this.authorities.filter(authority => code === authority.code);
+  onAddNewId(): void {
+    (this.view as ListDiffView).add({
+      id: '',
+      authority: '',
+      authorityLabel: '',
+      type: 'EXTERNAL_ID',
+    });
+  }
 
-        if (matches.length > 0) {
-            return matches[0].label.localizedValue;
-        } else {
-            return code;
-        }
+  getExternalId(alternateIds: ExternalId[], authority: string): ExternalId {
+    let ids = alternateIds.filter((id) => id.authority === authority);
+
+    if (ids.length >= 0) {
+      return ids[0];
+    } else {
+      return null;
     }
+  }
 
-    removeAltId(externalId: ExternalId): void {
-        let i = this.view.value.findIndex((id: ExternalId) => id.id === externalId.id && id.authority === externalId.authority);
+  hasAlternateIdChanged(viewModel: StandardDiffView, externalSystemId: string): boolean {
+    return (
+      viewModel.oldValue != null &&
+      this.getExternalId(viewModel.oldValue, externalSystemId).id !==
+        this.getExternalId(viewModel.value, externalSystemId).id
+    );
+  }
 
-        if (i !== -1) {
-            this.view.value.splice(i, 1);
-        }
-    }
+  onValueChange(): void {
+    this.calculateView();
+  }
 
-    onAddNewId(): void {
-        (this.view as ListDiffView).add({
-            id: "",
-            authority: "",
-            authorityLabel: "",
-            type: "EXTERNAL_ID"
-        });
-    }
+  onApprove(): void {
+    let editAction = this.changeRequestAttributeEditor.editAction;
 
-    getExternalId(alternateIds: ExternalId[], authority: string): ExternalId {
-        let ids = alternateIds.filter(id => id.authority === authority);
+    this.requestService
+      .setActionStatus(editAction.oid, GovernanceStatus.ACCEPTED)
+      .then((results) => {
+        editAction.approvalStatus = GovernanceStatus.ACCEPTED;
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
 
-        if (ids.length >= 0) {
-            return ids[0];
-        } else {
-            return null;
-        }
-    }
+  onReject(): void {
+    let editAction = this.changeRequestAttributeEditor.editAction;
 
-    hasAlternateIdChanged(viewModel: StandardDiffView, externalSystemId: string): boolean {
-        return viewModel.oldValue != null && this.getExternalId(viewModel.oldValue, externalSystemId).id !== this.getExternalId(viewModel.value, externalSystemId).id;
-    }
+    this.requestService
+      .setActionStatus(editAction.oid, GovernanceStatus.REJECTED)
+      .then((results) => {
+        editAction.approvalStatus = GovernanceStatus.REJECTED;
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
 
-    onValueChange(): void {
-        this.calculateView();
-    }
+  onPending(): void {
+    let editAction = this.changeRequestAttributeEditor.editAction;
 
-    onApprove(): void {
-        let editAction = this.changeRequestAttributeEditor.editAction;
+    this.requestService
+      .setActionStatus(editAction.oid, GovernanceStatus.PENDING)
+      .then((results) => {
+        editAction.approvalStatus = GovernanceStatus.PENDING;
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
 
-        this.requestService.setActionStatus(editAction.oid, GovernanceStatus.ACCEPTED).then(results => {
-            editAction.approvalStatus = GovernanceStatus.ACCEPTED;
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
-
-    onReject(): void {
-        let editAction = this.changeRequestAttributeEditor.editAction;
-
-        this.requestService.setActionStatus(editAction.oid, GovernanceStatus.REJECTED).then(results => {
-            editAction.approvalStatus = GovernanceStatus.REJECTED;
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
-
-    onPending(): void {
-        let editAction = this.changeRequestAttributeEditor.editAction;
-
-        this.requestService.setActionStatus(editAction.oid, GovernanceStatus.PENDING).then(results => {
-            editAction.approvalStatus = GovernanceStatus.PENDING;
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
-
-    public error(err: any): void {
-        this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
-    }
-
+  public error(err: any): void {
+    this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
+  }
 }

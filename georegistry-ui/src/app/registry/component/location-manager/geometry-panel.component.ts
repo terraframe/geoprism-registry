@@ -18,255 +18,235 @@
 ///
 
 import {
-    Component,
-    OnInit,
-    Input,
-    Output,
-    ChangeDetectorRef,
-    EventEmitter,
-    ViewChildren,
-    QueryList
-} from "@angular/core";
-import {
-    trigger,
-    style,
-    animate,
-    transition
-} from "@angular/animations";
-import { GeoObjectType, AttributeType, ValueOverTime, GeoObjectOverTime } from "@registry/model/registry";
-import { DateService } from "@shared/service/date.service";
-import moment, { Moment } from "moment";
-import { VotService } from "@registry/service/vot.service";
-import { PRESENT } from "@shared/model/date";
-import { DateFieldComponent } from "@shared/component";
-import { LocalizePipe } from "../../../shared/pipe/localize.pipe";
-import { DateFieldComponent as DateFieldComponent_1 } from "../../../shared/component/form-fields/date-field/date-field.component";
-import { FormsModule } from "@angular/forms";
-import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
-import { NgIf, NgFor, NgClass } from "@angular/common";
+  Component,
+  OnInit,
+  Input,
+  Output,
+  ChangeDetectorRef,
+  EventEmitter,
+  ViewChildren,
+  QueryList,
+} from '@angular/core';
+import { GeoObjectType, AttributeType, ValueOverTime, GeoObjectOverTime } from '@registry/model/registry';
+import { DateService } from '@shared/service/date.service';
+import moment, { Moment } from 'moment';
+import { VotService } from '@registry/service/vot.service';
+import { PRESENT } from '@shared/model/date';
+import { DateFieldComponent } from '@shared/component';
+import { LocalizePipe } from '../../../shared/pipe/localize.pipe';
+import { DateFieldComponent as DateFieldComponent_1 } from '../../../shared/component/form-fields/date-field/date-field.component';
+import { FormsModule } from '@angular/forms';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+import { NgClass } from '@angular/common';
 
 @Component({
-    selector: "geometry-panel",
-    templateUrl: "./geometry-panel.component.html",
-    styleUrls: ["./geometry-panel.css"],
-    host: { "[@fadeInOut]": "true" },
-    animations: [
-        [
-            trigger("fadeInOut", [
-                transition("void => *", [
-                    style({
-                        opacity: 0
-                    }),
-                    animate("500ms")
-                ]),
-                transition(":leave", animate("500ms", style({
-                    opacity: 0
-                })))
-            ])
-        ]
-    ],
-    standalone: true,
-    imports: [NgIf, LocalizeComponent, FormsModule, NgFor, NgClass, DateFieldComponent_1, LocalizePipe]
+  selector: 'geometry-panel',
+  templateUrl: './geometry-panel.component.html',
+  styleUrls: ['./geometry-panel.css'],
+  host: { '[@fadeInOut]': 'true' },
+  standalone: true,
+  imports: [LocalizeComponent, FormsModule, NgClass, DateFieldComponent_1, LocalizePipe],
 })
 export class GeometryPanelComponent implements OnInit {
+  @ViewChildren('dateFieldComponents') dateFieldComponentsArray: QueryList<DateFieldComponent>;
 
-    @ViewChildren("dateFieldComponents") dateFieldComponentsArray: QueryList<DateFieldComponent>;
+  currentDate: Date = new Date();
 
-    currentDate: Date = new Date();
+  isValid: boolean = true;
 
-    isValid: boolean = true;
+  isVersionForHighlight: number;
 
-    isVersionForHighlight: number;
+  message: string = null;
 
-    message: string = null;
+  readonly: boolean = false;
 
-    readonly: boolean = false;
+  hasConflict: boolean = false;
 
-    hasConflict: boolean = false;
+  /*
+   * Observable subject for MasterList changes.  Called when an update is successful
+   */
+  @Output() onChange = new EventEmitter<GeoObjectOverTime>();
 
-    /*
-     * Observable subject for MasterList changes.  Called when an update is successful
-     */
-    @Output() onChange = new EventEmitter<GeoObjectOverTime>();
+  @Output() onCloneGeometry = new EventEmitter<any>();
 
-    @Output() onCloneGeometry = new EventEmitter<any>();
+  @Output() onEdit = new EventEmitter<ValueOverTime>();
 
-    @Output() onEdit = new EventEmitter<ValueOverTime>();
+  @Input() geoObjectType: GeoObjectType;
 
-    @Input() geoObjectType: GeoObjectType;
+  originalGeoObjectOverTime: GeoObjectOverTime;
+  geoObjectOverTime: GeoObjectOverTime;
 
-    originalGeoObjectOverTime: GeoObjectOverTime;
-    geoObjectOverTime: GeoObjectOverTime;
+  // eslint-disable-next-line accessor-pairs
+  @Input() set geoObjectOverTimeInput(value: GeoObjectOverTime) {
+    this.originalGeoObjectOverTime = JSON.parse(JSON.stringify(value));
+    this.geoObjectOverTime = value;
+  }
 
-    // eslint-disable-next-line accessor-pairs
-    @Input() set geoObjectOverTimeInput(value: GeoObjectOverTime) {
-        this.originalGeoObjectOverTime = JSON.parse(JSON.stringify(value));
-        this.geoObjectOverTime = value;
+  @Input() isNewGeoObject: boolean = false;
+
+  goGeometries: GeoObjectOverTime;
+
+  newVersion: ValueOverTime;
+
+  hasDuplicateDate: boolean = false;
+
+  // eslint-disable-next-line no-useless-constructor
+  constructor(
+    public changeDetectorRef: ChangeDetectorRef,
+    private dateService: DateService,
+    private votService: VotService
+  ) {}
+
+  ngOnInit(): void {}
+
+  checkDateFieldValidity(): boolean {
+    let dateFields = this.dateFieldComponentsArray.toArray();
+
+    for (let i = 0; i < dateFields.length; i++) {
+      let field = dateFields[i];
+      if (!field.valid) {
+        return false;
+      }
     }
 
-    @Input() isNewGeoObject: boolean = false;
+    return true;
+  }
 
-    goGeometries: GeoObjectOverTime;
+  onDateChange(): any {
+    this.hasConflict = false;
 
-    newVersion: ValueOverTime;
+    this.isValid = this.checkDateFieldValidity();
 
-    hasDuplicateDate: boolean = false;
+    let vAttributes = this.geoObjectOverTime.attributes['geometry'].values;
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor(public changeDetectorRef: ChangeDetectorRef, private dateService: DateService, private votService: VotService) { }
+    this.hasConflict = this.votService.checkRanges(null, vAttributes);
+  }
 
-    ngOnInit(): void {
+  edit(vot: ValueOverTime, isVersionForHighlight: number): void {
+    this.onEdit.emit(vot);
+
+    this.isVersionForHighlight = isVersionForHighlight;
+  }
+
+  onAddNewVersion(geometry: ValueOverTime): void {
+    let votArr: ValueOverTime[] = this.geoObjectOverTime.attributes['geometry'].values;
+
+    let vot: ValueOverTime = new ValueOverTime();
+    vot.startDate = null; // Utils.formatDateString(new Date());
+    vot.endDate = null; // Utils.formatDateString(new Date());
+
+    if (geometry && geometry.value) {
+      vot.value = geometry.value;
+    } else {
+      vot.value = { type: this.geoObjectType.geometryType, coordinates: [] };
     }
 
-    checkDateFieldValidity(): boolean {
-        let dateFields = this.dateFieldComponentsArray.toArray();
-
-        for (let i = 0; i < dateFields.length; i++) {
-            let field = dateFields[i];
-            if (!field.valid) {
-                return false;
-            }
-        }
-
-        return true;
+    if (this.geoObjectType.geometryType === 'MULTIPOLYGON') {
+      vot.value.type = 'MultiPolygon';
+    } else if (this.geoObjectType.geometryType === 'POLYGON') {
+      vot.value.type = 'Polygon';
+    } else if (this.geoObjectType.geometryType === 'POINT') {
+      vot.value.type = 'Point';
+    } else if (this.geoObjectType.geometryType === 'MULTIPOINT') {
+      vot.value.type = 'MultiPoint';
+    } else if (this.geoObjectType.geometryType === 'LINE') {
+      vot.value.type = 'Line';
+    } else if (this.geoObjectType.geometryType === 'MULTILINE') {
+      vot.value.type = 'MultiLine';
+    } else if (this.geoObjectType.geometryType === 'MIXED') {
+      vot.value.type = 'Mixed';
     }
 
-    onDateChange(): any {
-        this.hasConflict = false;
+    votArr.push(vot);
 
-        this.isValid = this.checkDateFieldValidity();
+    this.changeDetectorRef.detectChanges();
+  }
 
-        let vAttributes = this.geoObjectOverTime.attributes["geometry"].values;
+  getVersionData(attribute: AttributeType) {
+    let versions: ValueOverTime[] = [];
 
-        this.hasConflict = this.votService.checkRanges(null, vAttributes);
+    this.geoObjectOverTime.attributes[attribute.code].values.forEach((vAttribute) => {
+      vAttribute.value.localeValues.forEach((val) => {
+        versions.push(val);
+      });
+    });
+
+    return versions;
+  }
+
+  getDefaultLocaleVal(locale: any): string {
+    let defVal = null;
+
+    locale.localeValues.forEach((locVal) => {
+      if (locVal.locale === 'defaultLocale') {
+        defVal = locVal.value;
+      }
+    });
+
+    return defVal;
+  }
+
+  setDateAttribute(vot: ValueOverTime, val: string): void {
+    vot.value = new Date(val).getTime().toString();
+  }
+
+  remove(version: any): void {
+    let val = this.geoObjectOverTime.attributes['geometry'];
+
+    let position = -1;
+    for (let i = 0; i < val.values.length; i++) {
+      let vals = val.values[i];
+
+      if (vals.startDate === version.startDate) {
+        position = i;
+      }
     }
 
-    edit(vot: ValueOverTime, isVersionForHighlight: number): void {
-        this.onEdit.emit(vot);
+    if (position > -1) {
+      val.values.splice(position, 1);
+    }
+  }
 
-        this.isVersionForHighlight = isVersionForHighlight;
+  formatDate(date: string) {
+    let localeData = moment.localeData(date);
+    let format = localeData.longDateFormat('L');
+    return moment().format(format);
+  }
+
+  setInfinity(vAttribute, attributes): void {
+    if (vAttribute.endDate === PRESENT) {
+      vAttribute.endDate = new Date();
+    } else {
+      vAttribute.endDate = PRESENT;
     }
 
-    onAddNewVersion(geometry: ValueOverTime): void {
-        let votArr: ValueOverTime[] = this.geoObjectOverTime.attributes["geometry"].values;
+    this.onDateChange();
+  }
 
-        let vot: ValueOverTime = new ValueOverTime();
-        vot.startDate = null; // Utils.formatDateString(new Date());
-        vot.endDate = null; // Utils.formatDateString(new Date());
+  sort(votArr: ValueOverTime[]): void {
+    // Sort the data by start date
+    votArr.sort(function (a, b) {
+      if (a.startDate == null || a.startDate === '') {
+        return 1;
+      } else if (b.startDate == null || b.startDate === '') {
+        return -1;
+      }
 
-        if (geometry && geometry.value) {
-            vot.value = geometry.value;
-        } else {
-            vot.value = { type: this.geoObjectType.geometryType, coordinates: [] };
-        }
+      let first: any = new Date(a.startDate);
+      let next: any = new Date(b.startDate);
+      return first - next;
+    });
+  }
 
-        if (this.geoObjectType.geometryType === "MULTIPOLYGON") {
-            vot.value.type = "MultiPolygon";
-        } else if (this.geoObjectType.geometryType === "POLYGON") {
-            vot.value.type = "Polygon";
-        } else if (this.geoObjectType.geometryType === "POINT") {
-            vot.value.type = "Point";
-        } else if (this.geoObjectType.geometryType === "MULTIPOINT") {
-            vot.value.type = "MultiPoint";
-        } else if (this.geoObjectType.geometryType === "LINE") {
-            vot.value.type = "Line";
-        } else if (this.geoObjectType.geometryType === "MULTILINE") {
-            vot.value.type = "MultiLine";
-        } else if (this.geoObjectType.geometryType === "MIXED") {
-            vot.value.type = "Mixed";
-        }
+  onCloneGeometryToNewVersion(geometry: ValueOverTime): void {
+    this.onAddNewVersion(geometry);
+  }
 
-        votArr.push(vot);
+  onSubmit(): void {
+    this.onChange.emit(this.geoObjectOverTime);
+  }
 
-        this.changeDetectorRef.detectChanges();
-    }
-
-    getVersionData(attribute: AttributeType) {
-        let versions: ValueOverTime[] = [];
-
-        this.geoObjectOverTime.attributes[attribute.code].values.forEach(vAttribute => {
-            vAttribute.value.localeValues.forEach(val => {
-                versions.push(val);
-            });
-        });
-
-        return versions;
-    }
-
-    getDefaultLocaleVal(locale: any): string {
-        let defVal = null;
-
-        locale.localeValues.forEach(locVal => {
-            if (locVal.locale === "defaultLocale") {
-                defVal = locVal.value;
-            }
-        });
-
-        return defVal;
-    }
-
-    setDateAttribute(vot: ValueOverTime, val: string): void {
-        vot.value = new Date(val).getTime().toString();
-    }
-
-    remove(version: any): void {
-        let val = this.geoObjectOverTime.attributes["geometry"];
-
-        let position = -1;
-        for (let i = 0; i < val.values.length; i++) {
-            let vals = val.values[i];
-
-            if (vals.startDate === version.startDate) {
-                position = i;
-            }
-        }
-
-        if (position > -1) {
-            val.values.splice(position, 1);
-        }
-    }
-
-    formatDate(date: string) {
-        let localeData = moment.localeData(date);
-        let format = localeData.longDateFormat("L");
-        return moment().format(format);
-    }
-
-    setInfinity(vAttribute, attributes): void {
-        if (vAttribute.endDate === PRESENT) {
-            vAttribute.endDate = new Date();
-        } else {
-            vAttribute.endDate = PRESENT;
-        }
-
-        this.onDateChange();
-    }
-
-    sort(votArr: ValueOverTime[]): void {
-        // Sort the data by start date
-        votArr.sort(function (a, b) {
-            if (a.startDate == null || a.startDate === "") {
-                return 1;
-            } else if (b.startDate == null || b.startDate === "") {
-                return -1;
-            }
-
-            let first: any = new Date(a.startDate);
-            let next: any = new Date(b.startDate);
-            return first - next;
-        });
-    }
-
-    onCloneGeometryToNewVersion(geometry: ValueOverTime): void {
-        this.onAddNewVersion(geometry);
-    }
-
-    onSubmit(): void {
-        this.onChange.emit(this.geoObjectOverTime);
-    }
-
-    onCancel(): void {
-        this.onChange.emit(this.originalGeoObjectOverTime);
-    }
-
+  onCancel(): void {
+    this.onChange.emit(this.originalGeoObjectOverTime);
+  }
 }

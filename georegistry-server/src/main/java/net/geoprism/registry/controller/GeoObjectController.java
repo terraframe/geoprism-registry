@@ -40,7 +40,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -53,9 +52,10 @@ import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.request.GeoObjectServiceIF;
 import net.geoprism.registry.service.request.HierarchyTypeServiceIF;
 import net.geoprism.registry.service.request.RegistryComponentService;
-import net.geoprism.registry.spring.JsonObjectDeserializer;
-import net.geoprism.registry.spring.NullableDateDeserializer;
 import net.geoprism.registry.view.ObjectAtTimeDTO;
+import net.geoprism.registry.view.serialization.DateDeserializer;
+import net.geoprism.spring.core.JsonObjectDeserializer;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 @RestController
 @Validated
@@ -80,10 +80,10 @@ public class GeoObjectController extends RunwaySpringController
     @NotEmpty
     private String hierarchyCode;
 
-    @JsonDeserialize(using = NullableDateDeserializer.class)
+    @JsonDeserialize(using = DateDeserializer.class)
     private Date   startDate;
 
-    @JsonDeserialize(using = NullableDateDeserializer.class)
+    @JsonDeserialize(using = DateDeserializer.class)
     private Date   endDate;
 
     public String getParentCode()
@@ -163,10 +163,10 @@ public class GeoObjectController extends RunwaySpringController
     @JsonDeserialize(using = JsonObjectDeserializer.class)
     private JsonObject geoObject;
 
-    @JsonDeserialize(using = NullableDateDeserializer.class)
+    @JsonDeserialize(using = DateDeserializer.class)
     private Date       startDate;
 
-    @JsonDeserialize(using = NullableDateDeserializer.class)
+    @JsonDeserialize(using = DateDeserializer.class)
     private Date       endDate;
 
     public JsonObject getGeoObject()

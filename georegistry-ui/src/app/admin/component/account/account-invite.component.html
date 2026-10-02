@@ -1,58 +1,72 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <div class="modal-body">
-  
   <message></message>
   <loading-bar></loading-bar>
 
-  <form #form="ngForm" class="modal-form" (ngSubmit)="form.valid && onSubmit()">    
-        <fieldset>            
-          <div class="heading text-center">
-            <h1><localize key="account.invite.user.header"></localize></h1>
-          </div>      
-          
-          <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
-          
-          <div class="row">
-            <div class="col-md-12">
-              <label><localize key="account.email"></localize></label>
-              <input type="text" [(ngModel)]="invite.email" name="email" required #aemail="ngModel" email>
-              <div *ngIf="aemail.errors?.email && invite.email && invite.email.length > 0" style="float:none;" class="inline-error-message">
-                <localize key="account.email.validation"></localize>
-              </div>                                          
-            </div>
-          </div>   
-          
-          <div style="margin-top:30px;">
-            <role-management *ngIf="invite.roles" [newInstance]="true" [roles]="invite.roles" (onRoleIdsUpdate)="onRoleIdsUpdate($event)"></role-management>
-          </div>
+  <form #form="ngForm" class="modal-form" (ngSubmit)="form.valid && onSubmit()">
+    <fieldset>
+      <div class="heading text-center">
+        <h1><localize key="account.invite.user.header"></localize></h1>
+      </div>
 
-          <div class="row">
-            <div class="col-md-12">
-              <div class="button-holder">
-                <input type="button" [value]="'io.cancel' | localize" class="btn btn-default" (click)="cancel()" />              
-                <input type="submit" [value]="'io.submit' | localize" class="btn btn-primary" [disabled]="!(form.valid && roleIds.length > 0)" />
-              </div>
+      @if (message != null) {
+        <div class="alert alert-danger" role="alert">{{ message }}</div>
+      }
+
+      <div class="row">
+        <div class="col-md-12">
+          <label><localize key="account.email"></localize></label>
+          <input type="text" [(ngModel)]="invite.email" name="email" required #aemail="ngModel" email />
+          @if (aemail.errors?.email && invite.email && invite.email.length > 0) {
+            <div style="float: none" class="inline-error-message">
+              <localize key="account.email.validation"></localize>
             </div>
+          }
+        </div>
+      </div>
+
+      <div style="margin-top: 30px">
+        @if (invite.roles) {
+          <role-management
+            [newInstance]="true"
+            [roles]="invite.roles"
+            (onRoleIdsUpdate)="onRoleIdsUpdate($event)"
+          ></role-management>
+        }
+      </div>
+
+      <div class="row">
+        <div class="col-md-12">
+          <div class="button-holder">
+            <input type="button" [value]="'io.cancel' | localize" class="btn btn-default" (click)="cancel()" />
+            <input
+              type="submit"
+              [value]="'io.submit' | localize"
+              class="btn btn-primary"
+              [disabled]="!(form.valid && roleIds.length > 0)"
+            />
           </div>
-        </fieldset>
+        </div>
+      </div>
+    </fieldset>
   </form>
 </div>

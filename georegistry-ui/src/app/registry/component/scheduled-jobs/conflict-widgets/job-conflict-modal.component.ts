@@ -17,61 +17,63 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from "@angular/core";
-import { BsModalRef } from "ngx-bootstrap/modal";
-import { Subject } from "rxjs";
-import { HttpErrorResponse } from "@angular/common/http";
+import { Component, OnInit } from '@angular/core';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { Subject } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 
-import { ScheduledJobOverview } from "@registry/model/registry";
+import { ScheduledJobOverview } from '@registry/model/registry';
 
-import { ErrorHandler } from "@shared/component";
-import { RowValidationProblemWidgetComponent } from "./row-validation-problem-widget.component";
-import { TermReferenceProblemWidgetComponent } from "./term-reference-problem-widget.component";
-import { ParentReferenceProblemWidgetComponent } from "./parent-reference-problem-widget.component";
-import { ImportProblemWidgetComponent } from "./import-problem-widget.component";
-import { FormsModule } from "@angular/forms";
-import { LocalizeComponent } from "@shared/component/localize/localize.component";
-import { NgIf } from "@angular/common";
+import { ErrorHandler } from '@shared/component';
+import { RowValidationProblemWidgetComponent } from './row-validation-problem-widget.component';
+import { TermReferenceProblemWidgetComponent } from './term-reference-problem-widget.component';
+import { ParentReferenceProblemWidgetComponent } from './parent-reference-problem-widget.component';
+import { ImportProblemWidgetComponent } from './import-problem-widget.component';
+import { FormsModule } from '@angular/forms';
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
 
 @Component({
-    selector: "job-conflict-modal",
-    templateUrl: "./job-conflict-modal.component.html",
-    styleUrls: [],
-    standalone: true,
-    imports: [NgIf, LocalizeComponent, FormsModule, ImportProblemWidgetComponent, ParentReferenceProblemWidgetComponent, TermReferenceProblemWidgetComponent, RowValidationProblemWidgetComponent]
+  selector: 'job-conflict-modal',
+  templateUrl: './job-conflict-modal.component.html',
+  styleUrls: [],
+  standalone: true,
+  imports: [
+    LocalizeComponent,
+    FormsModule,
+    ImportProblemWidgetComponent,
+    ParentReferenceProblemWidgetComponent,
+    TermReferenceProblemWidgetComponent,
+    RowValidationProblemWidgetComponent,
+  ],
 })
 export class JobConflictModalComponent implements OnInit {
+  message: string = null;
+  problem: any;
+  job: ScheduledJobOverview;
 
-    message: string = null;
-    problem: any;
-    job: ScheduledJobOverview;
+  /*
+   * Observable subject for submission.  Called when an update is successful
+   */
+  onConflictAction: Subject<any>;
 
-    /*
-     * Observable subject for submission.  Called when an update is successful
-     */
-    onConflictAction: Subject<any>;
+  readonly: boolean = false;
+  edit: boolean = false;
 
-    readonly: boolean = false;
-    edit: boolean = false;
+  constructor(public bsModalRef: BsModalRef) {
+    this.onConflictAction = new Subject();
+  }
 
-    constructor(public bsModalRef: BsModalRef) {
-        this.onConflictAction = new Subject();
-    }
+  ngOnInit(): void {}
 
-    ngOnInit(): void {
+  onProblemResolvedListener(problem: any): void {
+    this.onConflictAction.next({ action: 'RESOLVED', data: problem });
+  }
 
-    }
+  onCancel(): void {
+    this.bsModalRef.hide();
+  }
 
-    onProblemResolvedListener(problem: any): void {
-        this.onConflictAction.next({ action: "RESOLVED", data: problem });
-    }
-
-    onCancel(): void {
-        this.bsModalRef.hide();
-    }
-
-    error(err: HttpErrorResponse): void {
-        this.message = ErrorHandler.getMessageFromError(err);
-    }
-
+  error(err: HttpErrorResponse): void {
+    this.message = ErrorHandler.getMessageFromError(err);
+  }
 }

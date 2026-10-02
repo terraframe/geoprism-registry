@@ -17,197 +17,220 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, ViewChild } from "@angular/core";
-import { HttpErrorResponse } from "@angular/common/http";
-import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 
-import { Observable } from "rxjs";
-import { TypeaheadMatch, TypeaheadModule } from "ngx-bootstrap/typeahead";
+import { Observable } from 'rxjs';
+import { TypeaheadMatch, TypeaheadModule } from 'ngx-bootstrap/typeahead';
 
-import { ErrorHandler } from "@shared/component";
-import { LocalizationService, AuthService, DateService } from "@shared/service";
+import { ErrorHandler } from '@shared/component';
+import { LocalizationService, AuthService, DateService } from '@shared/service';
 
 import uniqolor from 'uniqolor';
-import { RegistryService, ChangeRequestService, GeometryService } from "@registry/service";
-import { GeoObjectType, GeoObjectOverTime } from "@registry/model/registry";
-import { GeoObjectLayerDataSource } from "@registry/service/layer-data-source";
-import { Router, RouterLink } from "@angular/router";
-import { RegistryCacheService } from "@registry/service/registry-cache.service";
-import { LocalizePipe } from "../../../shared/pipe/localize.pipe";
-import { DateFieldComponent } from "../../../shared/component/form-fields/date-field/date-field.component";
-import { NgFor, NgClass, NgIf } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { RegistryService, ChangeRequestService, GeometryService } from '@registry/service';
+import { GeoObjectType, GeoObjectOverTime } from '@registry/model/registry';
+import { GeoObjectLayerDataSource } from '@registry/service/layer-data-source';
+import { Router, RouterLink } from '@angular/router';
+import { RegistryCacheService } from '@registry/service/registry-cache.service';
+import { LocalizePipe } from '../../../shared/pipe/localize.pipe';
+import { DateFieldComponent } from '../../../shared/component/form-fields/date-field/date-field.component';
+import { NgClass } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
 
 @Component({
-    selector: "submit-change-request",
-    templateUrl: "./submit-change-request.component.html",
-    styleUrls: ["./submit-change-request.css"],
-    standalone: true,
-    imports: [LocalizeComponent, FormsModule, NgFor, DateFieldComponent, NgClass, TypeaheadModule, NgIf, RouterLink, LocalizePipe]
+  selector: 'submit-change-request',
+  templateUrl: './submit-change-request.component.html',
+  styleUrls: ['./submit-change-request.css'],
+  standalone: true,
+  imports: [LocalizeComponent, FormsModule, DateFieldComponent, NgClass, TypeaheadModule, RouterLink, LocalizePipe],
 })
 export class SubmitChangeRequestComponent implements OnInit {
+  /*
+   * Reference to the modal current showing
+   */
 
-    /*
-     * Reference to the modal current showing
-     */
+  bsModalRef: BsModalRef;
 
-    bsModalRef: BsModalRef;
+  geoObjectType: GeoObjectType;
 
-    geoObjectType: GeoObjectType;
+  geoObjectTypes: GeoObjectType[] = [];
 
-    geoObjectTypes: GeoObjectType[] = [];
+  geoObjectId: string = '';
 
-    geoObjectId: string = "";
+  reason: string = '';
 
-    reason: string = "";
+  dataSource: Observable<any>;
 
-    dataSource: Observable<any>;
+  dateStr: string = null;
 
-    dateStr: string = null;
+  forDate: Date = null;
 
-    forDate: Date = null;
+  @ViewChild('attributeEditor') attributeEditor;
 
-    @ViewChild("attributeEditor") attributeEditor;
+  @ViewChild('geometryEditor') geometryEditor;
 
-    @ViewChild("geometryEditor") geometryEditor;
+  geoObject: GeoObjectOverTime = null;
 
-    geoObject: GeoObjectOverTime = null;
+  isValid: boolean = false;
 
-    isValid: boolean = false;
+  loading: boolean = false;
 
-    loading: boolean = false;
+  geoObjectAttributeExcludes: string[] = ['uid', 'sequence', 'type', 'lastUpdateDate', 'createDate', 'status'];
 
-    geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate", "status"];
-
-    constructor(private modalService: BsModalService, private registryService: RegistryService, private geomService: GeometryService,
-        private changeRequestService: ChangeRequestService, private localizeService: LocalizationService, private authService: AuthService,
-        private router: Router, private dateService: DateService, private cacheService: RegistryCacheService) {
-        this.dataSource = Observable.create((observer: any) => {
-            this.registryService.getGeoObjectSuggestionsTypeAhead(this.geoObjectId, this.geoObjectType.code).then(results => {
-                observer.next(results);
-            });
+  constructor(
+    private modalService: BsModalService,
+    private registryService: RegistryService,
+    private geomService: GeometryService,
+    private changeRequestService: ChangeRequestService,
+    private localizeService: LocalizationService,
+    private authService: AuthService,
+    private router: Router,
+    private dateService: DateService,
+    private cacheService: RegistryCacheService
+  ) {
+    this.dataSource = Observable.create((observer: any) => {
+      this.registryService
+        .getGeoObjectSuggestionsTypeAhead(this.geoObjectId, this.geoObjectType.code)
+        .then((results) => {
+          observer.next(results);
         });
-    }
+    });
+  }
 
-    ngOnInit(): void {
-        this.cacheService.getTypeCache().waitOnTypes().then((types: GeoObjectType[]) => {
+  ngOnInit(): void {
+    this.cacheService
+      .getTypeCache()
+      .waitOnTypes()
+      .then((types: GeoObjectType[]) => {
         // this.registryService.getGeoObjectTypes([]).then(types => {
-            let myOrgTypes = [];
-            for (let i = 0; i < types.length; ++i) {
-                const type = types[i];
-                const orgCode = type.organizationCode;
-                const typeCode = type.superTypeCode != null && type.superTypeCode !== "" ? type.superTypeCode : type.code;
+        let myOrgTypes = [];
+        for (let i = 0; i < types.length; ++i) {
+          const type = types[i];
+          const orgCode = type.organizationCode;
+          const typeCode = type.superTypeCode != null && type.superTypeCode !== '' ? type.superTypeCode : type.code;
 
-                if (this.authService.isGeoObjectTypeRC(orgCode, typeCode)) {
-                    myOrgTypes.push(types[i]);
-                }
-            }
-            this.geoObjectTypes = myOrgTypes;
+          if (this.authService.isGeoObjectTypeRC(orgCode, typeCode)) {
+            myOrgTypes.push(types[i]);
+          }
+        }
+        this.geoObjectTypes = myOrgTypes;
 
-            this.geoObjectTypes.sort((a, b) => {
-                if (a.label.localizedValue.toLowerCase() < b.label.localizedValue.toLowerCase()) return -1;
-                else if (a.label.localizedValue.toLowerCase() > b.label.localizedValue.toLowerCase()) return 1;
-                else return 0;
-            });
-
-            let pos = this.getGeoObjectTypePosition("ROOT");
-            if (pos) {
-                this.geoObjectTypes.splice(pos, 1);
-            }
-
-            // this.currentGeoObjectType = this.geoObjectTypes[1];
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
+        this.geoObjectTypes.sort((a, b) => {
+          if (a.label.localizedValue.toLowerCase() < b.label.localizedValue.toLowerCase()) return -1;
+          else if (a.label.localizedValue.toLowerCase() > b.label.localizedValue.toLowerCase()) return 1;
+          else return 0;
         });
-    }
 
-    public handleDateChange() {
-        if (this.dateStr != null) {
-            this.forDate = new Date(Date.parse(this.dateStr));
-        } else {
-            this.forDate = null;
-        }
-    }
-
-    public onValidChange(newValid: boolean) {
-        if (this.geoObject == null) {
-            this.isValid = false;
-            return;
+        let pos = this.getGeoObjectTypePosition('ROOT');
+        if (pos) {
+          this.geoObjectTypes.splice(pos, 1);
         }
 
-        if (this.geometryEditor != null && !this.geometryEditor.getIsValid()) {
-            this.isValid = false;
-            return;
-        }
+        // this.currentGeoObjectType = this.geoObjectTypes[1];
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
 
-        if (this.attributeEditor != null && !this.attributeEditor.getIsValid()) {
-            this.isValid = false;
-            return;
-        }
+  public handleDateChange() {
+    if (this.dateStr != null) {
+      this.forDate = new Date(Date.parse(this.dateStr));
+    } else {
+      this.forDate = null;
+    }
+  }
 
-        this.isValid = true;
+  public onValidChange(newValid: boolean) {
+    if (this.geoObject == null) {
+      this.isValid = false;
+      return;
     }
 
-    private getGeoObjectTypePosition(code: string): number {
-        for (let i = 0; i < this.geoObjectTypes.length; i++) {
-            let obj = this.geoObjectTypes[i];
-            if (obj.code === code) {
-                return i;
-            }
-        }
-
-        return null;
+    if (this.geometryEditor != null && !this.geometryEditor.getIsValid()) {
+      this.isValid = false;
+      return;
     }
 
-    changeTypeaheadLoading(e: boolean): void {
-        this.loading = e;
+    if (this.attributeEditor != null && !this.attributeEditor.getIsValid()) {
+      this.isValid = false;
+      return;
     }
 
-    typeaheadOnSelect(e: TypeaheadMatch): void {
-        this.registryService.getGeoObjectOverTime(e.item.code, this.geoObjectType.code).then(geoObject => {
-            this.geoObject = geoObject;
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
+    this.isValid = true;
+  }
+
+  private getGeoObjectTypePosition(code: string): number {
+    for (let i = 0; i < this.geoObjectTypes.length; i++) {
+      let obj = this.geoObjectTypes[i];
+      if (obj.code === code) {
+        return i;
+      }
     }
 
-    onNewChangeRequest() {
-        let dataSource = new GeoObjectLayerDataSource(this.registryService, this.geoObject.attributes.code, this.geoObject.attributes.type, this.dateStr);
+    return null;
+  }
 
-        let displayLabel = (this.geoObject.attributes["displayLabel"].values && this.geoObject.attributes["displayLabel"].values.length > 0) ? this.geoObject.attributes["displayLabel"].values[0].value.localizedValue : this.geoObject.attributes.code;
-        let typeLabel = this.geoObjectType.label.localizedValue;
-        let sDate = this.dateStr == null ? "" : " " + this.dateService.formatDateForDisplay(this.dateStr);
-        let label = displayLabel + " " + sDate + "(" + typeLabel + ")";
+  changeTypeaheadLoading(e: boolean): void {
+    this.loading = e;
+  }
 
-        let layer = dataSource.createLayer(label, true, uniqolor(this.geoObject.attributes.code).color);
+  typeaheadOnSelect(e: TypeaheadMatch): void {
+    this.registryService
+      .getGeoObjectOverTime(e.item.code, this.geoObjectType.code)
+      .then((geoObject) => {
+        this.geoObject = geoObject;
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
 
-        this.geomService.zoomOnReady(layer.getId());
-        let layers = this.geomService.getDataSourceFactory().serializeLayers([layer]);
+  onNewChangeRequest() {
+    let dataSource = new GeoObjectLayerDataSource(
+      this.registryService,
+      this.geoObject.attributes.code,
+      this.geoObject.attributes.type,
+      this.dateStr
+    );
 
-        const params: any = { layers: JSON.stringify(layers) };
+    let displayLabel =
+      this.geoObject.attributes['displayLabel'].values && this.geoObject.attributes['displayLabel'].values.length > 0
+        ? this.geoObject.attributes['displayLabel'].values[0].value.localizedValue
+        : this.geoObject.attributes.code;
+    let typeLabel = this.geoObjectType.label.localizedValue;
+    let sDate = this.dateStr == null ? '' : ' ' + this.dateService.formatDateForDisplay(this.dateStr);
+    let label = displayLabel + ' ' + sDate + '(' + typeLabel + ')';
 
-        params.attrPanelOpen = true;
-        params.objectType = "GEOOBJECT";
-        params.type = this.geoObjectType.code;
-        params.code = this.geoObject.attributes.code;
-        params.date = this.dateStr;
+    let layer = dataSource.createLayer(label, true, uniqolor(this.geoObject.attributes.code).color);
 
-        this.router.navigate(["/registry/location-manager"], {
-            queryParams: params
-        });
-    }
+    this.geomService.zoomOnReady(layer.getId());
+    let layers = this.geomService.getDataSourceFactory().serializeLayers([layer]);
 
-    cancel(): void {
-        this.isValid = false;
-        this.geoObject = null;
-        this.geoObjectId = null;
-        this.geoObjectType = null;
-        this.reason = null;
-    }
+    const params: any = { layers: JSON.stringify(layers) };
 
-    public error(err: any): void {
-        this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
-    }
+    params.attrPanelOpen = true;
+    params.objectType = 'GEOOBJECT';
+    params.type = this.geoObjectType.code;
+    params.code = this.geoObject.attributes.code;
+    params.date = this.dateStr;
 
+    this.router.navigate(['/registry/location-manager'], {
+      queryParams: params,
+    });
+  }
+
+  cancel(): void {
+    this.isValid = false;
+    this.geoObject = null;
+    this.geoObjectId = null;
+    this.geoObjectType = null;
+    this.reason = null;
+  }
+
+  public error(err: any): void {
+    this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
+  }
 }

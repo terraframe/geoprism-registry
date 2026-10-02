@@ -1,106 +1,111 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 
 <!--   <h2> <localize key="hierarchy.management.title"></localize> </h2> -->
 <div class="row">
+  <nav class="col-md-2 hierarchy-sidebar">
+    <ng-content select="[sectionNav]"></ng-content>
 
-    <nav class="col-md-2 hierarchy-sidebar">
+    <hr class="sidebar-divider" />
 
-        <ng-content select="[sectionNav]"></ng-content>
+    <div class="sidebar-section-content">
+      <div style="text-align: center; padding: 10px 0">
+        <button (click)="onCreate()" type="button" class="btn btn-primary" style="margin-bottom: 20px; min-width: 45%">
+          <localize key="hierarchy.management.button.create"></localize>
+        </button>
+      </div>
 
-        <hr class="sidebar-divider">
-
-            <div class="sidebar-section-content">
-
-                    <div style="text-align: center;padding: 10px 0;">
-                        <button (click)="onCreate()" type="button" class="btn btn-primary"
-                            style="margin-bottom:20px;min-width:45%;">
-                            <localize key="hierarchy.management.button.create"></localize>
-                        </button>
-                    </div>
-
-                    <li class="list-group-item graph-li-item" *ngFor="let type of types; let i = index;"
-                        [id]="type.code"
-                        [ngClass]="{'primary active': (selection != null && selection.type != null && type.code === selection.type.code)}"
-                        (click)="handleTypeView(type)">
-                        {{type.label.localizedValue}}
-
-                        <div class="btn-group pull-right" dropdown [dropup]="true" container="body">
-                            <a class="pull-right" dropdownToggle (click)="$event.stopPropagation();"
-                                aria-controls="basic-link-dropdown">
-                                <i class="fa fa-ellipsis-vertical clickable dropdown-toggle"></i>
-                            </a>
-                            <ul *dropdownMenu class="dropdown-menu" role="menu" aria-labelledby="button-animated">
-                                <ng-container *ngIf="isSRA">
-                                    <li role="menuitem">
-                                        <a class="dropdown-item" (click)="onDelete(type)">
-                                            <localize key="button.delete.helptext"></localize>
-                                        </a>
-                                    </li>
-                                </ng-container>
-                                <li role="menuitem">
-                                    <a class="dropdown-item" (click)="onEdit(type)">
-                                        <localize [key]="isSRA ? 'button.edit.helptext' : 'button.view.helptext'">
-                                        </localize>
-                                    </a>
-                                </li>
-                                <li role="menuitem">
-                                    <a class="dropdown-item" (click)="onImportHistory(type)">
-                                        <localize key="modal.button.import.history"></localize>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-
-                    </li>
-            </div>
-    </nav>
-
-    <div class="col-md-10 hierarchy-content">
-        <div id="overflow-div">
-            <manage-graph-type *ngIf="selection != null" [typeCode]="typeCode" [isNew]="selection.isNew"
-                [type]="selection.type" [readOnly]="selection.readOnly" (typeChange)="handleTypeChange($event)"
-                (onCancel)="handleCancel()" (onError)="error($event)">
-            </manage-graph-type>
-
-        </div>
+      @for (type of types; track type.code; let i = $index) {
+        <li
+          class="list-group-item graph-li-item"
+          [id]="type.code"
+          [ngClass]="{
+            'primary active': selection != null && selection.type != null && type.code === selection.type.code,
+          }"
+          (click)="handleTypeView(type)"
+        >
+          {{ type.label.localizedValue }}
+          <div class="btn-group pull-right" dropdown [dropup]="true" container="body">
+            <a class="pull-right" dropdownToggle (click)="$event.stopPropagation()" aria-controls="basic-link-dropdown">
+              <i class="fa fa-ellipsis-vertical clickable dropdown-toggle"></i>
+            </a>
+            <ul *dropdownMenu class="dropdown-menu" role="menu" aria-labelledby="button-animated">
+              @if (isSRA) {
+                <li role="menuitem">
+                  <a class="dropdown-item" (click)="onDelete(type)">
+                    <localize key="button.delete.helptext"></localize>
+                  </a>
+                </li>
+              }
+              <li role="menuitem">
+                <a class="dropdown-item" (click)="onEdit(type)">
+                  <localize [key]="isSRA ? 'button.edit.helptext' : 'button.view.helptext'"> </localize>
+                </a>
+              </li>
+              <li role="menuitem">
+                <a class="dropdown-item" (click)="onImportHistory(type)">
+                  <localize key="modal.button.import.history"></localize>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+      }
     </div>
+  </nav>
+
+  <div class="col-md-10 hierarchy-content">
+    <div id="overflow-div">
+      @if (selection != null) {
+        <manage-graph-type
+          [typeCode]="typeCode"
+          [isNew]="selection.isNew"
+          [type]="selection.type"
+          [readOnly]="selection.readOnly"
+          (typeChange)="handleTypeChange($event)"
+          (onCancel)="handleCancel()"
+          (onError)="error($event)"
+        >
+        </manage-graph-type>
+      }
+    </div>
+  </div>
 </div>

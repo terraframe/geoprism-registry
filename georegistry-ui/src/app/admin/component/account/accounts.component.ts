@@ -33,99 +33,109 @@ import { AccountInviteComponent } from '../account/account-invite.component';
 import { AuthService } from '@shared/service';
 import { LocalizePipe } from '../../../shared/pipe/localize.pipe';
 import { NgxPaginationModule } from 'ngx-pagination';
-import { NgIf, NgFor, NgClass } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
 import { MessageComponent } from '../../../shared/component/message/message.component';
 import { PageContainerComponent } from '../../../shared/component/page-container/page-container.component';
 
 @Component({
-    selector: 'accounts',
-    templateUrl: './accounts.component.html',
-    styleUrls: ['./accounts.css'],
-    standalone: true,
-    imports: [PageContainerComponent, MessageComponent, LocalizeComponent, NgIf, NgxPaginationModule, NgFor, NgClass, LocalizePipe]
+  selector: 'accounts',
+  templateUrl: './accounts.component.html',
+  styleUrls: ['./accounts.css'],
+  standalone: true,
+  imports: [PageContainerComponent, MessageComponent, LocalizeComponent, NgxPaginationModule, NgClass, LocalizePipe],
 })
 export class AccountsComponent implements OnInit {
-	res: PageResult<User> = {
-		resultSet: [],
-		count: 0,
-		pageNumber: 1,
-		pageSize: 10
-	};
-	bsModalRef: BsModalRef;
-	message: string = null;
-	isRA: boolean = false;
+  res: PageResult<User> = {
+    resultSet: [],
+    count: 0,
+    pageNumber: 1,
+    pageSize: 10,
+  };
+  bsModalRef: BsModalRef;
+  message: string = null;
+  isRA: boolean = false;
 
-	constructor(private service: AccountService, private modalService: BsModalService, authService: AuthService) {
-		this.isRA = authService.isRA();
-	}
+  constructor(
+    private service: AccountService,
+    private modalService: BsModalService,
+    authService: AuthService
+  ) {
+    this.isRA = authService.isRA();
+  }
 
-	ngOnInit(): void {
-		this.service.page(1, 10).then(res => {
-			this.res = res;
-		}).catch((err: HttpErrorResponse) => {
-			this.error(err);
-		});
-	}
+  ngOnInit(): void {
+    this.service
+      .page(1, 10)
+      .then((res) => {
+        this.res = res;
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
 
+  edit(user: User): void {
+    // this.router.navigate(['/admin/account', user.oid]);
 
-	edit(user: User): void {
-		// this.router.navigate(['/admin/account', user.oid]);
+    this.bsModalRef = this.modalService.show(AccountComponent, {
+      animated: false,
+      backdrop: true,
+      ignoreBackdropClick: true,
+    });
+    this.bsModalRef.content.oid = user.oid;
+    this.bsModalRef.content.setExternalSystems = this.res.externalSystems;
 
-		this.bsModalRef = this.modalService.show(AccountComponent, {
-			animated: false, backdrop: true,
-			ignoreBackdropClick: true,
-		});
-		this.bsModalRef.content.oid = user.oid;
-		this.bsModalRef.content.setExternalSystems = this.res.externalSystems;
+    let that = this;
+    this.bsModalRef.content.onEdit.subscribe((data: Account) => {
+      let index = that.res.resultSet.findIndex((u) => u.oid === data.user.oid);
 
-		let that = this;
-		this.bsModalRef.content.onEdit.subscribe((data: Account) => {
+      if (index !== -1) {
+        that.res.resultSet[index] = data.user;
+      }
+    });
+  }
 
-			let index = that.res.resultSet.findIndex(u => u.oid === data.user.oid);
+  newInstance(): void {
+    // this.router.navigate(['/admin/account', 'NEW']);
 
-			if (index !== -1) {
-				that.res.resultSet[index] = data.user;
-			}
-		});
-	}
+    this.bsModalRef = this.modalService.show(AccountComponent, {
+      animated: false,
+      backdrop: true,
+      ignoreBackdropClick: true,
+    });
+    this.bsModalRef.content.oid = 'NEW';
+    this.bsModalRef.content.setExternalSystems = this.res.externalSystems;
 
-	newInstance(): void {
-		// this.router.navigate(['/admin/account', 'NEW']);
+    this.bsModalRef.content.onEdit.subscribe((data) => {
+      this.onPageChange(this.res.pageNumber);
+    });
+  }
 
-		this.bsModalRef = this.modalService.show(AccountComponent, {
-			animated: false, backdrop: true, 
-			ignoreBackdropClick: true,
-		});
-		this.bsModalRef.content.oid = 'NEW';
-		this.bsModalRef.content.setExternalSystems = this.res.externalSystems;
+  inviteUsers(): void {
+    // this.router.navigate(['/admin/invite']);
 
-		this.bsModalRef.content.onEdit.subscribe(data => {
-			this.onPageChange(this.res.pageNumber);
-		});
+    this.bsModalRef = this.modalService.show(AccountInviteComponent, {
+      animated: false,
+      backdrop: true,
+      ignoreBackdropClick: true,
+    });
 
-	}
+    this.bsModalRef.content.organization = null;
+  }
 
-	inviteUsers(): void {
-		// this.router.navigate(['/admin/invite']);	  
+  onPageChange(pageNumber: number): void {
+    this.service
+      .page(pageNumber, 10)
+      .then((res) => {
+        this.res = res;
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
 
-		this.bsModalRef = this.modalService.show(AccountInviteComponent, {
-			animated: false, backdrop: true, 
-			ignoreBackdropClick: true,
-		});
-
-		this.bsModalRef.content.organization = null;
-	}
-
-	onPageChange(pageNumber: number): void {
-		this.service.page(pageNumber, 10).then(res => {
-			this.res = res;
-		}).catch((err: HttpErrorResponse) => {
-			this.error(err);
-		});
-	}
-
-	public error(err: HttpErrorResponse): void {
-		this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
-	}
+  public error(err: HttpErrorResponse): void {
+    this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
+  }
 }

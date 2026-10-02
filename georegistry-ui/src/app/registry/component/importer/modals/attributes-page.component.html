@@ -1,21 +1,21 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <div>
@@ -29,109 +29,135 @@
   </div>
   <!-- <div class="col-md-12 order-md-1"> -->
   <!--
-    <h3 class="mb-3">
-      <localize key="shapefile.modal.heading"></localize>
-      {{configuration.sheet.name}}
-    </h3>
-    -->
+  <h3 class="mb-3">
+    <localize key="shapefile.modal.heading"></localize>
+    {{configuration.sheet.name}}
+  </h3>
+  -->
   <form class="modal-form" #form="ngForm">
+    @for (attribute of configuration.type.attributes; track attribute.code) {
+      <div class="form-group">
+        <div class="row-holder">
+          <div class="label-holder">
+            <label class="">{{ attribute.label.localizedValue }}</label>
+          </div>
+          <div class="holder">
+            <select
+              [name]="attribute.code + (attribute.locale != null ? attribute.locale : '')"
+              class="select-area"
+              [(ngModel)]="attribute.target"
+              [required]="attribute.code === 'invalid' ? false : attribute.required"
+            >
+              <option></option>
+              @for (attr of configuration.sheet.attributes[attribute.baseType]; track attr) {
+                <option [value]="attr">{{ attr }}</option>
+              }
+            </select>
+          </div>
+        </div>
+      </div>
+    }
 
-    <div class="form-group" *ngFor="let attribute of configuration.type.attributes">
+    <hr />
+
+    @if (configuration.hasPostalCode) {
+      <div class="form-group">
+        <div class="row-holder">
+          <div class="label-holder">
+            <label class="">
+              <localize key="io.modal.postalCode"></localize>
+            </label>
+          </div>
+          <div class="form-check">
+            <div class="check-block">
+              <div
+                (click)="configuration.postalCode = !configuration.postalCode"
+                [ngClass]="{ 'chk-checked': configuration.postalCode }"
+                style="margin: 0"
+                class="jcf-unselectable chk-area"
+                name="postalCode"
+              >
+                <span></span>
+              </div>
+            </div>
+            <!-- <input type="checkbox" class="form-check-input" name="postalCode" [(ngModel)]="configuration.postalCode"> -->
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (configuration.isExternal) {
+      <div class="form-group">
+        <div class="row-holder">
+          <div class="label-holder">
+            <label class="">
+              <localize key="io.modal.external"></localize>
+            </label>
+          </div>
+          <div class="holder">
+            <select
+              name="externalId"
+              class="select-area"
+              [(ngModel)]="configuration.externalIdAttributeTarget"
+              [required]="true"
+            >
+              <option></option>
+              @for (attr of configuration.sheet.attributes['text']; track attr) {
+                <option [value]="attr">{{ attr }}</option>
+              }
+            </select>
+          </div>
+        </div>
+        @if (configuration.externalSystem.type === 'RevealExternalSystem' && configuration.formatType === 'EXCEL') {
+          <div class="row-holder">
+            <div class="label-holder">
+              <label class="">
+                <localize key="io.import.revealGeometryAttribute"></localize>
+              </label>
+            </div>
+            <div class="holder">
+              <select
+                name="revealGeometryColumn"
+                class="select-area"
+                [(ngModel)]="configuration.revealGeometryColumn"
+                [required]="false"
+              >
+                <option></option>
+                @for (attr of configuration.sheet.attributes['text']; track attr) {
+                  <option [value]="attr">{{ attr }}</option>
+                }
+              </select>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!--
+    <div *ngIf="!configuration.hasPostalCode || !configuration.postalCode" class="form-group">
       <div class="row-holder">
         <div class="label-holder">
-          <label class="">{{attribute.label.localizedValue}}</label>
+          <label class="">
+            <localize key="io.modal.parentLookupType"></localize>
+          </label>
         </div>
         <div class="holder">
-          <select [name]="attribute.code + (attribute.locale != null ? attribute.locale : '')" class="select-area"
-            [(ngModel)]="attribute.target" [required]="attribute.code === 'invalid' ? false : attribute.required">
+          <select name="parentLookupType" class="select-area" [(ngModel)]="configuration.parentLookupType" required>
             <option></option>
-            <option *ngFor="let attr of configuration.sheet.attributes[attribute.baseType]" value={{attr}}>{{attr}}
+            <option value="ALL">
+              <localize key="io.modal.all"></localize>
+            </option>
+            <option value="CODE">
+              <localize key="io.modal.code"></localize>
+            </option>
+            <option value="EXTERNAL">
+              <localize key="io.modal.external"></localize>
             </option>
           </select>
         </div>
       </div>
     </div>
-
-    <hr />
-
-    <div *ngIf="configuration.hasPostalCode" class="form-group">
-      <div class="row-holder">
-        <div class="label-holder">
-          <label class="">
-            <localize key="io.modal.postalCode"></localize>
-          </label>
-        </div>
-        <div class="form-check">
-          <div class="check-block">
-            <div (click)="configuration.postalCode = !configuration.postalCode"
-              [ngClass]="{'chk-checked' : configuration.postalCode}" style="margin:0;" class="jcf-unselectable chk-area"
-              name="postalCode">
-              <span></span>
-            </div>
-          </div>
-          <!-- <input type="checkbox" class="form-check-input" name="postalCode" [(ngModel)]="configuration.postalCode"> -->
-        </div>
-      </div>
-    </div>
-
-    <div *ngIf="configuration.isExternal" class="form-group">
-      <div class="row-holder">
-        <div class="label-holder">
-          <label class="">
-            <localize key="io.modal.external"></localize>
-          </label>
-        </div>
-        <div class="holder">
-          <select name="externalId" class="select-area" [(ngModel)]="configuration.externalIdAttributeTarget"
-            [required]="true">
-            <option></option>
-            <option *ngFor="let attr of configuration.sheet.attributes['text']" value={{attr}}>{{attr}}</option>
-          </select>
-        </div>
-      </div>
-
-      <div *ngIf="configuration.externalSystem.type === 'RevealExternalSystem' && configuration.formatType === 'EXCEL'"
-        class="row-holder">
-        <div class="label-holder">
-          <label class="">
-            <localize key="io.import.revealGeometryAttribute"></localize>
-          </label>
-        </div>
-        <div class="holder">
-          <select name="revealGeometryColumn" class="select-area" [(ngModel)]="configuration.revealGeometryColumn"
-            [required]="false">
-            <option></option>
-            <option *ngFor="let attr of configuration.sheet.attributes['text']" value={{attr}}>{{attr}}</option>
-          </select>
-        </div>
-      </div>
-    </div>
-
-    <!--
-      <div *ngIf="!configuration.hasPostalCode || !configuration.postalCode" class="form-group">
-        <div class="row-holder">
-          <div class="label-holder">
-            <label class="">
-              <localize key="io.modal.parentLookupType"></localize>
-            </label>
-          </div>
-          <div class="holder">
-            <select name="parentLookupType" class="select-area" [(ngModel)]="configuration.parentLookupType" required>
-              <option></option>
-              <option value="ALL">
-                <localize key="io.modal.all"></localize>
-              </option>
-              <option value="CODE">
-                <localize key="io.modal.code"></localize>
-              </option>
-              <option value="EXTERNAL">
-                <localize key="io.modal.external"></localize>
-              </option>
-            </select>
-          </div>
-        </div>
-      </div>
-      -->
+    -->
 
     <div class="form-group">
       <div class="row-holder">
@@ -139,12 +165,18 @@
           <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
             <localize key="io.cancel"></localize>
           </button>
-          <button type="submit" *ngIf="hasBack" (click)="onBack()" class="btn btn-default" role="button">
-            <localize key="io.back"></localize>
-          </button>
+          @if (hasBack) {
+            <button type="submit" (click)="onBack()" class="btn btn-default" role="button">
+              <localize key="io.back"></localize>
+            </button>
+          }
           <button type="submit" (click)="onNext()" class="btn btn-primary" role="button" [disabled]="form.invalid">
-            <localize *ngIf="hasNext" key="io.next"></localize>
-            <localize *ngIf="!hasNext" key="io.ok"></localize>
+            @if (hasNext) {
+              <localize key="io.next"></localize>
+            }
+            @if (!hasNext) {
+              <localize key="io.ok"></localize>
+            }
           </button>
         </div>
       </div>

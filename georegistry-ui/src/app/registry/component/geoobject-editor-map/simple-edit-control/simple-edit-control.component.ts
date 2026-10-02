@@ -17,42 +17,40 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-
-import { Component, ElementRef, Input, Output, EventEmitter } from "@angular/core";
-import { LocalizePipe } from "@shared/pipe/localize.pipe";
-import { LocalizeComponent } from "@shared/component/localize/localize.component";
-import { NgIf, NgClass } from "@angular/common";
+import { Component, ElementRef, Input, Output, EventEmitter } from '@angular/core';
+import { LocalizePipe } from '@shared/pipe/localize.pipe';
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
+import { NgClass } from '@angular/common';
 
 @Component({
-    selector: "simple-edit-control",
-    templateUrl: "./simple-edit-control.component.html",
-    styleUrls: ["./simple-edit-control.css"],
-    standalone: true,
-    imports: [NgIf, NgClass, LocalizeComponent, LocalizePipe]
+  selector: 'simple-edit-control',
+  templateUrl: './simple-edit-control.component.html',
+  styleUrls: ['./simple-edit-control.css'],
+  standalone: true,
+  imports: [NgClass, LocalizeComponent, LocalizePipe],
 })
 export class SimpleEditControl {
+  elRef: ElementRef;
 
-    elRef: ElementRef
+  @Output() editEmitter = new EventEmitter<void>();
 
-    @Output() editEmitter = new EventEmitter<void>();
+  @Input() visible: boolean = true;
+  @Input() editSessionEnabled: boolean = false;
+  @Input() save: boolean = false;
 
-    @Input() visible: boolean = true;
-    @Input() editSessionEnabled: boolean = false;
-    @Input() save: boolean = false;
+  constructor(elRef: ElementRef) {
+    this.elRef = elRef;
+  }
 
-    constructor(elRef: ElementRef) {
-        this.elRef = elRef;
-    }
+  onAdd(map): any {
+    return this.elRef.nativeElement;
+  }
 
-    onAdd(map): any {
-        return this.elRef.nativeElement;
-    }
+  onRemove(map): void {
+    this.elRef.nativeElement.remove();
+  }
 
-    onRemove(map): void {
-        this.elRef.nativeElement.remove();
-    }
-
-    onClick(): void {
-        this.editEmitter.emit();
-    }
+  onClick(): void {
+    this.editEmitter.emit();
+  }
 }

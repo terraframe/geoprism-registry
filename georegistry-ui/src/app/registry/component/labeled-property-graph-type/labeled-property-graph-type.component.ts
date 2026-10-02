@@ -17,174 +17,194 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
-import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
-import { HttpErrorResponse } from "@angular/common/http";
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
+import { HttpErrorResponse } from '@angular/common/http';
 
-import { Subscription } from "rxjs";
-import { webSocket, WebSocketSubject } from "rxjs/webSocket";
-import { WebSockets } from "@shared/component/web-sockets/web-sockets";
+import { Subscription } from 'rxjs';
+import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
+import { WebSockets } from '@shared/component/web-sockets/web-sockets';
 import { environment } from 'src/environments/environment';
 
-import { ConfirmModalComponent } from "@shared/component";
-import { DateService, LocalizationService, ProgressService } from "@shared/service";
-import { LabeledPropertyGraphType, LabeledPropertyGraphTypeEntry, LabeledPropertyGraphTypeVersion } from "@registry/model/labeled-property-graph-type";
-import { LabeledPropertyGraphTypeService } from "@registry/service/labeled-property-graph-type.service";
-import { LabeledPropertyGraphTypePublishModalComponent } from "./publish-modal.component";
-import { Progress } from "@shared/model/progress";
-import { RegistryService } from "@registry/service";
-import { Router } from "@angular/router";
-import { DateTextComponent } from "../../../shared/component/date-text/date-text.component";
-import { ProgressBarComponent } from "../../../shared/component/progress-bar/progress-bar.component";
-import { NgIf, NgFor, NgTemplateOutlet } from "@angular/common";
-import { BsDropdownModule } from "ngx-bootstrap/dropdown";
-import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
-import { ModalTypes } from "@shared/model/modal";
-
+import { ConfirmModalComponent } from '@shared/component';
+import { DateService, LocalizationService, ProgressService } from '@shared/service';
+import {
+  LabeledPropertyGraphType,
+  LabeledPropertyGraphTypeEntry,
+  LabeledPropertyGraphTypeVersion,
+} from '@registry/model/labeled-property-graph-type';
+import { LabeledPropertyGraphTypeService } from '@registry/service/labeled-property-graph-type.service';
+import { LabeledPropertyGraphTypePublishModalComponent } from './publish-modal.component';
+import { Progress } from '@shared/model/progress';
+import { RegistryService } from '@registry/service';
+import { Router } from '@angular/router';
+import { DateTextComponent } from '../../../shared/component/date-text/date-text.component';
+import { ProgressBarComponent } from '../../../shared/component/progress-bar/progress-bar.component';
+import { NgTemplateOutlet } from '@angular/common';
+import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+import { ModalTypes } from '@shared/model/modal';
 
 @Component({
-    selector: "labeled-property-graph-type",
-    templateUrl: "./labeled-property-graph-type.component.html",
-    styleUrls: ["./labeled-property-graph-type-manager.css"],
-    standalone: true,
-    imports: [LocalizeComponent, BsDropdownModule, NgIf, ProgressBarComponent, NgFor, DateTextComponent, NgTemplateOutlet]
+  selector: 'labeled-property-graph-type',
+  templateUrl: './labeled-property-graph-type.component.html',
+  styleUrls: ['./labeled-property-graph-type-manager.css'],
+  standalone: true,
+  imports: [LocalizeComponent, BsDropdownModule, ProgressBarComponent, DateTextComponent, NgTemplateOutlet],
 })
 export class LabeledPropertyGraphTypeComponent implements OnInit, OnDestroy {
+  @Input() type: LabeledPropertyGraphType;
+  @Output() error = new EventEmitter<HttpErrorResponse>();
 
-    @Input() type: LabeledPropertyGraphType;
-    @Output() error = new EventEmitter<HttpErrorResponse>();
+  /*
+   * Reference to the modal current showing
+   */
+  bsModalRef: BsModalRef;
 
-    /*
-     * Reference to the modal current showing
-    */
-    bsModalRef: BsModalRef;
+  progressNotifier: WebSocketSubject<any>;
+  progressSubscription: Subscription = null;
 
-    progressNotifier: WebSocketSubject<any>;
-    progressSubscription: Subscription = null;
+  isRefreshing: boolean = false;
 
-    isRefreshing: boolean = false;
+  // eslint-disable-next-line no-useless-constructor
+  constructor(
+    private service: LabeledPropertyGraphTypeService,
+    private registryService: RegistryService,
+    private modalService: BsModalService,
+    private localizeService: LocalizationService,
+    private pService: ProgressService,
+    private router: Router,
+    private dateService: DateService
+  ) {}
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor(
-        private service: LabeledPropertyGraphTypeService,
-        private registryService: RegistryService,
-        private modalService: BsModalService,
-        private localizeService: LocalizationService,
-        private pService: ProgressService,
-        private router: Router,
-        private dateService: DateService) { }
+  ngOnInit(): void {
+    // Expand the most recent version by default
+    this.type.entries
+      .filter((entry) => {
+        return entry.versions != null && entry.versions.length > 0;
+      })
+      .forEach((entry) => {
+        entry.versions[0].collapsed = true;
+      });
 
-    ngOnInit(): void {
-        // Expand the most recent version by default
-        this.type.entries.filter(entry => {
-            return (entry.versions != null && entry.versions.length > 0);
-        }).forEach(entry => {
-            entry.versions[0].collapsed = true;
-        });
+    let baseUrl = WebSockets.buildBaseUrl();
+    this.progressNotifier = webSocket(baseUrl + '/websocket/progress/' + this.type.oid);
+    this.progressSubscription = this.progressNotifier.subscribe((message) => {
+      if (message.content != null) {
+        this.handleProgressChange(message.content);
+      } else {
+        this.handleProgressChange(message);
+      }
+    });
+  }
 
-        let baseUrl = WebSockets.buildBaseUrl();
-        this.progressNotifier = webSocket(baseUrl + "/websocket/progress/" + this.type.oid);
-        this.progressSubscription = this.progressNotifier.subscribe(message => {
-            if (message.content != null) {
-                this.handleProgressChange(message.content);
-            } else {
-                this.handleProgressChange(message);
-            }
-        });
-
+  ngOnDestroy() {
+    if (this.progressSubscription != null) {
+      this.progressSubscription.unsubscribe();
     }
 
-    ngOnDestroy() {
-        if (this.progressSubscription != null) {
-            this.progressSubscription.unsubscribe();
-        }
+    this.progressNotifier.complete();
+  }
 
-        this.progressNotifier.complete();
-    }
+  toggleVersions(entry: LabeledPropertyGraphTypeEntry) {
+    entry.showAll = !entry.showAll;
+  }
 
-    toggleVersions(entry: LabeledPropertyGraphTypeEntry) {
-        entry.showAll = !entry.showAll;
-    }
+  onCreate(entry: LabeledPropertyGraphTypeEntry): void {
+    this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
+      animated: false,
+      backdrop: true,
+      ignoreBackdropClick: true,
+    });
+    this.bsModalRef.content.message =
+      'Are you sure you want to publish a new version of the entry [' + entry.period.value + ']';
 
-    onCreate(entry: LabeledPropertyGraphTypeEntry): void {
-
-        this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: false, backdrop: true, ignoreBackdropClick: true
+    this.bsModalRef.content.onConfirm.subscribe(() => {
+      this.service
+        .createVersion(entry)
+        .then((version) => {
+          entry.versions.unshift(version);
+        })
+        .catch((err: HttpErrorResponse) => {
+          this.error.emit(err);
         });
-        this.bsModalRef.content.message = "Are you sure you want to publish a new version of the entry [" + entry.period.value + "]";
+    });
+  }
 
-        this.bsModalRef.content.onConfirm.subscribe(() => {
-            this.service.createVersion(entry).then(version => {
-                entry.versions.unshift(version);
-            }).catch((err: HttpErrorResponse) => {
-                this.error.emit(err);
-            });
+  onCreateEntries(): void {
+    this.service
+      .createEntries(this.type.oid)
+      .then((type) => {
+        type.entries.forEach((entry) => {
+          if (this.type.entries.findIndex((e) => e.oid === entry.oid) === -1) {
+            this.type.entries.push(entry);
+          }
+
+          // Order by date
+          this.type.entries.sort((a, b) => {
+            const date1 = this.dateService.getDateFromDateString(a.forDate);
+            const date2 = this.dateService.getDateFromDateString(b.forDate);
+
+            return date2.getTime() - date1.getTime();
+          });
         });
-    }
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error.emit(err);
+      });
+  }
 
-    onCreateEntries(): void {
-        this.service.createEntries(this.type.oid).then(type => {
-            type.entries.forEach(entry => {
-                if (this.type.entries.findIndex(e => e.oid === entry.oid) === -1) {
-                    this.type.entries.push(entry);
-                }
+  onViewConfiguration(type: LabeledPropertyGraphType): void {
+    this.bsModalRef = this.modalService.show(LabeledPropertyGraphTypePublishModalComponent, {
+      animated: false,
+      backdrop: true,
+      ignoreBackdropClick: true,
+    });
+    this.bsModalRef.content.init(null, type);
+  }
 
-                // Order by date
-                this.type.entries.sort((a, b) => {
-                    const date1 = this.dateService.getDateFromDateString(a.forDate);
-                    const date2 = this.dateService.getDateFromDateString(b.forDate);
+  onExportRDF(entry, version, geometryExportType: string): void {
+    this.registryService
+      .rdfExport(geometryExportType, version.oid)
+      .then(() => {
+        this.router.navigate(['/registry/scheduled-jobs']);
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error.emit(err);
+      });
+  }
 
-                    return date2.getTime() - date1.getTime();
-                });
-            });
-        }).catch((err: HttpErrorResponse) => {
-            this.error.emit(err);
+  onDelete(entry: LabeledPropertyGraphTypeEntry, version: LabeledPropertyGraphTypeVersion): void {
+    this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
+      animated: false,
+      backdrop: true,
+      ignoreBackdropClick: true,
+    });
+    this.bsModalRef.content.message =
+      this.localizeService.decode('confirm.modal.verify.delete') + ' Version [' + version.versionNumber + ']';
+    this.bsModalRef.content.submitText = this.localizeService.decode('modal.button.delete');
+    this.bsModalRef.content.type = ModalTypes.danger;
+
+    this.bsModalRef.content.onConfirm.subscribe((data) => {
+      this.service
+        .removeVersion(version)
+        .then((response) => {
+          const index = entry.versions.findIndex((v) => v.oid === version.oid);
+
+          if (index !== -1) {
+            entry.versions.splice(index, 1);
+          }
+        })
+        .catch((err: HttpErrorResponse) => {
+          this.error.emit(err);
         });
-    }
+    });
+  }
 
-    onViewConfiguration(type: LabeledPropertyGraphType): void {
-        this.bsModalRef = this.modalService.show(LabeledPropertyGraphTypePublishModalComponent, {
-            animated: false, backdrop: true, ignoreBackdropClick: true
-        });
-        this.bsModalRef.content.init(null, type);
-    }
+  handleProgressChange(progress: Progress): void {
+    this.isRefreshing = progress.current < progress.total;
+    progress.description = '';
 
-    onExportRDF(entry, version, geometryExportType: string): void {
-
-        this.registryService.rdfExport(geometryExportType, version.oid).then(() => {
-            this.router.navigate(["/registry/scheduled-jobs"]);
-        }).catch((err: HttpErrorResponse) => {
-            this.error.emit(err);
-        });
-    }
-
-    onDelete(entry: LabeledPropertyGraphTypeEntry, version: LabeledPropertyGraphTypeVersion): void {
-        this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: false, backdrop: true, ignoreBackdropClick: true
-        });
-        this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " Version [" + version.versionNumber + "]";
-        this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
-        this.bsModalRef.content.type = ModalTypes.danger;
-
-        this.bsModalRef.content.onConfirm.subscribe(data => {
-            this.service.removeVersion(version).then(response => {
-                const index = entry.versions.findIndex(v => v.oid === version.oid);
-
-                if (index !== -1) {
-                    entry.versions.splice(index, 1);
-                }
-            }).catch((err: HttpErrorResponse) => {
-                this.error.emit(err);
-            });
-        });
-    }
-
-    handleProgressChange(progress: Progress): void {
-        this.isRefreshing = (progress.current < progress.total);
-        progress.description = '';
-
-        this.pService.progress(progress);
-    }
-
-
+    this.pService.progress(progress);
+  }
 }

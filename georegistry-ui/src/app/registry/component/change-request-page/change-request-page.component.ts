@@ -17,31 +17,31 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from "@angular/core";
-import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
-import { HttpErrorResponse } from "@angular/common/http";
-import { ActivatedRoute } from "@angular/router";
+import { Component, OnInit } from '@angular/core';
+import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ActivatedRoute } from '@angular/router';
 
-import { LocalizationService, AuthService } from "@shared/service";
+import { LocalizationService, AuthService } from '@shared/service';
 
-import { ErrorHandler, ErrorModalComponent } from "@shared/component";
+import { ErrorHandler, ErrorModalComponent } from '@shared/component';
 
-import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
-import { SubmitChangeRequestComponent } from "../submit-change-request/submit-change-request.component";
-import { NgIf } from "@angular/common";
-import { RequestTableComponent } from "../crtable/request-table.component";
-import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
-import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
+import { GeoRegistryConfiguration } from '@core/model/core';
+import { environment } from 'src/environments/environment';
+import { SubmitChangeRequestComponent } from '../submit-change-request/submit-change-request.component';
+
+import { RequestTableComponent } from '../crtable/request-table.component';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+import { PageContainerComponent } from '../../../shared/component/page-container/page-container.component';
 
 @Component({
-    selector: "change-request-page",
-    templateUrl: "./change-request-page.component.html",
-    styleUrls: ["./change-request-page.css"],
-    standalone: true,
-    imports: [PageContainerComponent, LocalizeComponent, RequestTableComponent, NgIf, SubmitChangeRequestComponent]
+  selector: 'change-request-page',
+  templateUrl: './change-request-page.component.html',
+  styleUrls: ['./change-request-page.css'],
+  standalone: true,
+  imports: [PageContainerComponent, LocalizeComponent, RequestTableComponent, SubmitChangeRequestComponent],
 })
 export class ChangeRequestPageComponent implements OnInit {
-
   pageTitle: string;
   bsModalRef: BsModalRef;
   isAdmin: boolean;
@@ -53,25 +53,29 @@ export class ChangeRequestPageComponent implements OnInit {
 
   highlightOid: string;
 
-  constructor(private localizationService: LocalizationService, private modalService: BsModalService, private service: AuthService, private route: ActivatedRoute) {
-      this.isAdmin = service.isAdmin();
-      this.isMaintainer = this.isAdmin || service.isMaintainer();
-      this.isContributor = this.isAdmin || this.isMaintainer || service.isContributer();
-      this.isContributorOnly = service.isContributerOnly();
+  constructor(
+    private localizationService: LocalizationService,
+    private modalService: BsModalService,
+    private service: AuthService,
+    private route: ActivatedRoute
+  ) {
+    this.isAdmin = service.isAdmin();
+    this.isMaintainer = this.isAdmin || service.isMaintainer();
+    this.isContributor = this.isAdmin || this.isMaintainer || service.isContributer();
+    this.isContributorOnly = service.isContributerOnly();
   }
 
   ngOnInit(): void {
-      this.urlSubscriber = this.route.params.subscribe(params => {
-          this.highlightOid = params["oid"];
-      });
+    this.urlSubscriber = this.route.params.subscribe((params) => {
+      this.highlightOid = params['oid'];
+    });
   }
 
   ngOnDestroy(): void {
-      this.urlSubscriber.unsubscribe();
+    this.urlSubscriber.unsubscribe();
   }
 
   public error(err: HttpErrorResponse): void {
-      this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
+    this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
   }
-
 }

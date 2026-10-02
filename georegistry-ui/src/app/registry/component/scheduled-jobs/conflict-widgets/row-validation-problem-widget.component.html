@@ -1,106 +1,111 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <div class="container">
-    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+  @if (message != null) {
+    <div class="alert alert-danger" role="alert">{{ message }}</div>
+  }
 
+  <!-- <div class="col-md-12 order-md-1"> -->
 
-    <!-- <div class="col-md-12 order-md-1"> -->
+  <!-- <div class="row">
 
-    <!-- <div class="row">
-
-        <h2>
-            Review: {{job.fileName}} problem
-        </h2>
-    </div> -->
-    <div *ngIf="problem && job" class="row" style="background: #F4F4F4;
-                                        border-radius: 10px;
-                                        margin-bottom: 20px;
-                                        margin-top: 20px;
-                                        padding: 10px;">
-        <div class="col-md-6">
-            <div class="wrapper">
-
-                <i style="position: absolute;font-size: 55px;" class="fa fa-file" aria-hidden="true"></i>
-                <p style="padding-left: 60px;">
-                    <span style="display: block;">
-                        <strong>{{job.fileName}}</strong>
-                    </span>
-                    <span style="display: block;">
-                        <localize key="importproblem.uploaded.by.label"></localize>: {{job.author}}
-                    </span>
-                    <span style="display: block;">
-                        <localize key="importproblem.started.date.label"></localize>: 
-                        <span class="date-string-display" style="margin-left:5px;">
-                            <date-text [date]="job.createDate"></date-text>
-                        </span>
-                    </span>
-                </p>
-
-            </div>
+  <h2>
+    Review: {{job.fileName}} problem
+  </h2>
+</div> -->
+  @if (problem && job) {
+    <div
+      class="row"
+      style="background: #f4f4f4; border-radius: 10px; margin-bottom: 20px; margin-top: 20px; padding: 10px"
+    >
+      <div class="col-md-6">
+        <div class="wrapper">
+          <i style="position: absolute; font-size: 55px" class="fa fa-file" aria-hidden="true"></i>
+          <p style="padding-left: 60px">
+            <span style="display: block">
+              <strong>{{ job.fileName }}</strong>
+            </span>
+            <span style="display: block">
+              <localize key="importproblem.uploaded.by.label"></localize>: {{ job.author }}
+            </span>
+            <span style="display: block">
+              <localize key="importproblem.started.date.label"></localize>:
+              <span class="date-string-display" style="margin-left: 5px">
+                <date-text [date]="job.createDate"></date-text>
+              </span>
+            </span>
+          </p>
         </div>
-        <div class="col-md-6"></div>
+      </div>
+      <div class="col-md-6"></div>
     </div>
+  }
 
-    <div class="row" style="background: #F4F4F4;
-                            border-radius: 10px;
-                            margin-bottom: 20px;
-                            margin-top: 20px;
-                            padding: 10px;">
-        <div class="col-md-12">
+  <div
+    class="row"
+    style="background: #f4f4f4; border-radius: 10px; margin-bottom: 20px; margin-top: 20px; padding: 10px"
+  >
+    <div class="col-md-12">
+      <div class="row">
+        <div class="col-md-6" style="background: white; border-radius: 10px; width: 41%; margin-right: 7px">
+          <h4>
+            <strong><localize key="etl.problem.header.problem"></localize></strong>
+          </h4>
+          <p style="font-style: italic">{{ getValidationProblemDisplayLabel(problem) }}</p>
 
-            <div class="row">
-                <div class="col-md-6" style="background: white;border-radius: 10px; width: 41%; margin-right:7px;">
-                    <h4><strong><localize key="etl.problem.header.problem"></localize></strong></h4>
-                    <p style="font-style: italic;">{{getValidationProblemDisplayLabel(problem)}}</p>
+          <h4>
+            <strong><localize key="etl.problem.header.message"></localize></strong>
+          </h4>
+          <p style="font-style: italic"><localize key="etl.problem.rowValidation.message"></localize></p>
 
-                    <h4><strong><localize key="etl.problem.header.message"></localize></strong></h4>
-                    <p style="font-style: italic;"><localize key="etl.problem.rowValidation.message"></localize></p>
-
-                    <h4><strong><localize key="etl.problem.header.toResolve"></localize></strong></h4>
-                    <p><localize key="etl.problem.rowValidation.toResolve"></localize></p>
-                </div>
-                <div class="col-md-6" style="background: white; border-radius: 10px; width:41%; float:left; height:250px;">
-	                <div class="row-holder">
-	                  <div class="label-holder" style="width:100px;">
-		                  <label>
-		                    <span class="text"><localize key="scheduledjobs.validation.table.affected.rows.header"></localize></span>
-		                  </label>
-	                  </div>
-	                  <div class="holder" style="width:300px;">
-                      <span class="text" style="margin-top:10px;">{{formatAffectedRows(problem.affectedRows)}}</span>
-                    </div>
-	                </div>
-	                <div class="row-holder">
-	                  <div class="label-holder" style="width:100px;">
-	                    <label>
-	                      <span class="text"><localize key="etl.problem.rowValidation.message"></localize></span>
-	                    </label>
-	                  </div>
-	                  <div class="holder" style="width:300px;">
-	                    <span class="text" style="margin-top:10px;">{{problem.exception.message}}</span>
-	                  </div>
-	                </div>
-                </div>
-            </div>
+          <h4>
+            <strong><localize key="etl.problem.header.toResolve"></localize></strong>
+          </h4>
+          <p><localize key="etl.problem.rowValidation.toResolve"></localize></p>
         </div>
+        <div class="col-md-6" style="background: white; border-radius: 10px; width: 41%; float: left; height: 250px">
+          <div class="row-holder">
+            <div class="label-holder" style="width: 100px">
+              <label>
+                <span class="text"
+                  ><localize key="scheduledjobs.validation.table.affected.rows.header"></localize
+                ></span>
+              </label>
+            </div>
+            <div class="holder" style="width: 300px">
+              <span class="text" style="margin-top: 10px">{{ formatAffectedRows(problem.affectedRows) }}</span>
+            </div>
+          </div>
+          <div class="row-holder">
+            <div class="label-holder" style="width: 100px">
+              <label>
+                <span class="text"><localize key="etl.problem.rowValidation.message"></localize></span>
+              </label>
+            </div>
+            <div class="holder" style="width: 300px">
+              <span class="text" style="margin-top: 10px">{{ problem.exception.message }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-
+  </div>
 </div>

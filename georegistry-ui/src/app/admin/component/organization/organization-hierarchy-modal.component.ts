@@ -29,287 +29,307 @@ import { LocalizationService, OrganizationService } from '@shared/service';
 import { TreeComponent, TreeModel, TreeNode, TREE_ACTIONS, TreeModule } from '@ali-hm/angular-tree-component';
 import { ContextMenuComponent, ContextMenuService, ContextMenuModule } from '@perfectmemory/ngx-contextmenu';
 import { LocalizePipe } from '../../../shared/pipe/localize.pipe';
-import { NgIf } from '@angular/common';
+
 import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
 import { ModalTypes } from '@shared/model/modal';
 
 const PAGE_SIZE: number = 100;
 
 enum TreeNodeType {
-	// eslint-disable-next-line no-unused-vars
-	OBJECT = 0, LINK = 1
+  // eslint-disable-next-line no-unused-vars
+  OBJECT = 0,
+  LINK = 1,
 }
 
 class PaginatedTreeNode<T> {
-
-	name: string;
-	code: string;
-	type: TreeNodeType
-	object?: T;
-	hasChildren: boolean;
-	children?: PaginatedTreeNode<T>[];
-	parent?: PaginatedTreeNode<T>;
-	pageNumber?: number;
+  name: string;
+  code: string;
+  type: TreeNodeType;
+  object?: T;
+  hasChildren: boolean;
+  children?: PaginatedTreeNode<T>[];
+  parent?: PaginatedTreeNode<T>;
+  pageNumber?: number;
 }
 
 @Component({
-    selector: 'organization-hierarchy-modal',
-    templateUrl: './organization-hierarchy-modal.component.html',
-    styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}'],
-    standalone: true,
-    imports: [ContextMenuModule, LocalizeComponent, NgIf, TreeModule, LocalizePipe]
+  selector: 'organization-hierarchy-modal',
+  templateUrl: './organization-hierarchy-modal.component.html',
+  styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}'],
+  standalone: true,
+  imports: [ContextMenuModule, LocalizeComponent, TreeModule, LocalizePipe],
 })
 export class OrganizationHierarchyModalComponent implements OnInit {
+  /*
+   * Organization Tree component
+   */
+  nodes: PaginatedTreeNode<Organization>[] = [];
 
-	/*
-	 * Organization Tree component
-	 */
-	nodes: PaginatedTreeNode<Organization>[] = [];
+  /*
+   * Organization Tree component
+   */
+  @ViewChild(TreeComponent)
+  private tree: TreeComponent;
 
-	/*
-	 * Organization Tree component
-	 */
-	@ViewChild(TreeComponent)
-	private tree: TreeComponent;
+  /*
+   * Template for tree node menu
+   */
+  @ViewChild('nodeMenu') public nodeMenuComponent: ContextMenuComponent<TreeNode>;
 
-	/*
-	 * Template for tree node menu
-	 */
-	@ViewChild("nodeMenu") public nodeMenuComponent: ContextMenuComponent<TreeNode>;
+  options = {
+    idField: 'code',
+    getChildren: (node: TreeNode) => {
+      return this.getChildren(node);
+    },
+    actionMapping: {
+      mouse: {
+        click: (tree: TreeComponent, node: TreeNode, $event: any) => {
+          this.treeNodeOnClick(node, $event);
+        },
+        contextMenu: (tree: any, node: TreeNode, $event: any) => {
+          this.handleOnMenu(node, $event);
+        },
+        drop: (
+          tree: TreeModel,
+          node: TreeNode,
+          $event: any,
+          obj: {
+            from: any;
+            to: any;
+          }
+        ) => {
+          this.onMoveNode(tree, node, $event, obj);
+        },
+      },
+    },
+    allowDrag: (node: TreeNode) => {
+      return true;
+    },
+    allowDrop: (node: TreeNode, event: { parent: TreeNode; index: number }) => {
+      return true;
+    },
+    animateExpand: true,
+    scrollOnActivate: true,
+    animateSpeed: 2,
+    animateAcceleration: 1.01,
+  };
 
-	options = {
-		idField: "code",
-		getChildren: (node: TreeNode) => {
-			return this.getChildren(node);
-		},
-		actionMapping: {
-			mouse: {
-				click: (tree: TreeComponent, node: TreeNode, $event: any) => {
-					this.treeNodeOnClick(node, $event);
-				},
-				contextMenu: (tree: any, node: TreeNode, $event: any) => {
-					this.handleOnMenu(node, $event);
-				},
-				drop: (tree: TreeModel, node: TreeNode, $event: any, obj: {
-					from: any;
-					to: any;
-				}) => {
-					this.onMoveNode(tree, node, $event, obj);
-				}
-			}
-		},
-		allowDrag: (node: TreeNode) => {
-			return true;
-		},
-		allowDrop: (node: TreeNode, event: { parent: TreeNode, index: number }) => {
-			return true;
-		},
-		animateExpand: true,
-		scrollOnActivate: true,
-		animateSpeed: 2,
-		animateAcceleration: 1.01
-	}
+  public onConfirm: Subject<void>;
 
-	public onConfirm: Subject<void>;
+  message: string = null;
 
-	message: string = null;
+  constructor(
+    private orgService: OrganizationService,
+    private contextMenuService: ContextMenuService<TreeNode>,
+    public bsModalRef: BsModalRef,
+    private modalService: BsModalService,
+    private localizeService: LocalizationService
+  ) {}
 
-	constructor(
-		private orgService: OrganizationService,
-		private contextMenuService: ContextMenuService<TreeNode>,
-		public bsModalRef: BsModalRef,
-		private modalService: BsModalService,
-		private localizeService: LocalizationService
-	) { }
+  ngOnInit(): void {
+    this.onConfirm = new Subject();
 
-	ngOnInit(): void {
-		this.onConfirm = new Subject();
+    this.getChildren(null).then((nodes) => {
+      this.nodes = nodes;
 
-		this.getChildren(null).then(nodes => {
-			this.nodes = nodes;
+      if (this.nodes.length > 0) {
+        window.setTimeout(() => {
+          this.tree.treeModel.getFirstRoot().expand();
+        }, 50);
+      }
+    });
+  }
 
-			if (this.nodes.length > 0) {
-				window.setTimeout(() => {
-					this.tree.treeModel.getFirstRoot().expand();
-				}, 50);
-			}
-		});
-	}
+  getChildren(treeNode: TreeNode): Promise<PaginatedTreeNode<Organization>[]> {
+    const node: PaginatedTreeNode<Organization> = treeNode != null ? treeNode.data : null;
 
-	getChildren(treeNode: TreeNode): Promise<PaginatedTreeNode<Organization>[]> {
-		const node: PaginatedTreeNode<Organization> = treeNode != null ? treeNode.data : null;
+    const code = node != null ? node.object.code : null;
 
-		const code = node != null ? node.object.code : null;
+    return this.orgService
+      .getChildren(code, 1, PAGE_SIZE)
+      .then((page) => {
+        const nodes = this.createNodes(node, page);
 
-		return this.orgService.getChildren(code, 1, PAGE_SIZE).then(page => {
-			const nodes = this.createNodes(node, page);
+        if (node != null) {
+          if (node.children == null) {
+            node.children = [];
+          }
 
-			if (node != null) {
-				if (node.children == null) {
-					node.children = [];
-				}
+          node.children.concat(nodes);
+        }
 
-				node.children.concat(nodes);
-			}
+        return nodes;
+      })
+      .catch((ex) => {
+        return [];
+      });
+  }
 
-			return nodes;
-		}).catch(ex => {
-			return [];
-		});
-	}
+  createNodes(
+    parent: PaginatedTreeNode<Organization>,
+    page: PageResult<Organization>
+  ): PaginatedTreeNode<Organization>[] {
+    const nodes = page.resultSet.map((child) => {
+      return {
+        code: child.code,
+        name: child.label.localizedValue,
+        object: child,
+        hasChildren: true,
+      } as PaginatedTreeNode<Organization>;
+    });
 
-	createNodes(parent: PaginatedTreeNode<Organization>, page: PageResult<Organization>): PaginatedTreeNode<Organization>[] {
-		const nodes = page.resultSet.map(child => {
-			return {
-				code: child.code,
-				name: child.label.localizedValue,
-				object: child,
-				hasChildren: true
-			} as PaginatedTreeNode<Organization>;
-		});
+    // Add page node if needed
+    if (page.count > page.pageNumber * page.pageSize) {
+      nodes.push({
+        code: '...',
+        name: '...',
+        type: TreeNodeType.LINK,
+        hasChildren: false,
+        pageNumber: page.pageNumber + 1,
+        parent: parent,
+      } as PaginatedTreeNode<Organization>);
+    }
 
-		// Add page node if needed
-		if (page.count > page.pageNumber * page.pageSize) {
-			nodes.push({
-				code: "...",
-				name: "...",
-				type: TreeNodeType.LINK,
-				hasChildren: false,
-				pageNumber: page.pageNumber + 1,
-				parent: parent
-			} as PaginatedTreeNode<Organization>);
-		}
+    return nodes;
+  }
 
-		return nodes;
-	}
+  handleOnMenu(node: TreeNode, $event: any): void {
+    if (node.data.object.parentCode != null) {
+      this.contextMenuService.show(this.nodeMenuComponent, {
+        value: node,
+        x: $event.x,
+        y: $event.y,
+      });
 
-	handleOnMenu(node: TreeNode, $event: any): void {
+      $event.preventDefault();
+      $event.stopPropagation();
+    }
+  }
 
-		if (node.data.object.parentCode != null) {
+  treeNodeOnClick(treeNode: TreeNode, $event: any): void {
+    const node: PaginatedTreeNode<Organization> = treeNode != null ? treeNode.data : null;
 
-			this.contextMenuService.show(this.nodeMenuComponent, {
-				value: node,
-				x: $event.x,
-				y: $event.y,
-			});
+    if (node != null && node.type === TreeNodeType.LINK) {
+      if (treeNode.parent != null) {
+        const parentNode: PaginatedTreeNode<Organization> = treeNode.parent.data;
+        const code = parentNode.object.code;
+        const pageNumber = node.pageNumber;
 
-			$event.preventDefault();
-			$event.stopPropagation();
-		}
-	}
+        this.orgService
+          .getChildren(code, pageNumber, PAGE_SIZE)
+          .then((page) => {
+            const nodes = this.createNodes(parentNode, page);
 
-	treeNodeOnClick(treeNode: TreeNode, $event: any): void {
-		const node: PaginatedTreeNode<Organization> = treeNode != null ? treeNode.data : null;
+            parentNode.children = parentNode.children.filter((node) => node.code !== '...');
+            parentNode.children = parentNode.children.concat(nodes);
 
-		if (node != null && node.type === TreeNodeType.LINK) {
-			if (treeNode.parent != null) {
-				const parentNode: PaginatedTreeNode<Organization> = treeNode.parent.data;
-				const code = parentNode.object.code;
-				const pageNumber = node.pageNumber;
+            this.tree.treeModel.update();
+          })
+          .catch((ex) => {});
+      }
+    } else {
+      if (treeNode.isExpanded) {
+        treeNode.collapse();
+      } else {
+        treeNode.expand();
+      }
 
-				this.orgService.getChildren(code, pageNumber, PAGE_SIZE).then(page => {
-					const nodes = this.createNodes(parentNode, page);
+      treeNode.setActiveAndVisible();
+    }
+  }
 
-					parentNode.children = parentNode.children.filter(node => node.code !== "...");
-					parentNode.children = parentNode.children.concat(nodes);
+  onMoveNode(
+    tree: TreeModel,
+    node: TreeNode,
+    $event: any,
+    obj: {
+      from: any;
+      to: any;
+    }
+  ): void {
+    const parent: Organization = node.data.object;
+    const organization: Organization = obj.from.data.object;
 
-					this.tree.treeModel.update();
-				}).catch(ex => {
-				});
-			}
-		} else {
-			if (treeNode.isExpanded) {
-				treeNode.collapse();
-			} else {
-				treeNode.expand();
-			}
+    const parentCode = parent.code;
+    const code = organization.code;
 
-			treeNode.setActiveAndVisible();
-		}
-	}
+    let message = this.localizeService.decode('classification.move.message');
+    message = message.replace('{0}', organization.label.localizedValue);
+    message = message.replace('{1}', parent.label.localizedValue);
 
-	onMoveNode(tree: TreeModel, node: TreeNode, $event: any, obj: {
-		from: any;
-		to: any;
-	}): void {
-		const parent: Organization = node.data.object;
-		const organization: Organization = obj.from.data.object;
+    const modalRef = this.modalService.show(ConfirmModalComponent, {
+      animated: false,
+      backdrop: true,
+      ignoreBackdropClick: true,
+    });
+    modalRef.content.message = message;
+    modalRef.content.type = ModalTypes.danger;
 
-		const parentCode = parent.code;
-		const code = organization.code;
+    modalRef.content.onConfirm.subscribe(() => {
+      this.message = null;
 
-		let message = this.localizeService.decode("classification.move.message");
-		message = message.replace("{0}", organization.label.localizedValue);
-		message = message.replace("{1}", parent.label.localizedValue);
+      this.orgService
+        .move(code, parentCode)
+        .then(() => {
+          TREE_ACTIONS.MOVE_NODE(tree, node, $event, obj);
+        })
+        .catch((err: HttpErrorResponse) => {
+          this.error(err);
+        });
+    });
+  }
 
-		const modalRef = this.modalService.show(ConfirmModalComponent, {
-			animated: false, backdrop: true, 
-			ignoreBackdropClick: true
-		});
-		modalRef.content.message = message;
-		modalRef.content.type = ModalTypes.danger;
+  onRemoveParent(node: TreeNode): void {
+    const organizationNode: PaginatedTreeNode<Organization> = node.data;
+    const organization: Organization = organizationNode.object;
 
-		modalRef.content.onConfirm.subscribe(() => {
-			this.message = null;
+    let message = this.localizeService.decode('classification.move.message');
+    message = message.replace('{0}', organization.label.localizedValue);
+    message = message.replace('{1}', 'ROOT');
 
-			this.orgService.move(code, parentCode).then(() => {
-				TREE_ACTIONS.MOVE_NODE(tree, node, $event, obj);
-			}).catch((err: HttpErrorResponse) => {
-				this.error(err);
-			});
-		});
-	}
+    const modalRef = this.modalService.show(ConfirmModalComponent, {
+      animated: false,
+      backdrop: true,
+      ignoreBackdropClick: true,
+    });
+    modalRef.content.message = message;
+    modalRef.content.type = ModalTypes.danger;
 
-	onRemoveParent(node: TreeNode): void {
-		const organizationNode: PaginatedTreeNode<Organization> = node.data;
-		const organization: Organization = organizationNode.object;
+    modalRef.content.onConfirm.subscribe(() => {
+      this.message = null;
 
-		let message = this.localizeService.decode("classification.move.message");
-		message = message.replace("{0}", organization.label.localizedValue);
-		message = message.replace("{1}", "ROOT");
+      this.orgService
+        .removeParent(organization.code)
+        .then(() => {
+          const parent: TreeNode = node.parent;
+          const children = parent.data.children;
 
-		const modalRef = this.modalService.show(ConfirmModalComponent, {
-			animated: false, backdrop: true, 
-			ignoreBackdropClick: true
-		});
-		modalRef.content.message = message;
-		modalRef.content.type =  ModalTypes.danger;
+          // Update the tree
+          parent.data.children = children.filter((n: any) => n.id !== node.data.id);
 
-		modalRef.content.onConfirm.subscribe(() => {
-			this.message = null;
+          if (parent.data.children.length === 0) {
+            parent.data.hasChildren = false;
+          }
 
-			this.orgService.removeParent(organization.code).then(() => {
-				const parent: TreeNode = node.parent;
-				const children = parent.data.children;
+          organizationNode.parent = null;
 
-				// Update the tree
-				parent.data.children = children.filter((n: any) => n.id !== node.data.id);
+          this.nodes.push(organizationNode);
 
-				if (parent.data.children.length === 0) {
-					parent.data.hasChildren = false;
-				}
+          this.tree.treeModel.update();
+        })
+        .catch((err: HttpErrorResponse) => {
+          this.error(err);
+        });
+    });
+  }
 
-				organizationNode.parent = null;
+  onClose(): void {
+    this.onConfirm.next();
 
-				this.nodes.push(organizationNode);
+    this.bsModalRef.hide();
+  }
 
-				this.tree.treeModel.update();
-
-			}).catch((err: HttpErrorResponse) => {
-				this.error(err);
-			});
-		});
-	}
-
-
-	onClose(): void {
-		this.onConfirm.next();
-
-		this.bsModalRef.hide();
-	}
-
-	public error(err: HttpErrorResponse): void {
-		this.message = ErrorHandler.getMessageFromError(err);
-	}
-
+  public error(err: HttpErrorResponse): void {
+    this.message = ErrorHandler.getMessageFromError(err);
+  }
 }

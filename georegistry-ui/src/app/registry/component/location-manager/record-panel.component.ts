@@ -17,26 +17,24 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input, Output, EventEmitter } from "@angular/core";
-import { LayerRecord } from "@registry/model/list-type";
-import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
-import { NgFor } from "@angular/common";
-import { FormsModule } from "@angular/forms";
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { LayerRecord } from '@registry/model/list-type';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+
+import { FormsModule } from '@angular/forms';
 
 @Component({
-    selector: "record-panel",
-    templateUrl: "./record-panel.component.html",
-    styleUrls: ["./dataset-location-manager.css"],
-    standalone: true,
-    imports: [FormsModule, NgFor, LocalizeComponent]
+  selector: 'record-panel',
+  templateUrl: './record-panel.component.html',
+  styleUrls: ['./dataset-location-manager.css'],
+  standalone: true,
+  imports: [FormsModule, LocalizeComponent],
 })
 export class RecordPanelComponent {
+  @Input() record: LayerRecord;
+  @Output() close = new EventEmitter<void>();
 
-    @Input() record: LayerRecord
-    @Output() close = new EventEmitter<void>();
-
-    onClose(): void {
-        this.close.emit();
-    }
-
+  onClose(): void {
+    this.close.emit();
+  }
 }

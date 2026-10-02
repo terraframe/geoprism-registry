@@ -3,8 +3,8 @@ package net.geoprism.registry.view;
 import java.util.Date;
 import java.util.UUID;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 import net.geoprism.registry.view.serialization.DateTimeDeserializer;
 import net.geoprism.registry.view.serialization.DateTimeSerializer;

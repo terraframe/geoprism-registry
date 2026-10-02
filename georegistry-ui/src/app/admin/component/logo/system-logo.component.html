@@ -1,46 +1,59 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <div class="modal-body">
   <div class="row">
     <div class="col-md-12">
-
       <message></message>
       <loading-bar></loading-bar>
 
       <form #form="ngForm" class="modal-form" (ngSubmit)="form.valid && onSubmit()">
-
-        <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+        @if (message != null) {
+          <div class="alert alert-danger" role="alert">{{ message }}</div>
+        }
 
         <fieldset>
           <div>
             <!-- For display only when editing an icon-->
-            <img *ngIf="!file && icon" style="max-width: 300px; max-height: 300px;"
-              [src]="context + 'api/asset/view?oid=' + icon.oid" class="thumb">
+            @if (!file && icon) {
+              <img
+                style="max-width: 300px; max-height: 300px"
+                [src]="context + 'api/asset/view?oid=' + icon.oid"
+                class="thumb"
+              />
+            }
 
             <!-- Actual uploaded file preview -->
-            <img *ngIf="file" style="max-width: 300px; max-height: 300px;" [src]="file" class="thumb">
+            @if (file) {
+              <img style="max-width: 300px; max-height: 300px" [src]="file" class="thumb" />
+            }
           </div>
 
-          <div class="drop-box-container" ng2FileDrop [ngClass]="{'drop-active': dropActive}"
-            (fileOver)="fileOver($event)" [uploader]="uploader" (click)=fileInput.click()>
+          <div
+            class="drop-box-container"
+            ng2FileDrop
+            [ngClass]="{ 'drop-active': dropActive }"
+            (fileOver)="fileOver($event)"
+            [uploader]="uploader"
+            (click)="fileInput.click()"
+          >
             <div class="drop-box">
               <div class="inner-drop-box">
                 <i class="fa fa-cloud-upload">
@@ -50,16 +63,27 @@
                 </i>
               </div>
             </div>
-            <input type="file" #uploadEl ng2FileSelect #fileInput [uploader]="uploader" id="uploader-input"
-              style="display: none" />
+            <input
+              type="file"
+              #uploadEl
+              ng2FileSelect
+              #fileInput
+              [uploader]="uploader"
+              id="uploader-input"
+              style="display: none"
+            />
           </div>
 
           <div class="row">
             <div class="col-md-12">
-              <div class="btn-holder text-right" style="margin-top: 20px;">
+              <div class="btn-holder text-right" style="margin-top: 20px">
                 <input type="button" [value]="'dataset.cancel' | localize" class="btn btn-default" (click)="cancel()" />
-                <input type="submit" [value]="'category.icon.ok' | localize" class="btn btn-primary"
-                  (disabled)="form.invalid" />
+                <input
+                  type="submit"
+                  [value]="'category.icon.ok' | localize"
+                  class="btn btn-primary"
+                  (disabled)="(form.invalid)"
+                />
               </div>
             </div>
           </div>
@@ -67,5 +91,4 @@
       </form>
     </div>
   </div>
-
 </div>

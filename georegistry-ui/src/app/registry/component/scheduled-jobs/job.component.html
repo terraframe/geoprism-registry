@@ -1,249 +1,287 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <page-container>
-
-  <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+  @if (message != null) {
+    <div class="alert alert-danger" role="alert">{{ message }}</div>
+  }
 
   <div class="py-5">
     <h2>
       <localize key="scheduledjobs.details.title"></localize>
     </h2>
   </div>
-  <div *ngIf="job" class="row" style="background: #F4F4F4;
-                                border-radius: 15px;
-                                margin-bottom: 20px;
-                                margin-top: 20px;
-                                padding: 10px;">
-    <div class="col-md-4 order-md-1">
-      <div class="wrapper">
-
-        <i style="position: absolute;font-size: 55px;" class="fa fa-file" aria-hidden="true"></i>
-        <p style="padding-left: 60px;">
-          <span style="display: block; overflow-wrap: break-word; word-break: break-word;">
-            <strong>{{job.fileName}}</strong>
-          </span>
-          <span style="display: block;">
-            <localize key="scheduledjobs.job.uploaded.by.label"></localize>
-            {{job.author}}
-          </span>
-          <span style="display: block;">
-            <localize key="scheduledjobs.job.started.label"></localize>
-            <span class="date-string-display">
-              <date-text [date]="job.createDate"></date-text>
+  @if (job) {
+    <div
+      class="row"
+      style="background: #f4f4f4; border-radius: 15px; margin-bottom: 20px; margin-top: 20px; padding: 10px"
+    >
+      <div class="col-md-4 order-md-1">
+        <div class="wrapper">
+          <i style="position: absolute; font-size: 55px" class="fa fa-file" aria-hidden="true"></i>
+          <p style="padding-left: 60px">
+            <span style="display: block; overflow-wrap: break-word; word-break: break-word">
+              <strong>{{ job.fileName }}</strong>
             </span>
-          </span>
-        </p>
-
+            <span style="display: block">
+              <localize key="scheduledjobs.job.uploaded.by.label"></localize>
+              {{ job.author }}
+            </span>
+            <span style="display: block">
+              <localize key="scheduledjobs.job.started.label"></localize>
+              <span class="date-string-display">
+                <date-text [date]="job.createDate"></date-text>
+              </span>
+            </span>
+          </p>
+        </div>
       </div>
+      <div class="col-md-3 order-md-1">
+        <div>
+          <h5>
+            <b
+              >{{ job.importedRecords }}
+              <localize key="scheduledjobs.job.imported.out.of.label"></localize>
+              {{ job.workTotal }}
+              <localize key="scheduledjobs.job.imported.total.label"></localize>
+            </b>
+          </h5>
+          <h5>
+            {{ job.workTotal - job.importedRecords }} <localize key="scheduledjobs.job.remaining.label"></localize>
+          </h5>
+        </div>
+      </div>
+      <div class="col-md-5 order-md-1">
+        @if (
+          job.configuration &&
+          job.configuration.objectType !== 'LPG' &&
+          job.configuration.objectType.indexOf('RDF') === -1
+        ) {
+          <div style="display: block; margin: 10px; text-align: right">
+            <button type="submit" (click)="onConfiguration()" class="btn btn-primary" role="button">
+              <localize key="job.configuration"></localize>
+            </button>
+          </div>
+        }
+        @if (job.configuration && job.configuration.objectType.indexOf('RDF') !== -1) {
+          <div>
+            <button type="submit" (click)="downloadRdfExport()" class="btn btn-primary" role="button">
+              <localize key="job.report"></localize>
+            </button>
+          </div>
+        }
+        @if (page && page.resultSet.length == 0 && job && job.stage === 'VALIDATION_RESOLVE') {
+          <div style="display: block; margin: 10px; text-align: right">
+            <span style="display: block; margin-bottom: 10px">
+              <localize key="scheduledjobs.validation.problems.complete.msg"></localize>
+            </span>
+            <button type="submit" (click)="onResolveScheduledJob(job.historyId)" class="btn btn-primary" role="button">
+              <localize key="scheduledjobs.reimport.button"></localize>
+            </button>
+          </div>
+        }
+        @if (page && page.resultSet.length == 0 && job && job.stage === 'IMPORT_RESOLVE') {
+          <div style="display: block; margin: 10px; text-align: right">
+            <span style="display: block; margin-bottom: 10px">
+              <localize key="scheduledjobs.import.problems.complete.msg"></localize>
+            </span>
+            <button type="submit" (click)="onResolveScheduledJob(job.historyId)" class="btn btn-primary" role="button">
+              <localize key="scheduledjobs.complete.import.button"></localize>
+            </button>
+          </div>
+        }
+        @if (page && page.resultSet != null && page.resultSet.length > 0 && !hasRowValidationProblem) {
+          <div class="button-holder" style="display: block; margin: 10px; text-align: right">
+            <button type="submit" (click)="onResolveScheduledJob(job.historyId)" class="btn btn-primary" role="button">
+              @if (job && job.stage === 'VALIDATION_RESOLVE') {
+                <localize key="etl.import.resume.openModal"></localize>
+              }
+              @if (job && job.stage === 'IMPORT_RESOLVE') {
+                <span>
+                  <localize key="scheduledjobs.complete.import.button"></localize>
+                </span>
+              }
+            </button>
+          </div>
+        }
+        @if (hasRowValidationProblem) {
+          <div class="button-holder" style="display: block; margin: 10px">
+            <button type="submit" (click)="onReuploadAndResume(job.historyId)" class="btn btn-primary" role="button">
+              <span>
+                <localize key="scheduledjobs.reupload.resume.button"></localize>
+              </span>
+            </button>
+          </div>
+        }
+        <!--
+      <div *ngIf="page && page.resultSet != null && page.resultSet.length > 0 && job.stage === 'VALIDATION_RESOLVE'" class="button-holder" style="display:block; margin:10px;">
+        <button type="button" (click)="onCancelScheduledJob(job.historyId)" class="btn btn-danger" role="button"><localize key="etl.import.cancel.openModal"></localize></button>
+      </div>
+      --></div>
     </div>
-    <div class="col-md-3 order-md-1">
-      <div>
-
-        <h5><b>{{job.importedRecords}}
-            <localize key="scheduledjobs.job.imported.out.of.label"></localize>
-            {{job.workTotal}}
-            <localize key="scheduledjobs.job.imported.total.label"></localize>
-          </b></h5>
-        <h5>{{job.workTotal - job.importedRecords}} <localize key="scheduledjobs.job.remaining.label"></localize>
-        </h5>
-
-      </div>
-    </div>
-    <div class="col-md-5 order-md-1">
-      <div
-        *ngIf="job.configuration && job.configuration.objectType !== 'LPG' && job.configuration.objectType.indexOf('RDF') === -1"
-        style="display:block; margin: 10px;text-align: right;">
-        <button type="submit" (click)="onConfiguration()" class="btn btn-primary" role="button">
-          <localize key="job.configuration"></localize>
-        </button>
-      </div>
-      <div *ngIf="job.configuration && job.configuration.objectType.indexOf('RDF') !== -1">
-        <button type="submit" (click)="downloadRdfExport()" class="btn btn-primary" role="button">
-          <localize key="job.report"></localize>
-        </button>
-      </div>
-
-      <div *ngIf="page && page.resultSet.length == 0 && job && job.stage === 'VALIDATION_RESOLVE'"
-        style="display:block; margin: 10px;text-align: right;">
-        <span style="display:block; margin-bottom:10px;">
-          <localize key="scheduledjobs.validation.problems.complete.msg"></localize>
-        </span>
-        <button type="submit" (click)="onResolveScheduledJob(job.historyId)" class="btn btn-primary" role="button">
-          <localize key="scheduledjobs.reimport.button"></localize>
-        </button>
-      </div>
-
-      <div *ngIf="page && page.resultSet.length == 0 && job && job.stage === 'IMPORT_RESOLVE'"
-        style="display:block; margin:10px;text-align: right;">
-        <span style="display:block; margin-bottom:10px;">
-          <localize key="scheduledjobs.import.problems.complete.msg"></localize>
-        </span>
-        <button type="submit" (click)="onResolveScheduledJob(job.historyId)" class="btn btn-primary" role="button">
-          <localize key="scheduledjobs.complete.import.button"></localize>
-        </button>
-      </div>
-
-      <div *ngIf="page && page.resultSet != null && page.resultSet.length > 0 && !hasRowValidationProblem"
-        class="button-holder" style="display:block; margin:10px;text-align: right;">
-        <button type="submit" (click)="onResolveScheduledJob(job.historyId)" class="btn btn-primary" role="button">
-          <localize *ngIf="job && job.stage === 'VALIDATION_RESOLVE'" key="etl.import.resume.openModal"></localize>
-          <span *ngIf="job && job.stage === 'IMPORT_RESOLVE'">
-            <localize key="scheduledjobs.complete.import.button"></localize>
-          </span>
-        </button>
-      </div>
-
-      <div *ngIf="hasRowValidationProblem" class="button-holder" style="display:block; margin:10px;">
-        <button type="submit" (click)="onReuploadAndResume(job.historyId)" class="btn btn-primary" role="button">
-          <span>
-            <localize key="scheduledjobs.reupload.resume.button"></localize>
-          </span>
-        </button>
-      </div>
-
-      <!--
-                  <div *ngIf="page && page.resultSet != null && page.resultSet.length > 0 && job.stage === 'VALIDATION_RESOLVE'" class="button-holder" style="display:block; margin:10px;">
-                      <button type="button" (click)="onCancelScheduledJob(job.historyId)" class="btn btn-danger" role="button"><localize key="etl.import.cancel.openModal"></localize></button>
-                  </div>
-                  -->
-    </div>
-  </div>
+  }
 
   <div class="row">
-    <div class="col-md-12 order-md-1" *ngIf="job">
-
-      <tabset [justified]="true">
-        <tab *ngIf="hasMappableContent(job.configuration)" [heading]="'job.imported.data' | localize">
-          <scheduled-job-map [historyId]="historyId"></scheduled-job-map>
-        </tab>
-        <tab [heading]="'job.problems' | localize" [disabled]="!page || page.resultSet.length == 0">
-
-          <ul class="list-group" *ngIf="page && page.resultSet.length > 0">
-
-            <table class="list-table table table-bordered table-striped">
-              <thead *ngIf="job.stage === 'IMPORT_RESOLVE'">
-                <tr>
-                  <!-- <th class="label-column">
-                                            <div class="check-block">
-                                             <div (click)="toggleAll()" [ngClass]="{'chk-checked' : allSelected}" ng-style="chkstyle" class="jcf-unselectable chk-area">
-                                               <span></span>
-                                             </div>
-                                            </div>
-                                          </th> -->
-                  <th class="label-column">
-                    <localize key="scheduledjobs.import.table.problem.type.header"></localize>
-                  </th>
-                  <th class="label-column">
-                    <localize key="scheduledjobs.import.table.message.header"></localize>
-                  </th>
-                  <th class="label-column">
-                    <localize key="scheduledjobs.import.table.row.number.header"></localize>
-                  </th>
-                  <th class="label-column">
-
-                  </th>
-                </tr>
-              </thead>
-              <thead *ngIf="job.stage === 'VALIDATION_RESOLVE'">
-                <tr>
-                  <!-- <th class="label-column">
-                                          <div class="check-block">
-                                           <div (click)="toggleAll()" [ngClass]="{'chk-checked' : allSelected}" ng-style="chkstyle" class="jcf-unselectable chk-area">
-                                             <span></span>
-                                           </div>
-                                          </div>
-                                        </th> -->
-                  <th class="label-column">
-                    <localize key="scheduledjobs.validation.table.problem.type.header"></localize>
-                  </th>
-                  <th class="label-column">
-                    <localize key="scheduledjobs.validation.table.label.header"></localize>
-                  </th>
-                  <th class="label-column">
-                    <localize key="scheduledjobs.validation.table.affected.rows.header"></localize>
-                  </th>
-                  <th class="label-column">
-
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody *ngIf="job.stage === 'IMPORT_RESOLVE'">
-                <tr
-                  *ngFor="let row of page.resultSet | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }">
-                  <!-- <tr *ngFor="let row of job.errors.page; let i = index;"> -->
-                  <!-- <td class="label-column">
-                                              <boolean-field [(value)]="row.selected"></boolean-field>
-                                            </td> -->
-                  <td class="label-column" style="vertical-align: middle;">
-                    <p>{{getFriendlyProblemType(row.exception.type)}}</p>
-                  </td>
-                  <td class="label-column" style="vertical-align: middle;">
-                    <p>{{row.exception.message}}</p>
-                  </td>
-                  <td class="label-column" style="vertical-align: middle;">
-                    <p>{{row.rowNum}}</p>
-                  </td>
-                  <td class="label-column" *ngIf="isAdmin || isMaintainer" style="text-align: right;">
-                    <button type="submit" (click)="onEdit(row)" class="btn btn-link" role="button">
-                      <localize key="scheduledjobs.fix.problem.button"></localize>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-
-              <tbody *ngIf="job.stage === 'VALIDATION_RESOLVE'">
-                <tr
-                  *ngFor="let row of page.resultSet | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }">
-                  <!-- <td class="label-column">
-                                         <boolean-field [(value)]="row.selected"></boolean-field>
-                                       </td> -->
-                  <td class="label-column" style="vertical-align: middle;">
-                    <p>{{row.type}}</p>
-                  </td>
-                  <td class="label-column" style="vertical-align: middle;">
-                    <p *ngIf="row.type === 'RowValidationProblem'">{{row.exception.message}}</p>
-                    <p *ngIf="row.type === 'ParentReferenceProblem' || row.type === 'TermReferenceProblem'">
-                      {{row.label}}
-                    </p>
-                  </td>
-                  <td class="label-column" style="vertical-align: middle;">
-                    <p>{{formatAffectedRows(row.affectedRows)}}</p>
-                  </td>
-                  <td class="label-column" *ngIf="isAdmin || isMaintainer" style="text-align: right;">
-                    <button type="submit" (click)="onEdit(row)" class="btn btn-link" role="button">
-                      <localize key="scheduledjobs.fix.problem.button"></localize>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <div class="solid-table-footer">
-              <div *ngIf="page.resultSet.length > 0" class="solid-table-footer">
-                <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
-              </div>
-            </div>
-          </ul>
-        </tab>
-      </tabset>
-    </div>
+    @if (job) {
+      <div class="col-md-12 order-md-1">
+        <tabset [justified]="true">
+          @if (hasMappableContent(job.configuration)) {
+            <tab [heading]="'job.imported.data' | localize">
+              <scheduled-job-map [historyId]="historyId"></scheduled-job-map>
+            </tab>
+          }
+          <tab [heading]="'job.problems' | localize" [disabled]="!page || page.resultSet.length == 0">
+            @if (page && page.resultSet.length > 0) {
+              <ul class="list-group">
+                <table class="list-table table table-bordered table-striped">
+                  @if (job.stage === 'IMPORT_RESOLVE') {
+                    <thead>
+                      <tr>
+                        <!-- <th class="label-column">
+                      <div class="check-block">
+                        <div (click)="toggleAll()" [ngClass]="{'chk-checked' : allSelected}" ng-style="chkstyle" class="jcf-unselectable chk-area">
+                          <span></span>
+                        </div>
+                      </div>
+                    </th> -->
+                        <th class="label-column">
+                          <localize key="scheduledjobs.import.table.problem.type.header"></localize>
+                        </th>
+                        <th class="label-column">
+                          <localize key="scheduledjobs.import.table.message.header"></localize>
+                        </th>
+                        <th class="label-column">
+                          <localize key="scheduledjobs.import.table.row.number.header"></localize>
+                        </th>
+                        <th class="label-column"></th>
+                      </tr>
+                    </thead>
+                  }
+                  @if (job.stage === 'VALIDATION_RESOLVE') {
+                    <thead>
+                      <tr>
+                        <!-- <th class="label-column">
+                    <div class="check-block">
+                      <div (click)="toggleAll()" [ngClass]="{'chk-checked' : allSelected}" ng-style="chkstyle" class="jcf-unselectable chk-area">
+                        <span></span>
+                      </div>
+                    </div>
+                  </th> -->
+                        <th class="label-column">
+                          <localize key="scheduledjobs.validation.table.problem.type.header"></localize>
+                        </th>
+                        <th class="label-column">
+                          <localize key="scheduledjobs.validation.table.label.header"></localize>
+                        </th>
+                        <th class="label-column">
+                          <localize key="scheduledjobs.validation.table.affected.rows.header"></localize>
+                        </th>
+                        <th class="label-column"></th>
+                      </tr>
+                    </thead>
+                  }
+                  @if (job.stage === 'IMPORT_RESOLVE') {
+                    <tbody>
+                      @for (
+                        row of page.resultSet
+                          | paginate
+                            : { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count };
+                        track row.id
+                      ) {
+                        <tr>
+                          <!-- <tr *ngFor="let row of job.errors.page; let i = index;"> -->
+                          <!-- <td class="label-column">
+                    <boolean-field [(value)]="row.selected"></boolean-field>
+                  </td> -->
+                          <td class="label-column" style="vertical-align: middle">
+                            <p>{{ getFriendlyProblemType(row.exception.type) }}</p>
+                          </td>
+                          <td class="label-column" style="vertical-align: middle">
+                            <p>{{ row.exception.message }}</p>
+                          </td>
+                          <td class="label-column" style="vertical-align: middle">
+                            <p>{{ row.rowNum }}</p>
+                          </td>
+                          @if (isAdmin || isMaintainer) {
+                            <td class="label-column" style="text-align: right">
+                              <button type="submit" (click)="onEdit(row)" class="btn btn-link" role="button">
+                                <localize key="scheduledjobs.fix.problem.button"></localize>
+                              </button>
+                            </td>
+                          }
+                        </tr>
+                      }
+                    </tbody>
+                  }
+                  @if (job.stage === 'VALIDATION_RESOLVE') {
+                    <tbody>
+                      @for (
+                        row of page.resultSet
+                          | paginate
+                            : { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count };
+                        track row.id
+                      ) {
+                        <tr>
+                          <!-- <td class="label-column">
+                  <boolean-field [(value)]="row.selected"></boolean-field>
+                </td> -->
+                          <td class="label-column" style="vertical-align: middle">
+                            <p>{{ row.type }}</p>
+                          </td>
+                          <td class="label-column" style="vertical-align: middle">
+                            @if (row.type === 'RowValidationProblem') {
+                              <p>{{ row.exception.message }}</p>
+                            }
+                            @if (row.type === 'ParentReferenceProblem' || row.type === 'TermReferenceProblem') {
+                              <p>
+                                {{ row.label }}
+                              </p>
+                            }
+                          </td>
+                          <td class="label-column" style="vertical-align: middle">
+                            <p>{{ formatAffectedRows(row.affectedRows) }}</p>
+                          </td>
+                          @if (isAdmin || isMaintainer) {
+                            <td class="label-column" style="text-align: right">
+                              <button type="submit" (click)="onEdit(row)" class="btn btn-link" role="button">
+                                <localize key="scheduledjobs.fix.problem.button"></localize>
+                              </button>
+                            </td>
+                          }
+                        </tr>
+                      }
+                    </tbody>
+                  }
+                </table>
+                <div class="solid-table-footer">
+                  @if (page.resultSet.length > 0) {
+                    <div class="solid-table-footer">
+                      <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
+                    </div>
+                  }
+                </div>
+              </ul>
+            }
+          </tab>
+        </tabset>
+      </div>
+    }
   </div>
 </page-container>

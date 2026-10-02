@@ -17,18 +17,18 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, Input, OnDestroy, EventEmitter, Output } from "@angular/core";
-import { Subject, Subscription } from "rxjs";
-import { HttpErrorResponse } from "@angular/common/http";
+import { Component, OnInit, Input, OnDestroy, EventEmitter, Output } from '@angular/core';
+import { Subject, Subscription } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 
-import { SynchronizationConfig } from "@registry/model/registry";
-import { SynchronizationConfigService } from "@registry/service";
-import { ListTypeService } from "@registry/service/list-type.service";
-import { ListTypeVersion } from "@registry/model/list-type";
-import { LocalizePipe } from "../../../shared/pipe/localize.pipe";
-import { FormsModule } from "@angular/forms";
-import { NgFor, NgIf } from "@angular/common";
-import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
+import { SynchronizationConfig } from '@registry/model/registry';
+import { SynchronizationConfigService } from '@registry/service';
+import { ListTypeService } from '@registry/service/list-type.service';
+import { ListTypeVersion } from '@registry/model/list-type';
+import { LocalizePipe } from '../../../shared/pipe/localize.pipe';
+import { FormsModule } from '@angular/forms';
+
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
 
 interface FhirSyncLevel {
   masterListId: string;
@@ -37,14 +37,13 @@ interface FhirSyncLevel {
 }
 
 @Component({
-    selector: "fhir-export-synchronization-config",
-    templateUrl: "./fhir-export-synchronization-config.component.html",
-    styleUrls: [],
-    standalone: true,
-    imports: [LocalizeComponent, NgFor, FormsModule, NgIf, LocalizePipe]
+  selector: 'fhir-export-synchronization-config',
+  templateUrl: './fhir-export-synchronization-config.component.html',
+  styleUrls: [],
+  standalone: true,
+  imports: [LocalizeComponent, FormsModule, LocalizePipe],
 })
 export class FhirExportSynchronizationConfigComponent implements OnInit, OnDestroy {
-
   message: string = null;
 
   @Input() config: SynchronizationConfig;
@@ -53,89 +52,91 @@ export class FhirExportSynchronizationConfigComponent implements OnInit, OnDestr
 
   subscription: Subscription = null;
   versions: { [key: string]: ListTypeVersion[] } = {};
-  implementations: { className: string, label: string }[] = [];
-  lists: { label: string, oid: string }[] = [];
+  implementations: { className: string; label: string }[] = [];
+  lists: { label: string; oid: string }[] = [];
 
-  constructor(private service: SynchronizationConfigService, private rService: ListTypeService) { }
+  constructor(
+    private service: SynchronizationConfigService,
+    private rService: ListTypeService
+  ) {}
 
   ngOnInit(): void {
-      this.reset();
+    this.reset();
 
-      this.subscription = this.fieldChange.subscribe((field: string) => {
-          if (field === "organization" || field === "system") {
-              this.reset();
-          }
-      });
+    this.subscription = this.fieldChange.subscribe((field: string) => {
+      if (field === 'organization' || field === 'system') {
+        this.reset();
+      }
+    });
 
-      this.service.getFhirExportImplementations().then(implementations => {
-          this.implementations = implementations;
-      });
+    this.service.getFhirExportImplementations().then((implementations) => {
+      this.implementations = implementations;
+    });
   }
 
   ngOnDestroy(): void {
-      if (this.subscription != null) {
-          this.subscription.unsubscribe();
-      }
+    if (this.subscription != null) {
+      this.subscription.unsubscribe();
+    }
   }
 
   reset(): void {
-      if (this.config.configuration == null) {
-          this.config.configuration = {
-              levels: [],
-              hierarchy: null
-          };
-      }
+    if (this.config.configuration == null) {
+      this.config.configuration = {
+        levels: [],
+        hierarchy: null,
+      };
+    }
 
-      if (this.config.configuration.levels != null) {
-          for (let i = 0; i < this.config.configuration.levels.length; ++i) {
-              let level = this.config.configuration.levels[i];
+    if (this.config.configuration.levels != null) {
+      for (let i = 0; i < this.config.configuration.levels.length; ++i) {
+        let level = this.config.configuration.levels[i];
 
         // Get version options
-              this.onSelectMasterList(level);
-          }
-      } else {
-          this.config.configuration.levels = [];
+        this.onSelectMasterList(level);
       }
+    } else {
+      this.config.configuration.levels = [];
+    }
 
     // Get
-      this.rService.getAllLists().then(response => {
-          this.lists = response;
-      });
+    this.rService.getAllLists().then((response) => {
+      this.lists = response;
+    });
   }
 
   onSelectMasterList(level: FhirSyncLevel): void {
-      if (level.masterListId != null && level.masterListId.length > 0) {
-          this.rService.getPublicVersions(level.masterListId).then(list => {
-              this.versions[level.masterListId] = list;
-          });
-      } else {
-          this.versions[level.masterListId] = null;
-      }
+    if (level.masterListId != null && level.masterListId.length > 0) {
+      this.rService.getPublicVersions(level.masterListId).then((list) => {
+        this.versions[level.masterListId] = list;
+      });
+    } else {
+      this.versions[level.masterListId] = null;
+    }
   }
 
   addLevel(): void {
-      let level = {
-          masterListId: null,
-          versionId: null,
-          level: this.config.configuration.levels.length
-      };
+    let level = {
+      masterListId: null,
+      versionId: null,
+      level: this.config.configuration.levels.length,
+    };
 
-      this.config.configuration.levels.push(level);
+    this.config.configuration.levels.push(level);
   }
 
   removeLevel(i: number): void {
-      this.config.configuration.levels.splice(i, 1);
+    this.config.configuration.levels.splice(i, 1);
 
     // Reorder the level
-      if (this.config.configuration != null && this.config.configuration.levels != null) {
-          for (var i = 0; i < this.config.configuration.levels.length; ++i) {
-              this.config.configuration.levels[i].level = i;
-          }
+    if (this.config.configuration != null && this.config.configuration.levels != null) {
+      for (var i = 0; i < this.config.configuration.levels.length; ++i) {
+        this.config.configuration.levels[i].level = i;
       }
+    }
   }
 
   error(err: HttpErrorResponse): void {
-      this.onError.emit(err);
+    this.onError.emit(err);
   }
-
 }

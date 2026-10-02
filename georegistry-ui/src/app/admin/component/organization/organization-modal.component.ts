@@ -29,62 +29,82 @@ import { LocalizationService, OrganizationService } from '@shared/service';
 import { LocalizePipe } from '../../../shared/pipe/localize.pipe';
 import { BooleanFieldComponent } from '../../../shared/component/form-fields/boolean-field/boolean-field.component';
 import { ConvertKeyLabel } from '../../../shared/component/localize/convert-key-label.component';
-import { NgIf, NgFor } from '@angular/common';
+
 import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
 import { FormsModule } from '@angular/forms';
 import { LoadingBarComponent } from '../../../shared/component/loading-bar/loading-bar.component';
 import { MessageComponent } from '../../../shared/component/message/message.component';
 
 @Component({
-    selector: 'organization-modal',
-    templateUrl: './organization-modal.component.html',
-    styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}'],
-    standalone: true,
-    imports: [MessageComponent, LoadingBarComponent, FormsModule, LocalizeComponent, NgIf, NgFor, ConvertKeyLabel, BooleanFieldComponent, LocalizePipe]
+  selector: 'organization-modal',
+  templateUrl: './organization-modal.component.html',
+  styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}'],
+  standalone: true,
+  imports: [
+    MessageComponent,
+    LoadingBarComponent,
+    FormsModule,
+    LocalizeComponent,
+    ConvertKeyLabel,
+    BooleanFieldComponent,
+    LocalizePipe,
+  ],
 })
 export class OrganizationModalComponent implements OnInit, OnDestroy {
+  message: string = null;
+  organization: Organization = {
+    code: '',
+    label: this.lService.create(),
+    contactInfo: this.lService.create(),
+    enabled: true,
+  };
+  isNewOrganization: boolean = true;
 
-	message: string = null;
-	organization: Organization = { code: "", label: this.lService.create(), contactInfo: this.lService.create(), enabled: true };
-	isNewOrganization: boolean = true;
+  public onSuccess: Subject<Organization>;
 
-	public onSuccess: Subject<Organization>;
+  constructor(
+    private orgService: OrganizationService,
+    public bsModalRef: BsModalRef,
+    private lService: LocalizationService
+  ) {}
 
-	constructor(private orgService: OrganizationService, public bsModalRef: BsModalRef, private lService: LocalizationService) { }
+  ngOnInit(): void {
+    this.onSuccess = new Subject();
+  }
 
-	ngOnInit(): void {
-		this.onSuccess = new Subject();
-	}
+  ngOnDestroy(): void {
+    this.onSuccess.unsubscribe();
+  }
 
-	ngOnDestroy(): void {
-		this.onSuccess.unsubscribe();
-	}
+  cancel(): void {
+    this.bsModalRef.hide();
+  }
 
-	cancel(): void {
-		this.bsModalRef.hide();
-	}
+  onSubmit(): void {
+    if (this.isNewOrganization) {
+      this.orgService
+        .newOrganization(this.organization)
+        .then((data) => {
+          this.onSuccess.next(data);
+          this.bsModalRef.hide();
+        })
+        .catch((err: HttpErrorResponse) => {
+          this.error(err);
+        });
+    } else {
+      this.orgService
+        .updateOrganization(this.organization)
+        .then((data) => {
+          this.onSuccess.next(data);
+          this.bsModalRef.hide();
+        })
+        .catch((err: HttpErrorResponse) => {
+          this.error(err);
+        });
+    }
+  }
 
-	onSubmit(): void {
-		if (this.isNewOrganization) {
-			this.orgService.newOrganization(this.organization).then(data => {
-				this.onSuccess.next(data);
-				this.bsModalRef.hide();
-			}).catch((err: HttpErrorResponse) => {
-				this.error(err);
-			});
-		}
-		else {
-			this.orgService.updateOrganization(this.organization).then(data => {
-				this.onSuccess.next(data);
-				this.bsModalRef.hide();
-			}).catch((err: HttpErrorResponse) => {
-				this.error(err);
-			});
-		}
-	}
-
-	public error(err: HttpErrorResponse): void {
-		this.message = ErrorHandler.getMessageFromError(err);
-	}
-
+  public error(err: HttpErrorResponse): void {
+    this.message = ErrorHandler.getMessageFromError(err);
+  }
 }

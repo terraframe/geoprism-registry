@@ -1,64 +1,74 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <page-container>
+  @if (message != null) {
+    <div class="alert alert-danger" role="alert">{{ message }}</div>
+  }
 
-
-    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
-
-    <div class="row">
-
-        <nav class="col-md-3 list-sidebar">
-            <div class="row">
-                <div class="col-md-12">
-                    <h2><localize key="header.list.type"></localize></h2>
-                </div>
-            </div>
-
-            <div class="sidebar-section-content">
-                <ul *ngFor="let typeByOrg of typesByOrg;" class="list-group">
-                    <div>
-
-                        <div class="got-org-label-wrapper">
-                            <h3>{{typeByOrg.org.label.localizedValue}}</h3>
-                        </div>
-
-                        <li class="list-group-item got-li-item" [ngClass]="{'got-group-child' : type.superTypeCode}"
-                            *ngFor="let type of typeByOrg.types" [id]="type.code" #typesByOrgIter>
-                            <a [routerLink]="'/registry/master-lists'" [queryParams]="{typeCode:type.code}"
-                                routerLinkActive="active">
-                                {{type.label.localizedValue}}
-                            </a>
-                        </li>
-                    </div>
-                </ul>
-            </div>
-        </nav>
-        <div class="col-md-9 list-type-content">
-            <div id="overflow-div">
-                <lists-for-type *ngIf="listByType != null" [listByType]="listByType" (error)="error($event)">
-                </lists-for-type>
-
-                <list-type *ngIf="current != null" [list]="current" (error)="error($event)"></list-type>
-            </div>
+  <div class="row">
+    <nav class="col-md-3 list-sidebar">
+      <div class="row">
+        <div class="col-md-12">
+          <h2><localize key="header.list.type"></localize></h2>
         </div>
+      </div>
 
+      <div class="sidebar-section-content">
+        @for (typeByOrg of typesByOrg; track typeByOrg.org.code) {
+          <ul class="list-group">
+            <div>
+              <div class="got-org-label-wrapper">
+                <h3>{{ typeByOrg.org.label.localizedValue }}</h3>
+              </div>
+              @for (type of typeByOrg.types; track type.code) {
+                <li
+                  class="list-group-item got-li-item"
+                  [ngClass]="{ 'got-group-child': type.superTypeCode }"
+                  [id]="type.code"
+                  #typesByOrgIter
+                >
+                  <a
+                    [routerLink]="'/registry/master-lists'"
+                    [queryParams]="{ typeCode: type.code }"
+                    routerLinkActive="active"
+                  >
+                    {{ type.label.localizedValue }}
+                  </a>
+                </li>
+              }
+            </div>
+          </ul>
+        }
+      </div>
+    </nav>
+    <div class="col-md-9 list-type-content">
+      <div id="overflow-div">
+        @if (listByType != null) {
+          <lists-for-type [listByType]="listByType" (error)="error($event)"> </lists-for-type>
+        }
+
+        @if (current != null) {
+          <list-type [list]="current" (error)="error($event)"></list-type>
+        }
+      </div>
     </div>
+  </div>
 </page-container>

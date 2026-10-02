@@ -18,7 +18,6 @@
 ///
 
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { trigger, style, animate, transition } from '@angular/animations';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ConfirmModalComponent } from '@shared/component';
@@ -34,7 +33,7 @@ import { RouterLink } from '@angular/router';
 import { LocalizedInputComponent } from '../../form-fields/localized-input/localized-input.component';
 import { LocalizeComponent } from '@shared/component/localize/localize.component';
 import { FormsModule } from '@angular/forms';
-import { NgIf, NgFor, NgClass } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { BusinessType } from '@registry/model/object-class';
 import { LocalizedTextComponent } from '@registry/component/form-fields/localized-text/localized-text.component';
 
@@ -43,35 +42,12 @@ import { LocalizedTextComponent } from '@registry/component/form-fields/localize
   templateUrl: './manage-business-type.component.html',
   styleUrls: ['./manage-business-type.css'],
   // host: { '[@fadeInOut]': 'true' },
-  animations: [
-    [
-      trigger('fadeInOut', [
-        transition('void => *', [
-          style({
-            opacity: 0,
-          }),
-          animate('500ms'),
-        ]),
-        transition(
-          ':leave',
-          animate(
-            '500ms',
-            style({
-              opacity: 0,
-            })
-          )
-        ),
-      ]),
-    ],
-  ],
   standalone: true,
   imports: [
-    NgIf,
     FormsModule,
     LocalizeComponent,
     LocalizedTextComponent,
     LocalizedInputComponent,
-    NgFor,
     NgClass,
     RouterLink,
     DefineAttributeModalContentComponent,

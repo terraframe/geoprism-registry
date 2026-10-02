@@ -1,71 +1,92 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <page-container>
-
-    <div class="ds-page">
-
-        <div class="ds-header">
-            <div>
-                <h1 class="ds-title"><localize key="nav.datasource.label"></localize></h1>
-                <div class="ds-subtitle"><localize key="datasource.manager.subtitle"></localize></div>
-            </div>
-            <button type="button" class="btn btn-primary ds-new-btn" (click)="onCreate()">
-                <localize key="datasource.manager.button.new"></localize>
-            </button>
-        </div>
-
-        <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
-
-        <div class="ds-card">
-            <div class="ds-row ds-row-head" *ngIf="sources?.length > 0">
-                <div><localize key="datasource.governance.level"></localize></div>
-                <div><localize key="data.property.label.label"></localize></div>
-                <div><localize key="datasource.authority"></localize></div>
-                <div class="ds-actions-head"><localize key="data.property.label.actions"></localize></div>
-            </div>
-
-            <div class="ds-row" *ngFor="let source of sources; let i = index;" [class.ds-row-alt]="i % 2 === 1">
-                <div>
-                    <span *ngIf="getGovernanceLevelLabelKey(source.governanceLevel) as levelKey">{{ levelKey | localize }}</span>
-                </div>
-                <div class="ds-label">{{source.label.localizedValue}}</div>
-                <div>{{ getAuthorityLabel(source.authority) }}</div>
-                <div class="ds-actions">
-                    <button type="button" class="ds-icon-btn" (click)="onEdit(source, true)" [title]="'modal.button.view' | localize">
-                        <i class="fa fa-eye" aria-hidden="true"></i>
-                    </button>
-                    <button type="button" class="ds-icon-btn" (click)="onEdit(source, false)" [title]="'modal.button.edit' | localize">
-                        <i class="fa fa-pencil" aria-hidden="true"></i>
-                    </button>
-                    <button type="button" class="ds-icon-btn ds-icon-btn-danger" (click)="onDelete(source)" [title]="'modal.button.delete' | localize">
-                        <i class="fa fa-trash" aria-hidden="true"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="ds-empty-state" *ngIf="sources?.length === 0">
-                <localize key="datasource.manager.empty.label"></localize>
-            </div>
-        </div>
-
+  <div class="ds-page">
+    <div class="ds-header">
+      <div>
+        <h1 class="ds-title"><localize key="nav.datasource.label"></localize></h1>
+        <div class="ds-subtitle"><localize key="datasource.manager.subtitle"></localize></div>
+      </div>
+      <button type="button" class="btn btn-primary ds-new-btn" (click)="onCreate()">
+        <localize key="datasource.manager.button.new"></localize>
+      </button>
     </div>
 
+    @if (message != null) {
+      <div class="alert alert-danger" role="alert">{{ message }}</div>
+    }
+
+    <div class="ds-card">
+      @if (sources?.length > 0) {
+        <div class="ds-row ds-row-head">
+          <div><localize key="datasource.governance.level"></localize></div>
+          <div><localize key="data.property.label.label"></localize></div>
+          <div><localize key="datasource.authority"></localize></div>
+          <div class="ds-actions-head"><localize key="data.property.label.actions"></localize></div>
+        </div>
+      }
+
+      @for (source of sources; track source.code; let i = $index) {
+        <div class="ds-row" [class.ds-row-alt]="i % 2 === 1">
+          <div>
+            @if (getGovernanceLevelLabelKey(source.governanceLevel); as levelKey) {
+              <span>{{ levelKey | localize }}</span>
+            }
+          </div>
+          <div class="ds-label">{{ source.label.localizedValue }}</div>
+          <div>{{ getAuthorityLabel(source.authority) }}</div>
+          <div class="ds-actions">
+            <button
+              type="button"
+              class="ds-icon-btn"
+              (click)="onEdit(source, true)"
+              [title]="'modal.button.view' | localize"
+            >
+              <i class="fa fa-eye" aria-hidden="true"></i>
+            </button>
+            <button
+              type="button"
+              class="ds-icon-btn"
+              (click)="onEdit(source, false)"
+              [title]="'modal.button.edit' | localize"
+            >
+              <i class="fa fa-pencil" aria-hidden="true"></i>
+            </button>
+            <button
+              type="button"
+              class="ds-icon-btn ds-icon-btn-danger"
+              (click)="onDelete(source)"
+              [title]="'modal.button.delete' | localize"
+            >
+              <i class="fa fa-trash" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+      }
+
+      @if (sources?.length === 0) {
+        <div class="ds-empty-state">
+          <localize key="datasource.manager.empty.label"></localize>
+        </div>
+      }
+    </div>
+  </div>
 </page-container>

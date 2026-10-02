@@ -17,74 +17,70 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input, Output, EventEmitter } from "@angular/core";
-import { ControlContainer, NgForm } from "@angular/forms";
-import { BsDropdownModule } from "ngx-bootstrap/dropdown";
-import { NgIf, NgFor, NgClass } from "@angular/common";
-
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { ControlContainer, NgForm } from '@angular/forms';
+import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
+import { NgClass } from '@angular/common';
 
 @Component({
-    selector: "multi-select-field",
-    templateUrl: "./multi-select-field.component.html",
-    styleUrls: [],
-    viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
-    standalone: true,
-    imports: [NgIf, BsDropdownModule, NgFor, NgClass]
+  selector: 'multi-select-field',
+  templateUrl: './multi-select-field.component.html',
+  styleUrls: [],
+  viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
+  standalone: true,
+  imports: [BsDropdownModule, NgClass],
 })
 export class MultiSelectFieldComponent {
+  @Input() container: any;
 
-    @Input() container: any;
+  @Input() noValueText: string = 'Select options';
 
-    @Input() noValueText: string = "Select options";
+  @Input() disabled: boolean = false;
 
-    @Input() disabled: boolean = false;
+  @Input() options: { value: string; label: string }[] = [];
 
-    @Input() options: { value: string, label: string }[] = [];
+  @Input() value: string[] = [];
 
-    @Input() value: string[] = [];
+  @Output() valueChange = new EventEmitter<string[]>();
 
-    @Output() valueChange = new EventEmitter<string[]>();
+  buildButtonLabel(showAll: boolean = false): string {
+    if (showAll) {
+      // if (labels.length == 0) return this.lService.decode("synchronization.config.none");
+      return this.getSelectedLabels().join(', ');
+    } else {
+      return this.noValueText;
+    }
+  }
 
-    buildButtonLabel(showAll: boolean = false): string {
+  getSelectedLabels(): string[] {
+    let labels: string[] = [];
 
-        if (showAll) {
-            // if (labels.length == 0) return this.lService.decode("synchronization.config.none");
-            return this.getSelectedLabels().join(", ");
-        } else {
-            return this.noValueText;
+    if (this.options != null) {
+      for (let i = 0; i < this.value.length; ++i) {
+        const option = this.options.find((t) => t.value === this.value[i]);
+
+        if (option != null) {
+          labels.push(option.label);
         }
+      }
     }
 
-    getSelectedLabels(): string[] {
-        let labels: string[] = [];
+    return labels.sort();
+  }
 
-        if (this.options != null) {
-            for (let i = 0; i < this.value.length; ++i) {
-                const option = this.options.find(t => t.value === this.value[i]);
+  clickOption($event, option: { value: string; label: string }) {
+    $event.stopPropagation();
 
-                if (option != null) {
-                    labels.push(option.label);
-                }
-            }
-        }
-
-        return labels.sort();
+    if (this.value.indexOf(option.value) == -1) {
+      this.value.push(option.value);
+    } else {
+      this.value.splice(this.value.indexOf(option.value), 1);
     }
 
-    clickOption($event, option: { value: string, label: string }) {
-        $event.stopPropagation();
+    this.valueChange.emit(this.value);
+  }
 
-        if (this.value.indexOf(option.value) == -1) {
-            this.value.push(option.value);
-        }
-        else {
-            this.value.splice(this.value.indexOf(option.value), 1);
-        }
-
-        this.valueChange.emit(this.value);
-    }
-
-    strArrayContains(oValue: string): boolean {
-        return this.value.indexOf(oValue) != -1;
-    }
+  strArrayContains(oValue: string): boolean {
+    return this.value.indexOf(oValue) != -1;
+  }
 }

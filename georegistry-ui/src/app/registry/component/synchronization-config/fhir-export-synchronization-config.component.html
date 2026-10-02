@@ -1,98 +1,109 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <div class="row-holder">
-    <div class="label-holder">
-        <label>
-            <localize key="synchronization.config.units"></localize>
-        </label>
+  <div class="label-holder">
+    <label>
+      <localize key="synchronization.config.units"></localize>
+    </label>
+  </div>
+  <div class="holder">
+    <div class="list-table-wrapper">
+      <table id="manage-systems-table" class="list-table table table-bordered">
+        <thead>
+          <tr>
+            <th style="width: 3%">
+              <localize key="settings.external.synchronization.level.label"></localize>
+            </th>
+            <th style="width: 25%">
+              <localize key="masterlist.field"></localize>
+            </th>
+            <th style="width: 25%">
+              <localize key="masterlist.forDate"></localize>
+            </th>
+            <th style="width: 25%">
+              <localize key="synchronization.config.implementation"></localize>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (level of config.configuration.levels; track level.level; let i = $index) {
+            <tr [style.background-color]="'#F7F7F7'">
+              <td style="width: 3%">
+                <label style="padding: 10px 0; margin: 0">
+                  <localize key="sync.level.label"></localize> {{ level.level + 1 }}
+                </label>
+              </td>
+              <td style="width: 20%">
+                <select
+                  [(ngModel)]="level.masterListId"
+                  (change)="onSelectMasterList(level)"
+                  [name]="'masterList' + level.level"
+                  required
+                >
+                  <option></option>
+                  @for (list of lists; track list.oid) {
+                    <option [value]="list.oid">{{ list.label }}</option>
+                  }
+                </select>
+              </td>
+              <td style="width: 20%">
+                @if (versions[level.masterListId] != null) {
+                  <select [(ngModel)]="level.versionId" [name]="'version' + level.level" required>
+                    <option></option>
+                    @for (version of versions[level.masterListId]; track version.oid) {
+                      <option [value]="version.oid">
+                        {{ version.forDate }} (<localize key="list.type.version"></localize>
+                        {{ version.versionNumber }})
+                      </option>
+                    }
+                  </select>
+                }
+              </td>
+              <td style="width: 20%">
+                <select [(ngModel)]="level.implementation" [name]="'implementation' + level.level" required>
+                  <option></option>
+                  @for (implementation of implementations; track implementation.className) {
+                    <option [value]="implementation.className">{{ implementation.label }}</option>
+                  }
+                </select>
+              </td>
+              <td style="width: 20%">
+                <div>
+                  <a style="padding: 10px" (click)="removeLevel(i)" [title]="'button.delete.helptext' | localize">
+                    <i class="fa fa-trash ico-remove"></i>
+                    <label style="cursor: pointer; margin-left: 9px">
+                      <localize key="sync.level.delete"></localize>
+                    </label>
+                  </a>
+                </div>
+              </td>
+            </tr>
+          }
+          <tr>
+            <td class="button-column">
+              <a class="fa fa-plus" [title]="'sync.levels.add.tooltip' | localize" (click)="addLevel()"></a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <div class="holder">
-        <div class="list-table-wrapper">
-            <table id="manage-systems-table" class="list-table table table-bordered">
-                <thead>
-                    <tr>
-                        <th style="width: 3%">
-                            <localize key="settings.external.synchronization.level.label"></localize>
-                        </th>
-                        <th style="width: 25%">
-                            <localize key="masterlist.field"></localize>
-                        </th>
-                        <th style="width: 25%">
-                            <localize key="masterlist.forDate"></localize>
-                        </th>
-                        <th style="width: 25%">
-                            <localize key="synchronization.config.implementation"></localize>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let level of config.configuration.levels; let i = index;"
-                        [style.background-color]="'#F7F7F7'">
-                        <td style="width: 3%">
-                            <label style="padding: 10px 0; margin: 0;">
-                                <localize key="sync.level.label"></localize> {{level.level + 1}}
-                            </label>
-                        </td>
-                        <td style="width: 20%">
-                            <select [(ngModel)]="level.masterListId" (change)="onSelectMasterList(level)"
-                                [name]="'masterList' + level.level" required>
-                                <option></option>
-                                <option *ngFor="let list of lists" [value]="list.oid">{{list.label}}</option>
-                            </select>
-                        </td>
-                        <td style="width: 20%">
-                            <select *ngIf="versions[level.masterListId] != null" [(ngModel)]="level.versionId"
-                                [name]="'version' + level.level" required>
-                                <option></option>
-                                <option *ngFor="let version of versions[level.masterListId]" [value]="version.oid">
-                                    {{version.forDate}} (<localize key="list.type.version"></localize> {{version.versionNumber}})
-                                </option>
-                            </select>
-                        </td>
-                        <td style="width: 20%">
-                            <select [(ngModel)]="level.implementation" [name]="'implementation' + level.level" required>
-                                <option></option>
-                                <option *ngFor="let implementation of implementations"
-                                    [value]="implementation.className">{{implementation.label}}</option>
-                            </select>
-                        </td>
-                        <td style="width: 20%">
-                            <div>
-                                <a style="padding: 10px;" (click)="removeLevel(i)"
-                                    [title]="'button.delete.helptext' | localize">
-                                    <i class="fa fa-trash ico-remove"></i> <label
-                                        style="cursor: pointer; margin-left: 9px;">
-                                        <localize key="sync.level.delete"></localize>
-                                    </label>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="button-column"><a class="fa fa-plus" [title]="'sync.levels.add.tooltip' | localize"
-                                (click)="addLevel()"></a></td>
-                    </tr>
-                </tbody>
-            </table>
-
-        </div>
-    </div>
+  </div>
 </div>

@@ -40,6 +40,12 @@ Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>. -->
   <dependencies>
     <dependency>
       <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-webmvc-test</artifactId>
+      <version>${spring.boot.version}</version>
+      <scope>test</scope>
+    </dependency>  
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <version>${spring.boot.version}</version>
       <scope>test</scope>
@@ -50,6 +56,7 @@ Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>. -->
         </exclusion>
       </exclusions>
     </dependency>
+    
     <dependency>
       <groupId>jakarta.servlet</groupId>
       <artifactId>jakarta.servlet-api</artifactId>

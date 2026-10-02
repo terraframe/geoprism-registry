@@ -1,86 +1,71 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <page-container>
   @if (loaded && organizations.length > 0) {
-    <geo-object-type-page
-      [hidden]="section !== 'geo-object-type'"
-      [userOrganization]="userOrganization"
-      [organizations]="organizations"
-      [types]="geoObjectTypes"
-      (typesChange)="setGeoObjectTypes($event)"
-      (onError)="error($event)"
-    >
-      <ontology-section-nav
-        sectionNav
-        [items]="sections"
-        [(active)]="section"
-      ></ontology-section-nav>
+    @if (section === 'geo-object-type') {
+      <geo-object-type-page
+        [userOrganization]="userOrganization"
+        [organizations]="organizations"
+        [types]="geoObjectTypes"
+        (typesChange)="setGeoObjectTypes($event)"
+        (onError)="error($event)"
+      >
+        <ontology-section-nav sectionNav [items]="sections" [(active)]="section"></ontology-section-nav>
 
-      <div *ngIf="isSRA" contentTools class="ontology-content-tools">
-        <button type="button" class="btn btn-primary" (click)="importTypes()">
-          <i class="fa-solid fa-file-import"></i>
-          {{ "hierarchy.sidebar.importTypes" | localize }}
-        </button>
-        <button type="button" class="btn btn-primary" (click)="exportTypes()">
-          <i class="fa-solid fa-file-export"></i>
-          {{ "hierarchy.sidebar.exportTypes" | localize }}
-        </button>
-      </div>
-    </geo-object-type-page>
-
-    <hierarchy-type-page
-      [hidden]="section !== 'hierarchy-type'"
-      [userOrganization]="userOrganization"
-      [organizations]="organizations"
-      [geoObjectTypes]="geoObjectTypes"
-      [hierarchies]="hierarchies"
-      (onHierarchyType)="handleHierarchyType($event)"
-      (onGeoObjectType)="handleGeoObjectType($event)"
-      (onRemove)="handleRemoveHierarchyType($event)"
-      (onError)="error($event)"
-    >
-      <ontology-section-nav
-        sectionNav
-        [items]="sections"
-        [(active)]="section"
-      ></ontology-section-nav>
-    </hierarchy-type-page>
-
-    <graph-type-page
-      [hidden]="section !== 'dag'"
-      [typeCode]="'DirectedAcyclicGraphType'"
-    >
-      <ontology-section-nav
-        sectionNav
-        [items]="sections"
-        [(active)]="section"
-      ></ontology-section-nav>
-    </graph-type-page>
+        @if (isSRA) {
+          <div contentTools class="ontology-content-tools">
+            <button type="button" class="btn btn-primary" (click)="importTypes()">
+              <i class="fa-solid fa-file-import"></i>
+              {{ 'hierarchy.sidebar.importTypes' | localize }}
+            </button>
+            <button type="button" class="btn btn-primary" (click)="exportTypes()">
+              <i class="fa-solid fa-file-export"></i>
+              {{ 'hierarchy.sidebar.exportTypes' | localize }}
+            </button>
+          </div>
+        }
+      </geo-object-type-page>
+    } @else if (section === 'hierarchy-type') {
+      <hierarchy-type-page
+        [userOrganization]="userOrganization"
+        [organizations]="organizations"
+        [geoObjectTypes]="geoObjectTypes"
+        [hierarchies]="hierarchies"
+        (onHierarchyType)="handleHierarchyType($event)"
+        (onGeoObjectType)="handleGeoObjectType($event)"
+        (onRemove)="handleRemoveHierarchyType($event)"
+        (onError)="error($event)"
+      >
+        <ontology-section-nav sectionNav [items]="sections" [(active)]="section"></ontology-section-nav>
+      </hierarchy-type-page>
+    } @else if (section === 'dag') {
+      <graph-type-page [typeCode]="'DirectedAcyclicGraphType'">
+        <ontology-section-nav sectionNav [items]="sections" [(active)]="section"></ontology-section-nav>
+      </graph-type-page>
+    }
   } @else if (loaded) {
     <div class="row">
       <div class="col-md-12 order-md-1">
         <div class="py-5">
-          <h3 class="inline-message">
-            You must first define at least one organization
-          </h3>
+          <h3 class="inline-message">You must first define at least one organization</h3>
         </div>
       </div>
     </div>

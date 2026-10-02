@@ -17,83 +17,64 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import {
-    trigger,
-    style,
-    animate,
-    transition
-} from "@angular/animations";
-import { HttpErrorResponse } from "@angular/common/http";
-import { ManageGeoObjectTypeModalState, GeoObjectType } from "@registry/model/registry";
-import { GeoObjectTypeModalStates } from "@registry/model/constants";
-import { RegistryService } from "@registry/service";
-import { EditAttributeModalContentComponent } from "../geoobjecttype-management/edit-attribute-modal-content.component";
-import { DefineAttributeModalContentComponent } from "../geoobjecttype-management/define-attribute-modal-content.component";
-import { GeoObjectTypeInputComponent } from "../geoobjecttype-management/geoobjecttype-input.component";
-import { NgIf } from "@angular/common";
-import { FormsModule } from "@angular/forms";
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ManageGeoObjectTypeModalState, GeoObjectType } from '@registry/model/registry';
+import { GeoObjectTypeModalStates } from '@registry/model/constants';
+import { RegistryService } from '@registry/service';
+import { EditAttributeModalContentComponent } from '../geoobjecttype-management/edit-attribute-modal-content.component';
+import { DefineAttributeModalContentComponent } from '../geoobjecttype-management/define-attribute-modal-content.component';
+import { GeoObjectTypeInputComponent } from '../geoobjecttype-management/geoobjecttype-input.component';
+
+import { FormsModule } from '@angular/forms';
 
 @Component({
-    selector: "manage-geo-object-type",
-    templateUrl: "./manage-geo-object-type.component.html",
-    styleUrls: ["./manage-geo-object-type.css"],
-    // host: { '[@fadeInOut]': 'true' },
-    animations: [
-        [
-            trigger("fadeInOut", [
-                transition("void => *", [
-                    style({
-                        opacity: 0
-                    }),
-                    animate("500ms")
-                ]),
-                transition(":leave", animate("500ms", style({
-                    opacity: 0
-                })))
-            ])
-        ]
-    ],
-    standalone: true,
-    imports: [FormsModule, NgIf, GeoObjectTypeInputComponent, DefineAttributeModalContentComponent, EditAttributeModalContentComponent]
+  selector: 'manage-geo-object-type',
+  templateUrl: './manage-geo-object-type.component.html',
+  styleUrls: ['./manage-geo-object-type.css'],
+  standalone: true,
+  imports: [
+    FormsModule,
+    GeoObjectTypeInputComponent,
+    DefineAttributeModalContentComponent,
+    EditAttributeModalContentComponent,
+  ],
 })
 export class ManageGeoObjectTypeComponent implements OnInit {
+  @Input() type: GeoObjectType;
+  @Input() readOnly: boolean = false;
 
-    @Input() type: GeoObjectType;
-    @Input() readOnly: boolean = false;
+  @Output() onCancel: EventEmitter<void> = new EventEmitter<void>();
+  @Output() onError: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>();
+  @Output() typeChange: EventEmitter<GeoObjectType> = new EventEmitter<GeoObjectType>();
 
-    @Output() onCancel: EventEmitter<void> = new EventEmitter<void>()
-    @Output() onError: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>()
-    @Output() typeChange: EventEmitter<GeoObjectType> = new EventEmitter<GeoObjectType>()
+  modalState: ManageGeoObjectTypeModalState = {
+    state: GeoObjectTypeModalStates.manageGeoObjectType,
+    attribute: '',
+    termOption: '',
+  };
 
-    modalState: ManageGeoObjectTypeModalState = { state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: "", termOption: "" };
+  constructor(public service: RegistryService) {}
 
-    constructor(public service: RegistryService) {
-    }
+  ngOnInit(): void {}
 
-    ngOnInit(): void {
-    }
+  onModalStateChange(state: ManageGeoObjectTypeModalState): void {
+    this.modalState = state;
+  }
 
-    onModalStateChange(state: ManageGeoObjectTypeModalState): void {
-        this.modalState = state;
-    }
+  onGeoObjectTypeChange(data: any): void {
+    // send persisted geoobjecttype to the parent calling component (hierarchy.component) so the
+    // updated GeoObjectType can be reflected in the template
+    this.typeChange.emit(data);
+  }
 
-    onGeoObjectTypeChange(data: any): void {
-        // send persisted geoobjecttype to the parent calling component (hierarchy.component) so the
-        // updated GeoObjectType can be reflected in the template
-        this.typeChange.emit(data);
-    }
+  update(): void {}
 
-    update(): void {
+  close(): void {
+    this.onCancel.emit();
+  }
 
-    }
-
-    close(): void {
-        this.onCancel.emit();
-    }
-
-    error(err: HttpErrorResponse): void {
-        this.onError.emit(err);
-    }
-
+  error(err: HttpErrorResponse): void {
+    this.onError.emit(err);
+  }
 }

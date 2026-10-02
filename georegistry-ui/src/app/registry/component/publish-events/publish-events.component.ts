@@ -25,7 +25,7 @@ import { MultiSelectFieldComponent } from '../../../shared/component/form-fields
 import { DateFieldComponent } from '../../../shared/component/form-fields/date-field/date-field.component';
 import { FormsModule } from '@angular/forms';
 import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
-import { NgFor } from '@angular/common';
+
 import { LocalizedTextComponent } from '../form-fields/localized-text/localized-text.component';
 
 @Component({
@@ -33,14 +33,7 @@ import { LocalizedTextComponent } from '../form-fields/localized-text/localized-
   templateUrl: './publish-events.component.html',
   styleUrls: [],
   standalone: true,
-  imports: [
-    LocalizeComponent,
-    FormsModule,
-    DateFieldComponent,
-    MultiSelectFieldComponent,
-    NgFor,
-    LocalizedTextComponent,
-  ],
+  imports: [LocalizeComponent, FormsModule, DateFieldComponent, MultiSelectFieldComponent, LocalizedTextComponent],
 })
 export class PublishEventsComponent implements OnInit {
   @Input() type: PublishEvents | null = null;

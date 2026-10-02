@@ -17,109 +17,116 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnDestroy, OnInit } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
-import { HttpErrorResponse } from "@angular/common/http";
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 
-import { ErrorHandler } from "@shared/component";
+import { ErrorHandler } from '@shared/component';
 
-import { RegistryService, IOService, SynchronizationConfigService } from "@registry/service";
-import { ScheduledJob, SynchronizationConfig } from "@registry/model/registry";
-import { PageResult } from "@shared/model/core";
-import { interval, Observable, Subscription, switchMap, timeout } from "rxjs";
-import { NgxPaginationModule } from "ngx-pagination";
-import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
-import { NgIf, NgFor } from "@angular/common";
-import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
+import { RegistryService, IOService, SynchronizationConfigService } from '@registry/service';
+import { ScheduledJob, SynchronizationConfig } from '@registry/model/registry';
+import { PageResult } from '@shared/model/core';
+import { interval, Observable, Subscription, switchMap, timeout } from 'rxjs';
+import { NgxPaginationModule } from 'ngx-pagination';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+
+import { PageContainerComponent } from '../../../shared/component/page-container/page-container.component';
 
 @Component({
-    selector: "sync-details",
-    templateUrl: "./details.component.html",
-    styleUrls: ["./details.css"],
-    standalone: true,
-    imports: [PageContainerComponent, NgIf, LocalizeComponent, NgFor, NgxPaginationModule]
+  selector: 'sync-details',
+  templateUrl: './details.component.html',
+  styleUrls: ['./details.css'],
+  standalone: true,
+  imports: [PageContainerComponent, LocalizeComponent, NgxPaginationModule],
 })
 export class SyncDetailsComponent implements OnInit, OnDestroy {
+  message: string = null;
+  job: ScheduledJob;
+  historyId: string = '';
 
-    message: string = null;
-    job: ScheduledJob;
-    historyId: string = "";
+  config: SynchronizationConfig = null;
 
-    config: SynchronizationConfig = null;
+  page: PageResult<any> = {
+    count: 0,
+    pageNumber: 1,
+    pageSize: 10,
+    resultSet: [],
+  };
 
-    page: PageResult<any> = {
-        count: 0,
-        pageNumber: 1,
-        pageSize: 10,
-        resultSet: []
-    };
+  pollingSubscription: Subscription = null;
 
-    pollingSubscription: Subscription = null;
+  constructor(
+    private configService: SynchronizationConfigService,
+    public service: RegistryService,
+    private route: ActivatedRoute
+  ) {}
 
-    constructor(private configService: SynchronizationConfigService, public service: RegistryService, private route: ActivatedRoute) {
+  ngOnInit(): void {
+    this.historyId = this.route.snapshot.params['oid'];
+
+    const configOid = this.route.snapshot.paramMap.get('config');
+
+    this.configService.get(configOid).then((config) => {
+      this.config = config;
+
+      this.onPageChange(1);
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.pollingSubscription != null) {
+      this.pollingSubscription.unsubscribe();
     }
+  }
 
-    ngOnInit(): void {
-        this.historyId = this.route.snapshot.params["oid"];
+  formatGeoObjectCode(codes: string) {
+    return codes == null ? '' : codes.replace(/,/g, ', ');
+  }
 
-        const configOid = this.route.snapshot.paramMap.get("config");
+  formatAffectedRows(rows: string) {
+    return rows == null ? '' : rows.replace(/,/g, ', ');
+  }
 
-        this.configService.get(configOid).then(config => {
-            this.config = config;
+  onPageChange(pageNumber: any): void {
+    this.message = null;
 
-            this.onPageChange(1);
-        });
-    }
+    this.service
+      .getExportDetails(this.historyId, this.page.pageSize, pageNumber)
+      .then((response) => {
+        this.job = response;
 
-    ngOnDestroy() {
-        if (this.pollingSubscription != null) {
-            this.pollingSubscription.unsubscribe();
+        this.page = this.job.exportErrors;
+
+        if (
+          response.exception &&
+          response.exception.type &&
+          response.exception.type.indexOf('ExportJobHasErrors') === -1
+        ) {
+          this.error(response.exception);
+        } else if (this.job.stage === 'EXPORT' && this.pollingSubscription == null) {
+          const pollInterval = 30 * 1000; // Poll every 60 seconds
+          const timeoutInterval = pollInterval * 60; // Poll every 60 seconds
+
+          this.pollingSubscription = interval(pollInterval)
+            .pipe(timeout(timeoutInterval))
+            .subscribe(() => {
+              this.onPageChange(this.page.pageNumber);
+            });
         }
-    }
 
-    formatGeoObjectCode(codes: string) {
-        return codes == null ? "" : codes.replace(/,/g, ", ");
-    }
+        if (this.job.stage !== 'EXPORT' && this.pollingSubscription != null) {
+          // The job is finished. Stop polling
+          this.pollingSubscription.unsubscribe();
 
-    formatAffectedRows(rows: string) {
-        return rows == null ? "" : rows.replace(/,/g, ", ");
-    }
+          this.pollingSubscription = null;
+        }
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
 
-    onPageChange(pageNumber: any): void {
-        this.message = null;
-
-        this.service.getExportDetails(this.historyId, this.page.pageSize, pageNumber).then(response => {
-            this.job = response;
-
-            this.page = this.job.exportErrors;
-
-            if (response.exception && response.exception.type && response.exception.type.indexOf("ExportJobHasErrors") === -1) {
-                this.error(response.exception);
-            }
-            else if (this.job.stage === 'EXPORT' && this.pollingSubscription == null) {
-                const pollInterval = 30*1000; // Poll every 60 seconds
-                const timeoutInterval = pollInterval * 60; // Poll every 60 seconds
-
-                this.pollingSubscription = interval(pollInterval).pipe(timeout(timeoutInterval)).subscribe(() => {
-                    this.onPageChange(this.page.pageNumber)
-                });
-            }
-            
-            if (this.job.stage !== 'EXPORT' && this.pollingSubscription != null) {
-                // The job is finished. Stop polling
-                this.pollingSubscription.unsubscribe();
-
-                this.pollingSubscription = null;
-            }
-
-
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
-
-    error(err: any): void {
-        this.message = ErrorHandler.getMessageFromError(err);
-    }
-
+  error(err: any): void {
+    this.message = ErrorHandler.getMessageFromError(err);
+  }
 }

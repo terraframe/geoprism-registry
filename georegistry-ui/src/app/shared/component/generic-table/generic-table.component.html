@@ -1,146 +1,240 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <div>
-	<p-table #dt [columns]="setup.columns" [value]="page.resultSet" [autoLayout]="true" [scrollable]="false"
-		[resizableColumns]="true" sortMode="multiple" styleClass="p-datatable-gridlines" [lazy]="true" [currentPageReportTemplate]="'generic.table.pageReport' | localize"
-		(onLazyLoad)="onPageChange($event)" [paginator]="true" [showCurrentPageReport]="true" [totalRecords]="page.count" [rows]="page.pageSize" [rowsPerPageOptions]="[10,25,50,100,500]"
-		[loading]="loading" [multiSortMeta]="config.sort != null ? config.sort : []" (onFilter)="handleFilter($event)">
+  <p-table
+    #dt
+    [columns]="setup.columns"
+    [value]="page.resultSet"
+    [scrollable]="false"
+    [resizableColumns]="true"
+    sortMode="multiple"
+    styleClass="p-datatable-gridlines"
+    [lazy]="true"
+    [currentPageReportTemplate]="'generic.table.pageReport' | localize"
+    (onLazyLoad)="onPageChange($event)"
+    [paginator]="true"
+    [showCurrentPageReport]="true"
+    [totalRecords]="page.count"
+    [rows]="page.pageSize"
+    [rowsPerPageOptions]="[10, 25, 50, 100, 500]"
+    [loading]="loading"
+    [multiSortMeta]="config.sort != null ? config.sort : []"
+    (onFilter)="handleFilter($event)"
+  >
+    <ng-template pTemplate="colgroup" let-columns>
+      <colgroup>
+        @for (col of columns; track col) {
+          <col />
+        }
+      </colgroup>
+    </ng-template>
 
-		<ng-template pTemplate="colgroup" let-columns>
-			<colgroup>
-				<col *ngFor="let col of columns">
-			</colgroup>
-		</ng-template>
+    <ng-template pTemplate="header" let-columns>
+      @for (row of setup.headers; track row) {
+        <tr>
+          @for (col of row; track col) {
+            @if (col.headerType !== 'ATTRIBUTE') {
+              <th [attr.colspan]="col.colspan" [attr.rowspan]="col.rowspan">
+                {{ col.header }}
+              </th>
+            }
+            @if (col.headerType === 'ATTRIBUTE') {
+              @if (col.sortable) {
+                <th
+                  [pSortableColumn]="col.field"
+                  [ngClass]="{ 'actions-col': col.type === 'ACTIONS' }"
+                  pResizableColumn
+                  [attr.colspan]="col.colspan"
+                  [attr.rowspan]="col.rowspan"
+                >
+                  {{ col.header }}
+                  <p-sortIcon
+                    [field]="col.field"
+                    ariaLabel="Activate to sort"
+                    style="float: right"
+                    ariaLabelDesc="Activate to sort in descending order"
+                    ariaLabelAsc="Activate to sort in ascending order"
+                  >
+                  </p-sortIcon>
+                </th>
+              }
+              @if (!col.sortable) {
+                <th
+                  [ngClass]="{ 'actions-col': col.type === 'ACTIONS' }"
+                  pResizableColumn
+                  [attr.colspan]="col.colspan"
+                  [attr.rowspan]="col.rowspan"
+                >
+                  {{ col.header }}
+                </th>
+              }
+            }
+          }
+        </tr>
+      }
 
-		<ng-template pTemplate="header" let-columns>
-			<tr *ngFor="let row of setup.headers">
-				<ng-container *ngFor="let col of row">
-					<th *ngIf="col.headerType !== 'ATTRIBUTE'" [attr.colspan]="col.colspan"
-						[attr.rowspan]="col.rowspan">
-						{{col.header}}
-					</th>
+      <!-- Create filter columns -->
+      @if (hasFilter) {
+        <tr>
+          @for (col of columns; track col) {
+            <th>
+              @if (col.filter !== false) {
+                @switch (col.type) {
+                  @case ('URL') {
+                    <input pInputText type="text" (input)="handleInput(dt, $event.target, col, 'contains')" />
+                  }
+                  @case ('TEXT') {
+                    <input pInputText type="text" (input)="handleInput(dt, $event.target, col, 'contains')" />
+                  }
+                  @case ('NUMBER') {
+                    <input
+                      pInputNumber
+                      type="number"
+                      step="any"
+                      (input)="handleInput(dt, $event.target, col, 'equals')"
+                    />
+                  }
+                  @case ('DATE') {
+                    <date-field
+                      [(value)]="col.startDate"
+                      [classNames]="'search-input'"
+                      (change)="dt.filter({ startDate: col.startDate, endDate: col.endDate }, col.field, 'between')"
+                      [allowInfinity]="false"
+                      [placement]="'bottom'"
+                      customStyles="font-size: 10px;"
+                      [placeholder]="'generic.table.to.date' | localize"
+                    >
+                    </date-field>
+                    <date-field
+                      [(value)]="col.endDate"
+                      [classNames]="'search-input'"
+                      (change)="dt.filter({ startDate: col.startDate, endDate: col.endDate }, col.field, 'between')"
+                      [allowInfinity]="false"
+                      [placement]="'bottom'"
+                      customStyles="font-size: 10px;"
+                      [placeholder]="'generic.table.from.date' | localize"
+                    >
+                    </date-field>
+                  }
+                  @case ('AUTOCOMPLETE') {
+                    <p-autoComplete
+                      appendTo="body"
+                      [(ngModel)]="col.text"
+                      [suggestions]="col.results"
+                      (completeMethod)="onComplete(col)"
+                      (onSelect)="dt.filter(col.text, col.field, 'equals')"
+                      (onClear)="dt.filter(col.text, col.field, 'equals')"
+                    >
+                    </p-autoComplete>
+                  }
+                  @case ('BOOLEAN') {
+                    <p-select
+                      appendTo="body"
+                      [options]="booleanOptions"
+                      (onChange)="dt.filter($event.value.value, col.field, 'equals')"
+                      optionLabel="label"
+                      optionValue="value"
+                      [virtualScroll]="true"
+                    ></p-select>
+                  }
+                }
+              }
+            </th>
+          }
+        </tr>
+      }
+    </ng-template>
 
-					<ng-container *ngIf="col.headerType === 'ATTRIBUTE'">
-						<th *ngIf="col.sortable" [pSortableColumn]="col.field"
-							[ngClass]="{'actions-col' : col.type === 'ACTIONS'}" pResizableColumn
-							[attr.colspan]="col.colspan" [attr.rowspan]="col.rowspan">
-							{{col.header}}
-							<p-sortIcon [field]="col.field" ariaLabel="Activate to sort" style="float:right;"
-								ariaLabelDesc="Activate to sort in descending order"
-								ariaLabelAsc="Activate to sort in ascending order">
-							</p-sortIcon>
-						</th>
-						<th *ngIf="!col.sortable" [ngClass]="{'actions-col' : col.type === 'ACTIONS'}" pResizableColumn
-							[attr.colspan]="col.colspan" [attr.rowspan]="col.rowspan">
-							{{col.header}}
-						</th>
+    <ng-template pTemplate="body" let-rowData let-columns="columns">
+      <tr>
+        @for (col of columns; track col) {
+          <td class="ui-resizable-column" [ngClass]="{ 'actions-col': col.type === 'ACTIONS' }">
+            @switch (getColumnType(rowData, col)) {
+              @case ('URL') {
+                <a [routerLink]="['/' + col.baseUrl + '/' + rowData[col.urlField]]">
+                  {{ rowData[col.field] }}
+                </a>
+              }
+              @case ('ACTIONS') {
+                @if (config.view) {
+                  <a
+                    class="fa fa-eye ico-edit"
+                    (click)="onClick('view', rowData, col)"
+                    [title]="'View ' + config.label"
+                  ></a>
+                }
+                @if (config.edit) {
+                  <a
+                    class="fa fa-pencil-alt ico-edit"
+                    (click)="onClick('edit', rowData, col)"
+                    [title]="'Edit ' + config.label"
+                  ></a>
+                }
+                @if (config.remove) {
+                  <a
+                    class="fa fa-trash-alt ico-remove"
+                    (click)="onClick('remove', rowData, col)"
+                    [title]="'Remove ' + config.label"
+                  ></a>
+                }
+              }
+              @case ('CONSTANT') {
+                @if (rowData[col.field] != null) {
+                  <a (click)="onClick('custom', rowData, col)">
+                    {{ col.text }}
+                  </a>
+                }
+              }
+              @case ('BOOLEAN') {
+                @if (rowData[col.field] === true) {
+                  <localize key="change.request.boolean.option.true"> </localize>
+                }
+                @if (rowData[col.field] === false) {
+                  <localize key="change.request.boolean.option.false"> </localize>
+                }
+              }
+              @case ('DATE') {
+                <date-text [date]="rowData[col.field]"></date-text>
+              }
+              @case ('NONE') {}
+              @default {
+                {{ rowData[col.field] }}
+              }
+            }
+          </td>
+        }
+      </tr>
+    </ng-template>
+    <!-- 		<ng-template pTemplate="paginatorleft"> -->
+    <!-- 			<p-button *ngIf="config.create" type="button" icon="pi pi-plus" [style]="{'border':'solid 1px'}" -->
+    <!-- 				styleClass="p-button-text" [label]="'Add new ' + config.label" (click)="onClick('create', null, null)"> -->
+    <!-- 			</p-button> -->
+    <!-- 		</ng-template> -->
+  </p-table>
 
-					</ng-container>
-				</ng-container>
-			</tr>
-
-			<!-- Create filter columns -->
-			<tr *ngIf="hasFilter">
-				<th *ngFor="let col of columns" [ngSwitch]="col.type">
-					<ng-container *ngIf="col.filter !== false">
-						<input *ngSwitchCase="'URL'" pInputText type="text"
-							(input)="handleInput(dt, $event.target, col, 'contains')">
-						<input *ngSwitchCase="'TEXT'" pInputText type="text"
-							(input)="handleInput(dt, $event.target, col, 'contains')">
-						<input *ngSwitchCase="'NUMBER'" pInputNumber type="number" step="any"
-							(input)="handleInput(dt, $event.target, col, 'equals')">
-						<ng-container *ngSwitchCase="'DATE'">
-							<date-field [(value)]="col.startDate" [classNames]="'search-input'"
-								(change)="dt.filter({startDate:col.startDate, endDate:col.endDate}, col.field, 'between')"
-								[allowInfinity]="false" [placement]="'bottom'" customStyles="font-size: 10px;"
-								[placeholder]="'generic.table.to.date' | localize">
-							</date-field>
-							<date-field [(value)]="col.endDate" [classNames]="'search-input'"
-								(change)="dt.filter({startDate:col.startDate, endDate:col.endDate}, col.field, 'between')"
-								[allowInfinity]="false" [placement]="'bottom'" customStyles="font-size: 10px;"
-								[placeholder]="'generic.table.from.date' | localize">
-							</date-field>
-						</ng-container>
-						<p-autoComplete *ngSwitchCase="'AUTOCOMPLETE'" appendTo="body" [(ngModel)]="col.text"
-							[suggestions]="col.results" (completeMethod)="onComplete(col)"
-							(onSelect)="dt.filter(col.text, col.field, 'equals')"
-							(onClear)="dt.filter(col.text, col.field, 'equals')">
-						</p-autoComplete>
-						<p-dropdown *ngSwitchCase="'BOOLEAN'" appendTo="body" [options]="booleanOptions"
-							(onChange)="dt.filter($event.value.value, col.field, 'equals')" optionLabel="label"
-							optionValue="value" [virtualScroll]="true"></p-dropdown>
-					</ng-container>
-				</th>
-			</tr>
-		</ng-template>
-
-		<ng-template pTemplate="body" let-rowData let-columns="columns">
-			<tr>
-				<td *ngFor="let col of columns" [ngSwitch]="getColumnType(rowData, col)" class="ui-resizable-column"
-					[ngClass]="{'actions-col' : col.type === 'ACTIONS'}">
-					<ng-container *ngSwitchCase="'URL'">
-						<a [routerLink]="['/' + col.baseUrl + '/' + rowData[col.urlField]]">
-							{{rowData[col.field]}}
-						</a>
-					</ng-container>
-					<ng-container *ngSwitchCase="'ACTIONS'">
-						<a *ngIf="config.view" class="fa fa-eye ico-edit" (click)="onClick('view', rowData, col)"
-							[title]="'View ' + config.label"></a>
-						<a *ngIf="config.edit" class="fa fa-pencil-alt ico-edit" (click)="onClick('edit', rowData, col)"
-							[title]="'Edit ' + config.label"></a>
-						<a *ngIf="config.remove" class="fa fa-trash-alt ico-remove"
-							(click)="onClick('remove', rowData, col)" [title]="'Remove ' + config.label"></a>
-					</ng-container>
-					<ng-container *ngSwitchCase="'CONSTANT'">
-						<a *ngIf="rowData[col.field] != null" (click)="onClick('custom', rowData, col)">
-							{{col.text}}
-						</a>
-					</ng-container>
-					<ng-container *ngSwitchCase="'BOOLEAN'">
-						<localize *ngIf="rowData[col.field] === true" key="change.request.boolean.option.true">
-						</localize>
-						<localize *ngIf="rowData[col.field] === false" key="change.request.boolean.option.false">
-						</localize>
-					</ng-container>
-					<ng-container *ngSwitchCase="'NONE'">
-					</ng-container>
-					<ng-container *ngSwitchCase="'DATE'">
-						<date-text [date]="rowData[col.field]"></date-text>
-					</ng-container>
-					<ng-container *ngSwitchDefault>
-						{{rowData[col.field]}}
-					</ng-container>
-				</td>
-			</tr>
-		</ng-template>
-		<!-- 		<ng-template pTemplate="paginatorleft"> -->
-		<!-- 			<p-button *ngIf="config.create" type="button" icon="pi pi-plus" [style]="{'border':'solid 1px'}" -->
-		<!-- 				styleClass="p-button-text" [label]="'Add new ' + config.label" (click)="onClick('create', null, null)"> -->
-		<!-- 			</p-button> -->
-		<!-- 		</ng-template> -->
-	</p-table>
-
-	<div style="width:100%;text-align:right;">
-		<button *ngIf="config.create" (click)="onClick('create', null, null)" style="margin: 10px 0 0;"
-			class="btn btn-primary">Add new {{config.label}}</button>
-	</div>
-
+  <div style="width: 100%; text-align: right">
+    @if (config.create) {
+      <button (click)="onClick('create', null, null)" style="margin: 10px 0 0" class="btn btn-primary">
+        Add new {{ config.label }}
+      </button>
+    }
+  </div>
 </div>

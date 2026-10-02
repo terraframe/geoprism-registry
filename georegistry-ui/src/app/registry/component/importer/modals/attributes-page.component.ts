@@ -20,39 +20,37 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 import { ImportConfiguration } from '@registry/model/io';
-import { NgFor, NgIf, NgClass } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LocalizeComponent } from '@shared/component/localize/localize.component';
 
 @Component({
-    selector: 'attributes-page',
-    templateUrl: './attributes-page.component.html',
-    styleUrls: [],
-    standalone: true,
-    imports: [LocalizeComponent, FormsModule, NgFor, NgIf, NgClass]
+  selector: 'attributes-page',
+  templateUrl: './attributes-page.component.html',
+  styleUrls: [],
+  standalone: true,
+  imports: [LocalizeComponent, FormsModule, NgClass],
 })
 export class AttributesPageComponent {
+  @Input() configuration: ImportConfiguration;
+  @Input() hasNext: boolean = false;
+  @Input() hasBack: boolean = false;
 
-    @Input() configuration: ImportConfiguration;
-    @Input() hasNext: boolean = false;
-    @Input() hasBack: boolean = false;
+  @Output() configurationChange = new EventEmitter<ImportConfiguration>();
+  @Output() stateChange = new EventEmitter<string>();
 
-    @Output() configurationChange = new EventEmitter<ImportConfiguration>();
-    @Output() stateChange = new EventEmitter<string>();
+  constructor() {}
 
-    constructor() {
-    }
+  onNext(): void {
+    this.configurationChange.emit(this.configuration);
+    this.stateChange.emit('NEXT');
+  }
 
-    onNext(): void {
-        this.configurationChange.emit(this.configuration);
-        this.stateChange.emit('NEXT');
-    }
+  onBack(): void {
+    this.stateChange.emit('BACK');
+  }
 
-    onBack(): void {
-        this.stateChange.emit('BACK');
-    }
-
-    onCancel(): void {
-        this.stateChange.emit('CANCEL');
-    }
+  onCancel(): void {
+    this.stateChange.emit('CANCEL');
+  }
 }

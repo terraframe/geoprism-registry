@@ -17,35 +17,34 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from "@angular/core";
-import { HttpErrorResponse } from "@angular/common/http";
+import { Component, OnInit } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 
-import { BsModalRef } from "ngx-bootstrap/modal";
-import { Subject } from "rxjs";
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { Subject } from 'rxjs';
 
-import { ExternalSystem, SystemCapabilities, Organization } from "@shared/model/core";
+import { ExternalSystem, SystemCapabilities, Organization } from '@shared/model/core';
 
-import { LocalizationService, AuthService, ExternalSystemService } from "@shared/service";
+import { LocalizationService, AuthService, ExternalSystemService } from '@shared/service';
 
-import { ErrorHandler } from "@shared/component";
+import { ErrorHandler } from '@shared/component';
 
 import { environment } from 'src/environments/environment';
-import { LocalizePipe } from "../../../shared/pipe/localize.pipe";
-import { ConvertKeyLabel } from "../../../shared/component/localize/convert-key-label.component";
-import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
-import { NgIf, NgFor } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { LoadingBarComponent } from "../../../shared/component/loading-bar/loading-bar.component";
+import { LocalizePipe } from '../../../shared/pipe/localize.pipe';
+import { ConvertKeyLabel } from '../../../shared/component/localize/convert-key-label.component';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+
+import { FormsModule } from '@angular/forms';
+import { LoadingBarComponent } from '../../../shared/component/loading-bar/loading-bar.component';
 
 @Component({
-    selector: "external-system-modal",
-    templateUrl: "./external-system-modal.component.html",
-    styles: [".modal-form .check-block .chk-area { margin: 10px 0px 0 0;}"],
-    standalone: true,
-    imports: [LoadingBarComponent, FormsModule, NgIf, LocalizeComponent, NgFor, ConvertKeyLabel, LocalizePipe]
+  selector: 'external-system-modal',
+  templateUrl: './external-system-modal.component.html',
+  styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}'],
+  standalone: true,
+  imports: [LoadingBarComponent, FormsModule, LocalizeComponent, ConvertKeyLabel, LocalizePipe],
 })
 export class ExternalSystemModalComponent implements OnInit {
-
   message: string = null;
 
   connectMessage: string = null;
@@ -55,13 +54,13 @@ export class ExternalSystemModalComponent implements OnInit {
   isNew: boolean = false;
 
   system: ExternalSystem = {
-      id: "",
-      type: "JenaExternalSystem",
-      organization: "",
-      label: this.lService.create(),
-      description: this.lService.create(),
-      version: "2.31",
-      oAuthServer: null
+    id: '',
+    type: 'JenaExternalSystem',
+    organization: '',
+    label: this.lService.create(),
+    description: this.lService.create(),
+    version: '2.31',
+    oAuthServer: null,
   };
 
   organizations: Organization[] = [];
@@ -72,124 +71,139 @@ export class ExternalSystemModalComponent implements OnInit {
 
   public onSuccess: Subject<ExternalSystem>;
 
-  constructor(private systemService: ExternalSystemService, private authService: AuthService, public bsModalRef: BsModalRef, private lService: LocalizationService) {
-  }
+  constructor(
+    private systemService: ExternalSystemService,
+    private authService: AuthService,
+    public bsModalRef: BsModalRef,
+    private lService: LocalizationService
+  ) {}
 
   ngOnInit(): void {
-      this.onSuccess = new Subject();
+    this.onSuccess = new Subject();
   }
 
   init(organizations: Organization[], system?: ExternalSystem): void {
-      this.organizations = organizations.filter(o => {
-          return this.authService.isOrganizationRA(o.code);
-      });
+    this.organizations = organizations.filter((o) => {
+      return this.authService.isOrganizationRA(o.code);
+    });
 
-      if (system != null) {
-          this.system = system;
-          this.oauthEnabled = this.system.oAuthServer != null;
-          this.isNew = false;
-      } else {
-          this.isNew = true;
-          this.editPassword = true;
-      }
+    if (system != null) {
+      this.system = system;
+      this.oauthEnabled = this.system.oAuthServer != null;
+      this.isNew = false;
+    } else {
+      this.isNew = true;
+      this.editPassword = true;
+    }
   }
 
   enableOAuth(): void {
-      this.oauthEnabled = true;
+    this.oauthEnabled = true;
 
-      if (!this.system.url.endsWith("/")) {
-          this.system.url = this.system.url + "/";
-      }
+    if (!this.system.url.endsWith('/')) {
+      this.system.url = this.system.url + '/';
+    }
 
-      this.message = null;
+    this.message = null;
 
-      this.system.oAuthServer = {
-          authorizationLocation: this.system.url + "uaa/oauth/authorize",
-          tokenLocation: this.system.url + "uaa/oauth/token",
-          profileLocation: this.system.url + "api/me",
-          clientId: "georegistry",
-          secretKey: "",
-          serverType: "DHIS2"
-      };
+    this.system.oAuthServer = {
+      authorizationLocation: this.system.url + 'uaa/oauth/authorize',
+      tokenLocation: this.system.url + 'uaa/oauth/token',
+      profileLocation: this.system.url + 'api/me',
+      clientId: 'georegistry',
+      secretKey: '',
+      serverType: 'DHIS2',
+    };
 
-      if (this.system.type === "DHIS2ExternalSystem") {
-          this.getSystemCapabilities();
-      }
+    if (this.system.type === 'DHIS2ExternalSystem') {
+      this.getSystemCapabilities();
+    }
   }
 
   getSystemCapabilities(): void {
-      if (this.capabilities != null || this.system.type !== "DHIS2ExternalSystem" ||
-        (this.system.username == null || this.system.username.length === 0) ||
-        (this.isNew && (this.system.password == null || this.system.password.length === 0)) ||
-        (this.system.url == null || this.system.url.length === 0)
-      ) { return; }
+    if (
+      this.capabilities != null ||
+      this.system.type !== 'DHIS2ExternalSystem' ||
+      this.system.username == null ||
+      this.system.username.length === 0 ||
+      (this.isNew && (this.system.password == null || this.system.password.length === 0)) ||
+      this.system.url == null ||
+      this.system.url.length === 0
+    ) {
+      return;
+    }
 
-      this.systemService.getSystemCapabilities(this.system).then(capabilities => {
-          this.message = null;
-          this.connectMessage = null;
+    this.systemService
+      .getSystemCapabilities(this.system)
+      .then((capabilities) => {
+        this.message = null;
+        this.connectMessage = null;
 
-          this.capabilities = capabilities;
+        this.capabilities = capabilities;
 
-          if (capabilities.oauth && this.oauthEnabled && this.system.oAuthServer == null) {
-              this.system.oAuthServer = {
-                  authorizationLocation: this.system.url + "uaa/oauth/authorize",
-                  tokenLocation: this.system.url + "uaa/oauth/token",
-                  profileLocation: this.system.url + "api/me",
-                  clientId: "georegistry",
-                  secretKey: "",
-                  serverType: "DHIS2"
-              };
-          }
-      }).catch((err: HttpErrorResponse) => {
-          this.connectMessage = ErrorHandler.getMessageFromError(err);
+        if (capabilities.oauth && this.oauthEnabled && this.system.oAuthServer == null) {
+          this.system.oAuthServer = {
+            authorizationLocation: this.system.url + 'uaa/oauth/authorize',
+            tokenLocation: this.system.url + 'uaa/oauth/token',
+            profileLocation: this.system.url + 'api/me',
+            clientId: 'georegistry',
+            secretKey: '',
+            serverType: 'DHIS2',
+          };
+        }
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.connectMessage = ErrorHandler.getMessageFromError(err);
       });
   }
 
   dhis2UrlKeyListener(event: any): void {
-      if (event.key === "Enter") {
-          this.capabilities = null;
-          this.getSystemCapabilities();
-      }
+    if (event.key === 'Enter') {
+      this.capabilities = null;
+      this.getSystemCapabilities();
+    }
   }
 
   dhis2FocusOut(): void {
-      this.capabilities = null;
-      this.getSystemCapabilities();
+    this.capabilities = null;
+    this.getSystemCapabilities();
   }
 
   removeOauth(): void {
-      this.oauthEnabled = false;
-      delete this.system.oAuthServer;
+    this.oauthEnabled = false;
+    delete this.system.oAuthServer;
   }
 
-  isOauthSupported(system:ExternalSystem) : boolean {
-      return system.type === "DHIS2ExternalSystem" || system.type === "FhirExternalSystem";
+  isOauthSupported(system: ExternalSystem): boolean {
+    return system.type === 'DHIS2ExternalSystem' || system.type === 'FhirExternalSystem';
   }
 
   downloadDhis2Plugin(): void {
-      window.location.href = environment.apiUrl + "/api/external-system/download-dhis2-plugin";
+    window.location.href = environment.apiUrl + '/api/external-system/download-dhis2-plugin';
   }
 
   cancel(): void {
-      this.bsModalRef.hide();
+    this.bsModalRef.hide();
   }
 
   onSubmit(): void {
-      this.systemService.applyExternalSystem(this.system).then(data => {
-          this.onSuccess.next(data);
-          this.bsModalRef.hide();
-      }).catch((err: HttpErrorResponse) => {
-          this.error(err);
+    this.systemService
+      .applyExternalSystem(this.system)
+      .then((data) => {
+        this.onSuccess.next(data);
+        this.bsModalRef.hide();
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
       });
   }
 
   public error(err: HttpErrorResponse): void {
-      document.querySelector("modal-container.modal").scroll({
-          top: 0,
-          left: 0,
-          behavior: "smooth"
-      });
-      this.message = ErrorHandler.getMessageFromError(err);
+    document.querySelector('modal-container.modal').scroll({
+      top: 0,
+      left: 0,
+      behavior: 'smooth',
+    });
+    this.message = ErrorHandler.getMessageFromError(err);
   }
-
 }

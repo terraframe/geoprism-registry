@@ -17,69 +17,43 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from "@angular/core";
-import {
-    trigger,
-    style,
-    animate,
-    transition
-} from "@angular/animations";
-import { BsModalRef } from "ngx-bootstrap/modal";
-import { HttpErrorResponse } from "@angular/common/http";
-import { ErrorHandler } from "@shared/component";
-import { ImportHistory } from "@registry/model/registry";
-import { LocalizedValue } from "@core/model/core";
-import { LocalizeComponent } from "@shared/component/localize/localize.component";
-import { DateTextComponent } from "@shared/component/date-text/date-text.component";
-import { RouterLink } from "@angular/router";
-import { NgIf, NgFor } from "@angular/common";
+import { Component, OnInit } from '@angular/core';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ErrorHandler } from '@shared/component';
+import { ImportHistory } from '@registry/model/registry';
+import { LocalizedValue } from '@core/model/core';
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
+import { DateTextComponent } from '@shared/component/date-text/date-text.component';
+import { RouterLink } from '@angular/router';
 
 @Component({
-    selector: "import-history-modal",
-    templateUrl: "./import-history-modal.component.html",
-    styleUrls: ["./import-history-modal.css"],
-    animations: [
-        [
-            trigger("fadeInOut", [
-                transition("void => *", [
-                    style({
-                        opacity: 0
-                    }),
-                    animate("500ms")
-                ]),
-                transition(":leave", animate("500ms", style({
-                    opacity: 0
-                })))
-            ])
-        ]
-    ],
-    standalone: true,
-    imports: [NgIf, NgFor, RouterLink, DateTextComponent, LocalizeComponent]
+  selector: 'import-history-modal',
+  templateUrl: './import-history-modal.component.html',
+  styleUrls: ['./import-history-modal.css'],
+  standalone: true,
+  imports: [RouterLink, DateTextComponent, LocalizeComponent],
 })
 export class ImportHistoryModalComponent implements OnInit {
+  message: string = null;
 
-    message: string = null;
+  label: LocalizedValue;
+  histories: ImportHistory[];
 
-    label: LocalizedValue;
-    histories: ImportHistory[];
+  constructor(public bsModalRef: BsModalRef) {}
 
-    constructor(public bsModalRef: BsModalRef) {
-    }
+  ngOnInit(): void {}
 
-    ngOnInit(): void {
-    }
+  init(label: LocalizedValue, histories: ImportHistory[]) {
+    this.label = label;
+    this.histories = histories;
+  }
 
-    init(label: LocalizedValue, histories: ImportHistory[]) {
-        this.label = label;
-        this.histories = histories;
-    }
+  close(): void {
+    this.bsModalRef.hide();
+  }
 
-    close(): void {
-        this.bsModalRef.hide();
-    }
-
-    error(err: HttpErrorResponse): void {
-        this.message = ErrorHandler.getMessageFromError(err);
-    }
-
+  error(err: HttpErrorResponse): void {
+    this.message = ErrorHandler.getMessageFromError(err);
+  }
 }

@@ -1,58 +1,70 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 
-<form style="overflow:visible;" class="modal-form" name="cascading-geo-selector" #mainForm="ngForm">
+<form style="overflow: visible" class="modal-form" name="cascading-geo-selector" #mainForm="ngForm">
   <fieldset>
     <div>
-      <div class="row-holder" style="overflow:visible;" *ngFor="let hierarchy of this.cHierarchies">
+      @for (hierarchy of this.cHierarchies; track hierarchy.code) {
+      <div class="row-holder" style="overflow: visible">
         <div class="label-holder">
-          <label>
-            {{hierarchy.label}}
-          </label>
+          <label> {{hierarchy.label}} </label>
         </div>
         <div class="holder">
-          <div class="container" style="width:100%;">
+          <div class="container" style="width: 100%">
             <div class="row">
-              <div class="col-sm-12" style="float:left;width:150px;" *ngFor="let parent of hierarchy.parents; let i = index">
+              @for (parent of hierarchy.parents; track parent.code; let i = $index) {
+              <div class="col-sm-12" style="float: left; width: 150px">
                 {{parent.label}}
-
-                <input style="width:150px;" type="text" class="form-control" disabled
-                  [value]="parent.geoObject.properties.displayLabel.localizedValue + ' : ' + parent.geoObject.properties.code" [name]="hierarchy.code + '-' + parent.code + '-input'">
-                  
+                <input
+                  style="width: 150px"
+                  type="text"
+                  class="form-control"
+                  disabled
+                  [value]="parent.geoObject.properties.displayLabel.localizedValue + ' : ' + parent.geoObject.properties.code"
+                  [name]="hierarchy.code + '-' + parent.code + '-input'"
+                />
               </div>
-              
+              }
             </div>
-
-            <div class="row" *ngIf="!readOnly">
+            @if (!readOnly) {
+            <div class="row">
               <div class="col-sm-12">
-                  <div class="button-holder" style="padding: 20px 0 20px 0;text-align: left;">
-                      <button type="submit" style="" (click)="onManageVersions(hierarchy.code)" class="btn btn-primary" role="button">
-                          <localize key="changeovertime.manageVersions.button.label"></localize>
-                      </button>
-                  </div>
+                <div class="button-holder" style="padding: 20px 0 20px 0; text-align: left">
+                  <button
+                    type="submit"
+                    style=""
+                    (click)="onManageVersions(hierarchy.code)"
+                    class="btn btn-primary"
+                    role="button"
+                  >
+                    <localize key="changeovertime.manageVersions.button.label"></localize>
+                  </button>
+                </div>
               </div>
             </div>
+            }
           </div>
         </div>
       </div>
+      }
     </div>
   </fieldset>
 </form>

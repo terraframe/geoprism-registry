@@ -17,106 +17,116 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from "@angular/core";
-import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
+import { Component, OnInit } from '@angular/core';
+import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 
-import { HttpErrorResponse } from "@angular/common/http";
+import { HttpErrorResponse } from '@angular/common/http';
 
-import { ErrorHandler } from "@shared/component";
+import { ErrorHandler } from '@shared/component';
 
-import { IOService } from "@registry/service";
-import { AuthService } from "@shared/service";
+import { IOService } from '@registry/service';
+import { AuthService } from '@shared/service';
 
 import { environment } from 'src/environments/environment';
-import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
-import { FormsModule } from "@angular/forms";
-import { NgIf, NgFor } from "@angular/common";
-import { LoadingBarComponent } from "../../../shared/component/loading-bar/loading-bar.component";
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+import { FormsModule } from '@angular/forms';
+
+import { LoadingBarComponent } from '../../../shared/component/loading-bar/loading-bar.component';
 
 @Component({
-    selector: "data-export",
-    templateUrl: "./data-export.component.html",
-    styleUrls: [],
-    standalone: true,
-    imports: [LoadingBarComponent, NgIf, FormsModule, LocalizeComponent, NgFor]
+  selector: 'data-export',
+  templateUrl: './data-export.component.html',
+  styleUrls: [],
+  standalone: true,
+  imports: [LoadingBarComponent, FormsModule, LocalizeComponent],
 })
 export class DataExportComponent implements OnInit {
+  /*
+   * List of geo object types from the system
+   */
+  types: { label: string; code: string }[];
 
-    /*
-     * List of geo object types from the system
-     */
-    types: { label: string, code: string }[]
+  /*
+   * Currently selected code
+   */
+  code: string = null;
 
-    /*
-     * Currently selected code
-     */
-    code: string = null;
+  /*
+   * List of the hierarchies this type is part of
+   */
+  hierarchies: { label: string; code: string }[] = [];
 
-    /*
-     * List of the hierarchies this type is part of
-     */
-    hierarchies: { label: string, code: string }[] = [];
+  /*
+   * Currently selected hierarchy
+   */
+  hierarchy: string = null;
 
-    /*
-     * Currently selected hierarchy
-     */
-    hierarchy: string = null;
+  /*
+   * Currently selected format
+   */
+  format: string = null;
 
-    /*
-     * Currently selected format
-     */
-    format: string = null;
+  /*
+   * Reference to the modal current showing
+   */
+  bsModalRef: BsModalRef;
 
-    /*
-     * Reference to the modal current showing
-     */
-    bsModalRef: BsModalRef;
+  // eslint-disable-next-line no-useless-constructor
+  constructor(
+    private service: IOService,
+    private modalService: BsModalService,
+    private authService: AuthService
+  ) {}
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor(private service: IOService, private modalService: BsModalService, private authService: AuthService) { }
+  ngOnInit(): void {
+    this.service
+      .listGeoObjectTypes(true)
+      .then((types) => {
+        // this.types = types;
 
-    ngOnInit(): void {
-        this.service.listGeoObjectTypes(true).then(types => {
-            // this.types = types;
+        let myOrgTypes = [];
+        for (let i = 0; i < types.length; ++i) {
+          if (this.authService.isOrganizationRA(types[i].orgCode)) {
+            myOrgTypes.push(types[i]);
+          }
+        }
+        this.types = myOrgTypes;
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
 
-            let myOrgTypes = [];
-            for (let i = 0; i < types.length; ++i) {
-                if (this.authService.isOrganizationRA(types[i].orgCode)) {
-                    myOrgTypes.push(types[i]);
-                }
-            }
-            this.types = myOrgTypes;
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
+  onChange(event: Event): void {
+    const code = (event.target as HTMLInputElement).value;
+
+    if (code != null && code.length > 0) {
+      this.service
+        .getHierarchiesForType(code, false)
+        .then((hierarchies) => {
+          this.hierarchies = hierarchies;
+          this.hierarchy = null;
+        })
+        .catch((err: HttpErrorResponse) => {
+          this.error(err);
         });
+    } else {
+      this.hierarchies = [];
+      this.hierarchy = null;
     }
+  }
 
-    onChange(event: Event): void {
-        const code = (event.target as HTMLInputElement).value;
-
-        if (code != null && code.length > 0) {
-            this.service.getHierarchiesForType(code, false).then(hierarchies => {
-                this.hierarchies = hierarchies;
-                this.hierarchy = null;
-            }).catch((err: HttpErrorResponse) => {
-                this.error(err);
-            });
-        } else {
-            this.hierarchies = [];
-            this.hierarchy = null;
-        }
+  onExport(): void {
+    if (this.format === 'SHAPEFILE') {
+      window.location.href =
+        environment.apiUrl + '/shapefile/export-shapefile?type=' + this.code + '&hierarchyType=' + this.hierarchy;
+    } else if (this.format === 'EXCEL') {
+      window.location.href =
+        environment.apiUrl + '/api/excel/export-spreadsheet?type=' + this.code + '&hierarchyType=' + this.hierarchy;
     }
+  }
 
-    onExport(): void {
-        if (this.format === "SHAPEFILE") {
-            window.location.href = environment.apiUrl + "/shapefile/export-shapefile?type=" + this.code + "&hierarchyType=" + this.hierarchy;
-        } else if (this.format === "EXCEL") {
-            window.location.href = environment.apiUrl + "/api/excel/export-spreadsheet?type=" + this.code + "&hierarchyType=" + this.hierarchy;
-        }
-    }
-
-    public error(err: HttpErrorResponse): void {
-        this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
-    }
-
+  public error(err: HttpErrorResponse): void {
+    this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
+  }
 }

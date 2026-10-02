@@ -17,27 +17,25 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input, Output, EventEmitter } from "@angular/core";
-import { LocalizedValue } from "@core/model/core";
-import { FormsModule } from "@angular/forms";
-import { ConvertKeyLabel } from "@shared/component/localize/convert-key-label.component";
-import { LocalizeComponent } from "@shared/component/localize/localize.component";
-import { NgFor } from "@angular/common";
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { LocalizedValue } from '@core/model/core';
+import { FormsModule } from '@angular/forms';
+import { ConvertKeyLabel } from '@shared/component/localize/convert-key-label.component';
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
 
 @Component({
-    selector: "localized-input",
-    templateUrl: "./localized-input.component.html",
-    styleUrls: [],
-    standalone: true,
-    imports: [NgFor, LocalizeComponent, ConvertKeyLabel, FormsModule]
+  selector: 'localized-input',
+  templateUrl: './localized-input.component.html',
+  styleUrls: [],
+  standalone: true,
+  imports: [LocalizeComponent, ConvertKeyLabel, FormsModule],
 })
 export class LocalizedInputComponent {
+  @Input() public key: string = '';
+  @Input() public value: LocalizedValue;
+  @Input() public disabled: boolean = false;
+  @Output() public valueChange = new EventEmitter<LocalizedValue>();
 
-    @Input() public key: string = "";
-    @Input() public value: LocalizedValue;
-    @Input() public disabled: boolean = false;
-    @Output() public valueChange = new EventEmitter<LocalizedValue>();
-
-    // eslint-disable-next-line no-useless-constructor
-    constructor() { }
+  // eslint-disable-next-line no-useless-constructor
+  constructor() {}
 }

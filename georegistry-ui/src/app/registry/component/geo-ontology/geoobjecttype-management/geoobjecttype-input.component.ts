@@ -17,201 +17,201 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, Input, Output, EventEmitter } from "@angular/core";
-import {
-    trigger,
-    style,
-    animate,
-    transition
-} from "@angular/animations";
-import { BsModalService } from "ngx-bootstrap/modal";
-import { HttpErrorResponse } from "@angular/common/http";
-import { ModalTypes } from "@shared/model/modal";
-import { ErrorHandler, ConfirmModalComponent } from "@shared/component";
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { BsModalService } from 'ngx-bootstrap/modal';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ModalTypes } from '@shared/model/modal';
+import { ErrorHandler, ConfirmModalComponent } from '@shared/component';
 
-import { LocalizationService } from "@shared/service";
+import { LocalizationService } from '@shared/service';
 
-import { GeoObjectType, ManageGeoObjectTypeModalState, AttributeType } from "@registry/model/registry";
-import { GeoObjectTypeModalStates } from "@registry/model/constants";
-import { RegistryService } from "@registry/service";
-import { LocalizePipe } from "@shared/pipe/localize.pipe";
-import { RouterLink } from "@angular/router";
-import { BooleanFieldComponent } from "@shared/component/form-fields/boolean-field/boolean-field.component";
-import { LocalizedTextComponent } from "../../form-fields/localized-text/localized-text.component";
-import { LocalizedInputComponent } from "../../form-fields/localized-input/localized-input.component";
-import { LocalizeComponent } from "@shared/component/localize/localize.component";
-import { FormsModule } from "@angular/forms";
-import { NgIf, NgFor, NgClass } from "@angular/common";
+import { GeoObjectType, ManageGeoObjectTypeModalState, AttributeType } from '@registry/model/registry';
+import { GeoObjectTypeModalStates } from '@registry/model/constants';
+import { RegistryService } from '@registry/service';
+import { LocalizePipe } from '@shared/pipe/localize.pipe';
+import { RouterLink } from '@angular/router';
+import { BooleanFieldComponent } from '@shared/component/form-fields/boolean-field/boolean-field.component';
+import { LocalizedTextComponent } from '../../form-fields/localized-text/localized-text.component';
+import { LocalizedInputComponent } from '../../form-fields/localized-input/localized-input.component';
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
+import { FormsModule } from '@angular/forms';
+import { NgClass } from '@angular/common';
 
 @Component({
-    selector: "geoobjecttype-input",
-    templateUrl: "./geoobjecttype-input.component.html",
-    styleUrls: ["./geoobjecttype-input.css"],
-    // host: { '[@fadeInOut]': 'true' },
-    animations: [
-        [
-            trigger("fadeInOut", [
-                transition("void => *", [
-                    style({
-                        opacity: 0
-                    }),
-                    animate("500ms")
-                ]),
-                transition(":leave", animate("500ms", style({
-                    opacity: 0
-                })))
-            ])
-        ]
-    ],
-    standalone: true,
-    imports: [NgIf, NgClass, FormsModule, LocalizeComponent, LocalizedInputComponent, LocalizedTextComponent, BooleanFieldComponent, NgFor, RouterLink, LocalizePipe]
+  selector: 'geoobjecttype-input',
+  templateUrl: './geoobjecttype-input.component.html',
+  styleUrls: ['./geoobjecttype-input.css'],
+  standalone: true,
+  imports: [
+    NgClass,
+    FormsModule,
+    LocalizeComponent,
+    LocalizedInputComponent,
+    LocalizedTextComponent,
+    BooleanFieldComponent,
+    RouterLink,
+    LocalizePipe,
+  ],
 })
 export class GeoObjectTypeInputComponent implements OnInit {
+  @Input() readOnly: boolean = false;
+  @Input() geoObjectType: GeoObjectType;
 
-    @Input() readOnly: boolean = false;
-    @Input() geoObjectType: GeoObjectType;
+  @Output() geoObjectTypeChange: EventEmitter<GeoObjectType> = new EventEmitter<GeoObjectType>();
+  @Output() stateChange: EventEmitter<ManageGeoObjectTypeModalState> =
+    new EventEmitter<ManageGeoObjectTypeModalState>();
+  @Output() onCancel: EventEmitter<void> = new EventEmitter<void>();
 
-    @Output() geoObjectTypeChange: EventEmitter<GeoObjectType> = new EventEmitter<GeoObjectType>();
-    @Output() stateChange: EventEmitter<ManageGeoObjectTypeModalState> = new EventEmitter<ManageGeoObjectTypeModalState>();
-    @Output() onCancel: EventEmitter<void> = new EventEmitter<void>()
+  editGeoObjectType: GeoObjectType;
 
-    editGeoObjectType: GeoObjectType;
+  organizationLabel: string;
 
-    organizationLabel: string;
+  // eslint-disable-next-line accessor-pairs
+  @Input('setGeoObjectType')
+  set in(geoObjectType: GeoObjectType) {
+    if (geoObjectType) {
+      this.editGeoObjectType = JSON.parse(JSON.stringify(geoObjectType));
+    }
+  }
 
-    // eslint-disable-next-line accessor-pairs
-    @Input("setGeoObjectType")
-    set in(geoObjectType: GeoObjectType) {
-        if (geoObjectType) {
-            this.editGeoObjectType = JSON.parse(JSON.stringify(geoObjectType));
+  message: string = null;
+
+  // modalState: ManageGeoObjectTypeModalState = { state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: "", termOption: "" };
+
+  // eslint-disable-next-line no-useless-constructor
+  constructor(
+    private modalService: BsModalService,
+    private localizationService: LocalizationService,
+    private registryService: RegistryService
+  ) {}
+
+  ngOnInit(): void {
+    // this.geoObjectTypeManagementService.setModalState(this.modalState);
+
+    this.fetchOrganizationLabel();
+  }
+
+  defineAttributeModal(): void {
+    this.stateChange.emit({ state: GeoObjectTypeModalStates.defineAttribute, attribute: '', termOption: '' });
+  }
+
+  fetchOrganizationLabel(): void {
+    this.registryService
+      .getOrganizations()
+      .then((orgs) => {
+        for (let i = 0; i < orgs.length; ++i) {
+          if (orgs[i].code === this.editGeoObjectType.organizationCode) {
+            this.organizationLabel = orgs[i].label.localizedValue;
+          }
         }
-    }
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
 
-    message: string = null;
+  manageAttributes(): void {
+    this.stateChange.emit({ state: GeoObjectTypeModalStates.manageAttributes, attribute: '', termOption: '' });
+  }
 
-    // modalState: ManageGeoObjectTypeModalState = { state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: "", termOption: "" };
+  // onModalStateChange(state: ManageGeoObjectTypeModalState): void {
+  //     this.modalState = state;
+  // }
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor(private modalService: BsModalService,
-        private localizationService: LocalizationService, private registryService: RegistryService) { }
+  update(): void {
+    this.registryService
+      .updateGeoObjectType(this.editGeoObjectType)
+      .then((geoObjectType) => {
+        // emit the persisted geoobjecttype to the parent widget component (manage-geoobjecttype.component)
+        // so that the change can be updated in the template
+        this.geoObjectTypeChange.emit(geoObjectType);
 
-    ngOnInit(): void {
-        // this.geoObjectTypeManagementService.setModalState(this.modalState);
+        this.close();
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
 
-        this.fetchOrganizationLabel();
-    }
+  // resetGeoObjectType(): void {
+  //     this.geoObjectType = this.geoObjectTypeOriginal;
+  // }
 
-    defineAttributeModal(): void {
-        this.stateChange.emit({ state: GeoObjectTypeModalStates.defineAttribute, attribute: "", termOption: "" });
-    }
+  close(): void {
+    this.onCancel.emit();
+  }
 
-    fetchOrganizationLabel(): void {
-        this.registryService.getOrganizations().then(orgs => {
-            for (let i = 0; i < orgs.length; ++i) {
-                if (orgs[i].code === this.editGeoObjectType.organizationCode) {
-                    this.organizationLabel = orgs[i].label.localizedValue;
-                }
-            }
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
+  isValid(): boolean {
+    // if(this.attribute.code && this.attribute.label) {
 
-    manageAttributes(): void {
-        this.stateChange.emit({ state: GeoObjectTypeModalStates.manageAttributes, attribute: "", termOption: "" });
-    }
+    //     // if code has a space
+    //     if(this.attribute.code.indexOf(" ") !== -1){
+    //         return false;
+    //     }
 
-    // onModalStateChange(state: ManageGeoObjectTypeModalState): void {
-    //     this.modalState = state;
+    //     // If label is only spaces
+    //     if(this.attribute.label.replace(/\s/g, '').length === 0) {
+    //         return false
+    //     }
+
+    //     return true;
     // }
 
-    update(): void {
-        this.registryService.updateGeoObjectType(this.editGeoObjectType).then(geoObjectType => {
-            // emit the persisted geoobjecttype to the parent widget component (manage-geoobjecttype.component)
-            // so that the change can be updated in the template
-            this.geoObjectTypeChange.emit(geoObjectType);
+    // return false;
 
-            this.close();
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
+    return true;
+  }
 
-    // resetGeoObjectType(): void {
-    //     this.geoObjectType = this.geoObjectTypeOriginal;
-    // }
+  private static readonly ATTRIBUTE_TYPE_LABEL_KEYS: { [type: string]: string } = {
+    character: 'data.type.label.text',
+    local: 'data.type.label.localtext',
+    integer: 'data.type.label.integer',
+    float: 'data.type.label.float',
+    date: 'data.type.label.date',
+    boolean: 'data.type.label.boolean',
+    term: 'data.type.label.term',
+    classification: 'data.type.label.classification',
+  };
 
-    close(): void {
-        this.onCancel.emit();
-    }
+  getAttributeTypeLabelKey(type: string): string {
+    return GeoObjectTypeInputComponent.ATTRIBUTE_TYPE_LABEL_KEYS[type] || null;
+  }
 
-    isValid(): boolean {
-        // if(this.attribute.code && this.attribute.label) {
+  editAttribute(attr: AttributeType, e: any): void {
+    this.stateChange.emit({ state: GeoObjectTypeModalStates.editAttribute, attribute: attr, termOption: '' });
+  }
 
-        //     // if code has a space
-        //     if(this.attribute.code.indexOf(" ") !== -1){
-        //         return false;
-        //     }
+  removeAttributeType(attr: AttributeType, e: any): void {
+    const confirmBsModalRef = this.modalService.show(ConfirmModalComponent, {
+      animated: false,
+      backdrop: true,
+      ignoreBackdropClick: true,
+    });
+    confirmBsModalRef.content.message =
+      this.localizationService.decode('confirm.modal.verify.delete') + '[' + attr.label.localizedValue + ']';
+    confirmBsModalRef.content.data = { attributeType: attr, geoObjectType: this.geoObjectType };
+    confirmBsModalRef.content.submitText = this.localizationService.decode('modal.button.delete');
+    confirmBsModalRef.content.type = ModalTypes.danger;
 
-        //     // If label is only spaces
-        //     if(this.attribute.label.replace(/\s/g, '').length === 0) {
-        //         return false
-        //     }
+    confirmBsModalRef.content.onConfirm.subscribe((data) => {
+      this.deleteAttributeType(data.geoObjectType.code, data.attributeType);
+    });
+  }
 
-        //     return true;
-        // }
+  deleteAttributeType(geoObjectTypeCode: string, attr: AttributeType): void {
+    this.registryService
+      .deleteAttributeType(geoObjectTypeCode, attr.code)
+      .then((data) => {
+        this.geoObjectType.attributes.splice(this.geoObjectType.attributes.indexOf(attr), 1);
 
-        // return false;
+        this.geoObjectTypeChange.emit(this.geoObjectType);
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
 
-        return true;
-    }
-
-    private static readonly ATTRIBUTE_TYPE_LABEL_KEYS: { [type: string]: string } = {
-        character: "data.type.label.text",
-        local: "data.type.label.localtext",
-        integer: "data.type.label.integer",
-        float: "data.type.label.float",
-        date: "data.type.label.date",
-        boolean: "data.type.label.boolean",
-        term: "data.type.label.term",
-        classification: "data.type.label.classification"
-    };
-
-    getAttributeTypeLabelKey(type: string): string {
-        return GeoObjectTypeInputComponent.ATTRIBUTE_TYPE_LABEL_KEYS[type] || null;
-    }
-
-    editAttribute(attr: AttributeType, e: any): void {
-        this.stateChange.emit({ state: GeoObjectTypeModalStates.editAttribute, attribute: attr, termOption: "" });
-    }
-
-    removeAttributeType(attr: AttributeType, e: any): void {
-        const confirmBsModalRef = this.modalService.show(ConfirmModalComponent, {
-            animated: false, backdrop: true,
-            ignoreBackdropClick: true
-        });
-        confirmBsModalRef.content.message = this.localizationService.decode("confirm.modal.verify.delete") + "[" + attr.label.localizedValue + "]";
-        confirmBsModalRef.content.data = { attributeType: attr, geoObjectType: this.geoObjectType };
-        confirmBsModalRef.content.submitText = this.localizationService.decode("modal.button.delete");
-        confirmBsModalRef.content.type = ModalTypes.danger;
-
-        confirmBsModalRef.content.onConfirm.subscribe(data => {
-            this.deleteAttributeType(data.geoObjectType.code, data.attributeType);
-        });
-    }
-
-    deleteAttributeType(geoObjectTypeCode: string, attr: AttributeType): void {
-        this.registryService.deleteAttributeType(geoObjectTypeCode, attr.code).then(data => {
-            this.geoObjectType.attributes.splice(this.geoObjectType.attributes.indexOf(attr), 1);
-
-            this.geoObjectTypeChange.emit(this.geoObjectType);
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
-
-    error(err: HttpErrorResponse): void {
-        this.message = ErrorHandler.getMessageFromError(err);
-    }
-
+  error(err: HttpErrorResponse): void {
+    this.message = ErrorHandler.getMessageFromError(err);
+  }
 }

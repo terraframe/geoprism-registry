@@ -1,57 +1,82 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <div class="modal-body">
-    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+  @if (message != null) {
+    <div class="alert alert-danger" role="alert">{{ message }}</div>
+  }
 
-    <div class="text-center">
-        <h2>
-            <localize key="scheduledjobs.problemdetail.modal.title"></localize>
-        </h2>
-    </div>
-    <!-- <div class="col-md-12 order-md-1"> -->
-    <form #form="ngForm" class="modal-form">
+  <div class="text-center">
+    <h2>
+      <localize key="scheduledjobs.problemdetail.modal.title"></localize>
+    </h2>
+  </div>
+  <!-- <div class="col-md-12 order-md-1"> -->
+  <form #form="ngForm" class="modal-form">
+    <fieldset>
+      @if (problem && job && job.stage === 'IMPORT_RESOLVE') {
+        <div>
+          <import-problem-widget
+            (onProblemResolved)="onProblemResolvedListener(problem)"
+            [problem]="problem"
+            [job]="job"
+          ></import-problem-widget>
+        </div>
+      }
+      @if (problem && job && job.stage === 'VALIDATION_RESOLVE') {
+        <div>
+          @if (problem.type === 'ParentReferenceProblem') {
+            <parent-reference-problem-widget
+              (onProblemResolved)="onProblemResolvedListener(problem)"
+              [problem]="problem"
+              [job]="job"
+            ></parent-reference-problem-widget>
+          }
+          @if (problem.type === 'TermReferenceProblem') {
+            <term-reference-problem-widget
+              (onProblemResolved)="onProblemResolvedListener(problem)"
+              [problem]="problem"
+              [job]="job"
+            ></term-reference-problem-widget>
+          }
+          @if (problem.type === 'RowValidationProblem') {
+            <row-validation-problem-widget
+              (onProblemResolved)="onProblemResolvedListener(problem)"
+              [problem]="problem"
+              [job]="job"
+            ></row-validation-problem-widget>
+          }
+        </div>
+      }
 
-        <fieldset>
-            
-            <div *ngIf="problem && job && job.stage === 'IMPORT_RESOLVE'">
-                <import-problem-widget (onProblemResolved)="onProblemResolvedListener(problem)" [problem]="problem" [job]="job"></import-problem-widget>
-            </div>
-            <div *ngIf="problem && job && job.stage === 'VALIDATION_RESOLVE'">
-              <parent-reference-problem-widget *ngIf="problem.type === 'ParentReferenceProblem'" (onProblemResolved)="onProblemResolvedListener(problem)" [problem]="problem" [job]="job" ></parent-reference-problem-widget>
-              <term-reference-problem-widget *ngIf="problem.type === 'TermReferenceProblem'" (onProblemResolved)="onProblemResolvedListener(problem)" [problem]="problem" [job]="job" ></term-reference-problem-widget>
-              <row-validation-problem-widget *ngIf="problem.type === 'RowValidationProblem'" (onProblemResolved)="onProblemResolvedListener(problem)" [problem]="problem" [job]="job" ></row-validation-problem-widget>
-            </div>
-            
-            <div class="row-holder">
-                <!-- <div class="label-holder"></div> -->
-                <div class="">
-                    <div class="button-holder">
-                        <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
-                            <localize key="io.back"></localize>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-        </fieldset>
-    </form>
-    <!-- </div> -->
+      <div class="row-holder">
+        <!-- <div class="label-holder"></div> -->
+        <div class="">
+          <div class="button-holder">
+            <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
+              <localize key="io.back"></localize>
+            </button>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+  </form>
+  <!-- </div> -->
 </div>

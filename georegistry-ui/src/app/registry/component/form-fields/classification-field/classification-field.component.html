@@ -18,23 +18,18 @@
     License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<ng-template
-  #customListTemplate
-  let-matches="matches"
-  let-query="query"
-  let-typeaheadTemplateMethods
->
+<ng-template #customListTemplate let-matches="matches" let-query="query" let-typeaheadTemplateMethods>
   <ul class="list-group">
-    @for (match of matches; track match) {
+    @for (match of matches; track match.item.code) {
       <li
         class="list-group-item"
         [class.active]="typeaheadTemplateMethods.isActive(match)"
         (click)="typeaheadTemplateMethods.selectMatch(match, $event)"
         (mouseenter)="typeaheadTemplateMethods.selectActive(match)"
       >
-        @if (match.item.data["displayLabel"] != null) {
+        @if (match.item.data['displayLabel'] != null) {
           {{ match.item.code }} :
-          {{ match.item.data["displayLabel"].localizedValue }}
+          {{ match.item.data['displayLabel'].localizedValue }}
         } @else {
           {{ match.item.code }}
         }
@@ -65,11 +60,7 @@
     [container]="container"
   />
 
-  <span
-    class="input-group-addon addon-alert"
-    [class.clickable]="attribute.rootTerm != null"
-    (click)="onViewTree()"
-  >
+  <span class="input-group-addon addon-alert" [class.clickable]="attribute.rootTerm != null" (click)="onViewTree()">
     <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
   </span>
 </div>

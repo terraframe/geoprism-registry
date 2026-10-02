@@ -1,222 +1,240 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <div>
-  <div class="crumbs" *ngIf="type != null">
-    <span class="crumb-link"><localize key="skg.business.types"></localize></span><span class="sep">/</span>
-    <span class="crumb-link">{{ type.organizationLabel }}</span
-    ><span class="sep">/</span>
-    <span class="current">{{ type.displayLabel.localizedValue }}</span>
-  </div>
+  @if (type != null) {
+    <div class="crumbs">
+      <span class="crumb-link"><localize key="skg.business.types"></localize></span><span class="sep">/</span>
+      <span class="crumb-link">{{ type.organizationLabel }}</span
+      ><span class="sep">/</span>
+      <span class="current">{{ type.displayLabel.localizedValue }}</span>
+    </div>
+  }
 
-  <div class="heading" *ngIf="type != null">
-    <h1>{{ type.displayLabel.localizedValue }}</h1>
-    <div class="sub"><localize key="business.data.type"></localize></div>
-  </div>
+  @if (type != null) {
+    <div class="heading">
+      <h1>{{ type.displayLabel.localizedValue }}</h1>
+      <div class="sub"><localize key="business.data.type"></localize></div>
+    </div>
+  }
 
-  <ng-container *ngIf="modalState.state === 'MANAGE-GEO-OBJECT-TYPE'">
-    <form #form="ngForm" *ngIf="type" class="modal-form" (ngSubmit)="(form.valid)">
-      <fieldset>
-        <div class="panel panel-default section-panel">
-          <div class="panel-heading">
-            <h5 class="panel-title"><localize key="hierarchy.management.section.identity.title"></localize></h5>
-            <p class="panel-subtitle"><localize key="hierarchy.management.section.identity.description"></localize></p>
-          </div>
-          <div class="panel-body">
-            <div class="row-holder">
-              <div class="label-holder">
-                <label>
-                  <localize key="data.property.label.code"></localize>
-                </label>
-              </div>
-              <div class="holder">
-                <span class="text">
-                  <input type="text" [(ngModel)]="type.code" name="code" class="form-control" disabled required />
-                </span>
-              </div>
+  @if (modalState.state === 'MANAGE-GEO-OBJECT-TYPE') {
+    @if (type) {
+      <form #form="ngForm" class="modal-form" (ngSubmit)="(form.valid)">
+        <fieldset>
+          <div class="panel panel-default section-panel">
+            <div class="panel-heading">
+              <h5 class="panel-title"><localize key="hierarchy.management.section.identity.title"></localize></h5>
+              <p class="panel-subtitle">
+                <localize key="hierarchy.management.section.identity.description"></localize>
+              </p>
             </div>
-
-            <localized-input [disabled]="readOnly" [(value)]="type.displayLabel" key="data.property.label.label">
-            </localized-input>
-
-            <localized-text [disabled]="readOnly" [(value)]="type.description" key="data.property.label.description">
-            </localized-text>
-          </div>
-        </div>
-
-        <div class="panel panel-default section-panel">
-          <div class="panel-heading">
-            <h5 class="panel-title"><localize key="hierarchy.management.section.configuration.title"></localize></h5>
-            <p class="panel-subtitle"><localize key="business.type.section.configuration.description"></localize></p>
-          </div>
-          <div class="panel-body">
-            <div class="row-holder">
-              <div class="label-holder">
-                <label>
-                  <localize key="attribute.labelAttribute.label"></localize>
-                </label>
+            <div class="panel-body">
+              <div class="row-holder">
+                <div class="label-holder">
+                  <label>
+                    <localize key="data.property.label.code"></localize>
+                  </label>
+                </div>
+                <div class="holder">
+                  <span class="text">
+                    <input type="text" [(ngModel)]="type.code" name="code" class="form-control" disabled required />
+                  </span>
+                </div>
               </div>
-              <div class="holder">
-                <select
-                  class="form-control"
-                  name="labelAttribute"
-                  [(ngModel)]="type.labelAttribute"
+              <localized-input [disabled]="readOnly" [(value)]="type.displayLabel" key="data.property.label.label">
+              </localized-input>
+              <div class="row-holder">
+                <localized-text
                   [disabled]="readOnly"
+                  [(value)]="type.description"
+                  key="data.property.label.description"
                 >
-                  <option *ngFor="let attr of type.attributes" [value]="attr.code">
-                    {{ attr.label.localizedValue }}
-                  </option>
-                </select>
+                </localized-text>
               </div>
             </div>
           </div>
-        </div>
-
-        <div class="panel panel-default section-panel">
-          <div class="panel-heading">
-            <h5 class="panel-title"><localize key="hierarchy.management.section.ownership.title"></localize></h5>
-            <p class="panel-subtitle"><localize key="hierarchy.management.section.ownership.description"></localize></p>
-          </div>
-          <div class="panel-body">
-            <div class="row-holder">
-              <div class="label-holder">
-                <label>
-                  <localize key="attribute.organization.label"></localize>
-                </label>
-              </div>
-              <div class="holder">
-                <span class="text">
-                  <input
-                    type="text"
-                    [(ngModel)]="type.organizationLabel"
-                    name="organization"
+          <div class="panel panel-default section-panel">
+            <div class="panel-heading">
+              <h5 class="panel-title"><localize key="hierarchy.management.section.configuration.title"></localize></h5>
+              <p class="panel-subtitle"><localize key="business.type.section.configuration.description"></localize></p>
+            </div>
+            <div class="panel-body">
+              <div class="row-holder">
+                <div class="label-holder">
+                  <label>
+                    <localize key="attribute.labelAttribute.label"></localize>
+                  </label>
+                </div>
+                <div class="holder">
+                  <select
                     class="form-control"
-                    disabled
-                    required
-                  />
-                </span>
+                    name="labelAttribute"
+                    [(ngModel)]="type.labelAttribute"
+                    [disabled]="readOnly"
+                  >
+                    @for (attr of type.attributes; track attr.code) {
+                      <option [value]="attr.code">
+                        {{ attr.label.localizedValue }}
+                      </option>
+                    }
+                  </select>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-
-        <div class="panel panel-default section-panel">
-          <div class="panel-heading">
-            <h5 class="panel-title"><localize key="hierarchy.management.section.attributes.title"></localize></h5>
-            <p class="panel-subtitle">
-              <localize key="hierarchy.management.section.attributes.description"></localize>
-            </p>
-          </div>
-          <div class="panel-body">
-            <div class="table-responsive">
-              <table class="table" [class.view-mode]="readOnly">
-                <thead>
-                  <tr>
-                    <th><localize key="data.property.label.label"></localize></th>
-                    <th><localize key="data.property.label.type"></localize></th>
-                    <th><localize key="hierarchy.management.attribute.source.label"></localize></th>
-                    <th class="button-column-header"><localize key="data.property.label.actions"></localize></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let attr of type.attributes">
-                    <td class="attr-label">{{ attr.label.localizedValue }}</td>
-                    <td>
-                      <span class="pill type" *ngIf="getAttributeTypeLabelKey(attr.type) as typeKey; else rawType">{{
-                        typeKey | localize
-                      }}</span>
-                      <ng-template #rawType
-                        ><span class="pill type">{{ attr.type }}</span></ng-template
-                      >
-                    </td>
-                    <td>
-                      <span class="pill" [ngClass]="attr.isDefault ? 'default' : 'custom'">
-                        <localize
-                          [key]="
-                            attr.isDefault
-                              ? 'hierarchy.management.attribute.default.label'
-                              : 'hierarchy.management.attribute.custom.label'
-                          "
-                        ></localize>
-                      </span>
-                    </td>
-                    <td class="button-column">
-                      <ng-container *ngIf="!readOnly && !attr.isDefault">
-                        <a
-                          class="fa fa-pencil ico-edit"
-                          [routerLink]=""
-                          (click)="editAttribute(attr, $event)"
-                          [title]="'modal.button.edit' | localize"
-                        ></a>
-                        <a
-                          class="fa fa-trash ico-remove"
-                          [routerLink]=""
-                          (click)="removeAttributeType(attr, $event)"
-                          [title]="'modal.button.remove' | localize"
-                        ></a>
-                      </ng-container>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+          <div class="panel panel-default section-panel">
+            <div class="panel-heading">
+              <h5 class="panel-title"><localize key="hierarchy.management.section.ownership.title"></localize></h5>
+              <p class="panel-subtitle">
+                <localize key="hierarchy.management.section.ownership.description"></localize>
+              </p>
             </div>
-
-            <span *ngIf="!readOnly" class="clickable" (click)="createAttribute()">
-              <i class="fa fa-plus" style="font-size: 20px; margin: 10px 0 10px 0" aria-hidden="true"> </i>
-              <localize key="modal.button.add"></localize>
-            </span>
+            <div class="panel-body">
+              <div class="row-holder">
+                <div class="label-holder">
+                  <label>
+                    <localize key="attribute.organization.label"></localize>
+                  </label>
+                </div>
+                <div class="holder">
+                  <span class="text">
+                    <input
+                      type="text"
+                      [(ngModel)]="type.organizationLabel"
+                      name="organization"
+                      class="form-control"
+                      disabled
+                      required
+                    />
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-
-        <div class="row-holder" *ngIf="!readOnly">
-          <div class="button-holder">
-            <button type="button" class="btn btn-default" (click)="close()">
-              <localize key="modal.button.cancel"></localize>
-            </button>
-            <button type="button" class="btn btn-primary" [disabled]="form.invalid" (click)="update()">
-              <localize key="modal.button.submit"></localize>
-            </button>
+          <div class="panel panel-default section-panel">
+            <div class="panel-heading">
+              <h5 class="panel-title"><localize key="hierarchy.management.section.attributes.title"></localize></h5>
+              <p class="panel-subtitle">
+                <localize key="hierarchy.management.section.attributes.description"></localize>
+              </p>
+            </div>
+            <div class="panel-body">
+              <div class="table-responsive">
+                <table class="table" [class.view-mode]="readOnly">
+                  <thead>
+                    <tr>
+                      <th><localize key="data.property.label.label"></localize></th>
+                      <th><localize key="data.property.label.type"></localize></th>
+                      <th><localize key="hierarchy.management.attribute.source.label"></localize></th>
+                      <th class="button-column-header"><localize key="data.property.label.actions"></localize></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (attr of type.attributes; track attr.code) {
+                      <tr>
+                        <td class="attr-label">{{ attr.label.localizedValue }}</td>
+                        <td>
+                          @if (getAttributeTypeLabelKey(attr.type); as typeKey) {
+                            <span class="pill type">{{ typeKey | localize }}</span>
+                          } @else {
+                            <span class="pill type">{{ attr.type }}</span>
+                          }
+                        </td>
+                        <td>
+                          <span class="pill" [ngClass]="attr.isDefault ? 'default' : 'custom'">
+                            <localize
+                              [key]="
+                                attr.isDefault
+                                  ? 'hierarchy.management.attribute.default.label'
+                                  : 'hierarchy.management.attribute.custom.label'
+                              "
+                            ></localize>
+                          </span>
+                        </td>
+                        <td class="button-column">
+                          @if (!readOnly && !attr.isDefault) {
+                            <a
+                              class="fa fa-pencil ico-edit"
+                              [routerLink]=""
+                              (click)="editAttribute(attr, $event)"
+                              [title]="'modal.button.edit' | localize"
+                            ></a>
+                            <a
+                              class="fa fa-trash ico-remove"
+                              [routerLink]=""
+                              (click)="removeAttributeType(attr, $event)"
+                              [title]="'modal.button.remove' | localize"
+                            ></a>
+                          }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+              @if (!readOnly) {
+                <span class="clickable" (click)="createAttribute()">
+                  <i class="fa fa-plus" style="font-size: 20px; margin: 10px 0 10px 0" aria-hidden="true"> </i>
+                  <localize key="modal.button.add"></localize>
+                </span>
+              }
+            </div>
           </div>
-        </div>
-      </fieldset>
-    </form>
-  </ng-container>
+          @if (!readOnly) {
+            <div class="row-holder">
+              <div class="button-holder">
+                <button type="button" class="btn btn-default" (click)="close()">
+                  <localize key="modal.button.cancel"></localize>
+                </button>
+                <button type="button" class="btn btn-primary" [disabled]="form.invalid" (click)="update()">
+                  <localize key="modal.button.submit"></localize>
+                </button>
+              </div>
+            </div>
+          }
+        </fieldset>
+      </form>
+    }
+  }
 
-  <define-attribute-modal-content
-    *ngIf="modalState.state === 'DEFINE-ATTRIBUTE'"
-    [geoObjectType]="type"
-    [service]="service"
-    (geoObjectTypeChange)="onTypeChange()"
-    (stateChange)="onModalStateChange($event)"
-    [manageChangeOverTime]="true"
-  >
-  </define-attribute-modal-content>
+  @if (modalState.state === 'DEFINE-ATTRIBUTE') {
+    <define-attribute-modal-content
+      [geoObjectType]="type"
+      [service]="service"
+      (geoObjectTypeChange)="onTypeChange()"
+      (stateChange)="onModalStateChange($event)"
+      [manageChangeOverTime]="true"
+    >
+    </define-attribute-modal-content>
+  }
 
-  <edit-attribute-modal-content
-    *ngIf="modalState.state === 'EDIT-ATTRIBUTE'"
-    [geoObjectType]="type"
-    [attribute]="modalState.attribute"
-    [service]="service"
-    (geoObjectTypeChange)="onTypeChange()"
-    (stateChange)="onModalStateChange($event)"
-    [manageChangeOverTime]="true"
-  >
-  </edit-attribute-modal-content>
+  @if (modalState.state === 'EDIT-ATTRIBUTE') {
+    <edit-attribute-modal-content
+      [geoObjectType]="type"
+      [attribute]="modalState.attribute"
+      [service]="service"
+      (geoObjectTypeChange)="onTypeChange()"
+      (stateChange)="onModalStateChange($event)"
+      [manageChangeOverTime]="true"
+    >
+    </edit-attribute-modal-content>
+  }
 </div>

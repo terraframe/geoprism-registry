@@ -41,8 +41,6 @@ import org.locationtech.jts.io.WKTReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -93,6 +91,8 @@ import net.geoprism.registry.visualization.EdgeView;
 import net.geoprism.registry.visualization.RelationshipTypeCountMetadata;
 import net.geoprism.registry.visualization.VertexView;
 import net.geoprism.registry.visualization.VertexView.ObjectType;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
 @Service
 public class RelationshipVisualizationService
@@ -640,7 +640,7 @@ public class RelationshipVisualizationService
       this.undirectedService.getAll().forEach(graphType -> {
         try
         {
-          ObjectMapper mapper = new ObjectMapper();
+          JsonMapper mapper = JsonMapper.shared();
           String json = mapper.writeValueAsString(graphType.toDTO());
 
           JsonObject jo = JsonParser.parseString(json).getAsJsonObject();
@@ -648,7 +648,7 @@ public class RelationshipVisualizationService
 
           views.add(jo);
         }
-        catch (JsonProcessingException e)
+        catch (JacksonException e)
         {
           throw new ProgrammingErrorException(e);
         }
@@ -657,7 +657,7 @@ public class RelationshipVisualizationService
       this.dagService.getAll().forEach(graphType -> {
         try
         {
-          ObjectMapper mapper = new ObjectMapper();
+          JsonMapper mapper = JsonMapper.shared();
           String json = mapper.writeValueAsString(graphType.toDTO());
 
           JsonObject jo = JsonParser.parseString(json).getAsJsonObject();
@@ -665,7 +665,7 @@ public class RelationshipVisualizationService
 
           views.add(jo);
         }
-        catch (JsonProcessingException e)
+        catch (JacksonException e)
         {
           throw new ProgrammingErrorException(e);
         }
@@ -677,14 +677,14 @@ public class RelationshipVisualizationService
         {
           try
           {
-            ObjectMapper mapper = new ObjectMapper();
+            JsonMapper mapper = JsonMapper.shared();
             String json = mapper.writeValueAsString(this.bEdgeService.toDTO(graphType));
 
             JsonObject jo = JsonParser.parseString(json).getAsJsonObject();
             jo.addProperty("layout", "VERTICAL");
             views.add(jo);
           }
-          catch (JsonProcessingException e)
+          catch (JacksonException e)
           {
             throw new ProgrammingErrorException(e);
           }
@@ -704,14 +704,14 @@ public class RelationshipVisualizationService
           // Show all business objects which are related to a Geo-Object
           try
           {
-            ObjectMapper mapper = new ObjectMapper();
+            JsonMapper mapper = JsonMapper.shared();
             String json = mapper.writeValueAsString(this.bEdgeService.toDTO(graphType));
 
             JsonObject jo = JsonParser.parseString(json).getAsJsonObject();
             jo.addProperty("layout", "VERTICAL");
             views.add(jo);
           }
-          catch (JsonProcessingException e)
+          catch (JacksonException e)
           {
             throw new ProgrammingErrorException(e);
           }

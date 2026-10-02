@@ -1,14 +1,14 @@
 package net.geoprism.registry.view;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import jakarta.validation.constraints.NotBlank;
 import net.geoprism.registry.jobs.ImportError.ErrorResolution;
-import net.geoprism.registry.spring.JsonObjectDeserializer;
 import net.geoprism.spring.core.JsonArrayDeserializer;
+import net.geoprism.spring.core.JsonObjectDeserializer;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 public class ErrorResolveDTO
 {

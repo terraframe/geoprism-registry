@@ -17,37 +17,34 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component } from "@angular/core";
-import { ModalStepIndicatorService } from "@shared/service";
+import { Component } from '@angular/core';
+import { ModalStepIndicatorService } from '@shared/service';
 
-import { Step, StepConfig } from "@shared/model/modal";
-import { Subscription } from "rxjs";
-import { NgIf, NgFor, NgClass } from "@angular/common";
+import { Step, StepConfig } from '@shared/model/modal';
+import { Subscription } from 'rxjs';
+import { NgClass } from '@angular/common';
 
 @Component({
-    selector: "modal-step-indicator",
-    templateUrl: "./modal-step-indicator.component.html",
-    styleUrls: ["./modal-step-indicator.css"],
-    standalone: true,
-    imports: [NgIf, NgFor, NgClass]
+  selector: 'modal-step-indicator',
+  templateUrl: './modal-step-indicator.component.html',
+  styleUrls: ['./modal-step-indicator.css'],
+  standalone: true,
+  imports: [NgClass],
 })
 export class ModalStepIndicatorComponent {
+  stepConfig: StepConfig;
+  step: Step;
+  stepSubscription: Subscription;
 
-    stepConfig: StepConfig;
-    step: Step;
-    stepSubscription: Subscription;
+  constructor(private modalStepIndicatorService: ModalStepIndicatorService) {
+    this.stepSubscription = modalStepIndicatorService.modalStepChange.subscribe((stepConfig) => {
+      this.stepConfig = stepConfig;
+    });
+  }
 
-    constructor(private modalStepIndicatorService: ModalStepIndicatorService) {
-        this.stepSubscription = modalStepIndicatorService.modalStepChange.subscribe(stepConfig => {
-            this.stepConfig = stepConfig;
-        });
-    }
+  ngOnInit(): void {}
 
-    ngOnInit(): void {
-    }
-
-    ngOnDestroy() {
-        this.stepSubscription.unsubscribe();
-    }
-
+  ngOnDestroy() {
+    this.stepSubscription.unsubscribe();
+  }
 }

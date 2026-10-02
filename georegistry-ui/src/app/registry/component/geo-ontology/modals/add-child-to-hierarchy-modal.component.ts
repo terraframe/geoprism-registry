@@ -17,77 +17,80 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from "@angular/core";
-import { BsModalRef } from "ngx-bootstrap/modal";
-import { Subject } from "rxjs";
-import { TreeNode } from "@ali-hm/angular-tree-component";
-import { HttpErrorResponse } from "@angular/common/http";
-import { ErrorHandler } from "@shared/component";
-import { HierarchyType, HierarchyNode } from "@registry/model/hierarchy";
-import { GeoObjectType } from "@registry/model/registry";
-import { HierarchyService } from "@registry/service";
-import { LocalizeComponent } from "@shared/component/localize/localize.component";
-import { NgIf, NgFor } from "@angular/common";
-import { FormsModule } from "@angular/forms";
+import { Component, OnInit } from '@angular/core';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { Subject } from 'rxjs';
+import { TreeNode } from '@ali-hm/angular-tree-component';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ErrorHandler } from '@shared/component';
+import { HierarchyType, HierarchyNode } from '@registry/model/hierarchy';
+import { GeoObjectType } from '@registry/model/registry';
+import { HierarchyService } from '@registry/service';
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
 
+import { FormsModule } from '@angular/forms';
 
 @Component({
-    selector: "add-child-to-hierarchy-modal",
-    templateUrl: "./add-child-to-hierarchy-modal.component.html",
-    styleUrls: [],
-    standalone: true,
-    imports: [FormsModule, NgIf, LocalizeComponent, NgFor]
+  selector: 'add-child-to-hierarchy-modal',
+  templateUrl: './add-child-to-hierarchy-modal.component.html',
+  styleUrls: [],
+  standalone: true,
+  imports: [FormsModule, LocalizeComponent],
 })
 export class AddChildToHierarchyModalComponent implements OnInit {
+  /*
+   * parent id of the node being created
+   */
+  public parent: TreeNode;
+  public hierarchyType: HierarchyType;
+  public nodes: HierarchyNode[];
+  public allGeoObjectTypes: GeoObjectType[];
+  public selectedGeoObjectType: GeoObjectType;
+  private toRoot: boolean = false;
+  selectUndefinedOptionValue: any;
+  message: string = null;
 
-    /*
-     * parent id of the node being created
-     */
-    public parent: TreeNode;
-    public hierarchyType: HierarchyType;
-    public nodes: HierarchyNode[];
-    public allGeoObjectTypes: GeoObjectType[];
-    public selectedGeoObjectType: GeoObjectType;
-    private toRoot: boolean = false;
-    selectUndefinedOptionValue: any;
-    message: string = null;
+  /*
+   * Observable subject for TreeNode changes.  Called when create is successful
+   */
+  public onNodeChange: Subject<HierarchyType>;
 
-    /*
-     * Observable subject for TreeNode changes.  Called when create is successful
-     */
-    public onNodeChange: Subject<HierarchyType>;
+  // eslint-disable-next-line no-useless-constructor
+  constructor(
+    private hierarchyService: HierarchyService,
+    public bsModalRef: BsModalRef
+  ) {}
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor(private hierarchyService: HierarchyService, public bsModalRef: BsModalRef) { }
+  ngOnInit(): void {
+    this.onNodeChange = new Subject();
+  }
 
-    ngOnInit(): void {
-        this.onNodeChange = new Subject();
-    }
+  onSelect(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
 
-    onSelect(event: Event): void {
-        const value = (event.target as HTMLInputElement).value;    
-            
-        this.allGeoObjectTypes.forEach(gObj => {
-            if (gObj.code === value) {
-                this.selectedGeoObjectType = gObj;
-            }
-        });
-    }
+    this.allGeoObjectTypes.forEach((gObj) => {
+      if (gObj.code === value) {
+        this.selectedGeoObjectType = gObj;
+      }
+    });
+  }
 
-    handleOnSubmit(): void {
-        this.message = null;
+  handleOnSubmit(): void {
+    this.message = null;
 
-        let parent = (this.toRoot) ? "ROOT" : this.parent.data.geoObjectType;
-        this.hierarchyService.addChildToHierarchy(this.hierarchyType.code, parent, this.selectedGeoObjectType.code).then(data => {
-            this.onNodeChange.next(data);
-            this.bsModalRef.hide();
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
+    let parent = this.toRoot ? 'ROOT' : this.parent.data.geoObjectType;
+    this.hierarchyService
+      .addChildToHierarchy(this.hierarchyType.code, parent, this.selectedGeoObjectType.code)
+      .then((data) => {
+        this.onNodeChange.next(data);
+        this.bsModalRef.hide();
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
 
-    error(err: HttpErrorResponse): void {
-        this.message = ErrorHandler.getMessageFromError(err);
-    }
-
+  error(err: HttpErrorResponse): void {
+    this.message = ErrorHandler.getMessageFromError(err);
+  }
 }

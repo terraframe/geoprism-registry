@@ -17,38 +17,33 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input } from "@angular/core";
+import { Component, Input } from '@angular/core';
 
-import { Step, StepConfig } from "@registry/model/registry";
-import { NgIf, NgFor, NgClass } from "@angular/common";
+import { Step, StepConfig } from '@registry/model/registry';
+import { NgClass } from '@angular/common';
 
 @Component({
-    selector: "step-indicator",
-    templateUrl: "./step-indicator.component.html",
-    styleUrls: ["./step-indicator.css"],
-    standalone: true,
-    imports: [NgIf, NgFor, NgClass]
+  selector: 'step-indicator',
+  templateUrl: './step-indicator.component.html',
+  styleUrls: ['./step-indicator.css'],
+  standalone: true,
+  imports: [NgClass],
 })
 export class StepIndicatorComponent {
+  // eslint-disable-next-line accessor-pairs
+  @Input('steps')
+  set steps(value: StepConfig) {
+    this._stepConfig = value;
+  }
 
-    // eslint-disable-next-line accessor-pairs
-    @Input("steps")
-    set steps(value: StepConfig) {
-        this._stepConfig = value;
-    }
+  _stepConfig: StepConfig;
+  step: Step;
 
-    _stepConfig: StepConfig;
-    step: Step;
+  constructor() {
+    this._stepConfig = { steps: [] };
+  }
 
-    constructor() {
-        this._stepConfig = { steps: [] };
-    }
+  ngOnInit(): void {}
 
-    ngOnInit(): void {
-    }
-
-    ngOnDestroy() {
-
-    }
-
+  ngOnDestroy() {}
 }

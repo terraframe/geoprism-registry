@@ -1,89 +1,132 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <div>
-
   <message></message>
 
   <loading-bar></loading-bar>
   <form>
     <fieldset>
-      
-      <div *ngIf="_roles">
-
-        <!-- SRA -->
-        <div *ngIf="_roles.SRA" class="row">
-          <div class="col-sm-12">
-            <boolean-field [(value)]="_roles.SRA.assigned" (change)="onToggleSRA($event)"
-              [label]="_roles.SRA.label.localizedValue" [disable]="!isSRA"></boolean-field>
-          </div>
-        </div>
-
-        <div *ngFor="let org of _roles.ORGANIZATIONS" class="row-holder">
-
-          <div class="heading">
-            <h4>{{org.ORGANIZATIONLABEL}}</h4>
-          </div>
-
-
-          <!-- Organization administrator -->
-          <div *ngIf="org.RA && isSRA" class="row">
-            <div class="col-sm-12">
-              <boolean-field [(value)]="org.RA.assigned" (change)="onToggleOrgRA($event, org)"
-                [label]="org.RA.label.localizedValue" [disable]="(_roles.SRA && _roles.SRA.assigned) || (_raAssigned && !org.RA.assigned) || (_activeOrganization && _activeOrganization !== org.CODE)"></boolean-field>
+      @if (_roles) {
+        <div>
+          <!-- SRA -->
+          @if (_roles.SRA) {
+            <div class="row">
+              <div class="col-sm-12">
+                <boolean-field
+                  [(value)]="_roles.SRA.assigned"
+                  (change)="onToggleSRA($event)"
+                  [label]="_roles.SRA.label.localizedValue"
+                  [disable]="!isSRA"
+                ></boolean-field>
+              </div>
             </div>
-          </div>
-
-          <!-- Organization GeoObjectTypes -->
-          <div class="row">
-            <div class="col-sm-12 org-container" style="padding-left:50px;padding-right:50px;">
-
-              <fieldset [disabled]="(org.RA && org.RA.assigned) || (_roles.SRA && _roles.SRA.assigned) || _raAssigned || (_activeOrganization && _activeOrganization !== org.CODE)">
-                <div *ngFor="let roleGroup of org.GEOOBJECTTYPEROLES; let i = index">
-              
-                  <div class="heading">
-                    <h4>{{roleGroup.GEOOBJECTTYPELABEL}}</h4>
+          }
+          @for (org of _roles.ORGANIZATIONS; track org.CODE) {
+            <div class="row-holder">
+              <div class="heading">
+                <h4>{{ org.ORGANIZATIONLABEL }}</h4>
+              </div>
+              <!-- Organization administrator -->
+              @if (org.RA && isSRA) {
+                <div class="row">
+                  <div class="col-sm-12">
+                    <boolean-field
+                      [(value)]="org.RA.assigned"
+                      (change)="onToggleOrgRA($event, org)"
+                      [label]="org.RA.label.localizedValue"
+                      [disable]="
+                        (_roles.SRA && _roles.SRA.assigned) ||
+                        (_raAssigned && !org.RA.assigned) ||
+                        (_activeOrganization && _activeOrganization !== org.CODE)
+                      "
+                    ></boolean-field>
                   </div>
-              
-                  <label class="radio" [ngClass]="{'disabled' : (org.RA && org.RA.assigned) || (_roles.SRA && _roles.SRA.assigned) || _raAssigned || (_activeOrganization && _activeOrganization !== org.CODE) }" *ngFor="let role of roleGroup.GEOOBJECTTYPEROLESGROUP">
-                    <input type="checkbox" [value]="role.name" [checked]="roleGroup.ENABLEDROLE === role.name" (change)="setGroupRole($event, roleGroup, role, org)" 
-                      [name]="role.orgCode + role.geoObjectTypeCode" >
-                    <span style="font-weight: 400;">{{role.label.localizedValue}}</span>
-                  </label>
-
-                  <label class="radio" [ngClass]="{'disabled' : (org.RA && org.RA.assigned) || (_roles.SRA && _roles.SRA.assigned) || _raAssigned || (_activeOrganization && _activeOrganization !== org.CODE)}">
-                    <input type="checkbox" [value]="" [checked]="roleGroup.ENABLEDROLE === ''" (change)="setGroupRole($event, roleGroup, null, org)" 
-                      [name]="roleGroup + '_none'"  >
-                    <span style="font-weight: 400;"><localize key="accounts.none"></localize></span>
-                  </label>
-              
                 </div>
-              </fieldset>
-
+              }
+              <!-- Organization GeoObjectTypes -->
+              <div class="row">
+                <div class="col-sm-12 org-container" style="padding-left: 50px; padding-right: 50px">
+                  <fieldset
+                    [disabled]="
+                      (org.RA && org.RA.assigned) ||
+                      (_roles.SRA && _roles.SRA.assigned) ||
+                      _raAssigned ||
+                      (_activeOrganization && _activeOrganization !== org.CODE)
+                    "
+                  >
+                    @for (roleGroup of org.GEOOBJECTTYPEROLES; track roleGroup; let i = $index) {
+                      <div>
+                        <div class="heading">
+                          <h4>{{ roleGroup.GEOOBJECTTYPELABEL }}</h4>
+                        </div>
+                        @for (role of roleGroup.GEOOBJECTTYPEROLESGROUP; track role) {
+                          <label
+                            class="radio"
+                            [ngClass]="{
+                              disabled:
+                                (org.RA && org.RA.assigned) ||
+                                (_roles.SRA && _roles.SRA.assigned) ||
+                                _raAssigned ||
+                                (_activeOrganization && _activeOrganization !== org.CODE),
+                            }"
+                          >
+                            <input
+                              type="checkbox"
+                              [value]="role.name"
+                              [checked]="roleGroup.ENABLEDROLE === role.name"
+                              (change)="setGroupRole($event, roleGroup, role, org)"
+                              [name]="role.orgCode + role.geoObjectTypeCode"
+                            />
+                            <span style="font-weight: 400">{{ role.label.localizedValue }}</span>
+                          </label>
+                        }
+                        <label
+                          class="radio"
+                          [ngClass]="{
+                            disabled:
+                              (org.RA && org.RA.assigned) ||
+                              (_roles.SRA && _roles.SRA.assigned) ||
+                              _raAssigned ||
+                              (_activeOrganization && _activeOrganization !== org.CODE),
+                          }"
+                        >
+                          <input
+                            type="checkbox"
+                            [value]=""
+                            [checked]="roleGroup.ENABLEDROLE === ''"
+                            (change)="setGroupRole($event, roleGroup, null, org)"
+                            [name]="roleGroup + '_none'"
+                          />
+                          <span style="font-weight: 400"><localize key="accounts.none"></localize></span>
+                        </label>
+                      </div>
+                    }
+                  </fieldset>
+                </div>
+              </div>
             </div>
-          </div>
-
-        </div> <!-- End organizations row -->
-
-      </div>
-
+          }
+          <!-- End organizations row -->
+        </div>
+      }
     </fieldset>
   </form>
 </div>

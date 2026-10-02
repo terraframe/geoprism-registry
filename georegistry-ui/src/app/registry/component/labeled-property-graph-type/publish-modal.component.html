@@ -1,38 +1,42 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <div class="modal-body">
-    <ng-container *ngIf="type != null">
-        <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
-
-        <div class="text-center">
-            <h2>
-                <localize key="type.publish.configuration.header"></localize>
-            </h2>
-            <hr>
-        </div>
-
-        <!-- <div class="col-md-12 order-md-1"> -->
-        <labeled-property-graph-type-form [type]="type" [isNew]="isNew" [entityLabel]="entityLabel"
-            (complete)="onSubmit($event)" (cancel)="onCancel()">
-        </labeled-property-graph-type-form>
-
-    </ng-container>
+  @if (type != null) {
+    @if (message != null) {
+      <div class="alert alert-danger" role="alert">{{ message }}</div>
+    }
+    <div class="text-center">
+      <h2>
+        <localize key="type.publish.configuration.header"></localize>
+      </h2>
+      <hr />
+    </div>
+    <!-- <div class="col-md-12 order-md-1"> -->
+    <labeled-property-graph-type-form
+      [type]="type"
+      [isNew]="isNew"
+      [entityLabel]="entityLabel"
+      (complete)="onSubmit($event)"
+      (cancel)="onCancel()"
+    >
+    </labeled-property-graph-type-form>
+  }
 </div>

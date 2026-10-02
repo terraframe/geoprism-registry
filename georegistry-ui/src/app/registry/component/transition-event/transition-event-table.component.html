@@ -1,127 +1,181 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <ng-template #customItemTemplate let-model="item" let-index="index">
-  <h5>{{model.name }} : {{ model.code }}</h5>
+  <h5>{{ model.name }} : {{ model.code }}</h5>
 </ng-template>
 
-
 <div>
-  <div class="row" style="padding-top:10px; padding-bottom: 10px;">
+  <div class="row" style="padding-top: 10px; padding-bottom: 10px">
     <span class="col-md-4">
       <label for="beforeTypeFilter">
         <localize key="transition.event.beforeType"></localize>
       </label>
-      <select id="beforeTypeFilter" name="beforeTypeFilter" class="select-area" [(ngModel)]="beforeTypeCondition.value"
-        (change)="filterChange()">
+      <select
+        id="beforeTypeFilter"
+        name="beforeTypeFilter"
+        class="select-area"
+        [(ngModel)]="beforeTypeCondition.value"
+        (change)="filterChange()"
+      >
         <option></option>
-        <option *ngFor="let type of types" [value]="type.code">{{type.label}}</option>
+        @for (type of types; track type.code) {
+          <option [value]="type.code">{{ type.label }}</option>
+        }
       </select>
     </span>
     <span class="col-md-4">
       <label for="startDateFilter">
         <localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize>
       </label>
-      <date-field [(value)]="dateCondition.startDate" [classNames]="'form-control'" label="" (change)="filterChange()"
-        [inputName]="'startDateFilter'" [allowFutureDates]="false" name="startDateFilter" [required]="false" customStyles="width:100%; height:40px;">
+      <date-field
+        [(value)]="dateCondition.startDate"
+        [classNames]="'form-control'"
+        label=""
+        (change)="filterChange()"
+        [inputName]="'startDateFilter'"
+        [allowFutureDates]="false"
+        name="startDateFilter"
+        [required]="false"
+        customStyles="width:100%; height:40px;"
+      >
       </date-field>
     </span>
     <span class="col-md-4">
       <label for="endDateFilter">
         <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
       </label>
-      <date-field [(value)]="dateCondition.endDate" [classNames]="'form-control'" label="" (change)="filterChange()"
-        [inputName]="'endDateFilter'" [allowFutureDates]="false" name="endDateFilter" [required]="false" customStyles="width:100%; height:40px;"></date-field>
+      <date-field
+        [(value)]="dateCondition.endDate"
+        [classNames]="'form-control'"
+        label=""
+        (change)="filterChange()"
+        [inputName]="'endDateFilter'"
+        [allowFutureDates]="false"
+        name="endDateFilter"
+        [required]="false"
+        customStyles="width:100%; height:40px;"
+      ></date-field>
     </span>
   </div>
   <div class="row">
     <span class="col-md-4"></span>
-    <span class="col-md-8 error-message" style="text-align:center;" *ngIf="dateService.after(dateCondition.startDate, dateCondition.endDate)">
-      <localize key="manage.versions.startdate.later.enddate.message"></localize>
-    </span>
+    @if (dateService.after(dateCondition.startDate, dateCondition.endDate)) {
+      <span class="col-md-8 error-message" style="text-align: center">
+        <localize key="manage.versions.startdate.later.enddate.message"></localize>
+      </span>
+    }
   </div>
 
   <div class="row">
     <div class="col-md-12">
       <table class="table">
         <thead>
-          <tr style="height: 50px;color: grey;">
-            <th style="vertical-align: middle;">
+          <tr style="height: 50px; color: grey">
+            <th style="vertical-align: middle">
               <localize key="transition.event.actions"></localize>
             </th>
-            <th style="vertical-align: middle;">
+            <th style="vertical-align: middle">
               <localize key="transition.event.date"></localize>
             </th>
-            <th style="vertical-align: middle;">
+            <th style="vertical-align: middle">
               <localize key="transition.event.description"></localize>
             </th>
-            <th style="vertical-align: middle;">
+            <th style="vertical-align: middle">
               <localize key="transition.event.beforeType"></localize>
             </th>
-            <th style="vertical-align: middle;">
+            <th style="vertical-align: middle">
               <localize key="transition.event.afterType"></localize>
             </th>
-            <th style="vertical-align: middle;">
+            <th style="vertical-align: middle">
               <localize key="transition.event.id"></localize>
             </th>
           </tr>
         </thead>
         <tbody>
-          <ng-template ngFor let-event
-            [ngForOf]="page.resultSet | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }">
-
-            <tr style="height: 50px;">
-              <td class="col-md-1" style="vertical-align:middle;text-align:left;">
-                <a *ngIf="event.permissions.includes('READ')" (click)="onView(event)" [ngClass]="{'fa-pencil' : event.permissions.indexOf('WRITE') !== -1, 'fa-eye' : event.permissions.indexOf('WRITE') === -1}" class="fa" aria-hidden="true"></a>
-                <a *ngIf="event.permissions.includes('DELETE')" (click)="deleteEvent($event, event)" class="fa fa-trash" aria-hidden="true"></a>
+          @for (
+            event of page.resultSet
+              | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count };
+            track event.oid
+          ) {
+            <tr style="height: 50px">
+              <td class="col-md-1" style="vertical-align: middle; text-align: left">
+                @if (event.permissions.includes('READ')) {
+                  <a
+                    (click)="onView(event)"
+                    [ngClass]="{
+                      'fa-pencil': event.permissions.indexOf('WRITE') !== -1,
+                      'fa-eye': event.permissions.indexOf('WRITE') === -1,
+                    }"
+                    class="fa"
+                    aria-hidden="true"
+                  ></a>
+                }
+                @if (event.permissions.includes('DELETE')) {
+                  <a (click)="deleteEvent($event, event)" class="fa fa-trash" aria-hidden="true"></a>
+                }
               </td>
               <td class="col-md-1">
-                <h5><strong><date-text [date]="event.eventDate"></date-text></strong></h5>
+                <h5>
+                  <strong><date-text [date]="event.eventDate"></date-text></strong>
+                </h5>
               </td>
               <td class="col-md-4">
-                <h5><strong>{{event.description.localizedValue}}</strong></h5>
+                <h5>
+                  <strong>{{ event.description.localizedValue }}</strong>
+                </h5>
               </td>
               <td class="col-md-2">
-                <h5><strong>{{event.beforeTypeLabel}}</strong></h5>
+                <h5>
+                  <strong>{{ event.beforeTypeLabel }}</strong>
+                </h5>
               </td>
               <td class="col-md-2">
-                <h5><strong>{{event.afterTypeLabel}}</strong></h5>
+                <h5>
+                  <strong>{{ event.afterTypeLabel }}</strong>
+                </h5>
               </td>
               <td class="col-md-2">
-                <h5><strong>{{event.eventId}}</strong></h5>
+                <h5>
+                  <strong>{{ event.eventId }}</strong>
+                </h5>
               </td>
             </tr>
-          </ng-template>
+          }
         </tbody>
       </table>
-      <div *ngIf="!this.readOnly" style="margin-top: 30px; margin-bottom: 30px;" class="row">
-        <div class="col-md-6">
-          <button type="submit" (click)="onCreate()" class="btn btn-primary" role="button">
-            <localize key="hierarchy.management.button.create"></localize>
-          </button>
+      @if (!this.readOnly) {
+        <div style="margin-top: 30px; margin-bottom: 30px" class="row">
+          <div class="col-md-6">
+            <button type="submit" (click)="onCreate()" class="btn btn-primary" role="button">
+              <localize key="hierarchy.management.button.create"></localize>
+            </button>
+          </div>
         </div>
-      </div>
+      }
       <div class="solid-table-footer">
-        <div *ngIf="page.resultSet.length > 0" class="solid-table-footer">
-          <pagination-controls (pageChange)="refresh($event)"></pagination-controls>
-        </div>
+        @if (page.resultSet.length > 0) {
+          <div class="solid-table-footer">
+            <pagination-controls (pageChange)="refresh($event)"></pagination-controls>
+          </div>
+        }
       </div>
     </div>
   </div>

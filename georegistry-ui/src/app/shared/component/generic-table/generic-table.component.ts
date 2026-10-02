@@ -17,200 +17,239 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, Input, Output, EventEmitter, OnDestroy, ViewChild, AfterViewInit, OnChanges, SimpleChanges } from "@angular/core";
-import { FilterMetadata, LazyLoadEvent, SharedModule } from "primeng/api";
-import { Table, TableLazyLoadEvent, TableModule } from "primeng/table";
+import {
+  Component,
+  OnInit,
+  Input,
+  Output,
+  EventEmitter,
+  OnDestroy,
+  ViewChild,
+  AfterViewInit,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
+import { FilterMetadata, LazyLoadEvent, SharedModule } from 'primeng/api';
+import { Table, TableLazyLoadEvent, TableModule } from 'primeng/table';
 
-import { Subject } from "rxjs";
-import { GenericTableColumn, GenericTableConfig, TableColumnSetup, TableEvent } from "@shared/model/generic-table";
-import { PageResult } from "@shared/model/core";
-import { LocalizationService } from "@shared/service/localization.service";
-import { LocalizePipe } from "../../pipe/localize.pipe";
-import { DateTextComponent } from "../date-text/date-text.component";
-import { LocalizeComponent } from "../localize/localize.component";
-import { RouterLink } from "@angular/router";
-import { DropdownModule } from "primeng/dropdown";
-import { FormsModule } from "@angular/forms";
-import { AutoCompleteModule } from "primeng/autocomplete";
-import { DateFieldComponent } from "../form-fields/date-field/date-field.component";
-import { NgFor, NgIf, NgClass, NgSwitch, NgSwitchCase, NgSwitchDefault } from "@angular/common";
+import { Subject } from 'rxjs';
+import { GenericTableColumn, GenericTableConfig, TableColumnSetup, TableEvent } from '@shared/model/generic-table';
+import { PageResult } from '@shared/model/core';
+import { LocalizationService } from '@shared/service/localization.service';
+import { LocalizePipe } from '../../pipe/localize.pipe';
+import { DateTextComponent } from '../date-text/date-text.component';
+import { LocalizeComponent } from '../localize/localize.component';
+import { RouterLink } from '@angular/router';
+import { SelectModule } from 'primeng/select';
+import { FormsModule } from '@angular/forms';
+import { AutoCompleteModule } from 'primeng/autocomplete';
+import { DateFieldComponent } from '../form-fields/date-field/date-field.component';
+import { NgClass } from '@angular/common';
 
 @Component({
-    selector: "generic-table",
-    templateUrl: "./generic-table.component.html",
-    styleUrls: ["./generic-table.css"],
-    standalone: true,
-    imports: [TableModule, SharedModule, NgFor, NgIf, NgClass, NgSwitch, NgSwitchCase, DateFieldComponent, AutoCompleteModule, FormsModule, DropdownModule, RouterLink, LocalizeComponent, DateTextComponent, NgSwitchDefault, LocalizePipe]
+  selector: 'generic-table',
+  templateUrl: './generic-table.component.html',
+  styleUrls: ['./generic-table.css'],
+  standalone: true,
+  imports: [
+    TableModule,
+    SharedModule,
+    NgClass,
+    DateFieldComponent,
+    AutoCompleteModule,
+    FormsModule,
+    SelectModule,
+    RouterLink,
+    LocalizeComponent,
+    DateTextComponent,
+    LocalizePipe,
+  ],
 })
 export class GenericTableComponent implements OnInit, OnDestroy, AfterViewInit, OnChanges {
+  page: PageResult<Object> = {
+    resultSet: [],
+    count: 0,
+    pageNumber: 1,
+    pageSize: 30,
+  };
 
-    page: PageResult<Object> = {
-        resultSet: [],
-        count: 0,
-        pageNumber: 1,
-        pageSize: 30
-    };
+  @Input() setup: TableColumnSetup;
 
-    @Input() setup: TableColumnSetup;
+  @Input() pageConfig: any = null;
 
-    @Input() pageConfig: any = null;
+  @Input() config: GenericTableConfig;
 
-    @Input() config: GenericTableConfig;
+  @Input() refresh: Subject<void>;
 
-    @Input() refresh: Subject<void>;
+  @Input() initialState: TableLazyLoadEvent = null;
 
-    @Input() initialState: TableLazyLoadEvent = null;
+  @Output() click = new EventEmitter<TableEvent>();
+  @Output() onLoadEvent = new EventEmitter<TableLazyLoadEvent>();
 
-    @Output() click = new EventEmitter<TableEvent>();
-    @Output() onLoadEvent = new EventEmitter<TableLazyLoadEvent>();
+  @Input() paginator: boolean = true;
 
-    @Input() paginator: boolean = true;
+  @Input() scrollable: boolean = false;
 
-    @Input() scrollable: boolean = false;
+  @ViewChild('dt') dt: Table;
 
-    @ViewChild("dt") dt: Table;
+  first: number = 0;
 
-    first: number = 0;
+  loading: boolean = true;
 
-    loading: boolean = true;
+  booleanOptions: any = [];
 
-    booleanOptions: any = [];
+  hasFilter: boolean = false;
 
-    hasFilter: boolean = false;
+  event: TableLazyLoadEvent = null;
 
-    event: TableLazyLoadEvent = null;
+  constructor(private localizationService: LocalizationService) {
+    this.booleanOptions = [
+      { label: '', value: null },
+      { value: true, label: this.localizationService.decode('change.request.boolean.option.true') },
+      { value: false, label: this.localizationService.decode('change.request.boolean.option.false') },
+    ];
+  }
 
-    constructor(private localizationService: LocalizationService) {
-        this.booleanOptions = [
-            { label: "", value: null },
-            { value: true, label: this.localizationService.decode("change.request.boolean.option.true") },
-            { value: false, label: this.localizationService.decode("change.request.boolean.option.false") }
-        ];
+  ngOnChanges(changes: SimpleChanges): void {}
+
+  ngOnInit(): void {
+    if (this.initialState != null) {
+      this.first = this.initialState.first != null ? this.initialState.first : 0;
+
+      if (this.initialState.multiSortMeta != null) {
+        this.config.sort = this.initialState.multiSortMeta;
+      }
     }
 
-    ngOnChanges(changes: SimpleChanges): void {
+    this.loadColumns();
+
+    if (this.refresh != null) {
+      this.refresh.subscribe(() => {
+        if (this.event != null) {
+          this.onPageChange(this.event);
+        }
+      });
     }
 
-    ngOnInit(): void {
-        if (this.initialState != null) {
-            this.first = this.initialState.first != null ? this.initialState.first : 0;
-
-            if (this.initialState.multiSortMeta != null) {
-                this.config.sort = this.initialState.multiSortMeta;
-            }
-        }
-
-        this.loadColumns();
-
-        if (this.refresh != null) {
-            this.refresh.subscribe(() => {
-                if (this.event != null) {
-                    this.onPageChange(this.event);
-                }
-            });
-        }
-
-        if (this.config.baseZIndex == null) {
-            this.config.baseZIndex = 0;
-        }
-
-        if (this.config.pageSize != null) {
-            this.page.pageSize = this.config.pageSize;
-        }
+    if (this.config.baseZIndex == null) {
+      this.config.baseZIndex = 0;
     }
 
-    ngAfterViewInit(): void {
-        if (this.dt != null && this.initialState != null) {
-            if (this.initialState.filters != null) {
-                const keys = Object.keys(this.initialState.filters);
-
-                keys.forEach(key => {
-                    const metadata: FilterMetadata = this.initialState.filters[key] as FilterMetadata;
-
-                    this.dt.filter(metadata.value, key, metadata.matchMode);
-                });
-            }
-        }
+    if (this.config.pageSize != null) {
+      this.page.pageSize = this.config.pageSize;
     }
+  }
 
-    ngOnDestroy(): void {
-        if (this.refresh != null) {
-            this.refresh.unsubscribe();
-        }
-    }
+  ngAfterViewInit(): void {
+    if (this.dt != null && this.initialState != null) {
+      if (this.initialState.filters != null) {
+        const keys = Object.keys(this.initialState.filters);
 
-    loadColumns(): void {
-        this.setup.columns.forEach(column => {
-            if (column.headerType === "ATTRIBUTE") {
-                if (column.filter) {
-                    this.hasFilter = true;
-                }
+        keys.forEach((key) => {
+          const metadata: FilterMetadata = this.initialState.filters[key] as FilterMetadata;
 
-                if (column.type === "DATE") {
-                    if (this.initialState != null && this.initialState.filters != null && this.initialState.filters[column.field] != null) {
-                        const dates = (this.initialState.filters[column.field] as FilterMetadata).value;
-
-                        column.startDate = dates.startDate;
-                        column.endDate = dates.endDate;
-                    }
-                } else if (column.type === "BOOLEAN") {
-                    if (this.initialState != null && this.initialState.filters != null && this.initialState.filters[column.field] != null) {
-                        column.value = (this.initialState.filters[column.field] as FilterMetadata).value;
-                    }
-                } else if (column.type === "NUMBER") {
-                    if (this.initialState != null && this.initialState.filters != null && this.initialState.filters[column.field] != null) {
-                        column.value = (this.initialState.filters[column.field] as FilterMetadata).value;
-                    }
-                } else if (column.type === "AUTOCOMPLETE") {
-                    if (this.initialState != null && this.initialState.filters != null && this.initialState.filters[column.field] != null) {
-                        column.text = (this.initialState.filters[column.field] as FilterMetadata).value;
-                    }
-                }
-            }
+          this.dt.filter(metadata.value, key, metadata.matchMode);
         });
+      }
     }
+  }
 
-    onPageChange(event: TableLazyLoadEvent): void {
-        this.loading = true;
-        this.event = event;
-
-        setTimeout(() => {
-            this.config.service.page(event, this.pageConfig).then(page => {
-                this.page = page;
-
-                this.onLoadEvent.emit(event);
-            }).finally(() => {
-                this.loading = false;
-            });
-        }, 1000);
+  ngOnDestroy(): void {
+    if (this.refresh != null) {
+      this.refresh.unsubscribe();
     }
+  }
 
-    onClick(type: string, row: Object, col: GenericTableColumn): void {
-        this.click.emit({
-            type: type,
-            row: row,
-            col: col
-        });
-    }
-
-    onComplete(col: GenericTableColumn): void {
-        col.onComplete();
-    }
-
-    getColumnType(row: Object, col: GenericTableColumn): string {
-        if (col.columnType != null) {
-            return col.columnType(row);
+  loadColumns(): void {
+    this.setup.columns.forEach((column) => {
+      if (column.headerType === 'ATTRIBUTE') {
+        if (column.filter) {
+          this.hasFilter = true;
         }
 
-        return col.type;
+        if (column.type === 'DATE') {
+          if (
+            this.initialState != null &&
+            this.initialState.filters != null &&
+            this.initialState.filters[column.field] != null
+          ) {
+            const dates = (this.initialState.filters[column.field] as FilterMetadata).value;
+
+            column.startDate = dates.startDate;
+            column.endDate = dates.endDate;
+          }
+        } else if (column.type === 'BOOLEAN') {
+          if (
+            this.initialState != null &&
+            this.initialState.filters != null &&
+            this.initialState.filters[column.field] != null
+          ) {
+            column.value = (this.initialState.filters[column.field] as FilterMetadata).value;
+          }
+        } else if (column.type === 'NUMBER') {
+          if (
+            this.initialState != null &&
+            this.initialState.filters != null &&
+            this.initialState.filters[column.field] != null
+          ) {
+            column.value = (this.initialState.filters[column.field] as FilterMetadata).value;
+          }
+        } else if (column.type === 'AUTOCOMPLETE') {
+          if (
+            this.initialState != null &&
+            this.initialState.filters != null &&
+            this.initialState.filters[column.field] != null
+          ) {
+            column.text = (this.initialState.filters[column.field] as FilterMetadata).value;
+          }
+        }
+      }
+    });
+  }
+
+  onPageChange(event: TableLazyLoadEvent): void {
+    this.loading = true;
+    this.event = event;
+
+    setTimeout(() => {
+      this.config.service
+        .page(event, this.pageConfig)
+        .then((page) => {
+          this.page = page;
+
+          this.onLoadEvent.emit(event);
+        })
+        .finally(() => {
+          this.loading = false;
+        });
+    }, 1000);
+  }
+
+  onClick(type: string, row: Object, col: GenericTableColumn): void {
+    this.click.emit({
+      type: type,
+      row: row,
+      col: col,
+    });
+  }
+
+  onComplete(col: GenericTableColumn): void {
+    col.onComplete();
+  }
+
+  getColumnType(row: Object, col: GenericTableColumn): string {
+    if (col.columnType != null) {
+      return col.columnType(row);
     }
 
-    handleFilter(event: LazyLoadEvent): void {
-        this.onLoadEvent.emit(event);
-    }
+    return col.type;
+  }
 
-    handleInput(dt: any, target: EventTarget, col: GenericTableColumn, operation: string): void {
-        dt.filter(((<HTMLTextAreaElement>target)).value, col.field, operation)
-    }
+  handleFilter(event: LazyLoadEvent): void {
+    this.onLoadEvent.emit(event);
+  }
 
+  handleInput(dt: any, target: EventTarget, col: GenericTableColumn, operation: string): void {
+    dt.filter((<HTMLTextAreaElement>target).value, col.field, operation);
+  }
 }

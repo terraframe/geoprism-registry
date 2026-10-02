@@ -23,7 +23,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 
-
 import { Account, User, Role } from '@admin/model/account';
 import { AccountService } from '@admin/service/account.service';
 import { LocalizationService, AuthService } from '@shared/service';
@@ -35,21 +34,29 @@ import { RoleManagementComponent } from './role-management.component';
 import { PasswordStrengthBarComponent } from '../../../shared/component/password-strength-bar/password-strength-bar.component';
 import { MustMatchDirective } from '../../../shared/directive/must-match.directive';
 import { FormsModule } from '@angular/forms';
-import { NgIf, NgFor } from '@angular/common';
+
 import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
 import { LoadingBarComponent } from '../../../shared/component/loading-bar/loading-bar.component';
 import { MessageComponent } from '../../../shared/component/message/message.component';
 
 @Component({
-    selector: 'account',
-    templateUrl: './account.component.html',
-    styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}'],
-    styleUrls: ['./account.css'],
-    standalone: true,
-    imports: [MessageComponent, LoadingBarComponent, LocalizeComponent, NgIf, FormsModule, MustMatchDirective, NgFor, PasswordStrengthBarComponent, RoleManagementComponent, LocalizePipe]
+  selector: 'account',
+  templateUrl: './account.component.html',
+  styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}'],
+  styleUrls: ['./account.css'],
+  standalone: true,
+  imports: [
+    MessageComponent,
+    LoadingBarComponent,
+    LocalizeComponent,
+    FormsModule,
+    MustMatchDirective,
+    PasswordStrengthBarComponent,
+    RoleManagementComponent,
+    LocalizePipe,
+  ],
 })
 export class AccountComponent implements OnInit {
-
   message: string = null;
   account: Account;
   roles: Role[];
@@ -66,31 +73,33 @@ export class AccountComponent implements OnInit {
   @Input()
   set oid(oid: string) {
     if (oid === 'NEW') {
-
       let orgCodes = [];
       if (this.isRA) {
         orgCodes = this.authService.getMyOrganizations();
       }
 
-      this.service.newInstance(orgCodes).then(data => {
-        this.account = new Account();
-        this.account.user = new User();
-        this.account.roles = data.roles;
-      }).catch((err: HttpErrorResponse) => {
-        this.error(err);
-      });
-    }
-    else if (oid) {
-      this.service.edit(oid).then(data => {
+      this.service
+        .newInstance(orgCodes)
+        .then((data) => {
+          this.account = new Account();
+          this.account.user = new User();
+          this.account.roles = data.roles;
+        })
+        .catch((err: HttpErrorResponse) => {
+          this.error(err);
+        });
+    } else if (oid) {
+      this.service
+        .edit(oid)
+        .then((data) => {
+          this.account = data;
 
-        this.account = data;
-
-        this.editingOauth = (this.account.user.externalSystemOid != null && this.account.user.externalSystemOid !== "");
-        this.isAppliedAsOauth = this.editingOauth;
-
-      }).catch((err: HttpErrorResponse) => {
-        this.error(err);
-      });
+          this.editingOauth = this.account.user.externalSystemOid != null && this.account.user.externalSystemOid !== '';
+          this.isAppliedAsOauth = this.editingOauth;
+        })
+        .catch((err: HttpErrorResponse) => {
+          this.error(err);
+        });
     }
   }
 
@@ -98,8 +107,8 @@ export class AccountComponent implements OnInit {
   set setExternalSystems(externalSystems: ExternalSystem[]) {
     this.externalSystems = externalSystems;
 
-    if(this.externalSystems){
-      this.externalSystems.forEach(system => {
+    if (this.externalSystems) {
+      this.externalSystems.forEach((system) => {
         if (system.oAuthServer != null) {
           this.systemHasOauth = true;
         }
@@ -131,9 +140,8 @@ export class AccountComponent implements OnInit {
     if (this.editingOauth == false) {
       this.editingOauth = true;
       delete this.account.user.password;
-      this.account.user.externalSystemOid = this.externalSystems[0].oid
-    }
-    else {
+      this.account.user.externalSystemOid = this.externalSystems[0].oid;
+    } else {
       this.editingOauth = false;
       delete this.account.user.externalSystemOid;
     }
@@ -148,27 +156,26 @@ export class AccountComponent implements OnInit {
   }
 
   onSubmit(): void {
-
     if (!this.account.changePassword && !this.account.user.newInstance) {
       delete this.account.user.password;
     }
 
     if (this.roleIds.length > 0) {
-      this.service.apply(this.account.user, this.roleIds).then(data => {
-        this.onEdit.next(data);
-        this.bsModalRef.hide();
-      }).catch((err: HttpErrorResponse) => {
-        this.error(err);
-      });
-    }
-    else {
-      this.message = this.localizeService.decode("account.role.management.roles.required.message");
+      this.service
+        .apply(this.account.user, this.roleIds)
+        .then((data) => {
+          this.onEdit.next(data);
+          this.bsModalRef.hide();
+        })
+        .catch((err: HttpErrorResponse) => {
+          this.error(err);
+        });
+    } else {
+      this.message = this.localizeService.decode('account.role.management.roles.required.message');
     }
   }
-
 
   public error(err: HttpErrorResponse): void {
     this.message = ErrorHandler.getMessageFromError(err);
   }
-
 }

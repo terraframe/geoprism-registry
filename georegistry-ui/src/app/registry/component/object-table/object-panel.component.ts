@@ -17,67 +17,65 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnInit } from "@angular/core";
-import { ObjectClass, ObjectOverTime } from "@registry/model/object-class";
-import { NgFor, NgIf, NgSwitch, NgSwitchCase, NgSwitchDefault, NgTemplateOutlet } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { DateBoundary } from "../geoobject-shared-attribute-editor/stability-period.component";
-import { DateFieldComponent, LocalizeComponent } from "@shared/component";
-import { ConvertKeyLabel } from "@shared/component/localize/convert-key-label.component";
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnInit } from '@angular/core';
+import { ObjectClass, ObjectOverTime } from '@registry/model/object-class';
+import { NgTemplateOutlet } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { DateBoundary } from '../geoobject-shared-attribute-editor/stability-period.component';
+import { DateFieldComponent, LocalizeComponent } from '@shared/component';
+import { ConvertKeyLabel } from '@shared/component/localize/convert-key-label.component';
 
 @Component({
-    selector: "object-panel",
-    templateUrl: "./object-panel.component.html",
-    styleUrls: ["./object-panel.css"],
-    standalone: true,
-    imports: [FormsModule, NgFor, NgIf, NgTemplateOutlet, NgSwitch, NgSwitchCase, NgSwitchDefault, DateFieldComponent, LocalizeComponent, ConvertKeyLabel]
+  selector: 'object-panel',
+  templateUrl: './object-panel.component.html',
+  styleUrls: ['./object-panel.css'],
+  standalone: true,
+  imports: [FormsModule, NgTemplateOutlet, DateFieldComponent, LocalizeComponent, ConvertKeyLabel],
 })
 export class ObjectPanelComponent implements OnChanges, OnInit {
-    @Input() type: ObjectClass;
-    @Input() object: ObjectOverTime;
+  @Input() type: ObjectClass;
+  @Input() object: ObjectOverTime;
 
-    @Output() close = new EventEmitter<void>();
+  @Output() close = new EventEmitter<void>();
 
-    ngOnChanges(changes: SimpleChanges): void {
-        if (changes['object']) {
-            // Do something
-        }
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['object']) {
+      // Do something
     }
+  }
 
-    ngOnInit(): void {
+  ngOnInit(): void {
+    const boundaries: DateBoundary[] = [];
 
-        const boundaries: DateBoundary[] = [];
+    this.type.attributes
+      .filter((a) => a.isChangeOverTime)
+      .forEach((attribute) => {
+        const attributeOverTime = this.object.properties[attribute.code];
 
-        this.type.attributes.filter(a => a.isChangeOverTime).forEach(attribute => {
-            const attributeOverTime = this.object.properties[attribute.code];
+        if (attributeOverTime != null) {
+          attributeOverTime.values.forEach((period) => {
+            if (period.startDate != null && period.endDate != null) {
+              let startIndex = boundaries.findIndex((boundary) => period.startDate === boundary.date);
 
-            if (attributeOverTime != null) {
-                attributeOverTime.values.forEach(period => {
+              if (startIndex !== -1) {
+                boundaries[startIndex].isStart = true;
+              } else {
+                boundaries.push({ date: period.startDate, isStart: true, isEnd: false });
+              }
 
-                    if (period.startDate != null && period.endDate != null) {
-                        let startIndex = boundaries.findIndex(boundary => period.startDate === boundary.date);
-
-                        if (startIndex !== -1) {
-                            boundaries[startIndex].isStart = true;
-                        } else {
-                            boundaries.push({ date: period.startDate, isStart: true, isEnd: false });
-                        }
-
-                        let endIndex = boundaries.findIndex(boundary => period.endDate === boundary.date);
-                        if (endIndex !== -1) {
-                            boundaries[endIndex].isEnd = true;
-                        } else {
-                            boundaries.push({ date: period.endDate, isStart: false, isEnd: true });
-                        }
-                    }
-                });
+              let endIndex = boundaries.findIndex((boundary) => period.endDate === boundary.date);
+              if (endIndex !== -1) {
+                boundaries[endIndex].isEnd = true;
+              } else {
+                boundaries.push({ date: period.endDate, isStart: false, isEnd: true });
+              }
             }
-        });
-    }
+          });
+        }
+      });
+  }
 
-
-    onClose(): void {
-        this.close.emit();
-    }
-
+  onClose(): void {
+    this.close.emit();
+  }
 }

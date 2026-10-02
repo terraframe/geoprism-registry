@@ -23,6 +23,10 @@ import org.axonframework.modelling.saga.repository.SagaStore;
 import org.axonframework.modelling.saga.repository.jdbc.JdbcSagaStore;
 import org.axonframework.serialization.Serializer;
 import org.axonframework.serialization.json.JacksonSerializer;
+import org.axonframework.updates.configuration.DefaultUsagePropertyProvider;
+import org.axonframework.updates.configuration.EnvironmentVariableUsagePropertyProvider;
+import org.axonframework.updates.configuration.PropertyFileUsagePropertyProvider;
+import org.axonframework.updates.configuration.UsagePropertyProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -33,6 +37,7 @@ import org.springframework.context.annotation.Primary;
 @AutoConfiguration
 public class AxonConfig
 {
+
   @Autowired
   public void configureProcessingGroupErrorHandling(EventProcessingConfigurer processingConfigurer)
   {
@@ -56,7 +61,7 @@ public class AxonConfig
   @Bean
   public TransactionManager transactionManager()
   {
-//     return new RunwayTransactionManager();
+    // return new RunwayTransactionManager();
     return NoTransactionManager.INSTANCE;
   }
 
@@ -158,5 +163,36 @@ public class AxonConfig
         .spanFactory(eventBusSpanFactory);
 
     return new RegistryEventStore(builder);
+  }
+
+  @Bean
+  public UsagePropertyProvider usagePropertyProvider()
+  {
+    UsagePropertyProvider provider = UsagePropertyProvider.create( //
+        new EnvironmentVariableUsagePropertyProvider(), //
+        new PropertyFileUsagePropertyProvider(), //
+        new UsagePropertyProvider()
+        {
+
+          @Override
+          public int priority()
+          {
+            return 1000;
+          }
+
+          @Override
+          public String getUrl()
+          {
+            return "";
+          }
+
+          @Override
+          public Boolean getDisabled()
+          {
+            return true;
+          }
+        }); //
+
+    return provider;
   }
 }

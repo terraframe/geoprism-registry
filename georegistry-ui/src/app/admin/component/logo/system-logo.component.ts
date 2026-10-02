@@ -30,109 +30,115 @@ import { environment } from 'src/environments/environment';
 import EnvironmentUtil from '@core/utility/environment-util';
 import { LocalizePipe } from '../../../shared/pipe/localize.pipe';
 import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
-import { NgIf, NgClass } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LoadingBarComponent } from '../../../shared/component/loading-bar/loading-bar.component';
 import { MessageComponent } from '../../../shared/component/message/message.component';
 
 @Component({
-    selector: 'system-logo',
-    templateUrl: './system-logo.component.html',
-    styles: [],
-    standalone: true,
-    imports: [MessageComponent, LoadingBarComponent, FormsModule, NgIf, FileUploadModule, NgClass, LocalizeComponent, LocalizePipe]
+  selector: 'system-logo',
+  templateUrl: './system-logo.component.html',
+  styles: [],
+  standalone: true,
+  imports: [
+    MessageComponent,
+    LoadingBarComponent,
+    FormsModule,
+    FileUploadModule,
+    NgClass,
+    LocalizeComponent,
+    LocalizePipe,
+  ],
 })
 export class SystemLogoComponent implements OnInit {
-    message: string = null;
-    icon: SystemLogo;
+  message: string = null;
+  icon: SystemLogo;
 
-    public uploader: FileUploader;
-    public dropActive: boolean = false;
+  public uploader: FileUploader;
+  public dropActive: boolean = false;
 
-    file: any;
-    context: string;
+  file: any;
+  context: string;
 
-    @ViewChild('uploadEl')
-    private uploadElRef: ElementRef;
+  @ViewChild('uploadEl')
+  private uploadElRef: ElementRef;
 
-    public onSuccess: Subject<any>;
+  public onSuccess: Subject<any>;
 
+  constructor(
+    private eventService: EventService,
+    public bsModalRef: BsModalRef
+  ) {
+    this.context = EnvironmentUtil.getApiUrl();
+  }
 
-    constructor(
-        private eventService: EventService,
-        public bsModalRef: BsModalRef) {
-        this.context = EnvironmentUtil.getApiUrl();
+  ngOnInit(): void {
+    this.onSuccess = new Subject();
+
+    let options: FileUploaderOptions = {
+      autoUpload: false,
+      queueLimit: 1,
+      removeAfterUpload: true,
+      url: environment.apiUrl + '/api/asset/apply',
+    };
+
+    this.uploader = new FileUploader(options);
+
+    this.uploader.onBeforeUploadItem = (fileItem: any) => {
+      this.eventService.start();
+    };
+    this.uploader.onCompleteItem = (item: any, response: any, status: any, headers: any) => {
+      this.eventService.complete();
+    };
+    this.uploader.onSuccessItem = (item: any, response: string, status: number, headers: any) => {
+      this.onSuccess.next(item);
+      this.bsModalRef.hide();
+    };
+    this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {
+      this.error(response);
+    };
+    this.uploader.onBuildItemForm = (fileItem: any, form: any) => {
+      form.append('oid', this.icon.oid);
+    };
+  }
+
+  ngAfterViewInit() {
+    let that = this;
+
+    this.uploader.onAfterAddingFile = (item) => {
+      this.uploadElRef.nativeElement.value = '';
+
+      let reader = new FileReader();
+      reader.onload = function (e: any) {
+        that.file = reader.result;
+      };
+      reader.readAsDataURL(item._file);
+    };
+  }
+
+  fileOver(e: any): void {
+    this.dropActive = e;
+  }
+
+  cancel(): void {
+    this.bsModalRef.hide();
+  }
+
+  onSubmit(): void {
+    if (this.file == null) {
+      this.bsModalRef.hide();
+    } else {
+      this.uploader.uploadAll();
     }
+  }
 
-    ngOnInit(): void {
+  clear(): void {
+    this.file = null;
 
-        this.onSuccess = new Subject();
+    this.uploader.clearQueue();
+  }
 
-        let options: FileUploaderOptions = {
-            autoUpload: false,
-            queueLimit: 1,
-            removeAfterUpload: true,
-            url: environment.apiUrl + '/api/asset/apply'
-        };
-
-        this.uploader = new FileUploader(options);
-
-        this.uploader.onBeforeUploadItem = (fileItem: any) => {
-            this.eventService.start();
-        };
-        this.uploader.onCompleteItem = (item: any, response: any, status: any, headers: any) => {
-            this.eventService.complete();
-        };
-        this.uploader.onSuccessItem = (item: any, response: string, status: number, headers: any) => {
-            this.onSuccess.next(item);
-            this.bsModalRef.hide();
-        };
-        this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {
-            this.error(response);
-        };
-        this.uploader.onBuildItemForm = (fileItem: any, form: any) => {
-            form.append('oid', this.icon.oid);
-        };
-    }
-
-    ngAfterViewInit() {
-        let that = this;
-
-        this.uploader.onAfterAddingFile = (item => {
-            this.uploadElRef.nativeElement.value = '';
-
-            let reader = new FileReader();
-            reader.onload = function (e: any) {
-                that.file = reader.result;
-            };
-            reader.readAsDataURL(item._file);
-        });
-    }
-
-    fileOver(e: any): void {
-        this.dropActive = e;
-    }
-
-    cancel(): void {
-        this.bsModalRef.hide();
-    }
-
-    onSubmit(): void {
-        if (this.file == null) {
-            this.bsModalRef.hide();
-        }
-        else {
-            this.uploader.uploadAll();
-        }
-    }
-
-    clear(): void {
-        this.file = null;
-
-        this.uploader.clearQueue()
-    }
-
-    error(err: any): void {
-        this.message = ErrorHandler.getMessageFromError(err);
-    }
+  error(err: any): void {
+    this.message = ErrorHandler.getMessageFromError(err);
+  }
 }

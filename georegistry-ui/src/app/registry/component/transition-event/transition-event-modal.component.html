@@ -1,246 +1,374 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
+This file is part of Geoprism Registry(tm).
 
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
+Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Lesser General Public
+License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <ng-template #customItemTemplate let-model="item" let-index="index">
-    <h5>{{model.name }} : {{ model.code }}</h5>
+  <h5>{{ model.name }} : {{ model.code }}</h5>
 </ng-template>
 
 <div class="modal-body row">
-    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+  @if (message != null) {
+    <div class="alert alert-danger" role="alert">{{ message }}</div>
+  }
 
-    <form #form="ngForm" class="modal-form" autocomplete="off">
-
-        <fieldset *ngIf="event != null">
-            <div class="col-md-6">
-		            <div class="row-holder">
-		                <div class="label-holder">
-		                    <label>
-		                        <localize key="transition.event.date"></localize>
-		                    </label>
-		                </div>
-		                <div class="holder">
-		                    <span *ngIf="readonly" style="line-height: 40px;" class="date-string-display">
-                            <date-text [date]="event.eventDate"></date-text>                            
-		                    </span>
-		                    <date-field *ngIf="!readonly" [(value)]="event.eventDate" [classNames]="'form-control'" label=""
-		                        [inputName]="'eventDate'" [allowFutureDates]="false" name="eventDate" [required]="true" (validChange)="validChange()"
-		                        [disable]="readonly || event.transitions.length > 0"></date-field>
-		                </div>
-		            </div>
-		        
-		            <div class="row-holder" *ngFor="let localeValue of event.description.localeValues">
-		                <div class="label-holder">
-		                    <label> <localize style="display:block;" key="transition.event.description"></localize>
-		                        <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale">
-		                            </convert-key-label>)</span>
-		                    </label>
-		                </div>
-		                <div class="holder">
-		                    <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="text"
-		                        class="form-control" [disabled]="readonly"
-		                        [required]="false" />
-		                </div>
-		            </div>
-		
-		            <div class="row-holder">
-		                <div class="label-holder">
-		                    <label for="beforeTypeCode">
-		                        <localize key="transition.event.beforeType"></localize>
-		                    </label>
-		                </div>
-		                <div *ngIf="!readonly && beforeTypes != null" class="holder">
-		                    <select id="beforeTypeCode" name="beforeTypeCode" class="select-area" [(ngModel)]="event.beforeTypeCode"
-		                        (change)="onChange()" [disabled]="event.transitions.length > 0" required>
-		                        <option></option>
-		                        <option *ngFor="let type of beforeTypes" [value]="type.code">{{type.label}}</option>
-		                    </select>
-		                </div>
-		                <div *ngIf="readonly" class="holder">
-		                    <input [(ngModel)]="event.beforeTypeLabel" name="beforeType" type="text" class="form-control"
-		                        disabled />
-		                </div>
-		            </div>
-		            
-		            <div class="row-holder">
-		                <div class="label-holder">
-		                    <label for="afterTypeCode">
-		                        <localize key="transition.event.afterType"></localize>
-		                    </label>
-		                </div>
-		                <div *ngIf="!readonly && afterTypes != null" class="holder">
-		                    <select id="afterTypeCode" name="afterTypeCode" class="select-area" [(ngModel)]="event.afterTypeCode"
-		                        (change)="onChange()" [disabled]="event.transitions.length > 0" required>
-		                        <option></option>
-		                        <option *ngFor="let type of afterTypes" [value]="type.code">{{type.label}}</option>
-		                    </select>
-		                </div>
-		                <div *ngIf="readonly" class="holder">
-		                    <input [(ngModel)]="event.afterTypeLabel" name="afterType" type="text" class="form-control"
-		                        disabled />
-		                </div>
-		            </div>
+  <form #form="ngForm" class="modal-form" autocomplete="off">
+    @if (event != null) {
+      <fieldset>
+        <div class="col-md-6">
+          <div class="row-holder">
+            <div class="label-holder">
+              <label>
+                <localize key="transition.event.date"></localize>
+              </label>
             </div>
-            
-            <div class="col-md-6">
-				      <div class="row" style="text-align: center;">
-				        <label class="col-md-6"><localize key="transition.event.before"></localize></label>
-				        <label class="col-md-6"><localize key="transition.event.after"></localize></label>
-				      </div>
-				    
-				      <div style="margin-top: 10px;" id="svgHolder"></div>
-				    </div>
-				    
-            <div class="row-holder" *ngIf="event.beforeTypeCode != null && event.beforeTypeCode !== '' && event.afterTypeCode != null && event.afterTypeCode !== '' && event.eventDate != null && event.eventDate !== ''">
-                    <table class="table" style="border-collapse: separate;">
-                        <thead>
-	                        <tr style="height: 50px;color: grey;">
-		                        <th *ngIf="!readonly"></th>
-		                        <th style="width: 35%; vertical-align: middle;"> <localize key="transition.event.before"></localize> </th>
-		                        <th style="width: 10%; vertical-align: middle;"> <localize key="transition.event.impact"></localize> </th>
-		                        <th style="width: 35%; vertical-align: middle;"> <localize key="transition.event.after"></localize> </th>
-		                        <th style="width: 10%; vertical-align: middle;"> <localize key="transition.event.type"></localize> </th>
-		                        <th style="width: 5%; vertical-align: middle;"></th>
-		                        <th style="width: 5%; vertical-align: middle;" *ngIf="!readonly"></th>
-	                        </tr>
-                        </thead>
-                        <tbody class="dndList" id="transition-container"
-                          dndDropzone
-                          [dndDisableIf]="readonly"
-                          [dndEffectAllowed]="'copyMove'"
-                          (dndDrop)="onDrop($event)"
-                        >
-                            <tr *ngIf="!readonly" class="dndPlaceholder" dndPlaceholderRef>
-                              <td colspan="7"></td>
-                            </tr>
-                        
-                            <tr *ngFor="let transition of event.transitions; let i = index;" class="transition" style="height: 50px;" [attr.data-transOid]="transition.oid"
-                                [dndDraggable]="transition"
-                                [dndDisableIf]="readonly"
-                                [dndEffectAllowed]="draggable.effectAllowed"
-													      (dndStart)="readonly ? null : onDragStart($event)"
-													      (dndCopied)="readonly ? null : onDraggableCopied($event)"
-													      (dndLinked)="readonly ? null : onDraggableLinked($event)"
-													      (dndMoved)="readonly ? null : onDraggableMoved($event)"
-													      (dndCanceled)="readonly ? null : onDragCanceled($event)"
-													      (dndEnd)="readonly ? null : onDragEnd($event)"
-                            >
-                                <td *ngIf="!readonly" style="vertical-align: middle; text-align: center;">
-                                  <a style="font-size:25px; color: #969696; cursor: move;" class="fa fa-bars"></a>
-                                </td>
-                                <td>
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" autocomplete="off"
-                                            [name]="'transition.source-' + transition.oid + '-' + i" [disabled]="readonly" required
-                                            [(ngModel)]="transition.sourceText" [typeaheadAsync]="true"
-                                            [typeahead]="getTypeAheadObservable(true, transition, this.event.beforeTypeCode, 'sourceText')"
-                                            (typeaheadOnSelect)="typeaheadOnSelect($event, transition, 'sourceText')"
-                                            [typeaheadOptionsLimit]="7" [typeaheadItemTemplate]="customItemTemplate"
-                                            [typeaheadMinLength]="0" [typeaheadWaitMs]="300" [container]="'#typeaheadParentS-' + i">
-
-                                        <div style="position: absolute;">
-                                            <div [id]="'typeaheadParentS-' + i" style="position: fixed; z-index: 10;">
-                                            </div>
-                                        </div>
-
-                                        <span *ngIf="!readonly" class="input-group-addon clickable addon-alert"
-                                            (click)="clear(transition, 'sourceText')">
-                                            <i class="fa fa-times" aria-hidden="true"></i>
-                                        </span>
-
-                                        <!-- Hack: This is needed for formatting  -->
-                                        <span *ngIf="readonly" class="input-group-addon addon-alert">
-                                        </span>
-                                    </div>
-                                </td>
-                                <td style="vertical-align:middle;">
-                                    <label>{{localizeTransitionImpact(transition.impact)}}</label>
-                                </td>
-                                <td>
-                                    <div  class="input-group">
-                                        <input type="text" class="form-control" autocomplete="off"
-                                            [name]="'transition.target-' + transition.oid + '-' + i" [disabled]="readonly" required
-                                            [(ngModel)]="transition.targetText" [typeaheadAsync]="true"
-                                            [typeahead]="getTypeAheadObservable(false, transition, this.event.afterTypeCode, 'targetText')"
-                                            (typeaheadOnSelect)="typeaheadOnSelect($event, transition, 'targetText')"
-                                            [typeaheadOptionsLimit]="7" [typeaheadItemTemplate]="customItemTemplate"
-                                            [typeaheadMinLength]="0" [typeaheadWaitMs]="300" [container]="'#typeaheadParentT-' + i">
-                                        
-                                        <div style="position: absolute;">
-                                            <div [id]="'typeaheadParentT-' + i" style="position: fixed; z-index: 10;">
-                                            </div>
-                                        </div>
-
-                                        <span *ngIf="!readonly" class="input-group-addon clickable addon-alert"
-                                            (click)="clear(transition, 'targetText')">
-                                            <i class="fa fa-times" aria-hidden="true"></i>
-                                        </span>
-
-                                        <!-- Hack: This is needed for formatting  -->
-                                        <span *ngIf="readonly" class="input-group-addon addon-alert">
-                                        </span>
-                                    </div>
-                                </td>
-                                <td *ngIf="transition.typePart || !transition.typeUpdown" style="vertical-align:middle;">
-                                    <label *ngIf="!transition.typeUpdown">{{localizeTransitionType(transition.transitionType)}}</label>
-                                    <label *ngIf="transition.typePart" style="min-width:80px;">{{localizeTransitionType(transition.typePart)}}</label>
-                                </td>
-                                <td *ngIf="transition.typeUpdown">
-                                    <select style="min-width:80px;" *ngIf="transition.typeUpdown" [name]="'transition.transitionType-updown-' + transition.oid + '-' + i" class="select-area"
-                                        [(ngModel)]="transition.typeUpdown" (change)="onChangeTypeUpdown(transition)" [disabled]="readonly" required>
-                                        <option value="UPGRADE"><localize key="transition.event.type.upgrade"></localize></option>
-                                        <option value="DOWNGRADE"><localize key="transition.event.type.downgrade"></localize></option>
-                                    </select>
-                                </td>
-                                <td *ngIf="!readonly" style="vertical-align: middle;">
-                                    <span class="clickable" (click)="remove(i)">
-                                        <a class="fa fa-trash" style="font-size:30px;" aria-hidden="true"></a>
-                                    </span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <div *ngIf="!readonly" style="margin-left: 6px; margin-top: 30px; margin-bottom: 30px;" class="row">
-                        <div class="col-md-6">
-                            <i class="fa fa-plus clickable" (click)="onCreate()"> 
-                                <localize key="changeovertime.manageVersions.newVersion"></localize>
-                            </i>
-                        </div>
-                    </div>
-
-                </div>
-
+            <div class="holder">
+              @if (readonly) {
+                <span style="line-height: 40px" class="date-string-display">
+                  <date-text [date]="event.eventDate"></date-text>
+                </span>
+              }
+              @if (!readonly) {
+                <date-field
+                  [(value)]="event.eventDate"
+                  [classNames]="'form-control'"
+                  label=""
+                  [inputName]="'eventDate'"
+                  [allowFutureDates]="false"
+                  name="eventDate"
+                  [required]="true"
+                  (validChange)="validChange()"
+                  [disable]="readonly || event.transitions.length > 0"
+                ></date-field>
+              }
+            </div>
+          </div>
+          @for (localeValue of event.description.localeValues; track localeValue.locale) {
             <div class="row-holder">
-                <div class="label-holder"></div>
-                <div class="holder">
-                    <div class="button-holder">
-                        <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
-                            <localize [key]="readonly ? 'io.back' : 'io.cancel'"></localize>
-                        </button>
-                        <button *ngIf="!readonly" type="submit" (click)="onSubmit()" class="btn btn-primary"
-                            role="button" [disabled]="form.invalid || !valid">
-                            <localize key="io.submit"></localize>
-                        </button>
-                    </div>
-                </div>
+              <div class="label-holder">
+                <label>
+                  <localize style="display: block" key="transition.event.description"></localize>
+                  <span style="color: #bababa"
+                    >&nbsp;(<convert-key-label [key]="localeValue.locale"> </convert-key-label>)</span
+                  >
+                </label>
+              </div>
+              <div class="holder">
+                <input
+                  [(ngModel)]="localeValue.value"
+                  [name]="'label-' + localeValue.locale"
+                  type="text"
+                  class="form-control"
+                  [disabled]="readonly"
+                  [required]="false"
+                />
+              </div>
             </div>
-
-        </fieldset>
-    </form>
+          }
+          <div class="row-holder">
+            <div class="label-holder">
+              <label for="beforeTypeCode">
+                <localize key="transition.event.beforeType"></localize>
+              </label>
+            </div>
+            @if (!readonly && beforeTypes != null) {
+              <div class="holder">
+                <select
+                  id="beforeTypeCode"
+                  name="beforeTypeCode"
+                  class="select-area"
+                  [(ngModel)]="event.beforeTypeCode"
+                  (change)="onChange()"
+                  [disabled]="event.transitions.length > 0"
+                  required
+                >
+                  <option></option>
+                  @for (type of beforeTypes; track type.code) {
+                    <option [value]="type.code">{{ type.label }}</option>
+                  }
+                </select>
+              </div>
+            }
+            @if (readonly) {
+              <div class="holder">
+                <input
+                  [(ngModel)]="event.beforeTypeLabel"
+                  name="beforeType"
+                  type="text"
+                  class="form-control"
+                  disabled
+                />
+              </div>
+            }
+          </div>
+          <div class="row-holder">
+            <div class="label-holder">
+              <label for="afterTypeCode">
+                <localize key="transition.event.afterType"></localize>
+              </label>
+            </div>
+            @if (!readonly && afterTypes != null) {
+              <div class="holder">
+                <select
+                  id="afterTypeCode"
+                  name="afterTypeCode"
+                  class="select-area"
+                  [(ngModel)]="event.afterTypeCode"
+                  (change)="onChange()"
+                  [disabled]="event.transitions.length > 0"
+                  required
+                >
+                  <option></option>
+                  @for (type of afterTypes; track type.code) {
+                    <option [value]="type.code">{{ type.label }}</option>
+                  }
+                </select>
+              </div>
+            }
+            @if (readonly) {
+              <div class="holder">
+                <input [(ngModel)]="event.afterTypeLabel" name="afterType" type="text" class="form-control" disabled />
+              </div>
+            }
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="row" style="text-align: center">
+            <label class="col-md-6"><localize key="transition.event.before"></localize></label>
+            <label class="col-md-6"><localize key="transition.event.after"></localize></label>
+          </div>
+          <div style="margin-top: 10px" id="svgHolder"></div>
+        </div>
+        @if (
+          event.beforeTypeCode != null &&
+          event.beforeTypeCode !== '' &&
+          event.afterTypeCode != null &&
+          event.afterTypeCode !== '' &&
+          event.eventDate != null &&
+          event.eventDate !== ''
+        ) {
+          <div class="row-holder">
+            <table class="table" style="border-collapse: separate">
+              <thead>
+                <tr style="height: 50px; color: grey">
+                  @if (!readonly) {
+                    <th></th>
+                  }
+                  <th style="width: 35%; vertical-align: middle">
+                    <localize key="transition.event.before"></localize>
+                  </th>
+                  <th style="width: 10%; vertical-align: middle">
+                    <localize key="transition.event.impact"></localize>
+                  </th>
+                  <th style="width: 35%; vertical-align: middle"><localize key="transition.event.after"></localize></th>
+                  <th style="width: 10%; vertical-align: middle"><localize key="transition.event.type"></localize></th>
+                  <th style="width: 5%; vertical-align: middle"></th>
+                  @if (!readonly) {
+                    <th style="width: 5%; vertical-align: middle"></th>
+                  }
+                </tr>
+              </thead>
+              <tbody
+                class="dndList"
+                id="transition-container"
+                dndDropzone
+                [dndDisableIf]="readonly"
+                [dndEffectAllowed]="'copyMove'"
+                (dndDrop)="onDrop($event)"
+              >
+                @if (!readonly) {
+                  <tr class="dndPlaceholder" dndPlaceholderRef>
+                    <td colspan="7"></td>
+                  </tr>
+                }
+                @for (transition of event.transitions; track transition.oid; let i = $index) {
+                  <tr
+                    class="transition"
+                    style="height: 50px"
+                    [attr.data-transOid]="transition.oid"
+                    [dndDraggable]="transition"
+                    [dndDisableIf]="readonly"
+                    [dndEffectAllowed]="draggable.effectAllowed"
+                    (dndStart)="readonly ? null : onDragStart($event)"
+                    (dndCopied)="readonly ? null : onDraggableCopied($event)"
+                    (dndLinked)="readonly ? null : onDraggableLinked($event)"
+                    (dndMoved)="readonly ? null : onDraggableMoved($event)"
+                    (dndCanceled)="readonly ? null : onDragCanceled($event)"
+                    (dndEnd)="readonly ? null : onDragEnd($event)"
+                  >
+                    @if (!readonly) {
+                      <td style="vertical-align: middle; text-align: center">
+                        <a style="font-size: 25px; color: #969696; cursor: move" class="fa fa-bars"></a>
+                      </td>
+                    }
+                    <td>
+                      <div class="input-group">
+                        <input
+                          type="text"
+                          class="form-control"
+                          autocomplete="off"
+                          [name]="'transition.source-' + transition.oid + '-' + i"
+                          [disabled]="readonly"
+                          required
+                          [(ngModel)]="transition.sourceText"
+                          [typeaheadAsync]="true"
+                          [typeahead]="
+                            getTypeAheadObservable(true, transition, this.event.beforeTypeCode, 'sourceText')
+                          "
+                          (typeaheadOnSelect)="typeaheadOnSelect($event, transition, 'sourceText')"
+                          [typeaheadOptionsLimit]="7"
+                          [typeaheadItemTemplate]="customItemTemplate"
+                          [typeaheadMinLength]="0"
+                          [typeaheadWaitMs]="300"
+                          [container]="'#typeaheadParentS-' + i"
+                        />
+                        <div style="position: absolute">
+                          <div [id]="'typeaheadParentS-' + i" style="position: fixed; z-index: 10"></div>
+                        </div>
+                        @if (!readonly) {
+                          <span
+                            class="input-group-addon clickable addon-alert"
+                            (click)="clear(transition, 'sourceText')"
+                          >
+                            <i class="fa fa-times" aria-hidden="true"></i>
+                          </span>
+                        }
+                        <!-- Hack: This is needed for formatting  -->
+                        @if (readonly) {
+                          <span class="input-group-addon addon-alert"> </span>
+                        }
+                      </div>
+                    </td>
+                    <td style="vertical-align: middle">
+                      <label>{{ localizeTransitionImpact(transition.impact) }}</label>
+                    </td>
+                    <td>
+                      <div class="input-group">
+                        <input
+                          type="text"
+                          class="form-control"
+                          autocomplete="off"
+                          [name]="'transition.target-' + transition.oid + '-' + i"
+                          [disabled]="readonly"
+                          required
+                          [(ngModel)]="transition.targetText"
+                          [typeaheadAsync]="true"
+                          [typeahead]="
+                            getTypeAheadObservable(false, transition, this.event.afterTypeCode, 'targetText')
+                          "
+                          (typeaheadOnSelect)="typeaheadOnSelect($event, transition, 'targetText')"
+                          [typeaheadOptionsLimit]="7"
+                          [typeaheadItemTemplate]="customItemTemplate"
+                          [typeaheadMinLength]="0"
+                          [typeaheadWaitMs]="300"
+                          [container]="'#typeaheadParentT-' + i"
+                        />
+                        <div style="position: absolute">
+                          <div [id]="'typeaheadParentT-' + i" style="position: fixed; z-index: 10"></div>
+                        </div>
+                        @if (!readonly) {
+                          <span
+                            class="input-group-addon clickable addon-alert"
+                            (click)="clear(transition, 'targetText')"
+                          >
+                            <i class="fa fa-times" aria-hidden="true"></i>
+                          </span>
+                        }
+                        <!-- Hack: This is needed for formatting  -->
+                        @if (readonly) {
+                          <span class="input-group-addon addon-alert"> </span>
+                        }
+                      </div>
+                    </td>
+                    @if (transition.typePart || !transition.typeUpdown) {
+                      <td style="vertical-align: middle">
+                        @if (!transition.typeUpdown) {
+                          <label>{{ localizeTransitionType(transition.transitionType) }}</label>
+                        }
+                        @if (transition.typePart) {
+                          <label style="min-width: 80px">{{ localizeTransitionType(transition.typePart) }}</label>
+                        }
+                      </td>
+                    }
+                    @if (transition.typeUpdown) {
+                      <td>
+                        @if (transition.typeUpdown) {
+                          <select
+                            style="min-width: 80px"
+                            [name]="'transition.transitionType-updown-' + transition.oid + '-' + i"
+                            class="select-area"
+                            [(ngModel)]="transition.typeUpdown"
+                            (change)="onChangeTypeUpdown(transition)"
+                            [disabled]="readonly"
+                            required
+                          >
+                            <option value="UPGRADE"><localize key="transition.event.type.upgrade"></localize></option>
+                            <option value="DOWNGRADE">
+                              <localize key="transition.event.type.downgrade"></localize>
+                            </option>
+                          </select>
+                        }
+                      </td>
+                    }
+                    @if (!readonly) {
+                      <td style="vertical-align: middle">
+                        <span class="clickable" (click)="remove(i)">
+                          <a class="fa fa-trash" style="font-size: 30px" aria-hidden="true"></a>
+                        </span>
+                      </td>
+                    }
+                  </tr>
+                }
+              </tbody>
+            </table>
+            @if (!readonly) {
+              <div style="margin-left: 6px; margin-top: 30px; margin-bottom: 30px" class="row">
+                <div class="col-md-6">
+                  <i class="fa fa-plus clickable" (click)="onCreate()">
+                    <localize key="changeovertime.manageVersions.newVersion"></localize>
+                  </i>
+                </div>
+              </div>
+            }
+          </div>
+        }
+        <div class="row-holder">
+          <div class="label-holder"></div>
+          <div class="holder">
+            <div class="button-holder">
+              <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
+                <localize [key]="readonly ? 'io.back' : 'io.cancel'"></localize>
+              </button>
+              @if (!readonly) {
+                <button
+                  type="submit"
+                  (click)="onSubmit()"
+                  class="btn btn-primary"
+                  role="button"
+                  [disabled]="form.invalid || !valid"
+                >
+                  <localize key="io.submit"></localize>
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      </fieldset>
+    }
+  </form>
 </div>

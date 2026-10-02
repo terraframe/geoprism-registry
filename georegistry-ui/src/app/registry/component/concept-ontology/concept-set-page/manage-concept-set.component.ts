@@ -17,70 +17,25 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output,
-} from "@angular/core";
-import { trigger, style, animate, transition } from "@angular/animations";
-import { HttpErrorResponse } from "@angular/common/http";
-import {
-  ConceptClass,
-  ConceptEdgeType,
-  ConceptSet,
-  ObjectOverTime,
-} from "@registry/model/object-class";
-import { LocalizePipe } from "@shared/pipe/localize.pipe";
-import { LocalizeComponent } from "@shared/component/localize/localize.component";
-import { FormsModule } from "@angular/forms";
-import { NgIf, NgFor, NgClass } from "@angular/common";
-import { ConceptSetService } from "@registry/service/concept-set.service";
-import { ConvertKeyLabel } from "@shared/component/localize/convert-key-label.component";
-import { LocalizedTextComponent } from "@registry/component/form-fields/localized-text/localized-text.component";
-import { TypeaheadMatch, TypeaheadModule } from "ngx-bootstrap/typeahead";
-import { Observable, Observer, Subscription } from "rxjs";
-import { ConceptObjectService } from "@registry/service/concept-object.service";
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ConceptClass, ConceptEdgeType, ConceptSet, ObjectOverTime } from '@registry/model/object-class';
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
+import { FormsModule } from '@angular/forms';
+import { NgClass } from '@angular/common';
+import { ConceptSetService } from '@registry/service/concept-set.service';
+import { ConvertKeyLabel } from '@shared/component/localize/convert-key-label.component';
+import { LocalizedTextComponent } from '@registry/component/form-fields/localized-text/localized-text.component';
+import { TypeaheadMatch, TypeaheadModule } from 'ngx-bootstrap/typeahead';
+import { Observable, Observer, Subscription } from 'rxjs';
+import { ConceptObjectService } from '@registry/service/concept-object.service';
 
 @Component({
-  selector: "manage-concept-set",
-  templateUrl: "./manage-concept-set.component.html",
-  styleUrls: ["./manage-concept-set.css"],
-  // host: { '[@fadeInOut]': 'true' },
-  animations: [
-    [
-      trigger("fadeInOut", [
-        transition("void => *", [
-          style({
-            opacity: 0,
-          }),
-          animate("500ms"),
-        ]),
-        transition(
-          ":leave",
-          animate(
-            "500ms",
-            style({
-              opacity: 0,
-            }),
-          ),
-        ),
-      ]),
-    ],
-  ],
+  selector: 'manage-concept-set',
+  templateUrl: './manage-concept-set.component.html',
+  styleUrls: ['./manage-concept-set.css'],
   standalone: true,
-  imports: [
-    NgIf,
-    NgFor,
-    NgClass,
-    FormsModule,
-    LocalizeComponent,
-    LocalizedTextComponent,
-    ConvertKeyLabel,
-    TypeaheadModule,
-  ],
+  imports: [NgClass, FormsModule, LocalizeComponent, LocalizedTextComponent, ConvertKeyLabel, TypeaheadModule],
 })
 export class ManageConceptSetComponent implements OnInit, OnDestroy {
   @Input() set: ConceptSet;
@@ -90,30 +45,23 @@ export class ManageConceptSetComponent implements OnInit, OnDestroy {
   @Input() conceptEdgeTypes: ConceptEdgeType[] = [];
 
   @Output() onCancel: EventEmitter<void> = new EventEmitter<void>();
-  @Output() onError: EventEmitter<HttpErrorResponse> =
-    new EventEmitter<HttpErrorResponse>();
-  @Output() typeChange: EventEmitter<ConceptSet> =
-    new EventEmitter<ConceptSet>();
+  @Output() onError: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>();
+  @Output() typeChange: EventEmitter<ConceptSet> = new EventEmitter<ConceptSet>();
 
-  text: string = "";
+  text: string = '';
   loading: boolean = false;
 
   typeahead: Observable<ObjectOverTime[]>;
 
   constructor(
     private service: ConceptSetService,
-    private cObjectService: ConceptObjectService,
+    private cObjectService: ConceptObjectService
   ) {
     this.typeahead = new Observable((observer: Observer<ObjectOverTime[]>) => {
-      if (
-        this.set.conceptClasses != null &&
-        this.set.conceptClasses.length > 0
-      ) {
-        this.cObjectService
-          .searchConceptClass(this.set.conceptClasses[0], this.text)
-          .then((results) => {
-            observer.next(results);
-          });
+      if (this.set.conceptClasses != null && this.set.conceptClasses.length > 0) {
+        this.cObjectService.searchConceptClass(this.set.conceptClasses[0], this.text).then((results) => {
+          observer.next(results);
+        });
       }
     });
   }
@@ -122,7 +70,7 @@ export class ManageConceptSetComponent implements OnInit, OnDestroy {
     if (this.set != null && this.set.rootTerm != null) {
       this.text = this.set.rootTerm;
     } else {
-      this.text = "";
+      this.text = '';
     }
   }
 
@@ -161,10 +109,7 @@ export class ManageConceptSetComponent implements OnInit, OnDestroy {
   }
 
   onTextChange(): void {
-    if (
-      this.set.rootTerm != null &&
-      (this.text == null || this.text.length === 0)
-    ) {
+    if (this.set.rootTerm != null && (this.text == null || this.text.length === 0)) {
       this.set.rootTerm = null;
     }
   }
