@@ -27,7 +27,6 @@ import {
   ViewChildren,
   QueryList,
 } from '@angular/core';
-import { trigger, style, animate, transition } from '@angular/animations';
 import { GeoObjectType, AttributeType, ValueOverTime, GeoObjectOverTime } from '@registry/model/registry';
 import { DateService } from '@shared/service/date.service';
 import moment, { Moment } from 'moment';
@@ -45,27 +44,6 @@ import { NgClass } from '@angular/common';
   templateUrl: './geometry-panel.component.html',
   styleUrls: ['./geometry-panel.css'],
   host: { '[@fadeInOut]': 'true' },
-  animations: [
-    [
-      trigger('fadeInOut', [
-        transition('void => *', [
-          style({
-            opacity: 0,
-          }),
-          animate('500ms'),
-        ]),
-        transition(
-          ':leave',
-          animate(
-            '500ms',
-            style({
-              opacity: 0,
-            })
-          )
-        ),
-      ]),
-    ],
-  ],
   standalone: true,
   imports: [LocalizeComponent, FormsModule, NgClass, DateFieldComponent_1, LocalizePipe],
 })

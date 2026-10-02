@@ -18,7 +18,6 @@
 ///
 
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { trigger, style, animate, transition } from '@angular/animations';
 import { HttpErrorResponse } from '@angular/common/http';
 import { LocalizedTextComponent } from '../../form-fields/localized-text/localized-text.component';
 import { ConvertKeyLabel } from '@shared/component/localize/convert-key-label.component';
@@ -34,28 +33,6 @@ import { EdgeClassService } from '@registry/service/edge-class.service';
   selector: 'manage-graph-type',
   templateUrl: './manage-graph-type.component.html',
   styleUrls: ['./manage-graph-type.css'],
-  // host: { '[@fadeInOut]': 'true' },
-  animations: [
-    [
-      trigger('fadeInOut', [
-        transition('void => *', [
-          style({
-            opacity: 0,
-          }),
-          animate('500ms'),
-        ]),
-        transition(
-          ':leave',
-          animate(
-            '500ms',
-            style({
-              opacity: 0,
-            })
-          )
-        ),
-      ]),
-    ],
-  ],
   standalone: true,
   imports: [FormsModule, LocalizeComponent, ConvertKeyLabel, LocalizedTextComponent],
 })

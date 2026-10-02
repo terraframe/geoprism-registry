@@ -18,7 +18,6 @@
 ///
 
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { trigger, style, animate, transition } from '@angular/animations';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ModalTypes } from '@shared/model/modal';
@@ -42,28 +41,6 @@ import { NgClass } from '@angular/common';
   selector: 'geoobjecttype-input',
   templateUrl: './geoobjecttype-input.component.html',
   styleUrls: ['./geoobjecttype-input.css'],
-  // host: { '[@fadeInOut]': 'true' },
-  animations: [
-    [
-      trigger('fadeInOut', [
-        transition('void => *', [
-          style({
-            opacity: 0,
-          }),
-          animate('500ms'),
-        ]),
-        transition(
-          ':leave',
-          animate(
-            '500ms',
-            style({
-              opacity: 0,
-            })
-          )
-        ),
-      ]),
-    ],
-  ],
   standalone: true,
   imports: [
     NgClass,

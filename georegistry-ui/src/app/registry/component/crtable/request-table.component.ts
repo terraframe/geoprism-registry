@@ -22,7 +22,6 @@ import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Location, NgClass } from '@angular/common';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
-import { trigger, style, animate, transition } from '@angular/animations';
 
 import { FileUploader, FileUploaderOptions, FileUploadModule } from 'ng2-file-upload';
 
@@ -50,35 +49,6 @@ import { LocalizeComponent } from '../../../shared/component/localize/localize.c
   templateUrl: './request-table.component.html',
   styleUrls: ['./request-table.css'],
   encapsulation: ViewEncapsulation.None,
-  animations: [
-    [
-      trigger('fadeInOut', [
-        transition(':enter', [
-          style({
-            opacity: 0,
-          }),
-          animate('300ms'),
-        ]),
-        transition(
-          ':leave',
-          animate(
-            '100ms',
-            style({
-              opacity: 0,
-            })
-          )
-        ),
-      ]),
-      trigger('fadeIn', [
-        transition(':enter', [
-          style({
-            opacity: 0,
-          }),
-          animate('500ms'),
-        ]),
-      ]),
-    ],
-  ],
   standalone: true,
   imports: [
     RouterLink,

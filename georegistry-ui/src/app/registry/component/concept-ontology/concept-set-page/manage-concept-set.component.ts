@@ -18,10 +18,8 @@
 ///
 
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { trigger, style, animate, transition } from '@angular/animations';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ConceptClass, ConceptEdgeType, ConceptSet, ObjectOverTime } from '@registry/model/object-class';
-import { LocalizePipe } from '@shared/pipe/localize.pipe';
 import { LocalizeComponent } from '@shared/component/localize/localize.component';
 import { FormsModule } from '@angular/forms';
 import { NgClass } from '@angular/common';
@@ -36,28 +34,6 @@ import { ConceptObjectService } from '@registry/service/concept-object.service';
   selector: 'manage-concept-set',
   templateUrl: './manage-concept-set.component.html',
   styleUrls: ['./manage-concept-set.css'],
-  // host: { '[@fadeInOut]': 'true' },
-  animations: [
-    [
-      trigger('fadeInOut', [
-        transition('void => *', [
-          style({
-            opacity: 0,
-          }),
-          animate('500ms'),
-        ]),
-        transition(
-          ':leave',
-          animate(
-            '500ms',
-            style({
-              opacity: 0,
-            })
-          )
-        ),
-      ]),
-    ],
-  ],
   standalone: true,
   imports: [NgClass, FormsModule, LocalizeComponent, LocalizedTextComponent, ConvertKeyLabel, TypeaheadModule],
 })

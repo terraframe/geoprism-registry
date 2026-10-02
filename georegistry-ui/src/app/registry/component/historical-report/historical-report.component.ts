@@ -19,7 +19,6 @@
 
 import { Component, ViewEncapsulation } from '@angular/core';
 import { HttpErrorResponse, HttpParams } from '@angular/common/http';
-import { trigger, style, animate, transition } from '@angular/animations';
 
 import { ErrorHandler } from '@shared/component';
 import { PageResult } from '@shared/model/core';
@@ -28,7 +27,6 @@ import { HistoricalRow } from '@registry/model/transition-event';
 import { AuthService, DateService } from '@shared/service';
 import { IOService } from '@registry/service';
 
-import { GeoRegistryConfiguration } from '@core/model/core';
 import { environment } from 'src/environments/environment';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { DateTextComponent } from '../../../shared/component/date-text/date-text.component';
@@ -42,35 +40,6 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './historical-report.component.html',
   styleUrls: [],
   encapsulation: ViewEncapsulation.None,
-  animations: [
-    [
-      trigger('fadeInOut', [
-        transition(':enter', [
-          style({
-            opacity: 0,
-          }),
-          animate('300ms'),
-        ]),
-        transition(
-          ':leave',
-          animate(
-            '100ms',
-            style({
-              opacity: 0,
-            })
-          )
-        ),
-      ]),
-      trigger('fadeIn', [
-        transition(':enter', [
-          style({
-            opacity: 0,
-          }),
-          animate('500ms'),
-        ]),
-      ]),
-    ],
-  ],
   standalone: true,
   imports: [FormsModule, LocalizeComponent, DateFieldComponent, DateTextComponent, NgxPaginationModule],
 })

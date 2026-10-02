@@ -19,7 +19,6 @@
 
 import { Component, ViewEncapsulation } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { trigger, style, animate, transition } from '@angular/animations';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 
 import { ConfirmModalComponent, ErrorHandler } from '@shared/component';
@@ -41,35 +40,6 @@ import { LocalizeComponent } from '../../../shared/component/localize/localize.c
   templateUrl: './transition-event-table.component.html',
   styleUrls: ['./transition-event-table.css'],
   encapsulation: ViewEncapsulation.None,
-  animations: [
-    [
-      trigger('fadeInOut', [
-        transition(':enter', [
-          style({
-            opacity: 0,
-          }),
-          animate('300ms'),
-        ]),
-        transition(
-          ':leave',
-          animate(
-            '100ms',
-            style({
-              opacity: 0,
-            })
-          )
-        ),
-      ]),
-      trigger('fadeIn', [
-        transition(':enter', [
-          style({
-            opacity: 0,
-          }),
-          animate('500ms'),
-        ]),
-      ]),
-    ],
-  ],
   standalone: true,
   imports: [LocalizeComponent, FormsModule, DateFieldComponent, NgClass, DateTextComponent, NgxPaginationModule],
 })

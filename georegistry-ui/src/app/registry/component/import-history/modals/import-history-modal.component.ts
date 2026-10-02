@@ -18,7 +18,6 @@
 ///
 
 import { Component, OnInit } from '@angular/core';
-import { trigger, style, animate, transition } from '@angular/animations';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ErrorHandler } from '@shared/component';
@@ -32,27 +31,6 @@ import { RouterLink } from '@angular/router';
   selector: 'import-history-modal',
   templateUrl: './import-history-modal.component.html',
   styleUrls: ['./import-history-modal.css'],
-  animations: [
-    [
-      trigger('fadeInOut', [
-        transition('void => *', [
-          style({
-            opacity: 0,
-          }),
-          animate('500ms'),
-        ]),
-        transition(
-          ':leave',
-          animate(
-            '500ms',
-            style({
-              opacity: 0,
-            })
-          )
-        ),
-      ]),
-    ],
-  ],
   standalone: true,
   imports: [RouterLink, DateTextComponent, LocalizeComponent],
 })

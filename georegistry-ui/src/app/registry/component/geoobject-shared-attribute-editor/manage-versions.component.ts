@@ -30,7 +30,6 @@ import {
   SimpleChanges,
   OnDestroy,
 } from '@angular/core';
-import { trigger, style, animate, transition } from '@angular/animations';
 import { HttpErrorResponse } from '@angular/common/http';
 import { GeoObjectType, AttributeType, HierarchyOverTime } from '@registry/model/registry';
 import { SummaryKey } from '@registry/model/crtable';
@@ -78,28 +77,6 @@ import { NgStyle, NgClass } from '@angular/common';
   selector: 'manage-versions',
   templateUrl: './manage-versions.component.html',
   styleUrls: ['./manage-versions.css'],
-  host: { '[@fadeInOut]': 'true' },
-  animations: [
-    [
-      trigger('fadeInOut', [
-        transition('void => *', [
-          style({
-            opacity: 0,
-          }),
-          animate('500ms'),
-        ]),
-        transition(
-          ':leave',
-          animate(
-            '500ms',
-            style({
-              opacity: 0,
-            })
-          )
-        ),
-      ]),
-    ],
-  ],
   viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
   standalone: true,
   imports: [

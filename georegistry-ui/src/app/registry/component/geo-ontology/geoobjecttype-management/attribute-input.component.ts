@@ -18,7 +18,6 @@
 ///
 
 import { Component, Input, Output, EventEmitter, ChangeDetectorRef, OnChanges, SimpleChanges } from '@angular/core';
-import { trigger, state, style, animate, transition } from '@angular/animations';
 
 import { FormsModule } from '@angular/forms';
 
@@ -33,14 +32,6 @@ import { BooleanFieldComponent } from '@shared/component/form-fields/boolean-fie
   selector: 'attribute-input',
   templateUrl: './attribute-input.component.html',
   styleUrls: ['./attribute-input.css'],
-  animations: [
-    trigger('toggleInputs', [
-      state('none, void', style({ opacity: 0 })),
-      state('show', style({ opacity: 1 })),
-      transition('none => show', animate('300ms')),
-      // transition('show => none', animate('100ms'))
-    ]),
-  ],
   standalone: true,
   imports: [
     LocalizeComponent,

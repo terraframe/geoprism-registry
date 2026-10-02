@@ -18,7 +18,6 @@
 ///
 
 import { Component, OnInit, Input, Output, ChangeDetectorRef, EventEmitter, ElementRef } from '@angular/core';
-import { trigger, style, animate, transition } from '@angular/animations';
 import { HttpErrorResponse } from '@angular/common/http';
 import { GeoObjectType, AttributeType, GeoObjectOverTime } from '@registry/model/registry';
 import { ChangeRequest } from '@registry/model/crtable';
@@ -46,27 +45,6 @@ import { UniqueAuthorityValidatorDirective } from './unique-authority-validator.
   templateUrl: './standard-attribute-editor.component.html',
   styleUrls: ['./standard-attribute-editor.component.css'],
   host: { '[@fadeInOut]': 'true' },
-  animations: [
-    [
-      trigger('fadeInOut', [
-        transition('void => *', [
-          style({
-            opacity: 0,
-          }),
-          animate('500ms'),
-        ]),
-        transition(
-          ':leave',
-          animate(
-            '500ms',
-            style({
-              opacity: 0,
-            })
-          )
-        ),
-      ]),
-    ],
-  ],
   viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
   standalone: true,
   imports: [LocalizeComponent, NgClass, FormsModule, LocalizePipe, UniqueAuthorityValidatorDirective],

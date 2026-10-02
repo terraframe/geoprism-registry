@@ -18,7 +18,6 @@
 ///
 
 import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
-import { trigger, style, animate, transition } from '@angular/animations';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { AttributeType, ManageGeoObjectTypeModalState, AttributedType } from '@registry/model/registry';
@@ -40,19 +39,6 @@ import { FormsModule } from '@angular/forms';
   selector: 'edit-attribute-modal-content',
   templateUrl: './edit-attribute-modal-content.component.html',
   styleUrls: ['./edit-attribute-modal-content.css'],
-  // host: { '[@fadeInOut]': 'true' },
-  animations: [
-    [
-      trigger('fadeInOut', [
-        transition('void => *', [
-          style({
-            opacity: 0,
-          }),
-          animate('500ms'),
-        ]),
-      ]),
-    ],
-  ],
   standalone: true,
   imports: [FormsModule, LocalizeComponent, AttributeInputComponent],
 })

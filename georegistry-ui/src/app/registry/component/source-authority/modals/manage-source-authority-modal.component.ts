@@ -18,7 +18,6 @@
 ///
 
 import { Component, OnInit } from '@angular/core';
-import { trigger, style, animate, transition } from '@angular/animations';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -35,28 +34,6 @@ import { LocalizedInputComponent } from '@registry/component/form-fields/localiz
   selector: 'manage-source-authority-modal',
   templateUrl: './manage-source-authority-modal.component.html',
   styleUrls: [],
-  // host: { '[@fadeInOut]': 'true' },
-  animations: [
-    [
-      trigger('fadeInOut', [
-        transition('void => *', [
-          style({
-            opacity: 0,
-          }),
-          animate('500ms'),
-        ]),
-        transition(
-          ':leave',
-          animate(
-            '500ms',
-            style({
-              opacity: 0,
-            })
-          )
-        ),
-      ]),
-    ],
-  ],
   standalone: true,
   imports: [FormsModule, LocalizeComponent, LocalizedInputComponent],
 })

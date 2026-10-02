@@ -18,7 +18,6 @@
 ///
 
 import { Component, OnInit, Input, OnDestroy, Output, EventEmitter } from '@angular/core';
-import { trigger, style, animate, transition } from '@angular/animations';
 
 import { TimeRangeEntry } from '@registry/model/registry';
 import { LocalizationService } from '@shared/service/localization.service';
@@ -67,27 +66,6 @@ export interface DataTimeSpan {
   selector: 'stability-period',
   templateUrl: './stability-period.component.html',
   styleUrls: ['./stability-period.component.css'],
-  animations: [
-    [
-      trigger('fadeInOut', [
-        transition(':enter', [
-          style({
-            opacity: 0,
-          }),
-          animate('1000ms'),
-        ]),
-        transition(
-          ':leave',
-          animate(
-            '1000ms',
-            style({
-              opacity: 0,
-            })
-          )
-        ),
-      ]),
-    ],
-  ],
   standalone: true,
   imports: [LocalizeComponent, NgClass, NgStyle],
 })

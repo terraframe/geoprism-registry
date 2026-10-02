@@ -29,7 +29,6 @@ import {
   OnDestroy,
 } from '@angular/core';
 import { DatePipe, NgClass } from '@angular/common';
-import { trigger, style, animate, transition, state } from '@angular/animations';
 
 import { LocalizedValue } from '@core/model/core';
 import { LocalizationService, AuthService, ExternalSystemService } from '@shared/service';
@@ -72,32 +71,6 @@ import { SourceAuthority } from '@registry/model/source';
   templateUrl: './geoobject-shared-attribute-editor.component.html',
   styleUrls: ['./geoobject-shared-attribute-editor.css'],
   providers: [DatePipe],
-  animations: [
-    [
-      trigger('fadeInOut', [
-        transition(':enter', [
-          style({
-            opacity: 0,
-          }),
-          animate('500ms'),
-        ]),
-        transition(
-          ':leave',
-          animate(
-            '500ms',
-            style({
-              opacity: 0,
-            })
-          )
-        ),
-      ]),
-      trigger('slide', [
-        state('left', style({ left: 0 })),
-        state('right', style({ left: '100%' })),
-        transition('* => *', animate(200)),
-      ]),
-    ],
-  ],
   standalone: true,
   imports: [
     StabilityPeriodComponent,

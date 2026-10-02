@@ -18,7 +18,6 @@
 ///
 
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { trigger, style, animate, transition } from '@angular/animations';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BusinessEdgeTypeService } from '@registry/service/business-edge-type.service';
 import { LocalizedTextComponent } from '../../form-fields/localized-text/localized-text.component';
@@ -34,27 +33,6 @@ import { BusinessEdgeType, BusinessType } from '@registry/model/object-class';
   templateUrl: './manage-business-edge-type.component.html',
   styleUrls: ['./manage-business-edge-type.css'],
   // host: { '[@fadeInOut]': 'true' },
-  animations: [
-    [
-      trigger('fadeInOut', [
-        transition('void => *', [
-          style({
-            opacity: 0,
-          }),
-          animate('500ms'),
-        ]),
-        transition(
-          ':leave',
-          animate(
-            '500ms',
-            style({
-              opacity: 0,
-            })
-          )
-        ),
-      ]),
-    ],
-  ],
   standalone: true,
   imports: [FormsModule, LocalizeComponent, ConvertKeyLabel, LocalizedTextComponent],
 })

@@ -18,7 +18,6 @@
 ///
 
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { trigger, style, animate, transition } from '@angular/animations';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ConceptEdgeTypeService } from '@registry/service/concept-edge-type.service';
 import { LocalizedTextComponent } from '../../form-fields/localized-text/localized-text.component';
@@ -33,27 +32,6 @@ import { ConceptEdgeType, ConceptClass } from '@registry/model/object-class';
   templateUrl: './manage-concept-edge-type.component.html',
   styleUrls: ['./manage-concept-edge-type.css'],
   // host: { '[@fadeInOut]': 'true' },
-  animations: [
-    [
-      trigger('fadeInOut', [
-        transition('void => *', [
-          style({
-            opacity: 0,
-          }),
-          animate('500ms'),
-        ]),
-        transition(
-          ':leave',
-          animate(
-            '500ms',
-            style({
-              opacity: 0,
-            })
-          )
-        ),
-      ]),
-    ],
-  ],
   standalone: true,
   imports: [FormsModule, LocalizeComponent, ConvertKeyLabel, LocalizedTextComponent],
 })

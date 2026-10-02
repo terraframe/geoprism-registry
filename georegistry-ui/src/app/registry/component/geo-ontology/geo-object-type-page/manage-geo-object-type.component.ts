@@ -18,7 +18,6 @@
 ///
 
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { trigger, style, animate, transition } from '@angular/animations';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ManageGeoObjectTypeModalState, GeoObjectType } from '@registry/model/registry';
 import { GeoObjectTypeModalStates } from '@registry/model/constants';
@@ -33,28 +32,6 @@ import { FormsModule } from '@angular/forms';
   selector: 'manage-geo-object-type',
   templateUrl: './manage-geo-object-type.component.html',
   styleUrls: ['./manage-geo-object-type.css'],
-  // host: { '[@fadeInOut]': 'true' },
-  animations: [
-    [
-      trigger('fadeInOut', [
-        transition('void => *', [
-          style({
-            opacity: 0,
-          }),
-          animate('500ms'),
-        ]),
-        transition(
-          ':leave',
-          animate(
-            '500ms',
-            style({
-              opacity: 0,
-            })
-          )
-        ),
-      ]),
-    ],
-  ],
   standalone: true,
   imports: [
     FormsModule,
