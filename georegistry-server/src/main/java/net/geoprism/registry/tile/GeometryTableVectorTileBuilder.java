@@ -22,10 +22,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.commongeoregistry.adapter.constants.DefaultAttribute;
-
 import com.runwaysdk.dataaccess.database.Database;
-import com.runwaysdk.system.gis.geo.GeoEntity;
 
 import net.geoprism.registry.jobs.GPRJobHistory;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -55,43 +52,50 @@ public class GeometryTableVectorTileBuilder
 
     StringBuilder statement = new StringBuilder();
 
-    // Filter the data to remove entries which have points too close the poles
-    // Those points cannot be transformed
-    statement.append("WITH _fdata AS (" + "\n");
-    statement.append(" SELECT geom_tab.* " + "\n");
-    statement.append(" FROM job_history_geometry AS jhg " + "\n");
-    statement.append(" JOIN ( " + "\n");
-    statement.append("   SELECT * " + "\n");
-    statement.append("   FROM " + "\n");
+    statement.append("WITH bounds AS (\n");
+    statement.append("  SELECT ST_TileEnvelope(" + zoom + ", " + x + ", " + y + ") AS env,\n");
+    statement.append("         ST_Transform(ST_TileEnvelope(" + zoom + ", " + x + ", " + y + ", margin => 64.0/4096), 4326) AS env_4326\n");
+    statement.append("),\n");
+    statement.append("candidates AS (\n");
 
+    // UNION ALL ... one branch per table
     for (int i = 0; i < geometryTables.size(); i++)
     {
-      if (i == 0)
+      if (i != 0)
       {
-        statement.append("     " + geometryTables.get(i) + "\n");
+        statement.append("     UNION ALL \n");
       }
-      else
-      {
-        statement.append("     UNION ALL ( SELECT * FROM " + geometryTables.get(i) + ")\n");
-      }
+
+      String table = geometryTables.get(i);
+
+      statement.append("  SELECT g.oid, g.uid, g.code, g.display_label AS label, g.geometry\n");
+      statement.append("  FROM " + table + " g\n");
+      statement.append("  CROSS JOIN bounds b\n");
+      statement.append("  WHERE g.geometry && b.env_4326\n");
+      statement.append("  AND ST_XMax(g.geometry) BETWEEN -180 AND 180\n");
+      statement.append("  AND ST_YMax(g.geometry) BETWEEN -89.9 AND 89.9\n");
+      statement.append("  AND EXISTS (\n");
+      statement.append("    SELECT 1 FROM job_history_geometry jhg\n");
+      statement.append("    WHERE jhg.parent_oid = '" + history.getOid() + "'\n");
+      statement.append("    AND jhg.child_oid  = g.oid\n");
+      statement.append("  )\n");
     }
-
-    statement.append("   ) AS geom_tab ON geom_tab.oid = jhg.child_oid \n");
-
-    statement.append(" WHERE jhg.parent_oid = '" + history.getOid() + "'" + "\n");
-    statement.append(" AND (ST_XMax(geom_tab.geometry) BETWEEN -180 AND 180)" + "\n");
-    statement.append(" AND (ST_YMax(geom_tab.geometry) BETWEEN -89.9 AND 89.9)" + "\n");
-    statement.append(")," + "\n");
-
-    // Generate geometry layers
-    statement.append(generateTileStatement(zoom, x, y, "ST_MultiPolygon", "polygon") + ",\n");
-    statement.append(generateTileStatement(zoom, x, y, "ST_MultiLineString", "line") + ",\n");
-    statement.append(generateTileStatement(zoom, x, y, "ST_MultiPoint", "point") + "\n");
-
-    // Create the tile layer
-    statement.append("SELECT");
-    statement.append(" (polygon_tile.mvt || point_tile.mvt || line_tile.mvt) AS mvt" + "\n");
-    statement.append("FROM polygon_tile, point_tile, line_tile" + "\n");
+    statement.append("),\n");
+    statement.append("fdata AS (\n");
+    statement.append("  SELECT c.oid, c.uid, c.code, c.label,\n");
+    statement.append("         ST_GeometryType(c.geometry) AS gtype,\n");
+    statement.append("         ST_AsMVTGeom(ST_Transform(c.geometry, 3857), b.env,\n");
+    statement.append("                      extent => 4096, buffer => 64) AS geom\n");
+    statement.append("  FROM candidates c CROSS JOIN bounds b\n");
+    statement.append(")\n");
+    statement.append("SELECT\n");
+    statement.append("    (SELECT ST_AsMVT(t, 'polygon') FROM (SELECT oid, uid, code, label, geom FROM fdata\n");
+    statement.append("       WHERE gtype = 'ST_MultiPolygon'    AND geom IS NOT NULL) t)\n");
+    statement.append(" || (SELECT ST_AsMVT(t, 'line')    FROM (SELECT oid, uid, code, label, geom FROM fdata\n");
+    statement.append("       WHERE gtype = 'ST_MultiLineString' AND geom IS NOT NULL) t)\n");
+    statement.append(" || (SELECT ST_AsMVT(t, 'point')   FROM (SELECT oid, uid, code, label, geom FROM fdata\n");
+    statement.append("       WHERE gtype = 'ST_MultiPoint'      AND geom IS NOT NULL) t)\n");
+    statement.append(" AS mvt;\n");
 
     try (ResultSet result = Database.query(statement.toString()))
     {
@@ -107,32 +111,5 @@ public class GeometryTableVectorTileBuilder
 
     return new byte[] {};
 
-  }
-
-  public String generateTileStatement(int zoom, int x, int y, String geometryType, String layername)
-  {
-    StringBuilder statement = new StringBuilder();
-    statement.append("mvt" + layername + " AS (" + "\n");
-    statement.append(" SELECT " + "\n");
-    statement.append("  ge.oid AS " + GeoEntity.OID + "\n");
-    statement.append(", ge.uid AS " + DefaultAttribute.UID.getName() + "\n");
-    statement.append(", ge.code AS " + DefaultAttribute.CODE.getName() + "\n");
-    statement.append(", ge.display_label AS label" + "\n");
-    statement.append(", ST_AsMVTGeom(" + "\n");
-    statement.append("    ST_Transform( ge.geometry, 3857 )" + "\n");
-    statement.append("    , ST_TileEnvelope(" + zoom + ", " + x + ", " + y + ")" + "\n");
-    statement.append("    , extent => 4096" + "\n");
-    statement.append("    , buffer => 64" + "\n");
-    statement.append("  ) AS " + VectorTileBuilder.GEOM_COLUMN + "\n");
-    statement.append(" FROM _fdata AS ge" + "\n");
-    statement.append(" WHERE ST_GeometryType(ge.geometry) = '" + geometryType + "' \n");
-    statement.append(" AND ST_Transform( ge.geometry, 3857 ) && ST_TileEnvelope(" + zoom + ", " + x + ", " + y + ", margin => (64.0 / 4096))" + "\n");
-    statement.append(")," + "\n");
-    statement.append(layername + "_tile AS (");
-    statement.append(" SELECT ST_AsMVT(mvt" + layername + ".*, '" + layername + "') AS mvt" + "\n");
-    statement.append(" FROM mvt" + layername + "\n");
-    statement.append(")");
-
-    return statement.toString();
   }
 }
