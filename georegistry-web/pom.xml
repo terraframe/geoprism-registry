@@ -116,13 +116,11 @@
 										-Xmx5120M
 										-Xdebug
 										-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000
-										-Dtomcat.home=/${project.basedir}/target/cargo/configurations/tomcat8x
+										-Dtomcat.home=/${project.basedir}/target/cargo/configurations/tomcat11x
 										-Djavax.net.ssl.keyStore=/${project.basedir}/src/test/resources/keystore.ks
 										-Djavax.net.ssl.keyStorePassword=2v8hVW2rPFncN6m
 										-Djavax.net.ssl.trustStore=/${project.basedir}/src/test/resources/tomcat.truststore
 										-Djavax.net.ssl.trustStorePassword=2v8hVW2rPFncN6m
-										-Djava.rmi.server.hostname=127.0.0.1
-										-Dbirt-server=true
 										-Denvcfg=${project.basedir}/../envcfg
 										-Dproject.basedir=${project.basedir}
 										-Dnetwork.binary.maxLength=56384

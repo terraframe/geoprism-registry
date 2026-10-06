@@ -381,7 +381,7 @@ public abstract class ImportConfiguration extends JobConfiguration
     return AttributeDateType.TYPE;
   }
 
-  public static String getBaseType(org.opengis.feature.type.AttributeType type)
+  public static String getBaseType(org.geotools.api.feature.type.AttributeType type)
   {
     Class<?> clazz = type.getBinding();
 

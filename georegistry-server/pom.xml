@@ -92,25 +92,7 @@
     <version>2.2</version>
     <scope>provided</scope>
   </dependency>
-
-
-    <!-- The OrientDB Server is using the locationtech jts. Orientdb-Spatial is
-    using vividsolutions jts.
-             There is a very specific scenario that can happen, when creating a new index
-    during patching,
-             which can cause the orientdb-spatial jar to fetch a transaction from the
-    OrientDB server. When
-             it does that, it attempts to deserialize a locationtech class, which we need to
-    have on the
-             classpath (because we're using the vividsolutions jts, not locationtech).
-    Adding this jar here
-             is a very dumb hack, but it seems to work so here we are.
-         -->
-    <dependency>
-      <groupId>org.locationtech.jts.io</groupId>
-      <artifactId>jts-io-common</artifactId>
-      <version>1.17.1</version>
-    </dependency>
+  
     <dependency>
       <groupId>com.wdtinc</groupId>
       <artifactId>mapbox-vector-tile</artifactId>

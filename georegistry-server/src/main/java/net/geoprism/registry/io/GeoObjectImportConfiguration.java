@@ -417,7 +417,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     return AttributeDateType.TYPE;
   }
 
-  public static String getBaseType(org.opengis.feature.type.AttributeType type)
+  public static String getBaseType(org.geotools.api.feature.type.AttributeType type)
   {
     Class<?> clazz = type.getBinding();
 
