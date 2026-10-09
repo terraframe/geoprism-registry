@@ -37,6 +37,9 @@
          native library temp-file replacement) and CVE-2026-106449/106450/106452/106453 (decompression DoS). Runway 4.0.7
          already pins 1.11.4; this override can be removed once geoprism depends on runwaysdk 4.0.7 or later. -->
     <lz4.version>1.11.4</lz4.version>
+    <!-- Overrides the postgres driver that runwaysdk-server 4.0.6 brings in (via geoprism-common). 42.7.13 has CVE-2026-107314
+         (requireAuth fails open). This override can be removed once geoprism depends on a runwaysdk release with 42.7.14 or later. -->
+    <postgres.version>42.7.14</postgres.version>
     
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>25</java.version>
@@ -82,6 +85,11 @@
         <groupId>at.yawk.lz4</groupId>
         <artifactId>lz4-java</artifactId>
         <version>${lz4.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.postgresql</groupId>
+        <artifactId>postgresql</artifactId>
+        <version>${postgres.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
