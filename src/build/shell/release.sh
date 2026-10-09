@@ -23,7 +23,7 @@ set +x # Don't print every command before we run it
 git config --global user.name "$GIT_TF_BUILDER_USERNAME"
 git config --global user.email builder@terraframe.com
 
-. $NVM_DIR/nvm.sh && nvm install lts/hydrogen
+. $NVM_DIR/nvm.sh && nvm install lts/jod
 set -x # Go back to printing each command
 
 if [ "$release_georegistry" == "true" ]; then
