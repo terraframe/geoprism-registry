@@ -18,7 +18,7 @@
  */
 package net.geoprism.registry.etl.export;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
 import com.google.gson.JsonObject;

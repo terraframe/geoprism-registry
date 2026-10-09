@@ -34,6 +34,7 @@ import {
   NgxGraphStates,
   NgxGraphZoomOptions,
   GraphComponent,
+  LayoutService,
 } from '@swimlane/ngx-graph';
 
 import { DagreNodesOnlyLayout } from './relationship-viz-layout';
@@ -86,6 +87,7 @@ export const DIMENSIONS = {
   styleUrls: ['./relationship-visualizer.css'],
   standalone: true,
   imports: [NgxSpinnerModule, FormsModule, BooleanFieldComponent, NgStyle, GraphComponent, KeyValuePipe],
+  providers: [LayoutService],
 })
 export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
   // Hack to allow the constant to be used in the html

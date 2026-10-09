@@ -371,7 +371,7 @@ Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>. -->
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.10.1</version>
+        <version>${maven.compiler.plugin.version}</version>
         <configuration>
           <source>${maven.compiler.source}</source>
           <target>${maven.compiler.target}</target>
@@ -416,7 +416,7 @@ Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>. -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
-        <version>3.4.0</version>
+        <version>${maven.war.plugin.version}</version>
         <configuration>
           <packagingExcludes>
             **/catalina*.jar,

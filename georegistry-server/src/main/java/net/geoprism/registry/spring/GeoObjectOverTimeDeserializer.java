@@ -20,7 +20,7 @@ package net.geoprism.registry.spring;
 
 import java.io.IOException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 
 import com.fasterxml.jackson.core.JsonParser;

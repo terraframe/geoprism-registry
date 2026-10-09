@@ -114,8 +114,7 @@
 									<cargo.tomcat.uriencoding>UTF-8</cargo.tomcat.uriencoding>
 									<cargo.jvmargs>
 										-Xmx5120M
-										-Xdebug
-										-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000
+										-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000
 										-Dtomcat.home=/${project.basedir}/target/cargo/configurations/tomcat11x
 										-Djavax.net.ssl.keyStore=/${project.basedir}/src/test/resources/keystore.ks
 										-Djavax.net.ssl.keyStorePassword=2v8hVW2rPFncN6m

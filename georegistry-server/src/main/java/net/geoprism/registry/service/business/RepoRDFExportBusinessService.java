@@ -393,7 +393,7 @@ public class RepoRDFExportBusinessService
             NodeFactory.createURI(state.quadGraphName), //
             buildObjectUri(state, code, type.getCode(), orgCode, false), //
             NodeFactory.createURI(buildAttributeUri(state, type, orgCode, attribute)), //
-            NodeFactory.createLiteral(literal)));
+            NodeFactory.createLiteralString(literal)));
       }
     });
 
@@ -445,7 +445,7 @@ public class RepoRDFExportBusinessService
             NodeFactory.createURI(state.quadGraphName), //
             NodeFactory.createURI(state.graphNamespace + type.getCode() + "-" + code + "Geometry"), //
             NodeFactory.createURI(state.prefixes.get(GEO) + "asWKT"), //
-            NodeFactory.createLiteral("<" + srs_uri + "> " + geom.toText(), new org.apache.jena.datatypes.BaseDatatype(state.prefixes.get(GEO) + "wktLiteral"))
+            NodeFactory.createLiteralDT("<" + srs_uri + "> " + geom.toText(), new org.apache.jena.datatypes.BaseDatatype(state.prefixes.get(GEO) + "wktLiteral"))
 
         // The Jena GeoSPARQL Java API was found to be incompatible with our
         // stack due to the fact that we are using a GeoTools below v30.
@@ -515,7 +515,7 @@ public class RepoRDFExportBusinessService
             NodeFactory.createURI(state.quadGraphName), //
             buildObjectUri(state, code, type.getCode(), orgCode, false), //
             NodeFactory.createURI(buildAttributeUri(state, type.getCode(), attribute)), //
-            NodeFactory.createLiteral(literal)));
+            NodeFactory.createLiteralString(literal)));
       }
     });
   }

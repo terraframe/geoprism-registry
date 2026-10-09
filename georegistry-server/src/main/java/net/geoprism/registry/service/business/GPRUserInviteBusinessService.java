@@ -21,7 +21,7 @@ package net.geoprism.registry.service.business;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

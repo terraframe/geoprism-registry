@@ -24,18 +24,67 @@
   </modules>
 
   <properties>
-    <geoprism.version>2.1.8-SNAPSHOT</geoprism.version>
+    <geoprism.version>2.1.8</geoprism.version>
     <spring.boot.version>4.1.1</spring.boot.version>
-    <hapifhir_version>8.8.1</hapifhir_version>
+    <hapifhir_version>8.12.1</hapifhir_version>
     <axon.version>4.13.2</axon.version>
     <aws.version>2.47.4</aws.version>    
+    <!-- Must match the JTS version GeoTools is built against (see gt-platform-dependencies) -->
+    <jts.version>1.20.0</jts.version>
+    <!-- Overrides the Tomcat that spring-boot-starter-web brings in (11.0.24 has CVE-2026-65905, CVE-2026-65182, CVE-2026-68525) -->
+    <tomcat.version>11.0.26</tomcat.version>
+    <!-- Overrides the lz4-java that runwaysdk-orientdb 4.0.6 brings in (via geoprism-common). 1.11.1 has CVE-2026-106451 (HIGH,
+         native library temp-file replacement) and CVE-2026-106449/106450/106452/106453 (decompression DoS). Runway 4.0.7
+         already pins 1.11.4; this override can be removed once geoprism depends on runwaysdk 4.0.7 or later. -->
+    <lz4.version>1.11.4</lz4.version>
     
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
-    <aspectj.version>1.9.22.1</aspectj.version>    
-    <aspectj.plugin.version>1.15.0</aspectj.plugin.version>
+    <java.version>25</java.version>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
+    <maven.compiler.release>${java.version}</maven.compiler.release>
+    <maven.compiler.plugin.version>3.14.1</maven.compiler.plugin.version>
+    <maven.surefire.plugin.version>3.5.4</maven.surefire.plugin.version>
+    <maven.war.plugin.version>3.4.0</maven.war.plugin.version>
+    <aspectj.version>1.9.25.1</aspectj.version>
+    <aspectj.plugin.version>1.16.1</aspectj.plugin.version>
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- Pin JTS so transitive older versions (e.g. 1.17.1 via mapbox-vector-tile) don't win over the version GeoTools requires -->
+      <dependency>
+        <groupId>org.locationtech.jts</groupId>
+        <artifactId>jts-core</artifactId>
+        <version>${jts.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.locationtech.jts.io</groupId>
+        <artifactId>jts-io-common</artifactId>
+        <version>${jts.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-core</artifactId>
+        <version>${tomcat.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-el</artifactId>
+        <version>${tomcat.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-websocket</artifactId>
+        <version>${tomcat.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>at.yawk.lz4</groupId>
+        <artifactId>lz4-java</artifactId>
+        <version>${lz4.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <dependencies>
     <dependency>
@@ -132,10 +181,32 @@
   
   <build>
     <plugins>
+      <!-- Fail fast with a clear message if the build JDK is older than ${java.version} -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>3.5.0</version>
+        <executions>
+          <execution>
+            <id>enforce-java</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireJavaVersion>
+                  <version>[${java.version},)</version>
+                  <message>GeoPrism Registry requires JDK ${java.version} or newer to build. Point JAVA_HOME at a JDK ${java.version}.</message>
+                </requireJavaVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
 	  <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.13.0</version>
+        <version>${maven.compiler.plugin.version}</version>
         <configuration>
             <compilerArgs>
                 <arg>-parameters</arg>
@@ -291,6 +362,21 @@
     </plugins>
     <pluginManagement>
       <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${maven.compiler.plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${maven.surefire.plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-war-plugin</artifactId>
+          <version>${maven.war.plugin.version}</version>
+        </plugin>
         <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself. -->
         <plugin>
           <groupId>org.eclipse.m2e</groupId>

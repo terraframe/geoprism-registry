@@ -102,6 +102,11 @@
       		<groupId>org.slf4j</groupId>
       		<artifactId>slf4j-api</artifactId>
       	</exclusion>
+      	<!-- Ships protobuf-java 3.5.1 (vulnerable); use the patched version Jena brings instead (matches geoprism). -->
+      	<exclusion>
+      		<groupId>com.google.protobuf</groupId>
+      		<artifactId>protobuf-java</artifactId>
+      	</exclusion>
       </exclusions>
     </dependency>
     
@@ -207,9 +212,9 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-      <version>2.6</version>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.21.0</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
     <dependency>

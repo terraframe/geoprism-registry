@@ -430,7 +430,7 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
             NodeFactory.createURI(state.quadGraphName), //
             NodeFactory.createURI(state.prefixes.get(LPGV) + type.getCode() + "-" + code + "Geometry"), //
             NodeFactory.createURI(state.prefixes.get(GEO) + "asWKT"), //
-            NodeFactory.createLiteral("<" + srs_uri + "> " + geom.toText(), //
+            NodeFactory.createLiteralDT("<" + srs_uri + "> " + geom.toText(), //
                 new org.apache.jena.datatypes.BaseDatatype(state.prefixes.get(GEO) + "wktLiteral"))
 
         // The Jena GeoSPARQL Java API was found to be incompatible with our
@@ -576,7 +576,7 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
               NodeFactory.createURI(state.quadGraphName), //
               buildObjectUri(state, code, typeCode, orgCode, false), //
               NodeFactory.createURI(buildAttributeUri(state, typeCode, orgCode, attribute)), //
-              NodeFactory.createLiteral(literal)));
+              NodeFactory.createLiteralString(literal)));
         }
       }
     }
@@ -633,28 +633,28 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
         NodeFactory.createURI(state.prefixes.get(LPG)), //
         NodeFactory.createURI(state.prefixes.get(LPGV)), //
         NodeFactory.createURI(state.prefixes.get(LPGS) + "code"), //
-        NodeFactory.createLiteral(state.lpg.getCode())));
+        NodeFactory.createLiteralString(state.lpg.getCode())));
 
     // Our LPG has a version number
     state.writer.quad(Quad.create( //
         NodeFactory.createURI(state.prefixes.get(LPG)), //
         NodeFactory.createURI(state.prefixes.get(LPGV)), //
         NodeFactory.createURI(state.prefixes.get(LPGS) + "versionNumber"), //
-        NodeFactory.createLiteral(state.version.getVersionNumber().toString())));
+        NodeFactory.createLiteralString(state.version.getVersionNumber().toString())));
 
     // Our LPG has a label with value..
     state.writer.quad(Quad.create( //
         NodeFactory.createURI(state.prefixes.get(LPG)), //
         NodeFactory.createURI(state.prefixes.get(LPGV)), //
         org.apache.jena.vocabulary.RDFS.label.asNode(), //
-        NodeFactory.createLiteral(state.lpg.getDisplayLabel().getValue())));
+        NodeFactory.createLiteralString(state.lpg.getDisplayLabel().getValue())));
 
     // Our LPG has a description with value..
     state.writer.quad(Quad.create(//
         NodeFactory.createURI(state.prefixes.get(LPG)), //
         NodeFactory.createURI(state.prefixes.get(LPGV)), //
         NodeFactory.createURI(state.prefixes.get(DCTERMS) + "description"), //
-        NodeFactory.createLiteral(state.lpg.getDescription().getValue())));
+        NodeFactory.createLiteralString(state.lpg.getDescription().getValue())));
 
     // Our LPG has a for date with value..
     SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
@@ -664,14 +664,14 @@ public class ManyToManyLabeledPropertyGraphRDFExportBusinessService implements L
         NodeFactory.createURI(state.prefixes.get(LPG)), //
         NodeFactory.createURI(state.prefixes.get(LPGV)), //
         NodeFactory.createURI(state.prefixes.get(LPGS) + "forDate"), //
-        NodeFactory.createLiteral(dateLabel)));
+        NodeFactory.createLiteralString(dateLabel)));
 
     // Our LPG has an associated Organization with code..
     state.writer.quad(Quad.create(//
         NodeFactory.createURI(state.prefixes.get(LPG)), //
         NodeFactory.createURI(state.prefixes.get(LPGV)), //
         NodeFactory.createURI(state.prefixes.get(LPGS) + "orgCode"), //
-        NodeFactory.createLiteral(state.lpg.getOrganization().getCode())));
+        NodeFactory.createLiteralString(state.lpg.getOrganization().getCode())));
 
     // GeoObject definition
     state.writer.quad(Quad.create(//
