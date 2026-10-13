@@ -151,6 +151,15 @@
       		<groupId>org.slf4j</groupId>
       		<artifactId>slf4j-api</artifactId>
       	</exclusion>
+      	<!-- GraalVM debug tooling pulled in by orientdb-lucene; profiler shades a vulnerable org.json (CVE-2022-45688, CVE-2023-5072) -->
+      	<exclusion>
+      		<groupId>org.graalvm.tools</groupId>
+      		<artifactId>profiler</artifactId>
+      	</exclusion>
+      	<exclusion>
+      		<groupId>org.graalvm.tools</groupId>
+      		<artifactId>chromeinspector</artifactId>
+      	</exclusion>
       </exclusions>
     </dependency>
     <dependency>

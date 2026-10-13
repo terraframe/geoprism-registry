@@ -4,6 +4,12 @@
 
 FROM tomcat:11-jdk25
 
+# Ubuntu 26.04 base images ship Canonical's pebble (Go binary, unused here, flagged for go/stdlib CVEs) - drop it
+# and pick up any pending OS security updates
+RUN rm -f /usr/bin/pebble \
+ && apt-get update && apt-get upgrade -y --no-install-recommends \
+ && rm -rf /var/lib/apt/lists/*
+
 ENV CGR_VERSION=LATEST
 ENV LOG_LEVEL=error
 ENV POSTGRES_PORT=5432
@@ -14,7 +20,8 @@ RUN mkdir -p $CATALINA_HOME/wars
 COPY target/georegistry.war $CATALINA_HOME/wars/geoprism.war
 
 # Deploy CGR War
-RUN mkdir -p $CATALINA_HOME/wars/geoprism && cd $CATALINA_HOME/wars/geoprism && $JAVA_HOME/bin/jar xf $CATALINA_HOME/wars/geoprism.war
+RUN mkdir -p $CATALINA_HOME/wars/geoprism && cd $CATALINA_HOME/wars/geoprism && $JAVA_HOME/bin/jar xf $CATALINA_HOME/wars/geoprism.war \
+ && rm $CATALINA_HOME/wars/geoprism.war
 RUN mv $CATALINA_HOME/wars/geoprism $CATALINA_HOME/webapps/ROOT
 
 # Log4j properties
