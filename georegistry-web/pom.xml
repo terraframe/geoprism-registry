@@ -125,6 +125,7 @@
 										-Dnetwork.binary.maxLength=56384
 										-Daxon-bom.update-checker.disabled=true
 										-Daxoniq.update-checker.disabled=true
+										-Ddb.custom.support=true
 									</cargo.jvmargs>
 								</properties>
 							</configuration>

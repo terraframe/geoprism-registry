@@ -628,6 +628,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
     }
     finally
     {
+      
       this.typeService.delete(test1);
     }
   }
