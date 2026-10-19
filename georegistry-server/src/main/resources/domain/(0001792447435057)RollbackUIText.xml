@@ -1,0 +1,25 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="modal.confirm.rollback.acknowledge.skg">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="modal.confirm.rollback.acknowledge.skg" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="I understand that this rollback may invalidate any existing SKGs that were published from this data, and that this cannot be undone." />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="rollback.button.rolling.back">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="rollback.button.rolling.back" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Rolling Back" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

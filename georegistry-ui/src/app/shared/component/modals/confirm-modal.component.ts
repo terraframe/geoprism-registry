@@ -48,6 +48,14 @@ export class ConfirmModalComponent implements OnInit, OnDestroy {
     @Input() type: ModalTypes = ModalTypes.warning;
 
     /*
+     * Optional acknowledgement text. When set, the user must check a box
+     * containing this text before the confirm button is enabled.
+     */
+    @Input() acknowledgement: string | null = null;
+
+    public acknowledged: boolean = false;
+
+    /*
      * Called on confirm
      */
     public onConfirm: Subject<any>;
@@ -70,7 +78,15 @@ export class ConfirmModalComponent implements OnInit, OnDestroy {
         this.onCancel.unsubscribe();
     }
 
+    canConfirm(): boolean {
+        return this.acknowledgement == null || this.acknowledged;
+    }
+
     confirm(): void {
+        if (!this.canConfirm()) {
+            return;
+        }
+
         this.bsModalRef.hide();
         this.onConfirm.next(this.data);
     }

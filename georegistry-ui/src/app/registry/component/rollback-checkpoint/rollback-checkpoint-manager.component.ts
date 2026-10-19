@@ -59,6 +59,13 @@ export class RollbackCheckpointManagerComponent implements OnInit, OnDestroy {
   progressSubscription: Subscription | null = null;
   inProgress: boolean = false;
 
+  /*
+   * Index of the row whose rollback button is hovered/focused. Rolling back an
+   * import also rolls back every newer import, so that row and all rows above
+   * it (the list is newest first) are highlighted.
+   */
+  hoverIndex: number | null = null;
+
   // eslint-disable-next-line no-useless-constructor
   constructor(
     private service: RollbackCheckpointService,
@@ -104,6 +111,7 @@ export class RollbackCheckpointManagerComponent implements OnInit, OnDestroy {
       .replaceAll('{filename}', checkpoint.filename);
     bsModalRef.content!.submitText = this.localizeService.decode('modal.button.rollback');
     bsModalRef.content!.type = ModalTypes.danger;
+    bsModalRef.content!.acknowledgement = this.localizeService.decode('modal.confirm.rollback.acknowledge.skg');
 
     bsModalRef.content!.onConfirm.subscribe(() => {
       this.service.rollback(checkpoint.oid).catch((err: HttpErrorResponse) => {

@@ -66,6 +66,12 @@
     background: #faf9fd;
 }
 
+/* Rows that will be rolled back by the hovered rollback button */
+.ds-row-affected {
+    background: #fdeeee;
+    box-shadow: inset 3px 0 0 #d9534f;
+}
+
 .ds-row-head {
     padding: 12px 20px;
     background: #f8f8fb;
@@ -84,6 +90,10 @@
 .ds-actions {
     display: flex;
     justify-content: flex-end;
+}
+/* Wide enough for "Rolling Back" so the label swap on hover doesn't resize the buttons */
+.ds-actions .btn {
+    min-width: 140px;
 }
 
 .ds-file {

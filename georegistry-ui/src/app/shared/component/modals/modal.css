@@ -25,3 +25,21 @@
     background-color: var(--theme-alert-button-color) !important;
 }
 
+
+.acknowledgement {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 0;
+    font-weight: normal;
+    cursor: pointer;
+}
+/* Reset the global "input" sizing in form.scss (height: 40px, padding) which pushes the checkbox down */
+.acknowledgement input[type="checkbox"] {
+    position: static;
+    flex: none;
+    width: auto;
+    height: auto;
+    padding: 0;
+    margin: 3px 0 0;
+}
