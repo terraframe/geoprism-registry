@@ -40,7 +40,7 @@
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="modal.confirm.rollback" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="Are you sure you want to rollback all data imported and changes in the repoistory to the state it was before importing [{filename}]?" />
+          <attribute name="defaultLocale" value="Are you sure you want to rollback all data imported and changes in the repoistory to the state it was before importing [{filename}]? WARNING: This action cannot be undone and will invalidate all published SKGs involving the rolled back data." />
         </attributeStruct>
       </object>    
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="nav.rollback.description">

@@ -513,7 +513,9 @@ public class CommitBusinessService implements CommitBusinessServiceIF
 
     // Clear the rollback checkpoints because once something has been published
     // or pulled the repository can no longer rollback those changes
-    this.rollbackService.clear();
+    // TODO: Commented out for now because downstream synchronization isn't used
+    // and it will reduce friction to allow the user to alway delete data
+    //    this.rollbackService.clear();
 
     return commit;
   }
