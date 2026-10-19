@@ -5,7 +5,7 @@
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="modal.confirm.rollback.acknowledge.skg" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="I understand that this rollback may invalidate any existing SKGs that were published from this data, and that this cannot be undone." />
+          <attribute name="defaultLocale" value="I understand that this rollback may invalidate any existing SKGs that were published from this data, and that this cannot be undone. It is on me to delete any relevant SKG's, should they exist, after this rollback finishes." />
         </attributeStruct>
       </object>
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="rollback.button.rolling.back">
