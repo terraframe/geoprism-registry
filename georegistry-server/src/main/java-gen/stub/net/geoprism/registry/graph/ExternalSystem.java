@@ -303,6 +303,10 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
     {
       return new JenaExternalSystem();
     }
+    else if (type.equals(SparkExternalSystem.class.getSimpleName()))
+    {
+      return new SparkExternalSystem();
+    }
 
     throw new UnsupportedOperationException();
   }

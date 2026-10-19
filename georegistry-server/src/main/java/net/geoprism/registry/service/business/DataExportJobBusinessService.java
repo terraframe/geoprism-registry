@@ -10,6 +10,7 @@ import net.geoprism.registry.etl.ExternalSystemSyncConfig;
 import net.geoprism.registry.etl.FhirExportConfig;
 import net.geoprism.registry.etl.FhirImportConfig;
 import net.geoprism.registry.etl.JenaExportConfig;
+import net.geoprism.registry.etl.SparkExportConfig;
 import net.geoprism.registry.etl.export.DataExportJob;
 import net.geoprism.registry.etl.export.ExportHistory;
 import net.geoprism.registry.etl.export.ExportStage;
@@ -22,6 +23,9 @@ public class DataExportJobBusinessService implements DataExportJobBusinessServic
 {
   @Autowired
   private JenaSynchronizationService       jenaService;
+
+  @Autowired
+  private SparkSynchronizationService      sparkService;
 
   @Autowired
   private FhirImportSynchronizationService fImportService;
@@ -50,6 +54,10 @@ public class DataExportJobBusinessService implements DataExportJobBusinessServic
     else if (config instanceof JenaExportConfig)
     {
       this.jenaService.execute(synchronization, (JenaExportConfig) config, history);
+    }
+    else if (config instanceof SparkExportConfig)
+    {
+      this.sparkService.execute(synchronization, (SparkExportConfig) config, history);
     }
   }
 

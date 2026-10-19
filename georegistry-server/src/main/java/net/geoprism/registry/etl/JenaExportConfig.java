@@ -24,10 +24,8 @@ import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.SynchronizationConfig.Type;
 import net.geoprism.registry.graph.JenaExternalSystem;
 
-public class JenaExportConfig extends ExternalSystemSyncConfig
+public class JenaExportConfig extends PublishExportConfig
 {
-
-  private String publishUid;
 
   private String namespace;
 
@@ -37,16 +35,6 @@ public class JenaExportConfig extends ExternalSystemSyncConfig
   {
     this.namespace = "http://terraframe.com";
     this.graph = this.namespace + "/g1";
-  }
-
-  public String getPublishUid()
-  {
-    return publishUid;
-  }
-
-  public void setPublishUid(String publishUid)
-  {
-    this.publishUid = publishUid;
   }
 
   public String getNamespace()
@@ -81,11 +69,6 @@ public class JenaExportConfig extends ExternalSystemSyncConfig
     super.populate(config);
 
     JsonObject json = config.getConfigurationJson();
-
-    if (json != null && json.has("publishUid"))
-    {
-      this.setPublishUid(json.get("publishUid").getAsString());
-    }
 
     if (json != null && json.has("namespace"))
     {

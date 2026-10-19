@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import com.google.gson.JsonObject;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.OR;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionIF;
@@ -36,7 +37,7 @@ import net.geoprism.registry.Publish;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.SynchronizationConfig.Type;
 import net.geoprism.registry.SynchronizationConfigQuery;
-import net.geoprism.registry.etl.JenaExportConfig;
+import net.geoprism.registry.etl.PublishExportConfig;
 import net.geoprism.registry.etl.export.DataExportJob;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
@@ -56,13 +57,16 @@ public class SynchronizationConfigBusinessService implements SynchronizationConf
   public List<SynchronizationConfig> getSynchronizations(Publish publish)
   {
     SynchronizationConfigQuery query = new SynchronizationConfigQuery(new QueryFactory());
-    query.WHERE(query.getSynchronizationType().EQ(Type.JENA.name()));
+    query.WHERE(OR.get( //
+        query.getSynchronizationType().EQ(Type.JENA.name()), //
+        query.getSynchronizationType().EQ(Type.SPARK.name()) //
+    ));
 
     try (OIterator<? extends SynchronizationConfig> it = query.getIterator())
     {
       return it.getAll().stream().map(t -> (SynchronizationConfig) t) //
           .filter(s -> {
-            JenaExportConfig config = s.toConfiguration();
+            PublishExportConfig config = s.toConfiguration();
 
             return config.getPublishUid().equals(publish.getUid());
           }).toList();

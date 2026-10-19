@@ -23,6 +23,10 @@ public class SynchronizationConfigFactory
     {
       return new JenaExportConfig();
     }
+    else if (type.equals(Type.SPARK))
+    {
+      return new SparkExportConfig();
+    }
 
     throw new UnsupportedOperationException();
   }

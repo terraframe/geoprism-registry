@@ -40,7 +40,7 @@ import net.geoprism.registry.view.JsonSerializable;
 public class SynchronizationConfig extends SynchronizationConfigBase implements JsonSerializable
 {
   public static enum Type {
-    FHIR_IMPORT, FHIR_EXPORT, JENA
+    FHIR_IMPORT, FHIR_EXPORT, JENA, SPARK
   }
 
   private static final long   serialVersionUID = -1221759231;

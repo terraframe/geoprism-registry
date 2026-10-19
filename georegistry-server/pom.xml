@@ -254,7 +254,17 @@
       	</exclusion>
       </exclusions>
     </dependency>
-
+    
+    <dependency>
+      <groupId>org.apache.spark</groupId>
+      <artifactId>spark-connect-client-jvm_2.13</artifactId>
+      <version>${apache.spark}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.spark</groupId>
+      <artifactId>spark-sql-api_2.13</artifactId>
+      <version>${apache.spark}</version>
+    </dependency>
 
 
     <dependency>

@@ -1,0 +1,49 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdVertex name="net.geoprism.registry.graph.SparkExternalSystem" label="Jena"  extends="net.geoprism.registry.graph.ExternalSystem">
+        <attributes>
+          <text name="url" label="URL" required="true" />
+        </attributes>
+      </mdVertex>   
+
+    </create>
+    <permissions>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>      
+          <mdBusinessPermission type="net.geoprism.registry.graph.SparkExternalSystem">
+            <operation name="ALL" />
+          </mdBusinessPermission>                  
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryMaintainer">
+        <grant>      
+          <mdBusinessPermission type="net.geoprism.registry.graph.SparkExternalSystem">
+            <operation name="ALL" />
+          </mdBusinessPermission>                  
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryContributor">
+        <grant>          
+          <mdBusinessPermission type="net.geoprism.registry.graph.SparkExternalSystem">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>                  
+        </grant>
+      </role>
+      <role roleName="cgr.APIConsumer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.graph.SparkExternalSystem">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>                  
+        </grant>
+      </role>
+    </permissions>         
+  </doIt>
+  <undoIt>
+    <delete>
+      <object type="com.runwaysdk.system.metadata.MdBusiness" key="net.geoprism.registry.graph.SparkExternalSystem"/>        
+    </delete>
+  </undoIt>
+</version>

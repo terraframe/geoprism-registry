@@ -24,11 +24,13 @@
   </modules>
 
   <properties>
-    <geoprism.version>2.1.8</geoprism.version>
+    <geoprism.version>2.1.9-SNAPSHOT</geoprism.version>
     <spring.boot.version>4.1.1</spring.boot.version>
     <hapifhir_version>8.12.1</hapifhir_version>
     <axon.version>4.13.2</axon.version>
     <aws.version>2.47.4</aws.version>    
+    <!-- Must match the spark cluster version -->
+    <apache.spark>4.1.0</apache.spark>    
     <!-- Must match the JTS version GeoTools is built against (see gt-platform-dependencies) -->
     <jts.version>1.20.0</jts.version>
     <!-- Overrides the Tomcat that spring-boot-starter-web brings in (11.0.24 has CVE-2026-65905, CVE-2026-65182, CVE-2026-68525) -->

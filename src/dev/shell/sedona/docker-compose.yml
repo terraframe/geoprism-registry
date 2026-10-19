@@ -1,0 +1,110 @@
+# Apache Spark + Apache Sedona with a Hive metastore
+#
+#   docker compose up -d --build
+#
+# Spark Connect:    sc://localhost:15002
+# Spark master UI:  http://localhost:8080
+# Driver UI:        http://localhost:4040
+# Hive metastore:   thrift://localhost:9083
+version: "3"
+services:
+  # Shared warehouse volume is written by the metastore (uid 1000) and spark (uid 185)
+  warehouse-init:
+    image: busybox:1.37
+    command: chmod 1777 /opt/warehouse
+    volumes:
+      - warehouse:/opt/warehouse
+
+  metastore-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: metastore
+      POSTGRES_USER: hive
+      POSTGRES_PASSWORD: hive
+    volumes:
+      - metastore-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hive -d metastore"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  hive-metastore:
+    build: ./hive
+    image: sedona/hive-metastore:4.0.1
+    depends_on:
+      metastore-db:
+        condition: service_healthy
+      warehouse-init:
+        condition: service_completed_successfully
+    environment:
+      SERVICE_NAME: metastore
+      DB_DRIVER: postgres
+      # metadata.transformer.class is cleared so Spark managed tables aren't rewritten as external
+      SERVICE_OPTS: >-
+        -Djavax.jdo.option.ConnectionDriverName=org.postgresql.Driver
+        -Djavax.jdo.option.ConnectionURL=jdbc:postgresql://metastore-db:5432/metastore
+        -Djavax.jdo.option.ConnectionUserName=hive
+        -Djavax.jdo.option.ConnectionPassword=hive
+        -Dmetastore.warehouse.dir=file:///opt/warehouse
+        -Dmetastore.metadata.transformer.class=
+        -Dhive.metastore.event.db.notification.api.auth=false
+    ports:
+      - "9083:9083"
+    volumes:
+      - warehouse:/opt/warehouse
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/9083'"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+  spark-master:
+    build: ./spark
+    image: sedona/spark:4.1.0
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
+    environment:
+      SPARK_MASTER_HOST: spark-master
+    ports:
+      - "8080:8080"
+      - "7077:7077"
+
+  spark-worker:
+    image: sedona/spark:4.1.0
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    depends_on:
+      - spark-master
+    environment:
+      SPARK_WORKER_CORES: 2
+      SPARK_WORKER_MEMORY: 2g
+    ports:
+      - "8081:8081"
+    volumes:
+      - warehouse:/opt/warehouse
+
+  spark-connect:
+    image: sedona/spark:4.1.0
+    command: >-
+      /opt/spark/sbin/start-connect-server.sh
+      --master spark://spark-master:7077
+      --conf spark.driver.host=spark-connect
+      --conf spark.executor.memory=1g
+    depends_on:
+      spark-master:
+        condition: service_started
+      spark-worker:
+        condition: service_started
+      hive-metastore:
+        condition: service_healthy
+    environment:
+      SPARK_NO_DAEMONIZE: "true"
+    ports:
+      - "15002:15002"
+      - "4040:4040"
+    volumes:
+      - warehouse:/opt/warehouse
+
+volumes:
+  warehouse:
+  metastore-db:
