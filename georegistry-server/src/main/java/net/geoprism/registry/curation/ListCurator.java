@@ -93,7 +93,7 @@ public class ListCurator
 
         if (history.getWorkProgress() % 100 == 0)
         {
-          NotificationFacade.queue(new GlobalNotificationMessage(MessageType.CURATION_JOB_CHANGE, null));
+          NotificationFacade.queue(new GlobalNotificationMessage(MessageType.CURATION_JOB_CHANGE));
         }
       }
     }

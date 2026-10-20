@@ -17,15 +17,17 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
+import EnvironmentUtil from '@core/utility/environment-util';
 
-import EnvironmentUtil from "@core/utility/environment-util";
+export interface NotificationMessage {
+  type: string;
+  content?: any;
+}
 
 export class WebSockets {
-
-    static buildBaseUrl(): string {
-        // http -> ws, https -> wss. Built from the absolute app URL so that the
-        // context path (e.g. /gpr) is preserved.
-        return EnvironmentUtil.getAbsoluteApiUrl().replace(/^http/i, "ws");
-    }
-
+  static buildBaseUrl(): string {
+    // http -> ws, https -> wss. Built from the absolute app URL so that the
+    // context path (e.g. /gpr) is preserved.
+    return EnvironmentUtil.getAbsoluteApiUrl().replace(/^http/i, 'ws');
+  }
 }

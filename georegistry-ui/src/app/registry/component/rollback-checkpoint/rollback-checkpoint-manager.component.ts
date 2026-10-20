@@ -34,7 +34,7 @@ import { PageContainerComponent } from '../../../shared/component/page-container
 import { ModalTypes } from '@shared/model/modal';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { Subscription } from 'rxjs';
-import { WebSockets } from '@shared/component/web-sockets/web-sockets';
+import { NotificationMessage, WebSockets } from '@shared/component/web-sockets/web-sockets';
 import { Progress } from '@shared/model/progress';
 import { ProgressService } from '@shared/service';
 
@@ -55,7 +55,7 @@ export class RollbackCheckpointManagerComponent implements OnInit, OnDestroy {
     resultSet: [],
   };
 
-  progressNotifier: WebSocketSubject<any> | null = null;
+  progressNotifier: WebSocketSubject<NotificationMessage> | null = null;
   progressSubscription: Subscription | null = null;
   inProgress: boolean = false;
 
@@ -83,7 +83,7 @@ export class RollbackCheckpointManagerComponent implements OnInit, OnDestroy {
       if (message.content != null) {
         this.handleProgressChange(message.content);
       } else {
-        this.handleProgressChange(message);
+        console.log('Heartbeat');
       }
     });
 

@@ -158,7 +158,7 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
     job.setGraphType(version.getGraphType());
     job.apply();
 
-    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE, null));
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE));
 
     job.start();
   }

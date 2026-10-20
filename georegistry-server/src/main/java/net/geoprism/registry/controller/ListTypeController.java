@@ -48,6 +48,7 @@ import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.controller.ObjectClassController.OidBody;
 import net.geoprism.registry.etl.ListTypeJob;
+import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.service.request.ListTypeService;
 import net.geoprism.spring.core.JsonObjectDeserializer;
 import tools.jackson.databind.annotation.JsonDeserialize;
@@ -313,11 +314,11 @@ public class ListTypeController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/progress")
-  public ResponseEntity<String> progress(@NotEmpty @RequestParam(name = "oid") String oid)
+  public ResponseEntity<Progress> progress(@NotEmpty @RequestParam(name = "oid") String oid)
   {
-    JsonObject response = this.service.progress(this.getSessionId(), oid);
+    Progress progress = this.service.progress(this.getSessionId(), oid);
 
-    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+    return ResponseEntity.ok(progress);
   }
 
   @GetMapping(API_PATH + "/get-publish-jobs")

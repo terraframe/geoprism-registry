@@ -33,7 +33,7 @@ import { AuthService, ProgressService } from '@shared/service';
 import { ListData, ListTypeVersion } from '@registry/model/list-type';
 import { ListTypeService } from '@registry/service/list-type.service';
 import { ExportFormatModalComponent } from './export-format-modal.component';
-import { WebSockets } from '@shared/component/web-sockets/web-sockets';
+import { NotificationMessage, WebSockets } from '@shared/component/web-sockets/web-sockets';
 import { GenericTableConfig, TableColumnSetup, TableEvent } from '@shared/model/generic-table';
 import { LngLatBounds } from 'maplibre-gl';
 
@@ -103,10 +103,10 @@ export class ListComponent implements OnInit, OnDestroy {
    */
   private bsModalRef: BsModalRef;
 
-  progressNotifier: WebSocketSubject<{ type: string; content: any }>;
+  progressNotifier: WebSocketSubject<NotificationMessage>;
   progressSubscription: Subscription = null;
 
-  jobNotifier: WebSocketSubject<{ type: string; message: string }>;
+  jobNotifier: WebSocketSubject<NotificationMessage>;
   jobSubscription: Subscription = null;
 
   constructor(
@@ -166,13 +166,11 @@ export class ListComponent implements OnInit, OnDestroy {
     this.progressSubscription = this.progressNotifier.subscribe((message) => {
       if (message.content != null) {
         this.handleProgressChange(message.content);
-      } else {
-        this.handleProgressChange(message);
       }
     });
 
     this.jobNotifier = webSocket(baseUrl + '/websocket/notify');
-    this.jobSubscription = this.jobNotifier.subscribe((message) => {
+    this.jobSubscription = this.jobNotifier.subscribe(() => {
       this.handleJobChange();
     });
 

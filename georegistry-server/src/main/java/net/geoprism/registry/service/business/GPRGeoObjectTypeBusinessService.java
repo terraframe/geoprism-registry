@@ -70,7 +70,7 @@ public class GPRGeoObjectTypeBusinessService extends GeoObjectTypeBusinessServic
 
     SerializedListTypeCache.getInstance().clear();
 
-    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.TYPE_CACHE_CHANGE, null));
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.TYPE_CACHE_CHANGE));
   }
 
   @Transaction

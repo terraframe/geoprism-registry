@@ -65,7 +65,7 @@ public class PublishLabeledPropertyGraphTypeVersionJob extends PublishLabeledPro
   {
     super.afterJobExecute(history);
 
-    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE, null));
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE));
   }
 
   @Override
@@ -114,7 +114,7 @@ public class PublishLabeledPropertyGraphTypeVersionJob extends PublishLabeledPro
     history.setImportedRecords(0L);
     history.apply();
 
-    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE, null));
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE));
 
     return history;
   }

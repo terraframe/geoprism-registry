@@ -65,6 +65,7 @@ import net.geoprism.registry.etl.PublishListTypeVersionJob;
 import net.geoprism.registry.etl.PublishListTypeVersionJobQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerOrganization;
+import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.roles.CreateListPermissionException;
 import net.geoprism.registry.service.business.ServiceFactory;
@@ -261,7 +262,7 @@ public class ListTypeService
     job.setListType(version.getListType());
     job.apply();
 
-    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE, null));
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE));
 
     final JobHistory history = job.start();
 
@@ -443,9 +444,9 @@ public class ListTypeService
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject progress(String sessionId, String oid)
+  public Progress progress(String sessionId, String oid)
   {
-    return ProgressService.progress(oid).toJson();
+    return ProgressService.progress(oid);
   }
 
   @Request(RequestType.SESSION)

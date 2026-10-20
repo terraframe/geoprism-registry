@@ -189,7 +189,7 @@ public class DataImportJob extends DataImportJobBase
         history.setConfiguration(config.toDTO());
         history.apply();
 
-        NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE, null));
+        NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE));
       }
       else
       {
@@ -202,7 +202,7 @@ public class DataImportJob extends DataImportJobBase
         history.setImportedRecords(0L);
         history.apply();
 
-        NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE, null));
+        NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE));
 
         this.process(executionContext, history, ImportStage.IMPORT, config);
       }
@@ -239,7 +239,7 @@ public class DataImportJob extends DataImportJobBase
         history.apply();
       }
 
-      NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE, null));
+      NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE));
     }
     else if (stage.equals(ImportStage.RESUME_IMPORT)) // TODO : I'm not sure
                                                       // this code block is ever
@@ -266,7 +266,7 @@ public class DataImportJob extends DataImportJobBase
         history.apply();
       }
 
-      NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE, null));
+      NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE));
     }
     else
     {
@@ -314,7 +314,7 @@ public class DataImportJob extends DataImportJobBase
   @Override
   public void afterJobExecute(JobHistory history)
   {
-    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE, null));
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE));
 
     // TODO : Deleting the ExecutableJob here will also delete the history.
     // AllJobStatus finalStatus = history.getStatus().get(0);
@@ -395,7 +395,7 @@ public class DataImportJob extends DataImportJobBase
       }
     }
 
-    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE, null));
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE));
   }
 
   @Override
@@ -410,7 +410,7 @@ public class DataImportJob extends DataImportJobBase
     history.setImportedRecords(0L);
     history.apply();
 
-    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE, null));
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE));
 
     return history;
   }

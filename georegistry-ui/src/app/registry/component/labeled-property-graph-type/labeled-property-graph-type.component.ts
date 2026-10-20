@@ -23,7 +23,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 
 import { Subscription } from 'rxjs';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
-import { WebSockets } from '@shared/component/web-sockets/web-sockets';
+import { NotificationMessage, WebSockets } from '@shared/component/web-sockets/web-sockets';
 import { environment } from 'src/environments/environment';
 
 import { ConfirmModalComponent } from '@shared/component';
@@ -61,8 +61,8 @@ export class LabeledPropertyGraphTypeComponent implements OnInit, OnDestroy {
    */
   bsModalRef: BsModalRef;
 
-  progressNotifier: WebSocketSubject<any>;
-  progressSubscription: Subscription = null;
+  progressNotifier: WebSocketSubject<NotificationMessage>;
+  progressSubscription: Subscription | null = null;
 
   isRefreshing: boolean = false;
 
@@ -92,8 +92,6 @@ export class LabeledPropertyGraphTypeComponent implements OnInit, OnDestroy {
     this.progressSubscription = this.progressNotifier.subscribe((message) => {
       if (message.content != null) {
         this.handleProgressChange(message.content);
-      } else {
-        this.handleProgressChange(message);
       }
     });
   }

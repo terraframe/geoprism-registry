@@ -60,6 +60,6 @@ public class DataExportJobBusinessService implements DataExportJobBusinessServic
     history.addStage(stage);
     history.apply();
 
-    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE));
   }
 }

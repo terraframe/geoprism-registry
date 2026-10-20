@@ -18,7 +18,9 @@
  */
 package net.geoprism.registry.progress;
 
-import com.google.gson.JsonObject;
+import java.util.List;
+
+import tools.jackson.databind.json.JsonMapper;
 
 public class Progress
 {
@@ -41,11 +43,6 @@ public class Progress
     this.description = description;
   }
 
-  public Long getCurrent()
-  {
-    return current;
-  }
-
   public Progress add(long work)
   {
     this.current += work;
@@ -53,18 +50,58 @@ public class Progress
     return this;
   }
 
+  public long getCurrent()
+  {
+    return current;
+  }
+
+  public void setCurrent(long current)
+  {
+    this.current = current;
+  }
+
   public long getTotal()
   {
     return total;
   }
 
-  public JsonObject toJson()
+  public void setTotal(long total)
   {
-    JsonObject object = new JsonObject();
-    object.addProperty("current", this.current);
-    object.addProperty("total", this.total);
-    object.addProperty("description", this.description);
-
-    return object;
+    this.total = total;
   }
+
+  public String getDescription()
+  {
+    return description;
+  }
+
+  public void setDescription(String description)
+  {
+    this.description = description;
+  }
+
+  public static String toJson(Progress dto)
+  {
+    JsonMapper mapper = JsonMapper.shared();
+    return mapper.writeValueAsString(dto);
+  }
+
+  public static <T extends Progress> String toJson(List<T> dtos)
+  {
+    JsonMapper mapper = JsonMapper.shared();
+    return mapper.writeValueAsString(dtos);
+  }
+
+  public static Progress parseJson(String json)
+  {
+    JsonMapper mapper = JsonMapper.shared();
+    return mapper.readValue(json, Progress.class);
+  }
+
+  public static List<Progress> parseList(String json)
+  {
+    JsonMapper mapper = JsonMapper.shared();
+    return mapper.readerForListOf(Progress.class).readValue(json);
+  }
+
 }
