@@ -9,6 +9,7 @@ import org.axonframework.eventsourcing.eventstore.DomainEventStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import net.geoprism.registry.RollbackCheckpoint;
@@ -36,19 +37,23 @@ import net.geoprism.registry.axon.event.rollback.RollbackGeoObjectEdgeEventBuild
 import net.geoprism.registry.axon.event.rollback.RollbackGeoObjectEventBuilder;
 import net.geoprism.registry.axon.event.rollback.RollbackObjectEdgeEventBuilder;
 import net.geoprism.registry.axon.projection.RepositoryProjection;
+import net.geoprism.registry.cache.ClearObjectCacheEvent;
 
 @Service
 public class RollbackEventService
 {
-  private static Logger        logger         = LoggerFactory.getLogger(RollbackEventService.class);
+  private static Logger             logger         = LoggerFactory.getLogger(RollbackEventService.class);
 
-  public static final int      ROLLBACK_CHUNK = 1000;
-
-  @Autowired
-  private RegistryEventStore   store;
+  public static final int           ROLLBACK_CHUNK = 1000;
 
   @Autowired
-  private RepositoryProjection projection;
+  private ApplicationEventPublisher publisher;
+
+  @Autowired
+  private RegistryEventStore        store;
+
+  @Autowired
+  private RepositoryProjection      projection;
 
   public void rollback(RollbackCheckpoint checkpoint)
   {
@@ -60,9 +65,15 @@ public class RollbackEventService
 
       GapAwareTrackingToken start = GapAwareTrackingToken.newInstance(checkpoint.getGlobalIndex(), new LinkedList<>());
 
+      publisher.publishEvent(new ClearObjectCacheEvent(this));
+
       processEventType(start, EventPhase.EDGE);
 
+      publisher.publishEvent(new ClearObjectCacheEvent(this));
+
       processEventType(start, EventPhase.OBJECT);
+
+      publisher.publishEvent(new ClearObjectCacheEvent(this));
 
       // Delete the events
       store.delete(checkpoint.getGlobalIndex());
@@ -135,9 +146,13 @@ public class RollbackEventService
     {
       this.projection.handleApplyConceptObject((ConceptObjectApplyEvent) event);
     }
-    else if (event instanceof RemoveObjectEvent)
+    else if (event instanceof RemoveObjectEvent e)
     {
-      this.projection.handleRemoveObjectEvent((RemoveObjectEvent) event);
+      System.out.println("Deleting object: " + e.getCode());
+
+      this.projection.handleRemoveObjectEvent(e);
+
+      System.out.println("Complete deleting object: " + e.getCode());
     }
     else if (event instanceof ObjectRemoveEdgeEvent)
     {
