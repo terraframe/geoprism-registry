@@ -479,6 +479,36 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
 
   @Test
   @Request
+  public void testRollbackConceptMultipleEvents()
+  {
+    pConcept = createConceptObject("P_CONCEPT", "P_CONCEPT", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+    cConcept = createConceptObject("C_CONCEPT", "C_CONCEPT", TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+
+    String edgeUid = this.addConceptEdge(pConcept, cEdgeType, cConcept);
+
+    this.eObjectService.getByUid(cEdgeType, edgeUid).ifPresent(edge -> this.eventService.remove(cEdgeType, edge));
+
+    Assert.assertEquals(Long.valueOf(4), this.store.size());
+
+    Assert.assertEquals(0, this.getEdgeCount(cEdgeType, pConcept.getVertex().getRID(), cConcept.getVertex().getRID()));
+
+    GapAwareTrackingToken start = (GapAwareTrackingToken) this.store.createTailToken();
+
+    // Rollback the last event
+    RollbackCheckpoint dto = new RollbackCheckpoint();
+    dto.setGlobalIndex(this.store.createTailToken().position().getAsLong());
+
+    this.service.rollback(dto);
+
+    Assert.assertEquals(Long.valueOf(0), this.store.size());
+
+//    Assert.assertEquals(0, this.getEdgeCount(cEdgeType, pConcept.getVertex().getRID(), cConcept.getVertex().getRID()));
+    Assert.assertNull(this.cObjectService.getByCode(cClass, pConcept.getCode()).orElse(null));
+    Assert.assertNull(this.cObjectService.getByCode(cClass, cConcept.getCode()).orElse(null));
+  }
+
+  @Test
+  @Request
   public void testRollbackRemoveEdgeEvent_Dag()
   {
     ServerGeoObjectIF usa = USATestData.USA.apply();

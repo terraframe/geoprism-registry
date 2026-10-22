@@ -956,17 +956,17 @@ public class RepositoryProjection
     {
       BusinessType type = this.bTypeService.getByCodeOrThrow(event.getType());
 
-      this.bObjectService.getByCode(type, event.getCode()).ifPresent(object -> {
+      this.bObjectService.getByCode(type, event.getCode()).ifPresentOrElse(object -> {
         this.bObjectService.delete(object);
-      });
+      }, () -> logger.debug("Unable to find business object for delete [" + type.getCode() + "][" + event.getCode() + "]"));
     }
     else
     {
       ConceptClass type = this.cClassService.getByCodeOrThrow(event.getType());
 
-      this.cObjectService.getByCode(type, event.getCode()).ifPresent(object -> {
+      this.cObjectService.getByCode(type, event.getCode()).ifPresentOrElse(object -> {
         this.cObjectService.delete(object);
-      });
+      }, () -> logger.debug("Unable to find concept for delete [" + type.getCode() + "][" + event.getCode() + "]"));
     }
 
   }

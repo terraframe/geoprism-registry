@@ -9,6 +9,7 @@ import org.axonframework.eventsourcing.eventstore.DomainEventStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import net.geoprism.registry.RollbackCheckpoint;
@@ -36,19 +37,23 @@ import net.geoprism.registry.axon.event.rollback.RollbackGeoObjectEdgeEventBuild
 import net.geoprism.registry.axon.event.rollback.RollbackGeoObjectEventBuilder;
 import net.geoprism.registry.axon.event.rollback.RollbackObjectEdgeEventBuilder;
 import net.geoprism.registry.axon.projection.RepositoryProjection;
+import net.geoprism.registry.cache.ClearObjectCacheEvent;
 
 @Service
 public class RollbackEventService
 {
-  private static Logger        logger         = LoggerFactory.getLogger(RollbackEventService.class);
+  private static Logger             logger         = LoggerFactory.getLogger(RollbackEventService.class);
 
-  public static final int      ROLLBACK_CHUNK = 1000;
-
-  @Autowired
-  private RegistryEventStore   store;
+  public static final int           ROLLBACK_CHUNK = 1000;
 
   @Autowired
-  private RepositoryProjection projection;
+  private ApplicationEventPublisher publisher;
+
+  @Autowired
+  private RegistryEventStore        store;
+
+  @Autowired
+  private RepositoryProjection      projection;
 
   public void rollback(RollbackCheckpoint checkpoint)
   {
@@ -60,9 +65,15 @@ public class RollbackEventService
 
       GapAwareTrackingToken start = GapAwareTrackingToken.newInstance(checkpoint.getGlobalIndex(), new LinkedList<>());
 
+      publisher.publishEvent(new ClearObjectCacheEvent(this));
+
       processEventType(start, EventPhase.EDGE);
 
+      publisher.publishEvent(new ClearObjectCacheEvent(this));
+
       processEventType(start, EventPhase.OBJECT);
+
+      publisher.publishEvent(new ClearObjectCacheEvent(this));
 
       // Delete the events
       store.delete(checkpoint.getGlobalIndex());
@@ -103,53 +114,53 @@ public class RollbackEventService
 
   public void replay(RepositoryEvent event)
   {
-    if (event instanceof GeoObjectApplyEvent)
+    if (event instanceof GeoObjectApplyEvent e)
     {
-      this.projection.handleApplyGeoObject((GeoObjectApplyEvent) event);
+      this.projection.handleApplyGeoObject(e);
     }
-    else if (event instanceof RemoveGeoObjectEvent)
+    else if (event instanceof RemoveGeoObjectEvent e)
     {
-      this.projection.handleRemoveGeoObjectEvent((RemoveGeoObjectEvent) event);
+      this.projection.handleRemoveGeoObjectEvent(e);
     }
-    else if (event instanceof RemoveGeoObjectEdgeEvent)
+    else if (event instanceof RemoveGeoObjectEdgeEvent e)
     {
-      this.projection.handleRemoveGeoObjectEdgeEvent((RemoveGeoObjectEdgeEvent) event);
+      this.projection.handleRemoveGeoObjectEdgeEvent(e);
     }
-    else if (event instanceof GeoObjectCreateParentEvent)
+    else if (event instanceof GeoObjectCreateParentEvent e)
     {
-      this.projection.handleCreateParent((GeoObjectCreateParentEvent) event);
+      this.projection.handleCreateParent(e);
     }
-    else if (event instanceof GeoObjectRemoveParentEvent)
+    else if (event instanceof GeoObjectRemoveParentEvent e)
     {
-      this.projection.handleRemoveParent((GeoObjectRemoveParentEvent) event);
+      this.projection.handleRemoveParent(e);
     }
-    else if (event instanceof GeoObjectUpdateParentEvent)
+    else if (event instanceof GeoObjectUpdateParentEvent e)
     {
-      this.projection.handleUpdateParent((GeoObjectUpdateParentEvent) event);
+      this.projection.handleUpdateParent(e);
     }
-    else if (event instanceof BusinessObjectApplyEvent)
+    else if (event instanceof BusinessObjectApplyEvent e)
     {
-      this.projection.handleApplyBusinessObject((BusinessObjectApplyEvent) event);
+      this.projection.handleApplyBusinessObject(e);
     }
-    else if (event instanceof ConceptObjectApplyEvent)
+    else if (event instanceof ConceptObjectApplyEvent e)
     {
-      this.projection.handleApplyConceptObject((ConceptObjectApplyEvent) event);
+      this.projection.handleApplyConceptObject(e);
     }
-    else if (event instanceof RemoveObjectEvent)
+    else if (event instanceof RemoveObjectEvent e)
     {
-      this.projection.handleRemoveObjectEvent((RemoveObjectEvent) event);
+      this.projection.handleRemoveObjectEvent(e);
     }
-    else if (event instanceof ObjectRemoveEdgeEvent)
+    else if (event instanceof ObjectRemoveEdgeEvent e)
     {
-      this.projection.handleObjectRemoveEdge((ObjectRemoveEdgeEvent) event);
+      this.projection.handleObjectRemoveEdge(e);
     }
-    else if (event instanceof ObjectApplyEdgeEvent)
+    else if (event instanceof ObjectApplyEdgeEvent e)
     {
-      this.projection.handleObjectApplyEdge((ObjectApplyEdgeEvent) event);
+      this.projection.handleObjectApplyEdge(e);
     }
-    else if (event instanceof GeoObjectApplyEdgeEvent)
+    else if (event instanceof GeoObjectApplyEdgeEvent e)
     {
-      this.projection.handleGeoObjectApplyEdge((GeoObjectApplyEdgeEvent) event);
+      this.projection.handleGeoObjectApplyEdge(e);
     }
     else
     {
