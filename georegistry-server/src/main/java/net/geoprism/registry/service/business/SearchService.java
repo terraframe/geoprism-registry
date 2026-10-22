@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service.business;
 
@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.JsonObject;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.runwaysdk.ComponentIF;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.graph.GraphQuery;
@@ -52,6 +53,7 @@ import com.runwaysdk.dataaccess.graph.GraphDDLCommandAction;
 import com.runwaysdk.dataaccess.graph.GraphRequest;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
+import com.runwaysdk.dataaccess.graph.orientdb.OrientDBRequest;
 import com.runwaysdk.dataaccess.metadata.MdAttributeDateDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeTextDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
@@ -197,9 +199,14 @@ public class SearchService
     statement.append("DELETE VERTEX " + mdVertex.getDBClassName());
 
     GraphDBService service = GraphDBService.getInstance();
-    GraphRequest request = service.getGraphDBRequest();
+    OrientDBRequest request = (OrientDBRequest) service.getGraphDBRequest();
 
     service.command(request, statement.toString(), new HashMap<>());
+
+    // Deleting through a direct SQL command bypasses the java abstraction and
+    // can leave stale entities in the L1 cache. So we need to clear the cache
+    ODatabaseSession session = request.getODatabaseSession();
+    session.getLocalCache().clear();
   }
 
   // @Transaction
@@ -218,9 +225,15 @@ public class SearchService
     parameters.put("vertexType", vertexType);
 
     GraphDBService service = GraphDBService.getInstance();
-    GraphRequest request = service.getGraphDBRequest();
+    OrientDBRequest request = (OrientDBRequest) service.getGraphDBRequest();
 
     service.command(request, statement.toString(), parameters);
+    
+    // Deleting through a direct SQL command bypasses the java abstraction and
+    // can leave stale entities in the L1 cache. So we need to clear the cache
+    ODatabaseSession session = request.getODatabaseSession();
+    session.getLocalCache().clear();
+
   }
 
   // @Transaction

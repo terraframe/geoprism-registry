@@ -24,7 +24,7 @@
   </modules>
 
   <properties>
-    <geoprism.version>2.1.8</geoprism.version>
+    <geoprism.version>2.1.9-SNAPSHOT</geoprism.version>
     <spring.boot.version>4.1.1</spring.boot.version>
     <hapifhir_version>8.12.1</hapifhir_version>
     <axon.version>4.13.2</axon.version>

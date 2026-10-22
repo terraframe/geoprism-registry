@@ -19,6 +19,7 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.runwaysdk.ClientSession;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.graph.EdgeObject;
@@ -35,6 +36,7 @@ import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ValueObject;
 import com.runwaysdk.dataaccess.graph.GraphDBService;
 import com.runwaysdk.dataaccess.graph.GraphRequest;
+import com.runwaysdk.dataaccess.graph.orientdb.OrientDBRequest;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -544,9 +546,14 @@ abstract public class TestDataSet
       statement.append(")");
 
       GraphDBService db = GraphDBService.getInstance();
-      GraphRequest request = db.getGraphDBRequest();
+      OrientDBRequest request = (OrientDBRequest) db.getGraphDBRequest();
 
       db.command(request, statement.toString(), new HashMap<>());
+      
+      // Deleting through a direct SQL command bypasses the java abstraction and
+      // can leave stale entities in the L1 cache. So we need to clear the cache
+      ODatabaseSession session = request.getODatabaseSession();
+      session.getLocalCache().clear();
     }
 
     for (TestGeoObjectInfo go : this.getManagedGeoObjects())

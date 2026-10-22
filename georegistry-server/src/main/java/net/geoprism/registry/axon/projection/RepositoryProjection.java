@@ -15,12 +15,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.RelationshipDAO;
 import com.runwaysdk.dataaccess.graph.GraphDBService;
 import com.runwaysdk.dataaccess.graph.GraphRequest;
+import com.runwaysdk.dataaccess.graph.orientdb.OrientDBRequest;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.dataaccess.transaction.TransactionState;
 import com.runwaysdk.util.IDGenerator;
@@ -666,9 +668,14 @@ public class RepositoryProjection
     statement.append(" WHERE uid = :uid");
 
     GraphDBService service = GraphDBService.getInstance();
-    GraphRequest request = service.getGraphDBRequest();
+    OrientDBRequest request = (OrientDBRequest) service.getGraphDBRequest();
 
     service.command(request, statement.toString(), Map.of("uid", event.getEdgeUid()));
+    
+    // Deleting through a direct SQL command bypasses the java abstraction and
+    // can leave stale entities in the L1 cache. So we need to clear the cache
+    ODatabaseSession session = request.getODatabaseSession();
+    session.getLocalCache().clear();
   }
 
   @EventHandler
@@ -984,9 +991,14 @@ public class RepositoryProjection
     statement.append(" WHERE uid = '" + event.getEdgeUid() + "'");
 
     GraphDBService service = GraphDBService.getInstance();
-    GraphRequest request = service.getGraphDBRequest();
+    OrientDBRequest request = (OrientDBRequest) service.getGraphDBRequest();
 
     service.command(request, statement.toString(), parameters);
+    
+    // Deleting through a direct SQL command bypasses the java abstraction and
+    // can leave stale entities in the L1 cache. So we need to clear the cache
+    ODatabaseSession session = request.getODatabaseSession();
+    session.getLocalCache().clear();
   }
 
   private void createImportHistoryRelationship(ImportHistoryEvent event, ServerGeoObjectIF sgo)

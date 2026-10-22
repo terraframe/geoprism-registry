@@ -65,8 +65,6 @@ public class RollbackEventService
 
       GapAwareTrackingToken start = GapAwareTrackingToken.newInstance(checkpoint.getGlobalIndex(), new LinkedList<>());
 
-      publisher.publishEvent(new ClearObjectCacheEvent(this));
-
       processEventType(start, EventPhase.EDGE);
 
       publisher.publishEvent(new ClearObjectCacheEvent(this));
