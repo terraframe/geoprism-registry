@@ -17,209 +17,211 @@
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 li.list-group-item {
-	font-size: 14px;
-	border: none;
+  font-size: 14px;
+  border: none;
 }
 
 li.list-group-item.active {
-    background-color: #A29BAB;
-    color: var(--theme-primary-color, #3E2A5A);
-    font-weight: 700;
+  background-color: #a29bab;
+  color: var(--theme-primary-color, #3e2a5a);
+  font-weight: 700;
 }
 
 li.list-group-item.type-li-item {
-	background: transparent;
-	border: none;
-	border-radius: 6px;
-	color: var(--theme-text-dark, #767676);
-	padding: 5px 10px;
-	margin: 0 5px 2px 5px;
-	cursor: pointer;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--theme-text-dark, #767676);
+  padding: 5px 10px;
+  margin: 0 5px 2px 5px;
+  cursor: pointer;
 }
 
 li.list-group-item.type-li-item {
-	display: flex;
-	align-items: center;
+  display: flex;
+  align-items: center;
 }
 li.list-group-item.type-li-item .btn-group.pull-right {
-	float: none;
-	margin-left: auto;
+  float: none;
+  margin-left: auto;
 }
 li.list-group-item.type-li-item .btn-group.pull-right > a {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	padding: 4px 6px;
-	border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 6px;
+  border-radius: 4px;
 }
 li.list-group-item.type-li-item .btn-group.pull-right > a:hover {
-	background-color: #f4fcef;
+  background-color: #f4fcef;
 }
 
 li.list-group-item.type-li-item i.fa {
-	color: var(--theme-text-dark, #767676);
+  color: var(--theme-text-dark, #767676);
 }
 
 li.list-group-item.type-li-item:hover {
-	background-color: rgba(162, 155, 171, 0.4);
-	cursor: pointer;
+  background-color: rgba(162, 155, 171, 0.4);
+  cursor: pointer;
 }
 
-li.list-group-item.type-li-item.primary
-{
-	background: #A29BAB;
-	color: var(--theme-primary-color, #3E2A5A);
-	font-weight: 700;
+li.list-group-item.type-li-item.primary {
+  background: #a29bab;
+  color: var(--theme-primary-color, #3e2a5a);
+  font-weight: 700;
 }
 
 li.list-group-item.type-li-item.primary i.fa {
-	color: var(--theme-primary-color, #3E2A5A);
+  color: var(--theme-primary-color, #3e2a5a);
 }
 
 li.list-group-item.type-item.got-group-child {
-	margin-left: 20px;
+  margin-left: 20px;
 }
 li.list-group-item.type-item.got-group-child:before {
-    content: "";
-    position: absolute;
-    left: -8px;
-    border-left: 3px solid #ccc;
-    height: 44px;
-    width: 1px;
-    top: -10px;
+  content: '';
+  position: absolute;
+  left: -8px;
+  border-left: 3px solid #ccc;
+  height: 44px;
+  width: 1px;
+  top: -10px;
 }
 
-
 ul li:first-child:before {
-   /* first li's line */
-   top: 6px; /* moves the line down so that it disappears under the bullet. Adjust manually */
+  /* first li's line */
+  top: 6px; /* moves the line down so that it disappears under the bullet. Adjust manually */
 }
 
 ul li:last-child:before {
-    /* last li's line */
-   height: 6px; /* shorten the line so it goes only up to the bullet. Is equal to first-child:before's top */
+  /* last li's line */
+  height: 6px; /* shorten the line so it goes only up to the bullet. Is equal to first-child:before's top */
 }
 
-.got-org-label-wrapper{
-	padding: 5px 5px;
+.got-org-label-wrapper {
+  padding: 5px 5px;
 }
 .got-org-label-wrapper > label {
-	width: 100%;
+  width: 100%;
 }
 
 .sidebar-divider {
-	margin: 0;
-	border: none;
-	border-top: 1px solid #ddd;
+  margin: 0;
+  border: none;
+  border-top: 1px solid #ddd;
 }
 
 .sidebar-section-content {
-	overflow-y: auto;
+  overflow-y: auto;
 }
 
 .hierarchy-sidebar button {
-	margin:0;
+  margin: 0;
 }
 
 .hierarchy-sidebar {
-    z-index: 999;
-    background: #f1f1f1;
-	transition: all 0.3s;
-  	padding:0;
-    vertical-align: top;
-    height: calc(100vh - 50px);
-    overflow-x: hidden;
-    overflow-y: auto;
+  z-index: 999;
+  background: #f1f1f1;
+  transition: all 0.3s;
+  padding: 0;
+  vertical-align: top;
+  height: calc(100vh - 50px);
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .hierarchy-content {
-    height: calc(100vh - 50px);
-    overflow-y: auto;
+  height: calc(100vh - 50px);
+  overflow-y: auto;
 }
 
 #overflow-div {
-	top: 0;
+  top: 0;
 }
 
 .upload-text {
-	position:relative;
-	top:40%;
+  position: relative;
+  top: 40%;
 }
 
 .sidebar-section {
-	text-align: left;
+  text-align: left;
 }
 
-
-
 .sidebar-section-header {
-	margin-left:20px;
-	cursor: pointer;
+  margin-left: 20px;
+  cursor: pointer;
 }
 
 li.list-group-item {
-	background-color: transparent;
-	margin-bottom: 0;
+  background-color: transparent;
+  margin-bottom: 0;
 }
 
 .drop-box-container {
-    width: 80%;
-    border: 3px grey dashed;
-    border-radius: 5px;
-    margin: 0 auto;
-    margin-top: 50px;
+  width: 80%;
+  border: 3px grey dashed;
+  border-radius: 5px;
+  margin: 0 auto;
+  margin-top: 50px;
 }
 
 .hierarchy-drop-box {
-  position:relative;
+  position: relative;
   height: 100%;
   cursor: default;
 }
 
 li.type-item.dragging {
-	position: fixed;
-	cursor: grabbing !important;
-	z-index: 99999999;
+  position: fixed;
+  cursor: grabbing !important;
+  z-index: 99999999;
 }
 
-[data-candrag="true"] {
-	cursor: pointer;
+[data-candrag='true'] {
+  cursor: pointer;
 }
-[data-candrag="false"] {
+[data-candrag='false'] {
   cursor: not-allowed;
 }
 
 #NodeTooltip {
-	opacity:0;
-	left:-10000;
-	top:-10000;
-	position:fixed;
-	width: 400px;
-	min-width: 400px;
+  opacity: 0;
+  left: -10000;
+  top: -10000;
+  position: fixed;
+  width: 400px;
+  min-width: 400px;
 }
 #NodeTooltip .modal-form {
-	padding-top:10px;
+  padding-top: 10px;
 }
 #NodeTooltip .modal-form .holder {
-	padding-bottom: 0px;
+  padding-bottom: 0px;
 }
 #NodeTooltip .label-holder {
-	width: 40%;
+  width: 40%;
 }
 #NodeTooltip .holder {
-	width: 60%;
+  width: 60%;
 }
 #NodeTooltip .holder label {
-  line-height:2.8;
+  line-height: 2.8;
 }
 
 :host::ng-deep .panel .panel-heading .accordion-toggle:after {
-    /* symbol for "opening" panels */
-    font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
-    content: "\e080";    /* adjust as needed, taken from bootstrap.css */
-    float: right;        /* adjust as needed */
-    margin-top: -30px;
+  /* symbol for "opening" panels */
+  font-family: 'Glyphicons Halflings'; /* essential for enabling glyphicon */
+  content: '\e080'; /* adjust as needed, taken from bootstrap.css */
+  float: right; /* adjust as needed */
+  margin-top: -30px;
 }
 :host::ng-deep .panel.panel-open .panel-heading .accordion-toggle:after {
-    content: "\e114";    /* adjust as needed, taken from bootstrap.css */
+  content: '\e114'; /* adjust as needed, taken from bootstrap.css */
+}
+
+button {
+  white-space: normal; /* undo nowrap */
+  overflow-wrap: anywhere; /* break long words/URLs if needed */
+  height: auto; /* button must be allowed to get taller */
 }
