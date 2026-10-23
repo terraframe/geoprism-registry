@@ -47,9 +47,6 @@ public class RollbackEventService
   public static final int           ROLLBACK_CHUNK = 1000;
 
   @Autowired
-  private ApplicationEventPublisher publisher;
-
-  @Autowired
   private RegistryEventStore        store;
 
   @Autowired
@@ -67,11 +64,7 @@ public class RollbackEventService
 
       processEventType(start, EventPhase.EDGE);
 
-      publisher.publishEvent(new ClearObjectCacheEvent(this));
-
       processEventType(start, EventPhase.OBJECT);
-
-      publisher.publishEvent(new ClearObjectCacheEvent(this));
 
       // Delete the events
       store.delete(checkpoint.getGlobalIndex());
