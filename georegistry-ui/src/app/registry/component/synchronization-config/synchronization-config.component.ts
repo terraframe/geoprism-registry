@@ -149,6 +149,8 @@ export class SynchronizationConfigComponent implements OnInit {
       return this.lService.decode('etl.JobStatus.RUNNING');
     } else if (job.status === 'QUEUED') {
       return this.lService.decode('etl.JobStatus.QUEUED');
+    } else if (job.status === 'SUCCESS' && !job.workTotal) {
+      return this.lService.decode('etl.JobStatus.SUCCESS.nothing');
     } else if (job.status === 'SUCCESS') {
       return this.lService.decode('etl.JobStatus.SUCCESS');
     } else if (job.status === 'CANCELED') {
