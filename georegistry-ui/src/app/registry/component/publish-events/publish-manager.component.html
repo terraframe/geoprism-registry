@@ -59,7 +59,7 @@ License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licen
     <div class="col-md-9 list-type-content">
       <div id="overflow-div">
         @if (message != null) {
-          <div class="alert alert-danger" role="alert">
+          <div #errorAlert class="alert alert-danger" role="alert">
             {{ message }}
           </div>
         }

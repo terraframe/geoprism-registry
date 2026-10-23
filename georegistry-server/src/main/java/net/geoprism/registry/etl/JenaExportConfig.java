@@ -18,6 +18,10 @@
  */
 package net.geoprism.registry.etl;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.jena.irix.IRIException;
+import org.apache.jena.irix.IRIx;
+
 import com.google.gson.JsonObject;
 
 import net.geoprism.registry.SynchronizationConfig;
@@ -95,6 +99,41 @@ public class JenaExportConfig extends ExternalSystemSyncConfig
     if (json != null && json.has("graph"))
     {
       this.setGraph(json.get("graph").getAsString());
+    }
+  }
+
+  /**
+   * Neptune requires absolute IRIs for both the graph and the generated
+   * resource IRIs, which are of the form <namespace>#<code>.
+   */
+  public void validate()
+  {
+    validateIri("Namespace", this.namespace);
+    validateIri("Graph", this.graph);
+
+    if (this.namespace.contains("#"))
+    {
+      throw new IllegalArgumentException("Namespace [" + this.namespace + "] may not contain a fragment (#)");
+    }
+  }
+
+  private static void validateIri(String label, String value)
+  {
+    if (StringUtils.isBlank(value))
+    {
+      throw new IllegalArgumentException(label + " is required");
+    }
+
+    try
+    {
+      if (IRIx.create(value).isRelative())
+      {
+        throw new IllegalArgumentException(label + " [" + value + "] must be an absolute IRI, e.g. urn:example or https://example.com/graph");
+      }
+    }
+    catch (IRIException e)
+    {
+      throw new IllegalArgumentException(label + " [" + value + "] is not a valid IRI: " + e.getMessage(), e);
     }
   }
 

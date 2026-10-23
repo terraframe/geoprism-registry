@@ -31,6 +31,7 @@ import com.google.gson.JsonParser;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.etl.ExternalSystemSyncConfig;
 import net.geoprism.registry.etl.FhirSyncLevel;
+import net.geoprism.registry.etl.JenaExportConfig;
 import net.geoprism.registry.etl.SynchronizationConfigFactory;
 import net.geoprism.registry.etl.export.SeverGeoObjectJsonAdapters;
 import net.geoprism.registry.graph.ExternalSystem;
@@ -55,7 +56,11 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
   @Override
   public void apply()
   {
-    // TODO Auto-generated method stub
+    if (Type.JENA.name().equals(this.getSynchronizationType()))
+    {
+      this.<JenaExportConfig> toConfiguration().validate();
+    }
+
     super.apply();
   }
 

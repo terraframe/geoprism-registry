@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Params, Router, RouterLinkActive, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
@@ -58,6 +58,8 @@ import { WebSockets } from '@shared/component/web-sockets/web-sockets';
 })
 export class PublishManagerComponent implements OnInit, OnDestroy {
   message: string | null = null;
+
+  @ViewChild('errorAlert') errorAlert?: ElementRef<HTMLElement>;
 
   publishes: PublishEvents[] = [];
   current: PublishEvents | null = null;
@@ -259,6 +261,19 @@ export class PublishManagerComponent implements OnInit, OnDestroy {
   error(err: HttpErrorResponse): void {
     if (err != null) {
       this.message = ErrorHandler.getMessageFromError(err);
+
+      // The error can occur while the user is scrolled further down the page, so bring it into view and flash it
+      setTimeout(() => {
+        const element = this.errorAlert?.nativeElement;
+
+        if (element != null) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          element.animate(
+            [{ boxShadow: '0 0 0 4px rgba(220, 53, 69, 0.6)' }, { boxShadow: '0 0 0 0 rgba(220, 53, 69, 0)' }],
+            { duration: 600 }
+          );
+        }
+      });
     } else {
       this.message = null;
     }
