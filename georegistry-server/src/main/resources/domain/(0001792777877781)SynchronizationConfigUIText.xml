@@ -1,0 +1,32 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="synchronization.config.namespace.invalid">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="synchronization.config.namespace.invalid" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Namespace must be an absolute IRI without a fragment (#), e.g. urn:my-namespace or https://example.com/ontology" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="synchronization.config.graph.invalid">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="synchronization.config.graph.invalid" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Graph must be an absolute IRI, e.g. urn:my-graph or https://example.com/graph" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.JobStatus.SUCCESS.nothing">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.JobStatus.SUCCESS.nothing" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Success (nothing to sync)" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>
