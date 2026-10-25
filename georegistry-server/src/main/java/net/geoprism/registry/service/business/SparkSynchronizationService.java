@@ -4,10 +4,10 @@ import static org.apache.spark.sql.functions.expr;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -24,7 +24,6 @@ import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.commongeoregistry.adapter.metadata.AttributeGeometryType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.WKBWriter;
@@ -33,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.runwaysdk.Pair;
 import com.runwaysdk.query.OIterator;
 
 import net.geoprism.graph.AttributeBooleanTypeSnapshot;
@@ -59,6 +59,8 @@ import net.geoprism.registry.etl.export.ExportStage;
 @Service
 public class SparkSynchronizationService
 {
+  public static final String WKB = "_wkb";
+
   public static enum SparkColumnType {
     // ---- Null ----
     NULL("void", Category.NULL, DataTypes.NullType),
@@ -139,23 +141,35 @@ public class SparkSynchronizationService
 
   }
 
+  private static class Type
+  {
+    String     code;
+
+    StructType schema;
+
+    public Type(String code, StructType schema)
+    {
+      super();
+      this.code = code;
+      this.schema = schema;
+    }
+
+  }
+
   private static class ExportData
   {
-    final SparkSession              spark;
+    final SparkSession        spark;
 
-    final SparkExportConfig         config;
+    final ExportHistory       history;
 
-    final ExportHistory             history;
+    final AtomicLong          progress = new AtomicLong(0);
 
-    final AtomicLong                progress = new AtomicLong(0);
-
-    private Map<String, StructType> schemas  = new HashMap<>();
+    private Map<String, Type> types  = new HashMap<>();
 
     public ExportData(SparkSession spark, ExportHistory history, SparkExportConfig config)
     {
       this.spark = spark;
       this.history = history;
-      this.config = config;
     }
   }
 
@@ -236,15 +250,15 @@ public class SparkSynchronizationService
         data.history.apply();
       }
 
-      this.commitService.getTypes(commit).forEach(type -> {
-        createSchema(data, type);
-
-        createSparkTable(data, type);
-      });
+      this.commitService.getTypes(commit).stream() //
+          .filter(t -> !t.getIsAbstract() && !t.getIsRoot()) //
+          .forEach(type -> {
+            createSchema(data, type);
+          });
 
       AtomicReference<Model> model = new AtomicReference<Model>(ModelFactory.createDefaultModel());
 
-      final List<Row> batch = new ArrayList<>(BATCH_SIZE);
+      final List<Pair<String, Row>> batch = new ArrayList<>(BATCH_SIZE);
 
       this.commitService.getRemoteEvents(commit).forEach(event -> {
         if (event instanceof RemoteGeoObjectEvent)
@@ -286,9 +300,8 @@ public class SparkSynchronizationService
       }
     }
     else
-
     {
-      System.out.println("Skipping export of commit [" + commit.getUid() + "] because its already been exported");
+      logger.trace("Skipping export of commit [" + commit.getUid() + "] because its already been exported");
     }
   }
 
@@ -298,39 +311,28 @@ public class SparkSynchronizationService
 
     try (OIterator<? extends AttributeTypeSnapshot> it = type.getAllAttribute())
     {
-      it.getAll().stream() // order of attributes is important
-          .sorted( ( (a, b) -> a.getCode().compareTo(b.getCode()) )) //
-          .forEach(snapshot -> {
-            SparkColumnType columnType = this.getSedonaType(snapshot);
+      List<? extends AttributeTypeSnapshot> attributes = it.getAll();
 
-            if (!columnType.isSpatial())
-            {
-              schema.add(snapshot.getCode(), columnType.getType());
-            }
-            else
-            {
-              schema.add("_wkb", DataTypes.BinaryType);
-            }
-          });
+      Collections.sort(attributes, (a, b) -> a.getCode().compareTo(b.getCode()));
+
+      for (AttributeTypeSnapshot snapshot : attributes)
+      {
+        SparkColumnType columnType = this.getSedonaType(snapshot);
+
+        if (!columnType.isSpatial())
+        {
+          schema = schema.add(snapshot.getCode(), columnType.getType());
+        }
+        else
+        {
+          schema = schema.add(WKB, DataTypes.BinaryType);
+        }
+      }
     }
+
+    data.types.put(type.getCode(), new Type(type.getCode(), schema));
 
     return schema;
-  }
-
-  public void createSparkTable(ExportData data, GeoObjectTypeSnapshot type)
-  {
-    StringBuffer sql = new StringBuffer();
-    sql.append("CREATE TABLE IF NOT EXISTS " + type.getCode() + " (\n");
-
-    // Add attributes
-    try (OIterator<? extends AttributeTypeSnapshot> it = type.getAllAttribute())
-    {
-      sql.append(String.join(", ", it.getAll().stream().map(snapshot -> {
-        return snapshot.getCode() + " " + this.getSedonaType(snapshot).getSqlName();
-      }).toList()));
-    }
-
-    sql.append(") USING geoparquet\n");
   }
 
   private SparkColumnType getSedonaType(AttributeTypeSnapshot snapshot)
@@ -379,45 +381,37 @@ public class SparkSynchronizationService
     throw new UnsupportedOperationException("Unsupported attribute type [" + snapshot.getType() + "]");
   }
 
-  private static void flush(ExportData data, List<Row> list)
+  private static void flush(ExportData data, List<Pair<String, Row>> list)
   {
     list.stream() //
-        .collect(Collectors.groupingBy(row -> row.schema())) //
-        .forEach((schema, rows) -> {
+        .collect(Collectors.groupingBy(entry -> entry.getFirst())) //
+        .forEach((code, entries) -> {
+          Type type = data.types.get(code);
+          List<Row> rows = entries.stream().map(entry -> entry.getSecond()).toList();
 
-          // Get the table name
-          Entry<String, StructType> entry = data.schemas.entrySet().stream() //
-              .filter(e -> e.getValue().equals(schema)) //
-              .findFirst() //
-              .orElseThrow();
-
-          Dataset<Row> df = data.spark.createDataFrame(rows, schema) //
-              .withColumn("geometry", expr("ST_SetSRID(ST_GeomFromWKB(_wkb), 4326)")) //
-              .drop("_wkb");
+          Dataset<Row> df = data.spark.createDataFrame(rows, type.schema) //
+              .withColumn("geometry", expr("ST_SetSRID(ST_GeomFromWKB(" + WKB + "), 4326)")) //
+              .drop(WKB);
 
           df.write().format("geoparquet") //
               .option("geoparquet.version", "1.1.0") //
-              .option("geoparquet.covering.geometry", "bbox") //
               .mode(SaveMode.Append) //
-              .insertInto(entry.getKey());
-
+              .saveAsTable(type.code);
         });
 
   }
 
-  public Row handleRemoteGeoObjectApply(Commit commit, RemoteGeoObjectEvent event, ExportData data, Model model)
+  public Pair<String, Row> handleRemoteGeoObjectApply(Commit commit, RemoteGeoObjectEvent event, ExportData data, Model model)
   {
     logger.trace("Spark Projection - Handling remote geo object");
 
     GeoObject dto = GeoObject.fromJSON(ServiceFactory.getAdapter(), event.getObject());
 
-    StructType schema = data.schemas.get(dto.getCode());
+    Type type = data.types.get(dto.getType().getCode());
 
-    Object[] values = Arrays.stream(schema.fieldNames()).map(attributeName -> {
+    Object[] values = Arrays.stream(type.schema.fieldNames()).map(attributeName -> {
 
-      AttributeType attribute = dto.getType().getAttribute(attributeName).orElse(null);
-
-      if (attribute instanceof AttributeGeometryType)
+      if (attributeName.equals(WKB))
       {
         Geometry geometry = dto.getGeometry();
 
@@ -428,20 +422,25 @@ public class SparkSynchronizationService
       }
       else
       {
-        Object value = dto.getValue(attributeName);
+        AttributeType attribute = dto.getType().getAttribute(attributeName).orElse(null);
 
-        if (value instanceof LocalizedValue)
+        if (attribute != null)
         {
-          return ( (LocalizedValue) value ).getValue();
-        }
+          Object value = dto.getValue(attributeName);
 
-        return value;
+          if (value != null && value instanceof LocalizedValue)
+          {
+            return ( (LocalizedValue) value ).getValue();
+          }
+
+          return value;
+        }
       }
 
       return null;
     }).toArray();
 
-    return RowFactory.create(values);
+    return new Pair<String, Row>(dto.getType().getCode(), RowFactory.create(values));
   }
 
 }

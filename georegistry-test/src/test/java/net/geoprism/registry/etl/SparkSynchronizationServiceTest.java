@@ -104,39 +104,16 @@ public class SparkSynchronizationServiceTest extends EventDatasetTest implements
         synchronization.setSynchronizationType(config.getSynchronizationType());
         synchronization.apply();
 
-        config = synchronization.toConfiguration();
+        try
+        {
+          config = synchronization.toConfiguration();
 
-        this.service.execute(synchronization, config, null);
-
-        // StringBuilder statement = new StringBuilder();
-        // statement.append("PREFIX rdf:
-        // <http://www.w3.org/1999/02/22-rdf-syntax-ns#>" + "\n");
-        // statement.append("PREFIX rdfs:
-        // <http://www.w3.org/2000/01/rdf-schema#>" + "\n");
-        // statement.append("SELECT * FROM <http://terraframe.com/g1> WHERE {" +
-        // "\n");
-        // statement.append("
-        // <http://terraframe.com/USATestDataState-USATestDataColorado> ?pred
-        // ?obj ." + "\n");
-        // statement.append(" } LIMIT 10" + "\n");
-        //
-        // Optional<String> optional =
-        // this.remoteService.query(statement.toString(), config);
-        //
-        // Assert.assertTrue(optional.isPresent());
-        //
-        // String oResult = optional.get();
-        //
-        // Assert.assertFalse(StringUtils.isBlank(oResult));
-        // Assert.assertFalse(StringUtils.isBlank(oResult));
-        //
-        // JsonObject obj = JsonParser.parseString(oResult).getAsJsonObject();
-        //
-        // JsonObject results = obj.get("results").getAsJsonObject();
-        //
-        // JsonArray bindings = results.get("bindings").getAsJsonArray();
-        //
-        // Assert.assertEquals(10, bindings.size());
+          this.service.execute(synchronization, config, null);
+        }
+        finally
+        {
+          synchronization.delete();
+        }
       }
       finally
       {
@@ -146,7 +123,7 @@ public class SparkSynchronizationServiceTest extends EventDatasetTest implements
         }
         finally
         {
-          publishService.delete(publish);
+          this.delete(publish);
         }
       }
     }

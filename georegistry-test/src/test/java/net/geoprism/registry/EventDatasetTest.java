@@ -29,10 +29,12 @@ import net.geoprism.registry.graph.UndirectedGraphType;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.model.graph.VertexComponent;
+import net.geoprism.registry.service.business.CommitBusinessServiceIF;
 import net.geoprism.registry.service.business.ConceptEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GraphRepoServiceIF;
+import net.geoprism.registry.service.business.PublishBusinessServiceIF;
 import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
 import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.USATestData;
@@ -61,7 +63,13 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
   protected RepositoryProjection                      projection;
 
   @Autowired
-  private GeoObjectTypeBusinessServiceIF              gotService;
+  protected GeoObjectTypeBusinessServiceIF            gotService;
+
+  @Autowired
+  protected PublishBusinessServiceIF                  pService;
+
+  @Autowired
+  protected CommitBusinessServiceIF                   cService;
 
   protected static BusinessType                       btype;
 
@@ -280,6 +288,27 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
     dto.addUndirectedType(undirectedType.getCode());
 
     return dto;
+  }
+
+  protected void delete(Publish publish)
+  {
+    // Delete all of the publishes that were generated because of
+    // dependencies
+    List<Publish> dependencies = this.cService.getCommits(publish) //
+        .stream() //
+        .flatMap(c -> this.cService.getDependencies(c).stream()) //
+        .map(d -> d.getPublish()) //
+        .distinct() //
+        .filter(p -> !p.getOid().equals(publish.getOid())).toList();
+
+    try
+    {
+      pService.delete(publish);
+    }
+    finally
+    {
+      dependencies.forEach(pService::delete);
+    }
   }
 
 }

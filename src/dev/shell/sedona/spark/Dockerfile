@@ -12,6 +12,7 @@ USER root
 ADD --chmod=644 https://repo1.maven.org/maven2/org/apache/sedona/sedona-spark-shaded-${SPARK_COMPAT}_${SCALA_VERSION}/${SEDONA_VERSION}/sedona-spark-shaded-${SPARK_COMPAT}_${SCALA_VERSION}-${SEDONA_VERSION}.jar /opt/spark/jars/
 ADD --chmod=644 https://repo1.maven.org/maven2/org/datasyslab/geotools-wrapper/${GEOTOOLS_WRAPPER_VERSION}/geotools-wrapper-${GEOTOOLS_WRAPPER_VERSION}.jar /opt/spark/jars/
 
+RUN mkdir -p /opt/spark/conf /opt/spark/ivy && chmod 755 /opt/spark/conf && chown spark:spark /opt/spark/ivy
 COPY --chmod=644 spark-defaults.conf /opt/spark/conf/spark-defaults.conf
 
 USER spark

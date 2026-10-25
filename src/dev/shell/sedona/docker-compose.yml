@@ -6,7 +6,6 @@
 # Spark master UI:  http://localhost:8080
 # Driver UI:        http://localhost:4040
 # Hive metastore:   thrift://localhost:9083
-version: "3"
 services:
   # Shared warehouse volume is written by the metastore (uid 1000) and spark (uid 185)
   warehouse-init:
@@ -104,7 +103,9 @@ services:
       - "4040:4040"
     volumes:
       - warehouse:/opt/warehouse
+      - ivy-cache:/opt/spark/ivy
 
 volumes:
   warehouse:
   metastore-db:
+  ivy-cache:

@@ -94,12 +94,6 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
   private PublishEventService                       service;
 
   @Autowired
-  private PublishBusinessServiceIF                  pService;
-
-  @Autowired
-  private CommitBusinessServiceIF                   cService;
-
-  @Autowired
   private GeoObjectTypeSnapshotBusinessServiceIF    gSnapshotService;
 
   @Autowired
@@ -500,27 +494,6 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
     catch (InterruptedException e)
     {
       throw new RuntimeException(e);
-    }
-  }
-
-  public void delete(Publish publish)
-  {
-    // Delete all of the publishes that were generated because of
-    // dependencies
-    List<Publish> dependencies = this.cService.getCommits(publish) //
-        .stream() //
-        .flatMap(c -> this.cService.getDependencies(c).stream()) //
-        .map(d -> d.getPublish()) //
-        .distinct() //
-        .filter(p -> !p.getOid().equals(publish.getOid())).toList();
-
-    try
-    {
-      pService.delete(publish);
-    }
-    finally
-    {
-      dependencies.forEach(pService::delete);
     }
   }
 
