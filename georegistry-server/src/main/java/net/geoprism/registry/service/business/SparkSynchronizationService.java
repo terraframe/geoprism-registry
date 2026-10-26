@@ -141,13 +141,13 @@ public class SparkSynchronizationService
 
   }
 
-  private static class Type
+  private static class SchemaType
   {
     String     code;
 
     StructType schema;
 
-    public Type(String code, StructType schema)
+    public SchemaType(String code, StructType schema)
     {
       super();
       this.code = code;
@@ -158,13 +158,13 @@ public class SparkSynchronizationService
 
   private static class ExportData
   {
-    final SparkSession        spark;
+    final SparkSession              spark;
 
-    final ExportHistory       history;
+    final ExportHistory             history;
 
-    final AtomicLong          progress = new AtomicLong(0);
+    final AtomicLong                progress = new AtomicLong(0);
 
-    private Map<String, Type> types  = new HashMap<>();
+    private Map<String, SchemaType> types    = new HashMap<>();
 
     public ExportData(SparkSession spark, ExportHistory history, SparkExportConfig config)
     {
@@ -253,7 +253,7 @@ public class SparkSynchronizationService
       this.commitService.getTypes(commit).stream() //
           .filter(t -> !t.getIsAbstract() && !t.getIsRoot()) //
           .forEach(type -> {
-            createSchema(data, type);
+            createType(data, type);
           });
 
       AtomicReference<Model> model = new AtomicReference<Model>(ModelFactory.createDefaultModel());
@@ -305,7 +305,7 @@ public class SparkSynchronizationService
     }
   }
 
-  private StructType createSchema(ExportData data, GeoObjectTypeSnapshot type)
+  private SchemaType createType(ExportData data, GeoObjectTypeSnapshot type)
   {
     StructType schema = new StructType();
 
@@ -330,9 +330,7 @@ public class SparkSynchronizationService
       }
     }
 
-    data.types.put(type.getCode(), new Type(type.getCode(), schema));
-
-    return schema;
+    return data.types.put(type.getCode(), new SchemaType(type.getCode(), schema));
   }
 
   private SparkColumnType getSedonaType(AttributeTypeSnapshot snapshot)
@@ -386,7 +384,7 @@ public class SparkSynchronizationService
     list.stream() //
         .collect(Collectors.groupingBy(entry -> entry.getFirst())) //
         .forEach((code, entries) -> {
-          Type type = data.types.get(code);
+          SchemaType type = data.types.get(code);
           List<Row> rows = entries.stream().map(entry -> entry.getSecond()).toList();
 
           Dataset<Row> df = data.spark.createDataFrame(rows, type.schema) //
@@ -407,7 +405,7 @@ public class SparkSynchronizationService
 
     GeoObject dto = GeoObject.fromJSON(ServiceFactory.getAdapter(), event.getObject());
 
-    Type type = data.types.get(dto.getType().getCode());
+    SchemaType type = data.types.get(dto.getType().getCode());
 
     Object[] values = Arrays.stream(type.schema.fieldNames()).map(attributeName -> {
 
