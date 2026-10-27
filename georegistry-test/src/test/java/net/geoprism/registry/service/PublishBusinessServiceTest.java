@@ -4,9 +4,9 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,7 +18,7 @@ import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.registry.Commit;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Publish;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.service.business.CommitBusinessServiceIF;
 import net.geoprism.registry.service.business.PublishBusinessServiceIF;
@@ -26,9 +26,11 @@ import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.CommitDTO;
 import net.geoprism.registry.view.PublishDTO;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class PublishBusinessServiceTest
 {
   @Autowired
@@ -60,25 +62,25 @@ public class PublishBusinessServiceTest
 
     try
     {
-      Assert.assertNotNull(publish);
+      Assertions.assertNotNull(publish);
 
-      Assert.assertEquals(dto.getStartDate(), publish.getStartDate());
-      Assert.assertEquals(dto.getEndDate(), publish.getEndDate());
-      Assert.assertEquals(dto.getDate(), publish.getForDate());
-      Assert.assertEquals(dto.getUid(), publish.getUid());
-      Assert.assertEquals(GeoprismProperties.getOrigin(), publish.getOrigin());
+      Assertions.assertEquals(dto.getStartDate(), publish.getStartDate());
+      Assertions.assertEquals(dto.getEndDate(), publish.getEndDate());
+      Assertions.assertEquals(dto.getDate(), publish.getForDate());
+      Assertions.assertEquals(dto.getUid(), publish.getUid());
+      Assertions.assertEquals(GeoprismProperties.getOrigin(), publish.getOrigin());
 
       PublishDTO actual = publish.toDTO();
 
-      Assert.assertTrue(actual.getBusinessEdgeTypes().toList().containsAll(dto.getBusinessEdgeTypes().toList()));
-      Assert.assertTrue(actual.getBusinessTypes().toList().containsAll(dto.getBusinessTypes().toList()));
-      Assert.assertTrue(actual.getDagTypes().toList().containsAll(dto.getDagTypes().toList()));
-      Assert.assertTrue(actual.getGeoObjectTypes().toList().containsAll(dto.getGeoObjectTypes().toList()));
-      Assert.assertTrue(actual.getHierarchyTypes().toList().containsAll(dto.getHierarchyTypes().toList()));
-      Assert.assertTrue(actual.getUndirectedTypes().toList().containsAll(dto.getUndirectedTypes().toList()));
+      Assertions.assertTrue(actual.getBusinessEdgeTypes().toList().containsAll(dto.getBusinessEdgeTypes().toList()));
+      Assertions.assertTrue(actual.getBusinessTypes().toList().containsAll(dto.getBusinessTypes().toList()));
+      Assertions.assertTrue(actual.getDagTypes().toList().containsAll(dto.getDagTypes().toList()));
+      Assertions.assertTrue(actual.getGeoObjectTypes().toList().containsAll(dto.getGeoObjectTypes().toList()));
+      Assertions.assertTrue(actual.getHierarchyTypes().toList().containsAll(dto.getHierarchyTypes().toList()));
+      Assertions.assertTrue(actual.getUndirectedTypes().toList().containsAll(dto.getUndirectedTypes().toList()));
 
-      Assert.assertTrue(this.service.getByUid(dto.getUid()).isPresent());
-      Assert.assertEquals(1, this.service.getAll().size());
+      Assertions.assertTrue(this.service.getByUid(dto.getUid()).isPresent());
+      Assertions.assertEquals(1, this.service.getAll().size());
     }
     finally
     {
@@ -86,42 +88,44 @@ public class PublishBusinessServiceTest
 
     }
 
-    Assert.assertFalse(this.service.getByUid(dto.getUid()).isPresent());
+    Assertions.assertFalse(this.service.getByUid(dto.getUid()).isPresent());
   }
 
-  @Test(expected = ProgrammingErrorException.class)
+  @Test
   @Request
   public void testDeleteWithDependents()
   {
-    Publish publish = this.service.create(createDTO("USA Geospatial Graph"));
-
-    try
-    {
-      Publish dependent = this.service.create(createDTO("Dependent Geospatial Graph"));
+    assertThrows(ProgrammingErrorException.class, () -> {
+      Publish publish = this.service.create(createDTO("USA Geospatial Graph"));
 
       try
       {
-        Commit first = this.commitService.create(publish, new CommitDTO(UUID.randomUUID().toString(), dependent.getUid(), 1, 10L));
-        Commit second = this.commitService.create(dependent, new CommitDTO(UUID.randomUUID().toString(), dependent.getUid(), 2, 100L));
+        Publish dependent = this.service.create(createDTO("Dependent Geospatial Graph"));
 
-        second.addDependency(first).apply();
+        try
+        {
+          Commit first = this.commitService.create(publish, new CommitDTO(UUID.randomUUID().toString(), dependent.getUid(), 1, 10L));
+          Commit second = this.commitService.create(dependent, new CommitDTO(UUID.randomUUID().toString(), dependent.getUid(), 2, 100L));
 
-        Assert.assertEquals(1, this.commitService.getDependencies(second).size());
+          second.addDependency(first).apply();
 
-        // Try to delete a publish which another publish is dependent upon
-        this.service.delete(publish);
+          Assertions.assertEquals(1, this.commitService.getDependencies(second).size());
 
-        Assert.fail();
+          // Try to delete a publish which another publish is dependent upon
+          this.service.delete(publish);
+
+          Assertions.fail();
+        }
+        finally
+        {
+          this.service.delete(dependent);
+        }
       }
       finally
       {
-        this.service.delete(dependent);
+        this.service.delete(publish);
       }
-    }
-    finally
-    {
-      this.service.delete(publish);
-    }
+    });
   }
 
   @Test
@@ -143,42 +147,42 @@ public class PublishBusinessServiceTest
     {
       List<Publish> results = this.service.getRemoteFor(expected);
 
-      Assert.assertEquals(1, results.size());
-      Assert.assertEquals(publish.getOid(), results.get(0).getOid());
+      Assertions.assertEquals(1, results.size());
+      Assertions.assertEquals(publish.getOid(), results.get(0).getOid());
 
       PublishDTO dto = new PublishDTO("USA Geospatial Graph", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
 
-      Assert.assertEquals(0, this.service.getRemoteFor(dto).size());
+      Assertions.assertEquals(0, this.service.getRemoteFor(dto).size());
 
       dto = new PublishDTO("USA Geospatial Graph", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       expected.getBusinessEdgeTypes().forEach(dto::addBusinessEdgeType);
 
-      Assert.assertEquals(1, this.service.getRemoteFor(dto).size());
+      Assertions.assertEquals(1, this.service.getRemoteFor(dto).size());
 
       dto = new PublishDTO("USA Geospatial Graph", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       expected.getBusinessTypes().forEach(dto::addBusinessType);
 
-      Assert.assertEquals(1, this.service.getRemoteFor(dto).size());
+      Assertions.assertEquals(1, this.service.getRemoteFor(dto).size());
 
       dto = new PublishDTO("USA Geospatial Graph", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       expected.getDagTypes().forEach(dto::addDagType);
 
-      Assert.assertEquals(1, this.service.getRemoteFor(dto).size());
+      Assertions.assertEquals(1, this.service.getRemoteFor(dto).size());
 
       dto = new PublishDTO("USA Geospatial Graph", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       expected.getGeoObjectTypes().forEach(dto::addGeoObjectType);
 
-      Assert.assertEquals(1, this.service.getRemoteFor(dto).size());
+      Assertions.assertEquals(1, this.service.getRemoteFor(dto).size());
 
       dto = new PublishDTO("USA Geospatial Graph", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       expected.getHierarchyTypes().forEach(dto::addHierarchyType);
 
-      Assert.assertEquals(1, this.service.getRemoteFor(dto).size());
+      Assertions.assertEquals(1, this.service.getRemoteFor(dto).size());
 
       dto = new PublishDTO("USA Geospatial Graph", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       expected.getUndirectedTypes().forEach(dto::addUndirectedType);
 
-      Assert.assertEquals(1, this.service.getRemoteFor(dto).size());
+      Assertions.assertEquals(1, this.service.getRemoteFor(dto).size());
 
       Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
       calendar.setTime(USATestData.DEFAULT_OVER_TIME_DATE);
@@ -187,7 +191,7 @@ public class PublishBusinessServiceTest
       dto = new PublishDTO("USA Geospatial Graph", USATestData.DEFAULT_OVER_TIME_DATE, calendar.getTime(), USATestData.DEFAULT_END_TIME_DATE);
       expected.getUndirectedTypes().forEach(dto::addUndirectedType);
 
-      Assert.assertEquals(1, this.service.getRemoteFor(dto).size());
+      Assertions.assertEquals(1, this.service.getRemoteFor(dto).size());
 
       calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
       calendar.setTime(USATestData.DEFAULT_END_TIME_DATE);
@@ -196,7 +200,7 @@ public class PublishBusinessServiceTest
       dto = new PublishDTO("USA Geospatial Graph", calendar.getTime(), calendar.getTime(), calendar.getTime());
       expected.getUndirectedTypes().forEach(dto::addUndirectedType);
 
-      Assert.assertEquals(0, this.service.getRemoteFor(dto).size());
+      Assertions.assertEquals(0, this.service.getRemoteFor(dto).size());
 
       calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
       calendar.setTime(USATestData.DEFAULT_OVER_TIME_DATE);
@@ -205,12 +209,12 @@ public class PublishBusinessServiceTest
       dto = new PublishDTO("USA Geospatial Graph", calendar.getTime(), calendar.getTime(), calendar.getTime());
       expected.getUndirectedTypes().forEach(dto::addUndirectedType);
 
-      Assert.assertEquals(0, this.service.getRemoteFor(dto).size());
+      Assertions.assertEquals(0, this.service.getRemoteFor(dto).size());
 
       dto = new PublishDTO("USA Geospatial Graph", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE);
       expected.getUndirectedTypes().forEach(dto::addUndirectedType);
 
-      Assert.assertEquals(1, this.service.getRemoteFor(dto).size());
+      Assertions.assertEquals(1, this.service.getRemoteFor(dto).size());
     }
     finally
     {

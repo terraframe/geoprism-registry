@@ -13,11 +13,11 @@ import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.MetadataFactory;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,7 +26,7 @@ import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.test.FastTestDataset;
@@ -36,7 +36,7 @@ import net.geoprism.registry.test.TestRegistryClient;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class AttributeTypeServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
   public static final TestGeoObjectTypeInfo TEST_GOT  = new TestGeoObjectTypeInfo("GOTTest_TEST1", FastTestDataset.ORG_CGOV);
@@ -46,7 +46,7 @@ public class AttributeTypeServiceTest extends FastDatasetTest implements Instanc
   @Autowired
   private TestRegistryClient                client;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception
   {
     super.setUp();
@@ -54,7 +54,7 @@ public class AttributeTypeServiceTest extends FastDatasetTest implements Instanc
     setUpExtras();
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws Exception
   {
     cleanUpExtras();
@@ -92,16 +92,16 @@ public class AttributeTypeServiceTest extends FastDatasetTest implements Instanc
 
     net.geoprism.registry.graph.AttributeType mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), testChar.getCode());
 
-    Assert.assertNotNull("A GeoObjectType did not define the attribute: " + testChar.getCode(), mdAttributeConcreteDAOIF);
-    Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof net.geoprism.registry.graph.AttributeCharacterType);
+    Assertions.assertNotNull(mdAttributeConcreteDAOIF, "A GeoObjectType did not define the attribute: " + testChar.getCode());
+    Assertions.assertTrue(mdAttributeConcreteDAOIF instanceof net.geoprism.registry.graph.AttributeCharacterType, "A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType());
 
     testChar.setLabel(new LocalizedValue("testCharLocalName-Update"));
     testChar.setDescription(new LocalizedValue("testCharLocalDescrip-Update"));
     attributeTypeJSON = testChar.toJSON().toString();
     testChar = this.client.updateAttributeType(geoObjectTypeCode, attributeTypeJSON);
 
-    Assert.assertEquals("testCharLocalName-Update", testChar.getLabel().getValue());
-    Assert.assertEquals("testCharLocalDescrip-Update", testChar.getDescription().getValue());
+    Assertions.assertEquals("testCharLocalName-Update", testChar.getLabel().getValue());
+    Assertions.assertEquals("testCharLocalDescrip-Update", testChar.getDescription().getValue());
   }
 
   @Test
@@ -123,8 +123,8 @@ public class AttributeTypeServiceTest extends FastDatasetTest implements Instanc
 
     net.geoprism.registry.graph.AttributeType mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), testDate.getCode());
 
-    Assert.assertNotNull("A GeoObjectType did not define the attribute: " + testDate.getCode(), mdAttributeConcreteDAOIF);
-    Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof net.geoprism.registry.graph.AttributeDateType);
+    Assertions.assertNotNull(mdAttributeConcreteDAOIF, "A GeoObjectType did not define the attribute: " + testDate.getCode());
+    Assertions.assertTrue(mdAttributeConcreteDAOIF instanceof net.geoprism.registry.graph.AttributeDateType, "A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType());
   }
 
   @Test
@@ -146,8 +146,8 @@ public class AttributeTypeServiceTest extends FastDatasetTest implements Instanc
 
     net.geoprism.registry.graph.AttributeType mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), testInteger.getCode());
 
-    Assert.assertNotNull("A GeoObjectType did not define the attribute: " + testInteger.getCode(), mdAttributeConcreteDAOIF);
-    Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof net.geoprism.registry.graph.AttributeLongType);
+    Assertions.assertNotNull(mdAttributeConcreteDAOIF, "A GeoObjectType did not define the attribute: " + testInteger.getCode());
+    Assertions.assertTrue(mdAttributeConcreteDAOIF instanceof net.geoprism.registry.graph.AttributeLongType, "A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType());
   }
 
   @Test
@@ -169,8 +169,8 @@ public class AttributeTypeServiceTest extends FastDatasetTest implements Instanc
 
     net.geoprism.registry.graph.AttributeType mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), testBoolean.getCode());
 
-    Assert.assertNotNull("A GeoObjectType did not define the attribute: " + testBoolean.getCode(), mdAttributeConcreteDAOIF);
-    Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof net.geoprism.registry.graph.AttributeBooleanType);
+    Assertions.assertNotNull(mdAttributeConcreteDAOIF, "A GeoObjectType did not define the attribute: " + testBoolean.getCode());
+    Assertions.assertTrue(mdAttributeConcreteDAOIF instanceof net.geoprism.registry.graph.AttributeBooleanType, "A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType());
   }
 
   @Test
@@ -198,12 +198,12 @@ public class AttributeTypeServiceTest extends FastDatasetTest implements Instanc
 
     net.geoprism.registry.graph.AttributeType mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), attributeClassificationType.getCode());
 
-    Assert.assertNotNull("A GeoObjectType did not define the attribute: " + attributeClassificationType.getCode(), mdAttributeConcreteDAOIF);
-    Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof net.geoprism.registry.graph.AttributeClassificationType);
+    Assertions.assertNotNull(mdAttributeConcreteDAOIF, "A GeoObjectType did not define the attribute: " + attributeClassificationType.getCode());
+    Assertions.assertTrue(mdAttributeConcreteDAOIF instanceof net.geoprism.registry.graph.AttributeClassificationType, "A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType());
 
     String rootTerm = attributeClassificationType.getRootTerm();
 
-    Assert.assertNotNull("AttributeClassification root term not set correctly: " + attributeClassificationType.getCode(), rootTerm);
+    Assertions.assertNotNull(rootTerm, "AttributeClassification root term not set correctly: " + attributeClassificationType.getCode());
   }
 
   // @Request

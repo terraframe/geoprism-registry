@@ -3,24 +3,24 @@
  */
 package net.geoprism.registry.service;
 
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.test.FastTestDataset;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
-@Ignore
+@ExtendWith(InstanceTestClassExtension.class)
+@Disabled
 public class LocationServiceACTest extends AbstractLocationServiceTest implements InstanceTestClassListener
 {
-  @BeforeClass
+  @BeforeAll
   public static void setUpClass()
   {
     testData = FastTestDataset.newTestData();

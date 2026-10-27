@@ -10,9 +10,9 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.locationtech.jts.geom.Geometry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -24,7 +24,7 @@ import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.ConceptDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.graph.SourceAuthority;
@@ -41,7 +41,7 @@ import net.geoprism.registry.test.USATestData;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class BasicGeoObjectServiceTest extends ConceptDatasetTest implements InstanceTestClassListener
 {
   private static ServerGeoObjectType         type;
@@ -139,39 +139,39 @@ public class BasicGeoObjectServiceTest extends ConceptDatasetTest implements Ins
     {
       ServerGeoObjectIF test = this.service.getGeoObject(object.getUid(), type.getCode());
 
-      Assert.assertNotNull(test);
-      Assert.assertEquals(object.getInvalid(), test.getInvalid());
-      Assert.assertEquals(object.getCode(), test.getCode());
-      Assert.assertEquals(object.getDisplayLabel(USATestData.DEFAULT_OVER_TIME_DATE).getValue(), test.getDisplayLabel(USATestData.DEFAULT_OVER_TIME_DATE).getValue());
-      Assert.assertEquals(object.getExists(USATestData.DEFAULT_OVER_TIME_DATE), test.getExists(USATestData.DEFAULT_OVER_TIME_DATE));
-      Assert.assertEquals(testDouble, test.getValue(attributeFloat.getCode(), USATestData.DEFAULT_OVER_TIME_DATE), 0.000001);
-      Assert.assertEquals(rootConcept.getOid(), test.getValue(attributeClassification.getCode(), USATestData.DEFAULT_OVER_TIME_DATE));
-      Assert.assertEquals(source.getOid(), test.getValue(DefaultAttribute.DATA_SOURCE.getName(), USATestData.DEFAULT_OVER_TIME_DATE));
+      Assertions.assertNotNull(test);
+      Assertions.assertEquals(object.getInvalid(), test.getInvalid());
+      Assertions.assertEquals(object.getCode(), test.getCode());
+      Assertions.assertEquals(object.getDisplayLabel(USATestData.DEFAULT_OVER_TIME_DATE).getValue(), test.getDisplayLabel(USATestData.DEFAULT_OVER_TIME_DATE).getValue());
+      Assertions.assertEquals(object.getExists(USATestData.DEFAULT_OVER_TIME_DATE), test.getExists(USATestData.DEFAULT_OVER_TIME_DATE));
+      Assertions.assertEquals(testDouble, test.getValue(attributeFloat.getCode(), USATestData.DEFAULT_OVER_TIME_DATE), 0.000001);
+      Assertions.assertEquals(rootConcept.getOid(), test.getValue(attributeClassification.getCode(), USATestData.DEFAULT_OVER_TIME_DATE));
+      Assertions.assertEquals(source.getOid(), test.getValue(DefaultAttribute.DATA_SOURCE.getName(), USATestData.DEFAULT_OVER_TIME_DATE));
 
       Geometry geometry = test.getGeometry(USATestData.DEFAULT_OVER_TIME_DATE);
 
-      Assert.assertNotNull(geometry);
-      Assert.assertEquals(object.getGeometry(USATestData.DEFAULT_OVER_TIME_DATE), geometry);
+      Assertions.assertNotNull(geometry);
+      Assertions.assertEquals(object.getGeometry(USATestData.DEFAULT_OVER_TIME_DATE), geometry);
 
       ValueOverTimeCollection vots = test.getValuesOverTime(DefaultAttribute.GEOMETRY.getName());
 
-      Assert.assertEquals(1, vots.size());
+      Assertions.assertEquals(1, vots.size());
 
       String geometryId = test.getValue(DefaultAttribute.GEOMETRY.getName(), USATestData.DEFAULT_OVER_TIME_DATE);
 
       // Assert the values of the geometry table entry
-      Assert.assertEquals(object.getGeometry(USATestData.DEFAULT_OVER_TIME_DATE), vots.get(0).getValue());
-      Assert.assertNotNull(geometryId);
+      Assertions.assertEquals(object.getGeometry(USATestData.DEFAULT_OVER_TIME_DATE), vots.get(0).getValue());
+      Assertions.assertNotNull(geometryId);
 
       BusinessDAOIF entry = GeometryStateValue.getGeometryInstance(geometryId);
 
-      Assert.assertNotNull(entry);
+      Assertions.assertNotNull(entry);
 
-      Assert.assertEquals(object.getCode(), entry.getValue(DefaultAttribute.CODE.getName()));
-      Assert.assertEquals(object.getDisplayLabel(USATestData.DEFAULT_OVER_TIME_DATE).getValue(), entry.getValue(DefaultAttribute.DISPLAY_LABEL.getName()));
-      Assert.assertEquals(object.getUid(), entry.getValue(DefaultAttribute.UID.getName()));
-      Assert.assertTrue(entry.getValue(EdgeType.START_DATE).length() > 0);
-      Assert.assertTrue(entry.getValue(EdgeType.END_DATE).length() > 0);
+      Assertions.assertEquals(object.getCode(), entry.getValue(DefaultAttribute.CODE.getName()));
+      Assertions.assertEquals(object.getDisplayLabel(USATestData.DEFAULT_OVER_TIME_DATE).getValue(), entry.getValue(DefaultAttribute.DISPLAY_LABEL.getName()));
+      Assertions.assertEquals(object.getUid(), entry.getValue(DefaultAttribute.UID.getName()));
+      Assertions.assertTrue(entry.getValue(EdgeType.START_DATE).length() > 0);
+      Assertions.assertTrue(entry.getValue(EdgeType.END_DATE).length() > 0);
 
       geometryIds.add(geometryId);
 
@@ -201,7 +201,7 @@ public class BasicGeoObjectServiceTest extends ConceptDatasetTest implements Ins
         {
           GeometryStateValue.getGeometryInstance(geometryId);
 
-          Assert.fail("Able to find object that should be deleted");
+          Assertions.fail("Able to find object that should be deleted");
         }
         catch (Exception e)
         {
@@ -242,8 +242,8 @@ public class BasicGeoObjectServiceTest extends ConceptDatasetTest implements Ins
 
       Geometry geometry = test.getGeometry(USATestData.DEFAULT_OVER_TIME_DATE);
 
-      Assert.assertNotNull(geometry);
-      Assert.assertEquals(object.getGeometry(USATestData.DEFAULT_OVER_TIME_DATE), geometry);
+      Assertions.assertNotNull(geometry);
+      Assertions.assertEquals(object.getGeometry(USATestData.DEFAULT_OVER_TIME_DATE), geometry);
 
     }
     finally

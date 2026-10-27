@@ -9,11 +9,11 @@ import java.util.List;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.geojson.GeoJsonReader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +46,7 @@ import net.geoprism.registry.ListTypeBuilder;
 import net.geoprism.registry.ListTypeEntry;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.SingleListType;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.etl.PublishListTypeVersionJobQuery;
@@ -64,9 +64,11 @@ import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.JsonSerializable;
 import net.geoprism.registry.view.Page;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class ListTypeTest extends USADatasetTest implements InstanceTestClassListener
 {
   private static String                      CODE = "Test Term";
@@ -118,7 +120,7 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
     USATestData.COLORADO.removeDefaultValue(testClassification.getCode());
   }
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception
   {
     super.setUp();
@@ -131,7 +133,7 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
 
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws Exception
   {
     cleanUpExtra();
@@ -160,13 +162,13 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
     JsonObject json = list.toJSON();
     SingleListType test = (SingleListType) ListType.fromJSON(json);
 
-    Assert.assertEquals(list.getGeoObjectType().getOid(), test.getGeoObjectType().getOid());
-    Assert.assertEquals(list.getDisplayLabel().getValue(), test.getDisplayLabel().getValue());
-    Assert.assertEquals(list.getDescription().getValue(), test.getDescription().getValue());
-    Assert.assertEquals(list.getOrganization(), test.getOrganization());
-    Assert.assertEquals(list.getCode(), test.getCode());
-    Assert.assertEquals(list.getHierarchiesAsJson().toString(), test.getHierarchiesAsJson().toString());
-    Assert.assertEquals(list.getValidOn(), test.getValidOn());
+    Assertions.assertEquals(list.getGeoObjectType().getOid(), test.getGeoObjectType().getOid());
+    Assertions.assertEquals(list.getDisplayLabel().getValue(), test.getDisplayLabel().getValue());
+    Assertions.assertEquals(list.getDescription().getValue(), test.getDescription().getValue());
+    Assertions.assertEquals(list.getOrganization(), test.getOrganization());
+    Assertions.assertEquals(list.getCode(), test.getCode());
+    Assertions.assertEquals(list.getHierarchiesAsJson().toString(), test.getHierarchiesAsJson().toString());
+    Assertions.assertEquals(list.getValidOn(), test.getValidOn());
   }
 
   @Test
@@ -191,13 +193,13 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
     JsonObject json = list.toJSON();
     IntervalListType test = (IntervalListType) ListType.fromJSON(json);
 
-    Assert.assertEquals(list.getGeoObjectType().getOid(), test.getGeoObjectType().getOid());
-    Assert.assertEquals(list.getDisplayLabel().getValue(), test.getDisplayLabel().getValue());
-    Assert.assertEquals(list.getDescription().getValue(), test.getDescription().getValue());
-    Assert.assertEquals(list.getOrganization(), test.getOrganization());
-    Assert.assertEquals(list.getCode(), test.getCode());
-    Assert.assertEquals(list.getHierarchiesAsJson().toString(), test.getHierarchiesAsJson().toString());
-    Assert.assertEquals(list.getIntervalJson(), test.getIntervalJson());
+    Assertions.assertEquals(list.getGeoObjectType().getOid(), test.getGeoObjectType().getOid());
+    Assertions.assertEquals(list.getDisplayLabel().getValue(), test.getDisplayLabel().getValue());
+    Assertions.assertEquals(list.getDescription().getValue(), test.getDescription().getValue());
+    Assertions.assertEquals(list.getOrganization(), test.getOrganization());
+    Assertions.assertEquals(list.getCode(), test.getCode());
+    Assertions.assertEquals(list.getHierarchiesAsJson().toString(), test.getHierarchiesAsJson().toString());
+    Assertions.assertEquals(list.getIntervalJson(), test.getIntervalJson());
   }
 
   @Test
@@ -216,14 +218,14 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
     JsonObject json = list.toJSON();
     IncrementalListType test = (IncrementalListType) ListType.fromJSON(json);
 
-    Assert.assertEquals(list.getGeoObjectType().getOid(), test.getGeoObjectType().getOid());
-    Assert.assertEquals(list.getDisplayLabel().getValue(), test.getDisplayLabel().getValue());
-    Assert.assertEquals(list.getDescription().getValue(), test.getDescription().getValue());
-    Assert.assertEquals(list.getOrganization(), test.getOrganization());
-    Assert.assertEquals(list.getCode(), test.getCode());
-    Assert.assertEquals(list.getHierarchiesAsJson().toString(), test.getHierarchiesAsJson().toString());
-    Assert.assertEquals(list.getFrequency().get(0), test.getFrequency().get(0));
-    Assert.assertEquals(list.getPublishingStartDate(), test.getPublishingStartDate());
+    Assertions.assertEquals(list.getGeoObjectType().getOid(), test.getGeoObjectType().getOid());
+    Assertions.assertEquals(list.getDisplayLabel().getValue(), test.getDisplayLabel().getValue());
+    Assertions.assertEquals(list.getDescription().getValue(), test.getDescription().getValue());
+    Assertions.assertEquals(list.getOrganization(), test.getOrganization());
+    Assertions.assertEquals(list.getCode(), test.getCode());
+    Assertions.assertEquals(list.getHierarchiesAsJson().toString(), test.getHierarchiesAsJson().toString());
+    Assertions.assertEquals(list.getFrequency().get(0), test.getFrequency().get(0));
+    Assertions.assertEquals(list.getPublishingStartDate(), test.getPublishingStartDate());
   }
 
   // @Test
@@ -270,25 +272,27 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
     {
       test1.delete();
 
-      Assert.fail("Not able to apply multiple masterlists with the same universal when list is not a master");
+      Assertions.fail("Not able to apply multiple masterlists with the same universal when list is not a master");
     }
   }
 
-  @Test(expected = RunwayExceptionDTO.class)
+  @Test
   public void testServiceCreateAndRemove()
   {
-    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE);
+    assertThrows(RunwayExceptionDTO.class, () -> {
+      JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE);
 
-    ListTypeService service = new ListTypeService();
-    JsonObject result = service.apply(testData.clientRequest.getSessionId(), listJson);
+      ListTypeService service = new ListTypeService();
+      JsonObject result = service.apply(testData.clientRequest.getSessionId(), listJson);
 
-    String oid = result.get(ComponentInfo.OID).getAsString();
+      String oid = result.get(ComponentInfo.OID).getAsString();
 
-    ListTypeTest.waitUntilPublished(oid);
+      ListTypeTest.waitUntilPublished(oid);
 
-    service.remove(testData.clientRequest.getSessionId(), oid);
+      service.remove(testData.clientRequest.getSessionId(), oid);
 
-    service.get(testData.clientRequest.getSessionId(), oid);
+      service.get(testData.clientRequest.getSessionId(), oid);
+    });
   }
 
   @Test
@@ -306,12 +310,12 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
     {
       JsonObject org = service.listForType(testData.clientRequest.getSessionId(), USATestData.STATE.getCode());
 
-      Assert.assertEquals(USATestData.ORG_NPS.getDisplayLabel(), org.get("orgLabel").getAsString());
-      Assert.assertEquals(USATestData.ORG_NPS.getCode(), org.get("orgCode").getAsString());
-      Assert.assertEquals(USATestData.STATE.getDisplayLabel().getValue(), org.get("typeLabel").getAsString());
-      Assert.assertEquals(USATestData.STATE.getCode(), org.get("typeCode").getAsString());
-      Assert.assertTrue(org.get("write").getAsBoolean());
-      Assert.assertTrue(org.get("lists").getAsJsonArray().size() > 0);
+      Assertions.assertEquals(USATestData.ORG_NPS.getDisplayLabel(), org.get("orgLabel").getAsString());
+      Assertions.assertEquals(USATestData.ORG_NPS.getCode(), org.get("orgCode").getAsString());
+      Assertions.assertEquals(USATestData.STATE.getDisplayLabel().getValue(), org.get("typeLabel").getAsString());
+      Assertions.assertEquals(USATestData.STATE.getCode(), org.get("typeCode").getAsString());
+      Assertions.assertTrue(org.get("write").getAsBoolean());
+      Assertions.assertTrue(org.get("lists").getAsJsonArray().size() > 0);
     }
     finally
     {
@@ -336,12 +340,12 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
 
         JsonObject org = service.listForType(testData.clientRequest.getSessionId(), USATestData.STATE.getCode());
 
-        Assert.assertEquals(USATestData.ORG_NPS.getDisplayLabel(), org.get("orgLabel").getAsString());
-        Assert.assertEquals(USATestData.ORG_NPS.getCode(), org.get("orgCode").getAsString());
-        Assert.assertEquals(USATestData.STATE.getDisplayLabel().getValue(), org.get("typeLabel").getAsString());
-        Assert.assertEquals(USATestData.STATE.getCode(), org.get("typeCode").getAsString());
-        Assert.assertTrue(org.get("write").getAsBoolean());
-        Assert.assertTrue(org.get("lists").getAsJsonArray().size() > 0);
+        Assertions.assertEquals(USATestData.ORG_NPS.getDisplayLabel(), org.get("orgLabel").getAsString());
+        Assertions.assertEquals(USATestData.ORG_NPS.getCode(), org.get("orgCode").getAsString());
+        Assertions.assertEquals(USATestData.STATE.getDisplayLabel().getValue(), org.get("typeLabel").getAsString());
+        Assertions.assertEquals(USATestData.STATE.getCode(), org.get("typeCode").getAsString());
+        Assertions.assertTrue(org.get("write").getAsBoolean());
+        Assertions.assertTrue(org.get("lists").getAsJsonArray().size() > 0);
       });
     }
     finally
@@ -410,13 +414,13 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
 
           List<ListTypeVersion> versions = entry.getVersions();
 
-          Assert.assertEquals(2, versions.size());
+          Assertions.assertEquals(2, versions.size());
 
           ListTypeVersion version = versions.get(0);
 
           MdBusinessDAOIF mdTable = MdBusinessDAO.get(version.getMdBusinessOid());
 
-          Assert.assertNotNull(mdTable);
+          Assertions.assertNotNull(mdTable);
         }
         finally
         {
@@ -427,7 +431,7 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
       {
         e.printStackTrace();
 
-        Assert.fail(e.getLocalizedMessage());
+        Assertions.fail(e.getLocalizedMessage());
       }
       finally
       {
@@ -476,18 +480,18 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
 
           List<ListTypeVersion> versions = entry.getVersions();
 
-          Assert.assertEquals(2, versions.size());
+          Assertions.assertEquals(2, versions.size());
 
           ListTypeVersion version = versions.get(0);
 
           MdBusinessDAOIF mdTable = MdBusinessDAO.get(version.getMdBusinessOid());
 
-          Assert.assertNotNull(mdTable);
+          Assertions.assertNotNull(mdTable);
 
           Page<JsonSerializable> data = version.data(new JsonObject(), true, includeGeometries);
 
           // Entries should be HP_1, HP_2, HS_1, HS_2
-          Assert.assertEquals(Long.valueOf(4), data.getCount());
+          Assertions.assertEquals(Long.valueOf(4), data.getCount());
 
           List<JsonSerializable> results = data.getResultSet();
 
@@ -500,27 +504,27 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
             if (code.equals(USATestData.HS_ONE.getCode()))
             {
               String reportsTo = result.get("usatestdatareportstocode").getAsString();
-              Assert.assertEquals(USATestData.HP_ONE.getCode(), reportsTo);
+              Assertions.assertEquals(USATestData.HP_ONE.getCode(), reportsTo);
             }
             else if (code.equals(USATestData.HS_TWO.getCode()))
             {
               String reportsTo = result.get("usatestdatareportstocode").getAsString();
 
-              Assert.assertEquals(USATestData.HP_TWO.getCode(), reportsTo);
+              Assertions.assertEquals(USATestData.HP_TWO.getCode(), reportsTo);
             }
 
             if (includeGeometries != null && includeGeometries.equals(Boolean.TRUE))
             {
-              Assert.assertEquals(true, result.has("geometry"));
+              Assertions.assertEquals(true, result.has("geometry"));
 
               JsonObject geometries = result.get("geometry").getAsJsonObject();
 
               Geometry jtsGeom = reader.read(geometries.toString());
-              Assert.assertTrue(jtsGeom.isValid());
+              Assertions.assertTrue(jtsGeom.isValid());
             }
             else
             {
-              Assert.assertEquals(false, result.has("geometry"));
+              Assertions.assertEquals(false, result.has("geometry"));
             }
           }
         }
@@ -541,27 +545,29 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
     });
   }
 
-  @Test(expected = InvalidMasterListException.class)
+  @Test
   @Request
   public void testPublishInvalidVersion()
   {
-    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, USATestData.COUNTRY);
+    assertThrows(InvalidMasterListException.class, () -> {
+      JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, USATestData.COUNTRY);
 
-    ListType test = ListType.apply(json);
+      ListType test = ListType.apply(json);
 
-    try
-    {
-      test.appLock();
-      test.setValid(false);
-      test.apply();
+      try
+      {
+        test.appLock();
+        test.setValid(false);
+        test.apply();
 
-      ListTypeEntry version = test.getOrCreateEntry(TestDataSet.DEFAULT_OVER_TIME_DATE, null);
-      version.delete();
-    }
-    finally
-    {
-      test.delete();
-    }
+        ListTypeEntry version = test.getOrCreateEntry(TestDataSet.DEFAULT_OVER_TIME_DATE, null);
+        version.delete();
+      }
+      finally
+      {
+        test.delete();
+      }
+    });
   }
 
   // @Test
@@ -608,7 +614,7 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
         {
           service.apply(request.getSessionId(), listJson);
 
-          Assert.fail("Expected an exception to be thrown.");
+          Assertions.fail("Expected an exception to be thrown.");
         }
         catch (SmartExceptionDTO e)
         {
@@ -642,7 +648,7 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
           {
             service.remove(request.getSessionId(), oid);
 
-            Assert.fail("Expected an exception to be thrown.");
+            Assertions.fail("Expected an exception to be thrown.");
           }
           catch (SmartExceptionDTO e)
           {
@@ -668,7 +674,7 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
     {
       if (waitTime > 10000)
       {
-        Assert.fail("Job was never scheduled. Unable to find any associated history.");
+        Assertions.fail("Job was never scheduled. Unable to find any associated history.");
       }
 
       QueryFactory qf = new QueryFactory();
@@ -694,7 +700,7 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
         catch (InterruptedException e)
         {
           e.printStackTrace();
-          Assert.fail("Interrupted while waiting");
+          Assertions.fail("Interrupted while waiting");
         }
 
         waitTime += 1000;
@@ -710,7 +716,7 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
       catch (InterruptedException e)
       {
         e.printStackTrace();
-        Assert.fail("Interrupted while waiting");
+        Assertions.fail("Interrupted while waiting");
       }
     }
   }
@@ -829,14 +835,14 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
 
     List<Date> dates = list.getFrequencyDates(startDate, endDate);
 
-    Assert.assertEquals(6, dates.size());
+    Assertions.assertEquals(6, dates.size());
 
     for (int i = 0; i < dates.size(); i++)
     {
       calendar.clear();
       calendar.set( ( 2012 + i ), Calendar.MARCH, 3);
 
-      Assert.assertEquals(calendar.getTime(), dates.get(i));
+      Assertions.assertEquals(calendar.getTime(), dates.get(i));
     }
   }
 
@@ -859,7 +865,7 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
 
     List<Date> dates = list.getFrequencyDates(startDate, endDate);
 
-    Assert.assertEquals(4, dates.size());
+    Assertions.assertEquals(4, dates.size());
 
     for (int i = 0; i < dates.size(); i++)
     {
@@ -867,7 +873,7 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
       calendar.set(2012, Calendar.MARCH, 3);
       calendar.add(Calendar.MONTH, ( 3 * i ));
 
-      Assert.assertEquals(calendar.getTime(), dates.get(i));
+      Assertions.assertEquals(calendar.getTime(), dates.get(i));
     }
 
   }
@@ -891,7 +897,7 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
 
     List<Date> dates = list.getFrequencyDates(startDate, endDate);
 
-    Assert.assertEquals(2, dates.size());
+    Assertions.assertEquals(2, dates.size());
 
     for (int i = 0; i < dates.size(); i++)
     {
@@ -899,7 +905,7 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
       calendar.set(2012, Calendar.MARCH, 3);
       calendar.add(Calendar.MONTH, ( 6 * i ));
 
-      Assert.assertEquals(calendar.getTime(), dates.get(i));
+      Assertions.assertEquals(calendar.getTime(), dates.get(i));
     }
   }
 
@@ -922,7 +928,7 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
 
     List<Date> dates = list.getFrequencyDates(startDate, endDate);
 
-    Assert.assertEquals(10, dates.size());
+    Assertions.assertEquals(10, dates.size());
 
     for (int i = 0; i < dates.size(); i++)
     {
@@ -930,7 +936,7 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
       calendar.set(2012, Calendar.MARCH, 3);
       calendar.add(Calendar.MONTH, i);
 
-      Assert.assertEquals(calendar.getTime(), dates.get(i));
+      Assertions.assertEquals(calendar.getTime(), dates.get(i));
     }
   }
 
@@ -946,7 +952,7 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
     {
       masterlist.markAsInvalid(USATestData.HIER_ADMIN.getServerObject(), USATestData.STATE.getServerObject());
 
-      Assert.assertFalse(masterlist.getValid());
+      Assertions.assertFalse(masterlist.getValid());
     }
     catch (DuplicateDataDatabaseException e)
     {
@@ -966,7 +972,7 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
     {
       masterlist.markAsInvalid(USATestData.HIER_ADMIN.getServerObject(), USATestData.DISTRICT.getServerObject());
 
-      Assert.assertFalse(masterlist.getValid());
+      Assertions.assertFalse(masterlist.getValid());
     }
     catch (DuplicateDataDatabaseException e)
     {
@@ -986,7 +992,7 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
     {
       masterlist.markAsInvalid(USATestData.HIER_ADMIN.getServerObject(), USATestData.COUNTY.getServerObject());
 
-      Assert.assertTrue(masterlist.isValid());
+      Assertions.assertTrue(masterlist.isValid());
     }
     catch (DuplicateDataDatabaseException e)
     {
@@ -1006,7 +1012,7 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
     {
       masterlist.markAsInvalid(USATestData.HIER_SCHOOL.getServerObject(), USATestData.DISTRICT.getServerObject());
 
-      Assert.assertTrue(masterlist.isValid());
+      Assertions.assertTrue(masterlist.isValid());
     }
     catch (DuplicateDataDatabaseException e)
     {
@@ -1028,7 +1034,7 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
 
       ListType test = ListType.get(masterlist.getOid());
 
-      Assert.assertFalse(test.getValid());
+      Assertions.assertFalse(test.getValid());
     }
     catch (DuplicateDataDatabaseException e)
     {

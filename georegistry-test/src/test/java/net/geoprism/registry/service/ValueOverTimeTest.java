@@ -8,11 +8,11 @@ import java.util.Date;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,7 +24,7 @@ import com.runwaysdk.session.Request;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
@@ -35,7 +35,7 @@ import net.geoprism.registry.test.TestGeoObjectInfo;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
 
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class ValueOverTimeTest extends FastDatasetTest implements InstanceTestClassListener
 {
   public static final TestGeoObjectInfo TEST_GO = new TestGeoObjectInfo("VOT_TEST_GO", FastTestDataset.COUNTRY, FastTestDataset.SOURCE);
@@ -43,7 +43,7 @@ public class ValueOverTimeTest extends FastDatasetTest implements InstanceTestCl
   @Autowired
   private GeoObjectBusinessServiceIF    goBiz;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception
   {
     super.setUp();
@@ -58,7 +58,7 @@ public class ValueOverTimeTest extends FastDatasetTest implements InstanceTestCl
     // votc.add(new ValueOverTime());
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws Exception
   {
     TEST_GO.delete();
@@ -90,12 +90,12 @@ public class ValueOverTimeTest extends FastDatasetTest implements InstanceTestCl
 
     ServerGeoObjectIF go3 = TEST_GO.getServerObject();
     ValueOverTimeCollection votc = go3.getValuesOverTime(DefaultAttribute.DISPLAY_LABEL.getName());
-    Assert.assertEquals(1, votc.size());
+    Assertions.assertEquals(1, votc.size());
 
     ValueOverTime vot = votc.get(0);
-    Assert.assertEquals(defaultValue, ( (LocalizedValue) vot.getValue() ).getValue(LocalizedValue.DEFAULT_LOCALE));
-    Assert.assertEquals(TestDataSet.DEFAULT_OVER_TIME_DATE, vot.getStartDate());
-    Assert.assertEquals(TestDataSet.DEFAULT_END_TIME_DATE, vot.getEndDate());
+    Assertions.assertEquals(defaultValue, ( (LocalizedValue) vot.getValue() ).getValue(LocalizedValue.DEFAULT_LOCALE));
+    Assertions.assertEquals(TestDataSet.DEFAULT_OVER_TIME_DATE, vot.getStartDate());
+    Assertions.assertEquals(TestDataSet.DEFAULT_END_TIME_DATE, vot.getEndDate());
   }
 
   @Test
@@ -122,22 +122,22 @@ public class ValueOverTimeTest extends FastDatasetTest implements InstanceTestCl
 
     ServerGeoObjectIF go3 = TEST_GO.getServerObject();
     ValueOverTimeCollection votc = go3.getValuesOverTime(DefaultAttribute.DISPLAY_LABEL.getName());
-    Assert.assertEquals(3, votc.size());
+    Assertions.assertEquals(3, votc.size());
 
     ValueOverTime vot = votc.get(0);
-    Assert.assertEquals(defaultValue, ( (LocalizedValue) vot.getValue() ).getValue(LocalizedValue.DEFAULT_LOCALE));
-    Assert.assertEquals(TestDataSet.DEFAULT_OVER_TIME_DATE, vot.getStartDate());
-    Assert.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 4), vot.getEndDate());
+    Assertions.assertEquals(defaultValue, ( (LocalizedValue) vot.getValue() ).getValue(LocalizedValue.DEFAULT_LOCALE));
+    Assertions.assertEquals(TestDataSet.DEFAULT_OVER_TIME_DATE, vot.getStartDate());
+    Assertions.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 4), vot.getEndDate());
 
     ValueOverTime vot2 = votc.get(1);
-    Assert.assertEquals(newValue, ( (LocalizedValue) vot2.getValue() ).getValue(LocalizedValue.DEFAULT_LOCALE));
-    Assert.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 5), vot2.getStartDate());
-    Assert.assertEquals(addDay(TestDataSet.DEFAULT_END_TIME_DATE, -5), vot2.getEndDate());
+    Assertions.assertEquals(newValue, ( (LocalizedValue) vot2.getValue() ).getValue(LocalizedValue.DEFAULT_LOCALE));
+    Assertions.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 5), vot2.getStartDate());
+    Assertions.assertEquals(addDay(TestDataSet.DEFAULT_END_TIME_DATE, -5), vot2.getEndDate());
 
     ValueOverTime vot3 = votc.get(2);
-    Assert.assertEquals(defaultValue, ( (LocalizedValue) vot3.getValue() ).getValue(LocalizedValue.DEFAULT_LOCALE));
-    Assert.assertEquals(addDay(TestDataSet.DEFAULT_END_TIME_DATE, -4), vot3.getStartDate());
-    Assert.assertEquals(TestDataSet.DEFAULT_END_TIME_DATE, vot3.getEndDate());
+    Assertions.assertEquals(defaultValue, ( (LocalizedValue) vot3.getValue() ).getValue(LocalizedValue.DEFAULT_LOCALE));
+    Assertions.assertEquals(addDay(TestDataSet.DEFAULT_END_TIME_DATE, -4), vot3.getStartDate());
+    Assertions.assertEquals(TestDataSet.DEFAULT_END_TIME_DATE, vot3.getEndDate());
   }
 
   /**
@@ -163,17 +163,17 @@ public class ValueOverTimeTest extends FastDatasetTest implements InstanceTestCl
 
     go = TEST_GO.getServerObject();
     ValueOverTimeCollection votc = go.getValuesOverTime(DefaultAttribute.EXISTS.getName());
-    Assert.assertEquals(2, votc.size());
+    Assertions.assertEquals(2, votc.size());
 
     ValueOverTime vot = votc.get(0);
-    Assert.assertEquals(false, vot.getValue());
-    Assert.assertEquals(start, vot.getStartDate());
-    Assert.assertEquals(end, vot.getEndDate());
+    Assertions.assertEquals(false, vot.getValue());
+    Assertions.assertEquals(start, vot.getStartDate());
+    Assertions.assertEquals(end, vot.getEndDate());
 
     ValueOverTime vot2 = votc.get(1);
-    Assert.assertEquals(true, vot2.getValue());
-    Assert.assertEquals(TestDataSet.DEFAULT_OVER_TIME_DATE, vot2.getStartDate());
-    Assert.assertEquals(TestDataSet.DEFAULT_END_TIME_DATE, vot2.getEndDate());
+    Assertions.assertEquals(true, vot2.getValue());
+    Assertions.assertEquals(TestDataSet.DEFAULT_OVER_TIME_DATE, vot2.getStartDate());
+    Assertions.assertEquals(TestDataSet.DEFAULT_END_TIME_DATE, vot2.getEndDate());
   }
 
   /**
@@ -190,12 +190,12 @@ public class ValueOverTimeTest extends FastDatasetTest implements InstanceTestCl
 
     go = TEST_GO.getServerObject();
     ValueOverTimeCollection votc = go.getValuesOverTime(DefaultAttribute.EXISTS.getName());
-    Assert.assertEquals(1, votc.size());
+    Assertions.assertEquals(1, votc.size());
 
     ValueOverTime vot = votc.get(0);
-    Assert.assertEquals(true, vot.getValue());
-    Assert.assertEquals(TestDataSet.DEFAULT_OVER_TIME_DATE, vot.getStartDate());
-    Assert.assertEquals(TestDataSet.DEFAULT_END_TIME_DATE, vot.getEndDate());
+    Assertions.assertEquals(true, vot.getValue());
+    Assertions.assertEquals(TestDataSet.DEFAULT_OVER_TIME_DATE, vot.getStartDate());
+    Assertions.assertEquals(TestDataSet.DEFAULT_END_TIME_DATE, vot.getEndDate());
   }
 
   /**
@@ -212,22 +212,22 @@ public class ValueOverTimeTest extends FastDatasetTest implements InstanceTestCl
 
     go = TEST_GO.getServerObject();
     ValueOverTimeCollection votc = go.getValuesOverTime(DefaultAttribute.EXISTS.getName());
-    Assert.assertEquals(3, votc.size());
+    Assertions.assertEquals(3, votc.size());
 
     ValueOverTime vot = votc.get(0);
-    Assert.assertEquals(true, vot.getValue());
-    Assert.assertEquals(TestDataSet.DEFAULT_OVER_TIME_DATE, vot.getStartDate());
-    Assert.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 4), vot.getEndDate());
+    Assertions.assertEquals(true, vot.getValue());
+    Assertions.assertEquals(TestDataSet.DEFAULT_OVER_TIME_DATE, vot.getStartDate());
+    Assertions.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 4), vot.getEndDate());
 
     ValueOverTime vot2 = votc.get(1);
-    Assert.assertEquals(false, vot2.getValue());
-    Assert.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 5), vot2.getStartDate());
-    Assert.assertEquals(addDay(TestDataSet.DEFAULT_END_TIME_DATE, -5), vot2.getEndDate());
+    Assertions.assertEquals(false, vot2.getValue());
+    Assertions.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 5), vot2.getStartDate());
+    Assertions.assertEquals(addDay(TestDataSet.DEFAULT_END_TIME_DATE, -5), vot2.getEndDate());
 
     ValueOverTime vot3 = votc.get(2);
-    Assert.assertEquals(true, vot3.getValue());
-    Assert.assertEquals(addDay(TestDataSet.DEFAULT_END_TIME_DATE, -4), vot3.getStartDate());
-    Assert.assertEquals(TestDataSet.DEFAULT_END_TIME_DATE, vot3.getEndDate());
+    Assertions.assertEquals(true, vot3.getValue());
+    Assertions.assertEquals(addDay(TestDataSet.DEFAULT_END_TIME_DATE, -4), vot3.getStartDate());
+    Assertions.assertEquals(TestDataSet.DEFAULT_END_TIME_DATE, vot3.getEndDate());
   }
 
   /**
@@ -244,12 +244,12 @@ public class ValueOverTimeTest extends FastDatasetTest implements InstanceTestCl
 
     go = TEST_GO.getServerObject();
     ValueOverTimeCollection votc = go.getValuesOverTime(DefaultAttribute.EXISTS.getName());
-    Assert.assertEquals(1, votc.size());
+    Assertions.assertEquals(1, votc.size());
 
     ValueOverTime vot = votc.get(0);
-    Assert.assertEquals(true, vot.getValue());
-    Assert.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, -5), vot.getStartDate());
-    Assert.assertEquals(addDay(TestDataSet.DEFAULT_END_TIME_DATE, 5), vot.getEndDate());
+    Assertions.assertEquals(true, vot.getValue());
+    Assertions.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, -5), vot.getStartDate());
+    Assertions.assertEquals(addDay(TestDataSet.DEFAULT_END_TIME_DATE, 5), vot.getEndDate());
   }
 
   /**
@@ -266,12 +266,12 @@ public class ValueOverTimeTest extends FastDatasetTest implements InstanceTestCl
 
     go = TEST_GO.getServerObject();
     ValueOverTimeCollection votc = go.getValuesOverTime(DefaultAttribute.EXISTS.getName());
-    Assert.assertEquals(1, votc.size());
+    Assertions.assertEquals(1, votc.size());
 
     ValueOverTime vot = votc.get(0);
-    Assert.assertEquals(false, vot.getValue());
-    Assert.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, -5), vot.getStartDate());
-    Assert.assertEquals(addDay(TestDataSet.DEFAULT_END_TIME_DATE, 5), vot.getEndDate());
+    Assertions.assertEquals(false, vot.getValue());
+    Assertions.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, -5), vot.getStartDate());
+    Assertions.assertEquals(addDay(TestDataSet.DEFAULT_END_TIME_DATE, 5), vot.getEndDate());
   }
 
   /**
@@ -288,12 +288,12 @@ public class ValueOverTimeTest extends FastDatasetTest implements InstanceTestCl
 
     go = TEST_GO.getServerObject();
     ValueOverTimeCollection votc = go.getValuesOverTime(DefaultAttribute.EXISTS.getName());
-    Assert.assertEquals(1, votc.size());
+    Assertions.assertEquals(1, votc.size());
 
     ValueOverTime vot = votc.get(0);
-    Assert.assertEquals(true, vot.getValue());
-    Assert.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, -30), vot.getStartDate());
-    Assert.assertEquals(TestDataSet.DEFAULT_END_TIME_DATE, vot.getEndDate());
+    Assertions.assertEquals(true, vot.getValue());
+    Assertions.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, -30), vot.getStartDate());
+    Assertions.assertEquals(TestDataSet.DEFAULT_END_TIME_DATE, vot.getEndDate());
   }
 
   /**
@@ -310,17 +310,17 @@ public class ValueOverTimeTest extends FastDatasetTest implements InstanceTestCl
 
     go = TEST_GO.getServerObject();
     ValueOverTimeCollection votc = go.getValuesOverTime(DefaultAttribute.EXISTS.getName());
-    Assert.assertEquals(2, votc.size());
+    Assertions.assertEquals(2, votc.size());
 
     ValueOverTime vot = votc.get(0);
-    Assert.assertEquals(false, vot.getValue());
-    Assert.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, -30), vot.getStartDate());
-    Assert.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 5), vot.getEndDate());
+    Assertions.assertEquals(false, vot.getValue());
+    Assertions.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, -30), vot.getStartDate());
+    Assertions.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 5), vot.getEndDate());
 
     ValueOverTime vot2 = votc.get(1);
-    Assert.assertEquals(true, vot2.getValue());
-    Assert.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 6), vot2.getStartDate());
-    Assert.assertEquals(TestDataSet.DEFAULT_END_TIME_DATE, vot2.getEndDate());
+    Assertions.assertEquals(true, vot2.getValue());
+    Assertions.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 6), vot2.getStartDate());
+    Assertions.assertEquals(TestDataSet.DEFAULT_END_TIME_DATE, vot2.getEndDate());
   }
 
   private Date addDay(Date date, int amount)

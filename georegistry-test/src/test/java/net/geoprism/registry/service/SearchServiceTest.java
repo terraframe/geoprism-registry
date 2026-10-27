@@ -6,11 +6,11 @@ package net.geoprism.registry.service;
 import java.util.Date;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,7 +21,7 @@ import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.service.business.SearchService;
@@ -30,7 +30,7 @@ import net.geoprism.registry.test.TestGeoObjectInfo;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class SearchServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
   public static final TestGeoObjectInfo BELIZE_CITY      = new TestGeoObjectInfo("Belize Ci't/=&y*)(0$#-@!\"}{][.,;:", "BelizeCity", FastTestDataset.COUNTRY, FastTestDataset.WKT_DEFAULT_MULTIPOLYGON, true, true, FastTestDataset.SOURCE);
@@ -44,7 +44,7 @@ public class SearchServiceTest extends FastDatasetTest implements InstanceTestCl
   @Autowired
   private SearchService                 service;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception
   {
     super.setUp();
@@ -57,7 +57,7 @@ public class SearchServiceTest extends FastDatasetTest implements InstanceTestCl
     EXACT_WRONG_FAIL.apply();
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws Exception
   {
     BELIZE_CITY.delete();
@@ -85,14 +85,14 @@ public class SearchServiceTest extends FastDatasetTest implements InstanceTestCl
 
     List<ServerGeoObjectIF> results = service.search(FastTestDataset.CAMBODIA.getDisplayLabel(), date, 10L);
 
-    Assert.assertEquals(1, results.size());
+    Assertions.assertEquals(1, results.size());
 
     ServerGeoObjectIF result = results.get(0);
 
-    Assert.assertEquals(result.getCode(), FastTestDataset.CAMBODIA.getCode());
+    Assertions.assertEquals(result.getCode(), FastTestDataset.CAMBODIA.getCode());
 
-    Assert.assertEquals(6, service.search(FastTestDataset.TEST_DATA_KEY, date, 10L).size());
-    Assert.assertEquals(1, service.search(FastTestDataset.TEST_DATA_KEY, date, 1L).size());
+    Assertions.assertEquals(6, service.search(FastTestDataset.TEST_DATA_KEY, date, 10L).size());
+    Assertions.assertEquals(1, service.search(FastTestDataset.TEST_DATA_KEY, date, 1L).size());
   }
 
   @Test
@@ -110,14 +110,14 @@ public class SearchServiceTest extends FastDatasetTest implements InstanceTestCl
 
     List<ServerGeoObjectIF> results = service.search(FastTestDataset.CAMBODIA.getDisplayLabel() + " ", date, 10L);
 
-    Assert.assertEquals(1, results.size());
+    Assertions.assertEquals(1, results.size());
 
     ServerGeoObjectIF result = results.get(0);
 
-    Assert.assertEquals(result.getCode(), FastTestDataset.CAMBODIA.getCode());
+    Assertions.assertEquals(result.getCode(), FastTestDataset.CAMBODIA.getCode());
 
-    Assert.assertEquals(6, service.search(FastTestDataset.TEST_DATA_KEY, date, 10L).size());
-    Assert.assertEquals(1, service.search(FastTestDataset.TEST_DATA_KEY, date, 1L).size());
+    Assertions.assertEquals(6, service.search(FastTestDataset.TEST_DATA_KEY, date, 10L).size());
+    Assertions.assertEquals(1, service.search(FastTestDataset.TEST_DATA_KEY, date, 1L).size());
   }
 
   @Test
@@ -170,11 +170,11 @@ public class SearchServiceTest extends FastDatasetTest implements InstanceTestCl
 
   private void assertFound(List<ServerGeoObjectIF> results, TestGeoObjectInfo go)
   {
-    Assert.assertEquals(1, results.size());
+    Assertions.assertEquals(1, results.size());
 
     ServerGeoObjectIF result = results.get(0);
 
-    Assert.assertEquals(result.getCode(), go.getCode());
+    Assertions.assertEquals(result.getCode(), go.getCode());
   }
 
   @Test
@@ -191,17 +191,17 @@ public class SearchServiceTest extends FastDatasetTest implements InstanceTestCl
     Date date = FastTestDataset.DEFAULT_OVER_TIME_DATE;
 
     List<ServerGeoObjectIF> results = service.search("Exact-Term(Test)", date, 10L);
-    Assert.assertEquals(3, results.size());
+    Assertions.assertEquals(3, results.size());
 
     results = service.search("Exact-Term(Test) Match", date, 10L);
-    Assert.assertEquals(3, results.size());
-    Assert.assertEquals(EXACT_WRONG_FAIL.getCode(), results.get(2).getCode());
+    Assertions.assertEquals(3, results.size());
+    Assertions.assertEquals(EXACT_WRONG_FAIL.getCode(), results.get(2).getCode());
 
     results = service.search("Exact-Term(Test) Match Test", date, 10L);
-    Assert.assertEquals(3, results.size());
-    Assert.assertEquals(EXACT_MATCH_TEST.getCode(), results.get(0).getCode());
-    Assert.assertEquals(EXACT_MATCH_FAIL.getCode(), results.get(1).getCode());
-    Assert.assertEquals(EXACT_WRONG_FAIL.getCode(), results.get(2).getCode());
+    Assertions.assertEquals(3, results.size());
+    Assertions.assertEquals(EXACT_MATCH_TEST.getCode(), results.get(0).getCode());
+    Assertions.assertEquals(EXACT_MATCH_FAIL.getCode(), results.get(1).getCode());
+    Assertions.assertEquals(EXACT_WRONG_FAIL.getCode(), results.get(2).getCode());
   }
 
   @Test
@@ -219,7 +219,7 @@ public class SearchServiceTest extends FastDatasetTest implements InstanceTestCl
 
     List<ServerGeoObjectIF> results = service.search(null, date, 10L);
 
-    Assert.assertTrue(results.size() > 0);
+    Assertions.assertTrue(results.size() > 0);
   }
 
   @Test
@@ -236,11 +236,11 @@ public class SearchServiceTest extends FastDatasetTest implements InstanceTestCl
 
     List<JsonObject> results = service.labels(FastTestDataset.CAMBODIA.getDisplayLabel(), date, 10L);
 
-    Assert.assertEquals(1, results.size());
+    Assertions.assertEquals(1, results.size());
 
     JsonObject result = results.get(0);
 
-    Assert.assertEquals(result.get("code").getAsString(), FastTestDataset.CAMBODIA.getCode());
+    Assertions.assertEquals(result.get("code").getAsString(), FastTestDataset.CAMBODIA.getCode());
   }
 
 }

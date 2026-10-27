@@ -12,9 +12,9 @@ import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,7 +25,7 @@ import com.runwaysdk.session.Request;
 import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
@@ -37,7 +37,7 @@ import net.geoprism.registry.view.OrganizationGroup;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
 
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class BusinessTypeTest extends FastDatasetTest implements InstanceTestClassListener
 {
   @Autowired
@@ -67,13 +67,13 @@ public class BusinessTypeTest extends FastDatasetTest implements InstanceTestCla
 
     try
     {
-      Assert.assertEquals(dto.getCode(), type.getCode());
-      Assert.assertEquals(dto.getOrganization(), type.getServerOrganization().getCode());
-      Assert.assertEquals(dto.getDisplayLabel().getValue(), type.getLabel().getValue());
-      Assert.assertEquals(dto.getDescription().getValue(), type.getDescriptionLV().getValue());
-      Assert.assertNotNull(type.getMdVertex());
-      Assert.assertEquals(type.getOrigin(), GeoprismProperties.getOrigin());
-      Assert.assertEquals(Long.valueOf(0), type.getSequence());
+      Assertions.assertEquals(dto.getCode(), type.getCode());
+      Assertions.assertEquals(dto.getOrganization(), type.getServerOrganization().getCode());
+      Assertions.assertEquals(dto.getDisplayLabel().getValue(), type.getLabel().getValue());
+      Assertions.assertEquals(dto.getDescription().getValue(), type.getDescriptionLV().getValue());
+      Assertions.assertNotNull(type.getMdVertex());
+      Assertions.assertEquals(type.getOrigin(), GeoprismProperties.getOrigin());
+      Assertions.assertEquals(Long.valueOf(0), type.getSequence());
     }
     finally
     {
@@ -89,7 +89,7 @@ public class BusinessTypeTest extends FastDatasetTest implements InstanceTestCla
 
     try
     {
-      Assert.assertNotNull(this.typeService.getByCode(type.getCode()));
+      Assertions.assertNotNull(this.typeService.getByCode(type.getCode()));
     }
     finally
     {
@@ -110,10 +110,10 @@ public class BusinessTypeTest extends FastDatasetTest implements InstanceTestCla
 
       type = this.typeService.apply(dto);
 
-      Assert.assertEquals(dto.getCode(), type.getCode());
-      Assert.assertEquals(dto.getOrganization(), type.getServerOrganization().getCode());
-      Assert.assertEquals(dto.getDisplayLabel().getValue(), type.getLabel().getValue());
-      Assert.assertNotNull(type.getMdVertex());
+      Assertions.assertEquals(dto.getCode(), type.getCode());
+      Assertions.assertEquals(dto.getOrganization(), type.getServerOrganization().getCode());
+      Assertions.assertEquals(dto.getDisplayLabel().getValue(), type.getLabel().getValue());
+      Assertions.assertNotNull(type.getMdVertex());
     }
     finally
     {
@@ -137,14 +137,14 @@ public class BusinessTypeTest extends FastDatasetTest implements InstanceTestCla
 
       Map<String, AttributeType> attributeMap = type.getAttributeMapAsDTO();
 
-      Assert.assertTrue(attributeMap.containsKey(expected.getCode()));
+      Assertions.assertTrue(attributeMap.containsKey(expected.getCode()));
 
       AttributeType actual = attributeMap.get(expected.getCode());
 
-      Assert.assertTrue(actual instanceof AttributeCharacterType);
-      Assert.assertEquals(expected.getCode(), actual.getCode());
-      Assert.assertEquals(expected.getLabel().getValue(), actual.getLabel().getValue());
-      Assert.assertEquals(expected.isDefault(), actual.isDefault());
+      Assertions.assertTrue(actual instanceof AttributeCharacterType);
+      Assertions.assertEquals(expected.getCode(), actual.getCode());
+      Assertions.assertEquals(expected.getLabel().getValue(), actual.getLabel().getValue());
+      Assertions.assertEquals(expected.isDefault(), actual.isDefault());
     }
     finally
     {
@@ -166,14 +166,14 @@ public class BusinessTypeTest extends FastDatasetTest implements InstanceTestCla
 
       Map<String, AttributeType> attributeMap = type.getAttributeMapAsDTO();
 
-      Assert.assertTrue(attributeMap.containsKey(expected.getCode()));
+      Assertions.assertTrue(attributeMap.containsKey(expected.getCode()));
 
       AttributeType actual = attributeMap.get(expected.getCode());
 
-      Assert.assertTrue(actual instanceof AttributeDateType);
-      Assert.assertEquals(expected.getCode(), actual.getCode());
-      Assert.assertEquals(expected.getLabel().getValue(), actual.getLabel().getValue());
-      Assert.assertEquals(expected.isDefault(), actual.isDefault());
+      Assertions.assertTrue(actual instanceof AttributeDateType);
+      Assertions.assertEquals(expected.getCode(), actual.getCode());
+      Assertions.assertEquals(expected.getLabel().getValue(), actual.getLabel().getValue());
+      Assertions.assertEquals(expected.isDefault(), actual.isDefault());
     }
     finally
     {
@@ -195,14 +195,14 @@ public class BusinessTypeTest extends FastDatasetTest implements InstanceTestCla
 
       Map<String, AttributeType> attributeMap = type.getAttributeMapAsDTO();
 
-      Assert.assertTrue(attributeMap.containsKey(expected.getCode()));
+      Assertions.assertTrue(attributeMap.containsKey(expected.getCode()));
 
       AttributeType actual = attributeMap.get(expected.getCode());
 
-      Assert.assertTrue(actual instanceof AttributeIntegerType);
-      Assert.assertEquals(expected.getCode(), actual.getCode());
-      Assert.assertEquals(expected.getLabel().getValue(), actual.getLabel().getValue());
-      Assert.assertEquals(expected.isDefault(), actual.isDefault());
+      Assertions.assertTrue(actual instanceof AttributeIntegerType);
+      Assertions.assertEquals(expected.getCode(), actual.getCode());
+      Assertions.assertEquals(expected.getLabel().getValue(), actual.getLabel().getValue());
+      Assertions.assertEquals(expected.isDefault(), actual.isDefault());
     }
     finally
     {
@@ -226,14 +226,14 @@ public class BusinessTypeTest extends FastDatasetTest implements InstanceTestCla
 
       Map<String, AttributeType> attributeMap = type.getAttributeMapAsDTO();
 
-      Assert.assertTrue(attributeMap.containsKey(expected.getCode()));
+      Assertions.assertTrue(attributeMap.containsKey(expected.getCode()));
 
       AttributeType actual = attributeMap.get(expected.getCode());
 
-      Assert.assertTrue(actual instanceof AttributeFloatType);
-      Assert.assertEquals(expected.getCode(), actual.getCode());
-      Assert.assertEquals(expected.getLabel().getValue(), actual.getLabel().getValue());
-      Assert.assertEquals(expected.isDefault(), actual.isDefault());
+      Assertions.assertTrue(actual instanceof AttributeFloatType);
+      Assertions.assertEquals(expected.getCode(), actual.getCode());
+      Assertions.assertEquals(expected.getLabel().getValue(), actual.getLabel().getValue());
+      Assertions.assertEquals(expected.isDefault(), actual.isDefault());
     }
     finally
     {
@@ -259,14 +259,14 @@ public class BusinessTypeTest extends FastDatasetTest implements InstanceTestCla
 
       Map<String, AttributeType> attributeMap = type.getAttributeMapAsDTO();
 
-      Assert.assertTrue(attributeMap.containsKey(expected.getCode()));
+      Assertions.assertTrue(attributeMap.containsKey(expected.getCode()));
 
       AttributeType actual = attributeMap.get(expected.getCode());
 
-      Assert.assertTrue(actual instanceof AttributeCharacterType);
-      Assert.assertEquals(expected.getCode(), actual.getCode());
-      Assert.assertEquals(expected.getLabel().getValue(), actual.getLabel().getValue());
-      Assert.assertEquals(expected.isDefault(), actual.isDefault());
+      Assertions.assertTrue(actual instanceof AttributeCharacterType);
+      Assertions.assertEquals(expected.getCode(), actual.getCode());
+      Assertions.assertEquals(expected.getLabel().getValue(), actual.getLabel().getValue());
+      Assertions.assertEquals(expected.isDefault(), actual.isDefault());
     }
     finally
     {
@@ -287,17 +287,17 @@ public class BusinessTypeTest extends FastDatasetTest implements InstanceTestCla
       {
         List<OrganizationGroup<BusinessTypeDTO>> orgs = this.typeService.listByOrg();
 
-        Assert.assertTrue(orgs.size() > 0);
+        Assertions.assertTrue(orgs.size() > 0);
 
         OrganizationGroup<BusinessTypeDTO> org = orgs.stream().filter(o -> o.getCode().equals(dto.getOrganization())).findFirst().orElseThrow();
 
         List<BusinessTypeDTO> types = org.getTypes();
 
-        Assert.assertEquals(1, types.size());
+        Assertions.assertEquals(1, types.size());
 
         BusinessTypeDTO actual = types.get(0);
 
-        Assert.assertEquals(type.getCode(), actual.getCode());
+        Assertions.assertEquals(type.getCode(), actual.getCode());
       }
       finally
       {
@@ -316,14 +316,14 @@ public class BusinessTypeTest extends FastDatasetTest implements InstanceTestCla
     {
       BusinessTypeDTO dto = this.typeService.toDTO(type, true, false);
 
-      Assert.assertEquals(type.getCode(), dto.getCode());
-      Assert.assertNotNull(dto.getAttributes());
+      Assertions.assertEquals(type.getCode(), dto.getCode());
+      Assertions.assertNotNull(dto.getAttributes());
 
       // Test serializing
       String json = BusinessTypeDTO.toJson(dto);
       BusinessTypeDTO test = BusinessTypeDTO.parseJson(json);
 
-      Assert.assertNotNull(test);
+      Assertions.assertNotNull(test);
     }
     finally
     {
@@ -341,9 +341,9 @@ public class BusinessTypeTest extends FastDatasetTest implements InstanceTestCla
     {
       BusinessTypeDTO dto = this.typeService.toDTO(type, true, false);
 
-      Assert.assertEquals(type.getCode(), dto.getCode());
-      Assert.assertNotNull(dto.getAttributes());
-      Assert.assertTrue(dto.getAttributes().size() > 0);
+      Assertions.assertEquals(type.getCode(), dto.getCode());
+      Assertions.assertNotNull(dto.getAttributes());
+      Assertions.assertTrue(dto.getAttributes().size() > 0);
     }
     finally
     {
@@ -363,18 +363,18 @@ public class BusinessTypeTest extends FastDatasetTest implements InstanceTestCla
 
       this.typeService.createAttributeType(type, expected);
 
-      Assert.assertEquals(Long.valueOf(1), type.getSequence());
+      Assertions.assertEquals(Long.valueOf(1), type.getSequence());
 
       Map<String, AttributeType> attributeMap = type.getAttributeMapAsDTO();
 
-      Assert.assertTrue(attributeMap.containsKey(expected.getCode()));
+      Assertions.assertTrue(attributeMap.containsKey(expected.getCode()));
 
       this.typeService.removeAttributeType(type, expected.getCode());
 
       attributeMap = type.getAttributeMapAsDTO();
 
-      Assert.assertFalse(attributeMap.containsKey(expected.getCode()));
-      Assert.assertEquals(Long.valueOf(2), type.getSequence());
+      Assertions.assertFalse(attributeMap.containsKey(expected.getCode()));
+      Assertions.assertEquals(Long.valueOf(2), type.getSequence());
 
     }
     finally
@@ -391,7 +391,7 @@ public class BusinessTypeTest extends FastDatasetTest implements InstanceTestCla
 
     this.typeService.delete(type);
 
-    Assert.assertTrue(this.typeService.getByCode(type.getCode()).isEmpty());
+    Assertions.assertTrue(this.typeService.getByCode(type.getCode()).isEmpty());
   }
 
   @Test
@@ -408,10 +408,10 @@ public class BusinessTypeTest extends FastDatasetTest implements InstanceTestCla
 
       AttributeType actual = type.getAttribute(expected.getCode()).map(t -> t.toDTO()).orElseThrow();
 
-      Assert.assertTrue(actual instanceof AttributeCharacterType);
-      Assert.assertEquals(expected.getCode(), actual.getCode());
-      Assert.assertEquals(expected.getLabel().getValue(), actual.getLabel().getValue());
-      Assert.assertEquals(expected.isDefault(), actual.isDefault());
+      Assertions.assertTrue(actual instanceof AttributeCharacterType);
+      Assertions.assertEquals(expected.getCode(), actual.getCode());
+      Assertions.assertEquals(expected.getLabel().getValue(), actual.getLabel().getValue());
+      Assertions.assertEquals(expected.isDefault(), actual.isDefault());
     }
     finally
     {
@@ -432,7 +432,7 @@ public class BusinessTypeTest extends FastDatasetTest implements InstanceTestCla
       this.typeService.createAttributeType(type, expected);
       this.typeService.setLabelAttribute(type, expected.getCode());
 
-      Assert.assertNotNull(type.getLabelAttribute());
+      Assertions.assertNotNull(type.getLabelAttribute());
     }
     finally
     {

@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,7 +19,7 @@ import com.runwaysdk.system.metadata.MdEdge;
 
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
@@ -31,7 +31,7 @@ import net.geoprism.registry.view.BusinessTypeDTO;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class BusinessEdgeTypeTest extends FastDatasetTest implements InstanceTestClassListener
 {
   private static BusinessType               parentType;
@@ -105,14 +105,14 @@ public class BusinessEdgeTypeTest extends FastDatasetTest implements InstanceTes
 
     try
     {
-      Assert.assertNotNull(type);
-      Assert.assertEquals(code, type.getCode());
-      Assert.assertEquals(label.getValue(), type.getLabel().getValue());
-      Assert.assertEquals(description.getValue(), type.getDescriptionLV().getValue());
+      Assertions.assertNotNull(type);
+      Assertions.assertEquals(code, type.getCode());
+      Assertions.assertEquals(label.getValue(), type.getLabel().getValue());
+      Assertions.assertEquals(description.getValue(), type.getDescriptionLV().getValue());
 
       MdEdge mdEdge = type.getMdEdge();
 
-      Assert.assertNotNull(mdEdge);
+      Assertions.assertNotNull(mdEdge);
     }
     finally
     {
@@ -135,8 +135,8 @@ public class BusinessEdgeTypeTest extends FastDatasetTest implements InstanceTes
 
       this.bEdgeService.update(type, view);
 
-      Assert.assertEquals("Updated Label", type.getLabel().getValue());
-      Assert.assertEquals("Updated Description", type.getDescriptionLV().getValue());
+      Assertions.assertEquals("Updated Label", type.getLabel().getValue());
+      Assertions.assertEquals("Updated Description", type.getDescriptionLV().getValue());
     }
     finally
     {
@@ -155,8 +155,8 @@ public class BusinessEdgeTypeTest extends FastDatasetTest implements InstanceTes
     {
       BusinessEdgeType result = this.bEdgeService.getByCodeOrThrow(type.getCode());
 
-      Assert.assertNotNull(result);
-      Assert.assertEquals(type.getCode(), result.getCode());
+      Assertions.assertNotNull(result);
+      Assertions.assertEquals(type.getCode(), result.getCode());
     }
     finally
     {
@@ -175,8 +175,8 @@ public class BusinessEdgeTypeTest extends FastDatasetTest implements InstanceTes
     {
       Optional<BusinessEdgeType> result = this.bEdgeService.getByMdEdge(type.getMdEdge());
 
-      Assert.assertTrue(result.isPresent());
-      Assert.assertEquals(type.getCode(), result.get().getCode());
+      Assertions.assertTrue(result.isPresent());
+      Assertions.assertEquals(type.getCode(), result.get().getCode());
     }
     finally
     {
@@ -195,11 +195,11 @@ public class BusinessEdgeTypeTest extends FastDatasetTest implements InstanceTes
     {
       List<BusinessEdgeType> results = this.bEdgeService.getAll();
 
-      Assert.assertEquals(1, results.size());
+      Assertions.assertEquals(1, results.size());
 
       BusinessEdgeType result = results.get(0);
 
-      Assert.assertEquals(type.getCode(), result.getCode());
+      Assertions.assertEquals(type.getCode(), result.getCode());
     }
     finally
     {

@@ -14,9 +14,9 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -31,7 +31,7 @@ import com.runwaysdk.session.RequestType;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.graph.transition.Transition;
@@ -49,10 +49,12 @@ import net.geoprism.registry.view.HistoricalRow;
 import net.geoprism.registry.view.JsonSerializablePage;
 import net.geoprism.registry.view.Page;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
 
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class TransitionEventTest extends FastDatasetTest implements InstanceTestClassListener
 {
   @Autowired
@@ -77,7 +79,7 @@ public class TransitionEventTest extends FastDatasetTest implements InstanceTest
       event.setAfterTypeOrgCode(FastTestDataset.PROVINCE.getOrganization().getCode());
       traneService.apply(event);
 
-      Assert.assertTrue(event.isAppliedToDb());
+      Assertions.assertTrue(event.isAppliedToDb());
     }
     finally
     {
@@ -107,32 +109,32 @@ public class TransitionEventTest extends FastDatasetTest implements InstanceTest
       event.setAfterTypeOrgCode(FastTestDataset.PROVINCE.getOrganization().getCode());
       traneService.apply(event);
 
-      Assert.assertTrue(event.isAppliedToDb());
+      Assertions.assertTrue(event.isAppliedToDb());
 
       traneService.addTransition(event, FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
 
       JsonObject json = traneService.toJSON(event, true);
 
-      Assert.assertEquals(FastTestDataset.COUNTRY.getCode(), json.get(TransitionEvent.BEFORETYPECODE).getAsString());
-      Assert.assertEquals(FastTestDataset.PROVINCE.getCode(), json.get(TransitionEvent.AFTERTYPECODE).getAsString());
-      Assert.assertEquals(format.format(date), json.get(TransitionEvent.EVENTDATE).getAsString());
+      Assertions.assertEquals(FastTestDataset.COUNTRY.getCode(), json.get(TransitionEvent.BEFORETYPECODE).getAsString());
+      Assertions.assertEquals(FastTestDataset.PROVINCE.getCode(), json.get(TransitionEvent.AFTERTYPECODE).getAsString());
+      Assertions.assertEquals(format.format(date), json.get(TransitionEvent.EVENTDATE).getAsString());
 
       LocalizedValue actualDescription = LocalizedValue.fromJSON(json.get(TransitionEvent.DESCRIPTION).getAsJsonObject());
 
-      Assert.assertEquals(expectedDescription.getValue(), actualDescription.getValue());
+      Assertions.assertEquals(expectedDescription.getValue(), actualDescription.getValue());
 
       JsonArray transitions = json.get("transitions").getAsJsonArray();
 
-      Assert.assertEquals(1, transitions.size());
+      Assertions.assertEquals(1, transitions.size());
 
       JsonObject object = transitions.get(0).getAsJsonObject();
 
-      Assert.assertEquals(FastTestDataset.COUNTRY.getCode(), object.get("sourceType").getAsString());
-      Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), object.get("sourceCode").getAsString());
-      Assert.assertEquals(FastTestDataset.PROVINCE.getCode(), object.get("targetType").getAsString());
-      Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), object.get("targetCode").getAsString());
-      Assert.assertEquals(TransitionType.REASSIGN.name(), object.get(Transition.TRANSITIONTYPE).getAsString());
-      Assert.assertEquals(TransitionImpact.FULL.name(), object.get(Transition.IMPACT).getAsString());
+      Assertions.assertEquals(FastTestDataset.COUNTRY.getCode(), object.get("sourceType").getAsString());
+      Assertions.assertEquals(FastTestDataset.CAMBODIA.getCode(), object.get("sourceCode").getAsString());
+      Assertions.assertEquals(FastTestDataset.PROVINCE.getCode(), object.get("targetType").getAsString());
+      Assertions.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), object.get("targetCode").getAsString());
+      Assertions.assertEquals(TransitionType.REASSIGN.name(), object.get(Transition.TRANSITIONTYPE).getAsString());
+      Assertions.assertEquals(TransitionImpact.FULL.name(), object.get(Transition.IMPACT).getAsString());
     }
     finally
     {
@@ -160,18 +162,18 @@ public class TransitionEventTest extends FastDatasetTest implements InstanceTest
 
       Transition transition = traneService.addTransition(event, FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.DOWNGRADE, TransitionImpact.FULL);
 
-      Assert.assertEquals(8, Task.getTasks(transition.getOid()).size());
+      Assertions.assertEquals(8, Task.getTasks(transition.getOid()).size());
 
       List<Transition> transitions = traneService.getTransitions(event);
 
-      Assert.assertEquals(1, transitions.size());
+      Assertions.assertEquals(1, transitions.size());
 
       transition = transitions.get(0);
       VertexServerGeoObject source = transition.getSourceVertex();
       VertexServerGeoObject target = transition.getTargetVertex();
 
-      Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), source.getCode());
-      Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), target.getCode());
+      Assertions.assertEquals(FastTestDataset.CAMBODIA.getCode(), source.getCode());
+      Assertions.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), target.getCode());
     }
     finally
     {
@@ -179,7 +181,7 @@ public class TransitionEventTest extends FastDatasetTest implements InstanceTest
     }
 
     // Ensure that the unresolved tasks are deleted on event delete
-    Assert.assertEquals(beforeCount, new TaskQuery(new QueryFactory()).getCount());
+    Assertions.assertEquals(beforeCount, new TaskQuery(new QueryFactory()).getCount());
   }
 
   @Test
@@ -202,18 +204,18 @@ public class TransitionEventTest extends FastDatasetTest implements InstanceTest
 
       Transition transition = traneService.addTransition(event, FastTestDataset.PROV_WESTERN.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
 
-      Assert.assertEquals(4, Task.getTasks(transition.getOid()).size());
+      Assertions.assertEquals(4, Task.getTasks(transition.getOid()).size());
 
       List<Transition> transitions = traneService.getTransitions(event);
 
-      Assert.assertEquals(1, transitions.size());
+      Assertions.assertEquals(1, transitions.size());
 
       transition = transitions.get(0);
       VertexServerGeoObject source = transition.getSourceVertex();
       VertexServerGeoObject target = transition.getTargetVertex();
 
-      Assert.assertEquals(FastTestDataset.PROV_WESTERN.getCode(), source.getCode());
-      Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), target.getCode());
+      Assertions.assertEquals(FastTestDataset.PROV_WESTERN.getCode(), source.getCode());
+      Assertions.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), target.getCode());
     }
     finally
     {
@@ -221,7 +223,7 @@ public class TransitionEventTest extends FastDatasetTest implements InstanceTest
     }
 
     // Ensure that the unresolved tasks are deleted on event delete
-    Assert.assertEquals(beforeCount, new TaskQuery(new QueryFactory()).getCount());
+    Assertions.assertEquals(beforeCount, new TaskQuery(new QueryFactory()).getCount());
   }
 
   @Test
@@ -245,7 +247,7 @@ public class TransitionEventTest extends FastDatasetTest implements InstanceTest
 
       List<Task> tasks = Task.getTasks(transition.getOid());
 
-      Assert.assertEquals(8, tasks.size());
+      Assertions.assertEquals(8, tasks.size());
     }
     finally
     {
@@ -271,11 +273,11 @@ public class TransitionEventTest extends FastDatasetTest implements InstanceTest
 
       traneService.addTransition(event, FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
 
-      Assert.assertEquals(1, traneService.getTransitions(event).size());
+      Assertions.assertEquals(1, traneService.getTransitions(event).size());
 
       tranService.removeAll(FastTestDataset.PROVINCE.getServerObject());
 
-      Assert.assertEquals(0, traneService.getTransitions(event).size());
+      Assertions.assertEquals(0, traneService.getTransitions(event).size());
     }
     finally
     {
@@ -301,11 +303,11 @@ public class TransitionEventTest extends FastDatasetTest implements InstanceTest
 
       traneService.addTransition(event, FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
 
-      Assert.assertEquals(1, traneService.getTransitions(event).size());
+      Assertions.assertEquals(1, traneService.getTransitions(event).size());
 
       tranService.removeAll(FastTestDataset.COUNTRY.getServerObject());
 
-      Assert.assertEquals(0, traneService.getTransitions(event).size());
+      Assertions.assertEquals(0, traneService.getTransitions(event).size());
     }
     finally
     {
@@ -333,11 +335,11 @@ public class TransitionEventTest extends FastDatasetTest implements InstanceTest
 
       List<TransitionEvent> results = traneService.getAll(FastTestDataset.PROVINCE.getServerObject());
 
-      Assert.assertEquals(1, results.size());
+      Assertions.assertEquals(1, results.size());
 
       TransitionEvent result = results.get(0);
 
-      Assert.assertEquals(event.getOid(), result.getOid());
+      Assertions.assertEquals(event.getOid(), result.getOid());
     }
     finally
     {
@@ -366,20 +368,20 @@ public class TransitionEventTest extends FastDatasetTest implements InstanceTest
       Page<HistoricalRow> page = traneService.getHistoricalReport(FastTestDataset.PROVINCE.getServerObject(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, null, null);
       List<HistoricalRow> results = page.getResultSet();
 
-      Assert.assertEquals(1, results.size());
+      Assertions.assertEquals(1, results.size());
 
       HistoricalRow result = results.get(0);
 
-      Assert.assertEquals(event.getEventId(), result.getEventId());
-      Assert.assertEquals(TransitionType.REASSIGN.name(), result.getEventType());
-      Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, result.getEventDate());
-      Assert.assertEquals("Test", result.getDescription().getValue());
-      Assert.assertEquals(event.getBeforeTypeCode(), result.getBeforeType());
-      Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), result.getBeforeCode());
-      Assert.assertEquals(FastTestDataset.CAMBODIA.getDisplayLabel(), result.getBeforeLabel());
-      Assert.assertEquals(event.getAfterTypeCode(), result.getAfterType());
-      Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), result.getAfterCode());
-      Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getDisplayLabel(), result.getAfterLabel());
+      Assertions.assertEquals(event.getEventId(), result.getEventId());
+      Assertions.assertEquals(TransitionType.REASSIGN.name(), result.getEventType());
+      Assertions.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, result.getEventDate());
+      Assertions.assertEquals("Test", result.getDescription().getValue());
+      Assertions.assertEquals(event.getBeforeTypeCode(), result.getBeforeType());
+      Assertions.assertEquals(FastTestDataset.CAMBODIA.getCode(), result.getBeforeCode());
+      Assertions.assertEquals(FastTestDataset.CAMBODIA.getDisplayLabel(), result.getBeforeLabel());
+      Assertions.assertEquals(event.getAfterTypeCode(), result.getAfterType());
+      Assertions.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), result.getAfterCode());
+      Assertions.assertEquals(FastTestDataset.PROV_CENTRAL.getDisplayLabel(), result.getAfterLabel());
     }
     finally
     {
@@ -409,35 +411,35 @@ public class TransitionEventTest extends FastDatasetTest implements InstanceTest
 
       Workbook workbook = WorkbookFactory.create(istream);
 
-      Assert.assertEquals(1, workbook.getNumberOfSheets());
+      Assertions.assertEquals(1, workbook.getNumberOfSheets());
 
       Sheet sheet = workbook.getSheetAt(0);
 
-      Assert.assertEquals(1, sheet.getLastRowNum());
+      Assertions.assertEquals(1, sheet.getLastRowNum());
 
       Row header = sheet.getRow(0);
-      Assert.assertEquals("Event Id", header.getCell(0).getStringCellValue());
-      Assert.assertEquals("Event Date", header.getCell(1).getStringCellValue());
-      Assert.assertEquals("Event Type", header.getCell(2).getStringCellValue());
-      Assert.assertEquals("Description", header.getCell(3).getStringCellValue());
-      Assert.assertEquals("Before Type Code", header.getCell(4).getStringCellValue());
-      Assert.assertEquals("Before Code", header.getCell(5).getStringCellValue());
-      Assert.assertEquals("Before Label", header.getCell(6).getStringCellValue());
-      Assert.assertEquals("After Type Code", header.getCell(7).getStringCellValue());
-      Assert.assertEquals("After Code", header.getCell(8).getStringCellValue());
-      Assert.assertEquals("After Label", header.getCell(9).getStringCellValue());
+      Assertions.assertEquals("Event Id", header.getCell(0).getStringCellValue());
+      Assertions.assertEquals("Event Date", header.getCell(1).getStringCellValue());
+      Assertions.assertEquals("Event Type", header.getCell(2).getStringCellValue());
+      Assertions.assertEquals("Description", header.getCell(3).getStringCellValue());
+      Assertions.assertEquals("Before Type Code", header.getCell(4).getStringCellValue());
+      Assertions.assertEquals("Before Code", header.getCell(5).getStringCellValue());
+      Assertions.assertEquals("Before Label", header.getCell(6).getStringCellValue());
+      Assertions.assertEquals("After Type Code", header.getCell(7).getStringCellValue());
+      Assertions.assertEquals("After Code", header.getCell(8).getStringCellValue());
+      Assertions.assertEquals("After Label", header.getCell(9).getStringCellValue());
 
       Row row = sheet.getRow(1);
-      Assert.assertEquals(event.getEventId(), Long.valueOf((long) row.getCell(0).getNumericCellValue()));
-      Assert.assertEquals("2020-04-04", row.getCell(1).getStringCellValue());
-      Assert.assertEquals("Reassign", row.getCell(2).getStringCellValue());
-      Assert.assertEquals("Test", row.getCell(3).getStringCellValue());
-      Assert.assertEquals(FastTestDataset.COUNTRY.getCode(), row.getCell(4).getStringCellValue());
-      Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), row.getCell(5).getStringCellValue());
-      Assert.assertEquals(FastTestDataset.CAMBODIA.getDisplayLabel(), row.getCell(6).getStringCellValue());
-      Assert.assertEquals(FastTestDataset.PROVINCE.getCode(), row.getCell(7).getStringCellValue());
-      Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), row.getCell(8).getStringCellValue());
-      Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getDisplayLabel(), row.getCell(9).getStringCellValue());
+      Assertions.assertEquals(event.getEventId(), Long.valueOf((long) row.getCell(0).getNumericCellValue()));
+      Assertions.assertEquals("2020-04-04", row.getCell(1).getStringCellValue());
+      Assertions.assertEquals("Reassign", row.getCell(2).getStringCellValue());
+      Assertions.assertEquals("Test", row.getCell(3).getStringCellValue());
+      Assertions.assertEquals(FastTestDataset.COUNTRY.getCode(), row.getCell(4).getStringCellValue());
+      Assertions.assertEquals(FastTestDataset.CAMBODIA.getCode(), row.getCell(5).getStringCellValue());
+      Assertions.assertEquals(FastTestDataset.CAMBODIA.getDisplayLabel(), row.getCell(6).getStringCellValue());
+      Assertions.assertEquals(FastTestDataset.PROVINCE.getCode(), row.getCell(7).getStringCellValue());
+      Assertions.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), row.getCell(8).getStringCellValue());
+      Assertions.assertEquals(FastTestDataset.PROV_CENTRAL.getDisplayLabel(), row.getCell(9).getStringCellValue());
     }
     finally
     {
@@ -466,17 +468,17 @@ public class TransitionEventTest extends FastDatasetTest implements InstanceTest
       JsonSerializablePage<HistoricalRow> page = traneService.getHistoricalReport(FastTestDataset.PROVINCE.getServerObject(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, null, null);
       JsonObject json = page.toJSON().getAsJsonObject();
 
-      Assert.assertEquals(1, json.get("count").getAsInt());
-      Assert.assertTrue(json.get("pageNumber").isJsonNull());
-      Assert.assertTrue(json.get("pageSize").isJsonNull());
+      Assertions.assertEquals(1, json.get("count").getAsInt());
+      Assertions.assertTrue(json.get("pageNumber").isJsonNull());
+      Assertions.assertTrue(json.get("pageSize").isJsonNull());
 
       JsonArray results = json.get("resultSet").getAsJsonArray();
 
-      Assert.assertEquals(1, results.size());
+      Assertions.assertEquals(1, results.size());
 
       JsonObject result = results.get(0).getAsJsonObject();
-      Assert.assertEquals(event.getEventId(), Long.valueOf(result.get(HistoricalRow.EVENT_ID).getAsLong()));
-      Assert.assertEquals("Reassign", result.get(HistoricalRow.EVENT_TYPE).getAsString());
+      Assertions.assertEquals(event.getEventId(), Long.valueOf(result.get(HistoricalRow.EVENT_ID).getAsLong()));
+      Assertions.assertEquals("Reassign", result.get(HistoricalRow.EVENT_TYPE).getAsString());
     }
     finally
     {
@@ -504,8 +506,8 @@ public class TransitionEventTest extends FastDatasetTest implements InstanceTest
 
       Page<HistoricalRow> page = traneService.getHistoricalReport(FastTestDataset.PROVINCE.getServerObject(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, 2, 10);
 
-      Assert.assertEquals(Long.valueOf(1L), page.getCount());
-      Assert.assertEquals(0, page.getResultSet().size());
+      Assertions.assertEquals(Long.valueOf(1L), page.getCount());
+      Assertions.assertEquals(0, page.getResultSet().size());
     }
     catch (Exception e)
     {
@@ -535,11 +537,11 @@ public class TransitionEventTest extends FastDatasetTest implements InstanceTest
 
       traneService.addTransition(event, FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
 
-      Assert.assertEquals(1, traneService.getAll(FastTestDataset.PROVINCE.getServerObject()).size());
+      Assertions.assertEquals(1, traneService.getAll(FastTestDataset.PROVINCE.getServerObject()).size());
 
       traneService.removeAll(FastTestDataset.PROVINCE.getServerObject());
 
-      Assert.assertEquals(0, traneService.getAll(FastTestDataset.PROVINCE.getServerObject()).size());
+      Assertions.assertEquals(0, traneService.getAll(FastTestDataset.PROVINCE.getServerObject()).size());
     }
     finally
     {
@@ -565,11 +567,11 @@ public class TransitionEventTest extends FastDatasetTest implements InstanceTest
 
       traneService.addTransition(event, FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
 
-      Assert.assertEquals(1, traneService.getAll(FastTestDataset.COUNTRY.getServerObject()).size());
+      Assertions.assertEquals(1, traneService.getAll(FastTestDataset.COUNTRY.getServerObject()).size());
 
       traneService.removeAll(FastTestDataset.COUNTRY.getServerObject());
 
-      Assert.assertEquals(0, traneService.getAll(FastTestDataset.COUNTRY.getServerObject()).size());
+      Assertions.assertEquals(0, traneService.getAll(FastTestDataset.COUNTRY.getServerObject()).size());
     }
     finally
     {
@@ -577,28 +579,30 @@ public class TransitionEventTest extends FastDatasetTest implements InstanceTest
     }
   }
 
-  @Test(expected = ProgrammingErrorException.class)
+  @Test
   @Request
   public void testAddTransitionBadType()
   {
-    TransitionEvent event = new TransitionEvent();
+    assertThrows(ProgrammingErrorException.class, () -> {
+      TransitionEvent event = new TransitionEvent();
 
-    try
-    {
-      LocalizedValueConverter.populate(event, TransitionEvent.DESCRIPTION, new LocalizedValue("Test"));
-      event.setEventDate(FastTestDataset.DEFAULT_OVER_TIME_DATE);
-      event.setBeforeTypeCode(FastTestDataset.COUNTRY.getCode());
-      event.setBeforeTypeOrgCode(FastTestDataset.COUNTRY.getOrganization().getCode());
-      event.setAfterTypeCode(FastTestDataset.PROVINCE.getCode());
-      event.setAfterTypeOrgCode(FastTestDataset.PROVINCE.getOrganization().getCode());
-      traneService.apply(event);
+      try
+      {
+        LocalizedValueConverter.populate(event, TransitionEvent.DESCRIPTION, new LocalizedValue("Test"));
+        event.setEventDate(FastTestDataset.DEFAULT_OVER_TIME_DATE);
+        event.setBeforeTypeCode(FastTestDataset.COUNTRY.getCode());
+        event.setBeforeTypeOrgCode(FastTestDataset.COUNTRY.getOrganization().getCode());
+        event.setAfterTypeCode(FastTestDataset.PROVINCE.getCode());
+        event.setAfterTypeOrgCode(FastTestDataset.PROVINCE.getOrganization().getCode());
+        traneService.apply(event);
 
-      traneService.addTransition(event, FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.DIST_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
-    }
-    finally
-    {
-      traneService.delete(event);
-    }
+        traneService.addTransition(event, FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.DIST_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
+      }
+      finally
+      {
+        traneService.delete(event);
+      }
+    });
   }
 
   @Test
@@ -622,10 +626,10 @@ public class TransitionEventTest extends FastDatasetTest implements InstanceTest
 
       Page<TransitionEvent> page = traneService.page(10, 1, null);
 
-      Assert.assertEquals(Long.valueOf(1), page.getCount());
-      Assert.assertEquals(Integer.valueOf(1), page.getPageNumber());
-      Assert.assertEquals(Integer.valueOf(10), page.getPageSize());
-      Assert.assertEquals(event.getOid(), page.getResultSet().get(0).getOid());
+      Assertions.assertEquals(Long.valueOf(1), page.getCount());
+      Assertions.assertEquals(Integer.valueOf(1), page.getPageNumber());
+      Assertions.assertEquals(Integer.valueOf(10), page.getPageSize());
+      Assertions.assertEquals(event.getOid(), page.getResultSet().get(0).getOid());
     }
     finally
     {
@@ -644,9 +648,8 @@ public class TransitionEventTest extends FastDatasetTest implements InstanceTest
       TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
       for (TestUserInfo user : allowedUsers)
       {
-        FastTestDataset.runAsUser(user, (request) -> {
-          testPagePermissions(request.getSessionId(), event);
-        });
+        FastTestDataset.runAsUser(user, (request) ->
+          testPagePermissions(request.getSessionId(), event));
       }
     }
     finally
@@ -660,10 +663,10 @@ public class TransitionEventTest extends FastDatasetTest implements InstanceTest
   {
     Page<TransitionEvent> page = traneService.page(10, 1, null);
 
-    Assert.assertEquals(Long.valueOf(1), page.getCount());
-    Assert.assertEquals(Integer.valueOf(1), page.getPageNumber());
-    Assert.assertEquals(Integer.valueOf(10), page.getPageSize());
-    Assert.assertEquals(event.getOid(), page.getResultSet().get(0).getOid());
+    Assertions.assertEquals(Long.valueOf(1), page.getCount());
+    Assertions.assertEquals(Integer.valueOf(1), page.getPageNumber());
+    Assertions.assertEquals(Integer.valueOf(10), page.getPageSize());
+    Assertions.assertEquals(event.getOid(), page.getResultSet().get(0).getOid());
   }
 
   @Request()

@@ -6,9 +6,9 @@ package net.geoprism.registry.service;
 import java.util.Locale;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,7 +18,7 @@ import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.model.localization.LocaleView;
 import net.geoprism.registry.service.request.GPRLocalizationService;
@@ -27,7 +27,7 @@ import net.geoprism.registry.test.FastTestDataset;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
 
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class SupportedLocaleInstallAndRefreshDeadlockTest extends FastDatasetTest implements InstanceTestClassListener
 {
   protected static final Locale  testLocale = Locale.SIMPLIFIED_CHINESE;
@@ -96,9 +96,8 @@ public class SupportedLocaleInstallAndRefreshDeadlockTest extends FastDatasetTes
 
       String json = lv.toJson().toString();
 
-      FastTestDataset.runAsUser(FastTestDataset.USER_ADMIN, (request) -> {
-        service.installLocaleInRequest(request.getSessionId(), json);
-      });
+      FastTestDataset.runAsUser(FastTestDataset.USER_ADMIN, (request) ->
+        service.installLocaleInRequest(request.getSessionId(), json));
     }
   }
 
@@ -134,7 +133,7 @@ public class SupportedLocaleInstallAndRefreshDeadlockTest extends FastDatasetTes
     @Override
     public void run()
     {
-      Assert.assertNotNull(LocalizationFacade.getSupportedLocales());
+      Assertions.assertNotNull(LocalizationFacade.getSupportedLocales());
     }
   }
 }

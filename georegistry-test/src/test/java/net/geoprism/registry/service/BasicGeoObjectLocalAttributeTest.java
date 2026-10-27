@@ -7,9 +7,9 @@ import java.util.Locale;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,7 +19,7 @@ import com.runwaysdk.localization.SupportedLocaleIF;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -31,7 +31,7 @@ import net.geoprism.registry.test.USATestData;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class BasicGeoObjectLocalAttributeTest implements InstanceTestClassListener
 {
   protected static final Locale          testLocale = Locale.SIMPLIFIED_CHINESE;
@@ -117,12 +117,12 @@ public class BasicGeoObjectLocalAttributeTest implements InstanceTestClassListen
 
       ServerGeoObjectIF test = this.service.getGeoObject(object.getUid(), type.getCode());
 
-      Assert.assertNotNull(test);
+      Assertions.assertNotNull(test);
 
       LocalizedValue testLocalValue = test.getValue(attributeLocal.getCode(), USATestData.DEFAULT_OVER_TIME_DATE);
 
-      Assert.assertEquals(value.getValue(LocalizedValue.DEFAULT_LOCALE), testLocalValue.getValue(LocalizedValue.DEFAULT_LOCALE));
-      Assert.assertEquals(value.getValue(testLocale), testLocalValue.getValue(testLocale));
+      Assertions.assertEquals(value.getValue(LocalizedValue.DEFAULT_LOCALE), testLocalValue.getValue(LocalizedValue.DEFAULT_LOCALE));
+      Assertions.assertEquals(value.getValue(testLocale), testLocalValue.getValue(testLocale));
     }
     finally
     {

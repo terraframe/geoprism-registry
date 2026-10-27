@@ -14,10 +14,10 @@ import java.util.concurrent.Future;
 import org.apache.commons.lang3.StringUtils;
 import org.axonframework.eventhandling.GenericEventMessage;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -42,7 +42,7 @@ import net.geoprism.registry.EventDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.JsonCollectors;
 import net.geoprism.registry.Publish;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
 import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.config.TestApplication;
@@ -83,7 +83,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class PublishEventServiceTest extends EventDatasetTest implements InstanceTestClassListener
 {
   public static final String                        DEPENDENCY  = "111bb747-a068-458f-b261-9cde9b5a3937";
@@ -153,7 +153,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
     return edgeUid;
   }
 
-  @Before
+  @BeforeEach
   @Request
   public void setUp() throws Exception
   {
@@ -174,7 +174,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
     System.out.println("");
     System.out.println("");
 
-    Assert.assertEquals(Long.valueOf(55L), this.store.size());
+    Assertions.assertEquals(Long.valueOf(55L), this.store.size());
 
     try
     {
@@ -186,44 +186,44 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
       {
         List<Commit> commits = this.cService.getCommits(publish);
 
-        Assert.assertEquals(1, commits.size());
+        Assertions.assertEquals(1, commits.size());
 
         Commit commit = commits.get(0);
 
         GeoObjectTypeSnapshot root = this.gSnapshotService.getRoot(commit);
 
-        Assert.assertNotNull(root);
+        Assertions.assertNotNull(root);
 
         JsonArray geoObjectTypes = new JsonArray();
 
         dto.getGeoObjectTypes().forEach(code -> {
           GeoObjectTypeSnapshot snapshot = this.gSnapshotService.get(commit, code);
 
-          Assert.assertNotNull(snapshot);
+          Assertions.assertNotNull(snapshot);
 
           ServerGeoObjectType type = ServerGeoObjectType.get(code);
 
-          Assert.assertEquals(type.getSequence(), snapshot.getSequence());
+          Assertions.assertEquals(type.getSequence(), snapshot.getSequence());
 
           geoObjectTypes.add(snapshot.toJSON());
         });
 
-        Assert.assertTrue(geoObjectTypes.size() > 0);
+        Assertions.assertTrue(geoObjectTypes.size() > 0);
 
         JsonArray hierarchyTypes = new JsonArray();
 
         dto.getHierarchyTypes().forEach(code -> {
           HierarchyTypeSnapshot snapshot = this.hSnapshotService.get(commit, code);
 
-          Assert.assertNotNull(snapshot);
+          Assertions.assertNotNull(snapshot);
 
           ServerHierarchyType type = ServerHierarchyType.get(code);
 
-          Assert.assertEquals(type.getObject().getSequence(), snapshot.getSequence());
+          Assertions.assertEquals(type.getObject().getSequence(), snapshot.getSequence());
 
           List<GeoObjectTypeSnapshot> children = this.hSnapshotService.getChildren(snapshot, root);
 
-          Assert.assertTrue(children.size() > 0);
+          Assertions.assertTrue(children.size() > 0);
 
           hierarchyTypes.add(this.hSnapshotService.toJSON(snapshot, root));
         });
@@ -231,87 +231,87 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
         dto.getBusinessTypes().forEach(code -> {
           BusinessTypeSnapshot snapshot = this.bTypeSnapshotService.get(commit, code);
 
-          Assert.assertNotNull(snapshot);
+          Assertions.assertNotNull(snapshot);
 
           BusinessType type = this.bTypeService.getByCodeOrThrow(code);
-          Assert.assertEquals(type.getSequence(), snapshot.getSequence());
+          Assertions.assertEquals(type.getSequence(), snapshot.getSequence());
         });
 
         dto.getBusinessEdgeTypes().forEach(code -> {
           BusinessEdgeTypeSnapshot snapshot = this.bEdgeSnapshotService.get(commit, code);
 
-          Assert.assertNotNull(snapshot);
+          Assertions.assertNotNull(snapshot);
 
           BusinessEdgeType type = this.bEdgeService.getByCode(code).get();
-          Assert.assertEquals(type.getSequence(), snapshot.getSequence());
+          Assertions.assertEquals(type.getSequence(), snapshot.getSequence());
         });
 
         dto.getDagTypes().forEach(code -> {
           DirectedAcyclicGraphTypeSnapshot snapshot = (DirectedAcyclicGraphTypeSnapshot) this.graphSnapshotService.get(commit, TypeClass.DAG.getCode(), code);
 
-          Assert.assertNotNull(snapshot);
+          Assertions.assertNotNull(snapshot);
 
           DirectedAcyclicGraphType type = this.dagService.getByCode(code).get();
-          Assert.assertEquals(type.getSequence(), snapshot.getSequence());
+          Assertions.assertEquals(type.getSequence(), snapshot.getSequence());
         });
 
         dto.getUndirectedTypes().forEach(code -> {
           UndirectedGraphTypeSnapshot snapshot = (UndirectedGraphTypeSnapshot) this.graphSnapshotService.get(commit, TypeClass.UNDIRECTED_GRAPH.getCode(), code);
 
-          Assert.assertNotNull(snapshot);
+          Assertions.assertNotNull(snapshot);
 
           UndirectedGraphType type = this.undirectedService.getByCode(code).get();
-          Assert.assertEquals(type.getSequence(), snapshot.getSequence());
+          Assertions.assertEquals(type.getSequence(), snapshot.getSequence());
         });
 
         List<DataSource> sources = this.cService.getSources(commit);
 
-        Assert.assertEquals(1, sources.size());
-        Assert.assertEquals(USATestData.SOURCE.getCode(), sources.get(0).getCode());
+        Assertions.assertEquals(1, sources.size());
+        Assertions.assertEquals(USATestData.SOURCE.getCode(), sources.get(0).getCode());
 
         List<SourceAuthorityDTO> authorities = getAuthorities(sources);
 
-        Assert.assertEquals(1, authorities.size());
-        Assert.assertEquals(USATestData.AUTHORITY.getCode(), authorities.get(0).getCode());
+        Assertions.assertEquals(1, authorities.size());
+        Assertions.assertEquals(USATestData.AUTHORITY.getCode(), authorities.get(0).getCode());
 
-        Assert.assertEquals(Long.valueOf(109L), this.store.size());
+        Assertions.assertEquals(Long.valueOf(109L), this.store.size());
 
         List<RemoteEvent> events = this.cService.getRemoteEvents(commit).toList();
 
-        Assert.assertEquals(49, events.size());
+        Assertions.assertEquals(49, events.size());
 
         // Validate the concept set dependencies
         List<Commit> dependencies = this.cService.getDependencies(commit);
 
-        Assert.assertEquals(1, dependencies.size());
+        Assertions.assertEquals(1, dependencies.size());
 
         Commit dependency = dependencies.get(0);
 
-        Assert.assertNotEquals(commit.getOid(), dependency.getOid());
+        Assertions.assertNotEquals(commit.getOid(), dependency.getOid());
 
-        Assert.assertEquals(0, this.cService.getDependencies(dependency).size());
+        Assertions.assertEquals(0, this.cService.getDependencies(dependency).size());
 
         Publish conceptPublish = dependency.getPublish();
 
-        Assert.assertTrue(StringUtils.isNotBlank(conceptPublish.getConceptSet()));
+        Assertions.assertTrue(StringUtils.isNotBlank(conceptPublish.getConceptSet()));
 
         List<ConceptSetSnapshot> sets = this.cService.getConceptSets(dependency);
 
-        Assert.assertEquals(1, sets.size());
+        Assertions.assertEquals(1, sets.size());
 
         ConceptSetSnapshot snapshot = sets.get(0);
 
         // Assert the set has concept classes
         List<ConceptClassDTO> cClasses = this.cSetSnapshotService.getConceptClasses(snapshot).stream().map(c -> c.toDTO()).toList();
 
-        Assert.assertEquals(1, cClasses.size());
+        Assertions.assertEquals(1, cClasses.size());
 
         // Assert the set has concept edge types
         List<ConceptEdgeTypeDTO> cEdgeTypes = this.cSetSnapshotService.getConceptEdgeTypes(snapshot).stream().map(c -> this.cEdgeSnapshotService.toDTO(c)).toList();
 
-        Assert.assertEquals(1, cEdgeTypes.size());
+        Assertions.assertEquals(1, cEdgeTypes.size());
 
-        Assert.assertEquals(5, this.cService.getRemoteEvents(dependency).toList().size());
+        Assertions.assertEquals(5, this.cService.getRemoteEvents(dependency).toList().size());
 
         if (WRITE_FILES)
         {
@@ -354,9 +354,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
   public List<SourceAuthorityDTO> getAuthorities(List<DataSource> sources)
   {
-    List<SourceAuthorityDTO> authorities = sources.stream().map(source -> {
-      return this.authorityService.get(source.getObjectValue(DataSource.AUTHORITY));
-    }) //
+    List<SourceAuthorityDTO> authorities = sources.stream().map(source -> this.authorityService.get(source.getObjectValue(DataSource.AUTHORITY))) //
         .filter(o -> o.isPresent()) //
         .map(o -> o.get()) //
         .distinct() //
@@ -377,7 +375,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
     try
     {
-      Assert.assertEquals(Long.valueOf(55L), this.store.size());
+      Assertions.assertEquals(Long.valueOf(55L), this.store.size());
 
       PublishDTO dto = new PublishDTO("USA Geospatial Graph", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       dto.addHierarchyType(testData.getManagedHierarchyTypes().stream().map(t -> t.getCode()).toArray(s -> new String[s]));
@@ -388,47 +386,47 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
       {
         List<Commit> commits = this.cService.getCommits(publish);
 
-        Assert.assertEquals(1, commits.size());
-        Assert.assertTrue(dto.getGeoObjectTypes().count() > 0);
+        Assertions.assertEquals(1, commits.size());
+        Assertions.assertTrue(dto.getGeoObjectTypes().count() > 0);
 
         Commit commit = commits.get(0);
 
         GeoObjectTypeSnapshot root = this.gSnapshotService.getRoot(commit);
 
-        Assert.assertNotNull(root);
+        Assertions.assertNotNull(root);
 
         dto.getGeoObjectTypes().forEach(code -> {
           GeoObjectTypeSnapshot snapshot = this.gSnapshotService.get(commit, code);
 
-          Assert.assertNotNull(snapshot);
+          Assertions.assertNotNull(snapshot);
 
           ServerGeoObjectType type = ServerGeoObjectType.get(code);
 
-          Assert.assertEquals(type.getSequence(), snapshot.getSequence());
+          Assertions.assertEquals(type.getSequence(), snapshot.getSequence());
         });
 
         dto.getHierarchyTypes().forEach(code -> {
           HierarchyTypeSnapshot snapshot = this.hSnapshotService.get(commit, code);
 
-          Assert.assertNotNull(snapshot);
+          Assertions.assertNotNull(snapshot);
 
           ServerHierarchyType type = ServerHierarchyType.get(code);
 
-          Assert.assertEquals(type.getObject().getSequence(), snapshot.getSequence());
+          Assertions.assertEquals(type.getObject().getSequence(), snapshot.getSequence());
 
           List<GeoObjectTypeSnapshot> children = this.hSnapshotService.getChildren(snapshot, root);
 
-          Assert.assertTrue(children.size() > 0);
+          Assertions.assertTrue(children.size() > 0);
         });
 
         List<DataSource> sources = this.cService.getSources(commit);
 
-        Assert.assertEquals(1, sources.size());
-        Assert.assertEquals(USATestData.SOURCE.getCode(), sources.get(0).getCode());
+        Assertions.assertEquals(1, sources.size());
+        Assertions.assertEquals(USATestData.SOURCE.getCode(), sources.get(0).getCode());
 
         List<RemoteEvent> events = this.cService.getRemoteEvents(commit).toList();
 
-        Assert.assertEquals(42, events.size());
+        Assertions.assertEquals(42, events.size());
       }
       finally
       {
@@ -456,16 +454,16 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
       {
         List<Commit> commits = this.cService.getCommits(publish);
 
-        Assert.assertEquals(1, commits.size());
+        Assertions.assertEquals(1, commits.size());
 
         Commit commit = commits.get(0);
 
         List<Commit> dependencies = this.cService.getDependencies(commit);
 
-        Assert.assertEquals(1, dependencies.size());
+        Assertions.assertEquals(1, dependencies.size());
 
-        Assert.assertEquals(49, this.cService.getRemoteEvents(commit).toList().size());
-        Assert.assertEquals(Long.valueOf(109), this.store.size());
+        Assertions.assertEquals(49, this.cService.getRemoteEvents(commit).toList().size());
+        Assertions.assertEquals(Long.valueOf(109), this.store.size());
 
         // Update a geo object
         ServerGeoObjectIF object = USATestData.COLORADO.getServerObject();
@@ -477,20 +475,20 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
         gateway.publish(builder.build().stream().map(GenericEventMessage::asEventMessage).toList());
 
-        Assert.assertEquals(Long.valueOf(110), this.store.size());
+        Assertions.assertEquals(Long.valueOf(110), this.store.size());
 
         // Create a new commit with the new change
         Commit commit2 = this.service.createNewCommit(publish);
 
-        Assert.assertEquals(2, this.cService.getCommits(publish).size());
+        Assertions.assertEquals(2, this.cService.getCommits(publish).size());
 
-        Assert.assertEquals(1, this.cService.getRemoteEvents(commit2).toList().size());
+        Assertions.assertEquals(1, this.cService.getRemoteEvents(commit2).toList().size());
 
         List<Commit> results = this.cService.getDependencies(commit2);
 
-        Assert.assertEquals(2, results.size());
-        Assert.assertTrue(results.contains(dependencies.get(0)));
-        Assert.assertTrue(results.contains(commit));
+        Assertions.assertEquals(2, results.size());
+        Assertions.assertTrue(results.contains(dependencies.get(0)));
+        Assertions.assertTrue(results.contains(commit));
       }
       finally
       {

@@ -9,8 +9,8 @@ import org.axonframework.eventhandling.GenericEventMessage;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.runwaysdk.Pair;
@@ -157,7 +157,7 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
     super.afterClassSetup();
   }
 
-  @Before
+  @BeforeEach
   @Request
   public void setUp() throws Exception
   {
@@ -246,7 +246,7 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
     return createConceptObject(cClass, code, label, USATestData.SOURCE.getDataSource(), startDate, endDate);
   }
 
-  @After
+  @AfterEach
   @Request
   public void tearDown() throws Exception
   {

@@ -13,11 +13,9 @@ import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ValueOverTimeCollectionDTO;
 import org.commongeoregistry.adapter.dataaccess.ValueOverTimeDTO;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.locationtech.jts.geom.Geometry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -29,7 +27,7 @@ import com.runwaysdk.session.Request;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
@@ -41,7 +39,7 @@ import net.geoprism.registry.test.TestRegistryClient;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
 
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class RegistryVersionTest extends FastDatasetTest implements InstanceTestClassListener
 {
   @Autowired
@@ -60,26 +58,26 @@ public class RegistryVersionTest extends FastDatasetTest implements InstanceTest
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     dateFormat.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
-    Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), goTime.getCode());
-    Assert.assertEquals(Boolean.FALSE, goTime.getExists(dateFormat.parse("1990-01-01")));
-    Assert.assertEquals(Boolean.TRUE, goTime.getExists(dateFormat.parse("1990-02-01")));
-    Assert.assertEquals(Boolean.FALSE, goTime.getExists(dateFormat.parse("1990-03-01")));
+    Assertions.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), goTime.getCode());
+    Assertions.assertEquals(Boolean.FALSE, goTime.getExists(dateFormat.parse("1990-01-01")));
+    Assertions.assertEquals(Boolean.TRUE, goTime.getExists(dateFormat.parse("1990-02-01")));
+    Assertions.assertEquals(Boolean.FALSE, goTime.getExists(dateFormat.parse("1990-03-01")));
 
     ValueOverTimeCollectionDTO allStatus = goTime.getAllValues(DefaultAttribute.EXISTS.getName());
     Iterator<ValueOverTimeDTO> it = allStatus.iterator();
     ValueOverTimeDTO first = it.next();
     ValueOverTimeDTO second = it.next();
     ValueOverTimeDTO third = it.next();
-    Assert.assertEquals("1990-01-01", dateFormat.format(first.getStartDate()));
-    Assert.assertEquals("1990-01-31", dateFormat.format(first.getEndDate()));
-    Assert.assertEquals("1990-02-01", dateFormat.format(second.getStartDate()));
-    Assert.assertEquals("1990-02-28", dateFormat.format(second.getEndDate()));
-    Assert.assertEquals("1990-03-01", dateFormat.format(third.getStartDate()));
-    Assert.assertEquals("1990-03-31", dateFormat.format(third.getEndDate()));
+    Assertions.assertEquals("1990-01-01", dateFormat.format(first.getStartDate()));
+    Assertions.assertEquals("1990-01-31", dateFormat.format(first.getEndDate()));
+    Assertions.assertEquals("1990-02-01", dateFormat.format(second.getStartDate()));
+    Assertions.assertEquals("1990-02-28", dateFormat.format(second.getEndDate()));
+    Assertions.assertEquals("1990-03-01", dateFormat.format(third.getStartDate()));
+    Assertions.assertEquals("1990-03-31", dateFormat.format(third.getEndDate()));
 
     Geometry expectedGeom = FastTestDataset.PROV_CENTRAL.fetchGeoObject().getGeometry();
     Geometry actualGeom = ( (AttributeGeometry) goTime.getAttributeOnDate(DefaultAttribute.GEOMETRY.getName(), FastTestDataset.DEFAULT_OVER_TIME_DATE) ).getValue();
-    Assert.assertTrue(expectedGeom.equalsTopo(actualGeom));
+    Assertions.assertTrue(expectedGeom.equalsTopo(actualGeom));
   }
 
   /**
@@ -95,36 +93,36 @@ public class RegistryVersionTest extends FastDatasetTest implements InstanceTest
 
     this.addVersionData(FastTestDataset.PROV_CENTRAL);
 
-    Assert.assertEquals(3, FastTestDataset.PROV_CENTRAL.getServerObject().getValuesOverTime(DefaultAttribute.EXISTS.getName()).size());
+    Assertions.assertEquals(3, FastTestDataset.PROV_CENTRAL.getServerObject().getValuesOverTime(DefaultAttribute.EXISTS.getName()).size());
 
     FastTestDataset.PROV_CENTRAL.getServerObject().setExists(Boolean.TRUE, dateFormat.parse("02-10-1990"), dateFormat.parse("02-15-1990"));
 
-    Assert.assertEquals(3, FastTestDataset.PROV_CENTRAL.getServerObject().getValuesOverTime(DefaultAttribute.EXISTS.getName()).size());
+    Assertions.assertEquals(3, FastTestDataset.PROV_CENTRAL.getServerObject().getValuesOverTime(DefaultAttribute.EXISTS.getName()).size());
 
     GeoObjectOverTime goTime = client.getGeoObjectOverTimeByCode(FastTestDataset.PROV_CENTRAL.getCode(), FastTestDataset.PROV_CENTRAL.getGeoObjectType().getCode());
 
-    Assert.assertEquals(3, goTime.getAllValues(DefaultAttribute.EXISTS.getName()).size());
+    Assertions.assertEquals(3, goTime.getAllValues(DefaultAttribute.EXISTS.getName()).size());
 
-    Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), goTime.getCode());
-    Assert.assertEquals(Boolean.FALSE, goTime.getExists(dateFormat.parse("1990-01-01")));
-    Assert.assertEquals(Boolean.TRUE, goTime.getExists(dateFormat.parse("1990-02-01")));
-    Assert.assertEquals(Boolean.FALSE, goTime.getExists(dateFormat.parse("1990-03-01")));
+    Assertions.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), goTime.getCode());
+    Assertions.assertEquals(Boolean.FALSE, goTime.getExists(dateFormat.parse("1990-01-01")));
+    Assertions.assertEquals(Boolean.TRUE, goTime.getExists(dateFormat.parse("1990-02-01")));
+    Assertions.assertEquals(Boolean.FALSE, goTime.getExists(dateFormat.parse("1990-03-01")));
 
     ValueOverTimeCollectionDTO allStatus = goTime.getAllValues(DefaultAttribute.EXISTS.getName());
     Iterator<ValueOverTimeDTO> it = allStatus.iterator();
     ValueOverTimeDTO first = it.next();
     ValueOverTimeDTO second = it.next();
     ValueOverTimeDTO third = it.next();
-    Assert.assertEquals("1990-01-01", dateFormat.format(first.getStartDate()));
-    Assert.assertEquals("1990-01-31", dateFormat.format(first.getEndDate()));
-    Assert.assertEquals("1990-02-01", dateFormat.format(second.getStartDate()));
-    Assert.assertEquals("1990-02-28", dateFormat.format(second.getEndDate()));
-    Assert.assertEquals("1990-03-01", dateFormat.format(third.getStartDate()));
-    Assert.assertEquals("1990-03-31", dateFormat.format(third.getEndDate()));
+    Assertions.assertEquals("1990-01-01", dateFormat.format(first.getStartDate()));
+    Assertions.assertEquals("1990-01-31", dateFormat.format(first.getEndDate()));
+    Assertions.assertEquals("1990-02-01", dateFormat.format(second.getStartDate()));
+    Assertions.assertEquals("1990-02-28", dateFormat.format(second.getEndDate()));
+    Assertions.assertEquals("1990-03-01", dateFormat.format(third.getStartDate()));
+    Assertions.assertEquals("1990-03-31", dateFormat.format(third.getEndDate()));
 
     Geometry expectedGeom = FastTestDataset.PROV_CENTRAL.fetchGeoObject().getGeometry();
     Geometry actualGeom = ( (AttributeGeometry) goTime.getAttributeOnDate(DefaultAttribute.GEOMETRY.getName(), FastTestDataset.DEFAULT_OVER_TIME_DATE) ).getValue();
-    Assert.assertTrue(expectedGeom.equalsTopo(actualGeom));
+    Assertions.assertTrue(expectedGeom.equalsTopo(actualGeom));
   }
 
   @Test
@@ -147,7 +145,7 @@ public class RegistryVersionTest extends FastDatasetTest implements InstanceTest
     serverObj.setValuesOverTime(attributeName, new ValueOverTimeCollection());
     serverObj.setValue(attributeName, value, dateFormat.parse("1990-01-01"), dateFormat.parse("1990-02-01"));
     goService.apply(serverObj, false, false);
-    Assert.assertEquals(1, FastTestDataset.PROV_CENTRAL.getServerObject().getValuesOverTime(attributeName).size());
+    Assertions.assertEquals(1, FastTestDataset.PROV_CENTRAL.getServerObject().getValuesOverTime(attributeName).size());
 
     // Set a value inside that date range with the same value
     VertexServerGeoObject serverObj2 = (VertexServerGeoObject) FastTestDataset.PROV_CENTRAL.getServerObject();
@@ -155,18 +153,18 @@ public class RegistryVersionTest extends FastDatasetTest implements InstanceTest
     goService.apply(serverObj2, false, false);
 
     // Fetch the object and assert values on it
-    Assert.assertEquals(1, FastTestDataset.PROV_CENTRAL.getServerObject().getValuesOverTime(attributeName).size());
+    Assertions.assertEquals(1, FastTestDataset.PROV_CENTRAL.getServerObject().getValuesOverTime(attributeName).size());
 
     GeoObjectOverTime goTime = client.getGeoObjectOverTimeByCode(FastTestDataset.PROV_CENTRAL.getCode(), FastTestDataset.PROV_CENTRAL.getGeoObjectType().getCode());
 
-    Assert.assertEquals(1, goTime.getAllValues(attributeName).size());
+    Assertions.assertEquals(1, goTime.getAllValues(attributeName).size());
 
     ValueOverTimeCollectionDTO all = goTime.getAllValues(attributeName);
     Iterator<ValueOverTimeDTO> it = all.iterator();
     ValueOverTimeDTO first = it.next();
-    Assert.assertEquals("1990-01-01", dateFormat.format(first.getStartDate()));
-    Assert.assertEquals("1990-02-01", dateFormat.format(first.getEndDate()));
-    Assert.assertTrue(value.equals(first.getValue()));
+    Assertions.assertEquals("1990-01-01", dateFormat.format(first.getStartDate()));
+    Assertions.assertEquals("1990-02-01", dateFormat.format(first.getEndDate()));
+    Assertions.assertTrue(value.equals(first.getValue()));
   }
 
   // @Test
@@ -233,17 +231,17 @@ public class RegistryVersionTest extends FastDatasetTest implements InstanceTest
     serverObj.setValuesOverTime(DefaultAttribute.EXISTS.getName(), new ValueOverTimeCollection());
 
     serverObj.setExists(Boolean.FALSE, dateFormat.parse("01-01-1990"), dateFormat.parse("01-31-1990"));
-    Assert.assertEquals(Boolean.FALSE, serverObj.getExists(dateFormat.parse("01-01-1990")));
+    Assertions.assertEquals(Boolean.FALSE, serverObj.getExists(dateFormat.parse("01-01-1990")));
 
     serverObj.setExists(Boolean.TRUE, dateFormat.parse("02-01-1990"), dateFormat.parse("02-28-1990"));
-    Assert.assertEquals(Boolean.TRUE, serverObj.getExists(dateFormat.parse("02-01-1990")));
+    Assertions.assertEquals(Boolean.TRUE, serverObj.getExists(dateFormat.parse("02-01-1990")));
 
     serverObj.setExists(Boolean.FALSE, dateFormat.parse("03-01-1990"), dateFormat.parse("03-31-1990"));
-    Assert.assertEquals(Boolean.FALSE, serverObj.getExists(dateFormat.parse("03-01-1990")));
+    Assertions.assertEquals(Boolean.FALSE, serverObj.getExists(dateFormat.parse("03-01-1990")));
 
     goService.apply(serverObj, false, false);
 
-    Assert.assertEquals(Boolean.FALSE, serverObj.getExists(dateFormat.parse("01-01-1990")));
+    Assertions.assertEquals(Boolean.FALSE, serverObj.getExists(dateFormat.parse("01-01-1990")));
   }
   //
   // private ValueOverTimeCollectionDTO buildVersionDTO(AttributeType type)

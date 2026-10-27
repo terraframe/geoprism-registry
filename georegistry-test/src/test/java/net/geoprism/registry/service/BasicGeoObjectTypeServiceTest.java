@@ -14,9 +14,9 @@ import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,7 +26,7 @@ import com.runwaysdk.session.Request;
 import net.geoprism.GenericException;
 import net.geoprism.registry.ConceptDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.AttributeType;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -35,9 +35,11 @@ import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestOrganizationInfo;
 import net.geoprism.registry.test.USATestData;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class BasicGeoObjectTypeServiceTest extends ConceptDatasetTest implements InstanceTestClassListener
 {
   @Autowired
@@ -77,16 +79,16 @@ public class BasicGeoObjectTypeServiceTest extends ConceptDatasetTest implements
 
     try
     {
-      Assert.assertNotNull(type.getMdVertexDAO());
-      Assert.assertNotNull(type.getGeometryTable());
+      Assertions.assertNotNull(type.getMdVertexDAO());
+      Assertions.assertNotNull(type.getGeometryTable());
 
       Map<String, AttributeType> attributes = type.getAttributeMap();
 
-      Assert.assertTrue(attributes.size() > 0);
+      Assertions.assertTrue(attributes.size() > 0);
 
       Set<String> attributeNames = attributes.keySet();
 
-      Assert.assertTrue(attributeNames.contains(DefaultAttribute.DATA_SOURCE.getName()));
+      Assertions.assertTrue(attributeNames.contains(DefaultAttribute.DATA_SOURCE.getName()));
     }
     finally
     {
@@ -104,21 +106,21 @@ public class BasicGeoObjectTypeServiceTest extends ConceptDatasetTest implements
 
     try
     {
-      Assert.assertEquals(Long.valueOf(0), type.getSequence());
+      Assertions.assertEquals(Long.valueOf(0), type.getSequence());
 
       AttributeCharacterType attributeDto = new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test Character"), false, false, false);
 
       attributeDto = (AttributeCharacterType) service.createAttributeType(type, attributeDto);
 
-      Assert.assertEquals(Long.valueOf(1), type.getSequence());
+      Assertions.assertEquals(Long.valueOf(1), type.getSequence());
 
-      Assert.assertNotNull(attributeDto);
+      Assertions.assertNotNull(attributeDto);
 
-      Assert.assertTrue(type.getAttribute(attributeDto.getCode()).isPresent());
+      Assertions.assertTrue(type.getAttribute(attributeDto.getCode()).isPresent());
 
       service.deleteAttributeType(type, attributeDto.getCode());
 
-      Assert.assertFalse(type.getAttribute(attributeDto.getCode()).isPresent());
+      Assertions.assertFalse(type.getAttribute(attributeDto.getCode()).isPresent());
     }
     finally
     {
@@ -126,25 +128,27 @@ public class BasicGeoObjectTypeServiceTest extends ConceptDatasetTest implements
     }
   }
 
-  @Test(expected = GenericException.class)
+  @Test
   @Request
   public void testDuplicateAttribute()
   {
-    GeoObjectType dto = USATestData.COUNTRY.toDTO();
+    assertThrows(GenericException.class, () -> {
+      GeoObjectType dto = USATestData.COUNTRY.toDTO();
 
-    ServerGeoObjectType type = this.service.create(dto);
+      ServerGeoObjectType type = this.service.create(dto);
 
-    try
-    {
-      service.createAttributeType(type, new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test Character"), false, false, false));
-      service.createAttributeType(type, new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test Character"), false, false, false));
+      try
+      {
+        service.createAttributeType(type, new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test Character"), false, false, false));
+        service.createAttributeType(type, new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test Character"), false, false, false));
 
-      Assert.fail("Able to create attributes with the same name");
-    }
-    finally
-    {
-      this.service.deleteGeoObjectType(type.getCode());
-    }
+        Assertions.fail("Able to create attributes with the same name");
+      }
+      finally
+      {
+        this.service.deleteGeoObjectType(type.getCode());
+      }
+    });
   }
 
   @Test
@@ -163,9 +167,9 @@ public class BasicGeoObjectTypeServiceTest extends ConceptDatasetTest implements
 
       attributeDto = (AttributeFloatType) service.createAttributeType(type, attributeDto);
 
-      Assert.assertNotNull(attributeDto);
+      Assertions.assertNotNull(attributeDto);
 
-      Assert.assertTrue(type.getAttribute(attributeDto.getCode()).isPresent());
+      Assertions.assertTrue(type.getAttribute(attributeDto.getCode()).isPresent());
 
       attributeDto.setPrecision(32);
       attributeDto.setScale(2);
@@ -174,7 +178,7 @@ public class BasicGeoObjectTypeServiceTest extends ConceptDatasetTest implements
 
       service.deleteAttributeType(type, attributeDto.getCode());
 
-      Assert.assertFalse(type.getAttribute(attributeDto.getCode()).isPresent());
+      Assertions.assertFalse(type.getAttribute(attributeDto.getCode()).isPresent());
     }
     finally
     {
@@ -198,17 +202,17 @@ public class BasicGeoObjectTypeServiceTest extends ConceptDatasetTest implements
 
       attribute1Dto = (AttributeFloatType) service.createAttributeType(type, attribute1Dto);
 
-      Assert.assertNotNull(attribute1Dto);
+      Assertions.assertNotNull(attribute1Dto);
 
-      Assert.assertTrue(type.getAttribute(attribute1Dto.getCode()).isPresent());
+      Assertions.assertTrue(type.getAttribute(attribute1Dto.getCode()).isPresent());
 
       AttributeFloatType attribute2Dto = new AttributeFloatType("testDouble", new LocalizedValue("Test Double"), new LocalizedValue("Test Double"), false, false, false);
 
       attribute2Dto = (AttributeFloatType) service.createAttributeType(type, attribute2Dto);
 
-      Assert.assertNotNull(attribute2Dto);
+      Assertions.assertNotNull(attribute2Dto);
 
-      Assert.assertTrue(type.getAttribute(attribute2Dto.getCode()).isPresent());
+      Assertions.assertTrue(type.getAttribute(attribute2Dto.getCode()).isPresent());
     }
     finally
     {
@@ -234,22 +238,22 @@ public class BasicGeoObjectTypeServiceTest extends ConceptDatasetTest implements
 
       attributeDto = (AttributeClassificationType) service.createAttributeType(type, attributeDto);
 
-      Assert.assertNotNull(attributeDto);
+      Assertions.assertNotNull(attributeDto);
 
       Optional<AttributeType> optional = type.getAttribute(attributeDto.getCode());
 
-      Assert.assertTrue(optional.isPresent());
+      Assertions.assertTrue(optional.isPresent());
 
       net.geoprism.registry.graph.AttributeClassificationType attributeType = (net.geoprism.registry.graph.AttributeClassificationType) optional.get();
 
-      Assert.assertNotNull(attributeType.getStartDate());
-      Assert.assertNotNull(attributeType.getEndDate());
-      Assert.assertNotNull(attributeType.getRootTerm());
-      Assert.assertNotNull(attributeType.getConceptSet());
+      Assertions.assertNotNull(attributeType.getStartDate());
+      Assertions.assertNotNull(attributeType.getEndDate());
+      Assertions.assertNotNull(attributeType.getRootTerm());
+      Assertions.assertNotNull(attributeType.getConceptSet());
 
       service.deleteAttributeType(type, attributeDto.getCode());
 
-      Assert.assertFalse(type.getAttribute(attributeDto.getCode()).isPresent());
+      Assertions.assertFalse(type.getAttribute(attributeDto.getCode()).isPresent());
     }
     finally
     {
@@ -275,53 +279,17 @@ public class BasicGeoObjectTypeServiceTest extends ConceptDatasetTest implements
 
       try
       {
-        Assert.assertNotNull(childType.getMdVertexDAO());
-        Assert.assertNotNull(childType.getGeometryTable());
+        Assertions.assertNotNull(childType.getMdVertexDAO());
+        Assertions.assertNotNull(childType.getGeometryTable());
 
-        Assert.assertEquals(parentType.getOid(), childType.getSuperType().getOid());
-        Assert.assertTrue(childType.getAttribute(DefaultAttribute.INVALID.getName()).isPresent());
+        Assertions.assertEquals(parentType.getOid(), childType.getSuperType().getOid());
+        Assertions.assertTrue(childType.getAttribute(DefaultAttribute.INVALID.getName()).isPresent());
 
         List<ServerGeoObjectType> subTypes = this.service.getSubtypes(parentType);
 
-        Assert.assertEquals(1, subTypes.size());
+        Assertions.assertEquals(1, subTypes.size());
 
-        Assert.assertEquals(childType.getOid(), subTypes.get(0).getOid());
-      }
-      finally
-      {
-        this.service.deleteGeoObjectType(childType.getCode());
-      }
-
-    }
-    finally
-    {
-      this.service.deleteGeoObjectType(parentType.getCode());
-    }
-  }
-
-  @Test(expected = GenericException.class)
-  @Request
-  public void testDuplicateAttributeOnSubType()
-  {
-    GeoObjectType parentDto = USATestData.COUNTRY.toDTO();
-    parentDto.setIsAbstract(true);
-
-    ServerGeoObjectType parentType = this.service.create(parentDto);
-
-    try
-    {
-      service.createAttributeType(parentType, new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test Character"), false, false, false));
-
-      GeoObjectType childDto = USATestData.STATE.toDTO();
-      childDto.setSuperTypeCode(parentType.getCode());
-
-      ServerGeoObjectType childType = this.service.create(childDto);
-
-      try
-      {
-        service.createAttributeType(childType, new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test Character"), false, false, false));
-
-        Assert.fail("Able to create attributes with the same name");
+        Assertions.assertEquals(childType.getOid(), subTypes.get(0).getOid());
       }
       finally
       {
@@ -337,6 +305,44 @@ public class BasicGeoObjectTypeServiceTest extends ConceptDatasetTest implements
 
   @Test
   @Request
+  public void testDuplicateAttributeOnSubType()
+  {
+    assertThrows(GenericException.class, () -> {
+      GeoObjectType parentDto = USATestData.COUNTRY.toDTO();
+      parentDto.setIsAbstract(true);
+
+      ServerGeoObjectType parentType = this.service.create(parentDto);
+
+      try
+      {
+        service.createAttributeType(parentType, new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test Character"), false, false, false));
+
+        GeoObjectType childDto = USATestData.STATE.toDTO();
+        childDto.setSuperTypeCode(parentType.getCode());
+
+        ServerGeoObjectType childType = this.service.create(childDto);
+
+        try
+        {
+          service.createAttributeType(childType, new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test Character"), false, false, false));
+
+          Assertions.fail("Able to create attributes with the same name");
+        }
+        finally
+        {
+          this.service.deleteGeoObjectType(childType.getCode());
+        }
+
+      }
+      finally
+      {
+        this.service.deleteGeoObjectType(parentType.getCode());
+      }
+    });
+  }
+
+  @Test
+  @Request
   public void testCreateDeleteWithClassification()
   {
     GeoObjectType dto = USATestData.COUNTRY.toDTO();
@@ -346,16 +352,16 @@ public class BasicGeoObjectTypeServiceTest extends ConceptDatasetTest implements
 
     try
     {
-      Assert.assertNotNull(type.getMdVertexDAO());
-      Assert.assertNotNull(type.getGeometryTable());
+      Assertions.assertNotNull(type.getMdVertexDAO());
+      Assertions.assertNotNull(type.getGeometryTable());
 
       Map<String, AttributeType> attributes = type.getAttributeMap();
 
-      Assert.assertTrue(attributes.size() > 0);
+      Assertions.assertTrue(attributes.size() > 0);
 
       Set<String> attributeNames = attributes.keySet();
 
-      Assert.assertTrue(attributeNames.contains(DefaultAttribute.CLASSIFICATION.getName()));
+      Assertions.assertTrue(attributeNames.contains(DefaultAttribute.CLASSIFICATION.getName()));
     }
     finally
     {

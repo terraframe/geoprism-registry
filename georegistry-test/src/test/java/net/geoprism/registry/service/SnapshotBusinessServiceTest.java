@@ -7,11 +7,11 @@ import java.util.UUID;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,7 +28,7 @@ import net.geoprism.graph.UndirectedGraphTypeSnapshot;
 import net.geoprism.registry.Commit;
 import net.geoprism.registry.EventDatasetTest;
 import net.geoprism.registry.Publish;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -43,7 +43,7 @@ import net.geoprism.registry.view.TypeClass;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class SnapshotBusinessServiceTest extends EventDatasetTest
 {
   @Autowired
@@ -63,7 +63,7 @@ public class SnapshotBusinessServiceTest extends EventDatasetTest
   protected static Commit                        commit;
 
   @Override
-  @Before
+  @BeforeEach
   @Request
   public void setUp() throws Exception
   {
@@ -74,7 +74,7 @@ public class SnapshotBusinessServiceTest extends EventDatasetTest
   }
 
   @Override
-  @After
+  @AfterEach
   @Request
   public void tearDown() throws Exception
   {
@@ -90,14 +90,14 @@ public class SnapshotBusinessServiceTest extends EventDatasetTest
   {
     GeoObjectTypeSnapshot root = this.service.createRoot(commit);
 
-    Assert.assertNotNull(root);
-    Assert.assertEquals(GeoObjectTypeSnapshot.ROOT, root.getCode());
-    Assert.assertTrue(root.getIsRoot());
+    Assertions.assertNotNull(root);
+    Assertions.assertEquals(GeoObjectTypeSnapshot.ROOT, root.getCode());
+    Assertions.assertTrue(root.getIsRoot());
 
     GeoObjectTypeSnapshot snapshot = this.commitService.getRootType(commit);
 
-    Assert.assertNotNull(snapshot);
-    Assert.assertEquals(root.getOid(), snapshot.getOid());
+    Assertions.assertNotNull(snapshot);
+    Assertions.assertEquals(root.getOid(), snapshot.getOid());
   }
 
   @Test
@@ -106,7 +106,7 @@ public class SnapshotBusinessServiceTest extends EventDatasetTest
   {
     GeoObjectTypeSnapshot root = this.service.createRoot(commit);
 
-    Assert.assertNotNull(root);
+    Assertions.assertNotNull(root);
 
     List<TestGeoObjectTypeInfo> types = Arrays.asList(USATestData.COUNTRY, USATestData.HEALTH_FACILITY, USATestData.HEALTH_POST);
 
@@ -116,21 +116,21 @@ public class SnapshotBusinessServiceTest extends EventDatasetTest
 
       GeoObjectTypeSnapshot snapshot = this.service.createSnapshot(commit, object, root);
 
-      Assert.assertNotNull(snapshot);
-      Assert.assertEquals(object.getCode(), snapshot.getCode());
-      Assert.assertEquals(object.getLabel().getValue(), snapshot.getDisplayLabel().getValue());
-      Assert.assertEquals(object.getDescription().getValue(), snapshot.getDescription().getValue());
-      Assert.assertEquals(object.getOrganizationCode(), snapshot.getOrgCode());
-      Assert.assertEquals(object.getOrigin(), snapshot.getOrigin());
-      Assert.assertEquals(object.getGeometryType().name(), snapshot.getGeometryType());
-      Assert.assertEquals(object.getIsAbstract(), snapshot.getIsAbstract());
-      Assert.assertEquals(object.getIsPrivate(), snapshot.getIsPrivate());
-      Assert.assertEquals(false, snapshot.getIsRoot());
-      Assert.assertEquals(object.getIsPrivate(), snapshot.getIsPrivate());
+      Assertions.assertNotNull(snapshot);
+      Assertions.assertEquals(object.getCode(), snapshot.getCode());
+      Assertions.assertEquals(object.getLabel().getValue(), snapshot.getDisplayLabel().getValue());
+      Assertions.assertEquals(object.getDescription().getValue(), snapshot.getDescription().getValue());
+      Assertions.assertEquals(object.getOrganizationCode(), snapshot.getOrgCode());
+      Assertions.assertEquals(object.getOrigin(), snapshot.getOrigin());
+      Assertions.assertEquals(object.getGeometryType().name(), snapshot.getGeometryType());
+      Assertions.assertEquals(object.getIsAbstract(), snapshot.getIsAbstract());
+      Assertions.assertEquals(object.getIsPrivate(), snapshot.getIsPrivate());
+      Assertions.assertEquals(false, snapshot.getIsRoot());
+      Assertions.assertEquals(object.getIsPrivate(), snapshot.getIsPrivate());
 
       if (type.equals(USATestData.HEALTH_POST))
       {
-        Assert.assertEquals(object.getSuperType().getCode(), snapshot.getParent().getCode());
+        Assertions.assertEquals(object.getSuperType().getCode(), snapshot.getParent().getCode());
       }
 
       List<AttributeType> attributeTypes = snapshot.getAttributeTypes();
@@ -140,7 +140,7 @@ public class SnapshotBusinessServiceTest extends EventDatasetTest
         {
           Optional<AttributeType> optional = attributeTypes.stream().filter(a -> a.getCode().equals(attributeName)).findFirst();
 
-          Assert.assertTrue("Unable to find attribute " + attributeName, optional.isPresent());
+          Assertions.assertTrue(optional.isPresent(), "Unable to find attribute " + attributeName);
         }
       });
     }
@@ -152,19 +152,19 @@ public class SnapshotBusinessServiceTest extends EventDatasetTest
   {
     BusinessTypeSnapshot snapshot = this.service.createSnapshot(commit, btype);
 
-    Assert.assertNotNull(snapshot);
-    Assert.assertEquals(btype.getCode(), snapshot.getCode());
-    Assert.assertEquals(btype.getLabel().getValue(), snapshot.getDisplayLabel().getValue());
-    Assert.assertEquals(btype.getOrganization().getCode(), snapshot.getOrgCode());
-    Assert.assertEquals(btype.getOrigin(), snapshot.getOrigin());
-    Assert.assertEquals(btype.getSequence(), snapshot.getSequence());
+    Assertions.assertNotNull(snapshot);
+    Assertions.assertEquals(btype.getCode(), snapshot.getCode());
+    Assertions.assertEquals(btype.getLabel().getValue(), snapshot.getDisplayLabel().getValue());
+    Assertions.assertEquals(btype.getOrganization().getCode(), snapshot.getOrgCode());
+    Assertions.assertEquals(btype.getOrigin(), snapshot.getOrigin());
+    Assertions.assertEquals(btype.getSequence(), snapshot.getSequence());
 
     List<AttributeType> attributeTypes = snapshot.getAttributeTypes();
 
     btype.getAttributeMap().forEach((attributeName, attributeType) -> {
       Optional<AttributeType> optional = attributeTypes.stream().filter(a -> a.getCode().equals(attributeName)).findFirst();
 
-      Assert.assertTrue("Unable to find attribute " + attributeName, optional.isPresent());
+      Assertions.assertTrue(optional.isPresent(), "Unable to find attribute " + attributeName);
     });
   }
 
@@ -174,19 +174,19 @@ public class SnapshotBusinessServiceTest extends EventDatasetTest
   {
     ConceptClassSnapshot snapshot = this.service.createSnapshot(commit, cClass);
 
-    Assert.assertNotNull(snapshot);
-    Assert.assertEquals(cClass.getCode(), snapshot.getCode());
-    Assert.assertEquals(cClass.getLabel().getValue(), snapshot.getDisplayLabel().getValue());
-    Assert.assertEquals(cClass.getOrganization().getCode(), snapshot.getOrgCode());
-    Assert.assertEquals(cClass.getOrigin(), snapshot.getOrigin());
-    Assert.assertEquals(cClass.getSequence(), snapshot.getSequence());
+    Assertions.assertNotNull(snapshot);
+    Assertions.assertEquals(cClass.getCode(), snapshot.getCode());
+    Assertions.assertEquals(cClass.getLabel().getValue(), snapshot.getDisplayLabel().getValue());
+    Assertions.assertEquals(cClass.getOrganization().getCode(), snapshot.getOrgCode());
+    Assertions.assertEquals(cClass.getOrigin(), snapshot.getOrigin());
+    Assertions.assertEquals(cClass.getSequence(), snapshot.getSequence());
 
     List<AttributeType> attributeTypes = snapshot.getAttributeTypes();
 
     cClass.getAttributeMap().forEach((attributeName, attributeType) -> {
       Optional<AttributeType> optional = attributeTypes.stream().filter(a -> a.getCode().equals(attributeName)).findFirst();
 
-      Assert.assertTrue("Unable to find attribute " + attributeName, optional.isPresent());
+      Assertions.assertTrue(optional.isPresent(), "Unable to find attribute " + attributeName);
     });
   }
 
@@ -196,11 +196,11 @@ public class SnapshotBusinessServiceTest extends EventDatasetTest
   {
     DirectedAcyclicGraphTypeSnapshot snapshot = (DirectedAcyclicGraphTypeSnapshot) this.service.createSnapshot(commit, new GraphTypeReference(TypeClass.DAG.getCode(), dagType.getCode()), null);
 
-    Assert.assertNotNull(snapshot);
-    Assert.assertEquals(dagType.getCode(), snapshot.getCode());
-    Assert.assertEquals(dagType.getLabel().getValue(), snapshot.getDisplayLabel().getValue());
-    Assert.assertEquals(dagType.getOrigin(), snapshot.getOrigin());
-    Assert.assertEquals(dagType.getSequence(), snapshot.getSequence());
+    Assertions.assertNotNull(snapshot);
+    Assertions.assertEquals(dagType.getCode(), snapshot.getCode());
+    Assertions.assertEquals(dagType.getLabel().getValue(), snapshot.getDisplayLabel().getValue());
+    Assertions.assertEquals(dagType.getOrigin(), snapshot.getOrigin());
+    Assertions.assertEquals(dagType.getSequence(), snapshot.getSequence());
   }
 
   @Test
@@ -209,11 +209,11 @@ public class SnapshotBusinessServiceTest extends EventDatasetTest
   {
     UndirectedGraphTypeSnapshot snapshot = (UndirectedGraphTypeSnapshot) this.service.createSnapshot(commit, new GraphTypeReference(TypeClass.UNDIRECTED_GRAPH.getCode(), undirectedType.getCode()), null);
 
-    Assert.assertNotNull(snapshot);
-    Assert.assertEquals(undirectedType.getCode(), snapshot.getCode());
-    Assert.assertEquals(undirectedType.getLabel().getValue(), snapshot.getDisplayLabel().getValue());
-    Assert.assertEquals(undirectedType.getOrigin(), snapshot.getOrigin());
-    Assert.assertEquals(undirectedType.getSequence(), snapshot.getSequence());
+    Assertions.assertNotNull(snapshot);
+    Assertions.assertEquals(undirectedType.getCode(), snapshot.getCode());
+    Assertions.assertEquals(undirectedType.getLabel().getValue(), snapshot.getDisplayLabel().getValue());
+    Assertions.assertEquals(undirectedType.getOrigin(), snapshot.getOrigin());
+    Assertions.assertEquals(undirectedType.getSequence(), snapshot.getSequence());
   }
 
   @Test
@@ -227,17 +227,16 @@ public class SnapshotBusinessServiceTest extends EventDatasetTest
 
     HierarchyTypeSnapshot snapshot = this.service.createSnapshot(commit, hierarchy, root);
 
-    Assert.assertNotNull(snapshot);
-    Assert.assertEquals(hierarchy.getCode(), snapshot.getCode());
-    Assert.assertEquals(hierarchy.getLabel().getValue(), snapshot.getDisplayLabel().getValue());
-    Assert.assertEquals(hierarchy.getOrigin(), snapshot.getOrigin());
-    Assert.assertEquals(hierarchy.getSequence(), snapshot.getSequence());
+    Assertions.assertNotNull(snapshot);
+    Assertions.assertEquals(hierarchy.getCode(), snapshot.getCode());
+    Assertions.assertEquals(hierarchy.getLabel().getValue(), snapshot.getDisplayLabel().getValue());
+    Assertions.assertEquals(hierarchy.getOrigin(), snapshot.getOrigin());
+    Assertions.assertEquals(hierarchy.getSequence(), snapshot.getSequence());
 
     List<String> list = this.hService.getChildren(snapshot, root).stream().map(s -> s.getCode()).toList();
 
-    hierarchy.getRootNodes().forEach(type -> {
-      Assert.assertTrue("Expected [" + type.getCode() + "]", list.contains(type.getCode()));
-    });
+    hierarchy.getRootNodes().forEach(type ->
+      Assertions.assertTrue(list.contains(type.getCode()), "Expected [" + type.getCode() + "]"));
 
   }
 }

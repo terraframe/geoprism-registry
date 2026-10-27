@@ -3,15 +3,15 @@
  */
 package net.geoprism.registry.io;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class PostalCodeFactoryTest
 {
   @Test
   public void testPlaceholder()
   {
-    Assert.assertTrue(true);
+    Assertions.assertTrue(true);
   }
 
   // @Test

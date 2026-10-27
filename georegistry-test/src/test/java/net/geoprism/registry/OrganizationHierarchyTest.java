@@ -9,9 +9,9 @@ import java.io.InputStreamReader;
 import java.util.List;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,7 +30,7 @@ import net.geoprism.registry.view.Page;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class OrganizationHierarchyTest
 {
   private static String                 GRANDPARENT_CODE = "GRANDPARENT_OBJ";
@@ -50,7 +50,7 @@ public class OrganizationHierarchyTest
 
     try
     {
-      Assert.assertNotNull(object.getGraphOrganization().getRID());
+      Assertions.assertNotNull(object.getGraphOrganization().getRID());
     }
     finally
     {
@@ -68,7 +68,7 @@ public class OrganizationHierarchyTest
     {
       ServerOrganization result = ServerOrganization.getByCode(object.getCode());
 
-      Assert.assertEquals(object.getCode(), result.getCode());
+      Assertions.assertEquals(object.getCode(), result.getCode());
     }
     finally
     {
@@ -92,11 +92,11 @@ public class OrganizationHierarchyTest
 
         Page<ServerOrganization> children = parent.getChildren(20, 1);
 
-        Assert.assertEquals(Long.valueOf(1), children.getCount());
+        Assertions.assertEquals(Long.valueOf(1), children.getCount());
 
         ServerOrganization result = children.getResultSet().get(0);
 
-        Assert.assertEquals(child.getCode(), result.getCode());
+        Assertions.assertEquals(child.getCode(), result.getCode());
       }
       finally
       {
@@ -123,11 +123,11 @@ public class OrganizationHierarchyTest
       {
         Page<ServerOrganization> children = parent.getChildren(20, 1);
 
-        Assert.assertEquals(Long.valueOf(1), children.getCount());
+        Assertions.assertEquals(Long.valueOf(1), children.getCount());
 
         ServerOrganization result = children.getResultSet().get(0);
 
-        Assert.assertEquals(child.getCode(), result.getCode());
+        Assertions.assertEquals(child.getCode(), result.getCode());
       }
       finally
       {
@@ -154,11 +154,11 @@ public class OrganizationHierarchyTest
       {
         child.addParent(parent);
 
-        Assert.assertNotNull(child.getParent());
+        Assertions.assertNotNull(child.getParent());
 
         child.removeParent(parent);
 
-        Assert.assertNull(child.getParent());
+        Assertions.assertNull(child.getParent());
       }
       finally
       {
@@ -185,11 +185,11 @@ public class OrganizationHierarchyTest
       {
         parent.addChild(child);
 
-        Assert.assertEquals(Long.valueOf(1), parent.getChildren().getCount());
+        Assertions.assertEquals(Long.valueOf(1), parent.getChildren().getCount());
 
         parent.removeChild(child);
 
-        Assert.assertEquals(Long.valueOf(0), parent.getChildren().getCount());
+        Assertions.assertEquals(Long.valueOf(0), parent.getChildren().getCount());
       }
       finally
       {
@@ -218,9 +218,9 @@ public class OrganizationHierarchyTest
 
         ServerOrganization result = child.getParent();
 
-        Assert.assertNotNull(result);
+        Assertions.assertNotNull(result);
 
-        Assert.assertEquals(parent.getCode(), result.getCode());
+        Assertions.assertEquals(parent.getCode(), result.getCode());
       }
       finally
       {
@@ -251,7 +251,7 @@ public class OrganizationHierarchyTest
         {
           List<ServerOrganization> ancestors = child.getAncestors(null);
 
-          Assert.assertEquals(3, ancestors.size());
+          Assertions.assertEquals(3, ancestors.size());
         }
         finally
         {
@@ -283,7 +283,7 @@ public class OrganizationHierarchyTest
       {
         GraphNode<ServerOrganization> tree = child.getAncestorTree(null, 200);
 
-        Assert.assertEquals(parent.getCode(), tree.getObject().getCode());
+        Assertions.assertEquals(parent.getCode(), tree.getObject().getCode());
       }
       finally
       {
@@ -328,23 +328,23 @@ public class OrganizationHierarchyTest
             }
           }
 
-          Assert.assertNotNull(result);
+          Assertions.assertNotNull(result);
 
           results = result.get("children").getAsJsonArray();
 
-          Assert.assertEquals(1, results.size());
+          Assertions.assertEquals(1, results.size());
 
           result = results.get(0).getAsJsonObject();
 
-          Assert.assertEquals(parent.getCode(), result.get(Organization.CODE).getAsString());
+          Assertions.assertEquals(parent.getCode(), result.get(Organization.CODE).getAsString());
 
           results = result.get("children").getAsJsonArray();
 
-          Assert.assertEquals(1, results.size());
+          Assertions.assertEquals(1, results.size());
 
           result = results.get(0).getAsJsonObject();
 
-          Assert.assertEquals(child.getCode(), result.get(Organization.CODE).getAsString());
+          Assertions.assertEquals(child.getCode(), result.get(Organization.CODE).getAsString());
         }
         finally
         {
@@ -375,19 +375,19 @@ public class OrganizationHierarchyTest
 
       ServerOrganization child = ServerOrganization.getByCode(CHILD_CODE);
 
-      Assert.assertNotNull(child);
+      Assertions.assertNotNull(child);
 
       this.service.delete(child);
 
       ServerOrganization parent = ServerOrganization.getByCode(PARENT_CODE);
 
-      Assert.assertNotNull(parent);
+      Assertions.assertNotNull(parent);
 
       this.service.delete(parent);
 
       ServerOrganization grandParent = ServerOrganization.getByCode(GRANDPARENT_CODE);
 
-      Assert.assertNotNull(grandParent);
+      Assertions.assertNotNull(grandParent);
 
       this.service.delete(grandParent);
     }

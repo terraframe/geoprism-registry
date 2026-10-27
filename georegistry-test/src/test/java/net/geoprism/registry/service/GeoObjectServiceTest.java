@@ -12,11 +12,10 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.geotools.geometry.jts.GeometryBuilder;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +31,7 @@ import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -45,9 +44,11 @@ import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.TestRegistryClient;
 import net.geoprism.registry.test.TestUserInfo;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
   public static final TestGeoObjectInfo TEST_GO         = new TestGeoObjectInfo("GOSERV_TEST_GO", FastTestDataset.COUNTRY, FastTestDataset.SOURCE);
@@ -60,7 +61,7 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
   @Autowired
   private GPRGeoObjectBusinessServiceIF goService;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception
   {
     super.setUp();
@@ -81,7 +82,7 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
 
         FastTestDataset.CAMBODIA.assertEquals(geoObj);
 
-        Assert.assertEquals(true, geoObj.getExists());
+        Assertions.assertEquals(true, geoObj.getExists());
       });
     }
   }
@@ -98,7 +99,7 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
 
         FastTestDataset.PROV_CENTRAL_PRIVATE.assertEquals(geoObj);
 
-        Assert.assertEquals(true, geoObj.getExists());
+        Assertions.assertEquals(true, geoObj.getExists());
       });
     }
 
@@ -112,7 +113,7 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
         FastTestDataset.runAsUser(user, (request) -> {
           client.getGeoObject(FastTestDataset.PROV_CENTRAL_PRIVATE.getRegistryId(), FastTestDataset.PROV_CENTRAL_PRIVATE.getGeoObjectType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-          Assert.fail();
+          Assertions.fail();
         });
       }
       catch (SmartExceptionDTO e)
@@ -133,9 +134,9 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
       FastTestDataset.runAsUser(user, (request) -> {
         GeoObject geoObj = client.getGeoObjectByCode(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-        Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(client.getAdapter(), geoObj.toJSON().toString()).toJSON().toString());
-        Assert.assertEquals(true, geoObj.getExists());
-        Assert.assertEquals(FastTestDataset.SOURCE.getCode(), geoObj.getValue(DefaultAttribute.DATA_SOURCE.getName()));
+        Assertions.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(client.getAdapter(), geoObj.toJSON().toString()).toJSON().toString());
+        Assertions.assertEquals(true, geoObj.getExists());
+        Assertions.assertEquals(FastTestDataset.SOURCE.getCode(), geoObj.getValue(DefaultAttribute.DATA_SOURCE.getName()));
       });
     }
   }
@@ -151,8 +152,8 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
       FastTestDataset.runAsUser(user, (request) -> {
         GeoObject geoObj = client.getGeoObjectByCode(FastTestDataset.PROV_CENTRAL_PRIVATE.getCode(), FastTestDataset.PROV_CENTRAL_PRIVATE.getGeoObjectType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-        Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(client.getAdapter(), geoObj.toJSON().toString()).toJSON().toString());
-        Assert.assertEquals(true, geoObj.getExists());
+        Assertions.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(client.getAdapter(), geoObj.toJSON().toString()).toJSON().toString());
+        Assertions.assertEquals(true, geoObj.getExists());
       });
     }
 
@@ -165,7 +166,7 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
         FastTestDataset.runAsUser(user, (request) -> {
           client.getGeoObjectByCode(FastTestDataset.PROV_CENTRAL_PRIVATE.getCode(), FastTestDataset.PROV_CENTRAL_PRIVATE.getGeoObjectType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-          Assert.fail();
+          Assertions.fail();
         });
       }
       catch (SmartExceptionDTO e)
@@ -190,12 +191,12 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
     {
       client.createGeoObject(geoObj.toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
-      Assert.fail("Able to create a GeoObject with a wrong geometry type");
+      Assertions.fail("Able to create a GeoObject with a wrong geometry type");
     }
     catch (SmartExceptionDTO e)
     {
       // This is expected
-      Assert.assertEquals(GeometryTypeException.CLASS, e.getType());
+      Assertions.assertEquals(GeometryTypeException.CLASS, e.getType());
     }
   }
 
@@ -213,7 +214,7 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
 
         TEST_GO.assertEquals(returned);
 
-        Assert.assertEquals(true, returned.getExists());
+        Assertions.assertEquals(true, returned.getExists());
 
         TEST_GO.assertApplied();
         TEST_GO.delete();
@@ -231,11 +232,11 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
         {
           client.createGeoObject(TEST_GO.newGeoObject(client.getAdapter()).toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
-          Assert.fail();
+          Assertions.fail();
         }
         catch (SmartExceptionDTO ex)
         {
-          Assert.assertEquals(CreateGeoObjectPermissionException.CLASS, ex.getType());
+          Assertions.assertEquals(CreateGeoObjectPermissionException.CLASS, ex.getType());
         }
       });
     }
@@ -251,7 +252,7 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
 
       TEST_GO.assertEquals(returned);
 
-      Assert.assertEquals(true, returned.getExists());
+      Assertions.assertEquals(true, returned.getExists());
 
       Calendar cal = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
       cal.clear();
@@ -279,7 +280,7 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
 
         TEST_GO_PRIVATE.assertEquals(returned);
 
-        Assert.assertEquals(true, returned.getExists());
+        Assertions.assertEquals(true, returned.getExists());
 
         TEST_GO_PRIVATE.assertApplied();
         TEST_GO_PRIVATE.delete();
@@ -300,11 +301,11 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
         {
           client.createGeoObject(TEST_GO_PRIVATE.newGeoObject(client.getAdapter()).toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
-          Assert.fail();
+          Assertions.fail();
         }
         catch (SmartExceptionDTO ex)
         {
-          Assert.assertEquals(CreateGeoObjectPermissionException.CLASS, ex.getType());
+          Assertions.assertEquals(CreateGeoObjectPermissionException.CLASS, ex.getType());
         }
       });
     }
@@ -336,9 +337,8 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
       TestGeoObjectInfo go = testData.newTestGeoObjectInfo("UpdateTest", FastTestDataset.COUNTRY, FastTestDataset.SOURCE);
       go.apply();
 
-      TestDataSet.runAsUser(user, (request) -> {
-        updateGO(go, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
-      });
+      TestDataSet.runAsUser(user, (request) ->
+        updateGO(go, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE));
 
       go.delete();
     }
@@ -356,7 +356,7 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
         {
           updateGO(go, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
-          Assert.fail();
+          Assertions.fail();
         }
         catch (SmartExceptionDTO ex)
         {
@@ -372,9 +372,8 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
     TestGeoObjectInfo go = testData.newTestGeoObjectInfo("UpdateTest", FastTestDataset.COUNTRY, FastTestDataset.SOURCE);
     go.apply();
 
-    TestDataSet.runAsUser(FastTestDataset.USER_CGOV_RA, (request) -> {
-      updateGO(go, null, null);
-    });
+    TestDataSet.runAsUser(FastTestDataset.USER_CGOV_RA, (request) ->
+      updateGO(go, null, null));
 
     go.delete();
   }
@@ -390,9 +389,8 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
       TestGeoObjectInfo go = testData.newTestGeoObjectInfo("UpdateTest", FastTestDataset.PROVINCE_PRIVATE, FastTestDataset.SOURCE);
       go.apply();
 
-      TestDataSet.runAsUser(user, (request) -> {
-        updateGO(go, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
-      });
+      TestDataSet.runAsUser(user, (request) ->
+        updateGO(go, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE));
 
       go.delete();
     }
@@ -410,7 +408,7 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
         {
           updateGO(go, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
-          Assert.fail();
+          Assertions.fail();
         }
         catch (SmartExceptionDTO ex)
         {
@@ -425,7 +423,7 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
   {
     Set<String> ids = client.getUIDs(100);
 
-    Assert.assertEquals(100, ids.size());
+    Assertions.assertEquals(100, ids.size());
 
     assertIdIssued(ids);
   }
@@ -435,7 +433,7 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
   {
     for (String id : ids)
     {
-      Assert.assertTrue(ServiceFactory.getIdService().isIssuedId(id));
+      Assertions.assertTrue(ServiceFactory.getIdService().isIssuedId(id));
     }
   }
 
@@ -444,15 +442,15 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
   {
     JsonArray results = client.getGeoObjectSuggestions(FastTestDataset.PROV_CENTRAL.getDisplayLabel().substring(0, 3), FastTestDataset.PROVINCE.getCode(), FastTestDataset.CAMBODIA.getCode(), null, null, FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), FastTestDataset.HIER_ADMIN.getCode());
 
-    Assert.assertEquals(2, results.size());
+    Assertions.assertEquals(2, results.size());
 
     JsonObject result = results.get(0).getAsJsonObject();
 
-    Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getDisplayLabel(), result.get("name").getAsString());
+    Assertions.assertEquals(FastTestDataset.PROV_CENTRAL.getDisplayLabel(), result.get("name").getAsString());
     // Assert.assertEquals(testData.CAMBODIA.getOid(), result.getString("id"));
     // // This is commented out because the ids are different due to postgres +
     // orientdb inconsistencies
-    Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), result.get(GeoObject.CODE).getAsString());
+    Assertions.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), result.get(GeoObject.CODE).getAsString());
   }
 
   @Test
@@ -460,15 +458,15 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
   {
     JsonArray results = client.getGeoObjectSuggestions(FastTestDataset.PROV_CENTRAL.getDisplayLabel().substring(0, 3), FastTestDataset.PROVINCE.getCode(), FastTestDataset.CAMBODIA.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), FastTestDataset.HIER_ADMIN.getCode());
 
-    Assert.assertEquals(2, results.size());
+    Assertions.assertEquals(2, results.size());
 
     JsonObject result = results.get(0).getAsJsonObject();
 
-    Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getDisplayLabel(), result.get("name").getAsString());
+    Assertions.assertEquals(FastTestDataset.PROV_CENTRAL.getDisplayLabel(), result.get("name").getAsString());
     // Assert.assertEquals(testData.CAMBODIA.getOid(), result.getString("id"));
     // // This is commented out because the ids are different due to postgres +
     // orientdb inconsistencies
-    Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), result.get(GeoObject.CODE).getAsString());
+    Assertions.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), result.get(GeoObject.CODE).getAsString());
   }
 
   @Test
@@ -476,15 +474,15 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
   {
     JsonArray results = client.getGeoObjectSuggestions(FastTestDataset.PROV_CENTRAL.getDisplayLabel().substring(0, 3), FastTestDataset.PROVINCE.getCode(), null, null, null, null, null);
 
-    Assert.assertEquals(2, results.size());
+    Assertions.assertEquals(2, results.size());
 
     JsonObject result = results.get(0).getAsJsonObject();
 
-    Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getDisplayLabel(), result.get("name").getAsString());
+    Assertions.assertEquals(FastTestDataset.PROV_CENTRAL.getDisplayLabel(), result.get("name").getAsString());
     // Assert.assertEquals(testData.CAMBODIA.getOid(), result.getString("id"));
     // // This is commented out because the ids are different due to postgres +
     // orientdb inconsistencies
-    Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), result.get(GeoObject.CODE).getAsString());
+    Assertions.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), result.get(GeoObject.CODE).getAsString());
   }
 
   @Test
@@ -492,15 +490,15 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
   {
     JsonArray results = client.getGeoObjectSuggestions(FastTestDataset.PROV_CENTRAL.getDisplayLabel().substring(0, 3), FastTestDataset.PROVINCE.getCode(), null, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, null, null);
 
-    Assert.assertEquals(2, results.size());
+    Assertions.assertEquals(2, results.size());
 
     JsonObject result = results.get(0).getAsJsonObject();
 
-    Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getDisplayLabel(), result.get("name").getAsString());
+    Assertions.assertEquals(FastTestDataset.PROV_CENTRAL.getDisplayLabel(), result.get("name").getAsString());
     // Assert.assertEquals(testData.CAMBODIA.getOid(), result.getString("id"));
     // // This is commented out because the ids are different due to postgres +
     // orientdb inconsistencies
-    Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), result.get(GeoObject.CODE).getAsString());
+    Assertions.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), result.get(GeoObject.CODE).getAsString());
   }
 
   /**
@@ -524,15 +522,17 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
    * Test to make sure we can't just provide random ids, they actually have to
    * be issued by our id service
    */
-  @Test(expected = SmartExceptionDTO.class)
+  @Test
   public void testUnissuedIdUpdate()
   {
-    // Update
-    GeoObject waGeoObj = client.getGeoObject(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
-    waGeoObj.setWKTGeometry(FastTestDataset.CAMBODIA.getWkt());
-    waGeoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, FastTestDataset.CAMBODIA.getDisplayLabel());
-    waGeoObj.setUid(UUID.randomUUID().toString());
-    client.updateGeoObject(waGeoObj.toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+    assertThrows(SmartExceptionDTO.class, () -> {
+      // Update
+      GeoObject waGeoObj = client.getGeoObject(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
+      waGeoObj.setWKTGeometry(FastTestDataset.CAMBODIA.getWkt());
+      waGeoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, FastTestDataset.CAMBODIA.getDisplayLabel());
+      waGeoObj.setUid(UUID.randomUUID().toString());
+      client.updateGeoObject(waGeoObj.toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+    });
   }
 
 }

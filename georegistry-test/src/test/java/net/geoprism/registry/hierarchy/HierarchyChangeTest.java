@@ -3,11 +3,9 @@
  */
 package net.geoprism.registry.hierarchy;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,7 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -29,7 +27,7 @@ import net.geoprism.registry.test.USATestData;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class HierarchyChangeTest extends USADatasetTest implements InstanceTestClassListener
 {
   @Autowired
@@ -52,13 +50,13 @@ public class HierarchyChangeTest extends USADatasetTest implements InstanceTestC
     ServerGeoObjectIF geoobject = this.objectService.getGeoObjectByCode(cd1TypeCode, district);
     ServerParentTreeNode parents = this.objectService.getParentGeoObjects(geoobject, null, null, false, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-    Assert.assertEquals(1, parents.getParents().size());
+    Assertions.assertEquals(1, parents.getParents().size());
 
     this.hierarchyService.removeChild(hierarchy, country, state, true);
 
     ServerGeoObjectIF test = this.objectService.getGeoObjectByCode(cd1TypeCode, district);
     ServerParentTreeNode tParents = this.objectService.getParentGeoObjects(test, null, null, false, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-    Assert.assertEquals(0, tParents.getParents().size());
+    Assertions.assertEquals(0, tParents.getParents().size());
   }
 }

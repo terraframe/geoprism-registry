@@ -9,11 +9,11 @@ import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.metadata.HierarchyNode;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,7 +25,7 @@ import com.runwaysdk.system.gis.geo.Universal;
 import net.geoprism.registry.AbstractParentException;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.model.RootGeoObjectType;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -39,9 +39,11 @@ import net.geoprism.registry.test.TestHierarchyTypeInfo;
 import net.geoprism.registry.test.TestRegistryClient;
 import net.geoprism.registry.test.TestUserInfo;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class GeoObjectTypeRelationshipServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
 
@@ -81,7 +83,7 @@ public class GeoObjectTypeRelationshipServiceTest extends FastDatasetTest implem
     super.afterClassSetup();
   }
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception
   {
     super.setUp();
@@ -91,7 +93,7 @@ public class GeoObjectTypeRelationshipServiceTest extends FastDatasetTest implem
     TEST_HT.apply();
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws Exception
   {
     deleteExtraMetadata();
@@ -132,7 +134,7 @@ public class GeoObjectTypeRelationshipServiceTest extends FastDatasetTest implem
       }
     }
 
-    Assert.fail("We did not find the child we just added.");
+    Assertions.fail("We did not find the child we just added.");
   }
 
   @Test
@@ -163,11 +165,11 @@ public class GeoObjectTypeRelationshipServiceTest extends FastDatasetTest implem
         {
           addChild(null, TEST_CHILD);
 
-          Assert.fail("Expected an error");
+          Assertions.fail("Expected an error");
         }
         catch (SmartExceptionDTO ex)
         {
-          Assert.assertEquals(HierarchyRelationshipPermissionException.CLASS, ex.getType());
+          Assertions.assertEquals(HierarchyRelationshipPermissionException.CLASS, ex.getType());
         }
       });
     }
@@ -197,8 +199,8 @@ public class GeoObjectTypeRelationshipServiceTest extends FastDatasetTest implem
 
         List<ServerGeoObjectType> children = this.hierarchyService.getChildren(type, parentType);
 
-        Assert.assertEquals(1, children.size());
-        Assert.assertEquals(childType.getCode(), children.get(0).getCode());
+        Assertions.assertEquals(1, children.size());
+        Assertions.assertEquals(childType.getCode(), children.get(0).getCode());
       }
       finally
       {
@@ -212,39 +214,41 @@ public class GeoObjectTypeRelationshipServiceTest extends FastDatasetTest implem
     }
   }
 
-  @Test(expected = AbstractParentException.class)
+  @Test
   @Request
   public void testAddChildOfAbstractType()
   {
-    TestGeoObjectTypeInfo parentGot = new TestGeoObjectTypeInfo("HMST_Abstract", FastTestDataset.ORG_CGOV);
-    parentGot.setAbstract(true);
+    assertThrows(AbstractParentException.class, () -> {
+      TestGeoObjectTypeInfo parentGot = new TestGeoObjectTypeInfo("HMST_Abstract", FastTestDataset.ORG_CGOV);
+      parentGot.setAbstract(true);
 
-    TestGeoObjectTypeInfo childGot = new TestGeoObjectTypeInfo("HMST_Child", FastTestDataset.ORG_CGOV);
-
-    try
-    {
-      parentGot.apply();
-      childGot.apply();
-
-      ServerHierarchyType type = FastTestDataset.HIER_ADMIN.getServerObject();
-      ServerGeoObjectType parentType = parentGot.getServerObject();
-      ServerGeoObjectType childType = childGot.getServerObject();
+      TestGeoObjectTypeInfo childGot = new TestGeoObjectTypeInfo("HMST_Child", FastTestDataset.ORG_CGOV);
 
       try
       {
-        this.hierarchyService.addToHierarchy(type, RootGeoObjectType.INSTANCE, parentType);
-        this.hierarchyService.addToHierarchy(type, parentType, childType);
+        parentGot.apply();
+        childGot.apply();
+
+        ServerHierarchyType type = FastTestDataset.HIER_ADMIN.getServerObject();
+        ServerGeoObjectType parentType = parentGot.getServerObject();
+        ServerGeoObjectType childType = childGot.getServerObject();
+
+        try
+        {
+          this.hierarchyService.addToHierarchy(type, RootGeoObjectType.INSTANCE, parentType);
+          this.hierarchyService.addToHierarchy(type, parentType, childType);
+        }
+        finally
+        {
+          this.hierarchyService.removeChild(type, RootGeoObjectType.INSTANCE, parentType, false);
+        }
       }
       finally
       {
-        this.hierarchyService.removeChild(type, RootGeoObjectType.INSTANCE, parentType, false);
+        parentGot.delete();
+        childGot.delete();
       }
-    }
-    finally
-    {
-      parentGot.delete();
-      childGot.delete();
-    }
+    });
   }
 
 }

@@ -8,9 +8,9 @@ import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -27,7 +27,7 @@ import net.geoprism.registry.test.USATestData;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class GeoObjectQueryTest extends USADatasetTest implements InstanceTestClassListener
 {
   @Test
@@ -39,15 +39,15 @@ public class GeoObjectQueryTest extends USADatasetTest implements InstanceTestCl
 
     List<ServerGeoObjectIF> results = query.getResults();
 
-    Assert.assertEquals(2, results.size());
+    Assertions.assertEquals(2, results.size());
 
     ServerGeoObjectIF result = results.get(0);
 
-    Assert.assertEquals(USATestData.COLORADO.getCode(), result.getCode());
-    Assert.assertNotNull(result.getGeometry());
-    Assert.assertEquals(USATestData.COLORADO.getDisplayLabel(), result.getDisplayLabel().getValue());
+    Assertions.assertEquals(USATestData.COLORADO.getCode(), result.getCode());
+    Assertions.assertNotNull(result.getGeometry());
+    Assertions.assertEquals(USATestData.COLORADO.getDisplayLabel(), result.getDisplayLabel().getValue());
 
-    Assert.assertEquals(true, result.getExists());
+    Assertions.assertEquals(true, result.getExists());
   }
 
   @Test
@@ -60,13 +60,13 @@ public class GeoObjectQueryTest extends USADatasetTest implements InstanceTestCl
     List<ServerGeoObjectIF> results = query.getResults();
 
     String[] expectedCodes = new String[] { USATestData.CO_D_ONE.getCode(), USATestData.CO_D_TWO.getCode(), USATestData.CO_D_THREE.getCode(), USATestData.WA_D_ONE.getCode(), USATestData.WA_D_TWO.getCode() };
-    Assert.assertEquals(expectedCodes.length, results.size());
+    Assertions.assertEquals(expectedCodes.length, results.size());
 
     for (ServerGeoObjectIF result : results)
     {
-      Assert.assertTrue(ArrayUtils.contains(expectedCodes, result.getCode()));
-      Assert.assertNotNull(result.getGeometry());
-      Assert.assertTrue(result.getDisplayLabel().getValue().length() > 0);
+      Assertions.assertTrue(ArrayUtils.contains(expectedCodes, result.getCode()));
+      Assertions.assertNotNull(result.getGeometry());
+      Assertions.assertTrue(result.getDisplayLabel().getValue().length() > 0);
     }
   }
 
@@ -81,11 +81,11 @@ public class GeoObjectQueryTest extends USADatasetTest implements InstanceTestCl
 
     ServerGeoObjectIF result = query.getSingleResult();
 
-    Assert.assertEquals(USATestData.COLORADO.getCode(), result.getCode());
-    Assert.assertNotNull(result.getGeometry());
-    Assert.assertEquals(USATestData.COLORADO.getDisplayLabel(), result.getDisplayLabel().getValue());
+    Assertions.assertEquals(USATestData.COLORADO.getCode(), result.getCode());
+    Assertions.assertNotNull(result.getGeometry());
+    Assertions.assertEquals(USATestData.COLORADO.getDisplayLabel(), result.getDisplayLabel().getValue());
 
-    Assert.assertEquals(true, result.getExists());
+    Assertions.assertEquals(true, result.getExists());
   }
 
   @Test
@@ -98,11 +98,11 @@ public class GeoObjectQueryTest extends USADatasetTest implements InstanceTestCl
 
     ServerGeoObjectIF result = query.getSingleResult();
 
-    Assert.assertEquals(USATestData.CO_D_ONE.getCode(), result.getCode());
-    Assert.assertNotNull(result.getGeometry());
-    Assert.assertEquals(USATestData.CO_D_ONE.getDisplayLabel(), result.getDisplayLabel().getValue());
+    Assertions.assertEquals(USATestData.CO_D_ONE.getCode(), result.getCode());
+    Assertions.assertNotNull(result.getGeometry());
+    Assertions.assertEquals(USATestData.CO_D_ONE.getDisplayLabel(), result.getDisplayLabel().getValue());
 
-    Assert.assertEquals(true, result.getExists());
+    Assertions.assertEquals(true, result.getExists());
   }
 
   @Test
@@ -123,11 +123,11 @@ public class GeoObjectQueryTest extends USADatasetTest implements InstanceTestCl
 
       ServerGeoObjectIF result = query.getSingleResult();
 
-      Assert.assertEquals(USATestData.COLORADO.getCode(), result.getCode());
-      Assert.assertNotNull(result.getGeometry());
-      Assert.assertEquals(USATestData.COLORADO.getDisplayLabel(), result.getDisplayLabel().getValue());
+      Assertions.assertEquals(USATestData.COLORADO.getCode(), result.getCode());
+      Assertions.assertNotNull(result.getGeometry());
+      Assertions.assertEquals(USATestData.COLORADO.getDisplayLabel(), result.getDisplayLabel().getValue());
 
-      Assert.assertEquals(true, result.getExists());
+      Assertions.assertEquals(true, result.getExists());
     }
     finally
     {
@@ -146,11 +146,11 @@ public class GeoObjectQueryTest extends USADatasetTest implements InstanceTestCl
 
     ServerGeoObjectIF result = query.getSingleResult();
 
-    Assert.assertEquals(USATestData.COLORADO.getCode(), result.getCode());
-    Assert.assertNotNull(result.getGeometry());
-    Assert.assertEquals(USATestData.COLORADO.getDisplayLabel(), result.getDisplayLabel().getValue());
+    Assertions.assertEquals(USATestData.COLORADO.getCode(), result.getCode());
+    Assertions.assertNotNull(result.getGeometry());
+    Assertions.assertEquals(USATestData.COLORADO.getDisplayLabel(), result.getDisplayLabel().getValue());
 
-    Assert.assertEquals(true, result.getExists());
+    Assertions.assertEquals(true, result.getExists());
   }
 
   @Test
@@ -164,10 +164,10 @@ public class GeoObjectQueryTest extends USADatasetTest implements InstanceTestCl
 
     ServerGeoObjectIF result = query.getSingleResult();
 
-    Assert.assertEquals(USATestData.COLORADO.getCode(), result.getCode());
-    Assert.assertNotNull(result.getGeometry());
-    Assert.assertEquals(USATestData.COLORADO.getDisplayLabel(), result.getDisplayLabel().getValue());
-    Assert.assertEquals(true, result.getExists());
+    Assertions.assertEquals(USATestData.COLORADO.getCode(), result.getCode());
+    Assertions.assertNotNull(result.getGeometry());
+    Assertions.assertEquals(USATestData.COLORADO.getDisplayLabel(), result.getDisplayLabel().getValue());
+    Assertions.assertEquals(true, result.getExists());
   }
 
   @Test
@@ -181,10 +181,10 @@ public class GeoObjectQueryTest extends USADatasetTest implements InstanceTestCl
 
     ServerGeoObjectIF result = query.getSingleResult();
 
-    Assert.assertEquals(USATestData.CO_D_ONE.getCode(), result.getCode());
-    Assert.assertNotNull(result.getGeometry());
-    Assert.assertEquals(USATestData.CO_D_ONE.getDisplayLabel(), result.getDisplayLabel().getValue());
-    Assert.assertEquals(true, result.getExists());
+    Assertions.assertEquals(USATestData.CO_D_ONE.getCode(), result.getCode());
+    Assertions.assertNotNull(result.getGeometry());
+    Assertions.assertEquals(USATestData.CO_D_ONE.getDisplayLabel(), result.getDisplayLabel().getValue());
+    Assertions.assertEquals(true, result.getExists());
   }
 
   @Test
@@ -198,6 +198,6 @@ public class GeoObjectQueryTest extends USADatasetTest implements InstanceTestCl
 
     ServerGeoObjectIF result = query.getSingleResult();
 
-    Assert.assertNull(result);
+    Assertions.assertNull(result);
   }
 }

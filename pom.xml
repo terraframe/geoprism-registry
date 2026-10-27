@@ -26,6 +26,8 @@
   <properties>
     <geoprism.version>2.1.9</geoprism.version>
     <spring.boot.version>4.1.1</spring.boot.version>
+    <!-- Must match the JUnit that spring-boot-starter-test brings in -->
+    <junit.jupiter.version>6.0.3</junit.jupiter.version>
     <hapifhir_version>8.12.1</hapifhir_version>
     <axon.version>4.13.2</axon.version>
     <aws.version>2.47.4</aws.version>    
@@ -96,9 +98,12 @@
 
   <dependencies>
     <dependency>
+      <!-- Not used by any tests (they use JUnit Jupiter): runwaysdk-server's
+           aspects have pointcuts on JUnit 3 types (junit.framework.TestCase
+           etc.), which AspectJ must be able to resolve when weaving -->
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>[4.13.1,)</version>
+      <version>4.13.2</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

@@ -9,11 +9,11 @@ import java.util.UUID;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -55,7 +55,7 @@ import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.LabeledPropertyGraphTypeBuilder;
 import net.geoprism.registry.LocalRegistryConnectorBuilder;
 import net.geoprism.registry.Organization;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.BusinessEdgeType;
@@ -97,7 +97,7 @@ import net.geoprism.registry.view.BusinessTypeDTO;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class LabeledPropertyGraphTest extends USADatasetTest implements InstanceTestClassListener
 {
   private static String                                        CODE = "Test Term";
@@ -227,7 +227,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
     USATestData.COLORADO.removeDefaultValue(testClassification.getCode());
   }
 
-  @Before
+  @BeforeEach
   @Request
   public void setUp() throws Exception
   {
@@ -247,7 +247,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
     this.bObjectService.addParent(pObject, bGeoEdgeType, USATestData.COLORADO.getServerObject(), UUID.randomUUID().toString(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getDataSource());
   }
 
-  @After
+  @AfterEach
   @Request
   public void tearDown() throws Exception
   {
@@ -280,11 +280,11 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
     JsonObject json = type.toJSON();
     SingleLabeledPropertyGraphType test = (SingleLabeledPropertyGraphType) this.typeService.fromJSON(json);
 
-    Assert.assertEquals(type.getDisplayLabel().getValue(), test.getDisplayLabel().getValue());
-    Assert.assertEquals(type.getDescription().getValue(), test.getDescription().getValue());
-    Assert.assertEquals(type.getCode(), test.getCode());
-    Assert.assertEquals(type.getHierarchy(), test.getHierarchy());
-    Assert.assertEquals(type.getValidOn(), test.getValidOn());
+    Assertions.assertEquals(type.getDisplayLabel().getValue(), test.getDisplayLabel().getValue());
+    Assertions.assertEquals(type.getDescription().getValue(), test.getDescription().getValue());
+    Assertions.assertEquals(type.getCode(), test.getCode());
+    Assertions.assertEquals(type.getHierarchy(), test.getHierarchy());
+    Assertions.assertEquals(type.getValidOn(), test.getValidOn());
   }
 
   // @Test
@@ -310,11 +310,11 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
     JsonObject json = type.toJSON();
     IntervalLabeledPropertyGraphType test = (IntervalLabeledPropertyGraphType) this.typeService.fromJSON(json);
 
-    Assert.assertEquals(type.getDisplayLabel().getValue(), test.getDisplayLabel().getValue());
-    Assert.assertEquals(type.getDescription().getValue(), test.getDescription().getValue());
-    Assert.assertEquals(type.getCode(), test.getCode());
-    Assert.assertEquals(type.getHierarchy(), test.getHierarchy());
-    Assert.assertEquals(type.getIntervalJson(), test.getIntervalJson());
+    Assertions.assertEquals(type.getDisplayLabel().getValue(), test.getDisplayLabel().getValue());
+    Assertions.assertEquals(type.getDescription().getValue(), test.getDescription().getValue());
+    Assertions.assertEquals(type.getCode(), test.getCode());
+    Assertions.assertEquals(type.getHierarchy(), test.getHierarchy());
+    Assertions.assertEquals(type.getIntervalJson(), test.getIntervalJson());
   }
 
   // @Test
@@ -334,12 +334,12 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
     JsonObject json = type.toJSON();
     IncrementalLabeledPropertyGraphType test = (IncrementalLabeledPropertyGraphType) this.typeService.fromJSON(json);
 
-    Assert.assertEquals(type.getDisplayLabel().getValue(), test.getDisplayLabel().getValue());
-    Assert.assertEquals(type.getDescription().getValue(), test.getDescription().getValue());
-    Assert.assertEquals(type.getCode(), test.getCode());
-    Assert.assertEquals(type.getHierarchy(), test.getHierarchy());
-    Assert.assertEquals(type.getFrequency().get(0), test.getFrequency().get(0));
-    Assert.assertEquals(type.getPublishingStartDate(), test.getPublishingStartDate());
+    Assertions.assertEquals(type.getDisplayLabel().getValue(), test.getDisplayLabel().getValue());
+    Assertions.assertEquals(type.getDescription().getValue(), test.getDescription().getValue());
+    Assertions.assertEquals(type.getCode(), test.getCode());
+    Assertions.assertEquals(type.getHierarchy(), test.getHierarchy());
+    Assertions.assertEquals(type.getFrequency().get(0), test.getFrequency().get(0));
+    Assertions.assertEquals(type.getPublishingStartDate(), test.getPublishingStartDate());
   }
 
   // @Test
@@ -354,23 +354,23 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
     {
       List<LabeledPropertyGraphTypeEntry> entries = this.typeService.getEntries(test1);
 
-      Assert.assertEquals(1, entries.size());
+      Assertions.assertEquals(1, entries.size());
 
       LabeledPropertyGraphTypeEntry entry = entries.get(0);
 
       List<LabeledPropertyGraphTypeVersion> versions = this.entryService.getVersions(entry);
 
-      Assert.assertEquals(1, versions.size());
+      Assertions.assertEquals(1, versions.size());
 
       LabeledPropertyGraphTypeVersion version = versions.get(0);
 
       List<GeoObjectTypeSnapshot> vertices = this.versionService.getTypes(version);
 
-      Assert.assertEquals(11, vertices.size());
+      Assertions.assertEquals(11, vertices.size());
 
       List<GraphTypeSnapshot> edges = this.versionService.getGraphSnapshots(version);
 
-      Assert.assertEquals(1, edges.size());
+      Assertions.assertEquals(1, edges.size());
     }
     finally
     {
@@ -390,13 +390,13 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
     {
       List<LabeledPropertyGraphTypeEntry> entries = this.typeService.getEntries(test1);
 
-      Assert.assertEquals(1, entries.size());
+      Assertions.assertEquals(1, entries.size());
 
       LabeledPropertyGraphTypeEntry entry = entries.get(0);
 
       List<LabeledPropertyGraphTypeVersion> versions = this.entryService.getVersions(entry);
 
-      Assert.assertEquals(1, versions.size());
+      Assertions.assertEquals(1, versions.size());
 
       LabeledPropertyGraphTypeVersion version = versions.get(0);
       this.versionService.publish(new LPGPublishProgressMonitorNoOp(), version);
@@ -410,15 +410,15 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
       GraphQuery<VertexObject> query = new GraphQuery<VertexObject>("SELECT FROM " + mdVertex.getDbClassName());
       List<VertexObject> results = query.getResults();
 
-      Assert.assertEquals(1, results.size());
+      Assertions.assertEquals(1, results.size());
 
       VertexObject result = results.get(0);
 
-      Assert.assertEquals(USATestData.USA.getCode(), result.getObjectValue(DefaultAttribute.CODE.getName()));
+      Assertions.assertEquals(USATestData.USA.getCode(), result.getObjectValue(DefaultAttribute.CODE.getName()));
 
       List<VertexObject> children = result.getChildren(mdEdge.definesType(), VertexObject.class);
 
-      Assert.assertEquals(2, children.size());
+      Assertions.assertEquals(2, children.size());
 
     }
     finally
@@ -447,13 +447,13 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
 
         List<LabeledPropertyGraphTypeEntry> entries = this.typeService.getEntries(test1);
 
-        Assert.assertEquals(1, entries.size());
+        Assertions.assertEquals(1, entries.size());
 
         LabeledPropertyGraphTypeEntry entry = entries.get(0);
 
         List<LabeledPropertyGraphTypeVersion> versions = this.entryService.getVersions(entry);
 
-        Assert.assertEquals(1, versions.size());
+        Assertions.assertEquals(1, versions.size());
 
         LabeledPropertyGraphTypeVersion version = versions.get(0);
 
@@ -468,7 +468,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
         GraphQuery<VertexObject> query = new GraphQuery<VertexObject>("SELECT FROM " + mdVertex.getDbClassName());
         List<VertexObject> results = query.getResults();
 
-        Assert.assertEquals(3, results.size());
+        Assertions.assertEquals(3, results.size());
 
         /*
          * There should be an edge between USA and Colorado
@@ -479,23 +479,23 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
 
         List<VertexObject> children = usa.getChildren(graphEdge.getGraphMdEdge().definesType(), VertexObject.class);
 
-        Assert.assertEquals(1, children.size());
-        Assert.assertEquals(USATestData.COLORADO.getCode(), children.get(0).getObjectValue(DefaultAttribute.CODE.getName()));
+        Assertions.assertEquals(1, children.size());
+        Assertions.assertEquals(USATestData.COLORADO.getCode(), children.get(0).getObjectValue(DefaultAttribute.CODE.getName()));
 
         // Verify business objects were created
         BusinessTypeSnapshot bTypeSnapshot = this.bTypeSnapshotService.get(version, btype.getCode());
 
-        Assert.assertEquals(2, new GraphQuery<VertexObject>("SELECT FROM " + bTypeSnapshot.getGraphMdVertex().getDbClassName()).getResults().size());
+        Assertions.assertEquals(2, new GraphQuery<VertexObject>("SELECT FROM " + bTypeSnapshot.getGraphMdVertex().getDbClassName()).getResults().size());
 
         // Verify business edges were created
         BusinessEdgeTypeSnapshot bEdgeSnapshot = this.bEdgeSnapshotService.get(version, bEdgeType.getCode());
 
-        Assert.assertEquals(1, new GraphQuery<VertexObject>("SELECT FROM " + bEdgeSnapshot.getGraphMdEdge().getDbClassName()).getResults().size());
+        Assertions.assertEquals(1, new GraphQuery<VertexObject>("SELECT FROM " + bEdgeSnapshot.getGraphMdEdge().getDbClassName()).getResults().size());
 
         // Verify business-geo edges were created
         BusinessEdgeTypeSnapshot bGeoEdgeSnapshot = this.bEdgeSnapshotService.get(version, bGeoEdgeType.getCode());
 
-        Assert.assertEquals(1, new GraphQuery<VertexObject>("SELECT FROM " + bGeoEdgeSnapshot.getGraphMdEdge().getDbClassName()).getResults().size());
+        Assertions.assertEquals(1, new GraphQuery<VertexObject>("SELECT FROM " + bGeoEdgeSnapshot.getGraphMdEdge().getDbClassName()).getResults().size());
       }
       finally
       {
@@ -520,13 +520,13 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
     {
       List<LabeledPropertyGraphTypeEntry> entries = this.typeService.getEntries(test1);
 
-      Assert.assertEquals(1, entries.size());
+      Assertions.assertEquals(1, entries.size());
 
       LabeledPropertyGraphTypeEntry entry = entries.get(0);
 
       List<LabeledPropertyGraphTypeVersion> versions = this.entryService.getVersions(entry);
 
-      Assert.assertEquals(1, versions.size());
+      Assertions.assertEquals(1, versions.size());
 
       LabeledPropertyGraphTypeVersion version = versions.get(0);
 
@@ -549,15 +549,15 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
       GraphQuery<VertexObject> query = new GraphQuery<VertexObject>("SELECT FROM " + mdVertex.getDbClassName());
       List<VertexObject> results = query.getResults();
 
-      Assert.assertEquals(1, results.size());
+      Assertions.assertEquals(1, results.size());
 
       VertexObject result = results.get(0);
 
-      Assert.assertEquals(USATestData.USA.getCode(), result.getObjectValue(DefaultAttribute.CODE.getName()));
+      Assertions.assertEquals(USATestData.USA.getCode(), result.getObjectValue(DefaultAttribute.CODE.getName()));
 
       List<VertexObject> children = result.getChildren(mdEdge.definesType(), VertexObject.class);
 
-      Assert.assertEquals(2, children.size());
+      Assertions.assertEquals(2, children.size());
 
     }
     finally
@@ -578,13 +578,13 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
     {
       List<LabeledPropertyGraphTypeEntry> entries = this.typeService.getEntries(test1);
 
-      Assert.assertEquals(1, entries.size());
+      Assertions.assertEquals(1, entries.size());
 
       LabeledPropertyGraphTypeEntry entry = entries.get(0);
 
       List<LabeledPropertyGraphTypeVersion> versions = this.entryService.getVersions(entry);
 
-      Assert.assertEquals(1, versions.size());
+      Assertions.assertEquals(1, versions.size());
 
       LabeledPropertyGraphTypeVersion version = versions.get(0);
       this.versionService.publish(new LPGPublishProgressMonitorNoOp(), version);
@@ -606,23 +606,23 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
       GraphQuery<VertexObject> query = new GraphQuery<VertexObject>("SELECT FROM " + mdVertex.getDbClassName());
       List<VertexObject> results = query.getResults();
 
-      Assert.assertEquals(1, results.size());
+      Assertions.assertEquals(1, results.size());
 
       VertexObject result = results.get(0);
 
-      Assert.assertEquals(USATestData.USA.getCode(), result.getObjectValue(DefaultAttribute.CODE.getName()));
+      Assertions.assertEquals(USATestData.USA.getCode(), result.getObjectValue(DefaultAttribute.CODE.getName()));
 
       List<VertexObject> children = result.getChildren(mdEdge.definesType(), VertexObject.class);
 
-      Assert.assertEquals(2, children.size());
+      Assertions.assertEquals(2, children.size());
 
       children.forEach(child -> {
         String code = child.getObjectValue(DefaultAttribute.CODE.getName());
 
         if (code.equals(USATestData.COLORADO.getCode()))
         {
-          Assert.assertNotNull(child.getObjectValue(DefaultAttribute.GEOMETRY.getName()));
-          Assert.assertNotNull(child.getObjectValue(testClassification.getCode()));
+          Assertions.assertNotNull(child.getObjectValue(DefaultAttribute.GEOMETRY.getName()));
+          Assertions.assertNotNull(child.getObjectValue(testClassification.getCode()));
         }
       });
     }
@@ -666,7 +666,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
 
       List<LabeledPropertyGraphTypeEntry> entries = this.typeService.getEntries(test1);
 
-      Assert.assertEquals(1, entries.size());
+      Assertions.assertEquals(1, entries.size());
 
       LabeledPropertyGraphTypeEntry entry = entries.get(0);
       JsonObject entryJson = entry.toJSON();
@@ -676,7 +676,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
 
       List<LabeledPropertyGraphTypeVersion> versions = this.entryService.getVersions(entry);
 
-      Assert.assertEquals(1, versions.size());
+      Assertions.assertEquals(1, versions.size());
 
       LabeledPropertyGraphTypeVersion version = versions.get(0);
       JsonObject versionJson = this.versionService.toJSON(version, true);
@@ -690,23 +690,23 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
 
       List<GeoObjectTypeSnapshot> vertices = this.versionService.getTypes(version);
 
-      Assert.assertEquals(11, vertices.size());
+      Assertions.assertEquals(11, vertices.size());
 
       List<BusinessTypeSnapshot> businessTypes = this.versionService.getBusinessTypes(version);
 
-      Assert.assertEquals(1, businessTypes.size());
+      Assertions.assertEquals(1, businessTypes.size());
 
       List<GraphTypeSnapshot> edges = this.versionService.getGraphSnapshots(version);
 
-      Assert.assertEquals(1, edges.size());
+      Assertions.assertEquals(1, edges.size());
 
       List<BusinessEdgeTypeSnapshot> bEdges = this.versionService.getBusinessEdgeTypes(version);
 
-      Assert.assertEquals(2, bEdges.size());
+      Assertions.assertEquals(2, bEdges.size());
 
       List<ConceptClassSnapshot> conceptClasses = this.versionService.getConceptClasses(version);
 
-      Assert.assertEquals(1, conceptClasses.size());
+      Assertions.assertEquals(1, conceptClasses.size());
 
       this.entryService.delete(entry);
     }
@@ -728,13 +728,13 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
       {
         List<LabeledPropertyGraphTypeEntry> entries = this.typeService.getEntries(test1);
 
-        Assert.assertEquals(1, entries.size());
+        Assertions.assertEquals(1, entries.size());
 
         LabeledPropertyGraphTypeEntry entry = entries.get(0);
 
         List<LabeledPropertyGraphTypeVersion> versions = this.entryService.getVersions(entry);
 
-        Assert.assertEquals(1, versions.size());
+        Assertions.assertEquals(1, versions.size());
 
         LabeledPropertyGraphTypeVersion version = versions.get(0);
 
@@ -760,11 +760,11 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
 
           List<GeoObjectTypeSnapshot> vertices = this.versionService.getTypes(version);
 
-          Assert.assertEquals(11, vertices.size());
+          Assertions.assertEquals(11, vertices.size());
 
           List<GraphTypeSnapshot> edges = this.versionService.getGraphSnapshots(version);
 
-          Assert.assertEquals(1, edges.size());
+          Assertions.assertEquals(1, edges.size());
         }
         finally
         {
@@ -821,7 +821,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
     {
       if (waitTime > 10000)
       {
-        Assert.fail("Job was never scheduled. Unable to find any associated history.");
+        Assertions.fail("Job was never scheduled. Unable to find any associated history.");
       }
 
       QueryFactory qf = new QueryFactory();
@@ -848,7 +848,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
         catch (InterruptedException e)
         {
           e.printStackTrace();
-          Assert.fail("Interrupted while waiting");
+          Assertions.fail("Interrupted while waiting");
         }
 
         waitTime += 1000;
@@ -864,7 +864,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
       catch (InterruptedException e)
       {
         e.printStackTrace();
-        Assert.fail("Interrupted while waiting");
+        Assertions.fail("Interrupted while waiting");
       }
     }
   }

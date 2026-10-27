@@ -4,11 +4,10 @@
 package net.geoprism.registry.service;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,7 +17,7 @@ import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.controller.GeoObjectOverTimeController;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -33,7 +32,7 @@ import net.geoprism.registry.test.USATestData;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
 
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class TempServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
   public static final TestGeoObjectInfo TEST_GO = new TestGeoObjectInfo("GOSERV_TEST_GO", FastTestDataset.COUNTRY, FastTestDataset.SOURCE);
@@ -50,7 +49,7 @@ public class TempServiceTest extends FastDatasetTest implements InstanceTestClas
   @Autowired
   private GeoObjectBusinessServiceIF    goService;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception
   {
     super.setUp();
@@ -66,7 +65,7 @@ public class TempServiceTest extends FastDatasetTest implements InstanceTestClas
 
     GeoObjectOverTime geoObj = goService.toGeoObjectOverTime(goServer);
 
-    Assert.assertEquals(true, geoObj.getExists(TestDataSet.DEFAULT_OVER_TIME_DATE));
+    Assertions.assertEquals(true, geoObj.getExists(TestDataSet.DEFAULT_OVER_TIME_DATE));
   }
 
   @Test
@@ -74,7 +73,7 @@ public class TempServiceTest extends FastDatasetTest implements InstanceTestClas
   {
     GeoObjectOverTime geoObj = service.getGeoObjectOverTimeByCode(testData.clientRequest.getSessionId(), FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
 
-    Assert.assertEquals(true, geoObj.getExists(TestDataSet.DEFAULT_OVER_TIME_DATE));
+    Assertions.assertEquals(true, geoObj.getExists(TestDataSet.DEFAULT_OVER_TIME_DATE));
   }
 
   @Test
@@ -82,7 +81,7 @@ public class TempServiceTest extends FastDatasetTest implements InstanceTestClas
   {
     ResponseEntity<String> test = controller.getGeoObjectOverTimeByCode(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
 
-    Assert.assertNotNull(test.getBody());
+    Assertions.assertNotNull(test.getBody());
   }
 
   @Test
@@ -90,8 +89,8 @@ public class TempServiceTest extends FastDatasetTest implements InstanceTestClas
   {
     GeoObjectOverTime geoObj = client.getGeoObjectOverTimeByCode(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
 
-    Assert.assertEquals(geoObj.toJSON().toString(), GeoObjectOverTime.fromJSON(client.getAdapter(), geoObj.toJSON().toString()).toJSON().toString());
-    Assert.assertEquals(true, geoObj.getExists(TestDataSet.DEFAULT_OVER_TIME_DATE));
+    Assertions.assertEquals(geoObj.toJSON().toString(), GeoObjectOverTime.fromJSON(client.getAdapter(), geoObj.toJSON().toString()).toJSON().toString());
+    Assertions.assertEquals(true, geoObj.getExists(TestDataSet.DEFAULT_OVER_TIME_DATE));
   }
 
 }

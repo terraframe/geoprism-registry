@@ -16,11 +16,11 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -42,7 +42,7 @@ import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.DuplicateGeoObjectCodeException;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.config.TestApplication;
@@ -76,7 +76,7 @@ import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class GeoObjectImporterTest extends USADatasetTest implements InstanceTestClassListener
 {
 
@@ -106,7 +106,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     }
   }
 
-  @Before
+  @BeforeEach
   @Request
   public void setUp() throws Exception
   {
@@ -115,7 +115,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     clearData();
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws Exception
   {
     super.tearDown();
@@ -165,7 +165,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
   {
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet2.xlsx");
 
-    Assert.assertNotNull(istream);
+    Assertions.assertNotNull(istream);
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
@@ -177,19 +177,19 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
 
     hist = ImportHistory.get(hist.getOid());
-    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkTotal());
-    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkProgress());
-    Assert.assertEquals(Long.valueOf(3), hist.getImportedRecords());
-    Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+    Assertions.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkTotal());
+    Assertions.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkProgress());
+    Assertions.assertEquals(Long.valueOf(3), hist.getImportedRecords());
+    Assertions.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
     ServerGeoObjectIF object = this.objectService.getGeoObjectByCode("0001", USATestData.DISTRICT.getCode());
 
-    Assert.assertNotNull(object);
-    Assert.assertEquals("Test", object.getDisplayLabel(TestDataSet.DEFAULT_OVER_TIME_DATE).getValue());
+    Assertions.assertNotNull(object);
+    Assertions.assertEquals("Test", object.getDisplayLabel(TestDataSet.DEFAULT_OVER_TIME_DATE).getValue());
 
     Geometry geometry = object.getGeometry();
 
-    Assert.assertNotNull(geometry);
+    Assertions.assertNotNull(geometry);
 
     Double lat = Double.valueOf(2.232343);
     Double lon = Double.valueOf(1.134232);
@@ -197,7 +197,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     GeometryFactory factory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 4326);
     MultiPoint expected = new MultiPoint(new Point[] { factory.createPoint(new Coordinate(lon, lat)) }, factory);
 
-    Assert.assertEquals(expected, geometry);
+    Assertions.assertEquals(expected, geometry);
 
     ServerGeoObjectIF coloradoDistOne = this.objectService.getGeoObjectByCode(USATestData.CO_D_ONE.getCode(), USATestData.DISTRICT.getCode());
 
@@ -208,11 +208,11 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     MultiPoint cd1_expected = new MultiPoint(new Point[] { cd1_factory.createPoint(new Coordinate(cd1_lon, cd1_lat)) }, cd1_factory);
 
     Geometry cd1_geometry = coloradoDistOne.getGeometry(TestDataSet.DEFAULT_OVER_TIME_DATE);
-    Assert.assertEquals(cd1_expected, cd1_geometry);
+    Assertions.assertEquals(cd1_expected, cd1_geometry);
 
     JSONObject json = new JSONObject(this.etlService.getImportErrors(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
 
-    Assert.assertEquals(0, json.getJSONArray("resultSet").length());
+    Assertions.assertEquals(0, json.getJSONArray("resultSet").length());
   }
 
   @Test
@@ -221,7 +221,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
   {
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet2.xlsx");
 
-    Assert.assertNotNull(istream);
+    Assertions.assertNotNull(istream);
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
@@ -233,16 +233,16 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FEEDBACK);
 
     hist = ImportHistory.get(hist.getOid());
-    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkTotal());
-    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkProgress());
-    Assert.assertEquals(Long.valueOf(1), hist.getImportedRecords());
-    Assert.assertEquals(ImportStage.IMPORT_RESOLVE, hist.getStage().get(0));
+    Assertions.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkTotal());
+    Assertions.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkProgress());
+    Assertions.assertEquals(Long.valueOf(1), hist.getImportedRecords());
+    Assertions.assertEquals(ImportStage.IMPORT_RESOLVE, hist.getStage().get(0));
 
     try
     {
       this.objectService.getGeoObjectByCode("0001", USATestData.DISTRICT.getCode());
 
-      Assert.fail();
+      Assertions.fail();
     }
     catch (DataNotFoundException e)
     {
@@ -258,11 +258,11 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     MultiPoint cd1_expected = new MultiPoint(new Point[] { cd1_factory.createPoint(new Coordinate(cd1_lon, cd1_lat)) }, cd1_factory);
 
     Geometry cd1_geometry = coloradoDistOne.getGeometry(TestDataSet.DEFAULT_OVER_TIME_DATE);
-    Assert.assertEquals(cd1_expected, cd1_geometry);
+    Assertions.assertEquals(cd1_expected, cd1_geometry);
 
     JSONObject json = new JSONObject(this.etlService.getImportErrors(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
 
-    Assert.assertEquals(2, json.getJSONArray("resultSet").length());
+    Assertions.assertEquals(2, json.getJSONArray("resultSet").length());
   }
 
   /**
@@ -278,7 +278,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
   {
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet3.xlsx");
 
-    Assert.assertNotNull(istream);
+    Assertions.assertNotNull(istream);
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
@@ -291,10 +291,10 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
 
     hist = ImportHistory.get(hist.getOid());
-    Assert.assertEquals(Long.valueOf(10), hist.getWorkTotal());
-    Assert.assertEquals(Long.valueOf(10), hist.getWorkProgress());
-    Assert.assertEquals(Long.valueOf(10), hist.getImportedRecords());
-    Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+    Assertions.assertEquals(Long.valueOf(10), hist.getWorkTotal());
+    Assertions.assertEquals(Long.valueOf(10), hist.getWorkProgress());
+    Assertions.assertEquals(Long.valueOf(10), hist.getImportedRecords());
+    Assertions.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
     // Import a second spreadsheet, which should have a few duplicate records.
     InputStream istream2 = this.getClass().getResourceAsStream("/test-spreadsheet4.xlsx");
@@ -305,14 +305,14 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     SchedulerTestUtils.waitUntilStatus(hist2.getOid(), AllJobStatus.FEEDBACK);
 
     hist2 = ImportHistory.get(hist2.getOid());
-    Assert.assertEquals(Long.valueOf(17), hist2.getWorkTotal());
-    Assert.assertEquals(Long.valueOf(17), hist2.getWorkProgress());
-    Assert.assertEquals(Long.valueOf(7), hist2.getImportedRecords());
-    Assert.assertEquals(ImportStage.IMPORT_RESOLVE, hist2.getStage().get(0));
+    Assertions.assertEquals(Long.valueOf(17), hist2.getWorkTotal());
+    Assertions.assertEquals(Long.valueOf(17), hist2.getWorkProgress());
+    Assertions.assertEquals(Long.valueOf(7), hist2.getImportedRecords());
+    Assertions.assertEquals(ImportStage.IMPORT_RESOLVE, hist2.getStage().get(0));
 
     JSONObject json = new JSONObject(this.etlService.getImportErrors(testData.clientRequest.getSessionId(), hist2.getOid(), false, 100, 1).toString());
 
-    Assert.assertEquals(10, json.getJSONArray("resultSet").length());
+    Assertions.assertEquals(10, json.getJSONArray("resultSet").length());
   }
 
   @Test
@@ -323,33 +323,33 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
 
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet2.xlsx");
 
-    Assert.assertNotNull(istream);
+    Assertions.assertNotNull(istream);
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, ImportStrategy.NEW_ONLY);
     config.setHierarchy(hierarchyType);
 
-    Assert.assertNotNull(config.getDataSource());
+    Assertions.assertNotNull(config.getDataSource());
 
     ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), config.toDTO());
 
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FEEDBACK);
 
     hist = ImportHistory.get(hist.getOid());
-    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkTotal());
-    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkProgress());
-    Assert.assertEquals(Long.valueOf(2), hist.getImportedRecords());
-    Assert.assertEquals(ImportStage.IMPORT_RESOLVE, hist.getStage().get(0));
+    Assertions.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkTotal());
+    Assertions.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkProgress());
+    Assertions.assertEquals(Long.valueOf(2), hist.getImportedRecords());
+    Assertions.assertEquals(ImportStage.IMPORT_RESOLVE, hist.getStage().get(0));
 
     ServerGeoObjectIF object = this.objectService.getGeoObjectByCode("0001", USATestData.DISTRICT.getCode());
 
-    Assert.assertNotNull(object);
-    Assert.assertEquals("Test", object.getDisplayLabel(TestDataSet.DEFAULT_OVER_TIME_DATE).getValue());
+    Assertions.assertNotNull(object);
+    Assertions.assertEquals("Test", object.getDisplayLabel(TestDataSet.DEFAULT_OVER_TIME_DATE).getValue());
 
     Geometry geometry = object.getGeometry();
 
-    Assert.assertNotNull(geometry);
+    Assertions.assertNotNull(geometry);
 
     Double lat = Double.valueOf(2.232343);
     Double lon = Double.valueOf(1.134232);
@@ -357,7 +357,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     GeometryFactory factory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 4326);
     MultiPoint expected = new MultiPoint(new Point[] { factory.createPoint(new Coordinate(lon, lat)) }, factory);
 
-    Assert.assertEquals(expected, geometry);
+    Assertions.assertEquals(expected, geometry);
 
     ServerGeoObjectIF coloradoDistOne = this.objectService.getGeoObjectByCode(USATestData.CO_D_ONE.getCode(), USATestData.DISTRICT.getCode());
 
@@ -369,15 +369,15 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     }, cd1_factory);
 
     Geometry cd1_geometry = coloradoDistOne.getGeometry();
-    Assert.assertEquals(cd1_expected, cd1_geometry);
+    Assertions.assertEquals(cd1_expected, cd1_geometry);
 
     Object value = coloradoDistOne.getValue(DefaultAttribute.DATA_SOURCE.getName(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-    Assert.assertNotNull(value);
+    Assertions.assertNotNull(value);
 
     JSONObject json = new JSONObject(this.etlService.getImportErrors(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
 
-    Assert.assertEquals(1, json.getJSONArray("resultSet").length());
+    Assertions.assertEquals(1, json.getJSONArray("resultSet").length());
   }
 
   @Test
@@ -388,7 +388,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
 
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet2.xlsx");
 
-    Assert.assertNotNull(istream);
+    Assertions.assertNotNull(istream);
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
@@ -396,19 +396,19 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     config.setHierarchy(hierarchyType);
     config.addIdFunction(USATestData.AUTHORITY.getCode(), new BasicColumnFunction("Code"));
 
-    Assert.assertNotNull(config.getDataSource());
+    Assertions.assertNotNull(config.getDataSource());
 
     ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), config.toDTO());
 
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FEEDBACK);
 
     hist = ImportHistory.get(hist.getOid());
-    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkTotal());
-    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkProgress());
-    Assert.assertEquals(Long.valueOf(2), hist.getImportedRecords());
-    Assert.assertEquals(ImportStage.IMPORT_RESOLVE, hist.getStage().get(0));
+    Assertions.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkTotal());
+    Assertions.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkProgress());
+    Assertions.assertEquals(Long.valueOf(2), hist.getImportedRecords());
+    Assertions.assertEquals(ImportStage.IMPORT_RESOLVE, hist.getStage().get(0));
 
-    Assert.assertNotNull(this.objectService.getByExternalId("0001", USATestData.AUTHORITY.getCode(), USATestData.DISTRICT.getServerObject()));
+    Assertions.assertNotNull(this.objectService.getByExternalId("0001", USATestData.AUTHORITY.getCode(), USATestData.DISTRICT.getServerObject()));
   }
 
   @Test
@@ -421,7 +421,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     {
       InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet2.xlsx");
 
-      Assert.assertNotNull(istream);
+      Assertions.assertNotNull(istream);
 
       ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
@@ -429,28 +429,28 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
       config.setHierarchy(hierarchyType);
       config.addParent(new Location(USATestData.COUNTRY.getServerObject(), hierarchyType, new BasicColumnFunction("Parent"), ParentMatchStrategy.EXTERNAL, USATestData.AUTHORITY.getSourceAuthority()));
 
-      Assert.assertNotNull(config.getDataSource());
+      Assertions.assertNotNull(config.getDataSource());
 
       ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), config.toDTO());
 
       SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FEEDBACK);
 
       hist = ImportHistory.get(hist.getOid());
-      Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkTotal());
-      Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkProgress());
-      Assert.assertEquals(Long.valueOf(2), hist.getImportedRecords());
-      Assert.assertEquals(ImportStage.IMPORT_RESOLVE, hist.getStage().get(0));
+      Assertions.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkTotal());
+      Assertions.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkProgress());
+      Assertions.assertEquals(Long.valueOf(2), hist.getImportedRecords());
+      Assertions.assertEquals(ImportStage.IMPORT_RESOLVE, hist.getStage().get(0));
 
       ServerGeoObjectIF result = this.objectService.getGeoObjectByCode("0001", USATestData.DISTRICT.getServerObject());
 
-      Assert.assertNotNull(result);
+      Assertions.assertNotNull(result);
 
       ServerParentTreeNode node = this.objectService.getParentsForHierarchy(result, hierarchyType, false, false, USATestData.DEFAULT_OVER_TIME_DATE);
 
       List<ServerParentTreeNode> parents = node.getParents();
 
-      Assert.assertEquals(1, parents.size());
-      Assert.assertEquals(USATestData.USA.getCode(), parents.get(0).getGeoObject().getCode());
+      Assertions.assertEquals(1, parents.size());
+      Assertions.assertEquals(USATestData.USA.getCode(), parents.get(0).getGeoObject().getCode());
     }
     finally
     {
@@ -471,7 +471,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
 
     InputStream istream = this.getClass().getResourceAsStream("/parent-test.xlsx");
 
-    Assert.assertNotNull(istream);
+    Assertions.assertNotNull(istream);
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
@@ -490,30 +490,30 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     JSONArray errors = json.getJSONArray("resultSet");
 
     hist = ImportHistory.get(hist.getOid());
-    Assert.assertEquals(Long.valueOf(2), hist.getWorkTotal());
-    Assert.assertEquals(Long.valueOf(2), hist.getWorkProgress());
-    Assert.assertEquals(Long.valueOf(1), hist.getImportedRecords());
-    Assert.assertEquals(ImportStage.IMPORT_RESOLVE, hist.getStage().get(0));
+    Assertions.assertEquals(Long.valueOf(2), hist.getWorkTotal());
+    Assertions.assertEquals(Long.valueOf(2), hist.getWorkProgress());
+    Assertions.assertEquals(Long.valueOf(1), hist.getImportedRecords());
+    Assertions.assertEquals(ImportStage.IMPORT_RESOLVE, hist.getStage().get(0));
 
-    Assert.assertEquals(1, errors.length());
+    Assertions.assertEquals(1, errors.length());
 
     JSONObject error = errors.getJSONObject(0);
 
-    Assert.assertTrue(error.has("id"));
+    Assertions.assertTrue(error.has("id"));
 
-    Assert.assertEquals(DuplicateGeoObjectCodeException.CLASS, error.getJSONObject("exception").getString("type"));
+    Assertions.assertEquals(DuplicateGeoObjectCodeException.CLASS, error.getJSONObject("exception").getString("type"));
 
     JSONObject object = error.getJSONObject("object");
-    Assert.assertTrue(object.has("geoObject"));
-    Assert.assertTrue(object.has("parents"));
-    Assert.assertTrue(object.getJSONArray("parents").length() > 0);
+    Assertions.assertTrue(object.has("geoObject"));
+    Assertions.assertTrue(object.has("parents"));
+    Assertions.assertTrue(object.getJSONArray("parents").length() > 0);
 
     ServerParentTreeNodeOverTime parentsOverTime = ServerParentTreeNodeOverTime.fromJSON(USATestData.DISTRICT.getServerObject(), object.getJSONArray("parents").toString());
 
-    Assert.assertEquals(1, parentsOverTime.getHierarchies().size());
+    Assertions.assertEquals(1, parentsOverTime.getHierarchies().size());
 
     List<ServerParentTreeNode> nodes = parentsOverTime.getEntries(USATestData.HIER_ADMIN.getServerObject());
-    Assert.assertEquals(1, nodes.size());
+    Assertions.assertEquals(1, nodes.size());
 
     // TODO The fromJSON doesn't seem to be reading the json correctly...
     // List<ServerParentTreeNode> ptns = nodes.get(0).getParents();
@@ -526,8 +526,8 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
 
     // Test Resolving the error and then completing the import
     ImportErrorQuery ieq = new ImportErrorQuery(new QueryFactory());
-    Assert.assertEquals(1, ieq.getCount());
-    Assert.assertEquals(ErrorResolution.UNRESOLVED.name(), ieq.getIterator().next().getResolution());
+    Assertions.assertEquals(1, ieq.getCount());
+    Assertions.assertEquals(ErrorResolution.UNRESOLVED.name(), ieq.getIterator().next().getResolution());
 
     ErrorResolveDTO resolution = new ErrorResolveDTO();
     resolution.setImportErrorId(error.getString("id"));
@@ -536,18 +536,18 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
 
     this.etlService.submitImportErrorResolution(testData.clientRequest.getSessionId(), resolution);
 
-    Assert.assertEquals(ErrorResolution.IGNORE.name(), ieq.getIterator().next().getResolution());
+    Assertions.assertEquals(ErrorResolution.IGNORE.name(), ieq.getIterator().next().getResolution());
 
     this.etlService.resolveImport(testData.clientRequest.getSessionId(), hist.getOid());
 
     hist = ImportHistory.get(hist.getOid());
-    Assert.assertEquals(Long.valueOf(2), hist.getWorkTotal());
-    Assert.assertEquals(Long.valueOf(2), hist.getWorkProgress());
-    Assert.assertEquals(Long.valueOf(1), hist.getImportedRecords());
-    Assert.assertEquals(AllJobStatus.SUCCESS, hist.getStatus().get(0));
-    Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+    Assertions.assertEquals(Long.valueOf(2), hist.getWorkTotal());
+    Assertions.assertEquals(Long.valueOf(2), hist.getWorkProgress());
+    Assertions.assertEquals(Long.valueOf(1), hist.getImportedRecords());
+    Assertions.assertEquals(AllJobStatus.SUCCESS, hist.getStatus().get(0));
+    Assertions.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-    Assert.assertEquals(0, ieq.getCount());
+    Assertions.assertEquals(0, ieq.getCount());
   }
 
   @Test
@@ -564,7 +564,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
 
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet2.xlsx");
 
-    Assert.assertNotNull(istream);
+    Assertions.assertNotNull(istream);
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
@@ -581,22 +581,22 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FEEDBACK);
 
     hist = ImportHistory.get(hist.getOid());
-    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkTotal());
-    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkProgress());
-    Assert.assertEquals(Long.valueOf(2), hist.getImportedRecords());
-    Assert.assertEquals(ImportStage.IMPORT_RESOLVE, hist.getStage().get(0));
+    Assertions.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkTotal());
+    Assertions.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkProgress());
+    Assertions.assertEquals(Long.valueOf(2), hist.getImportedRecords());
+    Assertions.assertEquals(ImportStage.IMPORT_RESOLVE, hist.getStage().get(0));
 
     JSONObject jo = new JSONObject(this.etlService.getImportDetails(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
 
     SimpleDateFormat format = new SimpleDateFormat(GeoRegistryUtil.LOCAL_DATE_FORMAT);
     format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
-    Assert.assertEquals(format.format(startDate), jo.getJSONObject("configuration").getString("startDate"));
-    Assert.assertEquals(format.format(endDate), jo.getJSONObject("configuration").getString("endDate"));
+    Assertions.assertEquals(format.format(startDate), jo.getJSONObject("configuration").getString("startDate"));
+    Assertions.assertEquals(format.format(endDate), jo.getJSONObject("configuration").getString("endDate"));
 
     JSONObject importErrors = jo.getJSONObject("importErrors");
     JSONArray results = importErrors.getJSONArray("resultSet");
 
-    Assert.assertEquals(1, results.length());
+    Assertions.assertEquals(1, results.length());
   }
 
   private GeoObjectImportConfiguration getTestConfiguration(InputStream istream, ExcelService service, ImportStrategy strategy) throws JSONException

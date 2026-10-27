@@ -4,10 +4,9 @@
 package net.geoprism.registry.etl;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,7 +17,7 @@ import com.runwaysdk.session.Request;
 import net.geoprism.account.OauthServer;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.etl.fhir.BasicFhirResourceProcessor;
@@ -33,7 +32,7 @@ import net.geoprism.registry.test.TestDataSet;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class FhirOauthImportTest extends FastDatasetTest implements InstanceTestClassListener
 {
   @Autowired
@@ -50,7 +49,7 @@ public class FhirOauthImportTest extends FastDatasetTest implements InstanceTest
     super.beforeClassSetup();
   }
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception
   {
     super.setUp();

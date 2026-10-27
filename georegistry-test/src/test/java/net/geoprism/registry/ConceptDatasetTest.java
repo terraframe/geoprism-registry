@@ -6,8 +6,8 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.runwaysdk.session.Request;
@@ -108,7 +108,7 @@ public abstract class ConceptDatasetTest extends DatasetTest
     }
   }
 
-  @Before
+  @BeforeEach
   @Request
   public void setUp() throws Exception
   {
@@ -120,7 +120,7 @@ public abstract class ConceptDatasetTest extends DatasetTest
     addConceptEdge(parentConcept, cEdgeType, childConcept);
   }
 
-  @After
+  @AfterEach
   @Request
   public void tearDown() throws Exception
   {

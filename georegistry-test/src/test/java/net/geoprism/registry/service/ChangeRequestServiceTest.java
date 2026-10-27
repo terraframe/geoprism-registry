@@ -11,11 +11,11 @@ import java.util.List;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeGeometryType;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.geojson.GeoJsonWriter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +39,7 @@ import net.geoprism.registry.CGRPermissionException;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
@@ -67,7 +67,7 @@ import net.geoprism.registry.view.action.UpdateParentValueOverTimeView;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class ChangeRequestServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
   public static final TestGeoObjectInfo BELIZE                  = new TestGeoObjectInfo("Belize", FastTestDataset.COUNTRY, FastTestDataset.SOURCE);
@@ -112,7 +112,7 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
   @Autowired
   TestRegistryAdapter                   adapter;
 
-  @Before
+  @BeforeEach
   @Request
   public void setUp() throws Exception
   {
@@ -140,7 +140,7 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
     UPDATE_PARENT_ATTR_JSON = "{" + "\"hierarchyCode\" : \"" + FastTestDataset.HIER_ADMIN.getCode() + "\"," + "\"valuesOverTime\" : [" + "{" + "\"oid\" : \"" + ptn.getOid() + "\"," + "\"action\" : \"UPDATE\"," + "\"oldValue\" : \"" + FastTestDataset.COUNTRY.getCode() + UpdateParentValueOverTimeView.VALUE_SPLIT_TOKEN + FastTestDataset.CAMBODIA.getCode() + "\"," + "\"newValue\" : \"" + FastTestDataset.COUNTRY.getCode() + UpdateParentValueOverTimeView.VALUE_SPLIT_TOKEN + BELIZE.getCode() + "\"," + "\"newStartDate\" : \"" + NEW_START_DATE + "\"," + "\"newEndDate\" : \"" + NEW_END_DATE + "\"," + "\"oldStartDate\" : \"" + OLD_START_DATE + "\"," + "\"oldEndDate\" : \"" + OLD_END_DATE + "\"" + "}" + "]" + "}";
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws Exception
   {
     BELIZE.delete();
@@ -228,14 +228,13 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request) -> {
-          testGetAllCR(request, true);
-        });
+        FastTestDataset.runAsUser(user, (request) ->
+          testGetAllCR(request, true));
       }
       catch (SmartExceptionDTO e)
       {
         e.printStackTrace();
-        Assert.fail("Unexpected permission exception was thrown on user [" + user.getUsername() + "].");
+        Assertions.fail("Unexpected permission exception was thrown on user [" + user.getUsername() + "].");
       }
     }
 
@@ -245,14 +244,13 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request) -> {
-          testGetAllCR(request, false);
-        });
+        FastTestDataset.runAsUser(user, (request) ->
+          testGetAllCR(request, false));
       }
       catch (SmartExceptionDTO e)
       {
         e.printStackTrace();
-        Assert.fail("Unexpected permission exception was thrown on user [" + user.getUsername() + "].");
+        Assertions.fail("Unexpected permission exception was thrown on user [" + user.getUsername() + "].");
       }
     }
   }
@@ -269,9 +267,9 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
 
     if (hasPermission)
     {
-      Assert.assertEquals(2, count);
-      Assert.assertEquals(1, pageNumber);
-      Assert.assertEquals(2, jaResults.size());
+      Assertions.assertEquals(2, count);
+      Assertions.assertEquals(1, pageNumber);
+      Assertions.assertEquals(2, jaResults.size());
 
       for (int i = 0; i < jaResults.size(); ++i)
       {
@@ -294,8 +292,8 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
     }
     else
     {
-      Assert.assertEquals(0, count);
-      Assert.assertEquals(0, jaResults.size());
+      Assertions.assertEquals(0, count);
+      Assertions.assertEquals(0, jaResults.size());
     }
   }
 
@@ -316,14 +314,13 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request) -> {
-          testSetActionStatus(request, serializedCR);
-        });
+        FastTestDataset.runAsUser(user, (request) ->
+          testSetActionStatus(request, serializedCR));
       }
       catch (SmartExceptionDTO e)
       {
         e.printStackTrace();
-        Assert.fail("Unexpected permission exception was thrown on user [" + user.getUsername() + "].");
+        Assertions.fail("Unexpected permission exception was thrown on user [" + user.getUsername() + "].");
       }
     }
 
@@ -336,12 +333,12 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
         FastTestDataset.runAsUser(user, (request) -> {
           testSetActionStatus(request, serializedCR);
 
-          Assert.fail("Expected a permission exception to be thrown on user [" + user.getUsername() + "].");
+          Assertions.fail("Expected a permission exception to be thrown on user [" + user.getUsername() + "].");
         });
       }
       catch (SmartExceptionDTO e)
       {
-        Assert.assertEquals(e.getType(), CGRPermissionException.CLASS);
+        Assertions.assertEquals(e.getType(), CGRPermissionException.CLASS);
       }
     }
   }
@@ -368,7 +365,7 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
     ChangeRequest cr2 = ChangeRequest.get(crOid);
     AbstractAction action2 = cr2.getAllAction().next();
 
-    Assert.assertEquals(AllGovernanceStatus.ACCEPTED.name(), action2.getGovernanceStatus().name());
+    Assertions.assertEquals(AllGovernanceStatus.ACCEPTED.name(), action2.getGovernanceStatus().name());
   }
 
   @Test
@@ -380,14 +377,13 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request) -> {
-          testImplementDecisions(request, createTestChangeRequest(UpdateAttributeAction.CLASS));
-        });
+        FastTestDataset.runAsUser(user, (request) ->
+          testImplementDecisions(request, createTestChangeRequest(UpdateAttributeAction.CLASS)));
       }
       catch (SmartExceptionDTO e)
       {
         e.printStackTrace();
-        Assert.fail("Unexpected exception was thrown on user [" + user.getUsername() + "].");
+        Assertions.fail("Unexpected exception was thrown on user [" + user.getUsername() + "].");
       }
     }
 
@@ -400,12 +396,12 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
         FastTestDataset.runAsUser(user, (request) -> {
           testImplementDecisions(request, createTestChangeRequest(UpdateAttributeAction.CLASS));
 
-          Assert.fail("Expected a permission exception to be thrown on user [" + user.getUsername() + "].");
+          Assertions.fail("Expected a permission exception to be thrown on user [" + user.getUsername() + "].");
         });
       }
       catch (SmartExceptionDTO e)
       {
-        Assert.assertEquals(e.getType(), CGRPermissionException.CLASS);
+        Assertions.assertEquals(e.getType(), CGRPermissionException.CLASS);
       }
     }
   }
@@ -426,11 +422,11 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
   {
     ChangeRequest cr = ChangeRequest.get(crOid);
 
-    Assert.assertEquals(AllGovernanceStatus.ACCEPTED.name(), cr.getApprovalStatus().get(0).name());
+    Assertions.assertEquals(AllGovernanceStatus.ACCEPTED.name(), cr.getApprovalStatus().get(0).name());
 
     AbstractAction action = cr.getAllAction().next();
 
-    Assert.assertEquals(AllGovernanceStatus.ACCEPTED.name(), action.getApprovalStatus().get(0).name());
+    Assertions.assertEquals(AllGovernanceStatus.ACCEPTED.name(), action.getApprovalStatus().get(0).name());
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
     sdf.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
@@ -442,14 +438,14 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
 
     ValueOverTimeCollection votc = serverGo.getValuesOverTime(FastTestDataset.AT_National_Anthem.getAttributeName());
 
-    Assert.assertEquals(1, votc.size());
+    Assertions.assertEquals(1, votc.size());
 
     ValueOverTime vot = votc.get(0);
 
-    Assert.assertEquals(newStartDate, vot.getStartDate());
-    Assert.assertEquals(newEndDate, vot.getEndDate());
-    Assert.assertEquals(NEW_ANTHEM, vot.getValue());
-    Assert.assertEquals(NEW_ANTHEM, serverGo.getValue(FastTestDataset.AT_National_Anthem.getAttributeName(), newStartDate));
+    Assertions.assertEquals(newStartDate, vot.getStartDate());
+    Assertions.assertEquals(newEndDate, vot.getEndDate());
+    Assertions.assertEquals(NEW_ANTHEM, vot.getValue());
+    Assertions.assertEquals(NEW_ANTHEM, serverGo.getValue(FastTestDataset.AT_National_Anthem.getAttributeName(), newStartDate));
   }
 
   @Test
@@ -461,14 +457,13 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request) -> {
-          testImplementParentDecisions(request, createTestChangeRequest(UpdateAttributeViewJsonAdapters.PARENT_ATTR_NAME));
-        });
+        FastTestDataset.runAsUser(user, (request) ->
+          testImplementParentDecisions(request, createTestChangeRequest(UpdateAttributeViewJsonAdapters.PARENT_ATTR_NAME)));
       }
       catch (SmartExceptionDTO e)
       {
         e.printStackTrace();
-        Assert.fail("Unexpected exception was thrown on user [" + user.getUsername() + "].");
+        Assertions.fail("Unexpected exception was thrown on user [" + user.getUsername() + "].");
       }
 
       tearDown();
@@ -484,12 +479,12 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
         FastTestDataset.runAsUser(user, (request) -> {
           testImplementParentDecisions(request, createTestChangeRequest(UpdateAttributeViewJsonAdapters.PARENT_ATTR_NAME));
 
-          Assert.fail("Expected a permission exception to be thrown on user [" + user.getUsername() + "].");
+          Assertions.fail("Expected a permission exception to be thrown on user [" + user.getUsername() + "].");
         });
       }
       catch (SmartExceptionDTO e)
       {
-        Assert.assertEquals(e.getType(), CGRPermissionException.CLASS);
+        Assertions.assertEquals(e.getType(), CGRPermissionException.CLASS);
       }
     }
   }
@@ -510,11 +505,11 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
   {
     ChangeRequest cr = ChangeRequest.get(crOid);
 
-    Assert.assertEquals(AllGovernanceStatus.ACCEPTED.name(), cr.getApprovalStatus().get(0).name());
+    Assertions.assertEquals(AllGovernanceStatus.ACCEPTED.name(), cr.getApprovalStatus().get(0).name());
 
     AbstractAction action = cr.getAllAction().next();
 
-    Assert.assertEquals(AllGovernanceStatus.ACCEPTED.name(), action.getApprovalStatus().get(0).name());
+    Assertions.assertEquals(AllGovernanceStatus.ACCEPTED.name(), action.getApprovalStatus().get(0).name());
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
     sdf.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
@@ -525,18 +520,18 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
     ServerGeoObjectIF serverGo = FastTestDataset.PROV_CENTRAL.getServerObject();
 
     List<ServerParentTreeNode> ptns = goBizService.getParentsOverTime(serverGo, new String[] { FastTestDataset.COUNTRY.getCode() }, false, false).getEntries(FastTestDataset.HIER_ADMIN.getServerObject());
-    Assert.assertEquals(1, ptns.size());
+    Assertions.assertEquals(1, ptns.size());
 
     ServerParentTreeNode ptn = ptns.get(0);
 
     List<ServerParentTreeNode> parents = ptn.getParents();
-    Assert.assertEquals(1, parents.size());
+    Assertions.assertEquals(1, parents.size());
 
     ServerParentTreeNode parent = parents.get(0);
 
-    Assert.assertEquals(newStartDate, ptn.getStartDate());
-    Assert.assertEquals(newEndDate, ptn.getEndDate());
-    Assert.assertEquals(BELIZE.getCode(), parent.getGeoObject().getCode());
+    Assertions.assertEquals(newStartDate, ptn.getStartDate());
+    Assertions.assertEquals(newEndDate, ptn.getEndDate());
+    Assertions.assertEquals(BELIZE.getCode(), parent.getGeoObject().getCode());
   }
 
   @Test
@@ -550,14 +545,13 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request) -> {
-          testCreateGeoObjectCR(json, request);
-        });
+        FastTestDataset.runAsUser(user, (request) ->
+          testCreateGeoObjectCR(json, request));
       }
       catch (SmartExceptionDTO e)
       {
         e.printStackTrace();
-        Assert.fail("Unexpected exception was thrown on user [" + user.getUsername() + "].");
+        Assertions.fail("Unexpected exception was thrown on user [" + user.getUsername() + "].");
       }
 
       tearDown();
@@ -573,12 +567,12 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
         FastTestDataset.runAsUser(user, (request) -> {
           testCreateGeoObjectCR(json, request);
 
-          Assert.fail("Expected a permission exception to be thrown on user [" + user.getUsername() + "].");
+          Assertions.fail("Expected a permission exception to be thrown on user [" + user.getUsername() + "].");
         });
       }
       catch (SmartExceptionDTO e)
       {
-        Assert.assertEquals(e.getType(), CGRPermissionException.CLASS);
+        Assertions.assertEquals(e.getType(), CGRPermissionException.CLASS);
       }
     }
   }
@@ -587,8 +581,8 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
   {
     JsonObject jo = goEditorService.createGeoObject(request.getSessionId(), json[0], json[1], null, "test-notes");
 
-    Assert.assertEquals(true, jo.get("isChangeRequest").getAsBoolean());
-    Assert.assertEquals(36, jo.get("changeRequestId").getAsString().length());
+    Assertions.assertEquals(true, jo.get("isChangeRequest").getAsBoolean());
+    Assertions.assertEquals(36, jo.get("changeRequestId").getAsString().length());
 
     testCreateGeoObjectCR_Verify();
   }
@@ -621,19 +615,19 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
   {
     ChangeRequestQuery crq = new ChangeRequestQuery(new QueryFactory());
 
-    Assert.assertEquals(1, crq.getCount());
+    Assertions.assertEquals(1, crq.getCount());
 
     ChangeRequest cr = crq.getIterator().next();
 
-    Assert.assertEquals(AllGovernanceStatus.PENDING.name(), cr.getGovernanceStatus().name());
+    Assertions.assertEquals(AllGovernanceStatus.PENDING.name(), cr.getGovernanceStatus().name());
 
     AbstractAction action = cr.getAllAction().next();
 
-    Assert.assertTrue(action instanceof CreateGeoObjectAction);
+    Assertions.assertTrue(action instanceof CreateGeoObjectAction);
 
-    Assert.assertEquals(TEST_NEW_PROVINCE.getCode(), cr.getGeoObjectCode());
-    Assert.assertEquals(TEST_NEW_PROVINCE.getGeoObjectType().getCode(), cr.getGeoObjectTypeCode());
-    Assert.assertEquals(FastTestDataset.ORG_CGOV.getCode(), cr.getOrganizationCode());
+    Assertions.assertEquals(TEST_NEW_PROVINCE.getCode(), cr.getGeoObjectCode());
+    Assertions.assertEquals(TEST_NEW_PROVINCE.getGeoObjectType().getCode(), cr.getGeoObjectTypeCode());
+    Assertions.assertEquals(FastTestDataset.ORG_CGOV.getCode(), cr.getOrganizationCode());
   }
 
   @Test
@@ -647,14 +641,13 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request) -> {
-          testUpdateGeoObjectCR(json, request);
-        });
+        FastTestDataset.runAsUser(user, (request) ->
+          testUpdateGeoObjectCR(json, request));
       }
       catch (SmartExceptionDTO e)
       {
         e.printStackTrace();
-        Assert.fail("Unexpected exception was thrown on user [" + user.getUsername() + "].");
+        Assertions.fail("Unexpected exception was thrown on user [" + user.getUsername() + "].");
       }
 
       tearDown();
@@ -670,12 +663,12 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
         FastTestDataset.runAsUser(user, (request) -> {
           testUpdateGeoObjectCR(json, request);
 
-          Assert.fail("Expected a permission exception to be thrown on user [" + user.getUsername() + "].");
+          Assertions.fail("Expected a permission exception to be thrown on user [" + user.getUsername() + "].");
         });
       }
       catch (SmartExceptionDTO e)
       {
-        Assert.assertEquals(e.getType(), CGRPermissionException.CLASS);
+        Assertions.assertEquals(e.getType(), CGRPermissionException.CLASS);
       }
     }
   }
@@ -684,8 +677,8 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
   {
     JsonObject jo = goEditorService.updateGeoObject(request.getSessionId(), FastTestDataset.CAMBODIA.getCode(), FastTestDataset.COUNTRY.getCode(), json, null, "test-notes");
 
-    Assert.assertEquals(true, jo.get("isChangeRequest").getAsBoolean());
-    Assert.assertEquals(36, jo.get("changeRequestId").getAsString().length());
+    Assertions.assertEquals(true, jo.get("isChangeRequest").getAsBoolean());
+    Assertions.assertEquals(36, jo.get("changeRequestId").getAsString().length());
 
     testUpdateGeoObjectCR_Verify();
   }
@@ -710,19 +703,19 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
   {
     ChangeRequestQuery crq = new ChangeRequestQuery(new QueryFactory());
 
-    Assert.assertEquals(1, crq.getCount());
+    Assertions.assertEquals(1, crq.getCount());
 
     ChangeRequest cr = crq.getIterator().next();
 
-    Assert.assertEquals(AllGovernanceStatus.PENDING.name(), cr.getGovernanceStatus().name());
+    Assertions.assertEquals(AllGovernanceStatus.PENDING.name(), cr.getGovernanceStatus().name());
 
     AbstractAction action = cr.getAllAction().next();
 
-    Assert.assertTrue(action instanceof UpdateAttributeAction);
+    Assertions.assertTrue(action instanceof UpdateAttributeAction);
 
-    Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), cr.getGeoObjectCode());
-    Assert.assertEquals(FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), cr.getGeoObjectTypeCode());
-    Assert.assertEquals(FastTestDataset.ORG_CGOV.getCode(), cr.getOrganizationCode());
+    Assertions.assertEquals(FastTestDataset.CAMBODIA.getCode(), cr.getGeoObjectCode());
+    Assertions.assertEquals(FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), cr.getGeoObjectTypeCode());
+    Assertions.assertEquals(FastTestDataset.ORG_CGOV.getCode(), cr.getOrganizationCode());
   }
 
   /**
@@ -740,14 +733,13 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request) -> {
-          testComplexUpdateGeoObjectCR(data, request);
-        });
+        FastTestDataset.runAsUser(user, (request) ->
+          testComplexUpdateGeoObjectCR(data, request));
       }
       catch (SmartExceptionDTO e)
       {
         e.printStackTrace();
-        Assert.fail("Unexpected exception was thrown on user [" + user.getUsername() + "].");
+        Assertions.fail("Unexpected exception was thrown on user [" + user.getUsername() + "].");
       }
     }
   }
@@ -809,40 +801,40 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
 
     ChangeRequestQuery crq = new ChangeRequestQuery(new QueryFactory());
 
-    Assert.assertEquals(1, crq.getCount());
+    Assertions.assertEquals(1, crq.getCount());
 
     ChangeRequest cr = crq.getIterator().next();
 
-    Assert.assertEquals(AllGovernanceStatus.ACCEPTED.name(), cr.getGovernanceStatus().name());
+    Assertions.assertEquals(AllGovernanceStatus.ACCEPTED.name(), cr.getGovernanceStatus().name());
 
     AbstractAction action = cr.getAllAction().next();
 
-    Assert.assertTrue(action instanceof UpdateAttributeAction);
+    Assertions.assertTrue(action instanceof UpdateAttributeAction);
 
-    Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), cr.getGeoObjectCode());
-    Assert.assertEquals(FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), cr.getGeoObjectTypeCode());
-    Assert.assertEquals(FastTestDataset.ORG_CGOV.getCode(), cr.getOrganizationCode());
+    Assertions.assertEquals(FastTestDataset.CAMBODIA.getCode(), cr.getGeoObjectCode());
+    Assertions.assertEquals(FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), cr.getGeoObjectTypeCode());
+    Assertions.assertEquals(FastTestDataset.ORG_CGOV.getCode(), cr.getOrganizationCode());
 
     ServerGeoObjectIF cambodia = FastTestDataset.CAMBODIA.getServerObject();
     ValueOverTimeCollection votc = cambodia.getValuesOverTime(FastTestDataset.AT_National_Anthem.getAttributeName());
 
-    Assert.assertEquals(2, votc.size());
+    Assertions.assertEquals(2, votc.size());
 
     ValueOverTime vot1 = votc.get(0);
 
-    Assert.assertNotNull(vot1.getOid());
-    Assert.assertTrue(! ( vot1.getOid().equals(oldOid) ));
-    Assert.assertEquals(NEW_ANTHEM, vot1.getValue());
-    Assert.assertEquals(oldStartDate, vot1.getStartDate());
-    Assert.assertEquals(oldEndDate, vot1.getEndDate());
+    Assertions.assertNotNull(vot1.getOid());
+    Assertions.assertTrue(! ( vot1.getOid().equals(oldOid) ));
+    Assertions.assertEquals(NEW_ANTHEM, vot1.getValue());
+    Assertions.assertEquals(oldStartDate, vot1.getStartDate());
+    Assertions.assertEquals(oldEndDate, vot1.getEndDate());
 
     ValueOverTime vot2 = votc.get(1);
 
-    Assert.assertNotNull(vot2.getOid());
-    Assert.assertTrue(! ( vot2.getOid().equals(oldOid) ));
-    Assert.assertEquals(NEW_ANTHEM, vot2.getValue());
-    Assert.assertEquals(newStartDate, vot2.getStartDate());
-    Assert.assertEquals(newEndDate, vot2.getEndDate());
+    Assertions.assertNotNull(vot2.getOid());
+    Assertions.assertTrue(! ( vot2.getOid().equals(oldOid) ));
+    Assertions.assertEquals(NEW_ANTHEM, vot2.getValue());
+    Assertions.assertEquals(newStartDate, vot2.getStartDate());
+    Assertions.assertEquals(newEndDate, vot2.getEndDate());
   }
 
   /**
@@ -859,14 +851,13 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request) -> {
-          testUpdateGeoObjectGeometryCR(data, request);
-        });
+        FastTestDataset.runAsUser(user, (request) ->
+          testUpdateGeoObjectGeometryCR(data, request));
       }
       catch (SmartExceptionDTO e)
       {
         e.printStackTrace();
-        Assert.fail("Unexpected exception was thrown on user [" + user.getUsername() + "].");
+        Assertions.fail("Unexpected exception was thrown on user [" + user.getUsername() + "].");
       }
     }
   }
@@ -935,32 +926,32 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
 
     ChangeRequestQuery crq = new ChangeRequestQuery(new QueryFactory());
 
-    Assert.assertEquals(1, crq.getCount());
+    Assertions.assertEquals(1, crq.getCount());
 
     ChangeRequest cr = crq.getIterator().next();
 
-    Assert.assertEquals(AllGovernanceStatus.ACCEPTED.name(), cr.getGovernanceStatus().name());
+    Assertions.assertEquals(AllGovernanceStatus.ACCEPTED.name(), cr.getGovernanceStatus().name());
 
     AbstractAction action = cr.getAllAction().next();
 
-    Assert.assertTrue(action instanceof UpdateAttributeAction);
+    Assertions.assertTrue(action instanceof UpdateAttributeAction);
 
-    Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), cr.getGeoObjectCode());
-    Assert.assertEquals(FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), cr.getGeoObjectTypeCode());
-    Assert.assertEquals(FastTestDataset.ORG_CGOV.getCode(), cr.getOrganizationCode());
+    Assertions.assertEquals(FastTestDataset.CAMBODIA.getCode(), cr.getGeoObjectCode());
+    Assertions.assertEquals(FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), cr.getGeoObjectTypeCode());
+    Assertions.assertEquals(FastTestDataset.ORG_CGOV.getCode(), cr.getOrganizationCode());
 
     VertexServerGeoObject cambodia = (VertexServerGeoObject) FastTestDataset.CAMBODIA.getServerObject();
     ValueOverTimeCollection votc = cambodia.getValuesOverTime(DefaultAttribute.GEOMETRY.getName());
 
-    Assert.assertEquals(1, votc.size());
+    Assertions.assertEquals(1, votc.size());
 
     ValueOverTime vot1 = votc.get(0);
 
-    Assert.assertNotNull(vot1.getOid());
+    Assertions.assertNotNull(vot1.getOid());
     // Assert.assertEquals(oldOid, vot1.getOid());
-    Assert.assertEquals(newStartDate, vot1.getStartDate());
-    Assert.assertEquals(newEndDate, vot1.getEndDate());
-    Assert.assertTrue(vot1.getValue() instanceof Geometry);
+    Assertions.assertEquals(newStartDate, vot1.getStartDate());
+    Assertions.assertEquals(newEndDate, vot1.getEndDate());
+    Assertions.assertTrue(vot1.getValue() instanceof Geometry);
   }
 
   /**
@@ -977,14 +968,13 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request) -> {
-          testUpdateGeoObjectLocalizedValueCR(data, request);
-        });
+        FastTestDataset.runAsUser(user, (request) ->
+          testUpdateGeoObjectLocalizedValueCR(data, request));
       }
       catch (SmartExceptionDTO e)
       {
         e.printStackTrace();
-        Assert.fail("Unexpected exception was thrown on user [" + user.getUsername() + "].");
+        Assertions.fail("Unexpected exception was thrown on user [" + user.getUsername() + "].");
       }
     }
   }
@@ -1049,32 +1039,32 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
 
     ChangeRequestQuery crq = new ChangeRequestQuery(new QueryFactory());
 
-    Assert.assertEquals(1, crq.getCount());
+    Assertions.assertEquals(1, crq.getCount());
 
     ChangeRequest cr = crq.getIterator().next();
 
-    Assert.assertEquals(AllGovernanceStatus.ACCEPTED.name(), cr.getGovernanceStatus().name());
+    Assertions.assertEquals(AllGovernanceStatus.ACCEPTED.name(), cr.getGovernanceStatus().name());
 
     AbstractAction action = cr.getAllAction().next();
 
-    Assert.assertTrue(action instanceof UpdateAttributeAction);
+    Assertions.assertTrue(action instanceof UpdateAttributeAction);
 
-    Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), cr.getGeoObjectCode());
-    Assert.assertEquals(FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), cr.getGeoObjectTypeCode());
-    Assert.assertEquals(FastTestDataset.ORG_CGOV.getCode(), cr.getOrganizationCode());
+    Assertions.assertEquals(FastTestDataset.CAMBODIA.getCode(), cr.getGeoObjectCode());
+    Assertions.assertEquals(FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), cr.getGeoObjectTypeCode());
+    Assertions.assertEquals(FastTestDataset.ORG_CGOV.getCode(), cr.getOrganizationCode());
 
     VertexServerGeoObject cambodia = (VertexServerGeoObject) FastTestDataset.CAMBODIA.getServerObject();
     ValueOverTimeCollection votc = cambodia.getValuesOverTime(DefaultAttribute.DISPLAY_LABEL.getName());
 
-    Assert.assertEquals(1, votc.size());
+    Assertions.assertEquals(1, votc.size());
 
     ValueOverTime vot1 = votc.get(0);
 
-    Assert.assertNotNull(vot1.getOid());
+    Assertions.assertNotNull(vot1.getOid());
     // Assert.assertEquals(oldOid, vot1.getOid());
-    Assert.assertEquals(newStartDate, vot1.getStartDate());
-    Assert.assertEquals(newEndDate, vot1.getEndDate());
-    Assert.assertEquals("localizeTest", cambodia.getDisplayLabel(newStartDate).getValue());
+    Assertions.assertEquals(newStartDate, vot1.getStartDate());
+    Assertions.assertEquals(newEndDate, vot1.getEndDate());
+    Assertions.assertEquals("localizeTest", cambodia.getDisplayLabel(newStartDate).getValue());
   }
 
   /**
@@ -1091,14 +1081,13 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request) -> {
-          testUpdateGeoObjectDateCR(data, request);
-        });
+        FastTestDataset.runAsUser(user, (request) ->
+          testUpdateGeoObjectDateCR(data, request));
       }
       catch (SmartExceptionDTO e)
       {
         e.printStackTrace();
-        Assert.fail("Unexpected exception was thrown on user [" + user.getUsername() + "].");
+        Assertions.fail("Unexpected exception was thrown on user [" + user.getUsername() + "].");
       }
     }
   }
@@ -1166,31 +1155,31 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
 
     ChangeRequestQuery crq = new ChangeRequestQuery(new QueryFactory());
 
-    Assert.assertEquals(1, crq.getCount());
+    Assertions.assertEquals(1, crq.getCount());
 
     ChangeRequest cr = crq.getIterator().next();
 
-    Assert.assertEquals(AllGovernanceStatus.ACCEPTED.name(), cr.getGovernanceStatus().name());
+    Assertions.assertEquals(AllGovernanceStatus.ACCEPTED.name(), cr.getGovernanceStatus().name());
 
     AbstractAction action = cr.getAllAction().next();
 
-    Assert.assertTrue(action instanceof UpdateAttributeAction);
+    Assertions.assertTrue(action instanceof UpdateAttributeAction);
 
-    Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), cr.getGeoObjectCode());
-    Assert.assertEquals(FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), cr.getGeoObjectTypeCode());
-    Assert.assertEquals(FastTestDataset.ORG_CGOV.getCode(), cr.getOrganizationCode());
+    Assertions.assertEquals(FastTestDataset.CAMBODIA.getCode(), cr.getGeoObjectCode());
+    Assertions.assertEquals(FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), cr.getGeoObjectTypeCode());
+    Assertions.assertEquals(FastTestDataset.ORG_CGOV.getCode(), cr.getOrganizationCode());
 
     VertexServerGeoObject cambodia = (VertexServerGeoObject) FastTestDataset.CAMBODIA.getServerObject();
     ValueOverTimeCollection votc = cambodia.getValuesOverTime(attrName);
 
-    Assert.assertEquals(1, votc.size());
+    Assertions.assertEquals(1, votc.size());
 
     ValueOverTime vot1 = votc.get(0);
 
-    Assert.assertNotNull(vot1.getOid());
+    Assertions.assertNotNull(vot1.getOid());
     // Assert.assertEquals(oldOid, vot1.getOid());
-    Assert.assertEquals(newStartDate, vot1.getStartDate());
-    Assert.assertEquals(newEndDate, vot1.getEndDate());
+    Assertions.assertEquals(newStartDate, vot1.getStartDate());
+    Assertions.assertEquals(newEndDate, vot1.getEndDate());
 
     Calendar expected = Calendar.getInstance();
     expected.setTime(new Date((Long) data[2]));
@@ -1203,6 +1192,6 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
     actual.set(Calendar.SECOND, 0);
     actual.set(Calendar.MILLISECOND, 0);
 
-    Assert.assertEquals(expected.getTime(), actual.getTime());
+    Assertions.assertEquals(expected.getTime(), actual.getTime());
   }
 }

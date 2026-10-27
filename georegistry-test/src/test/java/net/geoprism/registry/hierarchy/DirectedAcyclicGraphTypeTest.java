@@ -8,9 +8,9 @@ import java.util.Optional;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.GraphTypeDTO;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,14 +20,14 @@ import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.metadata.MdEdge;
 
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.DirectedAcyclicGraphType;
 import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessServiceIF;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class DirectedAcyclicGraphTypeTest
 {
   @Autowired
@@ -45,19 +45,19 @@ public class DirectedAcyclicGraphTypeTest
 
     try
     {
-      Assert.assertNotNull(type);
-      Assert.assertEquals(code, type.getCode());
-      Assert.assertEquals(label.getValue(), type.getLabel().getValue());
-      Assert.assertEquals(description.getValue(), type.getDescriptionLV().getValue());
+      Assertions.assertNotNull(type);
+      Assertions.assertEquals(code, type.getCode());
+      Assertions.assertEquals(label.getValue(), type.getLabel().getValue());
+      Assertions.assertEquals(description.getValue(), type.getDescriptionLV().getValue());
 
       MdEdge mdEdge = type.getMdEdge();
 
-      Assert.assertNotNull(mdEdge);
+      Assertions.assertNotNull(mdEdge);
 
       MdEdgeDAO mdEdgeDao = (MdEdgeDAO) BusinessFacade.getEntityDAO(mdEdge);
 
-      Assert.assertNotNull(mdEdgeDao.definesAttribute("startDate"));
-      Assert.assertNotNull(mdEdgeDao.definesAttribute("endDate"));
+      Assertions.assertNotNull(mdEdgeDao.definesAttribute("startDate"));
+      Assertions.assertNotNull(mdEdgeDao.definesAttribute("endDate"));
     }
     finally
     {
@@ -80,8 +80,8 @@ public class DirectedAcyclicGraphTypeTest
 
       this.service.update(type, object);
 
-      Assert.assertEquals("Updated Label", type.getLabel().getValue());
-      Assert.assertEquals("Updated Description", type.getDescriptionLV().getValue());
+      Assertions.assertEquals("Updated Label", type.getLabel().getValue());
+      Assertions.assertEquals("Updated Description", type.getDescriptionLV().getValue());
     }
     finally
     {
@@ -100,8 +100,8 @@ public class DirectedAcyclicGraphTypeTest
     {
       DirectedAcyclicGraphType result = service.getByCode(type.getCode()).get();
 
-      Assert.assertNotNull(result);
-      Assert.assertEquals(type.getCode(), result.getCode());
+      Assertions.assertNotNull(result);
+      Assertions.assertEquals(type.getCode(), result.getCode());
     }
     finally
     {
@@ -120,8 +120,8 @@ public class DirectedAcyclicGraphTypeTest
     {
       Optional<DirectedAcyclicGraphType> optional = service.getByMdEdge(type.getMdEdge());
 
-      Assert.assertTrue(optional.isPresent());
-      Assert.assertEquals(type.getCode(), optional.get().getCode());
+      Assertions.assertTrue(optional.isPresent());
+      Assertions.assertEquals(type.getCode(), optional.get().getCode());
     }
     finally
     {
@@ -140,11 +140,11 @@ public class DirectedAcyclicGraphTypeTest
     {
       List<DirectedAcyclicGraphType> results = service.getAll();
 
-      Assert.assertEquals(1, results.size());
+      Assertions.assertEquals(1, results.size());
 
       DirectedAcyclicGraphType result = results.get(0);
 
-      Assert.assertEquals(type.getCode(), result.getCode());
+      Assertions.assertEquals(type.getCode(), result.getCode());
     }
     finally
     {

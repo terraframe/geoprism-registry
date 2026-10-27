@@ -6,9 +6,9 @@ package net.geoprism.registry.service;
 import java.util.List;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,7 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.exception.RequiredSourceAuthorityException;
@@ -28,9 +28,11 @@ import net.geoprism.registry.model.MetadataProfile;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.SourceAuthorityBusinessServiceIF;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class DataSourceServiceTest implements InstanceTestClassListener
 {
 
@@ -70,13 +72,13 @@ public class DataSourceServiceTest implements InstanceTestClassListener
 
     DataSource result = this.service.apply(json);
 
-    Assert.assertEquals(source.getCode(), result.getCode());
+    Assertions.assertEquals(source.getCode(), result.getCode());
 
-    Assert.assertTrue(this.service.getByCode(source.getCode()).isPresent());
+    Assertions.assertTrue(this.service.getByCode(source.getCode()).isPresent());
 
     this.service.delete(result);
 
-    Assert.assertFalse(this.service.getByCode(source.getCode()).isPresent());
+    Assertions.assertFalse(this.service.getByCode(source.getCode()).isPresent());
   }
 
   @Test
@@ -90,16 +92,16 @@ public class DataSourceServiceTest implements InstanceTestClassListener
     DataSourceDTO dto = this.service.toDTO(source);
     dto.setOid(null);
 
-    Assert.assertNull(dto.getGovernanceLevel());
-    Assert.assertNull(dto.getMetadataProfile());
+    Assertions.assertNull(dto.getGovernanceLevel());
+    Assertions.assertNull(dto.getMetadataProfile());
 
     DataSource result = this.service.apply(dto);
 
     try
     {
-      Assert.assertEquals(source.getCode(), result.getCode());
-      Assert.assertNull(result.getMetadataProfile());
-      Assert.assertNull(result.getGovernanceLevel());
+      Assertions.assertEquals(source.getCode(), result.getCode());
+      Assertions.assertNull(result.getMetadataProfile());
+      Assertions.assertNull(result.getGovernanceLevel());
     }
     finally
     {
@@ -122,8 +124,8 @@ public class DataSourceServiceTest implements InstanceTestClassListener
     {
       List<DataSource> results = this.service.search(source.getCode());
 
-      Assert.assertEquals(1, results.size());
-      Assert.assertEquals(source.getCode(), results.get(0).getCode());
+      Assertions.assertEquals(1, results.size());
+      Assertions.assertEquals(source.getCode(), results.get(0).getCode());
     }
     finally
     {
@@ -144,7 +146,7 @@ public class DataSourceServiceTest implements InstanceTestClassListener
 
     try
     {
-      Assert.assertEquals(Long.valueOf(1), this.authorityService.getUseCount(authority));
+      Assertions.assertEquals(Long.valueOf(1), this.authorityService.getUseCount(authority));
     }
     finally
     {
@@ -152,25 +154,27 @@ public class DataSourceServiceTest implements InstanceTestClassListener
     }
   }
 
-  @Test(expected = RequiredSourceAuthorityException.class)
+  @Test
   @Request
   public void testRequiredSourceAuthorityException()
   {
-    DataSource source = createMock(authority);
+    assertThrows(RequiredSourceAuthorityException.class, () -> {
+      DataSource source = createMock(authority);
 
-    DataSourceDTO json = this.service.toDTO(source);
-    json.setOid(null);
+      DataSourceDTO json = this.service.toDTO(source);
+      json.setOid(null);
 
-    source = this.service.apply(json);
+      source = this.service.apply(json);
 
-    try
-    {
-      this.authorityService.delete(authority);
-    }
-    finally
-    {
-      this.service.delete(source);
-    }
+      try
+      {
+        this.authorityService.delete(authority);
+      }
+      finally
+      {
+        this.service.delete(source);
+      }
+    });
   }
 
   public static DataSource createMock(SourceAuthority authority)

@@ -8,11 +8,11 @@ import java.util.ArrayList;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.MetadataFactory;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,7 +24,7 @@ import com.runwaysdk.business.SmartExceptionDTO;
 
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.service.request.GPRHierarchyTypeService;
@@ -34,9 +34,11 @@ import net.geoprism.registry.test.TestHierarchyTypeInfo;
 import net.geoprism.registry.test.TestRegistryAdapter;
 import net.geoprism.registry.test.TestUserInfo;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class HierarchyServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
 
@@ -58,7 +60,7 @@ public class HierarchyServiceTest extends FastDatasetTest implements InstanceTes
     super.afterClassSetup();
   }
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception
   {
     super.setUp();
@@ -66,7 +68,7 @@ public class HierarchyServiceTest extends FastDatasetTest implements InstanceTes
     deleteExtraMetadata();
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws Exception
   {
     deleteExtraMetadata();
@@ -96,18 +98,18 @@ public class HierarchyServiceTest extends FastDatasetTest implements InstanceTes
         {
           JsonObject hierarchy = ja.get(i).getAsJsonObject();
 
-          Assert.assertNotNull(hierarchy.get("label").getAsString());
-          Assert.assertNotNull(hierarchy.get("code").getAsString());
+          Assertions.assertNotNull(hierarchy.get("label").getAsString());
+          Assertions.assertNotNull(hierarchy.get("code").getAsString());
 
           hierarchyLabels.add(hierarchy.get("label").getAsString());
           hierarchyCodes.add(hierarchy.get("code").getAsString());
         }
 
-        Assert.assertTrue(hierarchyCodes.contains(FastTestDataset.HIER_ADMIN.getCode()));
-        Assert.assertTrue(hierarchyLabels.contains(FastTestDataset.HIER_ADMIN.getDisplayLabel()));
+        Assertions.assertTrue(hierarchyCodes.contains(FastTestDataset.HIER_ADMIN.getCode()));
+        Assertions.assertTrue(hierarchyLabels.contains(FastTestDataset.HIER_ADMIN.getDisplayLabel()));
 
-        Assert.assertFalse(hierarchyCodes.contains(FastTestDataset.HIER_HEALTH_ADMIN.getCode()));
-        Assert.assertFalse(hierarchyLabels.contains(FastTestDataset.HIER_HEALTH_ADMIN.getDisplayLabel()));
+        Assertions.assertFalse(hierarchyCodes.contains(FastTestDataset.HIER_HEALTH_ADMIN.getCode()));
+        Assertions.assertFalse(hierarchyLabels.contains(FastTestDataset.HIER_HEALTH_ADMIN.getDisplayLabel()));
       });
     }
 
@@ -124,18 +126,18 @@ public class HierarchyServiceTest extends FastDatasetTest implements InstanceTes
         {
           JsonObject hierarchy = ja.get(i).getAsJsonObject();
 
-          Assert.assertNotNull(hierarchy.get("label").getAsString());
-          Assert.assertNotNull(hierarchy.get("code").getAsString());
+          Assertions.assertNotNull(hierarchy.get("label").getAsString());
+          Assertions.assertNotNull(hierarchy.get("code").getAsString());
 
           hierarchyLabels.add(hierarchy.get("label").getAsString());
           hierarchyCodes.add(hierarchy.get("code").getAsString());
         }
 
-        Assert.assertFalse(hierarchyCodes.contains(FastTestDataset.HIER_ADMIN.getCode()));
-        Assert.assertFalse(hierarchyLabels.contains(FastTestDataset.HIER_ADMIN.getDisplayLabel()));
+        Assertions.assertFalse(hierarchyCodes.contains(FastTestDataset.HIER_ADMIN.getCode()));
+        Assertions.assertFalse(hierarchyLabels.contains(FastTestDataset.HIER_ADMIN.getDisplayLabel()));
 
-        Assert.assertTrue(hierarchyCodes.contains(FastTestDataset.HIER_HEALTH_ADMIN.getCode()));
-        Assert.assertTrue(hierarchyLabels.contains(FastTestDataset.HIER_HEALTH_ADMIN.getDisplayLabel()));
+        Assertions.assertTrue(hierarchyCodes.contains(FastTestDataset.HIER_HEALTH_ADMIN.getCode()));
+        Assertions.assertTrue(hierarchyLabels.contains(FastTestDataset.HIER_HEALTH_ADMIN.getDisplayLabel()));
       });
     }
 
@@ -152,18 +154,18 @@ public class HierarchyServiceTest extends FastDatasetTest implements InstanceTes
         {
           JsonObject hierarchy = ja.get(i).getAsJsonObject();
 
-          Assert.assertNotNull(hierarchy.get("label").getAsString());
-          Assert.assertNotNull(hierarchy.get("code").getAsString());
+          Assertions.assertNotNull(hierarchy.get("label").getAsString());
+          Assertions.assertNotNull(hierarchy.get("code").getAsString());
 
           hierarchyLabels.add(hierarchy.get("label").getAsString());
           hierarchyCodes.add(hierarchy.get("code").getAsString());
         }
 
-        Assert.assertTrue(hierarchyCodes.contains(FastTestDataset.HIER_ADMIN.getCode()));
-        Assert.assertTrue(hierarchyLabels.contains(FastTestDataset.HIER_ADMIN.getDisplayLabel()));
+        Assertions.assertTrue(hierarchyCodes.contains(FastTestDataset.HIER_ADMIN.getCode()));
+        Assertions.assertTrue(hierarchyLabels.contains(FastTestDataset.HIER_ADMIN.getDisplayLabel()));
 
-        Assert.assertTrue(hierarchyCodes.contains(FastTestDataset.HIER_HEALTH_ADMIN.getCode()));
-        Assert.assertTrue(hierarchyLabels.contains(FastTestDataset.HIER_HEALTH_ADMIN.getDisplayLabel()));
+        Assertions.assertTrue(hierarchyCodes.contains(FastTestDataset.HIER_HEALTH_ADMIN.getCode()));
+        Assertions.assertTrue(hierarchyLabels.contains(FastTestDataset.HIER_HEALTH_ADMIN.getDisplayLabel()));
       });
     }
   }
@@ -190,22 +192,22 @@ public class HierarchyServiceTest extends FastDatasetTest implements InstanceTes
 
     HierarchyType[] hierarchies = this.service.getHierarchyTypes(testData.clientSession.getSessionId(), new String[] { TEST_HT.getCode() }, PermissionContext.READ);
 
-    Assert.assertNotNull("The created hierarchy was not returned", hierarchies);
+    Assertions.assertNotNull(hierarchies, "The created hierarchy was not returned");
 
-    Assert.assertEquals("The wrong number of hierarchies were returned.", 1, hierarchies.length);
+    Assertions.assertEquals(1, hierarchies.length, "The wrong number of hierarchies were returned.");
 
     HierarchyType hierarchy = hierarchies[0];
 
-    Assert.assertEquals("Reporting Division", hierarchy.getLabel().getValue());
-    Assert.assertEquals("Test Abstract", hierarchy.getAbstractDescription());
-    Assert.assertEquals("Test Acknowledgement", hierarchy.getAcknowledgement());
-    Assert.assertEquals("Test disclaimer", hierarchy.getDisclaimer());
-    Assert.assertEquals("Test Contact", hierarchy.getContact());
-    Assert.assertEquals("Test phone number", hierarchy.getPhoneNumber());
-    Assert.assertEquals("Test email", hierarchy.getEmail());
-    Assert.assertEquals("Test Progress", hierarchy.getProgress());
-    Assert.assertEquals("Access Constraints", hierarchy.getAccessConstraints());
-    Assert.assertEquals("Test Use Constraints", hierarchy.getUseConstraints());
+    Assertions.assertEquals("Reporting Division", hierarchy.getLabel().getValue());
+    Assertions.assertEquals("Test Abstract", hierarchy.getAbstractDescription());
+    Assertions.assertEquals("Test Acknowledgement", hierarchy.getAcknowledgement());
+    Assertions.assertEquals("Test disclaimer", hierarchy.getDisclaimer());
+    Assertions.assertEquals("Test Contact", hierarchy.getContact());
+    Assertions.assertEquals("Test phone number", hierarchy.getPhoneNumber());
+    Assertions.assertEquals("Test email", hierarchy.getEmail());
+    Assertions.assertEquals("Test Progress", hierarchy.getProgress());
+    Assertions.assertEquals("Access Constraints", hierarchy.getAccessConstraints());
+    Assertions.assertEquals("Test Use Constraints", hierarchy.getUseConstraints());
   }
 
   @Test
@@ -222,43 +224,45 @@ public class HierarchyServiceTest extends FastDatasetTest implements InstanceTes
 
     HierarchyType[] hierarchies = this.service.getHierarchyTypes(testData.clientSession.getSessionId(), new String[] { TEST_HT.getCode() }, PermissionContext.READ);
 
-    Assert.assertNotNull("The created hierarchy was not returned", hierarchies);
+    Assertions.assertNotNull(hierarchies, "The created hierarchy was not returned");
 
-    Assert.assertEquals("The wrong number of hierarchies were returned.", 1, hierarchies.length);
+    Assertions.assertEquals(1, hierarchies.length, "The wrong number of hierarchies were returned.");
 
     HierarchyType hierarchy = hierarchies[0];
 
-    Assert.assertEquals("Reporting Division", hierarchy.getLabel().getValue());
+    Assertions.assertEquals("Reporting Division", hierarchy.getLabel().getValue());
 
-    Assert.assertEquals(organizationCode, hierarchy.getOrganizationCode());
+    Assertions.assertEquals(organizationCode, hierarchy.getOrganizationCode());
   }
 
-  @Test(expected = SmartExceptionDTO.class)
+  @Test
   public void testCreateHierarchyTypeAsBadRole()
   {
-    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
+    assertThrows(SmartExceptionDTO.class, () -> {
+      String organizationCode = FastTestDataset.ORG_CGOV.getCode();
 
-    HierarchyType reportingDivision = MetadataFactory.newHierarchyType(TEST_HT.getCode(), new LocalizedValue("Reporting Division"), new LocalizedValue("The rporting division hieracy..."), organizationCode, adapter);
-    String gtJSON = reportingDivision.toJSON().toString();
+      HierarchyType reportingDivision = MetadataFactory.newHierarchyType(TEST_HT.getCode(), new LocalizedValue("Reporting Division"), new LocalizedValue("The rporting division hieracy..."), organizationCode, adapter);
+      String gtJSON = reportingDivision.toJSON().toString();
 
-    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC, FastTestDataset.USER_CGOV_RM };
+      TestUserInfo[] users = new TestUserInfo[]{FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC, FastTestDataset.USER_CGOV_RM};
 
-    for (TestUserInfo user : users)
-    {
-      try
+      for (TestUserInfo user : users)
       {
-        FastTestDataset.runAsUser(user, (request) -> {
+        try
+        {
+          FastTestDataset.runAsUser(user, (request) ->
 
-          this.service.createHierarchyType(request.getSessionId(), gtJSON);
-        });
+            this.service.createHierarchyType(request.getSessionId(), gtJSON));
 
-        Assert.fail("Able to update a geo object type as a user with bad roles");
+          Assertions.fail("Able to update a geo object type as a user with bad roles");
+        }
+        catch (RunwayExceptionDTO e)
+        {
+          // This is expected
+        }
       }
-      catch (RunwayExceptionDTO e)
-      {
-        // This is expected
-      }
-    }
+
+    });
 
   }
 
@@ -278,9 +282,9 @@ public class HierarchyServiceTest extends FastDatasetTest implements InstanceTes
 
     try
     {
-      Assert.assertNotNull("The created hierarchy was not returned", dto);
-      Assert.assertEquals("Reporting Division 2", dto.getLabel().getValue());
-      Assert.assertEquals("The rporting division hieracy 2", dto.getDescription().getValue());
+      Assertions.assertNotNull(dto, "The created hierarchy was not returned");
+      Assertions.assertEquals("Reporting Division 2", dto.getLabel().getValue());
+      Assertions.assertEquals("The rporting division hieracy 2", dto.getDescription().getValue());
     }
     finally
     {
@@ -306,12 +310,11 @@ public class HierarchyServiceTest extends FastDatasetTest implements InstanceTes
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request) -> {
+        FastTestDataset.runAsUser(user, (request) ->
 
-          this.service.updateHierarchyType(request.getSessionId(), updateJSON);
-        });
+          this.service.updateHierarchyType(request.getSessionId(), updateJSON));
 
-        Assert.fail("Able to update a geo object type as a user with bad roles");
+        Assertions.fail("Able to update a geo object type as a user with bad roles");
       }
       catch (SmartExceptionDTO e)
       {
@@ -336,12 +339,11 @@ public class HierarchyServiceTest extends FastDatasetTest implements InstanceTes
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request) -> {
+        FastTestDataset.runAsUser(user, (request) ->
 
-          this.service.deleteHierarchyType(request.getSessionId(), TEST_HT.getCode());
-        });
+          this.service.deleteHierarchyType(request.getSessionId(), TEST_HT.getCode()));
 
-        Assert.fail("Able to update a geo object type as a user with bad roles");
+        Assertions.fail("Able to update a geo object type as a user with bad roles");
       }
       catch (SmartExceptionDTO e)
       {
@@ -356,7 +358,7 @@ public class HierarchyServiceTest extends FastDatasetTest implements InstanceTes
     FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request) -> {
       HierarchyType[] hierarchyTypes = this.service.getHierarchyTypes(request.getSessionId(), null, PermissionContext.WRITE);
 
-      Assert.assertEquals(1, hierarchyTypes.length);
+      Assertions.assertEquals(1, hierarchyTypes.length);
     });
   }
 
@@ -366,7 +368,7 @@ public class HierarchyServiceTest extends FastDatasetTest implements InstanceTes
     FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request) -> {
       HierarchyType[] hierarchyTypes = this.service.getHierarchyTypes(request.getSessionId(), null, PermissionContext.READ);
 
-      Assert.assertTrue(testData.getManagedHierarchyTypes().size() <= hierarchyTypes.length);
+      Assertions.assertTrue(testData.getManagedHierarchyTypes().size() <= hierarchyTypes.length);
     });
   }
 

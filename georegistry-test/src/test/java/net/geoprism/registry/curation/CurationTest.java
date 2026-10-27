@@ -5,11 +5,11 @@ package net.geoprism.registry.curation;
 
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -31,7 +31,7 @@ import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.OrganizationRAException;
 import net.geoprism.registry.OrganizationRMException;
 import net.geoprism.registry.SingleListType;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.curation.CurationProblem.CurationResolution;
 import net.geoprism.registry.curation.GeoObjectProblem.GeoObjectProblemType;
@@ -45,7 +45,7 @@ import net.geoprism.registry.test.curation.CurationControllerWrapper;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class CurationTest extends FastDatasetTest implements InstanceTestClassListener
 {
   @Autowired
@@ -83,7 +83,7 @@ public class CurationTest extends FastDatasetTest implements InstanceTestClassLi
     }
   }
 
-  @Before
+  @BeforeEach
   @Override
   public void setUp() throws Exception
   {
@@ -92,7 +92,7 @@ public class CurationTest extends FastDatasetTest implements InstanceTestClassLi
     createTestInstanceData();
   }
 
-  @After
+  @AfterEach
   @Override
   public void tearDown() throws Exception
   {
@@ -132,7 +132,7 @@ public class CurationTest extends FastDatasetTest implements InstanceTestClassLi
 
     List<ListTypeVersion> versions = entry.getVersions();
 
-    Assert.assertEquals(2, versions.size());
+    Assertions.assertEquals(2, versions.size());
 
     version = versions.get(0);
 
@@ -172,19 +172,19 @@ public class CurationTest extends FastDatasetTest implements InstanceTestClassLi
       FastTestDataset.runAsUser(user, (request) -> {
         JsonObject details = controller.details(history.getOid(), false, 10, 1);
 
-        Assert.assertTrue(details.has("page"));
+        Assertions.assertTrue(details.has("page"));
         JsonObject page = details.get("page").getAsJsonObject();
-        Assert.assertTrue(page.has("count"));
-        Assert.assertTrue(page.has("pageNumber"));
-        Assert.assertTrue(page.has("pageSize"));
-        Assert.assertTrue(page.has("resultSet"));
+        Assertions.assertTrue(page.has("count"));
+        Assertions.assertTrue(page.has("pageNumber"));
+        Assertions.assertTrue(page.has("pageSize"));
+        Assertions.assertTrue(page.has("resultSet"));
 
-        Assert.assertEquals(AllJobStatus.RUNNING.name(), details.get("status").getAsString());
-        Assert.assertEquals(GeoRegistryUtil.formatDate(history.getCreateDate(), false), details.get("lastRun").getAsString());
-        Assert.assertEquals(historyId, details.get("historyId").getAsString());
-        Assert.assertEquals(job.getOid(), details.get("jobId").getAsString());
-        Assert.assertFalse(details.has("exception"));
-        Assert.assertEquals(TestDataSet.ADMIN_USER_NAME, details.get("lastRunBy").getAsString());
+        Assertions.assertEquals(AllJobStatus.RUNNING.name(), details.get("status").getAsString());
+        Assertions.assertEquals(GeoRegistryUtil.formatDate(history.getCreateDate(), false), details.get("lastRun").getAsString());
+        Assertions.assertEquals(historyId, details.get("historyId").getAsString());
+        Assertions.assertEquals(job.getOid(), details.get("jobId").getAsString());
+        Assertions.assertFalse(details.has("exception"));
+        Assertions.assertEquals(TestDataSet.ADMIN_USER_NAME, details.get("lastRunBy").getAsString());
       });
     }
 
@@ -198,11 +198,11 @@ public class CurationTest extends FastDatasetTest implements InstanceTestClassLi
         {
           controller.details(history.getOid(), false, 10, 1);
 
-          Assert.fail("Expected to get an exception.");
+          Assertions.fail("Expected to get an exception.");
         }
         catch (SmartExceptionDTO e)
         {
-          Assert.assertTrue(OrganizationRAException.CLASS.equals(e.getType()) || OrganizationRMException.CLASS.equals(e.getType()));
+          Assertions.assertTrue(OrganizationRAException.CLASS.equals(e.getType()) || OrganizationRMException.CLASS.equals(e.getType()));
         }
       });
     }
@@ -219,23 +219,23 @@ public class CurationTest extends FastDatasetTest implements InstanceTestClassLi
       FastTestDataset.runAsUser(user, (request) -> {
         JsonObject page = controller.page(history.getOid(), false, 10, 1);
 
-        Assert.assertEquals(1, page.get("pageNumber").getAsInt());
-        Assert.assertEquals(10, page.get("pageSize").getAsInt());
-        Assert.assertEquals(1, page.get("count").getAsInt());
+        Assertions.assertEquals(1, page.get("pageNumber").getAsInt());
+        Assertions.assertEquals(10, page.get("pageSize").getAsInt());
+        Assertions.assertEquals(1, page.get("count").getAsInt());
 
-        Assert.assertTrue(page.has("resultSet"));
+        Assertions.assertTrue(page.has("resultSet"));
         JsonArray results = page.get("resultSet").getAsJsonArray();
-        Assert.assertEquals(1, results.size());
+        Assertions.assertEquals(1, results.size());
 
         for (int i = 0; i < results.size(); ++i)
         {
           JsonObject problem = results.get(0).getAsJsonObject();
-          Assert.assertEquals(historyId, problem.get("historyId").getAsString());
-          Assert.assertEquals(CurationResolution.UNRESOLVED.name(), problem.get("resolution").getAsString());
-          Assert.assertEquals(GeoObjectProblemType.NO_GEOMETRY.name(), problem.get("type").getAsString());
-          Assert.assertEquals(curationProblemId, problem.get("id").getAsString());
-          Assert.assertEquals(FastTestDataset.PROVINCE.getCode(), problem.get("typeCode").getAsString());
-          Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), problem.get("goCode").getAsString());
+          Assertions.assertEquals(historyId, problem.get("historyId").getAsString());
+          Assertions.assertEquals(CurationResolution.UNRESOLVED.name(), problem.get("resolution").getAsString());
+          Assertions.assertEquals(GeoObjectProblemType.NO_GEOMETRY.name(), problem.get("type").getAsString());
+          Assertions.assertEquals(curationProblemId, problem.get("id").getAsString());
+          Assertions.assertEquals(FastTestDataset.PROVINCE.getCode(), problem.get("typeCode").getAsString());
+          Assertions.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), problem.get("goCode").getAsString());
         }
       });
     }
@@ -250,11 +250,11 @@ public class CurationTest extends FastDatasetTest implements InstanceTestClassLi
         {
           controller.details(history.getOid(), false, 10, 1);
 
-          Assert.fail("Expected to get an exception.");
+          Assertions.fail("Expected to get an exception.");
         }
         catch (SmartExceptionDTO e)
         {
-          Assert.assertTrue(OrganizationRAException.CLASS.equals(e.getType()) || OrganizationRMException.CLASS.equals(e.getType()));
+          Assertions.assertTrue(OrganizationRAException.CLASS.equals(e.getType()) || OrganizationRMException.CLASS.equals(e.getType()));
         }
       });
     }
@@ -281,30 +281,30 @@ public class CurationTest extends FastDatasetTest implements InstanceTestClassLi
 
     ListCurationHistory hist = (ListCurationHistory) context.getHistory();
 
-    Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
+    Assertions.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
 
     Long count = version.buildQuery(new JsonObject()).getCount();
 
-    Assert.assertEquals(count, hist.getWorkTotal());
-    Assert.assertEquals(count, hist.getWorkProgress());
+    Assertions.assertEquals(count, hist.getWorkTotal());
+    Assertions.assertEquals(count, hist.getWorkProgress());
 
     List<? extends CurationProblem> problems = hist.getAllCurationProblems();
 
-    Assert.assertEquals(1, problems.size());
+    Assertions.assertEquals(1, problems.size());
 
     CurationProblem problem = problems.get(0);
 
-    Assert.assertEquals(CurationResolution.UNRESOLVED.name(), problem.getResolution());
-    Assert.assertEquals(GeoObjectProblemType.NO_GEOMETRY.name(), problem.getProblemType());
+    Assertions.assertEquals(CurationResolution.UNRESOLVED.name(), problem.getResolution());
+    Assertions.assertEquals(GeoObjectProblemType.NO_GEOMETRY.name(), problem.getProblemType());
 
-    Assert.assertEquals(history.getOid(), problem.getHistory().getOid());
+    Assertions.assertEquals(history.getOid(), problem.getHistory().getOid());
 
-    Assert.assertTrue(problem instanceof GeoObjectProblem);
+    Assertions.assertTrue(problem instanceof GeoObjectProblem);
 
     GeoObjectProblem goProblem = (GeoObjectProblem) problem;
 
-    Assert.assertEquals(FastTestDataset.PROVINCE.getCode(), goProblem.getTypeCode());
-    Assert.assertEquals(noGeomGo.getCode(), goProblem.getGoCode());
+    Assertions.assertEquals(FastTestDataset.PROVINCE.getCode(), goProblem.getTypeCode());
+    Assertions.assertEquals(noGeomGo.getCode(), goProblem.getGoCode());
   }
 
   @Test
@@ -336,18 +336,18 @@ public class CurationTest extends FastDatasetTest implements InstanceTestClassLi
 
         JsonArray results = page.get("resultSet").getAsJsonArray();
 
-        Assert.assertEquals(1, results.size());
+        Assertions.assertEquals(1, results.size());
 
         for (int i = 0; i < results.size(); ++i)
         {
           JsonObject problem = results.get(i).getAsJsonObject();
 
-          Assert.assertEquals(joHistory.get("historyId").getAsString(), problem.get("historyId").getAsString());
-          Assert.assertEquals(CurationResolution.UNRESOLVED.name(), problem.get("resolution").getAsString());
-          Assert.assertEquals(GeoObjectProblemType.NO_GEOMETRY.name(), problem.get("type").getAsString());
-          Assert.assertTrue(problem.get("id").getAsString() != null && problem.get("id").getAsString() != "");
-          Assert.assertEquals(FastTestDataset.PROVINCE.getCode(), problem.get("typeCode").getAsString());
-          Assert.assertEquals(noGeomGo.getCode(), problem.get("goCode").getAsString());
+          Assertions.assertEquals(joHistory.get("historyId").getAsString(), problem.get("historyId").getAsString());
+          Assertions.assertEquals(CurationResolution.UNRESOLVED.name(), problem.get("resolution").getAsString());
+          Assertions.assertEquals(GeoObjectProblemType.NO_GEOMETRY.name(), problem.get("type").getAsString());
+          Assertions.assertTrue(problem.get("id").getAsString() != null && problem.get("id").getAsString() != "");
+          Assertions.assertEquals(FastTestDataset.PROVINCE.getCode(), problem.get("typeCode").getAsString());
+          Assertions.assertEquals(noGeomGo.getCode(), problem.get("goCode").getAsString());
         }
 
       });
@@ -364,11 +364,11 @@ public class CurationTest extends FastDatasetTest implements InstanceTestClassLi
         {
           controller.curate(listTypeVersionId);
 
-          Assert.fail("Expected to get an exception.");
+          Assertions.fail("Expected to get an exception.");
         }
         catch (SmartExceptionDTO e)
         {
-          Assert.assertTrue(OrganizationRAException.CLASS.equals(e.getType()) || OrganizationRMException.CLASS.equals(e.getType()));
+          Assertions.assertTrue(OrganizationRAException.CLASS.equals(e.getType()) || OrganizationRMException.CLASS.equals(e.getType()));
         }
 
       });
