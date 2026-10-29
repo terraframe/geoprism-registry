@@ -24,13 +24,22 @@
   </modules>
 
   <properties>
-    <geoprism.version>2.1.9</geoprism.version>
+    <geoprism.version>2.1.10</geoprism.version>
     <spring.boot.version>4.1.1</spring.boot.version>
     <!-- Must match the JUnit that spring-boot-starter-test brings in -->
     <junit.jupiter.version>6.0.3</junit.jupiter.version>
     <hapifhir_version>8.12.1</hapifhir_version>
     <axon.version>4.13.2</axon.version>
-    <aws.version>2.47.4</aws.version>    
+    <!-- The SDK shades its own jackson-core (third-party-jackson-core); 2.57.7 bundles jackson 2.21.8 -->
+    <aws.version>2.57.7</aws.version>
+    <!-- Overrides jackson 2.x / 3.x (3.x comes in via georegistry-adapter). 2.21.7 / 3.1.7 are flagged by Snyk
+         (SNYK-JAVA-COMFASTERXMLJACKSONCORE-21761837) -->
+    <jackson2.version>2.21.8</jackson2.version>
+    <jackson3.version>3.1.8</jackson3.version>
+    <!-- Overrides the guava that hapi-fhir-base brings in (33.2.1-jre has CVE-2026-102554) -->
+    <guava.version>33.7.2-jre</guava.version>
+    <!-- Overrides the opentelemetry that hapi-fhir-base brings in (1.62.0 has CVE-2026-118259) -->
+    <opentelemetry.version>1.67.0</opentelemetry.version>
     <!-- Must match the JTS version GeoTools is built against (see gt-platform-dependencies) -->
     <jts.version>1.20.0</jts.version>
     <!-- Overrides the Tomcat that spring-boot-starter-web brings in (11.0.24 has CVE-2026-65905, CVE-2026-65182, CVE-2026-68525) -->
@@ -92,6 +101,32 @@
         <groupId>org.postgresql</groupId>
         <artifactId>postgresql</artifactId>
         <version>${postgres.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson</groupId>
+        <artifactId>jackson-bom</artifactId>
+        <version>${jackson2.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>tools.jackson</groupId>
+        <artifactId>jackson-bom</artifactId>
+        <version>${jackson3.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.opentelemetry</groupId>
+        <artifactId>opentelemetry-bom</artifactId>
+        <version>${opentelemetry.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>

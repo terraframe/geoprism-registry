@@ -312,12 +312,12 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.21.7</version>
+      <version>${jackson2.version}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>2.21.7</version>
+      <version>${jackson2.version}</version>
     </dependency>
     <dependency>
       <groupId>com.opencsv</groupId>
