@@ -62,7 +62,7 @@ if [ "$release_georegistry" == "true" ]; then
   cd $WORKSPACE/georegistry
   # git checkout $release_branch
   cd georegistry-ui
-  npm install --force
+  npm ci --force
   node -v && npm -v
   #node --max_old_space_size=4096 ./node_modules/webpack/bin/webpack.js --config config/webpack.prod.js --profile
   npm run build  
