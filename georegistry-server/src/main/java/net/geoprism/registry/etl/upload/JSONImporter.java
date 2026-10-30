@@ -162,6 +162,11 @@ public class JSONImporter implements FormatSpecificImporterIF
       while ( ( entry = zstream.getNextEntry() ) != null)
       {
         File file = new File(directory, entry.getName());
+
+        if (!file.getCanonicalPath().startsWith(directory.getCanonicalPath() + File.separator))
+        {
+          throw new IOException("Entry is outside of the target dir: " + entry.getName());
+        }
         // Create parent dirs for nested entries
         File parent = file.getParentFile();
         if (parent != null)

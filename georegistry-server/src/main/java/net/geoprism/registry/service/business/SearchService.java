@@ -328,11 +328,9 @@ public class SearchService
   private String escapeText(String text)
   {
     String regex = "([-/+\\!\\(\\){}\\[\\]^\"~*?:\\\\]|[&\\|]{2})";
-    text = text.replaceAll(regex, "\\\\\\\\$1").trim();
-    text = text.replaceAll("\\'", "\\\\'"); // Apostrophe needs double backslash
-                                            // in orient sql
-
-    return text;
+    // The result is passed as a query parameter, so it only needs Lucene
+    // escaping, not OrientDB string escaping
+    return text.replaceAll(regex, "\\\\$1").trim();
   }
 
   public List<ServerGeoObjectIF> search(String text, Date date, Long limit)
@@ -355,6 +353,8 @@ public class SearchService
     statement.append("SELECT EXPAND(out('" + mdEdge.getDBClassName() + "'))");
     statement.append(" FROM " + mdVertex.getDBClassName());
 
+    String searchTerm = null;
+
     if (text != null)
     {
       text = text.replace("-", " "); // I realize this is a total hack. But I
@@ -374,7 +374,9 @@ public class SearchService
         term = "(\"" + escapedText + "\"^" + escapedTokens.length + " " + StringUtils.join(escapedTokens, "* ") + "*)";
       }
 
-      statement.append(" WHERE (SEARCH_INDEX(\"" + indexName + "\", '+" + label.getColumnName() + ":" + term + "') = true");
+      searchTerm = "+" + label.getColumnName() + ":" + term;
+
+      statement.append(" WHERE (SEARCH_INDEX(\"" + indexName + "\", :searchTerm) = true");
       statement.append(" OR :code = " + code.getColumnName() + ")");
     }
     else
@@ -405,6 +407,7 @@ public class SearchService
     if (text != null)
     {
       query.setParameter("code", text);
+      query.setParameter("searchTerm", searchTerm);
     }
 
     if (date != null)
@@ -444,6 +447,8 @@ public class SearchService
     statement.append("SELECT " + label.getColumnName() + " AS label, " + code.getColumnName() + " AS code");
     statement.append(" FROM " + mdVertex.getDBClassName());
 
+    String searchTerm = null;
+
     if (text != null)
     {
       text = text.replace("-", " "); // I realize this is a total hack. But I
@@ -463,7 +468,9 @@ public class SearchService
         term = "(\"" + escapedText + "\"^" + escapedTokens.length + " " + StringUtils.join(escapedTokens, "* ") + "*)";
       }
 
-      statement.append(" WHERE (SEARCH_INDEX(\"" + indexName + "\", '+" + label.getColumnName() + ":" + term + "') = true");
+      searchTerm = "+" + label.getColumnName() + ":" + term;
+
+      statement.append(" WHERE (SEARCH_INDEX(\"" + indexName + "\", :searchTerm) = true");
       statement.append(" OR :code = " + code.getColumnName() + ")");
     }
     else
@@ -493,6 +500,7 @@ public class SearchService
     if (text != null)
     {
       query.setParameter("code", text);
+      query.setParameter("searchTerm", searchTerm);
     }
 
     if (date != null)

@@ -183,6 +183,11 @@ public class ShapefileImporter implements FormatSpecificImporterIF
       {
         File file = new File(directory, entry.getName());
 
+        if (!file.getCanonicalPath().startsWith(directory.getCanonicalPath() + File.separator))
+        {
+          throw new IOException("Entry is outside of the target dir: " + entry.getName());
+        }
+
         try (FileOutputStream output = new FileOutputStream(file))
         {
           int len = 0;

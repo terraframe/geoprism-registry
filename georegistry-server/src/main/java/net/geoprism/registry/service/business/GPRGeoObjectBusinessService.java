@@ -149,7 +149,7 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
     }
 
     statement.append("SELECT expand(in) FROM (");
-    statement.append("SELECT expand(outE('" + mdEdge.getDBClassName() + "')[id = '" + externalId + "']) FROM :authority)");
+    statement.append("SELECT expand(outE('" + mdEdge.getDBClassName() + "')[id = :externalId]) FROM :authority)");
 
     if (type != null)
     {
@@ -158,6 +158,7 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
 
     GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
     query.setParameter("authority", authority.getRID());
+    query.setParameter("externalId", externalId);
 
     VertexObject vo = query.getSingleResult();
 
