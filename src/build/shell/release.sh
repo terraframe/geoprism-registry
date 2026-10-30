@@ -75,7 +75,19 @@ if [ "$release_georegistry" == "true" ]; then
                    -DreleaseVersion=$CGR_RELEASE_VERSION \
                    -DdevelopmentVersion=$CGR_NEXT_VERSION
   mvn release:perform -B -q -DdryRun=$dry_run -Darguments="-Dmaven.javadoc.skip=true -Dmaven.site.skip=true"
-  
+
+  # Georegistry : Update test pom version (not a reactor module, so the release plugin skips it)
+  cd $WORKSPACE/georegistry
+  sed -i "0,/<version>.*<\/version>/s//<version>$CGR_NEXT_VERSION<\/version>/" georegistry-test/pom.xml
+  git add georegistry-test/pom.xml
+  git diff-index --quiet HEAD || git commit --no-verify -m "chore(release): update georegistry-test version to $CGR_NEXT_VERSION"
+  if [ "$dry_run" == "false" ]; then
+    git push
+  else
+    echo "Set georegistry-test version to:"
+    grep -m1 "<version>" georegistry-test/pom.xml
+  fi
+
   # Generate Changelog
   cd $WORKSPACE/georegistry
   if [ "$dry_run" == "true" ]; then
