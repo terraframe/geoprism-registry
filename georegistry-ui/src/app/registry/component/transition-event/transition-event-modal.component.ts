@@ -586,7 +586,7 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
         .style('color', GRAPH_GO_LABEL_COLOR)
         .style('padding-left', '0.4px')
         .style('padding-top', '0.2px')
-        .html((d: any) => d.data.name)
+        .text((d: any) => d.data.name)
         .filter((d: any) => d.depth === 1)
         .style('text-align', 'right');
 

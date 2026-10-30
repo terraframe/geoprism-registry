@@ -19,7 +19,6 @@
 package net.geoprism.registry.etl.fhir;
 
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -31,6 +30,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 
 import ca.uhn.fhir.context.FhirContext;
@@ -111,12 +111,7 @@ public class OauthFhirConnection implements FhirConnection
   @Override
   public void open()
   {
-    // TODO: This is garbage and needs to be removed after the demo and we can
-    // assume the oauth server has an actual url and legitimate https
-    // certificate
-    AllowAllClientFactory clientFactory = new AllowAllClientFactory(ctx);
-
-    try (CloseableHttpClient httpclient = clientFactory.getBuilder().build())
+    try (CloseableHttpClient httpclient = HttpClients.createDefault())
     {
       HttpPost httpPost = new HttpPost(this.oauth.getTokenLocation());
 
@@ -149,8 +144,6 @@ public class OauthFhirConnection implements FhirConnection
         this.lastSessionRefresh = new Date().getTime();
       }
 
-      ctx.setRestfulClientFactory(clientFactory);
-
       IRestfulClientFactory factory = ctx.getRestfulClientFactory();
       factory.setSocketTimeout(-1);
 
@@ -159,7 +152,7 @@ public class OauthFhirConnection implements FhirConnection
       this.client = factory.newGenericClient(this.externalSystem.getUrl());
       this.client.registerInterceptor(authInterceptor);
     }
-    catch (IOException | NoSuchAlgorithmException t)
+    catch (IOException t)
     {
       throw new HttpError(t);
     }
