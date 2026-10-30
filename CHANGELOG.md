@@ -2,6 +2,37 @@
 # Release Notes
 
 
+## [2.0.0](https://github.com/terraframe/geoprism-registry/releases/tag/2.0.0) (2026-10-30)
+
+### Features
+
+ - **sync** support for Neptune and IAM on Jena sync   ([21dd9](https://github.com/terraframe/geoprism-registry/commit/21dd9593c9337c5aaed19c1bcebdc68684053bee))
+ - **relationship-visualizer** ability to select and inspect edges   ([3c040](https://github.com/terraframe/geoprism-registry/commit/3c0402eb735fb5c509e147c6c01b73778c9d96ab))
+ - **relationship-visualizer** ability to delete edges   ([794db](https://github.com/terraframe/geoprism-registry/commit/794db7f3d84bc8d81e9a1634802c76d19ed62cb0))
+ - removed dhis2 support and added support for external ids from source authorities  ([8cec9](https://github.com/terraframe/geoprism-registry/commit/8cec92c6d48777948c90bbf457493b8dafc41c84))
+ - **graph-visualizer** ability to select stability period   ([df891](https://github.com/terraframe/geoprism-registry/commit/df8917e1a0baa455b444a047b168f5b20aa2f018))
+ - **graph-visualizer** show edge count in type dropdown   ([8ff1f](https://github.com/terraframe/geoprism-registry/commit/8ff1fac47d172371fa8aac166af35536731293cc))
+ - added support for source authority and data source   ([84fad](https://github.com/terraframe/geoprism-registry/commit/84fad9f0a51dd20f07376ee5bca2135ce7bfe643))
+ - ability to see a map of imported data   ([c4d57](https://github.com/terraframe/geoprism-registry/commit/c4d57f16a615fd84137926830bdc23d5a4f4d9d5))
+ - moved geometry storage to postgis from the graph database   ([db537](https://github.com/terraframe/geoprism-registry/commit/db5377ada9d312382873ec70d7b5ba50491f86de))
+ - crud support for business edge types   ([9bb9e](https://github.com/terraframe/geoprism-registry/commit/9bb9e7626b8a978d4448b5983631602fdb60c076))
+ - initial support for event rollback checkpoints   ([cddbb](https://github.com/terraframe/geoprism-registry/commit/cddbb0aab4feedb989d2899d4b4bbc3b93d9241a))
+ - hierarchy management refactor + fix for jena version   ([038ac](https://github.com/terraframe/geoprism-registry/commit/038acb389a964f539e25741edb271036cb51c248))
+ - springdoc integration   ([26e74](https://github.com/terraframe/geoprism-registry/commit/26e7431cbc93ce2626eaad7c93db93becfc1f9e9))
+ - dag & undirected graph type UI CRUD   ([a4e50](https://github.com/terraframe/geoprism-registry/commit/a4e502487829636de36a356b89796a12a45b1d20))
+ - ability to associate a geo object with its source information   ([5a0df](https://github.com/terraframe/geoprism-registry/commit/5a0df94bb7694980c9b6e9c23e60f7cfbc525049))
+
+### Bug Fixes
+
+   - **security** update dependencies   ([8361e](https://github.com/terraframe/geoprism-registry/commit/8361e7aec901471f414563b307a7c6bbfc930624))
+   - rollback status and confusion   ([cda2d](https://github.com/terraframe/geoprism-registry/commit/cda2db33a5aa17f136937fc6f1078190b27cbc98))
+   - **hierarchies** styling and form submission behavior   ([dcc30](https://github.com/terraframe/geoprism-registry/commit/dcc3020669583bedb8af7a0ef773237a73da645a))
+   - **security** update packages   ([81ffe](https://github.com/terraframe/geoprism-registry/commit/81ffe5c165dd8cc908635f0ab4ded55659424d67))
+   - **security** update to latest spring version   ([12fef](https://github.com/terraframe/geoprism-registry/commit/12fefb9669d4f8c92d54b2efcf182f4ab92c5526))
+   - class file for jakarta.persistence.MappedSuperclass not found   ([74c92](https://github.com/terraframe/geoprism-registry/commit/74c92311426ab11a356c0c0af8b7c9b741af8f5e))
+
+
+
 ## [1.6.4](https://github.com/terraframe/geoprism-registry/releases/tag/1.6.4) (2025-11-22)
 
 ### Features
