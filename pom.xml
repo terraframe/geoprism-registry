@@ -25,7 +25,7 @@
 
   <properties>
     <geoprism.version>2.1.10</geoprism.version>
-    <spring.boot.version>4.1.1</spring.boot.version>
+    <spring.boot.version>4.1.2</spring.boot.version>
     <!-- Must match the JUnit that spring-boot-starter-test brings in -->
     <junit.jupiter.version>6.0.3</junit.jupiter.version>
     <hapifhir_version>8.12.1</hapifhir_version>
@@ -447,7 +447,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore />
+                    <ignore/>
                   </action>
                 </pluginExecution>
               </pluginExecutions>
