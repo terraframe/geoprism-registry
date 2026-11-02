@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.ws;
 
@@ -25,20 +25,18 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonObject;
 import com.runwaysdk.constants.ClientConstants;
 import com.runwaysdk.web.WebClientSession;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.websocket.EndpointConfig;
 import jakarta.websocket.OnClose;
-import jakarta.websocket.OnError;
 import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 import jakarta.websocket.server.ServerEndpoint;
 
 @ServerEndpoint(value = "/websocket/notify", configurator = GetHttpSessionConfigurator.class)
-public class NotificationEndpoint
+public class NotificationEndpoint extends MessageEndpoint
 {
   private static Set<NotificationEndpoint> endpoints = new CopyOnWriteArraySet<>();
 
@@ -86,49 +84,33 @@ public class NotificationEndpoint
     }
   }
 
-  @OnError
-  public void onError(Session session, Throwable throwable)
+  public static void broadcast(String userId, NotificationMessage message)
   {
-    // Do error handling here
-  }
+    String text = getText(message);
 
-  public static void broadcast(String userId, JsonObject message)
-  {
-    logger.debug("Broadcasting to [" + userId + "]: " + message.toString());
+    logger.debug("Broadcasting to [" + userId + "]: " + text);
 
     endpoints.forEach(endpoint -> {
       synchronized (endpoint)
       {
-        try
+        if (endpoint.userId.equals(userId))
         {
-          if (endpoint.userId.equals(userId))
-          {
-            endpoint.session.getBasicRemote().sendText(message.toString());
-          }
-        }
-        catch (IOException e)
-        {
-          e.printStackTrace();
+          sendText(endpoint.session, text);
         }
       }
     });
   }
 
-  public static void broadcast(JsonObject message)
+  public static void broadcast(NotificationMessage message)
   {
-    logger.debug("Broadcasting to [all]: " + message.toString());
+    String text = getText(message);
+
+    logger.debug("Broadcasting to [all]: " + text);
 
     endpoints.forEach(endpoint -> {
       synchronized (endpoint)
       {
-        try
-        {
-          endpoint.session.getBasicRemote().sendText(message.toString());
-        }
-        catch (IOException e)
-        {
-          e.printStackTrace();
-        }
+        sendText(endpoint.session, text);
       }
     });
   }

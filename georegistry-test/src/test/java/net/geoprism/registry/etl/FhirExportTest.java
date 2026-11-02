@@ -19,11 +19,10 @@ import org.hl7.fhir.r4.model.Extension;
 import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.StringType;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.locationtech.jts.io.geojson.GeoJsonWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -38,7 +37,7 @@ import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeBuilder;
 import net.geoprism.registry.ListTypeEntry;
 import net.geoprism.registry.ListTypeVersion;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.config.TestApplication;
@@ -56,7 +55,7 @@ import net.geoprism.registry.test.USATestData;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class FhirExportTest extends USADatasetTest implements InstanceTestClassListener
 {
   protected static ListType                        multiHierarchyList;
@@ -149,7 +148,7 @@ public class FhirExportTest extends USADatasetTest implements InstanceTestClassL
     }
   }
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception
   {
     super.setUp();
@@ -228,53 +227,53 @@ public class FhirExportTest extends USADatasetTest implements InstanceTestClassL
       // Assert bundle values
       List<BundleEntryComponent> entries = bundle.getEntry();
 
-      Assert.assertEquals(4, entries.size());
+      Assertions.assertEquals(4, entries.size());
 
       // Assert the organization entry
       BundleEntryComponent entry = entries.get(0);
 
       {
-        Assert.assertEquals("Organization/" + USATestData.HS_TWO.getCode(), entry.getFullUrl());
+        Assertions.assertEquals("Organization/" + USATestData.HS_TWO.getCode(), entry.getFullUrl());
 
         org.hl7.fhir.r4.model.Organization organization = (org.hl7.fhir.r4.model.Organization) entry.getResource();
 
-        Assert.assertEquals("Organization/" + USATestData.HS_TWO.getCode(), organization.getId());
-        Assert.assertEquals(USATestData.HS_TWO.getDisplayLabel(), organization.getName());
+        Assertions.assertEquals("Organization/" + USATestData.HS_TWO.getCode(), organization.getId());
+        Assertions.assertEquals(USATestData.HS_TWO.getDisplayLabel(), organization.getName());
 
         List<Identifier> identifiers = organization.getIdentifier();
 
-        Assert.assertEquals(1, identifiers.size());
-        Assert.assertEquals(USATestData.HS_TWO.getCode(), identifiers.get(0).getValue());
-        Assert.assertEquals(system.getSystem(), identifiers.get(0).getSystem());
+        Assertions.assertEquals(1, identifiers.size());
+        Assertions.assertEquals(USATestData.HS_TWO.getCode(), identifiers.get(0).getValue());
+        Assertions.assertEquals(system.getSystem(), identifiers.get(0).getSystem());
 
         List<StringType> aliases = organization.getAlias();
 
-        Assert.assertEquals(1, aliases.size());
-        Assert.assertEquals(USATestData.HS_TWO.getDisplayLabel(), aliases.get(0).asStringValue());
+        Assertions.assertEquals(1, aliases.size());
+        Assertions.assertEquals(USATestData.HS_TWO.getDisplayLabel(), aliases.get(0).asStringValue());
 
         List<CanonicalType> profiles = organization.getMeta().getProfile();
 
-        Assert.assertEquals(2, profiles.size());
-        Assert.assertEquals("http://ihe.net/fhir/StructureDefinition/IHE.mCSD.Organization", profiles.get(0).getValue());
-        Assert.assertEquals("http://ihe.net/fhir/StructureDefinition/IHE.mCSD.JurisdictionsOrganization", profiles.get(1).getValue());
+        Assertions.assertEquals(2, profiles.size());
+        Assertions.assertEquals("http://ihe.net/fhir/StructureDefinition/IHE.mCSD.Organization", profiles.get(0).getValue());
+        Assertions.assertEquals("http://ihe.net/fhir/StructureDefinition/IHE.mCSD.JurisdictionsOrganization", profiles.get(1).getValue());
 
         Reference partOf = organization.getPartOf();
 
-        Assert.assertNull(partOf.getReference());
+        Assertions.assertNull(partOf.getReference());
 
         List<Extension> extensions = organization.getExtensionsByUrl("http://ihe.net/fhir/StructureDefinition/IHE.mCSD.hierarchy.extension");
 
-        Assert.assertEquals(2, extensions.size());
+        Assertions.assertEquals(2, extensions.size());
 
         Extension extension = extensions.get(0);
 
-        Assert.assertEquals(USATestData.HIER_ADMIN.getDisplayLabel(), extension.castToCodeableConcept(extension.getExtensionByUrl("hierarchy-type").getValue()).getText());
-        Assert.assertEquals("Organization/" + USATestData.CO_D_ONE.getCode(), extension.castToReference(extension.getExtensionByUrl("part-of").getValue()).getReference());
+        Assertions.assertEquals(USATestData.HIER_ADMIN.getDisplayLabel(), extension.castToCodeableConcept(extension.getExtensionByUrl("hierarchy-type").getValue()).getText());
+        Assertions.assertEquals("Organization/" + USATestData.CO_D_ONE.getCode(), extension.castToReference(extension.getExtensionByUrl("part-of").getValue()).getReference());
 
         extension = extensions.get(1);
 
-        Assert.assertEquals(USATestData.HIER_REPORTS_TO.getDisplayLabel(), extension.castToCodeableConcept(extension.getExtensionByUrl("hierarchy-type").getValue()).getText());
-        Assert.assertEquals("Organization/" + USATestData.HP_TWO.getCode(), extension.castToReference(extension.getExtensionByUrl("part-of").getValue()).getReference());
+        Assertions.assertEquals(USATestData.HIER_REPORTS_TO.getDisplayLabel(), extension.castToCodeableConcept(extension.getExtensionByUrl("hierarchy-type").getValue()).getText());
+        Assertions.assertEquals("Organization/" + USATestData.HP_TWO.getCode(), extension.castToReference(extension.getExtensionByUrl("part-of").getValue()).getReference());
 
         System.out.println(FhirContext.forR4().newJsonParser().setPrettyPrint(true).encodeResourceToString(organization));
       }
@@ -283,39 +282,39 @@ public class FhirExportTest extends USADatasetTest implements InstanceTestClassL
       entry = entries.get(1);
 
       {
-        Assert.assertEquals("Location/" + USATestData.HS_TWO.getCode(), entry.getFullUrl());
+        Assertions.assertEquals("Location/" + USATestData.HS_TWO.getCode(), entry.getFullUrl());
 
         org.hl7.fhir.r4.model.Location location = (org.hl7.fhir.r4.model.Location) entry.getResource();
 
-        Assert.assertEquals("Location/" + USATestData.HS_TWO.getCode(), location.getId());
-        Assert.assertEquals(USATestData.HS_TWO.getDisplayLabel(), location.getName());
+        Assertions.assertEquals("Location/" + USATestData.HS_TWO.getCode(), location.getId());
+        Assertions.assertEquals(USATestData.HS_TWO.getDisplayLabel(), location.getName());
 
         List<Identifier> identifiers = location.getIdentifier();
 
-        Assert.assertEquals(1, identifiers.size());
-        Assert.assertEquals(USATestData.HS_TWO.getCode(), identifiers.get(0).getValue());
-        Assert.assertEquals(system.getSystem(), identifiers.get(0).getSystem());
+        Assertions.assertEquals(1, identifiers.size());
+        Assertions.assertEquals(USATestData.HS_TWO.getCode(), identifiers.get(0).getValue());
+        Assertions.assertEquals(system.getSystem(), identifiers.get(0).getSystem());
 
         List<StringType> aliases = location.getAlias();
 
-        Assert.assertEquals(1, aliases.size());
-        Assert.assertEquals(USATestData.HS_TWO.getDisplayLabel(), aliases.get(0).asStringValue());
+        Assertions.assertEquals(1, aliases.size());
+        Assertions.assertEquals(USATestData.HS_TWO.getDisplayLabel(), aliases.get(0).asStringValue());
 
         List<CanonicalType> profiles = location.getMeta().getProfile();
 
-        Assert.assertEquals(2, profiles.size());
-        Assert.assertEquals("http://ihe.net/fhir/StructureDefinition/IHE.mCSD.Location", profiles.get(0).getValue());
-        Assert.assertEquals("http://ihe.net/fhir/StructureDefinition/IHE.mCSD.JurisdictionLocation", profiles.get(1).getValue());
+        Assertions.assertEquals(2, profiles.size());
+        Assertions.assertEquals("http://ihe.net/fhir/StructureDefinition/IHE.mCSD.Location", profiles.get(0).getValue());
+        Assertions.assertEquals("http://ihe.net/fhir/StructureDefinition/IHE.mCSD.JurisdictionLocation", profiles.get(1).getValue());
 
         Reference managingOrganization = location.getManagingOrganization();
 
-        Assert.assertEquals("Organization/" + USATestData.HS_TWO.getCode(), managingOrganization.getReference());
+        Assertions.assertEquals("Organization/" + USATestData.HS_TWO.getCode(), managingOrganization.getReference());
 
         Extension extension = location.getExtensionByUrl("http://hl7.org/fhir/StructureDefinition/location-boundary-geojson");
 
         byte[] bytes = Base64.getDecoder().decode(extension.castToAttachment(extension.getValue()).getDataElement().asStringValue());
 
-        Assert.assertEquals(new GeoJsonWriter().write(USATestData.HS_TWO.getGeometry()), new String(bytes));
+        Assertions.assertEquals(new GeoJsonWriter().write(USATestData.HS_TWO.getGeometry()), new String(bytes));
 
         System.out.println(FhirContext.forR4().newJsonParser().setPrettyPrint(true).encodeResourceToString(location));
       }
@@ -341,80 +340,80 @@ public class FhirExportTest extends USADatasetTest implements InstanceTestClassL
       // Assert bundle values
       List<BundleEntryComponent> entries = bundle.getEntry();
 
-      Assert.assertEquals(4, entries.size());
+      Assertions.assertEquals(4, entries.size());
 
       // Assert the organization entry
       BundleEntryComponent entry = entries.get(0);
 
       {
-        Assert.assertEquals("Organization/" + USATestData.HS_TWO.getCode(), entry.getFullUrl());
+        Assertions.assertEquals("Organization/" + USATestData.HS_TWO.getCode(), entry.getFullUrl());
 
         org.hl7.fhir.r4.model.Organization organization = (org.hl7.fhir.r4.model.Organization) entry.getResource();
 
-        Assert.assertEquals("Organization/" + USATestData.HS_TWO.getCode(), organization.getId());
-        Assert.assertEquals(USATestData.HS_TWO.getDisplayLabel(), organization.getName());
+        Assertions.assertEquals("Organization/" + USATestData.HS_TWO.getCode(), organization.getId());
+        Assertions.assertEquals(USATestData.HS_TWO.getDisplayLabel(), organization.getName());
 
         List<Identifier> identifiers = organization.getIdentifier();
 
-        Assert.assertEquals(1, identifiers.size());
-        Assert.assertEquals(USATestData.HS_TWO.getCode(), identifiers.get(0).getValue());
-        Assert.assertEquals(system.getSystem(), identifiers.get(0).getSystem());
+        Assertions.assertEquals(1, identifiers.size());
+        Assertions.assertEquals(USATestData.HS_TWO.getCode(), identifiers.get(0).getValue());
+        Assertions.assertEquals(system.getSystem(), identifiers.get(0).getSystem());
 
         List<StringType> aliases = organization.getAlias();
 
-        Assert.assertEquals(1, aliases.size());
-        Assert.assertEquals(USATestData.HS_TWO.getDisplayLabel(), aliases.get(0).asStringValue());
+        Assertions.assertEquals(1, aliases.size());
+        Assertions.assertEquals(USATestData.HS_TWO.getDisplayLabel(), aliases.get(0).asStringValue());
 
         List<CanonicalType> profiles = organization.getMeta().getProfile();
 
-        Assert.assertEquals(2, profiles.size());
-        Assert.assertEquals("http://ihe.net/fhir/StructureDefinition/IHE.mCSD.Organization", profiles.get(0).getValue());
-        Assert.assertEquals("http://ihe.net/fhir/StructureDefinition/IHE.mCSD.JurisdictionsOrganization", profiles.get(1).getValue());
+        Assertions.assertEquals(2, profiles.size());
+        Assertions.assertEquals("http://ihe.net/fhir/StructureDefinition/IHE.mCSD.Organization", profiles.get(0).getValue());
+        Assertions.assertEquals("http://ihe.net/fhir/StructureDefinition/IHE.mCSD.JurisdictionsOrganization", profiles.get(1).getValue());
 
         Reference partOf = organization.getPartOf();
 
-        Assert.assertEquals("Organization/" + USATestData.CO_D_ONE.getCode(), partOf.getReference());
+        Assertions.assertEquals("Organization/" + USATestData.CO_D_ONE.getCode(), partOf.getReference());
 
-        Assert.assertEquals(0, organization.getExtensionsByUrl("http://ihe.net/fhir/StructureDefinition/IHE.mCSD.hierarchy.extension").size());
+        Assertions.assertEquals(0, organization.getExtensionsByUrl("http://ihe.net/fhir/StructureDefinition/IHE.mCSD.hierarchy.extension").size());
       }
 
       // Assert the corresponding location entry
       entry = entries.get(1);
 
       {
-        Assert.assertEquals("Location/" + USATestData.HS_TWO.getCode(), entry.getFullUrl());
+        Assertions.assertEquals("Location/" + USATestData.HS_TWO.getCode(), entry.getFullUrl());
 
         org.hl7.fhir.r4.model.Location location = (org.hl7.fhir.r4.model.Location) entry.getResource();
 
-        Assert.assertEquals("Location/" + USATestData.HS_TWO.getCode(), location.getId());
-        Assert.assertEquals(USATestData.HS_TWO.getDisplayLabel(), location.getName());
+        Assertions.assertEquals("Location/" + USATestData.HS_TWO.getCode(), location.getId());
+        Assertions.assertEquals(USATestData.HS_TWO.getDisplayLabel(), location.getName());
 
         List<Identifier> identifiers = location.getIdentifier();
 
-        Assert.assertEquals(1, identifiers.size());
-        Assert.assertEquals(USATestData.HS_TWO.getCode(), identifiers.get(0).getValue());
-        Assert.assertEquals(system.getSystem(), identifiers.get(0).getSystem());
+        Assertions.assertEquals(1, identifiers.size());
+        Assertions.assertEquals(USATestData.HS_TWO.getCode(), identifiers.get(0).getValue());
+        Assertions.assertEquals(system.getSystem(), identifiers.get(0).getSystem());
 
         List<StringType> aliases = location.getAlias();
 
-        Assert.assertEquals(1, aliases.size());
-        Assert.assertEquals(USATestData.HS_TWO.getDisplayLabel(), aliases.get(0).asStringValue());
+        Assertions.assertEquals(1, aliases.size());
+        Assertions.assertEquals(USATestData.HS_TWO.getDisplayLabel(), aliases.get(0).asStringValue());
 
         List<CanonicalType> profiles = location.getMeta().getProfile();
 
-        Assert.assertEquals(2, profiles.size());
-        Assert.assertEquals("http://ihe.net/fhir/StructureDefinition/IHE.mCSD.Location", profiles.get(0).getValue());
-        Assert.assertEquals("http://ihe.net/fhir/StructureDefinition/IHE.mCSD.JurisdictionLocation", profiles.get(1).getValue());
+        Assertions.assertEquals(2, profiles.size());
+        Assertions.assertEquals("http://ihe.net/fhir/StructureDefinition/IHE.mCSD.Location", profiles.get(0).getValue());
+        Assertions.assertEquals("http://ihe.net/fhir/StructureDefinition/IHE.mCSD.JurisdictionLocation", profiles.get(1).getValue());
 
         Reference managingOrganization = location.getManagingOrganization();
 
-        Assert.assertEquals("Organization/" + USATestData.HS_TWO.getCode(), managingOrganization.getReference());
+        Assertions.assertEquals("Organization/" + USATestData.HS_TWO.getCode(), managingOrganization.getReference());
 
         Extension extension = location.getExtensionByUrl("http://hl7.org/fhir/StructureDefinition/location-boundary-geojson");
 
         byte[] bytes = Base64.getDecoder().decode(extension.castToAttachment(extension.getValue()).getDataElement().asStringValue());
 
-        Assert.assertEquals(new GeoJsonWriter().write(USATestData.HS_TWO.getGeometry()), new String(bytes));
+        Assertions.assertEquals(new GeoJsonWriter().write(USATestData.HS_TWO.getGeometry()), new String(bytes));
       }
     }
     finally

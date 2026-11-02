@@ -1384,7 +1384,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
     if (progress != null)
     {
-      object.add("refreshProgress", progress.toJson());
+      object.add("refreshProgress", JsonParser.parseString(Progress.toJson(progress)));
     }
 
     if (type.getSuperType() != null)

@@ -88,8 +88,6 @@ export class EdgeImporterComponent implements OnInit {
 
   sources: DataSource[];
 
-  source: DataSource;
-
   dataSource: string;
 
   description: string;

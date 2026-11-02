@@ -13,8 +13,8 @@ import org.geotools.api.data.FileDataStoreFinder;
 import org.geotools.api.data.Query;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.api.data.SimpleFeatureSource;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.geotools.api.feature.simple.SimpleFeature;
 import org.geotools.api.filter.sort.SortBy;
 
@@ -57,7 +57,7 @@ public class GeotoolsLoopTest
       
       diff(unsorted, sorted);
       
-      Assert.assertEquals(sorted.size(), unsorted.size());
+      Assertions.assertEquals(sorted.size(), unsorted.size());
     }
   }
   

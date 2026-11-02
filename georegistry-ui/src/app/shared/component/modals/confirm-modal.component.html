@@ -27,6 +27,19 @@
       </div>
     </div>
 
+    @if (acknowledgement != null) {
+      <div class="row">
+        <div class="col-md-12">
+          <div class="alert alert-warning" role="alert">
+            <label class="acknowledgement">
+              <input type="checkbox" name="acknowledged" [(ngModel)]="acknowledged">
+              <strong>{{acknowledgement}}</strong>
+            </label>
+          </div>
+        </div>
+      </div>
+    }
+
     <div class="row">
       <div class="col-md-12">
         <div class="button-holder">
@@ -35,7 +48,7 @@
           </button>
           <button type="button" (click)="confirm()"
             [ngClass]="type.toUpperCase() === 'DANGER' ? 'btn-danger' : 'btn-primary'" class="btn" role="button"
-            aria-disabled="false">
+            [disabled]="!canConfirm()" [attr.aria-disabled]="!canConfirm()">
             <span>{{submitText}}</span>
           </button>
         </div>

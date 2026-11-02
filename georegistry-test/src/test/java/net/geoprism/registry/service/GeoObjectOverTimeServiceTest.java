@@ -5,11 +5,10 @@ package net.geoprism.registry.service;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.geotools.geometry.jts.GeometryBuilder;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +20,7 @@ import com.runwaysdk.business.SmartExceptionDTO;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
@@ -31,7 +30,7 @@ import net.geoprism.registry.test.TestUserInfo;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class GeoObjectOverTimeServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
   public static final TestGeoObjectInfo TEST_GO = new TestGeoObjectInfo("GOSERV_TEST_GO", FastTestDataset.COUNTRY, FastTestDataset.SOURCE);
@@ -39,7 +38,7 @@ public class GeoObjectOverTimeServiceTest extends FastDatasetTest implements Ins
   @Autowired
   private TestRegistryClient            client;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception
   {
     super.setUp();
@@ -74,8 +73,8 @@ public class GeoObjectOverTimeServiceTest extends FastDatasetTest implements Ins
       FastTestDataset.runAsUser(user, (request) -> {
         GeoObjectOverTime geoObj = client.getGeoObjectOverTimeByCode(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
 
-        Assert.assertEquals(geoObj.toJSON().toString(), GeoObjectOverTime.fromJSON(client.getAdapter(), geoObj.toJSON().toString()).toJSON().toString());
-        Assert.assertEquals(true, geoObj.getExists(TestDataSet.DEFAULT_OVER_TIME_DATE));
+        Assertions.assertEquals(geoObj.toJSON().toString(), GeoObjectOverTime.fromJSON(client.getAdapter(), geoObj.toJSON().toString()).toJSON().toString());
+        Assertions.assertEquals(true, geoObj.getExists(TestDataSet.DEFAULT_OVER_TIME_DATE));
       });
     }
   }
@@ -94,12 +93,12 @@ public class GeoObjectOverTimeServiceTest extends FastDatasetTest implements Ins
     {
       client.createGeoObjectOverTime(geoObj.toJSON().toString());
 
-      Assert.fail("Able to create a GeoObject with a wrong geometry type");
+      Assertions.fail("Able to create a GeoObject with a wrong geometry type");
     }
     catch (SmartExceptionDTO e)
     {
       // This is expected
-      Assert.assertEquals(GeometryTypeException.CLASS, e.getType());
+      Assertions.assertEquals(GeometryTypeException.CLASS, e.getType());
     }
   }
 
@@ -130,7 +129,7 @@ public class GeoObjectOverTimeServiceTest extends FastDatasetTest implements Ins
         {
           client.createGeoObjectOverTime(TEST_GO.newGeoObjectOverTime(client.getAdapter()).toJSON().toString());
 
-          Assert.fail();
+          Assertions.fail();
         }
         catch (SmartExceptionDTO ex)
         {
@@ -166,9 +165,8 @@ public class GeoObjectOverTimeServiceTest extends FastDatasetTest implements Ins
       TestGeoObjectInfo go = testData.newTestGeoObjectInfo("UpdateTest", FastTestDataset.COUNTRY, FastTestDataset.SOURCE);
       go.apply();
 
-      TestDataSet.runAsUser(user, (request) -> {
-        updateGO(go);
-      });
+      TestDataSet.runAsUser(user, (request) ->
+        updateGO(go));
 
       go.delete();
     }
@@ -186,7 +184,7 @@ public class GeoObjectOverTimeServiceTest extends FastDatasetTest implements Ins
         {
           updateGO(go);
 
-          Assert.fail();
+          Assertions.fail();
         }
         catch (SmartExceptionDTO ex)
         {

@@ -15,12 +15,12 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -43,7 +43,7 @@ import com.runwaysdk.system.Roles;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.model.localization.LocaleView;
 import net.geoprism.registry.service.request.GPRLocalizationService;
@@ -52,11 +52,11 @@ import net.geoprism.registry.task.Task.TaskStatus;
 import net.geoprism.registry.task.Task.TaskTypeIF;
 import net.geoprism.registry.test.TestUserInfo;
 
-@Ignore
+@Disabled
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
 
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class TaskTest implements InstanceTestClassListener
 {
   public static final TestUserInfo USER_SRA       = new TestUserInfo("task_sra", "task_sra", "task_sra@noreply.com", new String[] { RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE });
@@ -189,7 +189,7 @@ public class TaskTest implements InstanceTestClassListener
     }
   }
 
-  @Before
+  @BeforeEach
   public void setUp()
   {
     chineseSession = ClientSession.createUserSession(USER_SRA.getUsername(), USER_SRA.getPassword(), new Locale[] { Locale.CHINESE });
@@ -200,7 +200,7 @@ public class TaskTest implements InstanceTestClassListener
     deleteAllTasks();
   }
 
-  @After
+  @AfterEach
   public void tearDown()
   {
     if (chineseSession != null)
@@ -253,7 +253,7 @@ public class TaskTest implements InstanceTestClassListener
       }
     }
 
-    Assert.fail("Could not find task by name [" + name + "] in array [" + array + "].");
+    Assertions.fail("Could not find task by name [" + name + "] in array [" + array + "].");
     throw new UnsupportedOperationException();
   }
 
@@ -272,42 +272,42 @@ public class TaskTest implements InstanceTestClassListener
     createInstanceData(chineseSession.getSessionId());
 
     JsonObject chinaJO = getTaskByName(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), service.getTasksForCurrentUser(chineseSession.getSessionId()).get("resultSet").getAsJsonArray());
-    Assert.assertNotNull(chinaJO.get("id").getAsString());
-    Assert.assertEquals(TaskStatus.UNRESOLVED.name(), chinaJO.get("status").getAsString());
+    Assertions.assertNotNull(chinaJO.get("id").getAsString());
+    Assertions.assertEquals(TaskStatus.UNRESOLVED.name(), chinaJO.get("status").getAsString());
     // Assert.assertTrue(dateMin.before(parseDate(chinaJO.getString("createDate"))));
     // Assert.assertTrue(dateMax.after(parseDate(chinaJO.getString("createDate"))));
-    Assert.assertTrue(chinaJO.get("completedDate").isJsonNull());
-    Assert.assertEquals("区 D1 Chinese已拆分。 您必须将孩子重新分配给新父母。", chinaJO.get("msg").getAsString());
-    Assert.assertEquals(LocalizedValueStore.getByKey(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTitleKey()).getStoreValue().getValue(Locale.CHINESE), chinaJO.get("title").getAsString());
+    Assertions.assertTrue(chinaJO.get("completedDate").isJsonNull());
+    Assertions.assertEquals("区 D1 Chinese已拆分。 您必须将孩子重新分配给新父母。", chinaJO.get("msg").getAsString());
+    Assertions.assertEquals(LocalizedValueStore.getByKey(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTitleKey()).getStoreValue().getValue(Locale.CHINESE), chinaJO.get("title").getAsString());
 
     System.out.println(chinaJO);
 
     JsonObject koreaJO = getTaskByName(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), service.getTasksForCurrentUser(koreanSession.getSessionId()).get("resultSet").getAsJsonArray());
-    Assert.assertNotNull(koreaJO.get("id").getAsString());
-    Assert.assertEquals(TaskStatus.UNRESOLVED.name(), koreaJO.get("status").getAsString());
+    Assertions.assertNotNull(koreaJO.get("id").getAsString());
+    Assertions.assertEquals(TaskStatus.UNRESOLVED.name(), koreaJO.get("status").getAsString());
     // Assert.assertTrue(dateMin.before(parseDate(koreaJO.getString("createDate"))));
     // Assert.assertTrue(dateMax.after(parseDate(koreaJO.getString("createDate"))));
-    Assert.assertTrue(koreaJO.get("completedDate").isJsonNull());
-    Assert.assertEquals("지구 D1 Korean이 (가) 분할되었습니다. 새 부모에게 자녀를 재 할당해야합니다.", koreaJO.get("msg").getAsString());
-    Assert.assertEquals(LocalizedValueStore.getByKey(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTitleKey()).getStoreValue().getValue(Locale.KOREAN), koreaJO.get("title").getAsString());
+    Assertions.assertTrue(koreaJO.get("completedDate").isJsonNull());
+    Assertions.assertEquals("지구 D1 Korean이 (가) 분할되었습니다. 새 부모에게 자녀를 재 할당해야합니다.", koreaJO.get("msg").getAsString());
+    Assertions.assertEquals(LocalizedValueStore.getByKey(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTitleKey()).getStoreValue().getValue(Locale.KOREAN), koreaJO.get("title").getAsString());
 
     JsonObject canadaJO = getTaskByName(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), service.getTasksForCurrentUser(canadaSession.getSessionId()).get("resultSet").getAsJsonArray());
-    Assert.assertNotNull(canadaJO.get("id").getAsString());
-    Assert.assertEquals(TaskStatus.UNRESOLVED.name(), canadaJO.get("status").getAsString());
+    Assertions.assertNotNull(canadaJO.get("id").getAsString());
+    Assertions.assertEquals(TaskStatus.UNRESOLVED.name(), canadaJO.get("status").getAsString());
     // Assert.assertTrue(dateMin.before(parseDate(canadaJO.getString("createDate"))));
     // Assert.assertTrue(dateMax.after(parseDate(canadaJO.getString("createDate"))));
-    Assert.assertTrue(canadaJO.get("completedDate").isJsonNull());
-    Assert.assertEquals("Oh no! The district eh D1 Canada has split. You must reassign the children with new parents eh.", canadaJO.get("msg").getAsString());
-    Assert.assertEquals(LocalizedValueStore.getByKey(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTitleKey()).getStoreValue().getValue(Locale.CANADA), canadaJO.get("title").getAsString());
+    Assertions.assertTrue(canadaJO.get("completedDate").isJsonNull());
+    Assertions.assertEquals("Oh no! The district eh D1 Canada has split. You must reassign the children with new parents eh.", canadaJO.get("msg").getAsString());
+    Assertions.assertEquals(LocalizedValueStore.getByKey(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTitleKey()).getStoreValue().getValue(Locale.CANADA), canadaJO.get("title").getAsString());
 
     JsonObject italianJO = getTaskByName(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), service.getTasksForCurrentUser(italianSession.getSessionId()).get("resultSet").getAsJsonArray());
-    Assert.assertNotNull(italianJO.get("id").getAsString());
-    Assert.assertEquals(TaskStatus.UNRESOLVED.name(), italianJO.get("status").getAsString());
+    Assertions.assertNotNull(italianJO.get("id").getAsString());
+    Assertions.assertEquals(TaskStatus.UNRESOLVED.name(), italianJO.get("status").getAsString());
     // Assert.assertTrue(dateMin.before(parseDate(italianJO.getString("createDate"))));
     // Assert.assertTrue(dateMax.after(parseDate(italianJO.getString("createDate"))));
-    Assert.assertTrue(italianJO.get("completedDate").isJsonNull());
-    Assert.assertEquals("The district D1 has split. You must reassign the children with new parents.", italianJO.get("msg").getAsString());
-    Assert.assertEquals(LocalizedValueStore.getByKey(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTitleKey()).getStoreValue().getValue(MdAttributeLocalInfo.DEFAULT_LOCALE), italianJO.get("title").getAsString());
+    Assertions.assertTrue(italianJO.get("completedDate").isJsonNull());
+    Assertions.assertEquals("The district D1 has split. You must reassign the children with new parents.", italianJO.get("msg").getAsString());
+    Assertions.assertEquals(LocalizedValueStore.getByKey(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTitleKey()).getStoreValue().getValue(MdAttributeLocalInfo.DEFAULT_LOCALE), italianJO.get("title").getAsString());
   }
 
   @Test
@@ -326,14 +326,14 @@ public class TaskTest implements InstanceTestClassListener
     createInstanceData(chineseSession.getSessionId());
 
     JsonObject chinaJO = getTaskByName(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), service.getTasksForCurrentUser(chineseSession.getSessionId()).get("resultSet").getAsJsonArray());
-    Assert.assertTrue(chinaJO.get("completedDate").isJsonNull());
-    Assert.assertEquals(TaskStatus.UNRESOLVED.name(), chinaJO.get("status").getAsString());
+    Assertions.assertTrue(chinaJO.get("completedDate").isJsonNull());
+    Assertions.assertEquals(TaskStatus.UNRESOLVED.name(), chinaJO.get("status").getAsString());
 
     service.completeTask(chineseSession.getSessionId(), chinaJO.get("id").getAsString());
     JsonObject chinaJO2 = getTaskByName(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), service.getTasksForCurrentUser(chineseSession.getSessionId()).get("resultSet").getAsJsonArray());
 
     Task t = Task.get(chinaJO2.get("id").getAsString());
-    Assert.assertEquals(TaskStatus.RESOLVED.name(), t.getStatus());
+    Assertions.assertEquals(TaskStatus.RESOLVED.name(), t.getStatus());
 
     // Assert.assertTrue(dateMin.before(parseDate(chinaJO2.getString("completedDate"))));
     // Assert.assertTrue(dateMax.after(parseDate(chinaJO2.getString("completedDate"))));
@@ -352,7 +352,7 @@ public class TaskTest implements InstanceTestClassListener
     try
     {
       Task.get(chinaJO.get("id").getAsString());
-      Assert.fail();
+      Assertions.fail();
     }
     catch (DataNotFoundException e)
     {

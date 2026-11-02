@@ -7,11 +7,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,7 +23,7 @@ import com.runwaysdk.session.Request;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerParentTreeNode;
@@ -35,7 +35,7 @@ import net.geoprism.registry.test.TestGeoObjectInfo;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
 
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class ValueOverTimeParentTest extends FastDatasetTest implements InstanceTestClassListener
 {
   public static final TestGeoObjectInfo BELIZE  = new TestGeoObjectInfo("Belize", FastTestDataset.COUNTRY, FastTestDataset.SOURCE);
@@ -45,7 +45,7 @@ public class ValueOverTimeParentTest extends FastDatasetTest implements Instance
   @Autowired
   private GeoObjectBusinessServiceIF    goService;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception
   {
     super.setUp();
@@ -56,7 +56,7 @@ public class ValueOverTimeParentTest extends FastDatasetTest implements Instance
     FastTestDataset.CAMBODIA.addChild(TEST_GO, FastTestDataset.HIER_ADMIN);
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws Exception
   {
     TEST_GO.delete();
@@ -88,17 +88,17 @@ public class ValueOverTimeParentTest extends FastDatasetTest implements Instance
 
     go = TEST_GO.getServerObject();
     ValueOverTimeCollection parents = goService.getParentCollection(go, ( FastTestDataset.HIER_ADMIN.getServerObject() ));
-    Assert.assertEquals(2, parents.size());
+    Assertions.assertEquals(2, parents.size());
 
     ValueOverTime vot = parents.get(0);
-    Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), ( (ServerGeoObjectIF) vot.getValue() ).getCode());
-    Assert.assertEquals(start, vot.getStartDate());
-    Assert.assertEquals(end, vot.getEndDate());
+    Assertions.assertEquals(FastTestDataset.CAMBODIA.getCode(), ( (ServerGeoObjectIF) vot.getValue() ).getCode());
+    Assertions.assertEquals(start, vot.getStartDate());
+    Assertions.assertEquals(end, vot.getEndDate());
 
     ValueOverTime vot2 = parents.get(1);
-    Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), ( (ServerGeoObjectIF) vot2.getValue() ).getCode());
-    Assert.assertEquals(TestDataSet.DEFAULT_OVER_TIME_DATE, vot2.getStartDate());
-    Assert.assertEquals(TestDataSet.DEFAULT_END_TIME_DATE, vot2.getEndDate());
+    Assertions.assertEquals(FastTestDataset.CAMBODIA.getCode(), ( (ServerGeoObjectIF) vot2.getValue() ).getCode());
+    Assertions.assertEquals(TestDataSet.DEFAULT_OVER_TIME_DATE, vot2.getStartDate());
+    Assertions.assertEquals(TestDataSet.DEFAULT_END_TIME_DATE, vot2.getEndDate());
   }
 
   /**
@@ -115,12 +115,12 @@ public class ValueOverTimeParentTest extends FastDatasetTest implements Instance
 
     go = TEST_GO.getServerObject();
     ValueOverTimeCollection votc = goService.getParentCollection(go, ( FastTestDataset.HIER_ADMIN.getServerObject() ));
-    Assert.assertEquals(1, votc.size());
+    Assertions.assertEquals(1, votc.size());
 
     ValueOverTime vot = votc.get(0);
-    Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), ( (ServerGeoObjectIF) vot.getValue() ).getCode());
-    Assert.assertEquals(TestDataSet.DEFAULT_OVER_TIME_DATE, vot.getStartDate());
-    Assert.assertEquals(TestDataSet.DEFAULT_END_TIME_DATE, vot.getEndDate());
+    Assertions.assertEquals(FastTestDataset.CAMBODIA.getCode(), ( (ServerGeoObjectIF) vot.getValue() ).getCode());
+    Assertions.assertEquals(TestDataSet.DEFAULT_OVER_TIME_DATE, vot.getStartDate());
+    Assertions.assertEquals(TestDataSet.DEFAULT_END_TIME_DATE, vot.getEndDate());
   }
 
   /**
@@ -137,22 +137,22 @@ public class ValueOverTimeParentTest extends FastDatasetTest implements Instance
 
     go = TEST_GO.getServerObject();
     ValueOverTimeCollection votc = goService.getParentCollection(go, ( FastTestDataset.HIER_ADMIN.getServerObject() ));
-    Assert.assertEquals(3, votc.size());
+    Assertions.assertEquals(3, votc.size());
 
     ValueOverTime vot = votc.get(0);
-    Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), ( (ServerGeoObjectIF) vot.getValue() ).getCode());
-    Assert.assertEquals(TestDataSet.DEFAULT_OVER_TIME_DATE, vot.getStartDate());
-    Assert.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 4), vot.getEndDate());
+    Assertions.assertEquals(FastTestDataset.CAMBODIA.getCode(), ( (ServerGeoObjectIF) vot.getValue() ).getCode());
+    Assertions.assertEquals(TestDataSet.DEFAULT_OVER_TIME_DATE, vot.getStartDate());
+    Assertions.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 4), vot.getEndDate());
 
     ValueOverTime vot2 = votc.get(1);
-    Assert.assertEquals(BELIZE.getCode(), ( (ServerGeoObjectIF) vot2.getValue() ).getCode());
-    Assert.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 5), vot2.getStartDate());
-    Assert.assertEquals(addDay(TestDataSet.DEFAULT_END_TIME_DATE, -5), vot2.getEndDate());
+    Assertions.assertEquals(BELIZE.getCode(), ( (ServerGeoObjectIF) vot2.getValue() ).getCode());
+    Assertions.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 5), vot2.getStartDate());
+    Assertions.assertEquals(addDay(TestDataSet.DEFAULT_END_TIME_DATE, -5), vot2.getEndDate());
 
     ValueOverTime vot3 = votc.get(2);
-    Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), ( (ServerGeoObjectIF) vot3.getValue() ).getCode());
-    Assert.assertEquals(addDay(TestDataSet.DEFAULT_END_TIME_DATE, -4), vot3.getStartDate());
-    Assert.assertEquals(TestDataSet.DEFAULT_END_TIME_DATE, vot3.getEndDate());
+    Assertions.assertEquals(FastTestDataset.CAMBODIA.getCode(), ( (ServerGeoObjectIF) vot3.getValue() ).getCode());
+    Assertions.assertEquals(addDay(TestDataSet.DEFAULT_END_TIME_DATE, -4), vot3.getStartDate());
+    Assertions.assertEquals(TestDataSet.DEFAULT_END_TIME_DATE, vot3.getEndDate());
   }
 
   /**
@@ -169,12 +169,12 @@ public class ValueOverTimeParentTest extends FastDatasetTest implements Instance
 
     go = TEST_GO.getServerObject();
     ValueOverTimeCollection votc = goService.getParentCollection(go, ( FastTestDataset.HIER_ADMIN.getServerObject() ));
-    Assert.assertEquals(1, votc.size());
+    Assertions.assertEquals(1, votc.size());
 
     ValueOverTime vot = votc.get(0);
-    Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), ( (ServerGeoObjectIF) vot.getValue() ).getCode());
-    Assert.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, -5), vot.getStartDate());
-    Assert.assertEquals(addDay(TestDataSet.DEFAULT_END_TIME_DATE, 5), vot.getEndDate());
+    Assertions.assertEquals(FastTestDataset.CAMBODIA.getCode(), ( (ServerGeoObjectIF) vot.getValue() ).getCode());
+    Assertions.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, -5), vot.getStartDate());
+    Assertions.assertEquals(addDay(TestDataSet.DEFAULT_END_TIME_DATE, 5), vot.getEndDate());
   }
 
   /**
@@ -191,12 +191,12 @@ public class ValueOverTimeParentTest extends FastDatasetTest implements Instance
 
     go = TEST_GO.getServerObject();
     ValueOverTimeCollection votc = goService.getParentCollection(go, ( FastTestDataset.HIER_ADMIN.getServerObject() ));
-    Assert.assertEquals(1, votc.size());
+    Assertions.assertEquals(1, votc.size());
 
     ValueOverTime vot = votc.get(0);
-    Assert.assertEquals(BELIZE.getCode(), ( (ServerGeoObjectIF) vot.getValue() ).getCode());
-    Assert.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, -5), vot.getStartDate());
-    Assert.assertEquals(addDay(TestDataSet.DEFAULT_END_TIME_DATE, 5), vot.getEndDate());
+    Assertions.assertEquals(BELIZE.getCode(), ( (ServerGeoObjectIF) vot.getValue() ).getCode());
+    Assertions.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, -5), vot.getStartDate());
+    Assertions.assertEquals(addDay(TestDataSet.DEFAULT_END_TIME_DATE, 5), vot.getEndDate());
   }
 
   /**
@@ -213,10 +213,10 @@ public class ValueOverTimeParentTest extends FastDatasetTest implements Instance
 
     go = TEST_GO.getServerObject();
     ServerParentTreeNode node = goService.getParentsForHierarchy(go, FastTestDataset.HIER_ADMIN.getServerObject(), false, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
-    Assert.assertEquals(1, node.getParents().size());
+    Assertions.assertEquals(1, node.getParents().size());
 
     ServerGeoObjectIF value = node.getParents().get(0).getGeoObject();
-    Assert.assertEquals(BELIZE.getCode(), value.getCode());
+    Assertions.assertEquals(BELIZE.getCode(), value.getCode());
   }
 
   /**
@@ -233,12 +233,12 @@ public class ValueOverTimeParentTest extends FastDatasetTest implements Instance
 
     go = TEST_GO.getServerObject();
     ValueOverTimeCollection votc = goService.getParentCollection(go, ( FastTestDataset.HIER_ADMIN.getServerObject() ));
-    Assert.assertEquals(1, votc.size());
+    Assertions.assertEquals(1, votc.size());
 
     ValueOverTime vot = votc.get(0);
-    Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), ( (ServerGeoObjectIF) vot.getValue() ).getCode());
-    Assert.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, -30), vot.getStartDate());
-    Assert.assertEquals(TestDataSet.DEFAULT_END_TIME_DATE, vot.getEndDate());
+    Assertions.assertEquals(FastTestDataset.CAMBODIA.getCode(), ( (ServerGeoObjectIF) vot.getValue() ).getCode());
+    Assertions.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, -30), vot.getStartDate());
+    Assertions.assertEquals(TestDataSet.DEFAULT_END_TIME_DATE, vot.getEndDate());
   }
 
   /**
@@ -255,17 +255,17 @@ public class ValueOverTimeParentTest extends FastDatasetTest implements Instance
 
     go = TEST_GO.getServerObject();
     ValueOverTimeCollection votc = goService.getParentCollection(go, ( FastTestDataset.HIER_ADMIN.getServerObject() ));
-    Assert.assertEquals(2, votc.size());
+    Assertions.assertEquals(2, votc.size());
 
     ValueOverTime vot = votc.get(0);
-    Assert.assertEquals(BELIZE.getCode(), ( (ServerGeoObjectIF) vot.getValue() ).getCode());
-    Assert.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, -30), vot.getStartDate());
-    Assert.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 5), vot.getEndDate());
+    Assertions.assertEquals(BELIZE.getCode(), ( (ServerGeoObjectIF) vot.getValue() ).getCode());
+    Assertions.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, -30), vot.getStartDate());
+    Assertions.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 5), vot.getEndDate());
 
     ValueOverTime vot2 = votc.get(1);
-    Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), ( (ServerGeoObjectIF) vot2.getValue() ).getCode());
-    Assert.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 6), vot2.getStartDate());
-    Assert.assertEquals(TestDataSet.DEFAULT_END_TIME_DATE, vot2.getEndDate());
+    Assertions.assertEquals(FastTestDataset.CAMBODIA.getCode(), ( (ServerGeoObjectIF) vot2.getValue() ).getCode());
+    Assertions.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 6), vot2.getStartDate());
+    Assertions.assertEquals(TestDataSet.DEFAULT_END_TIME_DATE, vot2.getEndDate());
   }
 
   private Date addDay(Date date, int amount)

@@ -24,7 +24,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { SynchronizationConfig } from '@registry/model/registry';
 import { PublishService } from '@registry/service/publish.service';
 import { PublishEvents } from '@registry/model/publish';
-import { FormsModule } from '@angular/forms';
+import { ControlContainer, NgForm, FormsModule } from '@angular/forms';
 
 import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
 
@@ -34,11 +34,18 @@ import { LocalizeComponent } from '../../../shared/component/localize/localize.c
   styleUrls: [],
   standalone: true,
   imports: [LocalizeComponent, FormsModule],
+  viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
 })
 export class JenaExportSynchronizationConfigComponent implements OnInit, OnDestroy {
   @Input() config: SynchronizationConfig;
   @Input() fieldChange: Subject<string>;
   @Output() onError = new EventEmitter<HttpErrorResponse>();
+
+  // Neptune requires absolute IRIs, e.g. urn:example or https://example.com/graph
+  readonly graphPattern = '[A-Za-z][A-Za-z0-9+.\\-]*:[^\\s<>"{}|\\\\^`]+';
+
+  // The namespace is used as a prefix for IRIs of the form <namespace>#<code>, so it may not contain a fragment
+  readonly namespacePattern = '[A-Za-z][A-Za-z0-9+.\\-]*:[^\\s<>"{}|\\\\^`#]+';
 
   subscription: Subscription | null = null;
   publishes: PublishEvents[] | null = null;

@@ -8,10 +8,10 @@ import java.util.List;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyNode;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,7 +21,7 @@ import com.runwaysdk.session.Request;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.HierarchyRootException;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.TypeInUseException;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.InheritedHierarchyAnnotation;
@@ -34,9 +34,11 @@ import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestHierarchyTypeInfo;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class InheritedHierarchyAnnotationTest extends FastDatasetTest implements InstanceTestClassListener
 {
   public static final TestGeoObjectTypeInfo TEST_CHILD        = new TestGeoObjectTypeInfo("HMST_PROVINCE", FastTestDataset.ORG_CGOV);
@@ -88,7 +90,7 @@ public class InheritedHierarchyAnnotationTest extends FastDatasetTest implements
     super.afterClassSetup();
   }
 
-  @After
+  @AfterEach
   public void cleanUp()
   {
     TEST_CHILD_HT.delete();
@@ -105,7 +107,7 @@ public class InheritedHierarchyAnnotationTest extends FastDatasetTest implements
 
     try
     {
-      Assert.assertNotNull(annotation);
+      Assertions.assertNotNull(annotation);
     }
     finally
     {
@@ -124,7 +126,7 @@ public class InheritedHierarchyAnnotationTest extends FastDatasetTest implements
     {
       List<InheritedHierarchyAnnotation> annotations = InheritedHierarchyAnnotation.getByGeoObjectType(sGOT);
 
-      Assert.assertEquals(2, annotations.size());
+      Assertions.assertEquals(2, annotations.size());
 
       for (InheritedHierarchyAnnotation dbanno : annotations)
       {
@@ -132,7 +134,7 @@ public class InheritedHierarchyAnnotationTest extends FastDatasetTest implements
 
         if (forHierCode.equals(TEST_HT.getCode()))
         {
-          Assert.assertEquals(dbanno.getOid(), annotation.getOid());
+          Assertions.assertEquals(dbanno.getOid(), annotation.getOid());
         }
         else if (forHierCode.equals(FastTestDataset.HIER_SPLIT_CHILD.getCode()))
         {
@@ -164,11 +166,11 @@ public class InheritedHierarchyAnnotationTest extends FastDatasetTest implements
     {
       List<? extends InheritedHierarchyAnnotation> annotations = InheritedHierarchyAnnotation.getByRelationship(forHierarchy.getObject());
 
-      Assert.assertEquals(1, annotations.size());
+      Assertions.assertEquals(1, annotations.size());
 
       InheritedHierarchyAnnotation test = annotations.get(0);
 
-      Assert.assertEquals(test.getOid(), annotation.getOid());
+      Assertions.assertEquals(test.getOid(), annotation.getOid());
     }
     finally
     {
@@ -190,11 +192,11 @@ public class InheritedHierarchyAnnotationTest extends FastDatasetTest implements
     {
       List<? extends InheritedHierarchyAnnotation> annotations = InheritedHierarchyAnnotation.getByRelationship(inheritedHierarchy.getObject());
 
-      Assert.assertEquals(1, annotations.size());
+      Assertions.assertEquals(1, annotations.size());
 
       InheritedHierarchyAnnotation test = annotations.get(0);
 
-      Assert.assertEquals(test.getOid(), annotation.getOid());
+      Assertions.assertEquals(test.getOid(), annotation.getOid());
     }
     finally
     {
@@ -216,8 +218,8 @@ public class InheritedHierarchyAnnotationTest extends FastDatasetTest implements
     {
       InheritedHierarchyAnnotation test = InheritedHierarchyAnnotation.get(sGOT, forHierarchy);
 
-      Assert.assertNotNull(test);
-      Assert.assertEquals(test.getOid(), annotation.getOid());
+      Assertions.assertNotNull(test);
+      Assertions.assertEquals(test.getOid(), annotation.getOid());
     }
     finally
     {
@@ -240,7 +242,7 @@ public class InheritedHierarchyAnnotationTest extends FastDatasetTest implements
 
     try
     {
-      Assert.assertNull(test);
+      Assertions.assertNull(test);
     }
     finally
     {
@@ -275,11 +277,11 @@ public class InheritedHierarchyAnnotationTest extends FastDatasetTest implements
 
     try
     {
-      Assert.assertNotNull(test);
+      Assertions.assertNotNull(test);
 
       TEST_PARENT_HT.delete();
 
-      Assert.assertNull(InheritedHierarchyAnnotation.get(sGOT, forHierarchy));
+      Assertions.assertNull(InheritedHierarchyAnnotation.get(sGOT, forHierarchy));
 
       test = null;
     }
@@ -316,13 +318,13 @@ public class InheritedHierarchyAnnotationTest extends FastDatasetTest implements
 
     try
     {
-      Assert.assertTrue(test != null && test.size() == 1);
+      Assertions.assertTrue(test != null && test.size() == 1);
 
       TEST_CHILD_HT.delete();
 
       test = InheritedHierarchyAnnotation.getByInheritedHierarchy(sGOT, inheritedHierarchy);
 
-      Assert.assertTrue(test != null && test.size() == 0);
+      Assertions.assertTrue(test != null && test.size() == 0);
 
       test = null;
     }
@@ -340,52 +342,56 @@ public class InheritedHierarchyAnnotationTest extends FastDatasetTest implements
    * hierarchy B, if we delete the GeoObjectType, then the annotation is also
    * deleted.
    */
-  @Test(expected = TypeInUseException.class)
+  @Test
   @Request
   public void testDeleteGeoObjectType()
   {
-    TEST_DELETE_CHILD.apply();
-    TEST_CHILD_HT.apply();
-    TEST_PARENT_HT.apply();
-    TEST_CHILD_HT.setRoot(TEST_DELETE_CHILD);
+    assertThrows(TypeInUseException.class, () -> {
+      TEST_DELETE_CHILD.apply();
+      TEST_CHILD_HT.apply();
+      TEST_PARENT_HT.apply();
+      TEST_CHILD_HT.setRoot(TEST_DELETE_CHILD);
 
-    ServerGeoObjectType sGOT = TEST_DELETE_CHILD.getServerObject();
-    ServerHierarchyType forHierarchy = TEST_CHILD_HT.getServerObject();
-    ServerHierarchyType inheritedHierarchy = TEST_PARENT_HT.getServerObject();
+      ServerGeoObjectType sGOT = TEST_DELETE_CHILD.getServerObject();
+      ServerHierarchyType forHierarchy = TEST_CHILD_HT.getServerObject();
+      ServerHierarchyType inheritedHierarchy = TEST_PARENT_HT.getServerObject();
 
-    this.typeService.setInheritedHierarchy(sGOT, forHierarchy, inheritedHierarchy);
+      this.typeService.setInheritedHierarchy(sGOT, forHierarchy, inheritedHierarchy);
 
-    List<? extends InheritedHierarchyAnnotation> test = InheritedHierarchyAnnotation.getAnnotationByHierarchies(forHierarchy, inheritedHierarchy);
+      List<? extends InheritedHierarchyAnnotation> test = InheritedHierarchyAnnotation.getAnnotationByHierarchies(forHierarchy, inheritedHierarchy);
 
-    try
-    {
-      Assert.assertTrue(test != null && test.size() == 1);
-
-      TEST_DELETE_CHILD.delete();
-
-      // test =
-      // InheritedHierarchyAnnotation.getAnnotationByHierarchies(forHierarchy.getHierarchicalRelationshipType(),
-      // inheritedHierarchy.getHierarchicalRelationshipType());
-      //
-      // Assert.assertTrue(test != null && test.size() == 0);
-      //
-      // test = null;
-    }
-    finally
-    {
-      if (test != null)
+      try
       {
-        test.stream().forEach(annot -> annot.delete());
+        Assertions.assertTrue(test != null && test.size() == 1);
+
+        TEST_DELETE_CHILD.delete();
+
+        // test =
+        // InheritedHierarchyAnnotation.getAnnotationByHierarchies(forHierarchy.getHierarchicalRelationshipType(),
+        // inheritedHierarchy.getHierarchicalRelationshipType());
+        //
+        // Assert.assertTrue(test != null && test.size() == 0);
+        //
+        // test = null;
       }
-    }
+      finally
+      {
+        if (test != null)
+        {
+          test.stream().forEach(annot -> annot.delete());
+        }
+      }
+    });
   }
 
   @Request
-  @Test(expected = HierarchyRootException.class)
+  @Test
   public void testCreateOnNonRoot()
   {
-    ServerGeoObjectType sGOT = TEST_CHILD.getServerObject();
-    this.typeService.setInheritedHierarchy(sGOT, TEST_HT.getServerObject(), FastTestDataset.HIER_ADMIN.getServerObject());
+    assertThrows(HierarchyRootException.class, () -> {
+      ServerGeoObjectType sGOT = TEST_CHILD.getServerObject();
+      this.typeService.setInheritedHierarchy(sGOT, TEST_HT.getServerObject(), FastTestDataset.HIER_ADMIN.getServerObject());
+    });
   }
 
   @Test
@@ -404,7 +410,7 @@ public class InheritedHierarchyAnnotationTest extends FastDatasetTest implements
 
       List<ServerGeoObjectType> results = this.typeService.getTypeAncestors(childType, TEST_HT.getServerObject(), true);
 
-      Assert.assertEquals(2, results.size());
+      Assertions.assertEquals(2, results.size());
     }
     finally
     {
@@ -428,7 +434,7 @@ public class InheritedHierarchyAnnotationTest extends FastDatasetTest implements
 
       List<ServerGeoObjectType> results = this.typeService.getTypeAncestors(childType, TEST_HT.getServerObject(), false);
 
-      Assert.assertEquals(1, results.size());
+      Assertions.assertEquals(1, results.size());
     }
     finally
     {
@@ -452,7 +458,7 @@ public class InheritedHierarchyAnnotationTest extends FastDatasetTest implements
 
       ServerHierarchyType hierarchy = this.typeService.findHierarchy(childType, forHierarchy, FastTestDataset.COUNTRY.getServerObject());
 
-      Assert.assertEquals(FastTestDataset.HIER_ADMIN.getCode(), hierarchy.getCode());
+      Assertions.assertEquals(FastTestDataset.HIER_ADMIN.getCode(), hierarchy.getCode());
     }
     finally
     {
@@ -473,8 +479,8 @@ public class InheritedHierarchyAnnotationTest extends FastDatasetTest implements
         HierarchyNode node = nodes.get(0);
         GeoObjectType root = node.getGeoObjectType();
 
-        Assert.assertEquals(FastTestDataset.COUNTRY.getCode(), root.getCode());
-        Assert.assertEquals(FastTestDataset.HIER_ADMIN.getCode(), node.getInheritedHierarchyCode());
+        Assertions.assertEquals(FastTestDataset.COUNTRY.getCode(), root.getCode());
+        Assertions.assertEquals(FastTestDataset.HIER_ADMIN.getCode(), node.getInheritedHierarchyCode());
       }
       finally
       {
@@ -484,8 +490,8 @@ public class InheritedHierarchyAnnotationTest extends FastDatasetTest implements
         HierarchyNode node = nodes.get(0);
         GeoObjectType root = node.getGeoObjectType();
 
-        Assert.assertEquals(FastTestDataset.PROVINCE.getCode(), root.getCode());
-        Assert.assertNull(node.getInheritedHierarchyCode());
+        Assertions.assertEquals(FastTestDataset.PROVINCE.getCode(), root.getCode());
+        Assertions.assertNull(node.getInheritedHierarchyCode());
       }
     });
   }

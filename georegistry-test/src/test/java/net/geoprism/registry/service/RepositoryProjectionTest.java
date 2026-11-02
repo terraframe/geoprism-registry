@@ -9,9 +9,11 @@ import java.util.UUID;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,7 +23,7 @@ import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.EventDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.axon.event.repository.BusinessObjectApplyEvent;
 import net.geoprism.registry.axon.event.repository.BusinessObjectEventBuilder;
 import net.geoprism.registry.axon.event.repository.ConceptObjectApplyEvent;
@@ -46,7 +48,7 @@ import net.geoprism.registry.test.USATestData;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class RepositoryProjectionTest extends EventDatasetTest implements InstanceTestClassListener
 {
 
@@ -59,6 +61,7 @@ public class RepositoryProjectionTest extends EventDatasetTest implements Instan
   @Autowired
   private EdgeObjectBusinessService eObjectService;
 
+  @BeforeEach
   @Override
   @Request
   public void setUp() throws Exception
@@ -68,6 +71,7 @@ public class RepositoryProjectionTest extends EventDatasetTest implements Instan
     this.store.truncate();
   }
 
+  @AfterEach
   @Override
   @Request
   public void tearDown() throws Exception
@@ -106,14 +110,14 @@ public class RepositoryProjectionTest extends EventDatasetTest implements Instan
 
     List<RepositoryEvent> events = builder.build();
 
-    Assert.assertEquals(1, events.size());
+    Assertions.assertEquals(1, events.size());
 
     this.projection.handleApplyGeoObject((GeoObjectApplyEvent) events.get(0));
 
     ServerGeoObjectIF result = this.gObjectService.getGeoObjectByCode(USATestData.COLORADO.getCode(), USATestData.COLORADO.getGeoObjectType().getCode());
 
-    Assert.assertNotNull(result);
-    Assert.assertEquals(USATestData.COLORADO.getDisplayLabel(), result.getDisplayLabel(USATestData.DEFAULT_OVER_TIME_DATE).getLocalizedValue());
+    Assertions.assertNotNull(result);
+    Assertions.assertEquals(USATestData.COLORADO.getDisplayLabel(), result.getDisplayLabel(USATestData.DEFAULT_OVER_TIME_DATE).getLocalizedValue());
   }
 
   @Test
@@ -132,13 +136,13 @@ public class RepositoryProjectionTest extends EventDatasetTest implements Instan
 
     List<RepositoryEvent> events = builder.build();
 
-    Assert.assertEquals(1, events.size());
+    Assertions.assertEquals(1, events.size());
 
     this.projection.handleApplyBusinessObject((BusinessObjectApplyEvent) events.get(0));
 
     Optional<BusinessObject> result = this.bObjectService.getByCode(btype, code);
 
-    Assert.assertTrue(result.isPresent());
+    Assertions.assertTrue(result.isPresent());
   }
 
   @Test
@@ -157,13 +161,13 @@ public class RepositoryProjectionTest extends EventDatasetTest implements Instan
 
     List<RepositoryEvent> events = builder.build();
 
-    Assert.assertEquals(1, events.size());
+    Assertions.assertEquals(1, events.size());
 
     this.projection.handleApplyConceptObject((ConceptObjectApplyEvent) events.get(0));
 
     Optional<ConceptObject> result = this.cObjectService.getByCode(cClass, code);
 
-    Assert.assertTrue(result.isPresent());
+    Assertions.assertTrue(result.isPresent());
   }
 
   @Test
@@ -177,15 +181,14 @@ public class RepositoryProjectionTest extends EventDatasetTest implements Instan
 
     List<EdgeQueryObject> results = this.cObjectService.getEdgeChildren(parent, cEdgeType, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-    Assert.assertEquals(1, results.size());
+    Assertions.assertEquals(1, results.size());
 
     EdgeQueryObject result = results.get(0);
 
-    this.eObjectService.getByOid(cEdgeType, result.getOid()).ifPresent(edge -> {
-      this.eventService.remove(cEdgeType, edge);
-    });
+    this.eObjectService.getByOid(cEdgeType, result.getOid()).ifPresent(edge ->
+      this.eventService.remove(cEdgeType, edge));
 
-    Assert.assertEquals(0, this.cObjectService.getEdgeChildren(parent, cEdgeType, TestDataSet.DEFAULT_OVER_TIME_DATE).size());
+    Assertions.assertEquals(0, this.cObjectService.getEdgeChildren(parent, cEdgeType, TestDataSet.DEFAULT_OVER_TIME_DATE).size());
   }
 
   @Test
@@ -204,7 +207,7 @@ public class RepositoryProjectionTest extends EventDatasetTest implements Instan
 
     ServerChildGraphNode results = this.gObjectService.getGraphChildGeoObjects(colorado, dagType, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-    Assert.assertEquals(1, results.getChildren().size());
+    Assertions.assertEquals(1, results.getChildren().size());
 
     EdgeObject edge = this.eObjectService.getByUid(dagType, edgeUid).get();
 
@@ -212,7 +215,7 @@ public class RepositoryProjectionTest extends EventDatasetTest implements Instan
 
     results = this.gObjectService.getGraphChildGeoObjects(colorado, dagType, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-    Assert.assertEquals(0, results.getChildren().size());
+    Assertions.assertEquals(0, results.getChildren().size());
   }
 
 }

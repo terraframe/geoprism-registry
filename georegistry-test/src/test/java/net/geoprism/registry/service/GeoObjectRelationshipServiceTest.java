@@ -16,11 +16,9 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.HierarchyNode;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -31,7 +29,7 @@ import com.runwaysdk.business.SmartExceptionDTO;
 
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.roles.ReadGeoObjectPermissionException;
 import net.geoprism.registry.test.FastTestDataset;
@@ -44,7 +42,7 @@ import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
   @Autowired
@@ -61,10 +59,10 @@ public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements
   {
     JsonObject json = client.hierarchyManagerInit();
 
-    Assert.assertNotNull(json.get("types").getAsJsonArray());
-    Assert.assertNotNull(json.get("hierarchies").getAsJsonArray());
-    Assert.assertNotNull(json.get("organizations").getAsJsonArray());
-    Assert.assertNotNull(json.get("locales").getAsJsonArray());
+    Assertions.assertNotNull(json.get("types").getAsJsonArray());
+    Assertions.assertNotNull(json.get("hierarchies").getAsJsonArray());
+    Assertions.assertNotNull(json.get("organizations").getAsJsonArray());
+    Assertions.assertNotNull(json.get("locales").getAsJsonArray());
   }
 
   @Test
@@ -73,7 +71,7 @@ public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements
     TestDataSet.runAsUser(FastTestDataset.USER_ADMIN, (request) -> {
       JsonArray ptn = client.getHierarchiesForGeoObjectOverTime(FastTestDataset.DIST_CENTRAL.getCode(), FastTestDataset.DISTRICT.getCode());
 
-      Assert.assertEquals(3, ptn.size());
+      Assertions.assertEquals(3, ptn.size());
 
       boolean foundAdminHR = false;
       boolean foundHealthHR = false;
@@ -114,14 +112,14 @@ public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements
         }
         else
         {
-          Assert.fail("Unexpected hierarchy code [" + code + "]");
+          Assertions.fail("Unexpected hierarchy code [" + code + "]");
           return;
         }
 
-        Assert.assertEquals(testHt.getDisplayLabel(), label);
+        Assertions.assertEquals(testHt.getDisplayLabel(), label);
 
         JsonArray types = hierarchy.get(ServerParentTreeNodeOverTime.JSON_HIERARCHY_TYPES).getAsJsonArray();
-        Assert.assertEquals(2, types.size());
+        Assertions.assertEquals(2, types.size());
 
         /*
          * Assert type information
@@ -134,18 +132,18 @@ public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements
           typeLabels[j] = types.get(j).getAsJsonObject().get(ServerParentTreeNodeOverTime.JSON_TYPE_LABEL).getAsString();
         }
 
-        Assert.assertTrue(ArrayUtils.contains(typeCodes, FastTestDataset.COUNTRY.getCode()));
-        Assert.assertTrue(ArrayUtils.contains(typeCodes, FastTestDataset.PROVINCE.getCode()));
+        Assertions.assertTrue(ArrayUtils.contains(typeCodes, FastTestDataset.COUNTRY.getCode()));
+        Assertions.assertTrue(ArrayUtils.contains(typeCodes, FastTestDataset.PROVINCE.getCode()));
 
-        Assert.assertTrue(ArrayUtils.contains(typeLabels, FastTestDataset.COUNTRY.getDisplayLabel().getValue()));
-        Assert.assertTrue(ArrayUtils.contains(typeLabels, FastTestDataset.PROVINCE.getDisplayLabel().getValue()));
+        Assertions.assertTrue(ArrayUtils.contains(typeLabels, FastTestDataset.COUNTRY.getDisplayLabel().getValue()));
+        Assertions.assertTrue(ArrayUtils.contains(typeLabels, FastTestDataset.PROVINCE.getDisplayLabel().getValue()));
 
         /*
          * Assert entry information
          */
         JsonArray entries = hierarchy.get(ServerParentTreeNodeOverTime.JSON_HIERARCHY_ENTRIES).getAsJsonArray();
 
-        Assert.assertEquals(1, entries.size());
+        Assertions.assertEquals(1, entries.size());
 
         SimpleDateFormat format = ServerParentTreeNodeOverTime.getDateFormat();
 
@@ -154,14 +152,14 @@ public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements
           JsonObject entry = entries.get(j).getAsJsonObject();
 
           Date startDate = format.parse(entry.get(ServerParentTreeNodeOverTime.JSON_ENTRY_STARTDATE).getAsString());
-          Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, startDate);
+          Assertions.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, startDate);
 
           Date endDate = format.parse(entry.get(ServerParentTreeNodeOverTime.JSON_ENTRY_ENDDATE).getAsString());
-          Assert.assertEquals(FastTestDataset.DEFAULT_END_TIME_DATE, endDate);
+          Assertions.assertEquals(FastTestDataset.DEFAULT_END_TIME_DATE, endDate);
 
           JsonObject parents = entry.get(ServerParentTreeNodeOverTime.JSON_ENTRY_PARENTS).getAsJsonObject();
 
-          Assert.assertEquals(2, parents.keySet().size());
+          Assertions.assertEquals(2, parents.keySet().size());
 
           String[] parentCodes = new String[2];
 
@@ -178,20 +176,20 @@ public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements
 
             if (parentCode.equals(FastTestDataset.COUNTRY.getCode()))
             {
-              Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), go.getCode());
+              Assertions.assertEquals(FastTestDataset.CAMBODIA.getCode(), go.getCode());
             }
             else if (parentCode.equals(FastTestDataset.PROVINCE.getCode()))
             {
-              Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), go.getCode());
+              Assertions.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), go.getCode());
             }
           }
 
-          Assert.assertTrue(ArrayUtils.contains(parentCodes, FastTestDataset.COUNTRY.getCode()));
-          Assert.assertTrue(ArrayUtils.contains(parentCodes, FastTestDataset.PROVINCE.getCode()));
+          Assertions.assertTrue(ArrayUtils.contains(parentCodes, FastTestDataset.COUNTRY.getCode()));
+          Assertions.assertTrue(ArrayUtils.contains(parentCodes, FastTestDataset.PROVINCE.getCode()));
         }
       }
 
-      Assert.assertTrue(foundHealthHR && foundAdminHR && foundSplitChildHR);
+      Assertions.assertTrue(foundHealthHR && foundAdminHR && foundSplitChildHR);
     });
   }
 
@@ -204,7 +202,7 @@ public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements
       TestDataSet.runAsUser(user, (request) -> {
         JsonArray ptn = client.getHierarchiesForGeoObjectOverTime(FastTestDataset.PROV_CENTRAL_PRIVATE.getCode(), FastTestDataset.PROVINCE_PRIVATE.getCode());
 
-        Assert.assertEquals(1, ptn.size());
+        Assertions.assertEquals(1, ptn.size());
       });
     }
 
@@ -217,11 +215,11 @@ public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements
         {
           client.getHierarchiesForGeoObjectOverTime(FastTestDataset.PROV_CENTRAL_PRIVATE.getCode(), FastTestDataset.PROVINCE_PRIVATE.getCode());
 
-          Assert.fail("Expected a permission exception");
+          Assertions.fail("Expected a permission exception");
         }
         catch (SmartExceptionDTO ex)
         {
-          Assert.assertEquals(ReadGeoObjectPermissionException.CLASS, ex.getType());
+          Assertions.assertEquals(ReadGeoObjectPermissionException.CLASS, ex.getType());
         }
       });
     }
@@ -243,14 +241,14 @@ public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements
       TestDataSet.runAsUser(user, (request) -> {
         JsonArray hiers = client.getHierarchiesForGeoObjectOverTime(FastTestDataset.PROV_CENTRAL.getCode(), FastTestDataset.PROVINCE.getCode());
 
-        Assert.assertEquals(4, hiers.size());
+        Assertions.assertEquals(4, hiers.size());
 
         // JsonObject hierarchy = hiers.get(0).getAsJsonObject();
         //
         // String code =
         // hierarchy.get(ServerParentTreeNodeOverTime.JSON_HIERARCHY_CODE).getAsString();
         //
-        // Assert.assertEquals(FastTestDataset.HIER_ADMIN.getCode(), code);
+        // Assertions.assertEquals(FastTestDataset.HIER_ADMIN.getCode(), code);
       });
     }
 
@@ -260,14 +258,14 @@ public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements
       TestDataSet.runAsUser(user, (request) -> {
         JsonArray hiers = client.getHierarchiesForGeoObjectOverTime(FastTestDataset.CENTRAL_HOSPITAL.getCode(), FastTestDataset.HOSPITAL.getCode());
 
-        Assert.assertEquals(1, hiers.size());
+        Assertions.assertEquals(1, hiers.size());
 
         // JsonObject hierarchy = hiers.get(0).getAsJsonObject();
         //
         // String code =
         // hierarchy.get(ServerParentTreeNodeOverTime.JSON_HIERARCHY_CODE).getAsString();
         //
-        // Assert.assertEquals(FastTestDataset.HIER_HEALTH_ADMIN.getCode(),
+        // Assertions.assertEquals(FastTestDataset.HIER_HEALTH_ADMIN.getCode(),
         // code);
       });
     }
@@ -281,7 +279,7 @@ public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements
     // client.getHierarchiesForGeoObjectOverTime(FastTestDataset.PROV_CENTRAL.getCode(),
     // FastTestDataset.PROVINCE.getCode());
     //
-    // Assert.assertEquals(0, hiers.size());
+    // Assertions.assertEquals(0, hiers.size());
     // });
     // }
 
@@ -294,13 +292,13 @@ public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements
       TestDataSet.runAsUser(user, (request) -> {
         JsonArray hiers = client.getHierarchiesForGeoObjectOverTime(FastTestDataset.PROV_CENTRAL_PRIVATE.getCode(), FastTestDataset.PROVINCE_PRIVATE.getCode());
 
-        Assert.assertEquals(1, hiers.size());
+        Assertions.assertEquals(1, hiers.size());
 
         JsonObject hierarchy = hiers.get(0).getAsJsonObject();
 
         String code = hierarchy.get(ServerParentTreeNodeOverTime.JSON_HIERARCHY_CODE).getAsString();
 
-        Assert.assertEquals(FastTestDataset.HIER_ADMIN.getCode(), code);
+        Assertions.assertEquals(FastTestDataset.HIER_ADMIN.getCode(), code);
       });
     }
 
@@ -313,7 +311,7 @@ public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements
       TestDataSet.runAsUser(user, (request) -> {
         JsonArray hiers = client.getHierarchiesForGeoObjectOverTime(FastTestDataset.CENTRAL_HOSPITAL.getCode(), FastTestDataset.HOSPITAL.getCode());
 
-        Assert.assertEquals(1, hiers.size());
+        Assertions.assertEquals(1, hiers.size());
       });
     }
   }
@@ -325,10 +323,10 @@ public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements
 
     HierarchyType[] hts = client.getHierarchyTypes(types);
 
-    Assert.assertEquals(types.length, hts.length);
+    Assertions.assertEquals(types.length, hts.length);
 
     HierarchyType locatedIn = hts[0];
-    Assert.assertEquals(locatedIn.toJSON().toString(), HierarchyType.fromJSON(locatedIn.toJSON().toString(), client.getAdapter()).toJSON().toString());
+    Assertions.assertEquals(locatedIn.toJSON().toString(), HierarchyType.fromJSON(locatedIn.toJSON().toString(), client.getAdapter()).toJSON().toString());
 
     // Test to make sure we can provide no types and get everything back
     HierarchyType[] hts2 = client.getHierarchyTypes(new String[] {});
@@ -366,17 +364,17 @@ public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements
   {
     hts = Arrays.stream(hts).filter(ht -> ArrayUtils.contains(new String[] { FastTestDataset.HIER_ADMIN.getCode(), FastTestDataset.HIER_HEALTH_ADMIN.getCode() }, ht.getCode())).toArray(HierarchyType[]::new);
 
-    Assert.assertEquals(2, hts.length);
+    Assertions.assertEquals(2, hts.length);
 
     for (HierarchyType ht : hts)
     {
       List<HierarchyNode> rootTypes = ht.getRootGeoObjectTypes();
 
-      Assert.assertEquals(1, rootTypes.size());
+      Assertions.assertEquals(1, rootTypes.size());
 
       HierarchyNode hnRoot = rootTypes.get(0);
 
-      Assert.assertEquals(FastTestDataset.COUNTRY.getCode(), hnRoot.getGeoObjectType().getCode());
+      Assertions.assertEquals(FastTestDataset.COUNTRY.getCode(), hnRoot.getGeoObjectType().getCode());
 
       List<HierarchyNode> provinces = hnRoot.getChildren();
 
@@ -384,7 +382,7 @@ public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements
 
       if (ht.getCode().equals(FastTestDataset.HIER_ADMIN.getCode()) && hasPrivate)
       {
-        Assert.assertEquals(2, provinces.size());
+        Assertions.assertEquals(2, provinces.size());
 
         for (HierarchyNode province : provinces)
         {
@@ -394,38 +392,38 @@ public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements
           }
           else
           {
-            Assert.assertEquals(FastTestDataset.PROVINCE_PRIVATE.getCode(), province.getGeoObjectType().getCode());
+            Assertions.assertEquals(FastTestDataset.PROVINCE_PRIVATE.getCode(), province.getGeoObjectType().getCode());
           }
         }
 
-        Assert.assertNotNull(hnProvince);
+        Assertions.assertNotNull(hnProvince);
       }
       else
       {
-        Assert.assertEquals(1, provinces.size());
+        Assertions.assertEquals(1, provinces.size());
         hnProvince = provinces.get(0);
       }
 
-      Assert.assertEquals(FastTestDataset.PROVINCE.getCode(), hnProvince.getGeoObjectType().getCode());
+      Assertions.assertEquals(FastTestDataset.PROVINCE.getCode(), hnProvince.getGeoObjectType().getCode());
 
       if (ht.getCode().equals(FastTestDataset.HIER_ADMIN.getCode()))
       {
-        Assert.assertEquals(1, hnProvince.getChildren().size());
+        Assertions.assertEquals(1, hnProvince.getChildren().size());
       }
       else if (ht.getCode().equals(FastTestDataset.HIER_HEALTH_ADMIN.getCode()))
       {
         List<HierarchyNode> provChildren = hnProvince.getChildren();
 
-        Assert.assertEquals(2, provChildren.size());
+        Assertions.assertEquals(2, provChildren.size());
 
         // HierarchyNode hnHospital = provChildren.get(0);
         //
-        // Assert.assertEquals(FastTestDataset.HOSPITAL.getCode(),
+        // Assertions.assertEquals(FastTestDataset.HOSPITAL.getCode(),
         // hnHospital.getGeoObjectType().getCode());
       }
       else
       {
-        Assert.fail("Unexpected Hierarchy [" + ht.getCode() + "]");
+        Assertions.fail("Unexpected Hierarchy [" + ht.getCode() + "]");
       }
     }
   }
@@ -448,17 +446,17 @@ public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements
     // Recursive
     ChildTreeNode tn = client.getChildGeoObjects(parentCode, parentTypeCode, null, TestDataSet.DEFAULT_OVER_TIME_DATE, childrenTypes, true);
     FastTestDataset.CAMBODIA.childTreeNodeAssert(tn, expectedChildren);
-    Assert.assertEquals(tn.toJSON().toString(), ChildTreeNode.fromJSON(tn.toJSON().toString(), client.getAdapter()).toJSON().toString());
+    Assertions.assertEquals(tn.toJSON().toString(), ChildTreeNode.fromJSON(tn.toJSON().toString(), client.getAdapter()).toJSON().toString());
 
     // Not recursive
     ChildTreeNode tn2 = client.getChildGeoObjects(parentCode, parentTypeCode, "", TestDataSet.DEFAULT_OVER_TIME_DATE, childrenTypes, false);
     FastTestDataset.CAMBODIA.childTreeNodeAssert(tn2, expectedChildren);
-    Assert.assertEquals(tn2.toJSON().toString(), ChildTreeNode.fromJSON(tn2.toJSON().toString(), client.getAdapter()).toJSON().toString());
+    Assertions.assertEquals(tn2.toJSON().toString(), ChildTreeNode.fromJSON(tn2.toJSON().toString(), client.getAdapter()).toJSON().toString());
 
     // Null date
     ChildTreeNode tn3 = client.getChildGeoObjects(parentCode, parentTypeCode, null, null, childrenTypes, false);
     FastTestDataset.CAMBODIA.childTreeNodeAssert(tn3, expectedChildren);
-    Assert.assertEquals(tn3.toJSON().toString(), ChildTreeNode.fromJSON(tn3.toJSON().toString(), client.getAdapter()).toJSON().toString());
+    Assertions.assertEquals(tn3.toJSON().toString(), ChildTreeNode.fromJSON(tn3.toJSON().toString(), client.getAdapter()).toJSON().toString());
     
     // Singular hierarchy
     childrenTypes = new String[] { FastTestDataset.PROVINCE.getCode() };
@@ -488,7 +486,7 @@ public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements
       FastTestDataset.runAsUser(user, (request) -> {
         ChildTreeNode tn = client.getChildGeoObjects(parentCode, parentTypeCode, null, TestDataSet.DEFAULT_OVER_TIME_DATE, childrenTypes, true);
         FastTestDataset.CAMBODIA.childTreeNodeAssert(tn, expectedChildren);
-        Assert.assertEquals(tn.toJSON().toString(), ChildTreeNode.fromJSON(tn.toJSON().toString(), client.getAdapter()).toJSON().toString());
+        Assertions.assertEquals(tn.toJSON().toString(), ChildTreeNode.fromJSON(tn.toJSON().toString(), client.getAdapter()).toJSON().toString());
       });
     }
 
@@ -498,7 +496,7 @@ public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements
       FastTestDataset.runAsUser(user, (request) -> {
         ChildTreeNode ctn = client.getChildGeoObjects(parentCode, parentTypeCode, null, TestDataSet.DEFAULT_OVER_TIME_DATE, childrenTypes, true);
 
-        Assert.assertEquals(0, ctn.getChildren().size());
+        Assertions.assertEquals(0, ctn.getChildren().size());
       });
     }
   }
@@ -518,33 +516,33 @@ public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements
     // Recursive
     ParentTreeNode tn = client.getParentGeoObjects(childCode, childTypeCode, null, TestDataSet.DEFAULT_OVER_TIME_DATE, parentTypes, true);
     FastTestDataset.PROV_CENTRAL.parentTreeNodeAssert(tn, expectedParents);
-    Assert.assertEquals(tn.toJSON().toString(), ParentTreeNode.fromJSON(tn.toJSON().toString(), client.getAdapter()).toJSON().toString());
+    Assertions.assertEquals(tn.toJSON().toString(), ParentTreeNode.fromJSON(tn.toJSON().toString(), client.getAdapter()).toJSON().toString());
 
     // Not recursive
     ParentTreeNode tn2 = client.getParentGeoObjects(childCode, childTypeCode, null, TestDataSet.DEFAULT_OVER_TIME_DATE, parentTypes, false);
     FastTestDataset.PROV_CENTRAL.parentTreeNodeAssert(tn2, expectedParents);
-    Assert.assertEquals(tn2.toJSON().toString(), ParentTreeNode.fromJSON(tn2.toJSON().toString(), client.getAdapter()).toJSON().toString());
+    Assertions.assertEquals(tn2.toJSON().toString(), ParentTreeNode.fromJSON(tn2.toJSON().toString(), client.getAdapter()).toJSON().toString());
 
     // Test only getting countries
     String[] countryArr = new String[] { FastTestDataset.COUNTRY.getCode() };
     ParentTreeNode tn3 = client.getParentGeoObjects(childCode, childTypeCode, null, TestDataSet.DEFAULT_OVER_TIME_DATE, countryArr, true);
     FastTestDataset.PROV_CENTRAL.parentTreeNodeAssert(tn3, expectedParents);
-    Assert.assertEquals(tn3.toJSON().toString(), ParentTreeNode.fromJSON(tn3.toJSON().toString(), client.getAdapter()).toJSON().toString());
+    Assertions.assertEquals(tn3.toJSON().toString(), ParentTreeNode.fromJSON(tn3.toJSON().toString(), client.getAdapter()).toJSON().toString());
 
     // Test null parent types
     ParentTreeNode tn4 = client.getParentGeoObjects(childCode, childTypeCode, null, TestDataSet.DEFAULT_OVER_TIME_DATE, null, true);
     FastTestDataset.PROV_CENTRAL.parentTreeNodeAssert(tn4, expectedParents);
-    Assert.assertEquals(tn4.toJSON().toString(), ParentTreeNode.fromJSON(tn4.toJSON().toString(), client.getAdapter()).toJSON().toString());
+    Assertions.assertEquals(tn4.toJSON().toString(), ParentTreeNode.fromJSON(tn4.toJSON().toString(), client.getAdapter()).toJSON().toString());
 
     // Test empty parent types
     ParentTreeNode tn5 = client.getParentGeoObjects(childCode, childTypeCode, null, TestDataSet.DEFAULT_OVER_TIME_DATE, new String[] {}, true);
     FastTestDataset.PROV_CENTRAL.parentTreeNodeAssert(tn5, expectedParents);
-    Assert.assertEquals(tn5.toJSON().toString(), ParentTreeNode.fromJSON(tn5.toJSON().toString(), client.getAdapter()).toJSON().toString());
+    Assertions.assertEquals(tn5.toJSON().toString(), ParentTreeNode.fromJSON(tn5.toJSON().toString(), client.getAdapter()).toJSON().toString());
 
     // Null dates
     ParentTreeNode tn6 = client.getParentGeoObjects(childCode, childTypeCode, null, null, new String[] {}, true);
     FastTestDataset.PROV_CENTRAL.parentTreeNodeAssert(tn6, expectedParents);
-    Assert.assertEquals(tn6.toJSON().toString(), ParentTreeNode.fromJSON(tn6.toJSON().toString(), client.getAdapter()).toJSON().toString());
+    Assertions.assertEquals(tn6.toJSON().toString(), ParentTreeNode.fromJSON(tn6.toJSON().toString(), client.getAdapter()).toJSON().toString());
   }
 
   @Test
@@ -563,7 +561,7 @@ public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements
       FastTestDataset.runAsUser(user, (request) -> {
         ParentTreeNode tn = client.getParentGeoObjects(childCode, childTypeCode, null, TestDataSet.DEFAULT_OVER_TIME_DATE, parentTypes, true);
         FastTestDataset.PROV_CENTRAL_PRIVATE.parentTreeNodeAssert(tn, expectedParents);
-        Assert.assertEquals(tn.toJSON().toString(), ParentTreeNode.fromJSON(tn.toJSON().toString(), client.getAdapter()).toJSON().toString());
+        Assertions.assertEquals(tn.toJSON().toString(), ParentTreeNode.fromJSON(tn.toJSON().toString(), client.getAdapter()).toJSON().toString());
       });
     }
 
@@ -575,11 +573,11 @@ public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements
         {
           client.getParentGeoObjects(childCode, childTypeCode, null, TestDataSet.DEFAULT_OVER_TIME_DATE, parentTypes, true);
 
-          Assert.fail("Expected a permissions error.");
+          Assertions.fail("Expected a permissions error.");
         }
         catch (SmartExceptionDTO e)
         {
-          Assert.assertEquals(ReadGeoObjectPermissionException.CLASS, e.getType());
+          Assertions.assertEquals(ReadGeoObjectPermissionException.CLASS, e.getType());
         }
       });
     }
@@ -605,7 +603,7 @@ public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements
         break;
       }
     }
-    Assert.assertTrue("Did not find our test object in the list of returned children", found);
+    Assertions.assertTrue(found, "Did not find our test object in the list of returned children");
     testAddChild.assertEquals(ptnTestState.getGeoObject());
 
     ChildTreeNode ctnCAMBODIA2 = client.getChildGeoObjects(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), null, TestDataSet.DEFAULT_OVER_TIME_DATE, new String[] { FastTestDataset.PROVINCE.getCode() }, false);
@@ -619,7 +617,7 @@ public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements
         break;
       }
     }
-    Assert.assertTrue("Did not find our test object in the list of returned children", found);
+    Assertions.assertTrue(found, "Did not find our test object in the list of returned children");
   }
 
   @Test
@@ -642,7 +640,7 @@ public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements
         break;
       }
     }
-    Assert.assertTrue("Did not find our test object in the list of returned children", found);
+    Assertions.assertTrue(found, "Did not find our test object in the list of returned children");
     testAddChild.assertEquals(ptnTestState.getGeoObject());
 
     ChildTreeNode ctnCAMBODIA2 = client.getChildGeoObjects(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), null, TestDataSet.DEFAULT_OVER_TIME_DATE, new String[] { FastTestDataset.PROVINCE.getCode() }, false);
@@ -656,7 +654,7 @@ public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements
         break;
       }
     }
-    Assert.assertTrue("Did not find our test object in the list of returned children", found);
+    Assertions.assertTrue(found, "Did not find our test object in the list of returned children");
   }
 
   @Test
@@ -684,6 +682,6 @@ public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements
         break;
       }
     }
-    Assert.assertFalse("Did not expect PROV_CENTRAL to be a child of CAMBODIA (because we deleted it earlier).", found);
+    Assertions.assertFalse(found, "Did not expect PROV_CENTRAL to be a child of CAMBODIA (because we deleted it earlier).");
   }
 }

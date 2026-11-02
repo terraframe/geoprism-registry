@@ -17,35 +17,37 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, HostBinding, OnInit } from '@angular/core';
+import { afterNextRender, Component, ElementRef, OnDestroy, OnInit, signal } from '@angular/core';
 
 import { Progress } from '@shared/model/progress';
 import { ProgressService, IProgressListener } from '@shared/service';
 import { ProgressbarModule } from 'ngx-bootstrap/progressbar';
+
+interface OverlayArea {
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+}
 
 @Component({
   selector: 'progress-bar',
   templateUrl: './progress-bar.component.html',
   styles: [
     /*
-     * :host establishes the containing block (and, only while showing,
-     * the height) that .progress-overlay sizes itself against via
-     * inset:0 below. Without this, .progress-overlay's old
-     * width/height:100% had no positioned ancestor to resolve against,
-     * so it fell back to the viewport - misaligning it from the actual
-     * content area (a gap on the left where the sidebar's width wasn't
-     * accounted for, and overflow on the right).
+     * The overlay is fixed to the viewport so it stays put no matter how far
+     * the page (#app-container) is scrolled, and it takes up no space in the
+     * layout. Its position and size are matched to #app-container so the
+     * sidebar stays uncovered and usable for navigation. Without an
+     * #app-container ancestor it falls back to covering the whole viewport.
      */
-    ':host { display: block; }',
-    ':host(.is-showing) { position: relative; height: 100vh; }',
-    '.progress-overlay { background-color: #CCCCCC; position: absolute; inset: 0; display: block;opacity: 0.8;z-index: 99999 !important;}',
-    '.progress-div { width: 100%; margin-left: 0; padding-left: 25%; padding-right: 25%; margin-top: 30% }',
+    '.progress-overlay { background-color: rgba(204, 204, 204, 0.8); position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 99999 !important; }',
+    '.progress-div { width: 50%; }',
   ],
   standalone: true,
   imports: [ProgressbarModule],
 })
-export class ProgressBarComponent implements OnInit, IProgressListener {
-  @HostBinding('class.is-showing')
+export class ProgressBarComponent implements OnInit, OnDestroy, IProgressListener {
   public showIndicator: boolean = true;
 
   public prog: Progress = {
@@ -54,15 +56,57 @@ export class ProgressBarComponent implements OnInit, IProgressListener {
     description: 'Initializing',
   };
 
-  // eslint-disable-next-line no-useless-constructor
-  constructor(private service: ProgressService) {}
+  // A signal so updates from the ResizeObserver/resize callbacks are always rendered
+  public area = signal<OverlayArea | null>(null);
+
+  private container: HTMLElement | null = null;
+
+  private resizeObserver: ResizeObserver | null = null;
+
+  private onWindowResize = (): void => this.updateArea();
+
+  constructor(
+    private service: ProgressService,
+    private el: ElementRef<HTMLElement>
+  ) {
+    // Wait until the host element is in the DOM so it can find its #app-container ancestor
+    afterNextRender(() => this.observeContainer());
+  }
 
   ngOnInit(): void {
     this.service.registerListener(this);
   }
 
+  observeContainer(): void {
+    this.container = this.el.nativeElement.closest<HTMLElement>('#app-container');
+
+    if (this.container != null) {
+      this.updateArea();
+
+      // Fires when the sidebar is expanded/collapsed, since that resizes the content column
+      this.resizeObserver = new ResizeObserver(() => this.updateArea());
+      this.resizeObserver.observe(this.container);
+
+      window.addEventListener('resize', this.onWindowResize);
+    }
+  }
+
   ngOnDestroy(): void {
     this.service.deregisterListener(this);
+
+    if (this.resizeObserver != null) {
+      this.resizeObserver.disconnect();
+    }
+
+    window.removeEventListener('resize', this.onWindowResize);
+  }
+
+  updateArea(): void {
+    if (this.container != null) {
+      const rect = this.container.getBoundingClientRect();
+
+      this.area.set({ top: rect.top, left: rect.left, width: rect.width, height: rect.height });
+    }
   }
 
   start(): void {

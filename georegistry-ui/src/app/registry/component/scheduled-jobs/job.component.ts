@@ -37,7 +37,7 @@ import { ModalTypes } from '@shared/model/modal';
 import { GeoRegistryConfiguration } from '@core/model/core';
 import { PageResult } from '@shared/model/core';
 import { Subscription } from 'rxjs';
-import { WebSockets } from '@shared/component/web-sockets/web-sockets';
+import { NotificationMessage, WebSockets } from '@shared/component/web-sockets/web-sockets';
 import { environment } from 'src/environments/environment';
 import { ConfigurationModalComponent } from './configuration-modal.component';
 import { NgxPaginationModule } from 'ngx-pagination';
@@ -92,7 +92,7 @@ export class JobComponent implements OnInit, OnDestroy {
   isPolling: boolean = false;
   hasRowValidationProblem: boolean = false;
 
-  notifier: WebSocketSubject<{ type: string; message: string }>;
+  notifier: WebSocketSubject<NotificationMessage>;
   subscription: Subscription = null;
 
   constructor(

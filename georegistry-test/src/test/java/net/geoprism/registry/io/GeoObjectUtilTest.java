@@ -6,11 +6,9 @@ package net.geoprism.registry.io;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,7 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.model.LocationInfo;
@@ -31,7 +29,7 @@ import net.geoprism.registry.test.USATestData;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class GeoObjectUtilTest extends USADatasetTest implements InstanceTestClassListener
 {
   @Autowired
@@ -53,30 +51,30 @@ public class GeoObjectUtilTest extends USADatasetTest implements InstanceTestCla
 
     Map<String, LocationInfo> map = this.objectService.getAncestorMap(object, hierarchyType, ancestors);
 
-    Assert.assertEquals(3, map.size());
+    Assertions.assertEquals(3, map.size());
 
     // Validate the county values
-    Assert.assertTrue(map.containsKey(USATestData.COUNTY.getCode()));
+    Assertions.assertTrue(map.containsKey(USATestData.COUNTY.getCode()));
 
     LocationInfo vObject = map.get(USATestData.COUNTY.getCode());
 
-    Assert.assertEquals(USATestData.CO_C_ONE.getCode(), vObject.getCode());
-    Assert.assertEquals(USATestData.CO_C_ONE.getDisplayLabel(), vObject.getLabel());
+    Assertions.assertEquals(USATestData.CO_C_ONE.getCode(), vObject.getCode());
+    Assertions.assertEquals(USATestData.CO_C_ONE.getDisplayLabel(), vObject.getLabel());
 
     // Validate the state values
-    Assert.assertTrue(map.containsKey(USATestData.STATE.getCode()));
+    Assertions.assertTrue(map.containsKey(USATestData.STATE.getCode()));
 
     vObject = map.get(USATestData.STATE.getCode());
 
-    Assert.assertEquals(USATestData.COLORADO.getCode(), vObject.getCode());
-    Assert.assertEquals(USATestData.COLORADO.getDisplayLabel(), vObject.getLabel());
+    Assertions.assertEquals(USATestData.COLORADO.getCode(), vObject.getCode());
+    Assertions.assertEquals(USATestData.COLORADO.getDisplayLabel(), vObject.getLabel());
 
     // Validate the country values
-    Assert.assertTrue(map.containsKey(USATestData.COUNTRY.getCode()));
+    Assertions.assertTrue(map.containsKey(USATestData.COUNTRY.getCode()));
 
     vObject = map.get(USATestData.COUNTRY.getCode());
 
-    Assert.assertEquals(USATestData.USA.getCode(), vObject.getCode());
-    Assert.assertEquals(USATestData.USA.getDisplayLabel(), vObject.getLabel());
+    Assertions.assertEquals(USATestData.USA.getCode(), vObject.getCode());
+    Assertions.assertEquals(USATestData.USA.getDisplayLabel(), vObject.getLabel());
   }
 }

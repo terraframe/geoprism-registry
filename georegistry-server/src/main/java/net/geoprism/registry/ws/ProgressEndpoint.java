@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.ws;
 
@@ -22,21 +22,17 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import com.google.gson.JsonObject;
-
 import jakarta.websocket.EndpointConfig;
 import jakarta.websocket.OnClose;
-import jakarta.websocket.OnError;
 import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
-
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
 
 @ServerEndpoint(value = "/websocket/progress/{key}", configurator = GetHttpSessionConfigurator.class)
-public class ProgressEndpoint
+public class ProgressEndpoint extends MessageEndpoint
 {
   private static Set<ProgressEndpoint> endpoints = new CopyOnWriteArraySet<>();
 
@@ -57,15 +53,9 @@ public class ProgressEndpoint
 
     if (progress != null)
     {
-      this.session.getBasicRemote().sendText(progress.toJson().toString());
+      sendText(this.session, getText(new ProgressMessage(key, progress)));
     }
   }
-
-  // @OnMessage
-  // public void onMessage(Session session) throws IOException
-  // {
-  // // Do nothing
-  // }
 
   @OnClose
   public void onClose(Session session) throws IOException
@@ -73,31 +63,31 @@ public class ProgressEndpoint
     endpoints.remove(this);
   }
 
-  @OnError
-  public void onError(Session session, Throwable throwable)
+  public static void broadcast(ProgressMessage message)
   {
-    // Do error handling here
-  }
-
-  public static void broadcast(String key, JsonObject message)
-  {
-    final String text = message.toString();
+    String text = getText(message);
 
     endpoints.forEach(endpoint -> {
       synchronized (endpoint)
       {
-        try
+        if (endpoint.key.equals(message.getKey()))
         {
-          if (endpoint.key.equals(key))
-          {
-            endpoint.session.getBasicRemote().sendText(text);
-          }
-        }
-        catch (IOException e)
-        {
-          e.printStackTrace();
+          sendText(endpoint.session, text);
         }
       }
     });
   }
+
+  public static void broadcast(HeartbeatMessage message)
+  {
+    String text = getText(message);
+
+    endpoints.forEach(endpoint -> {
+      synchronized (endpoint)
+      {
+        sendText(endpoint.session, text);
+      }
+    });
+  }
+
 }

@@ -13,11 +13,9 @@ import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -32,7 +30,7 @@ import net.geoprism.registry.test.USATestData;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class ConversionTest extends USADatasetTest implements InstanceTestClassListener
 {
   protected static TestGeoObjectInfo testGo;
@@ -73,8 +71,8 @@ public class ConversionTest extends USADatasetTest implements InstanceTestClassL
     // Get the object with the custom attribute
     GeoObject result = service.getGeoObjectByCode(sessionId, testGo.getCode(), USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-    Assert.assertNotNull(result);
-    Assert.assertEquals(geoObj.getValue(testDate.getCode()), result.getValue(testDate.getCode()));
+    Assertions.assertNotNull(result);
+    Assertions.assertEquals(geoObj.getValue(testDate.getCode()), result.getValue(testDate.getCode()));
   }
 
   // Heads up: clean up
@@ -140,8 +138,8 @@ public class ConversionTest extends USADatasetTest implements InstanceTestClassL
     // Get the object with the custom attribute
     GeoObject result = service.getGeoObjectByCode(sessionId, testGo.getCode(), USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-    Assert.assertNotNull(result);
-    Assert.assertEquals(geoObj.getValue(testBoolean.getCode()), result.getValue(testBoolean.getCode()));
+    Assertions.assertNotNull(result);
+    Assertions.assertEquals(geoObj.getValue(testBoolean.getCode()), result.getValue(testBoolean.getCode()));
   }
 
   // Heads up: clean up
@@ -203,8 +201,8 @@ public class ConversionTest extends USADatasetTest implements InstanceTestClassL
     // Get the object with the custom attribute
     GeoObject result = service.getGeoObjectByCode(sessionId, testGo.getCode(), USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-    Assert.assertNotNull(result);
-    Assert.assertEquals(geoObj.getValue(testFloat.getCode()), result.getValue(testFloat.getCode()));
+    Assertions.assertNotNull(result);
+    Assertions.assertEquals(geoObj.getValue(testFloat.getCode()), result.getValue(testFloat.getCode()));
   }
 
   // Heads up: clean up
@@ -266,8 +264,8 @@ public class ConversionTest extends USADatasetTest implements InstanceTestClassL
     // Get the object with the custom attribute
     GeoObject result = service.getGeoObjectByCode(sessionId, testGo.getCode(), USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-    Assert.assertNotNull(result);
-    Assert.assertEquals(geoObj.getValue(testInteger.getCode()), result.getValue(testInteger.getCode()));
+    Assertions.assertNotNull(result);
+    Assertions.assertEquals(geoObj.getValue(testInteger.getCode()), result.getValue(testInteger.getCode()));
   }
   //
   // @Test
@@ -328,8 +326,8 @@ public class ConversionTest extends USADatasetTest implements InstanceTestClassL
     // Get the object with the custom attribute
     GeoObject result = service.getGeoObjectByCode(sessionId, testGo.getCode(), USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-    Assert.assertNotNull(result);
-    Assert.assertEquals(geoObj.getValue(testCharacter.getCode()), result.getValue(testCharacter.getCode()));
+    Assertions.assertNotNull(result);
+    Assertions.assertEquals(geoObj.getValue(testCharacter.getCode()), result.getValue(testCharacter.getCode()));
   }
 
   // Heads up: clean up
@@ -420,8 +418,8 @@ public class ConversionTest extends USADatasetTest implements InstanceTestClassL
     // Get the object with the custom attribute
     GeoObject result = service.getGeoObjectByCode(sessionId, testGo.getCode(), USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-    Assert.assertNotNull(result);
-    Assert.assertEquals("New Label", geoObj.getLocalizedDisplayLabel());
+    Assertions.assertNotNull(result);
+    Assertions.assertEquals("New Label", geoObj.getLocalizedDisplayLabel());
   }
 
   // Heads up: clean up

@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,7 +19,7 @@ import com.runwaysdk.system.metadata.MdEdge;
 
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.ConceptClass;
 import net.geoprism.registry.graph.ConceptEdgeType;
@@ -32,7 +32,7 @@ import net.geoprism.registry.view.DiscreteType;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class ConceptEdgeTypeTest extends FastDatasetTest implements InstanceTestClassListener
 {
   private static ConceptClass              conceptClass;
@@ -93,14 +93,14 @@ public class ConceptEdgeTypeTest extends FastDatasetTest implements InstanceTest
 
     try
     {
-      Assert.assertNotNull(type);
-      Assert.assertEquals(code, type.getCode());
-      Assert.assertEquals(label.getValue(), type.getLabel().getValue());
-      Assert.assertEquals(description.getValue(), type.getDescriptionLV().getValue());
+      Assertions.assertNotNull(type);
+      Assertions.assertEquals(code, type.getCode());
+      Assertions.assertEquals(label.getValue(), type.getLabel().getValue());
+      Assertions.assertEquals(description.getValue(), type.getDescriptionLV().getValue());
 
       MdEdge mdEdge = type.getMdEdge();
 
-      Assert.assertNotNull(mdEdge);
+      Assertions.assertNotNull(mdEdge);
     }
     finally
     {
@@ -123,8 +123,8 @@ public class ConceptEdgeTypeTest extends FastDatasetTest implements InstanceTest
 
       this.cEdgeService.update(type, view);
 
-      Assert.assertEquals("Updated Label", type.getLabel().getValue());
-      Assert.assertEquals("Updated Description", type.getDescriptionLV().getValue());
+      Assertions.assertEquals("Updated Label", type.getLabel().getValue());
+      Assertions.assertEquals("Updated Description", type.getDescriptionLV().getValue());
     }
     finally
     {
@@ -143,8 +143,8 @@ public class ConceptEdgeTypeTest extends FastDatasetTest implements InstanceTest
     {
       ConceptEdgeType result = this.cEdgeService.getByCodeOrThrow(type.getCode());
 
-      Assert.assertNotNull(result);
-      Assert.assertEquals(type.getCode(), result.getCode());
+      Assertions.assertNotNull(result);
+      Assertions.assertEquals(type.getCode(), result.getCode());
     }
     finally
     {
@@ -163,8 +163,8 @@ public class ConceptEdgeTypeTest extends FastDatasetTest implements InstanceTest
     {
       Optional<ConceptEdgeType> result = this.cEdgeService.getByMdEdge(type.getMdEdge());
 
-      Assert.assertTrue(result.isPresent());
-      Assert.assertEquals(type.getCode(), result.get().getCode());
+      Assertions.assertTrue(result.isPresent());
+      Assertions.assertEquals(type.getCode(), result.get().getCode());
     }
     finally
     {
@@ -183,7 +183,7 @@ public class ConceptEdgeTypeTest extends FastDatasetTest implements InstanceTest
     {
       List<ConceptEdgeType> results = this.cEdgeService.getAll();
 
-      Assert.assertTrue(results.size() > 0);
+      Assertions.assertTrue(results.size() > 0);
     }
     finally
     {

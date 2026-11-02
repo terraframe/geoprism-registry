@@ -5,11 +5,11 @@ package net.geoprism.registry.service;
 
 import java.util.Date;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,7 +27,7 @@ import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeEntry;
 import net.geoprism.registry.ListTypeQuery;
 import net.geoprism.registry.ListTypeVersion;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -37,7 +37,7 @@ import net.geoprism.registry.test.USATestData;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class ListTypeInheritedHierarchyTest extends USADatasetTest implements InstanceTestClassListener
 {
   @Autowired
@@ -59,7 +59,7 @@ public class ListTypeInheritedHierarchyTest extends USADatasetTest implements In
     this.typeService.setInheritedHierarchy(sGO, USATestData.HIER_SCHOOL.getServerObject(), USATestData.HIER_ADMIN.getServerObject());
   }
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception
   {
     super.setUp();
@@ -67,7 +67,7 @@ public class ListTypeInheritedHierarchyTest extends USADatasetTest implements In
     cleanUpExtra();
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws Exception
   {
     cleanUpExtra();
@@ -113,7 +113,7 @@ public class ListTypeInheritedHierarchyTest extends USADatasetTest implements In
         {
           MdBusinessDAOIF mdTable = MdBusinessDAO.get(version.getMdBusinessOid());
 
-          Assert.assertNotNull(mdTable);
+          Assertions.assertNotNull(mdTable);
 
           version.publish();
         }
@@ -141,7 +141,7 @@ public class ListTypeInheritedHierarchyTest extends USADatasetTest implements In
     {
       masterlist.markAsInvalid(USATestData.HIER_ADMIN.getServerObject(), USATestData.STATE.getServerObject());
 
-      Assert.assertFalse(masterlist.isValid());
+      Assertions.assertFalse(masterlist.isValid());
     }
     catch (DuplicateDataDatabaseException e)
     {

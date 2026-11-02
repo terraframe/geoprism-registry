@@ -10,11 +10,11 @@ import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.MetadataFactory;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,7 +37,7 @@ import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.GeoObjectTypeAssignmentException;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.PermissionContext;
@@ -50,9 +50,11 @@ import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestRegistryClient;
 import net.geoprism.registry.test.TestUserInfo;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class GeoObjectTypeServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
   public static TestGeoObjectTypeInfo TEST_GOT            = new TestGeoObjectTypeInfo("GOTTest_TEST1", FastTestDataset.ORG_CGOV);
@@ -89,7 +91,7 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
     USER_PRIVATE_GOT_AC.delete();
   }
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception
   {
     super.setUp();
@@ -97,7 +99,7 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
     setUpExtras();
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws Exception
   {
     cleanUpExtras();
@@ -137,9 +139,8 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
     // Allowed users
     for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.USER_ADMIN, FastTestDataset.USER_CGOV_RA })
     {
-      TestDataSet.runAsUser(user, (request) -> {
-        createGot();
-      });
+      TestDataSet.runAsUser(user, (request) ->
+        createGot());
 
       TEST_GOT.delete();
     }
@@ -153,12 +154,12 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
 
           createGot();
 
-          Assert.fail("Able to create a geo object type as a user with bad roles");
+          Assertions.fail("Able to create a geo object type as a user with bad roles");
         });
       }
       catch (SmartExceptionDTO e)
       {
-        Assert.assertEquals(CreateGeoObjectTypePermissionException.CLASS, e.getType());
+        Assertions.assertEquals(CreateGeoObjectTypePermissionException.CLASS, e.getType());
       }
     }
   }
@@ -176,8 +177,8 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
     String gtJSON = got.toJSON().toString();
     GeoObjectType returned = client.updateGeoObjectType(gtJSON);
 
-    Assert.assertEquals(newLabel, returned.getLabel().getValue());
-    Assert.assertEquals(newDesc, returned.getDescription().getValue());
+    Assertions.assertEquals(newLabel, returned.getLabel().getValue());
+    Assertions.assertEquals(newDesc, returned.getDescription().getValue());
   }
 
   @Test
@@ -212,7 +213,7 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
         FastTestDataset.runAsUser(user, (request) -> {
           updateGot(TEST_GOT);
 
-          Assert.fail("Able to update a geo object type as a user with bad roles");
+          Assertions.fail("Able to update a geo object type as a user with bad roles");
         });
       }
       catch (SmartExceptionDTO e)
@@ -248,7 +249,7 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
         }
         catch (SmartExceptionDTO e)
         {
-          Assert.assertEquals(WriteGeoObjectTypePermissionException.CLASS, e.getType());
+          Assertions.assertEquals(WriteGeoObjectTypePermissionException.CLASS, e.getType());
         }
       });
     }
@@ -269,7 +270,7 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
 
           this.typeService.deleteGeoObjectType(request.getSessionId(), TEST_GOT.getCode());
 
-          Assert.fail("Able to delete a geo object type as a user with bad roles");
+          Assertions.fail("Able to delete a geo object type as a user with bad roles");
         });
       }
       catch (SmartExceptionDTO e)
@@ -287,7 +288,7 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
     FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request) -> {
       GeoObjectType[] response = client.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, PermissionContext.WRITE);
 
-      Assert.assertEquals(0, response.length);
+      Assertions.assertEquals(0, response.length);
     });
   }
 
@@ -299,7 +300,7 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
     FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request) -> {
       GeoObjectType[] response = client.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, PermissionContext.READ);
 
-      Assert.assertEquals(1, response.length);
+      Assertions.assertEquals(1, response.length);
     });
   }
 
@@ -314,7 +315,7 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
       FastTestDataset.runAsUser(user, (request) -> {
         GeoObjectType[] response = client.getGeoObjectTypes(new String[] { TEST_PRIVATE_GOT.getCode() }, PermissionContext.READ);
 
-        Assert.assertEquals(1, response.length);
+        Assertions.assertEquals(1, response.length);
       });
     }
 
@@ -324,7 +325,7 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
       FastTestDataset.runAsUser(user, (request) -> {
         GeoObjectType[] response = client.getGeoObjectTypes(new String[] { TEST_PRIVATE_GOT.getCode() }, PermissionContext.READ);
 
-        Assert.assertEquals("User: " + user.getUsername(), 0, response.length);
+        Assertions.assertEquals(0, response.length, "User: " + user.getUsername());
       });
     }
 
@@ -334,7 +335,7 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
       FastTestDataset.runAsUser(user, (request) -> {
         GeoObjectType[] response = client.getGeoObjectTypes(new String[] { TEST_PRIVATE_GOT.getCode() }, PermissionContext.WRITE);
 
-        Assert.assertEquals(1, response.length);
+        Assertions.assertEquals(1, response.length);
       });
     }
 
@@ -344,7 +345,7 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
       FastTestDataset.runAsUser(user, (request) -> {
         GeoObjectType[] response = client.getGeoObjectTypes(new String[] { TEST_PRIVATE_GOT.getCode() }, PermissionContext.WRITE);
 
-        Assert.assertEquals(0, response.length);
+        Assertions.assertEquals(0, response.length);
       });
     }
   }
@@ -357,22 +358,22 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
 
       GeoObjectType[] gots = client.getGeoObjectTypes(codes, PermissionContext.READ);
 
-      Assert.assertEquals(codes.length, gots.length);
+      Assertions.assertEquals(codes.length, gots.length);
 
       GeoObjectType state = gots[0];
-      Assert.assertEquals(state.toJSON().toString(), GeoObjectType.fromJSON(state.toJSON().toString(), client.getAdapter()).toJSON().toString());
+      Assertions.assertEquals(state.toJSON().toString(), GeoObjectType.fromJSON(state.toJSON().toString(), client.getAdapter()).toJSON().toString());
       FastTestDataset.COUNTRY.assertEquals(state);
 
       GeoObjectType district = gots[1];
-      Assert.assertEquals(district.toJSON().toString(), GeoObjectType.fromJSON(district.toJSON().toString(), client.getAdapter()).toJSON().toString());
+      Assertions.assertEquals(district.toJSON().toString(), GeoObjectType.fromJSON(district.toJSON().toString(), client.getAdapter()).toJSON().toString());
       FastTestDataset.PROVINCE.assertEquals(district);
 
       // Test to make sure we can provide none
       GeoObjectType[] gots2 = client.getGeoObjectTypes(new String[] {}, PermissionContext.READ);
-      Assert.assertTrue(gots2.length > 0);
+      Assertions.assertTrue(gots2.length > 0);
 
       GeoObjectType[] gots3 = client.getGeoObjectTypes(null, PermissionContext.READ);
-      Assert.assertTrue(gots3.length > 0);
+      Assertions.assertTrue(gots3.length > 0);
     });
   }
 
@@ -399,7 +400,7 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
             }
           }
 
-          Assert.assertTrue(found);
+          Assertions.assertTrue(found);
         }
       }
     });
@@ -545,8 +546,8 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
 
       ServerGeoObjectType superType = childType.getSuperType();
 
-      Assert.assertNotNull(superType);
-      Assert.assertEquals(parentGot.getCode(), superType.getCode());
+      Assertions.assertNotNull(superType);
+      Assertions.assertEquals(parentGot.getCode(), superType.getCode());
     }
     finally
     {
@@ -555,25 +556,27 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
     }
   }
 
-  @Test(expected = GeoObjectTypeAssignmentException.class)
+  @Test
   @Request
   public void testExtendNonAbstractType()
   {
-    TestGeoObjectTypeInfo parentGot = new TestGeoObjectTypeInfo("HMST_Abstract", FastTestDataset.ORG_CGOV);
+    assertThrows(GeoObjectTypeAssignmentException.class, () -> {
+      TestGeoObjectTypeInfo parentGot = new TestGeoObjectTypeInfo("HMST_Abstract", FastTestDataset.ORG_CGOV);
 
-    TestGeoObjectTypeInfo childGot = new TestGeoObjectTypeInfo("HMST_Child", FastTestDataset.ORG_CGOV);
-    childGot.setSuperType(parentGot);
+      TestGeoObjectTypeInfo childGot = new TestGeoObjectTypeInfo("HMST_Child", FastTestDataset.ORG_CGOV);
+      childGot.setSuperType(parentGot);
 
-    try
-    {
-      parentGot.apply();
-      childGot.apply();
-    }
-    finally
-    {
-      childGot.delete();
-      parentGot.delete();
-    }
+      try
+      {
+        parentGot.apply();
+        childGot.apply();
+      }
+      finally
+      {
+        childGot.delete();
+        parentGot.delete();
+      }
+    });
   }
 
   @Request
@@ -586,7 +589,7 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
 
     MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
 
-    Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: " + RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
+    Assertions.assertNotNull(mdAttributeConcreteDAOIF, "A GeoObjectType did not define the proper geometry type attribute: " + RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
   }
 
   @Request
@@ -599,7 +602,7 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
 
     MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
 
-    Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: " + RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
+    Assertions.assertNotNull(mdAttributeConcreteDAOIF, "A GeoObjectType did not define the proper geometry type attribute: " + RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
 
   }
 
@@ -613,7 +616,7 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
 
     MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
 
-    Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: " + RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
+    Assertions.assertNotNull(mdAttributeConcreteDAOIF, "A GeoObjectType did not define the proper geometry type attribute: " + RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
   }
 
   @Request
@@ -626,7 +629,7 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
 
     MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
 
-    Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: " + RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
+    Assertions.assertNotNull(mdAttributeConcreteDAOIF, "A GeoObjectType did not define the proper geometry type attribute: " + RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
   }
 
   @Request
@@ -639,7 +642,7 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
 
     MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
 
-    Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: " + RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
+    Assertions.assertNotNull(mdAttributeConcreteDAOIF, "A GeoObjectType did not define the proper geometry type attribute: " + RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
   }
 
   @Request
@@ -652,7 +655,7 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
 
     MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
 
-    Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: " + RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
+    Assertions.assertNotNull(mdAttributeConcreteDAOIF, "A GeoObjectType did not define the proper geometry type attribute: " + RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
   }
 
   @Request
@@ -660,10 +663,10 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(code);
 
-    Assert.assertTrue(type.getAttribute(DefaultAttribute.UID.getName()).isPresent());
+    Assertions.assertTrue(type.getAttribute(DefaultAttribute.UID.getName()).isPresent());
 
     // DefaultAttribute.CODE - defined by GeoEntity geoId
-    Assert.assertTrue(type.getAttribute(DefaultAttribute.CODE.getName()).isPresent());
+    Assertions.assertTrue(type.getAttribute(DefaultAttribute.CODE.getName()).isPresent());
 
     MdVertexDAOIF mdGraphClassDAOIF = type.getMdVertexDAO();
 
@@ -674,7 +677,7 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
     }
     catch (DataNotFoundException e)
     {
-      Assert.fail("Attribute that implements GeoObjectType.CREATED_DATE does not exist.It should be defined on the business class");
+      Assertions.fail("Attribute that implements GeoObjectType.CREATED_DATE does not exist.It should be defined on the business class");
     }
 
     // DefaultAttribute.UPDATED_DATE - The update data on the GeoObject?
@@ -684,7 +687,7 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
     }
     catch (DataNotFoundException e)
     {
-      Assert.fail("Attribute that implements GeoObjectType.LAST_UPDATE_DATE does not exist.It should be defined on the business class");
+      Assertions.fail("Attribute that implements GeoObjectType.LAST_UPDATE_DATE does not exist.It should be defined on the business class");
     }
   }
 }

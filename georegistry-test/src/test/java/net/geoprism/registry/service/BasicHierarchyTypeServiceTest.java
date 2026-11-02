@@ -5,9 +5,9 @@ package net.geoprism.registry.service;
 
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,7 +16,7 @@ import com.google.gson.JsonArray;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.model.RootGeoObjectType;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -27,7 +27,7 @@ import net.geoprism.registry.test.USATestData;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class BasicHierarchyTypeServiceTest implements InstanceTestClassListener
 {
   private static ServerGeoObjectType     parent;
@@ -75,7 +75,7 @@ public class BasicHierarchyTypeServiceTest implements InstanceTestClassListener
     {
       ServerHierarchyType test = this.service.get(hierarchyType.getCode());
 
-      Assert.assertNotNull(test);
+      Assertions.assertNotNull(test);
     }
     finally
     {
@@ -95,7 +95,7 @@ public class BasicHierarchyTypeServiceTest implements InstanceTestClassListener
 
       List<ServerGeoObjectType> roots = this.service.getDirectRootNodes(hierarchyType);
 
-      Assert.assertEquals(1, roots.size());
+      Assertions.assertEquals(1, roots.size());
     }
     finally
     {
@@ -117,13 +117,13 @@ public class BasicHierarchyTypeServiceTest implements InstanceTestClassListener
 
       List<ServerGeoObjectType> children = this.service.getChildren(hierarchyType, parent);
 
-      Assert.assertEquals(1, children.size());
+      Assertions.assertEquals(1, children.size());
 
-      Assert.assertEquals(child, children.get(0));
+      Assertions.assertEquals(child, children.get(0));
 
       JsonArray results = this.service.getHierarchiesForType(grandChild.getCode(), false);
 
-      Assert.assertEquals(1, results.size());
+      Assertions.assertEquals(1, results.size());
     }
     finally
     {

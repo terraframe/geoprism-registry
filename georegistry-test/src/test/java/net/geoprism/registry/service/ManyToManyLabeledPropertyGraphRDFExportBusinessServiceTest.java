@@ -3,12 +3,11 @@
  */
 package net.geoprism.registry.service;
 
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.service.business.LabeledPropertyGraphTypeVersionBusinessServiceIF;
 import net.geoprism.registry.service.business.ManyToManyLabeledPropertyGraphRDFExportBusinessService;
@@ -16,7 +15,7 @@ import net.geoprism.registry.service.business.ManyToManyLabeledPropertyGraphRDFE
 //@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 //@AutoConfigureMockMvc
 
-//@RunWith(SpringInstanceTestClassRunner.class)
+//@ExtendWith(InstanceTestClassExtension.class)
 public class ManyToManyLabeledPropertyGraphRDFExportBusinessServiceTest
 {
   @Autowired

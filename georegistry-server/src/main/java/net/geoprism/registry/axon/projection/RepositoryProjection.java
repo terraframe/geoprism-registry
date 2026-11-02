@@ -13,14 +13,17 @@ import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.RelationshipDAO;
 import com.runwaysdk.dataaccess.graph.GraphDBService;
 import com.runwaysdk.dataaccess.graph.GraphRequest;
+import com.runwaysdk.dataaccess.graph.orientdb.OrientDBRequest;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.dataaccess.transaction.TransactionState;
 import com.runwaysdk.util.IDGenerator;
@@ -55,6 +58,7 @@ import net.geoprism.registry.axon.event.repository.RemoveGeoObjectEvent;
 import net.geoprism.registry.axon.event.repository.RemoveObjectEvent;
 import net.geoprism.registry.cache.BusinessObjectCache;
 import net.geoprism.registry.cache.Cache;
+import net.geoprism.registry.cache.ClearObjectCacheEvent;
 import net.geoprism.registry.cache.ConceptObjectCache;
 import net.geoprism.registry.cache.GeoObjectCache;
 import net.geoprism.registry.cache.LRUCache;
@@ -143,6 +147,9 @@ public class RepositoryProjection
 
   @Autowired
   private EdgeObjectBusinessService         eObjectService;
+
+  @Autowired
+  private ApplicationEventPublisher         publisher;
 
   @EventHandler
   @Transaction
@@ -600,7 +607,7 @@ public class RepositoryProjection
     }
 
     GraphDBService service = GraphDBService.getInstance();
-    GraphRequest request = service.getGraphDBRequest();
+    OrientDBRequest request = (OrientDBRequest) service.getGraphDBRequest();
 
     Map<String, Object> parameters = new HashMap<String, Object>();
     parameters.put("oid", IDGenerator.nextID());
@@ -616,6 +623,8 @@ public class RepositoryProjection
     }
 
     service.command(request, statement.toString(), parameters);
+
+    publisher.publishEvent(new ClearObjectCacheEvent(this));
   }
 
   @EventHandler
@@ -666,9 +675,11 @@ public class RepositoryProjection
     statement.append(" WHERE uid = :uid");
 
     GraphDBService service = GraphDBService.getInstance();
-    GraphRequest request = service.getGraphDBRequest();
+    OrientDBRequest request = (OrientDBRequest) service.getGraphDBRequest();
 
     service.command(request, statement.toString(), Map.of("uid", event.getEdgeUid()));
+
+    publisher.publishEvent(new ClearObjectCacheEvent(this));
   }
 
   @EventHandler
@@ -956,17 +967,17 @@ public class RepositoryProjection
     {
       BusinessType type = this.bTypeService.getByCodeOrThrow(event.getType());
 
-      this.bObjectService.getByCode(type, event.getCode()).ifPresent(object -> {
+      this.bObjectService.getByCode(type, event.getCode()).ifPresentOrElse(object -> {
         this.bObjectService.delete(object);
-      });
+      }, () -> logger.debug("Unable to find business object for delete [" + type.getCode() + "][" + event.getCode() + "]"));
     }
     else
     {
       ConceptClass type = this.cClassService.getByCodeOrThrow(event.getType());
 
-      this.cObjectService.getByCode(type, event.getCode()).ifPresent(object -> {
+      this.cObjectService.getByCode(type, event.getCode()).ifPresentOrElse(object -> {
         this.cObjectService.delete(object);
-      });
+      }, () -> logger.debug("Unable to find concept for delete [" + type.getCode() + "][" + event.getCode() + "]"));
     }
 
   }
@@ -984,9 +995,11 @@ public class RepositoryProjection
     statement.append(" WHERE uid = '" + event.getEdgeUid() + "'");
 
     GraphDBService service = GraphDBService.getInstance();
-    GraphRequest request = service.getGraphDBRequest();
+    OrientDBRequest request = (OrientDBRequest) service.getGraphDBRequest();
 
     service.command(request, statement.toString(), parameters);
+
+    publisher.publishEvent(new ClearObjectCacheEvent(this));
   }
 
   private void createImportHistoryRelationship(ImportHistoryEvent event, ServerGeoObjectIF sgo)

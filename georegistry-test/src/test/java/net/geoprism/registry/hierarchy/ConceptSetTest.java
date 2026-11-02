@@ -6,9 +6,9 @@ package net.geoprism.registry.hierarchy;
 import java.util.List;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,7 +19,7 @@ import com.runwaysdk.session.Request;
 import net.geoprism.GenericException;
 import net.geoprism.registry.DatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.ConceptClass;
 import net.geoprism.registry.graph.ConceptEdgeType;
@@ -35,9 +35,11 @@ import net.geoprism.registry.view.ConceptEdgeTypeDTO;
 import net.geoprism.registry.view.ConceptSetDTO;
 import net.geoprism.registry.view.DiscreteType;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class ConceptSetTest extends DatasetTest implements InstanceTestClassListener
 {
   private static ConceptObject             conceptObject;
@@ -108,10 +110,10 @@ public class ConceptSetTest extends DatasetTest implements InstanceTestClassList
 
     try
     {
-      Assert.assertNotNull(set);
-      Assert.assertEquals(dto.getCode(), set.getCode());
-      Assert.assertEquals(dto.getDisplayLabel().getValue(), set.getLabel().getValue());
-      Assert.assertEquals(dto.getDescription().getValue(), set.getDescriptionLV().getValue());
+      Assertions.assertNotNull(set);
+      Assertions.assertEquals(dto.getCode(), set.getCode());
+      Assertions.assertEquals(dto.getDisplayLabel().getValue(), set.getLabel().getValue());
+      Assertions.assertEquals(dto.getDescription().getValue(), set.getDescriptionLV().getValue());
     }
     finally
     {
@@ -132,10 +134,10 @@ public class ConceptSetTest extends DatasetTest implements InstanceTestClassList
     {
       ConceptSetDTO result = this.service.toDTO(set);
 
-      Assert.assertNotNull(result);
-      Assert.assertEquals(dto.getCode(), result.getCode());
-      Assert.assertEquals(dto.getDisplayLabel().getValue(), result.getDisplayLabel().getValue());
-      Assert.assertEquals(dto.getDescription().getValue(), result.getDescription().getValue());
+      Assertions.assertNotNull(result);
+      Assertions.assertEquals(dto.getCode(), result.getCode());
+      Assertions.assertEquals(dto.getDisplayLabel().getValue(), result.getDisplayLabel().getValue());
+      Assertions.assertEquals(dto.getDescription().getValue(), result.getDescription().getValue());
     }
     finally
     {
@@ -160,10 +162,10 @@ public class ConceptSetTest extends DatasetTest implements InstanceTestClassList
 
       set = this.service.apply(dto);
 
-      Assert.assertNotNull(set);
-      Assert.assertEquals(dto.getCode(), set.getCode());
-      Assert.assertEquals(dto.getDisplayLabel().getValue(), set.getLabel().getValue());
-      Assert.assertEquals(dto.getDescription().getValue(), set.getDescriptionLV().getValue());
+      Assertions.assertNotNull(set);
+      Assertions.assertEquals(dto.getCode(), set.getCode());
+      Assertions.assertEquals(dto.getDisplayLabel().getValue(), set.getLabel().getValue());
+      Assertions.assertEquals(dto.getDescription().getValue(), set.getDescriptionLV().getValue());
     }
     finally
     {
@@ -184,8 +186,8 @@ public class ConceptSetTest extends DatasetTest implements InstanceTestClassList
     {
       set = this.service.getByCodeOrThrow(dto.getCode());
 
-      Assert.assertNotNull(set);
-      Assert.assertEquals(dto.getCode(), set.getCode());
+      Assertions.assertNotNull(set);
+      Assertions.assertEquals(dto.getCode(), set.getCode());
     }
     finally
     {
@@ -205,9 +207,9 @@ public class ConceptSetTest extends DatasetTest implements InstanceTestClassList
     {
       List<ConceptSet> results = this.service.getAll();
 
-      Assert.assertNotNull(results);
-      Assert.assertEquals(1, results.size());
-      Assert.assertEquals(dto.getCode(), results.get(0).getCode());
+      Assertions.assertNotNull(results);
+      Assertions.assertEquals(1, results.size());
+      Assertions.assertEquals(dto.getCode(), results.get(0).getCode());
     }
     finally
     {
@@ -227,8 +229,8 @@ public class ConceptSetTest extends DatasetTest implements InstanceTestClassList
     {
       EdgeObject edge = this.service.addConceptClass(set, conceptClass);
 
-      Assert.assertNotNull(edge);
-      Assert.assertEquals(1, this.service.getConceptClasses(set).size());
+      Assertions.assertNotNull(edge);
+      Assertions.assertEquals(1, this.service.getConceptClasses(set).size());
     }
     finally
     {
@@ -236,23 +238,25 @@ public class ConceptSetTest extends DatasetTest implements InstanceTestClassList
     }
   }
 
-  @Test(expected = GenericException.class)
+  @Test
   @Request
   public void testAddDuplicateConceptClass()
   {
-    ConceptSetDTO dto = createDTO();
+    assertThrows(GenericException.class, () -> {
+      ConceptSetDTO dto = createDTO();
 
-    ConceptSet set = this.service.apply(dto);
+      ConceptSet set = this.service.apply(dto);
 
-    try
-    {
-      this.service.addConceptClass(set, conceptClass);
-      this.service.addConceptClass(set, conceptClass);
-    }
-    finally
-    {
-      this.service.delete(set);
-    }
+      try
+      {
+        this.service.addConceptClass(set, conceptClass);
+        this.service.addConceptClass(set, conceptClass);
+      }
+      finally
+      {
+        this.service.delete(set);
+      }
+    });
   }
 
   @Test
@@ -267,8 +271,8 @@ public class ConceptSetTest extends DatasetTest implements InstanceTestClassList
     {
       EdgeObject edge = this.service.addConceptEdgeType(set, conceptEdgeType);
 
-      Assert.assertNotNull(edge);
-      Assert.assertEquals(1, this.service.getConceptEdgeTypeEdges(set).size());
+      Assertions.assertNotNull(edge);
+      Assertions.assertEquals(1, this.service.getConceptEdgeTypeEdges(set).size());
     }
     finally
     {
@@ -276,42 +280,46 @@ public class ConceptSetTest extends DatasetTest implements InstanceTestClassList
     }
   }
 
-  @Test(expected = GenericException.class)
+  @Test
   @Request
   public void testAddConceptEdgeTypeEnumeration()
   {
-    ConceptSetDTO dto = createDTO();
-    dto.setDiscreteType(DiscreteType.ENUMERATION);
+    assertThrows(GenericException.class, () -> {
+      ConceptSetDTO dto = createDTO();
+      dto.setDiscreteType(DiscreteType.ENUMERATION);
 
-    ConceptSet set = this.service.apply(dto);
+      ConceptSet set = this.service.apply(dto);
 
-    try
-    {
-      this.service.addConceptEdgeType(set, conceptEdgeType);
-    }
-    finally
-    {
-      this.service.delete(set);
-    }
+      try
+      {
+        this.service.addConceptEdgeType(set, conceptEdgeType);
+      }
+      finally
+      {
+        this.service.delete(set);
+      }
+    });
   }
 
-  @Test(expected = GenericException.class)
+  @Test
   @Request
   public void testAddDuplicateEdgeType()
   {
-    ConceptSetDTO dto = createDTO();
+    assertThrows(GenericException.class, () -> {
+      ConceptSetDTO dto = createDTO();
 
-    ConceptSet set = this.service.apply(dto);
+      ConceptSet set = this.service.apply(dto);
 
-    try
-    {
-      this.service.addConceptEdgeType(set, conceptEdgeType);
-      this.service.addConceptEdgeType(set, conceptEdgeType);
-    }
-    finally
-    {
-      this.service.delete(set);
-    }
+      try
+      {
+        this.service.addConceptEdgeType(set, conceptEdgeType);
+        this.service.addConceptEdgeType(set, conceptEdgeType);
+      }
+      finally
+      {
+        this.service.delete(set);
+      }
+    });
   }
 
   @Test
@@ -327,10 +335,10 @@ public class ConceptSetTest extends DatasetTest implements InstanceTestClassList
 
     try
     {
-      Assert.assertNotNull(set);
-      Assert.assertNotNull(set.getRootTerm());
-      Assert.assertEquals(1, this.service.getConceptEdgeTypeEdges(set).size());
-      Assert.assertEquals(1, this.service.getConceptClasses(set).size());
+      Assertions.assertNotNull(set);
+      Assertions.assertNotNull(set.getRootTerm());
+      Assertions.assertEquals(1, this.service.getConceptEdgeTypeEdges(set).size());
+      Assertions.assertEquals(1, this.service.getConceptClasses(set).size());
     }
     finally
     {

@@ -3,8 +3,8 @@
  */
 package net.geoprism.registry;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestOrganizationInfo;
@@ -39,7 +39,7 @@ public class FastDatasetTest extends ConceptDatasetTest implements InstanceTestC
     super.afterClassSetup();
   }
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception
   {
     super.setUp();
@@ -49,7 +49,7 @@ public class FastDatasetTest extends ConceptDatasetTest implements InstanceTestC
     testData.logIn();
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws Exception
   {
     testData.logOut();

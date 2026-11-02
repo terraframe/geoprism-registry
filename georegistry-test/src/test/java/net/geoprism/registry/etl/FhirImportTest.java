@@ -9,11 +9,10 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.r4.model.Resource;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,7 +23,7 @@ import com.runwaysdk.session.Request;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.config.TestApplication;
@@ -46,7 +45,7 @@ import net.geoprism.registry.test.USATestData;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class FhirImportTest extends USADatasetTest implements InstanceTestClassListener
 {
   @Autowired
@@ -66,7 +65,7 @@ public class FhirImportTest extends USADatasetTest implements InstanceTestClassL
     super.beforeClassSetup();
   }
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception
   {
     super.setUp();
@@ -145,7 +144,7 @@ public class FhirImportTest extends USADatasetTest implements InstanceTestClassL
       geoobject.setDate(new Date());
       LocalizedValue displayLabel = geoobject.getDisplayLabel();
 
-      Assert.assertEquals("USATestDataHsTwo ZZZZZZZ", displayLabel.getValue());
+      Assertions.assertEquals("USATestDataHsTwo ZZZZZZZ", displayLabel.getValue());
     }
     finally
     {

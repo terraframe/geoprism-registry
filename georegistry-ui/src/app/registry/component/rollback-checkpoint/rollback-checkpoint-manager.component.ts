@@ -34,7 +34,7 @@ import { PageContainerComponent } from '../../../shared/component/page-container
 import { ModalTypes } from '@shared/model/modal';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { Subscription } from 'rxjs';
-import { WebSockets } from '@shared/component/web-sockets/web-sockets';
+import { NotificationMessage, WebSockets } from '@shared/component/web-sockets/web-sockets';
 import { Progress } from '@shared/model/progress';
 import { ProgressService } from '@shared/service';
 
@@ -55,9 +55,16 @@ export class RollbackCheckpointManagerComponent implements OnInit, OnDestroy {
     resultSet: [],
   };
 
-  progressNotifier: WebSocketSubject<any> | null = null;
+  progressNotifier: WebSocketSubject<NotificationMessage> | null = null;
   progressSubscription: Subscription | null = null;
   inProgress: boolean = false;
+
+  /*
+   * Index of the row whose rollback button is hovered/focused. Rolling back an
+   * import also rolls back every newer import, so that row and all rows above
+   * it (the list is newest first) are highlighted.
+   */
+  hoverIndex: number | null = null;
 
   // eslint-disable-next-line no-useless-constructor
   constructor(
@@ -75,8 +82,6 @@ export class RollbackCheckpointManagerComponent implements OnInit, OnDestroy {
     this.progressSubscription = this.progressNotifier.subscribe((message) => {
       if (message.content != null) {
         this.handleProgressChange(message.content);
-      } else {
-        this.handleProgressChange(message);
       }
     });
 
@@ -104,6 +109,7 @@ export class RollbackCheckpointManagerComponent implements OnInit, OnDestroy {
       .replaceAll('{filename}', checkpoint.filename);
     bsModalRef.content!.submitText = this.localizeService.decode('modal.button.rollback');
     bsModalRef.content!.type = ModalTypes.danger;
+    bsModalRef.content!.acknowledgement = this.localizeService.decode('modal.confirm.rollback.acknowledge.skg');
 
     bsModalRef.content!.onConfirm.subscribe(() => {
       this.service.rollback(checkpoint.oid).catch((err: HttpErrorResponse) => {

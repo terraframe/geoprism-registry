@@ -19,7 +19,13 @@ License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licen
 
 -->
 @if (showIndicator) {
-  <div class="progress-overlay">
+  <div
+    class="progress-overlay"
+    [style.top.px]="area()?.top"
+    [style.left.px]="area()?.left"
+    [style.width.px]="area()?.width"
+    [style.height.px]="area()?.height"
+  >
     <div class="progress-div">
       <progressbar class="progress-striped active" [max]="prog.total" [value]="prog.current"
         ><i>{{ prog.description }}</i></progressbar

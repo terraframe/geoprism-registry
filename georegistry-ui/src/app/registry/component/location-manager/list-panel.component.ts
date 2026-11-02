@@ -36,7 +36,7 @@ import { AuthService } from '@shared/service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Subject, Subscription } from 'rxjs';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
-import { WebSockets } from '@shared/component/web-sockets/web-sockets';
+import { NotificationMessage, WebSockets } from '@shared/component/web-sockets/web-sockets';
 import { ExportFormatModalComponent } from '../list-type/export-format-modal.component';
 import { OverlayerIdentifier } from '@registry/model/constants';
 import { NgxSpinnerService, NgxSpinnerModule } from 'ngx-spinner';
@@ -97,7 +97,7 @@ export class ListPanelComponent implements OnInit, OnDestroy, OnChanges {
   tableState: TableLazyLoadEvent = null;
   isFiltered = false;
 
-  progressNotifier: WebSocketSubject<{ type: string; content: any }>;
+  progressNotifier: WebSocketSubject<NotificationMessage>;
   progressSubscription: Subscription = null;
 
   isRefreshing: boolean = false;
@@ -160,8 +160,6 @@ export class ListPanelComponent implements OnInit, OnDestroy, OnChanges {
     this.progressSubscription = this.progressNotifier.subscribe((message) => {
       if (message.content != null) {
         this.handleProgressChange(message.content);
-      } else {
-        this.handleProgressChange(null);
       }
     });
   }

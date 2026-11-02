@@ -11,9 +11,9 @@ import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.ValueOverTimeDTO;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,7 +23,7 @@ import com.runwaysdk.session.Request;
 import net.geoprism.GenericException;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -40,9 +40,11 @@ import net.geoprism.registry.view.ObjectAtTimeDTO;
 import net.geoprism.registry.view.ObjectOverTimeDTO;
 import net.geoprism.registry.view.Page;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class AttributeClassificationTaxonomyTest extends FastDatasetTest implements InstanceTestClassListener
 {
   public static final String                 TEST_KEY = "ATTRCLASSTEST";
@@ -100,7 +102,7 @@ public class AttributeClassificationTaxonomyTest extends FastDatasetTest impleme
 
         try
         {
-          Assert.assertEquals(rootConcept.getCode(), returned.getAttribute(testClassification.getCode()).getValue());
+          Assertions.assertEquals(rootConcept.getCode(), returned.getAttribute(testClassification.getCode()).getValue());
           TEST_GO.assertApplied();
         }
         finally
@@ -128,7 +130,7 @@ public class AttributeClassificationTaxonomyTest extends FastDatasetTest impleme
 
         try
         {
-          Assert.assertEquals(rootConcept.getCode(), returned.getValue(testClassification.getCode(), TEST_GO.getDate()));
+          Assertions.assertEquals(rootConcept.getCode(), returned.getValue(testClassification.getCode(), TEST_GO.getDate()));
 
           TEST_GO.assertApplied();
         }
@@ -157,7 +159,7 @@ public class AttributeClassificationTaxonomyTest extends FastDatasetTest impleme
 
         try
         {
-          Assert.assertEquals(childConcept.getCode(), returned.getValue(testClassification.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE));
+          Assertions.assertEquals(childConcept.getCode(), returned.getValue(testClassification.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE));
 
           TEST_GO.assertApplied();
         }
@@ -175,23 +177,25 @@ public class AttributeClassificationTaxonomyTest extends FastDatasetTest impleme
   {
     List<net.geoprism.registry.graph.AttributeClassificationType> classifications = this.cSetService.getAttributeClassifications(cSet);
 
-    Assert.assertEquals(1, classifications.size());
+    Assertions.assertEquals(1, classifications.size());
 
     AttributeType result = classifications.get(0).toDTO();
 
-    Assert.assertEquals(testClassification.getCode(), result.getCode());
-    Assert.assertEquals(testClassification.getType(), result.getType());
+    Assertions.assertEquals(testClassification.getCode(), result.getCode());
+    Assertions.assertEquals(testClassification.getType(), result.getType());
   }
 
-  @Test(expected = GenericException.class)
+  @Test
   @Request
   public void testDeleteWithClassifications()
   {
-    List<net.geoprism.registry.graph.AttributeClassificationType> classifications = this.cSetService.getAttributeClassifications(cSet);
+    assertThrows(GenericException.class, () -> {
+      List<net.geoprism.registry.graph.AttributeClassificationType> classifications = this.cSetService.getAttributeClassifications(cSet);
 
-    Assert.assertEquals(1, classifications.size());
+      Assertions.assertEquals(1, classifications.size());
 
-    this.cSetService.delete(cSet);
+      this.cSetService.delete(cSet);
+    });
   }
 
   @Test
@@ -200,13 +204,13 @@ public class AttributeClassificationTaxonomyTest extends FastDatasetTest impleme
   {
     List<ConceptObject> results = this.cObjectService.search(testClassification, rootConcept.getCode());
 
-    Assert.assertEquals(1, results.size());
+    Assertions.assertEquals(1, results.size());
 
     ConceptObject result = results.get(0);
 
-    Assert.assertEquals(rootConcept.getCode(), result.getCode());
+    Assertions.assertEquals(rootConcept.getCode(), result.getCode());
 
-    Assert.assertEquals(1, this.cObjectService.search(testClassification, childConcept.getCode()).size());
+    Assertions.assertEquals(1, this.cObjectService.search(testClassification, childConcept.getCode()).size());
   }
 
   @Test
@@ -215,13 +219,13 @@ public class AttributeClassificationTaxonomyTest extends FastDatasetTest impleme
   {
     List<ConceptObject> results = this.cObjectService.search(cClass, rootConcept.getCode());
 
-    Assert.assertEquals(1, results.size());
+    Assertions.assertEquals(1, results.size());
 
     ConceptObject result = results.get(0);
 
-    Assert.assertEquals(rootConcept.getCode(), result.getCode());
+    Assertions.assertEquals(rootConcept.getCode(), result.getCode());
 
-    Assert.assertEquals(1, this.cObjectService.search(cClass, childConcept.getCode()).size());
+    Assertions.assertEquals(1, this.cObjectService.search(cClass, childConcept.getCode()).size());
   }
 
   @Test
@@ -230,13 +234,13 @@ public class AttributeClassificationTaxonomyTest extends FastDatasetTest impleme
   {
     List<ConceptObject> results = this.cObjectService.search(cSet, TestDataSet.DEFAULT_OVER_TIME_DATE, rootConcept.getCode());
 
-    Assert.assertEquals(1, results.size());
+    Assertions.assertEquals(1, results.size());
 
     ConceptObject result = results.get(0);
 
-    Assert.assertEquals(rootConcept.getCode(), result.getCode());
+    Assertions.assertEquals(rootConcept.getCode(), result.getCode());
 
-    Assert.assertEquals(1, this.cObjectService.search(cSet, TestDataSet.DEFAULT_OVER_TIME_DATE, childConcept.getCode()).size());
+    Assertions.assertEquals(1, this.cObjectService.search(cSet, TestDataSet.DEFAULT_OVER_TIME_DATE, childConcept.getCode()).size());
   }
 
   @Test
@@ -245,11 +249,11 @@ public class AttributeClassificationTaxonomyTest extends FastDatasetTest impleme
   {
     List<ConceptObject> results = this.cObjectService.getChildren(rootConcept, testClassification, 20, 1);
 
-    Assert.assertEquals(1, results.size());
+    Assertions.assertEquals(1, results.size());
 
     ConceptObject result = results.get(0);
 
-    Assert.assertEquals(parentConcept.getCode(), result.getCode());
+    Assertions.assertEquals(parentConcept.getCode(), result.getCode());
   }
 
   @Test
@@ -258,8 +262,8 @@ public class AttributeClassificationTaxonomyTest extends FastDatasetTest impleme
   {
     Optional<ConceptObject> result = this.cObjectService.getByCode(testClassification, childConcept.getCode());
 
-    Assert.assertTrue(result.isPresent());
-    Assert.assertEquals(childConcept.getCode(), result.get().getCode());
+    Assertions.assertTrue(result.isPresent());
+    Assertions.assertEquals(childConcept.getCode(), result.get().getCode());
   }
 
   @Test
@@ -268,7 +272,7 @@ public class AttributeClassificationTaxonomyTest extends FastDatasetTest impleme
   {
     Optional<ConceptObject> result = this.cObjectService.getByCode(testClassification, "BAD");
 
-    Assert.assertFalse(result.isPresent());
+    Assertions.assertFalse(result.isPresent());
   }
 
   @Test
@@ -277,12 +281,12 @@ public class AttributeClassificationTaxonomyTest extends FastDatasetTest impleme
   {
     NodeDTO<ObjectAtTimeDTO> node = this.cObjectService.getAncestorTree(testClassification, childConcept, 20);
 
-    Assert.assertEquals(rootConcept.getCode(), node.getObject().getCode());
-    Assert.assertEquals(1, node.getChildren().getResultSet().size());
+    Assertions.assertEquals(rootConcept.getCode(), node.getObject().getCode());
+    Assertions.assertEquals(1, node.getChildren().getResultSet().size());
 
     NodeDTO<ObjectAtTimeDTO> result = node.getChildren().getResultSet().get(0);
 
-    Assert.assertEquals(parentConcept.getCode(), result.getObject().getCode());
+    Assertions.assertEquals(parentConcept.getCode(), result.getObject().getCode());
   }
 
   @Test
@@ -291,15 +295,15 @@ public class AttributeClassificationTaxonomyTest extends FastDatasetTest impleme
   {
     NodeDTO<ObjectAtTimeDTO> node = this.cObjectService.getAncestorTree(testClassification, rootConcept, 20);
 
-    Assert.assertEquals(rootConcept.getCode(), node.getObject().getCode());
-    Assert.assertEquals(1, node.getChildren().getResultSet().size());
+    Assertions.assertEquals(rootConcept.getCode(), node.getObject().getCode());
+    Assertions.assertEquals(1, node.getChildren().getResultSet().size());
   }
 
   @Test
   @Request
   public void testGetChildrenCount()
   {
-    Assert.assertEquals(Integer.valueOf(1), this.cObjectService.getChildCount(rootConcept, testClassification));
+    Assertions.assertEquals(Integer.valueOf(1), this.cObjectService.getChildCount(rootConcept, testClassification));
   }
 
   @Test
@@ -312,11 +316,11 @@ public class AttributeClassificationTaxonomyTest extends FastDatasetTest impleme
       TestDataSet.runAsUser(user, (request) -> {
         Page<ObjectAtTimeDTO> page = this.service.getChildren(request.getSessionId(), rootConcept.getCode(), TEST_GOT.getCode(), testClassification.getCode(), 20, 1);
 
-        Assert.assertEquals(Long.valueOf(1), page.getCount());
+        Assertions.assertEquals(Long.valueOf(1), page.getCount());
 
         ObjectAtTimeDTO result = page.getResultSet().get(0);
 
-        Assert.assertEquals(parentConcept.getCode(), result.getCode());
+        Assertions.assertEquals(parentConcept.getCode(), result.getCode());
 
       });
     }
@@ -332,11 +336,11 @@ public class AttributeClassificationTaxonomyTest extends FastDatasetTest impleme
       TestDataSet.runAsUser(user, (request) -> {
         List<ObjectAtTimeDTO> results = this.service.search(request.getSessionId(), TEST_GOT.getCode(), testClassification.getCode(), childConcept.getCode());
 
-        Assert.assertEquals(1, results.size());
+        Assertions.assertEquals(1, results.size());
 
         ObjectAtTimeDTO result = results.get(0);
 
-        Assert.assertEquals(childConcept.getCode(), result.getCode());
+        Assertions.assertEquals(childConcept.getCode(), result.getCode());
       });
     }
   }
@@ -351,11 +355,11 @@ public class AttributeClassificationTaxonomyTest extends FastDatasetTest impleme
       TestDataSet.runAsUser(user, (request) -> {
         List<ObjectOverTimeDTO> results = this.service.search(request.getSessionId(), cClass.getCode(), childConcept.getCode());
 
-        Assert.assertEquals(1, results.size());
+        Assertions.assertEquals(1, results.size());
 
         ObjectOverTimeDTO result = results.get(0);
 
-        Assert.assertEquals(childConcept.getCode(), result.getCode());
+        Assertions.assertEquals(childConcept.getCode(), result.getCode());
       });
     }
   }
@@ -370,11 +374,11 @@ public class AttributeClassificationTaxonomyTest extends FastDatasetTest impleme
       TestDataSet.runAsUser(user, (request) -> {
         List<ObjectAtTimeDTO> results = this.service.search(request.getSessionId(), cSet.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, childConcept.getCode());
 
-        Assert.assertEquals(1, results.size());
+        Assertions.assertEquals(1, results.size());
 
         ObjectAtTimeDTO result = results.get(0);
 
-        Assert.assertEquals(childConcept.getCode(), result.getCode());
+        Assertions.assertEquals(childConcept.getCode(), result.getCode());
       });
     }
   }

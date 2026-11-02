@@ -6,8 +6,8 @@ package net.geoprism.registry;
 import java.io.File;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.session.Request;
@@ -43,7 +43,7 @@ public abstract class USADatasetTest extends ConceptDatasetTest implements Insta
     super.afterClassSetup();
   }
 
-  @Before
+  @BeforeEach
   @Request
   public void setUp() throws Exception
   {
@@ -54,7 +54,7 @@ public abstract class USADatasetTest extends ConceptDatasetTest implements Insta
     testData.logIn(USATestData.USER_NPS_RA);
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws Exception
   {
     testData.logOut();

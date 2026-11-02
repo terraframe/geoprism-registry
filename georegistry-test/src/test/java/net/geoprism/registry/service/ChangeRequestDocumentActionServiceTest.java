@@ -6,11 +6,11 @@ package net.geoprism.registry.service;
 import java.io.IOException;
 import java.util.Date;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,7 +29,7 @@ import com.runwaysdk.system.VaultFile;
 import net.geoprism.registry.CGRPermissionException;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
@@ -42,7 +42,7 @@ import net.geoprism.registry.test.TestUserInfo;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class ChangeRequestDocumentActionServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
   private AbstractAction       action;
@@ -54,7 +54,7 @@ public class ChangeRequestDocumentActionServiceTest extends FastDatasetTest impl
   @Autowired
   private ChangeRequestService crService;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception
   {
     super.setUp();
@@ -62,7 +62,7 @@ public class ChangeRequestDocumentActionServiceTest extends FastDatasetTest impl
     createTestChangeRequest();
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws Exception
   {
     TestDataSet.deleteAllChangeRequests();
@@ -110,14 +110,13 @@ public class ChangeRequestDocumentActionServiceTest extends FastDatasetTest impl
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request) -> {
-          testDeleteDocumentAsUser(request);
-        });
+        FastTestDataset.runAsUser(user, (request) ->
+          testDeleteDocumentAsUser(request));
       }
       catch (SmartExceptionDTO e)
       {
         e.printStackTrace();
-        Assert.fail("Unexpected permission exception was thrown on user [" + user.getUsername() + "].");
+        Assertions.fail("Unexpected permission exception was thrown on user [" + user.getUsername() + "].");
       }
     }
 
@@ -130,12 +129,12 @@ public class ChangeRequestDocumentActionServiceTest extends FastDatasetTest impl
         FastTestDataset.runAsUser(user, (request) -> {
           testDeleteDocumentAsUser(request);
 
-          Assert.fail("Expected a permission exception.");
+          Assertions.fail("Expected a permission exception.");
         });
       }
       catch (SmartExceptionDTO e)
       {
-        Assert.assertEquals(CGRPermissionException.CLASS, e.getType());
+        Assertions.assertEquals(CGRPermissionException.CLASS, e.getType());
         // Expected
       }
     }
@@ -161,8 +160,8 @@ public class ChangeRequestDocumentActionServiceTest extends FastDatasetTest impl
     {
       VaultFile.get(vfOid);
 
-      Assert.fail("Vault file was not deleted.");
-      Assert.assertEquals(0, action.getAllDocument().getAll().size());
+      Assertions.fail("Vault file was not deleted.");
+      Assertions.assertEquals(0, action.getAllDocument().getAll().size());
     }
     catch (DataNotFoundException ex)
     {
@@ -181,14 +180,13 @@ public class ChangeRequestDocumentActionServiceTest extends FastDatasetTest impl
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request) -> {
-          testListDocumentsAsUser(request);
-        });
+        FastTestDataset.runAsUser(user, (request) ->
+          testListDocumentsAsUser(request));
       }
       catch (SmartExceptionDTO e)
       {
         e.printStackTrace();
-        Assert.fail("Unexpected permission exception was thrown on user [" + user.getUsername() + "].");
+        Assertions.fail("Unexpected permission exception was thrown on user [" + user.getUsername() + "].");
       }
     }
 
@@ -201,12 +199,12 @@ public class ChangeRequestDocumentActionServiceTest extends FastDatasetTest impl
         FastTestDataset.runAsUser(user, (request) -> {
           testListDocumentsAsUser(request);
 
-          Assert.fail("Expected a permission exception.");
+          Assertions.fail("Expected a permission exception.");
         });
       }
       catch (SmartExceptionDTO e)
       {
-        Assert.assertEquals(CGRPermissionException.CLASS, e.getType());
+        Assertions.assertEquals(CGRPermissionException.CLASS, e.getType());
         // Expected
       }
     }
@@ -216,13 +214,13 @@ public class ChangeRequestDocumentActionServiceTest extends FastDatasetTest impl
   {
     JsonArray ja = JsonParser.parseString(crService.listDocumentsCR(request.getSessionId(), crOid)).getAsJsonArray();
 
-    Assert.assertEquals(2, ja.size());
+    Assertions.assertEquals(2, ja.size());
 
     for (int i = 0; i < ja.size(); ++i)
     {
       JsonObject jo = ja.get(i).getAsJsonObject();
 
-      Assert.assertEquals("parent-test.xlsx", jo.get("fileName").getAsString());
+      Assertions.assertEquals("parent-test.xlsx", jo.get("fileName").getAsString());
     }
   }
 
@@ -238,7 +236,7 @@ public class ChangeRequestDocumentActionServiceTest extends FastDatasetTest impl
 
     JsonObject jsonVF = JsonParser.parseString(json).getAsJsonObject();
 
-    Assert.assertEquals("parent-test.xlsx", jsonVF.get("fileName").getAsString());
+    Assertions.assertEquals("parent-test.xlsx", jsonVF.get("fileName").getAsString());
 
     final String vfOid = jsonVF.get("oid").getAsString();
 
@@ -263,7 +261,7 @@ public class ChangeRequestDocumentActionServiceTest extends FastDatasetTest impl
       catch (SmartExceptionDTO e)
       {
         e.printStackTrace();
-        Assert.fail("Unexpected permission exception was thrown on user [" + user.getUsername() + "].");
+        Assertions.fail("Unexpected permission exception was thrown on user [" + user.getUsername() + "].");
       }
     }
 
@@ -276,12 +274,12 @@ public class ChangeRequestDocumentActionServiceTest extends FastDatasetTest impl
         FastTestDataset.runAsUser(user, (request) -> {
           crService.uploadFileCR(request.getSessionId(), crOid, "parent-test.xlsx", ChangeRequestDocumentActionServiceTest.class.getResourceAsStream("/parent-test.xlsx"));
 
-          Assert.fail("Expected a permission exception.");
+          Assertions.fail("Expected a permission exception.");
         });
       }
       catch (SmartExceptionDTO e)
       {
-        Assert.assertEquals(CGRPermissionException.CLASS, e.getType());
+        Assertions.assertEquals(CGRPermissionException.CLASS, e.getType());
         // Expected
       }
 
@@ -300,14 +298,13 @@ public class ChangeRequestDocumentActionServiceTest extends FastDatasetTest impl
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request) -> {
-          downloadDocumentAsUser(request, vfOid);
-        });
+        FastTestDataset.runAsUser(user, (request) ->
+          downloadDocumentAsUser(request, vfOid));
       }
       catch (SmartExceptionDTO e)
       {
         e.printStackTrace();
-        Assert.fail("Unexpected permission exception was thrown on user [" + user.getUsername() + "].");
+        Assertions.fail("Unexpected permission exception was thrown on user [" + user.getUsername() + "].");
       }
     }
 
@@ -320,12 +317,12 @@ public class ChangeRequestDocumentActionServiceTest extends FastDatasetTest impl
         FastTestDataset.runAsUser(user, (request) -> {
           downloadDocumentAsUser(request, vfOid);
 
-          Assert.fail("Expected a permission exception.");
+          Assertions.fail("Expected a permission exception.");
         });
       }
       catch (SmartExceptionDTO e)
       {
-        Assert.assertEquals(CGRPermissionException.CLASS, e.getType());
+        Assertions.assertEquals(CGRPermissionException.CLASS, e.getType());
         // Expected
       }
 
@@ -337,8 +334,8 @@ public class ChangeRequestDocumentActionServiceTest extends FastDatasetTest impl
   {
     try (ApplicationResource res = crService.downloadDocumentCR(request.getSessionId(), crOid, vfOid))
     {
-      Assert.assertEquals("parent-test.xlsx", res.getName());
-      Assert.assertTrue(res.exists());
+      Assertions.assertEquals("parent-test.xlsx", res.getName());
+      Assertions.assertTrue(res.exists());
     }
   }
 }

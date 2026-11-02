@@ -16,11 +16,11 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -33,7 +33,7 @@ import com.runwaysdk.system.scheduler.SchedulerManager;
 
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.axon.projection.RepositoryProjection;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.etl.upload.EdgeObjectImportConfiguration;
@@ -75,7 +75,7 @@ import net.geoprism.registry.view.TypeClass;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceTestClassListener
 {
   private static int                                IMPORT_COUNT = 10;
@@ -207,7 +207,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
 
   }
 
-  @Before
+  @BeforeEach
   @Request
   public void setUp() throws Exception
   {
@@ -224,7 +224,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
     this.gObjectService.applyExternalId(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.AUTHORITY.getCode(), "TEST-EXTERNAL-ID", ImportStrategy.NEW_AND_UPDATE, false);
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws Exception
   {
     this.gObjectService.removeExternalId(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.AUTHORITY.getCode(), false);
@@ -359,7 +359,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
       generateDistricts();
       InputStream istream = generateEdgeJson();
 
-      Assert.assertNotNull(istream);
+      Assertions.assertNotNull(istream);
 
       EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(TypeClass.HIERARCHY.getCode(), FastTestDataset.HIER_ADMIN.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
 
@@ -371,22 +371,22 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
       System.out.println("Elapsed: " + ( System.nanoTime() - start ) / 1_000_000_000.0 + " s");
 
       hist = ImportHistory.get(hist.getOid());
-      Assert.assertEquals(Long.valueOf(IMPORT_COUNT), hist.getWorkTotal());
-      Assert.assertEquals(Long.valueOf(IMPORT_COUNT), hist.getWorkProgress());
-      Assert.assertEquals(Long.valueOf(IMPORT_COUNT), hist.getImportedRecords());
-      Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+      Assertions.assertEquals(Long.valueOf(IMPORT_COUNT), hist.getWorkTotal());
+      Assertions.assertEquals(Long.valueOf(IMPORT_COUNT), hist.getWorkProgress());
+      Assertions.assertEquals(Long.valueOf(IMPORT_COUNT), hist.getImportedRecords());
+      Assertions.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
       GraphType hierarchyType = FastTestDataset.HIER_ADMIN.getServerObject();
       ServerGeoObjectIF dist1 = this.gObjectService.getGeoObjectByCode("1", FastTestDataset.DISTRICT.getCode());
       ServerGraphNode node = dist1.getGraphParents(hierarchyType, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
       ServerGeoObjectIF parent = node.getGeoObject();
-      Assert.assertNotNull(parent);
-      Assert.assertEquals("1", parent.getDisplayLabel(TestDataSet.DEFAULT_OVER_TIME_DATE).getValue());
+      Assertions.assertNotNull(parent);
+      Assertions.assertEquals("1", parent.getDisplayLabel(TestDataSet.DEFAULT_OVER_TIME_DATE).getValue());
 
       List<ImportHistoryView> histories = this.etlBusinessService.getHistory(TypeClass.HIERARCHY.getCode(), FastTestDataset.HIER_ADMIN.getCode());
 
-      Assert.assertEquals(1, histories.size());
+      Assertions.assertEquals(1, histories.size());
     });
   }
 
@@ -396,7 +396,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
     TestDataSet.executeRequestAsUser(FastTestDataset.USER_ADMIN, () -> {
       InputStream istream = generateEdgeJson(bCObject, bPObject);
 
-      Assert.assertNotNull(istream);
+      Assertions.assertNotNull(istream);
 
       EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(TypeClass.BUSINESS_EDGE.getCode(), bEdgeType.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
       config.setValidate(true);
@@ -409,20 +409,20 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
       System.out.println("Elapsed: " + ( System.nanoTime() - start ) / 1_000_000_000.0 + " s");
 
       hist = ImportHistory.get(hist.getOid());
-      Assert.assertEquals(Long.valueOf(1), hist.getWorkTotal());
-      Assert.assertEquals(Long.valueOf(1), hist.getWorkProgress());
-      Assert.assertEquals(Long.valueOf(1), hist.getImportedRecords());
-      Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+      Assertions.assertEquals(Long.valueOf(1), hist.getWorkTotal());
+      Assertions.assertEquals(Long.valueOf(1), hist.getWorkProgress());
+      Assertions.assertEquals(Long.valueOf(1), hist.getImportedRecords());
+      Assertions.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
       List<VertexComponent> tagets = this.bObjectService.getChildren(bCObject, bEdgeType, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-      Assert.assertEquals(1, tagets.size());
+      Assertions.assertEquals(1, tagets.size());
 
       List<ImportHistoryView> histories = this.etlBusinessService.getHistory(TypeClass.BUSINESS_EDGE.getCode(), bEdgeType.getCode());
 
-      Assert.assertEquals(1, histories.size());
+      Assertions.assertEquals(1, histories.size());
 
-      Assert.assertEquals(0L, getJobHistoryGeometryCount(hist));
+      Assertions.assertEquals(0L, getJobHistoryGeometryCount(hist));
     });
   }
 
@@ -432,7 +432,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
     TestDataSet.executeRequestAsUser(FastTestDataset.USER_ADMIN, () -> {
       InputStream istream = generateEdgeJson(bPObject, "BAD", "BAD");
 
-      Assert.assertNotNull(istream);
+      Assertions.assertNotNull(istream);
 
       EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(TypeClass.BUSINESS_EDGE.getCode(), bEdgeType.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
       config.setValidate(true);
@@ -447,10 +447,10 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
       System.out.println("Elapsed: " + ( System.nanoTime() - start ) / 1_000_000_000.0 + " s");
 
       hist = ImportHistory.get(hist.getOid());
-      Assert.assertEquals(Long.valueOf(2), hist.getWorkTotal());
-      Assert.assertEquals(Long.valueOf(2), hist.getWorkProgress());
-      Assert.assertEquals(Long.valueOf(0), hist.getImportedRecords());
-      Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
+      Assertions.assertEquals(Long.valueOf(2), hist.getWorkTotal());
+      Assertions.assertEquals(Long.valueOf(2), hist.getWorkProgress());
+      Assertions.assertEquals(Long.valueOf(0), hist.getImportedRecords());
+      Assertions.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
     });
   }
 
@@ -460,7 +460,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
     TestDataSet.executeRequestAsUser(FastTestDataset.USER_ADMIN, () -> {
       InputStream istream = generateEdgeJson(cCObject, cPObject);
 
-      Assert.assertNotNull(istream);
+      Assertions.assertNotNull(istream);
 
       EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(TypeClass.CONCEPT_EDGE.getCode(), cEdgeType.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
       config.setValidate(true);
@@ -473,20 +473,20 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
       System.out.println("Elapsed: " + ( System.nanoTime() - start ) / 1_000_000_000.0 + " s");
 
       hist = ImportHistory.get(hist.getOid());
-      Assert.assertEquals(Long.valueOf(1), hist.getWorkTotal());
-      Assert.assertEquals(Long.valueOf(1), hist.getWorkProgress());
-      Assert.assertEquals(Long.valueOf(1), hist.getImportedRecords());
-      Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+      Assertions.assertEquals(Long.valueOf(1), hist.getWorkTotal());
+      Assertions.assertEquals(Long.valueOf(1), hist.getWorkProgress());
+      Assertions.assertEquals(Long.valueOf(1), hist.getImportedRecords());
+      Assertions.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
       List<ConceptObject> tagets = this.cObjectService.getChildren(cCObject, cEdgeType, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-      Assert.assertEquals(1, tagets.size());
+      Assertions.assertEquals(1, tagets.size());
 
       List<ImportHistoryView> histories = this.etlBusinessService.getHistory(TypeClass.CONCEPT_EDGE.getCode(), cEdgeType.getCode());
 
-      Assert.assertEquals(1, histories.size());
+      Assertions.assertEquals(1, histories.size());
 
-      Assert.assertEquals(0L, getJobHistoryGeometryCount(hist));
+      Assertions.assertEquals(0L, getJobHistoryGeometryCount(hist));
     });
   }
 
@@ -496,7 +496,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
     TestDataSet.executeRequestAsUser(FastTestDataset.USER_ADMIN, () -> {
       InputStream istream = generateEdgeJson(cPObject, "BAD", "BAD");
 
-      Assert.assertNotNull(istream);
+      Assertions.assertNotNull(istream);
 
       EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(TypeClass.CONCEPT_EDGE.getCode(), cEdgeType.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
       config.setValidate(true);
@@ -511,10 +511,10 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
       System.out.println("Elapsed: " + ( System.nanoTime() - start ) / 1_000_000_000.0 + " s");
 
       hist = ImportHistory.get(hist.getOid());
-      Assert.assertEquals(Long.valueOf(2), hist.getWorkTotal());
-      Assert.assertEquals(Long.valueOf(2), hist.getWorkProgress());
-      Assert.assertEquals(Long.valueOf(0), hist.getImportedRecords());
-      Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
+      Assertions.assertEquals(Long.valueOf(2), hist.getWorkTotal());
+      Assertions.assertEquals(Long.valueOf(2), hist.getWorkProgress());
+      Assertions.assertEquals(Long.valueOf(0), hist.getImportedRecords());
+      Assertions.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
     });
   }
 
@@ -529,7 +529,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
       //
       InputStream istream = generateEdgeJson(FastTestDataset.PROV_CENTRAL.getServerObject(), bCObject);
 
-      Assert.assertNotNull(istream);
+      Assertions.assertNotNull(istream);
 
       EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(TypeClass.BUSINESS_EDGE.getCode(), bGeoEdgeType.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
       config.setValidate(true);
@@ -547,15 +547,15 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
 
       hist = ImportHistory.get(hist.getOid());
 
-      Assert.assertEquals(Long.valueOf(1), hist.getWorkTotal());
-      Assert.assertEquals(Long.valueOf(1), hist.getWorkProgress());
-      Assert.assertEquals(Long.valueOf(1), hist.getImportedRecords());
-      Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
-      Assert.assertEquals(1L, getJobHistoryGeometryCount(hist));
+      Assertions.assertEquals(Long.valueOf(1), hist.getWorkTotal());
+      Assertions.assertEquals(Long.valueOf(1), hist.getWorkProgress());
+      Assertions.assertEquals(Long.valueOf(1), hist.getImportedRecords());
+      Assertions.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+      Assertions.assertEquals(1L, getJobHistoryGeometryCount(hist));
 
       List<VertexComponent> targets = this.bObjectService.getParents(bCObject, bGeoEdgeType, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-      Assert.assertEquals(1, targets.size());
+      Assertions.assertEquals(1, targets.size());
 
       //
       // Import second edge:
@@ -563,7 +563,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
       //
       istream = generateEdgeJson(FastTestDataset.PROV_WESTERN.getServerObject(), bCObject);
 
-      Assert.assertNotNull(istream);
+      Assertions.assertNotNull(istream);
 
       config = this.etlService.getTestConfiguration(TypeClass.BUSINESS_EDGE.getCode(), bGeoEdgeType.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
 
@@ -578,22 +578,22 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
 
       hist = ImportHistory.get(hist.getOid());
 
-      Assert.assertEquals(Long.valueOf(1), hist.getWorkTotal());
-      Assert.assertEquals(Long.valueOf(1), hist.getWorkProgress());
-      Assert.assertEquals(Long.valueOf(1), hist.getImportedRecords());
-      Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
-      Assert.assertEquals(1L, getJobHistoryGeometryCount(hist));
+      Assertions.assertEquals(Long.valueOf(1), hist.getWorkTotal());
+      Assertions.assertEquals(Long.valueOf(1), hist.getWorkProgress());
+      Assertions.assertEquals(Long.valueOf(1), hist.getImportedRecords());
+      Assertions.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+      Assertions.assertEquals(1L, getJobHistoryGeometryCount(hist));
 
       targets = this.bObjectService.getParents(bCObject, bGeoEdgeType, Date.from(LocalDate.of(2020, 4, 6).atStartOfDay(ZoneOffset.UTC).toInstant()));
 
-      Assert.assertEquals(1, targets.size());
+      Assertions.assertEquals(1, targets.size());
 
       //
       // Verify both imports exist in history.
       //
       List<ImportHistoryView> histories = this.etlBusinessService.getHistory(TypeClass.BUSINESS_EDGE.getCode(), bGeoEdgeType.getCode());
 
-      Assert.assertEquals(2, histories.size());
+      Assertions.assertEquals(2, histories.size());
     });
   }
 
@@ -603,7 +603,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
     TestDataSet.executeRequestAsUser(FastTestDataset.USER_ADMIN, () -> {
       InputStream istream = generateEdgeJson(FastTestDataset.CAMBODIA.getServerObject(), bCObject);
 
-      Assert.assertNotNull(istream);
+      Assertions.assertNotNull(istream);
 
       EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(TypeClass.BUSINESS_EDGE.getCode(), bGeoEdgeType.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
       config.setEdgeSourceTypeStrategy(ReferenceStrategy.FIXED_TYPE);
@@ -620,20 +620,20 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
       System.out.println("Elapsed: " + ( System.nanoTime() - start ) / 1_000_000_000.0 + " s");
 
       hist = ImportHistory.get(hist.getOid());
-      Assert.assertEquals(Long.valueOf(1), hist.getWorkTotal());
-      Assert.assertEquals(Long.valueOf(1), hist.getWorkProgress());
-      Assert.assertEquals(Long.valueOf(1), hist.getImportedRecords());
-      Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+      Assertions.assertEquals(Long.valueOf(1), hist.getWorkTotal());
+      Assertions.assertEquals(Long.valueOf(1), hist.getWorkProgress());
+      Assertions.assertEquals(Long.valueOf(1), hist.getImportedRecords());
+      Assertions.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
       List<VertexComponent> tagets = this.bObjectService.getParents(bCObject, bGeoEdgeType, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-      Assert.assertEquals(1, tagets.size());
+      Assertions.assertEquals(1, tagets.size());
 
       List<ImportHistoryView> histories = this.etlBusinessService.getHistory(TypeClass.BUSINESS_EDGE.getCode(), bGeoEdgeType.getCode());
 
-      Assert.assertEquals(1, histories.size());
+      Assertions.assertEquals(1, histories.size());
 
-      Assert.assertEquals(1L, getJobHistoryGeometryCount(hist));
+      Assertions.assertEquals(1L, getJobHistoryGeometryCount(hist));
     });
   }
 
@@ -654,7 +654,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
 
         InputStream istream = generateEdgeJson(parent, child);
 
-        Assert.assertNotNull(istream);
+        Assertions.assertNotNull(istream);
 
         EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(TypeClass.HIERARCHY.getCode(), FastTestDataset.HIER_ADMIN.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
         config.setValidate(true);
@@ -667,23 +667,23 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
         System.out.println("Elapsed: " + ( System.nanoTime() - start ) / 1_000_000_000.0 + " s");
 
         hist = ImportHistory.get(hist.getOid());
-        Assert.assertEquals(Long.valueOf(1), hist.getWorkTotal());
-        Assert.assertEquals(Long.valueOf(1), hist.getWorkProgress());
-        Assert.assertEquals(Long.valueOf(1), hist.getImportedRecords());
-        Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+        Assertions.assertEquals(Long.valueOf(1), hist.getWorkTotal());
+        Assertions.assertEquals(Long.valueOf(1), hist.getWorkProgress());
+        Assertions.assertEquals(Long.valueOf(1), hist.getImportedRecords());
+        Assertions.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
         ServerParentTreeNode node = this.gObjectService.getParentsForHierarchy(child, FastTestDataset.HIER_ADMIN.getServerObject(), false, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
         List<ServerParentTreeNode> parents = node.getParents();
 
-        Assert.assertEquals(1, parents.size());
-        Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), parents.get(0).getGeoObject().getCode());
+        Assertions.assertEquals(1, parents.size());
+        Assertions.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), parents.get(0).getGeoObject().getCode());
 
         List<ImportHistoryView> histories = this.etlBusinessService.getHistory(TypeClass.HIERARCHY.getCode(), FastTestDataset.HIER_ADMIN.getCode());
 
-        Assert.assertEquals(1, histories.size());
+        Assertions.assertEquals(1, histories.size());
 
-        Assert.assertEquals(2L, getJobHistoryGeometryCount(hist));
+        Assertions.assertEquals(2L, getJobHistoryGeometryCount(hist));
       }
       finally
       {
@@ -709,7 +709,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
 
         InputStream istream = generateEdgeJson(parent, child);
 
-        Assert.assertNotNull(istream);
+        Assertions.assertNotNull(istream);
 
         EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(TypeClass.DAG.getCode(), dagType.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
         config.setValidate(true);
@@ -722,23 +722,23 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
         System.out.println("Elapsed: " + ( System.nanoTime() - start ) / 1_000_000_000.0 + " s");
 
         hist = ImportHistory.get(hist.getOid());
-        Assert.assertEquals(Long.valueOf(1), hist.getWorkTotal());
-        Assert.assertEquals(Long.valueOf(1), hist.getWorkProgress());
-        Assert.assertEquals(Long.valueOf(1), hist.getImportedRecords());
-        Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+        Assertions.assertEquals(Long.valueOf(1), hist.getWorkTotal());
+        Assertions.assertEquals(Long.valueOf(1), hist.getWorkProgress());
+        Assertions.assertEquals(Long.valueOf(1), hist.getImportedRecords());
+        Assertions.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
         ServerParentGraphNode node = this.gObjectService.getGraphParentGeoObjects(child, dagType, false, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
         List<ServerParentGraphNode> parents = node.getParents();
 
-        Assert.assertEquals(1, parents.size());
-        Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), parents.get(0).getGeoObject().getCode());
+        Assertions.assertEquals(1, parents.size());
+        Assertions.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), parents.get(0).getGeoObject().getCode());
 
         List<ImportHistoryView> histories = this.etlBusinessService.getHistory(TypeClass.DAG.getCode(), dagType.getCode());
 
-        Assert.assertEquals(1, histories.size());
+        Assertions.assertEquals(1, histories.size());
 
-        Assert.assertEquals(2L, getJobHistoryGeometryCount(hist));
+        Assertions.assertEquals(2L, getJobHistoryGeometryCount(hist));
       }
       finally
       {
@@ -763,7 +763,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
 
         InputStream istream = generateEdgeJson(child, "BAD", "BAD");
 
-        Assert.assertNotNull(istream);
+        Assertions.assertNotNull(istream);
 
         EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(TypeClass.DAG.getCode(), dagType.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
         config.setEdgeSourceType(FastTestDataset.DISTRICT.getCode());
@@ -778,10 +778,10 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
         System.out.println("Elapsed: " + ( System.nanoTime() - start ) / 1_000_000_000.0 + " s");
 
         hist = ImportHistory.get(hist.getOid());
-        Assert.assertEquals(Long.valueOf(2), hist.getWorkTotal());
-        Assert.assertEquals(Long.valueOf(2), hist.getWorkProgress());
-        Assert.assertEquals(Long.valueOf(0), hist.getImportedRecords());
-        Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
+        Assertions.assertEquals(Long.valueOf(2), hist.getWorkTotal());
+        Assertions.assertEquals(Long.valueOf(2), hist.getWorkProgress());
+        Assertions.assertEquals(Long.valueOf(0), hist.getImportedRecords());
+        Assertions.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
       }
       finally
       {
@@ -796,7 +796,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
     TestDataSet.executeRequestAsUser(FastTestDataset.USER_ADMIN, () -> {
       InputStream istream = generateEdgeJson(bCObject, "TEST-EXTERNAL-ID");
 
-      Assert.assertNotNull(istream);
+      Assertions.assertNotNull(istream);
 
       EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(TypeClass.BUSINESS_EDGE.getCode(), bGeoEdgeType.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
       config.setEdgeSourceStrategy(ReferenceStrategy.EXTERNAL_ID);
@@ -815,14 +815,14 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
       System.out.println("Elapsed: " + ( System.nanoTime() - start ) / 1_000_000_000.0 + " s");
 
       hist = ImportHistory.get(hist.getOid());
-      Assert.assertEquals(Long.valueOf(1), hist.getWorkTotal());
-      Assert.assertEquals(Long.valueOf(1), hist.getWorkProgress());
-      Assert.assertEquals(Long.valueOf(1), hist.getImportedRecords());
-      Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+      Assertions.assertEquals(Long.valueOf(1), hist.getWorkTotal());
+      Assertions.assertEquals(Long.valueOf(1), hist.getWorkProgress());
+      Assertions.assertEquals(Long.valueOf(1), hist.getImportedRecords());
+      Assertions.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
       List<VertexComponent> tagets = this.bObjectService.getParents(bCObject, bGeoEdgeType, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-      Assert.assertEquals(1, tagets.size());
+      Assertions.assertEquals(1, tagets.size());
     });
   }
 
@@ -832,7 +832,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
     TestDataSet.executeRequestAsUser(FastTestDataset.USER_ADMIN, () -> {
       InputStream istream = generateEdgeJson(bCObject, bPObject);
 
-      Assert.assertNotNull(istream);
+      Assertions.assertNotNull(istream);
 
       EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(TypeClass.BUSINESS_EDGE.getCode(), bEdgeType.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
       config.setValidate(false);
@@ -845,20 +845,20 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
       System.out.println("Elapsed: " + ( System.nanoTime() - start ) / 1_000_000_000.0 + " s");
 
       hist = ImportHistory.get(hist.getOid());
-      Assert.assertEquals(Long.valueOf(1), hist.getWorkTotal());
-      Assert.assertEquals(Long.valueOf(1), hist.getWorkProgress());
-      Assert.assertEquals(Long.valueOf(1), hist.getImportedRecords());
-      Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+      Assertions.assertEquals(Long.valueOf(1), hist.getWorkTotal());
+      Assertions.assertEquals(Long.valueOf(1), hist.getWorkProgress());
+      Assertions.assertEquals(Long.valueOf(1), hist.getImportedRecords());
+      Assertions.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
       List<VertexComponent> tagets = this.bObjectService.getChildren(bCObject, bEdgeType, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-      Assert.assertEquals(1, tagets.size());
+      Assertions.assertEquals(1, tagets.size());
 
       List<ImportHistoryView> histories = this.etlBusinessService.getHistory(TypeClass.BUSINESS_EDGE.getCode(), bEdgeType.getCode());
 
-      Assert.assertEquals(1, histories.size());
+      Assertions.assertEquals(1, histories.size());
 
-      Assert.assertEquals(0L, getJobHistoryGeometryCount(hist));
+      Assertions.assertEquals(0L, getJobHistoryGeometryCount(hist));
     });
   }
 
@@ -868,7 +868,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
     TestDataSet.executeRequestAsUser(FastTestDataset.USER_ADMIN, () -> {
       InputStream istream = generateEdgeJson(cCObject, cPObject);
 
-      Assert.assertNotNull(istream);
+      Assertions.assertNotNull(istream);
 
       EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(TypeClass.CONCEPT_EDGE.getCode(), cEdgeType.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
       config.setValidate(false);
@@ -881,20 +881,20 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
       System.out.println("Elapsed: " + ( System.nanoTime() - start ) / 1_000_000_000.0 + " s");
 
       hist = ImportHistory.get(hist.getOid());
-      Assert.assertEquals(Long.valueOf(1), hist.getWorkTotal());
-      Assert.assertEquals(Long.valueOf(1), hist.getWorkProgress());
-      Assert.assertEquals(Long.valueOf(1), hist.getImportedRecords());
-      Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+      Assertions.assertEquals(Long.valueOf(1), hist.getWorkTotal());
+      Assertions.assertEquals(Long.valueOf(1), hist.getWorkProgress());
+      Assertions.assertEquals(Long.valueOf(1), hist.getImportedRecords());
+      Assertions.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
       List<ConceptObject> tagets = this.cObjectService.getChildren(cCObject, cEdgeType, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-      Assert.assertEquals(1, tagets.size());
+      Assertions.assertEquals(1, tagets.size());
 
       List<ImportHistoryView> histories = this.etlBusinessService.getHistory(TypeClass.CONCEPT_EDGE.getCode(), cEdgeType.getCode());
 
-      Assert.assertEquals(1, histories.size());
+      Assertions.assertEquals(1, histories.size());
 
-      Assert.assertEquals(0L, getJobHistoryGeometryCount(hist));
+      Assertions.assertEquals(0L, getJobHistoryGeometryCount(hist));
     });
   }
 
@@ -951,7 +951,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
       //
       InputStream istream = generateEdgeJson(FastTestDataset.PROV_CENTRAL.getServerObject(), bCObject);
 
-      Assert.assertNotNull(istream);
+      Assertions.assertNotNull(istream);
 
       EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(TypeClass.BUSINESS_EDGE.getCode(), bGeoEdgeType.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
       config.setValidate(false);
@@ -969,15 +969,15 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
 
       hist = ImportHistory.get(hist.getOid());
 
-      Assert.assertEquals(Long.valueOf(1), hist.getWorkTotal());
-      Assert.assertEquals(Long.valueOf(1), hist.getWorkProgress());
-      Assert.assertEquals(Long.valueOf(1), hist.getImportedRecords());
-      Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
-      Assert.assertEquals(1L, getJobHistoryGeometryCount(hist));
+      Assertions.assertEquals(Long.valueOf(1), hist.getWorkTotal());
+      Assertions.assertEquals(Long.valueOf(1), hist.getWorkProgress());
+      Assertions.assertEquals(Long.valueOf(1), hist.getImportedRecords());
+      Assertions.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+      Assertions.assertEquals(1L, getJobHistoryGeometryCount(hist));
 
       List<VertexComponent> targets = this.bObjectService.getParents(bCObject, bGeoEdgeType, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-      Assert.assertEquals(1, targets.size());
+      Assertions.assertEquals(1, targets.size());
 
       //
       // Import second edge:
@@ -985,7 +985,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
       //
       istream = generateEdgeJson(FastTestDataset.PROV_WESTERN.getServerObject(), bCObject);
 
-      Assert.assertNotNull(istream);
+      Assertions.assertNotNull(istream);
 
       config = this.etlService.getTestConfiguration(TypeClass.BUSINESS_EDGE.getCode(), bGeoEdgeType.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
 
@@ -1000,22 +1000,22 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
 
       hist = ImportHistory.get(hist.getOid());
 
-      Assert.assertEquals(Long.valueOf(1), hist.getWorkTotal());
-      Assert.assertEquals(Long.valueOf(1), hist.getWorkProgress());
-      Assert.assertEquals(Long.valueOf(1), hist.getImportedRecords());
-      Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
-      Assert.assertEquals(1L, getJobHistoryGeometryCount(hist));
+      Assertions.assertEquals(Long.valueOf(1), hist.getWorkTotal());
+      Assertions.assertEquals(Long.valueOf(1), hist.getWorkProgress());
+      Assertions.assertEquals(Long.valueOf(1), hist.getImportedRecords());
+      Assertions.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+      Assertions.assertEquals(1L, getJobHistoryGeometryCount(hist));
 
       targets = this.bObjectService.getParents(bCObject, bGeoEdgeType, Date.from(LocalDate.of(2020, 4, 6).atStartOfDay(ZoneOffset.UTC).toInstant()));
 
-      Assert.assertEquals(1, targets.size());
+      Assertions.assertEquals(1, targets.size());
 
       //
       // Verify both imports exist in history.
       //
       List<ImportHistoryView> histories = this.etlBusinessService.getHistory(TypeClass.BUSINESS_EDGE.getCode(), bGeoEdgeType.getCode());
 
-      Assert.assertEquals(2, histories.size());
+      Assertions.assertEquals(2, histories.size());
     });
   }
 
@@ -1025,7 +1025,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
     TestDataSet.executeRequestAsUser(FastTestDataset.USER_ADMIN, () -> {
       InputStream istream = generateEdgeJson(FastTestDataset.CAMBODIA.getServerObject(), bCObject);
 
-      Assert.assertNotNull(istream);
+      Assertions.assertNotNull(istream);
 
       EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(TypeClass.BUSINESS_EDGE.getCode(), bGeoEdgeType.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
       config.setEdgeSourceTypeStrategy(ReferenceStrategy.FIXED_TYPE);
@@ -1042,20 +1042,20 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
       System.out.println("Elapsed: " + ( System.nanoTime() - start ) / 1_000_000_000.0 + " s");
 
       hist = ImportHistory.get(hist.getOid());
-      Assert.assertEquals(Long.valueOf(1), hist.getWorkTotal());
-      Assert.assertEquals(Long.valueOf(1), hist.getWorkProgress());
-      Assert.assertEquals(Long.valueOf(1), hist.getImportedRecords());
-      Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+      Assertions.assertEquals(Long.valueOf(1), hist.getWorkTotal());
+      Assertions.assertEquals(Long.valueOf(1), hist.getWorkProgress());
+      Assertions.assertEquals(Long.valueOf(1), hist.getImportedRecords());
+      Assertions.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
       List<VertexComponent> tagets = this.bObjectService.getParents(bCObject, bGeoEdgeType, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-      Assert.assertEquals(1, tagets.size());
+      Assertions.assertEquals(1, tagets.size());
 
       List<ImportHistoryView> histories = this.etlBusinessService.getHistory(TypeClass.BUSINESS_EDGE.getCode(), bGeoEdgeType.getCode());
 
-      Assert.assertEquals(1, histories.size());
+      Assertions.assertEquals(1, histories.size());
 
-      Assert.assertEquals(1L, getJobHistoryGeometryCount(hist));
+      Assertions.assertEquals(1L, getJobHistoryGeometryCount(hist));
     });
   }
 
@@ -1076,7 +1076,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
 
         InputStream istream = generateEdgeJson(parent, child);
 
-        Assert.assertNotNull(istream);
+        Assertions.assertNotNull(istream);
 
         EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(TypeClass.HIERARCHY.getCode(), FastTestDataset.HIER_ADMIN.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
         config.setValidate(false);
@@ -1089,23 +1089,23 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
         System.out.println("Elapsed: " + ( System.nanoTime() - start ) / 1_000_000_000.0 + " s");
 
         hist = ImportHistory.get(hist.getOid());
-        Assert.assertEquals(Long.valueOf(1), hist.getWorkTotal());
-        Assert.assertEquals(Long.valueOf(1), hist.getWorkProgress());
-        Assert.assertEquals(Long.valueOf(1), hist.getImportedRecords());
-        Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+        Assertions.assertEquals(Long.valueOf(1), hist.getWorkTotal());
+        Assertions.assertEquals(Long.valueOf(1), hist.getWorkProgress());
+        Assertions.assertEquals(Long.valueOf(1), hist.getImportedRecords());
+        Assertions.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
         ServerParentTreeNode node = this.gObjectService.getParentsForHierarchy(child, FastTestDataset.HIER_ADMIN.getServerObject(), false, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
         List<ServerParentTreeNode> parents = node.getParents();
 
-        Assert.assertEquals(1, parents.size());
-        Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), parents.get(0).getGeoObject().getCode());
+        Assertions.assertEquals(1, parents.size());
+        Assertions.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), parents.get(0).getGeoObject().getCode());
 
         List<ImportHistoryView> histories = this.etlBusinessService.getHistory(TypeClass.HIERARCHY.getCode(), FastTestDataset.HIER_ADMIN.getCode());
 
-        Assert.assertEquals(1, histories.size());
+        Assertions.assertEquals(1, histories.size());
 
-        Assert.assertEquals(2L, getJobHistoryGeometryCount(hist));
+        Assertions.assertEquals(2L, getJobHistoryGeometryCount(hist));
       }
       finally
       {
@@ -1131,7 +1131,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
 
         InputStream istream = generateEdgeJson(parent, child);
 
-        Assert.assertNotNull(istream);
+        Assertions.assertNotNull(istream);
 
         EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(TypeClass.DAG.getCode(), dagType.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
         config.setValidate(false);
@@ -1144,23 +1144,23 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
         System.out.println("Elapsed: " + ( System.nanoTime() - start ) / 1_000_000_000.0 + " s");
 
         hist = ImportHistory.get(hist.getOid());
-        Assert.assertEquals(Long.valueOf(1), hist.getWorkTotal());
-        Assert.assertEquals(Long.valueOf(1), hist.getWorkProgress());
-        Assert.assertEquals(Long.valueOf(1), hist.getImportedRecords());
-        Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+        Assertions.assertEquals(Long.valueOf(1), hist.getWorkTotal());
+        Assertions.assertEquals(Long.valueOf(1), hist.getWorkProgress());
+        Assertions.assertEquals(Long.valueOf(1), hist.getImportedRecords());
+        Assertions.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
         ServerParentGraphNode node = this.gObjectService.getGraphParentGeoObjects(child, dagType, false, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
         List<ServerParentGraphNode> parents = node.getParents();
 
-        Assert.assertEquals(1, parents.size());
-        Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), parents.get(0).getGeoObject().getCode());
+        Assertions.assertEquals(1, parents.size());
+        Assertions.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), parents.get(0).getGeoObject().getCode());
 
         List<ImportHistoryView> histories = this.etlBusinessService.getHistory(TypeClass.DAG.getCode(), dagType.getCode());
 
-        Assert.assertEquals(1, histories.size());
+        Assertions.assertEquals(1, histories.size());
 
-        Assert.assertEquals(2L, getJobHistoryGeometryCount(hist));
+        Assertions.assertEquals(2L, getJobHistoryGeometryCount(hist));
       }
       finally
       {
@@ -1175,7 +1175,7 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
     TestDataSet.executeRequestAsUser(FastTestDataset.USER_ADMIN, () -> {
       InputStream istream = generateEdgeJson(bCObject, "TEST-EXTERNAL-ID");
 
-      Assert.assertNotNull(istream);
+      Assertions.assertNotNull(istream);
 
       EdgeObjectImportConfiguration config = this.etlService.getTestConfiguration(TypeClass.BUSINESS_EDGE.getCode(), bGeoEdgeType.getCode(), istream, ImportStrategy.NEW_AND_UPDATE);
       config.setEdgeSourceStrategy(ReferenceStrategy.EXTERNAL_ID);
@@ -1194,14 +1194,14 @@ public class EdgeObjectImporterTest extends FastDatasetTest implements InstanceT
       System.out.println("Elapsed: " + ( System.nanoTime() - start ) / 1_000_000_000.0 + " s");
 
       hist = ImportHistory.get(hist.getOid());
-      Assert.assertEquals(Long.valueOf(1), hist.getWorkTotal());
-      Assert.assertEquals(Long.valueOf(1), hist.getWorkProgress());
-      Assert.assertEquals(Long.valueOf(1), hist.getImportedRecords());
-      Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+      Assertions.assertEquals(Long.valueOf(1), hist.getWorkTotal());
+      Assertions.assertEquals(Long.valueOf(1), hist.getWorkProgress());
+      Assertions.assertEquals(Long.valueOf(1), hist.getImportedRecords());
+      Assertions.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
       List<VertexComponent> tagets = this.bObjectService.getParents(bCObject, bGeoEdgeType, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-      Assert.assertEquals(1, tagets.size());
+      Assertions.assertEquals(1, tagets.size());
     });
   }
 

@@ -89,8 +89,10 @@ public class GeoObjectCache
 
       return entry;
     }).orElseThrow(() -> {
-      DataNotFoundException ex = new DataNotFoundException("Could not find a GeoObject with code [" + code + "].");
-      ex.setTypeLabel(GeoObjectMetadata.get().getClassDisplayLabel());
+      ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
+
+      DataNotFoundException ex = new DataNotFoundException("Could not find a [" + type.getLabel().getValue() + "] with code [" + code + "].");
+      ex.setTypeLabel(type.getLabel().getValue());
       ex.setDataIdentifier(code);
       ex.setAttributeLabel(GeoObjectMetadata.get().getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
 
@@ -122,8 +124,10 @@ public class GeoObjectCache
 
       return entry;
     }).orElseThrow(() -> {
-      DataNotFoundException ex = new DataNotFoundException("Could not find a GeoObject with alternate id [" + externalId + "].");
-      ex.setTypeLabel(GeoObjectMetadata.get().getClassDisplayLabel());
+      ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
+
+      DataNotFoundException ex = new DataNotFoundException("Could not find a [" + type.getLabel().getValue() + "] with alternate id [" + externalId + "].");
+      ex.setTypeLabel(type.getLabel().getValue());
       ex.setDataIdentifier(externalId);
       ex.setAttributeLabel(authority);
 

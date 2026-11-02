@@ -12,9 +12,9 @@ import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,7 +24,7 @@ import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
@@ -45,7 +45,7 @@ import net.geoprism.registry.view.ValueOverTimeEntryDTO;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class BusinessObjectTest extends FastDatasetTest implements InstanceTestClassListener
 {
   private static String                      TEST_CODE = "TEST_OBJ";
@@ -156,7 +156,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
     try
     {
-      Assert.assertNotNull(object.getVertex().getRID());
+      Assertions.assertNotNull(object.getVertex().getRID());
     }
     finally
     {
@@ -179,8 +179,8 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
     try
     {
-      Assert.assertEquals("Test Text", object.getValue(attribute.getCode()));
-      Assert.assertEquals("Test Text 2", ( (LocalizedValue) object.getValue(attributeOverTime.getCode(), FastTestDataset.DEFAULT_OVER_TIME_DATE) ).getLocalizedValue());
+      Assertions.assertEquals("Test Text", object.getValue(attribute.getCode()));
+      Assertions.assertEquals("Test Text 2", ( (LocalizedValue) object.getValue(attributeOverTime.getCode(), FastTestDataset.DEFAULT_OVER_TIME_DATE) ).getLocalizedValue());
     }
     finally
     {
@@ -205,11 +205,11 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     {
       BusinessObject result = this.bObjectService.get(type, attribute.getCode(), object.getValue(attribute.getCode())).orElse(null);
 
-      Assert.assertEquals(object.getVertex().getOid(), result.getVertex().getOid());
-      Assert.assertEquals(FastTestDataset.SOURCE.getDataSource().getOid(), (String) result.getValue(DefaultAttribute.DATA_SOURCE.getName()));
+      Assertions.assertEquals(object.getVertex().getOid(), result.getVertex().getOid());
+      Assertions.assertEquals(FastTestDataset.SOURCE.getDataSource().getOid(), (String) result.getValue(DefaultAttribute.DATA_SOURCE.getName()));
 
-      Assert.assertEquals("Test Text 2", ( (LocalizedValue) result.getValue(attributeOverTime.getCode(), FastTestDataset.DEFAULT_OVER_TIME_DATE) ).getLocalizedValue());
-      Assert.assertEquals("Test Text", result.getValue(attribute.getCode()));
+      Assertions.assertEquals("Test Text 2", ( (LocalizedValue) result.getValue(attributeOverTime.getCode(), FastTestDataset.DEFAULT_OVER_TIME_DATE) ).getLocalizedValue());
+      Assertions.assertEquals("Test Text", result.getValue(attribute.getCode()));
     }
     finally
     {
@@ -230,7 +230,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     {
       BusinessObject result = this.bObjectService.getByCode(type, object.getCode()).orElse(null);
 
-      Assert.assertEquals(object.getVertex().getOid(), result.getVertex().getOid());
+      Assertions.assertEquals(object.getVertex().getOid(), result.getVertex().getOid());
     }
     finally
     {
@@ -257,11 +257,11 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
       List<VertexComponent> results = this.bObjectService.getParents(object, bGeoEdgeType, FastTestDataset.DEFAULT_OVER_TIME_DATE);
 
-      Assert.assertEquals(1, results.size());
+      Assertions.assertEquals(1, results.size());
 
       VertexComponent result = (VertexComponent) results.get(0);
 
-      Assert.assertEquals(serverObject.getCode(), result.getCode());
+      Assertions.assertEquals(serverObject.getCode(), result.getCode());
     }
     finally
     {
@@ -296,20 +296,20 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
       dto = ObjectOverTimeDTO.parseJson(ObjectOverTimeDTO.toJson(dto));
 
-      Assert.assertNotNull(dto);
-      Assert.assertEquals(TEST_CODE, dto.getCode());
-      Assert.assertEquals(FastTestDataset.SOURCE.getCode(), dto.getValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.DEFAULT_OVER_TIME_DATE).orElseThrow());
-      Assert.assertEquals(text, dto.getValue(attribute.getCode()));
+      Assertions.assertNotNull(dto);
+      Assertions.assertEquals(TEST_CODE, dto.getCode());
+      Assertions.assertEquals(FastTestDataset.SOURCE.getCode(), dto.getValue(DefaultAttribute.DATA_SOURCE.getName(), FastTestDataset.DEFAULT_OVER_TIME_DATE).orElseThrow());
+      Assertions.assertEquals(text, dto.getValue(attribute.getCode()));
 
       List<ValueOverTimeEntryDTO<LocalizedValue>> valuesOverTime = dto.getValuesOverTime(attributeOverTime.getCode());
 
-      Assert.assertEquals(1, valuesOverTime.size());
+      Assertions.assertEquals(1, valuesOverTime.size());
 
       ValueOverTimeEntryDTO<LocalizedValue> entry = valuesOverTime.get(0);
 
-      Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, entry.getStartDate());
-      Assert.assertEquals(FastTestDataset.DEFAULT_END_TIME_DATE, entry.getEndDate());
-      Assert.assertEquals(text, entry.getValue().getLocalizedValue());
+      Assertions.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, entry.getStartDate());
+      Assertions.assertEquals(FastTestDataset.DEFAULT_END_TIME_DATE, entry.getEndDate());
+      Assertions.assertEquals(text, entry.getValue().getLocalizedValue());
     }
     finally
     {
@@ -333,7 +333,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
       this.bObjectService.addParent(object, bGeoEdgeType, serverObject, UUID.randomUUID().toString(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE, FastTestDataset.SOURCE.getDataSource(), false);
       this.bObjectService.removeParent(object, bGeoEdgeType, serverObject, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE, false);
 
-      Assert.assertEquals(0, this.bObjectService.getParents(object, bGeoEdgeType, FastTestDataset.DEFAULT_OVER_TIME_DATE).size());
+      Assertions.assertEquals(0, this.bObjectService.getParents(object, bGeoEdgeType, FastTestDataset.DEFAULT_OVER_TIME_DATE).size());
     }
     finally
     {
@@ -361,11 +361,11 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
       List<VertexComponent> results = this.bObjectService.getParents(object, bGeoEdgeType, FastTestDataset.DEFAULT_OVER_TIME_DATE);
 
-      Assert.assertEquals(1, results.size());
+      Assertions.assertEquals(1, results.size());
 
       VertexComponent result = results.get(0);
 
-      Assert.assertEquals(serverObject.getCode(), result.getCode());
+      Assertions.assertEquals(serverObject.getCode(), result.getCode());
     }
     finally
     {
@@ -390,11 +390,11 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
       List<BusinessObject> results = this.objectService.getBusinessObjects((VertexServerGeoObject) serverObject, bGeoEdgeType, EdgeDirection.CHILD, null);
 
-      Assert.assertEquals(1, results.size());
+      Assertions.assertEquals(1, results.size());
 
       BusinessObject result = results.get(0);
 
-      Assert.assertEquals(object.getCode(), result.getCode());
+      Assertions.assertEquals(object.getCode(), result.getCode());
     }
     finally
     {
@@ -419,11 +419,11 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
       List<BusinessObject> results = this.objectService.getBusinessObjects((VertexServerGeoObject) serverObject, bGeoEdgeType, EdgeDirection.CHILD, null);
 
-      Assert.assertEquals(1, results.size());
+      Assertions.assertEquals(1, results.size());
 
       BusinessObject result = results.get(0);
 
-      Assert.assertEquals(object.getCode(), result.getCode());
+      Assertions.assertEquals(object.getCode(), result.getCode());
     }
     finally
     {
@@ -453,16 +453,16 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
         EdgeObject edge = this.bObjectService.addParent(child, relationshipType, parent, uid, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE, FastTestDataset.SOURCE.getDataSource()).get();
 
-        Assert.assertEquals(uid, edge.getObjectValue(DefaultAttribute.UID.getName()));
-        Assert.assertNotNull(edge.getObjectValue(DefaultAttribute.DATA_SOURCE.getName()));
+        Assertions.assertEquals(uid, edge.getObjectValue(DefaultAttribute.UID.getName()));
+        Assertions.assertNotNull(edge.getObjectValue(DefaultAttribute.DATA_SOURCE.getName()));
 
         List<VertexComponent> results = this.bObjectService.getParents(child, relationshipType, FastTestDataset.DEFAULT_OVER_TIME_DATE);
 
-        Assert.assertEquals(1, results.size());
+        Assertions.assertEquals(1, results.size());
 
         VertexComponent result = results.get(0);
 
-        Assert.assertEquals(parent.getCode(), result.getCode());
+        Assertions.assertEquals(parent.getCode(), result.getCode());
       }
       finally
       {
@@ -497,7 +497,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
         this.bObjectService.addParent(child, relationshipType, parent, UUID.randomUUID().toString(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE, FastTestDataset.SOURCE.getDataSource());
         this.bObjectService.removeParent(child, relationshipType, parent, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
 
-        Assert.assertEquals(0, this.bObjectService.getParents(child, relationshipType, FastTestDataset.DEFAULT_OVER_TIME_DATE).size());
+        Assertions.assertEquals(0, this.bObjectService.getParents(child, relationshipType, FastTestDataset.DEFAULT_OVER_TIME_DATE).size());
       }
       finally
       {
@@ -537,11 +537,11 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
         List<VertexComponent> results = this.bObjectService.getParents(child, relationshipType, FastTestDataset.DEFAULT_OVER_TIME_DATE);
 
-        Assert.assertEquals(1, results.size());
+        Assertions.assertEquals(1, results.size());
 
         VertexComponent result = results.get(0);
 
-        Assert.assertEquals(parent.getCode(), result.getCode());
+        Assertions.assertEquals(parent.getCode(), result.getCode());
       }
       finally
       {
@@ -576,16 +576,16 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
         EdgeObject edge = this.bObjectService.addChild(parent, relationshipType, child, uid, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE, FastTestDataset.SOURCE.getDataSource()).get();
 
-        Assert.assertEquals(uid, edge.getObjectValue(DefaultAttribute.UID.getName()));
-        Assert.assertNotNull(edge.getObjectValue(DefaultAttribute.DATA_SOURCE.getName()));
+        Assertions.assertEquals(uid, edge.getObjectValue(DefaultAttribute.UID.getName()));
+        Assertions.assertNotNull(edge.getObjectValue(DefaultAttribute.DATA_SOURCE.getName()));
 
         List<VertexComponent> results = this.bObjectService.getChildren(parent, relationshipType, FastTestDataset.DEFAULT_OVER_TIME_DATE);
 
-        Assert.assertEquals(1, results.size());
+        Assertions.assertEquals(1, results.size());
 
         BusinessObject result = (BusinessObject) results.get(0);
 
-        Assert.assertEquals(child.getCode(), result.getCode());
+        Assertions.assertEquals(child.getCode(), result.getCode());
       }
       finally
       {
@@ -620,7 +620,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
         this.bObjectService.addChild(parent, relationshipType, child, UUID.randomUUID().toString(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE, FastTestDataset.SOURCE.getDataSource());
         this.bObjectService.removeChild(parent, relationshipType, child, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
 
-        Assert.assertEquals(0, this.bObjectService.getChildren(parent, relationshipType, FastTestDataset.DEFAULT_OVER_TIME_DATE).size());
+        Assertions.assertEquals(0, this.bObjectService.getChildren(parent, relationshipType, FastTestDataset.DEFAULT_OVER_TIME_DATE).size());
       }
       finally
       {
@@ -660,11 +660,11 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
         List<VertexComponent> results = this.bObjectService.getChildren(parent, relationshipType, FastTestDataset.DEFAULT_OVER_TIME_DATE);
 
-        Assert.assertEquals(1, results.size());
+        Assertions.assertEquals(1, results.size());
 
         VertexComponent result = results.get(0);
 
-        Assert.assertEquals(child.getCode(), result.getCode());
+        Assertions.assertEquals(child.getCode(), result.getCode());
       }
       finally
       {

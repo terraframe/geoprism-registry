@@ -20,7 +20,7 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.io.ParseException;
@@ -304,7 +304,7 @@ public class TestGeoObjectInfo extends TestCachedObject<ServerGeoObjectIF>
 
     List<ChildTreeNode> tnChildren = tn.getChildren();
 
-    Assert.assertEquals(expectedChildren.size(), tnChildren.size());
+    Assertions.assertEquals(expectedChildren.size(), tnChildren.size());
 
     for (TestGeoObjectInfo expectedChild : expectedChildren)
     {
@@ -320,7 +320,7 @@ public class TestGeoObjectInfo extends TestCachedObject<ServerGeoObjectIF>
 
       if (tnChild == null)
       {
-        Assert.fail("The ChildTreeNode did not contain a child that we expected to find [" + expectedChild.getCode() + "].");
+        Assertions.fail("The ChildTreeNode did not contain a child that we expected to find [" + expectedChild.getCode() + "].");
       }
     }
   }
@@ -332,7 +332,7 @@ public class TestGeoObjectInfo extends TestCachedObject<ServerGeoObjectIF>
 
     List<ParentTreeNode> tnParents = tn.getParents();
 
-    Assert.assertEquals(expectedParents.size(), tnParents.size());
+    Assertions.assertEquals(expectedParents.size(), tnParents.size());
 
     for (TestGeoObjectInfo expectedParent : expectedParents)
     {
@@ -347,7 +347,7 @@ public class TestGeoObjectInfo extends TestCachedObject<ServerGeoObjectIF>
 
       if (tnParent == null)
       {
-        Assert.fail("The ParentTreeNode did not contain a parent [" + expectedParent.getCode() + "] that we expected to find.");
+        Assertions.fail("The ParentTreeNode did not contain a parent [" + expectedParent.getCode() + "] that we expected to find.");
       }
     }
   }
@@ -360,11 +360,11 @@ public class TestGeoObjectInfo extends TestCachedObject<ServerGeoObjectIF>
   {
     TestRegistryAdapter adapter = ServiceFactory.getBean(TestRegistryAdapter.class);
 
-    Assert.assertEquals(geoObj.toJSON().toString(), GeoObjectOverTime.fromJSON(adapter, geoObj.toJSON().toString()).toJSON().toString());
+    Assertions.assertEquals(geoObj.toJSON().toString(), GeoObjectOverTime.fromJSON(adapter, geoObj.toJSON().toString()).toJSON().toString());
     // Assert.assertEquals(this.getRegistryId(), geoObj.getUid());
-    Assert.assertEquals(this.getCode(), geoObj.getCode());
-    Assert.assertEquals(StringUtils.deleteWhitespace(this.getWkt()), StringUtils.deleteWhitespace(geoObj.getGeometry(date).toText()));
-    Assert.assertEquals(this.getDisplayLabel(), geoObj.getDisplayLabel(this.date).getValue());
+    Assertions.assertEquals(this.getCode(), geoObj.getCode());
+    Assertions.assertEquals(StringUtils.deleteWhitespace(this.getWkt()), StringUtils.deleteWhitespace(geoObj.getGeometry(date).toText()));
+    Assertions.assertEquals(this.getDisplayLabel(), geoObj.getDisplayLabel(this.date).getValue());
     this.getGeoObjectType().assertEquals(geoObj.getType());
 
     // Assert.assertEquals(status.code, geoObj.getStatus().getCode());
@@ -378,13 +378,13 @@ public class TestGeoObjectInfo extends TestCachedObject<ServerGeoObjectIF>
   {
     TestRegistryAdapter adapter = ServiceFactory.getBean(TestRegistryAdapter.class);
 
-    Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(adapter, geoObj.toJSON().toString()).toJSON().toString());
+    Assertions.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(adapter, geoObj.toJSON().toString()).toJSON().toString());
     // Assert.assertEquals(this.getRegistryId(), geoObj.getUid());
-    Assert.assertEquals(this.getCode(), geoObj.getCode());
-    Assert.assertEquals(StringUtils.deleteWhitespace(this.getWkt()), StringUtils.deleteWhitespace(geoObj.getGeometry().toText()));
-    Assert.assertEquals(this.getDisplayLabel(), geoObj.getLocalizedDisplayLabel());
+    Assertions.assertEquals(this.getCode(), geoObj.getCode());
+    Assertions.assertEquals(StringUtils.deleteWhitespace(this.getWkt()), StringUtils.deleteWhitespace(geoObj.getGeometry().toText()));
+    Assertions.assertEquals(this.getDisplayLabel(), geoObj.getLocalizedDisplayLabel());
     this.getGeoObjectType().assertEquals(geoObj.getType());
-    Assert.assertEquals(this.getExists(), geoObj.getExists());
+    Assertions.assertEquals(this.getExists(), geoObj.getExists());
 
     // Assert.assertEquals(status.code, geoObj.getStatus().getCode());
   }

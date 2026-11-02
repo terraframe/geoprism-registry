@@ -11,19 +11,19 @@ import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.runwaysdk.session.Request;
 
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
@@ -58,8 +58,8 @@ import net.geoprism.registry.view.BusinessTypeDTO;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
-@Ignore
+@ExtendWith(InstanceTestClassExtension.class)
+@Disabled
 public class BackupAndRestoreServiceTest extends USADatasetTest
 {
   protected static DirectedAcyclicGraphType         dagType;
@@ -171,7 +171,7 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
     super.afterClassSetup();
   }
 
-  @Before
+  @BeforeEach
   @Request
   public void setUp()
   {
@@ -210,7 +210,7 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
     transition = teService.addTransition(event, USATestData.CO_D_ONE.getServerObject(), USATestData.COLORADO.getServerObject(), TransitionType.UPGRADE, TransitionImpact.FULL);
   }
 
-  @After
+  @AfterEach
   @Request
   public void tearDown()
   {
@@ -254,7 +254,7 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
 
           this.backupService.createBackup(file);
 
-          Assert.assertTrue(file.exists());
+          Assertions.assertTrue(file.exists());
 
           this.backupService.deleteData();
 
@@ -270,17 +270,17 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
 
           ServerGeoObjectIF geoObject = USATestData.COLORADO.getServerObject();
 
-          Assert.assertNotNull(geoObject);
+          Assertions.assertNotNull(geoObject);
 
           // Test hierarchy edge data
           ServerParentTreeNode node = this.gObjectService.getParentGeoObjects(geoObject, USATestData.HIER_ADMIN.getServerObject(), null, false, true, USATestData.DEFAULT_OVER_TIME_DATE);
 
-          Assert.assertNotNull(geoObject.getCode(), node.getGeoObject().getCode());
+          Assertions.assertNotNull(node.getGeoObject().getCode(), geoObject.getCode());
 
           List<ServerParentTreeNode> parents = node.getParents();
 
-          Assert.assertEquals(1, parents.size());
-          Assert.assertNotNull(USATestData.USA.getCode(), parents.get(0).getGeoObject().getCode());
+          Assertions.assertEquals(1, parents.size());
+          Assertions.assertNotNull(parents.get(0).getGeoObject().getCode(), USATestData.USA.getCode());
 
           // Test directed graph edges
           geoObject = USATestData.CANADA.getServerObject();
@@ -288,44 +288,44 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
           ServerParentGraphNode graphNode = geoObject.getGraphParents(dagType, false, USATestData.DEFAULT_OVER_TIME_DATE);
           List<ServerParentGraphNode> graphParents = graphNode.getParents();
 
-          Assert.assertEquals(1, graphParents.size());
-          Assert.assertNotNull(USATestData.USA.getCode(), parents.get(0).getGeoObject().getCode());
+          Assertions.assertEquals(1, graphParents.size());
+          Assertions.assertNotNull(parents.get(0).getGeoObject().getCode(), USATestData.USA.getCode());
 
           // Test undirected graph edges
           graphNode = geoObject.getGraphParents(ugType, false, USATestData.DEFAULT_OVER_TIME_DATE);
           graphParents = graphNode.getParents();
 
-          Assert.assertEquals(1, graphParents.size());
-          Assert.assertNotNull(USATestData.MEXICO.getCode(), parents.get(0).getGeoObject().getCode());
+          Assertions.assertEquals(1, graphParents.size());
+          Assertions.assertNotNull(parents.get(0).getGeoObject().getCode(), USATestData.MEXICO.getCode());
 
           // Validate Business Objects were imported
           boParent = this.bObjectService.getByCode(bType, "BoParent").orElse(null);
           boChild = this.bObjectService.getByCode(bType, "BoChild").orElse(null);
 
-          Assert.assertNotNull(boParent);
-          Assert.assertNotNull(boChild);
+          Assertions.assertNotNull(boParent);
+          Assertions.assertNotNull(boChild);
 
           // Validate Business Edges
           List<VertexComponent> children = this.bObjectService.getChildren(boParent, bEdgeType, USATestData.DEFAULT_OVER_TIME_DATE);
 
-          Assert.assertEquals(1, children.size());
-          Assert.assertEquals(boChild.getCode(), children.get(0).getCode());
+          Assertions.assertEquals(1, children.size());
+          Assertions.assertEquals(boChild.getCode(), children.get(0).getCode());
 
           // Validate Business-GeoObject edges
           List<VertexComponent> geoObjects = this.bObjectService.getParents(boChild, bGeoEdgeType, USATestData.DEFAULT_OVER_TIME_DATE);
 
-          Assert.assertEquals(1, geoObjects.size());
+          Assertions.assertEquals(1, geoObjects.size());
 
           // Validate the transition event
           List<TransitionEvent> events = this.teService.getAll(USATestData.DISTRICT.getServerObject());
 
-          Assert.assertEquals(1, events.size());
+          Assertions.assertEquals(1, events.size());
 
           TransitionEvent test = events.get(0);
 
           List<Transition> transitions = this.teService.getTransitions(test);
 
-          Assert.assertEquals(1, transitions.size());
+          Assertions.assertEquals(1, transitions.size());
         }
         finally
         {

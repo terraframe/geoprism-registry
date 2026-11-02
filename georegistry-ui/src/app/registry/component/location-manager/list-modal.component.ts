@@ -28,7 +28,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ErrorHandler } from '@shared/component';
 import { Subject, Subscription } from 'rxjs';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
-import { WebSockets } from '@shared/component/web-sockets/web-sockets';
+import { NotificationMessage, WebSockets } from '@shared/component/web-sockets/web-sockets';
 import { ExportFormatModalComponent } from '../list-type/export-format-modal.component';
 import { GeoRegistryConfiguration } from '@core/model/core';
 import { OverlayerIdentifier } from '@registry/model/constants';
@@ -74,10 +74,10 @@ export class ListModalComponent implements OnInit, OnDestroy {
     uid: string;
   }>;
 
-  progressNotifier: WebSocketSubject<{ type: string; content: any }>;
+  progressNotifier: WebSocketSubject<NotificationMessage>;
   progressSubscription: Subscription = null;
 
-  jobNotifier: WebSocketSubject<{ type: string; message: string }>;
+  jobNotifier: WebSocketSubject<NotificationMessage>;
   jobSubscription: Subscription = null;
 
   historyOid: string = null;
@@ -161,8 +161,6 @@ export class ListModalComponent implements OnInit, OnDestroy {
     this.progressSubscription = this.progressNotifier.subscribe((message) => {
       if (message.content != null) {
         this.handleProgressChange(message.content);
-      } else {
-        this.handleProgressChange(null);
       }
     });
 

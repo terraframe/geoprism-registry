@@ -9,7 +9,7 @@ import java.util.List;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
@@ -229,17 +229,17 @@ public class TestGeoObjectTypeInfo extends TestCachedObject<ServerGeoObjectType>
 
   public void assertEquals(GeoObjectType got)
   {
-    Assert.assertEquals(code, got.getCode());
-    Assert.assertEquals(displayLabel.getValue(), got.getLabel().getValue());
-    Assert.assertEquals(description.getValue(), got.getDescription().getValue());
-    Assert.assertEquals(this.organization.getCode(), got.getOrganizationCode());
+    Assertions.assertEquals(code, got.getCode());
+    Assertions.assertEquals(displayLabel.getValue(), got.getLabel().getValue());
+    Assertions.assertEquals(description.getValue(), got.getDescription().getValue());
+    Assertions.assertEquals(this.organization.getCode(), got.getOrganizationCode());
   }
 
   public void assertEquals(Universal uni)
   {
-    Assert.assertEquals(code, uni.getKey());
-    Assert.assertEquals(displayLabel.getValue(), uni.getDisplayLabel().getValue());
-    Assert.assertEquals(description.getValue(), uni.getDescription().getValue());
+    Assertions.assertEquals(code, uni.getKey());
+    Assertions.assertEquals(displayLabel.getValue(), uni.getDisplayLabel().getValue());
+    Assertions.assertEquals(description.getValue(), uni.getDescription().getValue());
   }
 
   @Request

@@ -5,9 +5,9 @@ package net.geoprism.registry.service;
 
 import java.util.UUID;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,7 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.model.RootGeoObjectType;
 import net.geoprism.registry.model.ServerChildTreeNode;
@@ -30,7 +30,7 @@ import net.geoprism.registry.test.USATestData;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class BasicHierarchyTest implements InstanceTestClassListener
 {
   private static ServerGeoObjectType     parent;
@@ -93,13 +93,13 @@ public class BasicHierarchyTest implements InstanceTestClassListener
 
         ServerChildTreeNode objects = this.service.getChildGeoObjects(parent, hierarchyType, null, false, USATestData.DEFAULT_OVER_TIME_DATE);
 
-        Assert.assertEquals(1, objects.getChildren().size());
+        Assertions.assertEquals(1, objects.getChildren().size());
 
         ServerChildTreeNode node = objects.getChildren().get(0);
 
-        Assert.assertNotNull(node.getSource());
-        Assert.assertEquals(uid, node.getUid());
-        Assert.assertEquals(child.getCode(), node.getGeoObject().getCode());
+        Assertions.assertNotNull(node.getSource());
+        Assertions.assertEquals(uid, node.getUid());
+        Assertions.assertEquals(child.getCode(), node.getGeoObject().getCode());
       }
       finally
       {
@@ -130,13 +130,13 @@ public class BasicHierarchyTest implements InstanceTestClassListener
 
         ServerParentTreeNode objects = this.service.getParentGeoObjects(child, hierarchyType, null, false, false, USATestData.DEFAULT_OVER_TIME_DATE);
 
-        Assert.assertEquals(1, objects.getParents().size());
+        Assertions.assertEquals(1, objects.getParents().size());
 
         ServerParentTreeNode node = objects.getParents().get(0);
 
-        Assert.assertNotNull(node.getSource());
-        Assert.assertEquals(uid, node.getUid());
-        Assert.assertEquals(parent.getCode(), node.getGeoObject().getCode());
+        Assertions.assertNotNull(node.getSource());
+        Assertions.assertEquals(uid, node.getUid());
+        Assertions.assertEquals(parent.getCode(), node.getGeoObject().getCode());
       }
       finally
       {

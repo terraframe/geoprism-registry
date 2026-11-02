@@ -6,9 +6,9 @@ package net.geoprism.registry.service;
 import java.util.List;
 
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,7 +17,7 @@ import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -37,7 +37,7 @@ import net.geoprism.registry.view.Page;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class AttributeClassificationEnumerationTest extends FastDatasetTest implements InstanceTestClassListener
 {
   public static final String                 TEST_KEY = "ATTRCLASSTEST";
@@ -90,13 +90,13 @@ public class AttributeClassificationEnumerationTest extends FastDatasetTest impl
   {
     List<ConceptObject> results = this.cObjectService.search(testClassification, rootConcept.getCode());
 
-    Assert.assertEquals(1, results.size());
+    Assertions.assertEquals(1, results.size());
 
     ConceptObject result = results.get(0);
 
-    Assert.assertEquals(rootConcept.getCode(), result.getCode());
+    Assertions.assertEquals(rootConcept.getCode(), result.getCode());
 
-    Assert.assertEquals(1, this.cObjectService.search(testClassification, childConcept.getCode()).size());
+    Assertions.assertEquals(1, this.cObjectService.search(testClassification, childConcept.getCode()).size());
   }
 
   @Test
@@ -105,13 +105,13 @@ public class AttributeClassificationEnumerationTest extends FastDatasetTest impl
   {
     List<ConceptObject> results = this.cObjectService.search(cClass, rootConcept.getCode());
 
-    Assert.assertEquals(1, results.size());
+    Assertions.assertEquals(1, results.size());
 
     ConceptObject result = results.get(0);
 
-    Assert.assertEquals(rootConcept.getCode(), result.getCode());
+    Assertions.assertEquals(rootConcept.getCode(), result.getCode());
 
-    Assert.assertEquals(1, this.cObjectService.search(cClass, childConcept.getCode()).size());
+    Assertions.assertEquals(1, this.cObjectService.search(cClass, childConcept.getCode()).size());
   }
 
   @Test
@@ -120,13 +120,13 @@ public class AttributeClassificationEnumerationTest extends FastDatasetTest impl
   {
     List<ConceptObject> results = this.cObjectService.search(cSet, TestDataSet.DEFAULT_OVER_TIME_DATE, rootConcept.getCode());
 
-    Assert.assertEquals(1, results.size());
+    Assertions.assertEquals(1, results.size());
 
     ConceptObject result = results.get(0);
 
-    Assert.assertEquals(rootConcept.getCode(), result.getCode());
+    Assertions.assertEquals(rootConcept.getCode(), result.getCode());
 
-    Assert.assertEquals(1, this.cObjectService.search(cSet, TestDataSet.DEFAULT_OVER_TIME_DATE, childConcept.getCode()).size());
+    Assertions.assertEquals(1, this.cObjectService.search(cSet, TestDataSet.DEFAULT_OVER_TIME_DATE, childConcept.getCode()).size());
   }
 
   @Test
@@ -135,7 +135,7 @@ public class AttributeClassificationEnumerationTest extends FastDatasetTest impl
   {
     List<ConceptObject> results = this.cObjectService.getChildren(rootConcept, testClassification, 20, 1);
 
-    Assert.assertEquals(0, results.size());
+    Assertions.assertEquals(0, results.size());
   }
 
   @Test
@@ -144,8 +144,8 @@ public class AttributeClassificationEnumerationTest extends FastDatasetTest impl
   {
     NodeDTO<ObjectAtTimeDTO> node = this.cObjectService.getAncestorTree(testClassification, childConcept, 20);
 
-    Assert.assertEquals(childConcept.getCode(), node.getObject().getCode());
-    Assert.assertEquals(0, node.getChildren().getResultSet().size());
+    Assertions.assertEquals(childConcept.getCode(), node.getObject().getCode());
+    Assertions.assertEquals(0, node.getChildren().getResultSet().size());
   }
 
   @Test
@@ -154,15 +154,15 @@ public class AttributeClassificationEnumerationTest extends FastDatasetTest impl
   {
     NodeDTO<ObjectAtTimeDTO> node = this.cObjectService.getAncestorTree(testClassification, rootConcept, 20);
 
-    Assert.assertEquals(rootConcept.getCode(), node.getObject().getCode());
-    Assert.assertEquals(0, node.getChildren().getResultSet().size());
+    Assertions.assertEquals(rootConcept.getCode(), node.getObject().getCode());
+    Assertions.assertEquals(0, node.getChildren().getResultSet().size());
   }
 
   @Test
   @Request
   public void testGetChildrenCount()
   {
-    Assert.assertEquals(Integer.valueOf(0), this.cObjectService.getChildCount(rootConcept, testClassification));
+    Assertions.assertEquals(Integer.valueOf(0), this.cObjectService.getChildCount(rootConcept, testClassification));
   }
 
   @Test
@@ -175,7 +175,7 @@ public class AttributeClassificationEnumerationTest extends FastDatasetTest impl
       TestDataSet.runAsUser(user, (request) -> {
         Page<ObjectAtTimeDTO> page = this.service.getChildren(request.getSessionId(), rootConcept.getCode(), TEST_GOT.getCode(), testClassification.getCode(), 20, 1);
 
-        Assert.assertEquals(Long.valueOf(0), page.getCount());
+        Assertions.assertEquals(Long.valueOf(0), page.getCount());
 
       });
     }
@@ -191,11 +191,11 @@ public class AttributeClassificationEnumerationTest extends FastDatasetTest impl
       TestDataSet.runAsUser(user, (request) -> {
         List<ObjectAtTimeDTO> results = this.service.search(request.getSessionId(), TEST_GOT.getCode(), testClassification.getCode(), childConcept.getCode());
 
-        Assert.assertEquals(1, results.size());
+        Assertions.assertEquals(1, results.size());
 
         ObjectAtTimeDTO result = results.get(0);
 
-        Assert.assertEquals(childConcept.getCode(), result.getCode());
+        Assertions.assertEquals(childConcept.getCode(), result.getCode());
       });
     }
   }
@@ -210,11 +210,11 @@ public class AttributeClassificationEnumerationTest extends FastDatasetTest impl
       TestDataSet.runAsUser(user, (request) -> {
         List<ObjectOverTimeDTO> results = this.service.search(request.getSessionId(), cClass.getCode(), childConcept.getCode());
 
-        Assert.assertEquals(1, results.size());
+        Assertions.assertEquals(1, results.size());
 
         ObjectOverTimeDTO result = results.get(0);
 
-        Assert.assertEquals(childConcept.getCode(), result.getCode());
+        Assertions.assertEquals(childConcept.getCode(), result.getCode());
       });
     }
   }
@@ -229,11 +229,11 @@ public class AttributeClassificationEnumerationTest extends FastDatasetTest impl
       TestDataSet.runAsUser(user, (request) -> {
         List<ObjectAtTimeDTO> results = this.service.search(request.getSessionId(), cSet.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, childConcept.getCode());
 
-        Assert.assertEquals(1, results.size());
+        Assertions.assertEquals(1, results.size());
 
         ObjectAtTimeDTO result = results.get(0);
 
-        Assert.assertEquals(childConcept.getCode(), result.getCode());
+        Assertions.assertEquals(childConcept.getCode(), result.getCode());
       });
     }
   }

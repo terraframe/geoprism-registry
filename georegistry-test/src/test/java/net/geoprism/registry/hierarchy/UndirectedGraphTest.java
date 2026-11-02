@@ -7,11 +7,9 @@ import java.util.List;
 import java.util.UUID;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,7 +20,7 @@ import com.runwaysdk.session.Request;
 import net.geoprism.GenericException;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.UndirectedGraphType;
 import net.geoprism.registry.model.ServerChildGraphNode;
@@ -31,9 +29,11 @@ import net.geoprism.registry.model.ServerParentGraphNode;
 import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class UndirectedGraphTest extends FastDatasetTest implements InstanceTestClassListener
 {
   protected static UndirectedGraphType         type;
@@ -74,31 +74,33 @@ public class UndirectedGraphTest extends FastDatasetTest implements InstanceTest
 
     ServerParentGraphNode node = child.getGraphParents(type, false, FastTestDataset.DEFAULT_OVER_TIME_DATE);
 
-    Assert.assertNotNull(node);
+    Assertions.assertNotNull(node);
 
-    Assert.assertEquals(child.getCode(), node.getGeoObject().getCode());
+    Assertions.assertEquals(child.getCode(), node.getGeoObject().getCode());
 
     List<ServerParentGraphNode> parents = node.getParents();
 
-    Assert.assertEquals(1, parents.size());
+    Assertions.assertEquals(1, parents.size());
 
     ServerParentGraphNode pNode = parents.get(0);
-    Assert.assertEquals(parent.getCode(), pNode.getGeoObject().getCode());
-    Assert.assertEquals(FastTestDataset.SOURCE.getCode(), pNode.getSource().getCode());
-    Assert.assertEquals(uid, pNode.getUid());
-    Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, pNode.getStartDate());
-    Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, pNode.getEndDate());
+    Assertions.assertEquals(parent.getCode(), pNode.getGeoObject().getCode());
+    Assertions.assertEquals(FastTestDataset.SOURCE.getCode(), pNode.getSource().getCode());
+    Assertions.assertEquals(uid, pNode.getUid());
+    Assertions.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, pNode.getStartDate());
+    Assertions.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, pNode.getEndDate());
   }
 
-  @Test(expected = GenericException.class)
+  @Test
   @Request
   public void testAddParent_Duplicate()
   {
-    ServerGeoObjectIF parent = FastTestDataset.PROV_CENTRAL.getServerObject();
-    ServerGeoObjectIF child = FastTestDataset.PROV_WESTERN.getServerObject();
+    assertThrows(GenericException.class, () -> {
+      ServerGeoObjectIF parent = FastTestDataset.PROV_CENTRAL.getServerObject();
+      ServerGeoObjectIF child = FastTestDataset.PROV_WESTERN.getServerObject();
 
-    child.addGraphParent(parent, type, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource(), true);
-    parent.addGraphParent(child, type, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource(), true);
+      child.addGraphParent(parent, type, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource(), true);
+      parent.addGraphParent(child, type, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource(), true);
+    });
   }
 
   @Test
@@ -121,7 +123,7 @@ public class UndirectedGraphTest extends FastDatasetTest implements InstanceTest
 
     ServerParentGraphNode node = provWestern.getGraphParents(type, true, FastTestDataset.DEFAULT_OVER_TIME_DATE);
 
-    Assert.assertNotNull(node);
+    Assertions.assertNotNull(node);
   }
 
   @Test
@@ -144,7 +146,7 @@ public class UndirectedGraphTest extends FastDatasetTest implements InstanceTest
 
     ServerChildGraphNode node = provWestern.getGraphChildren(type, true, FastTestDataset.DEFAULT_OVER_TIME_DATE);
 
-    Assert.assertNotNull(node);
+    Assertions.assertNotNull(node);
   }
 
   @Test
@@ -160,9 +162,9 @@ public class UndirectedGraphTest extends FastDatasetTest implements InstanceTest
 
     List<ServerParentGraphNode> parents = node.getParents();
 
-    Assert.assertEquals(1, parents.size());
+    Assertions.assertEquals(1, parents.size());
 
-    Assert.assertEquals(parent.getCode(), parents.get(0).getGeoObject().getCode());
+    Assertions.assertEquals(parent.getCode(), parents.get(0).getGeoObject().getCode());
   }
 
   @Test
@@ -180,20 +182,22 @@ public class UndirectedGraphTest extends FastDatasetTest implements InstanceTest
 
     List<ServerParentGraphNode> parents = node.getParents();
 
-    Assert.assertEquals(2, parents.size());
+    Assertions.assertEquals(2, parents.size());
   }
 
-  @Test(expected = GenericException.class)
+  @Test
   @Request
   public void testAddSameParents()
   {
-    ServerGeoObjectIF provCentral = FastTestDataset.PROV_CENTRAL.getServerObject();
-    ServerGeoObjectIF provWestern = FastTestDataset.PROV_WESTERN.getServerObject();
+    assertThrows(GenericException.class, () -> {
+      ServerGeoObjectIF provCentral = FastTestDataset.PROV_CENTRAL.getServerObject();
+      ServerGeoObjectIF provWestern = FastTestDataset.PROV_WESTERN.getServerObject();
 
-    provCentral.addGraphParent(provWestern, type, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource(), true);
-    provCentral.addGraphParent(provWestern, type, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource(), true);
+      provCentral.addGraphParent(provWestern, type, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource(), true);
+      provCentral.addGraphParent(provWestern, type, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, UUID.randomUUID().toString(), FastTestDataset.SOURCE.getDataSource(), true);
 
-    Assert.fail("Able to add the same overlapping parent multiple times");
+      Assertions.fail("Able to add the same overlapping parent multiple times");
+    });
   }
 
   @Test
@@ -208,20 +212,20 @@ public class UndirectedGraphTest extends FastDatasetTest implements InstanceTest
 
     ServerParentGraphNode node = child.getGraphParents(type, false, FastTestDataset.DEFAULT_OVER_TIME_DATE);
 
-    Assert.assertNotNull(node);
+    Assertions.assertNotNull(node);
 
-    Assert.assertEquals(child.getCode(), node.getGeoObject().getCode());
+    Assertions.assertEquals(child.getCode(), node.getGeoObject().getCode());
 
     List<ServerParentGraphNode> parents = node.getParents();
 
-    Assert.assertEquals(1, parents.size());
+    Assertions.assertEquals(1, parents.size());
 
     ServerParentGraphNode pNode = parents.get(0);
-    Assert.assertEquals(parent.getCode(), pNode.getGeoObject().getCode());
-    Assert.assertEquals(FastTestDataset.SOURCE.getCode(), pNode.getSource().getCode());
-    Assert.assertEquals(uid, pNode.getUid());
-    Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, pNode.getStartDate());
-    Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, pNode.getEndDate());
+    Assertions.assertEquals(parent.getCode(), pNode.getGeoObject().getCode());
+    Assertions.assertEquals(FastTestDataset.SOURCE.getCode(), pNode.getSource().getCode());
+    Assertions.assertEquals(uid, pNode.getUid());
+    Assertions.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, pNode.getStartDate());
+    Assertions.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, pNode.getEndDate());
   }
 
   @Test
@@ -237,9 +241,9 @@ public class UndirectedGraphTest extends FastDatasetTest implements InstanceTest
 
     List<ServerChildGraphNode> children = node.getChildren();
 
-    Assert.assertEquals(1, children.size());
+    Assertions.assertEquals(1, children.size());
 
-    Assert.assertEquals(child.getCode(), children.get(0).getGeoObject().getCode());
+    Assertions.assertEquals(child.getCode(), children.get(0).getGeoObject().getCode());
   }
 
   @Test
@@ -257,7 +261,7 @@ public class UndirectedGraphTest extends FastDatasetTest implements InstanceTest
 
     List<ServerChildGraphNode> children = node.getChildren();
 
-    Assert.assertEquals(2, children.size());
+    Assertions.assertEquals(2, children.size());
   }
 
   @Test
@@ -274,7 +278,7 @@ public class UndirectedGraphTest extends FastDatasetTest implements InstanceTest
 
     List<ServerChildGraphNode> children = node.getChildren();
 
-    Assert.assertEquals(0, children.size());
+    Assertions.assertEquals(0, children.size());
   }
 
 }

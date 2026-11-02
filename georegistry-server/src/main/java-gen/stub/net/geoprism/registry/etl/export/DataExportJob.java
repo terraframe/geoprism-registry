@@ -104,7 +104,7 @@ public class DataExportJob extends DataExportJobBase
   {
     super.afterJobExecute(history);
 
-    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE));
   }
 
   @Override
@@ -116,7 +116,7 @@ public class DataExportJob extends DataExportJobBase
     history.addStage(ExportStage.CONNECTING);
     history.apply();
 
-    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE));
 
     return history;
   }

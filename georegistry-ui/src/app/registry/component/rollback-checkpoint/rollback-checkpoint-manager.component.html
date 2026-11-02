@@ -58,16 +58,32 @@ License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licen
         track checkpoint.oid;
         let i = $index
       ) {
-        <div class="ds-row" [class.ds-row-alt]="i % 2 === 1">
+        <div
+          class="ds-row"
+          [class.ds-row-alt]="i % 2 === 1"
+          [class.ds-row-affected]="hoverIndex != null && i <= hoverIndex"
+        >
           <div class="ds-file">
             <i class="fa fa-file-text" aria-hidden="true"></i>
             <a [routerLink]="'/registry/job/' + checkpoint.historyId" class="ds-file-link">{{ checkpoint.filename }}</a>
           </div>
           <div>{{ checkpoint.importDate }}</div>
           <div class="ds-actions">
-            <button type="button" class="btn btn-danger" (click)="onRollback(checkpoint)">
+            <button
+              type="button"
+              class="btn btn-danger"
+              (click)="onRollback(checkpoint)"
+              (mouseenter)="hoverIndex = i"
+              (mouseleave)="hoverIndex = null"
+              (focus)="hoverIndex = i"
+              (blur)="hoverIndex = null"
+            >
               <i class="fa fa-undo" style="margin-right: 6px" aria-hidden="true"></i>
-              <localize key="modal.button.rollback"></localize>
+              @if (hoverIndex != null && i <= hoverIndex) {
+                <localize key="rollback.button.rolling.back"></localize>
+              } @else {
+                <localize key="modal.button.rollback"></localize>
+              }
             </button>
           </div>
         </div>

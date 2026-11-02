@@ -110,7 +110,7 @@ public class FhirExportSynchronizationService
       history.addStage(ExportStage.COMPLETE);
       history.apply();
 
-      NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
+      NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE));
 
       handleExportErrors(history);
     }

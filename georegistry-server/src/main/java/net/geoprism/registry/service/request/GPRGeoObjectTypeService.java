@@ -78,7 +78,7 @@ public class GPRGeoObjectTypeService extends GeoObjectTypeService implements Geo
 
     SerializedListTypeCache.getInstance().clear();
 
-    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.TYPE_CACHE_CHANGE, null));
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.TYPE_CACHE_CHANGE));
   }
 
   @Request(RequestType.SESSION)
@@ -105,7 +105,7 @@ public class GPRGeoObjectTypeService extends GeoObjectTypeService implements Geo
   {
     GeoObjectType got = super.updateGeoObjectType(sessionId, gtJSON);
 
-    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.TYPE_CACHE_CHANGE, null));
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.TYPE_CACHE_CHANGE));
 
     return got;
   }
@@ -116,7 +116,7 @@ public class GPRGeoObjectTypeService extends GeoObjectTypeService implements Geo
   {
     GeoObjectType got = super.createGeoObjectType(sessionId, gtJSON);
 
-    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.TYPE_CACHE_CHANGE, null));
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.TYPE_CACHE_CHANGE));
 
     return got;
   }

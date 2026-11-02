@@ -4,56 +4,39 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.ws;
 
-import com.google.gson.JsonObject;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public abstract class NotificationMessage implements Runnable
 {
 
   private MessageType type;
 
-  private JsonObject  content;
+  private Object      content;
 
-  public NotificationMessage(MessageType type, JsonObject content)
+  public NotificationMessage(MessageType type)
+  {
+    this(type, null);
+  }
+
+  public NotificationMessage(MessageType type, Object content)
   {
     super();
     this.type = type;
-    this.content = content;
-  }
-
-  public JsonObject getMessage()
-  {
-    JsonObject message = new JsonObject();
-    message.addProperty("type", this.type.name());
-
-    if (this.content != null)
-    {
-      message.add("content", this.content);
-    }
-
-    return message;
-  }
-
-  public JsonObject getContent()
-  {
-    return content;
-  }
-
-  public void setContent(JsonObject content)
-  {
     this.content = content;
   }
 
@@ -65,5 +48,15 @@ public abstract class NotificationMessage implements Runnable
   public void setType(MessageType type)
   {
     this.type = type;
+  }
+
+  public Object getContent()
+  {
+    return content;
+  }
+
+  public void setContent(Object content)
+  {
+    this.content = content;
   }
 }

@@ -65,7 +65,7 @@ public class FhirImportSynchronizationService
       config.setLastSynchDate(new Date());
       config.apply();
 
-      NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
+      NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE));
 
       handleExportErrors(history);
     }

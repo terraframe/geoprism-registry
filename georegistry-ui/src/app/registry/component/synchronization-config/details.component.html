@@ -52,14 +52,15 @@ License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licen
         <div>
           <h5>
             <b
-              >{{ job.exportedRecords }}
+              >{{ job.exportedRecords ?? 0 }}
               <localize key="scheduledjobs.job.imported.out.of.label"></localize>
-              {{ job.workTotal }}
+              {{ job.workTotal ?? 0 }}
               <localize key="scheduledjobs.job.imported.total.label"></localize>
             </b>
           </h5>
           <h5>
-            {{ job.workTotal - job.exportedRecords }} <localize key="scheduledjobs.job.remaining.label"></localize>
+            {{ (job.workTotal ?? 0) - (job.exportedRecords ?? 0) }}
+            <localize key="scheduledjobs.job.remaining.label"></localize>
           </h5>
         </div>
       </div>

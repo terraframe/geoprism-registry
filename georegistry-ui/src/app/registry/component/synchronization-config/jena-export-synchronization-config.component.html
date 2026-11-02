@@ -48,7 +48,22 @@ License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licen
       </label>
     </div>
     <div class="holder">
-      <input type="text" minlength="1" [(ngModel)]="config.configuration.namespace" name="namespace" required />
+      <input
+        type="text"
+        minlength="1"
+        [(ngModel)]="config.configuration.namespace"
+        #namespace="ngModel"
+        name="namespace"
+        [pattern]="namespacePattern"
+        required
+      />
+      @if (namespace.errors?.pattern && (namespace.dirty || namespace.touched)) {
+        <div class="form-input-validation-error-message-wrapper">
+          <p class="error-message">
+            <localize key="synchronization.config.namespace.invalid"></localize>
+          </p>
+        </div>
+      }
     </div>
   </div>
   <div class="row-holder">
@@ -58,7 +73,22 @@ License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licen
       </label>
     </div>
     <div class="holder">
-      <input type="text" minlength="1" [(ngModel)]="config.configuration.graph" name="graph" required />
+      <input
+        type="text"
+        minlength="1"
+        [(ngModel)]="config.configuration.graph"
+        #graph="ngModel"
+        name="graph"
+        [pattern]="graphPattern"
+        required
+      />
+      @if (graph.errors?.pattern && (graph.dirty || graph.touched)) {
+        <div class="form-input-validation-error-message-wrapper">
+          <p class="error-message">
+            <localize key="synchronization.config.graph.invalid"></localize>
+          </p>
+        </div>
+      }
     </div>
   </div>
 </ng-container>

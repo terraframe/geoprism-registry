@@ -14,11 +14,11 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.json.JSONException;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,7 +36,7 @@ import com.runwaysdk.system.scheduler.ExecutionContext;
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.etl.DataImportJob;
@@ -67,7 +67,7 @@ import net.geoprism.registry.view.ImportHistoryView;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class ConceptObjectImporterTest extends FastDatasetTest implements InstanceTestClassListener
 {
   private static ConceptClass            type;
@@ -103,7 +103,7 @@ public class ConceptObjectImporterTest extends FastDatasetTest implements Instan
     setUpClassInRequest();
   }
 
-  @Before
+  @BeforeEach
   @Request
   @Override
   public void setUp() throws Exception
@@ -154,7 +154,7 @@ public class ConceptObjectImporterTest extends FastDatasetTest implements Instan
     }
   }
 
-  @After
+  @AfterEach
   @Request
   @Override
   public void tearDown() throws Exception
@@ -198,9 +198,9 @@ public class ConceptObjectImporterTest extends FastDatasetTest implements Instan
 
       try
       {
-        Assert.assertNotNull(result);
+        Assertions.assertNotNull(result);
 
-        Assert.assertEquals(multiValue, result.getValue(attributeTypeOverTime.getCode(), FastTestDataset.DEFAULT_OVER_TIME_DATE));
+        Assertions.assertEquals(multiValue, result.getValue(attributeTypeOverTime.getCode(), FastTestDataset.DEFAULT_OVER_TIME_DATE));
       }
       finally
       {
@@ -219,7 +219,7 @@ public class ConceptObjectImporterTest extends FastDatasetTest implements Instan
 
       InputStream istream = this.getClass().getResourceAsStream("/business-spreadsheet.xlsx");
 
-      Assert.assertNotNull(istream);
+      Assertions.assertNotNull(istream);
 
       ConceptObjectImportConfigurationDTO dto = this.getTestConfiguration(istream, ImportStrategy.NEW_AND_UPDATE);
 
@@ -229,11 +229,11 @@ public class ConceptObjectImporterTest extends FastDatasetTest implements Instan
 
       try
       {
-        Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
+        Assertions.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
 
         List<ImportHistoryView> histories = this.etlBusinessService.getHistory(dto.getObjectType().name(), type.getCode());
 
-        Assert.assertEquals(1, histories.size());
+        Assertions.assertEquals(1, histories.size());
       }
       finally
       {
@@ -272,7 +272,7 @@ public class ConceptObjectImporterTest extends FastDatasetTest implements Instan
 
       try
       {
-        Assert.assertNotNull(result);
+        Assertions.assertNotNull(result);
       }
       finally
       {
@@ -316,11 +316,11 @@ public class ConceptObjectImporterTest extends FastDatasetTest implements Instan
           importer.importRow(new MapFeatureRow(row, 0L));
         }
 
-        Assert.assertFalse(configuration.hasExceptions());
+        Assertions.assertFalse(configuration.hasExceptions());
 
         ConceptObject result = this.objectService.getByCode(type, TEST_CODE).orElse(null);
 
-        Assert.assertEquals(result.getValue(attributeType.getCode()), value);
+        Assertions.assertEquals(result.getValue(attributeType.getCode()), value);
       }
       finally
       {
@@ -364,15 +364,15 @@ public class ConceptObjectImporterTest extends FastDatasetTest implements Instan
           importer.importRow(new MapFeatureRow(row, 0L));
         }
 
-        Assert.assertTrue(configuration.hasExceptions());
+        Assertions.assertTrue(configuration.hasExceptions());
 
         LinkedList<ObjectRecordedErrorException> exceptions = configuration.getExceptions();
 
-        Assert.assertEquals(1, exceptions.size());
+        Assertions.assertEquals(1, exceptions.size());
 
         ObjectRecordedErrorException exception = exceptions.get(0);
 
-        Assert.assertTrue(exception.getError() instanceof DuplicateDataException);
+        Assertions.assertTrue(exception.getError() instanceof DuplicateDataException);
       }
       finally
       {
@@ -391,23 +391,23 @@ public class ConceptObjectImporterTest extends FastDatasetTest implements Instan
 
       InputStream istream = this.getClass().getResourceAsStream("/business-spreadsheet.xlsx");
 
-      Assert.assertNotNull(istream);
+      Assertions.assertNotNull(istream);
 
       ConceptObjectImportConfigurationDTO dto = this.getTestConfiguration(istream, ImportStrategy.NEW_AND_UPDATE);
 
       ConceptObjectImportConfiguration config = (ConceptObjectImportConfiguration) ImportConfiguration.build(dto, true);
 
       ImportHistory hist = mockImport(config);
-      Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
+      Assertions.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
 
       hist = ImportHistory.get(hist.getOid());
 
       try
       {
-        Assert.assertEquals(Long.valueOf(2), hist.getWorkTotal());
-        Assert.assertEquals(Long.valueOf(2), hist.getWorkProgress());
-        Assert.assertEquals(Long.valueOf(2), hist.getImportedRecords());
-        Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+        Assertions.assertEquals(Long.valueOf(2), hist.getWorkTotal());
+        Assertions.assertEquals(Long.valueOf(2), hist.getWorkProgress());
+        Assertions.assertEquals(Long.valueOf(2), hist.getImportedRecords());
+        Assertions.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
         assertAndDelete(this.objectService.get(type, attributeType.getCode(), "0001"));
         assertAndDelete(this.objectService.get(type, attributeType.getCode(), "0002"));
@@ -426,8 +426,8 @@ public class ConceptObjectImporterTest extends FastDatasetTest implements Instan
 
     try
     {
-      Assert.assertNotNull(o1);
-      Assert.assertNotNull(o1.getValue(DefaultAttribute.DATA_SOURCE.getName()));
+      Assertions.assertNotNull(o1);
+      Assertions.assertNotNull(o1.getValue(DefaultAttribute.DATA_SOURCE.getName()));
     }
     finally
     {

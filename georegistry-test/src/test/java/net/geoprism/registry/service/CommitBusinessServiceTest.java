@@ -3,9 +3,9 @@ package net.geoprism.registry.service;
 import java.util.List;
 import java.util.UUID;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,7 +15,7 @@ import com.runwaysdk.session.Request;
 import net.geoprism.registry.Commit;
 import net.geoprism.registry.EventDatasetTest;
 import net.geoprism.registry.Publish;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.service.business.CommitBusinessServiceIF;
 import net.geoprism.registry.service.business.PublishBusinessServiceIF;
@@ -24,7 +24,7 @@ import net.geoprism.registry.view.PublishDTO;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class CommitBusinessServiceTest extends EventDatasetTest
 {
   @Autowired
@@ -45,23 +45,23 @@ public class CommitBusinessServiceTest extends EventDatasetTest
 
       Commit commit = this.service.create(publish, expected);
 
-      Assert.assertNotNull(commit);
-      Assert.assertEquals(expected.getUid(), commit.getUid());
-      Assert.assertEquals(publish.getOid(), commit.getPublishOid());
-      Assert.assertEquals(expected.getLastOriginGlobalIndex(), commit.getLastOriginGlobalIndex());
-      Assert.assertEquals(expected.getVersionNumber(), commit.getVersionNumber());
+      Assertions.assertNotNull(commit);
+      Assertions.assertEquals(expected.getUid(), commit.getUid());
+      Assertions.assertEquals(publish.getOid(), commit.getPublishOid());
+      Assertions.assertEquals(expected.getLastOriginGlobalIndex(), commit.getLastOriginGlobalIndex());
+      Assertions.assertEquals(expected.getVersionNumber(), commit.getVersionNumber());
 
       CommitDTO actual = commit.toDTO();
 
-      Assert.assertEquals(expected.getUid(), actual.getUid());
-      Assert.assertEquals(expected.getPublishId(), actual.getPublishId());
-      Assert.assertEquals(expected.getLastOriginGlobalIndex(), actual.getLastOriginGlobalIndex());
-      Assert.assertEquals(expected.getVersionNumber(), actual.getVersionNumber());
+      Assertions.assertEquals(expected.getUid(), actual.getUid());
+      Assertions.assertEquals(expected.getPublishId(), actual.getPublishId());
+      Assertions.assertEquals(expected.getLastOriginGlobalIndex(), actual.getLastOriginGlobalIndex());
+      Assertions.assertEquals(expected.getVersionNumber(), actual.getVersionNumber());
 
-      Assert.assertEquals(1, this.service.getAll().size());
-      Assert.assertEquals(1, this.service.getCommits(publish).size());
-      Assert.assertTrue(this.service.getCommit(expected.getUid()).isPresent());
-      Assert.assertTrue(this.service.getLatest(publish).isPresent());
+      Assertions.assertEquals(1, this.service.getAll().size());
+      Assertions.assertEquals(1, this.service.getCommits(publish).size());
+      Assertions.assertTrue(this.service.getCommit(expected.getUid()).isPresent());
+      Assertions.assertTrue(this.service.getLatest(publish).isPresent());
     }
     finally
     {
@@ -86,11 +86,11 @@ public class CommitBusinessServiceTest extends EventDatasetTest
 
       List<Commit> results = this.service.getDependencies(second);
 
-      Assert.assertEquals(1, results.size());
-      Assert.assertEquals(first.getUid(), results.get(0).getUid());
+      Assertions.assertEquals(1, results.size());
+      Assertions.assertEquals(first.getUid(), results.get(0).getUid());
 
       Commit latest = this.service.getLatest(publish).get();
-      Assert.assertEquals(third.getUid(), latest.getUid());
+      Assertions.assertEquals(third.getUid(), latest.getUid());
     }
     finally
     {
@@ -115,8 +115,8 @@ public class CommitBusinessServiceTest extends EventDatasetTest
 
       List<Commit> results = this.service.getDependents(second);
 
-      Assert.assertEquals(1, results.size());
-      Assert.assertEquals(third.getUid(), results.get(0).getUid());
+      Assertions.assertEquals(1, results.size());
+      Assertions.assertEquals(third.getUid(), results.get(0).getUid());
     }
     finally
     {
@@ -138,22 +138,20 @@ public class CommitBusinessServiceTest extends EventDatasetTest
     {
       Commit commit = this.service.create(publish, 1, 10);
 
-      Assert.assertNotNull(this.service.getRootType(commit));
-      Assert.assertEquals( ( configuration.getGeoObjectTypes().toList().size() + 1 ), this.service.getTypes(commit).size());
-      Assert.assertEquals(configuration.getBusinessTypes().toList().size(), this.service.getBusinessTypes(commit).size());
-      Assert.assertEquals(configuration.getConceptClasses().toList().size(), this.service.getConceptClasses(commit).size());
-      Assert.assertEquals(configuration.getConceptEdgeTypes().toList().size(), this.service.getConceptEdgeTypes(commit).size());
-      Assert.assertEquals(configuration.getHierarchyTypes().toList().size(), this.service.getHiearchyTypes(commit).size());
-      Assert.assertEquals(configuration.getDagTypes().toList().size(), this.service.getDirectedAcyclicGraphTypes(commit).size());
-      Assert.assertEquals(configuration.getUndirectedTypes().toList().size(), this.service.getUndirectedGraphTypes(commit).size());
+      Assertions.assertNotNull(this.service.getRootType(commit));
+      Assertions.assertEquals( ( configuration.getGeoObjectTypes().toList().size() + 1 ), this.service.getTypes(commit).size());
+      Assertions.assertEquals(configuration.getBusinessTypes().toList().size(), this.service.getBusinessTypes(commit).size());
+      Assertions.assertEquals(configuration.getConceptClasses().toList().size(), this.service.getConceptClasses(commit).size());
+      Assertions.assertEquals(configuration.getConceptEdgeTypes().toList().size(), this.service.getConceptEdgeTypes(commit).size());
+      Assertions.assertEquals(configuration.getHierarchyTypes().toList().size(), this.service.getHiearchyTypes(commit).size());
+      Assertions.assertEquals(configuration.getDagTypes().toList().size(), this.service.getDirectedAcyclicGraphTypes(commit).size());
+      Assertions.assertEquals(configuration.getUndirectedTypes().toList().size(), this.service.getUndirectedGraphTypes(commit).size());
 
-      configuration.getGeoObjectTypes().forEach(code -> {
-        Assert.assertNotNull(this.service.getSnapshot(commit, code));
-      });
+      configuration.getGeoObjectTypes().forEach(code ->
+        Assertions.assertNotNull(this.service.getSnapshot(commit, code)));
 
-      configuration.getHierarchyTypes().forEach(code -> {
-        Assert.assertNotNull(this.service.getHierarchyType(commit, code));
-      });
+      configuration.getHierarchyTypes().forEach(code ->
+        Assertions.assertNotNull(this.service.getHierarchyType(commit, code)));
     }
     finally
     {

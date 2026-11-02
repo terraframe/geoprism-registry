@@ -5,7 +5,7 @@ package net.geoprism.registry.test;
 
 import java.util.List;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +78,7 @@ public class SchedulerTestUtils
           extra = extra + " " + validationProblems;
         }
         
-        Assert.fail("Job has a finished status [" + hist.getStatus().get(0) + "] which is not what we expected. " + extra);
+        Assertions.fail("Job has a finished status [" + hist.getStatus().get(0) + "] which is not what we expected. " + extra);
       }
 
       Thread.sleep(10);
@@ -96,7 +96,7 @@ public class SchedulerTestUtils
           extra = extra + " " + validationProblems;
         }
 
-        Assert.fail("Job was never scheduled (status is " + hist.getStatus().get(0).getEnumName() + "). " + extra);
+        Assertions.fail("Job was never scheduled (status is " + hist.getStatus().get(0).getEnumName() + "). " + extra);
         return;
       }
     }

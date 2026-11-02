@@ -11,11 +11,9 @@ import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.commongeoregistry.adapter.action.geoobject.UpdateGeoObjectActionDTO;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,7 +22,7 @@ import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.geoobject.UpdateGeoObjectAction;
 import net.geoprism.registry.config.TestApplication;
@@ -34,7 +32,7 @@ import net.geoprism.registry.test.TestRegistryClient;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class GovernanceTest extends FastDatasetTest implements InstanceTestClassListener
 {
   @Autowired
@@ -62,14 +60,14 @@ public class GovernanceTest extends FastDatasetTest implements InstanceTestClass
 
     String updateJson = updateDTO.toJSON().toString();
     String updateJson2 = AbstractActionDTO.parseAction(updateJson).toJSON().toString();
-    Assert.assertEquals(updateJson, updateJson2);
+    Assertions.assertEquals(updateJson, updateJson2);
 
     UpdateGeoObjectAction updateRA = (UpdateGeoObjectAction) AbstractAction.dtoToRegistry(updateDTO);
     GeoObjectOverTime updateRAGO = GeoObjectOverTime.fromJSON(client.getAdapter(), updateRA.getGeoObjectJson());
 //    testGo.assertEquals(updateRAGO);
-    Assert.assertEquals(updateDTO.getContributorNotes(), updateRA.getContributorNotes());
-    Assert.assertEquals(updateDTO.getMaintainerNotes(), updateRA.getMaintainerNotes());
-    Assert.assertEquals(updateDTO.getApiVersion(), updateRA.getApiVersion());
+    Assertions.assertEquals(updateDTO.getContributorNotes(), updateRA.getContributorNotes());
+    Assertions.assertEquals(updateDTO.getMaintainerNotes(), updateRA.getMaintainerNotes());
+    Assertions.assertEquals(updateDTO.getApiVersion(), updateRA.getApiVersion());
     // Assert.assertEquals(updateDTO.getCreateActionDate().getTime(),
     // updateRA.getCreateActionDate().getTime()); // TODO : Runway dates are
     // accurate to the second, but epoch is accurate to the milisecond.
@@ -99,7 +97,7 @@ public class GovernanceTest extends FastDatasetTest implements InstanceTestClass
     execute(updateRA);
     
     GeoObjectOverTime goTime2 = client.getGeoObjectOverTimeByCode(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
-    Assert.assertEquals("test 123", goTime2.getDisplayLabel(startDate).getValue());
+    Assertions.assertEquals("test 123", goTime2.getDisplayLabel(startDate).getValue());
   }
   
   @Request

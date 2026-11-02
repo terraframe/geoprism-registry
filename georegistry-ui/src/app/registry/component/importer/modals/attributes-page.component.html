@@ -35,29 +35,30 @@ License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licen
   </h3>
   -->
   <form class="modal-form" #form="ngForm">
-    @for (attribute of configuration.type.attributes; track attribute.code) {
-      <div class="form-group">
-        <div class="row-holder">
-          <div class="label-holder">
-            <label class="">{{ attribute.label.localizedValue }}</label>
-          </div>
-          <div class="holder">
-            <select
-              [name]="attribute.code + (attribute.locale != null ? attribute.locale : '')"
-              class="select-area"
-              [(ngModel)]="attribute.target"
-              [required]="attribute.code === 'invalid' ? false : attribute.required"
-            >
-              <option></option>
-              @for (attr of configuration.sheet.attributes[attribute.baseType]; track attr) {
-                <option [value]="attr">{{ attr }}</option>
-              }
-            </select>
+    @if (configuration.type != null) {
+      @for (attribute of configuration.type.attributes; track attribute.code) {
+        <div class="form-group">
+          <div class="row-holder">
+            <div class="label-holder">
+              <label class="">{{ attribute.label.localizedValue }}</label>
+            </div>
+            <div class="holder">
+              <select
+                [name]="attribute.code + (attribute.locale != null ? attribute.locale : '')"
+                class="select-area"
+                [(ngModel)]="attribute.target"
+                [required]="attribute.code === 'invalid' ? false : attribute.required"
+              >
+                <option></option>
+                @for (attr of configuration.sheet.attributes[attribute.baseType]; track attr) {
+                  <option [value]="attr">{{ attr }}</option>
+                }
+              </select>
+            </div>
           </div>
         </div>
-      </div>
+      }
     }
-
     <hr />
 
     @if (configuration.hasPostalCode) {

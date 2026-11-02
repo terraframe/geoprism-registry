@@ -4,9 +4,9 @@
 package net.geoprism.registry.service;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,7 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.graph.SourceAuthority;
@@ -24,7 +24,7 @@ import net.geoprism.registry.service.business.SourceAuthorityBusinessServiceIF;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class SourceAuthorityServiceTest implements InstanceTestClassListener
 {
 
@@ -54,13 +54,13 @@ public class SourceAuthorityServiceTest implements InstanceTestClassListener
 
     SourceAuthority result = this.service.apply(dto);
 
-    Assert.assertEquals(source.getCode(), result.getCode());
+    Assertions.assertEquals(source.getCode(), result.getCode());
 
-    Assert.assertTrue(this.service.getByCode(source.getCode()).isPresent());
+    Assertions.assertTrue(this.service.getByCode(source.getCode()).isPresent());
 
     this.service.delete(result);
 
-    Assert.assertFalse(this.service.getByCode(source.getCode()).isPresent());
+    Assertions.assertFalse(this.service.getByCode(source.getCode()).isPresent());
   }
 
   @Test
@@ -73,13 +73,13 @@ public class SourceAuthorityServiceTest implements InstanceTestClassListener
     SourceAuthorityDTO dto = this.service.toDTO(source);
     dto.setOid(null);
 
-    Assert.assertNull(dto.getAuthorityType());
+    Assertions.assertNull(dto.getAuthorityType());
 
     SourceAuthority result = this.service.apply(dto);
 
     try
     {
-      Assert.assertNull(result.getAuthorityType());
+      Assertions.assertNull(result.getAuthorityType());
     }
     finally
     {

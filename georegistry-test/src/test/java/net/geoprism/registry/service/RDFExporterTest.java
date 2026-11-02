@@ -16,11 +16,11 @@ import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.riot.system.StreamRDFWriter;
 import org.apache.jena.sparql.core.Quad;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,7 +35,7 @@ import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
 import net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJob;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.DirectedAcyclicGraphType;
 import net.geoprism.registry.graph.UndirectedGraphType;
@@ -54,7 +54,7 @@ import net.geoprism.registry.test.USATestData;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class RDFExporterTest extends FastDatasetTest implements InstanceTestClassListener
 {
   @Autowired
@@ -83,7 +83,7 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
     }
   }
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception
   {
     super.setUp();
@@ -91,7 +91,7 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
     cleanUpExtra();
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws Exception
   {
     cleanUpExtra();
@@ -141,13 +141,13 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
     {
       List<LabeledPropertyGraphTypeEntry> entries = this.typeService.getEntries(test1);
 
-      Assert.assertEquals(1, entries.size());
+      Assertions.assertEquals(1, entries.size());
 
       LabeledPropertyGraphTypeEntry entry = entries.get(0);
 
       List<LabeledPropertyGraphTypeVersion> versions = this.entryService.getVersions(entry);
 
-      Assert.assertEquals(1, versions.size());
+      Assertions.assertEquals(1, versions.size());
 
       LabeledPropertyGraphTypeVersion version = versions.get(0);
 
@@ -192,13 +192,13 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
 
         List<LabeledPropertyGraphTypeEntry> entries = this.typeService.getEntries(test1);
 
-        Assert.assertEquals(1, entries.size());
+        Assertions.assertEquals(1, entries.size());
 
         LabeledPropertyGraphTypeEntry entry = entries.get(0);
 
         List<LabeledPropertyGraphTypeVersion> versions = this.entryService.getVersions(entry);
 
-        Assert.assertEquals(1, versions.size());
+        Assertions.assertEquals(1, versions.size());
 
         LabeledPropertyGraphTypeVersion version = versions.get(0);
 
@@ -247,13 +247,13 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
 
         List<LabeledPropertyGraphTypeEntry> entries = this.typeService.getEntries(test1);
 
-        Assert.assertEquals(1, entries.size());
+        Assertions.assertEquals(1, entries.size());
 
         LabeledPropertyGraphTypeEntry entry = entries.get(0);
 
         List<LabeledPropertyGraphTypeVersion> versions = this.entryService.getVersions(entry);
 
-        Assert.assertEquals(1, versions.size());
+        Assertions.assertEquals(1, versions.size());
 
         LabeledPropertyGraphTypeVersion version = versions.get(0);
 

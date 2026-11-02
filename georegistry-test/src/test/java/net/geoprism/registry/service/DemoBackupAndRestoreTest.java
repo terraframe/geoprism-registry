@@ -7,24 +7,24 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.runwaysdk.session.Request;
 
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.service.business.BackupAndRestoreBusinessServiceIF;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
-@Ignore
+@ExtendWith(InstanceTestClassExtension.class)
+@Disabled
 public class DemoBackupAndRestoreTest
 {
   @Autowired
@@ -38,7 +38,7 @@ public class DemoBackupAndRestoreTest
 
     // this.backupService.createBackup(file);
     //
-    Assert.assertTrue(file.exists());
+    Assertions.assertTrue(file.exists());
 
     this.backupService.deleteData();
     //

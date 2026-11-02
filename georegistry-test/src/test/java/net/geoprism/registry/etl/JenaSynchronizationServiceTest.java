@@ -9,9 +9,9 @@ import java.util.concurrent.Future;
 
 import org.apache.commons.lang3.StringUtils;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,7 +26,7 @@ import com.runwaysdk.session.Request;
 import net.geoprism.registry.EventDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.Publish;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.ExternalSystem;
@@ -39,7 +39,7 @@ import net.geoprism.registry.test.USATestData;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class JenaSynchronizationServiceTest extends EventDatasetTest implements InstanceTestClassListener
 {
   @Autowired
@@ -136,12 +136,12 @@ public class JenaSynchronizationServiceTest extends EventDatasetTest implements 
 
         Optional<String> optional = this.remoteService.query(statement.toString(), config);
 
-        Assert.assertTrue(optional.isPresent());
+        Assertions.assertTrue(optional.isPresent());
 
         String oResult = optional.get();
 
-        Assert.assertFalse(StringUtils.isBlank(oResult));
-        Assert.assertFalse(StringUtils.isBlank(oResult));
+        Assertions.assertFalse(StringUtils.isBlank(oResult));
+        Assertions.assertFalse(StringUtils.isBlank(oResult));
 
         JsonObject obj = JsonParser.parseString(oResult).getAsJsonObject();
 
@@ -149,7 +149,7 @@ public class JenaSynchronizationServiceTest extends EventDatasetTest implements 
 
         JsonArray bindings = results.get("bindings").getAsJsonArray();
 
-        Assert.assertEquals(10, bindings.size());
+        Assertions.assertEquals(10, bindings.size());
       }
       finally
       {
