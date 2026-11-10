@@ -26,13 +26,10 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ConcurrentTaskExecutor;
-import org.springframework.web.multipart.MultipartResolver;
-import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.config.annotation.AsyncSupportConfigurer;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import jakarta.servlet.MultipartConfigElement;
 import net.geoprism.EncodingFilter;
 import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.spring.web.JsonExceptionHandler;
@@ -61,23 +58,6 @@ public class SpringAppConfig implements WebMvcConfigurer
   public SpringAppConfig(ConcurrentTaskExecutor executor)
   {
     this.executor = executor;
-  }
-
-  @Bean(name = "multipartResolver")
-  public MultipartResolver multipartResolver()
-  {
-    return new StandardServletMultipartResolver();
-  }
-
-  @Bean
-  public MultipartConfigElement multipartConfigElement()
-  {
-    // Unlimited file size (-1 for maxFileSize and maxRequestSize)
-    return new MultipartConfigElement(//
-        "", //
-        GeoregistryProperties.getMaxFileSize(), //
-        GeoregistryProperties.getMaxRequestSize(), //
-        GeoregistryProperties.getFileSizeThreshold());
   }
 
   @Override

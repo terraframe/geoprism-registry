@@ -83,21 +83,6 @@ public class GeoregistryProperties
     return Singleton.INSTANCE.props.getBoolean("cgr.graph.visualizer.enabled", true);
   }
 
-  public static long getMaxFileSize()
-  {
-    return Singleton.INSTANCE.props.getLong("cgr.max.file.size", -1L);
-  }
-
-  public static long getMaxRequestSize()
-  {
-    return Singleton.INSTANCE.props.getLong("cgr.max.request.size", -1L);
-  }
-
-  public static int getFileSizeThreshold()
-  {
-    return Singleton.INSTANCE.props.getInteger("cgr.file.size.threshold", 0);
-  }
-
   public static List<String> getCorsWhitelist()
   {
     String whitelist = Singleton.INSTANCE.props.getString("cgr.cors.whitelist", "");
