@@ -8,7 +8,7 @@ import java.util.concurrent.Future;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -18,9 +18,9 @@ import com.runwaysdk.Pair;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.EventDatasetTest;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.Publish;
-import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.ExternalSystem;
@@ -32,7 +32,7 @@ import net.geoprism.registry.test.USATestData;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@RunWith(SpringInstanceTestClassRunner.class)
+@ExtendWith(InstanceTestClassExtension.class)
 public class SparkSynchronizationServiceTest extends EventDatasetTest implements InstanceTestClassListener
 {
   @Autowired
