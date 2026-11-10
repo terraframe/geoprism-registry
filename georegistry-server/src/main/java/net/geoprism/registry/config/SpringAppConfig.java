@@ -73,7 +73,11 @@ public class SpringAppConfig implements WebMvcConfigurer
   public MultipartConfigElement multipartConfigElement()
   {
     // Unlimited file size (-1 for maxFileSize and maxRequestSize)
-    return new MultipartConfigElement("", -1, -1, 0);
+    return new MultipartConfigElement(//
+        "", //
+        GeoregistryProperties.getMaxFileSize(), //
+        GeoregistryProperties.getMaxRequestSize(), //
+        GeoregistryProperties.getFileSizeThreshold());
   }
 
   @Override
