@@ -146,7 +146,7 @@ export class SvgHierarchyType {
             .style("color", "gray")
             // .style("width", SvgHierarchyType.gotRectW - 32 + 5 + "px")
             .style("height", SvgHierarchyType.gotRectH - 4 + "px")
-            .html((d: any) => this.hierarchyType.label.localizedValue);
+            .text((d: any) => this.hierarchyType.label.localizedValue);
 
         // Line underneath the header
         headerg.append("line").classed("hierarchy-header-line", true)
@@ -205,14 +205,14 @@ export class SvgHierarchyType {
     }
 
     private nodeMousemove(event: any, element: any, data:any) {
-        d3.select("#hierarchyLabel").html(this.hierarchyType.label.localizedValue);
-        d3.select("#hierarchyCodeLabel").html(this.hierarchyType.code);
+        d3.select("#hierarchyLabel").text(this.hierarchyType.label.localizedValue);
+        d3.select("#hierarchyCodeLabel").text(this.hierarchyType.code);
 
-        d3.select("#geoObjectTypeLabel").html(data.data.label);
-        d3.select("#geoObjectTypeCodeLabel").html(data.data.geoObjectType);
+        d3.select("#geoObjectTypeLabel").text(data.data.label);
+        d3.select("#geoObjectTypeCodeLabel").text(data.data.geoObjectType);
 
-        d3.select("#hierarchyOrganizationLabel").html(this.hierarchyComponent.findOrganizationByCode(this.hierarchyType.organizationCode).label.localizedValue);
-        d3.select("#geoObjectTypeOrganizationLabel").html(this.hierarchyComponent.findOrganizationByCode(this.hierarchyComponent.findGeoObjectTypeByCode(data.data.geoObjectType).organizationCode).label.localizedValue);
+        d3.select("#hierarchyOrganizationLabel").text(this.hierarchyComponent.findOrganizationByCode(this.hierarchyType.organizationCode).label.localizedValue);
+        d3.select("#geoObjectTypeOrganizationLabel").text(this.hierarchyComponent.findOrganizationByCode(this.hierarchyComponent.findGeoObjectTypeByCode(data.data.geoObjectType).organizationCode).label.localizedValue);
 
         let nodeTooltip: any = d3.select("#NodeTooltip").node();
         let nodeTooltipBbox: DOMRect = nodeTooltip.getBoundingClientRect();
@@ -329,7 +329,7 @@ export class SvgHierarchyType {
             .style("color", "white")
             .style("height", (SvgHierarchyType.gotHeaderH - 4) + "px")
             .style("width", SvgHierarchyType.gotHeaderW + "px")
-            .html(function(d: any) {
+            .text(function(d: any) {
                 let name = d.data.inheritedHierarchyCode != null ? that.hierarchyComponent.findHierarchyByCode(d.data.inheritedHierarchyCode).label.localizedValue : that.hierarchyType.label.localizedValue;
                 // eslint-disable-next-line no-unused-expressions
                 calculateTextWidth(name, SvgHierarchyType.gotHeaderFontSize) > (SvgHierarchyType.gotHeaderW - 5) ? name = name.substring(0, 34) + "..." : true;
@@ -447,7 +447,7 @@ export class SvgHierarchyType {
             .style("display", "table-cell")
             .style("width", SvgHierarchyType.gotRectW - 32 + 5 + "px")
             .style("height", SvgHierarchyType.gotRectH - 4 + "px")
-            .html((d: any) => d.data.label)
+            .text((d: any) => d.data.label)
             .on(SvgHierarchyType.MOUSE_HOVER_EVENT_ENTER, function(event: any, data: any) { that.nodeMouseover(event, this, data); })
             .on(SvgHierarchyType.MOUSE_HOVER_EVENT_MOVE, function(event: any, data: any) { that.nodeMousemove(event, this, data); })
             .on(SvgHierarchyType.MOUSE_HOVER_EVENT_EXIT, function(event: any, data: any) { that.nodeMouseleave(event, this, data); });

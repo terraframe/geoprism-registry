@@ -4,22 +4,21 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at your
- * option) any later version.
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
- * for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.fhir;
 
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -31,6 +30,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 
 import ca.uhn.fhir.context.FhirContext;
@@ -111,12 +111,7 @@ public class OauthFhirConnection implements FhirConnection
   @Override
   public void open()
   {
-    // TODO: This is garbage and needs to be removed after the demo and we can
-    // assume the oauth server has an actual url and legitimate https
-    // certificate
-    AllowAllClientFactory clientFactory = new AllowAllClientFactory(ctx);
-
-    try (CloseableHttpClient httpclient = clientFactory.getBuilder().build())
+    try (CloseableHttpClient httpclient = HttpClients.createDefault())
     {
       HttpPost httpPost = new HttpPost(this.oauth.getTokenLocation());
 
@@ -149,8 +144,6 @@ public class OauthFhirConnection implements FhirConnection
         this.lastSessionRefresh = new Date().getTime();
       }
 
-      ctx.setRestfulClientFactory(clientFactory);
-
       IRestfulClientFactory factory = ctx.getRestfulClientFactory();
       factory.setSocketTimeout(-1);
 
@@ -159,7 +152,7 @@ public class OauthFhirConnection implements FhirConnection
       this.client = factory.newGenericClient(this.externalSystem.getUrl());
       this.client.registerInterceptor(authInterceptor);
     }
-    catch (IOException | NoSuchAlgorithmException t)
+    catch (IOException t)
     {
       throw new HttpError(t);
     }

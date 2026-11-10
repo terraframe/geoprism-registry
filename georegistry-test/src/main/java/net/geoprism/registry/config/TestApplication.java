@@ -1,3 +1,6 @@
+/**
+ *
+ */
 package net.geoprism.registry.config;
 
 import org.springframework.boot.SpringApplication;

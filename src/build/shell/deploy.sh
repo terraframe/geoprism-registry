@@ -16,7 +16,7 @@ if [ "$build_artifact" == "true" ]; then
   ## Build angular source ##
   npm version
   cd $WORKSPACE/georegistry/georegistry-ui
-  npm install --force
+  npm ci --force
   node -v && npm -v
   #node --max_old_space_size=4096 ./node_modules/webpack/bin/webpack.js --config config/webpack.prod.js --profile
   npm run build  
