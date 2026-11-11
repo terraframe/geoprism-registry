@@ -119,7 +119,7 @@ public class EdgeJsonImporter
 
           // UID
 
-          GeoObjectApplyEdgeEvent event = new GeoObjectApplyEdgeEvent(sourceCode, sourceType, graphType.getTypeInfo(), targetCode, targetType, startDate, endDate, source.getCode(), ImportStrategy.NEW_ONLY, validate);
+          GeoObjectApplyEdgeEvent event = new GeoObjectApplyEdgeEvent(sourceCode, sourceType, graphType.getTypeInfo(), targetCode, targetType, startDate, endDate, source != null ? source.getCode() : null, ImportStrategy.NEW_ONLY, validate);
 
           this.gateway.publish(GenericEventMessage.asEventMessage(event));
 

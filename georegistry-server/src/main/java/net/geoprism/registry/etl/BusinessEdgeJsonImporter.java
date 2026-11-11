@@ -39,10 +39,11 @@ import net.geoprism.registry.axon.event.repository.ObjectApplyEdgeEvent;
 import net.geoprism.registry.axon.projection.RepositoryProjection;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.BusinessEdgeType;
-import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
+import net.geoprism.registry.view.TypeClass;
+import net.geoprism.registry.view.TypeInfo;
 
 public class BusinessEdgeJsonImporter
 {
@@ -86,8 +87,8 @@ public class BusinessEdgeJsonImporter
         final String code = joGraphType.get("code").getAsString();
 
         final BusinessEdgeType edgeType = this.edgeTypeService.getByCodeOrThrow(code);
-        BusinessType sourceType = (BusinessType) this.edgeTypeService.getParent(edgeType);
-        BusinessType targetType = (BusinessType) this.edgeTypeService.getChild(edgeType);
+        TypeInfo sourceType = edgeType.getIsParentGeoObject() ? null : this.edgeTypeService.getParent(edgeType).getTypeInfo();
+        TypeInfo targetType = edgeType.getIsChildGeoObject() ? null : this.edgeTypeService.getChild(edgeType).getTypeInfo();
 
         JsonArray edges = joGraphType.get("edges").getAsJsonArray();
 
@@ -97,12 +98,19 @@ public class BusinessEdgeJsonImporter
         {
           JsonObject joEdge = edges.get(j).getAsJsonObject();
 
+          String uid = joEdge.get("uid").getAsString();
           String sourceCode = joEdge.get("source").getAsString();
           String targetCode = joEdge.get("target").getAsString();
           Date startDate = GeoRegistryUtil.parseDate(joEdge.get("startDate").getAsString());
           Date endDate = GeoRegistryUtil.clampEndDate(GeoRegistryUtil.parseDate(joEdge.get("endDate").getAsString()));
 
-          ObjectApplyEdgeEvent event = new ObjectApplyEdgeEvent(sourceCode, sourceType.getTypeInfo(), edgeType.getTypeInfo(), targetCode, targetType.getTypeInfo(), startDate, endDate, source.getCode(), ImportStrategy.NEW_ONLY, validate);
+          // Geo object ends don't have a single type, so the type is on each edge
+          TypeInfo edgeSourceType = sourceType != null ? sourceType : new TypeInfo(TypeClass.GEO_OBJECT_TYPE, joEdge.get("sourceType").getAsString());
+          TypeInfo edgeTargetType = targetType != null ? targetType : new TypeInfo(TypeClass.GEO_OBJECT_TYPE, joEdge.get("targetType").getAsString());
+
+          String dataSourceCode = source != null ? source.getCode() : null;
+
+          ObjectApplyEdgeEvent event = new ObjectApplyEdgeEvent(uid, sourceCode, edgeSourceType, edgeType.getTypeInfo(), targetCode, edgeTargetType, startDate, endDate, dataSourceCode, ImportStrategy.NEW_ONLY, validate, null);
 
           this.gateway.publish(GenericEventMessage.asEventMessage(event));
 
