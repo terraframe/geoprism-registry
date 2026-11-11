@@ -2,6 +2,17 @@
 # Release Notes
 
 
+## [2.0.1](https://github.com/terraframe/geoprism-registry/releases/tag/2.0.1) (2026-11-11)
+
+
+### Bug Fixes
+
+   - security issues   ([381c9](https://github.com/terraframe/geoprism-registry/commit/381c979373dbbfd423994a36e356df44ae4c6994))
+   - security issues   ([97d05](https://github.com/terraframe/geoprism-registry/commit/97d05facd25ce3abb01d28914508319c01d3ad15))
+   - pom.xml to reduce vulnerabilities The following vulnerabilities are fixed with an upgrade:- https://snyk.io/vuln/SNYK-JAVA-ORGAPACHETOMCATEMBED-21707475- https://snyk.io/vuln/SNYK-JAVA-ORGAPACHETOMCATEMBED-21707477  ([c6a6b](https://github.com/terraframe/geoprism-registry/commit/c6a6b8c72cff5389f63534f33b800f741f0872f1))
+
+
+
 ## [2.0.0](https://github.com/terraframe/geoprism-registry/releases/tag/2.0.0) (2026-10-30)
 
 ### Features
