@@ -54,6 +54,7 @@ import com.runwaysdk.query.ValueQuery;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionIF;
 import com.runwaysdk.system.Roles;
+import com.runwaysdk.system.RolesQuery;
 
 import net.geoprism.GeoprismUser;
 import net.geoprism.GeoprismUserQuery;
@@ -541,7 +542,8 @@ public class UserInfo extends UserInfoBase
   {
     String username = object.get(GeoprismUser.USERNAME).getAsString();
 
-    GeoprismUser user = GeoprismUser.getByUsername(username);
+    // GeoprismUser.getByUsername throws if the user doesn't exist
+    GeoprismUser user = findByUsername(username);
 
     if (user == null)
     {
@@ -582,7 +584,8 @@ public class UserInfo extends UserInfoBase
       object.get(BACKUP_ROLES).getAsJsonArray().forEach(element -> {
         String roleName = element.getAsString();
 
-        if (RoleDAO.findRole(roleName) != null)
+        // RoleDAO.findRole and Roles.findRoleByName throw if the role doesn't exist
+        if (roleExists(roleName))
         {
           roles.add(Roles.findRoleByName(roleName));
         }
@@ -614,6 +617,14 @@ public class UserInfo extends UserInfoBase
     info.setDepartment(getString(object, UserInfo.DEPARTMENT));
     info.setExternalSystemOid(getExistingExternalSystemOid(getString(object, UserInfo.EXTERNALSYSTEMOID)));
     info.apply();
+  }
+
+  private static boolean roleExists(String roleName)
+  {
+    RolesQuery query = new RolesQuery(new QueryFactory());
+    query.WHERE(query.getRoleName().EQ(roleName));
+
+    return query.getCount() > 0;
   }
 
   private static String getExistingExternalSystemOid(String oid)
@@ -741,8 +752,16 @@ public class UserInfo extends UserInfoBase
 
   private static GeoprismUser getAdminUser()
   {
+    return findByUsername(RegistryConstants.ADMIN_USER_NAME);
+  }
+
+  /**
+   * @return the user with the given username, or null if none exists
+   */
+  private static GeoprismUser findByUsername(String username)
+  {
     GeoprismUserQuery guq = new GeoprismUserQuery(new QueryFactory());
-    guq.WHERE(guq.getUsername().EQ(RegistryConstants.ADMIN_USER_NAME));
+    guq.WHERE(guq.getUsername().EQ(username));
     OIterator<? extends GeoprismUser> it = guq.getIterator();
 
     try
