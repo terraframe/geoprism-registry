@@ -51,6 +51,9 @@
     <!-- Overrides the postgres driver that runwaysdk-server 4.0.6 brings in (via geoprism-common). 42.7.13 has CVE-2026-107314
          (requireAuth fails open). This override can be removed once geoprism depends on a runwaysdk release with 42.7.14 or later. -->
     <postgres.version>42.7.14</postgres.version>
+    <!-- Overrides the org.json that geoprism-common 2.1.10 brings in. 20231013 has CVE-2026-59171 (JSONTokener numeric
+         string resource-exhaustion DoS). This override can be removed once geoprism depends on 20260719 or later. -->
+    <org.json.version>20260719</org.json.version>
     
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>25</java.version>
@@ -101,6 +104,11 @@
         <groupId>org.postgresql</groupId>
         <artifactId>postgresql</artifactId>
         <version>${postgres.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.json</groupId>
+        <artifactId>json</artifactId>
+        <version>${org.json.version}</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson</groupId>
