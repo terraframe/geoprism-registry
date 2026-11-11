@@ -93,6 +93,9 @@ public class BackupService implements BackupServiceIF
   @Autowired
   private DirectedAcyclicGraphTypeBusinessServiceIF dagService;
 
+  @Autowired
+  private OrganizationBusinessServiceIF             orgService;
+
   @Override
   public void createBackup(File zipfile)
   {
@@ -102,6 +105,8 @@ public class BackupService implements BackupServiceIF
 
       try
       {
+        exportOrganizations(directory);
+
         exportMetadata(directory);
 
         exportGeoObjectData(directory);
@@ -134,6 +139,19 @@ public class BackupService implements BackupServiceIF
       throw new ProgrammingErrorException(e);
     }
 
+  }
+
+  private void exportOrganizations(File directory) throws IOException
+  {
+    File subdirectory = new File(directory, "organizations");
+    subdirectory.mkdirs();
+
+    try (JsonWriter writer = new JsonWriter(new FileWriter(new File(subdirectory, "organizations.json"))))
+    {
+      Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+      gson.toJson(this.orgService.exportToJson(), writer);
+    }
   }
 
   private void exportUserData(File directory) throws IOException

@@ -31,19 +31,29 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 import com.runwaysdk.business.SmartException;
 import com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF;
@@ -102,6 +112,12 @@ public class RestoreService implements RestoreServiceIF
   @Autowired
   private GraphRepoServiceIF                repoService;
 
+  @Autowired
+  private OrganizationBusinessServiceIF     orgService;
+
+  @Autowired
+  private CacheProviderIF                   cacheProvider;
+
   @FunctionalInterface
   private interface RestoreStep
   {
@@ -118,6 +134,10 @@ public class RestoreService implements RestoreServiceIF
       try
       {
         runStep("extracting the backup file", () -> unzipFileToFolder(istream, directory));
+
+        // 0) Restore the organizations, types are only restored for existing
+        // organizations
+        runStep("restoring organizations", () -> restoreOrganizations(directory));
 
         // 1) Restore the metadata
         runStep("restoring metadata", () -> restoreMetadata(directory));
@@ -231,6 +251,67 @@ public class RestoreService implements RestoreServiceIF
     }
   }
 
+  protected void restoreOrganizations(File directory) throws IOException
+  {
+    File file = new File(new File(directory, "organizations"), "organizations.json");
+
+    if (file.exists())
+    {
+      try (FileReader reader = new FileReader(file))
+      {
+        this.orgService.importJsonTree(JsonParser.parseReader(reader).getAsJsonArray());
+      }
+    }
+    else
+    {
+      // Backups made before organizations were included only have the
+      // organization codes in the metadata. Create any missing organizations so
+      // that their types and data can be restored.
+      createMissingOrganizationsFromMetadata(new File(new File(directory, "metadata"), "metadata.xml"));
+    }
+
+    this.cacheProvider.getServerCache().refresh();
+  }
+
+  @Transaction
+  protected void createMissingOrganizationsFromMetadata(File metadata) throws IOException
+  {
+    if (!metadata.exists())
+    {
+      return;
+    }
+
+    try
+    {
+      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+      factory.setXIncludeAware(false);
+      factory.setExpandEntityReferences(false);
+
+      Document document = factory.newDocumentBuilder().parse(metadata);
+      NodeList nodes = document.getElementsByTagName("organization");
+
+      for (int i = 0; i < nodes.getLength(); i++)
+      {
+        String code = ( (Element) nodes.item(i) ).getAttribute("code");
+
+        if (code.length() > 0 && ServerOrganization.getByCode(code, false) == null)
+        {
+          logger.warn("Creating organization [" + code + "] from the backup metadata. Its label will be the same as its code.");
+
+          OrganizationDTO dto = new OrganizationDTO(code, new LocalizedValue(code), new LocalizedValue(""));
+          dto.setEnabled(true);
+
+          this.orgService.create(dto);
+        }
+      }
+    }
+    catch (ParserConfigurationException | SAXException e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
+  }
+
   protected void restoreUserData(File directory) throws IOException
   {
     File file = new File(new File(directory, "users"), "users.json");
@@ -277,6 +358,13 @@ public class RestoreService implements RestoreServiceIF
 
       for (File file : files)
       {
+        String typeCode = FilenameUtils.getBaseName(file.getName());
+
+        if (!adapter.getMetadataCache().getGeoObjectType(typeCode).isPresent())
+        {
+          throw new GenericException("The geo object type [" + typeCode + "] in the backup does not exist on this server. Check that its organization exists and that the metadata was restored.");
+        }
+
         try (FileResource resource = new FileResource(file))
         {
           try (JsonReader reader = new JsonReader(new FileReader(file)))
