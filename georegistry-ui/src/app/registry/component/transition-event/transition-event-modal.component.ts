@@ -76,6 +76,11 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
 
   event: TransitionEvent = null;
 
+  /*
+   * Whether a new event is being created, as opposed to an existing one edited
+   */
+  isNew: boolean = true;
+
   activeTransition: Transition = null;
 
   /*
@@ -160,6 +165,7 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
 
   init(readonly: boolean, event?: TransitionEvent): void {
     this.readonly = readonly;
+    this.isNew = event == null;
 
     if (event != null) {
       this.event = event;

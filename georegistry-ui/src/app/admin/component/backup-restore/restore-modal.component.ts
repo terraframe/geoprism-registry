@@ -28,6 +28,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { environment } from 'src/environments/environment';
 import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
 import { FormsModule } from "@angular/forms";
+import { DecimalPipe } from "@angular/common";
 import { LoadingBarComponent } from "../../../shared/component/loading-bar/loading-bar.component";
 
 @Component({
@@ -35,7 +36,7 @@ import { LoadingBarComponent } from "../../../shared/component/loading-bar/loadi
     templateUrl: "./restore-modal.component.html",
     styleUrls: [],
     standalone: true,
-    imports: [LoadingBarComponent, FormsModule, LocalizeComponent, FileUploadModule]
+    imports: [LoadingBarComponent, FormsModule, LocalizeComponent, FileUploadModule, DecimalPipe]
 })
 export class RestoreModalComponent {
 
@@ -46,6 +47,11 @@ export class RestoreModalComponent {
      * File uploader
      */
     uploader: FileUploader;
+
+    /*
+     * The number of each kind of thing restored, shown once the restore succeeds
+     */
+    summary: { label: string, count: number }[] = null;
 
     constructor(public bsModalRef: BsModalRef, private localizationService: LocalizationService, private eventService: EventService, private modalService: BsModalService) { }
 
@@ -64,11 +70,14 @@ export class RestoreModalComponent {
             this.eventService.start();
         };
         this.uploader.onCompleteItem = (item: any, response: any, status: any, headers: any) => {
-            this.fileRef.nativeElement.value = "";
+            // The file input is removed once the summary is shown
+            if (this.fileRef != null) {
+                this.fileRef.nativeElement.value = "";
+            }
             this.eventService.complete();
         };
         this.uploader.onSuccessItem = (item: any, response: string, status: number, headers: any) => {
-            this.bsModalRef.hide();
+            this.summary = JSON.parse(response);
         };
         this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {
             // The uploader gives us the raw response body, which needs to be parsed

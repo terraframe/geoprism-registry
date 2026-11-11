@@ -84,6 +84,16 @@ public class EdgeJsonImporter
     this.service = ServiceFactory.getBean(EdgeTypeBusinessServiceIF.class);
   }
 
+  private long count = 0;
+
+  /**
+   * @return the number of edges imported by {@link #importData()}
+   */
+  public long getCount()
+  {
+    return this.count;
+  }
+
   public void importData() throws JsonSyntaxException, IOException
   {
     try (InputStream stream = resource.openNewStream())
@@ -122,6 +132,8 @@ public class EdgeJsonImporter
           GeoObjectApplyEdgeEvent event = new GeoObjectApplyEdgeEvent(sourceCode, sourceType, graphType.getTypeInfo(), targetCode, targetType, startDate, endDate, source != null ? source.getCode() : null, ImportStrategy.NEW_ONLY, validate);
 
           this.gateway.publish(GenericEventMessage.asEventMessage(event));
+
+          this.count++;
 
           if (j % 500 == 0)
           {

@@ -69,9 +69,9 @@ public class BackupAndRestoreService implements BackupAndRestoreServiceIF
 
   @Override
   @Request(RequestType.SESSION)
-  public void restore(String sessionId, InputStream istream)
+  public String restore(String sessionId, InputStream istream)
   {
-    this.service.restoreFromBackup(istream);
+    return this.service.restoreFromBackup(istream).toJSON().toString();
   }
 
 }

@@ -21,6 +21,52 @@
 <div>
   <loading-bar></loading-bar>
 
+@if (summary != null) {
+<div class="modal-body">
+  <div class="heading text-center">
+    <h1>
+      <localize key="settings.restore.complete.title"></localize>
+    </h1>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      @if (summary.length > 0) {
+      <table class="list-table table table-bordered table-striped">
+        <tbody>
+          @for (line of summary; track line.label) {
+          <tr>
+            <td>{{line.label}}</td>
+            <td class="text-right">{{line.count | number}}</td>
+          </tr>
+          }
+        </tbody>
+      </table>
+      } @else {
+      <p>
+        <localize key="settings.restore.complete.empty"></localize>
+      </p>
+      }
+
+      <p>
+        <localize key="settings.restore.complete.lists"></localize>
+      </p>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <div class="button-holder">
+        <button type="button" (click)="cancel()" class="btn btn-primary" role="button" aria-disabled="false">
+          <span>
+            <localize key="modal.button.close"></localize>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+} @else {
 <form #form="ngForm" class="modal-form" name="new-locale-form" (ngSubmit)="form.valid && submit()">
   <div class="modal-body">
   <fieldset>
@@ -63,5 +109,6 @@
   </fieldset>
   </div>
 </form>
+}
 
 </div>

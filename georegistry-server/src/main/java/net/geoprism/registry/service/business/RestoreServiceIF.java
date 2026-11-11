@@ -22,8 +22,10 @@ import java.io.InputStream;
 
 import org.springframework.stereotype.Component;
 
+import net.geoprism.registry.view.RestoreSummary;
+
 @Component
 public interface RestoreServiceIF
 {
-  void restoreFromBackup(InputStream istream);
+  RestoreSummary restoreFromBackup(InputStream istream);
 }

@@ -29,6 +29,11 @@
 
   <form #form="ngForm" class="modal-form" autocomplete="off">
     @if (event != null) {
+      <div class="heading">
+        <h1>
+          <localize [key]="readonly ? 'transition.event.view.title' : isNew ? 'transition.event.new.title' : 'transition.event.edit.title'"></localize>
+        </h1>
+      </div>
       <fieldset>
         <div class="col-md-6">
           <div class="row-holder">
@@ -337,12 +342,11 @@
               </tbody>
             </table>
             @if (!readonly) {
-              <div style="margin-left: 6px; margin-top: 30px; margin-bottom: 30px" class="row">
-                <div class="col-md-6">
-                  <i class="fa fa-plus clickable" (click)="onCreate()">
-                    <localize key="changeovertime.manageVersions.newVersion"></localize>
-                  </i>
-                </div>
+              <div style="margin: 20px 0 30px 6px">
+                <span class="clickable" (click)="onCreate()">
+                  <i class="fa fa-plus" aria-hidden="true"></i>
+                  <localize key="changeovertime.manageVersions.newVersion"></localize>
+                </span>
               </div>
             }
           </div>

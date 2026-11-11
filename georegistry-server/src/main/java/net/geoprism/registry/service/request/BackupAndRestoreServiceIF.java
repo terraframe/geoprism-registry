@@ -38,6 +38,6 @@ public interface BackupAndRestoreServiceIF
    */
   public void deleteData(String sessionId);
 
-  public void restore(String sessionId, InputStream istream);
+  public String restore(String sessionId, InputStream istream);
 
 }

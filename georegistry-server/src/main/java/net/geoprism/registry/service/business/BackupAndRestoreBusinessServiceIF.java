@@ -23,6 +23,8 @@ import java.io.InputStream;
 
 import org.springframework.stereotype.Component;
 
+import net.geoprism.registry.view.RestoreSummary;
+
 @Component
 public interface BackupAndRestoreBusinessServiceIF
 {
@@ -39,6 +41,6 @@ public interface BackupAndRestoreBusinessServiceIF
    */
   void deleteData();
 
-  void restoreFromBackup(InputStream stream);
+  RestoreSummary restoreFromBackup(InputStream stream);
 
 }

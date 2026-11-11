@@ -32,6 +32,7 @@ import net.geoprism.registry.ListTypeQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.permission.RolePermissionService;
+import net.geoprism.registry.view.RestoreSummary;
 
 @Service
 public class BackupAndRestoreBusinessService implements BackupAndRestoreBusinessServiceIF
@@ -129,14 +130,14 @@ public class BackupAndRestoreBusinessService implements BackupAndRestoreBusiness
   }
 
   @Override
-  public void restoreFromBackup(InputStream stream)
+  public RestoreSummary restoreFromBackup(InputStream stream)
   {
     if (!permissions.isSRA())
     {
       throw new UnsupportedOperationException("Only an SRA can create a data dump");
     }
 
-    this.restoreService.restoreFromBackup(stream);
+    return this.restoreService.restoreFromBackup(stream);
   }
 
 }

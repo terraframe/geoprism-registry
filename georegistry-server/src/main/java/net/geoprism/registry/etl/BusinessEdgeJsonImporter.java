@@ -72,6 +72,16 @@ public class BusinessEdgeJsonImporter
     this.projection = ServiceFactory.getBean(RepositoryProjection.class);
   }
 
+  private long count = 0;
+
+  /**
+   * @return the number of edges imported by {@link #importData()}
+   */
+  public long getCount()
+  {
+    return this.count;
+  }
+
   public void importData() throws JsonSyntaxException, IOException
   {
     try (InputStream stream = resource.openNewStream())
@@ -113,6 +123,8 @@ public class BusinessEdgeJsonImporter
           ObjectApplyEdgeEvent event = new ObjectApplyEdgeEvent(uid, sourceCode, edgeSourceType, edgeType.getTypeInfo(), targetCode, edgeTargetType, startDate, endDate, dataSourceCode, ImportStrategy.NEW_ONLY, validate, null);
 
           this.gateway.publish(GenericEventMessage.asEventMessage(event));
+
+          this.count++;
 
           if (j % 50 == 0)
           {

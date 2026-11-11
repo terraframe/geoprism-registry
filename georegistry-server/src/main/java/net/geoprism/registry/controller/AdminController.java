@@ -49,13 +49,16 @@ public class AdminController extends RunwaySpringController
   protected BackupAndRestoreServiceIF service;
 
   @PostMapping(API_PATH + "/restore")
-  public ResponseEntity<Void> restore(@Valid @ModelAttribute MultipartFile file) throws IOException
+  public ResponseEntity<String> restore(@Valid @ModelAttribute MultipartFile file) throws IOException
   {
     try (InputStream istream = file.getInputStream())
     {
-      this.service.restore(this.getSessionId(), istream);
+      String summary = this.service.restore(this.getSessionId(), istream);
 
-      return new ResponseEntity<Void>(HttpStatus.OK);
+      HttpHeaders headers = new HttpHeaders();
+      headers.setContentType(MediaType.APPLICATION_JSON);
+
+      return new ResponseEntity<String>(summary, headers, HttpStatus.OK);
     }
   }
 
