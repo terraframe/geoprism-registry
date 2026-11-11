@@ -35,6 +35,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,6 +45,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
+import com.runwaysdk.business.SmartException;
 import com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
@@ -56,9 +59,13 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.resource.FileResource;
 import com.runwaysdk.session.Session;
 
+import net.geoprism.GenericException;
+import net.geoprism.GeoprismUser;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.ListType;
+import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.UserInfo;
 import net.geoprism.registry.cache.Cache;
 import net.geoprism.registry.cache.LRUCache;
 import net.geoprism.registry.etl.BusinessEdgeJsonImporter;
@@ -75,6 +82,8 @@ import net.geoprism.registry.service.request.SerializedListTypeCache;
 @Service
 public class RestoreService implements RestoreServiceIF
 {
+  private static final Logger logger = LoggerFactory.getLogger(RestoreService.class);
+
   @Autowired
   private BusinessObjectBusinessServiceIF   bObjectService;
 
@@ -93,6 +102,12 @@ public class RestoreService implements RestoreServiceIF
   @Autowired
   private GraphRepoServiceIF                repoService;
 
+  @FunctionalInterface
+  private interface RestoreStep
+  {
+    void run() throws IOException;
+  }
+
   @Override
   public void restoreFromBackup(InputStream istream)
   {
@@ -102,10 +117,10 @@ public class RestoreService implements RestoreServiceIF
 
       try
       {
-        unzipFileToFolder(istream, directory);
+        runStep("extracting the backup file", () -> unzipFileToFolder(istream, directory));
 
         // 1) Restore the metadata
-        restoreMetadata(directory);
+        runStep("restoring metadata", () -> restoreMetadata(directory));
 
         // 2) Refresh permission
         if (Session.getCurrentSession() != null)
@@ -113,29 +128,32 @@ public class RestoreService implements RestoreServiceIF
           ( (Session) Session.getCurrentSession() ).reloadPermissions();
         }
 
-        // 3) Import the geo object instance data
-        restoreGeoObjectData(directory);
+        // 3) Restore the users and their roles
+        runStep("restoring users", () -> restoreUserData(directory));
 
-        // 4) Import the hierarchy edges between geo objects
-        restoreHierarchyData(directory);
+        // 4) Import the geo object instance data
+        runStep("restoring geo objects", () -> restoreGeoObjectData(directory));
 
-        // 5) Import DAG edges between geo objects
-        restoreDagData(directory);
+        // 5) Import the hierarchy edges between geo objects
+        runStep("restoring hierarchy relationships", () -> restoreHierarchyData(directory));
 
-        // 6) Import Undirected Graph edges between geo objects
-        restoreUndirectedGraphData(directory);
+        // 6) Import DAG edges between geo objects
+        runStep("restoring directed acyclic graph relationships", () -> restoreDagData(directory));
 
-        // 7) Restore the business objects
-        restoreBusinessObjectData(directory);
+        // 7) Import Undirected Graph edges between geo objects
+        runStep("restoring undirected graph relationships", () -> restoreUndirectedGraphData(directory));
 
-        // 8) Restore the business edges
-        restoreBusinessEdges(directory);
+        // 8) Restore the business objects
+        runStep("restoring business objects", () -> restoreBusinessObjectData(directory));
+
+        // 9) Restore the business edges
+        runStep("restoring business relationships", () -> restoreBusinessEdges(directory));
 
         // 10) Restore transition events
-        restoreTransitionEvents(directory);
+        runStep("restoring transition events", () -> restoreTransitionEvents(directory));
 
         // 11) Restore List Type definition
-        restoreListTypeData(directory);
+        runStep("restoring list types", () -> restoreListTypeData(directory));
       }
       finally
       {
@@ -145,6 +163,40 @@ public class RestoreService implements RestoreServiceIF
     catch (IOException e)
     {
       throw new ProgrammingErrorException(e);
+    }
+  }
+
+  /**
+   * Runs a step of the restore. Only an SRA can run a restore, so errors which
+   * don't already have a user friendly message are re-thrown with the step and
+   * the root cause, instead of surfacing as an "unspecified error" in the UI.
+   * The full stack trace is logged.
+   */
+  private void runStep(String step, RestoreStep runnable)
+  {
+    try
+    {
+      runnable.run();
+    }
+    catch (SmartException e)
+    {
+      // Already has a localized message
+      throw e;
+    }
+    catch (IOException | RuntimeException e)
+    {
+      logger.error("Restore failed while " + step, e);
+
+      Throwable root = e;
+
+      while (root.getCause() != null && root.getCause() != root)
+      {
+        root = root.getCause();
+      }
+
+      String message = root.getMessage() != null ? root.getMessage() : "";
+
+      throw new GenericException("The restore failed while " + step + ": " + root.getClass().getSimpleName() + ": " + message + " (see the server log for the full stack trace)", e);
     }
   }
 
@@ -179,6 +231,40 @@ public class RestoreService implements RestoreServiceIF
     }
   }
 
+  protected void restoreUserData(File directory) throws IOException
+  {
+    File file = new File(new File(directory, "users"), "users.json");
+
+    if (file.exists())
+    {
+      // Don't overwrite the built-in admin or the user running the restore
+      String currentUsername = Session.getCurrentSession() != null ? Session.getCurrentSession().getUser().getSingleActorName() : null;
+
+      try (JsonReader reader = new JsonReader(new FileReader(file)))
+      {
+        reader.setLenient(true);
+
+        Gson gson = new GsonBuilder().create();
+
+        reader.beginArray();
+
+        while (reader.hasNext())
+        {
+          JsonObject jObject = gson.fromJson(reader, JsonObject.class);
+
+          String username = jObject.get(GeoprismUser.USERNAME).getAsString();
+
+          if (!username.equals(RegistryConstants.ADMIN_USER_NAME) && !username.equals(currentUsername))
+          {
+            UserInfo.restoreFromBackup(jObject);
+          }
+        }
+
+        reader.endArray();
+      }
+    }
+  }
+
   protected void restoreGeoObjectData(File directory) throws IOException
   {
     RegistryAdapter adapter = ServiceFactory.getAdapter();
@@ -204,6 +290,10 @@ public class RestoreService implements RestoreServiceIF
             while (reader.hasNext())
             {
               JsonObject jObject = gson.fromJson(reader, JsonObject.class);
+
+              // Backups made before the "present" date was changed to
+              // 4710-12-31 contain end dates of 5000-12-31
+              GeoRegistryUtil.clampEndDates(jObject);
 
               GeoObjectOverTime object = GeoObjectOverTime.fromJSON(adapter, jObject.toString());
 
@@ -253,7 +343,7 @@ public class RestoreService implements RestoreServiceIF
               String childUid = jObject.get("childUid").getAsString();
               String childTypeCode = jObject.get("childType").getAsString();
               Date startDate = GeoRegistryUtil.parseDate(jObject.get("startDate").getAsString());
-              Date endDate = GeoRegistryUtil.parseDate(jObject.get("endDate").getAsString());
+              Date endDate = GeoRegistryUtil.clampEndDate(GeoRegistryUtil.parseDate(jObject.get("endDate").getAsString()));
               String uid = jObject.get("uid").getAsString();
 
               ServerGeoObjectType parentType = ServerGeoObjectType.get(parentTypeCode);

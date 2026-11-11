@@ -18,6 +18,8 @@
  */
 package net.geoprism.registry;
 
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,7 +30,10 @@ import java.util.stream.Collectors;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.rbac.RoleDAO;
@@ -63,6 +68,12 @@ public class UserInfo extends UserInfoBase
   private static final long   serialVersionUID = 1228611031;
 
   private static final Random RANDOM           = new Random();
+
+  private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
+  private static final Logger logger           = LoggerFactory.getLogger(UserInfo.class);
+
+  public static final String  BACKUP_ROLES         = "roles";
 
   public UserInfo()
   {
@@ -356,50 +367,7 @@ public class UserInfo extends UserInfoBase
 //      }
       
 
-      UserDAOIF user = UserDAO.get(geoprismUser.getOid());
-
-      // Remove existing roles.
-      Set<RoleDAOIF> userRoles = user.assignedRoles();
-      for (RoleDAOIF roleDAOIF : userRoles)
-      {
-        RoleDAO roleDAO = RoleDAO.get(roleDAOIF.getOid()).getBusinessDAO();
-
-        if (! ( geoprismUser.getUsername().equals(RegistryConstants.ADMIN_USER_NAME) && ( roleDAO.getRoleName().equals(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE) || roleDAO.getRoleName().equals(RoleConstants.ADMIN) ) ))
-        {
-          roleDAO.deassignMember(user);
-        }
-      }
-
-      // Delete existing relationships with Organizations.
-      QueryFactory qf = new QueryFactory();
-      OrganizationUserQuery q = new OrganizationUserQuery(qf);
-      q.WHERE(q.childOid().EQ(geoprismUser.getOid()));
-
-      OIterator<? extends OrganizationUser> i = q.getIterator();
-      i.forEach(r -> r.delete());
-
-      /*
-       * Assign roles and associate with the user
-       */
-      Set<String> organizationSet = new HashSet<String>();
-      for (Roles role : newRoles)
-      {
-        RoleDAO roleDAO = (RoleDAO) BusinessFacade.getEntityDAO(role);
-        roleDAO.assignMember(user);
-
-        RegistryRole registryRole = new RegistryRoleConverter().build(role);
-        if (registryRole != null)
-        {
-          String organizationCode = registryRole.getOrganizationCode();
-
-          if (organizationCode != null && !organizationCode.equals("") && !organizationSet.contains(organizationCode))
-          {
-            Organization organization = Organization.getByCode(organizationCode);
-            organization.addUsers(geoprismUser).apply();
-            organizationSet.add(organizationCode);
-          }
-        }
-      }
+      setUserRoles(geoprismUser, newRoles);
     }
 
     UserInfo info = getByUser(geoprismUser);
@@ -471,6 +439,211 @@ public class UserInfo extends UserInfoBase
     info.apply();
 
     return serialize(geoprismUser, info);
+  }
+
+  /**
+   * Replaces the roles and organization memberships of the user with the given
+   * roles. The built-in admin user always keeps its admin roles.
+   */
+  private static void setUserRoles(GeoprismUser geoprismUser, List<Roles> newRoles)
+  {
+    UserDAOIF user = UserDAO.get(geoprismUser.getOid());
+
+    // Remove existing roles.
+    Set<RoleDAOIF> userRoles = user.assignedRoles();
+    for (RoleDAOIF roleDAOIF : userRoles)
+    {
+      RoleDAO roleDAO = RoleDAO.get(roleDAOIF.getOid()).getBusinessDAO();
+
+      if (! ( geoprismUser.getUsername().equals(RegistryConstants.ADMIN_USER_NAME) && ( roleDAO.getRoleName().equals(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE) || roleDAO.getRoleName().equals(RoleConstants.ADMIN) ) ))
+      {
+        roleDAO.deassignMember(user);
+      }
+    }
+
+    // Delete existing relationships with Organizations.
+    QueryFactory qf = new QueryFactory();
+    OrganizationUserQuery q = new OrganizationUserQuery(qf);
+    q.WHERE(q.childOid().EQ(geoprismUser.getOid()));
+
+    OIterator<? extends OrganizationUser> i = q.getIterator();
+    i.forEach(r -> r.delete());
+
+    /*
+     * Assign roles and associate with the user
+     */
+    Set<String> organizationSet = new HashSet<String>();
+    for (Roles role : newRoles)
+    {
+      RoleDAO roleDAO = (RoleDAO) BusinessFacade.getEntityDAO(role);
+      roleDAO.assignMember(user);
+
+      RegistryRole registryRole = new RegistryRoleConverter().build(role);
+      if (registryRole != null)
+      {
+        String organizationCode = registryRole.getOrganizationCode();
+
+        if (organizationCode != null && !organizationCode.equals("") && !organizationSet.contains(organizationCode))
+        {
+          Organization organization = Organization.getByCode(organizationCode);
+          organization.addUsers(geoprismUser).apply();
+          organizationSet.add(organizationCode);
+        }
+      }
+    }
+  }
+
+  /**
+   * Serializes the user, its profile information and the
+   * names of its assigned roles for inclusion in a backup.
+   */
+  public static JsonObject toBackupJSON(GeoprismUser user)
+  {
+    JsonObject object = new JsonObject();
+    object.addProperty(GeoprismUser.USERNAME, user.getUsername());
+    object.addProperty(GeoprismUser.FIRSTNAME, user.getFirstName());
+    object.addProperty(GeoprismUser.LASTNAME, user.getLastName());
+    object.addProperty(GeoprismUser.PHONENUMBER, user.getPhoneNumber());
+    object.addProperty(GeoprismUser.EMAIL, user.getEmail());
+    object.addProperty(GeoprismUser.INACTIVE, user.getInactive());
+
+    UserInfo info = UserInfo.getByUser(user);
+
+    if (info != null)
+    {
+      object.addProperty(UserInfo.ALTFIRSTNAME, info.getAltFirstName());
+      object.addProperty(UserInfo.ALTLASTNAME, info.getAltLastName());
+      object.addProperty(UserInfo.ALTPHONENUMBER, info.getAltPhoneNumber());
+      object.addProperty(UserInfo.POSITION, info.getPosition());
+      object.addProperty(UserInfo.DEPARTMENT, info.getDepartment());
+      object.addProperty(UserInfo.EXTERNALSYSTEMOID, info.getExternalSystemOid());
+    }
+
+    JsonArray roles = new JsonArray();
+
+    try (OIterator<? extends Roles> it = user.getAllAssignedRole())
+    {
+      it.forEach(role -> roles.add(role.getRoleName()));
+    }
+
+    object.add(BACKUP_ROLES, roles);
+
+    return object;
+  }
+
+  /**
+   * Creates or updates (matched by username) a user from JSON produced by
+   * {@link #toBackupJSON(GeoprismUser)}. Roles which do not exist on this
+   * server are skipped.
+   */
+  @Transaction
+  public static void restoreFromBackup(JsonObject object)
+  {
+    String username = object.get(GeoprismUser.USERNAME).getAsString();
+
+    GeoprismUser user = GeoprismUser.getByUsername(username);
+
+    if (user == null)
+    {
+      user = new GeoprismUser();
+      user.setUsername(username);
+    }
+    else
+    {
+      user = GeoprismUser.lock(user.getOid());
+    }
+
+    user.setFirstName(getString(object, GeoprismUser.FIRSTNAME));
+    user.setLastName(getString(object, GeoprismUser.LASTNAME));
+    user.setEmail(getString(object, GeoprismUser.EMAIL));
+    user.setPhoneNumber(getString(object, GeoprismUser.PHONENUMBER));
+
+    if (object.has(GeoprismUser.INACTIVE) && !object.get(GeoprismUser.INACTIVE).isJsonNull())
+    {
+      user.setInactive(object.get(GeoprismUser.INACTIVE).getAsBoolean());
+    }
+
+    // Passwords are not included in backups. New users get a random password
+    // and must reset it, existing users keep their current password.
+    if (user.isNew())
+    {
+      byte[] bytes = new byte[32];
+      SECURE_RANDOM.nextBytes(bytes);
+
+      user.setPassword(Base64.getEncoder().encodeToString(bytes));
+    }
+
+    user.apply();
+
+    List<Roles> roles = new LinkedList<Roles>();
+
+    if (object.has(BACKUP_ROLES))
+    {
+      object.get(BACKUP_ROLES).getAsJsonArray().forEach(element -> {
+        String roleName = element.getAsString();
+
+        if (RoleDAO.findRole(roleName) != null)
+        {
+          roles.add(Roles.findRoleByName(roleName));
+        }
+        else
+        {
+          logger.warn("Skipping role [" + roleName + "] for user [" + username + "] because it does not exist");
+        }
+      });
+    }
+
+    setUserRoles(user, roles);
+
+    UserInfo info = getByUser(user);
+
+    if (info == null)
+    {
+      info = new UserInfo();
+      info.setGeoprismUser(user);
+    }
+    else
+    {
+      info.lock();
+    }
+
+    info.setAltFirstName(getString(object, UserInfo.ALTFIRSTNAME));
+    info.setAltLastName(getString(object, UserInfo.ALTLASTNAME));
+    info.setAltPhoneNumber(getString(object, UserInfo.ALTPHONENUMBER));
+    info.setPosition(getString(object, UserInfo.POSITION));
+    info.setDepartment(getString(object, UserInfo.DEPARTMENT));
+    info.setExternalSystemOid(getExistingExternalSystemOid(getString(object, UserInfo.EXTERNALSYSTEMOID)));
+    info.apply();
+  }
+
+  private static String getExistingExternalSystemOid(String oid)
+  {
+    if (oid.length() > 0)
+    {
+      try
+      {
+        if (ExternalSystem.get(oid) != null)
+        {
+          return oid;
+        }
+      }
+      catch (RuntimeException e)
+      {
+        // The external system does not exist on this server
+      }
+    }
+
+    return "";
+  }
+
+  private static String getString(JsonObject object, String key)
+  {
+    if (object.has(key) && !object.get(key).isJsonNull())
+    {
+      return object.get(key).getAsString();
+    }
+
+    return "";
   }
 
   private static JSONObject serialize(GeoprismUser user, UserInfo info)

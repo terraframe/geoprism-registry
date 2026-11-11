@@ -42,9 +42,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
+import org.commongeoregistry.adapter.dataaccess.ValueOverTimeDTO;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.business.rbac.Authenticate;
@@ -154,6 +156,70 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
     String dateString = calendar.get(Calendar.YEAR) + "-" + ( calendar.get(Calendar.MONTH) + 1 ) + "-" + calendar.get(Calendar.DAY_OF_MONTH);
 
     return parseDate(dateString);
+  }
+
+  /**
+   * Caps an end date at {@link ValueOverTimeDTO#INFINITY_END_DATE}. Older data
+   * (e.g. backups) used 5000-12-31 as the "present" end date, which is past the
+   * maximum year the relational database layer accepts.
+   */
+  public static Date clampEndDate(Date date)
+  {
+    if (date != null && date.after(ValueOverTimeDTO.INFINITY_END_DATE))
+    {
+      return ValueOverTimeDTO.INFINITY_END_DATE;
+    }
+
+    return date;
+  }
+
+  /**
+   * Recursively walks the JSON element and caps any "endDate" property (in
+   * yyyy-MM-dd format) at {@link ValueOverTimeDTO#INFINITY_END_DATE}.
+   */
+  public static void clampEndDates(JsonElement element)
+  {
+    if (element == null)
+    {
+      return;
+    }
+
+    if (element.isJsonArray())
+    {
+      element.getAsJsonArray().forEach(GeoRegistryUtil::clampEndDates);
+    }
+    else if (element.isJsonObject())
+    {
+      JsonObject object = element.getAsJsonObject();
+
+      for (String key : new LinkedList<String>(object.keySet()))
+      {
+        JsonElement value = object.get(key);
+
+        if (key.equals("endDate") && value.isJsonPrimitive() && value.getAsJsonPrimitive().isString())
+        {
+          SimpleDateFormat format = ValueOverTimeDTO.getTimeFormatter();
+
+          try
+          {
+            Date endDate = format.parse(value.getAsString());
+
+            if (endDate.after(ValueOverTimeDTO.INFINITY_END_DATE))
+            {
+              object.addProperty(key, format.format(ValueOverTimeDTO.INFINITY_END_DATE));
+            }
+          }
+          catch (ParseException e)
+          {
+            // Not a date in the expected format, leave it alone
+          }
+        }
+        else
+        {
+          clampEndDates(value);
+        }
+      }
+    }
   }
 
   public static Date parseDate(String date)

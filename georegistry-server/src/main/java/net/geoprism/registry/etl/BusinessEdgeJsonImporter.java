@@ -100,7 +100,7 @@ public class BusinessEdgeJsonImporter
           String sourceCode = joEdge.get("source").getAsString();
           String targetCode = joEdge.get("target").getAsString();
           Date startDate = GeoRegistryUtil.parseDate(joEdge.get("startDate").getAsString());
-          Date endDate = GeoRegistryUtil.parseDate(joEdge.get("endDate").getAsString());
+          Date endDate = GeoRegistryUtil.clampEndDate(GeoRegistryUtil.parseDate(joEdge.get("endDate").getAsString()));
 
           ObjectApplyEdgeEvent event = new ObjectApplyEdgeEvent(sourceCode, sourceType.getTypeInfo(), edgeType.getTypeInfo(), targetCode, targetType.getTypeInfo(), startDate, endDate, source.getCode(), ImportStrategy.NEW_ONLY, validate);
 

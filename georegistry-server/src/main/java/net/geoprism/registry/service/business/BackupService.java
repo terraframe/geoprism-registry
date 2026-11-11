@@ -47,9 +47,12 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.metadata.MdEdge;
 
+import net.geoprism.GeoprismUser;
+import net.geoprism.GeoprismUserQuery;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeQuery;
+import net.geoprism.registry.UserInfo;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.graph.DirectedAcyclicGraphType;
@@ -117,6 +120,8 @@ public class BackupService implements BackupServiceIF
 
         exportListTypeData(directory);
 
+        exportUserData(directory);
+
         GeoRegistryUtil.zipDirectory(directory, zipfile);
       }
       finally
@@ -129,6 +134,32 @@ public class BackupService implements BackupServiceIF
       throw new ProgrammingErrorException(e);
     }
 
+  }
+
+  private void exportUserData(File directory) throws IOException
+  {
+    File subdirectory = new File(directory, "users");
+    subdirectory.mkdirs();
+
+    GeoprismUserQuery query = new GeoprismUserQuery(new QueryFactory());
+    query.ORDER_BY_ASC(query.getUsername());
+
+    try (JsonWriter writer = new JsonWriter(new FileWriter(new File(subdirectory, "users.json"))))
+    {
+      Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+      writer.beginArray();
+
+      try (OIterator<? extends GeoprismUser> it = query.getIterator())
+      {
+        while (it.hasNext())
+        {
+          gson.toJson(UserInfo.toBackupJSON(it.next()), writer);
+        }
+      }
+
+      writer.endArray();
+    }
   }
 
   private void exportListTypeData(File directory) throws IOException

@@ -454,7 +454,18 @@ export class SettingsComponent implements OnInit {
   }
 
   onBackup() {
-    window.location.href = environment.apiUrl + '/api/admin/backup';
+    this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
+      animated: false,
+      backdrop: true,
+      ignoreBackdropClick: true,
+    });
+    this.bsModalRef.content.message = this.localizeService.decode('settings.backup.users.message');
+    this.bsModalRef.content.submitText = this.localizeService.decode('settings.backup.button');
+    this.bsModalRef.content.type = ModalTypes.warning;
+
+    this.bsModalRef.content.onConfirm.subscribe(() => {
+      window.location.href = environment.apiUrl + '/api/admin/backup';
+    });
   }
 
   onDeleteData() {

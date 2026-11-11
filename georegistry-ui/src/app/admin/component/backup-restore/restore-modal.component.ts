@@ -71,7 +71,17 @@ export class RestoreModalComponent {
             this.bsModalRef.hide();
         };
         this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {
-            this.error(response);
+            // The uploader gives us the raw response body, which needs to be parsed
+            // before the error handler can find the message in it
+            let error: any;
+
+            try {
+                error = JSON.parse(response);
+            } catch (e) {
+                error = { message: (response != null && response.length > 0) ? response : ("The restore failed with HTTP status " + status) };
+            }
+
+            this.error({ error: error });
         };
     }
 

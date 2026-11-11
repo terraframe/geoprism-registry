@@ -1,0 +1,65 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!-- Copyright (c) 2022 TerraFrame, Inc. All rights reserved. This file is part of Geoprism Registry(tm). Geoprism Registry(tm) is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. Geoprism Registry(tm) is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details. You should have received a copy of the GNU Lesser General Public License along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>. -->
+<version
+  xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="settings.backup.users.message">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="settings.backup.users.message" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="The backup will include all users along with their profile information and roles, but not their passwords. When the backup is restored, any user that does not already exist will be given a randomly generated password and must reset their password before they can log in." />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="settings.restore.users.message">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="settings.restore.users.message" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Users in the backup will be restored with their profile information and roles. Passwords are not included in backups: any user that does not already exist will be given a randomly generated password and must reset their password before they can log in, while existing users keep their current password. The admin account and your own account will not be changed." />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

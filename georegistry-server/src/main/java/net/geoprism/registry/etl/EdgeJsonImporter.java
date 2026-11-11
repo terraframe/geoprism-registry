@@ -115,7 +115,7 @@ public class EdgeJsonImporter
           String targetCode = joEdge.get("target").getAsString();
           TypeInfo targetType = new TypeInfo(TypeClass.GEO_OBJECT_TYPE, joEdge.get("targetType").getAsString());
           Date startDate = joEdge.has("startDate") ? GeoRegistryUtil.parseDate(joEdge.get("startDate").getAsString()) : this.startDate;
-          Date endDate = joEdge.has("endDate") ? GeoRegistryUtil.parseDate(joEdge.get("endDate").getAsString()) : this.endDate;
+          Date endDate = GeoRegistryUtil.clampEndDate(joEdge.has("endDate") ? GeoRegistryUtil.parseDate(joEdge.get("endDate").getAsString()) : this.endDate);
 
           // UID
 
