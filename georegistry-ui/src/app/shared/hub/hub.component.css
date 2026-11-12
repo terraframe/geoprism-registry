@@ -23,3 +23,9 @@
   width: 30px;
   height: 30px;
 }
+
+/* Breathing room below the last line of the page, which otherwise sits flush
+   against the bottom of the window once the page is tall enough to scroll */
+.hub-footer {
+  padding-bottom: 40px;
+}

@@ -16,81 +16,46 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-.navbar.navbar-default {
-    background-color: #3E2A5A; /* IE fallback */
-    background-color: var(--theme-primary-color);
-    height: 144px;
-    border-radius: 0;
-    border: none;
+
+/*
+ * Brand logo and title, styled to match the sidebar (see side-nav.css). The
+ * base navbar rules live in styles/main.css; its hover color is !important,
+ * hence the !important on the title hover below.
+ */
+
+/* main.css sizes the logo to 80% of the 50px navbar; 30px sits more neatly */
+.navbar-default .navbar-header > a > img.brand-img {
+    height: 30px;
+    transition: filter 0.2s ease-in-out;
 }
 
-.fa.fa-bars {
-    font-size: 32px; 
-    color: #DBD7A5; /* IE fallback */
-    color: var(--theme-accent-color);
-}
-.fa.fa-bars:hover {
-    color: #e5e4d2; /* IE fallback */
-    color: var(--theme-accent-color-hover);
+/* The logo is now 10px narrower, so pull the title in to keep the same gap */
+.navbar-default .navbar-header > a:nth-of-type(2).navbar-brand.brand-title {
+    margin-left: 25px;
 }
 
-.glyphicon.glyphicon-menu-hamburger {
-    font-size: 32px; 
-    color: #DBD7A5; /* IE fallback */
-    color: var(--theme-accent-color);
-    vertical-align: middle;
-}
-.glyphicon.glyphicon-menu-hamburger:hover {
-    color: #e5e4d2; /* IE fallback */
-    color: var(--theme-accent-color-hover);
+/* Matches the blue of the Geoprism wordmark */
+.navbar-default .navbar-header .navbar-brand.brand-title {
+    color: #018da9;
+    transition: color 0.2s ease-in-out, text-shadow 0.2s ease-in-out;
 }
 
-.navbar-header {
-    padding: 46px 0 46px 0;
-}
-.navbar-default .navbar-header > a > img {
-    height: 50px;
-    margin-right: 20px;
+/* As in the sidebar, hovering the brand lights up the logo and title together */
+.navbar-default .navbar-header:hover img.brand-img {
+    filter: brightness(1.15) drop-shadow(0 0 4px rgba(0, 184, 208, 0.45));
 }
 
-.dropdown-toggle {
-    line-height: 144px;
-    padding: 0;
+.navbar-default .navbar-header:hover .navbar-brand.brand-title {
+    color: #3fbcd4 !important;
+    text-shadow: 0 0 10px rgba(0, 184, 208, 0.35);
 }
 
-.navbar-default .navbar-header > a:first-child.navbar-brand {
-    line-height: 144px;
-    padding: 0;
+/*
+ * Login header background: the sidebar's charcoal instead of the theme purple,
+ * which clashes with the teal logo. To undo, remove the
+ * "header-sidebar-theme" class from the <nav> in login-header.component.html
+ * (or delete this rule) and the header returns to --theme-primary-color.
+ */
+.navbar.navbar-default.header-sidebar-theme {
+    background-color: #27232C;
 }
-.navbar.navbar-default .navbar-header:hover {
-    color: #e5e4d2; /* IE fallback */
-    color: var(--theme-accent-color-hover) !important;
-}
-
-.navbar-default:hover .navbar-brand {
-    color: #DBD7A5; /* IE fallback */
-    color: var(--theme-accent-color) !important;
-}
-
-.navbar-brand {
-    /* line-height: 144px; */
-    /* padding: 0; */
-    color: #DBD7A5; /* IE fallback */
-    color: var(--theme-accent-color);
-}
-
-.navbar-default .navbar-nav>.open>a, 
-.navbar-default .navbar-nav>.open>a:hover, 
-.navbar-default .navbar-nav>.open>a:focus {
-    background-color: #3E2A5A; /* IE fallback */
-    background-color: var(--theme-primary-color);;
-    color: #555555;
-}
-
-.dropdown-menu>li>a:hover, 
-.dropdown-menu>li>a:focus {
-    background: #3E2A5A; /* IE fallback */
-    background: var(--theme-primary-color-hover);
-}
-
-
