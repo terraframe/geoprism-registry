@@ -20,6 +20,7 @@ package net.geoprism.registry.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
@@ -27,8 +28,10 @@ import java.util.List;
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,6 +44,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.google.gson.JsonObject;
+import com.runwaysdk.Pair;
 import com.runwaysdk.resource.StreamResource;
 import com.runwaysdk.system.scheduler.JobHistory;
 
@@ -260,6 +264,23 @@ public class ETLController extends RunwaySpringController
     this.service.cancelImport(this.getSessionId(), body.config);
 
     return new ResponseEntity<Void>(HttpStatus.OK);
+  }
+
+  @GetMapping("/download-import-file")
+  public ResponseEntity<InputStreamResource> downloadImportFile(@NotEmpty @RequestParam(name = "historyId") String historyId)
+  {
+    Pair<String, InputStream> file = this.service.downloadImportFile(this.getSessionId(), historyId);
+
+    if (file == null)
+    {
+      return new ResponseEntity<InputStreamResource>(HttpStatus.NOT_FOUND);
+    }
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+    headers.setContentDisposition(ContentDisposition.attachment().filename(file.getFirst(), StandardCharsets.UTF_8).build());
+
+    return new ResponseEntity<InputStreamResource>(new InputStreamResource(file.getSecond()), headers, HttpStatus.OK);
   }
 
   @GetMapping("/get-export-details")

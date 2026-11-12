@@ -23,7 +23,8 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 
-import { LocalizationService } from '@shared/service';
+import { AuthService, LocalizationService } from '@shared/service';
+import { environment } from 'src/environments/environment';
 import { ErrorHandler, SuccessModalComponent, ConfirmModalComponent } from '@shared/component';
 
 import { EdgeImportConfiguration, ImportConfiguration } from '@registry/model/io';
@@ -50,17 +51,31 @@ export class ConfigurationModalComponent implements OnInit {
 
   strategy: any;
 
+  canDownload: boolean = false;
+
+  downloadUrl: string = null;
+
   constructor(
     private service: IOService,
     public bsModalRef: BsModalRef,
     private localizationService: LocalizationService,
-    private cacheService: RegistryCacheService
+    private cacheService: RegistryCacheService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {}
 
-  init(configuration: ImportConfiguration): void {
+  init(configuration: ImportConfiguration, historyId?: string, stage?: string): void {
     this.configuration = configuration;
+
+    // Only offer the download while the import is stopped awaiting resolution of validation
+    // problems or import errors. Once the user ignores or cancels, the job moves to the COMPLETE stage.
+    const awaitingResolution = stage === 'VALIDATION_RESOLVE' || stage === 'IMPORT_RESOLVE';
+
+    if (historyId != null && historyId.length > 0 && awaitingResolution && this.authService.isSRA()) {
+      this.canDownload = true;
+      this.downloadUrl = environment.apiUrl + '/api/etl/download-import-file?historyId=' + encodeURIComponent(historyId);
+    }
 
     if (this.configuration.importStrategy && this.configuration.importStrategy.length > 0) {
       const strategies = [

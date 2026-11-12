@@ -345,7 +345,7 @@ export class JobComponent implements OnInit, OnDestroy {
       backdrop: true,
       ignoreBackdropClick: true,
     });
-    this.bsModalRef.content.init(this.job.configuration);
+    this.bsModalRef.content.init(this.job.configuration, this.historyId, this.job.stage);
   }
 
   downloadRdfExport(): void {

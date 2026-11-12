@@ -31,20 +31,25 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import com.runwaysdk.Pair;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
+import com.runwaysdk.system.VaultFile;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import net.geoprism.registry.CGRPermissionException;
 import net.geoprism.registry.JobHistoryTileCache;
 import net.geoprism.registry.etl.EdgeJsonImporter;
+import net.geoprism.registry.jobs.ImportHistory;
 import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.io.view.ImportConfigurationDTO;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
 import net.geoprism.registry.service.business.ETLBusinessService;
+import net.geoprism.registry.service.permission.RolePermissionService;
 import net.geoprism.registry.view.ErrorResolveDTO;
 import net.geoprism.registry.view.ImportHistoryView;
 import net.geoprism.registry.view.ValidationResolveDTO;
@@ -57,6 +62,33 @@ public class ETLService
 
   @Autowired
   protected DataSourceBusinessServiceIF sourceService;
+
+  @Autowired
+  protected RolePermissionService       permissions;
+
+  /**
+   * Returns the original file uploaded for an import, or null if it no longer
+   * exists (e.g. it was deleted when the import was resolved or cancelled).
+   * Restricted to SRAs.
+   */
+  @Request(RequestType.SESSION)
+  public Pair<String, InputStream> downloadImportFile(String sessionId, String historyId)
+  {
+    if (!this.permissions.isSRA())
+    {
+      throw new CGRPermissionException();
+    }
+
+    ImportHistory history = ImportHistory.get(historyId);
+    VaultFile file = history.getImportFile();
+
+    if (file == null)
+    {
+      return null;
+    }
+
+    return new Pair<String, InputStream>(file.getName(), file.openNewStream());
+  }
 
   @Request(RequestType.SESSION)
   public void cancelImport(String sessionId, ImportConfigurationDTO dto)

@@ -34,6 +34,12 @@
             </label>
             <div class="col-md-8">
               {{ configuration.fileName }}
+              @if (canDownload) {
+                <a [href]="downloadUrl" style="margin-left: 10px" target="_blank" rel="noopener">
+                  <i class="fa fa-download"></i>
+                  <localize key="io.job.downloadImportedFile"></localize>
+                </a>
+              }
             </div>
             <div class="col-md-2"></div>
           </div>
@@ -119,7 +125,7 @@
           <div class="col-md-2"></div>
         </div>
         @if (configuration.type && configuration.type.attributes) {
-          <hr />
+          <hr style="clear: both" />
           <div class="row">
             <div class="col-md-12 text-center">
               <h2 style="margin: 0 0 15px">
@@ -142,7 +148,7 @@
           }
         }
         @if (configuration.locations && configuration.locations.length > 0) {
-          <hr />
+          <hr style="clear: both" />
           <div class="text-center">
             <h2>
               <localize key="io.location.title"></localize>

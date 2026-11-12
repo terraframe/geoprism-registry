@@ -662,7 +662,7 @@ public class ETLBusinessService
     OIterator<? extends ImportError> it = ieq.getIterator();
     try
     {
-      if (it.hasNext())
+      while (it.hasNext())
       {
         ImportError err = it.next();
 
