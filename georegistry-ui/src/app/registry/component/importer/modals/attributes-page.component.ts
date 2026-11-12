@@ -41,7 +41,16 @@ export class AttributesPageComponent {
 
   constructor() {}
 
-  onNext(): void {
+  /**
+   * True if the given column contains duplicate values within the imported file
+   */
+  isNonUnique(column: string): boolean {
+    const nonUnique = this.configuration.sheet?.nonUniqueAttributes;
+
+    return column != null && column.length > 0 && nonUnique != null && nonUnique.indexOf(column) !== -1;
+  }
+
+    onNext(): void {
     this.configurationChange.emit(this.configuration);
     this.stateChange.emit('NEXT');
   }

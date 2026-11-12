@@ -29,6 +29,7 @@ export class ImportSheet {
         numeric: string[];
         text: string[];
     }
+    nonUniqueAttributes?: string[];
 }
 
 export class Location {

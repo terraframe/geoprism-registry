@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
@@ -39,8 +41,16 @@ public class SheetDTO
 
   private Map<String, List<String>> attributes;
 
+  /**
+   * Names of the columns which contain duplicate values within the imported
+   * dataset
+   */
+  private Set<String>               nonUniqueAttributes;
+
   public SheetDTO()
   {
+    this.nonUniqueAttributes = new TreeSet<>();
+
     this.attributes = new HashMap<>();
 
     this.attributes.put(AttributeBooleanType.TYPE, new LinkedList<>());
@@ -67,6 +77,16 @@ public class SheetDTO
   public void setAttributes(Map<String, List<String>> attributes)
   {
     this.attributes = attributes;
+  }
+
+  public Set<String> getNonUniqueAttributes()
+  {
+    return nonUniqueAttributes;
+  }
+
+  public void setNonUniqueAttributes(Set<String> nonUniqueAttributes)
+  {
+    this.nonUniqueAttributes = nonUniqueAttributes;
   }
 
   public void put(String baseType, String attributeName)

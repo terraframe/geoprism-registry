@@ -44,6 +44,7 @@ import net.geoprism.data.etl.excel.ExcelFormulaException;
 import net.geoprism.data.etl.excel.ExcelHeaderException;
 import net.geoprism.data.etl.excel.InvalidHeaderRowException;
 import net.geoprism.data.etl.excel.SheetHandler;
+import net.geoprism.registry.io.ColumnUniquenessTracker;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 
 public class ExcelFieldContentsHandler implements SheetHandler
@@ -245,6 +246,11 @@ public class ExcelFieldContentsHandler implements SheetHandler
    */
   private List<SheetDTO>      sheets;
 
+  /**
+   * Tracks which columns of the current sheet contain duplicate values
+   */
+  private ColumnUniquenessTracker uniqueness;
+
   public ExcelFieldContentsHandler()
   {
     this.sheets = new LinkedList<>();
@@ -279,6 +285,7 @@ public class ExcelFieldContentsHandler implements SheetHandler
     this.rowNum = 0;
     this.map = new HashMap<Integer, Field>();
     this.attributeNames = new TreeSet<String>();
+    this.uniqueness = new ColumnUniquenessTracker();
   }
 
   private boolean validateField(Field field, Integer columnPosition)
@@ -320,6 +327,8 @@ public class ExcelFieldContentsHandler implements SheetHandler
           sheet.put(GeoObjectImportConfiguration.TEXT, name);
         }
       }
+
+      sheet.getNonUniqueAttributes().addAll(this.uniqueness.getNonUniqueColumns());
 
       this.sheets.add(sheet);
     }
@@ -378,6 +387,8 @@ public class ExcelFieldContentsHandler implements SheetHandler
       if (attribute != null)
       {
         attribute.addDataType(cellType);
+
+        this.uniqueness.add(attribute.getName(), formattedValue);
 
         if (cellType.equals(ColumnType.NUMBER))
         {

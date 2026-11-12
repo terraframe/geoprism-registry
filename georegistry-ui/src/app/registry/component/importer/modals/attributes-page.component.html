@@ -54,6 +54,12 @@
                   <option [value]="attr">{{ attr }}</option>
                 }
               </select>
+              @if (attribute.code === 'code' && isNonUnique(attribute.target)) {
+                <p class="text-warning" style="margin: 5px 0 0">
+                  <i class="fa fa-exclamation-triangle"></i>
+                  <localize key="io.attributes.nonUniqueCode"></localize>
+                </p>
+              }
             </div>
           </div>
         </div>

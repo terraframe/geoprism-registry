@@ -23,8 +23,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Set;
 
 import org.geotools.api.data.FeatureSource;
+import org.geotools.api.data.Query;
+import org.geotools.api.filter.Filter;
+import org.geotools.feature.FeatureIterator;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.referencing.CRS;
 import org.geotools.api.feature.simple.SimpleFeature;
@@ -50,6 +54,7 @@ import net.geoprism.registry.etl.ShapefileFormatException;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ShapefileImporter;
 import net.geoprism.registry.excel.SheetDTO;
+import net.geoprism.registry.io.ColumnUniquenessTracker;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.PostalCodeFactory;
 import net.geoprism.registry.io.view.GeoObjectImportConfigurationDTO;
@@ -102,6 +107,47 @@ public class ShapefileBusinessService extends DataImportBusinessService
     {
       throw new ProgrammingErrorException(e);
     }
+  }
+
+  /**
+   * Maximum number of features read when checking for non-unique columns.
+   * Duplicates beyond this point will not be detected.
+   */
+  private static final int MAX_UNIQUENESS_ROWS = 100_000;
+
+  /**
+   * Scans the features in the shapefile, up to {@link #MAX_UNIQUENESS_ROWS}, to
+   * determine which columns contain duplicate values. Only the non-geometry
+   * attributes are read, so geometries are never parsed.
+   */
+  private Set<String> getNonUniqueColumns(FeatureSource<SimpleFeatureType, SimpleFeature> source, List<AttributeDescriptor> descriptors) throws IOException
+  {
+    List<String> names = descriptors.stream().filter(d -> ! ( d instanceof GeometryDescriptor )).map(d -> d.getName().getLocalPart()).toList();
+
+    ColumnUniquenessTracker tracker = new ColumnUniquenessTracker();
+
+    if (names.isEmpty())
+    {
+      return tracker.getNonUniqueColumns();
+    }
+
+    Query query = new Query(source.getSchema().getTypeName(), Filter.INCLUDE, names.toArray(new String[names.size()]));
+    query.setMaxFeatures(MAX_UNIQUENESS_ROWS);
+
+    try (FeatureIterator<SimpleFeature> iterator = source.getFeatures(query).features())
+    {
+      while (iterator.hasNext() && !tracker.isExhausted())
+      {
+        SimpleFeature feature = iterator.next();
+
+        for (String name : names)
+        {
+          tracker.add(name, feature.getAttribute(name));
+        }
+      }
+    }
+
+    return tracker.getNonUniqueColumns();
   }
 
   private SheetDTO getSheetInformation(File dbf, boolean ignoreProjection)
@@ -169,6 +215,8 @@ public class ShapefileBusinessService extends DataImportBusinessService
               }
             }
           }
+
+          sheet.getNonUniqueAttributes().addAll(this.getNonUniqueColumns(source, descriptors));
 
           return sheet;
         }
