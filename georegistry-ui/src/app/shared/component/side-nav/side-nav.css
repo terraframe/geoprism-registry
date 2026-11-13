@@ -42,10 +42,61 @@
     color: #9A9A9AFF;
 }
 
+/* The logo opts out of the sidebar's purple link hover; it brightens and
+   glows instead (see .brand-img / .brand-title below). */
+.brand:hover,
+.brand:focus {
+    background-color: transparent;
+    text-decoration: none;
+}
 
+
+/* Logo beside the title. Flex keeps the title next to the logo (wrapping
+   within its own column on narrow screens) instead of flowing under it. */
+.brand-heading {
+    display: flex;
+    align-items: center;
+    /* Lets .brand-title size its font to the heading's width (cqi units) */
+    container-type: inline-size;
+}
+
+/* Collapsed, the sidebar has only 25px of content width (55px minus the
+   column's 15px padding on each side), so the logo must fit within it or the
+   sidebar gets a horizontal scrollbar. */
 .brand-img {
+    flex: none;
     height: 25px;
-    padding-right: 10px;
+    max-width: 100%;
+    transition: filter 0.2s ease-in-out;
+}
+
+.brand:hover .brand-img {
+    filter: brightness(1.15) drop-shadow(0 0 4px rgba(217, 181, 255, 0.45));
+}
+
+.brand-heading.expanded .brand-img {
+    height: 32px;
+    margin-right: 10px;
+}
+
+/* Same grey as the rest of the sidebar text (.route-item) */
+.brand-title {
+    color: #9A9A9AFF;
+    /* The sidebar is a percentage of the window, so a fixed size wraps on
+       narrow screens. Scale the font to the width left after the logo (32px +
+       10px margin); "Geoprism Builder" is just under 8em wide. Capped at 22px,
+       and below 14px it is allowed to wrap. */
+    font-size: clamp(14px, calc((100cqi - 42px) / 8), 22px);
+    line-height: 1.2;
+    min-width: 0;
+    transition: color 0.2s ease-in-out, text-shadow 0.2s ease-in-out;
+}
+
+/* The sidebar links' hover grey, plus a soft lavender glow to match the
+   purple logo */
+.brand:hover .brand-title {
+    color: #BABABA;
+    text-shadow: 0 0 10px rgba(217, 181, 255, 0.35);
 }
 
 .route-icon {

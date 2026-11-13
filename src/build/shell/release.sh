@@ -182,8 +182,17 @@ if [ "$release_github" == "true" ]; then
   
   if [ "$dry_run" == "false" ]; then
     # TODO : Use the artifacts we compiled earlier?
-    sleep 180 # Cloudsmith takes a little bit to process the artifact before its downloadable.
-    wget https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/net/geoprism/georegistry-web/$CGR_RELEASE_VERSION/georegistry-web-$CGR_RELEASE_VERSION.war -O georegistry-web-$CGR_RELEASE_VERSION.war
+    # Cloudsmith takes a while to process the artifact before it's downloadable (sometimes more than 3 minutes),
+    # so retry every 30 seconds for up to 10 minutes rather than waiting a fixed amount of time.
+    attempts=0
+    until wget -q https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/net/geoprism/georegistry-web/$CGR_RELEASE_VERSION/georegistry-web-$CGR_RELEASE_VERSION.war -O georegistry-web-$CGR_RELEASE_VERSION.war; do
+      attempts=$((attempts+1))
+      if [ $attempts -ge 20 ]; then
+        echo "georegistry-web-$CGR_RELEASE_VERSION.war was still not available from Cloudsmith after 10 minutes"
+        exit 1
+      fi
+      sleep 30
+    done
     #wget https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/net/geoprism/georegistry-adapter/$CGR_RELEASE_VERSION/georegistry-adapter-$CGR_RELEASE_VERSION.jar -O georegistry-adapter-$CGR_RELEASE_VERSION.jar
     #wget https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/net/geoprism/georegistry-adapter-android/$CGR_RELEASE_VERSION/georegistry-adapter-android-$CGR_RELEASE_VERSION.aar -O georegistry-adapter-android-$CGR_RELEASE_VERSION.aar
   

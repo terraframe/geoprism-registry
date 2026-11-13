@@ -30,7 +30,7 @@ import { RouterLink } from '@angular/router';
 @Component({
     selector: 'login-header',
     templateUrl: './login-header.component.html',
-    styleUrls: [],
+    styleUrls: ['./login-header.css'],
     standalone: true,
     imports: [RouterLink, LocalizeComponent, LocalizePipe]
 })

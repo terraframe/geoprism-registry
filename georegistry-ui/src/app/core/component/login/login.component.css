@@ -55,7 +55,8 @@ h1 {
 #logo_gp {
   display: block;
   margin: 0 auto;
-  width: 200px;
+  width: 300px;
+  max-width: 100%;
 }
 
 .dhis2-login-button {

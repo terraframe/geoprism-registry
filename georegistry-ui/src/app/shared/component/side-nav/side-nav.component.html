@@ -23,10 +23,10 @@
   <div class="row nav-row">
     <div class="col-xs-12">
       <a [href]="context + '#/menu'" class="brand">
-        <h3>
+        <h3 class="brand-heading" [ngClass]="{ expanded: expanded }">
           <img class="brand-img" [src]="context + 'api/asset/view?oid=logo'" />
           @if (expanded) {
-            <localize key="cgr.standard.title"></localize>
+            <span class="brand-title"><localize key="cgr.standard.title"></localize></span>
           }
         </h3>
       </a>
