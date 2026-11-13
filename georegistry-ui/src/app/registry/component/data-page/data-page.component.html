@@ -58,6 +58,16 @@
             <localize key="import-shapefile-localization-manager.menu"></localize>
           </a>
         }
+        @if (isMaintainer) {
+          <a
+            style="margin-right: 10px; font-size: 20px"
+            [routerLink]=""
+            [ngClass]="{ active: content === 'GEOPARQUET' }"
+            (click)="renderContent('GEOPARQUET')"
+          >
+            <localize key="import-geoparquet-localization-manager.menu"></localize>
+          </a>
+        }
       </div>
 
       <div class="inner-col-content-wrapper" style="padding-top: 30px; margin-top: 10px">
@@ -66,6 +76,9 @@
         }
         @if (content === 'SHAPEFILE') {
           <dataimporter [format]="'SHAPEFILE'"></dataimporter>
+        }
+        @if (content === 'GEOPARQUET') {
+          <dataimporter [format]="'GEOPARQUET'"></dataimporter>
         }
       </div>
     </div>

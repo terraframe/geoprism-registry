@@ -22,6 +22,7 @@ import com.runwaysdk.resource.ApplicationResource;
 
 import net.geoprism.registry.etl.upload.ExcelImporter;
 import net.geoprism.registry.etl.upload.FormatSpecificImporterIF;
+import net.geoprism.registry.etl.upload.GeoParquetImporter;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportProgressListenerIF;
 import net.geoprism.registry.etl.upload.JSONImporter;
@@ -30,7 +31,7 @@ import net.geoprism.registry.etl.upload.ShapefileImporter;
 public class FormatSpecificImporterFactory
 {
   public static enum FormatImporterType {
-    SHAPEFILE, EXCEL, DHIS2, JSON
+    SHAPEFILE, EXCEL, DHIS2, JSON, GEOPARQUET
   }
 
   public static FormatSpecificImporterIF getImporter(String type, ApplicationResource resource, ImportConfiguration config, ImportProgressListenerIF progress)
@@ -46,6 +47,10 @@ public class FormatSpecificImporterFactory
     else if (type.equals(FormatImporterType.JSON.name()))
     {
       return new JSONImporter(resource, config, progress);
+    }
+    else if (type.equals(FormatImporterType.GEOPARQUET.name()))
+    {
+      return new GeoParquetImporter(resource, config, progress);
     }
     else
     {

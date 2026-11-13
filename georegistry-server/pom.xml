@@ -66,6 +66,14 @@
       <version>${spring.boot.version}</version>
     </dependency>
     
+    <!-- Reads GeoParquet imports. The parquet reader is statically linked into the driver, so no DuckDB extensions are
+         needed. Extension installs/loads and external access are disabled at runtime (see GeoParquetReader). -->
+    <dependency>
+      <groupId>org.duckdb</groupId>
+      <artifactId>duckdb_jdbc</artifactId>
+      <version>1.5.6.0</version>
+    </dependency>
+
     <!-- https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator -->
     <dependency>
       <groupId>org.hibernate.validator</groupId>

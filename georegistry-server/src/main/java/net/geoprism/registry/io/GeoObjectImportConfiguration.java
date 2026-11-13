@@ -419,8 +419,11 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
 
   public static String getBaseType(org.geotools.api.feature.type.AttributeType type)
   {
-    Class<?> clazz = type.getBinding();
+    return getBaseType(type.getBinding());
+  }
 
+  public static String getBaseType(Class<?> clazz)
+  {
     if (Boolean.class.isAssignableFrom(clazz))
     {
       return AttributeBooleanType.TYPE;
@@ -438,7 +441,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
       return AttributeDateType.TYPE;
     }
 
-    throw new UnsupportedOperationException("Unsupported type [" + type.getBinding().getName() + "]");
+    throw new UnsupportedOperationException("Unsupported type [" + clazz.getName() + "]");
   }
 
   @Override

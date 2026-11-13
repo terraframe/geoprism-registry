@@ -66,7 +66,7 @@
           @if (this.format === 'EXCEL') {
             <localize key="spreadsheet.import.import.strategy"></localize>
           }
-          @if (this.format === 'SHAPEFILE') {
+          @if (this.format === 'SHAPEFILE' || this.format === 'GEOPARQUET') {
             <localize key="shapefile.import.import.strategy"></localize>
           }
         </label>
@@ -162,6 +162,9 @@
           @if (this.format === 'SHAPEFILE') {
             <localize key="io.shapefile"></localize>
           }
+          @if (this.format === 'GEOPARQUET') {
+            <localize key="io.geoparquet"></localize>
+          }
         </label>
         <div class="col-md-8">
           @if (this.format === 'EXCEL') {
@@ -185,6 +188,18 @@
               ng2FileSelect
               [uploader]="uploader"
               accept=".zip"
+              required
+            />
+          }
+          @if (this.format === 'GEOPARQUET') {
+            <input
+              class="ghost-input"
+              #myFile
+              name="file"
+              type="file"
+              ng2FileSelect
+              [uploader]="uploader"
+              accept=".parquet, .zip"
               required
             />
           }

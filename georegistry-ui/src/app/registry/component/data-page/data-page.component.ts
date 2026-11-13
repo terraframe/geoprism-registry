@@ -65,6 +65,8 @@ export class DataPageComponent implements OnInit {
       this.pageTitle = this.localizationService.decode('spreadsheet.title');
     } else if (content === 'SHAPEFILE') {
       this.pageTitle = this.localizationService.decode('shapefile.title');
+    } else if (content === 'GEOPARQUET') {
+      this.pageTitle = this.localizationService.decode('geoparquet.title');
     } else if (content === 'EXPORT') {
       this.pageTitle = this.localizationService.decode('io.export.title');
     }

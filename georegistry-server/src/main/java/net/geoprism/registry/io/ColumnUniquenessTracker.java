@@ -49,6 +49,12 @@ public class ColumnUniquenessTracker
   public static final long    DEFAULT_MAX_BYTES     = 64L * 1024 * 1024;
 
   /**
+   * Maximum number of rows importers should scan when checking for non-unique
+   * columns. Duplicates beyond this point will not be detected.
+   */
+  public static final int     MAX_ROWS              = 100_000;
+
+  /**
    * Rough per-value overhead of a String stored in a HashSet (HashMap node,
    * table slot, String and backing array headers)
    */

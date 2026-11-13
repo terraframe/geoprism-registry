@@ -110,13 +110,7 @@ public class ShapefileBusinessService extends DataImportBusinessService
   }
 
   /**
-   * Maximum number of features read when checking for non-unique columns.
-   * Duplicates beyond this point will not be detected.
-   */
-  private static final int MAX_UNIQUENESS_ROWS = 100_000;
-
-  /**
-   * Scans the features in the shapefile, up to {@link #MAX_UNIQUENESS_ROWS}, to
+   * Scans the features in the shapefile, up to {@link ColumnUniquenessTracker#MAX_ROWS}, to
    * determine which columns contain duplicate values. Only the non-geometry
    * attributes are read, so geometries are never parsed.
    */
@@ -132,7 +126,7 @@ public class ShapefileBusinessService extends DataImportBusinessService
     }
 
     Query query = new Query(source.getSchema().getTypeName(), Filter.INCLUDE, names.toArray(new String[names.size()]));
-    query.setMaxFeatures(MAX_UNIQUENESS_ROWS);
+    query.setMaxFeatures(ColumnUniquenessTracker.MAX_ROWS);
 
     try (FeatureIterator<SimpleFeature> iterator = source.getFeatures(query).features())
     {

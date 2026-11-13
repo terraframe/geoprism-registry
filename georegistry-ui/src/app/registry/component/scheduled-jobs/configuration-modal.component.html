@@ -61,7 +61,7 @@
               @if (configuration.formatType === 'EXCEL') {
                 <localize key="spreadsheet.import.import.strategy"></localize>
               }
-              @if (configuration.formatType === 'SHAPEFILE') {
+              @if (configuration.formatType === 'SHAPEFILE' || configuration.formatType === 'GEOPARQUET') {
                 <localize key="shapefile.import.import.strategy"></localize>
               }
               @if (configuration.formatType === 'JSON') {

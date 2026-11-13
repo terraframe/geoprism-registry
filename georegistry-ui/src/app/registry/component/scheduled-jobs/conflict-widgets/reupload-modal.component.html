@@ -36,6 +36,9 @@
           @if (job.configuration.formatType === 'SHAPEFILE') {
             <localize key="io.shapefile"></localize>
           }
+          @if (job.configuration.formatType === 'GEOPARQUET') {
+            <localize key="io.geoparquet"></localize>
+          }
           @if (job.configuration.formatType === 'EXCEL') {
             <localize key="io.spreadsheet"></localize>
           }
