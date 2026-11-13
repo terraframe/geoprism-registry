@@ -49,13 +49,3 @@
     color: #BABABA !important;
     text-shadow: 0 0 10px rgba(217, 181, 255, 0.35);
 }
-
-/*
- * Login header background: the sidebar's charcoal instead of the theme purple,
- * which clashes with the teal logo. To undo, remove the
- * "header-sidebar-theme" class from the <nav> in login-header.component.html
- * (or delete this rule) and the header returns to --theme-primary-color.
- */
-.navbar.navbar-default.header-sidebar-theme {
-    background-color: #27232C;
-}
