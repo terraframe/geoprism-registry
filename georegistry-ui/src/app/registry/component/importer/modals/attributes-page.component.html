@@ -40,7 +40,12 @@
         <div class="form-group">
           <div class="row-holder">
             <div class="label-holder">
-              <label class="">{{ attribute.label.localizedValue }}</label>
+              <label class="" [title]="attribute.description?.localizedValue || ''">{{ attribute.label.localizedValue }}</label>
+              @if (getBaseTypeKey(attribute.baseType) != null) {
+                <div class="attribute-type">
+                  <localize [key]="getBaseTypeKey(attribute.baseType)"></localize>
+                </div>
+              }
             </div>
             <div class="holder">
               <select
@@ -54,6 +59,14 @@
                   <option [value]="attr">{{ attr }}</option>
                 }
               </select>
+              @if (getExamples(attribute.target).length > 0) {
+                <p class="column-examples">
+                  <localize key="io.attributes.examples"></localize>{{ ' ' }}
+                  @for (example of getExamples(attribute.target); track $index; let last = $last) {
+                    <span class="column-example">{{ example }}</span>@if (!last) {<span>, </span>}
+                  }
+                </p>
+              }
               @if (attribute.code === 'code' && isNonUnique(attribute.target)) {
                 <p class="text-warning" style="margin: 5px 0 0">
                   <i class="fa fa-exclamation-triangle"></i>
@@ -64,6 +77,57 @@
           </div>
         </div>
       }
+    }
+
+    @if (columns.length > 0) {
+      <div class="data-preview">
+        <a class="data-preview-toggle" (click)="showPreview = !showPreview">
+          <i class="fa" [ngClass]="showPreview ? 'fa-caret-down' : 'fa-caret-right'"></i>
+          <localize key="io.attributes.preview.title"></localize>
+        </a>
+        <span class="data-preview-count">
+          {{ configuration.fileName }}
+          @if (sample.length === 1) {
+            &middot; <localize key="io.attributes.preview.countOne"></localize>
+          } @else if (sample.length > 1) {
+            &middot; <localize key="io.attributes.preview.count" [params]="{ '{0}': '' + sample.length }"></localize>
+          }
+        </span>
+        @if (showPreview) {
+          @if (sample.length === 0) {
+            <p class="data-preview-empty">
+              <localize key="io.attributes.preview.empty"></localize>
+            </p>
+          } @else {
+            <div class="data-preview-table">
+              <table class="table table-condensed">
+                <thead>
+                  <tr>
+                    @for (column of columns; track column.name) {
+                      <th [ngClass]="{ mapped: getMappedAttributes(column.name).length > 0 }">
+                        <div class="column-name">{{ column.name }}</div>
+                        <div class="column-type"><localize [key]="column.typeKey"></localize></div>
+                        @for (label of getMappedAttributes(column.name); track $index) {
+                          <div class="column-mapping"><i class="fa fa-arrow-right"></i> {{ label }}</div>
+                        }
+                      </th>
+                    }
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of sample; track $index) {
+                    <tr>
+                      @for (column of columns; track column.name) {
+                        <td [ngClass]="{ mapped: getMappedAttributes(column.name).length > 0 }" [title]="row[column.name] || ''">{{ row[column.name] }}</td>
+                      }
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        }
+      </div>
     }
     <hr />
 
