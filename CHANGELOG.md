@@ -2,6 +2,15 @@
 # Release Notes
 
 
+## [2.0.2](https://github.com/terraframe/geoprism-registry/releases/tag/2.0.2) (2026-11-13)
+
+### Features
+
+ - **branding** change logo to layered pyramid   ([fda22](https://github.com/terraframe/geoprism-registry/commit/fda22a57c840d37342d907a4d2532630327fa5e6))
+
+
+
+
 ## [2.0.1](https://github.com/terraframe/geoprism-registry/releases/tag/2.0.1) (2026-11-11)
 
 
