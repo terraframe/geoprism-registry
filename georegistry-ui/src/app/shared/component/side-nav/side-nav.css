@@ -71,7 +71,7 @@
 }
 
 .brand:hover .brand-img {
-    filter: brightness(1.15) drop-shadow(0 0 4px rgba(0, 184, 208, 0.45));
+    filter: brightness(1.15) drop-shadow(0 0 4px rgba(217, 181, 255, 0.45));
 }
 
 .brand-heading.expanded .brand-img {
@@ -79,9 +79,9 @@
     margin-right: 10px;
 }
 
-/* Matches the blue of the Geoprism wordmark */
+/* Same grey as the rest of the sidebar text (.route-item) */
 .brand-title {
-    color: #018da9;
+    color: #9A9A9AFF;
     /* The sidebar is a percentage of the window, so a fixed size wraps on
        narrow screens. Scale the font to the width left after the logo (32px +
        10px margin); "Geoprism Builder" is just under 8em wide. Capped at 22px,
@@ -92,11 +92,11 @@
     transition: color 0.2s ease-in-out, text-shadow 0.2s ease-in-out;
 }
 
-/* A lift toward the logo's lighter cyan with a soft glow, rather than a jump
-   to pure white */
+/* The sidebar links' hover grey, plus a soft lavender glow to match the
+   purple logo */
 .brand:hover .brand-title {
-    color: #3fbcd4;
-    text-shadow: 0 0 10px rgba(0, 184, 208, 0.35);
+    color: #BABABA;
+    text-shadow: 0 0 10px rgba(217, 181, 255, 0.35);
 }
 
 .route-icon {

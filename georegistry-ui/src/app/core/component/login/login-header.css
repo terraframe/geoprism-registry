@@ -34,20 +34,20 @@
     margin-left: 25px;
 }
 
-/* Matches the blue of the Geoprism wordmark */
+/* Same grey as the sidebar title */
 .navbar-default .navbar-header .navbar-brand.brand-title {
-    color: #018da9;
+    color: #9A9A9A;
     transition: color 0.2s ease-in-out, text-shadow 0.2s ease-in-out;
 }
 
 /* As in the sidebar, hovering the brand lights up the logo and title together */
 .navbar-default .navbar-header:hover img.brand-img {
-    filter: brightness(1.15) drop-shadow(0 0 4px rgba(0, 184, 208, 0.45));
+    filter: brightness(1.15) drop-shadow(0 0 4px rgba(217, 181, 255, 0.45));
 }
 
 .navbar-default .navbar-header:hover .navbar-brand.brand-title {
-    color: #3fbcd4 !important;
-    text-shadow: 0 0 10px rgba(0, 184, 208, 0.35);
+    color: #BABABA !important;
+    text-shadow: 0 0 10px rgba(217, 181, 255, 0.35);
 }
 
 /*
