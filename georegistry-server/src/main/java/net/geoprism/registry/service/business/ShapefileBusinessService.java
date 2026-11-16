@@ -186,11 +186,15 @@ public class ShapefileBusinessService extends DataImportBusinessService
     }
   }
 
-  private SheetDTO getSheetInformation(File dbf, boolean ignoreProjection)
+  // Package-private so that it can be tested without a database
+  SheetDTO getSheetInformation(File dbf, boolean ignoreProjection)
   {
     try
     {
       ShapefileDataStore store = new ShapefileDataStore(dbf.toURI().toURL());
+
+      // Read dates and text the same way as the import does
+      ShapefileImporter.configure(store, dbf);
 
       try
       {

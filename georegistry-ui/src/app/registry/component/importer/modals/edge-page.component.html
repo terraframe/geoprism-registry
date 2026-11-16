@@ -227,6 +227,12 @@
           </div>
         </div>
       </div>
+      <import-data-preview
+        [sheet]="configuration.sheet"
+        [fileName]="configuration.fileName"
+        [mappings]="getMappedFields"
+      ></import-data-preview>
+      <hr />
       <div class="form-group">
         <div class="row-holder">
           <div class="button-holder">
