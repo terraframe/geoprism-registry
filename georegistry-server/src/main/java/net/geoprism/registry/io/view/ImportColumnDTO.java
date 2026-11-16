@@ -43,6 +43,10 @@ public class ImportColumnDTO
   @JsonDeserialize(using = LocalizedValueDeserializer.class)
   private LocalizedValue    label;
 
+  @JsonSerialize(using = LocalizedValueSerializer.class)
+  @JsonDeserialize(using = LocalizedValueDeserializer.class)
+  private LocalizedValue    description;
+
   public String getCode()
   {
     return code;
@@ -111,5 +115,15 @@ public class ImportColumnDTO
   public void setLabel(LocalizedValue label)
   {
     this.label = label;
+  }
+
+  public LocalizedValue getDescription()
+  {
+    return description;
+  }
+
+  public void setDescription(LocalizedValue description)
+  {
+    this.description = description;
   }
 }

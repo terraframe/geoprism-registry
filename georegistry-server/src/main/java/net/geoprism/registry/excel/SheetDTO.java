@@ -18,7 +18,10 @@
  */
 package net.geoprism.registry.excel;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +34,7 @@ import org.json.JSONObject;
 
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.json.JsonMapper;
@@ -47,9 +51,22 @@ public class SheetDTO
    */
   private Set<String>               nonUniqueAttributes;
 
+  /**
+   * The first few rows of the dataset ({@link #MAX_SAMPLE_ROWS} at most), shown
+   * to the user as a preview while they match columns to attributes. Each row
+   * maps a column name to its value as a string; values are truncated to
+   * {@link #MAX_SAMPLE_VALUE_LENGTH} characters.
+   */
+  private List<Map<String, String>> sample;
+
+  public static final int           MAX_SAMPLE_ROWS         = 10;
+
+  public static final int           MAX_SAMPLE_VALUE_LENGTH = 200;
+
   public SheetDTO()
   {
     this.nonUniqueAttributes = new TreeSet<>();
+    this.sample = new LinkedList<>();
 
     this.attributes = new HashMap<>();
 
@@ -87,6 +104,65 @@ public class SheetDTO
   public void setNonUniqueAttributes(Set<String> nonUniqueAttributes)
   {
     this.nonUniqueAttributes = nonUniqueAttributes;
+  }
+
+  public List<Map<String, String>> getSample()
+  {
+    return sample;
+  }
+
+  public void setSample(List<Map<String, String>> sample)
+  {
+    this.sample = sample;
+  }
+
+  /**
+   * @return true if the sample has reached {@link #MAX_SAMPLE_ROWS}. (Not named isSampleFull so that Jackson does not serialize it as a property.)
+   */
+  public boolean sampleFull()
+  {
+    return this.sample.size() >= MAX_SAMPLE_ROWS;
+  }
+
+  /**
+   * Adds a row to the sample, unless the sample is already full. Null values
+   * are omitted and long values are truncated.
+   *
+   * @param row
+   *          Column name to value, in column order
+   */
+  public void addSampleRow(Map<String, ?> row)
+  {
+    if (this.sampleFull())
+    {
+      return;
+    }
+
+    Map<String, String> values = new LinkedHashMap<>();
+
+    row.forEach((column, value) -> {
+      if (value != null)
+      {
+        String string = value.toString();
+
+        if (value instanceof Date)
+        {
+          SimpleDateFormat format = new SimpleDateFormat(GeoRegistryUtil.LOCAL_DATE_FORMAT);
+          format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+
+          string = format.format((Date) value);
+        }
+
+        if (string.length() > MAX_SAMPLE_VALUE_LENGTH)
+        {
+          string = string.substring(0, MAX_SAMPLE_VALUE_LENGTH) + "…";
+        }
+
+        values.put(column, string);
+      }
+    });
+
+    this.sample.add(values);
   }
 
   public void put(String baseType, String attributeName)

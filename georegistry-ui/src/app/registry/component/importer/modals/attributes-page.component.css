@@ -1,0 +1,122 @@
+/*
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+ *
+ * This file is part of Geoprism Registry(tm).
+ *
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/* Type of the target attribute, shown beneath its label */
+.attribute-type {
+  font-size: 12px;
+  color: #aaa;
+  margin-top: 2px;
+}
+
+/* Example values of the selected column, shown beneath the select */
+.column-examples {
+  margin: 5px 0 0;
+  font-size: 12px;
+  color: #888;
+}
+
+.column-example {
+  color: #555;
+}
+
+/* Preview of the first rows of the file */
+.data-preview {
+  margin-top: 15px;
+}
+
+.data-preview-toggle {
+  cursor: pointer;
+  font-weight: bold;
+  color: #999;
+  text-decoration: none;
+}
+
+.data-preview-toggle .fa {
+  margin-right: 6px;
+}
+
+/* styles.scss hides a caret-right inside a hovered link ("a:hover > .fa.fa-caret-right"), which made the collapsed
+   caret vanish and the title jump on hover. Keep it visible here. */
+.data-preview-toggle:hover > .fa.fa-caret-right {
+  display: inline-block;
+}
+
+.data-preview-toggle:hover {
+  color: #777;
+}
+
+.data-preview-count,
+.data-preview-empty {
+  font-weight: normal;
+  color: #aaa;
+}
+
+.data-preview-empty {
+  margin: 8px 0 0;
+}
+
+.data-preview-table {
+  margin-top: 8px;
+  /* At most 10 rows are shown, so let the table grow to its full height (the
+     modal itself scrolls on small screens). Wide files still scroll sideways. */
+  overflow-x: auto;
+  border: 1px solid #e5e5e5;
+}
+
+.data-preview-table table {
+  margin: 0;
+  font-size: 12px;
+}
+
+.data-preview-table th,
+.data-preview-table td {
+  white-space: nowrap;
+  word-break: normal;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Qualified to override bootstrap's .table > thead > tr > th */
+.data-preview-table .table > thead > tr > th {
+  background-color: #f7f7f7;
+  vertical-align: top;
+  font-weight: normal;
+}
+
+.data-preview-table .column-name {
+  font-weight: bold;
+  color: #555;
+}
+
+.data-preview-table .column-type {
+  color: #aaa;
+}
+
+.data-preview-table .column-mapping {
+  color: var(--theme-primary-color);
+}
+
+.data-preview-table .table > thead > tr > th.mapped {
+  background-color: #eef4f3;
+}
+
+.data-preview-table td.mapped {
+  background-color: #f6faf9;
+}

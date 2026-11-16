@@ -24,6 +24,7 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
@@ -204,6 +205,31 @@ public class GraphBusinessService
             break;
         }
       });
+
+      // Preview of the first few objects. Nested arrays and objects are shown as JSON.
+      for (JsonNode item : root)
+      {
+        if (sheet.sampleFull())
+        {
+          break;
+        }
+
+        if (item.isObject())
+        {
+          Map<String, String> row = new LinkedHashMap<>();
+
+          item.propertyNames().forEach(field -> {
+            JsonNode v = item.get(field);
+
+            if (v != null && !v.isNull())
+            {
+              row.put(field, v.isValueNode() ? v.asText() : v.toString());
+            }
+          });
+
+          sheet.addSampleRow(row);
+        }
+      }
 
       return sheet;
 

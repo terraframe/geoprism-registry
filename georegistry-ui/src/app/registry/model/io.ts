@@ -30,6 +30,8 @@ export class ImportSheet {
         text: string[];
     }
     nonUniqueAttributes?: string[];
+    // The first few rows of the file, column name to value, used as a preview
+    sample?: { [column: string]: string }[];
 }
 
 export class Location {
