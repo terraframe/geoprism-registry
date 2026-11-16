@@ -20,6 +20,7 @@ package net.geoprism.registry.service.business;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -71,14 +72,14 @@ public class BackupAndRestoreBusinessService implements BackupAndRestoreBusiness
   private GraphRepoServiceIF                        repoService;
 
   @Override
-  public void createBackup(File zipfile)
+  public void createBackup(File zipfile, Set<BackupSection> sections)
   {
     if (!permissions.isSRA())
     {
       throw new UnsupportedOperationException("Only an SRA can create a data dump");
     }
 
-    this.backupService.createBackup(zipfile);
+    this.backupService.createBackup(zipfile, sections);
   }
 
   @Override

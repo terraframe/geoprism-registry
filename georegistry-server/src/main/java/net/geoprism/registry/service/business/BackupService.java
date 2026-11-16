@@ -97,7 +97,7 @@ public class BackupService implements BackupServiceIF
   private OrganizationBusinessServiceIF             orgService;
 
   @Override
-  public void createBackup(File zipfile)
+  public void createBackup(File zipfile, Set<BackupSection> sections)
   {
     try
     {
@@ -105,27 +105,17 @@ public class BackupService implements BackupServiceIF
 
       try
       {
-        exportOrganizations(directory);
-
-        exportMetadata(directory);
-
-        exportGeoObjectData(directory);
-
-        exportHierarchyData(directory);
-
-        exportDagData(directory);
-
-        exportUndirectedGraphData(directory);
-
-        exportBusinessObjectData(directory);
-
-        exportBusinessEdgeData(directory);
-
-        exportHistoricalEventData(directory);
-
-        exportListTypeData(directory);
-
-        exportUserData(directory);
+        export(sections, BackupSection.ORGANIZATIONS, this::exportOrganizations, directory);
+        export(sections, BackupSection.METADATA, this::exportMetadata, directory);
+        export(sections, BackupSection.GEO_OBJECTS, this::exportGeoObjectData, directory);
+        export(sections, BackupSection.HIERARCHIES, this::exportHierarchyData, directory);
+        export(sections, BackupSection.DAGS, this::exportDagData, directory);
+        export(sections, BackupSection.UNDIRECTED_GRAPHS, this::exportUndirectedGraphData, directory);
+        export(sections, BackupSection.BUSINESS_OBJECTS, this::exportBusinessObjectData, directory);
+        export(sections, BackupSection.BUSINESS_EDGES, this::exportBusinessEdgeData, directory);
+        export(sections, BackupSection.EVENTS, this::exportHistoricalEventData, directory);
+        export(sections, BackupSection.LIST_TYPES, this::exportListTypeData, directory);
+        export(sections, BackupSection.USERS, this::exportUserData, directory);
 
         GeoRegistryUtil.zipDirectory(directory, zipfile);
       }
@@ -139,6 +129,19 @@ public class BackupService implements BackupServiceIF
       throw new ProgrammingErrorException(e);
     }
 
+  }
+
+  private interface ExportStep
+  {
+    void run(File directory) throws IOException;
+  }
+
+  private void export(Set<BackupSection> sections, BackupSection section, ExportStep step, File directory) throws IOException
+  {
+    if (sections.contains(section))
+    {
+      step.run(directory);
+    }
   }
 
   private void exportOrganizations(File directory) throws IOException

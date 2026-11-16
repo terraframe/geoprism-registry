@@ -20,6 +20,8 @@ package net.geoprism.registry.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.Set;
 
 import jakarta.validation.Valid;
 
@@ -33,10 +35,12 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.service.business.BackupSection;
 import net.geoprism.registry.service.request.BackupAndRestoreServiceIF;
 
 @RestController
@@ -71,13 +75,16 @@ public class AdminController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/backup")
-  public ResponseEntity<InputStreamResource> backup()
+  public ResponseEntity<InputStreamResource> backup(@RequestParam(name = "sections", required = false) List<String> sections)
   {
+    // No sections means a full backup
+    Set<BackupSection> selected = BackupSection.parse(sections);
+
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
     headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=backup-" + System.currentTimeMillis() + ".zip");
 
-    InputStreamResource isr = new InputStreamResource(service.backup(this.getSessionId()));
+    InputStreamResource isr = new InputStreamResource(service.backup(this.getSessionId(), selected));
     return new ResponseEntity<InputStreamResource>(isr, headers, HttpStatus.OK);
   }
 

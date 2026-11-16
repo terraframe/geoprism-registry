@@ -1,0 +1,87 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<form #form="ngForm" class="modal-form" (ngSubmit)="submit()">
+  <div class="modal-body">
+    <div class="heading text-center">
+      <h1>
+        <localize key="settings.backup.modal.title"></localize>
+      </h1>
+    </div>
+
+    <div class="backup-toolbar">
+      <p>
+        <localize key="settings.backup.sections.message"></localize>
+      </p>
+      <p>
+        <a href="javascript:void(0)" (click)="setAll(true)"><localize key="settings.backup.sections.all"></localize></a>
+        |
+        <a href="javascript:void(0)" (click)="setAll(false)"><localize key="settings.backup.sections.none"></localize></a>
+      </p>
+    </div>
+
+    <div class="backup-columns">
+      @for (column of columns; track $index) {
+        <div class="backup-column">
+          @for (group of column; track group.key) {
+            <div class="backup-group">
+              <label class="backup-option backup-group-header">
+                <input
+                  type="checkbox"
+                  [name]="'group_' + group.key"
+                  [checked]="isGroupSelected(group.sections)"
+                  [indeterminate]="isGroupPartial(group.sections)"
+                  (change)="setGroup(group.sections, $any($event.target).checked)"
+                />
+                <localize [key]="'settings.backup.group.' + group.key"></localize>
+              </label>
+              @for (section of group.sections; track section) {
+                <label class="backup-option">
+                  <input type="checkbox" [name]="section" [(ngModel)]="selected[section]" />
+                  <localize [key]="'settings.backup.section.' + section"></localize>
+                </label>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    @if (selected['USERS']) {
+      <p class="backup-users-note">
+        <i class="fa fa-exclamation-triangle"></i>
+        <localize key="settings.backup.users.message"></localize>
+      </p>
+    }
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="button-holder">
+          <button type="button" (click)="cancel()" class="btn btn-default" role="button">
+            <localize key="modal.button.cancel"></localize>
+          </button>
+          <button type="submit" class="btn btn-primary" role="button" [disabled]="getSelected().length === 0">
+            <localize key="settings.backup.button"></localize>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

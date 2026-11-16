@@ -6,8 +6,13 @@ package net.geoprism.registry.service;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.apache.commons.io.FileUtils;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -42,6 +47,7 @@ import net.geoprism.registry.model.ServerParentGraphNode;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.service.business.BackupAndRestoreBusinessServiceIF;
+import net.geoprism.registry.service.business.BackupSection;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
@@ -337,6 +343,41 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
     {
       FileUtils.deleteQuietly(file);
     }
+  }
+
+  @Test
+  public void testExportSelectedSections() throws Exception
+  {
+    File file = File.createTempFile("gpr-dump", ".zip");
+
+    try
+    {
+      TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
+        this.backupService.createBackup(file, EnumSet.of(BackupSection.ORGANIZATIONS, BackupSection.USERS));
+      });
+
+      Set<String> folders = new HashSet<String>();
+
+      try (ZipFile zip = new ZipFile(file))
+      {
+        zip.stream().map(ZipEntry::getName).filter(name -> name.contains("/")).forEach(name -> folders.add(name.substring(0, name.indexOf('/'))));
+      }
+
+      Assertions.assertEquals(Set.of("organizations", "users"), folders);
+    }
+    finally
+    {
+      FileUtils.deleteQuietly(file);
+    }
+  }
+
+  @Test
+  public void testParseSections()
+  {
+    Assertions.assertEquals(BackupSection.all(), BackupSection.parse(null));
+    Assertions.assertEquals(BackupSection.all(), BackupSection.parse(List.of()));
+    Assertions.assertEquals(EnumSet.of(BackupSection.GEO_OBJECTS, BackupSection.USERS), BackupSection.parse(List.of("geo_objects", " USERS ")));
+    Assertions.assertThrows(IllegalArgumentException.class, () -> BackupSection.parse(List.of("NOT_A_SECTION")));
   }
 
 }
