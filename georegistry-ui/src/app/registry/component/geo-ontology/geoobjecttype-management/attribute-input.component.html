@@ -18,6 +18,21 @@
     License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
+<ng-template #customListTemplate let-matches="matches" let-query="query" let-typeaheadTemplateMethods>
+  <ul class="list-group">
+    @for (match of matches; track match.item.code) {
+      <li
+        class="list-group-item"
+        [class.active]="typeaheadTemplateMethods.isActive(match)"
+        (click)="typeaheadTemplateMethods.selectMatch(match, $event)"
+        (mouseenter)="typeaheadTemplateMethods.selectActive(match)"
+      >
+        {{ match.item.code }} : {{ match.item.data['displayLabel'].localizedValue }}
+      </li>
+    }
+  </ul>
+</ng-template>
+
 <div>
   <div class="row-holder">
     <div class="label-holder">
@@ -72,9 +87,7 @@
         </span>
       </div>
     </div>
-  }
 
-  @if (type === 'float') {
     <div class="row-holder">
       <div class="label-holder">
         <label>
@@ -85,6 +98,110 @@
         <span class="text">
           <input type="number" step="1" [(ngModel)]="attribute.scale" name="scale" required />
         </span>
+      </div>
+    </div>
+  } @else if (type === 'classification') {
+    <div class="row-holder">
+      <div class="label-holder">
+        <label>
+          <localize key="data.type.label.classification"></localize>
+        </label>
+      </div>
+      <div class="holder">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>
+                    <localize key="concept.set.header"></localize>
+                  </label>
+                  <select
+                    name="conceptSet"
+                    class="select-area"
+                    [(ngModel)]="attribute.conceptSet"
+                    (change)="onConceptSetChange()"
+                    [disabled]="!isNew"
+                  >
+                    <option></option>
+                    @for (set of sets; track set.code) {
+                      <option [value]="set.code">
+                        {{ set.displayLabel.localizedValue }}
+                      </option>
+                    }
+                  </select>
+                </div>
+              </div>
+            </div>
+            @if (currentSet != null) {
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label>
+                      <localize key="io.startDate"></localize>
+                    </label>
+                    <date-field
+                      [(value)]="attribute.startDate"
+                      classNames="form-control"
+                      inputName="startDate"
+                      name="startDate"
+                      [required]="true"
+                      [disable]="!isNew"
+                    ></date-field>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label>
+                      <localize key="io.endDate"></localize>
+                    </label>
+                    <date-field
+                      [(value)]="attribute.endDate"
+                      classNames="form-control"
+                      inputName="endDate"
+                      name="endDate"
+                      [allowInfinity]="true"
+                      [allowFutureDates]="true"
+                      [required]="true"
+                      [disable]="!isNew"
+                    ></date-field>
+                  </div>
+                </div>
+              </div>
+              @if (currentSet.discreteType !== 'ENUMERATION' && attribute.startDate != null) {
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>
+                        <localize key="concept.root.term"></localize>
+                      </label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        autocomplete="off"
+                        name="rootTerm"
+                        [(ngModel)]="text"
+                        [typeaheadAsync]="true"
+                        [typeahead]="typeahead"
+                        (change)="onTextChange()"
+                        (typeaheadOnSelect)="typeaheadOnSelect($event)"
+                        (typeaheadLoading)="loading = $event"
+                        [ngClass]="{ 'inline-loading': loading }"
+                        [typeaheadOptionsLimit]="7"
+                        [optionsListTemplate]="customListTemplate"
+                        [typeaheadMinLength]="0"
+                        [typeaheadWaitMs]="300"
+                        [disabled]="!isNew"
+                      />
+                    </div>
+                  </div>
+                </div>
+              }
+            }
+          </div>
+        </div>
       </div>
     </div>
   }
