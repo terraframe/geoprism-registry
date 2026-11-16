@@ -1,0 +1,164 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.backup.modal.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="settings.backup.modal.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Backup" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.backup.sections.message">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="settings.backup.sections.message" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Choose the data to include in the backup. Data is restored into the organizations and types on the target server, so include Organizations and Types and hierarchy definitions unless they already exist there." />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.backup.sections.all">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="settings.backup.sections.all" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Select all" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.backup.sections.none">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="settings.backup.sections.none" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Select none" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.backup.section.ORGANIZATIONS">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="settings.backup.section.ORGANIZATIONS" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Organizations" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.backup.section.METADATA">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="settings.backup.section.METADATA" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Types and hierarchy definitions" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.backup.section.GEO_OBJECTS">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="settings.backup.section.GEO_OBJECTS" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Geo-Objects" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.backup.section.HIERARCHIES">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="settings.backup.section.HIERARCHIES" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Hierarchy relationships" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.backup.section.DAGS">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="settings.backup.section.DAGS" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Directed acyclic graph relationships" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.backup.section.UNDIRECTED_GRAPHS">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="settings.backup.section.UNDIRECTED_GRAPHS" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Undirected graph relationships" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.backup.section.BUSINESS_OBJECTS">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="settings.backup.section.BUSINESS_OBJECTS" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Business objects" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.backup.section.BUSINESS_EDGES">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="settings.backup.section.BUSINESS_EDGES" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Business relationships" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.backup.section.EVENTS">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="settings.backup.section.EVENTS" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Historical events" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.backup.section.LIST_TYPES">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="settings.backup.section.LIST_TYPES" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="List types" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.backup.section.USERS">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="settings.backup.section.USERS" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Users" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.backup.group.CONFIGURATION">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="settings.backup.group.CONFIGURATION" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Configuration" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.backup.group.GEO_OBJECTS">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="settings.backup.group.GEO_OBJECTS" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Geo-Object data" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.backup.group.BUSINESS">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="settings.backup.group.BUSINESS" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Business data" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.backup.group.ACCOUNTS">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="settings.backup.group.ACCOUNTS" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Accounts" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

@@ -20,6 +20,7 @@ package net.geoprism.registry.service.business;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
@@ -30,11 +31,22 @@ public interface BackupAndRestoreBusinessServiceIF
 {
 
   /**
-   * Creates a backup of the data in the system
+   * Creates a backup of all of the data in the system
    * 
    * @param zipfile
    */
-  void createBackup(File zipfile);
+  default void createBackup(File zipfile)
+  {
+    this.createBackup(zipfile, BackupSection.all());
+  }
+
+  /**
+   * Creates a backup of the given sections of the data in the system
+   * 
+   * @param zipfile
+   * @param sections
+   */
+  void createBackup(File zipfile, Set<BackupSection> sections);
 
   /**
    * Deletes the data in the system
