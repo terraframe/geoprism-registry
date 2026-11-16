@@ -40,7 +40,14 @@
         <div class="form-group">
           <div class="row-holder">
             <div class="label-holder">
-              <label class="" [title]="attribute.description?.localizedValue || ''">{{ attribute.label.localizedValue }}</label>
+              <label
+                class=""
+                [pTooltip]="attribute.description?.localizedValue"
+                tooltipPosition="top"
+                [style.cursor]="attribute.description?.localizedValue ? 'help' : null"
+              >
+                {{ attribute.label.localizedValue }}
+              </label>
               @if (getBaseTypeKey(attribute.baseType) != null) {
                 <div class="attribute-type">
                   <localize [key]="getBaseTypeKey(attribute.baseType)"></localize>

@@ -23,13 +23,14 @@ import { ImportConfiguration } from '@registry/model/io';
 import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LocalizeComponent } from '@shared/component/localize/localize.component';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'attributes-page',
   templateUrl: './attributes-page.component.html',
   styleUrls: ['./attributes-page.component.css'],
   standalone: true,
-  imports: [LocalizeComponent, FormsModule, NgClass],
+  imports: [LocalizeComponent, FormsModule, NgClass, TooltipModule],
 })
 export class AttributesPageComponent implements OnChanges {
   /**
