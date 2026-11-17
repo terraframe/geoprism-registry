@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.excel;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -143,26 +144,69 @@ public class SheetDTO
     row.forEach((column, value) -> {
       if (value != null)
       {
-        String string = value.toString();
-
-        if (value instanceof Date)
-        {
-          SimpleDateFormat format = new SimpleDateFormat(GeoRegistryUtil.LOCAL_DATE_FORMAT);
-          format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
-
-          string = format.format((Date) value);
-        }
-
-        if (string.length() > MAX_SAMPLE_VALUE_LENGTH)
-        {
-          string = string.substring(0, MAX_SAMPLE_VALUE_LENGTH) + "…";
-        }
-
-        values.put(column, string);
+        values.put(column, truncate(format(value)));
       }
     });
 
     this.sample.add(values);
+  }
+
+  /**
+   * Formats a sample value as a string. Dates are shown as yyyy-MM-dd in UTC.
+   * Floating point numbers are shown in plain notation, since Double.toString
+   * uses scientific notation (e.g. 1.2345678E7) for large and small values.
+   */
+  private static String format(Object value)
+  {
+    if (value instanceof Date)
+    {
+      SimpleDateFormat format = new SimpleDateFormat(GeoRegistryUtil.LOCAL_DATE_FORMAT);
+      format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+
+      return format.format((Date) value);
+    }
+
+    if (value instanceof BigDecimal)
+    {
+      return ( (BigDecimal) value ).stripTrailingZeros().toPlainString();
+    }
+
+    if (value instanceof Double || value instanceof Float)
+    {
+      double d = ( (Number) value ).doubleValue();
+
+      if (!Double.isNaN(d) && !Double.isInfinite(d))
+      {
+        // Use Float.toString for floats, so that widening to double does not
+        // add digits (0.1f would otherwise become 0.10000000149011612)
+        String decimal = value instanceof Float ? Float.toString((Float) value) : Double.toString(d);
+
+        return new BigDecimal(decimal).stripTrailingZeros().toPlainString();
+      }
+    }
+
+    return value.toString();
+  }
+
+  /**
+   * Shortens the value to {@link #MAX_SAMPLE_VALUE_LENGTH} characters, without
+   * splitting a surrogate pair (e.g. an emoji) in two.
+   */
+  private static String truncate(String string)
+  {
+    if (string.length() <= MAX_SAMPLE_VALUE_LENGTH)
+    {
+      return string;
+    }
+
+    int end = MAX_SAMPLE_VALUE_LENGTH;
+
+    if (Character.isHighSurrogate(string.charAt(end - 1)) && Character.isLowSurrogate(string.charAt(end)))
+    {
+      end--;
+    }
+
+    return string.substring(0, end) + "…";
   }
 
   public void put(String baseType, String attributeName)

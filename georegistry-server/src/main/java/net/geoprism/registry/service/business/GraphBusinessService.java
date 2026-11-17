@@ -137,7 +137,8 @@ public class GraphBusinessService
    * "text": [...], "numeric": [...], "date": [...] } } - Numeric keys are also
    * added to TEXT (to match your original behavior).
    */
-  private SheetDTO getSheetInformationJson(InputStream jsonStream)
+  // Package-private so that it can be tested without a database
+  SheetDTO getSheetInformationJson(InputStream jsonStream)
   {
     try
     {
