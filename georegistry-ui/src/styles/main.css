@@ -132,7 +132,11 @@
   box-shadow: none;
 }
 
-.btn-group.define-attribute-btns .full-width-radio-button {
+.btn-group.define-attribute-btns.reduced .full-width-radio-button {
+  width: 16.66%;
+}
+
+.btn-group.define-attribute-btns.complete .full-width-radio-button {
   width: 14.25%;
 }
 

@@ -18,7 +18,6 @@
 ///
 
 import { Component, OnInit, ViewChild, Input, EventEmitter, Output } from '@angular/core';
-import { BsModalRef } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ErrorHandler } from '@shared/component';
 import { StepConfig } from '@shared/model/modal';
@@ -43,14 +42,16 @@ import { FormsModule } from '@angular/forms';
 export class DefineAttributeModalContentComponent implements OnInit {
   @Input() geoObjectType: AttributedType;
   @Input() service: AttributeTypeService;
+
   @Input() manageChangeOverTime: boolean = false;
+  @Input() isConceptClass: boolean = false;
 
   @Output() stateChange: EventEmitter<ManageGeoObjectTypeModalState> =
     new EventEmitter<ManageGeoObjectTypeModalState>();
   @Output() geoObjectTypeChange: EventEmitter<AttributedType> = new EventEmitter<AttributedType>();
 
-  message: string = null;
-  newAttribute: AttributeType = null;
+  message: string | null = null;
+  newAttribute: AttributeType | null = null;
   modalStepConfig: StepConfig = {
     steps: [
       { label: this.localizeService.decode('modal.step.indicator.manage.geoobjecttype'), active: true, enabled: false },
@@ -86,9 +87,9 @@ export class DefineAttributeModalContentComponent implements OnInit {
 
   handleOnSubmit(): void {
     this.service
-      .addAttributeType(this.geoObjectType.code, this.newAttribute)
+      .addAttributeType(this.geoObjectType.code, this.newAttribute!)
       .then((data) => {
-        this.geoObjectType.attributes.push(data);
+        this.geoObjectType.attributes!.push(data);
 
         this.stateChange.emit({ state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: '', termOption: '' });
 
