@@ -22,7 +22,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.geotools.api.data.FeatureSource;
@@ -144,11 +146,49 @@ public class ShapefileBusinessService extends DataImportBusinessService
     return tracker.getNonUniqueColumns();
   }
 
-  private SheetDTO getSheetInformation(File dbf, boolean ignoreProjection)
+  /**
+   * Reads the first {@link SheetDTO#MAX_SAMPLE_ROWS} features into the sheet's
+   * sample. Geometries are not read.
+   */
+  private void addSample(SheetDTO sheet, FeatureSource<SimpleFeatureType, SimpleFeature> source, List<AttributeDescriptor> descriptors) throws IOException
+  {
+    List<String> names = descriptors.stream().filter(d -> ! ( d instanceof GeometryDescriptor )).map(d -> d.getName().getLocalPart()).toList();
+
+    if (names.isEmpty())
+    {
+      return;
+    }
+
+    Query query = new Query(source.getSchema().getTypeName(), Filter.INCLUDE, names.toArray(new String[names.size()]));
+    query.setMaxFeatures(SheetDTO.MAX_SAMPLE_ROWS);
+
+    try (FeatureIterator<SimpleFeature> iterator = source.getFeatures(query).features())
+    {
+      while (iterator.hasNext() && !sheet.sampleFull())
+      {
+        SimpleFeature feature = iterator.next();
+
+        Map<String, Object> row = new LinkedHashMap<>();
+
+        for (String name : names)
+        {
+          row.put(name, feature.getAttribute(name));
+        }
+
+        sheet.addSampleRow(row);
+      }
+    }
+  }
+
+  // Package-private so that it can be tested without a database
+  SheetDTO getSheetInformation(File dbf, boolean ignoreProjection)
   {
     try
     {
       ShapefileDataStore store = new ShapefileDataStore(dbf.toURI().toURL());
+
+      // Read dates and text the same way as the import does
+      ShapefileImporter.configure(store, dbf);
 
       try
       {
@@ -211,6 +251,8 @@ public class ShapefileBusinessService extends DataImportBusinessService
           }
 
           sheet.getNonUniqueAttributes().addAll(this.getNonUniqueColumns(source, descriptors));
+
+          this.addSample(sheet, source, descriptors);
 
           return sheet;
         }

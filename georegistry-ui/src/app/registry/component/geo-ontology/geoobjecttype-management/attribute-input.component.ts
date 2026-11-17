@@ -27,6 +27,13 @@ import { LocalizedInputComponent } from '../../form-fields/localized-input/local
 import { GeoObjectAttributeCodeValidator } from '../../../factory/form-validation.factory';
 import { LocalizeComponent } from '@shared/component/localize/localize.component';
 import { BooleanFieldComponent } from '@shared/component/form-fields/boolean-field/boolean-field.component';
+import { TypeaheadMatch, TypeaheadModule } from 'ngx-bootstrap/typeahead';
+import { NgClass } from '@angular/common';
+import { ConceptSet, ObjectAtTime, ObjectOverTime } from '@registry/model/object-class';
+import { Observable, Observer } from 'rxjs';
+import { DateFieldComponent } from '@shared/component';
+import { ConceptSetService } from '@registry/service/concept-set.service';
+import { ConceptObjectService } from '@registry/service/concept-object.service';
 
 @Component({
   selector: 'attribute-input',
@@ -34,29 +41,64 @@ import { BooleanFieldComponent } from '@shared/component/form-fields/boolean-fie
   styleUrls: ['./attribute-input.css'],
   standalone: true,
   imports: [
+    NgClass,
     LocalizeComponent,
     FormsModule,
     GeoObjectAttributeCodeValidator,
     LocalizedInputComponent,
     LocalizedTextComponent,
     BooleanFieldComponent,
+    DateFieldComponent,
+    TypeaheadModule,
   ],
 })
 export class AttributeInputComponent implements OnChanges {
   @Input() isNew: boolean = false;
   @Input() excludeDescription: boolean = false;
-  @Input() type: string = null;
+  @Input() type: string | null = null;
   @Input() attribute: AttributeType;
   @Input() manageChangeOverTime: boolean = false;
   @Output() attributeChange = new EventEmitter<AttributeType>();
 
-  message: string = null;
-
+  message: string | null = null;
   state: string = 'none';
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  sets: ConceptSet[] = [];
+  currentSet: ConceptSet | null = null;
 
-  ngOnInit(): void {}
+  typeahead: Observable<ObjectAtTime[]> | null = null;
+  text: string;
+  loading: boolean;
+
+  constructor(
+    private cdr: ChangeDetectorRef,
+    private setService: ConceptSetService,
+    private cObjectService: ConceptObjectService
+  ) {}
+
+  ngOnInit(): void {
+    this.setService.getAll().then((sets) => {
+      this.sets = sets;
+
+      this.onConceptSetChange();
+    });
+
+    this.typeahead = new Observable((observer: Observer<ObjectAtTime[]>) => {
+      if (
+        this.attribute != null &&
+        this.attribute.conceptSet != null &&
+        this.attribute.conceptSet.length > 0 &&
+        this.attribute.startDate != null &&
+        this.attribute.startDate.length > 0
+      ) {
+        this.cObjectService
+          .searchSet(this.attribute.conceptSet, this.attribute.startDate, this.text)
+          .then((results) => {
+            observer.next(results);
+          });
+      }
+    });
+  }
 
   ngAfterViewInit() {
     this.state = 'show';
@@ -111,5 +153,33 @@ export class AttributeInputComponent implements OnChanges {
     }
 
     return false;
+  }
+
+  typeaheadOnSelect(match: TypeaheadMatch): void {
+    if (match != null) {
+      const item: ObjectOverTime = match.item;
+
+      this.text = item.label!;
+
+      if (this.attribute.rootTerm == null) {
+        this.attribute.rootTerm = item.code;
+      }
+    } else if (this.attribute.rootTerm != null) {
+      this.attribute.rootTerm = null;
+    }
+  }
+
+  onConceptSetChange(): void {
+    if (this.attribute.conceptSet != null && this.attribute.conceptSet.length > 0) {
+      this.currentSet = this.sets.find((f) => f.code === this.attribute.conceptSet)!;
+    } else {
+      this.currentSet = null;
+    }
+  }
+
+  onTextChange(): void {
+    if (this.attribute.rootTerm != null && (this.text == null || this.text.length === 0)) {
+      this.attribute.rootTerm = null;
+    }
   }
 }

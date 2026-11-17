@@ -23,15 +23,22 @@ import { ImportConfiguration } from '@registry/model/io';
 import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LocalizeComponent } from '@shared/component/localize/localize.component';
+import { TooltipModule } from 'primeng/tooltip';
+import { ImportDataPreviewComponent, getImportBaseTypeKey, getSampleValue } from './import-data-preview.component';
 
 @Component({
   selector: 'attributes-page',
   templateUrl: './attributes-page.component.html',
-  styleUrls: [],
+  styleUrls: ['./attributes-page.component.css'],
   standalone: true,
-  imports: [LocalizeComponent, FormsModule, NgClass],
+  imports: [LocalizeComponent, FormsModule, NgClass, TooltipModule, ImportDataPreviewComponent],
 })
 export class AttributesPageComponent {
+  /**
+   * Maximum number of example values shown beneath a column selection
+   */
+  private static readonly MAX_EXAMPLES = 3;
+
   @Input() configuration: ImportConfiguration;
   @Input() hasNext: boolean = false;
   @Input() hasBack: boolean = false;
@@ -40,6 +47,54 @@ export class AttributesPageComponent {
   @Output() stateChange = new EventEmitter<string>();
 
   constructor() {}
+
+  get sample(): { [column: string]: string }[] {
+    return this.configuration?.sheet?.sample || [];
+  }
+
+  /**
+   * Localization key for an import base type (text, numeric, date or boolean),
+   * which is the kind of column an attribute can be matched to
+   */
+  getBaseTypeKey(baseType: string): string {
+    return getImportBaseTypeKey(baseType);
+  }
+
+  /**
+   * The first few distinct, non-blank values of the column in the sample
+   */
+  getExamples(column: string): string[] {
+    const examples: string[] = [];
+
+    if (column != null && column.length > 0) {
+      for (const row of this.sample) {
+        const value = getSampleValue(row, column);
+
+        if (typeof value === 'string' && value.trim().length > 0 && examples.indexOf(value) === -1) {
+          examples.push(value);
+
+          if (examples.length >= AttributesPageComponent.MAX_EXAMPLES) {
+            break;
+          }
+        }
+      }
+    }
+
+    return examples;
+  }
+
+  /**
+   * Labels of the attributes which are currently mapped to the given column
+   */
+  getMappedAttributes = (column: string): string[] => {
+    const type = this.configuration?.type;
+
+    if (type == null) {
+      return [];
+    }
+
+    return type.attributes.filter((attribute) => attribute.target === column).map((attribute) => attribute.label.localizedValue);
+  };
 
   /**
    * True if the given column contains duplicate values within the imported file
@@ -50,7 +105,7 @@ export class AttributesPageComponent {
     return column != null && column.length > 0 && nonUnique != null && nonUnique.indexOf(column) !== -1;
   }
 
-    onNext(): void {
+  onNext(): void {
     this.configurationChange.emit(this.configuration);
     this.stateChange.emit('NEXT');
   }

@@ -24,13 +24,15 @@ import { FormsModule } from '@angular/forms';
 
 import { LocalizeComponent } from '@shared/component/localize/localize.component';
 import { SourceAuthority } from '@registry/model/source';
+import { LocalizationService } from '@shared/service';
+import { ImportDataPreviewComponent } from './import-data-preview.component';
 
 @Component({
   selector: 'edge-page',
   templateUrl: './edge-page.component.html',
   styleUrls: [],
   standalone: true,
-  imports: [LocalizeComponent, FormsModule],
+  imports: [LocalizeComponent, FormsModule, ImportDataPreviewComponent],
 })
 export class EdgePageComponent implements OnInit {
   @Input() configuration: EdgeImportConfiguration;
@@ -48,7 +50,13 @@ export class EdgePageComponent implements OnInit {
 
   public initialized: boolean = false;
 
-  constructor() {}
+  /**
+   * Localized labels of the fields which can be matched to a column, shown in
+   * the data preview
+   */
+  private labels: { source: string; sourceType: string; target: string; targetType: string };
+
+  constructor(private localizationService: LocalizationService) {}
 
   ngOnInit(): void {
     this.configuration.edgeSourceStrategy = 'CODE';
@@ -62,8 +70,43 @@ export class EdgePageComponent implements OnInit {
 
     this.textAttrs = [...this.configuration.sheet.attributes['text'].map((a) => ({ code: a, label: a }))];
 
+    this.labels = {
+      source: this.localizationService.decode('io.edge.source'),
+      sourceType: this.localizationService.decode('io.edge.sourceType'),
+      target: this.localizationService.decode('io.edge.target'),
+      targetType: this.localizationService.decode('io.edge.targetType'),
+    };
+
     this.initialized = true;
   }
+
+  /**
+   * Labels of the fields which are currently matched to the given column. The
+   * type fields only name a column when their strategy is CODE; with FIXED_TYPE
+   * they hold a type code instead.
+   */
+  getMappedFields = (column: string): string[] => {
+    const config = this.configuration;
+    const fields: string[] = [];
+
+    if (config.edgeSource === column) {
+      fields.push(this.labels.source);
+    }
+
+    if (config.edgeSourceTypeStrategy === 'CODE' && config.edgeSourceType === column) {
+      fields.push(this.labels.sourceType);
+    }
+
+    if (config.edgeTarget === column) {
+      fields.push(this.labels.target);
+    }
+
+    if (config.edgeTargetTypeStrategy === 'CODE' && config.edgeTargetType === column) {
+      fields.push(this.labels.targetType);
+    }
+
+    return fields;
+  };
 
   getTypeOptions(field: string, strategy: string) {
     if (strategy === 'FIXED_TYPE') {

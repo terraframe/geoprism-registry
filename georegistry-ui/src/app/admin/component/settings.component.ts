@@ -46,6 +46,7 @@ import { ConfigurationService } from '@core/service/configuration.service';
 import { OrganizationHierarchyModalComponent } from './organization/organization-hierarchy-modal.component';
 import { ImportOrganizationModalComponent } from './organization/import-organization-modal.component';
 import { RestoreModalComponent } from './backup-restore/restore-modal.component';
+import { BackupModalComponent } from './backup-restore/backup-modal.component';
 import { LocalizePipe } from '../../shared/pipe/localize.pipe';
 import { LoadingBarComponent } from '../../shared/component/loading-bar/loading-bar.component';
 import { SystemLogosComponent } from './logo/system-logos.component';
@@ -454,17 +455,10 @@ export class SettingsComponent implements OnInit {
   }
 
   onBackup() {
-    this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
+    this.modalService.show(BackupModalComponent, {
       animated: false,
       backdrop: true,
       ignoreBackdropClick: true,
-    });
-    this.bsModalRef.content.message = this.localizeService.decode('settings.backup.users.message');
-    this.bsModalRef.content.submitText = this.localizeService.decode('settings.backup.button');
-    this.bsModalRef.content.type = ModalTypes.warning;
-
-    this.bsModalRef.content.onConfirm.subscribe(() => {
-      window.location.href = environment.apiUrl + '/api/admin/backup';
     });
   }
 

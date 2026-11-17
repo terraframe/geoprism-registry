@@ -19,13 +19,13 @@
 
 /* eslint-disable no-use-before-define */
 /* eslint-disable padded-blocks */
-import { PageResult } from "@shared/model/core";
-import { LocalizationService } from "@shared/service/localization.service";
-import { ImportConfiguration } from "./io";
-import { GovernanceStatus } from "./constants";
-import Utils from "@registry/utility/Utils";
-import { RegistryService } from "@registry/service";
-import { LocalizedValue } from "@core/model/core";
+import { PageResult } from '@shared/model/core';
+import { LocalizationService } from '@shared/service/localization.service';
+import { ImportConfiguration } from './io';
+import { GovernanceStatus } from './constants';
+import Utils from '@registry/utility/Utils';
+import { RegistryService } from '@registry/service';
+import { LocalizedValue } from '@core/model/core';
 
 /**
  * Provides a reusable TypeCache which can be used across the app. Types will be automatically fetched
@@ -34,350 +34,352 @@ import { LocalizedValue } from "@core/model/core";
  * If you have an operation which needs to wait on the types, you may call the waitOnTypes method.
  */
 export class GeoObjectTypeCache {
+  private registryService: RegistryService;
 
-    private registryService: RegistryService;
+  private types: GeoObjectType[];
 
-    private types: GeoObjectType[];
+  private refreshPromise: Promise<GeoObjectType[]>;
 
-    private refreshPromise: Promise<GeoObjectType[]>;
+  public constructor(registryService: RegistryService) {
+    this.registryService = registryService;
 
-    public constructor(registryService: RegistryService) {
-        this.registryService = registryService;
+    this.refreshPromise = this.refresh();
+  }
 
-        this.refreshPromise = this.refresh();
+  public waitOnTypes(): Promise<GeoObjectType[]> {
+    if (this.refreshPromise) {
+      return this.refreshPromise;
+    } else if (this.types == null) {
+      return (this.refreshPromise = this.refresh());
+    } else {
+      return new Promise<GeoObjectType[]>((resolve, reject) => resolve(this.types));
     }
+  }
 
-    public waitOnTypes(): Promise<GeoObjectType[]> {
-        if (this.refreshPromise) {
-            return this.refreshPromise;
-        } else if (this.types == null) {
-            return (this.refreshPromise = this.refresh());
-        } else {
-            return new Promise<GeoObjectType[]>((resolve, reject) => resolve(this.types));
-        }
-    }
+  public ready(): boolean {
+    return this.types != null;
+  }
 
-    public ready(): boolean {
-        return this.types != null;
-    }
-
-    public refresh(): Promise<GeoObjectType[]> {
-        return this.registryService.getGeoObjectTypes(null).then(types => {
-            this.refreshPromise = null;
-            this.types = types;
-            return this.types;
-        }).catch(e => {
-            this.types = null;
-            this.refreshPromise = null;
-
-            return this.types;
-        });
-    }
-
-    public getTypeByCode(code: string): GeoObjectType {
-        if (!this.types) {
-            return null;
-        }
-
-        let index = this.types.findIndex(type => type.code === code);
-
-        if (index === -1) {
-            return null;
-        } else {
-            return this.types[index];
-        }
-    }
-
-    public getTypes() {
+  public refresh(): Promise<GeoObjectType[]> {
+    return this.registryService
+      .getGeoObjectTypes(null)
+      .then((types) => {
+        this.refreshPromise = null;
+        this.types = types;
         return this.types;
+      })
+      .catch((e) => {
+        this.types = null;
+        this.refreshPromise = null;
+
+        return this.types;
+      });
+  }
+
+  public getTypeByCode(code: string): GeoObjectType {
+    if (!this.types) {
+      return null;
     }
 
+    let index = this.types.findIndex((type) => type.code === code);
+
+    if (index === -1) {
+      return null;
+    } else {
+      return this.types[index];
+    }
+  }
+
+  public getTypes() {
+    return this.types;
+  }
 }
 
 export class TreeEntity {
-    id: string;
-    name: string;
-    hasChildren: boolean;
+  id: string;
+  name: string;
+  hasChildren: boolean;
 }
 
 export class Term {
-    code: string;
-    label: LocalizedValue;
-    description?: LocalizedValue;
-    children?: Term[];
+  code: string;
+  label: LocalizedValue;
+  description?: LocalizedValue;
+  children?: Term[];
 }
 
 export class GeoObject {
+  type: string;
+  geometry: any;
+  properties: {
+    uid: string;
+    code: string;
+    displayLabel: LocalizedValue;
     type: string;
-    geometry: any;
-    properties: {
-        uid: string,
-        code: string,
-        displayLabel: LocalizedValue,
-        type: string,
-        status: string[],
-        sequence: string
-        createDate: string,
-        lastUpdateDate: string,
-        invalid: boolean,
-        exists: boolean,
-        writable?: boolean
-    };
+    status: string[];
+    sequence: string;
+    createDate: string;
+    lastUpdateDate: string;
+    invalid: boolean;
+    exists: boolean;
+    writable?: boolean;
+  };
 }
 
 export interface AttributedType {
-    code: string;
-    attributes?: Array<AttributeType>;
+  code: string;
+  attributes?: Array<AttributeType>;
 }
 
-export const GEO_OBJECT_OPTION: string = "~#GO#~";
+export const GEO_OBJECT_OPTION: string = '~#GO#~';
 
 export class GraphType {
-    code: string;
-    typeCode: string;
-    label: LocalizedValue;
-    description?: LocalizedValue;
-    parentType?: string;
-    childType?: string;
+  code: string;
+  typeCode: string;
+  label: LocalizedValue;
+  description?: LocalizedValue;
+  parentType?: string;
+  childType?: string;
 }
 
 export class GeoObjectType implements AttributedType {
-    code: string;
-    label: LocalizedValue;
-    description: LocalizedValue;
-    geometryType?: string;
-    isLeaf: boolean;
-    isGeometryEditable: boolean;
-    organizationCode: string;
-    attributes: Array<AttributeType>;
-    relatedHierarchies?: string[];
-    superTypeCode?: string;
-    isAbstract?: boolean;
-    isPrivate?: boolean;
-    canDrag?: boolean;
-    permissions?: string[];
-    classification?: AttributeType;
+  code: string;
+  label: LocalizedValue;
+  description: LocalizedValue;
+  geometryType?: string;
+  isLeaf: boolean;
+  isGeometryEditable: boolean;
+  organizationCode: string;
+  attributes: Array<AttributeType>;
+  relatedHierarchies?: string[];
+  superTypeCode?: string;
+  isAbstract?: boolean;
+  isPrivate?: boolean;
+  canDrag?: boolean;
+  permissions?: string[];
+  classification?: AttributeType;
 
-    public static getAttribute(type: GeoObjectType, name: string) {
-        let len = type.attributes.length;
-        for (let i = 0; i < len; i++) {
-            let attr: any = type.attributes[i];
+  public static getAttribute(type: GeoObjectType, name: string) {
+    let len = type.attributes.length;
+    for (let i = 0; i < len; i++) {
+      let attr: any = type.attributes[i];
 
-            if (attr.code === name) {
-                return attr;
-            }
-        }
-
-        return null;
+      if (attr.code === name) {
+        return attr;
+      }
     }
 
-    public static getGeoObjectTypeTermAttributeOptions(geoObjectType: GeoObjectType, termAttributeCode: string) {
-        for (let i = 0; i < geoObjectType.attributes.length; i++) {
-            let attr: any = geoObjectType.attributes[i];
+    return null;
+  }
 
-            if (attr.type === "term" && attr.code === termAttributeCode) {
-                let attrOpts = attr.rootTerm.children;
+  public static getGeoObjectTypeTermAttributeOptions(geoObjectType: GeoObjectType, termAttributeCode: string) {
+    for (let i = 0; i < geoObjectType.attributes.length; i++) {
+      let attr: any = geoObjectType.attributes[i];
 
-                // only remove status of the required status type
-                if (attrOpts.length > 0) {
-                    if (attr.code === "status") {
-                        return Utils.removeStatuses(attrOpts);
-                    } else {
-                        return attrOpts;
-                    }
-                }
-            }
+      if (attr.type === 'term' && attr.code === termAttributeCode) {
+        let attrOpts = attr.rootTerm.children;
+
+        // only remove status of the required status type
+        if (attrOpts.length > 0) {
+          if (attr.code === 'status') {
+            return Utils.removeStatuses(attrOpts);
+          } else {
+            return attrOpts;
+          }
         }
-
-        return null;
+      }
     }
+
+    return null;
+  }
 }
 
 export class Task {
-    id: string;
-    templateKey: string;
-    msg: string;
-    title: string;
-    status: string;
-    createDate: number;
-    completedDate: number;
+  id: string;
+  templateKey: string;
+  msg: string;
+  title: string;
+  status: string;
+  createDate: number;
+  completedDate: number;
 }
 
 export class GeoObjectOverTime {
+  geoObjectType: GeoObjectType;
 
-    geoObjectType: GeoObjectType;
+  attributes: any;
 
-    attributes: any;
+  public constructor(geoObjectType: GeoObjectType, attributes: any) {
+    this.geoObjectType = geoObjectType;
+    this.attributes = attributes;
+  }
 
-    public constructor(geoObjectType: GeoObjectType, attributes: any) {
-        this.geoObjectType = geoObjectType;
-        this.attributes = attributes;
-    }
+  public getVotAtDate(date: Date, attrCode: string, lService: LocalizationService) {
+    let retVot = { startDate: date, endDate: null, value: null };
 
-    public getVotAtDate(date: Date, attrCode: string, lService: LocalizationService) {
-        let retVot = { startDate: date, endDate: null, value: null };
+    const time = date.getTime();
 
-        const time = date.getTime();
+    for (let i = 0; i < this.geoObjectType.attributes.length; ++i) {
+      let attr = this.geoObjectType.attributes[i];
 
-        for (let i = 0; i < this.geoObjectType.attributes.length; ++i) {
-            let attr = this.geoObjectType.attributes[i];
-
-            if (attr.code === attrCode) {
-                if (attr.type === "local") {
-                    retVot.value = lService.create();
-                }
-
-                if (attr.isChangeOverTime) {
-                    let values = this.attributes[attr.code].values;
-
-                    values.forEach(vot => {
-
-                        const startDate = Date.parse(vot.startDate);
-                        const endDate = Date.parse(vot.endDate);
-
-                        if (time >= startDate && time <= endDate) {
-
-                            if (attr.type === "local") {
-                                retVot.value = JSON.parse(JSON.stringify(vot.value));
-                            } else if (attr.type === "term" && vot.value != null && Array.isArray(vot.value) && vot.value.length > 0) {
-                                retVot.value = vot.value[0];
-                            } else {
-                                retVot.value = vot.value;
-                            }
-                        }
-                    });
-                } else {
-                    retVot.value = this.attributes[attr.code];
-                }
-
-                break;
-            }
+      if (attr.code === attrCode) {
+        if (attr.type === 'local') {
+          retVot.value = lService.create();
         }
 
-        return retVot;
+        if (attr.isChangeOverTime) {
+          let values = this.attributes[attr.code].values;
+
+          values.forEach((vot) => {
+            const startDate = Date.parse(vot.startDate);
+            const endDate = Date.parse(vot.endDate);
+
+            if (time >= startDate && time <= endDate) {
+              if (attr.type === 'local') {
+                retVot.value = JSON.parse(JSON.stringify(vot.value));
+              } else if (
+                attr.type === 'term' &&
+                vot.value != null &&
+                Array.isArray(vot.value) &&
+                vot.value.length > 0
+              ) {
+                retVot.value = vot.value[0];
+              } else {
+                retVot.value = vot.value;
+              }
+            }
+          });
+        } else {
+          retVot.value = this.attributes[attr.code];
+        }
+
+        break;
+      }
     }
+
+    return retVot;
+  }
 }
 
 export interface TimeRangeEntry {
-    startDate: string;
-    endDate: string;
-    oid?: string;
-    value?: any;
+  startDate: string;
+  endDate: string;
+  oid?: string;
+  value?: any;
 }
 
 export class ValueOverTime implements TimeRangeEntry {
-    oid: string;
-    startDate: string;
-    endDate: string;
-    value: any;
-    removable?: boolean;
+  oid: string;
+  startDate: string;
+  endDate: string;
+  value: any;
+  removable?: boolean;
 }
 
 export class AttributeOverTime {
-    name: string;
-    type: string;
-    values: ValueOverTime[];
+  name: string;
+  type: string;
+  values: ValueOverTime[];
 }
 
 export class AttributeType {
-    code: string; // On the back-end this is referred to as the AttributeType's 'name'. They are the same concept.
-    type: string;
-    label: LocalizedValue;
-    description: LocalizedValue;
-    isDefault: boolean;
-    required: boolean;
-    unique: boolean;
-    governanceStatus?: GovernanceStatus;
-    isChangeOverTime?: boolean;
-    precision?: number;
-    scale?: number;
-    isValid?: boolean;
-    isValidReason?: { timeConflict: boolean, existConflict: boolean, dateField: boolean };
-    isValidReasonHierarchy?: any;
-    locale?: string;
+  code: string; // On the back-end this is referred to as the AttributeType's 'name'. They are the same concept.
+  type: string;
+  label: LocalizedValue;
+  description: LocalizedValue;
+  isDefault: boolean;
+  required: boolean;
+  unique: boolean;
+  governanceStatus?: GovernanceStatus;
+  isChangeOverTime?: boolean;
+  precision?: number;
+  scale?: number;
+  isValid?: boolean;
+  isValidReason?: { timeConflict: boolean; existConflict: boolean; dateField: boolean };
+  isValidReasonHierarchy?: any;
+  locale?: string;
 
-    // Used for the import configuration to map types to target columns
-    target?: string;
+  // Used for the import configuration to map types to target columns
+  target?: string;
 
-    // Used for the import configuration to denote base type of the attribute
-    baseType?: string;
+  // Used for the import configuration to denote base type of the attribute
+  baseType?: string;
 
-    // Attribute Classification Type specific attributes 
-    conceptSet?: string;
-    rootTerm?: string;
-    startDate?: string;
-    endDate?: string;
-
+  // Attribute Classification Type specific attributes
+  conceptSet?: string;
+  rootTerm?: string | null;
+  startDate?: string;
+  endDate?: string;
 }
 
 export class TreeNode {
-    geoObject: GeoObject;
-    hierarchyType: string;
+  geoObject: GeoObject;
+  hierarchyType: string;
 }
 
 export class ChildTreeNode extends TreeNode {
-    children: ChildTreeNode[];
+  children: ChildTreeNode[];
 }
 
 export class ParentTreeNode extends TreeNode {
-    parents: ParentTreeNode[];
+  parents: ParentTreeNode[];
 }
 
 export class ManageGeoObjectTypeModalState {
-    state: string;
-    attribute: any;
-    termOption: any;
+  state: string;
+  attribute: any;
+  termOption: any;
 }
 
 export class AbstractScheduledJob {
-    jobId: string;
-    historyId: string;
-    stage: string;
-    status: string;
-    author: string;
-    createDate: string;
-    lastUpdateDate: string;
-    workProgress: number;
-    workTotal: number;
-    startDate: string;
-    endDate: string;
-    exception?: {
-        message: string,
-        type: string
-    }
+  jobId: string;
+  historyId: string;
+  stage: string;
+  status: string;
+  author: string;
+  createDate: string;
+  lastUpdateDate: string;
+  workProgress: number;
+  workTotal: number;
+  startDate: string;
+  endDate: string;
+  exception?: {
+    message: string;
+    type: string;
+  };
 }
 
 export class ValidationResolve {
-    resolution: "IGNORE" | "SYNONYM" | "UNRESOLVED";
-    validationProblemId: string;
-    label?: string;
-    typeCode?: string;
-    code?: string;
-    classifierId?: string;
+  resolution: 'IGNORE' | 'SYNONYM' | 'UNRESOLVED';
+  validationProblemId: string;
+  label?: string;
+  typeCode?: string;
+  code?: string;
+  classifierId?: string;
 }
 
 export class ErrorResolve {
-    resolution: "IGNORE" | "APPLY_GEO_OBJECT" | "UNRESOLVED";
-    historyId: string;
-    importErrorId: string;
-    parentTreeNode?: any;
-    geoObject?: any;
-    isNew: boolean;
+  resolution: 'IGNORE' | 'APPLY_GEO_OBJECT' | 'UNRESOLVED';
+  historyId: string;
+  importErrorId: string;
+  parentTreeNode?: any;
+  geoObject?: any;
+  isNew: boolean;
 }
 
 export class ScheduledJob extends AbstractScheduledJob {
-    importedRecords: number;
-    exportedRecords: number;
-    configuration: ImportConfiguration;
-    importErrors: PageResult<any>;
-    exportErrors: PageResult<any>;
-    problems: PageResult<any>;
-    fileName: string;
-    exception?: { type: string, message: string };
+  importedRecords: number;
+  exportedRecords: number;
+  configuration: ImportConfiguration;
+  importErrors: PageResult<any>;
+  exportErrors: PageResult<any>;
+  problems: PageResult<any>;
+  fileName: string;
+  exception?: { type: string; message: string };
 }
 
 export class ScheduledJobOverview extends ScheduledJob {
-    stepConfig: StepConfig;
+  stepConfig: StepConfig;
 }
 
 // export class ScheduledJobDetail extends ScheduledJob {
@@ -386,99 +388,98 @@ export class ScheduledJobOverview extends ScheduledJob {
 // }
 
 export class ImportError {
-    exception: ServerException;
-    object: ImportErrorObject;
-    objectType: string;
-    id: string;
-    resolution: string;
-    selected?: boolean;
+  exception: ServerException;
+  object: ImportErrorObject;
+  objectType: string;
+  id: string;
+  resolution: string;
+  selected?: boolean;
 }
 
 export class ServerException {
-    attributes: ServerExceptionAttribute[];
-    type: string;
-    message: string;
+  attributes: ServerExceptionAttribute[];
+  type: string;
+  message: string;
 }
 
 export class ServerExceptionAttribute {
-    value: string;
-    key: string;
+  value: string;
+  key: string;
 }
 
 export class ImportErrorObject {
-    geoObject: GeoObjectOverTime;
-    parents: HierarchyOverTime[];
-    isNew: boolean;
+  geoObject: GeoObjectOverTime;
+  parents: HierarchyOverTime[];
+  isNew: boolean;
 }
 
 export class StepConfig {
-    steps: Step[];
+  steps: Step[];
 }
 
 export class Step {
-    label: string;
-    complete?: boolean;
-    enabled?: boolean;
-    status?: string;
+  label: string;
+  complete?: boolean;
+  enabled?: boolean;
+  status?: string;
 }
 
 export class HierarchyOverTime {
+  code: string;
+  label: string;
+  types: {
     code: string;
     label: string;
-    types: {
-        code: string;
-        label: string;
-        inherited: string;
-    }[];
+    inherited: string;
+  }[];
 
-    entries: HierarchyOverTimeEntry[];
+  entries: HierarchyOverTimeEntry[];
 }
 
 export class HierarchyOverTimeEntry implements TimeRangeEntry {
-    startDate: string;
-    endDate: string;
-    dataSource: string;
-    oid: string;
-    parents: { [k: string]: HierarchyOverTimeEntryParent };
-    loading?: any;
-    conflictType?: string;
-    conflictMessage?: any[];
+  startDate: string;
+  endDate: string;
+  dataSource: string;
+  oid: string;
+  parents: { [k: string]: HierarchyOverTimeEntryParent };
+  loading?: any;
+  conflictType?: string;
+  conflictMessage?: any[];
 }
 
 export class HierarchyOverTimeEntryParent {
-    text: string;
-    geoObject: GeoObject;
-    goCode?: string;
+  text: string;
+  geoObject: GeoObject;
+  goCode?: string;
 }
 
 export class SynchronizationConfig {
-    oid?: string;
-    type?: string;
-    systemLabel?: string;
-    organization: string;
-    system: string;
-    hierarchy: string;
-    label: LocalizedValue;
-    configuration: any;
-    synchronizationType: string;
-    publishUid?: string;
+  oid?: string;
+  type?: string;
+  systemLabel?: string;
+  organization: string;
+  system: string;
+  hierarchy: string;
+  label: LocalizedValue;
+  configuration: any;
+  synchronizationType: string;
+  publishUid?: string;
 }
 
 export class OrgSyncInfo {
-    label: string;
-    code: string;
-    hierarchies: { label: string, code: string }[];
-    systems: { label: string, oid: string, type: string }[];
+  label: string;
+  code: string;
+  hierarchies: { label: string; code: string }[];
+  systems: { label: string; oid: string; type: string }[];
 }
 
 export class ExportScheduledJob extends AbstractScheduledJob {
-    stepConfig?: StepConfig;
-    fileName: string;
+  stepConfig?: StepConfig;
+  fileName: string;
 }
 
 export class ImportHistory {
-    historyId: string;
-    filename: string;
-    importDate: string;
+  historyId: string;
+  filename: string;
+  importDate: string;
 }
-

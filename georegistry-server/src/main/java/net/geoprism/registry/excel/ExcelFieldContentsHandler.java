@@ -21,11 +21,13 @@ package net.geoprism.registry.excel;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.poi.ss.util.CellReference;
@@ -251,6 +253,16 @@ public class ExcelFieldContentsHandler implements SheetHandler
    */
   private ColumnUniquenessTracker uniqueness;
 
+  /**
+   * The first few data rows of the current sheet, used as a preview
+   */
+  private List<Map<String, String>> sample;
+
+  /**
+   * Values of the current row, keyed by column position
+   */
+  private TreeMap<Integer, String> currentRow;
+
   public ExcelFieldContentsHandler()
   {
     this.sheets = new LinkedList<>();
@@ -286,6 +298,8 @@ public class ExcelFieldContentsHandler implements SheetHandler
     this.map = new HashMap<Integer, Field>();
     this.attributeNames = new TreeSet<String>();
     this.uniqueness = new ColumnUniquenessTracker();
+    this.sample = new LinkedList<>();
+    this.currentRow = new TreeMap<>();
   }
 
   private boolean validateField(Field field, Integer columnPosition)
@@ -330,6 +344,8 @@ public class ExcelFieldContentsHandler implements SheetHandler
 
       sheet.getNonUniqueAttributes().addAll(this.uniqueness.getNonUniqueColumns());
 
+      this.sample.forEach(row -> sheet.addSampleRow(row));
+
       this.sheets.add(sheet);
     }
     catch (JSONException e)
@@ -342,11 +358,27 @@ public class ExcelFieldContentsHandler implements SheetHandler
   public void startRow(int rowNum)
   {
     this.rowNum = rowNum;
+    this.currentRow.clear();
   }
 
   @Override
   public void endRow()
   {
+    if (this.rowNum > 0 && this.sample.size() < SheetDTO.MAX_SAMPLE_ROWS && !this.currentRow.isEmpty())
+    {
+      Map<String, String> row = new LinkedHashMap<>();
+
+      this.currentRow.forEach((column, value) -> {
+        Field field = this.map.get(column);
+
+        if (field != null)
+        {
+          row.put(field.getName(), value);
+        }
+      });
+
+      this.sample.add(row);
+    }
   }
 
   @Override
@@ -389,6 +421,11 @@ public class ExcelFieldContentsHandler implements SheetHandler
         attribute.addDataType(cellType);
 
         this.uniqueness.add(attribute.getName(), formattedValue);
+
+        if (this.sample.size() < SheetDTO.MAX_SAMPLE_ROWS)
+        {
+          this.currentRow.put(colNum, formattedValue);
+        }
 
         if (cellType.equals(ColumnType.NUMBER))
         {

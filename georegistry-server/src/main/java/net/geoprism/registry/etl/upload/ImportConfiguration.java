@@ -459,6 +459,23 @@ public abstract class ImportConfiguration extends JobConfiguration
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Returns the description of the attribute. Built-in default attributes
+   * always use the description defined in {@link DefaultAttribute}, since the
+   * copy stored in the database when the type was created may be outdated.
+   */
+  private static LocalizedValue getDescription(net.geoprism.registry.graph.AttributeType attribute)
+  {
+    DefaultAttribute defaultAttribute = DefaultAttribute.getByAttributeName(attribute.getCode());
+
+    if (defaultAttribute != null)
+    {
+      return new LocalizedValue(defaultAttribute.getDefaultDescription());
+    }
+
+    return attribute.getLocalizedDescription();
+  }
+
   public static ImportTypeDTO toTypeDTO(ObjectClassIF type, Map<String, ShapefileFunction> functions)
   {
     TypeInfo typeInfo = type.getTypeInfo();
@@ -485,6 +502,7 @@ public abstract class ImportConfiguration extends JobConfiguration
             base.setBaseType(getBaseType(attribute));
             base.setLocale(LocalizedValue.DEFAULT_LOCALE);
             base.setLabel(attribute.getLocalizedLabel().appendLocalizedValue(" (" + LocalizationFacade.localize(DefaultLocaleView.LABEL) + ")"));
+            base.setDescription(getDescription(attribute));
             base.setRequired(attribute.getRequired());
 
             if (function.has(LocalizedValue.DEFAULT_LOCALE))
@@ -505,6 +523,7 @@ public abstract class ImportConfiguration extends JobConfiguration
               aDto.setBaseType(getBaseType(attribute));
               aDto.setLocale(localeCode);
               aDto.setLabel(attribute.getLocalizedLabel().appendLocalizedValue(" (" + locale.getDisplayLabel().getValue() + ")"));
+              aDto.setDescription(getDescription(attribute));
 
               if (function.has(localeCode))
               {
@@ -524,6 +543,7 @@ public abstract class ImportConfiguration extends JobConfiguration
             column.setCode(attributeName);
             column.setBaseType(getBaseType(attribute));
             column.setLabel(attribute.getLocalizedLabel());
+            column.setDescription(getDescription(attribute));
             column.setRequired(attribute.getRequired());
 
             if (functions.containsKey(attributeName))

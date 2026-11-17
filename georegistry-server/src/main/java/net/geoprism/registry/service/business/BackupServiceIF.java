@@ -19,6 +19,7 @@
 package net.geoprism.registry.service.business;
 
 import java.io.File;
+import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
@@ -26,6 +27,17 @@ import org.springframework.stereotype.Component;
 public interface BackupServiceIF
 {
 
-  void createBackup(File zipfile);
+  /**
+   * Creates a backup containing every {@link BackupSection}
+   */
+  default void createBackup(File zipfile)
+  {
+    this.createBackup(zipfile, BackupSection.all());
+  }
+
+  /**
+   * Creates a backup containing only the given sections
+   */
+  void createBackup(File zipfile, Set<BackupSection> sections);
 
 }

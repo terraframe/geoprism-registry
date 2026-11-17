@@ -19,19 +19,23 @@
 package net.geoprism.registry.service.request;
 
 import java.io.InputStream;
+import java.util.Set;
 
 import org.springframework.stereotype.Component;
+
+import net.geoprism.registry.service.business.BackupSection;
 
 @Component
 public interface BackupAndRestoreServiceIF
 {
 
   /**
-   * Creates a backup of the data in the system
+   * Creates a backup of the given sections of the data in the system
    * 
-   * @param zipfile
+   * @param sessionId
+   * @param sections
    */
-  public InputStream backup(String sessionId);
+  public InputStream backup(String sessionId, Set<BackupSection> sections);
 
   /**
    * Deletes the data in the system

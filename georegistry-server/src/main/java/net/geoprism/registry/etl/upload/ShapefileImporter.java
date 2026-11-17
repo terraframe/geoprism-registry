@@ -24,6 +24,8 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +35,7 @@ import java.util.zip.ZipInputStream;
 import org.geotools.api.data.FileDataStore;
 import org.geotools.api.data.FileDataStoreFinder;
 import org.geotools.api.data.Query;
+import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.simple.DelegateSimpleFeatureReader;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
@@ -61,6 +64,7 @@ import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.data.importer.SimpleFeatureRow;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.InvalidProjectionException;
 import net.geoprism.registry.UnableToReadProjectionException;
 import net.geoprism.registry.etl.CloseableDelegateFile;
@@ -78,6 +82,109 @@ import net.geoprism.registry.io.GeoObjectImportConfiguration;
 public class ShapefileImporter implements FormatSpecificImporterIF
 {
   protected static final Logger      logger     = LoggerFactory.getLogger(ShapefileImporter.class);
+
+  /**
+   * Configures a shapefile data store the way GPR reads shapefiles, for both
+   * the import and the preview shown while matching columns:
+   * <ul>
+   * <li>DBF dates are read as UTC, the time zone GPR stores dates in.
+   * Otherwise they are read in the JVM's time zone and can shift by a
+   * day.</li>
+   * <li>Text is decoded with the encoding named in the .cpg file, when there
+   * is one. GeoTools ignores the .cpg file and assumes ISO-8859-1, which
+   * garbles non-ASCII text in UTF-8 shapefiles (the ArcGIS default).</li>
+   * </ul>
+   *
+   * @param file
+   *          Any file of the shapefile (.shp, .dbf, ...), used to find the .cpg
+   */
+  public static void configure(ShapefileDataStore store, File file)
+  {
+    store.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+
+    Charset charset = getCharset(file);
+
+    if (charset != null)
+    {
+      store.setCharset(charset);
+    }
+  }
+
+  /**
+   * @return The encoding named in the shapefile's .cpg file, or null if there
+   *         is no .cpg file or its encoding is not recognized
+   */
+  public static Charset getCharset(File file)
+  {
+    String name = file.getName();
+    int index = name.lastIndexOf('.');
+    String base = index == -1 ? name : name.substring(0, index);
+
+    for (String extension : new String[] { ".cpg", ".CPG", ".Cpg" })
+    {
+      File cpg = new File(file.getParentFile(), base + extension);
+
+      if (cpg.isFile())
+      {
+        try
+        {
+          return parseCharset(Files.readString(cpg.toPath(), StandardCharsets.US_ASCII));
+        }
+        catch (IOException e)
+        {
+          logger.warn("Unable to read the shapefile encoding from [" + cpg + "]", e);
+
+          return null;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Parses the contents of a .cpg file, e.g. "UTF-8", "1252" or "ANSI 1252"
+   *
+   * @return The charset, or null if it is blank or not recognized
+   */
+  public static Charset parseCharset(String contents)
+  {
+    String value = contents == null ? "" : contents.trim();
+
+    if (value.toUpperCase().startsWith("ANSI "))
+    {
+      value = value.substring(5).trim();
+    }
+
+    if (value.isEmpty())
+    {
+      return null;
+    }
+
+    // Bare code page numbers, as written by ArcGIS
+    if (value.matches("\\d+"))
+    {
+      if (value.equals("65001"))
+      {
+        value = "UTF-8";
+      }
+      else
+      {
+        value = value.matches("8859\\d+") ? "ISO-8859-" + value.substring(4) : "windows-" + value;
+      }
+    }
+
+    try
+    {
+      return Charset.forName(value);
+    }
+    catch (IllegalArgumentException e)
+    {
+      logger.warn("Unrecognized shapefile encoding [" + contents + "], falling back to the default");
+
+      return null;
+    }
+  }
 
   protected ApplicationResource      resource;
 
@@ -218,6 +325,11 @@ public class ShapefileImporter implements FormatSpecificImporterIF
   private void process(ImportStage stage, File shp) throws InvocationTargetException, IOException, InterruptedException
   {
     FileDataStore myData = FileDataStoreFinder.getDataStore(shp);
+
+    if (myData instanceof ShapefileDataStore)
+    {
+      configure((ShapefileDataStore) myData, shp);
+    }
 
     SimpleFeatureSource source = myData.getFeatureSource();
     SimpleFeatureType schema = source.getSchema();

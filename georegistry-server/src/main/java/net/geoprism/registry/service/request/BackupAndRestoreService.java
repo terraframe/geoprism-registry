@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,7 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
+import net.geoprism.registry.service.business.BackupSection;
 import net.geoprism.registry.service.business.BackupAndRestoreBusinessServiceIF;
 
 @Service
@@ -44,13 +46,13 @@ public class BackupAndRestoreService implements BackupAndRestoreServiceIF
 
   @Override
   @Request(RequestType.SESSION)
-  public InputStream backup(String sessionId)
+  public InputStream backup(String sessionId, Set<BackupSection> sections)
   {
     try
     {
       Path path = Files.createTempFile("gpr-dump", ".zip");
 
-      this.service.createBackup(path.toFile());
+      this.service.createBackup(path.toFile(), sections);
 
       return Files.newInputStream(path, StandardOpenOption.DELETE_ON_CLOSE);
     }
