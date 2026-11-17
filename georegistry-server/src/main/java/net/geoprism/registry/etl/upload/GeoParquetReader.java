@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -30,13 +29,16 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.duckdb.DuckDBDriver;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKBReader;
@@ -46,6 +48,7 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.runwaysdk.business.SmartException;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.resource.CloseableFile;
@@ -54,10 +57,11 @@ import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.registry.InvalidProjectionException;
 import net.geoprism.registry.UnableToReadProjectionException;
 import net.geoprism.registry.etl.ImportFileFormatException;
+import net.geoprism.registry.io.InvalidGeometryException;
 
 /**
- * Reads a GeoParquet file (https://geoparquet.org) using an embedded, in-memory
- * DuckDB database.
+ * Reads a GeoParquet file (https://geoparquet.org), or a dataset split across
+ * several GeoParquet files, using an embedded, in-memory DuckDB database.
  * <p>
  * The parquet reader is statically linked into the DuckDB JDBC driver, so no
  * DuckDB extensions are required. The database is locked down so that it can
@@ -84,6 +88,11 @@ public class GeoParquetReader implements AutoCloseable
   private static final String THREADS           = "2";
 
   private static final String ROW_NUMBER_COLUMN = "file_row_number";
+
+  /**
+   * An in-memory database
+   */
+  private static final String JDBC_URL          = "jdbc:duckdb:";
 
   /**
    * Callback for {@link GeoParquetReader#read}. Return false to stop reading.
@@ -143,11 +152,23 @@ public class GeoParquetReader implements AutoCloseable
 
     private final Long                rowNumber;
 
+    /**
+     * Why the row's geometry could not be parsed, or null if it was parsed (or
+     * is empty)
+     */
+    private final ParseException      geometryError;
+
     public Row(Map<String, Object> values, Geometry geometry, Long rowNumber)
+    {
+      this(values, geometry, rowNumber, null);
+    }
+
+    public Row(Map<String, Object> values, Geometry geometry, Long rowNumber, ParseException geometryError)
     {
       this.values = values;
       this.geometry = geometry;
       this.rowNumber = rowNumber;
+      this.geometryError = geometryError;
     }
 
     @Override
@@ -162,13 +183,53 @@ public class GeoParquetReader implements AutoCloseable
       return this.rowNumber;
     }
 
+    /**
+     * @return The row's geometry, or null if it has none (or geometries were
+     *         not read)
+     * @throws InvalidGeometryException
+     *           if the geometry could not be parsed. The importers call this
+     *           for each row, so the problem is reported against the row,
+     *           rather than stopping the import.
+     */
     public Geometry getGeometry()
     {
+      if (this.geometryError != null)
+      {
+        throw new InvalidGeometryException("Unable to parse the geometry on row [" + this.rowNumber + "]: " + this.geometryError.getMessage(), this.geometryError);
+      }
+
       return geometry;
+    }
+
+    /**
+     * @return Why the geometry could not be parsed, or null
+     */
+    public ParseException getGeometryError()
+    {
+      return geometryError;
+    }
+
+    /**
+     * @return The values of the importable columns, in column order
+     */
+    public Map<String, Object> getValues()
+    {
+      return Collections.unmodifiableMap(this.values);
     }
   }
 
-  private final String       path;
+  /**
+   * The parts of the dataset, in read order. A dataset is usually one file,
+   * but can be split into several files with the same schema (e.g.
+   * part-0.parquet, part-1.parquet, ...), as written by Spark, Sedona, DuckDB
+   * and GDAL.
+   */
+  private final List<String> paths;
+
+  /**
+   * Number of rows in each part
+   */
+  private final long[]       counts;
 
   private final Connection   connection;
 
@@ -178,11 +239,28 @@ public class GeoParquetReader implements AutoCloseable
 
   private final List<Column> columns;
 
+  /**
+   * @param file
+   *          A GeoParquet file, or a directory containing the parts of a
+   *          GeoParquet dataset (every .parquet file under it, recursively)
+   */
   public GeoParquetReader(File file)
   {
+    List<File> files = file.isDirectory() ? ImportFileResources.findFiles(file, EXTENSION) : List.of(file);
+
+    if (files.isEmpty())
+    {
+      throw ImportFileResources.newMissingFileException(EXTENSION);
+    }
+
+    this.paths = new ArrayList<>();
+
     try
     {
-      this.path = file.getCanonicalPath();
+      for (File f : files)
+      {
+        this.paths.add(f.getCanonicalPath());
+      }
     }
     catch (IOException e)
     {
@@ -191,7 +269,7 @@ public class GeoParquetReader implements AutoCloseable
 
     try
     {
-      this.connection = openConnection(this.path);
+      this.connection = openConnection(this.paths);
     }
     catch (SQLException e)
     {
@@ -200,43 +278,150 @@ public class GeoParquetReader implements AutoCloseable
 
     try
     {
-      JsonObject metadata = this.readGeoMetadata();
+      String first = this.paths.get(0);
+
+      JsonObject metadata = this.readGeoMetadata(first);
 
       this.geometryColumn = metadata.get("primary_column").getAsString();
       this.geometryMetadata = metadata.getAsJsonObject("columns").getAsJsonObject(this.geometryColumn);
 
       if (this.geometryMetadata == null)
       {
-        throw new ImportFileFormatException("GeoParquet metadata does not describe the primary column [" + this.geometryColumn + "]");
+        throw invalid(first, "The GeoParquet metadata does not describe the primary geometry column [" + this.geometryColumn + "].");
       }
 
       String encoding = this.geometryMetadata.has("encoding") ? this.geometryMetadata.get("encoding").getAsString() : null;
 
       if (!WKB_ENCODING.equalsIgnoreCase(encoding))
       {
-        throw new ImportFileFormatException("Unsupported GeoParquet geometry encoding [" + encoding + "]. Only WKB is supported.");
+        throw ImportFileFormatException.withDetails("The GeoParquet geometry encoding [" + encoding + "] is not supported. Only WKB encoded geometries can be imported.");
       }
 
-      this.columns = this.readColumns(metadata.getAsJsonObject("columns").keySet());
+      this.columns = this.readColumns(first, metadata.getAsJsonObject("columns").keySet());
+
+      for (int i = 1; i < this.paths.size(); i++)
+      {
+        this.validatePart(this.paths.get(i));
+      }
+
+      this.counts = new long[this.paths.size()];
+
+      for (int i = 0; i < this.paths.size(); i++)
+      {
+        this.counts[i] = this.count(this.paths.get(i));
+      }
     }
     catch (SQLException | RuntimeException e)
     {
       this.close();
 
-      if (e instanceof ImportFileFormatException)
+      if (e instanceof SmartException)
       {
-        throw (ImportFileFormatException) e;
+        throw (SmartException) e;
       }
 
       // Not a parquet file, or the GeoParquet metadata is malformed
-      throw new ImportFileFormatException(e);
+      throw this.fileError("[" + new File(this.paths.get(0)).getName() + "] is not a valid GeoParquet file. ", e);
     }
   }
 
   /**
-   * Opens an in-memory DuckDB database which can only read the given file.
+   * Creates an error for a file which DuckDB could not read, with DuckDB's
+   * description of the problem, without the server's temporary file paths.
    */
-  private static Connection openConnection(String path) throws SQLException
+  private ImportFileFormatException fileError(String prefix, Throwable e)
+  {
+    String details = ImportFileFormatException.describe(e);
+
+    for (String path : this.paths)
+    {
+      details = details.replace(path, new File(path).getName());
+    }
+
+    return ImportFileFormatException.withDetails(prefix + details, e);
+  }
+
+  /**
+   * @param path
+   *          The file which can't be read as GeoParquet
+   */
+  private static ImportFileFormatException invalid(String path, String details)
+  {
+    return ImportFileFormatException.withDetails("[" + new File(path).getName() + "] is not a valid GeoParquet file. " + details);
+  }
+
+  /**
+   * Ensures another part of the dataset matches the first: the same primary
+   * geometry column, encoding, CRS and edges, and the same importable columns
+   * with the same types. Per-file details such as the bounding box and
+   * geometry types are allowed to differ.
+   */
+  private void validatePart(String path) throws SQLException
+  {
+    String name = new File(path).getName();
+    String first = new File(this.paths.get(0)).getName();
+
+    JsonObject metadata = this.readGeoMetadata(path);
+
+    String primary = metadata.has("primary_column") ? metadata.get("primary_column").getAsString() : null;
+
+    if (!this.geometryColumn.equals(primary))
+    {
+      throw ImportFileFormatException.withDetails("The GeoParquet file [" + name + "] has a different primary geometry column than [" + first + "]. Every file in the zip must have the same columns and geometry settings.");
+    }
+
+    JsonObject geometry = metadata.getAsJsonObject("columns").getAsJsonObject(primary);
+
+    for (String key : new String[] { "encoding", "crs", "edges" })
+    {
+      if (!Objects.equals(this.geometryMetadata.get(key), geometry == null ? null : geometry.get(key)))
+      {
+        throw ImportFileFormatException.withDetails("The GeoParquet file [" + name + "] has a different geometry [" + key + "] than [" + first + "]. Every file in the zip must have the same columns and geometry settings.");
+      }
+    }
+
+    List<Column> columns = this.readColumns(path, metadata.getAsJsonObject("columns").keySet());
+
+    boolean matches = columns.size() == this.columns.size();
+
+    for (int i = 0; matches && i < columns.size(); i++)
+    {
+      matches = columns.get(i).getName().equals(this.columns.get(i).getName()) && columns.get(i).getSqlType().equals(this.columns.get(i).getSqlType());
+    }
+
+    if (!matches)
+    {
+      throw ImportFileFormatException.withDetails("The GeoParquet file [" + name + "] does not have the same columns as [" + first + "]. Every file in the zip must have the same columns and geometry settings.");
+    }
+  }
+
+  /**
+   * Opens a new in-memory DuckDB database.
+   * <p>
+   * The driver is created directly instead of through
+   * {@link java.sql.DriverManager}. DriverManager only discovers drivers once,
+   * on the first JDBC call in the JVM, using the class loader of whichever
+   * thread made it. In a web application (or when another library, such as
+   * the Postgres driver, makes that first call) the DuckDB driver can be missed,
+   * which fails with "No suitable driver found for jdbc:duckdb:".
+   */
+  public static Connection connect(Properties properties) throws SQLException
+  {
+    Connection connection = new DuckDBDriver().connect(JDBC_URL, properties);
+
+    if (connection == null)
+    {
+      throw new SQLException("The DuckDB driver did not accept the URL [" + JDBC_URL + "]");
+    }
+
+    return connection;
+  }
+
+  /**
+   * Opens an in-memory DuckDB database which can only read the given files.
+   * Package visible so the lock down can be tested.
+   */
+  static Connection openConnection(List<String> paths) throws SQLException
   {
     Properties properties = new Properties();
     properties.setProperty("autoinstall_known_extensions", "false");
@@ -248,7 +433,7 @@ public class GeoParquetReader implements AutoCloseable
     // Stream result sets instead of materializing the whole file in memory
     properties.setProperty("jdbc_stream_results", "true");
 
-    Connection connection = DriverManager.getConnection("jdbc:duckdb:", properties);
+    Connection connection = connect(properties);
 
     try (Statement statement = connection.createStatement())
     {
@@ -259,7 +444,7 @@ public class GeoParquetReader implements AutoCloseable
 
       // Only the file being imported may be read. This also blocks
       // network access and installing or loading extensions.
-      statement.execute("SET allowed_paths = [" + literal(path) + "]");
+      statement.execute("SET allowed_paths = [" + paths.stream().map(GeoParquetReader::literal).collect(Collectors.joining(", ")) + "]");
       statement.execute("SET enable_external_access = false");
       statement.execute("SET lock_configuration = true");
     }
@@ -273,13 +458,13 @@ public class GeoParquetReader implements AutoCloseable
     return connection;
   }
 
-  private JsonObject readGeoMetadata() throws SQLException
+  private JsonObject readGeoMetadata(String path) throws SQLException
   {
     String sql = "SELECT decode(value) FROM parquet_kv_metadata(?) WHERE decode(key) = ?";
 
     try (PreparedStatement statement = this.connection.prepareStatement(sql))
     {
-      statement.setString(1, this.path);
+      statement.setString(1, path);
       statement.setString(2, GEO_METADATA_KEY);
 
       try (ResultSet results = statement.executeQuery())
@@ -291,17 +476,17 @@ public class GeoParquetReader implements AutoCloseable
       }
     }
 
-    throw new ImportFileFormatException("Parquet file does not contain GeoParquet metadata");
+    throw invalid(path, "It does not contain GeoParquet metadata. Plain Parquet files without geometry metadata are not supported.");
   }
 
-  private List<Column> readColumns(Set<String> geometryColumns) throws SQLException
+  private List<Column> readColumns(String path, Set<String> geometryColumns) throws SQLException
   {
     List<Column> columns = new ArrayList<>();
     boolean hasGeometry = false;
 
     try (PreparedStatement statement = this.connection.prepareStatement("DESCRIBE SELECT * FROM read_parquet(?)"))
     {
-      statement.setString(1, this.path);
+      statement.setString(1, path);
 
       try (ResultSet results = statement.executeQuery())
       {
@@ -314,7 +499,7 @@ public class GeoParquetReader implements AutoCloseable
           {
             if (!type.equals("BLOB"))
             {
-              throw new ImportFileFormatException("Unsupported type [" + type + "] for geometry column [" + name + "]");
+              throw invalid(path, "The geometry column [" + name + "] has the unsupported type [" + type + "].");
             }
 
             hasGeometry = true;
@@ -338,7 +523,7 @@ public class GeoParquetReader implements AutoCloseable
 
     if (!hasGeometry)
     {
-      throw new ImportFileFormatException("GeoParquet primary column [" + this.geometryColumn + "] does not exist");
+      throw invalid(path, "The primary geometry column [" + this.geometryColumn + "] does not exist.");
     }
 
     return columns;
@@ -392,9 +577,12 @@ public class GeoParquetReader implements AutoCloseable
     }
   }
 
-  public String getPath()
+  /**
+   * @return The files of the dataset, in read order
+   */
+  public List<String> getPaths()
   {
-    return path;
+    return Collections.unmodifiableList(paths);
   }
 
   /**
@@ -446,11 +634,26 @@ public class GeoParquetReader implements AutoCloseable
     }
   }
 
+  /**
+   * @return The total number of rows in the dataset
+   */
   public long count()
+  {
+    long total = 0;
+
+    for (long count : this.counts)
+    {
+      total += count;
+    }
+
+    return total;
+  }
+
+  private long count(String path) throws SQLException
   {
     try (PreparedStatement statement = this.connection.prepareStatement("SELECT count(*) FROM read_parquet(?)"))
     {
-      statement.setString(1, this.path);
+      statement.setString(1, path);
 
       try (ResultSet results = statement.executeQuery())
       {
@@ -459,17 +662,16 @@ public class GeoParquetReader implements AutoCloseable
         return results.getLong(1);
       }
     }
-    catch (SQLException e)
-    {
-      throw new ProgrammingErrorException(e);
-    }
   }
 
   /**
-   * Streams the rows of the file, in file order.
+   * Streams the rows of the dataset, in file order. When the dataset has
+   * several parts they are read one after another, and rows are numbered
+   * across all of them, so the first row of the second part follows the last
+   * row of the first part.
    *
    * @param startIndex
-   *          Zero based index of the first row to read
+   *          Zero based index of the first row to read, across all parts
    * @param includeGeometry
    *          If false the geometry column is not read or parsed
    * @param limit
@@ -478,6 +680,51 @@ public class GeoParquetReader implements AutoCloseable
    *          Receives each row, and returns false to stop reading
    */
   public void read(long startIndex, boolean includeGeometry, Long limit, RowHandler handler) throws Exception
+  {
+    long offset = 0;
+    Long remaining = limit;
+
+    for (int i = 0; i < this.paths.size(); i++)
+    {
+      long count = this.counts[i];
+
+      if (startIndex < offset + count)
+      {
+        long start = Math.max(0, startIndex - offset);
+
+        long read = this.readPart(this.paths.get(i), offset, start, includeGeometry, remaining, handler);
+
+        if (read < 0)
+        {
+          // The handler asked to stop
+          return;
+        }
+
+        if (remaining != null)
+        {
+          remaining = remaining - read;
+
+          if (remaining <= 0)
+          {
+            return;
+          }
+        }
+      }
+
+      offset += count;
+    }
+  }
+
+  /**
+   * Reads the rows of one part of the dataset.
+   *
+   * @param offset
+   *          Number of rows in the parts before this one
+   * @param startIndex
+   *          Zero based index, within this part, of the first row to read
+   * @return The number of rows read, or -1 if the handler asked to stop
+   */
+  private long readPart(String path, long offset, long startIndex, boolean includeGeometry, Long limit, RowHandler handler) throws Exception
   {
     StringBuilder sql = new StringBuilder("SELECT " + ROW_NUMBER_COLUMN);
 
@@ -507,20 +754,34 @@ public class GeoParquetReader implements AutoCloseable
       sql.append(" LIMIT " + limit);
     }
 
-    WKBReader wkbReader = new WKBReader();
-
-    try (PreparedStatement statement = this.connection.prepareStatement(sql.toString()))
+    try
     {
-      statement.setString(1, this.path);
+      return this.executeRead(path, offset, sql.toString(), startIndex, includeGeometry, handler);
+    }
+    catch (SQLException e)
+    {
+      throw this.fileError("[" + new File(path).getName() + "] could not be read. ", e);
+    }
+  }
+
+  private long executeRead(String path, long offset, String sql, long startIndex, boolean includeGeometry, RowHandler handler) throws Exception
+  {
+    WKBReader wkbReader = new WKBReader();
+    long read = 0;
+
+    try (PreparedStatement statement = this.connection.prepareStatement(sql))
+    {
+      statement.setString(1, path);
       statement.setLong(2, startIndex);
 
       try (ResultSet results = statement.executeQuery())
       {
         while (results.next())
         {
-          long rowNumber = results.getLong(1) + 1;
+          long rowNumber = offset + results.getLong(1) + 1;
 
-          Map<String, Object> values = new HashMap<>();
+          // Keep the values in column order
+          Map<String, Object> values = new LinkedHashMap<>();
 
           for (int i = 0; i < this.columns.size(); i++)
           {
@@ -530,6 +791,7 @@ public class GeoParquetReader implements AutoCloseable
           }
 
           Geometry geometry = null;
+          ParseException geometryError = null;
 
           if (includeGeometry)
           {
@@ -543,18 +805,24 @@ public class GeoParquetReader implements AutoCloseable
               }
               catch (ParseException e)
               {
-                throw new ImportFileFormatException("Unable to parse the geometry on row [" + rowNumber + "]", e);
+                // Don't stop reading: the problem is reported against this row
+                // when its geometry is used (see Row.getGeometry)
+                geometryError = e;
               }
             }
           }
 
-          if (!handler.handle(new Row(values, geometry, rowNumber)))
+          read++;
+
+          if (!handler.handle(new Row(values, geometry, rowNumber, geometryError)))
           {
-            return;
+            return -1;
           }
         }
       }
     }
+
+    return read;
   }
 
   private static Object convert(Column column, Object value)
@@ -610,8 +878,10 @@ public class GeoParquetReader implements AutoCloseable
   }
 
   /**
-   * Locates the parquet file in an uploaded resource. Supports a standalone
-   * .parquet file, or a .zip containing one (the first match is used).
+   * Locates the GeoParquet data in an uploaded resource: either a standalone
+   * .parquet file, or a .zip containing one or more .parquet files (anywhere
+   * in the zip). For a zip the extracted directory is returned, and every
+   * .parquet file in it is read as a part of the same dataset.
    */
   public static CloseableFile getParquetFromResource(ApplicationResource res)
   {
@@ -623,9 +893,18 @@ public class GeoParquetReader implements AutoCloseable
     }
     else if ("zip".equalsIgnoreCase(extension))
     {
-      return ShapefileImporter.getShapefileFromResource(res, EXTENSION);
+      CloseableFile directory = ImportFileResources.extractZip(res);
+
+      if (ImportFileResources.findFiles(directory, EXTENSION).isEmpty())
+      {
+        directory.close();
+
+        throw ImportFileResources.newMissingFileException(EXTENSION);
+      }
+
+      return directory;
     }
 
-    throw new ImportFileFormatException();
+    throw ImportFileFormatException.withDetails("Expected a ." + EXTENSION + " or .zip file, but got [" + res.getName() + "].");
   }
 }

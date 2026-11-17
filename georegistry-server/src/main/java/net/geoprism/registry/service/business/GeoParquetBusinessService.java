@@ -109,7 +109,28 @@ public class GeoParquetBusinessService extends DataImportBusinessService
 
     sheet.getNonUniqueAttributes().addAll(this.getNonUniqueColumns(reader));
 
+    this.addSample(sheet, reader);
+
     return sheet;
+  }
+
+  /**
+   * Reads the first {@link SheetDTO#MAX_SAMPLE_ROWS} rows into the sheet's
+   * sample, shown as a preview while matching columns. The geometry column is
+   * not read.
+   */
+  private void addSample(SheetDTO sheet, GeoParquetReader reader) throws Exception
+  {
+    if (reader.getColumns().isEmpty())
+    {
+      return;
+    }
+
+    reader.read(0, false, (long) SheetDTO.MAX_SAMPLE_ROWS, row -> {
+      sheet.addSampleRow(row.getValues());
+
+      return !sheet.sampleFull();
+    });
   }
 
   /**

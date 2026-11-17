@@ -19,18 +19,13 @@
 package net.geoprism.registry.etl.upload;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import org.geotools.api.data.FileDataStore;
 import org.geotools.api.data.FileDataStoreFinder;
@@ -55,6 +50,8 @@ import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.runwaysdk.RunwayException;
+import com.runwaysdk.business.SmartException;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.resource.CloseableFile;
@@ -67,7 +64,6 @@ import net.geoprism.data.importer.SimpleFeatureRow;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.InvalidProjectionException;
 import net.geoprism.registry.UnableToReadProjectionException;
-import net.geoprism.registry.etl.CloseableDelegateFile;
 import net.geoprism.registry.etl.ImportFileFormatException;
 import net.geoprism.registry.etl.ImportStage;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
@@ -229,87 +225,30 @@ public class ShapefileImporter implements FormatSpecificImporterIF
         this.process(stage, shp);
       }
     }
+    catch (RunwayException | SmartException e)
+    {
+      // Let user facing exceptions through, so the import job reports them
+      throw e;
+    }
     catch (Exception e)
     {
       throw new ProgrammingErrorException(e);
     }
   }
 
+  /**
+   * Locates a file of the shapefile (e.g. the .shp or .dbf) in an uploaded
+   * zip. Shapefiles are always uploaded as a zip, since they span several
+   * files.
+   */
   public static CloseableFile getShapefileFromResource(ApplicationResource res, String extension)
   {
-    try
+    if (ImportFileResources.hasExtension(res, ImportFileResources.ZIP))
     {
-      if (res.getNameExtension().equals("zip"))
-      {
-        try (InputStream is = res.openNewStream())
-        {
-          File dir = Files.createTempDirectory(res.getBaseName()).toFile();
-
-          extract(is, dir);
-
-          File[] dbfs = dir.listFiles(new FilenameFilter()
-          {
-            @Override
-            public boolean accept(File dir, String name)
-            {
-              return name.endsWith("." + extension);
-            }
-          });
-
-          if (dbfs != null && dbfs.length > 0)
-          {
-            return new CloseableDelegateFile(dbfs[0], dir);
-          }
-          else
-          {
-            throw new ImportFileFormatException();
-          }
-        }
-      }
-    }
-    catch (IOException e)
-    {
-      throw new ProgrammingErrorException(e);
+      return ImportFileResources.getFileFromZip(res, extension);
     }
 
-    throw new ImportFileFormatException();
-  }
-
-  private static void extract(InputStream iStream, File directory)
-  {
-    // create a buffer to improve copy performance later.
-    byte[] buffer = new byte[2048];
-
-    try
-    {
-      ZipInputStream zstream = new ZipInputStream(iStream);
-
-      ZipEntry entry;
-
-      while ( ( entry = zstream.getNextEntry() ) != null)
-      {
-        File file = new File(directory, entry.getName());
-
-        if (!file.getCanonicalPath().startsWith(directory.getCanonicalPath() + File.separator))
-        {
-          throw new IOException("Entry is outside of the target dir: " + entry.getName());
-        }
-
-        try (FileOutputStream output = new FileOutputStream(file))
-        {
-          int len = 0;
-
-          while ( ( len = zstream.read(buffer) ) > 0)
-          {
-            output.write(buffer, 0, len);
-          }
-        }
-      }
-    }
-    catch (IOException e1)
-    {
-      throw new ProgrammingErrorException(e1);
-    }
+    throw ImportFileFormatException.withDetails("Shapefiles must be uploaded as a ." + ImportFileResources.ZIP + " file, but got [" + res.getName() + "].");
   }
 
   /**
@@ -324,15 +263,34 @@ public class ShapefileImporter implements FormatSpecificImporterIF
   @Request
   private void process(ImportStage stage, File shp) throws InvocationTargetException, IOException, InterruptedException
   {
-    FileDataStore myData = FileDataStoreFinder.getDataStore(shp);
+    FileDataStore myData;
+    SimpleFeatureSource source;
+    SimpleFeatureType schema;
 
-    if (myData instanceof ShapefileDataStore)
+    try
     {
-      configure((ShapefileDataStore) myData, shp);
-    }
+      myData = FileDataStoreFinder.getDataStore(shp);
 
-    SimpleFeatureSource source = myData.getFeatureSource();
-    SimpleFeatureType schema = source.getSchema();
+      if (myData == null)
+      {
+        throw ImportFileFormatException.withDetails("[" + shp.getName() + "] could not be read as a shapefile.");
+      }
+
+      if (myData instanceof ShapefileDataStore)
+      {
+        configure((ShapefileDataStore) myData, shp);
+      }
+
+      source = myData.getFeatureSource();
+      schema = source.getSchema();
+    }
+    catch (IOException e)
+    {
+      // Show the underlying error, without the server's temporary directory
+      String details = ImportFileFormatException.describe(e).replace(shp.getParentFile().getAbsolutePath() + File.separator, "");
+
+      throw ImportFileFormatException.withDetails(details, e);
+    }
 
     if (!config.getIgnoreProjection())
     {

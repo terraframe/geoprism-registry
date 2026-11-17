@@ -17,9 +17,36 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
+import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
+import { FileUploadModule } from 'ng2-file-upload';
+import { BsModalService } from 'ngx-bootstrap/modal';
+
+import { LocalizationService, EventService } from '@shared/service';
+import { RegistryService } from '@registry/service';
+import { GraphTypeService } from '@registry/service/graph-type.service';
+import { DataSourceService } from '@registry/service/data-source.service';
+import { BusinessTypeService } from '@registry/service/business-type.service';
+import { ConceptClassService } from '@registry/service/concept-class.service';
+
+import { LocalizeComponent } from '@shared/component/localize/localize.component';
+import { DateFieldComponent } from '@shared/component/form-fields/date-field/date-field.component';
 
 import { EdgeImporterComponent } from './edge-importer.component';
+
+/**
+ * Replaces the page container, whose header and side nav need the whole
+ * application's configuration
+ */
+@Component({ selector: 'page-container', template: '<ng-content></ng-content>', standalone: true })
+class PageContainerStubComponent {}
+
+/** Localization stub which returns the key, so no localization data is needed */
+const LOCALIZATION_STUB = { decode: (key: string) => key, localize: (bundle: string, key: string) => key };
+
+/** Service stub whose lookups return no types */
+const EMPTY_LIST_STUB = { getAll: () => Promise.resolve([]) };
 
 describe('EdgeImporterComponent', () => {
   let component: EdgeImporterComponent;
@@ -27,9 +54,22 @@ describe('EdgeImporterComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-    imports: [EdgeImporterComponent]
-})
-    .compileComponents();
+      imports: [EdgeImporterComponent],
+      providers: [
+        { provide: LocalizationService, useValue: LOCALIZATION_STUB },
+        { provide: EventService, useValue: { start: () => {}, complete: () => {}, registerSessionListener: () => {} } },
+        { provide: BsModalService, useValue: { show: () => ({ content: {} }) } },
+        { provide: RegistryService, useValue: { getGeoObjectTypes: () => Promise.resolve([]) } },
+        { provide: GraphTypeService, useValue: EMPTY_LIST_STUB },
+        { provide: DataSourceService, useValue: EMPTY_LIST_STUB },
+        { provide: BusinessTypeService, useValue: EMPTY_LIST_STUB },
+        { provide: ConceptClassService, useValue: EMPTY_LIST_STUB },
+      ],
+    })
+      .overrideComponent(EdgeImporterComponent, {
+        set: { imports: [PageContainerStubComponent, LocalizeComponent, FormsModule, DateFieldComponent, FileUploadModule] },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(EdgeImporterComponent);
     component = fixture.componentInstance;

@@ -42,4 +42,74 @@ public class ImportFileFormatException extends ImportFileFormatExceptionBase
     super(cause);
   }
   
+  /**
+   * Longest details message shown to the user
+   */
+  private static final int MAX_DETAILS_LENGTH = 500;
+  
+  /**
+   * @param details
+   *          Why the file could not be read, shown to the user as is (it is
+   *          not localized)
+   */
+  public static ImportFileFormatException withDetails(String details)
+  {
+    return withDetails(details, null);
+  }
+  
+  public static ImportFileFormatException withDetails(String details, Throwable cause)
+  {
+    ImportFileFormatException ex = new ImportFileFormatException(details, cause);
+    ex.setDetails(details);
+    
+    return ex;
+  }
+  
+  /**
+   * Creates an exception whose details are the message of the underlying
+   * error, e.g. the parser's description of what is wrong with the file.
+   */
+  public static ImportFileFormatException fromCause(Throwable cause)
+  {
+    return withDetails(describe(cause), cause);
+  }
+  
+  /**
+   * @return The most specific message of the error: the first message in the
+   *         cause chain which isn't just a wrapper around its cause's message
+   *         (e.g. new RuntimeException(cause)), limited to its first line and
+   *         {@link #MAX_DETAILS_LENGTH} characters
+   */
+  public static String describe(Throwable throwable)
+  {
+    String message = null;
+    
+    for (Throwable t = throwable; t != null && message == null; t = ( t.getCause() == t ? null : t.getCause() ))
+    {
+      String m = t.getMessage();
+      Throwable cause = t.getCause();
+      
+      boolean wrapper = cause != null && cause != t && ( m == null || m.equals(cause.toString()) || m.equals(cause.getMessage()) );
+      
+      if (m != null && !m.isBlank() && !wrapper)
+      {
+        message = m;
+      }
+    }
+    
+    if (message == null)
+    {
+      return throwable.getClass().getSimpleName();
+    }
+    
+    message = message.strip().lines().findFirst().orElse(message).strip();
+    
+    if (message.length() > MAX_DETAILS_LENGTH)
+    {
+      message = message.substring(0, MAX_DETAILS_LENGTH) + "...";
+    }
+    
+    return message;
+  }
+  
 }

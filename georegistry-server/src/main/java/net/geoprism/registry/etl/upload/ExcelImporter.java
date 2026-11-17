@@ -20,14 +20,8 @@ package net.geoprism.registry.etl.upload;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.file.Files;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
@@ -36,6 +30,8 @@ import org.locationtech.jts.geom.PrecisionModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.runwaysdk.RunwayException;
+import com.runwaysdk.business.SmartException;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.resource.CloseableFile;
@@ -46,7 +42,6 @@ import net.geoprism.data.etl.excel.ExcelDataFormatter;
 import net.geoprism.data.etl.excel.ExcelSheetReader;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
-import net.geoprism.registry.etl.CloseableDelegateFile;
 import net.geoprism.registry.etl.ImportFileFormatException;
 import net.geoprism.registry.etl.ImportStage;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
@@ -113,93 +108,24 @@ public class ExcelImporter implements FormatSpecificImporterIF
         this.process(stage, xlsx);
       }
     }
+    catch (RunwayException | SmartException e)
+    {
+      // Let user facing exceptions through, so the import job reports them
+      throw e;
+    }
     catch (Exception e)
     {
       throw new ProgrammingErrorException(e);
     }
   }
 
+  /**
+   * Locates the spreadsheet in an uploaded resource: either an .xlsx file, or
+   * a zip containing one (the first by path is used).
+   */
   public static CloseableFile getExcelFileFromResource(ApplicationResource res)
   {
-    final String extension = "xlsx";
-
-    try
-    {
-      if (res.getNameExtension().equals("zip"))
-      {
-        try (InputStream is = res.openNewStream())
-        {
-          File dir = Files.createTempDirectory(res.getBaseName()).toFile();
-
-          extract(is, dir);
-
-          File[] files = dir.listFiles(new FilenameFilter()
-          {
-            @Override
-            public boolean accept(File dir, String name)
-            {
-              return name.endsWith("." + extension);
-            }
-          });
-
-          if (files != null && files.length > 0)
-          {
-            return new CloseableDelegateFile(files[0], dir);
-          }
-          else
-          {
-            throw new ImportFileFormatException();
-          }
-        }
-      }
-      else if (res.getNameExtension().equals(extension))
-      {
-        return res.openNewFile();
-      }
-    }
-    catch (IOException e)
-    {
-      throw new ProgrammingErrorException(e);
-    }
-
-    throw new ImportFileFormatException();
-  }
-
-  private static void extract(InputStream iStream, File directory)
-  {
-    // create a buffer to improve copy performance later.
-    byte[] buffer = new byte[2048];
-
-    try
-    {
-      ZipInputStream zstream = new ZipInputStream(iStream);
-
-      ZipEntry entry;
-
-      while ( ( entry = zstream.getNextEntry() ) != null)
-      {
-        File file = new File(directory, entry.getName());
-
-        if (!file.getCanonicalPath().startsWith(directory.getCanonicalPath() + File.separator))
-        {
-          throw new IOException("Entry is outside of the target dir: " + entry.getName());
-        }
-
-        try (FileOutputStream output = new FileOutputStream(file))
-        {
-          int len = 0;
-
-          while ( ( len = zstream.read(buffer) ) > 0)
-          {
-            output.write(buffer, 0, len);
-          }
-        }
-      }
-    }
-    catch (IOException e1)
-    {
-      throw new ProgrammingErrorException(e1);
-    }
+    return ImportFileResources.getFile(res, "xlsx");
   }
 
   @Request
@@ -207,7 +133,20 @@ public class ExcelImporter implements FormatSpecificImporterIF
   {
     try
     {
-      this.progressListener.setWorkTotal(this.getWorkTotal(file));
+      long total;
+
+      try
+      {
+        total = this.getWorkTotal(file);
+      }
+      catch (Exception e)
+      {
+        // Counting only parses the spreadsheet, so a failure here means the
+        // file itself can't be read
+        throw ImportFileFormatException.fromCause(e);
+      }
+
+      this.progressListener.setWorkTotal(total);
 
       this.excelHandler = new ExcelContentHandler(this.objectImporter, stage, this.getStartIndex());
 
@@ -219,6 +158,10 @@ public class ExcelImporter implements FormatSpecificImporterIF
       {
         reader.process(istream);
       }
+    }
+    catch (RunwayException | SmartException e)
+    {
+      throw e;
     }
     catch (Exception e)
     {
