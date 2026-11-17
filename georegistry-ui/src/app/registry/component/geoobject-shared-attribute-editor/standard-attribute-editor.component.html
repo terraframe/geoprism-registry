@@ -192,7 +192,7 @@
   }
 
   @if (attributeType.type != 'list' && attributeType.code != 'altIds') {
-    <div @fadeInOut class="value-box">
+    <div class="value-box">
       @if (view) {
         <div class="value-box-wrapper" [ngClass]="{ warning: view.summaryKey && view.summaryKey !== 'UNMODIFIED' }">
           @if (view.summaryKey && view.summaryKey !== 'UNMODIFIED') {

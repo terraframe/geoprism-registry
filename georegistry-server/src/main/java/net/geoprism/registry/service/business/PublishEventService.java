@@ -203,9 +203,8 @@ public class PublishEventService
   private List<Publish> createClassificationDependencies(PublishDTO dto)
   {
     return dto.getGeoObjectTypes().map(code -> ServerGeoObjectType.get(code)) //
-        .map(t -> t.getAttribute(DefaultAttribute.CLASSIFICATION.getName())) //
-        .filter(a -> a.isPresent()) //
-        .map(a -> a.get()) //
+        .flatMap(t -> t.getAttributes().stream()) //
+        .filter(a -> a instanceof net.geoprism.registry.graph.AttributeClassificationType) //
         .map(a -> (AttributeClassificationType) a.toDTO()) //
         .map(classification -> {
           ConceptSet set = this.cSetService.getByCodeOrThrow(classification.getConceptSet());

@@ -176,7 +176,6 @@
           <!-- Action panel only shows when activated with click -->
           @if (toggleId === req.oid) {
             <tr
-              [@fadeInOut]
               style="background-color: #f7f7f7"
               [ngClass]="{
                 'status-pending-container': req.approvalStatus === 'PENDING',

@@ -44,7 +44,6 @@ import { UniqueAuthorityValidatorDirective } from './unique-authority-validator.
   selector: 'standard-attribute-editor',
   templateUrl: './standard-attribute-editor.component.html',
   styleUrls: ['./standard-attribute-editor.component.css'],
-  host: { '[@fadeInOut]': 'true' },
   viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
   standalone: true,
   imports: [LocalizeComponent, NgClass, FormsModule, LocalizePipe, UniqueAuthorityValidatorDirective],

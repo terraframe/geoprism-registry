@@ -34,6 +34,7 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
 
+import net.geoprism.GenericException;
 import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Publish;
@@ -67,7 +68,7 @@ public class PublishBusinessService implements PublishBusinessServiceIF
 
         if (!dependent.getPublishOid().equals(publish.getOid()))
         {
-          throw new ProgrammingErrorException("Cannot delete. Other published SKGs have dependencies on this SKG");
+          throw new GenericException("Cannot delete. Other published SKGs have dependencies on this SKG");
         }
       });
     });

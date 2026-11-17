@@ -20,7 +20,7 @@
 import { Component, OnInit } from '@angular/core';
 
 import { ActivatedRoute } from '@angular/router';
-import { GenericTableConfig, TableColumnSetup, TableEvent } from '@shared/model/generic-table';
+import { GenericTableColumn, GenericTableConfig, TableColumnSetup, TableEvent } from '@shared/model/generic-table';
 import { BusinessTypeService } from '@registry/service/business-type.service';
 import { ObjectOverTime, ObjectClass } from '@registry/model/object-class';
 import { GenericTableComponent } from '../../../shared/component/generic-table/generic-table.component';
@@ -62,7 +62,7 @@ export class ObjectTableComponent implements OnInit {
     private route: ActivatedRoute
   ) {}
 
-  getTypeService(): ObjectClassService<any> {
+  getTypeService(): ObjectClassService<ObjectClass> {
     if (this.objectType === 'BUSINESS_OBJECT') {
       return this.businessTypeService;
     }
@@ -70,6 +70,8 @@ export class ObjectTableComponent implements OnInit {
     if (this.objectType === 'CONCEPT_OBJECT') {
       return this.conceptClassSrvice;
     }
+
+    throw new Error('Unsupport type');
   }
 
   getService(): ObjectService {
@@ -80,22 +82,24 @@ export class ObjectTableComponent implements OnInit {
     if (this.objectType === 'CONCEPT_OBJECT') {
       return this.conceptService;
     }
+
+    throw new Error('Unsupport type');
   }
 
   ngOnInit(): void {
-    this.oid = this.route.snapshot.paramMap.get('oid');
-    this.objectType = this.route.snapshot.paramMap.get('objectType');
+    this.oid = this.route.snapshot.paramMap.get('oid')!;
+    this.objectType = this.route.snapshot.paramMap.get('objectType')!;
 
     this.getTypeService()
       .get(this.oid)
       .then((type) => {
         this.type = type;
 
-        const cols = [];
+        const cols: GenericTableColumn[] = [];
         cols.push({ header: '', type: 'ACTIONS', sortable: false, rowspan: 1, colspan: 1, headerType: 'ATTRIBUTE' });
 
-        this.type.attributes
-          .filter((a) => !a.isChangeOverTime)
+        this.type
+          .attributes!.filter((a) => !a.isChangeOverTime)
           .forEach((attribute) => {
             let type = 'TEXT';
             let sortable = true;
@@ -110,7 +114,7 @@ export class ObjectTableComponent implements OnInit {
               type = 'DATE';
             }
 
-            cols.push({
+            const column: GenericTableColumn = {
               header: attribute.label.localizedValue,
               field: attribute.code,
               type: type,
@@ -119,7 +123,9 @@ export class ObjectTableComponent implements OnInit {
               rowspan: 1,
               colspan: 1,
               headerType: 'ATTRIBUTE',
-            });
+            };
+
+            cols.push(column);
           });
 
         this.setup = {
@@ -148,7 +154,7 @@ export class ObjectTableComponent implements OnInit {
 
   onClick(event: TableEvent): void {
     if (event.type === 'view') {
-      this.view(event.row['code']);
+      this.view(event.row!['code']);
     }
   }
 }

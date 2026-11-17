@@ -43,7 +43,6 @@ import { NgClass } from '@angular/common';
   selector: 'geometry-panel',
   templateUrl: './geometry-panel.component.html',
   styleUrls: ['./geometry-panel.css'],
-  host: { '[@fadeInOut]': 'true' },
   standalone: true,
   imports: [LocalizeComponent, FormsModule, NgClass, DateFieldComponent_1, LocalizePipe],
 })

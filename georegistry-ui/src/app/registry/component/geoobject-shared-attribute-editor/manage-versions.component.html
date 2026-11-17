@@ -52,7 +52,6 @@
                             </div>
                           }
                           @if (!isRootOfHierarchy) {
-                            <!-- TODO : Fade in out disabled because it doesn't work all that well with stability periods   @fadeInOut -->
                             @for (viewModel of viewModels; track viewModel; let i = $index) {
                               <tr
                                 class="version-row"
