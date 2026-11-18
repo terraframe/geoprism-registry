@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -103,6 +103,8 @@ import com.runwaysdk.localization.LocalizedValueStore;
 import com.runwaysdk.localization.LocalizedValueStoreStoreValue;
 import com.runwaysdk.localization.SupportedLocaleIF;
 import com.runwaysdk.query.AttributeBoolean;
+import com.runwaysdk.query.AttributeCharacter;
+import com.runwaysdk.query.AttributeText;
 import com.runwaysdk.query.BasicCondition;
 import com.runwaysdk.query.ComponentQuery;
 import com.runwaysdk.query.Condition;
@@ -1655,7 +1657,16 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
     if (value != null && value.length() > 0)
     {
-      vQuery.WHERE(F.UPPER(query.aCharacter(attributeName)).LIKEi("%" + value.toUpperCase() + "%"));
+      com.runwaysdk.query.Attribute attribute = query.get(attributeName);
+
+      if (attribute instanceof AttributeCharacter)
+      {
+        vQuery.WHERE(F.UPPER(query.aCharacter(attributeName)).LIKEi("%" + value.toUpperCase() + "%"));
+      }
+      else if (attribute instanceof AttributeText)
+      {
+        vQuery.WHERE(F.UPPER(query.aText(attributeName)).LIKEi("%" + value.toUpperCase() + "%"));
+      }
     }
 
     // vQuery.ORDER_BY_ASC(query.get(attributeName));
