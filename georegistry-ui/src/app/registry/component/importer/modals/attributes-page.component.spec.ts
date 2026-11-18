@@ -160,4 +160,52 @@ describe('AttributesPageComponent', () => {
       expect(element.querySelector('.attribute-type').textContent).toContain('data.type.label.text');
     });
   });
+
+  describe('getDescription', () => {
+    const code = attribute('code', null, 'Code', { description: { localizedValue: 'Human-readable unique identifier' } });
+
+    function withObjectType(objectType: string): any {
+      const config: any = configuration([], [code], []);
+      config.objectType = objectType;
+
+      return config;
+    }
+
+    it('adds the uniqueness scope to the code of each kind of object', () => {
+      for (const objectType of ['GEO_OBJECT', 'BUSINESS_OBJECT', 'CONCEPT_OBJECT']) {
+        component.configuration = withObjectType(objectType);
+
+        expect(component.getDescription(code)).toBe('Human-readable unique identifier. io.attributes.codeUnique.' + objectType);
+      }
+    });
+
+    it('only describes the scope of the code attribute', () => {
+      component.configuration = withObjectType('CONCEPT_OBJECT');
+
+      const other = attribute('other', null, 'Other', { description: { localizedValue: 'Some attribute' } });
+
+      expect(component.getDescription(other)).toBe('Some attribute');
+      expect(component.getDescription(attribute('plain', null, 'Plain'))).toBeNull();
+    });
+
+    it('leaves the code unchanged for imports without a known scope', () => {
+      component.configuration = withObjectType('EDGE_OBJECT');
+
+      expect(component.getDescription(code)).toBe('Human-readable unique identifier');
+    });
+
+    it('does not add a second full stop', () => {
+      component.configuration = withObjectType('GEO_OBJECT');
+
+      const described = attribute('code', null, 'Code', { description: { localizedValue: 'Unique identifier.' } });
+
+      expect(component.getDescription(described)).toBe('Unique identifier. io.attributes.codeUnique.GEO_OBJECT');
+    });
+
+    it('shows the scope even without a description', () => {
+      component.configuration = withObjectType('BUSINESS_OBJECT');
+
+      expect(component.getDescription(attribute('code', null, 'Code'))).toBe('io.attributes.codeUnique.BUSINESS_OBJECT');
+    });
+  });
 });
