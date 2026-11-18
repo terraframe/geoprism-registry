@@ -42,10 +42,10 @@ export class JenaExportSynchronizationConfigComponent implements OnInit, OnDestr
   @Output() onError = new EventEmitter<HttpErrorResponse>();
 
   // Neptune requires absolute IRIs, e.g. urn:example or https://example.com/graph
-  readonly graphPattern = '[A-Za-z][A-Za-z0-9+.\\-]*:[^\\s<>"{}|\\\\^`]+';
+  readonly graphPattern = '[A-Za-z][A-Za-z0-9+.\\-]*:[^\\s<>"\\{\\}\\|\\\\^`]+';
 
   // The namespace is used as a prefix for IRIs of the form <namespace>#<code>, so it may not contain a fragment
-  readonly namespacePattern = '[A-Za-z][A-Za-z0-9+.\\-]*:[^\\s<>"{}|\\\\^`#]+';
+  readonly namespacePattern = '[A-Za-z][A-Za-z0-9+.\\-]*:[^\\s<>"\\{\\}\\|\\\\^`#]+';
 
   subscription: Subscription | null = null;
   publishes: PublishEvents[] | null = null;
