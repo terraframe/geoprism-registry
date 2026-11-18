@@ -22,23 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import org.geotools.api.data.FeatureSource;
-import org.geotools.api.data.Query;
-import org.geotools.api.filter.Filter;
-import org.geotools.feature.FeatureIterator;
 import org.geotools.data.shapefile.ShapefileDataStore;
-import org.geotools.referencing.CRS;
-import org.geotools.api.feature.simple.SimpleFeature;
-import org.geotools.api.feature.simple.SimpleFeatureType;
-import org.geotools.api.feature.type.AttributeDescriptor;
-import org.geotools.api.feature.type.GeometryDescriptor;
-import org.geotools.api.referencing.FactoryException;
-import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 import org.springframework.stereotype.Service;
 
 import com.runwaysdk.RunwayException;
@@ -48,16 +33,12 @@ import com.runwaysdk.resource.CloseableFile;
 import com.runwaysdk.system.VaultFile;
 
 import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.InvalidProjectionException;
-import net.geoprism.registry.UnableToReadProjectionException;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ObjectImporterFactory;
 import net.geoprism.registry.etl.ShapefileFormatException;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ShapefileImporter;
 import net.geoprism.registry.excel.SheetDTO;
-import net.geoprism.registry.io.ColumnUniquenessTracker;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.PostalCodeFactory;
 import net.geoprism.registry.io.view.GeoObjectImportConfigurationDTO;
 import net.geoprism.registry.io.view.ImportConfigurationDTO;
@@ -111,81 +92,6 @@ public class ShapefileBusinessService extends DataImportBusinessService
     }
   }
 
-  /**
-   * Maximum number of features read when checking for non-unique columns.
-   * Duplicates beyond this point will not be detected.
-   */
-  private static final int MAX_UNIQUENESS_ROWS = 100_000;
-
-  /**
-   * Scans the features in the shapefile, up to {@link #MAX_UNIQUENESS_ROWS}, to
-   * determine which columns contain duplicate values. Only the non-geometry
-   * attributes are read, so geometries are never parsed.
-   */
-  private Set<String> getNonUniqueColumns(FeatureSource<SimpleFeatureType, SimpleFeature> source, List<AttributeDescriptor> descriptors) throws IOException
-  {
-    List<String> names = descriptors.stream().filter(d -> ! ( d instanceof GeometryDescriptor )).map(d -> d.getName().getLocalPart()).toList();
-
-    ColumnUniquenessTracker tracker = new ColumnUniquenessTracker();
-
-    if (names.isEmpty())
-    {
-      return tracker.getNonUniqueColumns();
-    }
-
-    Query query = new Query(source.getSchema().getTypeName(), Filter.INCLUDE, names.toArray(new String[names.size()]));
-    query.setMaxFeatures(MAX_UNIQUENESS_ROWS);
-
-    try (FeatureIterator<SimpleFeature> iterator = source.getFeatures(query).features())
-    {
-      while (iterator.hasNext() && !tracker.isExhausted())
-      {
-        SimpleFeature feature = iterator.next();
-
-        for (String name : names)
-        {
-          tracker.add(name, feature.getAttribute(name));
-        }
-      }
-    }
-
-    return tracker.getNonUniqueColumns();
-  }
-
-  /**
-   * Reads the first {@link SheetDTO#MAX_SAMPLE_ROWS} features into the sheet's
-   * sample. Geometries are not read.
-   */
-  private void addSample(SheetDTO sheet, FeatureSource<SimpleFeatureType, SimpleFeature> source, List<AttributeDescriptor> descriptors) throws IOException
-  {
-    List<String> names = descriptors.stream().filter(d -> ! ( d instanceof GeometryDescriptor )).map(d -> d.getName().getLocalPart()).toList();
-
-    if (names.isEmpty())
-    {
-      return;
-    }
-
-    Query query = new Query(source.getSchema().getTypeName(), Filter.INCLUDE, names.toArray(new String[names.size()]));
-    query.setMaxFeatures(SheetDTO.MAX_SAMPLE_ROWS);
-
-    try (FeatureIterator<SimpleFeature> iterator = source.getFeatures(query).features())
-    {
-      while (iterator.hasNext() && !sheet.sampleFull())
-      {
-        SimpleFeature feature = iterator.next();
-
-        Map<String, Object> row = new LinkedHashMap<>();
-
-        for (String name : names)
-        {
-          row.put(name, feature.getAttribute(name));
-        }
-
-        sheet.addSampleRow(row);
-      }
-    }
-  }
-
   // Package-private so that it can be tested without a database
   SheetDTO getSheetInformation(File dbf, boolean ignoreProjection)
   {
@@ -204,63 +110,7 @@ public class ShapefileBusinessService extends DataImportBusinessService
         {
           String typeName = typeNames[0];
 
-          FeatureSource<SimpleFeatureType, SimpleFeature> source = store.getFeatureSource(typeName);
-
-          SimpleFeatureType schema = source.getSchema();
-
-          if (!ignoreProjection)
-          {
-            CoordinateReferenceSystem sourceCRS = schema.getCoordinateReferenceSystem();
-
-            if (sourceCRS != null)
-            {
-              try
-              {
-
-                String code = CRS.lookupIdentifier(sourceCRS, true);
-
-                if (!code.equalsIgnoreCase("EPSG:4326"))
-                {
-                  throw new InvalidProjectionException();
-                }
-              }
-              catch (FactoryException e)
-              {
-                throw new UnableToReadProjectionException();
-              }
-            }
-            else
-            {
-              throw new UnableToReadProjectionException();
-            }
-          }
-
-          List<AttributeDescriptor> descriptors = schema.getAttributeDescriptors();
-
-          SheetDTO sheet = new SheetDTO();
-          sheet.setName(typeName);
-
-          for (AttributeDescriptor descriptor : descriptors)
-          {
-            if (! ( descriptor instanceof GeometryDescriptor ))
-            {
-              String name = descriptor.getName().getLocalPart();
-              String baseType = GeoObjectImportConfiguration.getBaseType(descriptor.getType());
-
-              sheet.put(baseType, name);
-
-              if (baseType.equals(GeoObjectImportConfiguration.NUMERIC))
-              {
-                sheet.put(GeoObjectImportConfiguration.TEXT, name);
-              }
-            }
-          }
-
-          sheet.getNonUniqueAttributes().addAll(this.getNonUniqueColumns(source, descriptors));
-
-          this.addSample(sheet, source, descriptors);
-
-          return sheet;
+          return this.getSheetInformation(typeName, store.getFeatureSource(typeName), ignoreProjection);
         }
         else
         {

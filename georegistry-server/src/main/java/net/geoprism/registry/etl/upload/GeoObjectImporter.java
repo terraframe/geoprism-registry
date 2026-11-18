@@ -924,7 +924,10 @@ public class GeoObjectImporter implements ObjectImporterIF
 
     if (code != null)
     {
-      return code.toString();
+      // Codes identify objects, so leading or trailing whitespace (e.g. the
+      // '\r' left by Windows line endings) would stop a row from matching an
+      // existing object, and create a duplicate instead
+      return code.toString().trim();
     }
 
     return null;

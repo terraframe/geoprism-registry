@@ -120,6 +120,7 @@ export class ReuploadModalComponent {
 
   getAcceptableFileFormats(): string {
     if (this.job.configuration.formatType === 'SHAPEFILE') return '.zip';
+    else if (this.job.configuration.formatType === 'GEOPACKAGE') return '.gpkg,.zip';
     else if (this.job.configuration.formatType === 'EXCEL') return '.xlsx,.zip';
     else if (this.job.configuration.formatType === 'JSON') return '.json,.zip';
   }

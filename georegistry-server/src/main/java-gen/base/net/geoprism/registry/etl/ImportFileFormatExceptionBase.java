@@ -29,6 +29,7 @@ package net.geoprism.registry.etl;
 public abstract class ImportFileFormatExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.etl.ImportFileFormatException";
+  public static final java.lang.String DETAILS = "details";
   public static final java.lang.String OID = "oid";
   private static final long serialVersionUID = 84041996;
   
@@ -50,6 +51,34 @@ public abstract class ImportFileFormatExceptionBase extends com.runwaysdk.busine
   public ImportFileFormatExceptionBase(java.lang.Throwable cause)
   {
     super(cause);
+  }
+  
+  public String getDetails()
+  {
+    return getValue(DETAILS);
+  }
+  
+  public void validateDetails()
+  {
+    this.validateAttribute(DETAILS);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getDetailsMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.ImportFileFormatException.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(DETAILS);
+  }
+  
+  public void setDetails(String value)
+  {
+    if(value == null)
+    {
+      setValue(DETAILS, "");
+    }
+    else
+    {
+      setValue(DETAILS, value);
+    }
   }
   
   public String getOid()
@@ -76,6 +105,7 @@ public abstract class ImportFileFormatExceptionBase extends com.runwaysdk.busine
   public java.lang.String localize(java.util.Locale locale)
   {
     java.lang.String message = super.localize(locale);
+    message = replace(message, "{details}", this.getDetails());
     message = replace(message, "{oid}", this.getOid());
     return message;
   }

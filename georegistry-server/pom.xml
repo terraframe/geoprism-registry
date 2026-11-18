@@ -66,6 +66,13 @@
       <version>${spring.boot.version}</version>
     </dependency>
     
+    <!-- Reads GeoPackage imports. The version must match the GeoTools version used by geoprism (geotools.version in the geoprism parent pom). -->
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-geopkg</artifactId>
+      <version>35.1</version>
+    </dependency>
+
     <!-- https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator -->
     <dependency>
       <groupId>org.hibernate.validator</groupId>
