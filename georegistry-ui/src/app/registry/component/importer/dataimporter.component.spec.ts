@@ -116,7 +116,10 @@ describe('DataImporterComponent', () => {
 
     it('still uploads to the excel configuration endpoint', () => {
       expect(component.uploader.options.url).toBe(environment.apiUrl + '/api/excel/get-configuration');
-      expect(fileInput().getAttribute('accept')).toBe('.xls, .xlsx');
+    });
+
+    it('accepts xlsx and zip files', () => {
+      expect(fileInput().getAttribute('accept')).toBe('.xlsx, .zip');
     });
   });
 });

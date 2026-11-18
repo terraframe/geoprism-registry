@@ -3,6 +3,8 @@
  */
 package net.geoprism.registry.etl;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -10,6 +12,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
@@ -170,6 +174,64 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
   private static void clearData()
   {
     SchedulerTestUtils.clearImportData();
+  }
+
+  /**
+   * A spreadsheet can be uploaded in a zip, including one made by compressing
+   * a folder on macOS
+   */
+  @Test
+  @Request
+  public void testGetAttributeInformationZip() throws Exception
+  {
+    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+
+    try (ZipOutputStream zip = new ZipOutputStream(bytes); InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx"))
+    {
+      for (String folder : new String[] { "data/", "__MACOSX/", "__MACOSX/data/" })
+      {
+        zip.putNextEntry(new ZipEntry(folder));
+        zip.closeEntry();
+      }
+
+      zip.putNextEntry(new ZipEntry("__MACOSX/data/._test-spreadsheet.xlsx"));
+      zip.write(new byte[] { 0, 5, 22, 7 });
+      zip.closeEntry();
+
+      zip.putNextEntry(new ZipEntry("data/test-spreadsheet.xlsx"));
+      istream.transferTo(zip);
+      zip.closeEntry();
+    }
+
+    GeoObjectImportConfigurationDTO dto = this.excelService.getExcelConfiguration(testData.clientRequest.getSessionId(), "test-spreadsheet.zip", new ByteArrayInputStream(bytes.toByteArray()), ImportConfigurationView.of(JobHistoryType.GEO_OBJECT, USATestData.DISTRICT.getCode(), null, null, USATestData.SOURCE.getCode(), ImportStrategy.NEW_AND_UPDATE, false));
+
+    // The same as the spreadsheet on its own (testGetAttributeInformation)
+    Assertions.assertEquals("Objects", dto.getSheet().getName());
+    Assertions.assertEquals(8, dto.getSheet().getAttributes().get(GeoObjectImportConfiguration.TEXT).size());
+    Assertions.assertEquals("test-spreadsheet.zip", dto.getFileName());
+  }
+
+  /**
+   * e.g. a zipped shapefile given to the spreadsheet importer
+   */
+  @Test
+  @Request
+  public void testGetAttributeInformationZipWithoutSpreadsheet() throws Exception
+  {
+    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+
+    try (ZipOutputStream zip = new ZipOutputStream(bytes))
+    {
+      zip.putNextEntry(new ZipEntry("states.shp"));
+      zip.write(new byte[] { 0, 0, 39, 10 });
+      zip.closeEntry();
+    }
+
+    ImportFileFormatException ex = Assertions.assertThrows(ImportFileFormatException.class, () -> {
+      this.excelService.getExcelConfiguration(testData.clientRequest.getSessionId(), "states.zip", new ByteArrayInputStream(bytes.toByteArray()), ImportConfigurationView.of(JobHistoryType.GEO_OBJECT, USATestData.DISTRICT.getCode(), null, null, USATestData.SOURCE.getCode(), ImportStrategy.NEW_AND_UPDATE, false));
+    });
+
+    Assertions.assertTrue(ex.getDetails().contains(".xlsx"), ex.getDetails());
   }
 
   @Test

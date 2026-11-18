@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.service.business;
 
+import java.io.FileInputStream;
 import java.io.InputStream;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Service;
 import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.SmartException;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.resource.CloseableFile;
 import com.runwaysdk.system.VaultFile;
 
 import net.geoprism.data.etl.excel.ExcelDataFormatter;
@@ -35,6 +37,8 @@ import net.geoprism.data.etl.excel.InvalidExcelFileException;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ObjectImporterFactory.JobHistoryType;
+import net.geoprism.registry.etl.upload.ExcelImporter;
+import net.geoprism.registry.etl.upload.ImportFileResources;
 import net.geoprism.registry.excel.ExcelFieldContentsHandler;
 import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.graph.ConceptClass;
@@ -97,13 +101,20 @@ public class ExcelBusinessService extends DataImportBusinessService
 
   private TypedObjectImportConfigurationDTO getTypedConfiguration(String fileName, InputStream fileStream, ImportConfigurationView view, ObjectClassIF businessType, TypedObjectImportConfigurationDTO dto)
   {
+    // The name of the spreadsheet, which is inside the upload when it is a zip
+    String spreadsheet = fileName;
+
     // Save the file to the file system
     try
     {
       VaultFile vf = VaultFile.createAndApply(fileName, fileStream);
 
-      try (InputStream is = vf.openNewStream())
+      // Read the spreadsheet the same way the import does: either the upload
+      // itself, or the spreadsheet in an uploaded zip
+      try (CloseableFile file = ExcelImporter.getExcelFileFromResource(vf); InputStream is = new FileInputStream(file))
       {
+        spreadsheet = ImportFileResources.getDisplayName(file);
+
         ExcelFieldContentsHandler handler = new ExcelFieldContentsHandler();
         ExcelDataFormatter formatter = new ExcelDataFormatter();
 
@@ -128,7 +139,7 @@ public class ExcelBusinessService extends DataImportBusinessService
     catch (InvalidFormatException e)
     {
       InvalidExcelFileException ex = new InvalidExcelFileException(e);
-      ex.setFileName(fileName);
+      ex.setFileName(spreadsheet);
 
       throw ex;
     }
