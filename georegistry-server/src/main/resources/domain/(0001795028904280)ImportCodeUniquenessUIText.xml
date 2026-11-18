@@ -1,0 +1,55 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<!-- Explains the scope in which a code must be unique, shown in the tooltip of the code attribute when matching import columns -->
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.attributes.codeUnique.GEO_OBJECT">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.attributes.codeUnique.GEO_OBJECT" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Codes must be unique within this Geo-Object type." />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.attributes.codeUnique.BUSINESS_OBJECT">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.attributes.codeUnique.BUSINESS_OBJECT" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Codes must be unique within this business type." />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.attributes.codeUnique.CONCEPT_OBJECT">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.attributes.codeUnique.CONCEPT_OBJECT" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Codes must be unique across all concepts." />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.attributes.codeUnique.GEO_OBJECT" />
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.attributes.codeUnique.BUSINESS_OBJECT" />
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.attributes.codeUnique.CONCEPT_OBJECT" />
+    </delete>
+  </undoIt>
+</version>

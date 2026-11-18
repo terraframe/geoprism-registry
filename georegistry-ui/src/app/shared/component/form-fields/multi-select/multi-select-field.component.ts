@@ -25,7 +25,13 @@ import { NgClass } from '@angular/common';
 @Component({
   selector: 'multi-select-field',
   templateUrl: './multi-select-field.component.html',
-  styleUrls: [],
+  styles: [
+    `
+      .multiselect-listitem-selected > .dropdown-item {
+        background-color: lightblue;
+      }
+    `,
+  ],
   viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
   standalone: true,
   imports: [BsDropdownModule, NgClass],

@@ -128,9 +128,6 @@ public class RestoreService implements RestoreServiceIF
   private OrganizationBusinessServiceIF     orgService;
 
   @Autowired
-  private CacheProviderIF                   cacheProvider;
-
-  @Autowired
   private ConceptClassBusinessServiceIF     cClassService;
 
   @Autowired
@@ -453,7 +450,10 @@ public class RestoreService implements RestoreServiceIF
       summary.add("Organizations", createMissingOrganizationsFromMetadata(new File(new File(directory, "metadata"), "metadata.xml")));
     }
 
-    this.cacheProvider.getServerCache().refresh();
+    // Reload the whole metadata cache from the database. Refreshing only the
+    // server cache clears the geo object types and hierarchy types from the
+    // cache without reloading them, which breaks a restore without metadata.
+    this.repoService.refreshMetadataCache();
   }
 
   private long countOrganizations(JsonArray organizations)

@@ -249,7 +249,13 @@ public class BackupClassificationDataTest extends ConceptDatasetTest implements 
 
     JsonObject json = JsonParser.parseString(ObjectOverTimeDTO.toJson(dto)).getAsJsonObject();
 
-    return json.getAsJsonObject("properties").get(DefaultAttribute.DISPLAY_LABEL.getName());
+    JsonObject label = json.getAsJsonObject("properties").getAsJsonObject(DefaultAttribute.DISPLAY_LABEL.getName());
+
+    // The oid of each value over time is regenerated when the object is
+    // restored, so only the values and their dates are compared
+    label.getAsJsonArray("values").forEach(value -> value.getAsJsonObject().remove("oid"));
+
+    return label;
   }
 
   private JsonArray readJsonArray(File zipfile, String name) throws IOException

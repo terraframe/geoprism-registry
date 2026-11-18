@@ -23,6 +23,7 @@ import { ImportConfiguration } from '@registry/model/io';
 import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LocalizeComponent } from '@shared/component/localize/localize.component';
+import { LocalizationService } from '@shared/service/localization.service';
 import { TooltipModule } from 'primeng/tooltip';
 import { ImportDataPreviewComponent, getImportBaseTypeKey, getSampleValue } from './import-data-preview.component';
 
@@ -46,10 +47,37 @@ export class AttributesPageComponent {
   @Output() configurationChange = new EventEmitter<ImportConfiguration>();
   @Output() stateChange = new EventEmitter<string>();
 
-  constructor() {}
+  constructor(private localizationService: LocalizationService) {}
 
   get sample(): { [column: string]: string }[] {
     return this.configuration?.sheet?.sample || [];
+  }
+
+  /**
+   * The tooltip text of an attribute: its description, and for the code the
+   * scope in which it must be unique. Codes of geo objects and business objects
+   * are unique within their type, but codes of concepts are unique across all
+   * concept classes.
+   */
+  getDescription(attribute: { code: string; description?: { localizedValue: string } }): string | null {
+    const description = attribute.description?.localizedValue;
+    const scope = attribute.code === 'code' ? this.getCodeUniquenessScope() : null;
+
+    if (description && scope) {
+      return description + (/[.!?]$/.test(description.trim()) ? ' ' : '. ') + scope;
+    }
+
+    return description || scope || null;
+  }
+
+  private getCodeUniquenessScope(): string | null {
+    const objectType = this.configuration?.objectType;
+
+    if (objectType === 'GEO_OBJECT' || objectType === 'BUSINESS_OBJECT' || objectType === 'CONCEPT_OBJECT') {
+      return this.localizationService.decode('io.attributes.codeUnique.' + objectType);
+    }
+
+    return null;
   }
 
   /**
