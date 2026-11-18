@@ -2,6 +2,21 @@
 # Release Notes
 
 
+## [2.1.0](https://github.com/terraframe/geoprism-registry/releases/tag/2.1.0) (2026-11-18)
+
+### Features
+
+ - ability to add custom classification attributes to geo object types and business types  ([419c3](https://github.com/terraframe/geoprism-registry/commit/419c3905f7e32a00974a69bd231b0d120924af2a))
+ - **import** support for geopackage   ([7f1e8](https://github.com/terraframe/geoprism-registry/commit/7f1e81119deeabddc3df64dcf4dbcbdd7887cd73))
+ - **backup** ability to selectively backup data   ([59f14](https://github.com/terraframe/geoprism-registry/commit/59f14f44387aa710edee5c8bfd431e6c37dfac5f))
+ - **import** show source data on attribute matching   ([74625](https://github.com/terraframe/geoprism-registry/commit/74625dab0b8713e19972b683f4b07f343929461b))
+
+### Bug Fixes
+
+   - **skg** selected items not being highlighted in multiselect   ([67f5f](https://github.com/terraframe/geoprism-registry/commit/67f5f6ae5fd482888e375dcdf37d30c3032e573e))
+
+
+
 ## [2.0.2](https://github.com/terraframe/geoprism-registry/releases/tag/2.0.2) (2026-11-13)
 
 ### Features
