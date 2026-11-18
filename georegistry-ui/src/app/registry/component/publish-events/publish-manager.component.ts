@@ -37,6 +37,8 @@ import { LocalizeComponent } from '@shared/component/localize/localize.component
 import { PageContainerComponent } from '@shared/component/page-container/page-container.component';
 import { ModalTypes } from '@shared/model/modal';
 import { BusinessEdgeTypeService } from '@registry/service/business-edge-type.service';
+import { ConceptClassService } from '@registry/service/concept-class.service';
+import { ConceptEdgeTypeService } from '@registry/service/concept-edge-type.service';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { Progress, WebSocketMessage } from '@shared/model/progress';
 import { WebSockets } from '@shared/component/web-sockets/web-sockets';
@@ -79,6 +81,8 @@ export class PublishManagerComponent implements OnInit, OnDestroy {
   undirectedTypes: { label: string; value: string }[] = [];
   businessTypes: { label: string; value: string }[] = [];
   edgeTypes: { label: string; value: string }[] = [];
+  conceptClasses: { label: string; value: string }[] = [];
+  conceptEdgeTypes: { label: string; value: string }[] = [];
 
   progressNotifier: WebSocketSubject<WebSocketMessage> | null = null;
   progressSubscription: Subscription | null = null;
@@ -93,6 +97,8 @@ export class PublishManagerComponent implements OnInit, OnDestroy {
     private localizeService: LocalizationService,
     private businessService: BusinessTypeService,
     private bEdgeTypeService: BusinessEdgeTypeService,
+    private cClassService: ConceptClassService,
+    private cEdgeTypeService: ConceptEdgeTypeService,
     private registryService: RegistryService,
     private pService: ProgressService
   ) {}
@@ -124,14 +130,7 @@ export class PublishManagerComponent implements OnInit, OnDestroy {
     });
 
     if (this.publishes.length === 0) {
-      this.service
-        .getAll()
-        .then((publishes) => {
-          this.publishes = publishes;
-        })
-        .catch((err: HttpErrorResponse) => {
-          this.error(err);
-        });
+      this.refreshPublishes();
     }
 
     this.businessService.getAll().then((response) => {
@@ -142,6 +141,18 @@ export class PublishManagerComponent implements OnInit, OnDestroy {
 
     this.bEdgeTypeService.getAll().then((response) => {
       this.edgeTypes = response.map((b) => {
+        return { label: b.label.localizedValue, value: b.code };
+      });
+    });
+
+    this.cClassService.getAll().then((response) => {
+      this.conceptClasses = response.map((b) => {
+        return { label: b.displayLabel.localizedValue, value: b.code };
+      });
+    });
+
+    this.cEdgeTypeService.getAll().then((response) => {
+      this.conceptEdgeTypes = response.map((b) => {
         return { label: b.label.localizedValue, value: b.code };
       });
     });
@@ -184,11 +195,26 @@ export class PublishManagerComponent implements OnInit, OnDestroy {
 
   handleProgressChange(message: WebSocketMessage): void {
     if (message.content) {
+      const wasRefreshing = this.isRefreshing;
+
       this.isRefreshing = message.content!.current < message.content!.total;
       message.content!.description = '';
 
       this.pService.progress(message.content!);
+
+      if (wasRefreshing && !this.isRefreshing) {
+        this.refreshPublishes();
+      }
     }
+  }
+
+  refreshPublishes(): void {
+    this.service
+      .getAll()
+      .then((publishes) => (this.publishes = publishes))
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
   }
 
   onCreate(): void {

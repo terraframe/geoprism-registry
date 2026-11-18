@@ -214,6 +214,40 @@
             </multi-select-field>
           </div>
         }
+
+        @if (type.conceptClassCodes != null && type.conceptClassCodes.length > 0) {
+          <div class="row-holder">
+            <div class="label-holder">
+              <label>
+                <localize key="nav.concept.class.label"></localize>
+              </label>
+            </div>
+            <multi-select-field
+              container="#select-root"
+              [(value)]="type.conceptClassCodes"
+              [options]="conceptClasses"
+              [disabled]="true"
+            >
+            </multi-select-field>
+          </div>
+        }
+
+        @if (type.conceptEdgeTypeCodes != null && type.conceptEdgeTypeCodes.length > 0) {
+          <div class="row-holder">
+            <div class="label-holder">
+              <label>
+                <localize key="nav.concept.edge.label"></localize>
+              </label>
+            </div>
+            <multi-select-field
+              container="#select-root"
+              [(value)]="type.conceptEdgeTypeCodes"
+              [options]="conceptEdgeTypes"
+              [disabled]="true"
+            >
+            </multi-select-field>
+          </div>
+        }
         <div class="row-holder">
           <div class="label-holder">
             <label for="endDate">

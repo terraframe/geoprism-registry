@@ -43,6 +43,8 @@ export class PublishEventsComponent implements OnInit {
   @Input() undirectedTypes: { label: string; value: string }[] = [];
   @Input() businessTypes: { label: string; value: string }[] = [];
   @Input() edgeTypes: { label: string; value: string }[] = [];
+  @Input() conceptClasses: { label: string; value: string }[] = [];
+  @Input() conceptEdgeTypes: { label: string; value: string }[] = [];
 
   @Output() error = new EventEmitter<HttpErrorResponse | null>();
 

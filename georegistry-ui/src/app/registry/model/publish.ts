@@ -54,4 +54,6 @@ export class PublishEvents {
   undirectedCodes: string[];
   hierarchyCodes: string[];
   businessEdgeCodes: string[];
+  conceptClassCodes?: string[];
+  conceptEdgeTypeCodes?: string[];
 }

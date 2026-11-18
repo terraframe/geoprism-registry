@@ -45,6 +45,8 @@ export class PublishService {
       undirectedCodes: p.types.filter((t) => t.typeClass === 'UNDIRECTED_GRAPH').map((t) => t.typeCode),
       hierarchyCodes: p.types.filter((t) => t.typeClass === 'HIERARCHY').map((t) => t.typeCode),
       businessEdgeCodes: p.types.filter((t) => t.typeClass === 'BUSINESS_EDGE').map((t) => t.typeCode),
+      conceptClassCodes: p.types.filter((t) => t.typeClass === 'CONCEPT_CLASS').map((t) => t.typeCode),
+      conceptEdgeTypeCodes: p.types.filter((t) => t.typeClass === 'CONCEPT_EDGE').map((t) => t.typeCode),
     };
   }
   toPublish(p: PublishEvents): Publish {

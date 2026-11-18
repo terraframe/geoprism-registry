@@ -143,6 +143,8 @@ export class PublishEventsModalComponent implements OnInit, OnDestroy {
       dagCodes: [],
       undirectedCodes: [],
       businessEdgeCodes: [],
+      conceptClassCodes: [],
+      conceptEdgeTypeCodes: [],
     };
   }
 
