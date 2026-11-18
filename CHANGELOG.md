@@ -10,6 +10,7 @@
  - **import** support for geopackage   ([7f1e8](https://github.com/terraframe/geoprism-registry/commit/7f1e81119deeabddc3df64dcf4dbcbdd7887cd73))
  - **backup** ability to selectively backup data   ([59f14](https://github.com/terraframe/geoprism-registry/commit/59f14f44387aa710edee5c8bfd431e6c37dfac5f))
  - **import** show source data on attribute matching   ([74625](https://github.com/terraframe/geoprism-registry/commit/74625dab0b8713e19972b683f4b07f343929461b))
+ - Improved attribute matching user interface
 
 ### Bug Fixes
 
