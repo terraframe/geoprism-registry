@@ -9,6 +9,7 @@ import java.util.Map;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
+import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
@@ -23,6 +24,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.GenericException;
 import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
@@ -242,6 +244,26 @@ public class ConceptClassTest extends FastDatasetTest implements InstanceTestCla
       Assertions.assertEquals(expected.getCode(), actual.getCode());
       Assertions.assertEquals(expected.getLabel().getValue(), actual.getLabel().getValue());
       Assertions.assertEquals(expected.isDefault(), actual.isDefault());
+    }
+    finally
+    {
+      this.typeService.delete(type);
+    }
+  }
+
+  @Test
+  @Request
+  public void testAddClassificationAttribute()
+  {
+    ConceptClass type = this.typeService.apply(createDTO());
+
+    try
+    {
+      AttributeClassificationType expected = new AttributeClassificationType("testClassification", new LocalizedValue("Test Classification"), new LocalizedValue("Test True"), false, false, false);
+
+      Assertions.assertThrows(GenericException.class, () -> this.typeService.createAttributeType(type, expected));
+
+      Assertions.assertFalse(type.getAttributeMapAsDTO().containsKey(expected.getCode()));
     }
     finally
     {

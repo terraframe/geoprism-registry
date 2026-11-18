@@ -1,12 +1,12 @@
 [ {
-  "oid" : null,
   "code" : "TEST_CONCEPT_SET",
-  "displayLabel" : {"localizedValue":"Test Prog","localeValues":[{"locale":"defaultLocale","value":"Test Prog"}]},
-  "description" : {"localizedValue":"Test Description","localeValues":[{"locale":"defaultLocale","value":"Test Description"}]},
-  "discreteType" : "TAXONOMY",
   "conceptClasses" : [ "TEST_C_CLASS" ],
   "conceptEdgeTypes" : [ "TEST_CONCEPT_EDGE" ],
+  "description" : {"localizedValue":"Test Description","localeValues":[{"locale":"defaultLocale","value":"Test Description"}]},
+  "discreteType" : "TAXONOMY",
+  "displayLabel" : {"localizedValue":"Test Prog","localeValues":[{"locale":"defaultLocale","value":"Test Prog"}]},
+  "oid" : null,
   "origin" : "terraframe.com",
-  "sequence" : 0,
-  "rootTerm" : "Test Term"
+  "rootTerm" : "Test Term",
+  "sequence" : 0
 } ]

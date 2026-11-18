@@ -72,7 +72,7 @@ export class CreateGeoObjectTypeComponent implements OnInit {
   currentSet: ConceptSet | null = null;
 
   typeahead: Observable<ObjectAtTime[]> | null = null;
-  text: string;
+  text: string = '';
   loading: boolean;
 
   // eslint-disable-next-line no-useless-constructor
@@ -178,9 +178,9 @@ export class CreateGeoObjectTypeComponent implements OnInit {
   typeaheadOnSelect(match: TypeaheadMatch): void {
     if (match != null) {
       const item: ObjectOverTime = match.item;
-      this.text = item.code;
 
       if (this.geoObjectType.classification.rootTerm == null) {
+        this.text = item.code;
         this.geoObjectType.classification.rootTerm = item.code;
       }
     } else if (this.geoObjectType.classification.rootTerm != null) {

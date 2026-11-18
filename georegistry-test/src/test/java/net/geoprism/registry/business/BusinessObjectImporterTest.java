@@ -12,6 +12,7 @@ import java.util.Optional;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
+import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.json.JSONException;
 import org.junit.jupiter.api.AfterEach;
@@ -71,28 +72,30 @@ import net.geoprism.registry.view.ImportHistoryView;
 @ExtendWith(InstanceTestClassExtension.class)
 public class BusinessObjectImporterTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  private static BusinessType             type;
+  private static BusinessType                type;
 
-  private static AttributeType            attributeType;
+  private static AttributeType               attributeType;
 
-  private static AttributeType            attributeTypeOverTime;
+  private static AttributeType               attributeTypeOverTime;
 
-  private static String                   TEST_CODE = "testCode";
+  private static AttributeClassificationType attributeClassificationType;
 
-  @Autowired
-  private BusinessTypeBusinessServiceIF   bTypeService;
-
-  @Autowired
-  private BusinessObjectBusinessServiceIF bObjectService;
+  private static String                      TEST_CODE = "testCode";
 
   @Autowired
-  private ExcelService                    excelService;
+  private BusinessTypeBusinessServiceIF      bTypeService;
 
   @Autowired
-  private ETLBusinessService              etlBusinessService;
+  private BusinessObjectBusinessServiceIF    bObjectService;
 
   @Autowired
-  private RegistryEventStore              store;
+  private ExcelService                       excelService;
+
+  @Autowired
+  private ETLBusinessService                 etlBusinessService;
+
+  @Autowired
+  private RegistryEventStore                 store;
 
   @Override
   public void beforeClassSetup() throws Exception
@@ -103,14 +106,14 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
 
     setUpClassInRequest();
   }
-  
+
   @BeforeEach
   @Request
   @Override
   public void setUp() throws Exception
   {
     super.setUp();
-    
+
     // Clear out the event table
     Database.deleteWhere("domainevententry", "true");
   }
@@ -131,6 +134,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
 
     attributeType = this.bTypeService.createAttributeType(type, new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test True"), false, false, false, false));
     attributeTypeOverTime = this.bTypeService.createAttributeType(type, new AttributeCharacterType("testMulti", new LocalizedValue("Test Multi"), new LocalizedValue("Test Multi"), false, false, false, true));
+    attributeClassificationType = this.bTypeService.createAttributeType(type, this.createAttributeClassificationType());
   }
 
   @Override
@@ -161,7 +165,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
   public void tearDown() throws Exception
   {
     super.tearDown();
-    
+
     this.store.truncate();
   }
 
@@ -179,6 +183,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
       row.put(basicColumn, basicValue);
       row.put(multiColumn, multiValue);
       row.put(BusinessObject.CODE, TEST_CODE);
+      row.put(attributeClassificationType.getCode(), PARENT_CONCEPT);
 
       BusinessObjectImportConfiguration configuration = new BusinessObjectImportConfiguration();
       configuration.setImportStrategy(ImportStrategy.NEW_ONLY);
@@ -189,6 +194,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
       configuration.setFunction(attributeType.getCode(), new BasicColumnFunction(basicColumn));
       configuration.setFunction(attributeTypeOverTime.getCode(), new BasicColumnFunction(multiColumn));
       configuration.setFunction(BusinessObject.CODE, new BasicColumnFunction(BusinessObject.CODE));
+      configuration.setFunction(attributeClassificationType.getCode(), new BasicColumnFunction(attributeClassificationType.getCode()));
 
       try (BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener()))
       {
@@ -202,6 +208,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
         Assertions.assertNotNull(result);
 
         Assertions.assertEquals(multiValue, result.getValue(attributeTypeOverTime.getCode(), FastTestDataset.DEFAULT_OVER_TIME_DATE));
+        Assertions.assertEquals(parentConcept.getOid(), result.getValue(attributeClassificationType.getCode(), FastTestDataset.DEFAULT_OVER_TIME_DATE));
       }
       finally
       {

@@ -40,8 +40,8 @@ import org.locationtech.jts.geom.MultiPoint;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
@@ -56,8 +56,8 @@ import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.InstanceTestClassExtension;
+import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
@@ -108,6 +108,8 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
   private static AttributeBooleanType        testBoolean;
 
+  private static AttributeClassificationType defaultClassification;
+
   private static AttributeClassificationType testClassification;
 
   private final Integer                      ROW_COUNT = 2;
@@ -145,6 +147,8 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
     }
 
     ServerGeoObjectType got = ServerGeoObjectType.get(USATestData.DISTRICT.getCode());
+
+    defaultClassification = (AttributeClassificationType) this.typeService.createAttributeType(got, this.createDefaultClassificationType());
     testClassification = (AttributeClassificationType) this.typeService.createAttributeType(got, this.createAttributeClassificationType());
   }
 
@@ -284,7 +288,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
     Assertions.assertNotNull(istream);
 
-    ImportConfigurationDTO dto = this.getTestConfiguration(istream, null, ImportStrategy.NEW_AND_UPDATE);
+    ImportConfigurationDTO dto = this.getTestConfiguration(istream, ImportStrategy.NEW_AND_UPDATE);
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration config = (GeoObjectImportConfiguration) ImportConfiguration.build(dto, true);
@@ -327,7 +331,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
     Assertions.assertNotNull(istream);
 
-    ImportConfigurationDTO dto = this.getTestConfiguration(istream, null, ImportStrategy.NEW_AND_UPDATE);
+    ImportConfigurationDTO dto = this.getTestConfiguration(istream, ImportStrategy.NEW_AND_UPDATE);
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration config = (GeoObjectImportConfiguration) ImportConfiguration.build(dto, true);
@@ -357,7 +361,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
     Assertions.assertNotNull(istream);
 
-    ImportConfigurationDTO dto = this.getTestConfiguration(istream, null, ImportStrategy.NEW_AND_UPDATE);
+    ImportConfigurationDTO dto = this.getTestConfiguration(istream, ImportStrategy.NEW_AND_UPDATE);
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration config = (GeoObjectImportConfiguration) ImportConfiguration.build(dto, true);
@@ -380,7 +384,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
     Assertions.assertNotNull(istream);
 
-    ImportConfigurationDTO dto = this.getTestConfiguration(istream, null, ImportStrategy.NEW_AND_UPDATE);
+    ImportConfigurationDTO dto = this.getTestConfiguration(istream, ImportStrategy.NEW_AND_UPDATE);
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration config = (GeoObjectImportConfiguration) ImportConfiguration.build(dto, true);
@@ -412,7 +416,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
     Assertions.assertNotNull(istream);
 
-    ImportConfigurationDTO dto = this.getTestConfiguration(istream, null, ImportStrategy.NEW_AND_UPDATE);
+    ImportConfigurationDTO dto = this.getTestConfiguration(istream, ImportStrategy.NEW_AND_UPDATE);
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration config = (GeoObjectImportConfiguration) ImportConfiguration.build(dto, true);
@@ -444,7 +448,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
     Assertions.assertNotNull(istream);
 
-    ImportConfigurationDTO dto = this.getTestConfiguration(istream, null, ImportStrategy.NEW_AND_UPDATE);
+    ImportConfigurationDTO dto = this.getTestConfiguration(istream, ImportStrategy.NEW_AND_UPDATE);
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration config = (GeoObjectImportConfiguration) ImportConfiguration.build(dto, true);
@@ -479,7 +483,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
     Assertions.assertNotNull(istream);
 
-    ImportConfigurationDTO dto = this.getTestConfiguration(istream, null, ImportStrategy.NEW_AND_UPDATE);
+    ImportConfigurationDTO dto = this.getTestConfiguration(istream, ImportStrategy.NEW_AND_UPDATE);
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration config = (GeoObjectImportConfiguration) ImportConfiguration.build(dto, true);
@@ -509,7 +513,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
     Assertions.assertNotNull(istream);
 
-    ImportConfigurationDTO dto = this.getTestConfiguration(istream, null, ImportStrategy.NEW_AND_UPDATE);
+    ImportConfigurationDTO dto = this.getTestConfiguration(istream, ImportStrategy.NEW_AND_UPDATE);
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration config = (GeoObjectImportConfiguration) ImportConfiguration.build(dto, true);
@@ -597,7 +601,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
     Assertions.assertNotNull(istream);
 
-    ImportConfigurationDTO dto = this.getTestConfiguration(istream, null, ImportStrategy.NEW_AND_UPDATE);
+    ImportConfigurationDTO dto = this.getTestConfiguration(istream, ImportStrategy.NEW_AND_UPDATE);
 
     ServerHierarchyType hierarchyType = USATestData.HIER_ADMIN.getServerObject();
 
@@ -677,7 +681,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
     Assertions.assertNotNull(istream);
 
-    GeoObjectImportConfigurationDTO dto = this.getTestConfiguration(istream, null, ImportStrategy.NEW_AND_UPDATE);
+    GeoObjectImportConfigurationDTO dto = this.getTestConfiguration(istream, ImportStrategy.NEW_AND_UPDATE);
     dto.setPostalCode(true);
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
@@ -717,7 +721,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
     Assertions.assertNotNull(istream);
 
-    ImportConfigurationDTO dto = this.getTestConfiguration(istream, null, ImportStrategy.NEW_AND_UPDATE);
+    ImportConfigurationDTO dto = this.getTestConfiguration(istream, ImportStrategy.NEW_AND_UPDATE);
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
@@ -751,7 +755,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
     Assertions.assertNotNull(istream);
 
-    ImportConfigurationDTO dto = this.getTestConfiguration(istream, null, ImportStrategy.NEW_AND_UPDATE);
+    ImportConfigurationDTO dto = this.getTestConfiguration(istream, ImportStrategy.NEW_AND_UPDATE);
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
@@ -782,13 +786,13 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
   @Test
   @Request
-  public void testImportExcelWithClassification() throws InterruptedException, JSONException
+  public void testImportExcelWithClassifications() throws InterruptedException, JSONException
   {
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
 
     Assertions.assertNotNull(istream);
 
-    ImportConfigurationDTO dto = this.getTestConfiguration(istream, testClassification, ImportStrategy.NEW_AND_UPDATE);
+    ImportConfigurationDTO dto = this.getTestConfiguration(istream, ImportStrategy.NEW_AND_UPDATE, defaultClassification, testClassification);
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
@@ -808,6 +812,13 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
     ServerGeoObjectIF object = this.objectService.getGeoObjectByCode("0001", USATestData.DISTRICT.getCode());
 
     Assertions.assertEquals("0001", object.getCode());
+    Assertions.assertEquals(rootConcept.getOid(), object.getValue(defaultClassification.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE));
+    Assertions.assertEquals(rootConcept.getOid(), object.getValue(testClassification.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE));
+
+    ServerGeoObjectIF object2 = this.objectService.getGeoObjectByCode("0002", USATestData.DISTRICT.getCode());
+
+    Assertions.assertNull(object2.getValue(defaultClassification.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE));
+    Assertions.assertNull(object2.getValue(testClassification.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE));
   }
 
   /**
@@ -843,7 +854,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
-    GeoObjectImportConfiguration config = (GeoObjectImportConfiguration) ImportConfiguration.build(this.getTestConfiguration(istream, null, ImportStrategy.NEW_ONLY), true);
+    GeoObjectImportConfiguration config = (GeoObjectImportConfiguration) ImportConfiguration.build(this.getTestConfiguration(istream, ImportStrategy.NEW_ONLY), true);
     config.setHierarchy(hierarchyType);
     config.setHistoryId(fakeImportHistory.getOid());
     config.setJobId(job.getOid());
@@ -894,7 +905,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
     Assertions.assertEquals(0, json.getJSONArray("resultSet").length());
   }
 
-  private GeoObjectImportConfigurationDTO getTestConfiguration(InputStream istream, AttributeType attributeTerm, ImportStrategy strategy) throws JSONException
+  private GeoObjectImportConfigurationDTO getTestConfiguration(InputStream istream, ImportStrategy strategy, AttributeType... attributeTerms) throws JSONException
   {
     GeoObjectImportConfigurationDTO config = this.excelService.getExcelConfiguration(testData.clientRequest.getSessionId(), "test-spreadsheet.xlsx", istream, ImportConfigurationView.of(JobHistoryType.GEO_OBJECT, USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getCode(), strategy, false));
     config.setFormatType(FormatImporterType.EXCEL);
@@ -922,9 +933,13 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
       {
         attribute.setTarget("Longitude");
       }
-      else if (attributeTerm != null && attributeName.equals(attributeTerm.getCode()))
+
+      for (AttributeType attributeTerm : attributeTerms)
       {
-        attribute.setTarget("Term");
+        if (attributeName.equals(attributeTerm.getCode()))
+        {
+          attribute.setTarget("Term");
+        }
       }
     });
 

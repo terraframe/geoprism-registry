@@ -263,6 +263,78 @@ public class BasicGeoObjectTypeServiceTest extends ConceptDatasetTest implements
 
   @Test
   @Request
+  public void testMultipleClassificationAttributes()
+  {
+    GeoObjectType dto = USATestData.COUNTRY.toDTO();
+
+    ServerGeoObjectType type = this.service.create(dto);
+
+    try
+    {
+      AttributeClassificationType attribute1Dto = (AttributeClassificationType) service.createAttributeType(type, createClassificationDTO("testClassification1"));
+      AttributeClassificationType attribute2Dto = (AttributeClassificationType) service.createAttributeType(type, createClassificationDTO("testClassification2"));
+
+      Assertions.assertNotNull(attribute1Dto);
+      Assertions.assertNotNull(attribute2Dto);
+
+      Optional<AttributeType> optional1 = type.getAttribute(attribute1Dto.getCode());
+      Optional<AttributeType> optional2 = type.getAttribute(attribute2Dto.getCode());
+
+      Assertions.assertTrue(optional1.isPresent());
+      Assertions.assertTrue(optional2.isPresent());
+
+      Assertions.assertTrue(optional1.get() instanceof net.geoprism.registry.graph.AttributeClassificationType);
+      Assertions.assertTrue(optional2.get() instanceof net.geoprism.registry.graph.AttributeClassificationType);
+      Assertions.assertNotEquals(optional1.get().getOid(), optional2.get().getOid());
+
+      service.deleteAttributeType(type, attribute1Dto.getCode());
+
+      Assertions.assertFalse(type.getAttribute(attribute1Dto.getCode()).isPresent());
+      Assertions.assertTrue(type.getAttribute(attribute2Dto.getCode()).isPresent());
+    }
+    finally
+    {
+      this.service.deleteGeoObjectType(type.getCode());
+    }
+  }
+
+  @Test
+  @Request
+  public void testDuplicateClassificationAttributeOnSubType()
+  {
+    GeoObjectType parentDto = USATestData.COUNTRY.toDTO();
+    parentDto.setIsAbstract(true);
+
+    ServerGeoObjectType parentType = this.service.create(parentDto);
+
+    try
+    {
+      service.createAttributeType(parentType, createClassificationDTO("testClassification"));
+
+      GeoObjectType childDto = USATestData.STATE.toDTO();
+      childDto.setSuperTypeCode(parentType.getCode());
+
+      ServerGeoObjectType childType = this.service.create(childDto);
+
+      try
+      {
+        Assertions.assertTrue(childType.getAttribute("testClassification").isPresent());
+
+        assertThrows(GenericException.class, () -> service.createAttributeType(childType, createClassificationDTO("testClassification")));
+      }
+      finally
+      {
+        this.service.deleteGeoObjectType(childType.getCode());
+      }
+    }
+    finally
+    {
+      this.service.deleteGeoObjectType(parentType.getCode());
+    }
+  }
+
+  @Test
+  @Request
   public void testCreateDeleteSubType()
   {
     GeoObjectType parentDto = USATestData.COUNTRY.toDTO();
@@ -368,5 +440,17 @@ public class BasicGeoObjectTypeServiceTest extends ConceptDatasetTest implements
       this.service.deleteGeoObjectType(type.getCode());
     }
   }
+
+  private AttributeClassificationType createClassificationDTO(String code)
+  {
+    AttributeClassificationType attributeDto = new AttributeClassificationType(code, new LocalizedValue(code), new LocalizedValue(code), false, false, false);
+    attributeDto.setConceptSet(cSet.getCode());
+    attributeDto.setRootTerm(rootConcept.getCode());
+    attributeDto.setStartDate(TestDataSet.DEFAULT_OVER_TIME_DATE);
+    attributeDto.setEndDate(TestDataSet.DEFAULT_END_TIME_DATE);
+
+    return attributeDto;
+  }
+
 
 }

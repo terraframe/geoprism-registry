@@ -17,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.GenericException;
 import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.registry.Commit;
 import net.geoprism.registry.GeoRegistryUtil;
@@ -98,7 +99,7 @@ public class PublishBusinessServiceTest
   @Request
   public void testDeleteWithDependents()
   {
-    assertThrows(ProgrammingErrorException.class, () -> {
+    assertThrows(GenericException.class, () -> {
       Publish publish = this.service.create(createDTO("USA Geospatial Graph"));
 
       try

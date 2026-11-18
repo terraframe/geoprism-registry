@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.axonframework.eventhandling.GenericEventMessage;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
@@ -27,6 +28,7 @@ import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.graph.ConceptEdgeType;
+import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.graph.DirectedAcyclicGraphType;
 import net.geoprism.registry.graph.UndirectedGraphType;
 import net.geoprism.registry.model.BusinessObject;
@@ -80,7 +82,9 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
 
   protected static BusinessObject                     cObject;
 
-  protected static AttributeClassificationType        testClassification;
+  protected static AttributeClassificationType        testDefaultClassification;
+
+  protected static AttributeClassificationType        testCustomClassification;
 
   @Override
   public void beforeClassSetup() throws Exception
@@ -106,6 +110,7 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
     btype = this.bTypeService.apply(object);
 
     this.bTypeService.createAttributeType(btype, new AttributeBooleanType("testBoolean", new LocalizedValue("Test Boolean"), new LocalizedValue("Test Boolean"), false, false, false, false));
+    this.bTypeService.createAttributeType(btype, this.createAttributeClassificationType());
 
     bEdgeType = this.bEdgeService.create(BusinessEdgeTypeDTO.build(USATestData.ORG_PPP.getCode(), "TEST_B_EDGE", new LocalizedValue("TEST_B_EDGE"), new LocalizedValue("TEST_B_EDGE"), btype.getCode(), btype.getCode()));
 
@@ -117,11 +122,11 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
 
     this.cClassService.createAttributeType(cClass, new AttributeBooleanType("testBoolean", new LocalizedValue("Test Boolean"), new LocalizedValue("Test Boolean"), false, false, false, false));
 
-    testClassification = this.createDefaultClassificationType();
+    testDefaultClassification = (AttributeClassificationType) gotService.createAttributeType(USATestData.STATE.getServerObject(), this.createDefaultClassificationType());
+    testCustomClassification = (AttributeClassificationType) gotService.createAttributeType(USATestData.STATE.getServerObject(), this.createAttributeClassificationType());
 
-    testClassification = (AttributeClassificationType) gotService.createAttributeType(USATestData.STATE.getServerObject(), testClassification);
-
-    USATestData.COLORADO.setDefaultValue(testClassification.getCode(), "Child Concept");
+    USATestData.COLORADO.setDefaultValue(testDefaultClassification.getCode(), "Child Concept");
+    USATestData.COLORADO.setDefaultValue(testCustomClassification.getCode(), "Parent Concept");
 
     this.repoService.refreshMetadataCache();
   }
@@ -130,7 +135,7 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
   @Request
   public void afterClassSetup() throws Exception
   {
-    USATestData.COLORADO.removeDefaultValue(testClassification.getCode());
+    USATestData.COLORADO.removeDefaultValue(testDefaultClassification.getCode());
 
     if (bGeoEdgeType != null)
     {
@@ -237,6 +242,21 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
     );
 
     createBusinessEdges(cObject, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE, USATestData.SOURCE.getDataSource(), targets);
+  }
+
+  protected BusinessObject createBusinessObject(BusinessType type, String code, DataSource dataSource, Date startDate, Date endDate)
+  {
+    BusinessObject object = this.bObjectService.newInstance(type);
+    object.setCode(code);
+    object.setValue("testBoolean", false);
+    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), dataSource, startDate, endDate);
+
+    if (type.getCode().equals(btype.getCode()))
+    {
+      object.setValue(testCustomClassification.getCode(), parentConcept.getVertex(), startDate, endDate);
+    }
+
+    return applyBusinessObject(object, true);
   }
 
   protected BusinessObject createBusinessObject(String code, Date startDate, Date endDate)

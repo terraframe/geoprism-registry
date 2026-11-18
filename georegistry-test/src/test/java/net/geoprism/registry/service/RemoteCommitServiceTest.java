@@ -166,28 +166,21 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
   @Request
   public void after()
   {
-    Arrays.asList("TEST_DAG").forEach(code ->
-      this.dagTypeService.getByCode(code).ifPresent(this.dagTypeService::delete));
+    Arrays.asList("TEST_DAG").forEach(code -> this.dagTypeService.getByCode(code).ifPresent(this.dagTypeService::delete));
 
-    Arrays.asList("TEST_UN").forEach(code ->
-      this.undirectedTypeService.getByCode(code).ifPresent(this.undirectedTypeService::delete));
+    Arrays.asList("TEST_UN").forEach(code -> this.undirectedTypeService.getByCode(code).ifPresent(this.undirectedTypeService::delete));
 
-    Arrays.asList("TEST_B_EDGE", "TEST_GEO_EDGE").forEach(code ->
-      this.bEdgeService.getByCode(code).ifPresent(this.bEdgeService::delete));
+    Arrays.asList("TEST_B_EDGE", "TEST_GEO_EDGE").forEach(code -> this.bEdgeService.getByCode(code).ifPresent(this.bEdgeService::delete));
 
-    Arrays.asList("TEST_BUSINESS").forEach(code ->
-      this.bTypeService.getByCode(code).ifPresent(this.bTypeService::delete));
+    Arrays.asList("TEST_BUSINESS").forEach(code -> this.bTypeService.getByCode(code).ifPresent(this.bTypeService::delete));
 
     testData.tearDownMetadata();
 
-    Arrays.asList("TEST_CONCEPT_SET").forEach(code ->
-      this.cSetService.getByCode(code).ifPresent(this.cSetService::delete));
+    Arrays.asList("TEST_CONCEPT_SET").forEach(code -> this.cSetService.getByCode(code).ifPresent(this.cSetService::delete));
 
-    Arrays.asList("TEST_CONCEPT_EDGE").forEach(code ->
-      this.cEdgeTypeService.getByCode(code).ifPresent(this.cEdgeTypeService::delete));
+    Arrays.asList("TEST_CONCEPT_EDGE").forEach(code -> this.cEdgeTypeService.getByCode(code).ifPresent(this.cEdgeTypeService::delete));
 
-    Arrays.asList("TEST_C_CLASS").forEach(code ->
-      this.cClassService.getByCode(code).ifPresent(this.cClassService::delete));
+    Arrays.asList("TEST_C_CLASS").forEach(code -> this.cClassService.getByCode(code).ifPresent(this.cClassService::delete));
 
     // Delete all existing publishes
     this.publishService.getAll().stream().forEach(this.publishService::delete);
@@ -352,6 +345,18 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
     Assertions.assertEquals(Long.valueOf(54), this.store.size());
 
     // Test Object values
+    
+    ConceptClass conceptClass = this.cClassService.getByCodeOrThrow(ConceptDatasetTest.CONCEPT_CLASS_CODE);
+    ConceptObject concept = this.cObjectService.getByCode(conceptClass, ConceptDatasetTest.PARENT_CONCEPT).orElse(null);
+
+    Assertions.assertNotNull(concept);
+    Assertions.assertNotNull(concept.getValue(DefaultAttribute.DATA_SOURCE.getName()));
+
+
+    ConceptObject childConcept = this.cObjectService.getByCode(conceptClass, ConceptDatasetTest.CHILD_CONCEPT).orElse(null);
+
+    Assertions.assertNotNull(childConcept);
+
 
     ServerGeoObjectIF object = this.gObjectService.getGeoObjectByCode(USATestData.COLORADO.getCode(), USATestData.STATE.getCode());
 
@@ -369,6 +374,11 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
     Assertions.assertNotNull(node.getSource());
     Assertions.assertEquals(USATestData.SOURCE.getCode(), node.getSource().getCode());
     Assertions.assertNotNull(node.getUid());
+    // testDefaultClassification => DefaultAttribute.CLASSIFICATION
+    Assertions.assertEquals(childConcept.getOid(), object.getValue(DefaultAttribute.CLASSIFICATION.getName(), USATestData.DEFAULT_OVER_TIME_DATE));
+
+    // testCustomClassification => testClassification
+    Assertions.assertEquals(concept.getOid(), object.getValue("testClassification", USATestData.DEFAULT_OVER_TIME_DATE));
 
     // Assert DAG values
     DirectedAcyclicGraphType dagType = this.dagTypeService.getByCode("TEST_DAG").get();
@@ -377,6 +387,7 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
 
     Assertions.assertEquals(1, dNode.getParents().size());
 
+
     BusinessType bType = this.bTypeService.getByCodeOrThrow("TEST_BUSINESS");
 
     BusinessObject bObject = this.bObjectService.getByCode(bType, "C_CODE").orElse(null);
@@ -384,17 +395,15 @@ public class RemoteCommitServiceTest implements InstanceTestClassListener
     Assertions.assertNotNull(bObject);
     Assertions.assertNotNull(bObject.getValue(DefaultAttribute.DATA_SOURCE.getName()));
 
+    // Assert the classification value of the business object
+    Assertions.assertEquals(concept.getOid(), bObject.getValue("testClassification", USATestData.DEFAULT_OVER_TIME_DATE));
+
     BusinessEdgeType bEdgeType = this.bEdgeService.getByCode("TEST_B_EDGE").get();
     BusinessEdgeType bGeoEdgeType = this.bEdgeService.getByCode("TEST_GEO_EDGE").get();
 
     Assertions.assertEquals(1, this.bObjectService.getParents(bObject, bEdgeType, USATestData.DEFAULT_OVER_TIME_DATE).size());
     Assertions.assertEquals(1, this.bObjectService.getParents(bObject, bGeoEdgeType, USATestData.DEFAULT_OVER_TIME_DATE).size());
 
-    ConceptClass conceptClass = this.cClassService.getByCodeOrThrow(ConceptDatasetTest.CONCEPT_CLASS_CODE);
-    ConceptObject concept = this.cObjectService.getByCode(conceptClass, ConceptDatasetTest.PARENT_CONCEPT).orElse(null);
-
-    Assertions.assertNotNull(concept);
-    Assertions.assertNotNull(concept.getValue(DefaultAttribute.DATA_SOURCE.getName()));
   }
 
   @Test

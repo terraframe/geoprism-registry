@@ -63,6 +63,7 @@ import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.cache.ServerMetadataCache;
 import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.graph.ConceptClass;
+import net.geoprism.registry.graph.ConceptSet;
 import net.geoprism.registry.graph.DirectedAcyclicGraphType;
 import net.geoprism.registry.graph.EdgeClass;
 import net.geoprism.registry.graph.ObjectClass;
@@ -74,6 +75,7 @@ import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ConceptClassBusinessServiceIF;
 import net.geoprism.registry.service.business.ConceptEdgeTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.ConceptSetBusinessServiceIF;
 import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.EdgeClassBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
@@ -83,6 +85,7 @@ import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.permission.RolePermissionService;
 import net.geoprism.registry.view.ConceptEdgeTypeDTO;
+import net.geoprism.registry.view.ConceptSetDTO;
 import net.geoprism.registry.view.EdgeClassDTO;
 import net.geoprism.registry.view.ObjectClassDTO;
 import net.geoprism.registry.view.TypeClass;
@@ -122,6 +125,8 @@ public class XMLExporter
 
   private final ConceptEdgeTypeBusinessServiceIF          cEdgeService;
 
+  private final ConceptSetBusinessServiceIF               cSetService;
+
   /**
    * Initializes the <code>document</code>, creates the <code>root</code>
    * element, and parses the <code>schema</code>.
@@ -143,6 +148,7 @@ public class XMLExporter
     this.undirectedService = ServiceFactory.getBean(UndirectedGraphTypeBusinessServiceIF.class);
     this.bEdgeService = ServiceFactory.getBean(BusinessEdgeTypeBusinessServiceIF.class);
     this.cEdgeService = ServiceFactory.getBean(ConceptEdgeTypeBusinessServiceIF.class);
+    this.cSetService = ServiceFactory.getBean(ConceptSetBusinessServiceIF.class);
 
     this.organizations = organizations;
     this.edgeTypes = new TreeSet<>();
@@ -229,6 +235,19 @@ public class XMLExporter
         .map(t -> this.cEdgeService.getByCodeOrThrow(t.getTypeCode())) //
         .forEach(type -> {
           this.exportEdgeType(element, "concept-edge", type, this.cEdgeService);
+        });
+
+    // Concept sets do not belong to an organization, so export the concept
+    // sets which reference a concept class of the organization
+    Set<String> conceptClassCodes = this.cClassService.getForOrganization(organization).stream() //
+        .map(ConceptClass::getCode) //
+        .collect(Collectors.toSet());
+
+    this.cSetService.getAll().stream() //
+        .map(this.cSetService::toDTO) //
+        .filter(dto -> dto.getConceptClasses().stream().anyMatch(conceptClassCodes::contains)) //
+        .forEach(dto -> {
+          this.exportConceptSet(element, dto);
         });
 
     this.root.appendChild(element);
@@ -326,6 +345,34 @@ public class XMLExporter
     parent.appendChild(element);
   }
 
+  private void exportConceptSet(Element parent, ConceptSetDTO dto)
+  {
+    Element element = document.createElement("concept-set");
+    element.setAttribute("code", dto.getCode());
+    element.setAttribute("label", dto.getDisplayLabel().getValue());
+    element.setAttribute("description", dto.getDescription().getValue());
+    element.setAttribute("discreteType", dto.getDiscreteType().name());
+
+    if (dto.getConceptClasses().size() > 0)
+    {
+      element.setAttribute("conceptClass", String.join(",", dto.getConceptClasses()));
+    }
+
+    if (dto.getConceptEdgeTypes().size() > 0)
+    {
+      element.setAttribute("conceptEdgeType", String.join(",", dto.getConceptEdgeTypes()));
+    }
+
+    String rootTerm = dto.getRootTerm();
+
+    if (rootTerm != null && rootTerm.length() > 0)
+    {
+      element.setAttribute("rootTerm", rootTerm);
+    }
+
+    parent.appendChild(element);
+  }
+
   private void exportHierarchy(Element parent, ServerHierarchyType type)
   {
     Element element = document.createElement("hierarchy");
@@ -390,6 +437,21 @@ public class XMLExporter
       element.setAttribute("geometryType", this.getGeometryType(type));
       element.setAttribute("isGeometryEditable", Boolean.toString(type.isGeometryEditable()));
       element.setAttribute("isGroup", Boolean.toString(type.getIsAbstract()));
+      
+      type.getAttribute(DefaultAttribute.CLASSIFICATION.getName()).ifPresent(a -> {
+        AttributeClassificationType classification = (AttributeClassificationType) a.toDTO();
+
+        element.setAttribute("conceptSet", classification.getConceptSet());
+        element.setAttribute("startDate", GeoRegistryUtil.formatDate(classification.getStartDate(), false));
+        element.setAttribute("endDate", GeoRegistryUtil.formatDate(classification.getEndDate(), false));
+
+        String rootTerm = classification.getRootTerm();
+
+        if (rootTerm != null && rootTerm.length() > 0)
+        {
+          element.setAttribute("rootTerm", rootTerm);
+        }
+      });
 
       Element attributes = document.createElement("attributes");
 
@@ -476,10 +538,14 @@ public class XMLExporter
       AttributeClassificationType type = (AttributeClassificationType) attributeType;
 
       attribute = document.createElement("classification");
-      attribute.setAttribute("rootCode", type.getRootTerm());
       attribute.setAttribute("conceptSet", type.getConceptSet());
       attribute.setAttribute("startDate", GeoRegistryUtil.formatDate(type.getStartDate(), false));
       attribute.setAttribute("endDate", GeoRegistryUtil.formatDate(type.getEndDate(), false));
+
+      if (type.getRootTerm() != null && type.getRootTerm().length() > 0)
+      {
+        attribute.setAttribute("rootTerm", type.getRootTerm());
+      }
     }
 
     attribute.setAttribute("code", attributeType.getCode());

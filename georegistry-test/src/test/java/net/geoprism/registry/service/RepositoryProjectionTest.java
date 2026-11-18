@@ -66,7 +66,7 @@ public class RepositoryProjectionTest extends EventDatasetTest implements Instan
   @Request
   public void setUp() throws Exception
   {
-    USATestData.COLORADO.removeDefaultValue(testClassification.getCode());
+    USATestData.COLORADO.removeDefaultValue(testDefaultClassification.getCode());
 
     this.store.truncate();
   }

@@ -80,6 +80,7 @@
     <xs:attribute name="conceptClass" type="xs:string" use="optional" />
     <xs:attribute name="conceptEdgeType" type="xs:string" use="optional" />
     <xs:attribute name="discreteType" type="xs:string" use="optional" />    
+    <xs:attribute name="rootTerm" type="xs:string" use="optional" />
   </xs:complexType>
   
   <xs:complexType name="graph">
@@ -150,7 +151,7 @@
       <xs:element name="integer" type="integer" />
       <xs:element name="decimal" type="decimal" />
       <xs:element name="date" type="date" />
-      <xs:element name="term" type="term" />
+      <xs:element name="classification" type="classification" />
     </xs:choice>
   </xs:complexType>
   <!-- Common Attributes of all attributes -->
@@ -165,25 +166,22 @@
   <xs:complexType name="text">
     <xs:attributeGroup ref="attribute" />
   </xs:complexType>
-  <xs:complexType name="term">
-    <xs:sequence minOccurs="0" maxOccurs="unbounded">
-      <xs:element name="option">
-        <xs:complexType>
-          <xs:attribute name="code" type="xs:string" use="required" />
-          <!-- label:The display label of the attribute -->
-          <xs:attribute name="label" type="xs:string" />
-          <!-- description: A description of the purpose of attribute -->
-          <xs:attribute name="description" type="xs:string" />
-        </xs:complexType>
-      </xs:element>
-    </xs:sequence>
-    <xs:attributeGroup ref="attribute" />
-  </xs:complexType>
   <xs:attributeGroup name="attributeDec">
     <xs:attributeGroup ref="attribute" />
     <xs:attribute name="precision" type="xs:integer" />
     <xs:attribute name="scale" type="xs:integer" />
   </xs:attributeGroup>
+  <xs:attributeGroup name="classification">
+    <xs:attributeGroup ref="attribute" />
+    <xs:attribute name="conceptSet" type="xs:string" use="required" />
+    <xs:attribute name="startDate" type="xs:string" use="required" />
+    <xs:attribute name="endDate" type="xs:string" use="required" />
+    <xs:attribute name="rootTerm" type="xs:string" use="optional" />    
+  </xs:attributeGroup>
+  <!-- Represents a Classification attribute referencing a Concept Set -->
+  <xs:complexType name="classification">
+    <xs:attributeGroup ref="classification" />
+  </xs:complexType>
   <!-- Represents a Boolean object in the database -->
   <xs:complexType name="boolean">
     <xs:attributeGroup ref="attribute" />

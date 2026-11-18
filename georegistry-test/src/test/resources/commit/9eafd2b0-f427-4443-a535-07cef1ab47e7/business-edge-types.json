@@ -1,23 +1,23 @@
 [ {
-  "typeCode" : "BusinessEdgeType",
   "code" : "TEST_B_EDGE",
   "label" : {"localizedValue":"TEST_B_EDGE","localeValues":[{"locale":"defaultLocale","value":"TEST_B_EDGE"}]},
   "description" : {"localizedValue":"TEST_B_EDGE","localeValues":[{"locale":"defaultLocale","value":"TEST_B_EDGE"}]},
-  "seq" : 0,
-  "oid" : null,
-  "origin" : "terraframe.com",
-  "organizationCode" : "USATestDataPPP",
   "childType" : "TEST_BUSINESS",
-  "parentType" : "TEST_BUSINESS"
+  "oid" : null,
+  "organizationCode" : "USATestDataPPP",
+  "origin" : "terraframe.com",
+  "parentType" : "TEST_BUSINESS",
+  "seq" : 0,
+  "typeCode" : "BusinessEdgeType"
 }, {
-  "typeCode" : "BusinessEdgeType",
   "code" : "TEST_GEO_EDGE",
   "label" : {"localizedValue":"TEST_GEO_EDGE","localeValues":[{"locale":"defaultLocale","value":"TEST_GEO_EDGE"}]},
   "description" : {"localizedValue":"TEST_GEO_EDGE","localeValues":[{"locale":"defaultLocale","value":"TEST_GEO_EDGE"}]},
-  "seq" : 0,
-  "oid" : null,
-  "origin" : "terraframe.com",
-  "organizationCode" : "USATestDataPPP",
   "childType" : "TEST_BUSINESS",
-  "parentType" : "~#GO#~"
+  "oid" : null,
+  "organizationCode" : "USATestDataPPP",
+  "origin" : "terraframe.com",
+  "parentType" : "~#GO#~",
+  "seq" : 0,
+  "typeCode" : "BusinessEdgeType"
 } ]

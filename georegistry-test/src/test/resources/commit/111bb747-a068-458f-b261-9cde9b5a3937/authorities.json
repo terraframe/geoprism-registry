@@ -1,7 +1,7 @@
 [ {
-  "oid" : null,
+  "authorityType" : "GOVERNMENT",
   "code" : "UsaAuthority",
-  "label" : {"localizedValue":"UsaAuthority","localeValues":[{"locale":"defaultLocale","value":"UsaAuthority"}]},
   "description" : {"localizedValue":"UsaAuthority","localeValues":[{"locale":"defaultLocale","value":"UsaAuthority"}]},
-  "authorityType" : "GOVERNMENT"
+  "label" : {"localizedValue":"UsaAuthority","localeValues":[{"locale":"defaultLocale","value":"UsaAuthority"}]},
+  "oid" : null
 } ]

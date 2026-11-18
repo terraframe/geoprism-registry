@@ -1,10 +1,10 @@
 [ {
-  "oid" : "cc2bb72e-b869-4547-8c70-a4fd156e841a",
+  "authority" : "UsaAuthority",
   "code" : "UsaSource",
-  "label" : {"localizedValue":"UsaSource","localeValues":[{"locale":"defaultLocale","value":"UsaSource"}]},
   "description" : {"localizedValue":"UsaSource","localeValues":[{"locale":"defaultLocale","value":"UsaSource"}]},
-  "uri" : null,
   "governanceLevel" : "AD_HOC",
+  "label" : {"localizedValue":"UsaSource","localeValues":[{"locale":"defaultLocale","value":"UsaSource"}]},
   "metadataProfile" : "AD_HOC",
-  "authority" : "UsaAuthority"
+  "oid" : "46f2c3ad-93b0-4575-ad4c-cc73b76d8ff5",
+  "uri" : null
 } ]

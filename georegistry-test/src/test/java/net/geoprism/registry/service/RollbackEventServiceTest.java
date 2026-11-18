@@ -73,7 +73,7 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
     // Do not create any data
 
     // Do not set a value for the classification attribute
-    USATestData.COLORADO.removeDefaultValue(testClassification.getCode());
+    USATestData.COLORADO.removeDefaultValue(testDefaultClassification.getCode());
 
     this.store.truncate();
   }

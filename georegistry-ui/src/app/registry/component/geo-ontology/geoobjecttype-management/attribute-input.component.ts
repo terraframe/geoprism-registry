@@ -64,10 +64,11 @@ export class AttributeInputComponent implements OnChanges {
   state: string = 'none';
 
   sets: ConceptSet[] = [];
+  setsLoaded: boolean = false;
   currentSet: ConceptSet | null = null;
 
   typeahead: Observable<ObjectAtTime[]> | null = null;
-  text: string;
+  text: string = '';
   loading: boolean;
 
   constructor(
@@ -77,12 +78,6 @@ export class AttributeInputComponent implements OnChanges {
   ) {}
 
   ngOnInit(): void {
-    this.setService.getAll().then((sets) => {
-      this.sets = sets;
-
-      this.onConceptSetChange();
-    });
-
     this.typeahead = new Observable((observer: Observer<ObjectAtTime[]>) => {
       if (
         this.attribute != null &&
@@ -105,7 +100,27 @@ export class AttributeInputComponent implements OnChanges {
     this.cdr.detectChanges();
   }
 
-  ngOnChanges(changes: SimpleChanges): void {}
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['attribute'] && this.attribute != null) {
+      this.text = this.attribute.rootTerm ?? '';
+
+      this.onConceptSetChange();
+    }
+
+    if (changes['type'] && this.type !== 'classification') {
+      this.currentSet = null;
+    }
+
+    if (changes['type'] && this.type === 'classification' && !this.setsLoaded) {
+      this.setsLoaded = true;
+
+      this.setService.getAll().then((sets) => {
+        this.sets = sets;
+
+        this.onConceptSetChange();
+      });
+    }
+  }
 
   ngOnDestroy() {}
 
@@ -149,6 +164,16 @@ export class AttributeInputComponent implements OnChanges {
         return false;
       }
 
+      if (
+        this.type === 'classification' &&
+        (this.attribute.startDate == null ||
+          this.attribute.startDate.length === 0 ||
+          this.attribute.endDate == null ||
+          this.attribute.endDate.length === 0)
+      ) {
+        return false;
+      }
+
       return true;
     }
 
@@ -159,11 +184,8 @@ export class AttributeInputComponent implements OnChanges {
     if (match != null) {
       const item: ObjectOverTime = match.item;
 
-      this.text = item.label!;
-
-      if (this.attribute.rootTerm == null) {
-        this.attribute.rootTerm = item.code;
-      }
+      this.text = item.code;
+      this.attribute.rootTerm = item.code;
     } else if (this.attribute.rootTerm != null) {
       this.attribute.rootTerm = null;
     }

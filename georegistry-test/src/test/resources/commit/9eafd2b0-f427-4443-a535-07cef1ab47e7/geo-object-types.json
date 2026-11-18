@@ -40,11 +40,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Label of the location",
+          "localizedValue": "Display name of the Geo-Object",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Label of the location"
+              "value": "Display name of the Geo-Object"
             }
           ]
         },
@@ -66,11 +66,11 @@
           ]
         },
         "description": {
-          "localizedValue": "The internal globally unique identifier ID",
+          "localizedValue": "Internal, globally unique identifier",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "The internal globally unique identifier ID"
+              "value": "Internal, globally unique identifier"
             }
           ]
         },
@@ -92,11 +92,11 @@
           ]
         },
         "description": {
-          "localizedValue": "This Geo-Object is no longer valid.",
+          "localizedValue": "Whether this Geo-Object is no longer valid",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "This Geo-Object is no longer valid."
+              "value": "Whether this Geo-Object is no longer valid"
             }
           ]
         },
@@ -118,11 +118,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Does this GeoObject exist",
+          "localizedValue": "Whether this Geo-Object exists during a given time period. For example, a district created by splitting another district would not exist before the date of the split",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Does this GeoObject exist"
+              "value": "Whether this Geo-Object exists during a given time period. For example, a district created by splitting another district would not exist before the date of the split"
             }
           ]
         },
@@ -144,11 +144,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Source of the data",
+          "localizedValue": "The source of the Geo-Object\u0027s data",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Source of the data"
+              "value": "The source of the Geo-Object\u0027s data"
             }
           ]
         },
@@ -201,11 +201,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Label of the location",
+          "localizedValue": "Display name of the Geo-Object",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Label of the location"
+              "value": "Display name of the Geo-Object"
             }
           ]
         },
@@ -227,11 +227,11 @@
           ]
         },
         "description": {
-          "localizedValue": "The internal globally unique identifier ID",
+          "localizedValue": "Internal, globally unique identifier",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "The internal globally unique identifier ID"
+              "value": "Internal, globally unique identifier"
             }
           ]
         },
@@ -253,11 +253,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Human readable unique identified",
+          "localizedValue": "Human-readable unique identifier",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Human readable unique identified"
+              "value": "Human-readable unique identifier"
             }
           ]
         },
@@ -279,11 +279,11 @@
           ]
         },
         "description": {
-          "localizedValue": "This Geo-Object is no longer valid.",
+          "localizedValue": "Whether this Geo-Object is no longer valid",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "This Geo-Object is no longer valid."
+              "value": "Whether this Geo-Object is no longer valid"
             }
           ]
         },
@@ -305,11 +305,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Does this GeoObject exist",
+          "localizedValue": "Whether this Geo-Object exists during a given time period. For example, a district created by splitting another district would not exist before the date of the split",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Does this GeoObject exist"
+              "value": "Whether this Geo-Object exists during a given time period. For example, a district created by splitting another district would not exist before the date of the split"
             }
           ]
         },
@@ -331,11 +331,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Source of the data",
+          "localizedValue": "The source of the Geo-Object\u0027s data",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Source of the data"
+              "value": "The source of the Geo-Object\u0027s data"
             }
           ]
         },
@@ -351,7 +351,7 @@
     "code": "USATestDataState",
     "orgCode": "USATestDataNPS",
     "origin": "terraframe.com",
-    "sequence": 1,
+    "sequence": 2,
     "displayLabel": {
       "localizedValue": "USATestDataState",
       "localeValues": [
@@ -375,6 +375,36 @@
     "isRoot": false,
     "isPrivate": false,
     "attributes": [
+      {
+        "code": "testClassification",
+        "type": "classification",
+        "label": {
+          "localizedValue": "testClassificationLocalName",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "testClassificationLocalName"
+            }
+          ]
+        },
+        "description": {
+          "localizedValue": "testClassificationLocalDescrip",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "testClassificationLocalDescrip"
+            }
+          ]
+        },
+        "isDefault": false,
+        "required": false,
+        "unique": false,
+        "isChangeOverTime": true,
+        "conceptSet": "TEST_CONCEPT_SET",
+        "startDate": "2020-04-04",
+        "endDate": "2021-04-04",
+        "rootTerm": "Test Term"
+      },
       {
         "code": "classification",
         "type": "classification",
@@ -418,11 +448,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Label of the location",
+          "localizedValue": "Display name of the Geo-Object",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Label of the location"
+              "value": "Display name of the Geo-Object"
             }
           ]
         },
@@ -444,11 +474,11 @@
           ]
         },
         "description": {
-          "localizedValue": "The internal globally unique identifier ID",
+          "localizedValue": "Internal, globally unique identifier",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "The internal globally unique identifier ID"
+              "value": "Internal, globally unique identifier"
             }
           ]
         },
@@ -470,11 +500,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Human readable unique identified",
+          "localizedValue": "Human-readable unique identifier",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Human readable unique identified"
+              "value": "Human-readable unique identifier"
             }
           ]
         },
@@ -496,11 +526,11 @@
           ]
         },
         "description": {
-          "localizedValue": "This Geo-Object is no longer valid.",
+          "localizedValue": "Whether this Geo-Object is no longer valid",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "This Geo-Object is no longer valid."
+              "value": "Whether this Geo-Object is no longer valid"
             }
           ]
         },
@@ -522,11 +552,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Does this GeoObject exist",
+          "localizedValue": "Whether this Geo-Object exists during a given time period. For example, a district created by splitting another district would not exist before the date of the split",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Does this GeoObject exist"
+              "value": "Whether this Geo-Object exists during a given time period. For example, a district created by splitting another district would not exist before the date of the split"
             }
           ]
         },
@@ -548,11 +578,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Source of the data",
+          "localizedValue": "The source of the Geo-Object\u0027s data",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Source of the data"
+              "value": "The source of the Geo-Object\u0027s data"
             }
           ]
         },
@@ -605,11 +635,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Label of the location",
+          "localizedValue": "Display name of the Geo-Object",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Label of the location"
+              "value": "Display name of the Geo-Object"
             }
           ]
         },
@@ -631,11 +661,11 @@
           ]
         },
         "description": {
-          "localizedValue": "The internal globally unique identifier ID",
+          "localizedValue": "Internal, globally unique identifier",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "The internal globally unique identifier ID"
+              "value": "Internal, globally unique identifier"
             }
           ]
         },
@@ -657,11 +687,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Human readable unique identified",
+          "localizedValue": "Human-readable unique identifier",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Human readable unique identified"
+              "value": "Human-readable unique identifier"
             }
           ]
         },
@@ -683,11 +713,11 @@
           ]
         },
         "description": {
-          "localizedValue": "This Geo-Object is no longer valid.",
+          "localizedValue": "Whether this Geo-Object is no longer valid",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "This Geo-Object is no longer valid."
+              "value": "Whether this Geo-Object is no longer valid"
             }
           ]
         },
@@ -709,11 +739,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Does this GeoObject exist",
+          "localizedValue": "Whether this Geo-Object exists during a given time period. For example, a district created by splitting another district would not exist before the date of the split",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Does this GeoObject exist"
+              "value": "Whether this Geo-Object exists during a given time period. For example, a district created by splitting another district would not exist before the date of the split"
             }
           ]
         },
@@ -735,11 +765,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Source of the data",
+          "localizedValue": "The source of the Geo-Object\u0027s data",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Source of the data"
+              "value": "The source of the Geo-Object\u0027s data"
             }
           ]
         },
@@ -792,11 +822,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Label of the location",
+          "localizedValue": "Display name of the Geo-Object",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Label of the location"
+              "value": "Display name of the Geo-Object"
             }
           ]
         },
@@ -818,11 +848,11 @@
           ]
         },
         "description": {
-          "localizedValue": "The internal globally unique identifier ID",
+          "localizedValue": "Internal, globally unique identifier",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "The internal globally unique identifier ID"
+              "value": "Internal, globally unique identifier"
             }
           ]
         },
@@ -844,11 +874,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Human readable unique identified",
+          "localizedValue": "Human-readable unique identifier",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Human readable unique identified"
+              "value": "Human-readable unique identifier"
             }
           ]
         },
@@ -870,11 +900,11 @@
           ]
         },
         "description": {
-          "localizedValue": "This Geo-Object is no longer valid.",
+          "localizedValue": "Whether this Geo-Object is no longer valid",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "This Geo-Object is no longer valid."
+              "value": "Whether this Geo-Object is no longer valid"
             }
           ]
         },
@@ -896,11 +926,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Does this GeoObject exist",
+          "localizedValue": "Whether this Geo-Object exists during a given time period. For example, a district created by splitting another district would not exist before the date of the split",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Does this GeoObject exist"
+              "value": "Whether this Geo-Object exists during a given time period. For example, a district created by splitting another district would not exist before the date of the split"
             }
           ]
         },
@@ -922,11 +952,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Source of the data",
+          "localizedValue": "The source of the Geo-Object\u0027s data",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Source of the data"
+              "value": "The source of the Geo-Object\u0027s data"
             }
           ]
         },
@@ -979,11 +1009,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Label of the location",
+          "localizedValue": "Display name of the Geo-Object",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Label of the location"
+              "value": "Display name of the Geo-Object"
             }
           ]
         },
@@ -1005,11 +1035,11 @@
           ]
         },
         "description": {
-          "localizedValue": "The internal globally unique identifier ID",
+          "localizedValue": "Internal, globally unique identifier",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "The internal globally unique identifier ID"
+              "value": "Internal, globally unique identifier"
             }
           ]
         },
@@ -1031,11 +1061,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Human readable unique identified",
+          "localizedValue": "Human-readable unique identifier",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Human readable unique identified"
+              "value": "Human-readable unique identifier"
             }
           ]
         },
@@ -1057,11 +1087,11 @@
           ]
         },
         "description": {
-          "localizedValue": "This Geo-Object is no longer valid.",
+          "localizedValue": "Whether this Geo-Object is no longer valid",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "This Geo-Object is no longer valid."
+              "value": "Whether this Geo-Object is no longer valid"
             }
           ]
         },
@@ -1083,11 +1113,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Does this GeoObject exist",
+          "localizedValue": "Whether this Geo-Object exists during a given time period. For example, a district created by splitting another district would not exist before the date of the split",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Does this GeoObject exist"
+              "value": "Whether this Geo-Object exists during a given time period. For example, a district created by splitting another district would not exist before the date of the split"
             }
           ]
         },
@@ -1109,11 +1139,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Source of the data",
+          "localizedValue": "The source of the Geo-Object\u0027s data",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Source of the data"
+              "value": "The source of the Geo-Object\u0027s data"
             }
           ]
         },
@@ -1166,11 +1196,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Label of the location",
+          "localizedValue": "Display name of the Geo-Object",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Label of the location"
+              "value": "Display name of the Geo-Object"
             }
           ]
         },
@@ -1192,11 +1222,11 @@
           ]
         },
         "description": {
-          "localizedValue": "The internal globally unique identifier ID",
+          "localizedValue": "Internal, globally unique identifier",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "The internal globally unique identifier ID"
+              "value": "Internal, globally unique identifier"
             }
           ]
         },
@@ -1218,11 +1248,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Human readable unique identified",
+          "localizedValue": "Human-readable unique identifier",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Human readable unique identified"
+              "value": "Human-readable unique identifier"
             }
           ]
         },
@@ -1244,11 +1274,11 @@
           ]
         },
         "description": {
-          "localizedValue": "This Geo-Object is no longer valid.",
+          "localizedValue": "Whether this Geo-Object is no longer valid",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "This Geo-Object is no longer valid."
+              "value": "Whether this Geo-Object is no longer valid"
             }
           ]
         },
@@ -1270,11 +1300,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Does this GeoObject exist",
+          "localizedValue": "Whether this Geo-Object exists during a given time period. For example, a district created by splitting another district would not exist before the date of the split",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Does this GeoObject exist"
+              "value": "Whether this Geo-Object exists during a given time period. For example, a district created by splitting another district would not exist before the date of the split"
             }
           ]
         },
@@ -1296,11 +1326,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Source of the data",
+          "localizedValue": "The source of the Geo-Object\u0027s data",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Source of the data"
+              "value": "The source of the Geo-Object\u0027s data"
             }
           ]
         },
@@ -1353,11 +1383,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Label of the location",
+          "localizedValue": "Display name of the Geo-Object",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Label of the location"
+              "value": "Display name of the Geo-Object"
             }
           ]
         },
@@ -1379,11 +1409,11 @@
           ]
         },
         "description": {
-          "localizedValue": "The internal globally unique identifier ID",
+          "localizedValue": "Internal, globally unique identifier",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "The internal globally unique identifier ID"
+              "value": "Internal, globally unique identifier"
             }
           ]
         },
@@ -1405,11 +1435,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Human readable unique identified",
+          "localizedValue": "Human-readable unique identifier",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Human readable unique identified"
+              "value": "Human-readable unique identifier"
             }
           ]
         },
@@ -1431,11 +1461,11 @@
           ]
         },
         "description": {
-          "localizedValue": "This Geo-Object is no longer valid.",
+          "localizedValue": "Whether this Geo-Object is no longer valid",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "This Geo-Object is no longer valid."
+              "value": "Whether this Geo-Object is no longer valid"
             }
           ]
         },
@@ -1457,11 +1487,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Does this GeoObject exist",
+          "localizedValue": "Whether this Geo-Object exists during a given time period. For example, a district created by splitting another district would not exist before the date of the split",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Does this GeoObject exist"
+              "value": "Whether this Geo-Object exists during a given time period. For example, a district created by splitting another district would not exist before the date of the split"
             }
           ]
         },
@@ -1483,11 +1513,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Source of the data",
+          "localizedValue": "The source of the Geo-Object\u0027s data",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Source of the data"
+              "value": "The source of the Geo-Object\u0027s data"
             }
           ]
         },
@@ -1540,11 +1570,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Label of the location",
+          "localizedValue": "Display name of the Geo-Object",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Label of the location"
+              "value": "Display name of the Geo-Object"
             }
           ]
         },
@@ -1566,11 +1596,11 @@
           ]
         },
         "description": {
-          "localizedValue": "The internal globally unique identifier ID",
+          "localizedValue": "Internal, globally unique identifier",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "The internal globally unique identifier ID"
+              "value": "Internal, globally unique identifier"
             }
           ]
         },
@@ -1592,11 +1622,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Human readable unique identified",
+          "localizedValue": "Human-readable unique identifier",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Human readable unique identified"
+              "value": "Human-readable unique identifier"
             }
           ]
         },
@@ -1618,11 +1648,11 @@
           ]
         },
         "description": {
-          "localizedValue": "This Geo-Object is no longer valid.",
+          "localizedValue": "Whether this Geo-Object is no longer valid",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "This Geo-Object is no longer valid."
+              "value": "Whether this Geo-Object is no longer valid"
             }
           ]
         },
@@ -1644,11 +1674,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Does this GeoObject exist",
+          "localizedValue": "Whether this Geo-Object exists during a given time period. For example, a district created by splitting another district would not exist before the date of the split",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Does this GeoObject exist"
+              "value": "Whether this Geo-Object exists during a given time period. For example, a district created by splitting another district would not exist before the date of the split"
             }
           ]
         },
@@ -1670,11 +1700,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Source of the data",
+          "localizedValue": "The source of the Geo-Object\u0027s data",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Source of the data"
+              "value": "The source of the Geo-Object\u0027s data"
             }
           ]
         },
@@ -1727,11 +1757,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Label of the location",
+          "localizedValue": "Display name of the Geo-Object",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Label of the location"
+              "value": "Display name of the Geo-Object"
             }
           ]
         },
@@ -1753,11 +1783,11 @@
           ]
         },
         "description": {
-          "localizedValue": "The internal globally unique identifier ID",
+          "localizedValue": "Internal, globally unique identifier",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "The internal globally unique identifier ID"
+              "value": "Internal, globally unique identifier"
             }
           ]
         },
@@ -1779,11 +1809,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Human readable unique identified",
+          "localizedValue": "Human-readable unique identifier",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Human readable unique identified"
+              "value": "Human-readable unique identifier"
             }
           ]
         },
@@ -1805,11 +1835,11 @@
           ]
         },
         "description": {
-          "localizedValue": "This Geo-Object is no longer valid.",
+          "localizedValue": "Whether this Geo-Object is no longer valid",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "This Geo-Object is no longer valid."
+              "value": "Whether this Geo-Object is no longer valid"
             }
           ]
         },
@@ -1831,11 +1861,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Does this GeoObject exist",
+          "localizedValue": "Whether this Geo-Object exists during a given time period. For example, a district created by splitting another district would not exist before the date of the split",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Does this GeoObject exist"
+              "value": "Whether this Geo-Object exists during a given time period. For example, a district created by splitting another district would not exist before the date of the split"
             }
           ]
         },
@@ -1857,11 +1887,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Source of the data",
+          "localizedValue": "The source of the Geo-Object\u0027s data",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Source of the data"
+              "value": "The source of the Geo-Object\u0027s data"
             }
           ]
         },
@@ -1914,11 +1944,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Label of the location",
+          "localizedValue": "Display name of the Geo-Object",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Label of the location"
+              "value": "Display name of the Geo-Object"
             }
           ]
         },
@@ -1940,11 +1970,11 @@
           ]
         },
         "description": {
-          "localizedValue": "The internal globally unique identifier ID",
+          "localizedValue": "Internal, globally unique identifier",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "The internal globally unique identifier ID"
+              "value": "Internal, globally unique identifier"
             }
           ]
         },
@@ -1966,11 +1996,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Human readable unique identified",
+          "localizedValue": "Human-readable unique identifier",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Human readable unique identified"
+              "value": "Human-readable unique identifier"
             }
           ]
         },
@@ -1992,11 +2022,11 @@
           ]
         },
         "description": {
-          "localizedValue": "This Geo-Object is no longer valid.",
+          "localizedValue": "Whether this Geo-Object is no longer valid",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "This Geo-Object is no longer valid."
+              "value": "Whether this Geo-Object is no longer valid"
             }
           ]
         },
@@ -2018,11 +2048,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Does this GeoObject exist",
+          "localizedValue": "Whether this Geo-Object exists during a given time period. For example, a district created by splitting another district would not exist before the date of the split",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Does this GeoObject exist"
+              "value": "Whether this Geo-Object exists during a given time period. For example, a district created by splitting another district would not exist before the date of the split"
             }
           ]
         },
@@ -2044,11 +2074,11 @@
           ]
         },
         "description": {
-          "localizedValue": "Source of the data",
+          "localizedValue": "The source of the Geo-Object\u0027s data",
           "localeValues": [
             {
               "locale": "defaultLocale",
-              "value": "Source of the data"
+              "value": "The source of the Geo-Object\u0027s data"
             }
           ]
         },

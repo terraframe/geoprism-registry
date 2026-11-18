@@ -6,8 +6,28 @@
 <CGR xsi:noNamespaceSchemaLocation="classpath:xsd/cgr.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
   <organization code="TEST_ORG">
+    <concept-class code="CONCEPT_POP" label="Concept Pop" description="Concept Pop Description">
+      <attributes>
+        <text code="TEST_TEXT" label="Test Text" description="Test Text Description"/>
+        <boolean code="TEST_BOOLEAN" label="Test Boolean" description="Test Boolean Description"/>
+        <integer code="TEST_INTEGER" label="Test Integer" description="Test Integer Description"/>
+        <decimal code="TEST_DECIMAL" label="Test Decimal" description="Test Decimal Description" precision="10"
+                 scale="2"/>
+        <date code="TEST_DATE" label="Test Date" description="Test Date Description"/>
+      </attributes>
+    </concept-class>
+    
+
+    <concept-edge code="CONCEPT_POP_EDGE" label="Concept Pop Edge" description="Concept Pop Edge" parentTypeCode="CONCEPT_POP"
+                   childTypeCode="CONCEPT_POP" discreteType="TAXONOMY"/>
+
+    <concept-set code="CONCEPT_POP_SET" label="Concept Pop Set" description="Concept Pop Set Description"
+                 conceptClass="CONCEPT_POP" conceptEdgeType="CONCEPT_POP_EDGE" discreteType="TAXONOMY"/>
+
+  
     <type code="TEST_VILLAGE" label="Test Village" description="Test Village Description" visibility="PUBLIC"
-          geometryType="POINT" isGeometryEditable="false">
+          geometryType="POINT" isGeometryEditable="false" conceptSet="CONCEPT_POP_SET" startDate="2000-01-01"
+          endDate="2025-12-31">
       <attributes>
         <text code="TEST_TEXT" label="Test Text" description="Test Text Description"/>
         <boolean code="TEST_BOOLEAN" label="Test Boolean" description="Test Boolean Description"/>
@@ -15,6 +35,9 @@
         <decimal code="TEST_DECIMAL" label="Test Decimal" description="Test Decimal Description" precision="10"
                  scale="2"/>
         <integer code="TEST_DATE" label="Test Date" description="Test Date Description"/>
+        <classification code="TEST_CLASSIFICATION" label="Test Classification"
+                        description="Test Classification Description" conceptSet="CONCEPT_POP_SET"
+                        startDate="2000-01-01" endDate="2025-12-31"/>
       </attributes>
       <group-item code="TEST_GI" label="Test GI" description="Test GI"/>
     </type>
@@ -45,30 +68,11 @@
     </business-type>
 
     <business-edge code="BUS_EDGE" label="Business Edge" description="Business Edge" parentTypeCode="BUSINESS_POP"
-                   childTypeCode="BUSINESS_CHILD">
-    </business-edge>
+                   childTypeCode="BUSINESS_CHILD"/>
 
     <business-edge code="BUS_GEO_EDGE" label="Business Geo Edge" description="Business Edge" parentTypeCode="~#GO#~"
-                   childTypeCode="BUSINESS_CHILD">
-    </business-edge>
+                   childTypeCode="BUSINESS_CHILD"/>
     
-    <concept-class code="CONCEPT_POP" label="Concept Pop" description="Concept Pop Description">
-      <attributes>
-        <text code="TEST_TEXT" label="Test Text" description="Test Text Description"/>
-        <boolean code="TEST_BOOLEAN" label="Test Boolean" description="Test Boolean Description"/>
-        <integer code="TEST_INTEGER" label="Test Integer" description="Test Integer Description"/>
-        <decimal code="TEST_DECIMAL" label="Test Decimal" description="Test Decimal Description" precision="10"
-                 scale="2"/>
-        <date code="TEST_DATE" label="Test Date" description="Test Date Description"/>
-      </attributes>
-    </concept-class>
-    
-      
-
-    <concept-edge code="CONCEPT_POP_EDGE" label="Concept Pop Edge" description="Concept Pop Edge" parentTypeCode="CONCEPT_POP"
-                   childTypeCode="CONCEPT_POP" discreteType="TAXONOMY">
-    </concept-edge>
-
   </organization>
 
 </CGR>

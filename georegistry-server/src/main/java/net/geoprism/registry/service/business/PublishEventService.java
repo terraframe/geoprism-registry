@@ -18,7 +18,9 @@
  */
 package net.geoprism.registry.service.business;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -202,10 +204,15 @@ public class PublishEventService
 
   private List<Publish> createClassificationDependencies(PublishDTO dto)
   {
+    // Multiple classification attributes may reference the same concept set
+    // over the same date range. Only process each unique combination once.
+    Set<List<Object>> seen = new HashSet<>();
+
     return dto.getGeoObjectTypes().map(code -> ServerGeoObjectType.get(code)) //
         .flatMap(t -> t.getAttributes().stream()) //
         .filter(a -> a instanceof net.geoprism.registry.graph.AttributeClassificationType) //
         .map(a -> (AttributeClassificationType) a.toDTO()) //
+        .filter(c -> seen.add(Arrays.asList(c.getConceptSet(), c.getStartDate(), c.getEndDate()))) //
         .map(classification -> {
           ConceptSet set = this.cSetService.getByCodeOrThrow(classification.getConceptSet());
 

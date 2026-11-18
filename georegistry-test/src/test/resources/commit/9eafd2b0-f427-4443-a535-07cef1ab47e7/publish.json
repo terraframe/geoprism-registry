@@ -1,11 +1,12 @@
 {
-  "uid" : "9eafd2b0-f427-4443-a535-07cef1ab47e7",
-  "label" : "USA Geospatial Graph",
-  "date" : "2020-04-04",
-  "startDate" : "2020-04-04",
-  "endDate" : "2021-04-04",
   "conceptSet" : "",
+  "date" : "2020-04-04",
+  "description" : {"localizedValue":"","localeValues":[{"locale":"defaultLocale","value":""}]},
+  "endDate" : "2021-04-04",
+  "exclusions" : [ ],
+  "label" : "USA Geospatial Graph",
   "origin" : "terraframe.com",
+  "startDate" : "2020-04-04",
   "types" : [ {
     "typeClass" : "GEO_OBJECT_TYPE",
     "typeCode" : "USATestDataCountry"
@@ -64,5 +65,5 @@
     "typeClass" : "HIERARCHY",
     "typeCode" : "USATestDataReportsToCode"
   } ],
-  "exclusions" : [ ]
+  "uid" : "9eafd2b0-f427-4443-a535-07cef1ab47e7"
 }

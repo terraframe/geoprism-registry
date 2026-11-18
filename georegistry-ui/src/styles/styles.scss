@@ -1082,6 +1082,6 @@ typeahead-container {
   Workaround for bootstrap 3 and ngx-bootstrap
   https://github.com/valor-software/ngx-bootstrap/issues/2891
 */
-.dropdown-menu {
+.dropdown-menu:not(typeahead-container) {
   transform: none !important;
 }
