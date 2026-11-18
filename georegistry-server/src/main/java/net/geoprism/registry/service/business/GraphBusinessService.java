@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.service.business;
 
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -34,11 +35,13 @@ import org.springframework.stereotype.Service;
 import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.SmartException;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.resource.CloseableFile;
 import com.runwaysdk.system.VaultFile;
 
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.JSONFormatException;
 import net.geoprism.registry.etl.ObjectImporterFactory;
+import net.geoprism.registry.etl.upload.JSONImporter;
 import net.geoprism.registry.excel.SheetDTO;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.view.EdgeObjectImportConfigurationDTO;
@@ -59,7 +62,9 @@ public class GraphBusinessService
 
       VaultFile vf = VaultFile.createAndApply(fileName, fileStream);
 
-      try (InputStream is = vf.openNewStream())
+      // Read the JSON the same way the import does: either the upload itself,
+      // or the JSON file in an uploaded zip
+      try (CloseableFile file = JSONImporter.getJsonFromResource(vf); InputStream is = new FileInputStream(file))
       {
         EdgeObjectImportConfigurationDTO dto = new EdgeObjectImportConfigurationDTO();
         dto.setGraphTypeClass(view.getGraphTypeClass());

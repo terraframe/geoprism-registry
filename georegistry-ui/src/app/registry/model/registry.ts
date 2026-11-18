@@ -343,6 +343,10 @@ export class AbstractScheduledJob {
   workTotal: number;
   startDate: string;
   endDate: string;
+  /** When the job started running, in milliseconds since the epoch */
+  startTime?: number;
+  /** When the job finished running, in milliseconds since the epoch */
+  endTime?: number;
   exception?: {
     message: string;
     type: string;

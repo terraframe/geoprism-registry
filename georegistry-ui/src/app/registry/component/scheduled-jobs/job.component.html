@@ -47,9 +47,25 @@
             <span style="display: block">
               <localize key="scheduledjobs.job.started.label"></localize>
               <span class="date-string-display">
-                <date-text [date]="job.createDate"></date-text>
+                @if (job.startTime != null) {
+                  {{ job.startTime | date: 'yyyy-MM-dd HH:mm:ss' }}
+                } @else {
+                  <date-text [date]="job.createDate"></date-text>
+                }
               </span>
             </span>
+            @if (isFinished()) {
+              <span style="display: block">
+                <localize key="scheduledjobs.job.finished.label"></localize>
+                <span class="date-string-display">
+                  {{ job.endTime | date: 'yyyy-MM-dd HH:mm:ss' }}
+                </span>
+              </span>
+              <span style="display: block">
+                <localize key="scheduledjobs.job.duration.label"></localize>
+                <span class="date-string-display">{{ formatDuration(job.endTime - job.startTime) }}</span>
+              </span>
+            }
           </p>
         </div>
       </div>

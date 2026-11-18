@@ -66,7 +66,7 @@
           @if (this.format === 'EXCEL') {
             <localize key="spreadsheet.import.import.strategy"></localize>
           }
-          @if (this.format === 'SHAPEFILE') {
+          @if (this.format === 'SHAPEFILE' || this.format === 'GEOPACKAGE') {
             <localize key="shapefile.import.import.strategy"></localize>
           }
         </label>
@@ -162,6 +162,9 @@
           @if (this.format === 'SHAPEFILE') {
             <localize key="io.shapefile"></localize>
           }
+          @if (this.format === 'GEOPACKAGE') {
+            <localize key="io.geopackage"></localize>
+          }
         </label>
         <div class="col-md-8">
           @if (this.format === 'EXCEL') {
@@ -172,7 +175,7 @@
               type="file"
               ng2FileSelect
               [uploader]="uploader"
-              accept=".xls, .xlsx"
+              accept=".xlsx, .zip"
               required
             />
           }
@@ -185,6 +188,18 @@
               ng2FileSelect
               [uploader]="uploader"
               accept=".zip"
+              required
+            />
+          }
+          @if (this.format === 'GEOPACKAGE') {
+            <input
+              class="ghost-input"
+              #myFile
+              name="file"
+              type="file"
+              ng2FileSelect
+              [uploader]="uploader"
+              accept=".gpkg, .zip"
               required
             />
           }

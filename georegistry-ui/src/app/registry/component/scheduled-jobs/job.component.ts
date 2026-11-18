@@ -18,6 +18,7 @@
 ///
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 
@@ -63,6 +64,7 @@ import { EdgeImportConfiguration, ImportConfiguration } from '@registry/model/io
     ScheduledJobMapComponent,
     TabsModule,
     LocalizePipe,
+    DatePipe,
   ],
 })
 export class JobComponent implements OnInit, OnDestroy {
@@ -215,6 +217,32 @@ export class JobComponent implements OnInit, OnDestroy {
         this.onProblemResolved(data.data);
       }
     });
+  }
+
+  /** True when the job has stopped running (it may be waiting on the user to resolve problems) */
+  isFinished(): boolean {
+    return (
+      this.job != null &&
+      this.job.startTime != null &&
+      this.job.endTime != null &&
+      !['NEW', 'QUEUED', 'RUNNING'].includes(this.job.status)
+    );
+  }
+
+  /** Formats a duration in milliseconds, e.g. 9h 45m 43s */
+  formatDuration(milliseconds: number): string {
+    const total = Math.max(0, Math.round(milliseconds / 1000));
+    const hours = Math.floor(total / 3600);
+    const minutes = Math.floor((total % 3600) / 60);
+    const seconds = total % 60;
+
+    if (hours > 0) {
+      return hours + 'h ' + minutes + 'm ' + seconds + 's';
+    } else if (minutes > 0) {
+      return minutes + 'm ' + seconds + 's';
+    }
+
+    return seconds + 's';
   }
 
   onPageChange(pageNumber: any): void {

@@ -159,6 +159,15 @@
       <layout>default</layout>
     </repository>
     <repository>
+      <!-- GeoTools modules, e.g. gt-geopkg -->
+      <id>osgeo</id>
+      <name>OSGeo Release Repository</name>
+      <url>https://repo.osgeo.org/repository/release/</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
       <id>terraframe-public</id>
       <url>https://dl.cloudsmith.io/public/terraframe/public/maven/</url>
       <releases>

@@ -172,6 +172,8 @@ export class DataImporterComponent implements OnInit {
       getUrl = environment.apiUrl + '/api/shapefile/get-shapefile-configuration';
 
       // this.showImportConfig = true; // show the upload widget if shapefile because external system from shapefile isn't supported
+    } else if (this.format === 'GEOPACKAGE') {
+      getUrl = environment.apiUrl + '/api/geopackage/get-configuration';
     }
 
     let options: FileUploaderOptions = {

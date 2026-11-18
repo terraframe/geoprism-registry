@@ -410,6 +410,18 @@ public class ETLBusinessService
     jo.addProperty("author", user == null ? "SYSTEM" : user.getUsername());
     jo.addProperty("createDate", GeoRegistryUtil.formatDate(hist.getCreateDate(), false));
     jo.addProperty("lastUpdateDate", GeoRegistryUtil.formatDate(hist.getLastUpdateDate(), false));
+
+    // When the job ran, to the millisecond, so the page can show how long it took
+    if (hist.getStartTime() != null)
+    {
+      jo.addProperty("startTime", hist.getStartTime().getTime());
+    }
+
+    if (hist.getEndTime() != null)
+    {
+      jo.addProperty("endTime", hist.getEndTime().getTime());
+    }
+
     jo.addProperty("workProgress", hist.getWorkProgress());
     jo.addProperty("workTotal", hist.getWorkTotal());
     jo.addProperty("historyId", hist.getOid());

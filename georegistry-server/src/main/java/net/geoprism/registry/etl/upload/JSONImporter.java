@@ -19,30 +19,26 @@
 package net.geoprism.registry.etl.upload;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.file.Files;
 import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import org.locationtech.jts.geom.Geometry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.runwaysdk.RunwayException;
+import com.runwaysdk.business.SmartException;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.resource.CloseableFile;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.data.importer.FeatureRow;
-import net.geoprism.registry.etl.CloseableDelegateFile;
-import net.geoprism.registry.etl.ImportFileFormatException;
 import net.geoprism.registry.etl.ImportStage;
+import net.geoprism.registry.etl.ImportFileFormatException;
 import net.geoprism.registry.excel.MapFeatureRow;
+import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.type.TypeReference;
@@ -103,6 +99,11 @@ public class JSONImporter implements FormatSpecificImporterIF
         this.process(stage, json);
       }
     }
+    catch (RunwayException | SmartException e)
+    {
+      // Let user facing exceptions through, so the import job reports them
+      throw e;
+    }
     catch (Exception e)
     {
       throw new ProgrammingErrorException(e);
@@ -110,82 +111,12 @@ public class JSONImporter implements FormatSpecificImporterIF
   }
 
   /**
-   * Locate a JSON file from the resource. Supports: - a standalone .json (no
-   * copy needed) - a .zip containing one or more .json (first match is used)
+   * Locates the JSON file in an uploaded resource: either a .json file, or a
+   * zip containing one (the first by path is used).
    */
   public static CloseableFile getJsonFromResource(ApplicationResource res)
   {
-    try
-    {
-      if ("zip".equalsIgnoreCase(res.getNameExtension()))
-      {
-        try (InputStream is = res.openNewStream())
-        {
-          File dir = Files.createTempDirectory(res.getBaseName()).toFile();
-          extractZip(is, dir);
-
-          File[] jsons = dir.listFiles(new FilenameFilter()
-          {
-            @Override
-            public boolean accept(File dir, String name)
-            {
-              return name.toLowerCase().endsWith(".json");
-            }
-          });
-
-          if (jsons != null && jsons.length > 0)
-          {
-            return new CloseableDelegateFile(jsons[0], dir);
-          }
-          throw new ImportFileFormatException();
-        }
-      }
-      else if ("json".equalsIgnoreCase(res.getNameExtension()))
-      {
-        return res.openNewFile();
-      }
-    }
-    catch (IOException e)
-    {
-      throw new ProgrammingErrorException(e);
-    }
-
-    throw new ImportFileFormatException();
-  }
-
-  private static void extractZip(InputStream iStream, File directory)
-  {
-    byte[] buffer = new byte[2048];
-    try (ZipInputStream zstream = new ZipInputStream(iStream))
-    {
-      ZipEntry entry;
-      while ( ( entry = zstream.getNextEntry() ) != null)
-      {
-        File file = new File(directory, entry.getName());
-
-        if (!file.getCanonicalPath().startsWith(directory.getCanonicalPath() + File.separator))
-        {
-          throw new IOException("Entry is outside of the target dir: " + entry.getName());
-        }
-        // Create parent dirs for nested entries
-        File parent = file.getParentFile();
-        if (parent != null)
-          parent.mkdirs();
-
-        try (FileOutputStream output = new FileOutputStream(file))
-        {
-          int len;
-          while ( ( len = zstream.read(buffer) ) > 0)
-          {
-            output.write(buffer, 0, len);
-          }
-        }
-      }
-    }
-    catch (IOException e1)
-    {
-      throw new ProgrammingErrorException(e1);
-    }
+    return ImportFileResources.getFile(res, "json");
   }
 
   @Request
@@ -195,11 +126,40 @@ public class JSONImporter implements FormatSpecificImporterIF
         .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
         .build();
     
-    // Pass 1: count elements to set progress total (without materializing)
-    long total = countTopLevelArrayElements(mapper, jsonFile);
-    long effective = Math.max(total - this.getStartIndex(), 0);
-    this.progressListener.setWorkTotal(effective);
+    try
+    {
+      // Pass 1: count elements to set progress total (without materializing)
+      long total = countTopLevelArrayElements(mapper, jsonFile);
+      long effective = Math.max(total - this.getStartIndex(), 0);
+      this.progressListener.setWorkTotal(effective);
 
+      this.readRows(stage, mapper, jsonFile);
+    }
+    catch (JacksonException e)
+    {
+      // Malformed JSON. Use the parser's message and location, rather than
+      // getMessage(), which can include a description of the source file.
+      String details = "The file is not valid JSON: " + e.getOriginalMessage();
+
+      if (e.getLocation() != null && e.getLocation().getLineNr() > 0)
+      {
+        details += " (line " + e.getLocation().getLineNr() + ", column " + e.getLocation().getColumnNr() + ")";
+      }
+
+      throw ImportFileFormatException.withDetails(details, e);
+    }
+    catch (RunwayException | SmartException e)
+    {
+      throw e;
+    }
+    catch (Throwable t)
+    {
+      throw new ProgrammingErrorException(t);
+    }
+  }
+
+  private void readRows(ImportStage stage, JsonMapper mapper, File jsonFile) throws InterruptedException
+  {
     // Pass 2: stream rows, skip startIndex, hand off to objectImporter
     long seen = 0;
     long rowNum = 1;
@@ -208,7 +168,7 @@ public class JSONImporter implements FormatSpecificImporterIF
     {
       if (p.nextToken() != JsonToken.START_ARRAY)
       {
-        throw new ImportFileFormatException();
+        throw newNotAnArrayException();
       }
 
       while (p.nextToken() != JsonToken.END_ARRAY)
@@ -247,10 +207,11 @@ public class JSONImporter implements FormatSpecificImporterIF
         rowNum++;
       }
     }
-    catch (Throwable t)
-    {
-      throw new ProgrammingErrorException(t);
-    }
+  }
+
+  private static ImportFileFormatException newNotAnArrayException()
+  {
+    return ImportFileFormatException.withDetails("The JSON file must contain an array of objects at the top level.");
   }
 
   /** Count elements in the top-level array via streaming. */
@@ -261,7 +222,7 @@ public class JSONImporter implements FormatSpecificImporterIF
     {
       if (p.nextToken() != JsonToken.START_ARRAY)
       {
-        throw new ImportFileFormatException();
+        throw newNotAnArrayException();
       }
       while (p.nextToken() != JsonToken.END_ARRAY)
       {
