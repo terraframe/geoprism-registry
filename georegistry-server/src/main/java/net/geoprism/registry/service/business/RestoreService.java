@@ -84,16 +84,20 @@ import net.geoprism.registry.etl.BusinessEdgeJsonImporter;
 import net.geoprism.registry.etl.EdgeJsonImporter;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
+import net.geoprism.registry.graph.ConceptClass;
+import net.geoprism.registry.graph.ConceptEdgeType;
 import net.geoprism.registry.graph.DirectedAcyclicGraphType;
 import net.geoprism.registry.graph.UndirectedGraphType;
 import net.geoprism.registry.graph.transition.TransitionEvent;
 import net.geoprism.registry.model.BusinessObject;
+import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.model.ServerElement;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.request.SerializedListTypeCache;
+import net.geoprism.registry.view.ObjectOverTimeDTO;
 import net.geoprism.registry.view.RestoreSummary;
 import net.geoprism.registry.xml.XMLImporter;
 
@@ -126,6 +130,15 @@ public class RestoreService implements RestoreServiceIF
   @Autowired
   private CacheProviderIF                   cacheProvider;
 
+  @Autowired
+  private ConceptClassBusinessServiceIF     cClassService;
+
+  @Autowired
+  private ConceptEdgeTypeBusinessServiceIF  cEdgeTypeService;
+
+  @Autowired
+  private ConceptObjectBusinessServiceIF    cObjectService;
+
   @FunctionalInterface
   private interface RestoreStep
   {
@@ -151,6 +164,10 @@ public class RestoreService implements RestoreServiceIF
 
         // 1) Restore the metadata
         runStep("restoring metadata", () -> restoreMetadata(directory, summary));
+
+        // 1b) Restore the classification terms. Geo objects and business
+        // objects with classification values can only be restored after them.
+        runStep("restoring classification terms", () -> restoreConceptData(directory, summary));
 
         // 2) Refresh permission
         if (Session.getCurrentSession() != null)
@@ -288,8 +305,129 @@ public class RestoreService implements RestoreServiceIF
     {
       return "Undirected graph types";
     }
+    else if (element instanceof ConceptClass)
+    {
+      return "Concept classes";
+    }
+    else if (element instanceof ConceptEdgeType)
+    {
+      return "Concept edge types";
+    }
 
     return element.getClass().getSimpleName();
+  }
+
+  /**
+   * Restores the terms of the concept classes and the edges between them. The
+   * concept classes, edge types and concept sets themselves are restored with
+   * the metadata. Backups made before the terms were included have no concept
+   * folders, in which case nothing is restored.
+   */
+  @Transaction
+  protected void restoreConceptData(File directory, RestoreSummary summary) throws IOException
+  {
+    File[] objectFiles = new File(directory, BackupService.CONCEPT_OBJECTS_FOLDER).listFiles();
+
+    if (objectFiles != null)
+    {
+      for (File file : objectFiles)
+      {
+        ConceptClass type = this.cClassService.getByCodeOrThrow(FilenameUtils.getBaseName(file.getName()));
+
+        try (JsonReader reader = new JsonReader(new FileReader(file)))
+        {
+          reader.setLenient(true);
+
+          Gson gson = new GsonBuilder().create();
+
+          reader.beginArray();
+
+          while (reader.hasNext())
+          {
+            JsonObject jObject = gson.fromJson(reader, JsonObject.class);
+
+            ObjectOverTimeDTO dto = ObjectOverTimeDTO.parseJson(jObject.toString());
+
+            // Update an existing term instead of failing on its unique code
+            ConceptObject object = this.cObjectService.getByCode(type, dto.getCode()).orElseGet(() -> this.cObjectService.newInstance(type));
+
+            this.cObjectService.populate(object, dto);
+            this.cObjectService.apply(object, false);
+
+            summary.increment("Classification terms");
+          }
+
+          reader.endArray();
+        }
+      }
+    }
+
+    File[] edgeFiles = new File(directory, BackupService.CONCEPT_EDGES_FOLDER).listFiles();
+
+    if (edgeFiles != null)
+    {
+      Cache<String, ConceptObject> cache = new LRUCache<String, ConceptObject>(500);
+
+      for (File file : edgeFiles)
+      {
+        ConceptEdgeType edgeType = this.cEdgeTypeService.getByCodeOrThrow(FilenameUtils.getBaseName(file.getName()));
+
+        try (JsonReader reader = new JsonReader(new FileReader(file)))
+        {
+          reader.setLenient(true);
+
+          Gson gson = new GsonBuilder().create();
+
+          reader.beginArray();
+
+          while (reader.hasNext())
+          {
+            JsonObject jObject = gson.fromJson(reader, JsonObject.class);
+
+            ConceptObject source = getConcept(cache, jObject.get("sourceType").getAsString(), jObject.get("source").getAsString());
+            ConceptObject target = getConcept(cache, jObject.get("targetType").getAsString(), jObject.get("target").getAsString());
+
+            String uid = jObject.has("uid") && !jObject.get("uid").isJsonNull() ? jObject.get("uid").getAsString() : UUID.randomUUID().toString();
+            Date startDate = getDate(jObject, "startDate");
+            Date endDate = getDate(jObject, "endDate");
+
+            if (this.cObjectService.addChild(source, edgeType, target, uid, startDate, endDate, null, false).isPresent())
+            {
+              summary.increment("Classification term relationships");
+            }
+          }
+
+          reader.endArray();
+        }
+      }
+    }
+  }
+
+  private ConceptObject getConcept(Cache<String, ConceptObject> cache, String typeCode, String code)
+  {
+    String key = typeCode + "~" + code;
+
+    return cache.get(key).orElseGet(() -> {
+      ConceptClass type = this.cClassService.getByCodeOrThrow(typeCode);
+
+      ConceptObject object = this.cObjectService.getByCode(type, code).orElseThrow(() -> {
+        return new GenericException("The classification term [" + code + "] of the concept class [" + typeCode + "] referenced in the backup does not exist.");
+      });
+
+      cache.put(key, object);
+
+      return object;
+    });
+  }
+
+  private Date getDate(JsonObject jObject, String name)
+  {
+    if (jObject.has(name) && !jObject.get(name).isJsonNull() && jObject.get(name).getAsString().length() > 0)
+    {
+      return GeoRegistryUtil.parseDate(jObject.get(name).getAsString());
+    }
+
+    return null;
   }
 
   protected void restoreOrganizations(File directory, RestoreSummary summary) throws IOException
@@ -603,50 +741,19 @@ public class RestoreService implements RestoreServiceIF
 
               BusinessObject object = this.bObjectService.newInstance(type);
 
-              // TODO: Move parsing from json code into the
-              // BusinessObjectBusinessService
-              object.setCode(jObject.get("code").getAsString());
-
-              JsonObject properties = jObject.get("data").getAsJsonObject();
-
-              List<? extends MdAttributeConcreteDAOIF> mdAttributes = object.getType().getMdVertexDAO().definesAttributes();
-
-              for (MdAttributeConcreteDAOIF mdAttribute : mdAttributes)
+              if (jObject.has("properties"))
               {
-                String attributeName = mdAttribute.definesAttribute();
+                // Current format: an ObjectOverTimeDTO. Populate it the same
+                // way business object events are applied, which handles every
+                // attribute type including change over time and classification
+                // attributes.
+                ObjectOverTimeDTO dto = ObjectOverTimeDTO.parseJson(jObject.toString());
 
-                if (!attributeName.equals(BusinessObject.CODE))
-                {
-                  if (properties.has(attributeName))
-                  {
-                    if (mdAttribute instanceof MdAttributeTermDAOIF)
-                    {
-                      Classifier classifier = Classifier.get(properties.get(attributeName).getAsString());
-
-                      object.setValue(attributeName, classifier.getOid());
-                    }
-                    else if (mdAttribute instanceof MdAttributeIntDAOIF)
-                    {
-                      object.setValue(attributeName, properties.get(attributeName).getAsNumber().longValue());
-                    }
-                    else if (mdAttribute instanceof MdAttributeNumberDAOIF)
-                    {
-                      object.setValue(attributeName, properties.get(attributeName).getAsNumber());
-                    }
-                    else if (mdAttribute instanceof MdAttributeBooleanDAOIF)
-                    {
-                      object.setValue(attributeName, properties.get(attributeName).getAsBoolean());
-                    }
-                    else if (mdAttribute instanceof MdAttributeTextDAOIF || mdAttribute instanceof MdAttributeCharacterDAOIF)
-                    {
-                      object.setValue(attributeName, properties.get(attributeName).getAsString());
-                    }
-                    else if (mdAttribute instanceof MdAttributeDateDAOIF)
-                    {
-                      object.setValue(attributeName, GeoRegistryUtil.parseDate(jObject.get(attributeName).getAsString()));
-                    }
-                  }
-                }
+                this.bObjectService.populate(object, dto);
+              }
+              else
+              {
+                populateLegacyBusinessObject(object, jObject);
               }
 
               this.bObjectService.apply(object);
@@ -656,6 +763,56 @@ public class RestoreService implements RestoreServiceIF
 
             reader.endArray();
           }
+        }
+      }
+    }
+  }
+
+  /**
+   * Populates a business object from the format written by backups made
+   * before business objects were exported as an ObjectOverTimeDTO: the code
+   * and a "data" object of attribute values. Only concrete attributes were
+   * written in that format.
+   */
+  private void populateLegacyBusinessObject(BusinessObject object, JsonObject jObject)
+  {
+    object.setCode(jObject.get("code").getAsString());
+
+    JsonObject properties = jObject.get("data").getAsJsonObject();
+
+    List<? extends MdAttributeConcreteDAOIF> mdAttributes = object.getType().getMdVertexDAO().definesAttributes();
+
+    for (MdAttributeConcreteDAOIF mdAttribute : mdAttributes)
+    {
+      String attributeName = mdAttribute.definesAttribute();
+
+      if (!attributeName.equals(BusinessObject.CODE) && properties.has(attributeName) && !properties.get(attributeName).isJsonNull())
+      {
+        if (mdAttribute instanceof MdAttributeTermDAOIF)
+        {
+          Classifier classifier = Classifier.get(properties.get(attributeName).getAsString());
+
+          object.setValue(attributeName, classifier.getOid());
+        }
+        else if (mdAttribute instanceof MdAttributeIntDAOIF)
+        {
+          object.setValue(attributeName, properties.get(attributeName).getAsNumber().longValue());
+        }
+        else if (mdAttribute instanceof MdAttributeNumberDAOIF)
+        {
+          object.setValue(attributeName, properties.get(attributeName).getAsNumber());
+        }
+        else if (mdAttribute instanceof MdAttributeBooleanDAOIF)
+        {
+          object.setValue(attributeName, properties.get(attributeName).getAsBoolean());
+        }
+        else if (mdAttribute instanceof MdAttributeTextDAOIF || mdAttribute instanceof MdAttributeCharacterDAOIF)
+        {
+          object.setValue(attributeName, properties.get(attributeName).getAsString());
+        }
+        else if (mdAttribute instanceof MdAttributeDateDAOIF)
+        {
+          object.setValue(attributeName, GeoRegistryUtil.parseDate(properties.get(attributeName).getAsString()));
         }
       }
     }

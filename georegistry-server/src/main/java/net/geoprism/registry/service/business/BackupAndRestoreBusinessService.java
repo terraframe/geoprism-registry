@@ -71,6 +71,15 @@ public class BackupAndRestoreBusinessService implements BackupAndRestoreBusiness
   @Autowired
   private GraphRepoServiceIF                        repoService;
 
+  @Autowired
+  private ConceptSetBusinessServiceIF               cSetService;
+
+  @Autowired
+  private ConceptEdgeTypeBusinessServiceIF          cEdgeTypeService;
+
+  @Autowired
+  private ConceptClassBusinessServiceIF             cClassService;
+
   @Override
   public void createBackup(File zipfile, Set<BackupSection> sections)
   {
@@ -127,6 +136,22 @@ public class BackupAndRestoreBusinessService implements BackupAndRestoreBusiness
       {
         this.gTypeService.deleteGeoObjectType(code);
       }
+    });
+
+    // Delete the classification metadata last: a concept set can't be deleted
+    // while a classification attribute of a geo object or business type uses
+    // it. Deleting a concept class deletes its terms; its edge types are
+    // deleted first because their edges reference the concept classes.
+    this.cSetService.getAll().forEach(set -> {
+      this.cSetService.delete(set);
+    });
+
+    this.cEdgeTypeService.getAll().forEach(type -> {
+      this.cEdgeTypeService.delete(type);
+    });
+
+    this.cClassService.getAll().forEach(type -> {
+      this.cClassService.delete(type);
     });
   }
 

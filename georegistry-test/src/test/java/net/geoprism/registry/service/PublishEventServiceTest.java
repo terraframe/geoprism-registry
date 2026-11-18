@@ -12,6 +12,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.apache.commons.lang3.StringUtils;
+import org.axonframework.eventhandling.GapAwareTrackingToken;
 import org.axonframework.eventhandling.GenericEventMessage;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.jupiter.api.Assertions;
@@ -498,6 +499,80 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
     catch (InterruptedException e)
     {
       throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * Regression test for an empty concept-set publish deleting the previous,
+   * valid concept-set commit.
+   *
+   * When the event store head has not moved past the concept set's last commit,
+   * publishing the concept set throws EmptyPublishException without creating a
+   * commit. The dependency handling must not then delete the existing commit,
+   * which other SKG commits depend on.
+   */
+  @Test
+  @Request
+  public void testEmptyConceptSetPublishKeepsPreviousCommit() throws InterruptedException, ExecutionException
+  {
+    Publish first = publishAndWait(getPublishDTO());
+    Publish second = null;
+    Publish conceptPublish = null;
+
+    try
+    {
+      Commit firstCommit = this.cService.getLatest(first).get();
+
+      List<Commit> firstDependencies = this.cService.getDependencies(firstCommit);
+
+      Assertions.assertEquals(1, firstDependencies.size());
+
+      Commit conceptCommit = firstDependencies.get(0);
+      conceptPublish = conceptCommit.getPublish();
+
+      // Remove the remote events written by both commits so the head of the
+      // event store is back at the concept set's last origin index, i.e. no
+      // new events exist since the concept set was last committed.
+      this.store.delete(firstCommit);
+      this.store.delete(conceptCommit);
+
+      GapAwareTrackingToken head = (GapAwareTrackingToken) this.store.createHeadToken();
+
+      Assertions.assertEquals(conceptCommit.getLastOriginGlobalIndex().longValue(), head.getIndex());
+
+      // A second SKG over the same types reuses the same concept set
+      PublishDTO dto = getPublishDTO();
+      dto.setLabel("USA Geospatial Graph 2");
+
+      second = publishAndWait(dto);
+
+      // The concept set must still have its original commit
+      List<Commit> conceptCommits = this.cService.getCommits(conceptPublish);
+
+      Assertions.assertEquals(1, conceptCommits.size());
+      Assertions.assertEquals(conceptCommit.getOid(), conceptCommits.get(0).getOid());
+
+      // Both SKGs must depend on that commit
+      Assertions.assertTrue(this.cService.getDependencies(firstCommit).stream().anyMatch(c -> c.getOid().equals(conceptCommit.getOid())));
+
+      Commit secondCommit = this.cService.getLatest(second).get();
+
+      Assertions.assertTrue(this.cService.getDependencies(secondCommit).stream().anyMatch(c -> c.getOid().equals(conceptCommit.getOid())));
+    }
+    finally
+    {
+      // Delete the SKGs before the concept set they depend on
+      if (second != null)
+      {
+        pService.delete(second);
+      }
+
+      pService.delete(first);
+
+      if (conceptPublish != null)
+      {
+        pService.delete(conceptPublish);
+      }
     }
   }
 

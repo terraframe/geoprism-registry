@@ -541,6 +541,7 @@ public class XMLExporter
       attribute.setAttribute("conceptSet", type.getConceptSet());
       attribute.setAttribute("startDate", GeoRegistryUtil.formatDate(type.getStartDate(), false));
       attribute.setAttribute("endDate", GeoRegistryUtil.formatDate(type.getEndDate(), false));
+      attribute.setAttribute("changeOverTime", Boolean.toString(type.isChangeOverTime()));
 
       if (type.getRootTerm() != null && type.getRootTerm().length() > 0)
       {

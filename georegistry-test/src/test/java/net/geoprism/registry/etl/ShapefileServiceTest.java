@@ -24,13 +24,7 @@ import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.geotools.api.data.FileDataStore;
 import org.geotools.api.data.FileDataStoreFinder;
-import org.geotools.data.simple.DelegateSimpleFeatureReader;
-import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
-import org.geotools.api.data.SimpleFeatureReader;
-import org.geotools.api.data.SimpleFeatureSource;
-import org.geotools.data.sort.SortedFeatureReader;
-import org.geotools.factory.CommonFactoryFinder;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,9 +35,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.locationtech.jts.geom.Geometry;
 import org.geotools.api.feature.simple.SimpleFeature;
-import org.geotools.api.filter.FilterFactory;
-import org.geotools.api.filter.sort.SortBy;
-import org.geotools.api.filter.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -944,29 +935,22 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
     Assertions.assertEquals(0, page2.getInt("count"));
   }
 
+  /**
+   * @return the GEOIDs in the order the importer reads them. The importer
+   *         streams a shapefile in its natural (file) order, see
+   *         FeatureSourceImporter.importFeatures. This must not use GeoTools'
+   *         SortedFeatureReader: its NATURAL_ORDER compares feature ids as
+   *         strings (.1, .10, .11, ...), which is not the file order.
+   */
   public List<String> shapefileSort() throws Exception
   {
     try (CloseableFile shp = ShapefileImporter.getShapefileFromResource(new StreamResource(this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test"), "cb_2017_us_state_500k.zip"), "shp"))
     {
       FileDataStore myData = FileDataStoreFinder.getDataStore(shp);
 
-      SimpleFeatureSource source = myData.getFeatureSource();
-
-      SimpleFeatureCollection featCol = source.getFeatures();
-
-      SimpleFeatureIterator featIt = featCol.features();
-
-      SimpleFeatureReader fr = new DelegateSimpleFeatureReader(source.getSchema(), featIt);
-
-      FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
-
-      List<SortBy> sortBy = new ArrayList<SortBy>();
-      sortBy.add(SortBy.NATURAL_ORDER);
-      sortBy.add(ff.sort("LSAD", SortOrder.ASCENDING));
-
       List<String> names = new ArrayList<String>();
 
-      try (SimpleFeatureReader sr = new SortedFeatureReader(fr, sortBy.toArray(new SortBy[sortBy.size()]), 5000))
+      try (SimpleFeatureIterator sr = myData.getFeatureSource().getFeatures().features())
       {
         while (sr.hasNext())
         {
@@ -979,8 +963,6 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
       {
         myData.dispose();
       }
-
-      // System.out.println(StringUtils.join(names, "\n"));
 
       return names;
     }

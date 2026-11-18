@@ -537,7 +537,11 @@ public class XMLImporter
               throw new GenericException("Concpet classes cannot have classification attributes");
             }
 
-            AttributeClassificationType attributeType = new AttributeClassificationType(code, label, description, false, false, false);
+            // Business type attributes are not change over time unless the
+            // export says so (older exports don't record it)
+            boolean changeOverTime = Boolean.parseBoolean(elem.getAttribute("changeOverTime"));
+
+            AttributeClassificationType attributeType = new AttributeClassificationType(code, label, description, false, false, false, changeOverTime);
             attributeType.setConceptSet(elem.getAttribute("conceptSet"));
             attributeType.setStartDate(GeoRegistryUtil.parseDate(elem.getAttribute("startDate")));
             attributeType.setEndDate(GeoRegistryUtil.parseDate(elem.getAttribute("endDate")));

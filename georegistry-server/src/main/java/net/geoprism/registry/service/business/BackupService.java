@@ -55,11 +55,14 @@ import net.geoprism.registry.ListTypeQuery;
 import net.geoprism.registry.UserInfo;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
+import net.geoprism.registry.graph.ConceptClass;
+import net.geoprism.registry.graph.ConceptEdgeType;
 import net.geoprism.registry.graph.DirectedAcyclicGraphType;
 import net.geoprism.registry.graph.UndirectedGraphType;
 import net.geoprism.registry.graph.transition.Transition;
 import net.geoprism.registry.graph.transition.TransitionEvent;
 import net.geoprism.registry.model.BusinessObject;
+import net.geoprism.registry.model.ConceptObject;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -72,6 +75,14 @@ import net.geoprism.registry.xml.XMLExporter;
 @Service
 public class BackupService implements BackupServiceIF
 {
+  /**
+   * Folders of the concept (classification term) data, written with the
+   * METADATA section
+   */
+  public static final String                        CONCEPT_OBJECTS_FOLDER = "concept-objects";
+
+  public static final String                        CONCEPT_EDGES_FOLDER   = "concept-edges";
+
   @Autowired
   private BusinessTypeBusinessServiceIF             bTypeService;
 
@@ -95,6 +106,15 @@ public class BackupService implements BackupServiceIF
 
   @Autowired
   private OrganizationBusinessServiceIF             orgService;
+
+  @Autowired
+  private ConceptClassBusinessServiceIF             cClassService;
+
+  @Autowired
+  private ConceptEdgeTypeBusinessServiceIF          cEdgeTypeService;
+
+  @Autowired
+  private ConceptObjectBusinessServiceIF            cObjectService;
 
   @Override
   public void createBackup(File zipfile, Set<BackupSection> sections)
@@ -260,6 +280,137 @@ public class BackupService implements BackupServiceIF
     XMLExporter exporter = new XMLExporter(organizations);
     exporter.build();
     exporter.write(new File(subdir, "metadata.xml"));
+
+    // The terms of the concept classes are part of the metadata: classification
+    // values on geo objects and business objects can only be restored once
+    // their terms exist. They are written to their own folder because the
+    // restore imports every file in the metadata folder as XML.
+    exportConceptData(directory);
+  }
+
+  protected void exportConceptData(File directory)
+  {
+    File objects = new File(directory, CONCEPT_OBJECTS_FOLDER);
+    objects.mkdirs();
+
+    File edges = new File(directory, CONCEPT_EDGES_FOLDER);
+    edges.mkdirs();
+
+    try
+    {
+      for (ConceptClass type : this.cClassService.getAll())
+      {
+        exportConceptObjectData(objects, type);
+      }
+
+      for (ConceptEdgeType type : this.cEdgeTypeService.getAll())
+      {
+        exportConceptEdgeData(edges, type);
+      }
+    }
+    catch (IOException e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
+  }
+
+  protected void exportConceptObjectData(File directory, ConceptClass type) throws IOException
+  {
+    try (JsonWriter writer = new JsonWriter(new FileWriter(new File(directory, type.getCode() + ".json"))))
+    {
+      Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+      writer.beginArray();
+
+      Long count = this.cObjectService.getCount(type);
+
+      if (count == null)
+      {
+        count = 0L;
+      }
+
+      int pageSize = 1000;
+
+      long skip = 0;
+
+      while (skip < count)
+      {
+        for (ConceptObject result : this.cObjectService.getAll(type, skip, pageSize))
+        {
+          ObjectOverTimeDTO dto = this.cObjectService.toDTO(result);
+
+          gson.toJson(JsonParser.parseString(ObjectOverTimeDTO.toJson(dto)), writer);
+        }
+
+        skip += pageSize;
+      }
+
+      writer.endArray();
+    }
+  }
+
+  /**
+   * Writes the edges of a concept edge type, i.e. the hierarchy of the terms.
+   * The ends can be concepts of different concept classes, so the class of each
+   * end is recorded per edge.
+   */
+  protected void exportConceptEdgeData(File directory, ConceptEdgeType type) throws IOException
+  {
+    try (JsonWriter writer = new JsonWriter(new FileWriter(new File(directory, type.getCode() + ".json"))))
+    {
+      Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+      writer.beginArray();
+
+      MdEdge mdEdge = type.getMdEdge();
+      Long count = new GraphQuery<Long>("SELECT COUNT(*) FROM " + mdEdge.getDbClassName()).getSingleResult();
+
+      if (count == null)
+      {
+        count = 0L;
+      }
+
+      int pageSize = 1000;
+
+      long skip = 0;
+
+      while (skip < count)
+      {
+        StringBuilder statement = new StringBuilder();
+        statement.append("SELECT uid AS uid, out.code AS sourceCode, out.@class AS sourceClass, in.code AS targetCode, in.@class AS targetClass, startDate AS startDate, endDate AS endDate");
+        statement.append(" FROM " + mdEdge.getDbClassName());
+        statement.append(" ORDER BY out.@rid, in.@rid");
+        statement.append(" SKIP " + skip);
+        statement.append(" LIMIT " + pageSize);
+
+        GraphQuery<Map<String, Object>> query = new GraphQuery<Map<String, Object>>(statement.toString());
+
+        for (Map<String, Object> result : query.getResults())
+        {
+          JsonObject object = new JsonObject();
+          object.addProperty("uid", (String) result.get("uid"));
+          object.addProperty("source", (String) result.get("sourceCode"));
+          object.addProperty("sourceType", getConceptClassCode((String) result.get("sourceClass")));
+          object.addProperty("target", (String) result.get("targetCode"));
+          object.addProperty("targetType", getConceptClassCode((String) result.get("targetClass")));
+          object.addProperty("startDate", GeoRegistryUtil.formatDate((Date) result.get("startDate"), false));
+          object.addProperty("endDate", GeoRegistryUtil.formatDate((Date) result.get("endDate"), false));
+
+          gson.toJson(object, writer);
+        }
+
+        skip += pageSize;
+      }
+
+      writer.endArray();
+    }
+  }
+
+  private String getConceptClassCode(String dbClassName)
+  {
+    MdVertexDAOIF mdVertex = (MdVertexDAOIF) ObjectCache.getMdClassByTableName(dbClassName);
+
+    return this.cClassService.getByMdVertex(mdVertex).getCode();
   }
 
   protected void exportGeoObjectData(File directory) throws IOException

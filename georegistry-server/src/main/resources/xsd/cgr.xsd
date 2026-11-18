@@ -176,7 +176,9 @@
     <xs:attribute name="conceptSet" type="xs:string" use="required" />
     <xs:attribute name="startDate" type="xs:string" use="required" />
     <xs:attribute name="endDate" type="xs:string" use="required" />
-    <xs:attribute name="rootTerm" type="xs:string" use="optional" />    
+    <xs:attribute name="rootTerm" type="xs:string" use="optional" />
+    <!-- Only read for business types; geo object type attributes are always change over time -->
+    <xs:attribute name="changeOverTime" type="xs:boolean" use="optional" default="false" />
   </xs:attributeGroup>
   <!-- Represents a Classification attribute referencing a Concept Set -->
   <xs:complexType name="classification">

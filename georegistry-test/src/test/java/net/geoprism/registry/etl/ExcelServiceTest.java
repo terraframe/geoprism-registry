@@ -88,6 +88,7 @@ import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.query.ServerCodeRestriction;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.service.business.ETLBusinessService;
+import net.geoprism.registry.service.business.ExcelBusinessService;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
@@ -126,6 +127,9 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
   @Autowired
   private ExcelService                       excelService;
+
+  @Autowired
+  private ExcelBusinessService               excelBusinessService;
 
   @Autowired
   private ETLService                         etlService;
@@ -231,8 +235,10 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
       zip.closeEntry();
     }
 
+    // Call the business service directly: the request service wraps
+    // exceptions in a SmartExceptionDTO, which hides the exception type.
     ImportFileFormatException ex = Assertions.assertThrows(ImportFileFormatException.class, () -> {
-      this.excelService.getExcelConfiguration(testData.clientRequest.getSessionId(), "states.zip", new ByteArrayInputStream(bytes.toByteArray()), ImportConfigurationView.of(JobHistoryType.GEO_OBJECT, USATestData.DISTRICT.getCode(), null, null, USATestData.SOURCE.getCode(), ImportStrategy.NEW_AND_UPDATE, false));
+      this.excelBusinessService.getExcelConfiguration("states.zip", new ByteArrayInputStream(bytes.toByteArray()), ImportConfigurationView.of(JobHistoryType.GEO_OBJECT, USATestData.DISTRICT.getCode(), null, null, USATestData.SOURCE.getCode(), ImportStrategy.NEW_AND_UPDATE, false));
     });
 
     Assertions.assertTrue(ex.getDetails().contains(".xlsx"), ex.getDetails());

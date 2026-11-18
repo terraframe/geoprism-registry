@@ -242,18 +242,26 @@ public class PublishEventService
             logger.info("Found existing concept set SKG - " + publish.getOid());
           }
 
+          // Remember the latest commit before attempting a new one. An empty
+          // publish can fail either after creating a commit (no relevant events
+          // in range) or before creating one (no events at all), so on failure
+          // only a commit created by this attempt may be removed. Deleting the
+          // previous commit would orphan every SKG commit that depends on it.
+          final Optional<String> previousOid = this.commitService.getLatest(publish).map(Commit::getOid);
+
           try
           {
             createNewCommit(publish);
           }
           catch (EmptyPublishException e)
           {
-            // There isn't any new data so, delete the newly created commit
-            this.commitService.getLatest(publish).ifPresent(latest -> {
-              logger.info("Removing empty concept set commit - " + latest.getOid());
+            this.commitService.getLatest(publish) //
+                .filter(latest -> !previousOid.equals(Optional.of(latest.getOid()))) //
+                .ifPresent(latest -> {
+                  logger.info("Removing empty concept set commit - " + latest.getOid());
 
-              this.commitService.delete(latest);
-            });
+                  this.commitService.delete(latest);
+                });
           }
 
           return publish;
