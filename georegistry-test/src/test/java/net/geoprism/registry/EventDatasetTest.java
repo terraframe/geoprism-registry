@@ -136,6 +136,7 @@ public abstract class EventDatasetTest extends USADatasetTest implements Instanc
   public void afterClassSetup() throws Exception
   {
     USATestData.COLORADO.removeDefaultValue(testDefaultClassification.getCode());
+    USATestData.COLORADO.removeDefaultValue(testCustomClassification.getCode());
 
     if (bGeoEdgeType != null)
     {

@@ -3,10 +3,12 @@
  */
 package net.geoprism.registry.service;
 
+import java.util.Date;
 import java.util.SortedSet;
 import java.util.UUID;
 
 import org.axonframework.eventhandling.GapAwareTrackingToken;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -31,6 +33,8 @@ import net.geoprism.registry.axon.config.RegistryEventStore;
 import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.graph.BusinessType;
+import net.geoprism.registry.graph.DataSource;
 import net.geoprism.registry.graph.EdgeClass;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.ConceptObject;
@@ -74,9 +78,21 @@ public class RollbackEventServiceTest extends EventDatasetTest implements Instan
 
     // Do not set a value for the classification attribute
     USATestData.COLORADO.removeDefaultValue(testDefaultClassification.getCode());
+    USATestData.COLORADO.removeDefaultValue(testCustomClassification.getCode());
 
     this.store.truncate();
   }
+  
+  protected BusinessObject createBusinessObject(BusinessType type, String code, DataSource dataSource, Date startDate, Date endDate)
+  {
+    BusinessObject object = this.bObjectService.newInstance(type);
+    object.setCode(code);
+    object.setValue("testBoolean", false);
+    object.setValue(DefaultAttribute.DATA_SOURCE.getName(), dataSource, startDate, endDate);
+
+    return applyBusinessObject(object, true);
+  }
+
 
   @AfterEach
   @Request
