@@ -582,6 +582,13 @@ public class JenaSynchronizationService
 
     Map<String, AttributeType> attributes = type.getAttributeMapAsDTO();
 
+    // Add type information
+    this.addResourceToModel(model, //
+        buildObjectUri(data.config, code, typeCode), //
+        org.apache.jena.vocabulary.RDF.type.getURI(), //
+        buildTypeUri(data.config, typeCode));
+
+
     attributes.values().stream() //
         .filter(a -> dto.has(a.getCode())) //
         .filter(a -> ! ( a instanceof AttributeGeometryType )) //

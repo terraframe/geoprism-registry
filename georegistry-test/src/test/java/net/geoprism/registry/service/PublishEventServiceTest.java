@@ -43,6 +43,7 @@ import net.geoprism.registry.EventDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.JsonCollectors;
 import net.geoprism.registry.Publish;
+import net.geoprism.registry.PublishDatasetTest;
 import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.axon.event.remote.RemoteEvent;
 import net.geoprism.registry.axon.event.repository.ServerGeoObjectEventBuilder;
@@ -85,7 +86,7 @@ import tools.jackson.databind.json.JsonMapper;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
 @ExtendWith(InstanceTestClassExtension.class)
-public class PublishEventServiceTest extends EventDatasetTest implements InstanceTestClassListener
+public class PublishEventServiceTest extends PublishDatasetTest implements InstanceTestClassListener
 {
   public static final String                        DEPENDENCY  = "111bb747-a068-458f-b261-9cde9b5a3937";
 
@@ -93,12 +94,6 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
   @Autowired
   private PublishEventService                       service;
-
-  @Autowired
-  private PublishBusinessServiceIF                  pService;
-
-  @Autowired
-  private CommitBusinessServiceIF                   cService;
 
   @Autowired
   private GeoObjectTypeSnapshotBusinessServiceIF    gSnapshotService;
@@ -185,7 +180,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
       try
       {
-        List<Commit> commits = this.cService.getCommits(publish);
+        List<Commit> commits = this.commitService.getCommits(publish);
 
         Assertions.assertEquals(1, commits.size());
 
@@ -265,7 +260,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
           Assertions.assertEquals(type.getSequence(), snapshot.getSequence());
         });
 
-        List<DataSource> sources = this.cService.getSources(commit);
+        List<DataSource> sources = this.commitService.getSources(commit);
 
         Assertions.assertEquals(1, sources.size());
         Assertions.assertEquals(USATestData.SOURCE.getCode(), sources.get(0).getCode());
@@ -277,12 +272,12 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
         Assertions.assertEquals(Long.valueOf(109L), this.store.size());
 
-        List<RemoteEvent> events = this.cService.getRemoteEvents(commit).toList();
+        List<RemoteEvent> events = this.commitService.getRemoteEvents(commit).toList();
 
         Assertions.assertEquals(49, events.size());
 
         // Validate the concept set dependencies
-        List<Commit> dependencies = this.cService.getDependencies(commit);
+        List<Commit> dependencies = this.commitService.getDependencies(commit);
 
         Assertions.assertEquals(1, dependencies.size());
 
@@ -290,13 +285,13 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
         Assertions.assertNotEquals(commit.getOid(), dependency.getOid());
 
-        Assertions.assertEquals(0, this.cService.getDependencies(dependency).size());
+        Assertions.assertEquals(0, this.commitService.getDependencies(dependency).size());
 
         Publish conceptPublish = dependency.getPublish();
 
         Assertions.assertTrue(StringUtils.isNotBlank(conceptPublish.getConceptSet()));
 
-        List<ConceptSetSnapshot> sets = this.cService.getConceptSets(dependency);
+        List<ConceptSetSnapshot> sets = this.commitService.getConceptSets(dependency);
 
         Assertions.assertEquals(1, sets.size());
 
@@ -312,7 +307,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
         Assertions.assertEquals(1, cEdgeTypes.size());
 
-        Assertions.assertEquals(5, this.cService.getRemoteEvents(dependency).toList().size());
+        Assertions.assertEquals(5, this.commitService.getRemoteEvents(dependency).toList().size());
 
         if (WRITE_FILES)
         {
@@ -385,7 +380,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
       try
       {
-        List<Commit> commits = this.cService.getCommits(publish);
+        List<Commit> commits = this.commitService.getCommits(publish);
 
         Assertions.assertEquals(1, commits.size());
         Assertions.assertTrue(dto.getGeoObjectTypes().count() > 0);
@@ -420,12 +415,12 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
           Assertions.assertTrue(children.size() > 0);
         });
 
-        List<DataSource> sources = this.cService.getSources(commit);
+        List<DataSource> sources = this.commitService.getSources(commit);
 
         Assertions.assertEquals(1, sources.size());
         Assertions.assertEquals(USATestData.SOURCE.getCode(), sources.get(0).getCode());
 
-        List<RemoteEvent> events = this.cService.getRemoteEvents(commit).toList();
+        List<RemoteEvent> events = this.commitService.getRemoteEvents(commit).toList();
 
         Assertions.assertEquals(42, events.size());
       }
@@ -453,17 +448,17 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
       try
       {
-        List<Commit> commits = this.cService.getCommits(publish);
+        List<Commit> commits = this.commitService.getCommits(publish);
 
         Assertions.assertEquals(1, commits.size());
 
         Commit commit = commits.get(0);
 
-        List<Commit> dependencies = this.cService.getDependencies(commit);
+        List<Commit> dependencies = this.commitService.getDependencies(commit);
 
         Assertions.assertEquals(1, dependencies.size());
 
-        Assertions.assertEquals(49, this.cService.getRemoteEvents(commit).toList().size());
+        Assertions.assertEquals(49, this.commitService.getRemoteEvents(commit).toList().size());
         Assertions.assertEquals(Long.valueOf(109), this.store.size());
 
         // Update a geo object
@@ -481,11 +476,11 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
         // Create a new commit with the new change
         Commit commit2 = this.service.createNewCommit(publish);
 
-        Assertions.assertEquals(2, this.cService.getCommits(publish).size());
+        Assertions.assertEquals(2, this.commitService.getCommits(publish).size());
 
-        Assertions.assertEquals(1, this.cService.getRemoteEvents(commit2).toList().size());
+        Assertions.assertEquals(1, this.commitService.getRemoteEvents(commit2).toList().size());
 
-        List<Commit> results = this.cService.getDependencies(commit2);
+        List<Commit> results = this.commitService.getDependencies(commit2);
 
         Assertions.assertEquals(2, results.size());
         Assertions.assertTrue(results.contains(dependencies.get(0)));
@@ -521,9 +516,9 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
     try
     {
-      Commit firstCommit = this.cService.getLatest(first).get();
+      Commit firstCommit = this.commitService.getLatest(first).get();
 
-      List<Commit> firstDependencies = this.cService.getDependencies(firstCommit);
+      List<Commit> firstDependencies = this.commitService.getDependencies(firstCommit);
 
       Assertions.assertEquals(1, firstDependencies.size());
 
@@ -547,53 +542,34 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
       second = publishAndWait(dto);
 
       // The concept set must still have its original commit
-      List<Commit> conceptCommits = this.cService.getCommits(conceptPublish);
+      List<Commit> conceptCommits = this.commitService.getCommits(conceptPublish);
 
       Assertions.assertEquals(1, conceptCommits.size());
       Assertions.assertEquals(conceptCommit.getOid(), conceptCommits.get(0).getOid());
 
       // Both SKGs must depend on that commit
-      Assertions.assertTrue(this.cService.getDependencies(firstCommit).stream().anyMatch(c -> c.getOid().equals(conceptCommit.getOid())));
+      Assertions.assertTrue(this.commitService.getDependencies(firstCommit).stream().anyMatch(c -> c.getOid().equals(conceptCommit.getOid())));
 
-      Commit secondCommit = this.cService.getLatest(second).get();
+      Commit secondCommit = this.commitService.getLatest(second).get();
 
-      Assertions.assertTrue(this.cService.getDependencies(secondCommit).stream().anyMatch(c -> c.getOid().equals(conceptCommit.getOid())));
+      Assertions.assertTrue(this.commitService.getDependencies(secondCommit).stream().anyMatch(c -> c.getOid().equals(conceptCommit.getOid())));
     }
     finally
     {
-      // Delete the SKGs before the concept set they depend on
-      if (second != null)
-      {
-        pService.delete(second);
-      }
-
-      pService.delete(first);
-
-      if (conceptPublish != null)
-      {
-        pService.delete(conceptPublish);
-      }
-    }
-  }
-
-  public void delete(Publish publish)
-  {
-    // Delete all of the publishes that were generated because of
-    // dependencies
-    List<Publish> dependencies = this.cService.getCommits(publish) //
-        .stream() //
-        .flatMap(c -> this.cService.getDependencies(c).stream()) //
-        .map(d -> d.getPublish()) //
-        .distinct() //
-        .filter(p -> !p.getOid().equals(publish.getOid())).toList();
-
-    try
-    {
-      pService.delete(publish);
-    }
-    finally
-    {
-      dependencies.forEach(pService::delete);
+      delete(second);
+      
+//      // Delete the SKGs before the concept set they depend on
+//      if (second != null)
+//      {
+//        pService.delete(second);
+//      }
+//
+//      pService.delete(first);
+//
+//      if (conceptPublish != null)
+//      {
+//        pService.delete(conceptPublish);
+//      }
     }
   }
 
@@ -612,7 +588,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
     mapper.writeValue(new File(directory, "publish.json"), pDto);
 
-    List<Commit> commits = this.cService.getCommits(publish);
+    List<Commit> commits = this.commitService.getCommits(publish);
 
     if (commits.size() > 0)
     {
@@ -624,7 +600,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
 
       mapper.writeValue(new File(directory, "commit.json"), cDTO);
 
-      List<Commit> dependencies = this.cService.getDependencies(commit);
+      List<Commit> dependencies = this.commitService.getDependencies(commit);
 
       mapper.writeValue(new File(directory, "dependencies.json"), dependencies.stream().map(dependency -> {
         CommitDTO dto = dependency.toDTO(publish);
@@ -634,7 +610,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
         return dto;
       }).toList());
 
-      List<DataSource> sources = this.cService.getSources(commit);
+      List<DataSource> sources = this.commitService.getSources(commit);
 
       if (sources.size() > 0)
       {
@@ -645,7 +621,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
         mapper.writeValue(new File(directory, "authorities.json"), authorities);
       }
 
-      List<ConceptSetSnapshot> sets = this.cService.getConceptSets(commit);
+      List<ConceptSetSnapshot> sets = this.commitService.getConceptSets(commit);
 
       if (sets.size() > 0)
       {
@@ -662,15 +638,15 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
         mapper.writeValue(new File(directory, "concept-edge-types.json"), cEdgeTypes);
       }
 
-      mapper.writeValue(new File(directory, "business-types.json"), this.cService.getBusinessTypes(commit).stream().map(type -> type.toDTO()).toList());
-      mapper.writeValue(new File(directory, "business-edge-types.json"), this.cService.getBusinessEdgeTypes(commit).stream().map(type -> this.bEdgeSnapshotService.toDTO(type)).toList());
+      mapper.writeValue(new File(directory, "business-types.json"), this.commitService.getBusinessTypes(commit).stream().map(type -> type.toDTO()).toList());
+      mapper.writeValue(new File(directory, "business-edge-types.json"), this.commitService.getBusinessEdgeTypes(commit).stream().map(type -> this.bEdgeSnapshotService.toDTO(type)).toList());
 
-      GeoObjectTypeSnapshot rootType = this.cService.getRootType(commit);
+      GeoObjectTypeSnapshot rootType = this.commitService.getRootType(commit);
 
-      JsonArray geoObjectTypes = this.cService.getTypes(commit).stream().filter(s -> !s.isRoot()).map(s -> s.toJSON()).collect(JsonCollectors.toJsonArray());
-      JsonArray hierarchyTypes = this.cService.getHiearchyTypes(commit).stream().map(s -> this.hSnapshotService.toJSON((HierarchyTypeSnapshot) s, rootType)).collect(JsonCollectors.toJsonArray());
-      JsonArray dagTypes = this.cService.getDirectedAcyclicGraphTypes(commit).stream().map(s -> ( (DirectedAcyclicGraphTypeSnapshot) s ).toJSON()).collect(JsonCollectors.toJsonArray());
-      JsonArray undirectedGraphTypes = this.cService.getUndirectedGraphTypes(commit).stream().map(s -> ( (UndirectedGraphTypeSnapshot) s ).toJSON()).collect(JsonCollectors.toJsonArray());
+      JsonArray geoObjectTypes = this.commitService.getTypes(commit).stream().filter(s -> !s.isRoot()).map(s -> s.toJSON()).collect(JsonCollectors.toJsonArray());
+      JsonArray hierarchyTypes = this.commitService.getHiearchyTypes(commit).stream().map(s -> this.hSnapshotService.toJSON((HierarchyTypeSnapshot) s, rootType)).collect(JsonCollectors.toJsonArray());
+      JsonArray dagTypes = this.commitService.getDirectedAcyclicGraphTypes(commit).stream().map(s -> ( (DirectedAcyclicGraphTypeSnapshot) s ).toJSON()).collect(JsonCollectors.toJsonArray());
+      JsonArray undirectedGraphTypes = this.commitService.getUndirectedGraphTypes(commit).stream().map(s -> ( (UndirectedGraphTypeSnapshot) s ).toJSON()).collect(JsonCollectors.toJsonArray());
 
       try (FileWriter writer = new FileWriter(new File(directory, "geo-object-types.json")))
       {
@@ -692,7 +668,7 @@ public class PublishEventServiceTest extends EventDatasetTest implements Instanc
         gson.toJson(undirectedGraphTypes, writer);
       }
 
-      List<RemoteEvent> events = this.cService.getRemoteEvents(commit).toList();
+      List<RemoteEvent> events = this.commitService.getRemoteEvents(commit).toList();
 
       mapper.writerFor(mapper.getTypeFactory().constructCollectionLikeType(List.class, RemoteEvent.class)).writeValue(new File(directory, "events.json"), events);
     }
