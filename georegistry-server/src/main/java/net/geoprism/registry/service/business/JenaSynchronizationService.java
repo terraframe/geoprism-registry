@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service.business;
 
@@ -417,68 +417,70 @@ public class JenaSynchronizationService
         buildTypeUri(data.config, typeCode));
 
     attributes.forEach((attributeName, attribute) -> {
-      String subjectUri = buildObjectUri(data.config, code, typeCode);
-      String attributeUri = buildAttributeUri(data.config, typeCode, attribute);
-
-      statements.add("DELETE WHERE { GRAPH <" + data.config.getGraph() + "> { <" + subjectUri + "> <" + attributeUri + "> ?obj}}");
-
-      Object literal = null;
-
-      if (attribute instanceof AttributeGeometryType)
+      if (this.isValid(attribute))
       {
-        // SKIP
-      }
-      else if (attribute instanceof AttributeClassificationType)
-      {
-        String value = (String) dto.getValue(attributeName);
+        String subjectUri = buildObjectUri(data.config, code, typeCode);
+        String attributeUri = buildAttributeUri(data.config, typeCode, attribute);
 
-        if (StringUtils.isNotBlank(value))
+        statements.add("DELETE WHERE { GRAPH <" + data.config.getGraph() + "> { <" + subjectUri + "> <" + attributeUri + "> ?obj}}");
+
+        Object literal = null;
+
+        if (attribute instanceof AttributeGeometryType)
         {
-          this.cObjectService.getByCode(value).ifPresent(concept -> {
-            this.addResourceToModel(model, //
-                buildObjectUri(data.config, code, typeCode), //
-                attributeUri, //
-                buildObjectUri(data.config, concept.getCode(), concept.getType().getCode()));
-          });
+          // SKIP
         }
-      }
-      else if (attribute instanceof AttributeDataSourceType)
-      {
-        String value = (String) dto.getValue(attributeName);
-
-        if (StringUtils.isNotBlank(value))
+        else if (attribute instanceof AttributeClassificationType)
         {
-          this.sourceService.getByCode(value).ifPresent(source -> {
-            this.addResourceToModel(model, //
-                buildObjectUri(data.config, code, typeCode), //
-                attributeUri, //
-                buildObjectUri(data.config, source.getCode(), "DataSource"));
-          });
+          String value = (String) dto.getValue(attributeName);
+
+          if (StringUtils.isNotBlank(value))
+          {
+            this.cObjectService.getByCode(value).ifPresent(concept -> {
+              this.addResourceToModel(model, //
+                  buildObjectUri(data.config, code, typeCode), //
+                  attributeUri, //
+                  buildObjectUri(data.config, concept.getCode(), concept.getType().getCode()));
+            });
+          }
         }
-      }
-      else
-      {
-        Object value = dto.getValue(attributeName);
-
-        if (value instanceof LocalizedValue)
+        else if (attribute instanceof AttributeDataSourceType)
         {
-          literal = ( (LocalizedValue) value ).getValue();
+          String value = (String) dto.getValue(attributeName);
+
+          if (StringUtils.isNotBlank(value))
+          {
+            this.sourceService.getByCode(value).ifPresent(source -> {
+              this.addResourceToModel(model, //
+                  buildObjectUri(data.config, code, typeCode), //
+                  attributeUri, //
+                  buildObjectUri(data.config, source.getCode(), "DataSource"));
+            });
+          }
         }
         else
         {
-          literal = value;
-        }
+          Object value = dto.getValue(attributeName);
 
-        if (literal != null)
-        {
-          this.addLiteralToModel(model, //
-              subjectUri, //
-              attributeUri, //
-              literal);
-        }
+          if (value instanceof LocalizedValue)
+          {
+            literal = ( (LocalizedValue) value ).getValue();
+          }
+          else
+          {
+            literal = value;
+          }
 
+          if (literal != null)
+          {
+            this.addLiteralToModel(model, //
+                subjectUri, //
+                attributeUri, //
+                literal);
+          }
+
+        }
       }
-
     });
 
     if (INCLUDE_GEOMETRIES)
@@ -520,6 +522,15 @@ public class JenaSynchronizationService
     }
 
     // // this.service.load(GRAPH_NAME, model, config);
+  }
+
+  private boolean isValid(AttributeType attribute)
+  {
+    return ( !attribute.getCode().equals(DefaultAttribute.TYPE.getName()) //
+        && !attribute.getCode().equals(DefaultAttribute.UID.getName()) //
+        && !attribute.getCode().equals(DefaultAttribute.INVALID.getName()) //
+        && !attribute.getCode().equals(DefaultAttribute.EXISTS.getName()) //
+    );
   }
 
   public void handleRemoteParent(Commit commit, RemoteGeoObjectSetParentEvent event, ExportData data, Model model)
@@ -588,9 +599,9 @@ public class JenaSynchronizationService
         org.apache.jena.vocabulary.RDF.type.getURI(), //
         buildTypeUri(data.config, typeCode));
 
-
     attributes.values().stream() //
         .filter(a -> dto.has(a.getCode())) //
+        .filter(a -> isValid(a)) //
         .filter(a -> ! ( a instanceof AttributeGeometryType )) //
         .forEach(attribute -> {
           Object literal = null;

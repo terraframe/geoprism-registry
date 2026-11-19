@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.etl;
+package net.geoprism.registry.service.business;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -36,6 +36,7 @@ import org.apache.jena.update.UpdateFactory;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+import net.geoprism.registry.etl.JenaExportConfig;
 import net.geoprism.registry.service.business.RemoteJenaServiceIF;
 
 /**

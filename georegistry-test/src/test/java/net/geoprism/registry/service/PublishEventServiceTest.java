@@ -556,20 +556,18 @@ public class PublishEventServiceTest extends PublishDatasetTest implements Insta
     }
     finally
     {
-      delete(second);
-      
-//      // Delete the SKGs before the concept set they depend on
-//      if (second != null)
-//      {
-//        pService.delete(second);
-//      }
-//
-//      pService.delete(first);
-//
-//      if (conceptPublish != null)
-//      {
-//        pService.delete(conceptPublish);
-//      }
+      // Delete the SKGs before the concept set they depend on
+      if (second != null)
+      {
+        publishService.delete(second);
+      }
+
+      publishService.delete(first);
+
+      if (conceptPublish != null)
+      {
+        publishService.delete(conceptPublish);
+      }
     }
   }
 

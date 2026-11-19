@@ -11,6 +11,7 @@ import java.util.stream.StreamSupport;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.atlas.lib.IRILib;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -36,13 +37,13 @@ import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.JenaExternalSystem;
+import net.geoprism.registry.service.business.InMemoryJenaService;
 import net.geoprism.registry.service.business.JenaSynchronizationService;
 import net.geoprism.registry.service.business.PublishEventService;
 import net.geoprism.registry.test.USATestData;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
-@Import(InMemoryJenaService.class)
 @ExtendWith(InstanceTestClassExtension.class)
 public class JenaSynchronizationServiceTest extends PublishDatasetTest implements InstanceTestClassListener
 {
@@ -126,21 +127,17 @@ public class JenaSynchronizationServiceTest extends PublishDatasetTest implement
 
         JsonArray bindings = querySubject(ns, USATestData.COLORADO.getGeoObjectType().getCode(), USATestData.COLORADO.getCode(), config);
 
-        Assertions.assertEquals(16, bindings.size());
+        Assertions.assertEquals(12, bindings.size());
         final String xsdBoolean = "http://www.w3.org/2001/XMLSchema#boolean";
 
         // Type and default attributes
         assertUri(bindings, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", ns + "USATestDataState");
         assertLiteral(bindings, "http://www.w3.org/2000/01/rdf-schema#label", "USATestDataColorado", null);
         assertLiteral(bindings, ns + "GeoObject-code", "USATestDataColorado", null);
-        assertLiteral(bindings, ns + "GeoObject-type", "USATestDataState", null);
-        assertLiteral(bindings, ns + "GeoObject-invalid", "false", xsdBoolean);
-        assertLiteral(bindings, ns + "GeoObject-exists", "true", xsdBoolean);
         assertUri(bindings, ns + "GeoObject-dataSource", ns + "DataSource-UsaSource");
 
-        JsonObject uid = getBinding(bindings, ns + "GeoObject-uid");
-        Assertions.assertEquals("literal", uid.get("obj").getAsJsonObject().get("type").getAsString());
-        Assertions.assertFalse(StringUtils.isBlank(uid.get("obj").getAsJsonObject().get("value").getAsString()));
+        // Attributes excluded by JenaSynchronizationService.isValid
+        assertExcludedAttributes(bindings, ns);
 
         // Classification attributes
         assertUri(bindings, ns + "USATestDataState-classification", ns + "TEST_C_CLASS-Child%20Concept");
@@ -168,6 +165,7 @@ public class JenaSynchronizationServiceTest extends PublishDatasetTest implement
         assertLiteral(concept, ns + "GeoObject-code", "Parent Concept", null);
         assertUri(concept, ns + "GeoObject-dataSource", ns + "DataSource-UsaSource");
         assertUri(concept, ns + "TEST_CONCEPT_EDGE", ns + "TEST_C_CLASS-Child%20Concept");
+        assertExcludedAttributes(concept, ns);
 
         // Business object
         JsonArray business = querySubject(ns, pObject.getType().getCode(), pObject.getCode(), config);
@@ -180,6 +178,7 @@ public class JenaSynchronizationServiceTest extends PublishDatasetTest implement
         assertLiteral(business, ns + "TEST_BUSINESS-testBoolean", "false", xsdBoolean);
         assertUri(business, ns + "TEST_BUSINESS-testClassification", ns + "TEST_C_CLASS-Parent%20Concept");
         assertUri(business, ns + "TEST_B_EDGE", ns + "TEST_BUSINESS-C_CODE");
+        assertExcludedAttributes(business, ns);
 
       }
       finally
@@ -217,6 +216,19 @@ public class JenaSynchronizationServiceTest extends PublishDatasetTest implement
     JsonObject obj = JsonParser.parseString(optional.get()).getAsJsonObject();
 
     return obj.get("results").getAsJsonObject().get("bindings").getAsJsonArray();
+  }
+
+  /**
+   * Asserts that no triples exist for the default attributes which are
+   * filtered out by JenaSynchronizationService.isValid
+   */
+  private static void assertExcludedAttributes(JsonArray bindings, String ns)
+  {
+    Stream.of(DefaultAttribute.TYPE, DefaultAttribute.UID, DefaultAttribute.INVALID, DefaultAttribute.EXISTS).forEach(attribute -> {
+      String predicate = ns + "GeoObject-" + attribute.getName();
+
+      Assertions.assertEquals(0, getBindings(bindings, predicate).count(), "Unexpected triple for excluded attribute [" + predicate + "]");
+    });
   }
 
   private static Stream<JsonObject> getBindings(JsonArray bindings, String predicate)
