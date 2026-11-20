@@ -32,8 +32,8 @@
         }
 
         @if (!isPublic) {
-          <li class="nav-item d-none d-sm-block">
-            <a class="nav-link route-item" [title]="'userDashboards.logout' | localize" (click)="logout()">
+          <li class="nav-item d-none d-sm-block" id="nav-logout">
+            <a class="nav-link navbar-logout" [title]="'userDashboards.logout' | localize" (click)="logout()">
               <i class="fa-solid fa-arrow-right-from-bracket"></i>
             </a>
           </li>

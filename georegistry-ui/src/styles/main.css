@@ -221,14 +221,18 @@ label.btn.full-width-radio-button.error {
 .navbar-default .navbar-header .navbar-brand:hover {
   color: var(--theme-accent-color) !important;
 }
-.navbar-default .navbar-nav .navbar-username {
+/* The account and logout icons share the 50px line so they sit at the same
+   height, vertically centred in the navbar */
+.navbar-default .navbar-nav .navbar-username,
+.navbar-default .navbar-nav .navbar-logout {
   color: #777;
   background-color: transparent;
   line-height: 50px;
   padding: 0 10px;
   margin-right: 15px;
 }
-.navbar-default .navbar-nav .navbar-username:hover {
+.navbar-default .navbar-nav .navbar-username:hover,
+.navbar-default .navbar-nav .navbar-logout:hover {
   color: var(--theme-accent-color) !important;
 }
 
