@@ -22,7 +22,7 @@
   <h5>{{ model.name }} : {{ model.code }}</h5>
 </ng-template>
 
-<div class="modal-body row">
+<div class="modal-body">
   @if (message != null) {
     <div class="alert alert-danger" role="alert">{{ message }}</div>
   }
@@ -34,7 +34,7 @@
           <localize [key]="readonly ? 'transition.event.view.title' : isNew ? 'transition.event.new.title' : 'transition.event.edit.title'"></localize>
         </h1>
       </div>
-      <fieldset>
+      <fieldset class="row">
         <div class="col-md-6">
           <div class="row-holder">
             <div class="label-holder">
@@ -167,7 +167,7 @@
           event.eventDate != null &&
           event.eventDate !== ''
         ) {
-          <div class="row-holder">
+          <div class="row-holder px-0">
             <table class="table" style="border-collapse: separate">
               <thead>
                 <tr style="height: 50px; color: grey">
@@ -351,7 +351,7 @@
             }
           </div>
         }
-        <div class="row-holder">
+        <div class="row-holder px-0">
           <div class="label-holder"></div>
           <div class="holder">
             <div class="button-holder">

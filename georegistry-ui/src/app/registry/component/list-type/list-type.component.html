@@ -63,7 +63,7 @@
   </div>
 
   <div class="row" style="margin-bottom: 5px" [collapse]="!version.collapsed">
-    <ul style="list-style: none">
+    <ul style="list-style: none; padding-left: 40px; padding-right: 0">
       <li>
         @if (version.isMember || version.listMetadata.visibility === 'PUBLIC') {
           <a [routerLink]="'/registry/master-list/' + version.oid" routerLinkActive="active">

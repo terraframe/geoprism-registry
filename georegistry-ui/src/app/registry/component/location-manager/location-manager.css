@@ -49,6 +49,8 @@
   right: 5px;
   z-index:3;
   padding:5px;
+  /* It sits in a .row, and Bootstrap 5 makes row children width: 100% */
+  width: auto;
 }
 
 .map-button {
@@ -166,6 +168,11 @@
 	border-bottom-right-radius: 0;
     border-top-right-radius: 0;
     border: 1px solid #ccc;
+}
+/* Bootstrap 5 columns only get padding from a parent .row */
+.panel-toggle > .col-md-12 {
+	padding-left: 15px;
+	padding-right: 15px;
 }
 .panel-toggle.detached {
 	border-radius: 3px;

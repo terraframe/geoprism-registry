@@ -51,7 +51,7 @@
           (change)="checkDates()"
         ></date-field>
         @if (dateService.after(data.startDate, data.endDate)) {
-          <span class="col-md-8 error-message" style="text-align: center">
+          <span class="col-md-8 float-start px-3 error-message" style="text-align: center">
             <localize key="manage.versions.startdate.later.enddate.message"></localize>
           </span>
         }

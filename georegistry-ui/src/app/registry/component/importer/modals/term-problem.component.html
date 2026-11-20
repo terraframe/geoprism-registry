@@ -18,12 +18,12 @@
     License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<div class="row">
-  <form #problemForm="ngForm">
+<div>
+  <form #problemForm="ngForm" class="row">
     <div class="col-sm-4">{{ problem.attributeLabel }}</div>
     <div class="col-sm-2 error-message">{{ problem.label }}</div>
     @if (!problem.resolved) {
-      <div>
+      <ng-container>
         <div class="col-sm-4">
           <input
             [name]="index + '-name'"
@@ -54,10 +54,10 @@
             [title]="'dataUploader.ignoreCategoryTooltip' | localize"
           ></i>
         </div>
-      </div>
+      </ng-container>
     }
     @if (problem.resolved) {
-      <div>
+      <ng-container>
         @if (problem.action.name == 'OPTION') {
           <div class="col-sm-4">
             <localize key="dataUploader.resolvedCategoryOption"></localize>
@@ -82,7 +82,7 @@
             [title]="'dataUploader.undoFixedCategoryTooltip' | localize"
           ></i>
         </div>
-      </div>
+      </ng-container>
     }
   </form>
 </div>

@@ -27,7 +27,7 @@
       <localize key="io.ids.description"></localize>
     </p>
   </div>
-  <div class="col-md-12 order-md-1">
+  <div class="col-md-12 order-md-1 px-3">
     <form #form="ngForm">
       @for (mapping of configuration.ids; track mapping.id) {
         <div class="form-group">
@@ -89,7 +89,7 @@
       }
 
       <div class="form-group row">
-        <div class="row-holder">
+        <div class="row-holder px-0">
           <div class="button-holder">
             <button type="submit" (click)="onAdd()" class="btn btn-secondary" role="button">
               <localize key="io.import.modal.add.id"></localize>

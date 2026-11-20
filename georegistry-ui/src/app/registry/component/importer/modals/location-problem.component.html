@@ -18,8 +18,8 @@
     License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<div class="row" style="padding-bottom: 10px">
-  <form #problemForm="ngForm">
+<div style="padding-bottom: 10px">
+  <form #problemForm="ngForm" class="row">
     <div class="col-sm-4">
       @if (problem.context.length > 0) {
         <ol>
@@ -31,7 +31,7 @@
     </div>
     <div class="col-sm-2 error-message">{{ problem.label }} ({{ problem.typeLabel }})</div>
     @if (!problem.resolved) {
-      <div>
+      <ng-container>
         <div class="col-sm-4">
           <input
             [name]="index + '-name'"
@@ -57,10 +57,10 @@
             [title]="'dataUploader.ignoreAtLocationTooltip' | localize"
           ></i>
         </div>
-      </div>
+      </ng-container>
     }
     @if (problem.resolved) {
-      <div>
+      <ng-container>
         @if (problem.action.name == 'SYNONYM') {
           <div class="col-sm-4">
             <a>
@@ -91,7 +91,7 @@
             [title]="'dataUploader.undoFixedLocationTooltip' | localize"
           ></i>
         </div>
-      </div>
+      </ng-container>
     }
   </form>
 </div>

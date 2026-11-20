@@ -239,7 +239,7 @@
           <article
             id="navigator-list-panel"
             class="list-panel"
-            style="position: absolute; right: 5px; bottom: 0px; z-index: 500; width: 100%; pointer-events: none"
+            style="position: absolute; right: 5px; bottom: 0px; z-index: 500; width: 100%; padding: 0; pointer-events: none"
           >
             <div class="row" style="margin-left: 5px">
               <div [ngClass]="{ 'col-md-4': isAttributePanelOpen() }"></div>
@@ -270,7 +270,7 @@
           </article>
         }
 
-        <div id="map" class="map-view-port"></div>
+        <div id="map" class="map-view-port px-0"></div>
       </div>
     </div>
   </div>

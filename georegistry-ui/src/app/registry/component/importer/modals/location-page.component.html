@@ -27,7 +27,7 @@
       <localize key="io.location.description"></localize>
     </p>
   </div>
-  <div class="col-md-12 order-md-1">
+  <div class="col-md-12 order-md-1 px-3">
     <form #form="ngForm">
       @for (location of configuration.locations; track location.code; let i = $index) {
         <div class="form-group">
@@ -103,7 +103,7 @@
       }
 
       <div class="form-group row">
-        <div class="row-holder">
+        <div class="row-holder px-0">
           <div class="button-holder">
             @if (hasBack) {
               <button type="submit" (click)="onBack()" class="btn btn-secondary" role="button">

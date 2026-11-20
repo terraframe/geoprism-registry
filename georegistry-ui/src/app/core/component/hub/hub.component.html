@@ -46,7 +46,7 @@
                 @if (i % 4 === 0) {
                   <div style="padding: 10px 0" class="row">
                     @for (application of applications; track application.oid; let internalIndex = $index) {
-                      <div>
+                      <ng-container>
                         @if (internalIndex >= i && internalIndex < i + 4) {
                           <div class="col-12 col-sm-12 col-md-3 text-center" (click)="open(application)">
                             <div [id]="application.oid" class="nav-option-wrapper">
@@ -66,7 +66,7 @@
                         @if (applications?.length === 1) {
                           <div class="col-12 col-sm-12 col-md-4"></div>
                         }
-                      </div>
+                      </ng-container>
                     }
                   </div>
                 }

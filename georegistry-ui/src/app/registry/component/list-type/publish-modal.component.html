@@ -601,7 +601,7 @@
                   @for (parent of hierarchy.parents; track parent.code) {
                     <div class="row">
                       <!-- <div class="holder"> -->
-                      <div class="check-block" style="margin: 10px">
+                      <div class="check-block px-0" style="margin: 10px">
                         <!-- To enable add: (click)="parent.selected = !parent.selected" -->
                         <div
                           (click)="getIsDisabled($event) ? null : (parent.selected = !parent.selected)"
@@ -636,7 +636,7 @@
                 @for (hierarchy of list.subtypeHierarchies; track hierarchy.code) {
                   <div class="row">
                     <!-- <div class="holder"> -->
-                    <div class="check-block" style="margin: 10px">
+                    <div class="check-block px-0" style="margin: 10px">
                       <!-- To enable add: (click)="parent.selected = !parent.selected" -->
                       <div
                         (click)="getIsDisabled($event) ? null : (hierarchy.selected = !hierarchy.selected)"

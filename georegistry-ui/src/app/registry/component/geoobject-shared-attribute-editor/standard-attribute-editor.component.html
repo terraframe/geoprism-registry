@@ -192,7 +192,7 @@
   }
 
   @if (attributeType.type != 'list' && attributeType.code != 'altIds') {
-    <div class="value-box">
+    <div class="value-box px-0">
       @if (view) {
         <div class="value-box-wrapper" [ngClass]="{ warning: view.summaryKey && view.summaryKey !== 'UNMODIFIED' }">
           @if (view.summaryKey && view.summaryKey !== 'UNMODIFIED') {
@@ -305,7 +305,7 @@
 
   <!-- TODO : This code copy/pasted from manage-versions.component.html -->
   @if (changeRequest && !changeRequest.isNew) {
-    <div class="cr-maintainer-options">
+    <div class="cr-maintainer-options px-0">
       @if (
         changeRequest.approvalStatus === 'PENDING' &&
         changeRequest.permissions.includes('WRITE_APPROVAL_STATUS') &&

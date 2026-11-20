@@ -31,7 +31,7 @@
         <div
           [ngStyle]="{ width: isGeometryInlined && geomService.getLayers().length > 0 ? '45%' : '100%' }"
           style="display: inline-block"
-          class="col"
+          class="px-0"
         >
           @if (changeRequestEditor.geoObject) {
             <div class="attribute-version-wrapper">
@@ -847,6 +847,7 @@
         </div>
         @if (isGeometryInlined && geomService.getLayers().length > 0) {
           <geoobject-editor-map
+            class="px-0"
             style="width: 55%; display: inline-block; vertical-align: top; margin-top: 15px"
             #geometryEditor
             [geometryType]="this.geoObjectType.geometryType"
