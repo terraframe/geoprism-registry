@@ -1,0 +1,87 @@
+/*
+ * Bootstrap 3 -> 5 compatibility.
+ *
+ * Bootstrap 5 dropped or changed a handful of base styles the app's markup and
+ * CSS were written against. These rules restore the Bootstrap 3 behaviour.
+ * Variables that can be set in Sass live in styles.scss (the
+ * `@use "bootstrap/scss/bootstrap" with (...)` block); this file holds what
+ * cannot be expressed as a variable.
+ *
+ * Prefer moving markup to Bootstrap 5 idioms and deleting rules from here over
+ * adding new ones.
+ */
+
+/* Bootstrap 3 labels were bold with a small gap below; Bootstrap 5 resets both. */
+label {
+  max-width: 100%;
+  margin-bottom: 5px;
+  font-weight: 700;
+}
+
+label.form-check,
+.form-check-label {
+  font-weight: 400;
+}
+
+/* Bootstrap 3 headings had top margins; Bootstrap 5's reboot removes them. */
+h1,
+h2,
+h3,
+.h1,
+.h2,
+.h3 {
+  margin-top: 20px;
+}
+
+h4,
+h5,
+h6,
+.h4,
+.h5,
+.h6 {
+  margin-top: 10px;
+}
+
+/* .form-group no longer exists in Bootstrap 5. It is kept as an app class. */
+.form-group {
+  margin-bottom: 15px;
+}
+
+/* Bootstrap 3 list groups had a bottom margin. */
+.list-group {
+  margin-bottom: 20px;
+}
+
+/* Panels converted to cards: keep the Bootstrap 3 .panel-title look. */
+.card-header .card-title {
+  margin-top: 0;
+  margin-bottom: 0;
+  font-size: 16px;
+}
+
+.card-subtitle {
+  margin-top: 0;
+}
+
+/*
+ * Bootstrap 5 makes anchors without an href or class inherit the text colour.
+ * The app uses many <a (click)> links, which Bootstrap 3 coloured as links.
+ */
+a:not([href]):not([class]) {
+  color: rgba(var(--bs-link-color-rgb), var(--bs-link-opacity, 1));
+  cursor: pointer;
+}
+
+a:not([href]):not([class]):hover {
+  color: rgba(var(--bs-link-hover-color-rgb), var(--bs-link-opacity, 1));
+  text-decoration: underline;
+}
+
+/*
+ * The app's global `input` rule (form.scss) adds padding and a 40px height.
+ * Native radios/checkboxes ignored that, but Bootstrap 5 draws its own
+ * .form-check-input, so reset the box here.
+ */
+.form-check-input {
+  padding: 0;
+}

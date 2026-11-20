@@ -4,15 +4,36 @@ $fa-font-path: "~@fortawesome/fontawesome-free/webfonts";
 @use "@fortawesome/fontawesome-free/scss/solid.scss";
 @use "@fortawesome/fontawesome-free/scss/brands.scss";
 
-// Bootstrap 5, tuned to stay close to the Bootstrap 3 look
+// Bootstrap 5, tuned to stay close to the Bootstrap 3 look.
+// Rules that can't be expressed as variables are in bootstrap-compat.scss.
 @use "bootstrap/scss/bootstrap" with (
+  // Bootstrap 3 colours
+  $primary: #337ab7,
+  $success: #5cb85c,
+  $info: #5bc0de,
+  $warning: #f0ad4e,
+  $danger: #d9534f,
+  $body-color: #333,
+
+  // Typography
   $font-size-base: 0.875rem,
   $line-height-base: 1.428571,
+  $enable-rfs: false,
+  $h1-font-size: 36px,
+  $h2-font-size: 30px,
+  $h3-font-size: 24px,
+  $h4-font-size: 18px,
+  $h5-font-size: 14px,
+  $h6-font-size: 12px,
+  $headings-margin-bottom: 10px,
+  $paragraph-margin-bottom: 10px,
   $link-decoration: none,
   $link-hover-decoration: underline,
+
   $border-radius: 4px,
   $enable-smooth-scroll: false,
-  // Keep the Bootstrap 3 breakpoints so existing col-sm/md/lg markup behaves the same
+
+  // Keep the Bootstrap 3 breakpoints and gutters so existing grid markup behaves the same
   $grid-breakpoints: (
     xs: 0,
     sm: 768px,
@@ -27,8 +48,30 @@ $fa-font-path: "~@fortawesome/fontawesome-free/webfonts";
     lg: 1170px,
     xl: 1320px,
     xxl: 1520px
-  )
+  ),
+  $grid-gutter-width: 30px,
+
+  // Cards (converted from Bootstrap 3 panels)
+  $card-spacer-y: 15px,
+  $card-spacer-x: 15px,
+  $card-cap-padding-y: 10px,
+  $card-cap-padding-x: 15px,
+  $card-cap-bg: #f5f5f5,
+  $card-border-color: #ddd,
+
+  // List groups
+  $list-group-item-padding-y: 10px,
+  $list-group-item-padding-x: 15px,
+
+  // Tables: transparent cells so row backgrounds (e.g. tr.row-active) show through
+  $table-bg: transparent,
+
+  // Modals: the app uses a white backdrop
+  $modal-backdrop-bg: #fff,
+  $modal-backdrop-opacity: 0.9,
+  $modal-lg: 900px
 );
+@use "bootstrap-compat";
 
 @use "@ali-hm/angular-tree-component/css/angular-tree-component.css";
 @use "maplibre-gl/dist/maplibre-gl.css";
@@ -342,102 +385,56 @@ button.btn:active {
   box-shadow: none;
 }
 
-input[type="button"].btn.btn-primary,
-input[type="submit"].btn.btn-primary,
-button.btn-primary,
-button.btn.btn-primary,
-.open > .dropdown-toggle.btn-primary {
-  color: #6ba542;
-  /* IE fallback */
-  color: var(--theme-submit-button-color);
-
-  background: #edf4e8;
-  /* IE fallback */
-  background: var(--theme-submit-button-color-light);
-
-  border-color: #6ba542;
-  /* IE fallback */
-  border-color: var(--theme-button-color-border);
+/*
+ * Button colours, expressed as Bootstrap 5 button variables so the hover,
+ * active, focus and disabled states all follow the app theme.
+ */
+.btn-primary {
+  --bs-btn-color: var(--theme-submit-button-color, #6ba542);
+  --bs-btn-bg: var(--theme-submit-button-color-light, #edf4e8);
+  --bs-btn-border-color: var(--theme-button-color-border, #6ba542);
+  --bs-btn-hover-color: var(--theme-submit-button-color, #6ba542);
+  --bs-btn-hover-bg: var(--theme-submit-button-color-light-hover, #f4fcef);
+  --bs-btn-hover-border-color: var(--theme-button-color-border, #6ba542);
+  --bs-btn-active-color: var(--theme-submit-button-color, #6ba542);
+  --bs-btn-active-bg: var(--theme-submit-button-color-light-hover, #f4fcef);
+  --bs-btn-active-border-color: var(--theme-button-color-border, #6ba542);
+  --bs-btn-disabled-color: var(--theme-submit-button-color, #6ba542);
+  --bs-btn-disabled-bg: var(--theme-submit-button-color-light, #edf4e8);
+  --bs-btn-disabled-border-color: var(--theme-button-color-border, #6ba542);
+  --bs-btn-focus-shadow-rgb: 107, 165, 66;
 }
 
-input[type="button"].btn.btn-primary:hover,
-input[type="submit"].btn.btn-primary:hover,
-input[type="button"].btn.btn-primary:active,
-input[type="submit"].btn.btn-primary:active,
-button.btn-primary:hover,
-button.btn.btn-primary:hover,
-button.btn-primary:active,
-button.btn.btn-primary:active,
-.open > .dropdown-toggle.btn-primary:focus,
-.open > .dropdown-toggle.btn-primary:hover {
-  color: #6ba542;
-  /* IE fallback */
-  color: var(--theme-submit-button-color);
-
-  border-color: #6ba542;
-  /* IE fallback */
-  border-color: var(--theme-button-color-border);
-
-  background: #f4fcef;
-  /* IE fallback */
-  background: var(--theme-submit-button-color-light-hover);
-}
-
-input[type="button"].btn.btn-primary:disabled,
-input[type="submit"].btn.btn-primary:disabled,
-button.btn-primary:disabled,
-button.btn.btn-primary:disabled {
-  background: #edf4e8;
-  /* IE fallback */
-  background: var(--theme-submit-button-color-light);
-  cursor: not-allowed;
-}
-
-input[type="button"].btn.btn-secondary,
-input[type="submit"].btn.btn-secondary,
-button.btn.btn-secondary {
-  background: white;
-
-  color: grey;
-  /* IE fallback */
-  color: var(--theme-cancel-button-color);
-
-  border-color: #6ba542;
-  /* IE fallback */
-  border-color: var(--theme-default-button-color-border);
-}
-
-input[type="button"].btn.btn-secondary:hover,
-input[type="submit"].btn.btn-secondary:hover,
-input[type="button"].btn.btn-secondary:active,
-input[type="submit"].btn.btn-secondary:active,
-button.btn-secondary:hover,
-button.btn.btn-secondary:hover {
-  color: #6ba542;
-  /* IE fallback */
-  color: var(--theme-cancel-button-color-hover);
-  background: #f8f8f8;
+.btn-secondary {
+  --bs-btn-color: var(--theme-cancel-button-color, grey);
+  --bs-btn-bg: white;
+  --bs-btn-border-color: var(--theme-default-button-color-border, #6ba542);
+  --bs-btn-hover-color: var(--theme-cancel-button-color-hover, #6ba542);
+  --bs-btn-hover-bg: #f8f8f8;
+  --bs-btn-hover-border-color: var(--theme-default-button-color-border, #6ba542);
+  --bs-btn-active-color: var(--theme-cancel-button-color-hover, #6ba542);
+  --bs-btn-active-bg: #f8f8f8;
+  --bs-btn-active-border-color: var(--theme-default-button-color-border, #6ba542);
+  --bs-btn-disabled-color: var(--theme-cancel-button-color, grey);
+  --bs-btn-disabled-bg: white;
+  --bs-btn-disabled-border-color: var(--theme-default-button-color-border, #6ba542);
+  --bs-btn-focus-shadow-rgb: 128, 128, 128;
 }
 
 .btn-danger {
-  color: #c0392b;
-  background-color: #fff0f0;
-  border-color: #f3c9c4;
-}
-
-.btn-danger:hover {
-  color: #c0392b;
-  background-color: #ffe2e0;
-  border-color: #f3c9c4;
-}
-
-input[type="button"].btn.btn-danger:disabled,
-input[type="submit"].btn.btn-danger:disabled,
-button.btn-danger:disabled,
-button.btn.btn-danger:disabled {
-  background: #fff0f0;
-  /* IE fallback */
-  cursor: not-allowed;
+  --bs-btn-color: #c0392b;
+  --bs-btn-bg: #fff0f0;
+  --bs-btn-border-color: #f3c9c4;
+  --bs-btn-hover-color: #c0392b;
+  --bs-btn-hover-bg: #ffe2e0;
+  --bs-btn-hover-border-color: #f3c9c4;
+  --bs-btn-active-color: #c0392b;
+  --bs-btn-active-bg: #ffe2e0;
+  --bs-btn-active-border-color: #f3c9c4;
+  --bs-btn-disabled-color: #c0392b;
+  --bs-btn-disabled-bg: #fff0f0;
+  --bs-btn-disabled-border-color: #f3c9c4;
+  --bs-btn-focus-shadow-rgb: 192, 57, 43;
 }
 
 // .delete-btn{
@@ -726,27 +723,17 @@ div.row-holder .rad-area {
   cursor: not-allowed;
 }
 
-.radio.disabled input:checked + span:before {
-  background: #cccccc;
-  cursor: not-allowed;
-}
-
-.radio input[type="radio"]:disabled + span {
+.form-check input[type="radio"]:disabled + span {
   color: lightgrey;
 }
 
-.radio input[type="radio"]:disabled + span:hover {
+.form-check input[type="radio"]:disabled + span:hover {
   cursor: not-allowed;
 }
 
 .inline-radio-input {
   height: auto;
 }
-
-.radio-inline + .radio-inline {
-  margin-top: 15px;
-}
-
 /*
 *
 * Custom checkbox styles
@@ -923,30 +910,8 @@ div.row-holder .rad-area {
 /*
  * Hierarchy Styling (which can't be put in the compnent because it touches other components)
  */
-.hierarchy-sidebar .hierarchy-sidebar-content .panel-body {
-  background-color: #f1f1f1;
-}
-
 .hierarchy-sidebar .hierarchy-sidebar-content {
   background-color: #ddd;
-}
-
-.hierarchy-sidebar .panel-group .panel-heading + .panel-collapse > .list-group,
-.panel-group .hierarchy-sidebar-content .panel-heading + .panel-collapse > .panel-body {
-  border-top: none;
-}
-
-.hierarchy-sidebar .panel.card.hierarchy-sidebar-content {
-  border: none;
-}
-
-.hierarchy-sidebar .panel.sidebar-section.panel-open {
-  border: none;
-}
-
-.hierarchy-sidebar .panel {
-  border: none;
-  box-shadow: none;
 }
 
 /*
@@ -1016,15 +981,9 @@ td.clickable:focus {
 //	border-color: #aaa;
 //}
 
-.input-group-btn,
-.input-group-btn .btn.btn-primary {
-  border-top-right-radius: 5px;
-  border-bottom-right-radius: 5px;
-  margin-right: 0;
-}
-
-.input-group-btn .btn.btn-primary {
+.input-group > .btn {
   height: 40px;
+  margin: 0;
 }
 
 .input-group input {

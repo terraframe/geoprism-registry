@@ -4,10 +4,7 @@
 // 	opacity:0.9;
 // }
 
-.modal-backdrop {
-	background: #fff;
-	opacity: 0.9;
-}
+/* Backdrop colour and opacity are set with Bootstrap variables in styles.scss */
 
 /* .modal .modal-dialog .modal-content .modal-body */
 .modal-dialog {
