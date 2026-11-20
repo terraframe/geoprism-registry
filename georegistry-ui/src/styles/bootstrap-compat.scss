@@ -85,3 +85,44 @@ a:not([href]):not([class]):hover {
 .form-check-input {
   padding: 0;
 }
+
+/*
+ * Bootstrap 3 grid columns were position: relative, so absolutely positioned
+ * children (e.g. the location manager's floating search bar) were sized and
+ * placed against their column. Bootstrap 5 columns are static, so those
+ * children escape to the next positioned ancestor.
+ */
+.col,
+.col-auto {
+  position: relative;
+}
+
+@each $infix in "", "-sm", "-md", "-lg", "-xl", "-xxl" {
+  @if $infix != "" {
+    .col#{$infix},
+    .col#{$infix}-auto {
+      position: relative;
+    }
+  }
+  @for $i from 1 through 12 {
+    .col#{$infix}-#{$i} {
+      position: relative;
+    }
+  }
+}
+
+/*
+ * Bootstrap 3 floated the buttons in a .btn-group. Bootstrap 5 uses flexbox,
+ * where float has no effect, so this only matters where app CSS overrides a
+ * group to display: block (e.g. .geobject-editor-tab-holder): there the
+ * buttons would otherwise become inline-blocks with whitespace gaps and give
+ * the group a height its margins were not tuned for.
+ */
+.btn-group > .btn {
+  float: left;
+}
+
+/* Bootstrap 3 .btn had no bottom margin; keeps the label rule above off label.btn. */
+.btn {
+  margin-bottom: 0;
+}
