@@ -219,9 +219,9 @@
                                           }
                                           @if (attributeType.type === 'boolean') {
                                             <div>
-                                              <label class="radio radio-inline" style="padding-left: 0">
+                                              <label class="form-check form-check-inline">
                                                 <input
-                                                  class="inline-radio-input"
+                                                  class="form-check-input"
                                                   type="radio"
                                                   [checked]="viewModel.value === true"
                                                   [value]="true"
@@ -230,14 +230,14 @@
                                                   name="mod-{{ i }}-true"
                                                   [disabled]="readonly || viewModel.summaryKey === 'DELETE'"
                                                 />
-                                                <span [ngClass]="{ 'has-changed': viewModel.oldValue && !isNew }">
+                                                <span class="form-check-label" [ngClass]="{ 'has-changed': viewModel.oldValue && !isNew }">
                                                   <localize key="change.request.boolean.option.true"></localize>
                                                 </span>
                                               </label>
-                                              <label class="radio radio-inline">
+                                              <label class="form-check form-check-inline">
                                                 <input
                                                   [ngClass]="{ 'has-changed': viewModel.oldValue && !isNew }"
-                                                  class="inline-radio-input"
+                                                  class="form-check-input"
                                                   type="radio"
                                                   [checked]="viewModel.value === false"
                                                   [value]="false"
@@ -246,7 +246,7 @@
                                                   name="mod-{{ i }}-false"
                                                   [disabled]="readonly || viewModel.summaryKey === 'DELETE'"
                                                 />
-                                                <span [ngClass]="{ 'has-changed': viewModel.oldValue && !isNew }">
+                                                <span class="form-check-label" [ngClass]="{ 'has-changed': viewModel.oldValue && !isNew }">
                                                   <localize key="change.request.boolean.option.false"></localize>
                                                 </span>
                                               </label>

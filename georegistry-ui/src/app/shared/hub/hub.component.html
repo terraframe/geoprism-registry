@@ -50,8 +50,8 @@
           </div>
           <div class="row">
             <div class="col-md-12">
-              <div class="panel panel-default">
-                <div class="panel-heading">
+              <div class="card mb-3">
+                <div class="card-header">
                   <h3>
                     <localize [key]="section.title"></localize>
                   </h3>
@@ -59,7 +59,7 @@
                     <localize [key]="section.description"></localize>
                   </p>
                 </div>
-                <div class="panel-body">
+                <div class="card-body">
                   @for (item of section.items; track item.id) {
                     @if (shouldShowMenuItem(item.id)) {
                       <div class="row">

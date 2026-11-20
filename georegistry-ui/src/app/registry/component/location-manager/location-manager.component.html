@@ -68,7 +68,7 @@
                       [allowFutureDates]="false"
                       [required]="false"
                       [customContainerClasses]="'bs-datepicker-container-custom-left'"
-                      style="display: table-cell; vertical-align: middle; width: 175px"
+                      style="flex: 0 0 175px; align-self: center"
                     >
                     </date-field>
                     <input
@@ -79,11 +79,9 @@
                       [(ngModel)]="searchFieldText"
                       name="text"
                     />
-                    <span class="input-group-btn">
-                      <button [disabled]="isEdit" class="btn btn-primary" type="button" (click)="search()">
-                        <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-                      </button>
-                    </span>
+                    <button [disabled]="isEdit" class="btn btn-primary" type="button" (click)="search()">
+                      <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                    </button>
                   </div>
                 </div>
               </ng-container>
@@ -103,8 +101,8 @@
                     <div class="list-group">
                       @for (node of data; track node.properties.code; let i = $index) {
                         <div class="list-group-item">
-                          <div class="card card-default" (click)="selectGeoObject(node)">
-                            <div class="card-body">
+                          <div class="result-card" (click)="selectGeoObject(node)">
+                            <div class="result-card-body">
                               <!--
                           <i class="fa fa-map-marker clickable" style="float:right;font-size:25px;" aria-hidden="true"
                           (click)="zoomToFeature(node, $event)" [title]="'explorer.zoom.label' | localize"></i>
@@ -115,7 +113,7 @@
                                 {{ node.properties.displayLabel.localizedValue }}
                               </h4>
                             </div>
-                            <div class="card-footer">{{ node.properties.type }}</div>
+                            <div class="result-card-footer">{{ node.properties.type }}</div>
                           </div>
                         </div>
                       }

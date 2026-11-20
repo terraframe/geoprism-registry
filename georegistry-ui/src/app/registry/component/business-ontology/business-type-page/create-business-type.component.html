@@ -38,12 +38,12 @@
   @if (type) {
     <form #form="ngForm" class="modal-form" (ngSubmit)="form.valid && handleOnSubmit()">
       <fieldset>
-        <div class="panel panel-default section-panel">
-          <div class="panel-heading">
-            <h5 class="panel-title"><localize key="hierarchy.management.section.identity.title"></localize></h5>
-            <p class="panel-subtitle"><localize key="hierarchy.management.section.identity.description"></localize></p>
+        <div class="card section-panel">
+          <div class="card-header">
+            <h5 class="card-title"><localize key="hierarchy.management.section.identity.title"></localize></h5>
+            <p class="card-subtitle"><localize key="hierarchy.management.section.identity.description"></localize></p>
           </div>
-          <div class="panel-body">
+          <div class="card-body">
             <div class="row-holder">
               <div class="label-holder">
                 <label for="codeInput">
@@ -80,12 +80,12 @@
             <localized-text [(value)]="type.description" key="data.property.label.description"></localized-text>
           </div>
         </div>
-        <div class="panel panel-default section-panel">
-          <div class="panel-heading">
-            <h5 class="panel-title"><localize key="hierarchy.management.section.ownership.title"></localize></h5>
-            <p class="panel-subtitle"><localize key="hierarchy.management.section.ownership.description"></localize></p>
+        <div class="card section-panel">
+          <div class="card-header">
+            <h5 class="card-title"><localize key="hierarchy.management.section.ownership.title"></localize></h5>
+            <p class="card-subtitle"><localize key="hierarchy.management.section.ownership.description"></localize></p>
           </div>
-          <div class="panel-body">
+          <div class="card-body">
             <div class="row-holder">
               <div class="label-holder">
                 <label for="organization">

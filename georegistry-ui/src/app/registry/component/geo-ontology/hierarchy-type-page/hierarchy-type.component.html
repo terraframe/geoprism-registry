@@ -21,12 +21,12 @@
 <form>
   <div class="modal-body hierarchy-content">
     <form #form="ngForm" class="modal-form">
-      <div class="panel panel-default section-panel">
-        <div class="panel-heading">
-          <h5 class="panel-title"><localize key="hierarchy.management.section.identity.title"></localize></h5>
-          <p class="panel-subtitle"><localize key="hierarchy.management.section.identity.description"></localize></p>
+      <div class="card section-panel">
+        <div class="card-header">
+          <h5 class="card-title"><localize key="hierarchy.management.section.identity.title"></localize></h5>
+          <p class="card-subtitle"><localize key="hierarchy.management.section.identity.description"></localize></p>
         </div>
-        <div class="panel-body">
+        <div class="card-body">
           <div class="row">
             <div class="col-md-6">
               <div class="form-group">
@@ -79,12 +79,12 @@
         </div>
       </div>
 
-      <div class="panel panel-default section-panel">
-        <div class="panel-heading">
-          <h5 class="panel-title"><localize key="hierarchy.type.section.status.title"></localize></h5>
-          <p class="panel-subtitle"><localize key="hierarchy.type.section.status.description"></localize></p>
+      <div class="card section-panel">
+        <div class="card-header">
+          <h5 class="card-title"><localize key="hierarchy.type.section.status.title"></localize></h5>
+          <p class="card-subtitle"><localize key="hierarchy.type.section.status.description"></localize></p>
         </div>
-        <div class="panel-body">
+        <div class="card-body">
           <div class="row">
             <div class="col-md-6">
               <div class="form-group">
@@ -164,12 +164,12 @@
         </div>
       </div>
 
-      <div class="panel panel-default section-panel">
-        <div class="panel-heading">
-          <h5 class="panel-title"><localize key="hierarchy.management.section.ownership.title"></localize></h5>
-          <p class="panel-subtitle"><localize key="hierarchy.management.section.ownership.description"></localize></p>
+      <div class="card section-panel">
+        <div class="card-header">
+          <h5 class="card-title"><localize key="hierarchy.management.section.ownership.title"></localize></h5>
+          <p class="card-subtitle"><localize key="hierarchy.management.section.ownership.description"></localize></p>
         </div>
-        <div class="panel-body">
+        <div class="card-body">
           <div class="row">
             <div class="col-md-6">
               <div class="form-group">
@@ -179,7 +179,7 @@
                 @if (!edit && organizations.length > 1) {
                   <select
                     [disabled]="edit || readOnly"
-                    class="form-control"
+                    class="form-select"
                     name="organization"
                     [(ngModel)]="hierarchyType.organizationCode"
                     required
@@ -218,11 +218,11 @@
         </div>
       </div>
 
-      <div class="panel panel-default section-panel">
-        <div class="panel-heading">
-          <h5 class="panel-title"><localize key="masterlist.contact"></localize></h5>
+      <div class="card section-panel">
+        <div class="card-header">
+          <h5 class="card-title"><localize key="masterlist.contact"></localize></h5>
         </div>
-        <div class="panel-body">
+        <div class="card-body">
           <div class="row">
             <div class="col-md-4">
               <div class="form-group">

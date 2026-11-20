@@ -79,7 +79,7 @@
                         </div>
                         @for (role of roleGroup.GEOOBJECTTYPEROLESGROUP; track role) {
                           <label
-                            class="radio"
+                            class="form-check"
                             [ngClass]="{
                               disabled:
                                 (org.RA && org.RA.assigned) ||
@@ -88,18 +88,18 @@
                                 (_activeOrganization && _activeOrganization !== org.CODE),
                             }"
                           >
-                            <input
+                            <input class="form-check-input"
                               type="checkbox"
                               [value]="role.name"
                               [checked]="roleGroup.ENABLEDROLE === role.name"
                               (change)="setGroupRole($event, roleGroup, role, org)"
                               [name]="role.orgCode + role.geoObjectTypeCode"
                             />
-                            <span style="font-weight: 400">{{ role.label.localizedValue }}</span>
+                            <span class="form-check-label" style="font-weight: 400">{{ role.label.localizedValue }}</span>
                           </label>
                         }
                         <label
-                          class="radio"
+                          class="form-check"
                           [ngClass]="{
                             disabled:
                               (org.RA && org.RA.assigned) ||
@@ -108,14 +108,14 @@
                               (_activeOrganization && _activeOrganization !== org.CODE),
                           }"
                         >
-                          <input
+                          <input class="form-check-input"
                             type="checkbox"
                             [value]=""
                             [checked]="roleGroup.ENABLEDROLE === ''"
                             (change)="setGroupRole($event, roleGroup, null, org)"
                             [name]="roleGroup + '_none'"
                           />
-                          <span style="font-weight: 400"><localize key="accounts.none"></localize></span>
+                          <span class="form-check-label" style="font-weight: 400"><localize key="accounts.none"></localize></span>
                         </label>
                       </div>
                     }

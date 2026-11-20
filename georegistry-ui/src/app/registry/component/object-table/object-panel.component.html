@@ -190,15 +190,15 @@ Version management widget
           <ul class="list-group">
             @for (attributeType of type.attributes; track attributeType.code) {
               <li class="list-group-item" style="text-align: left; border: none; padding: 0">
-                <div class="panel panel-default">
-                  <div class="panel-heading">
+                <div class="card mb-3">
+                  <div class="card-header">
                     <h4 style="margin: 0">
                       <span>
                         {{ attributeType.label.localizedValue }}
                       </span>
                     </h4>
                   </div>
-                  <div class="panel-body">
+                  <div class="card-body">
                     @let attribute = object.properties[attributeType.code];
                     @if (attribute != null) {
                       @if (attributeType.isChangeOverTime) {

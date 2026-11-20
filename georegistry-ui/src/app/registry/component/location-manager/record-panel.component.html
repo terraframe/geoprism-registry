@@ -33,15 +33,15 @@
           <ul class="list-group">
             @for (attr of record.attributes; let i = index; track attr.name) {
               <li class="list-group-item" style="text-align: left; border: none; padding: 0">
-                <div class="panel panel-default">
-                  <div class="panel-heading">
+                <div class="card mb-3">
+                  <div class="card-header">
                     <h4 style="margin: 0">
                       <span>
                         {{ attr.label }}
                       </span>
                     </h4>
                   </div>
-                  <div class="panel-body">
+                  <div class="card-body">
                     <input
                       type="text"
                       [(ngModel)]="record.data[attr.name]"

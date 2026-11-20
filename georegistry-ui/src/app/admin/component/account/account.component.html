@@ -350,13 +350,13 @@
               @if (!(!account.user.newInstance && account.user.username === 'admin')) {
                 <div>
                   <div>
-                    <label class="radio">
-                      <input type="radio" name="userActive" [value]="false" [(ngModel)]="account.user.inactive" />
-                      <span><localize key="account.user.status.active"></localize></span>
+                    <label class="form-check">
+                      <input class="form-check-input" type="radio" name="userActive" [value]="false" [(ngModel)]="account.user.inactive" />
+                      <span class="form-check-label"><localize key="account.user.status.active"></localize></span>
                     </label>
-                    <label class="radio">
-                      <input type="radio" name="userActive" [value]="true" [(ngModel)]="account.user.inactive" />
-                      <span><localize key="account.user.status.inactive"></localize></span>
+                    <label class="form-check">
+                      <input class="form-check-input" type="radio" name="userActive" [value]="true" [(ngModel)]="account.user.inactive" />
+                      <span class="form-check-label"><localize key="account.user.status.inactive"></localize></span>
                     </label>
                   </div>
                 </div>

@@ -36,12 +36,12 @@
         <div class="sub"><localize key="io.geoObjectType"></localize></div>
       </div>
       <fieldset>
-        <div class="panel panel-default section-panel">
-          <div class="panel-heading">
-            <h5 class="panel-title"><localize key="hierarchy.management.section.identity.title"></localize></h5>
-            <p class="panel-subtitle"><localize key="hierarchy.management.section.identity.description"></localize></p>
+        <div class="card section-panel">
+          <div class="card-header">
+            <h5 class="card-title"><localize key="hierarchy.management.section.identity.title"></localize></h5>
+            <p class="card-subtitle"><localize key="hierarchy.management.section.identity.description"></localize></p>
           </div>
-          <div class="panel-body">
+          <div class="card-body">
             <div class="identity-grid-row">
               <div class="row-holder">
                 <div class="label-holder">
@@ -73,14 +73,14 @@
             ></localized-text>
           </div>
         </div>
-        <div class="panel panel-default section-panel">
-          <div class="panel-heading">
-            <h5 class="panel-title"><localize key="hierarchy.management.section.configuration.title"></localize></h5>
-            <p class="panel-subtitle">
+        <div class="card section-panel">
+          <div class="card-header">
+            <h5 class="card-title"><localize key="hierarchy.management.section.configuration.title"></localize></h5>
+            <p class="card-subtitle">
               <localize key="hierarchy.management.section.configuration.description"></localize>
             </p>
           </div>
-          <div class="panel-body">
+          <div class="card-body">
             <div class="configuration-grid-row">
               <div class="row-holder">
                 <div class="label-holder">
@@ -136,7 +136,7 @@
                 <label><localize key="data.property.label.geometryType"></localize></label>
               </div>
               <div class="holder">
-                <select name="geometryType" [(ngModel)]="editGeoObjectType.geometryType" class="form-control" disabled>
+                <select name="geometryType" [(ngModel)]="editGeoObjectType.geometryType" class="form-select" disabled>
                   <option></option>
                   <option value="MULTIPOINT"><localize key="georegistry.geometry.point"></localize></option>
                   <option value="MULTILINE"><localize key="georegistry.geometry.line"></localize></option>
@@ -153,12 +153,12 @@
             </div>
           </div>
         </div>
-        <div class="panel panel-default section-panel">
-          <div class="panel-heading">
-            <h5 class="panel-title"><localize key="hierarchy.management.section.ownership.title"></localize></h5>
-            <p class="panel-subtitle"><localize key="hierarchy.management.section.ownership.description"></localize></p>
+        <div class="card section-panel">
+          <div class="card-header">
+            <h5 class="card-title"><localize key="hierarchy.management.section.ownership.title"></localize></h5>
+            <p class="card-subtitle"><localize key="hierarchy.management.section.ownership.description"></localize></p>
           </div>
-          <div class="panel-body">
+          <div class="card-body">
             <div class="row-holder">
               <div class="label-holder">
                 <label><localize key="attribute.organization.label"></localize></label>
@@ -177,14 +177,14 @@
             </div>
           </div>
         </div>
-        <div class="panel panel-default section-panel">
-          <div class="panel-heading">
-            <h5 class="panel-title"><localize key="hierarchy.management.section.attributes.title"></localize></h5>
-            <p class="panel-subtitle">
+        <div class="card section-panel">
+          <div class="card-header">
+            <h5 class="card-title"><localize key="hierarchy.management.section.attributes.title"></localize></h5>
+            <p class="card-subtitle">
               <localize key="hierarchy.management.section.attributes.description"></localize>
             </p>
           </div>
-          <div class="panel-body">
+          <div class="card-body">
             <div class="table-responsive">
               <table class="table" [class.view-mode]="readOnly">
                 <thead>

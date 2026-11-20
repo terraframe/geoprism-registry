@@ -204,9 +204,9 @@
             @if (attributeType.type === 'boolean') {
               <div>
                 <div>
-                  <label class="radio radio-inline" style="padding-left: 0">
+                  <label class="form-check form-check-inline">
                     <input
-                      class="inline-radio-input"
+                      class="form-check-input"
                       type="radio"
                       (change)="onValueChange()"
                       [checked]="view.attributeCode === 'invalid' ? view.value === false : view.value === true"
@@ -216,7 +216,7 @@
                       name="mod-{{ geoObjectType.code }}-true"
                       [disabled]="readonly"
                     />
-                    <span [ngClass]="{ 'has-changed': view.oldValue && !isNew }">
+                    <span class="form-check-label" [ngClass]="{ 'has-changed': view.oldValue && !isNew }">
                       <localize
                         [key]="
                           view.attributeCode === 'invalid'
@@ -227,9 +227,9 @@
                       </localize>
                     </span>
                   </label>
-                  <label class="radio radio-inline">
+                  <label class="form-check form-check-inline">
                     <input
-                      class="inline-radio-input"
+                      class="form-check-input"
                       type="radio"
                       (change)="onValueChange()"
                       [checked]="
@@ -243,7 +243,7 @@
                       name="mod-{{ geoObjectType.code }}-false"
                       [disabled]="readonly"
                     />
-                    <span [ngClass]="{ 'has-changed': view.oldValue && !isNew }">
+                    <span class="form-check-label" [ngClass]="{ 'has-changed': view.oldValue && !isNew }">
                       <localize
                         [key]="
                           view.attributeCode === 'invalid'

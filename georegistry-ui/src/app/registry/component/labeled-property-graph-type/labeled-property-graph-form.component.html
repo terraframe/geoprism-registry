@@ -23,9 +23,9 @@
   <fieldset>
     @if (!isExport) {
       <div class="row-holder" style="text-align: center">
-        <label class="radio radio-inline" style="padding-left: 0">
+        <label class="form-check form-check-inline">
           <input
-            class="inline-radio-input"
+            class="form-check-input"
             type="radio"
             [checked]="type.graphType === 'single'"
             [value]="'single'"
@@ -33,13 +33,13 @@
             name="single"
             [disabled]="readonly || !isNew"
           />
-          <span>
+          <span class="form-check-label">
             <localize key="list.type.single.date"></localize>
           </span>
         </label>
-        <label class="radio radio-inline" style="padding-left: 0">
+        <label class="form-check form-check-inline">
           <input
-            class="inline-radio-input"
+            class="form-check-input"
             type="radio"
             [checked]="type.graphType === 'incremental'"
             [value]="'incremental'"
@@ -47,14 +47,14 @@
             name="incremental"
             [disabled]="readonly || !isNew"
           />
-          <span>
+          <span class="form-check-label">
             <localize key="list.type.incremental.series"></localize>
           </span>
         </label>
         @if (!isExport) {
-          <label class="radio radio-inline" style="padding-left: 0">
+          <label class="form-check form-check-inline">
             <input
-              class="inline-radio-input"
+              class="form-check-input"
               type="radio"
               [checked]="type.graphType === 'interval'"
               [value]="'interval'"
@@ -62,7 +62,7 @@
               name="interval"
               [disabled]="readonly || !isNew"
             />
-            <span>
+            <span class="form-check-label">
               <localize key="list.type.interval.series"></localize>
             </span>
           </label>
@@ -488,7 +488,7 @@
                 -->
                 <div class="btn-group" dropdown #dropdown="bs-dropdown" [autoClose]="true" container="#select-root">
                   <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle">
-                    {{ buildGraphTypeButtonLabel() }} <span class="caret"></span>
+                    {{ buildGraphTypeButtonLabel() }}
                   </button>
                   <ul
                     id="dropdown-triggers-manual"
@@ -540,7 +540,7 @@
                 -->
                 <div class="btn-group" dropdown #dropdown="bs-dropdown" [autoClose]="true" container="#select-root">
                   <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle">
-                    {{ buildGeoObjectTypeButtonLabel() }} <span class="caret"></span>
+                    {{ buildGeoObjectTypeButtonLabel() }}
                   </button>
                   <ul
                     id="dropdown-triggers-manual"
@@ -588,7 +588,7 @@
               <div class="col-md-12">
                 <div class="btn-group" dropdown #dropdown="bs-dropdown" [autoClose]="true" container="#select-root">
                   <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle">
-                    {{ buildEdgeTypeButtonLabel() }} <span class="caret"></span>
+                    {{ buildEdgeTypeButtonLabel() }}
                   </button>
                   <ul
                     id="dropdown-triggers-manual"
@@ -634,7 +634,7 @@
                 -->
                 <div class="btn-group" dropdown #dropdown="bs-dropdown" [autoClose]="true" container="#select-root">
                   <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle">
-                    {{ buildBusinessTypeButtonLabel() }} <span class="caret"></span>
+                    {{ buildBusinessTypeButtonLabel() }}
                   </button>
                   <ul
                     id="dropdown-triggers-manual"

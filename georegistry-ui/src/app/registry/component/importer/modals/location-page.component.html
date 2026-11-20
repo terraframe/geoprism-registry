@@ -32,11 +32,11 @@
       @for (location of configuration.locations; track location.code; let i = $index) {
         <div class="form-group">
           <div class="row-holder">
-            <div class="panel panel-default">
-              <div class="panel-heading">
+            <div class="card mb-3">
+              <div class="card-header">
                 <label> {{ location.label }} </label>
               </div>
-              <div class="panel-body">
+              <div class="card-body">
                 <div class="label-holder">
                   <label>
                     <localize key="io.import.modal.parent.source"></localize>

@@ -446,9 +446,9 @@
     <form #form="ngForm" class="modal-form" autocomplete="off">
       <fieldset>
         <div class="row-holder" style="text-align: center">
-          <label class="radio radio-inline" style="padding-left: 0">
+          <label class="form-check form-check-inline">
             <input
-              class="inline-radio-input"
+              class="form-check-input"
               type="radio"
               [checked]="list.listType === 'single'"
               [value]="'single'"
@@ -456,13 +456,13 @@
               name="single"
               [disabled]="readonly || !isNew"
             />
-            <span>
+            <span class="form-check-label">
               <localize key="list.type.single.date"></localize>
             </span>
           </label>
-          <label class="radio radio-inline" style="padding-left: 0">
+          <label class="form-check form-check-inline">
             <input
-              class="inline-radio-input"
+              class="form-check-input"
               type="radio"
               [checked]="list.listType === 'incremental'"
               [value]="'incremental'"
@@ -470,13 +470,13 @@
               name="incremental"
               [disabled]="readonly || !isNew"
             />
-            <span>
+            <span class="form-check-label">
               <localize key="list.type.incremental.series"></localize>
             </span>
           </label>
-          <label class="radio radio-inline" style="padding-left: 0">
+          <label class="form-check form-check-inline">
             <input
-              class="inline-radio-input"
+              class="form-check-input"
               type="radio"
               [checked]="list.listType === 'interval'"
               [value]="'interval'"
@@ -484,7 +484,7 @@
               name="interval"
               [disabled]="readonly || !isNew"
             />
-            <span>
+            <span class="form-check-label">
               <localize key="list.type.interval.series"></localize>
             </span>
           </label>

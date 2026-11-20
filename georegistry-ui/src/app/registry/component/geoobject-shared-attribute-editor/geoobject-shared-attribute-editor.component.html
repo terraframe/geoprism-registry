@@ -142,8 +142,8 @@
                 ) {
                   <li class="list-group-item" style="text-align: left; border: none; padding: 0">
                     @if (showAllInstances || changeRequestEditor.getEditorForAttribute(attr).hasChanges()) {
-                      <div class="panel panel-default">
-                        <div class="panel-heading">
+                      <div class="card mb-3">
+                        <div class="card-header">
                           <h4 style="margin: 0">
                             @if (attr.code === 'code') {
                               <span>
@@ -160,7 +160,7 @@
                             }
                           </h4>
                         </div>
-                        <div class="panel-body">
+                        <div class="card-body">
                           @if (attr.code !== 'code' && attr.isChangeOverTime) {
                             <div>
                               <manage-versions
@@ -224,13 +224,13 @@
                       showAllInstances ||
                       changeRequestEditor.getEditorForAttribute(parentAttributeType, hierarchy).hasChanges()
                     ) {
-                      <div class="panel panel-default">
-                        <div class="panel-heading">
+                      <div class="card mb-3">
+                        <div class="card-header">
                           <h4 style="margin: 0">
                             <span> {{ hierarchy.label }} </span>
                           </h4>
                         </div>
-                        <div class="panel-body">
+                        <div class="card-body">
                           <manage-versions
                             [geoObjectType]="geoObjectType"
                             [changeRequestEditor]="changeRequestEditor"
@@ -252,13 +252,13 @@
         @if (tabIndex === 2) {
           <div>
             @if (showAllInstances || changeRequestEditor.getEditorForAttribute(geometryAttributeType).hasChanges()) {
-              <div class="panel panel-default">
-                <div class="panel-heading">
+              <div class="card mb-3">
+                <div class="card-header">
                   <h4 style="margin: 0">
                     <span> <localize key="shared.attributes.attribute.geometry.label"></localize> </span>
                   </h4>
                 </div>
-                <div class="panel-body">
+                <div class="card-body">
                   <manage-versions
                     [geoObjectType]="geoObjectType"
                     [changeRequestEditor]="changeRequestEditor"
@@ -276,13 +276,13 @@
         @if (tabIndex === 3) {
           <div>
             @if (showAllInstances || changeRequestEditor.getEditorForAttribute(getAttribute('exists')).hasChanges()) {
-              <div class="panel panel-default">
-                <div class="panel-heading">
+              <div class="card mb-3">
+                <div class="card-header">
                   <h4 style="margin: 0">
                     <span>{{ getAttribute('exists').label.localizedValue }}</span>
                   </h4>
                 </div>
-                <div class="panel-body">
+                <div class="card-body">
                   <manage-versions
                     [geoObjectType]="geoObjectType"
                     [changeRequestEditor]="changeRequestEditor"
@@ -296,14 +296,14 @@
               </div>
             }
             @if (showAllInstances || changeRequestEditor.getEditorForAttribute(getAttribute('invalid')).hasChanges()) {
-              <div class="panel panel-default">
-                <div class="panel-heading">
+              <div class="card mb-3">
+                <div class="card-header">
                   <h4 style="margin: 0">
                     <!-- <span>{{getAttribute('invalid').label.localizedValue}}</span>  -->
                     <localize key="geoobject.invalid.alternate.label"></localize>
                   </h4>
                 </div>
-                <div class="panel-body">
+                <div class="card-body">
                   <standard-attribute-editor
                     [changeRequestEditor]="changeRequestEditor"
                     [geoObjectType]="geoObjectType"

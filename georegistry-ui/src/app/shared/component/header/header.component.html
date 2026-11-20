@@ -20,56 +20,56 @@
 -->
 <!-- HEADER AND NAVBAR -->
 <header>
-  <nav class="navbar navbar-default">
+  <nav class="navbar navbar-expand navbar-default">
     <div class="container-fluid">
-      <ul class="nav navbar-nav navbar-right">
+      <ul class="navbar-nav header-nav ms-auto">
         @if (!isPublic) {
-          <li class="d-none d-sm-block">
-            <a (click)="account()" class="navbar-username">
+          <li class="nav-item d-none d-sm-block">
+            <a (click)="account()" class="nav-link navbar-username">
               <i class="fa-regular fa-user"></i>
             </a>
           </li>
         }
 
         @if (!isPublic) {
-          <li class="d-none d-sm-block">
-            <a class="route-item" class="route-item" [title]="'userDashboards.logout' | localize" (click)="logout()">
+          <li class="nav-item d-none d-sm-block">
+            <a class="nav-link route-item" [title]="'userDashboards.logout' | localize" (click)="logout()">
               <i class="fa-solid fa-arrow-right-from-bracket"></i>
             </a>
           </li>
         }
 
         @if (locales.length > 0) {
-          <li dropdown>
+          <li dropdown class="nav-item dropdown">
             <!-- <localize key="hierarchy-management.menu"></localize> -->
-            <a class="dropdown-toggle" role="button" aria-haspopup="true" aria-expanded="false" dropdownToggle>
-              <span class="glyphicon glyphicon-menu-hamburger"></span>
+            <a class="nav-link dropdown-toggle" role="button" aria-haspopup="true" aria-expanded="false" dropdownToggle>
+              <i class="fa-solid fa-bars"></i>
             </a>
-            <ul *dropdownMenu class="dropdown-menu">
+            <ul *dropdownMenu class="dropdown-menu dropdown-menu-end">
               @if (locales.length > 0) {
                 <div style="padding: 0 20px">
-                  <label class="radio" style="font-weight: inherit">
+                  <label class="form-check" style="font-weight: inherit">
                     <input
-                      class="inline-radio-input"
+                      class="form-check-input"
                       type="radio"
                       name="default"
                       [value]="''"
                       (change)="setLocale()"
                       [(ngModel)]="locale"
                     />
-                    <span>{{ defaultLocaleView.label.localizedValue }}</span>
+                    <span class="form-check-label">{{ defaultLocaleView.label.localizedValue }}</span>
                   </label>
                   @for (l of locales; track l.toString) {
-                    <label class="radio" style="font-weight: inherit">
+                    <label class="form-check" style="font-weight: inherit">
                       <input
-                        class="inline-radio-input"
+                        class="form-check-input"
                         type="radio"
                         [name]="l.toString"
                         [value]="l.toString"
                         (change)="setLocale()"
                         [(ngModel)]="locale"
                       />
-                      <span>{{ l.label.localizedValue }}</span>
+                      <span class="form-check-label">{{ l.label.localizedValue }}</span>
                     </label>
                   }
                 </div>

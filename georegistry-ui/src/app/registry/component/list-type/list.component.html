@@ -179,12 +179,11 @@
                   aria-expanded="true"
                 >
                   <localize key="masterlist.newGeoObject"></localize>
-                  <span class="caret"></span>
                 </button>
                 <ul *dropdownMenu class="dropdown-menu" aria-labelledby="dropdownMenu1">
                   @for (subtype of list.subtypes; track subtype.code) {
                     <li>
-                      <a (click)="onNewGeoObject(subtype.code)">{{ subtype.label }}</a>
+                      <a class="dropdown-item" (click)="onNewGeoObject(subtype.code)">{{ subtype.label }}</a>
                     </li>
                   }
                 </ul>

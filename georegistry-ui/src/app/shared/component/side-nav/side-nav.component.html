@@ -36,10 +36,10 @@
   <div class="row nav-row">
     <div class="col-12">
       @for (section of sections; track section.title) {
-        <div class="card card-default section">
-          <div class="card-body">
+        <div class="section">
+          <div class="section-body">
             @if (expanded) {
-              <h4 class="card-title"><localize [key]="section.title"></localize></h4>
+              <h4 class="section-title"><localize [key]="section.title"></localize></h4>
             }
             @for (menu of section.items; track menu.id) {
               @if (shouldShowMenuItem(menu.id)) {
@@ -68,8 +68,8 @@
       }
 
       @if (!isPublic) {
-        <div class="card card-default section" style="margin-bottom: 20px">
-          <div class="card-body">
+        <div class="section" style="margin-bottom: 20px">
+          <div class="section-body">
             <hr />
             @if (shouldShowMenuItem('SETTINGS')) {
               <div class="row nav-row">

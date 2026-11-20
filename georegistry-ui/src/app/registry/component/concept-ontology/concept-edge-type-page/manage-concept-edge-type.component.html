@@ -36,12 +36,12 @@
   @if (type != null) {
     <form #form="ngForm" class="modal-form" (ngSubmit)="(form.valid)">
       <fieldset>
-        <div class="panel panel-default section-panel">
-          <div class="panel-heading">
-            <h5 class="panel-title"><localize key="hierarchy.management.section.identity.title"></localize></h5>
-            <p class="panel-subtitle"><localize key="hierarchy.management.section.identity.description"></localize></p>
+        <div class="card section-panel">
+          <div class="card-header">
+            <h5 class="card-title"><localize key="hierarchy.management.section.identity.title"></localize></h5>
+            <p class="card-subtitle"><localize key="hierarchy.management.section.identity.description"></localize></p>
           </div>
-          <div class="panel-body">
+          <div class="card-body">
             <div class="row">
               <div class="col-md-12">
                 <div class="form-group">
@@ -96,14 +96,14 @@
             </div>
           </div>
         </div>
-        <div class="panel panel-default section-panel">
-          <div class="panel-heading">
-            <h5 class="panel-title"><localize key="hierarchy.management.section.configuration.title"></localize></h5>
-            <p class="panel-subtitle">
+        <div class="card section-panel">
+          <div class="card-header">
+            <h5 class="card-title"><localize key="hierarchy.management.section.configuration.title"></localize></h5>
+            <p class="card-subtitle">
               <localize key="hierarchy.management.section.configuration.description"></localize>
             </p>
           </div>
-          <div class="panel-body">
+          <div class="card-body">
             <div class="row">
               <div class="col-md-6">
                 <div class="form-group">
@@ -113,7 +113,7 @@
                   <select
                     id="parentType"
                     name="parentType"
-                    class="form-control"
+                    class="form-select"
                     [(ngModel)]="type.parentType"
                     [disabled]="readOnly || !isNew"
                     required
@@ -135,7 +135,7 @@
                   <select
                     id="childType"
                     name="childType"
-                    class="form-control"
+                    class="form-select"
                     [(ngModel)]="type.childType"
                     [disabled]="readOnly || !isNew"
                     required
@@ -159,7 +159,7 @@
                   <select
                     id="discreteType"
                     name="discreteType"
-                    class="form-control"
+                    class="form-select"
                     [(ngModel)]="type.discreteType"
                     [disabled]="readOnly || !isNew"
                     required
