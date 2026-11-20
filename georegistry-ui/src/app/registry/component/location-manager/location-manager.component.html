@@ -38,7 +38,10 @@
   otherwise bleed past this wrapper's edges and trigger a stray horizontal
   scrollbar on #app-container (see the .sidebar comment in page-container.css
   for the same pattern) -->
-  <div style="position: absolute; top: 0; bottom: 0; left: 0; right: 10px; height: 100%; padding: 0 15px">
+  <div
+    style="position: absolute; top: 0; bottom: 0; left: 0; right: 10px; height: 100%; padding: 0 15px"
+    id="search-panel"
+  >
     <div class="row" style="margin-top: 50px">
       <div class="col-md-4" style="z-index: 999" [hidden]="!state.attrPanelOpen">
         @if (searchEnabled) {
@@ -53,7 +56,7 @@
                 <!--                  [allowFutureDates]="false" [required]="false" [placement]="'right'" style="display:inline-grid;"> </date-field> -->
                 <!--              </div> -->
                 <div class="col-md-12">
-                  <div class="input-group">
+                  <div class="input-group" id="search-input-group">
                     <ngx-spinner
                       [fullScreen]="false"
                       [name]="CONSTANTS.SEARCH_OVERLAY"
@@ -160,53 +163,57 @@
       <!--  END sidebar panel -->
 
       @if (!isPublic) {
-        <div
-          [ngClass]="{ 'col-md-6': !state.attrPanelOpen, 'col-md-8': state.attrPanelOpen }"
-          style="z-index: 4; padding-top: 10px"
-        >
-          <div style="z-index: 999; padding-top: 10px; overflow-y: auto; position: absolute; top: 0; overflow: visible">
-            @if (searchEnabled || current != null) {
-              <div
-                class="map-button clickable"
-                style="padding-bottom: 5px; padding-right: 5px"
-                (click)="!isEdit && togglePanel()"
-              >
-                <div class="map-button-icon">
-                  <span
-                    class="fa clickable"
-                    style="font-size: 35px"
-                    [title]="
-                      (state.attrPanelOpen
-                        ? 'explorer.resize.closeAttributePanel'
-                        : 'explorer.resize.openAttributePanel'
-                      ) | localize
-                    "
-                    [ngClass]="{
-                      'fa-angle-double-left': state.attrPanelOpen,
-                      'fa-angle-double-right': !state.attrPanelOpen,
-                    }"
-                    aria-hidden="true"
-                  >
-                  </span>
-                </div>
-              </div>
-            }
-            @if (current != null && graphVisualizerEnabled) {
-              <span class="map-button visualize-mode-toggle">
-                <i
-                  style="margin-right: initial"
-                  class="visualize-mode-hierarchy clickable fa fa-share-alt"
-                  aria-hidden="true"
+        <!-- Map buttons: their own auto-width column, so they sit just right of the
+        search panel when it is open and at the left edge when it is closed. The column
+        stretches to the row's height, so it ignores clicks (they reach the map) and
+        only the buttons take them. -->
+        <div class="col-auto pe-0" style="z-index: 999; padding-top: 10px; pointer-events: none" id="toggle-column">
+          @if (searchEnabled || current != null) {
+            <div
+              class="map-button clickable"
+              style="padding-bottom: 5px; padding-right: 5px; pointer-events: all"
+              (click)="!isEdit && togglePanel()"
+            >
+              <div class="map-button-icon">
+                <span
+                  class="fa clickable"
+                  style="font-size: 35px"
                   [title]="
-                    (state.graphPanelOpen ? 'explorer.resize.closeGraphViz' : 'explorer.resize.openGraphViz') | localize
+                    (state.attrPanelOpen ? 'explorer.resize.closeAttributePanel' : 'explorer.resize.openAttributePanel')
+                      | localize
                   "
-                  (click)="toggleGraphPanel()"
-                ></i>
-              </span>
-            }
-          </div>
+                  [ngClass]="{
+                    'fa-angle-double-left': state.attrPanelOpen,
+                    'fa-angle-double-right': !state.attrPanelOpen,
+                  }"
+                  aria-hidden="true"
+                >
+                </span>
+              </div>
+            </div>
+          }
+          @if (current != null && graphVisualizerEnabled) {
+            <span class="map-button visualize-mode-toggle" style="pointer-events: all">
+              <i
+                style="margin-right: initial"
+                class="visualize-mode-hierarchy clickable fa fa-share-alt"
+                aria-hidden="true"
+                [title]="
+                  (state.graphPanelOpen ? 'explorer.resize.closeGraphViz' : 'explorer.resize.openGraphViz') | localize
+                "
+                (click)="toggleGraphPanel()"
+              ></i>
+            </span>
+          }
+        </div>
+
+        <!-- col fills whatever width the panel and map buttons leave; min-width: 0 lets
+        it shrink below its content (the graph's fixed-pixel SVG) instead of wrapping
+        onto its own line. It covers the map, so it ignores clicks (they reach the
+        map-view-port underneath) and only the graph takes them. -->
+        <div class="col" style="z-index: 4; padding-top: 10px; min-width: 0; pointer-events: none">
           @if (state.graphPanelOpen && graphVisualizerEnabled && state.type && state.code) {
-            <div id="graph-container" style="height: calc(100vh - 74px); padding-left: 58px">
+            <div id="graph-container" style="height: calc(100vh - 74px); pointer-events: all">
               <div style="background-color: white; opacity: 100%; width: 100%; height: 100%">
                 <relationship-visualizer [stabilityPeriods]="stabilityPeriods" (nodeSelect)="onGraphNodeSelect($event)">
                 </relationship-visualizer>
@@ -239,7 +246,15 @@
           <article
             id="navigator-list-panel"
             class="list-panel"
-            style="position: absolute; right: 5px; bottom: 0px; z-index: 500; width: 100%; padding: 0; pointer-events: none"
+            style="
+              position: absolute;
+              right: 5px;
+              bottom: 0px;
+              z-index: 500;
+              width: 100%;
+              padding: 0;
+              pointer-events: none;
+            "
           >
             <div class="row" style="margin-left: 5px">
               <div [ngClass]="{ 'col-md-4': isAttributePanelOpen() }"></div>

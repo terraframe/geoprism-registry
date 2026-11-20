@@ -110,13 +110,25 @@ fieldset {
 	line-height: 40px;
 }
 
-/* Adding ::ng-deep to text inputs for child date-field formatting */
-::ng-deep .input-group input[type="text"],
+/* Adding ::ng-deep to text inputs for child date-field formatting.
+   :host keeps it inside this editor; without it the rule leaked to every
+   .input-group on the page (e.g. the location manager's search bar) once
+   the editor had rendered. */
+:host ::ng-deep .input-group input[type="text"],
 .input-group input[type="number"],
 .input-group input[type="date"],
 .input-group select {
 	border-radius: 5px 0 0 5px;
 	width: 100%;
+}
+/* Bootstrap 5 input groups are wrapping flex rows: a 100%-wide control
+   pushes its addons onto the next line, so direct children get Bootstrap's
+   own width back and flex to fill the row. */
+:host ::ng-deep .input-group > input[type="text"],
+.input-group > input[type="number"],
+.input-group > input[type="date"],
+.input-group > select {
+	width: 1%;
 }
 .input-group input[type="text"].input-group-read-only,
 .input-group input[type="number"].input-group-read-only,
