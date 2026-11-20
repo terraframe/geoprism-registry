@@ -27,7 +27,7 @@
     [style.height.px]="area()?.height"
   >
     <div class="progress-div">
-      <progressbar class="progress-striped active" [max]="prog.total" [value]="prog.current"
+      <progressbar [striped]="true" [animate]="true" [max]="prog.total" [value]="prog.current"
         ><i>{{ prog.description }}</i></progressbar
       >
     </div>

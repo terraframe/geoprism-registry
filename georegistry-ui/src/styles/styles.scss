@@ -66,6 +66,8 @@ $fa-font-path: "~@fortawesome/fontawesome-free/webfonts";
   // Tables: transparent cells so row backgrounds (e.g. tr.row-active) show through
   $table-bg: transparent,
 
+  $progress-height: 20px,
+
   // Modals: the app uses a white backdrop
   $modal-backdrop-bg: #fff,
   $modal-backdrop-opacity: 0.9,
