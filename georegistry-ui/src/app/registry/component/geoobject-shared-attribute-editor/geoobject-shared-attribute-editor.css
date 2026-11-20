@@ -84,19 +84,19 @@ fieldset {
 }
 
 
-.panel {
+.card {
 /* 	margin: 0; */
 }
 
-.panel .list-group {
+.card .list-group {
 	margin: 0;
 }
 
-.panel .list-group-item {
+.card .list-group-item {
 	padding: 5px 0;
 }
 
-.panel-heading h5 {
+.card-header h5 {
 	margin:0;
 }
 

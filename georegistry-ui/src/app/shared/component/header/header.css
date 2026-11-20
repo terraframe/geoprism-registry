@@ -24,27 +24,16 @@
     border-bottom: 1px solid #C8C8C8;
 }
 
-.fa.fa-bars {
-    font-size: 32px; 
-    color: #DBD7A5; /* IE fallback */
-    color: var(--theme-accent-color);
-}
-.fa.fa-bars:hover {
-    color: #e5e4d2; /* IE fallback */
-    color: var(--theme-accent-color-hover);
-}
-
-.glyphicon.glyphicon-menu-hamburger {
+.fa-bars {
     font-size: 32px; 
     color: #DBD7A5; /* IE fallback */
     color: var(--theme-accent-color);
     vertical-align: middle;
 }
-.glyphicon.glyphicon-menu-hamburger:hover {
+.fa-bars:hover {
     color: #e5e4d2; /* IE fallback */
     color: var(--theme-accent-color-hover);
 }
-
 .navbar-header {
     padding: 46px 0 46px 0;
 }

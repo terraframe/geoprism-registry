@@ -68,7 +68,7 @@
     height: 30px;
     vertical-align: middle;
 }
-.map-button-icon > span.glyphicon {
+.map-button-icon > i {
     line-height: 30px;
 }
 

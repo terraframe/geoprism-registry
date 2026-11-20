@@ -208,18 +208,6 @@ li.type-item.dragging {
 #NodeTooltip .holder label {
   line-height: 2.8;
 }
-
-:host::ng-deep .panel .panel-heading .accordion-toggle:after {
-  /* symbol for "opening" panels */
-  font-family: 'Glyphicons Halflings'; /* essential for enabling glyphicon */
-  content: '\e080'; /* adjust as needed, taken from bootstrap.css */
-  float: right; /* adjust as needed */
-  margin-top: -30px;
-}
-:host::ng-deep .panel.panel-open .panel-heading .accordion-toggle:after {
-  content: '\e114'; /* adjust as needed, taken from bootstrap.css */
-}
-
 button {
   white-space: normal; /* undo nowrap */
   overflow-wrap: anywhere; /* break long words/URLs if needed */
