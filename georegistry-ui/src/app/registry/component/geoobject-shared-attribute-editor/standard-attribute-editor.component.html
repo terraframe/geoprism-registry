@@ -22,285 +22,296 @@
   <!--
   Alternate Ids
   -->
-  @if (authorities && authorities.length == 0) {
-    <table class="table table-striped">
-      <tbody class="attribute-element-wrapper">
-        <p class="warning-text">
-          <localize key="shared.noSystems"></localize>
-        </p>
-      </tbody>
-    </table>
-  }
-  @if (
-    authorities &&
-    authorities.length > 0 &&
-    attributeType.type === 'list' &&
-    attributeType.code === 'altIds' &&
-    view &&
-    view.value
-  ) {
-    <table class="table table-striped">
-      <tbody class="attribute-element-wrapper">
-        @if ($any(view).listElements.length == 0) {
-          <p class="message">
-            <localize key="changeovertime.manageVersions.alternateIds.none"></localize>
+  @if (attributeType.type === 'list' && attributeType.code === 'altIds') {
+    @if (authorities && authorities.length == 0) {
+      <table class="table table-striped">
+        <tbody class="attribute-element-wrapper">
+          <p class="warning-text">
+            <localize key="shared.noSystems"></localize>
           </p>
-        }
-        @for (eleView of $any(view).listElements; track eleView; let idx = $index) {
-          <tr class="attribute-value-row">
-            <td
-              colspan="2"
-              class="value-box-wrapper attribute-version-wrapper"
-              [ngClass]="{
-                'error-border': eleView.hasError(),
-                'warning-border': eleView.hasWarning(),
-                warning: !isNew && eleView.summaryKey && eleView.summaryKey !== 'UNMODIFIED',
-              }"
-            >
-              @if (!isNew && eleView.summaryKey && eleView.summaryKey !== 'UNMODIFIED') {
+        </tbody>
+      </table>
+    } @else if (authorities && authorities.length > 0 && view && view.value) {
+      <table class="table table-striped">
+        <tbody class="attribute-element-wrapper">
+          @if ($any(view).listElements.length == 0) {
+            <p class="message">
+              <localize key="changeovertime.manageVersions.alternateIds.none"></localize>
+            </p>
+          }
+          @for (eleView of $any(view).listElements; track eleView; let idx = $index) {
+            <tr class="attribute-value-row">
+              <td
+                colspan="2"
+                class="value-box-wrapper attribute-version-wrapper"
+                [ngClass]="{
+                  'error-border': eleView.hasError(),
+                  'warning-border': eleView.hasWarning(),
+                  warning: !isNew && eleView.summaryKey && eleView.summaryKey !== 'UNMODIFIED',
+                }"
+              >
+                @if (!isNew && eleView.summaryKey && eleView.summaryKey !== 'UNMODIFIED') {
+                  <div class="value-box-indicator">
+                    {{ eleView.summaryKeyLocalized }}
+                  </div>
+                }
+                <table>
+                  <tr>
+                    <td>
+                      <h5>
+                        <localize key="source.authority.header"></localize>
+                      </h5>
+                      <select
+                        style="float: initial"
+                        [ngClass]="{ 'has-changed': eleView.oldAuthority && !isNew }"
+                        id="mod-{{ attributeType.code }}"
+                        [name]="'altId-' + idx + '-authority'"
+                        class="select-area"
+                        [(ngModel)]="eleView.authority"
+                        (ngModelChange)="eleView.updateModel()"
+                        [disabled]="readonly || eleView.summaryKey === 'DELETE'"
+                        [authorityUniqueValue]="$any(view).listElements"
+                        [elementId]="eleView.elementId"
+                        #authorityControl="ngModel"
+                        required
+                      >
+                        <option></option>
+                        @for (authority of authorities; track authority.code) {
+                          <option [value]="authority.code">
+                            {{ authority.label.localizedValue }}
+                          </option>
+                        }
+                      </select>
+                      <!-- Error Messages Breakdown -->
+                      <div class="form-input-validation-error-message-wrapper">
+                        @if (authorityControl.invalid && (authorityControl.dirty || authorityControl.touched)) {
+                          <p class="error-message">
+                            <localize key="io.ids.duplicate"></localize>
+                          </p>
+                        }
+                      </div>
+                      @if (
+                        (eleView.summaryKey === 'UPDATE' || eleView.summaryKey === 'VALUE_CHANGE') &&
+                        eleView.oldAuthority &&
+                        !isNew
+                      ) {
+                        <div>
+                          <p class="warning-text display-current-value" style="padding: 5px 0; margin-bottom: 0">
+                            <localize key="change.request.changed.value.prefix"></localize>
+                            {{ getExternalSystemLabel(eleView.oldAuthority) }}
+                          </p>
+                        </div>
+                      }
+                      <div class="form-input-validation-error-message-wrapper">
+                        @if (!eleView.authority) {
+                          <p class="error-message">
+                            <localize key="manage.versions.value.required.message"></localize>
+                          </p>
+                        }
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <h5>
+                        <localize key="changeovertime.manageVersions.alternateIds.id"></localize>
+                      </h5>
+                      <input
+                        [ngClass]="{ 'has-changed': eleView.oldValue && !isNew }"
+                        [disabled]="readonly || eleView.summaryKey === 'DELETE'"
+                        type="text"
+                        class="form-control"
+                        [name]="'altid-' + idx"
+                        [(ngModel)]="eleView.value"
+                        (ngModelChange)="eleView.updateModel()"
+                        required
+                      />
+                      @if (
+                        (eleView.summaryKey === 'UPDATE' || eleView.summaryKey === 'VALUE_CHANGE') &&
+                        eleView.oldValue &&
+                        !isNew
+                      ) {
+                        <div>
+                          <p class="warning-text display-current-value" style="padding: 5px 0; margin-bottom: 0">
+                            <localize key="change.request.changed.value.prefix"></localize>
+                            {{ eleView.oldValue }}
+                          </p>
+                        </div>
+                      }
+                      <div class="form-input-validation-error-message-wrapper">
+                        @if (!eleView.value) {
+                          <p class="error-message">
+                            <localize key="manage.versions.value.required.message"></localize>
+                          </p>
+                        }
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+              <!-- Remove button -->
+              @if (!readonly && (isNew || (!isNew && eleView.summaryKey === 'UNMODIFIED'))) {
+                <td
+                  [attr.disabled]="false"
+                  (click)="eleView.revert()"
+                  class="manage-version-button clickable"
+                  [title]="'changeovertime.manageVersions.remove.version' | localize"
+                >
+                  <i class="fa" class="fa fa-times"></i>
+                </td>
+              }
+              <!-- Revert button -->
+              @if (!readonly && !isNew && eleView.summaryKey !== 'UNMODIFIED') {
+                <td
+                  (click)="eleView.revert()"
+                  class="manage-version-button clickable"
+                  [title]="'changeovertime.manageVersions.revert.version' | localize"
+                >
+                  <i class="fa" class="fa fa-undo"></i>
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+      @if (!readonly && view.value.length < authorities.length) {
+        <li class="list-group-item" style="text-align: left">
+          <span class="clickable" (click)="onAddNewId()">
+            <i class="fa fa-plus"></i>
+            <localize key="changeovertime.manageVersions.alternateIds.new"></localize>
+          </span>
+        </li>
+      }
+    }
+  }
+
+  <!-- Normal single value entry -->
+  @if (attributeType.type != 'list' && attributeType.code != 'altIds') {
+    <table class="table table-striped">
+      <tbody class="attribute-element-wrapper">
+        <tr class="attribute-value-row">
+          <td
+            colspan="2"
+            class="value-box-wrapper attribute-version-wrapper"
+            [ngClass]="{ warning: view.summaryKey && view.summaryKey !== 'UNMODIFIED' }"
+          >
+            @if (view) {
+              @if (view.summaryKey && view.summaryKey !== 'UNMODIFIED') {
                 <div class="value-box-indicator">
-                  {{ eleView.summaryKeyLocalized }}
+                  {{ view.summaryKeyLocalized }}
                 </div>
               }
               <table>
                 <tr>
-                  <td>
-                    <h5>
-                      <localize key="source.authority.header"></localize>
-                    </h5>
-                    <select
-                      style="float: initial"
-                      [ngClass]="{ 'has-changed': eleView.oldAuthority && !isNew }"
-                      id="mod-{{ attributeType.code }}"
-                      [name]="'altId-' + idx + '-authority'"
-                      class="select-area"
-                      [(ngModel)]="eleView.authority"
-                      (ngModelChange)="eleView.updateModel()"
-                      [disabled]="readonly || eleView.summaryKey === 'DELETE'"
-                      [authorityUniqueValue]="$any(view).listElements"
-                      [elementId]="eleView.elementId"
-                      #authorityControl="ngModel"
-                      required
-                    >
-                      <option></option>
-                      @for (authority of authorities; track authority.code) {
-                        <option [value]="authority.code">
-                          {{ authority.label.localizedValue }}
-                        </option>
-                      }
-                    </select>
-                    <!-- Error Messages Breakdown -->
-                    <div class="form-input-validation-error-message-wrapper">
-                      @if (authorityControl.invalid && (authorityControl.dirty || authorityControl.touched)) {
-                        <p class="error-message">
-                          <localize key="io.ids.duplicate"></localize>
-                        </p>
-                      }
-                    </div>
-                    @if (
-                      (eleView.summaryKey === 'UPDATE' || eleView.summaryKey === 'VALUE_CHANGE') &&
-                      eleView.oldAuthority &&
-                      !isNew
-                    ) {
+                  <td class="inner-value">
+                    @if (attributeType.type === 'boolean') {
                       <div>
-                        <p class="warning-text display-current-value" style="padding: 5px 0; margin-bottom: 0">
-                          <localize key="change.request.changed.value.prefix"></localize>
-                          {{ getExternalSystemLabel(eleView.oldAuthority) }}
+                        <div>
+                          <label class="form-check form-check-inline">
+                            <input
+                              class="form-check-input"
+                              type="radio"
+                              (change)="onValueChange()"
+                              [checked]="view.attributeCode === 'invalid' ? view.value === false : view.value === true"
+                              [value]="view.attributeCode === 'invalid' ? false : true"
+                              [(ngModel)]="changeRequestAttributeEditor.value"
+                              id="mod-{{ geoObjectType.code }}-true"
+                              name="mod-{{ geoObjectType.code }}-true"
+                              [disabled]="readonly"
+                            />
+                            <span class="form-check-label" [ngClass]="{ 'has-changed': view.oldValue && !isNew }">
+                              <localize
+                                [key]="
+                                  view.attributeCode === 'invalid'
+                                    ? 'change.request.boolean.option.valid'
+                                    : 'change.request.boolean.option.true'
+                                "
+                              >
+                              </localize>
+                            </span>
+                          </label>
+                          <label class="form-check form-check-inline">
+                            <input
+                              class="form-check-input"
+                              type="radio"
+                              (change)="onValueChange()"
+                              [checked]="
+                                view.attributeCode === 'invalid'
+                                  ? changeRequestAttributeEditor.value === true
+                                  : changeRequestAttributeEditor.value === false
+                              "
+                              [value]="view.attributeCode === 'invalid' ? true : false"
+                              [(ngModel)]="changeRequestAttributeEditor.value"
+                              id="mod-{{ geoObjectType.code }}-false"
+                              name="mod-{{ geoObjectType.code }}-false"
+                              [disabled]="readonly"
+                            />
+                            <span class="form-check-label" [ngClass]="{ 'has-changed': view.oldValue && !isNew }">
+                              <localize
+                                [key]="
+                                  view.attributeCode === 'invalid'
+                                    ? 'change.request.boolean.option.invalid'
+                                    : 'change.request.boolean.option.false'
+                                "
+                              >
+                              </localize>
+                            </span>
+                          </label>
+                        </div>
+                      </div>
+                    }
+                    @if (view.oldValue !== null && view.oldValue !== undefined && !isNew) {
+                      <div>
+                        <p style="color: var(--theme-text-dark)" class="warning-text display-current-value">
+                          <localize key="change.request.changed.value.prefix"></localize>&nbsp;
+                          @if (attributeType.type === 'boolean') {
+                            <span>
+                              @if (
+                                view.attributeCode === 'invalid' ? view.oldValue === false : view.oldValue === true
+                              ) {
+                                <span>
+                                  <localize
+                                    [key]="
+                                      view.attributeCode === 'invalid'
+                                        ? 'change.request.boolean.option.valid'
+                                        : 'change.request.boolean.option.true'
+                                    "
+                                  >
+                                  </localize>
+                                </span>
+                              }
+                              @if (
+                                view.attributeCode === 'invalid' ? view.oldValue === true : view.oldValue === false
+                              ) {
+                                <span>
+                                  <localize
+                                    [key]="
+                                      view.attributeCode === 'invalid'
+                                        ? 'change.request.boolean.option.invalid'
+                                        : 'change.request.boolean.option.false'
+                                    "
+                                  >
+                                  </localize>
+                                </span>
+                              }
+                            </span>
+                          }
+                          @if (attributeType.type !== 'boolean') {
+                            <span>
+                              {{ view.oldValue }}
+                            </span>
+                          }
                         </p>
                       </div>
                     }
-                    <div class="form-input-validation-error-message-wrapper">
-                      @if (!eleView.authority) {
-                        <p class="error-message">
-                          <localize key="manage.versions.value.required.message"></localize>
-                        </p>
-                      }
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <h5>
-                      <localize key="changeovertime.manageVersions.alternateIds.id"></localize>
-                    </h5>
-                    <input
-                      [ngClass]="{ 'has-changed': eleView.oldValue && !isNew }"
-                      [disabled]="readonly || eleView.summaryKey === 'DELETE'"
-                      type="text"
-                      class="form-control"
-                      [name]="'altid-' + idx"
-                      [(ngModel)]="eleView.value"
-                      (ngModelChange)="eleView.updateModel()"
-                      required
-                    />
-                    @if (
-                      (eleView.summaryKey === 'UPDATE' || eleView.summaryKey === 'VALUE_CHANGE') &&
-                      eleView.oldValue &&
-                      !isNew
-                    ) {
-                      <div>
-                        <p class="warning-text display-current-value" style="padding: 5px 0; margin-bottom: 0">
-                          <localize key="change.request.changed.value.prefix"></localize>
-                          {{ eleView.oldValue }}
-                        </p>
-                      </div>
-                    }
-                    <div class="form-input-validation-error-message-wrapper">
-                      @if (!eleView.value) {
-                        <p class="error-message">
-                          <localize key="manage.versions.value.required.message"></localize>
-                        </p>
-                      }
-                    </div>
                   </td>
                 </tr>
               </table>
-            </td>
-            <!-- Remove button -->
-            @if (!readonly && (isNew || (!isNew && eleView.summaryKey === 'UNMODIFIED'))) {
-              <td
-                [attr.disabled]="false"
-                (click)="eleView.revert()"
-                class="manage-version-button clickable"
-                [title]="'changeovertime.manageVersions.remove.version' | localize"
-              >
-                <i class="fa" class="fa fa-times"></i>
-              </td>
             }
-            <!-- Revert button -->
-            @if (!readonly && !isNew && eleView.summaryKey !== 'UNMODIFIED') {
-              <td
-                (click)="eleView.revert()"
-                class="manage-version-button clickable"
-                [title]="'changeovertime.manageVersions.revert.version' | localize"
-              >
-                <i class="fa" class="fa fa-undo"></i>
-              </td>
-            }
-          </tr>
-        }
+          </td>
+        </tr>
       </tbody>
     </table>
-    @if (!readonly && view.value.length < authorities.length) {
-      <li class="list-group-item" style="text-align: left">
-        <span class="clickable" (click)="onAddNewId()">
-          <i class="fa fa-plus"></i>
-          <localize key="changeovertime.manageVersions.alternateIds.new"></localize>
-        </span>
-      </li>
-    }
-  }
-
-  @if (attributeType.type != 'list' && attributeType.code != 'altIds') {
-    <div class="value-box px-0">
-      @if (view) {
-        <div class="value-box-wrapper" [ngClass]="{ warning: view.summaryKey && view.summaryKey !== 'UNMODIFIED' }">
-          @if (view.summaryKey && view.summaryKey !== 'UNMODIFIED') {
-            <div class="value-box-indicator">
-              {{ view.summaryKeyLocalized }}
-            </div>
-          }
-          <div class="inner-value">
-            @if (attributeType.type === 'boolean') {
-              <div>
-                <div>
-                  <label class="form-check form-check-inline">
-                    <input
-                      class="form-check-input"
-                      type="radio"
-                      (change)="onValueChange()"
-                      [checked]="view.attributeCode === 'invalid' ? view.value === false : view.value === true"
-                      [value]="view.attributeCode === 'invalid' ? false : true"
-                      [(ngModel)]="changeRequestAttributeEditor.value"
-                      id="mod-{{ geoObjectType.code }}-true"
-                      name="mod-{{ geoObjectType.code }}-true"
-                      [disabled]="readonly"
-                    />
-                    <span class="form-check-label" [ngClass]="{ 'has-changed': view.oldValue && !isNew }">
-                      <localize
-                        [key]="
-                          view.attributeCode === 'invalid'
-                            ? 'change.request.boolean.option.valid'
-                            : 'change.request.boolean.option.true'
-                        "
-                      >
-                      </localize>
-                    </span>
-                  </label>
-                  <label class="form-check form-check-inline">
-                    <input
-                      class="form-check-input"
-                      type="radio"
-                      (change)="onValueChange()"
-                      [checked]="
-                        view.attributeCode === 'invalid'
-                          ? changeRequestAttributeEditor.value === true
-                          : changeRequestAttributeEditor.value === false
-                      "
-                      [value]="view.attributeCode === 'invalid' ? true : false"
-                      [(ngModel)]="changeRequestAttributeEditor.value"
-                      id="mod-{{ geoObjectType.code }}-false"
-                      name="mod-{{ geoObjectType.code }}-false"
-                      [disabled]="readonly"
-                    />
-                    <span class="form-check-label" [ngClass]="{ 'has-changed': view.oldValue && !isNew }">
-                      <localize
-                        [key]="
-                          view.attributeCode === 'invalid'
-                            ? 'change.request.boolean.option.invalid'
-                            : 'change.request.boolean.option.false'
-                        "
-                      >
-                      </localize>
-                    </span>
-                  </label>
-                </div>
-              </div>
-            }
-            @if (view.oldValue !== null && view.oldValue !== undefined && !isNew) {
-              <div>
-                <p style="color: var(--theme-text-dark)" class="warning-text display-current-value">
-                  <localize key="change.request.changed.value.prefix"></localize>&nbsp;
-                  @if (attributeType.type === 'boolean') {
-                    <span>
-                      @if (view.attributeCode === 'invalid' ? view.oldValue === false : view.oldValue === true) {
-                        <span>
-                          <localize
-                            [key]="
-                              view.attributeCode === 'invalid'
-                                ? 'change.request.boolean.option.valid'
-                                : 'change.request.boolean.option.true'
-                            "
-                          >
-                          </localize>
-                        </span>
-                      }
-                      @if (view.attributeCode === 'invalid' ? view.oldValue === true : view.oldValue === false) {
-                        <span>
-                          <localize
-                            [key]="
-                              view.attributeCode === 'invalid'
-                                ? 'change.request.boolean.option.invalid'
-                                : 'change.request.boolean.option.false'
-                            "
-                          >
-                          </localize>
-                        </span>
-                      }
-                    </span>
-                  }
-                  @if (attributeType.type !== 'boolean') {
-                    <span>
-                      {{ view.oldValue }}
-                    </span>
-                  }
-                </p>
-              </div>
-            }
-          </div>
-        </div>
-      }
-    </div>
   }
 
   <!-- TODO : This code copy/pasted from manage-versions.component.html -->

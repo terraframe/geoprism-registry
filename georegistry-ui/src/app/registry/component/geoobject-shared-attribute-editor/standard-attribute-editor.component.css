@@ -18,12 +18,12 @@
  */
 
 table {
- border-collapse: separate;
- padding: 15px;
+  border-collapse: separate;
+  padding: 15px;
 }
 
 .cr-maintainer-options {
-	padding-top:15px;
+  padding-top: 15px;
 }
 
 p.warning-text.display-current-value {
@@ -32,48 +32,42 @@ p.warning-text.display-current-value {
 }
 
 .value-box-wrapper {
-	padding-top: 0px;
-	padding-left: 0px;
-	border: solid 1px lightgrey;
+  padding-top: 0px;
+  padding-left: 0px;
+  border: solid 1px lightgrey;
 }
 .value-box-wrapper.warning {
-    background-color: inherit;
-    border-color: orange;
-    border-left: solid 5px orange;
+  background-color: inherit;
+  border-color: orange;
+  border-left: solid 5px orange;
 }
 
-.value-box {
- background-color: #f9f9f9;
- margin-top: 10px;
-}
-
-.value-box .inner-value {
-	padding-left: 10px;
+.value-box-wrapper .inner-value {
+  font-size: 18px;
 }
 
 .value-box-wrapper .value-box-indicator {
-	position: relative;
-	background: grey;
-    color: white;
-    left: -1px;
-    font-size: 14px;
-    font-weight: bold;
-    padding: 0 6px;
-    width: fit-content;
-    top: -1px;
+  position: relative;
+  background: grey;
+  color: white;
+  left: -1px;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 0 6px;
+  width: fit-content;
+  top: -1px;
 }
 .value-box-wrapper.warning .value-box-indicator {
-    background-color: orange;
+  background-color: orange;
 }
 
 .value-box-wrapper .manage-version-button {
-    border: solid 1px lightgrey;
+  border: solid 1px lightgrey;
 }
 .value-box-wrapper.warning .manage-version-button {
- border-color: orange;
+  border-color: orange;
 }
 
 .has-changed {
-	color: orange;
+  color: orange;
 }
-
