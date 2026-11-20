@@ -43,12 +43,12 @@ import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.ConceptObject;
-import net.geoprism.registry.service.business.BackupSection;
-import net.geoprism.registry.service.business.BackupService;
-import net.geoprism.registry.service.business.BackupServiceIF;
+import net.geoprism.registry.service.business.BulkExportSection;
+import net.geoprism.registry.service.business.BulkExportService;
+import net.geoprism.registry.service.business.BulkExportServiceIF;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
-import net.geoprism.registry.service.business.RestoreServiceIF;
+import net.geoprism.registry.service.business.BulkImportServiceIF;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestOrganizationInfo;
 import net.geoprism.registry.test.USATestData;
@@ -56,28 +56,28 @@ import net.geoprism.registry.view.BusinessTypeDTO;
 import net.geoprism.registry.view.ObjectOverTimeDTO;
 
 /**
- * Tests that classification data survives a backup and restore: the terms of
+ * Tests that classification data survives a bulk export and import: the terms of
  * the concept classes, the edges between them, and classification values on
  * business objects.
  *
- * Unlike BackupAndRestoreServiceTest these tests don't delete all of the data.
- * They back up a section, delete only the objects under test, and restore from
+ * Unlike BulkImportExportServiceTest these tests don't delete all of the data.
+ * They export a section, delete only the objects under test, and import from
  * a zip holding only the files of those objects.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
 @ExtendWith(InstanceTestClassExtension.class)
-public class BackupClassificationDataTest extends ConceptDatasetTest implements InstanceTestClassListener
+public class BulkImportExportClassificationDataTest extends ConceptDatasetTest implements InstanceTestClassListener
 {
   private static final String             BUSINESS_TYPE_CODE = "TEST_BACKUP_BO";
 
   private static final String             BUSINESS_OBJECT    = "TEST_BACKUP_OBJECT";
 
   @Autowired
-  private BackupServiceIF                 backupService;
+  private BulkExportServiceIF             exportService;
 
   @Autowired
-  private RestoreServiceIF                restoreService;
+  private BulkImportServiceIF             importService;
 
   @Autowired
   private BusinessTypeBusinessServiceIF   bTypeService;
@@ -113,24 +113,24 @@ public class BackupClassificationDataTest extends ConceptDatasetTest implements 
   @Request
   public void testConceptRoundTrip() throws Exception
   {
-    File backup = File.createTempFile("gpr-backup", ".zip");
+    File export = File.createTempFile("gpr-export", ".zip");
     File concepts = File.createTempFile("gpr-concepts", ".zip");
 
     try
     {
       JsonElement label = getDisplayLabel(childConcept);
 
-      this.backupService.createBackup(backup, EnumSet.of(BackupSection.METADATA));
+      this.exportService.createExport(export, EnumSet.of(BulkExportSection.METADATA));
 
       // The terms and the edges between them are written with the metadata
-      JsonArray objects = readJsonArray(backup, BackupService.CONCEPT_OBJECTS_FOLDER + "/" + CONCEPT_CLASS_CODE + ".json");
+      JsonArray objects = readJsonArray(export, BulkExportService.CONCEPT_OBJECTS_FOLDER + "/" + CONCEPT_CLASS_CODE + ".json");
 
       Set<String> codes = new HashSet<String>();
       objects.forEach(element -> codes.add(element.getAsJsonObject().get("code").getAsString()));
 
       Assertions.assertEquals(Set.of(ROOT_CONCEPT, PARENT_CONCEPT, CHILD_CONCEPT), codes);
 
-      JsonArray edges = readJsonArray(backup, BackupService.CONCEPT_EDGES_FOLDER + "/" + CONCEPT_EDGE_CODE + ".json");
+      JsonArray edges = readJsonArray(export, BulkExportService.CONCEPT_EDGES_FOLDER + "/" + CONCEPT_EDGE_CODE + ".json");
 
       Assertions.assertEquals(2, edges.size());
 
@@ -139,7 +139,7 @@ public class BackupClassificationDataTest extends ConceptDatasetTest implements 
       Assertions.assertEquals(CONCEPT_CLASS_CODE, edge.get("sourceType").getAsString());
       Assertions.assertEquals(CONCEPT_CLASS_CODE, edge.get("targetType").getAsString());
 
-      // Delete the terms (which deletes their edges) and restore only the
+      // Delete the terms (which deletes their edges) and import only the
       // concept data
       this.cObjectService.delete(childConcept);
       this.cObjectService.delete(parentConcept);
@@ -149,11 +149,11 @@ public class BackupClassificationDataTest extends ConceptDatasetTest implements 
       parentConcept = null;
       rootConcept = null;
 
-      copyEntries(backup, concepts, name -> name.startsWith(BackupService.CONCEPT_OBJECTS_FOLDER + "/") || name.startsWith(BackupService.CONCEPT_EDGES_FOLDER + "/"));
+      copyEntries(export, concepts, name -> name.startsWith(BulkExportService.CONCEPT_OBJECTS_FOLDER + "/") || name.startsWith(BulkExportService.CONCEPT_EDGES_FOLDER + "/"));
 
       try (InputStream istream = new FileInputStream(concepts))
       {
-        this.restoreService.restoreFromBackup(istream);
+        this.importService.importData(istream);
       }
 
       rootConcept = this.cObjectService.getByCode(cClass, ROOT_CONCEPT).orElse(null);
@@ -164,10 +164,10 @@ public class BackupClassificationDataTest extends ConceptDatasetTest implements 
       Assertions.assertNotNull(parentConcept);
       Assertions.assertNotNull(childConcept);
 
-      // The change over time label is restored with its dates
+      // The change over time label is imported with its dates
       Assertions.assertEquals(label, getDisplayLabel(childConcept));
 
-      // The hierarchy is restored
+      // The hierarchy is imported
       List<ConceptObject> children = this.cObjectService.getChildren(rootConcept, cEdgeType, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
       Assertions.assertEquals(1, children.size());
@@ -180,7 +180,7 @@ public class BackupClassificationDataTest extends ConceptDatasetTest implements 
     }
     finally
     {
-      FileUtils.deleteQuietly(backup);
+      FileUtils.deleteQuietly(export);
       FileUtils.deleteQuietly(concepts);
     }
   }
@@ -196,7 +196,7 @@ public class BackupClassificationDataTest extends ConceptDatasetTest implements 
 
     BusinessType type = this.bTypeService.apply(typeDTO);
 
-    File backup = File.createTempFile("gpr-backup", ".zip");
+    File export = File.createTempFile("gpr-export", ".zip");
     File objects = File.createTempFile("gpr-objects", ".zip");
 
     try
@@ -211,32 +211,32 @@ public class BackupClassificationDataTest extends ConceptDatasetTest implements 
 
       this.bObjectService.apply(object);
 
-      this.backupService.createBackup(backup, EnumSet.of(BackupSection.BUSINESS_OBJECTS));
+      this.exportService.createExport(export, EnumSet.of(BulkExportSection.BUSINESS_OBJECTS));
 
-      // Delete the object and restore it from a zip with only its type's file
+      // Delete the object and import it from a zip with only its type's file
       this.bObjectService.delete(object);
 
       Assertions.assertFalse(this.bObjectService.getByCode(type, BUSINESS_OBJECT).isPresent());
 
       String path = "business-objects/" + BUSINESS_TYPE_CODE + ".json";
 
-      copyEntries(backup, objects, name -> name.equals(path));
+      copyEntries(export, objects, name -> name.equals(path));
 
       try (InputStream istream = new FileInputStream(objects))
       {
-        this.restoreService.restoreFromBackup(istream);
+        this.importService.importData(istream);
       }
 
-      BusinessObject restored = this.bObjectService.getByCode(type, BUSINESS_OBJECT).orElse(null);
+      BusinessObject imported = this.bObjectService.getByCode(type, BUSINESS_OBJECT).orElse(null);
 
-      Assertions.assertNotNull(restored);
-      Assertions.assertEquals(childConcept.getOid(), restored.getValue(attribute.getCode()));
+      Assertions.assertNotNull(imported);
+      Assertions.assertEquals(childConcept.getOid(), imported.getValue(attribute.getCode()));
 
-      this.bObjectService.delete(restored);
+      this.bObjectService.delete(imported);
     }
     finally
     {
-      FileUtils.deleteQuietly(backup);
+      FileUtils.deleteQuietly(export);
       FileUtils.deleteQuietly(objects);
 
       this.bTypeService.delete(type);
@@ -252,7 +252,7 @@ public class BackupClassificationDataTest extends ConceptDatasetTest implements 
     JsonObject label = json.getAsJsonObject("properties").getAsJsonObject(DefaultAttribute.DISPLAY_LABEL.getName());
 
     // The oid of each value over time is regenerated when the object is
-    // restored, so only the values and their dates are compared
+    // imported, so only the values and their dates are compared
     label.getAsJsonArray("values").forEach(value -> value.getAsJsonObject().remove("oid"));
 
     return label;
@@ -264,7 +264,7 @@ public class BackupClassificationDataTest extends ConceptDatasetTest implements 
     {
       ZipEntry entry = zip.getEntry(name);
 
-      Assertions.assertNotNull(entry, "The backup is missing " + name);
+      Assertions.assertNotNull(entry, "The export is missing " + name);
 
       try (InputStreamReader reader = new InputStreamReader(zip.getInputStream(entry), StandardCharsets.UTF_8))
       {

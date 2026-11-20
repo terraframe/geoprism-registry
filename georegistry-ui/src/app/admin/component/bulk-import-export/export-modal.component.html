@@ -26,7 +26,7 @@
       </h1>
     </div>
 
-    <div class="backup-toolbar">
+    <div class="export-toolbar">
       <p>
         <localize key="settings.backup.sections.message"></localize>
       </p>
@@ -37,12 +37,12 @@
       </p>
     </div>
 
-    <div class="backup-columns">
+    <div class="export-columns">
       @for (column of columns; track $index) {
-        <div class="backup-column">
+        <div class="export-column">
           @for (group of column; track group.key) {
-            <div class="backup-group">
-              <label class="backup-option backup-group-header">
+            <div class="export-group">
+              <label class="export-option export-group-header">
                 <input
                   type="checkbox"
                   [name]="'group_' + group.key"
@@ -53,7 +53,7 @@
                 <localize [key]="'settings.backup.group.' + group.key"></localize>
               </label>
               @for (section of group.sections; track section) {
-                <label class="backup-option">
+                <label class="export-option">
                   <input type="checkbox" [name]="section" [(ngModel)]="selected[section]" />
                   <localize [key]="'settings.backup.section.' + section"></localize>
                 </label>
@@ -65,7 +65,7 @@
     </div>
 
     @if (selected['USERS']) {
-      <p class="backup-users-note">
+      <p class="export-users-note">
         <i class="fa fa-exclamation-triangle"></i>
         <localize key="settings.backup.users.message"></localize>
       </p>

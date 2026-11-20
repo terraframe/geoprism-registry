@@ -33,19 +33,19 @@ import net.geoprism.registry.ListTypeQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.permission.RolePermissionService;
-import net.geoprism.registry.view.RestoreSummary;
+import net.geoprism.registry.view.BulkImportSummary;
 
 @Service
-public class BackupAndRestoreBusinessService implements BackupAndRestoreBusinessServiceIF
+public class BulkImportExportBusinessService implements BulkImportExportBusinessServiceIF
 {
   @Autowired
   private RolePermissionService                     permissions;
 
   @Autowired
-  private BackupServiceIF                           backupService;
+  private BulkExportServiceIF                       exportService;
 
   @Autowired
-  private RestoreServiceIF                          restoreService;
+  private BulkImportServiceIF                       importService;
 
   @Autowired
   private BusinessTypeBusinessServiceIF             bTypeService;
@@ -81,14 +81,14 @@ public class BackupAndRestoreBusinessService implements BackupAndRestoreBusiness
   private ConceptClassBusinessServiceIF             cClassService;
 
   @Override
-  public void createBackup(File zipfile, Set<BackupSection> sections)
+  public void createExport(File zipfile, Set<BulkExportSection> sections)
   {
     if (!permissions.isSRA())
     {
-      throw new UnsupportedOperationException("Only an SRA can create a data dump");
+      throw new UnsupportedOperationException("Only an SRA can perform a bulk import or export");
     }
 
-    this.backupService.createBackup(zipfile, sections);
+    this.exportService.createExport(zipfile, sections);
   }
 
   @Override
@@ -96,7 +96,7 @@ public class BackupAndRestoreBusinessService implements BackupAndRestoreBusiness
   {
     if (!permissions.isSRA())
     {
-      throw new UnsupportedOperationException("Only an SRA can create a data dump");
+      throw new UnsupportedOperationException("Only an SRA can perform a bulk import or export");
     }
 
     // Delete all list types
@@ -156,14 +156,14 @@ public class BackupAndRestoreBusinessService implements BackupAndRestoreBusiness
   }
 
   @Override
-  public RestoreSummary restoreFromBackup(InputStream stream)
+  public BulkImportSummary importData(InputStream stream)
   {
     if (!permissions.isSRA())
     {
-      throw new UnsupportedOperationException("Only an SRA can create a data dump");
+      throw new UnsupportedOperationException("Only an SRA can perform a bulk import or export");
     }
 
-    return this.restoreService.restoreFromBackup(stream);
+    return this.importService.importData(stream);
   }
 
 }

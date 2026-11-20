@@ -18,14 +18,41 @@
  */
 package net.geoprism.registry.service.business;
 
+import java.io.File;
 import java.io.InputStream;
+import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
-import net.geoprism.registry.view.RestoreSummary;
+import net.geoprism.registry.view.BulkImportSummary;
 
 @Component
-public interface RestoreServiceIF
+public interface BulkImportExportBusinessServiceIF
 {
-  RestoreSummary restoreFromBackup(InputStream istream);
+
+  /**
+   * Creates a bulk export of all of the data in the system
+   * 
+   * @param zipfile
+   */
+  default void createExport(File zipfile)
+  {
+    this.createExport(zipfile, BulkExportSection.all());
+  }
+
+  /**
+   * Creates a bulk export of the given sections of the data in the system
+   * 
+   * @param zipfile
+   * @param sections
+   */
+  void createExport(File zipfile, Set<BulkExportSection> sections);
+
+  /**
+   * Deletes the data in the system
+   */
+  void deleteData();
+
+  BulkImportSummary importData(InputStream stream);
+
 }

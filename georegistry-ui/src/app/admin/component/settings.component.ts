@@ -45,8 +45,8 @@ import { LocaleView } from '@core/model/core';
 import { ConfigurationService } from '@core/service/configuration.service';
 import { OrganizationHierarchyModalComponent } from './organization/organization-hierarchy-modal.component';
 import { ImportOrganizationModalComponent } from './organization/import-organization-modal.component';
-import { RestoreModalComponent } from './backup-restore/restore-modal.component';
-import { BackupModalComponent } from './backup-restore/backup-modal.component';
+import { ImportModalComponent } from './bulk-import-export/import-modal.component';
+import { ExportModalComponent } from './bulk-import-export/export-modal.component';
 import { LocalizePipe } from '../../shared/pipe/localize.pipe';
 import { LoadingBarComponent } from '../../shared/component/loading-bar/loading-bar.component';
 import { SystemLogosComponent } from './logo/system-logos.component';
@@ -454,8 +454,8 @@ export class SettingsComponent implements OnInit {
     });
   }
 
-  onBackup() {
-    this.modalService.show(BackupModalComponent, {
+  onExport() {
+    this.modalService.show(ExportModalComponent, {
       animated: false,
       backdrop: true,
       ignoreBackdropClick: true,
@@ -485,8 +485,8 @@ export class SettingsComponent implements OnInit {
     });
   }
 
-  onRestore(): void {
-    this.modalService.show(RestoreModalComponent, {
+  onImport(): void {
+    this.modalService.show(ImportModalComponent, {
       animated: false,
       backdrop: true,
       ignoreBackdropClick: true,

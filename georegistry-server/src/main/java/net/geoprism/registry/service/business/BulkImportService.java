@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -37,6 +38,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -73,15 +75,25 @@ import com.runwaysdk.session.Session;
 
 import net.geoprism.GenericException;
 import net.geoprism.GeoprismUser;
+import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.Commit;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.ListType;
+import net.geoprism.registry.Publish;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.UserInfo;
+import net.geoprism.registry.axon.event.repository.BusinessObjectEventBuilder;
+import net.geoprism.registry.axon.event.repository.ConceptObjectApplyEvent;
+import net.geoprism.registry.axon.event.repository.GeoObjectCreateParentEvent;
+import net.geoprism.registry.axon.event.repository.GeoObjectEventBuilder;
+import net.geoprism.registry.axon.event.repository.ObjectApplyEdgeEvent;
 import net.geoprism.registry.cache.Cache;
 import net.geoprism.registry.cache.LRUCache;
 import net.geoprism.registry.etl.BusinessEdgeJsonImporter;
 import net.geoprism.registry.etl.EdgeJsonImporter;
+import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.event.EmptyPublishException;
 import net.geoprism.registry.graph.BusinessEdgeType;
 import net.geoprism.registry.graph.BusinessType;
 import net.geoprism.registry.graph.ConceptClass;
@@ -98,13 +110,13 @@ import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.request.SerializedListTypeCache;
 import net.geoprism.registry.view.ObjectOverTimeDTO;
-import net.geoprism.registry.view.RestoreSummary;
+import net.geoprism.registry.view.BulkImportSummary;
 import net.geoprism.registry.xml.XMLImporter;
 
 @Service
-public class RestoreService implements RestoreServiceIF
+public class BulkImportService implements BulkImportServiceIF
 {
-  private static final Logger logger = LoggerFactory.getLogger(RestoreService.class);
+  private static final Logger logger = LoggerFactory.getLogger(BulkImportService.class);
 
   @Autowired
   private BusinessObjectBusinessServiceIF   bObjectService;
@@ -136,35 +148,47 @@ public class RestoreService implements RestoreServiceIF
   @Autowired
   private ConceptObjectBusinessServiceIF    cObjectService;
 
+  @Autowired
+  private EventBusinessService              eventService;
+
+  @Autowired
+  private PublishBusinessServiceIF          publishService;
+
+  @Autowired
+  private PublishEventService               publishEventService;
+
+  @Autowired
+  private CommitBusinessServiceIF           commitService;
+
   @FunctionalInterface
-  private interface RestoreStep
+  private interface ImportStep
   {
     void run() throws IOException;
   }
 
   @Override
-  public RestoreSummary restoreFromBackup(InputStream istream)
+  public BulkImportSummary importData(InputStream istream)
   {
-    RestoreSummary summary = new RestoreSummary();
+    BulkImportSummary summary = new BulkImportSummary();
 
     try
     {
-      File directory = Files.createTempDirectory("gpr-restore").toFile();
+      File directory = Files.createTempDirectory("gpr-import").toFile();
 
       try
       {
-        runStep("extracting the backup file", () -> unzipFileToFolder(istream, directory));
+        runStep("extracting the export file", () -> unzipFileToFolder(istream, directory));
 
-        // 0) Restore the organizations, types are only restored for existing
+        // 0) Import the organizations, types are only imported for existing
         // organizations
-        runStep("restoring organizations", () -> restoreOrganizations(directory, summary));
+        runStep("importing organizations", () -> importOrganizations(directory, summary));
 
-        // 1) Restore the metadata
-        runStep("restoring metadata", () -> restoreMetadata(directory, summary));
+        // 1) Import the metadata
+        runStep("importing metadata", () -> importMetadata(directory, summary));
 
-        // 1b) Restore the classification terms. Geo objects and business
-        // objects with classification values can only be restored after them.
-        runStep("restoring classification terms", () -> restoreConceptData(directory, summary));
+        // 1b) Import the classification terms. Geo objects and business
+        // objects with classification values can only be imported after them.
+        runStep("importing classification terms", () -> importConceptData(directory, summary));
 
         // 2) Refresh permission
         if (Session.getCurrentSession() != null)
@@ -172,32 +196,36 @@ public class RestoreService implements RestoreServiceIF
           ( (Session) Session.getCurrentSession() ).reloadPermissions();
         }
 
-        // 3) Restore the users and their roles
-        runStep("restoring users", () -> restoreUserData(directory, summary));
+        // 3) Import the users and their roles
+        runStep("importing users", () -> importUserData(directory, summary));
 
         // 4) Import the geo object instance data
-        runStep("restoring geo objects", () -> restoreGeoObjectData(directory, summary));
+        runStep("importing geo objects", () -> importGeoObjectData(directory, summary));
 
         // 5) Import the hierarchy edges between geo objects
-        runStep("restoring hierarchy relationships", () -> restoreHierarchyData(directory, summary));
+        runStep("importing hierarchy relationships", () -> importHierarchyData(directory, summary));
 
         // 6) Import DAG edges between geo objects
-        runStep("restoring directed acyclic graph relationships", () -> restoreDagData(directory, summary));
+        runStep("importing directed acyclic graph relationships", () -> importDagData(directory, summary));
 
         // 7) Import Undirected Graph edges between geo objects
-        runStep("restoring undirected graph relationships", () -> restoreUndirectedGraphData(directory, summary));
+        runStep("importing undirected graph relationships", () -> importUndirectedGraphData(directory, summary));
 
-        // 8) Restore the business objects
-        runStep("restoring business objects", () -> restoreBusinessObjectData(directory, summary));
+        // 8) Import the business objects
+        runStep("importing business objects", () -> importBusinessObjectData(directory, summary));
 
-        // 9) Restore the business edges
-        runStep("restoring business relationships", () -> restoreBusinessEdges(directory, summary));
+        // 9) Import the business edges
+        runStep("importing business relationships", () -> importBusinessEdges(directory, summary));
 
-        // 10) Restore transition events
-        runStep("restoring transition events", () -> restoreTransitionEvents(directory, summary));
+        // 10) Import transition events
+        runStep("importing transition events", () -> importTransitionEvents(directory, summary));
 
-        // 11) Restore List Type definition
-        runStep("restoring list types", () -> restoreListTypeData(directory, summary));
+        // 11) Import List Type definition
+        runStep("importing list types", () -> importListTypeData(directory, summary));
+
+        // 12) Commit the imported events to the existing publishes so that
+        // synchronizations and external systems pick up the imported data
+        runStep("creating commits", () -> createCommits(summary));
       }
       finally
       {
@@ -213,12 +241,12 @@ public class RestoreService implements RestoreServiceIF
   }
 
   /**
-   * Runs a step of the restore. Only an SRA can run a restore, so errors which
+   * Runs a step of the import. Only an SRA can run an import, so errors which
    * don't already have a user friendly message are re-thrown with the step and
    * the root cause, instead of surfacing as an "unspecified error" in the UI.
    * The full stack trace is logged.
    */
-  private void runStep(String step, RestoreStep runnable)
+  private void runStep(String step, ImportStep runnable)
   {
     try
     {
@@ -231,7 +259,7 @@ public class RestoreService implements RestoreServiceIF
     }
     catch (IOException | RuntimeException e)
     {
-      logger.error("Restore failed while " + step, e);
+      logger.error("Import failed while " + step, e);
 
       Throwable root = e;
 
@@ -242,12 +270,12 @@ public class RestoreService implements RestoreServiceIF
 
       String message = root.getMessage() != null ? root.getMessage() : "";
 
-      throw new GenericException("The restore failed while " + step + ": " + root.getClass().getSimpleName() + ": " + message + " (see the server log for the full stack trace)", e);
+      throw new GenericException("The import failed while " + step + ": " + root.getClass().getSimpleName() + ": " + message + " (see the server log for the full stack trace)", e);
     }
   }
 
   @Transaction
-  protected void restoreMetadata(File directory, RestoreSummary summary) throws IOException
+  protected void importMetadata(File directory, BulkImportSummary summary) throws IOException
   {
     File subdir = new File(directory, "metadata");
 
@@ -315,15 +343,15 @@ public class RestoreService implements RestoreServiceIF
   }
 
   /**
-   * Restores the terms of the concept classes and the edges between them. The
-   * concept classes, edge types and concept sets themselves are restored with
-   * the metadata. Backups made before the terms were included have no concept
-   * folders, in which case nothing is restored.
+   * Imports the terms of the concept classes and the edges between them. The
+   * concept classes, edge types and concept sets themselves are imported with
+   * the metadata. Exports made before the terms were included have no concept
+   * folders, in which case nothing is imported.
    */
   @Transaction
-  protected void restoreConceptData(File directory, RestoreSummary summary) throws IOException
+  protected void importConceptData(File directory, BulkImportSummary summary) throws IOException
   {
-    File[] objectFiles = new File(directory, BackupService.CONCEPT_OBJECTS_FOLDER).listFiles();
+    File[] objectFiles = new File(directory, BulkExportService.CONCEPT_OBJECTS_FOLDER).listFiles();
 
     if (objectFiles != null)
     {
@@ -346,10 +374,9 @@ public class RestoreService implements RestoreServiceIF
             ObjectOverTimeDTO dto = ObjectOverTimeDTO.parseJson(jObject.toString());
 
             // Update an existing term instead of failing on its unique code
-            ConceptObject object = this.cObjectService.getByCode(type, dto.getCode()).orElseGet(() -> this.cObjectService.newInstance(type));
+            boolean isNew = this.cObjectService.getByCode(type, dto.getCode()).isEmpty();
 
-            this.cObjectService.populate(object, dto);
-            this.cObjectService.apply(object, false);
+            this.eventService.publish(new ConceptObjectApplyEvent(dto.getCode(), type.getTypeInfo(), dto, isNew));
 
             summary.increment("Classification terms");
           }
@@ -359,7 +386,7 @@ public class RestoreService implements RestoreServiceIF
       }
     }
 
-    File[] edgeFiles = new File(directory, BackupService.CONCEPT_EDGES_FOLDER).listFiles();
+    File[] edgeFiles = new File(directory, BulkExportService.CONCEPT_EDGES_FOLDER).listFiles();
 
     if (edgeFiles != null)
     {
@@ -388,8 +415,12 @@ public class RestoreService implements RestoreServiceIF
             Date startDate = getDate(jObject, "startDate");
             Date endDate = getDate(jObject, "endDate");
 
-            if (this.cObjectService.addChild(source, edgeType, target, uid, startDate, endDate, null, false).isPresent())
+            // Skip edges which already exist, e.g. when importing the same
+            // file twice
+            if (!this.cObjectService.exists(target, edgeType, source))
             {
+              this.eventService.publish(new ObjectApplyEdgeEvent(uid, source.getCode(), source.getType().getTypeInfo(), edgeType.getTypeInfo(), target.getCode(), target.getType().getTypeInfo(), startDate, endDate, null, ImportStrategy.NEW_ONLY, true, null));
+
               summary.increment("Classification term relationships");
             }
           }
@@ -408,7 +439,7 @@ public class RestoreService implements RestoreServiceIF
       ConceptClass type = this.cClassService.getByCodeOrThrow(typeCode);
 
       ConceptObject object = this.cObjectService.getByCode(type, code).orElseThrow(() -> {
-        return new GenericException("The classification term [" + code + "] of the concept class [" + typeCode + "] referenced in the backup does not exist.");
+        return new GenericException("The classification term [" + code + "] of the concept class [" + typeCode + "] referenced in the export does not exist.");
       });
 
       cache.put(key, object);
@@ -427,7 +458,7 @@ public class RestoreService implements RestoreServiceIF
     return null;
   }
 
-  protected void restoreOrganizations(File directory, RestoreSummary summary) throws IOException
+  protected void importOrganizations(File directory, BulkImportSummary summary) throws IOException
   {
     File file = new File(new File(directory, "organizations"), "organizations.json");
 
@@ -444,15 +475,15 @@ public class RestoreService implements RestoreServiceIF
     }
     else
     {
-      // Backups made before organizations were included only have the
+      // Exports made before organizations were included only have the
       // organization codes in the metadata. Create any missing organizations so
-      // that their types and data can be restored.
+      // that their types and data can be imported.
       summary.add("Organizations", createMissingOrganizationsFromMetadata(new File(new File(directory, "metadata"), "metadata.xml")));
     }
 
     // Reload the whole metadata cache from the database. Refreshing only the
     // server cache clears the geo object types and hierarchy types from the
-    // cache without reloading them, which breaks a restore without metadata.
+    // cache without reloading them, which breaks an import without metadata.
     this.repoService.refreshMetadataCache();
   }
 
@@ -499,7 +530,7 @@ public class RestoreService implements RestoreServiceIF
 
         if (code.length() > 0 && ServerOrganization.getByCode(code, false) == null)
         {
-          logger.warn("Creating organization [" + code + "] from the backup metadata. Its label will be the same as its code.");
+          logger.warn("Creating organization [" + code + "] from the export metadata. Its label will be the same as its code.");
 
           OrganizationDTO dto = new OrganizationDTO(code, new LocalizedValue(code), new LocalizedValue(""));
           dto.setEnabled(true);
@@ -518,13 +549,13 @@ public class RestoreService implements RestoreServiceIF
     return count;
   }
 
-  protected void restoreUserData(File directory, RestoreSummary summary) throws IOException
+  protected void importUserData(File directory, BulkImportSummary summary) throws IOException
   {
     File file = new File(new File(directory, "users"), "users.json");
 
     if (file.exists())
     {
-      // Don't overwrite the built-in admin or the user running the restore
+      // Don't overwrite the built-in admin or the user running the import
       String currentUsername = Session.getCurrentSession() != null ? Session.getCurrentSession().getUser().getSingleActorName() : null;
 
       try (JsonReader reader = new JsonReader(new FileReader(file)))
@@ -543,7 +574,7 @@ public class RestoreService implements RestoreServiceIF
 
           if (!username.equals(RegistryConstants.ADMIN_USER_NAME) && !username.equals(currentUsername))
           {
-            UserInfo.restoreFromBackup(jObject);
+            UserInfo.importFromJSON(jObject);
 
             summary.increment("Users");
           }
@@ -558,7 +589,7 @@ public class RestoreService implements RestoreServiceIF
     }
   }
 
-  protected void restoreGeoObjectData(File directory, RestoreSummary summary) throws IOException
+  protected void importGeoObjectData(File directory, BulkImportSummary summary) throws IOException
   {
     RegistryAdapter adapter = ServiceFactory.getAdapter();
     File data = new File(directory, "geo-objects");
@@ -574,7 +605,7 @@ public class RestoreService implements RestoreServiceIF
 
         if (!adapter.getMetadataCache().getGeoObjectType(typeCode).isPresent())
         {
-          throw new GenericException("The geo object type [" + typeCode + "] in the backup does not exist on this server. Check that its organization exists and that the metadata was restored.");
+          throw new GenericException("The geo object type [" + typeCode + "] in the export does not exist on this server. Check that its organization exists and that the metadata was imported.");
         }
 
         try (FileResource resource = new FileResource(file))
@@ -591,13 +622,16 @@ public class RestoreService implements RestoreServiceIF
             {
               JsonObject jObject = gson.fromJson(reader, JsonObject.class);
 
-              // Backups made before the "present" date was changed to
+              // Exports made before the "present" date was changed to
               // 4710-12-31 contain end dates of 5000-12-31
               GeoRegistryUtil.clampEndDates(jObject);
 
               GeoObjectOverTime object = GeoObjectOverTime.fromJSON(adapter, jObject.toString());
 
-              this.gObjectService.apply(object, true, true, false);
+              GeoObjectEventBuilder builder = new GeoObjectEventBuilder(this.gObjectService);
+              builder.setObject(object, true, true);
+
+              this.eventService.publish(builder.build());
 
               summary.increment("Geo objects");
             }
@@ -609,7 +643,7 @@ public class RestoreService implements RestoreServiceIF
     }
   }
 
-  protected void restoreHierarchyData(File directory, RestoreSummary summary) throws IOException
+  protected void importHierarchyData(File directory, BulkImportSummary summary) throws IOException
   {
     File data = new File(directory, "hierarchies");
 
@@ -667,7 +701,7 @@ public class RestoreService implements RestoreServiceIF
                 return object;
               });
 
-              this.gObjectService.addChild(parent, child, hierarchy, startDate, endDate, uid, null, false);
+              this.eventService.publish(new GeoObjectCreateParentEvent(child.getCode(), childType.getTypeInfo(), uid, hierarchy.getTypeInfo(), startDate, endDate, parent.getCode(), parentType.getTypeInfo(), null, true));
 
               summary.increment("Hierarchy relationships");
             }
@@ -679,17 +713,17 @@ public class RestoreService implements RestoreServiceIF
     }
   }
 
-  protected void restoreDagData(File directory, RestoreSummary summary) throws IOException
+  protected void importDagData(File directory, BulkImportSummary summary) throws IOException
   {
-    restoreGraphEdges(new File(directory, "dags"), "Directed acyclic graph relationships", summary);
+    importGraphEdges(new File(directory, "dags"), "Directed acyclic graph relationships", summary);
   }
 
-  protected void restoreUndirectedGraphData(File directory, RestoreSummary summary) throws IOException
+  protected void importUndirectedGraphData(File directory, BulkImportSummary summary) throws IOException
   {
-    restoreGraphEdges(new File(directory, "undirected-graphs"), "Undirected graph relationships", summary);
+    importGraphEdges(new File(directory, "undirected-graphs"), "Undirected graph relationships", summary);
   }
 
-  protected void restoreGraphEdges(File data, String label, RestoreSummary summary) throws IOException
+  protected void importGraphEdges(File data, String label, BulkImportSummary summary) throws IOException
   {
     File[] files = data.listFiles();
 
@@ -709,7 +743,7 @@ public class RestoreService implements RestoreServiceIF
     }
   }
 
-  protected void restoreBusinessObjectData(File directory, RestoreSummary summary) throws IOException
+  protected void importBusinessObjectData(File directory, BulkImportSummary summary) throws IOException
   {
     File subdir = new File(directory, "business-objects");
 
@@ -756,7 +790,11 @@ public class RestoreService implements RestoreServiceIF
                 populateLegacyBusinessObject(object, jObject);
               }
 
-              this.bObjectService.apply(object);
+              BusinessObjectEventBuilder builder = new BusinessObjectEventBuilder(this.bObjectService);
+              builder.setObject(object, true);
+              builder.setAttributeUpdate(true);
+
+              this.eventService.publish(builder.build());
 
               summary.increment("Business objects");
             }
@@ -769,7 +807,7 @@ public class RestoreService implements RestoreServiceIF
   }
 
   /**
-   * Populates a business object from the format written by backups made
+   * Populates a business object from the format written by exports made
    * before business objects were exported as an ObjectOverTimeDTO: the code
    * and a "data" object of attribute values. Only concrete attributes were
    * written in that format.
@@ -818,7 +856,7 @@ public class RestoreService implements RestoreServiceIF
     }
   }
 
-  protected void restoreBusinessEdges(File directory, RestoreSummary summary) throws IOException
+  protected void importBusinessEdges(File directory, BulkImportSummary summary) throws IOException
   {
     File subdir = new File(directory, "business-edges");
     File[] files = subdir.listFiles();
@@ -838,7 +876,7 @@ public class RestoreService implements RestoreServiceIF
     }
   }
 
-  protected void restoreTransitionEvents(File directory, RestoreSummary summary) throws IOException
+  protected void importTransitionEvents(File directory, BulkImportSummary summary) throws IOException
   {
     File data = new File(directory, "events");
 
@@ -872,7 +910,7 @@ public class RestoreService implements RestoreServiceIF
     }
   }
 
-  private void restoreListTypeData(File directory, RestoreSummary summary) throws IOException
+  private void importListTypeData(File directory, BulkImportSummary summary) throws IOException
   {
     File subdirectory = new File(directory, "list-type");
     subdirectory.mkdirs();
@@ -896,6 +934,42 @@ public class RestoreService implements RestoreServiceIF
 
             summary.increment("List types");
           }
+        }
+      }
+    }
+  }
+
+  /**
+   * Creates a new commit for each publish which originates on this server, so
+   * that the events of the import are picked up by the synchronizations and
+   * external systems which use those publishes. Publishes pulled from a remote
+   * registry aren't committed to locally, and the concept set publishes are
+   * committed as dependencies of the publishes which use them. Publishes with
+   * no new events since their last commit are skipped.
+   */
+  protected void createCommits(BulkImportSummary summary)
+  {
+    String origin = GeoprismProperties.getOrigin();
+
+    for (Publish publish : this.publishService.getAll())
+    {
+      if (origin.equals(publish.getOrigin()) && StringUtils.isBlank(publish.getConceptSet()))
+      {
+        // Remember the latest commit so that on failure only a commit created
+        // by this attempt is removed
+        final Optional<String> previousOid = this.commitService.getLatest(publish).map(Commit::getOid);
+
+        try
+        {
+          this.publishEventService.createNewCommit(publish);
+
+          summary.increment("Commits");
+        }
+        catch (EmptyPublishException e)
+        {
+          this.commitService.getLatest(publish) //
+              .filter(latest -> !previousOid.equals(Optional.of(latest.getOid()))) //
+              .ifPresent(latest -> this.commitService.delete(latest));
         }
       }
     }

@@ -25,10 +25,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 /**
- * The number of each kind of thing restored from a backup, in the order they
- * were restored.
+ * The number of each kind of thing imported from a bulk export, in the order they
+ * were imported.
  */
-public class RestoreSummary
+public class BulkImportSummary
 {
   private final Map<String, Long> counts = new LinkedHashMap<String, Long>();
 

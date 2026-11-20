@@ -35,24 +35,24 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
-import net.geoprism.registry.service.business.BackupSection;
-import net.geoprism.registry.service.business.BackupAndRestoreBusinessServiceIF;
+import net.geoprism.registry.service.business.BulkExportSection;
+import net.geoprism.registry.service.business.BulkImportExportBusinessServiceIF;
 
 @Service
-public class BackupAndRestoreService implements BackupAndRestoreServiceIF
+public class BulkImportExportService implements BulkImportExportServiceIF
 {
   @Autowired
-  private BackupAndRestoreBusinessServiceIF service;
+  private BulkImportExportBusinessServiceIF service;
 
   @Override
   @Request(RequestType.SESSION)
-  public InputStream backup(String sessionId, Set<BackupSection> sections)
+  public InputStream exportData(String sessionId, Set<BulkExportSection> sections)
   {
     try
     {
       Path path = Files.createTempFile("gpr-dump", ".zip");
 
-      this.service.createBackup(path.toFile(), sections);
+      this.service.createExport(path.toFile(), sections);
 
       return Files.newInputStream(path, StandardOpenOption.DELETE_ON_CLOSE);
     }
@@ -71,9 +71,9 @@ public class BackupAndRestoreService implements BackupAndRestoreServiceIF
 
   @Override
   @Request(RequestType.SESSION)
-  public String restore(String sessionId, InputStream istream)
+  public String importData(String sessionId, InputStream istream)
   {
-    return this.service.restoreFromBackup(istream).toJSON().toString();
+    return this.service.importData(istream).toJSON().toString();
   }
 
 }
