@@ -23,10 +23,13 @@ import { environment } from './environments/environment';
 import { CgrAppComponent } from './app/app.component';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { appConfig } from './app/app.config';
+import { setTheme } from 'ngx-bootstrap/utils';
 
 if (environment.production) {
     enableProdMode();
 }
+
+setTheme('bs5');
 
 bootstrapApplication(CgrAppComponent, appConfig)
     .catch(err => console.error(err));

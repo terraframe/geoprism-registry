@@ -30,7 +30,7 @@
     "@turf/turf": "^5.1.6",
     "@types/mapbox-gl": "1.11.1",
     "@types/uuid": "8.0.0",
-    "bootstrap": "3.4.1",
+    "bootstrap": "^5.3.9",
     "d3": "^7.9.0",
     "d3-dag": "^1.1.0",
     "d3-hierarchy": "^3.1.2",

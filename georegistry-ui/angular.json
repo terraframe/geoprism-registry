@@ -33,7 +33,6 @@
               }
             ],
             "styles": [
-              "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "node_modules/@perfectmemory/ngx-contextmenu/src/assets/stylesheets/base.scss",
               "src/styles/styles.scss"
             ],
@@ -101,7 +100,7 @@
             "polyfills": ["zone.js", "zone.js/testing"],
             "tsConfig": "tsconfig.spec.json",
             "assets": ["src/favicon.ico", "src/assets"],
-            "styles": ["node_modules/bootstrap/dist/css/bootstrap.min.css", "src/styles/styles.scss"],
+            "styles": ["src/styles/styles.scss"],
             "scripts": []
           }
         }

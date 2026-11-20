@@ -4,7 +4,31 @@ $fa-font-path: "~@fortawesome/fontawesome-free/webfonts";
 @use "@fortawesome/fontawesome-free/scss/solid.scss";
 @use "@fortawesome/fontawesome-free/scss/brands.scss";
 
-@use "bootstrap/dist/css/bootstrap.css";
+// Bootstrap 5, tuned to stay close to the Bootstrap 3 look
+@use "bootstrap/scss/bootstrap" with (
+  $font-size-base: 0.875rem,
+  $line-height-base: 1.428571,
+  $link-decoration: none,
+  $link-hover-decoration: underline,
+  $border-radius: 4px,
+  $enable-smooth-scroll: false,
+  // Keep the Bootstrap 3 breakpoints so existing col-sm/md/lg markup behaves the same
+  $grid-breakpoints: (
+    xs: 0,
+    sm: 768px,
+    md: 992px,
+    lg: 1200px,
+    xl: 1400px,
+    xxl: 1600px
+  ),
+  $container-max-widths: (
+    sm: 750px,
+    md: 970px,
+    lg: 1170px,
+    xl: 1320px,
+    xxl: 1520px
+  )
+);
 
 @use "@ali-hm/angular-tree-component/css/angular-tree-component.css";
 @use "maplibre-gl/dist/maplibre-gl.css";
@@ -1076,12 +1100,4 @@ typeahead-container {
 /* Popup for mapbox */
 .mapboxgl-popup-content {
   width: 350px;
-}
-
-/* 
-  Workaround for bootstrap 3 and ngx-bootstrap
-  https://github.com/valor-software/ngx-bootstrap/issues/2891
-*/
-.dropdown-menu:not(typeahead-container) {
-  transform: none !important;
 }
