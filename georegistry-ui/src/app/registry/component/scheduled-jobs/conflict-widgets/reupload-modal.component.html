@@ -32,7 +32,7 @@
   @if (job) {
     <form style="margin-top: 30px" #form="ngForm">
       <div class="form-group row">
-        <label class="col-md-3 text-right" for="file">
+        <label class="col-md-3 text-end" for="file">
           @if (job.configuration.formatType === 'SHAPEFILE') {
             <localize key="io.shapefile"></localize>
           }
@@ -61,7 +61,7 @@
           <button
             type="button"
             (click)="bsModalRef.hide()"
-            class="btn btn-default"
+            class="btn btn-secondary"
             role="button"
             aria-disabled="false"
             style="padding: 4px 18px"

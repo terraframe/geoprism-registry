@@ -39,7 +39,7 @@
       @if (list) {
         <div class="row">
           <div class="col-md-6">
-            <div class="button-holder pull-right" style="margin-top: 10px; margin-right: 5px">
+            <div class="button-holder float-end" style="margin-top: 10px; margin-right: 5px">
               <span class="clickable" (click)="onToggleSize()" style="padding: 10px">
                 <i
                   class="fa"
@@ -53,7 +53,7 @@
           </div>
           @if (list) {
             <div class="col-md-6">
-              <div class="button-holder pull-right" style="margin-top: 10px; margin-right: 5px">
+              <div class="button-holder float-end" style="margin-top: 10px; margin-right: 5px">
                 @if (isWritable && list.working) {
                   <span class="clickable" style="vertical-align: middle; display: inline-block; line-height: 0">
                     <boolean-field
@@ -88,7 +88,7 @@
                     }
                   </button>
                 }
-                <button type="button" class="btn btn-default" (click)="onClose()">
+                <button type="button" class="btn btn-secondary" (click)="onClose()">
                   <localize key="modal.button.close"></localize>
                 </button>
               </div>

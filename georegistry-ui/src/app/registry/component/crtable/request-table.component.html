@@ -346,7 +346,7 @@
                                       required
                                     />
                                     <button
-                                      class="btn btn-primary pull-right"
+                                      class="btn btn-primary float-end"
                                       style="margin: 0"
                                       (click)="onUpload(req)"
                                       [title]="'change.request.upload.document.btn.hover' | localize"
@@ -420,7 +420,7 @@
                                   <button
                                     type="submit"
                                     (click)="onEditAttributes()"
-                                    class="btn btn-default"
+                                    class="btn btn-secondary"
                                     role="button"
                                   >
                                     <localize key="modal.button.cancel"></localize>
@@ -441,7 +441,7 @@
                                   <button
                                     type="submit"
                                     role="button"
-                                    class="btn btn-danger pull-right"
+                                    class="btn btn-danger float-end"
                                     [disabled]="!isEditing"
                                     (click)="onDelete(req)"
                                     [title]="'change.request.delete.request.hover' | localize"

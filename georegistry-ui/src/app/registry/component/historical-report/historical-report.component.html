@@ -21,7 +21,7 @@
 <div>
   <form #form="ngForm" autocomplete="off">
     <div class="form-group row">
-      <label class="col-md-2 text-right" for="code">
+      <label class="col-md-2 text-end" for="code">
         <localize key="io.geoObjectType"></localize>
       </label>
       <div class="col-md-8">
@@ -37,7 +37,7 @@
       <div class="col-md-2"></div>
     </div>
     <div class="form-group row">
-      <label class="col-md-2 text-right" for="startDate">
+      <label class="col-md-2 text-end" for="startDate">
         <localize key="io.startDate"></localize>
       </label>
       <div class="col-md-2">
@@ -57,7 +57,7 @@
         }
       </div>
 
-      <label class="col-md-2 text-right" for="endDate">
+      <label class="col-md-2 text-end" for="endDate">
         <localize key="io.endDate"></localize>
       </label>
       <div class="col-md-4">
@@ -75,7 +75,7 @@
     </div>
     <div class="form-group row">
       <div class="col-md-2"></div>
-      <div class="button-holder col-md-8 text-right">
+      <div class="button-holder col-md-8 text-end">
         <button type="submit" class="btn btn-primary" [disabled]="!isValid || form.invalid" (click)="refresh()">
           <localize key="io.submit"></localize>
         </button>

@@ -39,8 +39,8 @@
 
       @if (applications?.length > 0 && !loading) {
         <div class="row vertical-center-row">
-          <div class="col-md-3 col-sm-4 col-xs-2"></div>
-          <div class="col-md-6 col-sm-4 col-xs-8">
+          <div class="col-md-3 col-sm-4 col-2"></div>
+          <div class="col-md-6 col-sm-4 col-8">
             @for (app of applications; track app.oid; let i = $index) {
               <div>
                 @if (i % 4 === 0) {
@@ -48,10 +48,10 @@
                     @for (application of applications; track application.oid; let internalIndex = $index) {
                       <div>
                         @if (internalIndex >= i && internalIndex < i + 4) {
-                          <div class="col-xs-12 col-sm-12 col-md-3 text-center" (click)="open(application)">
+                          <div class="col-12 col-sm-12 col-md-3 text-center" (click)="open(application)">
                             <div [id]="application.oid" class="nav-option-wrapper">
                               <img
-                                class="nav-icon-img img-responsive"
+                                class="nav-icon-img img-fluid"
                                 [src]="context + 'assets/' + application.src"
                                 alt="Navigation"
                               />
@@ -61,10 +61,10 @@
                           </div>
                         }
                         @if (applications?.length === 1 || applications?.length === 2) {
-                          <div class="col-xs-12 col-sm-12 col-md-4"></div>
+                          <div class="col-12 col-sm-12 col-md-4"></div>
                         }
                         @if (applications?.length === 1) {
-                          <div class="col-xs-12 col-sm-12 col-md-4"></div>
+                          <div class="col-12 col-sm-12 col-md-4"></div>
                         }
                       </div>
                     }
@@ -73,7 +73,7 @@
               </div>
             }
           </div>
-          <div class="col-md-3 col-sm-4 col-xs-2"></div>
+          <div class="col-md-3 col-sm-4 col-2"></div>
         </div>
       }
     </div>

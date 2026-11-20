@@ -98,18 +98,18 @@ li.list-group-item.hier-li-item {
 	display: flex;
 	align-items: center;
 }
-li.list-group-item.hier-li-item .btn-group.pull-right {
+li.list-group-item.hier-li-item .btn-group.float-end {
 	float: none;
 	margin-left: auto;
 }
-li.list-group-item.hier-li-item .btn-group.pull-right > a {
+li.list-group-item.hier-li-item .btn-group.float-end > a {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	padding: 4px 6px;
 	border-radius: 4px;
 }
-li.list-group-item.hier-li-item .btn-group.pull-right > a:hover {
+li.list-group-item.hier-li-item .btn-group.float-end > a:hover {
 	background-color: #f4fcef;
 }
 li.list-group-item.hier-li-item i.fa {

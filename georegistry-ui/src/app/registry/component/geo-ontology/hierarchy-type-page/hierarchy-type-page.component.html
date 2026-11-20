@@ -66,9 +66,9 @@
                       (click)="handleTypeView(hierarchy)"
                     >
                       {{ hierarchy.label.localizedValue }}
-                      <div class="btn-group pull-right" dropdown [dropup]="true" container="body">
+                      <div class="btn-group float-end" dropdown [dropup]="true" container="body">
                         <a
-                          class="pull-right"
+                          class="float-end"
                           id="basic-link"
                           dropdownToggle
                           (click)="$event.stopPropagation()"
@@ -253,10 +253,10 @@
                   @if (selection.action === Action.EDIT) {
                     <div class="row">
                       <div class="col-md-12">
-                        <div class="button-holder pull-right">
+                        <div class="button-holder float-end">
                           <button
                             type="button"
-                            class="btn btn-default"
+                            class="btn btn-secondary"
                             (click)="selection = null"
                             style="padding: 4px 18px; margin-bottom: 5px; margin-right: 5px"
                           >

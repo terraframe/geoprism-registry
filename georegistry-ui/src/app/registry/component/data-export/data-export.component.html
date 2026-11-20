@@ -38,7 +38,7 @@
 @if (types) {
   <form #form="ngForm">
     <div class="form-group row">
-      <label class="col-md-3 text-right" for="code">
+      <label class="col-md-3 text-end" for="code">
         <localize key="io.geoObjectType"></localize>
       </label>
       <div class="col-md-9">
@@ -52,7 +52,7 @@
     </div>
     @if (hierarchies.length > 0) {
       <div class="form-group row">
-        <label class="col-sm-3 text-right">
+        <label class="col-sm-3 text-end">
           <localize key="io.modal.hierarchy"></localize>
         </label>
         <div class="col-md-9">
@@ -66,7 +66,7 @@
       </div>
     }
     <div class="form-group row">
-      <label class="col-md-3 text-right" for="format">
+      <label class="col-md-3 text-end" for="format">
         <localize key="io.format"></localize>
       </label>
       <div class="col-md-9">
@@ -82,7 +82,7 @@
       </div>
     </div>
     <div class="form-group row">
-      <div class="col-md-12 text-right">
+      <div class="col-md-12 text-end">
         <button type="submit" class="btn btn-primary" [disabled]="form.invalid" (click)="onExport()">
           <localize key="io.export"></localize>
         </button>

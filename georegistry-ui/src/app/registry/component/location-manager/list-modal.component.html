@@ -44,7 +44,7 @@
       <div class="row" style="margin-bottom: 10px">
         @if (list) {
           <div class="col-md-12">
-            <div class="button-holder pull-right">
+            <div class="button-holder float-end">
               @if (isWritable) {
                 <span class="clickable" style="vertical-align: middle; display: inline-block; line-height: 0">
                   <boolean-field
@@ -98,8 +98,8 @@
   <div class="row">
     @if (list) {
       <div class="col-md-12">
-        <div class="text-right" style="margin-top: 20px">
-          <button type="button" class="btn btn-default" (click)="onClose()">
+        <div class="text-end" style="margin-top: 20px">
+          <button type="button" class="btn btn-secondary" (click)="onClose()">
             <localize key="modal.button.close"></localize>
           </button>
         </div>

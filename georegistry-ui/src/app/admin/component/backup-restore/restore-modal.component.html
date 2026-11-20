@@ -37,7 +37,7 @@
           @for (line of summary; track line.label) {
           <tr>
             <td>{{line.label}}</td>
-            <td class="text-right">{{line.count | number}}</td>
+            <td class="text-end">{{line.count | number}}</td>
           </tr>
           }
         </tbody>
@@ -93,7 +93,7 @@
     <div class="row">
       <div class="col-md-12">
         <div class="button-holder">
-          <button type="button" (click)="cancel()" class="btn btn-default" role="button" aria-disabled="false">
+          <button type="button" (click)="cancel()" class="btn btn-secondary" role="button" aria-disabled="false">
             <span>
               <localize key="new-locale.cancel"></localize>
             </span>

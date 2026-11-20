@@ -84,7 +84,7 @@
       <button
         type="submit"
         (click)="onViewConfiguration(type)"
-        class="btn btn-default"
+        class="btn btn-secondary"
         style="padding-right: 10px"
         role="button"
       >
@@ -130,7 +130,7 @@
                 <localize key="list.type.new.version"></localize>
               </button>
               @if (entry.versions.length > 1) {
-                <button type="submit" (click)="toggleVersions(entry)" class="btn btn-default" role="button">
+                <button type="submit" (click)="toggleVersions(entry)" class="btn btn-secondary" role="button">
                   @if (!entry.showAll) {
                     <localize key="list.type.see.versions"></localize>
                   }

@@ -54,9 +54,9 @@
                 (click)="handleTypeView(type)"
               >
                 {{ type.label.localizedValue }}
-                <div class="btn-group pull-right" dropdown [dropup]="true" container="body">
+                <div class="btn-group float-end" dropdown [dropup]="true" container="body">
                   <a
-                    class="pull-right"
+                    class="float-end"
                     dropdownToggle
                     (click)="$event.stopPropagation()"
                     aria-controls="basic-link-dropdown"

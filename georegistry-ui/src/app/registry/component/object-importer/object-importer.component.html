@@ -45,7 +45,7 @@
             <div>
               <form #form="ngForm" autocomplete="off">
                 <div class="form-group row">
-                  <label class="col-md-2 text-right" for="objectType">
+                  <label class="col-md-2 text-end" for="objectType">
                     <!-- LOCALIZE -->
                     Object Class
                   </label>
@@ -66,7 +66,7 @@
                   <div class="col-md-2"></div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-md-2 text-right" for="typeCode">
+                  <label class="col-md-2 text-end" for="typeCode">
                     <!-- LOCALIZE -->
                     Type
                     <!-- <localize key="business.data.type"></localize> -->
@@ -84,7 +84,7 @@
                   <div class="col-md-2"></div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-md-2 text-right" for="strategy">
+                  <label class="col-md-2 text-end" for="strategy">
                     @if (this.format === 'EXCEL') {
                       <localize key="spreadsheet.import.import.strategy"> </localize>
                     }
@@ -101,7 +101,7 @@
                   <div class="col-md-2"></div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-md-2 text-right" for="startDate">
+                  <label class="col-md-2 text-end" for="startDate">
                     <localize key="io.startDate"></localize>
                   </label>
                   <div class="col-md-8">
@@ -117,7 +117,7 @@
                   <div class="col-md-2"></div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-md-2 text-right" for="endDate">
+                  <label class="col-md-2 text-end" for="endDate">
                     <localize key="io.endDate"></localize>
                   </label>
                   <div class="col-md-8">
@@ -135,7 +135,7 @@
                   <div class="col-md-2"></div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-md-2 text-right" for="dataSource">
+                  <label class="col-md-2 text-end" for="dataSource">
                     <localize key="datasource.header"></localize>
                   </label>
                   <div class="col-md-8">
@@ -148,7 +148,7 @@
                   <div class="col-md-2"></div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-md-2 text-right" for="description">
+                  <label class="col-md-2 text-end" for="description">
                     <localize key="transition.event.description"></localize>
                   </label>
                   <div class="col-md-8">
@@ -157,7 +157,7 @@
                   <div class="col-md-2"></div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-md-2 text-right" for="copyBlank">
+                  <label class="col-md-2 text-end" for="copyBlank">
                     <localize key="dataimporter.importblankcells"></localize>
                   </label>
                   <div class="col-md-8">
@@ -166,7 +166,7 @@
                   <div class="col-md-2"></div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-md-2 text-right" for="file">
+                  <label class="col-md-2 text-end" for="file">
                     @if (this.format === 'EXCEL') {
                       <localize key="io.spreadsheet"></localize>
                     }
@@ -189,7 +189,7 @@
                 </div>
                 <div class="form-group row">
                   <div class="col-md-2"></div>
-                  <div class="button-holder col-md-8 text-right">
+                  <div class="button-holder col-md-8 text-end">
                     <button type="submit" class="btn btn-primary" [disabled]="form.invalid" (click)="onClick()">
                       <localize key="io.submit"></localize>
                     </button>

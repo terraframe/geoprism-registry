@@ -23,7 +23,7 @@
     <form #form="ngForm" autocomplete="off">
       @if (hierarchies && hierarchies.length > 0) {
         <div class="form-group row">
-          <label class="col-md-2 text-right" for="hierarchyCode">
+          <label class="col-md-2 text-end" for="hierarchyCode">
             <localize key="io.modal.hierarchy"></localize>
           </label>
           <div class="col-md-8">
@@ -45,7 +45,7 @@
       }
       @if (filteredTypes) {
         <div class="form-group row">
-          <label class="col-md-2 text-right" for="code">
+          <label class="col-md-2 text-end" for="code">
             <localize key="io.geoObjectType"></localize>
           </label>
           <div class="col-md-8">
@@ -62,7 +62,7 @@
         </div>
       }
       <div class="form-group row">
-        <label class="col-md-2 text-right" for="strategy">
+        <label class="col-md-2 text-end" for="strategy">
           @if (this.format === 'EXCEL') {
             <localize key="spreadsheet.import.import.strategy"></localize>
           }
@@ -87,7 +87,7 @@
         <div class="col-md-2"></div>
       </div>
       <div class="form-group row">
-        <label class="col-md-2 text-right" for="startDate">
+        <label class="col-md-2 text-end" for="startDate">
           <localize key="io.startDate"></localize>
         </label>
         <div class="col-md-8">
@@ -104,7 +104,7 @@
         <div class="col-md-2"></div>
       </div>
       <div class="form-group row">
-        <label class="col-md-2 text-right" for="endDate">
+        <label class="col-md-2 text-end" for="endDate">
           <localize key="io.endDate"></localize>
         </label>
         <div class="col-md-8">
@@ -123,7 +123,7 @@
         <div class="col-md-2"></div>
       </div>
       <div class="form-group row">
-        <label class="col-md-2 text-right" for="dataSource">
+        <label class="col-md-2 text-end" for="dataSource">
           <localize key="datasource.label"></localize>
         </label>
         <div class="col-md-8">
@@ -136,7 +136,7 @@
         <div class="col-md-2"></div>
       </div>
       <div class="form-group row">
-        <label class="col-md-2 text-right" for="dataSource">
+        <label class="col-md-2 text-end" for="dataSource">
           <localize key="transition.event.description"></localize>
         </label>
         <div class="col-md-8">
@@ -146,7 +146,7 @@
       </div>
 
       <div class="form-group row">
-        <label class="col-md-2 text-right" for="copyBlank">
+        <label class="col-md-2 text-end" for="copyBlank">
           <localize key="dataimporter.importblankcells"></localize>
         </label>
         <div class="col-md-8">
@@ -155,7 +155,7 @@
         <div class="col-md-2"></div>
       </div>
       <div class="form-group row">
-        <label class="col-md-2 text-right" for="file">
+        <label class="col-md-2 text-end" for="file">
           @if (this.format === 'EXCEL') {
             <localize key="io.spreadsheet"></localize>
           }
@@ -209,8 +209,8 @@
 
       <div class="form-group row">
         <div class="col-md-2"></div>
-        <div class="button-holder col-md-8 text-right">
-          <!--                     <button type="submit" class="btn btn-default" (click)="onBack()"> -->
+        <div class="button-holder col-md-8 text-end">
+          <!--                     <button type="submit" class="btn btn-secondary" (click)="onBack()"> -->
           <!--                         <localize key="io.back"></localize> -->
           <!--                     </button> -->
           <button type="submit" class="btn btn-primary" [disabled]="!isValid || form.invalid" (click)="onClick()">

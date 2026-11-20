@@ -109,7 +109,7 @@
       <div class="row" style="margin-bottom: 10px">
         <div class="col-md-4">
           @if (list.working && (isRM || isSRA)) {
-            <div class="button-holder pull-left">
+            <div class="button-holder float-start">
               <button
                 type="submit"
                 class="btn btn-primary"
@@ -138,7 +138,7 @@
           }
         </div>
         <div class="col-md-8">
-          <div class="button-holder pull-right">
+          <div class="button-holder float-end">
             @if (isWritable) {
               <span class="clickable" style="vertical-align: middle; display: inline-block; line-height: 0">
                 <boolean-field
@@ -175,7 +175,6 @@
                   class="btn btn-primary dropdown-toggle"
                   type="button"
                   id="dropdownMenu1"
-                  data-toggle="dropdown"
                   aria-haspopup="true"
                   aria-expanded="true"
                 >

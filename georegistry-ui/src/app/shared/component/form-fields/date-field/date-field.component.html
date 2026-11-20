@@ -80,10 +80,10 @@
 </p>
 
 @if (allowInfinity) {
-  <div class="text-right" style="padding: 10px 0">
+  <div class="text-end" style="padding: 10px 0">
     @if (valueIsPresent) {
       <button
-        class="btn btn-default"
+        class="btn btn-secondary"
         style="margin: 0"
         (click)="toggleInfinity()"
         [disabled]="disable"
@@ -94,7 +94,7 @@
     }
     @if (!valueIsPresent) {
       <button
-        class="btn btn-default"
+        class="btn btn-secondary"
         style="margin: 0"
         (click)="toggleInfinity()"
         [disabled]="disable"

@@ -247,7 +247,7 @@
                         </div>
                         @if (!readonly) {
                           <span
-                            class="input-group-addon clickable addon-alert"
+                            class="input-group-text clickable addon-alert"
                             (click)="clear(transition, 'sourceText')"
                           >
                             <i class="fa fa-times" aria-hidden="true"></i>
@@ -255,7 +255,7 @@
                         }
                         <!-- Hack: This is needed for formatting  -->
                         @if (readonly) {
-                          <span class="input-group-addon addon-alert"> </span>
+                          <span class="input-group-text addon-alert"> </span>
                         }
                       </div>
                     </td>
@@ -288,7 +288,7 @@
                         </div>
                         @if (!readonly) {
                           <span
-                            class="input-group-addon clickable addon-alert"
+                            class="input-group-text clickable addon-alert"
                             (click)="clear(transition, 'targetText')"
                           >
                             <i class="fa fa-times" aria-hidden="true"></i>
@@ -296,7 +296,7 @@
                         }
                         <!-- Hack: This is needed for formatting  -->
                         @if (readonly) {
-                          <span class="input-group-addon addon-alert"> </span>
+                          <span class="input-group-text addon-alert"> </span>
                         }
                       </div>
                     </td>
@@ -355,7 +355,7 @@
           <div class="label-holder"></div>
           <div class="holder">
             <div class="button-holder">
-              <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
+              <button type="button" (click)="onCancel()" class="btn btn-secondary" role="button">
                 <localize [key]="readonly ? 'io.back' : 'io.cancel'"></localize>
               </button>
               @if (!readonly) {

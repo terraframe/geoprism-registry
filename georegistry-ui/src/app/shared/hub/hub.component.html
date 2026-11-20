@@ -63,7 +63,7 @@
                   @for (item of section.items; track item.id) {
                     @if (shouldShowMenuItem(item.id)) {
                       <div class="row">
-                        <div class="col-xs-12">
+                        <div class="col-12">
                           <a
                             [routerLink]="item.link"
                             class="route-item"
@@ -78,7 +78,7 @@
                         </div>
                       </div>
                       <div class="row">
-                        <div class="col-xs-12">
+                        <div class="col-12">
                           <p style="padding-left: 27px">
                             <localize [key]="item.description"></localize>
                           </p>

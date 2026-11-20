@@ -64,7 +64,7 @@
             ></textarea>
           </div>
         }
-        <div class="button-holder text-right" style="margin-bottom: 20px">
+        <div class="button-holder text-end" style="margin-bottom: 20px">
           @if (!readOnly && !isEdit) {
             <button
               type="submit"
@@ -77,7 +77,7 @@
             </button>
           }
           @if (isEdit) {
-            <button type="button" class="btn btn-default" (click)="onCancelInternal()">
+            <button type="button" class="btn btn-secondary" (click)="onCancelInternal()">
               <localize key="modal.button.cancel"></localize>
             </button>
           }

@@ -24,7 +24,7 @@
     <div class="container-fluid">
       <ul class="nav navbar-nav navbar-right">
         @if (!isPublic) {
-          <li class="hidden-xs">
+          <li class="d-none d-sm-block">
             <a (click)="account()" class="navbar-username">
               <i class="fa-regular fa-user"></i>
             </a>
@@ -32,7 +32,7 @@
         }
 
         @if (!isPublic) {
-          <li class="hidden-xs">
+          <li class="d-none d-sm-block">
             <a class="route-item" class="route-item" [title]="'userDashboards.logout' | localize" (click)="logout()">
               <i class="fa-solid fa-arrow-right-from-bracket"></i>
             </a>

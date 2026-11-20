@@ -70,7 +70,7 @@
                                     <button
                                       type="submit"
                                       (click)="onCloneGeometryToNewVersion(vAttribute)"
-                                      class="btn btn-default"
+                                      class="btn btn-secondary"
                                       role="button"
                                     >
                                       <localize key="changeovertime.manageVersions.copy.geometry.button"></localize>
@@ -162,9 +162,9 @@
       <div class="row-holder">
         <!-- <div class="label-holder"></div> -->
         <div class="holder" style="border: none; width: 100%">
-          <div class="button-holder pull-right">
+          <div class="button-holder float-end">
             @if (!readonly) {
-              <button type="submit" (click)="onCancel()" class="btn btn-default" role="button">
+              <button type="submit" (click)="onCancel()" class="btn btn-secondary" role="button">
                 <localize key="io.cancel"></localize>
               </button>
             }

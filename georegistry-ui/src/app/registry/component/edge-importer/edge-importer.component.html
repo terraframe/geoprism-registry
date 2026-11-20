@@ -43,7 +43,7 @@
             <div>
               <form #form="ngForm" autocomplete="off">
                 <div class="form-group row">
-                  <label class="col-md-2 text-right" for="graphTypeCode">
+                  <label class="col-md-2 text-end" for="graphTypeCode">
                     <localize key="edge.data.type"></localize>
                   </label>
                   <div class="col-md-8">
@@ -66,7 +66,7 @@
                 </div>
                 <!--
               <div class="form-group row" *ngIf="allTypes">
-                <label class="col-md-2 text-right" for="code">
+                <label class="col-md-2 text-end" for="code">
                   <localize key="io.geoObjectType"></localize>
                 </label>
                 <div class="col-md-8">
@@ -81,7 +81,7 @@
               </div>
               -->
                 <div class="form-group row">
-                  <label class="col-md-2 text-right" for="strategy">
+                  <label class="col-md-2 text-end" for="strategy">
                     @if (this.format === 'JSON') {
                       <localize key="spreadsheet.import.import.strategy"> </localize>
                     }
@@ -98,7 +98,7 @@
                   <div class="col-md-2"></div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-md-2 text-right" for="startDate">
+                  <label class="col-md-2 text-end" for="startDate">
                     <localize key="io.startDate"></localize>
                   </label>
                   <div class="col-md-8">
@@ -114,7 +114,7 @@
                   <div class="col-md-2"></div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-md-2 text-right" for="endDate">
+                  <label class="col-md-2 text-end" for="endDate">
                     <localize key="io.endDate"></localize>
                   </label>
                   <div class="col-md-8">
@@ -132,7 +132,7 @@
                   <div class="col-md-2"></div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-md-2 text-right" for="dataSource">
+                  <label class="col-md-2 text-end" for="dataSource">
                     <localize key="datasource.header"></localize>
                   </label>
                   <div class="col-md-8">
@@ -145,7 +145,7 @@
                   <div class="col-md-2"></div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-md-2 text-right" for="description">
+                  <label class="col-md-2 text-end" for="description">
                     <localize key="transition.event.description"></localize>
                   </label>
                   <div class="col-md-8">
@@ -154,7 +154,7 @@
                   <div class="col-md-2"></div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-md-2 text-right" for="file">
+                  <label class="col-md-2 text-end" for="file">
                     @if (this.format === 'JSON') {
                       <localize key="io.json"></localize>
                     }
@@ -177,7 +177,7 @@
                 </div>
                 <div class="form-group row">
                   <div class="col-md-2"></div>
-                  <div class="button-holder col-md-8 text-right">
+                  <div class="button-holder col-md-8 text-end">
                     <button type="submit" class="btn btn-primary" [disabled]="form.invalid" (click)="onClick()">
                       <localize key="io.submit"></localize>
                     </button>

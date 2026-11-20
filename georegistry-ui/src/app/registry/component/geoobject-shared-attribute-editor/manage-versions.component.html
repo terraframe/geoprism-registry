@@ -309,7 +309,7 @@
                                                       />
                                                       @if (!readonly && type.inherited == null) {
                                                         <span
-                                                          class="input-group-addon clickable addon-alert"
+                                                          class="input-group-text clickable addon-alert"
                                                           (click)="viewModel.editor.removeType(type)"
                                                         >
                                                           <i class="fa fa-times" aria-hidden="true"></i>
@@ -318,7 +318,7 @@
                                                       <!-- Hack: This is needed for formatting  -->
                                                       @if (readonly || type.inherited != null) {
                                                         <span
-                                                          class="input-group-addon addon-alert"
+                                                          class="input-group-text addon-alert"
                                                           style="visibility: hidden"
                                                         >
                                                         </span>
@@ -508,7 +508,7 @@
                                                         key="geoobject.editor.geometry.latitude.label"
                                                       ></localize>
                                                     </h5>
-                                                    <div class="text-left">
+                                                    <div class="text-start">
                                                       @if (
                                                         viewModel.value.coordinates && viewModel.value.coordinates[0]
                                                       ) {
@@ -569,7 +569,7 @@
                                                         key="geoobject.editor.geometry.longitude.label"
                                                       ></localize>
                                                     </h5>
-                                                    <div class="text-left">
+                                                    <div class="text-start">
                                                       @if (
                                                         viewModel.value.coordinates && viewModel.value.coordinates[0]
                                                       ) {

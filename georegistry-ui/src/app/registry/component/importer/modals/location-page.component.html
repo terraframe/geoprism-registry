@@ -106,11 +106,11 @@
         <div class="row-holder">
           <div class="button-holder">
             @if (hasBack) {
-              <button type="submit" (click)="onBack()" class="btn btn-default" role="button">
+              <button type="submit" (click)="onBack()" class="btn btn-secondary" role="button">
                 <localize key="io.back"></localize>
               </button>
             }
-            <button type="btn" (click)="onCancel()" class="btn btn-default" role="button">
+            <button type="btn" (click)="onCancel()" class="btn btn-secondary" role="button">
               <localize key="io.cancel"></localize>
             </button>
             <button type="submit" (click)="onNext()" class="btn btn-primary" role="button" [disabled]="form.invalid">

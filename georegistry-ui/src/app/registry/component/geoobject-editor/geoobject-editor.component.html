@@ -37,7 +37,7 @@
     <!--
     <div *ngIf="!isMaintainer" class="row-holder" style="padding-top: 10px;">
       <div class="label-holder"><label><localize key="change.request.action.detail.contributorNotes"></localize></label></div>
-      <div class="holder text-left">
+      <div class="holder text-start">
         <textarea style="width: 100%;border-radius: 8px;height: 70px; padding:5px;" class="detail-value" [(ngModel)]="notes" name="notes" required></textarea>
         <div class="form-input-validation-error-message-wrapper">
           <p *ngIf="!notes" class="error-message">Notes are required.</p>
@@ -48,8 +48,8 @@
 
     <div class="row">
       <div class="col-md-12">
-        <div class="button-holder text-left">
-          <button type="button" class="btn btn-default" (click)="cancel()">
+        <div class="button-holder text-start">
+          <button type="button" class="btn btn-secondary" (click)="cancel()">
             <localize key="modal.button.cancel"></localize>
           </button>
           <button type="submit" class="btn btn-primary" (click)="submit()" [disabled]="!canSubmit()">

@@ -271,10 +271,10 @@
           </div>
           <div class="edge-popup-footer">
             @if (!confirmingDelete) {
-              <button type="button" class="btn btn-default" (click)="closeEdgePopup()">Cancel</button>
+              <button type="button" class="btn btn-secondary" (click)="closeEdgePopup()">Cancel</button>
             }
             @if (confirmingDelete) {
-              <button type="button" class="btn btn-default" (click)="cancelDeleteConfirmation()">Go back</button>
+              <button type="button" class="btn btn-secondary" (click)="cancelDeleteConfirmation()">Go back</button>
             }
             @if (!confirmingDelete) {
               <button type="button" class="btn btn-danger" (click)="requestDeleteConfirmation()">Delete</button>

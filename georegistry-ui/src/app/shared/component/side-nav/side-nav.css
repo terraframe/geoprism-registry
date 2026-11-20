@@ -134,7 +134,7 @@
     padding: 4px;
 }
 
-.fixed-bottom-row .col-xs-12.expanded {
+.fixed-bottom-row .col-12.expanded {
     /* Pushes the toggle button to the sidebar's actual right edge
        (whatever that width happens to be) instead of the old hardcoded
        "margin-left: 255px", which only lined up at one specific sidebar
