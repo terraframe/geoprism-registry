@@ -126,3 +126,37 @@ a:not([href]):not([class]):hover {
 .btn {
   margin-bottom: 0;
 }
+
+/*
+ * Selected radios were green in Bootstrap 3: the app's custom .radio style
+ * (styles.scss) drew them in #6ba542. Bootstrap 5's .form-check-input colours
+ * them with $primary instead, so restore the theme green, including the
+ * green focus glow the app's other inputs use (form.scss). They also take the
+ * 5px corners of the app's other inputs rather than Bootstrap's circle.
+ */
+.form-check-input[type="radio"] {
+  border-radius: 5px;
+}
+
+.form-check-input[type="radio"]:checked {
+  background-color: var(--theme-submit-button-color, #6ba542);
+  border-color: var(--theme-submit-button-color, #6ba542);
+}
+
+.form-check-input[type="radio"]:focus {
+  border-color: var(--theme-input-text-border-active, #6ba542);
+  box-shadow: 0 0 0 0.25rem rgba(107, 165, 66, 0.25);
+}
+
+/*
+ * Bootstrap 3 tables inherited their text colour. Bootstrap 5 sets it on the
+ * table and every cell from --bs-table-color, which defaults to the emphasis
+ * colour (#000), so table text turned black instead of the body's #333 (or
+ * whatever colour the table sits in). Cells inherit again; contextual
+ * variants (.table-success etc.) still work, since they set color on the
+ * table or row and the cells inherit it.
+ */
+.table,
+.table > :not(caption) > * > * {
+  color: inherit;
+}

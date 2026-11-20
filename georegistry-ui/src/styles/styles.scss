@@ -15,7 +15,9 @@ $fa-font-path: "~@fortawesome/fontawesome-free/webfonts";
   $danger: #d9534f,
   $body-color: #333,
 
-  // Typography
+  // Typography: the app's font (see phetsarath-font.component.scss), so
+  // Bootstrap's own font-family rules (body, tooltips, popovers) use it too
+  $font-family-sans-serif: ("Phetsarath OT", "Roboto", sans-serif),
   $font-size-base: 0.875rem,
   $line-height-base: 1.428571,
   $enable-rfs: false,
@@ -66,6 +68,8 @@ $fa-font-path: "~@fortawesome/fontawesome-free/webfonts";
 
   // Tables: transparent cells so row backgrounds (e.g. tr.row-active) show through
   $table-bg: transparent,
+  // Bootstrap 3's opaque stripe instead of Bootstrap 5's 5% black overlay
+  $table-striped-bg: #f9f9f9,
 
   $progress-height: 20px,
 
