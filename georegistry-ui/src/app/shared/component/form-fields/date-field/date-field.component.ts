@@ -47,13 +47,15 @@ export class DateFieldComponent {
   @Input() label: string = ''; // raw string input
   @Input() disable: boolean = false;
   @Input() required: boolean = false;
-  @Input() placement: string = 'bottom';
-  @Input() oldDate: string = null;
+  // ngx-bootstrap positioning, e.g. 'bottom start': the popup's top-left corner
+  // at the input's bottom-left corner. ('bottom' would centre it under the input.)
+  @Input() placement: string = 'bottom start';
+  @Input() oldDate: string | null = null;
   @Input() title: string = '';
   @Input() placeholder: string = 'YYYY-MM-DD';
   @Input() customContainerClasses: string = '';
 
-  _value: Date;
+  _value: Date | null;
   // eslint-disable-next-line accessor-pairs
   @Input() set value(value: string | number | Date) {
     if (value) {
@@ -61,7 +63,7 @@ export class DateFieldComponent {
     }
   }
 
-  @Output() public valueChange = new EventEmitter<string>();
+  @Output() public valueChange = new EventEmitter<string | null>();
 
   /* You can pass a function in with (change)='function()' */
   @Output() public change = new EventEmitter<any>();
@@ -83,7 +85,7 @@ export class DateFieldComponent {
     this.bsDatepickerConfig.dateInputFormat = 'YYYY-MM-DD';
   }
 
-  private setValue(value: string | number | Date): void {
+  private setValue(value: string | number | Date | null): void {
     // @ts-ignore
     if (!isNaN(value)) {
       // @ts-ignore
@@ -110,7 +112,7 @@ export class DateFieldComponent {
     }
   }
 
-  public getValue(): Date {
+  public getValue(): Date | null {
     return this._value;
   }
 

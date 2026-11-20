@@ -118,7 +118,6 @@
                       [classNames]="'search-input'"
                       (change)="dt.filter({ startDate: col.startDate, endDate: col.endDate }, col.field, 'between')"
                       [allowInfinity]="false"
-                      [placement]="'bottom'"
                       customStyles="font-size: 10px;"
                       [placeholder]="'generic.table.to.date' | localize"
                     >
@@ -128,7 +127,6 @@
                       [classNames]="'search-input'"
                       (change)="dt.filter({ startDate: col.startDate, endDate: col.endDate }, col.field, 'between')"
                       [allowInfinity]="false"
-                      [placement]="'bottom'"
                       customStyles="font-size: 10px;"
                       [placeholder]="'generic.table.from.date' | localize"
                     >

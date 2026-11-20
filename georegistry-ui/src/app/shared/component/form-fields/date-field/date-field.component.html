@@ -47,7 +47,7 @@
         adaptivePosition: true,
       }"
       [outsideClick]="true"
-      [attr.placement]="placement"
+      [placement]="$any(placement)"
       [maxDate]="allowFutureDates ? null : today"
       [isDisabled]="disable"
       [disabled]="disable"

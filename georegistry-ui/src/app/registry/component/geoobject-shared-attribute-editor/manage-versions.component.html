@@ -198,7 +198,6 @@
                                                 [allowInfinity]="false"
                                                 [allowFutureDates]="true"
                                                 [required]="true"
-                                                [placement]="'right'"
                                                 [(valid)]="isValid"
                                                 [disable]="readonly"
                                               ></date-field>
@@ -682,7 +681,6 @@
                                             [allowInfinity]="viewModel.summaryKey !== 'DELETE' && !readonly"
                                             [allowFutureDates]="true"
                                             [required]="true"
-                                            [placement]="'bottom'"
                                             [oldDate]="viewModel.oldEndDate && !isNew ? viewModel.oldEndDate : null"
                                             [disable]="
                                               readonly || viewModel.summaryKey === 'DELETE' || filterDate != null
