@@ -21,24 +21,20 @@
     margin: 0 !important;
 }
 
-.collapsed-sidebar {
-    width: 55px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.collapsed-main {
-    width: calc(100% - 55px);
-    margin-left: auto;
-    margin-right: auto;
-}
-
+/*
+ * The sidebar is a .col-auto with its width set here; the main content is a
+ * .col and takes whatever is left, expanded or collapsed. The expanded width
+ * is set rather than left to the content: content-sized, it would follow the
+ * longest menu label (so vary by language and permissions), and the brand
+ * title can't widen it (.brand-heading's inline-size containment).
+ */
 .sidebar {
+    width: 16.6667%;
     background-color: #27232CFF;
     color: #BABABAFF;
     height: 100vh;
     /*
-     * This element is the scroll container on purpose: as a ".col-2" it
+     * This element is the scroll container on purpose: as a grid column it
      * carries Bootstrap's 15px horizontal padding, which absorbs the -15px
      * margins of the rows inside it. Scrolling any inner, unpadded wrapper
      * instead leaves those negative margins overflowing by 15px, and since
@@ -49,5 +45,13 @@
 }
 
 .sidebar.collapsed-sidebar {
+    width: 55px;
     overflow-y: hidden;
+}
+
+/* A flex item won't shrink below its content's width by default; without
+   this, wide page content (tables, maps) would push the main column past the
+   window instead of scrolling inside it. */
+.main-content {
+    min-width: 0;
 }
