@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, Input, OnDestroy, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
@@ -56,6 +56,7 @@ export interface LevelRow {
   styleUrls: ['dhis2-synchronization-config.css'],
   viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [LocalizeComponent, FormsModule, BooleanFieldComponent, BsDropdownModule, NgClass, LocalizePipe],
 })
 export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {

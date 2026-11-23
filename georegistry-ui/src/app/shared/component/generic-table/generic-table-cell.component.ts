@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { ICellRendererParams } from 'ag-grid-community';
@@ -42,6 +42,7 @@ export interface GenericTableCellParams {
   selector: 'generic-table-cell',
   standalone: true,
   imports: [RouterLink, LocalizeComponent, DateTextComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     @switch (type) {
       @case ('URL') {

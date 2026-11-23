@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ErrorHandler } from '@shared/component';
@@ -32,6 +32,7 @@ import { RouterLink } from '@angular/router';
   templateUrl: './import-history-modal.component.html',
   styleUrls: ['./import-history-modal.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [RouterLink, DateTextComponent, LocalizeComponent],
 })
 export class ImportHistoryModalComponent implements OnInit {

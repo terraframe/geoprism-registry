@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { BsModalRef } from 'ngx-bootstrap/modal';
@@ -40,6 +40,7 @@ import { MessageComponent } from '../../../shared/component/message/message.comp
   templateUrl: './organization-modal.component.html',
   styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MessageComponent,
     LoadingBarComponent,

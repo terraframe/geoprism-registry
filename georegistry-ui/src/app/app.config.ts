@@ -28,7 +28,7 @@ import { ButtonsModule } from 'ngx-bootstrap/buttons';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { ConfigurationService } from '@core/service/configuration.service';
 import { HttpErrorInterceptor } from '@core/service/http-error.interceptor';
-import { HTTP_INTERCEPTORS, withInterceptorsFromDi, provideHttpClient } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, withInterceptorsFromDi, provideHttpClient, withXhr } from '@angular/common/http';
 import { APP_BASE_HREF, HashLocationStrategy, LocationStrategy, PlatformLocation } from '@angular/common';
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
@@ -80,7 +80,7 @@ export const appConfig: ApplicationConfig = {
     },
     provideZoneChangeDetection(),
     provideMaplibreWorker('maplibre-gl-worker.mjs'),
-    provideHttpClient(withInterceptorsFromDi()),
+    provideHttpClient(withXhr(), withInterceptorsFromDi()),
     {
       provide: HTTP_INTERCEPTORS,
       useClass: HttpErrorInterceptor,

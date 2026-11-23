@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, ViewChild, OnDestroy, Input } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy, Input, ChangeDetectionStrategy } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { GeometryService } from '@registry/service';
@@ -32,6 +32,7 @@ import EnvironmentUtil from '@core/utility/environment-util';
   selector: 'geoobject-editor-map[geometryType]',
   templateUrl: './geoobject-editor-map.component.html',
   styleUrls: ['./geoobject-editor-map.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 

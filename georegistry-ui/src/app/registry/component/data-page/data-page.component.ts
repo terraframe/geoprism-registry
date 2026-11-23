@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 
@@ -34,6 +34,7 @@ import { PageContainerComponent } from '../../../shared/component/page-container
   templateUrl: './data-page.component.html',
   styleUrls: ['./data-page.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [PageContainerComponent, RouterLink, NgClass, LocalizeComponent, DataImporterComponent],
 })
 export class DataPageComponent implements OnInit {

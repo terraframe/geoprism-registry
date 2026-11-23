@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { LocalizationService } from '@shared/service/localization.service';
 
@@ -35,6 +35,7 @@ export class GenericButton {
   templateUrl: './generic-modal.component.html',
   styleUrls: ['./modal.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule],
 })
 export class GenericModalComponent {

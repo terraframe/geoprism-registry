@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ModalStepIndicatorService } from '@shared/service';
 
 import { Step, StepConfig } from '@shared/model/modal';
@@ -29,6 +29,7 @@ import { NgClass } from '@angular/common';
   templateUrl: './modal-step-indicator.component.html',
   styleUrls: ['./modal-step-indicator.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [NgClass],
 })
 export class ModalStepIndicatorComponent {

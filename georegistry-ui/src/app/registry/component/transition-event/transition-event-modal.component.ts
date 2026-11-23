@@ -19,7 +19,7 @@
 
 /* eslint-disable indent */
 /* eslint-disable quotes */
-import { Component, OnDestroy, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Observable, Subject } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -59,6 +59,7 @@ export const GRAPH_LINE_COLOR: string = '#999';
   templateUrl: './transition-event-modal.component.html',
   styleUrls: ['./transition-event-modal.component.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     FormsModule,
     LocalizeComponent,

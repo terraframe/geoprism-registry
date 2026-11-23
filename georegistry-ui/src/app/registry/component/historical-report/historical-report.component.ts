@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component, ViewEncapsulation, ChangeDetectionStrategy } from '@angular/core';
 import { HttpErrorResponse, HttpParams } from '@angular/common/http';
 
 import { ErrorHandler } from '@shared/component';
@@ -41,6 +41,7 @@ import { FormsModule } from '@angular/forms';
   styleUrls: [],
   encapsulation: ViewEncapsulation.None,
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, LocalizeComponent, DateFieldComponent, DateTextComponent, NgxPaginationModule],
 })
 export class HistoricalReportComponent {

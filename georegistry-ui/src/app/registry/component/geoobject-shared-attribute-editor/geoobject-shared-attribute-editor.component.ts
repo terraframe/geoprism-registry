@@ -27,6 +27,7 @@ import {
   Output,
   EventEmitter,
   OnDestroy,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { DatePipe, NgClass } from '@angular/common';
 
@@ -72,6 +73,7 @@ import { SourceAuthority } from '@registry/model/source';
   styleUrls: ['./geoobject-shared-attribute-editor.css'],
   providers: [DatePipe],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     StabilityPeriodComponent,
     BooleanFieldComponent,

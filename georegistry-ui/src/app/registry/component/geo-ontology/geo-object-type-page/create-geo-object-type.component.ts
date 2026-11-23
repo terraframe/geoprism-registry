@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { GeoObjectType } from '@registry/model/registry';
 import * as lodash from 'lodash';
@@ -43,6 +43,7 @@ import { ConceptObjectService } from '@registry/service/concept-object.service';
   templateUrl: './create-geo-object-type.component.html',
   styleUrls: [],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     NgClass,
     FormsModule,

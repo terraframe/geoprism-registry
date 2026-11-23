@@ -17,7 +17,17 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { ListTypeVersion } from '@registry/model/list-type';
 import { GenericTableConfig, TableColumnSetup, TableQuery } from '@shared/model/generic-table';
 import { ListTypeService } from '@registry/service/list-type.service';
@@ -31,6 +41,7 @@ import { LocalizeComponent } from '../../../shared/component/localize/localize.c
   templateUrl: './list-row.component.html',
   styleUrls: [],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [LocalizeComponent, GenericTableComponent],
 })
 export class ListRowComponent implements OnInit, OnDestroy, OnChanges {

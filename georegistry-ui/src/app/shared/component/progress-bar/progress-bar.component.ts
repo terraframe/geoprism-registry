@@ -17,7 +17,15 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { afterNextRender, Component, ElementRef, OnDestroy, OnInit, signal } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 
 import { Progress } from '@shared/model/progress';
 import { ProgressService, IProgressListener } from '@shared/service';
@@ -45,6 +53,7 @@ interface OverlayArea {
     '.progress-div { width: 50%; }',
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [ProgressbarModule],
 })
 export class ProgressBarComponent implements OnInit, OnDestroy, IProgressListener {

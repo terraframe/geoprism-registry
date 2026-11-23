@@ -18,7 +18,16 @@
 ///
 
 /* eslint-disable indent */
-import { Component, OnInit, Output, EventEmitter, OnDestroy, ViewChild, Input } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Output,
+  EventEmitter,
+  OnDestroy,
+  ViewChild,
+  Input,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalService } from 'ngx-bootstrap/modal';
 
@@ -87,6 +96,7 @@ export const DIMENSIONS = {
   styleUrls: ['./relationship-visualizer.css'],
   standalone: true,
   imports: [NgxSpinnerModule, FormsModule, BooleanFieldComponent, NgStyle, GraphComponent, KeyValuePipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [LayoutService],
 })
 export class RelationshipVisualizerComponent implements OnInit, OnDestroy {

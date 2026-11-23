@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
 import { AuthService } from '@shared/service';
@@ -37,6 +37,7 @@ import { MessageComponent } from '../../../shared/component/message/message.comp
   styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}'],
   styleUrls: ['./role-management.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MessageComponent, LoadingBarComponent, FormsModule, BooleanFieldComponent, NgClass, LocalizeComponent],
 })
 export class RoleManagementComponent {

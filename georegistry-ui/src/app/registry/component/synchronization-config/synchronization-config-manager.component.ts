@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router, RouterLinkActive, RouterLink } from '@angular/router';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
@@ -40,6 +40,7 @@ import { PageContainerComponent } from '../../../shared/component/page-container
   templateUrl: './synchronization-config-manager.component.html',
   styleUrls: [],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [PageContainerComponent, LocalizeComponent, RouterLinkActive, RouterLink, NgxPaginationModule],
 })
 export class SynchronizationConfigManagerComponent implements OnInit {

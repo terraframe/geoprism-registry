@@ -17,7 +17,16 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnInit } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  OnChanges,
+  SimpleChanges,
+  OnInit,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { ObjectClass, ObjectOverTime } from '@registry/model/object-class';
 import { NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -30,6 +39,7 @@ import { ConvertKeyLabel } from '@shared/component/localize/convert-key-label.co
   templateUrl: './object-panel.component.html',
   styleUrls: ['./object-panel.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, NgTemplateOutlet, DateFieldComponent, LocalizeComponent, ConvertKeyLabel],
 })
 export class ObjectPanelComponent implements OnChanges, OnInit {

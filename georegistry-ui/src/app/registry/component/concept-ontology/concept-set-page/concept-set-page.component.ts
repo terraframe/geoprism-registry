@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input, ChangeDetectionStrategy } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalService } from 'ngx-bootstrap/modal';
 
@@ -52,6 +52,7 @@ interface Selection {
   templateUrl: './concept-set-page.component.html',
   styleUrls: ['./concept-set-page.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, LocalizeComponent, NgClass, BsDropdownModule, ManageConceptSetComponent],
 })
 export class ConceptSetPageComponent implements OnInit {

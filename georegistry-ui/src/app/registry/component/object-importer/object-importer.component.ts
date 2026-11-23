@@ -26,6 +26,7 @@ import {
   ChangeDetectorRef,
   ViewChildren,
   QueryList,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { FileUploader, FileUploaderOptions, FileUploadModule } from 'ng2-file-upload';
@@ -56,6 +57,7 @@ import { ImportConfiguration, ImportConfigurationView } from '@registry/model/io
   templateUrl: './object-importer.component.html',
   styleUrls: ['./object-importer.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     PageContainerComponent,
     LocalizeComponent,

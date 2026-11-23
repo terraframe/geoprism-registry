@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 import { FileUploader, FileUploaderOptions, FileUploadModule } from 'ng2-file-upload';
@@ -39,6 +39,7 @@ import { NgClass } from '@angular/common';
   templateUrl: './reupload-modal.component.html',
   styleUrls: [],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, LocalizeComponent, FileUploadModule, NgClass],
 })
 export class ReuploadModalComponent {

@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { EdgeImportConfiguration, ImportConfiguration } from '@registry/model/io';
 import { FormsModule } from '@angular/forms';
@@ -32,6 +32,7 @@ import { ImportDataPreviewComponent } from './import-data-preview.component';
   templateUrl: './edge-page.component.html',
   styleUrls: [],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [LocalizeComponent, FormsModule, ImportDataPreviewComponent],
 })
 export class EdgePageComponent implements OnInit {

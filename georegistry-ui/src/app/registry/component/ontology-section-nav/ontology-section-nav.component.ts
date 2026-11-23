@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { LocalizeComponent } from '@shared/component/localize/localize.component';
 
@@ -32,6 +32,7 @@ export interface OntologySectionNavItem {
   templateUrl: './ontology-section-nav.component.html',
   styleUrls: ['./ontology-section-nav.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [NgClass, LocalizeComponent],
 })
 export class OntologySectionNavComponent {

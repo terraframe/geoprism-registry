@@ -17,100 +17,105 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, ViewChild, ElementRef } from "@angular/core";
-import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
-import { FileUploader, FileUploaderOptions, FileUploadModule } from "ng2-file-upload";
+import { Component, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
+import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
+import { FileUploader, FileUploaderOptions, FileUploadModule } from 'ng2-file-upload';
 
-import { ErrorHandler } from "@shared/component";
-import { LocalizationService, EventService } from "@shared/service";
-import { HttpErrorResponse } from "@angular/common/http";
+import { ErrorHandler } from '@shared/component';
+import { LocalizationService, EventService } from '@shared/service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 import { environment } from 'src/environments/environment';
-import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
-import { FormsModule } from "@angular/forms";
-import { DecimalPipe } from "@angular/common";
-import { LoadingBarComponent } from "../../../shared/component/loading-bar/loading-bar.component";
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+import { FormsModule } from '@angular/forms';
+import { DecimalPipe } from '@angular/common';
+import { LoadingBarComponent } from '../../../shared/component/loading-bar/loading-bar.component';
 
 @Component({
-    selector: "import-modal",
-    templateUrl: "./import-modal.component.html",
-    styleUrls: [],
-    standalone: true,
-    imports: [LoadingBarComponent, FormsModule, LocalizeComponent, FileUploadModule, DecimalPipe]
+  selector: 'import-modal',
+  templateUrl: './import-modal.component.html',
+  styleUrls: [],
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [LoadingBarComponent, FormsModule, LocalizeComponent, FileUploadModule, DecimalPipe],
 })
 export class ImportModalComponent {
+  @ViewChild('myFile')
+  fileRef: ElementRef;
 
-    @ViewChild("myFile")
-    fileRef: ElementRef;
+  /*
+   * File uploader
+   */
+  uploader: FileUploader;
 
-    /*
-     * File uploader
-     */
-    uploader: FileUploader;
+  /*
+   * The number of each kind of thing imported, shown once the import succeeds
+   */
+  summary: { label: string; count: number }[] = null;
 
-    /*
-     * The number of each kind of thing imported, shown once the import succeeds
-     */
-    summary: { label: string, count: number }[] = null;
+  constructor(
+    public bsModalRef: BsModalRef,
+    private localizationService: LocalizationService,
+    private eventService: EventService,
+    private modalService: BsModalService
+  ) {}
 
-    constructor(public bsModalRef: BsModalRef, private localizationService: LocalizationService, private eventService: EventService, private modalService: BsModalService) { }
+  ngOnInit(): void {
+    let options: FileUploaderOptions = {
+      queueLimit: 1,
+      removeAfterUpload: true,
+      url: environment.apiUrl + '/api/admin/bulk-import',
+    };
 
-    ngOnInit(): void {
-        let options: FileUploaderOptions = {
-            queueLimit: 1,
-            removeAfterUpload: true,
-            url: environment.apiUrl + "/api/admin/bulk-import"
+    this.uploader = new FileUploader(options);
+
+    this.uploader.onBuildItemForm = (fileItem: any, form: any) => {};
+    this.uploader.onBeforeUploadItem = (fileItem: any) => {
+      this.eventService.start();
+    };
+    this.uploader.onCompleteItem = (item: any, response: any, status: any, headers: any) => {
+      // The file input is removed once the summary is shown
+      if (this.fileRef != null) {
+        this.fileRef.nativeElement.value = '';
+      }
+      this.eventService.complete();
+    };
+    this.uploader.onSuccessItem = (item: any, response: string, status: number, headers: any) => {
+      this.summary = JSON.parse(response);
+    };
+    this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {
+      // The uploader gives us the raw response body, which needs to be parsed
+      // before the error handler can find the message in it
+      let error: any;
+
+      try {
+        error = JSON.parse(response);
+      } catch (e) {
+        error = {
+          message: response != null && response.length > 0 ? response : 'The import failed with HTTP status ' + status,
         };
+      }
 
-        this.uploader = new FileUploader(options);
+      this.error({ error: error });
+    };
+  }
 
-        this.uploader.onBuildItemForm = (fileItem: any, form: any) => {
-        };
-        this.uploader.onBeforeUploadItem = (fileItem: any) => {
-            this.eventService.start();
-        };
-        this.uploader.onCompleteItem = (item: any, response: any, status: any, headers: any) => {
-            // The file input is removed once the summary is shown
-            if (this.fileRef != null) {
-                this.fileRef.nativeElement.value = "";
-            }
-            this.eventService.complete();
-        };
-        this.uploader.onSuccessItem = (item: any, response: string, status: number, headers: any) => {
-            this.summary = JSON.parse(response);
-        };
-        this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {
-            // The uploader gives us the raw response body, which needs to be parsed
-            // before the error handler can find the message in it
-            let error: any;
-
-            try {
-                error = JSON.parse(response);
-            } catch (e) {
-                error = { message: (response != null && response.length > 0) ? response : ("The import failed with HTTP status " + status) };
-            }
-
-            this.error({ error: error });
-        };
+  submit(): void {
+    if (this.uploader.queue != null && this.uploader.queue.length > 0) {
+      this.uploader.uploadAll();
+    } else {
+      this.error({
+        message: this.localizationService.decode('io.missing.file'),
+        error: {},
+      });
     }
+  }
 
-    submit(): void {
-        if (this.uploader.queue != null && this.uploader.queue.length > 0) {
-            this.uploader.uploadAll();
-        } else {
-            this.error({
-                message: this.localizationService.decode("io.missing.file"),
-                error: {}
-            });
-        }
-    }
+  cancel(): void {
+    this.bsModalRef.hide();
+  }
 
-    cancel(): void {
-        this.bsModalRef.hide();
-    }
-
-    public error(err: any): void {
-        ErrorHandler.showErrorAsDialog(err, this.modalService);
-    }
-
+  public error(err: any): void {
+    ErrorHandler.showErrorAsDialog(err, this.modalService);
+  }
 }

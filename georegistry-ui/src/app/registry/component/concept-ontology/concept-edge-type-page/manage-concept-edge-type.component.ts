@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ConceptEdgeTypeService } from '@registry/service/concept-edge-type.service';
 import { LocalizedTextComponent } from '../../form-fields/localized-text/localized-text.component';
@@ -33,6 +33,7 @@ import { ConceptEdgeType, ConceptClass } from '@registry/model/object-class';
   styleUrls: ['./manage-concept-edge-type.css'],
   // host: { '[@fadeInOut]': 'true' },
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, LocalizeComponent, ConvertKeyLabel, LocalizedTextComponent],
 })
 export class ManageConceptEdgeTypeComponent implements OnInit {

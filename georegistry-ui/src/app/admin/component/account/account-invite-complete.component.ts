@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Subscription } from 'rxjs';
@@ -43,6 +43,7 @@ import { CgrHeaderComponent } from '../../../shared/component/header/header.comp
   templateUrl: './account-invite-complete.component.html',
   styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CgrHeaderComponent,
     MessageComponent,

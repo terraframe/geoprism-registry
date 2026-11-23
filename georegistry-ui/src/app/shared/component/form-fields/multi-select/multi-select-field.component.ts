@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { ControlContainer, NgForm } from '@angular/forms';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { NgClass } from '@angular/common';
@@ -34,6 +34,7 @@ import { NgClass } from '@angular/common';
   ],
   viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [BsDropdownModule, NgClass],
 })
 export class MultiSelectFieldComponent {

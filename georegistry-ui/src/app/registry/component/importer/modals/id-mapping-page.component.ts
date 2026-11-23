@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 
 import { IdMapping, ImportConfiguration } from '@registry/model/io';
 
@@ -32,6 +32,7 @@ import { UniqueMappingValidatorDirective } from './unique-mapping-validator.dire
   templateUrl: './id-mapping-page.component.html',
   styleUrls: [],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, LocalizeComponent, UniqueMappingValidatorDirective],
 })
 export class IdMappingPageComponent implements OnInit {

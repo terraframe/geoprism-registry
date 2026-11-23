@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
@@ -37,6 +37,7 @@ import { PageContainerComponent } from '../../../shared/component/page-container
   templateUrl: './details.component.html',
   styleUrls: ['./details.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [PageContainerComponent, LocalizeComponent, NgxPaginationModule],
 })
 export class SyncDetailsComponent implements OnInit, OnDestroy {

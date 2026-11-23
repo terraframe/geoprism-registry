@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from '@angular/common/http';
 
@@ -37,6 +37,7 @@ import { ManageSourceAuthorityModalComponent } from './modals/manage-source-auth
   templateUrl: './source-authority-manager.component.html',
   styleUrls: ['./source-authority-manager.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [PageContainerComponent, LocalizeComponent, LocalizePipe],
 })
 export class SourceAuthorityManagerComponent implements OnInit {

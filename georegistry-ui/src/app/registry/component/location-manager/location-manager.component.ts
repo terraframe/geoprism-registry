@@ -26,7 +26,7 @@ import {
   HostListener,
   Injector,
   ApplicationRef,
-  ComponentFactoryResolver,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { Location, NgClass, NgStyle } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -133,6 +133,7 @@ export interface LocationManagerState {
   templateUrl: './location-manager.component.html',
   styleUrls: ['./location-manager.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     LocalizeComponent,
     PageContainerComponent,

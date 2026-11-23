@@ -26,6 +26,7 @@ import {
   OnDestroy,
   OnChanges,
   SimpleChanges,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AgGridAngular } from 'ag-grid-angular';
@@ -76,6 +77,7 @@ const FILTER_DEBOUNCE_MS = 300;
   templateUrl: './generic-table.component.html',
   styleUrls: ['./generic-table.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [AgGridAngular, FormsModule, PaginationModule],
 })
 export class GenericTableComponent implements OnInit, OnChanges, OnDestroy {

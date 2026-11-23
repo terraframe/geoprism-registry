@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { HubService } from '@core/service/hub.service';
 import { Subscription } from 'rxjs';
 import { CgrHeaderComponent } from '../header/header.component';
@@ -30,6 +30,7 @@ import { NgClass } from '@angular/common';
   templateUrl: './page-container.component.html',
   styleUrls: ['./page-container.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [LoadingBarComponent, NgClass, SideNavComponent, CgrHeaderComponent],
 })
 export class PageContainerComponent implements OnInit, OnDestroy {

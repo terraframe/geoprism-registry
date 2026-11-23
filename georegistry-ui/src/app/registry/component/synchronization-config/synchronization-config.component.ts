@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, RouterLinkActive, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
@@ -45,6 +45,7 @@ import { PageContainerComponent } from '../../../shared/component/page-container
   templateUrl: './synchronization-config.component.html',
   styleUrls: [],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     PageContainerComponent,
     NgClass,

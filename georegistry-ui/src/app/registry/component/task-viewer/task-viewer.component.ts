@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe } from '@angular/common';
 
 import { TaskService } from '@registry/service';
@@ -38,6 +38,7 @@ import { PageContainerComponent } from '../../../shared/component/page-container
   styleUrls: ['./task-viewer.component.css'],
   providers: [DatePipe],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [PageContainerComponent, MessageComponent, LocalizeComponent, DateTextComponent, NgxPaginationModule],
 })
 export class TaskViewerComponent implements OnInit {

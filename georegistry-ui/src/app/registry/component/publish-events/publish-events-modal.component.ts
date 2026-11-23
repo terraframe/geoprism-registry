@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { v4 as uuid } from 'uuid';
 
@@ -42,6 +42,7 @@ import { LocalizationService } from '@shared/service';
   templateUrl: './publish-events-modal.component.html',
   styleUrls: [],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [LocalizeComponent, FormsModule, DateFieldComponent, MultiSelectFieldComponent, LocalizedTextComponent],
 })
 export class PublishEventsModalComponent implements OnInit, OnDestroy {

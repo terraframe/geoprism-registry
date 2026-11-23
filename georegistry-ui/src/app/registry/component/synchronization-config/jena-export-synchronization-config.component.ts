@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, Input, OnDestroy, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy, EventEmitter, Output, ChangeDetectionStrategy } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
@@ -34,6 +34,7 @@ import { LocalizeComponent } from '../../../shared/component/localize/localize.c
   styleUrls: [],
   standalone: true,
   imports: [LocalizeComponent, FormsModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
 })
 export class JenaExportSynchronizationConfigComponent implements OnInit, OnDestroy {

@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, Input, Output, EventEmitter, Directive } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, Directive, ChangeDetectionStrategy } from '@angular/core';
 
 import { ImportConfiguration } from '@registry/model/io';
 
@@ -32,6 +32,7 @@ import { SourceAuthority } from '@registry/model/source';
   templateUrl: './location-page.component.html',
   styleUrls: [],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, LocalizeComponent],
 })
 export class LocationPageComponent implements OnInit {

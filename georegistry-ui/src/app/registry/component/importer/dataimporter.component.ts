@@ -26,6 +26,7 @@ import {
   ElementRef,
   QueryList,
   ChangeDetectorRef,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { FileUploader, FileUploaderOptions, FileUploadModule } from 'ng2-file-upload';
@@ -52,6 +53,7 @@ import { NgClass } from '@angular/common';
   templateUrl: './dataimporter.component.html',
   styleUrls: ['./dataimporter.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [LocalizeComponent, FormsModule, DateFieldComponent_1, BooleanFieldComponent, FileUploadModule],
 })
 export class DataImporterComponent implements OnInit {

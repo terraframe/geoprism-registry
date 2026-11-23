@@ -17,27 +17,29 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input } from "@angular/core";
-import { BsModalRef } from "ngx-bootstrap/modal";
-import { LocalizationService } from "@shared/service/localization.service";
-import { LocalizeComponent } from "../../../shared/component/localize/localize.component";
-import { FormsModule } from "@angular/forms";
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { LocalizationService } from '@shared/service/localization.service';
+import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
+import { FormsModule } from '@angular/forms';
 
 @Component({
-    selector: "error-modal",
-    templateUrl: "./localization-feedback-modal.component.html",
-    styleUrls: ["./localization-feedback-modal.css"],
-    standalone: true,
-    imports: [FormsModule, LocalizeComponent]
+  selector: 'error-modal',
+  templateUrl: './localization-feedback-modal.component.html',
+  styleUrls: ['./localization-feedback-modal.css'],
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [FormsModule, LocalizeComponent],
 })
 export class LocalizationFeedbackModalComponent {
+  /*
+   * Message
+   */
+  @Input() message: string = this.localizeService.decode('error.modal.default.message');
 
-    /*
-     * Message
-     */
-    @Input() message: string = this.localizeService.decode("error.modal.default.message");
-
-    // eslint-disable-next-line no-useless-constructor
-    constructor(public bsModalRef: BsModalRef, private localizeService: LocalizationService) { }
-
+  // eslint-disable-next-line no-useless-constructor
+  constructor(
+    public bsModalRef: BsModalRef,
+    private localizeService: LocalizationService
+  ) {}
 }

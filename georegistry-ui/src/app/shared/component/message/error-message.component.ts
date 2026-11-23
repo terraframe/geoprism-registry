@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { LocalizationService } from '@shared/service/localization.service';
 import { LocalizeComponent } from '../localize/localize.component';
 
@@ -26,6 +26,7 @@ import { LocalizeComponent } from '../localize/localize.component';
   templateUrl: './error-message.component.html',
   styleUrls: ['./error-message.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [LocalizeComponent],
 })
 export class ErrorMessageComponent {

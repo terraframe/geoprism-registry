@@ -2,11 +2,10 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./",
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
     "declaration": false,
-    "downlevelIteration": true,
+    "strict": false,
     "strictPropertyInitialization": false,
     "experimentalDecorators": true,
     "moduleResolution": "bundler",
@@ -19,20 +18,23 @@
       "dom"
     ],
 		"paths": {
+			"src/*": [
+				"./src/*"
+			],
 			"@shared/*": [
-				"src/app/shared/*"
+				"./src/app/shared/*"
 			],
 			"@registry/*": [
-				"src/app/registry/*"
+				"./src/app/registry/*"
 			],
 			"@core/*": [
-				"src/app/core/*"
+				"./src/app/core/*"
 			],
 			"@admin/*": [
-				"src/app/admin/*"
+				"./src/app/admin/*"
 			],
 			"@test/*": [
-				"test/src/*"
+				"./test/src/*"
 			]
 		},
 		"noImplicitAny": false,

@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { ActivatedRoute } from '@angular/router';
 import { GenericTableColumn, GenericTableConfig, TableColumnSetup, TableEvent } from '@shared/model/generic-table';
@@ -38,6 +38,7 @@ import { ObjectPanelComponent } from './object-panel.component';
   templateUrl: './object-table.component.html',
   styles: [],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [PageContainerComponent, NgClass, GenericTableComponent, ObjectPanelComponent],
 })
 export class ObjectTableComponent implements OnInit {

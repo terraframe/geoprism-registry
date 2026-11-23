@@ -17,83 +17,85 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input, OnDestroy, OnInit } from "@angular/core";
-import { BsModalRef } from "ngx-bootstrap/modal";
-import { Subject } from "rxjs";
-import { LocalizationService } from "@shared/service/localization.service";
-import { ModalTypes } from "@shared/model/modal";
-import { NgClass } from "@angular/common";
-import { FormsModule } from "@angular/forms";
+import { Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+import { Subject } from 'rxjs';
+import { LocalizationService } from '@shared/service/localization.service';
+import { ModalTypes } from '@shared/model/modal';
+import { NgClass } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
-    selector: "confirm-modal",
-    templateUrl: "./confirm-modal.component.html",
-    styleUrls: ["./modal.css"],
-    standalone: true,
-    imports: [FormsModule, NgClass]
+  selector: 'confirm-modal',
+  templateUrl: './confirm-modal.component.html',
+  styleUrls: ['./modal.css'],
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [FormsModule, NgClass],
 })
 export class ConfirmModalComponent implements OnInit, OnDestroy {
+  /*
+   * Message
+   */
+  @Input() message: string = this.localizeService.decode('confirm.modal.default.message');
 
-    /*
-     * Message
-     */
-    @Input() message: string = this.localizeService.decode("confirm.modal.default.message");
+  @Input() data: any;
 
-    @Input() data: any;
+  @Input() submitText: string = this.localizeService.decode('modal.button.submit');
 
-    @Input() submitText: string = this.localizeService.decode("modal.button.submit");
+  @Input() cancelText: string = this.localizeService.decode('modal.button.cancel');
 
-    @Input() cancelText: string = this.localizeService.decode("modal.button.cancel");
+  @Input() type: ModalTypes = ModalTypes.warning;
 
-    @Input() type: ModalTypes = ModalTypes.warning;
+  /*
+   * Optional acknowledgement text. When set, the user must check a box
+   * containing this text before the confirm button is enabled.
+   */
+  @Input() acknowledgement: string | null = null;
 
-    /*
-     * Optional acknowledgement text. When set, the user must check a box
-     * containing this text before the confirm button is enabled.
-     */
-    @Input() acknowledgement: string | null = null;
+  public acknowledged: boolean = false;
 
-    public acknowledged: boolean = false;
+  /*
+   * Called on confirm
+   */
+  public onConfirm: Subject<any>;
 
-    /*
-     * Called on confirm
-     */
-    public onConfirm: Subject<any>;
+  /*
+   * Called on cancel
+   */
+  public onCancel: Subject<any>;
 
-    /*
-     * Called on cancel
-     */
-    public onCancel: Subject<any>;
+  // eslint-disable-next-line no-useless-constructor
+  constructor(
+    public bsModalRef: BsModalRef,
+    private localizeService: LocalizationService
+  ) {}
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor(public bsModalRef: BsModalRef, private localizeService: LocalizationService) { }
+  ngOnInit(): void {
+    this.onConfirm = new Subject();
+    this.onCancel = new Subject();
+  }
 
-    ngOnInit(): void {
-        this.onConfirm = new Subject();
-        this.onCancel = new Subject();
+  ngOnDestroy(): void {
+    this.onConfirm.unsubscribe();
+    this.onCancel.unsubscribe();
+  }
+
+  canConfirm(): boolean {
+    return this.acknowledgement == null || this.acknowledged;
+  }
+
+  confirm(): void {
+    if (!this.canConfirm()) {
+      return;
     }
 
-    ngOnDestroy(): void {
-        this.onConfirm.unsubscribe();
-        this.onCancel.unsubscribe();
-    }
+    this.bsModalRef.hide();
+    this.onConfirm.next(this.data);
+  }
 
-    canConfirm(): boolean {
-        return this.acknowledgement == null || this.acknowledged;
-    }
-
-    confirm(): void {
-        if (!this.canConfirm()) {
-            return;
-        }
-
-        this.bsModalRef.hide();
-        this.onConfirm.next(this.data);
-    }
-
-    cancel(): void {
-        this.bsModalRef.hide();
-        this.onCancel.next(this.data);
-    }
-
+  cancel(): void {
+    this.bsModalRef.hide();
+    this.onCancel.next(this.data);
+  }
 }

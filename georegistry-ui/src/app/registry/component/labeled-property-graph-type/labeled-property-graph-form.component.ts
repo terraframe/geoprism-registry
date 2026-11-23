@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { Observable } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 
@@ -49,6 +49,7 @@ import { BusinessEdgeTypeService } from '@registry/service/business-edge-type.se
   templateUrl: './labeled-property-graph-form.component.html',
   styleUrls: ['./labeled-property-graph-type-manager.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     FormsModule,
     LocalizeComponent,

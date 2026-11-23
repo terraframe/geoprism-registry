@@ -17,7 +17,17 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from '@angular/common/http';
 
@@ -38,6 +48,7 @@ import { ModalTypes } from '@shared/model/modal';
   templateUrl: './lists-for-type.component.html',
   styleUrls: ['./list-type-manager.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [RouterLinkActive, RouterLink, LocalizeComponent, DateTextComponent, NgTemplateOutlet],
 })
 export class ListsForTypeComponent implements OnInit, OnDestroy, OnChanges {

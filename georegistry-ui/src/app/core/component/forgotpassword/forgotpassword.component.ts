@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -36,6 +36,7 @@ import { MessageComponent } from '../../../shared/component/message/message.comp
   templateUrl: './forgotpassword.component.html',
   styleUrls: ['./forgotpassword.component.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [MessageComponent, LoadingBarComponent, FormsModule, LocalizeComponent, LocalizePipe],
 })
 export class ForgotPasswordComponent {

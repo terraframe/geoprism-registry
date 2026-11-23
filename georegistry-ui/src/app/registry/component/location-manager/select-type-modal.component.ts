@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ListTypeVersion } from '@registry/model/list-type';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Observer, Subject, Subscription } from 'rxjs';
@@ -30,6 +30,7 @@ import { LocalizeComponent } from '../../../shared/component/localize/localize.c
   templateUrl: './select-type-modal.component.html',
   styleUrls: [],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [LocalizeComponent, FormsModule],
 })
 export class SelectTypeModalComponent implements OnInit, OnDestroy {

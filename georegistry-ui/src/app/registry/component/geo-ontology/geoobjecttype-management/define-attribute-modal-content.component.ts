@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, ViewChild, Input, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, ViewChild, Input, EventEmitter, Output, ChangeDetectionStrategy } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ErrorHandler } from '@shared/component';
 import { StepConfig } from '@shared/model/modal';
@@ -37,6 +37,7 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './define-attribute-modal-content.component.html',
   styleUrls: ['./define-attribute-modal-content.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, LocalizeComponent, NgClass, AttributeInputComponent],
 })
 export class DefineAttributeModalContentComponent implements OnInit {

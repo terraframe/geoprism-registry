@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -39,6 +39,7 @@ import { ManageDataSourceModalComponent } from './modals/manage-data-source-moda
   templateUrl: './data-source-manager.component.html',
   styleUrls: ['./data-source-manager.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [PageContainerComponent, LocalizeComponent, LocalizePipe],
 })
 export class DataSourceManagerComponent implements OnInit {

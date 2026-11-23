@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { TypeaheadMatch, TypeaheadModule } from 'ngx-bootstrap/typeahead';
 import { Observable } from 'rxjs';
 
@@ -33,6 +33,7 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './location-problem.component.html',
   styleUrls: [],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, TypeaheadModule, NgClass, LocalizeComponent, LocalizePipe],
 })
 export class LocationProblemComponent implements OnInit {

@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalService } from 'ngx-bootstrap/modal';
 
@@ -45,6 +45,7 @@ import { ConceptEdgeTypeService } from '@registry/service/concept-edge-type.serv
   templateUrl: './concept-ontology.component.html',
   styleUrls: ['./concept-ontology.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     PageContainerComponent,
     OntologySectionNavComponent,

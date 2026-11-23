@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, ViewChild, Input } from '@angular/core';
+import { Component, OnInit, ViewChild, Input, ChangeDetectionStrategy } from '@angular/core';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 
 import { DatePipe } from '@angular/common';
@@ -50,6 +50,7 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./geoobject-editor.component.css'],
   providers: [DatePipe],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, GeoObjectSharedAttributeEditorComponent, LocalizeComponent],
 })
 

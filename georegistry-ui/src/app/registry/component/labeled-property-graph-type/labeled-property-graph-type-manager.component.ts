@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnDestroy, OnInit, ViewChildren, QueryList } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChildren, QueryList, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Params, Router, RouterLinkActive, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
@@ -40,6 +40,7 @@ import { ModalTypes } from '@shared/model/modal';
   templateUrl: './labeled-property-graph-type-manager.component.html',
   styleUrls: ['./labeled-property-graph-type-manager.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     PageContainerComponent,
     LocalizeComponent,

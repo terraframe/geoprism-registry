@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 
@@ -44,6 +44,7 @@ import { LocalizeComponent } from '../../../shared/component/localize/localize.c
   templateUrl: './submit-change-request.component.html',
   styleUrls: ['./submit-change-request.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [LocalizeComponent, FormsModule, DateFieldComponent, NgClass, TypeaheadModule, RouterLink, LocalizePipe],
 })
 export class SubmitChangeRequestComponent implements OnInit {

@@ -17,7 +17,16 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { HierarchyType } from '@registry/model/hierarchy';
 import { RegistryService, HierarchyService } from '@registry/service';
@@ -34,6 +43,7 @@ import { LocalizeComponent } from '@shared/component/localize/localize.component
   templateUrl: './hierarchy-type.component.html',
   styleUrls: ['./hierarchy-type.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, LocalizeComponent, ConvertKeyLabel, LocalizedTextComponent],
 })
 export class HierarchyTypeComponent implements OnInit, AfterViewInit {

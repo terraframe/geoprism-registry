@@ -43,7 +43,7 @@
             <thead>
               <tr>
                 @for (column of columns; track column.name) {
-                  <th [ngClass]="{ mapped: mapped[column.name]?.length > 0 }">
+                  <th [ngClass]="{ mapped: (mapped[column.name]?.length ?? 0) > 0 }">
                     <div class="column-name">{{ column.name }}</div>
                     <div class="column-type"><localize [key]="column.typeKey"></localize></div>
                     @for (label of mapped[column.name]; track $index) {
@@ -58,7 +58,12 @@
                 <tr>
                   @for (column of columns; track column.name) {
                     @let value = getValue(row, column.name);
-                    <td [ngClass]="{ mapped: mapped[column.name]?.length > 0 }" [title]="value || ''">{{ value }}</td>
+                    <td
+                      [ngClass]="{ mapped: (mapped[column.name]?.length ?? 0) > 0 }"
+                      [title]="value || ''"
+                    >
+                      {{ value }}
+                    </td>
                   }
                 </tr>
               }

@@ -17,13 +17,14 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { DateService } from '../../service';
 
 @Component({
   selector: 'date-text',
   templateUrl: './date-text.component.html',
   styleUrls: [],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class DateTextComponent implements OnChanges {

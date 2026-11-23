@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -44,6 +44,7 @@ import { BooleanFieldComponent } from '@shared/component/form-fields/boolean-fie
   templateUrl: './configuration-modal.component.html',
   styleUrls: [],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, LocalizeComponent, DateTextComponent, BooleanFieldComponent],
 })
 export class ConfigurationModalComponent implements OnInit {
@@ -74,7 +75,8 @@ export class ConfigurationModalComponent implements OnInit {
 
     if (historyId != null && historyId.length > 0 && awaitingResolution && this.authService.isSRA()) {
       this.canDownload = true;
-      this.downloadUrl = environment.apiUrl + '/api/etl/download-import-file?historyId=' + encodeURIComponent(historyId);
+      this.downloadUrl =
+        environment.apiUrl + '/api/etl/download-import-file?historyId=' + encodeURIComponent(historyId);
     }
 
     if (this.configuration.importStrategy && this.configuration.importStrategy.length > 0) {

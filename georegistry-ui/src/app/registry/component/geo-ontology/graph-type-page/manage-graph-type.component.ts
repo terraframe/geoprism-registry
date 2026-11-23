@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { LocalizedTextComponent } from '../../form-fields/localized-text/localized-text.component';
 import { ConvertKeyLabel } from '@shared/component/localize/convert-key-label.component';
@@ -34,6 +34,7 @@ import { EdgeClassService } from '@registry/service/edge-class.service';
   templateUrl: './manage-graph-type.component.html',
   styleUrls: ['./manage-graph-type.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, LocalizeComponent, ConvertKeyLabel, LocalizedTextComponent],
 })
 export class ManageGraphTypeComponent implements OnInit {

@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 
 import { ProfileComponent } from '../profile/profile.component';
@@ -40,6 +40,7 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
   templateUrl: './header.component.html',
   styleUrls: ['./header.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [BsDropdownModule, FormsModule, LocalizePipe],
 })
 export class CgrHeaderComponent {

@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { BsModalRef } from 'ngx-bootstrap/modal';
@@ -42,6 +42,7 @@ import { LoadingBarComponent } from '../../../shared/component/loading-bar/loadi
   templateUrl: './external-system-modal.component.html',
   styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [LoadingBarComponent, FormsModule, LocalizeComponent, ConvertKeyLabel, LocalizePipe],
 })
 export class ExternalSystemModalComponent implements OnInit {

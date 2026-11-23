@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, ViewChild, OnDestroy, Input } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy, Input, ChangeDetectionStrategy } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { Map, NavigationControl } from 'maplibre-gl';
@@ -29,6 +29,7 @@ import EnvironmentUtil from '@core/utility/environment-util';
   selector: 'scheduled-job-map',
   templateUrl: './scheduled-job-map.component.html',
   styleUrls: ['./scheduled-job-map.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 

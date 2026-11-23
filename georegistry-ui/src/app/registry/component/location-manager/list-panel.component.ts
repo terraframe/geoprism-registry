@@ -27,6 +27,7 @@ import {
   OnInit,
   Output,
   SimpleChanges,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { ListData, ListTypeVersion } from '@registry/model/list-type';
 import { GenericTableConfig, TableColumnSetup, TableEvent, TableQuery } from '@shared/model/generic-table';
@@ -54,6 +55,7 @@ import { NgClass } from '@angular/common';
   templateUrl: './list-panel.component.html',
   styleUrls: [],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     NgxSpinnerModule,
     NgClass,

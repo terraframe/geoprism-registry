@@ -17,7 +17,16 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input, Output, EventEmitter, SimpleChanges, AfterViewInit, OnChanges } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  SimpleChanges,
+  AfterViewInit,
+  OnChanges,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 
 import * as d3 from 'd3';
 
@@ -30,6 +39,7 @@ import { NgClass } from '@angular/common';
   templateUrl: './drag-sidebar.component.html',
   styleUrls: ['./hierarchy-type-page.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [NgClass],
 })
 export class DragSidebarComponent implements AfterViewInit, OnChanges {

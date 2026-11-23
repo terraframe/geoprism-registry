@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, DoCheck, Input, OnChanges } from '@angular/core';
+import { Component, DoCheck, Input, OnChanges, ChangeDetectionStrategy } from '@angular/core';
 import { NgClass } from '@angular/common';
 
 import { ImportSheet } from '@registry/model/io';
@@ -60,6 +60,7 @@ export function getSampleValue(row: { [column: string]: string }, column: string
   templateUrl: './import-data-preview.component.html',
   styleUrls: ['./import-data-preview.component.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [LocalizeComponent, NgClass],
 })
 export class ImportDataPreviewComponent implements OnChanges, DoCheck {

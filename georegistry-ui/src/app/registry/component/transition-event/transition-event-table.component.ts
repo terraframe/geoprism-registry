@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component, ViewEncapsulation, ChangeDetectionStrategy } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 
@@ -41,6 +41,7 @@ import { LocalizeComponent } from '../../../shared/component/localize/localize.c
   styleUrls: ['./transition-event-table.css'],
   encapsulation: ViewEncapsulation.None,
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [LocalizeComponent, FormsModule, DateFieldComponent, NgClass, DateTextComponent, NgxPaginationModule],
 })
 export class TransitionEventTableComponent {

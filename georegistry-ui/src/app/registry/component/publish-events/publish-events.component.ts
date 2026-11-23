@@ -18,7 +18,7 @@
 ///
 
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { Commit, PublishEvents } from '@registry/model/publish';
 import { PublishService } from '@registry/service/publish.service';
 import { MultiSelectFieldComponent } from '../../../shared/component/form-fields/multi-select/multi-select-field.component';
@@ -34,6 +34,7 @@ import { DateTextComponent } from '@shared/component';
   templateUrl: './publish-events.component.html',
   styleUrls: [],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     LocalizeComponent,
     FormsModule,

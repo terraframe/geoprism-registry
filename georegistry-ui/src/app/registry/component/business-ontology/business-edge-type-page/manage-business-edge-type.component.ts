@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BusinessEdgeTypeService } from '@registry/service/business-edge-type.service';
 import { LocalizedTextComponent } from '../../form-fields/localized-text/localized-text.component';
@@ -34,6 +34,7 @@ import { BusinessEdgeType, BusinessType } from '@registry/model/object-class';
   styleUrls: ['./manage-business-edge-type.css'],
   // host: { '[@fadeInOut]': 'true' },
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, LocalizeComponent, ConvertKeyLabel, LocalizedTextComponent],
 })
 export class ManageBusinessEdgeTypeComponent implements OnInit {

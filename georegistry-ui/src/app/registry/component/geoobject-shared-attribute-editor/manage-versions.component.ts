@@ -29,6 +29,7 @@ import {
   ElementRef,
   SimpleChanges,
   OnDestroy,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { GeoObjectType, AttributeType, HierarchyOverTime } from '@registry/model/registry';
@@ -79,6 +80,7 @@ import { NgStyle, NgClass } from '@angular/common';
   styleUrls: ['./manage-versions.css'],
   viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     FormsModule,
     NgStyle,

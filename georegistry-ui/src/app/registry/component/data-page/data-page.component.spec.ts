@@ -17,8 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgClass } from '@angular/common';
 import { RouterLink, provideRouter } from '@angular/router';
@@ -31,13 +30,18 @@ import { LocalizeComponent } from '@shared/component/localize/localize.component
 import { DataPageComponent } from './data-page.component';
 
 /** Stand-in for the importer, so the page can be rendered without its services */
-@Component({ selector: 'dataimporter', template: '', standalone: true })
+@Component({ selector: 'dataimporter', template: '', changeDetection: ChangeDetectionStrategy.Eager, standalone: true })
 class DataImporterStubComponent {
   @Input() format: string;
 }
 
 /** Stand-in for the page chrome (header, side nav), which needs the whole application */
-@Component({ selector: 'page-container', template: '<ng-content></ng-content>', standalone: true })
+@Component({
+  selector: 'page-container',
+  template: '<ng-content></ng-content>',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: true,
+})
 class PageContainerStubComponent {}
 
 function authStub(maintainer: boolean): Partial<AuthService> {

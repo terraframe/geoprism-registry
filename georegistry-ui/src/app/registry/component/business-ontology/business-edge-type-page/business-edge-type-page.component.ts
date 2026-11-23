@@ -17,7 +17,17 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from '@angular/common/http';
 import * as lodash from 'lodash';
@@ -56,6 +66,7 @@ interface Selection {
   templateUrl: './business-edge-type-page.component.html',
   styleUrls: ['./business-edge-type-page.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [LocalizeComponent, NgClass, BsDropdownModule, ManageBusinessEdgeTypeComponent],
 })
 export class BusinessEdgeTypePageComponent implements OnInit, OnDestroy, OnChanges {

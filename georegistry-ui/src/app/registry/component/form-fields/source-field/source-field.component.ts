@@ -17,79 +17,75 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input, Output, EventEmitter, ViewEncapsulation } from "@angular/core";
-import { DataSourceService } from "@registry/service/data-source.service";
-import { TypeaheadMatch, TypeaheadModule } from "ngx-bootstrap/typeahead";
-import { Observable, Observer, Subscription } from "rxjs";
-import { NgClass } from "@angular/common";
-import { FormsModule } from "@angular/forms";
+import { Component, Input, Output, EventEmitter, ViewEncapsulation, ChangeDetectionStrategy } from '@angular/core';
+import { DataSourceService } from '@registry/service/data-source.service';
+import { TypeaheadMatch, TypeaheadModule } from 'ngx-bootstrap/typeahead';
+import { Observable, Observer, Subscription } from 'rxjs';
+import { NgClass } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
-    selector: "source-field",
-    templateUrl: "./source-field.component.html",
-    styleUrls: [],
-    standalone: true,
-    encapsulation: ViewEncapsulation.None,
-    imports: [FormsModule, TypeaheadModule, NgClass]
+  selector: 'source-field',
+  templateUrl: './source-field.component.html',
+  styleUrls: [],
+  standalone: true,
+  encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [FormsModule, TypeaheadModule, NgClass],
 })
 export class SourceFieldComponent {
+  @Input() name: string;
+  @Input() disabled: boolean = false;
+  @Input() customStyles: string = '';
+  @Input() classNames: string = '';
+  @Input() container: string = null;
 
-    @Input() name: string;
-    @Input() disabled: boolean = false;
-    @Input() customStyles: string = "";
-    @Input() classNames: string = "";
-    @Input() container: string = null;
+  @Input() value: string = null;
 
-    @Input() value: string = null;
+  @Output() valueChange = new EventEmitter<string>();
 
-    @Output() valueChange = new EventEmitter<string>();
+  loading: boolean = false;
+  text: string = '';
 
-    loading: boolean = false;
-    text: string = "";
+  typeahead: Observable<string[]> = null;
+  subscription: Subscription = null;
 
-    typeahead: Observable<string[]> = null;
-    subscription: Subscription = null;
+  constructor(private service: DataSourceService) {}
 
+  ngOnInit(): void {
+    this.text = this.value;
 
-    constructor(
-        private service: DataSourceService) { }
+    this.typeahead = new Observable((observer: Observer<string[]>) => {
+      this.service.search(this.text).then((results) => {
+        observer.next(results.map((s) => s.code));
+      });
+    });
+  }
 
-    ngOnInit(): void {
-        this.text = this.value;
-
-        this.typeahead = new Observable((observer: Observer<string[]>) => {
-            this.service.search(this.text).then(results => {
-                observer.next(results.map(s => s.code));
-            });
-        });
+  ngOnDestroy(): void {
+    if (this.subscription != null) {
+      this.subscription.unsubscribe();
     }
+  }
 
-    ngOnDestroy(): void {
-        if (this.subscription != null) {
-            this.subscription.unsubscribe();
-        }
+  typeaheadOnSelect(match: TypeaheadMatch): void {
+    if (match != null) {
+      const item: string = match.item;
+
+      this.setValue(item);
+    } else if (this.value != null) {
+      this.setValue(null);
     }
+  }
 
+  setValue(value: string): void {
+    this.value = value;
+    this.valueChange.emit(this.value);
+  }
 
-    typeaheadOnSelect(match: TypeaheadMatch): void {
-        if (match != null) {
-            const item: string = match.item;
-
-            this.setValue(item);
-        } else if (this.value != null) {
-            this.setValue(null);
-        }
+  onTextChange(): void {
+    if (this.value != null && (this.text == null || this.text.length === 0)) {
+      this.setValue(null);
     }
-
-    setValue(value: string): void {
-        this.value = value;
-        this.valueChange.emit(this.value);
-    }
-
-    onTextChange(): void {
-        if (this.value != null && (this.text == null || this.text.length === 0)) {
-            this.setValue(null);
-        }
-    }
-
+  }
 }

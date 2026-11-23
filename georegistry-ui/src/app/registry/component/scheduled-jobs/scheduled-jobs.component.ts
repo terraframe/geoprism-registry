@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLinkActive, RouterLink } from '@angular/router';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 
@@ -43,6 +43,7 @@ import { PageContainerComponent } from '../../../shared/component/page-container
   templateUrl: './scheduled-jobs.component.html',
   styleUrls: ['./scheduled-jobs.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     PageContainerComponent,
     LocalizeComponent,

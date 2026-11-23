@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
@@ -57,6 +57,7 @@ class PaginatedTreeNode<T> {
   templateUrl: './organization-hierarchy-modal.component.html',
   styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [ContextMenuModule, LocalizeComponent, TreeModule, LocalizePipe],
 })
 export class OrganizationHierarchyModalComponent implements OnInit {

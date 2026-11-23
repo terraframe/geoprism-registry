@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { LocalizedValue } from '@core/model/core';
 import { FormsModule } from '@angular/forms';
 import { ConvertKeyLabel } from '@shared/component/localize/convert-key-label.component';
@@ -29,6 +29,7 @@ import { NgClass } from '@angular/common';
   templateUrl: './localized-text.component.html',
   styleUrls: ['./localized-text.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [NgClass, LocalizeComponent, ConvertKeyLabel, FormsModule],
 })
 export class LocalizedTextComponent {

@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
@@ -40,6 +40,7 @@ import { PageContainerComponent } from '../component/page-container/page-contain
   templateUrl: './hub.component.html',
   styleUrls: ['./hub.component.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [PageContainerComponent, LocalizeComponent, RouterLinkActive, RouterLink, LocalizePipe],
 })
 export class HubComponent implements OnInit {

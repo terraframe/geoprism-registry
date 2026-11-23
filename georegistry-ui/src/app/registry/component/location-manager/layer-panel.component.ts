@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Params, Router, RouterLinkActive } from '@angular/router';
 
 import { ContextList, ListOrgGroup, ListVersion } from '@registry/model/list-type';
@@ -64,6 +64,7 @@ export interface BaseLayer {
   templateUrl: './layer-panel.component.html',
   styleUrls: ['./location-manager.css', './layer-panel.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     RouterLinkActive,
     LocalizeComponent,

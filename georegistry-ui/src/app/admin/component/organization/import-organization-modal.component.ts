@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, ViewChild, ElementRef, OnInit, OnDestroy } from '@angular/core';
+import { Component, ViewChild, ElementRef, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { FileUploader, FileUploaderOptions, FileUploadModule } from 'ng2-file-upload';
 
@@ -35,6 +35,7 @@ import { LoadingBarComponent } from '../../../shared/component/loading-bar/loadi
   templateUrl: './import-organization-modal.component.html',
   styleUrls: [],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [LoadingBarComponent, FormsModule, LocalizeComponent, FileUploadModule],
 })
 export class ImportOrganizationModalComponent implements OnInit, OnDestroy {

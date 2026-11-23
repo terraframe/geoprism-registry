@@ -17,38 +17,37 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Input, Component, OnInit } from "@angular/core";
+import { Input, Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
-import { LocalizationService } from "@shared/service/localization.service";
+import { LocalizationService } from '@shared/service/localization.service';
 
 @Component({
-    selector: "localize",
-    templateUrl: "./localize.component.html",
-    styleUrls: [],
-    standalone: true
+  selector: 'localize',
+  templateUrl: './localize.component.html',
+  styleUrls: [],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: true,
 })
 export class LocalizeComponent implements OnInit {
+  @Input() key: string;
+  @Input() params: { [key: string]: string } = null;
 
-    @Input() key: string;
-    @Input() params: { [key: string]: string } = null;
+  text: string;
 
-    text: string;
+  // eslint-disable-next-line no-useless-constructor
+  constructor(private service: LocalizationService) {}
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor(private service: LocalizationService) { }
+  ngOnInit(): void {
+    this.text = this.service.decode(this.key);
 
-    ngOnInit(): void {
-        this.text = this.service.decode(this.key);
+    if (this.params != null) {
+      const keys = Object.keys(this.params);
 
-        if (this.params != null) {
-            const keys = Object.keys(this.params);
-
-            keys.forEach((key) => {
-                if (this.params[key] != null) {
-                    this.text = this.text.replace(key, this.params[key]);
-                }
-            });
+      keys.forEach((key) => {
+        if (this.params[key] != null) {
+          this.text = this.text.replace(key, this.params[key]);
         }
+      });
     }
-
+  }
 }

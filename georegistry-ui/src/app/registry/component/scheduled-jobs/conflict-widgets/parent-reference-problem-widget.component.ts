@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, Input, EventEmitter, Output, ChangeDetectionStrategy } from '@angular/core';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 
 import { Observable } from 'rxjs';
@@ -40,6 +40,7 @@ import { LocalizeComponent } from '@shared/component/localize/localize.component
   templateUrl: './parent-reference-problem-widget.component.html',
   styleUrls: [],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [LocalizeComponent, DateTextComponent, FormsModule, TypeaheadModule],
 })
 export class ParentReferenceProblemWidgetComponent implements OnInit {

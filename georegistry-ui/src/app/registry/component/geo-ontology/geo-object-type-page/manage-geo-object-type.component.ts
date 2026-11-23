@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ManageGeoObjectTypeModalState, GeoObjectType } from '@registry/model/registry';
 import { GeoObjectTypeModalStates } from '@registry/model/constants';
@@ -33,6 +33,7 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './manage-geo-object-type.component.html',
   styleUrls: ['./manage-geo-object-type.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     FormsModule,
     GeoObjectTypeInputComponent,

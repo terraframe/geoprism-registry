@@ -17,118 +17,125 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from "@angular/core";
-import { HttpErrorResponse } from "@angular/common/http";
-import { BsModalService } from "ngx-bootstrap/modal";
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { BsModalService } from 'ngx-bootstrap/modal';
 
-import { ErrorHandler } from "@shared/component";
-import { LocalizationService, AuthService } from "@shared/service";
+import { ErrorHandler } from '@shared/component';
+import { LocalizationService, AuthService } from '@shared/service';
 
-import { Organization } from "@shared/model/core";
+import { Organization } from '@shared/model/core';
 
-import Utils from "@registry/utility/Utils";
-import { PageContainerComponent } from "../../../shared/component/page-container/page-container.component";
-import { BusinessTypeService } from "@registry/service/business-type.service";
-import { RegistryService } from "@registry/service";
-import { BusinessTypePageComponent } from "./business-type-page/business-type-page.component";
-import { BusinessEdgeTypePageComponent } from "./business-edge-type-page/business-edge-type-page.component";
-import { BusinessType } from "@registry/model/object-class";
-import { OntologySectionNavComponent, OntologySectionNavItem } from "../ontology-section-nav/ontology-section-nav.component";
-
+import Utils from '@registry/utility/Utils';
+import { PageContainerComponent } from '../../../shared/component/page-container/page-container.component';
+import { BusinessTypeService } from '@registry/service/business-type.service';
+import { RegistryService } from '@registry/service';
+import { BusinessTypePageComponent } from './business-type-page/business-type-page.component';
+import { BusinessEdgeTypePageComponent } from './business-edge-type-page/business-edge-type-page.component';
+import { BusinessType } from '@registry/model/object-class';
+import {
+  OntologySectionNavComponent,
+  OntologySectionNavItem,
+} from '../ontology-section-nav/ontology-section-nav.component';
 
 @Component({
-    selector: "business-ontology",
-    templateUrl: "./business-ontology.component.html",
-    styleUrls: ["./business-ontology.css"],
-    standalone: true,
-    imports: [PageContainerComponent, OntologySectionNavComponent, BusinessTypePageComponent, BusinessEdgeTypePageComponent]
+  selector: 'business-ontology',
+  templateUrl: './business-ontology.component.html',
+  styleUrls: ['./business-ontology.css'],
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [
+    PageContainerComponent,
+    OntologySectionNavComponent,
+    BusinessTypePageComponent,
+    BusinessEdgeTypePageComponent,
+  ],
 })
 export class BusinessOntologyComponent implements OnInit {
+  isSRA: boolean = false;
 
-    isSRA: boolean = false;
+  organizations: Organization[] = [];
+  businessTypes: BusinessType[] = [];
 
-    organizations: Organization[] = [];
-    businessTypes: BusinessType[] = [];
+  section: string = 'business-type';
 
-    section: string = "business-type";
+  sections: OntologySectionNavItem[] = [
+    { id: 'business-type', labelKey: 'skg.business.types', icon: 'fa-database' },
+    { id: 'business-edge-type', labelKey: 'skg.business.edge.types', icon: 'fa-right-left' },
+  ];
 
-    sections: OntologySectionNavItem[] = [
-        { id: "business-type", labelKey: "skg.business.types", icon: "fa-database" },
-        { id: "business-edge-type", labelKey: "skg.business.edge.types", icon: "fa-right-left" }
-    ];
+  constructor(
+    private localizeService: LocalizationService,
+    private registryService: RegistryService,
+    private service: BusinessTypeService,
+    private modalService: BsModalService,
+    private authService: AuthService
+  ) {
+    this.isSRA = authService.isSRA();
+  }
 
-    constructor(
-        private localizeService: LocalizationService,
-        private registryService: RegistryService,
-        private service: BusinessTypeService,
-        private modalService: BsModalService,
-        private authService: AuthService) {
-        this.isSRA = authService.isSRA();
-    }
+  ngOnInit(): void {
+    this.refreshAll();
+  }
 
-    ngOnInit(): void {
-        this.refreshAll();
-    }
+  localize(key: string): string {
+    return this.localizeService.decode(key);
+  }
 
-    localize(key: string): string {
-        return this.localizeService.decode(key);
-    }
+  isOrganizationRA(orgCode: string): boolean {
+    return this.isSRA || this.authService.isOrganizationRA(orgCode);
+  }
 
-    isOrganizationRA(orgCode: string): boolean {
-        return this.isSRA || this.authService.isOrganizationRA(orgCode);
-    }
+  setBusinessTypes(types: BusinessType[]): void {
+    this.businessTypes = types;
+  }
 
-    setBusinessTypes(types: BusinessType[]): void {
-        this.businessTypes = types;
-    }
+  refreshAll(): void {
+    // Clear the types to then refresh
+    this.businessTypes = [];
+    this.organizations = [];
 
-    refreshAll(): void {
-        // Clear the types to then refresh
-        this.businessTypes = [];
-        this.organizations = [];
+    this.registryService.getOrganizations().then((orgs) => {
+      if (!this.authService.isSRA()) {
+        const myorg = this.authService.getMyOrganizations();
 
-        this.registryService.getOrganizations().then(orgs => {
-
-            if (!this.authService.isSRA()) {
-                const myorg = this.authService.getMyOrganizations();
-
-                let index = orgs.findIndex(org => {
-                    return org.code === myorg[0];
-                });
-
-                if (index !== -1) {
-                    Utils.arrayMove(orgs, index, 0);
-                }
-            }
-
-            this.organizations = orgs
+        let index = orgs.findIndex((org) => {
+          return org.code === myorg[0];
         });
 
-
-        this.service.getAll().then(businessTypes => {
-            this.setBusinessTypes(businessTypes);
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
-
-    handleBusinessType(type: BusinessType): void {
-        const businessTypes = [...this.businessTypes];
-
-        const index = businessTypes.findIndex(t => t.code === type.code);
-
-        if (index != -1) {
-            businessTypes[index] = type;
+        if (index !== -1) {
+          Utils.arrayMove(orgs, index, 0);
         }
-        else {
-            businessTypes.push(type);
-        }
+      }
 
+      this.organizations = orgs;
+    });
+
+    this.service
+      .getAll()
+      .then((businessTypes) => {
         this.setBusinessTypes(businessTypes);
+      })
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+  }
+
+  handleBusinessType(type: BusinessType): void {
+    const businessTypes = [...this.businessTypes];
+
+    const index = businessTypes.findIndex((t) => t.code === type.code);
+
+    if (index != -1) {
+      businessTypes[index] = type;
+    } else {
+      businessTypes.push(type);
     }
 
-    error(err: HttpErrorResponse): void {
-        ErrorHandler.showErrorAsDialog(err, this.modalService);
-    }
+    this.setBusinessTypes(businessTypes);
+  }
 
+  error(err: HttpErrorResponse): void {
+    ErrorHandler.showErrorAsDialog(err, this.modalService);
+  }
 }

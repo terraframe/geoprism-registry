@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChild, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { AttributeType, ManageGeoObjectTypeModalState, AttributedType } from '@registry/model/registry';
@@ -40,6 +40,7 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './edit-attribute-modal-content.component.html',
   styleUrls: ['./edit-attribute-modal-content.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule, LocalizeComponent, AttributeInputComponent],
 })
 export class EditAttributeModalContentComponent implements OnInit {

@@ -17,7 +17,16 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, Input, Output, ChangeDetectorRef, EventEmitter, ElementRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Input,
+  Output,
+  ChangeDetectorRef,
+  EventEmitter,
+  ElementRef,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { GeoObjectType, AttributeType, GeoObjectOverTime } from '@registry/model/registry';
 import { ChangeRequest } from '@registry/model/crtable';
@@ -46,6 +55,7 @@ import { UniqueAuthorityValidatorDirective } from './unique-authority-validator.
   styleUrls: ['./standard-attribute-editor.component.css'],
   viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [LocalizeComponent, NgClass, FormsModule, LocalizePipe, UniqueAuthorityValidatorDirective],
 })
 export class StandardAttributeEditorComponent implements OnInit {

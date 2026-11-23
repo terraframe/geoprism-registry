@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, Input, OnDestroy, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 
 import { TimeRangeEntry } from '@registry/model/registry';
 import { LocalizationService } from '@shared/service/localization.service';
@@ -67,6 +67,7 @@ export interface DataTimeSpan {
   templateUrl: './stability-period.component.html',
   styleUrls: ['./stability-period.component.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [LocalizeComponent, NgClass, NgStyle],
 })
 export class StabilityPeriodComponent implements OnInit, OnDestroy {

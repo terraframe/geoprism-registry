@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { ControlContainer, NgForm } from '@angular/forms';
 import { LocalizeComponent } from '../../localize/localize.component';
 import { NgClass } from '@angular/common';
@@ -28,6 +28,7 @@ import { NgClass } from '@angular/common';
   styleUrls: ['./boolean-field.css'],
   viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [NgClass, LocalizeComponent],
 })
 export class BooleanFieldComponent {

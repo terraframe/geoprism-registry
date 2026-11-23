@@ -26,6 +26,7 @@ import {
   QueryList,
   ViewChildren,
   ChangeDetectorRef,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { FileUploader, FileUploaderOptions, FileUploadModule } from 'ng2-file-upload';
@@ -59,6 +60,7 @@ import { ConceptClassService } from '@registry/service/concept-class.service';
   templateUrl: './edge-importer.component.html',
   styleUrls: ['./edge-importer.component.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [PageContainerComponent, LocalizeComponent, FormsModule, DateFieldComponent_1, FileUploadModule],
 })
 export class EdgeImporterComponent implements OnInit {

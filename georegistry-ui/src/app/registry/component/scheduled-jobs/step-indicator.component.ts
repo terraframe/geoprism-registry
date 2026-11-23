@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 
 import { Step, StepConfig } from '@registry/model/registry';
 import { NgClass } from '@angular/common';
@@ -27,6 +27,7 @@ import { NgClass } from '@angular/common';
   templateUrl: './step-indicator.component.html',
   styleUrls: ['./step-indicator.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [NgClass],
 })
 export class StepIndicatorComponent {

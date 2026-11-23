@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from '@angular/common/http';
 
@@ -43,6 +43,7 @@ import { ProgressService } from '@shared/service';
   templateUrl: './rollback-checkpoint-manager.component.html',
   styleUrls: ['./rollback-checkpoint-manager.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [PageContainerComponent, LocalizeComponent, RouterLink, NgxPaginationModule, ProgressBarComponent],
 })
 export class RollbackCheckpointManagerComponent implements OnInit, OnDestroy {

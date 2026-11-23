@@ -17,7 +17,17 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Input,
+  Output,
+  EventEmitter,
+  ViewChild,
+  OnChanges,
+  SimpleChanges,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { NgxSpinnerService, NgxSpinnerModule } from 'ngx-spinner';
@@ -43,6 +53,7 @@ import { GeoObjectSharedAttributeEditorComponent } from '../geoobject-shared-att
   templateUrl: './feature-panel.component.html',
   styleUrls: ['./dataset-location-manager.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [NgxSpinnerModule, GeoObjectSharedAttributeEditorComponent, LocalizeComponent, FormsModule],
 })
 export class FeaturePanelComponent implements OnInit, OnChanges {

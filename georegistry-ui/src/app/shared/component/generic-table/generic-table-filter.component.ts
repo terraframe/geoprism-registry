@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IFloatingFilterAngularComp } from 'ag-grid-angular';
 import { IFloatingFilterParams } from 'ag-grid-community';
@@ -80,6 +80,7 @@ export interface GenericTableFilterParams {
       }
     `,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     @switch (col.type) {
       @case ('NUMBER') {

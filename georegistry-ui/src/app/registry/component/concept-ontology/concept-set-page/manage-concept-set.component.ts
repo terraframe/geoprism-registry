@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ConceptClass, ConceptEdgeType, ConceptSet, ObjectOverTime } from '@registry/model/object-class';
 import { LocalizeComponent } from '@shared/component/localize/localize.component';
@@ -35,6 +35,7 @@ import { ConceptObjectService } from '@registry/service/concept-object.service';
   templateUrl: './manage-concept-set.component.html',
   styleUrls: ['./manage-concept-set.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [NgClass, FormsModule, LocalizeComponent, LocalizedTextComponent, ConvertKeyLabel, TypeaheadModule],
 })
 export class ManageConceptSetComponent implements OnInit, OnDestroy {

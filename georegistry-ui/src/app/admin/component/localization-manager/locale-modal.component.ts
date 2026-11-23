@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -39,6 +39,7 @@ import { LoadingBarComponent } from '../../../shared/component/loading-bar/loadi
   templateUrl: './locale-modal.component.html',
   styleUrls: [],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [LoadingBarComponent, FormsModule, LocalizeComponent, ConvertKeyLabel],
 })
 export class NewLocaleModalComponent {

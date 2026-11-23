@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, DOCUMENT, inject } from '@angular/core';
+import { Component, DOCUMENT, inject, ChangeDetectionStrategy } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { ConfigurationService } from '@core/service/configuration.service';
 import { filter } from 'rxjs';
@@ -32,6 +32,7 @@ declare const window: any;
   templateUrl: './app.component.html',
   styleUrls: [],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [PhetsarathFontComponent, RouterOutlet],
 })
 export class CgrAppComponent {

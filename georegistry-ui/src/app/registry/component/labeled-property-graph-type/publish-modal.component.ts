@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from '@angular/common/http';
 import { v4 as uuid } from 'uuid';
@@ -35,6 +35,7 @@ import { LocalizeComponent } from '../../../shared/component/localize/localize.c
   templateUrl: './publish-modal.component.html',
   styleUrls: ['./labeled-property-graph-type-manager.css'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [LocalizeComponent, LabeledPropertyGraphTypeFormComponent],
 })
 export class LabeledPropertyGraphTypePublishModalComponent implements OnInit {

@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { EventService, IEventListener } from '@shared/service';
 import { LocalizeComponent } from '../localize/localize.component';
@@ -30,6 +30,7 @@ import { LocalizeComponent } from '../localize/localize.component';
     '.message-container { text-align: center; border-width: 1px; border-color: #106828; border-style: solid; margin-left: 10%; margin-right: 10%; color: #106828; }',
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [LocalizeComponent],
 })
 export class MessageComponent implements OnInit, IEventListener {

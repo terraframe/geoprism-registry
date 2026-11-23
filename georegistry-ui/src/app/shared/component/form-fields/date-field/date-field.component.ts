@@ -17,7 +17,15 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input, Output, EventEmitter, ChangeDetectorRef, ViewChild } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  ChangeDetectorRef,
+  ViewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { LocalizationService } from '@shared/service/localization.service';
 import { DateService } from '@shared/service/date.service';
 import { PRESENT } from '@shared/model/date';
@@ -33,6 +41,7 @@ import { NgClass, DatePipe } from '@angular/common';
   styleUrls: ['./date-field.css'],
   viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [NgClass, LocalizeComponent, BsDatepickerModule, DatePipe],
 })
 export class DateFieldComponent {
