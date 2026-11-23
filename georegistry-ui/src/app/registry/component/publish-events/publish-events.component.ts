@@ -27,13 +27,21 @@ import { FormsModule } from '@angular/forms';
 import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
 
 import { LocalizedTextComponent } from '../form-fields/localized-text/localized-text.component';
+import { DateTextComponent } from '@shared/component';
 
 @Component({
   selector: 'publish-events',
   templateUrl: './publish-events.component.html',
   styleUrls: [],
   standalone: true,
-  imports: [LocalizeComponent, FormsModule, DateFieldComponent, MultiSelectFieldComponent, LocalizedTextComponent],
+  imports: [
+    LocalizeComponent,
+    FormsModule,
+    DateFieldComponent,
+    MultiSelectFieldComponent,
+    LocalizedTextComponent,
+    DateTextComponent,
+  ],
 })
 export class PublishEventsComponent implements OnInit {
   @Input() type: PublishEvents | null = null;

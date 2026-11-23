@@ -279,7 +279,7 @@
                       {{ commit.uid }}
                     </td>
                     <td style="text-align: middle">
-                      {{ commit.createDate }}
+                      <date-text [date]="commit.createDate"></date-text>
                     </td>
                   </tr>
                 }
