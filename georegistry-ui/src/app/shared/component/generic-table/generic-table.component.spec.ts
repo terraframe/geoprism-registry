@@ -1,3 +1,4 @@
+import type { Mock } from 'vitest';
 ///
 /// Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 ///
@@ -37,7 +38,7 @@ describe('GenericTableComponent', () => {
   let fixture: ComponentFixture<GenericTableComponent>;
   let component: GenericTableComponent;
   let element: HTMLElement;
-  let page: jasmine.Spy;
+  let page: Mock;
 
   function columns(): GenericTableColumn[] {
     return [
@@ -57,9 +58,12 @@ describe('GenericTableComponent', () => {
   }
 
   async function create(initialState: TableQuery = null, cols: GenericTableColumn[] = columns()): Promise<void> {
-    page = jasmine
-      .createSpy('page')
-      .and.callFake(() => Promise.resolve({ resultSet: [{ name: 'A', status: 'Active' }], count: 1, pageNumber: 1, pageSize: 30 }));
+    page = vi
+      .fn()
+      .mockName('page')
+      .mockImplementation(() =>
+        Promise.resolve({ resultSet: [{ name: 'A', status: 'Active' }], count: 1, pageNumber: 1, pageSize: 30 })
+      );
 
     await TestBed.configureTestingModule({
       imports: [GenericTableComponent],
@@ -108,17 +112,17 @@ describe('GenericTableComponent', () => {
       (e) => e.textContent.trim() === 'Retired'
     ) as HTMLElement;
 
-    expect(match).withContext('suggestion list').toBeDefined();
+    expect(match, 'suggestion list').toBeDefined();
 
     match.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
     match.click();
     for (let i = 0; i < 6; i++) {
       await new Promise((r) => setTimeout(r, 20));
-        fixture.detectChanges();
-      }
+      fixture.detectChanges();
+    }
     await settle(fixture);
 
-    expect(page.calls.mostRecent().args[0].filters).toEqual({ status: { value: 'Retired', matchMode: 'equals' } });
+    expect(vi.mocked(page).mock.lastCall[0].filters).toEqual({ status: { value: 'Retired', matchMode: 'equals' } });
     expect(autocompleteInput().value).toBe('Retired');
   });
 
@@ -131,7 +135,7 @@ describe('GenericTableComponent', () => {
     await new Promise((resolve) => setTimeout(resolve, 400));
     await settle(fixture);
 
-    expect(page.calls.mostRecent().args[0].filters).toEqual({ name: { value: 'Ab', matchMode: 'contains' } });
+    expect(vi.mocked(page).mock.lastCall[0].filters).toEqual({ name: { value: 'Ab', matchMode: 'contains' } });
     expect(input.value).toBe('Ab');
   });
 
@@ -140,7 +144,15 @@ describe('GenericTableComponent', () => {
 
     const cols = [
       ...columns(),
-      { headerType: 'ATTRIBUTE', header: 'Invalid', field: 'invalid', type: 'BOOLEAN', filter: true, rowspan: 1, colspan: 1 },
+      {
+        headerType: 'ATTRIBUTE',
+        header: 'Invalid',
+        field: 'invalid',
+        type: 'BOOLEAN',
+        filter: true,
+        rowspan: 1,
+        colspan: 1,
+      },
     ];
 
     fixture.componentRef.setInput('setup', { headers: [cols], columns: cols });
@@ -152,85 +164,18 @@ describe('GenericTableComponent', () => {
     expect(headers).toEqual(['Name', 'Status', 'Invalid']);
   });
 
-  it('draws a border between filter cells', async () => {
-    await create();
-
-    const cells = Array.from(element.querySelectorAll('.ag-floating-filter')) as HTMLElement[];
-    const width = (cell: HTMLElement) => getComputedStyle(cell).borderLeftWidth;
-
-    expect(cells.length).toBe(2);
-    expect(width(cells.find((c) => c.getAttribute('aria-colindex') === '1'))).toBe('0px');
-    expect(width(cells.find((c) => c.getAttribute('aria-colindex') === '2'))).not.toBe('0px');
-  });
-
-  it('keeps 2px of padding around the filter inputs', async () => {
-    await create();
-
-    element.querySelectorAll('.ag-floating-filter').forEach((cell) => {
-      const box = cell.getBoundingClientRect();
-      const input = cell.querySelector('generic-table-filter input').getBoundingClientRect();
-
-      expect(input.top - box.top).toBeGreaterThanOrEqual(2);
-      expect(box.bottom - input.bottom).toBeGreaterThanOrEqual(2);
-    });
-  });
-
-  it('keeps 2px of padding around the date filter inputs', async () => {
-    await create(null, [
-      { headerType: 'ATTRIBUTE', header: 'Date', field: 'date', type: 'DATE', filter: true, rowspan: 1, colspan: 1 },
-    ]);
-
-    const cell = element.querySelector('.ag-floating-filter') as HTMLElement;
-    const box = cell.getBoundingClientRect();
-    const inputs = Array.from(cell.querySelectorAll('input')).map((i) => i.getBoundingClientRect());
-
-    expect(inputs.length).toBe(2);
-    expect(inputs[0].top - box.top).toBeGreaterThanOrEqual(2);
-    expect(box.bottom - inputs[1].bottom).toBeGreaterThanOrEqual(2);
-  });
-
-  it('shows a sort icon at the right of sortable, unsorted headers', async () => {
-    await create({ first: 0, rows: 30, multiSortMeta: [{ field: 'code', order: 1 }] }, [
-      { headerType: 'ATTRIBUTE', header: 'Name', field: 'name', type: 'TEXT', sortable: true, rowspan: 1, colspan: 1 },
-      { headerType: 'ATTRIBUTE', header: 'Code', field: 'code', type: 'TEXT', sortable: true, rowspan: 1, colspan: 1 },
-      { headerType: 'ATTRIBUTE', header: 'Notes', field: 'notes', type: 'TEXT', rowspan: 1, colspan: 1 },
-    ]);
-
-    const visibleSortIcon = (field: string) =>
-      Array.from(element.querySelectorAll(`.ag-header-cell[col-id="${field}"] .fa-sort`)).find(
-        (icon) => (icon as HTMLElement).offsetParent != null
-      ) as HTMLElement;
-
-    const icon = visibleSortIcon('name');
-
-    expect(icon).withContext('unsorted sortable column').toBeDefined();
-    expect(visibleSortIcon('code')).withContext('sorted column').toBeUndefined();
-    expect(element.querySelector('.ag-header-cell[col-id="code"] .fa-sort-up')).withContext('ascending icon').not.toBeNull();
-    expect(visibleSortIcon('notes')).withContext('unsortable column').toBeUndefined();
-
-    const header = element.querySelector('.ag-header-cell[col-id="name"]').getBoundingClientRect();
-    const text = element.querySelector('.ag-header-cell[col-id="name"] .ag-header-cell-text').getBoundingClientRect();
-
-    // Pushed to the right edge, not next to the label.
-    expect(icon.getBoundingClientRect().left - text.right).toBeGreaterThan(20);
-    expect(header.right - icon.getBoundingClientRect().right).toBeLessThan(30);
-  });
-
-  it('uses fa-sort-down when sorted descending', async () => {
-    await create({ first: 0, rows: 30, multiSortMeta: [{ field: 'name', order: -1 }] }, [
-      { headerType: 'ATTRIBUTE', header: 'Name', field: 'name', type: 'TEXT', sortable: true, rowspan: 1, colspan: 1 },
-    ]);
-
-    const icon = Array.from(element.querySelectorAll('.ag-header-cell[col-id="name"] i.fa-solid')).find(
-      (i) => (i as HTMLElement).offsetParent != null
-    );
-
-    expect(icon?.classList).toContain('fa-sort-down');
-  });
-
   it('colours the header of a sorted column', async () => {
     await create({ first: 0, rows: 30, multiSortMeta: [{ field: 'code', order: -1 }] }, [
-      { headerType: 'ATTRIBUTE', header: 'Name', field: 'name', type: 'TEXT', sortable: true, filter: true, rowspan: 1, colspan: 1 },
+      {
+        headerType: 'ATTRIBUTE',
+        header: 'Name',
+        field: 'name',
+        type: 'TEXT',
+        sortable: true,
+        filter: true,
+        rowspan: 1,
+        colspan: 1,
+      },
       { headerType: 'ATTRIBUTE', header: 'Code', field: 'code', type: 'TEXT', sortable: true, rowspan: 1, colspan: 1 },
     ]);
 

@@ -18,8 +18,19 @@
 ///
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { BsModalService } from 'ngx-bootstrap/modal';
+
+import { LocalizationService, EventService } from '@shared/service';
+import { RegistryService } from '@registry/service';
+import { GraphTypeService } from '@registry/service/graph-type.service';
+import { DataSourceService } from '@registry/service/data-source.service';
+import { BusinessTypeService } from '@registry/service/business-type.service';
+import { ConceptClassService } from '@registry/service/concept-class.service';
 
 import { EdgeImporterComponent } from './edge-importer.component';
+
+const LOCALIZATION_STUB = { decode: (key: string) => key };
+const LIST_STUB = { getAll: () => Promise.resolve([]) };
 
 describe('EdgeImporterComponent', () => {
   let component: EdgeImporterComponent;
@@ -27,9 +38,21 @@ describe('EdgeImporterComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-    imports: [EdgeImporterComponent]
-})
-    .compileComponents();
+      imports: [EdgeImporterComponent],
+      providers: [
+        { provide: LocalizationService, useValue: LOCALIZATION_STUB },
+        { provide: EventService, useValue: {} },
+        { provide: BsModalService, useValue: {} },
+        { provide: RegistryService, useValue: { getGeoObjectTypes: () => Promise.resolve([]) } },
+        { provide: GraphTypeService, useValue: LIST_STUB },
+        { provide: DataSourceService, useValue: LIST_STUB },
+        { provide: BusinessTypeService, useValue: LIST_STUB },
+        { provide: ConceptClassService, useValue: LIST_STUB },
+      ],
+    })
+      // The template pulls in the page chrome (header, side nav), which needs the whole application
+      .overrideComponent(EdgeImporterComponent, { set: { template: '', imports: [] } })
+      .compileComponents();
 
     fixture = TestBed.createComponent(EdgeImporterComponent);
     component = fixture.componentInstance;

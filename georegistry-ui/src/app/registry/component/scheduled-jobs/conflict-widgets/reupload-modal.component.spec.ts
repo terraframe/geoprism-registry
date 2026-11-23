@@ -17,7 +17,6 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
@@ -87,7 +86,7 @@ describe('ReuploadModalComponent', () => {
 
       const input = element.querySelector('input[type="file"]') as HTMLInputElement;
 
-      expect(input.getAttribute('accept')).withContext(format).toBe(accept);
+      expect(input.getAttribute('accept'), format).toBe(accept);
     }
   });
 

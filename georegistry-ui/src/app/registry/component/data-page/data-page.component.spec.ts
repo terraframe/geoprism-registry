@@ -1,3 +1,4 @@
+import type { Mock } from 'vitest';
 ///
 /// Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 ///
@@ -32,7 +33,8 @@ import { DataPageComponent } from './data-page.component';
 /** Stand-in for the importer, so the page can be rendered without its services */
 @Component({ selector: 'dataimporter', template: '', changeDetection: ChangeDetectionStrategy.Eager, standalone: true })
 class DataImporterStubComponent {
-  @Input() format: string;
+  @Input()
+  format: string;
 }
 
 /** Stand-in for the page chrome (header, side nav), which needs the whole application */
@@ -56,10 +58,13 @@ describe('DataPageComponent', () => {
   let fixture: ComponentFixture<DataPageComponent>;
   let component: DataPageComponent;
   let element: HTMLElement;
-  let decode: jasmine.Spy;
+  let decode: Mock;
 
   async function create(maintainer: boolean): Promise<void> {
-    decode = jasmine.createSpy('decode').and.callFake((key: string) => 'decoded:' + key);
+    decode = vi
+      .fn()
+      .mockName('decode')
+      .mockImplementation((key: string) => 'decoded:' + key);
 
     await TestBed.configureTestingModule({
       imports: [DataPageComponent],

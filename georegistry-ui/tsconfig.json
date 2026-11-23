@@ -4,6 +4,7 @@
   "compilerOptions": {
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
+    "esModuleInterop": true,
     "declaration": false,
     "strict": false,
     "strictPropertyInitialization": false,
@@ -13,33 +14,16 @@
     "target": "ES2022",
     "module": "ES2022",
     "useDefineForClassFields": false,
-    "lib": [
-      "ES2022",
-      "dom"
-    ],
-		"paths": {
-			"src/*": [
-				"./src/*"
-			],
-			"@shared/*": [
-				"./src/app/shared/*"
-			],
-			"@registry/*": [
-				"./src/app/registry/*"
-			],
-			"@core/*": [
-				"./src/app/core/*"
-			],
-			"@admin/*": [
-				"./src/app/admin/*"
-			],
-			"@test/*": [
-				"./test/src/*"
-			]
-		},
-		"noImplicitAny": false,
-    "allowSyntheticDefaultImports": true,
-    "skipLibCheck": true,
+    "lib": ["ES2022", "dom"],
+    "paths": {
+      "src/*": ["./src/*"],
+      "@shared/*": ["./src/app/shared/*"],
+      "@registry/*": ["./src/app/registry/*"],
+      "@core/*": ["./src/app/core/*"],
+      "@admin/*": ["./src/app/admin/*"]
+    },
+    "noImplicitAny": false,
+    "skipLibCheck": true
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

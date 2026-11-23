@@ -27,7 +27,12 @@ import { ImportDataPreviewComponent, getImportBaseTypeKey, getSampleValue } from
 /** Localization stub which returns the key, so tests can find the text */
 const LOCALIZATION_STUB = { decode: (key: string) => key };
 
-function sheet(sample: { [column: string]: string }[], attributes: Partial<ImportSheet['attributes']> = {}): ImportSheet {
+function sheet(
+  sample: {
+    [column: string]: string;
+  }[],
+  attributes: Partial<ImportSheet['attributes']> = {}
+): ImportSheet {
   return {
     name: 'Sheet1',
     attributes: { text: [], numeric: [], date: [], boolean: [], ...attributes },
@@ -43,8 +48,16 @@ describe('getSampleValue', () => {
   it('returns undefined for a blank column, even when named like a built-in property', () => {
     const row = { code: 'A' };
 
-    for (const column of ['constructor', 'toString', 'valueOf', 'hasOwnProperty', '__proto__', 'isPrototypeOf', 'toLocaleString']) {
-      expect(getSampleValue(row, column)).withContext(column).toBeUndefined();
+    for (const column of [
+      'constructor',
+      'toString',
+      'valueOf',
+      'hasOwnProperty',
+      '__proto__',
+      'isPrototypeOf',
+      'toLocaleString',
+    ]) {
+      expect(getSampleValue(row, column), column).toBeUndefined();
     }
   });
 
@@ -107,7 +120,9 @@ describe('ImportDataPreviewComponent', () => {
   }
 
   function cells(row: number): string[] {
-    return Array.from(element.querySelectorAll('tbody tr')[row].querySelectorAll('td')).map((e) => e.textContent.trim());
+    return Array.from(element.querySelectorAll('tbody tr')[row].querySelectorAll('td')).map((e) =>
+      e.textContent.trim()
+    );
   }
 
   it('renders nothing without a sheet', () => {
@@ -130,7 +145,15 @@ describe('ImportDataPreviewComponent', () => {
   });
 
   it('keeps the column order of the file and appends columns blank in every row', () => {
-    render(sheet([{ zeta: '1', alpha: '2' }, { zeta: '3', mu: '4' }], { text: ['alpha', 'blank', 'mu', 'zeta'], numeric: ['zeta'] }));
+    render(
+      sheet(
+        [
+          { zeta: '1', alpha: '2' },
+          { zeta: '3', mu: '4' },
+        ],
+        { text: ['alpha', 'blank', 'mu', 'zeta'], numeric: ['zeta'] }
+      )
+    );
 
     expect(headers()).toEqual(['zeta', 'alpha', 'mu', 'blank']);
     expect(component.columns.map((c) => c.typeKey)).toEqual([
@@ -165,7 +188,17 @@ describe('ImportDataPreviewComponent', () => {
     const columns = ['code', 'constructor', 'toString', 'valueOf', 'hasOwnProperty', '__proto__'];
 
     // The second row has only a code; JSON.parse gives __proto__ as an own key
-    render(sheet([JSON.parse('{"code":"A","constructor":"c","toString":"t","valueOf":"v","hasOwnProperty":"h","__proto__":"p"}'), { code: 'B' }], { text: columns }));
+    render(
+      sheet(
+        [
+          JSON.parse(
+            '{"code":"A","constructor":"c","toString":"t","valueOf":"v","hasOwnProperty":"h","__proto__":"p"}'
+          ),
+          { code: 'B' },
+        ],
+        { text: columns }
+      )
+    );
 
     expect(headers()).toEqual(columns);
     expect(cells(0)).toEqual(['A', 'c', 't', 'v', 'h', 'p']);
@@ -175,14 +208,18 @@ describe('ImportDataPreviewComponent', () => {
   });
 
   it('highlights and labels mapped columns, including one named __proto__', () => {
-    render(sheet([JSON.parse('{"code":"A","__proto__":"p","other":"o"}')], { text: ['code', '__proto__', 'other'] }), (column) =>
-      column === 'code' ? ['Code', 'Display label'] : column === '__proto__' ? ['Proto'] : []
+    render(
+      sheet([JSON.parse('{"code":"A","__proto__":"p","other":"o"}')], { text: ['code', '__proto__', 'other'] }),
+      (column) => (column === 'code' ? ['Code', 'Display label'] : column === '__proto__' ? ['Proto'] : [])
     );
 
     const th = element.querySelectorAll('th');
 
     expect(th[0].classList).toContain('mapped');
-    expect(Array.from(th[0].querySelectorAll('.column-mapping')).map((e) => e.textContent.trim())).toEqual(['Code', 'Display label']);
+    expect(Array.from(th[0].querySelectorAll('.column-mapping')).map((e) => e.textContent.trim())).toEqual([
+      'Code',
+      'Display label',
+    ]);
     expect(th[1].classList).toContain('mapped');
     expect(th[1].querySelector('.column-mapping').textContent.trim()).toBe('Proto');
     expect(th[2].classList).not.toContain('mapped');
@@ -210,14 +247,14 @@ describe('ImportDataPreviewComponent', () => {
 
   it('calls the mappings function once per column, not once per cell', () => {
     const rows = Array.from({ length: 10 }, (_, i) => ({ a: 'a' + i, b: 'b' + i, c: 'c' + i }));
-    const mappings = jasmine.createSpy('mappings').and.returnValue([]);
+    const mappings = vi.fn().mockName('mappings').mockReturnValue([]);
 
     render(sheet(rows, { text: ['a', 'b', 'c'] }), mappings);
 
-    mappings.calls.reset();
+    mappings.mockClear();
     fixture.detectChanges();
 
-    expect(mappings.calls.count()).toBe(3);
+    expect(vi.mocked(mappings).mock.calls.length).toBe(3);
   });
 
   it('does not re-create the label arrays when nothing changed', () => {
@@ -230,7 +267,11 @@ describe('ImportDataPreviewComponent', () => {
   });
 
   it('shows HTML and Angular syntax as text', () => {
-    render(sheet([{ html: '<b>bold</b><script>window.__hacked = true</script>', angular: '{{ 7*7 }}' }], { text: ['html', 'angular'] }));
+    render(
+      sheet([{ html: '<b>bold</b><script>window.__hacked = true</script>', angular: '{{ 7*7 }}' }], {
+        text: ['html', 'angular'],
+      })
+    );
 
     expect(element.querySelector('tbody b')).toBeNull();
     expect(element.querySelector('tbody script')).toBeNull();
@@ -248,7 +289,9 @@ describe('ImportDataPreviewComponent', () => {
 
   it('shows unusual column names', () => {
     const columns = ['Población', '人口', '💧 Water level', 'dots.in.name', '', 'line\nbreak'];
-    const row: { [column: string]: string } = {};
+    const row: {
+      [column: string]: string;
+    } = {};
     columns.forEach((c, i) => (row[c] = 'v' + i));
 
     render(sheet([row], { text: columns }));

@@ -32,10 +32,21 @@ function attribute(code: string, target: string, label: string = code, extra: an
   return { code: code, label: { localizedValue: label }, baseType: 'text', required: false, target: target, ...extra };
 }
 
-function configuration(sample: { [column: string]: string }[], attributes: any[], columns: string[]): ImportConfiguration {
+function configuration(
+  sample: {
+    [column: string]: string;
+  }[],
+  attributes: any[],
+  columns: string[]
+): ImportConfiguration {
   return {
     fileName: 'data.xlsx',
-    sheet: { name: 'Sheet1', attributes: { text: columns, numeric: [], date: [], boolean: [] }, nonUniqueAttributes: ['dup'], sample: sample },
+    sheet: {
+      name: 'Sheet1',
+      attributes: { text: columns, numeric: [], date: [], boolean: [] },
+      nonUniqueAttributes: ['dup'],
+      sample: sample,
+    },
     type: { code: 'TYPE', attributes: attributes },
   } as any;
 }
@@ -84,10 +95,14 @@ describe('AttributesPageComponent', () => {
     });
 
     it('does not break on columns named like built-in properties', () => {
-      component.configuration = configuration([{ code: 'A' }, JSON.parse('{"code":"B","constructor":"ctor","__proto__":"proto"}')], [], ['code']);
+      component.configuration = configuration(
+        [{ code: 'A' }, JSON.parse('{"code":"B","constructor":"ctor","__proto__":"proto"}')],
+        [],
+        ['code']
+      );
 
       for (const column of ['toString', 'valueOf', 'hasOwnProperty', 'isPrototypeOf']) {
-        expect(component.getExamples(column)).withContext(column).toEqual([]);
+        expect(component.getExamples(column), column).toEqual([]);
       }
 
       expect(component.getExamples('constructor')).toEqual(['ctor']);
@@ -97,7 +112,11 @@ describe('AttributesPageComponent', () => {
 
   describe('getMappedAttributes', () => {
     it('returns the labels of every attribute mapped to the column', () => {
-      component.configuration = configuration([], [attribute('code', 'id', 'Code'), attribute('displayLabel', 'id', 'Label'), attribute('other', 'x')], ['id', 'x']);
+      component.configuration = configuration(
+        [],
+        [attribute('code', 'id', 'Code'), attribute('displayLabel', 'id', 'Label'), attribute('other', 'x')],
+        ['id', 'x']
+      );
 
       expect(component.getMappedAttributes('id')).toEqual(['Code', 'Label']);
       expect(component.getMappedAttributes('nothing')).toEqual([]);
@@ -122,16 +141,25 @@ describe('AttributesPageComponent', () => {
     it('flags columns with duplicate values', () => {
       component.configuration = configuration([], [], ['dup', 'unique']);
 
-      expect(component.isNonUnique('dup')).toBeTrue();
-      expect(component.isNonUnique('unique')).toBeFalse();
-      expect(component.isNonUnique(null)).toBeFalse();
-      expect(component.isNonUnique('')).toBeFalse();
+      expect(component.isNonUnique('dup')).toBe(true);
+      expect(component.isNonUnique('unique')).toBe(false);
+      expect(component.isNonUnique(null)).toBe(false);
+      expect(component.isNonUnique('')).toBe(false);
     });
   });
 
   describe('rendering', () => {
     it('shows examples under a mapped select and the preview below', async () => {
-      render(configuration([{ id: 'A1', name: 'Alpha' }, { id: 'A2', name: 'Beta' }], [attribute('code', 'id', 'Code')], ['id', 'name']));
+      render(
+        configuration(
+          [
+            { id: 'A1', name: 'Alpha' },
+            { id: 'A2', name: 'Beta' },
+          ],
+          [attribute('code', 'id', 'Code')],
+          ['id', 'name']
+        )
+      );
       await fixture.whenStable();
       fixture.detectChanges();
 
@@ -142,7 +170,13 @@ describe('AttributesPageComponent', () => {
     it('renders a file with columns named like built-in properties', async () => {
       const columns = ['code', 'constructor', 'toString', '__proto__'];
 
-      render(configuration([JSON.parse('{"code":"A","__proto__":"p"}'), { code: 'B' }], [attribute('code', 'constructor', 'Code'), attribute('name', '__proto__', 'Name')], columns));
+      render(
+        configuration(
+          [JSON.parse('{"code":"A","__proto__":"p"}'), { code: 'B' }],
+          [attribute('code', 'constructor', 'Code'), attribute('name', '__proto__', 'Name')],
+          columns
+        )
+      );
       await fixture.whenStable();
       fixture.detectChanges();
 
@@ -151,7 +185,16 @@ describe('AttributesPageComponent', () => {
     });
 
     it('shows the attribute type and description tooltip', () => {
-      render(configuration([], [attribute('code', null, 'Code', { description: { localizedValue: 'Human-readable unique identifier' } }), attribute('plain', null, 'Plain')], []));
+      render(
+        configuration(
+          [],
+          [
+            attribute('code', null, 'Code', { description: { localizedValue: 'Human-readable unique identifier' } }),
+            attribute('plain', null, 'Plain'),
+          ],
+          []
+        )
+      );
 
       const labels = element.querySelectorAll('.label-holder label');
 
@@ -162,7 +205,9 @@ describe('AttributesPageComponent', () => {
   });
 
   describe('getDescription', () => {
-    const code = attribute('code', null, 'Code', { description: { localizedValue: 'Human-readable unique identifier' } });
+    const code = attribute('code', null, 'Code', {
+      description: { localizedValue: 'Human-readable unique identifier' },
+    });
 
     function withObjectType(objectType: string): any {
       const config: any = configuration([], [code], []);
@@ -175,7 +220,9 @@ describe('AttributesPageComponent', () => {
       for (const objectType of ['GEO_OBJECT', 'BUSINESS_OBJECT', 'CONCEPT_OBJECT']) {
         component.configuration = withObjectType(objectType);
 
-        expect(component.getDescription(code)).toBe('Human-readable unique identifier. io.attributes.codeUnique.' + objectType);
+        expect(component.getDescription(code)).toBe(
+          'Human-readable unique identifier. io.attributes.codeUnique.' + objectType
+        );
       }
     });
 
@@ -205,7 +252,9 @@ describe('AttributesPageComponent', () => {
     it('shows the scope even without a description', () => {
       component.configuration = withObjectType('BUSINESS_OBJECT');
 
-      expect(component.getDescription(attribute('code', null, 'Code'))).toBe('io.attributes.codeUnique.BUSINESS_OBJECT');
+      expect(component.getDescription(attribute('code', null, 'Code'))).toBe(
+        'io.attributes.codeUnique.BUSINESS_OBJECT'
+      );
     });
   });
 });
