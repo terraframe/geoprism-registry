@@ -20,7 +20,7 @@
 import { Injectable, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import * as MapboxDraw from '@mapbox/mapbox-gl-draw';
+import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import { Map, LngLat, LngLatBounds, LngLatBoundsLike, SourceSpecification, MapLibreEvent } from 'maplibre-gl';
 import { Subscription } from 'rxjs';
 
