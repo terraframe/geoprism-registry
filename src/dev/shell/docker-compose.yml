@@ -1,0 +1,52 @@
+# Local development databases (equivalent to orientdb.sh + postgres.sh + pgadmin.sh)
+#
+# Usage:
+#   docker compose -f src/dev/shell/docker-compose.yml up -d
+#   docker compose -f src/dev/shell/docker-compose.yml down
+#
+# Data is stored on the host under $CGR_DATA_DIR (default /data/cgr). Override it
+# in the shell or in a .env file next to this compose file, e.g.:
+#   CGR_DATA_DIR=$HOME/cgr-data docker compose -f src/dev/shell/docker-compose.yml up -d
+#
+# pgAdmin runs as uid 5050, so before the first start:
+#   sudo mkdir -p ${CGR_DATA_DIR:-/data/cgr}/pgadmin && sudo chown 5050:5050 ${CGR_DATA_DIR:-/data/cgr}/pgadmin
+
+services:
+  orientdb:
+    image: orientdb:3.2.57
+    container_name: cgr-orientdb
+    ports:
+      - "2424:2424"
+      - "2480:2480"
+    environment:
+      ORIENTDB_ROOT_PASSWORD: root
+      ORIENTDB_OPTS_MEMORY: "-Xms512M -Xmx8G -Dnetwork.binary.maxLength=56384 -Ddb.custom.support=true"
+    volumes:
+      - ${CGR_DATA_DIR:-/data/cgr}/orientdb/databases:/orientdb/databases
+      - ${CGR_DATA_DIR:-/data/cgr}/orientdb/backup:/orientdb/backup
+
+  postgres:
+    image: postgis/postgis:18-3.6
+    container_name: cgr-postgres
+    ports:
+      - "5443:5432"
+    environment:
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      # Postgres 18+ images keep PGDATA under /var/lib/postgresql/<version>/docker
+      - ${CGR_DATA_DIR:-/data/cgr}/postgresql:/var/lib/postgresql
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: cgr-pgadmin
+    # Host networking (as in pgadmin.sh): UI at http://localhost:5280,
+    # and Postgres is reachable from pgAdmin at localhost:5443
+    network_mode: host
+    environment:
+      PGADMIN_LISTEN_PORT: 5280
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    volumes:
+      - ${CGR_DATA_DIR:-/data/cgr}/pgadmin:/var/lib/pgadmin
+    depends_on:
+      - postgres
