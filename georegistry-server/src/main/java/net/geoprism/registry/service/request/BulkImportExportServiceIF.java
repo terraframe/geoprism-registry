@@ -23,25 +23,25 @@ import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
-import net.geoprism.registry.service.business.BackupSection;
+import net.geoprism.registry.service.business.BulkExportSection;
 
 @Component
-public interface BackupAndRestoreServiceIF
+public interface BulkImportExportServiceIF
 {
 
   /**
-   * Creates a backup of the given sections of the data in the system
+   * Creates a bulk export of the given sections of the data in the system
    * 
    * @param sessionId
    * @param sections
    */
-  public InputStream backup(String sessionId, Set<BackupSection> sections);
+  public InputStream exportData(String sessionId, Set<BulkExportSection> sections);
 
   /**
    * Deletes the data in the system
    */
   public void deleteData(String sessionId);
 
-  public String restore(String sessionId, InputStream istream);
+  public String importData(String sessionId, InputStream istream);
 
 }

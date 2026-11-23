@@ -23,16 +23,16 @@ import java.util.EnumSet;
 import java.util.Set;
 
 /**
- * The kinds of data which can be included in a backup. Each section is written
- * to its own folder in the backup zip, and the restore process skips any
+ * The kinds of data which can be included in a bulk export. Each section is written
+ * to its own folder in the export zip, and the import process skips any
  * section which is missing from the zip.
  */
-public enum BackupSection {
+public enum BulkExportSection {
   ORGANIZATIONS, METADATA, GEO_OBJECTS, HIERARCHIES, DAGS, UNDIRECTED_GRAPHS, BUSINESS_OBJECTS, BUSINESS_EDGES, EVENTS, LIST_TYPES, USERS;
 
-  public static Set<BackupSection> all()
+  public static Set<BulkExportSection> all()
   {
-    return EnumSet.allOf(BackupSection.class);
+    return EnumSet.allOf(BulkExportSection.class);
   }
 
   /**
@@ -42,24 +42,24 @@ public enum BackupSection {
    * @throws IllegalArgumentException
    *           if a name does not match a section
    */
-  public static Set<BackupSection> parse(Collection<String> names)
+  public static Set<BulkExportSection> parse(Collection<String> names)
   {
     if (names == null || names.isEmpty())
     {
       return all();
     }
 
-    Set<BackupSection> sections = EnumSet.noneOf(BackupSection.class);
+    Set<BulkExportSection> sections = EnumSet.noneOf(BulkExportSection.class);
 
     for (String name : names)
     {
       try
       {
-        sections.add(BackupSection.valueOf(name.trim().toUpperCase()));
+        sections.add(BulkExportSection.valueOf(name.trim().toUpperCase()));
       }
       catch (IllegalArgumentException e)
       {
-        throw new IllegalArgumentException("Unknown backup section [" + name + "]", e);
+        throw new IllegalArgumentException("Unknown export section [" + name + "]", e);
       }
     }
 

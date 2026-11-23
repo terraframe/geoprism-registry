@@ -32,13 +32,13 @@ import { DecimalPipe } from "@angular/common";
 import { LoadingBarComponent } from "../../../shared/component/loading-bar/loading-bar.component";
 
 @Component({
-    selector: "restore-modal",
-    templateUrl: "./restore-modal.component.html",
+    selector: "import-modal",
+    templateUrl: "./import-modal.component.html",
     styleUrls: [],
     standalone: true,
     imports: [LoadingBarComponent, FormsModule, LocalizeComponent, FileUploadModule, DecimalPipe]
 })
-export class RestoreModalComponent {
+export class ImportModalComponent {
 
     @ViewChild("myFile")
     fileRef: ElementRef;
@@ -49,7 +49,7 @@ export class RestoreModalComponent {
     uploader: FileUploader;
 
     /*
-     * The number of each kind of thing restored, shown once the restore succeeds
+     * The number of each kind of thing imported, shown once the import succeeds
      */
     summary: { label: string, count: number }[] = null;
 
@@ -59,7 +59,7 @@ export class RestoreModalComponent {
         let options: FileUploaderOptions = {
             queueLimit: 1,
             removeAfterUpload: true,
-            url: environment.apiUrl + "/api/admin/restore"
+            url: environment.apiUrl + "/api/admin/bulk-import"
         };
 
         this.uploader = new FileUploader(options);
@@ -87,7 +87,7 @@ export class RestoreModalComponent {
             try {
                 error = JSON.parse(response);
             } catch (e) {
-                error = { message: (response != null && response.length > 0) ? response : ("The restore failed with HTTP status " + status) };
+                error = { message: (response != null && response.length > 0) ? response : ("The import failed with HTTP status " + status) };
             }
 
             this.error({ error: error });

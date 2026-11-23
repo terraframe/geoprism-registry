@@ -40,8 +40,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.service.business.BackupSection;
-import net.geoprism.registry.service.request.BackupAndRestoreServiceIF;
+import net.geoprism.registry.service.business.BulkExportSection;
+import net.geoprism.registry.service.request.BulkImportExportServiceIF;
 
 @RestController
 @Validated
@@ -50,14 +50,14 @@ public class AdminController extends RunwaySpringController
   public static final String          API_PATH = RegistryConstants.CONTROLLER_ROOT + "admin";
 
   @Autowired
-  protected BackupAndRestoreServiceIF service;
+  protected BulkImportExportServiceIF service;
 
-  @PostMapping(API_PATH + "/restore")
-  public ResponseEntity<String> restore(@Valid @ModelAttribute MultipartFile file) throws IOException
+  @PostMapping(API_PATH + "/bulk-import")
+  public ResponseEntity<String> bulkImport(@Valid @ModelAttribute MultipartFile file) throws IOException
   {
     try (InputStream istream = file.getInputStream())
     {
-      String summary = this.service.restore(this.getSessionId(), istream);
+      String summary = this.service.importData(this.getSessionId(), istream);
 
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(MediaType.APPLICATION_JSON);
@@ -74,17 +74,17 @@ public class AdminController extends RunwaySpringController
     return new ResponseEntity<Void>(HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/backup")
-  public ResponseEntity<InputStreamResource> backup(@RequestParam(name = "sections", required = false) List<String> sections)
+  @GetMapping(API_PATH + "/bulk-export")
+  public ResponseEntity<InputStreamResource> bulkExport(@RequestParam(name = "sections", required = false) List<String> sections)
   {
-    // No sections means a full backup
-    Set<BackupSection> selected = BackupSection.parse(sections);
+    // No sections means a full export
+    Set<BulkExportSection> selected = BulkExportSection.parse(sections);
 
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-    headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=backup-" + System.currentTimeMillis() + ".zip");
+    headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=export-" + System.currentTimeMillis() + ".zip");
 
-    InputStreamResource isr = new InputStreamResource(service.backup(this.getSessionId(), selected));
+    InputStreamResource isr = new InputStreamResource(service.exportData(this.getSessionId(), selected));
     return new ResponseEntity<InputStreamResource>(isr, headers, HttpStatus.OK);
   }
 

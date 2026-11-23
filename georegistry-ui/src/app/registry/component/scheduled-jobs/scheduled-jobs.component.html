@@ -158,26 +158,31 @@
         <table class="table">
           <thead>
             <tr>
-              <th style="width: 40%; border-bottom: none">
+              <th style="width: 28%; border-bottom: none">
                 <localize style="line-height: 40px" key="scheduledjobs.completedjobs.table.header"></localize>
               </th>
               @if (completeJobsPage.resultSet.length > 0) {
-                <th style="width: 15%; border-bottom: none">
+                <th style="width: 10%; border-bottom: none">
                   <localize style="line-height: 40px" key="scheduledjobs.status"></localize>
                 </th>
               }
               @if (completeJobsPage.resultSet.length > 0) {
-                <th style="width: 15%; border-bottom: none">
+                <th style="width: 20%; border-bottom: none">
+                  <localize style="line-height: 40px" key="scheduledjobs.importType"></localize>
+                </th>
+              }
+              @if (completeJobsPage.resultSet.length > 0) {
+                <th style="width: 12%; border-bottom: none">
                   <localize style="line-height: 40px" key="scheduledjobs.importedRecords"></localize>
                 </th>
               }
               @if (completeJobsPage.resultSet.length > 0) {
-                <th style="width: 15%; border-bottom: none">
+                <th style="width: 10%; border-bottom: none">
                   <localize style="line-height: 40px" key="scheduledjobs.importStartDate"></localize>
                 </th>
               }
               @if (completeJobsPage.resultSet.length > 0) {
-                <th style="width: 15%; border-bottom: none">
+                <th style="width: 10%; border-bottom: none">
                   <localize style="line-height: 40px" key="scheduledjobs.importEndDate"></localize>
                 </th>
               }
@@ -194,7 +199,7 @@
                 </th>
               }
               @if (completeJobsPage.resultSet.length > 0) {
-                <th style="border-bottom: none; width: 0%"></th>
+                <th style="border-bottom: none; width: 10%"></th>
               }
             </tr>
           </thead>
@@ -212,30 +217,39 @@
               track job.historyId
             ) {
               <tr>
-                <td style="width: 40%; vertical-align: middle">
+                <td style="width: 28%; vertical-align: middle">
                   <div class="wrapper">
                     <i class="fa fa-file" style="position: absolute" aria-hidden="true"></i>
                     <p style="padding-left: 30px; margin: 0">{{ job.fileName }}</p>
                   </div>
                 </td>
-                <td style="width: 15%; vertical-align: middle">
+                <td style="width: 10%; vertical-align: middle">
                   <p style="padding-left: 0px; margin: 0">{{ formatJobStatus(job) }}</p>
                 </td>
-                <td style="width: 15%; vertical-align: middle">
+                <td style="width: 20%; vertical-align: middle">
+                  <p style="padding-left: 0px; margin: 0">
+                    @if (job.configuration?.type?.label != null) {
+                      {{ job.configuration.type.label.localizedValue }}
+                    } @else if (job.configuration?.graphTypeCode != null) {
+                      {{ job.configuration.graphTypeCode }}
+                    }
+                  </p>
+                </td>
+                <td style="width: 12%; vertical-align: middle">
                   <p style="padding-left: 0px; margin: 0">{{ job.importedRecords }}</p>
                 </td>
-                <td style="width: 15%; vertical-align: middle">
+                <td style="width: 10%; vertical-align: middle">
                   <span class="date-string-display">
                     <date-text [date]="job.createDate"></date-text>
                   </span>
                 </td>
-                <td style="width: 15%; vertical-align: middle">
+                <td style="width: 10%; vertical-align: middle">
                   <span class="date-string-display">
                     <date-text [date]="job.lastUpdateDate"></date-text>
                   </span>
                 </td>
                 @if (isAdmin || isMaintainer) {
-                  <td style="width: 15%; text-align: right; vertical-align: middle">
+                  <td style="width: 10%; text-align: right; vertical-align: middle">
                     <button type="submit" (click)="onView(job.historyId)" class="btn btn-primary" role="button">
                       <localize key="scheduledjobs.detail.button"></localize>
                     </button>

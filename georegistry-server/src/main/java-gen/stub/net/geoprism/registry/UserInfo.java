@@ -498,7 +498,7 @@ public class UserInfo extends UserInfoBase
    * Serializes the user, its profile information and the
    * names of its assigned roles for inclusion in a backup.
    */
-  public static JsonObject toBackupJSON(GeoprismUser user)
+  public static JsonObject toExportJSON(GeoprismUser user)
   {
     JsonObject object = new JsonObject();
     object.addProperty(GeoprismUser.USERNAME, user.getUsername());
@@ -534,11 +534,11 @@ public class UserInfo extends UserInfoBase
 
   /**
    * Creates or updates (matched by username) a user from JSON produced by
-   * {@link #toBackupJSON(GeoprismUser)}. Roles which do not exist on this
+   * {@link #toExportJSON(GeoprismUser)}. Roles which do not exist on this
    * server are skipped.
    */
   @Transaction
-  public static void restoreFromBackup(JsonObject object)
+  public static void importFromJSON(JsonObject object)
   {
     String username = object.get(GeoprismUser.USERNAME).getAsString();
 

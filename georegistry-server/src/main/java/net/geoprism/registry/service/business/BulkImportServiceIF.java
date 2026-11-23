@@ -18,26 +18,14 @@
  */
 package net.geoprism.registry.service.business;
 
-import java.io.File;
-import java.util.Set;
+import java.io.InputStream;
 
 import org.springframework.stereotype.Component;
 
+import net.geoprism.registry.view.BulkImportSummary;
+
 @Component
-public interface BackupServiceIF
+public interface BulkImportServiceIF
 {
-
-  /**
-   * Creates a backup containing every {@link BackupSection}
-   */
-  default void createBackup(File zipfile)
-  {
-    this.createBackup(zipfile, BackupSection.all());
-  }
-
-  /**
-   * Creates a backup containing only the given sections
-   */
-  void createBackup(File zipfile, Set<BackupSection> sections);
-
+  BulkImportSummary importData(InputStream istream);
 }

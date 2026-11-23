@@ -19,30 +19,30 @@ import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
-import net.geoprism.registry.service.business.BackupAndRestoreBusinessServiceIF;
+import net.geoprism.registry.service.business.BulkImportExportBusinessServiceIF;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
 @ExtendWith(InstanceTestClassExtension.class)
 @Disabled
-public class DemoBackupAndRestoreTest
+public class DemoBulkImportExportTest
 {
   @Autowired
-  private BackupAndRestoreBusinessServiceIF backupService;
+  private BulkImportExportBusinessServiceIF service;
 
   @Request
   @Test
   public void testImportAndExport() throws Exception
   {
-    File file = new File("demo-backup.zip");
+    File file = new File("demo-export.zip");
 
-    // this.backupService.createBackup(file);
+    // this.service.createExport(file);
     //
     Assertions.assertTrue(file.exists());
 
-    this.backupService.deleteData();
+    this.service.deleteData();
     //
-    this.backupService.restoreFromBackup(new FileInputStream(file));
+    this.service.importData(new FileInputStream(file));
   }
 
 }

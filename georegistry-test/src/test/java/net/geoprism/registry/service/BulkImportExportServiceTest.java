@@ -46,8 +46,8 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerParentGraphNode;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.model.graph.VertexComponent;
-import net.geoprism.registry.service.business.BackupAndRestoreBusinessServiceIF;
-import net.geoprism.registry.service.business.BackupSection;
+import net.geoprism.registry.service.business.BulkImportExportBusinessServiceIF;
+import net.geoprism.registry.service.business.BulkExportSection;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
@@ -66,7 +66,7 @@ import net.geoprism.registry.view.BusinessTypeDTO;
 @AutoConfigureMockMvc
 @ExtendWith(InstanceTestClassExtension.class)
 @Disabled
-public class BackupAndRestoreServiceTest extends USADatasetTest
+public class BulkImportExportServiceTest extends USADatasetTest
 {
   protected static DirectedAcyclicGraphType         dagType;
 
@@ -87,7 +87,7 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
   private static Transition                         transition;
 
   @Autowired
-  private BackupAndRestoreBusinessServiceIF         backupService;
+  private BulkImportExportBusinessServiceIF         service;
 
   @Autowired
   private UndirectedGraphTypeBusinessServiceIF      ugTypeService;
@@ -258,13 +258,13 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
         try
         {
 
-          this.backupService.createBackup(file);
+          this.service.createExport(file);
 
           Assertions.assertTrue(file.exists());
 
-          this.backupService.deleteData();
+          this.service.deleteData();
 
-          this.backupService.restoreFromBackup(new FileInputStream(file));
+          this.service.importData(new FileInputStream(file));
 
           // Reload all of the cached test objects
           dagType = this.dagTypeService.getByCode(dagType.getCode()).get();
@@ -353,7 +353,7 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
     try
     {
       TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
-        this.backupService.createBackup(file, EnumSet.of(BackupSection.ORGANIZATIONS, BackupSection.USERS));
+        this.service.createExport(file, EnumSet.of(BulkExportSection.ORGANIZATIONS, BulkExportSection.USERS));
       });
 
       Set<String> folders = new HashSet<String>();
@@ -374,10 +374,10 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
   @Test
   public void testParseSections()
   {
-    Assertions.assertEquals(BackupSection.all(), BackupSection.parse(null));
-    Assertions.assertEquals(BackupSection.all(), BackupSection.parse(List.of()));
-    Assertions.assertEquals(EnumSet.of(BackupSection.GEO_OBJECTS, BackupSection.USERS), BackupSection.parse(List.of("geo_objects", " USERS ")));
-    Assertions.assertThrows(IllegalArgumentException.class, () -> BackupSection.parse(List.of("NOT_A_SECTION")));
+    Assertions.assertEquals(BulkExportSection.all(), BulkExportSection.parse(null));
+    Assertions.assertEquals(BulkExportSection.all(), BulkExportSection.parse(List.of()));
+    Assertions.assertEquals(EnumSet.of(BulkExportSection.GEO_OBJECTS, BulkExportSection.USERS), BulkExportSection.parse(List.of("geo_objects", " USERS ")));
+    Assertions.assertThrows(IllegalArgumentException.class, () -> BulkExportSection.parse(List.of("NOT_A_SECTION")));
   }
 
 }

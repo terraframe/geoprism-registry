@@ -73,7 +73,7 @@ import net.geoprism.registry.view.Page;
 import net.geoprism.registry.xml.XMLExporter;
 
 @Service
-public class BackupService implements BackupServiceIF
+public class BulkExportService implements BulkExportServiceIF
 {
   /**
    * Folders of the concept (classification term) data, written with the
@@ -117,7 +117,7 @@ public class BackupService implements BackupServiceIF
   private ConceptObjectBusinessServiceIF            cObjectService;
 
   @Override
-  public void createBackup(File zipfile, Set<BackupSection> sections)
+  public void createExport(File zipfile, Set<BulkExportSection> sections)
   {
     try
     {
@@ -125,17 +125,17 @@ public class BackupService implements BackupServiceIF
 
       try
       {
-        export(sections, BackupSection.ORGANIZATIONS, this::exportOrganizations, directory);
-        export(sections, BackupSection.METADATA, this::exportMetadata, directory);
-        export(sections, BackupSection.GEO_OBJECTS, this::exportGeoObjectData, directory);
-        export(sections, BackupSection.HIERARCHIES, this::exportHierarchyData, directory);
-        export(sections, BackupSection.DAGS, this::exportDagData, directory);
-        export(sections, BackupSection.UNDIRECTED_GRAPHS, this::exportUndirectedGraphData, directory);
-        export(sections, BackupSection.BUSINESS_OBJECTS, this::exportBusinessObjectData, directory);
-        export(sections, BackupSection.BUSINESS_EDGES, this::exportBusinessEdgeData, directory);
-        export(sections, BackupSection.EVENTS, this::exportHistoricalEventData, directory);
-        export(sections, BackupSection.LIST_TYPES, this::exportListTypeData, directory);
-        export(sections, BackupSection.USERS, this::exportUserData, directory);
+        export(sections, BulkExportSection.ORGANIZATIONS, this::exportOrganizations, directory);
+        export(sections, BulkExportSection.METADATA, this::exportMetadata, directory);
+        export(sections, BulkExportSection.GEO_OBJECTS, this::exportGeoObjectData, directory);
+        export(sections, BulkExportSection.HIERARCHIES, this::exportHierarchyData, directory);
+        export(sections, BulkExportSection.DAGS, this::exportDagData, directory);
+        export(sections, BulkExportSection.UNDIRECTED_GRAPHS, this::exportUndirectedGraphData, directory);
+        export(sections, BulkExportSection.BUSINESS_OBJECTS, this::exportBusinessObjectData, directory);
+        export(sections, BulkExportSection.BUSINESS_EDGES, this::exportBusinessEdgeData, directory);
+        export(sections, BulkExportSection.EVENTS, this::exportHistoricalEventData, directory);
+        export(sections, BulkExportSection.LIST_TYPES, this::exportListTypeData, directory);
+        export(sections, BulkExportSection.USERS, this::exportUserData, directory);
 
         GeoRegistryUtil.zipDirectory(directory, zipfile);
       }
@@ -156,7 +156,7 @@ public class BackupService implements BackupServiceIF
     void run(File directory) throws IOException;
   }
 
-  private void export(Set<BackupSection> sections, BackupSection section, ExportStep step, File directory) throws IOException
+  private void export(Set<BulkExportSection> sections, BulkExportSection section, ExportStep step, File directory) throws IOException
   {
     if (sections.contains(section))
     {
@@ -195,7 +195,7 @@ public class BackupService implements BackupServiceIF
       {
         while (it.hasNext())
         {
-          gson.toJson(UserInfo.toBackupJSON(it.next()), writer);
+          gson.toJson(UserInfo.toExportJSON(it.next()), writer);
         }
       }
 
@@ -282,9 +282,9 @@ public class BackupService implements BackupServiceIF
     exporter.write(new File(subdir, "metadata.xml"));
 
     // The terms of the concept classes are part of the metadata: classification
-    // values on geo objects and business objects can only be restored once
+    // values on geo objects and business objects can only be imported once
     // their terms exist. They are written to their own folder because the
-    // restore imports every file in the metadata folder as XML.
+    // import reads every file in the metadata folder as XML.
     exportConceptData(directory);
   }
 

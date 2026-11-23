@@ -25,10 +25,10 @@ import { LocalizeComponent } from '@shared/component/localize/localize.component
 import { environment } from 'src/environments/environment';
 
 /**
- * Sections of the data which can be included in a backup. These must match the
- * server side BackupSection enum.
+ * Sections of the data which can be included in a bulk export. These must match the
+ * server side BulkExportSection enum.
  */
-export const BACKUP_SECTIONS = [
+export const EXPORT_SECTIONS = [
   'ORGANIZATIONS',
   'METADATA',
   'GEO_OBJECTS',
@@ -46,7 +46,7 @@ export const BACKUP_SECTIONS = [
  * The sections grouped for display. Each inner array is one column of the
  * modal.
  */
-export const BACKUP_SECTION_GROUPS: { key: string; sections: string[] }[][] = [
+export const EXPORT_SECTION_GROUPS: { key: string; sections: string[] }[][] = [
   [
     { key: 'CONFIGURATION', sections: ['ORGANIZATIONS', 'METADATA', 'LIST_TYPES'] },
     { key: 'BUSINESS', sections: ['BUSINESS_OBJECTS', 'BUSINESS_EDGES'] },
@@ -58,38 +58,38 @@ export const BACKUP_SECTION_GROUPS: { key: string; sections: string[] }[][] = [
 ];
 
 @Component({
-  selector: 'backup-modal',
-  templateUrl: './backup-modal.component.html',
+  selector: 'export-modal',
+  templateUrl: './export-modal.component.html',
   styles: [
     `
-      .backup-columns {
+      .export-columns {
         display: flex;
         flex-wrap: wrap;
         gap: 12px;
         margin: 4px 0 12px;
       }
 
-      .backup-column {
+      .export-column {
         flex: 1 1 260px;
         display: flex;
         flex-direction: column;
         gap: 12px;
       }
 
-      .backup-group {
+      .export-group {
         border: 1px solid #ddd;
         border-radius: 4px;
         padding: 8px 12px;
       }
 
-      .backup-group-header {
+      .export-group-header {
         font-weight: 600;
         border-bottom: 1px solid #eee;
         padding-bottom: 6px;
         margin-bottom: 6px;
       }
 
-      .backup-option {
+      .export-option {
         display: flex;
         align-items: center;
         gap: 8px;
@@ -101,7 +101,7 @@ export const BACKUP_SECTION_GROUPS: { key: string; sections: string[] }[][] = [
       }
 
       /* Undo the global input styles (40px height, padding) for checkboxes */
-      .backup-option input[type='checkbox'] {
+      .export-option input[type='checkbox'] {
         position: static;
         flex-shrink: 0;
         width: auto;
@@ -110,7 +110,7 @@ export const BACKUP_SECTION_GROUPS: { key: string; sections: string[] }[][] = [
         padding: 0;
       }
 
-      .backup-toolbar {
+      .export-toolbar {
         display: flex;
         justify-content: space-between;
         align-items: baseline;
@@ -118,7 +118,7 @@ export const BACKUP_SECTION_GROUPS: { key: string; sections: string[] }[][] = [
         flex-wrap: wrap;
       }
 
-      .backup-users-note {
+      .export-users-note {
         font-size: 12px;
         color: #8a6d3b;
         margin: 0 0 12px;
@@ -128,10 +128,10 @@ export const BACKUP_SECTION_GROUPS: { key: string; sections: string[] }[][] = [
   standalone: true,
   imports: [FormsModule, LocalizeComponent],
 })
-export class BackupModalComponent {
-  sections = BACKUP_SECTIONS;
+export class ExportModalComponent {
+  sections = EXPORT_SECTIONS;
 
-  columns = BACKUP_SECTION_GROUPS;
+  columns = EXPORT_SECTION_GROUPS;
 
   selected: { [section: string]: boolean } = {};
 
@@ -163,9 +163,9 @@ export class BackupModalComponent {
     const selected = this.getSelected();
 
     if (selected.length > 0) {
-      let url = environment.apiUrl + '/api/admin/backup';
+      let url = environment.apiUrl + '/api/admin/bulk-export';
 
-      // Leaving out the sections parameter gives a full backup
+      // Leaving out the sections parameter gives a full export
       if (selected.length < this.sections.length) {
         url += '?' + selected.map((section) => 'sections=' + encodeURIComponent(section)).join('&');
       }
