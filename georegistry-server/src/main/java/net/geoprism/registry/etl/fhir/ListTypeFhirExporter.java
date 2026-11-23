@@ -44,7 +44,6 @@ import org.hl7.fhir.r4.model.Organization;
 import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.Resource;
 
-import com.google.gson.JsonObject;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
@@ -61,6 +60,7 @@ import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.etl.FhirResponseException;
+import net.geoprism.registry.query.graph.PageCriteria;
 
 public class ListTypeFhirExporter
 {
@@ -130,7 +130,7 @@ public class ListTypeFhirExporter
 
   public void populateBundle(Bundle bundle)
   {
-    BusinessQuery query = this.version.buildQuery(new JsonObject());
+    BusinessQuery query = this.version.buildQuery(new PageCriteria());
     query.ORDER_BY_DESC(query.aCharacter(DefaultAttribute.CODE.getName()));
 
     OIterator<Business> objects = query.getIterator();

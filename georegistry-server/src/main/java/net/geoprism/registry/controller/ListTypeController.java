@@ -20,7 +20,6 @@ package net.geoprism.registry.controller;
 
 import java.text.ParseException;
 
-import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +48,7 @@ import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.controller.ObjectClassController.OidBody;
 import net.geoprism.registry.etl.ListTypeJob;
 import net.geoprism.registry.progress.Progress;
+import net.geoprism.registry.query.graph.PageCriteria;
 import net.geoprism.registry.service.request.ListTypeService;
 import net.geoprism.spring.core.JsonObjectDeserializer;
 import tools.jackson.databind.annotation.JsonDeserialize;
@@ -221,11 +221,11 @@ public class ListTypeController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/data")
-  public ResponseEntity<String> data(@NotEmpty @RequestParam(name = "oid") String oid, @RequestParam(name = "criteria", required = false) String criteria, @RequestParam(name = "showInvalid", required = false) Boolean showInvalid, @RequestParam(name = "includeGeometries", required = false) Boolean includeGeometries)
+  public ResponseEntity<String> data(@NotEmpty @RequestParam(name = "oid") String oid, @RequestParam(name = "criteria", required = false) PageCriteria criteria, @RequestParam(name = "showInvalid", required = false) Boolean showInvalid, @RequestParam(name = "includeGeometries", required = false) Boolean includeGeometries)
   {
-    if (StringUtils.isEmpty(criteria))
+    if (criteria == null)
     {
-      criteria = "{}";
+      criteria = new PageCriteria();
     }
     if (showInvalid == null)
     {

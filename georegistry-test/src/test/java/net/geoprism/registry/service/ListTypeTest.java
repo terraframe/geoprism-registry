@@ -52,6 +52,7 @@ import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.etl.PublishListTypeVersionJobQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerOrganization;
+import net.geoprism.registry.query.graph.PageCriteria;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GraphRepoServiceIF;
 import net.geoprism.registry.service.request.ListTypeService;
@@ -488,7 +489,7 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
 
           Assertions.assertNotNull(mdTable);
 
-          Page<JsonSerializable> data = version.data(new JsonObject(), true, includeGeometries);
+          Page<JsonSerializable> data = version.data(new PageCriteria(), true, includeGeometries);
 
           // Entries should be HP_1, HP_2, HS_1, HS_2
           Assertions.assertEquals(Long.valueOf(4), data.getCount());

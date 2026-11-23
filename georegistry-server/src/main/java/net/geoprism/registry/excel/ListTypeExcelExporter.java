@@ -45,7 +45,6 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonObject;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
@@ -63,6 +62,7 @@ import net.geoprism.registry.masterlist.ListAttribute;
 import net.geoprism.registry.masterlist.ListAttributeGroup;
 import net.geoprism.registry.masterlist.ListColumn;
 import net.geoprism.registry.masterlist.ListColumnVisitor;
+import net.geoprism.registry.query.graph.PageCriteria;
 import net.geoprism.registry.shapefile.ShapefileColumnNameGenerator;
 
 public class ListTypeExcelExporter
@@ -77,7 +77,7 @@ public class ListTypeExcelExporter
 
   private List<? extends MdAttributeConcreteDAOIF> mdAttributes;
 
-  private JsonObject                               criteria;
+  private PageCriteria                             criteria;
 
   private CellStyle                                boldStyle;
 
@@ -97,12 +97,12 @@ public class ListTypeExcelExporter
     LIST, GEOSPATIAL
   }
 
-  public ListTypeExcelExporter(ListTypeVersion version, List<? extends MdAttributeConcreteDAOIF> mdAttributes, ListTypeExcelExporterSheet[] includedSheets, JsonObject criteria, ListMetadataSource metadataSource)
+  public ListTypeExcelExporter(ListTypeVersion version, List<? extends MdAttributeConcreteDAOIF> mdAttributes, ListTypeExcelExporterSheet[] includedSheets, PageCriteria criteria, ListMetadataSource metadataSource)
   {
     this(version, mdAttributes, includedSheets, criteria, metadataSource, new ShapefileColumnNameGenerator());
   }
 
-  public ListTypeExcelExporter(ListTypeVersion version, List<? extends MdAttributeConcreteDAOIF> mdAttributes, ListTypeExcelExporterSheet[] includedSheets, JsonObject criteria, ListMetadataSource metadataSource, ShapefileColumnNameGenerator generator)
+  public ListTypeExcelExporter(ListTypeVersion version, List<? extends MdAttributeConcreteDAOIF> mdAttributes, ListTypeExcelExporterSheet[] includedSheets, PageCriteria criteria, ListMetadataSource metadataSource, ShapefileColumnNameGenerator generator)
   {
     this.version = version;
     this.mdAttributes = mdAttributes;

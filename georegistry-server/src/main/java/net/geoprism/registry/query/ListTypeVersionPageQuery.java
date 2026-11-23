@@ -43,6 +43,7 @@ import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.query.graph.PageCriteria;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
 import net.geoprism.registry.view.JsonSerializable;
@@ -62,7 +63,7 @@ public class ListTypeVersionPageQuery extends AbstractBusinessPageQuery<JsonSeri
 
   private List<? extends MdAttributeConcreteDAOIF> mdAttributes;
 
-  public ListTypeVersionPageQuery(ListTypeVersion version, JsonObject criteria, Boolean showInvalid, Boolean includeGeometries)
+  public ListTypeVersionPageQuery(ListTypeVersion version, PageCriteria criteria, Boolean showInvalid, Boolean includeGeometries)
   {
     super(MdBusinessDAO.get(version.getMdBusinessOid()), criteria);
 

@@ -46,6 +46,7 @@ import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.query.graph.PageCriteria;
 import net.geoprism.registry.service.ListTypeTest;
 import net.geoprism.registry.shapefile.ListTypeShapefileExporter;
 import net.geoprism.registry.shapefile.ShapefileColumnNameGenerator;
@@ -170,7 +171,7 @@ public class ListTypeGeoObjectShapefileExporterTest extends FastDatasetTest impl
     ServerGeoObjectIF object = FastTestDataset.PROV_CENTRAL.getServerObject();
     ServerGeoObjectType type = object.getType();
 
-    ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(version, mdBusiness, mdAttributes, new JsonObject(), null);
+    ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(version, mdBusiness, mdAttributes, new PageCriteria(), null);
     SimpleFeatureType featureType = exporter.createFeatureType();
 
     FeatureCollection<SimpleFeatureType, SimpleFeature> features = exporter.features(featureType);
@@ -226,7 +227,7 @@ public class ListTypeGeoObjectShapefileExporterTest extends FastDatasetTest impl
   public void testWriteToFile() throws Exception
   {
 
-    ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(version, mdBusiness, mdAttributes, new JsonObject(), null);
+    ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(version, mdBusiness, mdAttributes, new PageCriteria(), null);
     File directory = exporter.writeToFile();
 
     Assertions.assertTrue(directory.exists());
@@ -240,7 +241,7 @@ public class ListTypeGeoObjectShapefileExporterTest extends FastDatasetTest impl
   @Request
   public void testExport() throws Exception
   {
-    ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(version, mdBusiness, mdAttributes, new JsonObject(), null);
+    ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(version, mdBusiness, mdAttributes, new PageCriteria(), null);
     InputStream export = exporter.export();
 
     Assertions.assertNotNull(export);

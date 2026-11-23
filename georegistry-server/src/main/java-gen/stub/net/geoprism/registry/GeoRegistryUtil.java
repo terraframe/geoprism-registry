@@ -66,6 +66,7 @@ import net.geoprism.registry.excel.ListTypeExcelExporter;
 import net.geoprism.registry.excel.ListTypeExcelExporter.ListMetadataSource;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
+import net.geoprism.registry.query.graph.PageCriteria;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
@@ -284,7 +285,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
   {
     ListTypeVersion version = ListTypeVersion.get(oid);
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(version.getMdBusinessOid());
-    JsonObject criteria = ( json != null ) ? JsonParser.parseString(json).getAsJsonObject() : new JsonObject();
+    PageCriteria criteria = PageCriteria.fromJson(json);
 
     List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> version.isValid(mdAttribute)).collect(Collectors.toList());
 
@@ -323,7 +324,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
   {
     ListTypeVersion version = ListTypeVersion.get(oid);
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(version.getMdBusinessOid());
-    JsonObject criteria = ( json != null ) ? JsonParser.parseString(json).getAsJsonObject() : new JsonObject();
+    PageCriteria criteria = PageCriteria.fromJson(json);
 
     List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> version.isValid(mdAttribute)).collect(Collectors.toList());
 

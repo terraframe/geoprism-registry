@@ -35,6 +35,7 @@ import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.curation.CurationProblem.CurationResolution;
 import net.geoprism.registry.curation.GeoObjectProblem.GeoObjectProblemType;
+import net.geoprism.registry.query.graph.PageCriteria;
 import net.geoprism.registry.service.ListTypeTest;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.SchedulerTestUtils;
@@ -283,7 +284,7 @@ public class CurationTest extends FastDatasetTest implements InstanceTestClassLi
 
     Assertions.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
 
-    Long count = version.buildQuery(new JsonObject()).getCount();
+    Long count = version.buildQuery(new PageCriteria()).getCount();
 
     Assertions.assertEquals(count, hist.getWorkTotal());
     Assertions.assertEquals(count, hist.getWorkProgress());

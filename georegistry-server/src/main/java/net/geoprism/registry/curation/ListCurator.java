@@ -20,7 +20,6 @@ package net.geoprism.registry.curation;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 
-import com.google.gson.JsonObject;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.query.OIterator;
@@ -32,6 +31,7 @@ import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.curation.CurationProblem.CurationResolution;
 import net.geoprism.registry.curation.GeoObjectProblem.GeoObjectProblemType;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.query.graph.PageCriteria;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;
@@ -55,7 +55,7 @@ public class ListCurator
     // final MdBusinessDAO mdBusiness =
     // MdBusinessDAO.get(version.getMdBusinessOid()).getBusinessDAO();
 
-    BusinessQuery query = this.version.buildQuery(new JsonObject());
+    BusinessQuery query = this.version.buildQuery(new PageCriteria());
     query.ORDER_BY_DESC(query.aCharacter(DefaultAttribute.CODE.getName()));
 
     history.appLock();

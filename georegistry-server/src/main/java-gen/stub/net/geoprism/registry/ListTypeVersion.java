@@ -159,6 +159,7 @@ import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.query.ListTypeVersionPageQuery;
 import net.geoprism.registry.query.graph.BasicVertexQuery;
 import net.geoprism.registry.query.graph.BasicVertexRestriction;
+import net.geoprism.registry.query.graph.PageCriteria;
 import net.geoprism.registry.service.business.ConceptObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.CurationBusinessService;
 import net.geoprism.registry.service.business.DataSourceBusinessServiceIF;
@@ -1584,7 +1585,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     }
   }
 
-  public BusinessQuery buildQuery(JsonObject criteria)
+  public BusinessQuery buildQuery(PageCriteria criteria)
   {
     return new ListTypeVersionPageQuery(this, criteria, false, false).getQuery();
   }
@@ -1642,7 +1643,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     }
   }
 
-  public JsonArray values(String value, String attributeName, JsonObject criteria)
+  public JsonArray values(String value, String attributeName, PageCriteria criteria)
   {
     ValueQuery vQuery = new ValueQuery(new QueryFactory());
     BusinessQuery query = new ListTypeVersionPageQuery(this, criteria, true, false).getQuery(vQuery);
@@ -1689,7 +1690,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     return results;
   }
 
-  public JsonSerializablePage<JsonSerializable> data(JsonObject criteria, Boolean showInvalid, Boolean includeGeometries)
+  public JsonSerializablePage<JsonSerializable> data(PageCriteria criteria, Boolean showInvalid, Boolean includeGeometries)
   {
     if (includeGeometries == null)
     {

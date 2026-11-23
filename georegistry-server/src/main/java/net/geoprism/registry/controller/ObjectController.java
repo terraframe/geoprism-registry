@@ -28,6 +28,7 @@ import com.google.gson.JsonObject;
 import jakarta.validation.constraints.NotBlank;
 import net.geoprism.registry.graph.ObjectClass;
 import net.geoprism.registry.model.graph.ServerObjectVertex;
+import net.geoprism.registry.query.graph.PageCriteria;
 import net.geoprism.registry.service.request.ObjectService;
 import net.geoprism.registry.view.ObjectAndTypeDTO;
 import net.geoprism.registry.view.ObjectClassDTO;
@@ -68,7 +69,7 @@ public abstract class ObjectController<V extends ServerObjectVertex, T extends O
   }
 
   @GetMapping("/data")
-  public ResponseEntity<String> data(@NotBlank @RequestParam(name = "typeCode") String typeCode, @RequestParam(required = false, name = "criteria") String criteria)
+  public ResponseEntity<String> data(@NotBlank @RequestParam(name = "typeCode") String typeCode, @RequestParam(required = false, name = "criteria") PageCriteria criteria)
   {
     JsonObject page = this.service.data(this.getSessionId(), typeCode, criteria);
 

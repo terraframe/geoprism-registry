@@ -67,6 +67,7 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
+import net.geoprism.registry.query.graph.PageCriteria;
 import net.geoprism.registry.roles.CreateListPermissionException;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
@@ -372,10 +373,10 @@ public class ListTypeService
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject data(String sessionId, String oid, String criteria, Boolean showInvalid, Boolean includeGeometries)
+  public JsonObject data(String sessionId, String oid, PageCriteria criteria, Boolean showInvalid, Boolean includeGeometries)
   {
     ListTypeVersion version = getVersion(oid);
-    JsonSerializablePage<JsonSerializable> page = version.data(JsonParser.parseString(criteria).getAsJsonObject(), showInvalid, includeGeometries);
+    JsonSerializablePage<JsonSerializable> page = version.data(criteria, showInvalid, includeGeometries);
 
     return page.toJSON();
   }
@@ -420,9 +421,7 @@ public class ListTypeService
   public JsonArray values(String sessionId, String oid, String value, String attributeName, String json)
   {
     ListTypeVersion version = getVersion(oid);
-    JsonObject criteria = ( json != null ) ? JsonParser.parseString(json).getAsJsonObject() : new JsonObject();
-
-    return version.values(value, attributeName, criteria);
+    return version.values(value, attributeName, PageCriteria.fromJson(json));
   }
 
   @Request(RequestType.SESSION)

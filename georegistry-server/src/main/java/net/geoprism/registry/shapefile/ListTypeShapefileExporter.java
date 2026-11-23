@@ -64,7 +64,6 @@ import org.geotools.api.feature.type.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonObject;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.constants.VaultProperties;
@@ -102,6 +101,7 @@ import net.geoprism.registry.masterlist.AbstractListColumnVisitor;
 import net.geoprism.registry.masterlist.ListAttribute;
 import net.geoprism.registry.masterlist.ListColumn;
 import net.geoprism.registry.masterlist.ListColumnVisitor;
+import net.geoprism.registry.query.graph.PageCriteria;
 import net.geoprism.registry.util.SessionPredicate;
 
 public class ListTypeShapefileExporter
@@ -122,11 +122,11 @@ public class ListTypeShapefileExporter
 
   private List<? extends MdAttributeConcreteDAOIF> mdAttributes;
 
-  private JsonObject                               criteria;
+  private PageCriteria                             criteria;
 
   private String                                   actualGeometryType;
 
-  public ListTypeShapefileExporter(ListTypeVersion version, MdBusinessDAOIF mdBusiness, List<? extends MdAttributeConcreteDAOIF> mdAttributes, JsonObject criteria, String actualGeometryType)
+  public ListTypeShapefileExporter(ListTypeVersion version, MdBusinessDAOIF mdBusiness, List<? extends MdAttributeConcreteDAOIF> mdAttributes, PageCriteria criteria, String actualGeometryType)
   {
     this.version = version;
     this.mdBusiness = mdBusiness;
