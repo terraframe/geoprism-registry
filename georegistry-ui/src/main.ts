@@ -24,12 +24,29 @@ import { CgrAppComponent } from './app/app.component';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { appConfig } from './app/app.config';
 import { setTheme } from 'ngx-bootstrap/utils';
+import { PlacementForBs5 } from 'ngx-bootstrap/positioning';
 
 if (environment.production) {
     enableProdMode();
 }
 
 setTheme('bs5');
+
+/*
+ * Work around an ngx-bootstrap positioning bug. When a popup with a variation
+ * (e.g. the date field's 'bottom start', internally 'bottom left') fits
+ * neither above nor below its input, adaptivePosition flips it to a side but
+ * keeps the variation, giving 'right left' etc. PlacementForBs5 has no entry
+ * for those, so updateContainerClass throws "dataPlacement is undefined" on
+ * every repositioning. Mapping them to the bare side makes the flip behave as
+ * it does for a placement without a variation.
+ */
+Object.assign(PlacementForBs5 as unknown as Record<string, string>, {
+    'left left': 'start',
+    'left right': 'start',
+    'right left': 'end',
+    'right right': 'end',
+});
 
 bootstrapApplication(CgrAppComponent, appConfig)
     .catch(err => console.error(err));
