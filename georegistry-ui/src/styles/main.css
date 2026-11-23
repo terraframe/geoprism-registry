@@ -165,7 +165,6 @@ label.btn.full-width-radio-button.error {
 .navbar.navbar-default {
   background-color: #3e2a5a; /* IE fallback */
   background-color: var(--theme-primary-color);
-  height: 40px;
   border-radius: 0;
   border: none;
   margin-bottom: 0;
