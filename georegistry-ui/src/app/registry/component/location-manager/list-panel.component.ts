@@ -29,7 +29,7 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { ListData, ListTypeVersion } from '@registry/model/list-type';
-import { GenericTableConfig, TableColumnSetup, TableEvent } from '@shared/model/generic-table';
+import { GenericTableConfig, TableColumnSetup, TableEvent, TableQuery } from '@shared/model/generic-table';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { ListTypeService } from '@registry/service/list-type.service';
 import { AuthService } from '@shared/service';
@@ -48,7 +48,6 @@ import { LocalizeComponent } from '../../../shared/component/localize/localize.c
 import { BooleanFieldComponent } from '../../../shared/component/form-fields/boolean-field/boolean-field.component';
 import { DateTextComponent } from '../../../shared/component/date-text/date-text.component';
 import { NgClass } from '@angular/common';
-import { TableLazyLoadEvent } from 'primeng/table';
 
 @Component({
   selector: 'list-panel',
@@ -94,7 +93,7 @@ export class ListPanelComponent implements OnInit, OnDestroy, OnChanges {
 
   showInvalid = false;
 
-  tableState: TableLazyLoadEvent = null;
+  tableState: TableQuery = null;
   isFiltered = false;
 
   progressNotifier: WebSocketSubject<NotificationMessage>;
@@ -190,13 +189,15 @@ export class ListPanelComponent implements OnInit, OnDestroy, OnChanges {
 
   refreshColumns(): void {
     this.setup = Utils.createColumns(this.list, this.showInvalid, false, (attribute, column) => {
-      this.service
+      return this.service
         .values(this.list.oid, column.text, attribute.name, this.tableState.filters)
         .then((options) => {
           column.results = options;
+          return options;
         })
         .catch((err: HttpErrorResponse) => {
           this.error.emit(err);
+          return [];
         });
     });
   }
@@ -206,7 +207,7 @@ export class ListPanelComponent implements OnInit, OnDestroy, OnChanges {
     this.refresh.next();
   }
 
-  onLoadEvent(event: TableLazyLoadEvent): void {
+  onLoadEvent(event: TableQuery): void {
     this.tableState = event;
     this.isFiltered =
       this.tableState != null && this.tableState.filters != null && Object.keys(this.tableState.filters).length > 0;

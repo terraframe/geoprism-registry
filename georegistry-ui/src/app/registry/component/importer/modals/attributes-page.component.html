@@ -42,8 +42,9 @@
             <div class="label-holder">
               <label
                 class=""
-                [pTooltip]="getDescription(attribute)"
-                tooltipPosition="top"
+                [tooltip]="getDescription(attribute)"
+                placement="top"
+                container="body"
                 [style.cursor]="getDescription(attribute) ? 'help' : null"
               >
                 {{ attribute.label.localizedValue }}

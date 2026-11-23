@@ -19,10 +19,9 @@
 
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { ListTypeVersion } from '@registry/model/list-type';
-import { GenericTableConfig, TableColumnSetup } from '@shared/model/generic-table';
+import { GenericTableConfig, TableColumnSetup, TableQuery } from '@shared/model/generic-table';
 import { ListTypeService } from '@registry/service/list-type.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { LazyLoadEvent } from 'primeng/api';
 import Utils from '@registry/utility/Utils';
 import { GenericTableComponent } from '../../../shared/component/generic-table/generic-table.component';
 import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
@@ -43,7 +42,7 @@ export class ListRowComponent implements OnInit, OnDestroy, OnChanges {
   @Output() close: EventEmitter<void> = new EventEmitter<void>();
 
   list: ListTypeVersion = null;
-  tableState: LazyLoadEvent = null;
+  tableState: TableQuery = null;
 
   config: GenericTableConfig = null;
   setup: TableColumnSetup = null;

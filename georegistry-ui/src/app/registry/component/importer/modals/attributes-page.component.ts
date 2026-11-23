@@ -24,7 +24,7 @@ import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LocalizeComponent } from '@shared/component/localize/localize.component';
 import { LocalizationService } from '@shared/service/localization.service';
-import { TooltipModule } from 'primeng/tooltip';
+import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { ImportDataPreviewComponent, getImportBaseTypeKey, getSampleValue } from './import-data-preview.component';
 
 @Component({

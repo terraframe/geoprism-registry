@@ -17,11 +17,11 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
+import { TableQuery } from "@shared/model/generic-table";
 import { LocalizedValue } from "@core/model/core";
 import { Layer } from "@registry/service/layer-data-source";
 import { PageResult } from "@shared/model/core";
 import { GeoObject, GeoObjectType } from "./registry";
-import { TableLazyLoadEvent } from "primeng/table";
 
 export class VersionMetadata {
 
@@ -323,7 +323,7 @@ export class CurationJob {
 
 export class ListData {
 
-    event: TableLazyLoadEvent;
+    event: TableQuery;
     oid: string;
 
 }

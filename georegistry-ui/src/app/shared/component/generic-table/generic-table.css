@@ -16,34 +16,64 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-.ngx-pagination .current {
-    background: #6BA542 !important; /* IE fallback */
-    background: var(--theme-submit-button-color) !important;
+
+.generic-table-paginator {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
 }
 
-:host ::ng-deep .ui-dropdown {
-    width: 100%;
+.generic-table-paginator .page-report {
+  color: var(--bs-secondary-color);
+  font-size: 0.875rem;
 }
 
-/* :host ::ng-deep body .ui-dropdown-panel .ui-dropdown-items .ui-dropdown-item.ui-state-highlight,  */
-/* :host ::ng-deep body .ui-dropdown-panel .ui-dropdown-items .ui-dropdown-item-group.ui-state-highlight { */
-/*     background-color: #007276; */
-/* } */
+.generic-table-paginator .page-size {
+  width: auto;
+}
 
-:host ::ng-deep body .p-paginator .p-paginator-pages .p-paginator-page.p-state-active {
-  background-color: red;
+/* Pagination colours follow the site theme. */
+:host ::ng-deep .generic-table-paginator .page-item.active .page-link {
+  background: #6ba542; /* fallback */
+  background: var(--theme-submit-button-color);
+  border-color: #6ba542; /* fallback */
+  border-color: var(--theme-submit-button-color);
 }
 
 :host ::ng-deep .actions-col {
-    width: 50px;
-    text-align: center;
+  text-align: center;
 }
 
-/* td, */
-/* th { */
-/*     width: 200px; */
-/* } */
+:host ::ng-deep .actions-col a + a {
+  margin-left: 6px;
+}
 
-.p-datatable-scrollable-header.ui-widget-header {
-        overflow:visible;
-    } 
+/*
+ * Header of a sorted column. AG Grid puts the sorted-asc/desc classes on the
+ * header's inner label, so colour the whole cell that contains it.
+ */
+/* Colours follow .btn-primary (styles.scss) and the app theme. */
+:host ::ng-deep .ag-header-cell:has(.ag-header-cell-sorted-asc, .ag-header-cell-sorted-desc) {
+  background-color: var(--theme-submit-button-color-light, #edf4e8);
+  color: var(--theme-submit-button-color, #6ba542);
+}
+
+:host ::ng-deep .ag-header-cell:has(.ag-header-cell-sorted-asc, .ag-header-cell-sorted-desc):hover {
+  background-color: var(--theme-submit-button-color-light-hover, #f4fcef);
+}
+
+/*
+ * Vertical borders between the filter cells. The first and last cells use the
+ * grid's own outer border, so only the left edge of the others is drawn.
+ */
+:host ::ng-deep .ag-floating-filter:not([aria-colindex="1"]) {
+  border-left: var(--ag-border-width, 1px) solid var(--ag-border-color);
+}
+
+/* Sort icons sit at the right of the header, as in the old table. */
+:host ::ng-deep .ag-header-cell-label .ag-sort-indicator-container {
+  margin-left: auto;
+}

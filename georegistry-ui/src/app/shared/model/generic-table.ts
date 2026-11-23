@@ -31,7 +31,7 @@ export class GenericTableConfig {
     edit?: boolean;
     create?: boolean;
     label: string;
-    sort?: { field: string, order: number }[];
+    sort?: TableSort[];
     baseZIndex?: number;
     pageSize?: number;
 
@@ -56,6 +56,8 @@ export class GenericTableColumn {
     value?: any;
     startDate?: string;
     endDate?: string;
+    // Nested columns for a GROUP header; leaves are the data columns.
+    children?: GenericTableColumn[];
 
 }
 
@@ -64,6 +66,33 @@ export class TableEvent {
     type: string;
     row?: Object;
     col?: GenericTableColumn;
+
+}
+
+export interface TableFilter {
+
+    value: any;
+    matchMode?: string;
+
+}
+
+export interface TableSort {
+
+    field: string;
+    order: number;
+
+}
+
+/*
+ * Paging, sorting and filtering request sent to GenericTableService.page() as
+ * the "criteria" parameter. The server parses this exact shape.
+ */
+export interface TableQuery {
+
+    first?: number;
+    rows?: number;
+    multiSortMeta?: TableSort[];
+    filters?: { [field: string]: TableFilter | TableFilter[] | undefined };
 
 }
 

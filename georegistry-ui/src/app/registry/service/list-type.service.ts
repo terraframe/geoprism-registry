@@ -20,7 +20,6 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { finalize } from "rxjs/operators";
-import { FilterMetadata } from "primeng/api";
 
 import { EventService } from "@shared/service";
 import { CurationJob, CurationProblem, LayerRecord, ListOrgGroup, ListType, ListTypeByType, ListTypeEntry, ListTypeVersion, ListVersion, ListVersionMetadata } from "@registry/model/list-type";
@@ -28,7 +27,7 @@ import { Observable } from "rxjs";
 
 import { GeoRegistryConfiguration } from "@core/model/core";
 import { PageResult } from "@shared/model/core";
-import { GenericTableService } from "@shared/model/generic-table";
+import { GenericTableService, TableFilter } from "@shared/model/generic-table";
 import { ScheduledJob } from "@registry/model/registry";
 import { environment } from 'src/environments/environment';
 
@@ -250,7 +249,7 @@ export class ListTypeService implements GenericTableService {
     }
 
     values(oid: string, value: string, attributeName: string, filters: {
-        [s: string]: FilterMetadata | FilterMetadata[] | undefined;
+        [s: string]: TableFilter | TableFilter[] | undefined;
     }): Promise<string[]> {
         let params: HttpParams = new HttpParams();
         params = params.set("oid", oid);

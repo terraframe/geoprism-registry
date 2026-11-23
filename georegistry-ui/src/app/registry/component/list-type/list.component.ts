@@ -21,7 +21,6 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterLinkActive, RouterLink } from '@angular/router';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
-import { LazyLoadEvent } from 'primeng/api';
 
 import { Subject, Subscription } from 'rxjs';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
@@ -34,7 +33,7 @@ import { ListData, ListTypeVersion } from '@registry/model/list-type';
 import { ListTypeService } from '@registry/service/list-type.service';
 import { ExportFormatModalComponent } from './export-format-modal.component';
 import { NotificationMessage, WebSockets } from '@shared/component/web-sockets/web-sockets';
-import { GenericTableConfig, TableColumnSetup, TableEvent } from '@shared/model/generic-table';
+import { GenericTableConfig, TableColumnSetup, TableEvent, TableQuery } from '@shared/model/generic-table';
 import { LngLatBounds } from 'maplibre-gl';
 
 import { GeoRegistryConfiguration } from '@core/model/core';
@@ -52,7 +51,6 @@ import { LocalizeComponent } from '../../../shared/component/localize/localize.c
 import { ProgressBarComponent } from '../../../shared/component/progress-bar/progress-bar.component';
 import { NgClass } from '@angular/common';
 import { PageContainerComponent } from '../../../shared/component/page-container/page-container.component';
-import { TableLazyLoadEvent } from 'primeng/table';
 
 @Component({
   selector: 'list',
@@ -91,7 +89,7 @@ export class ListComponent implements OnInit, OnDestroy {
   setup: TableColumnSetup = null;
   refresh: Subject<void>;
 
-  tableState: TableLazyLoadEvent = null;
+  tableState: TableQuery = null;
   isFiltered: boolean = false;
 
   showInvalid = false;
@@ -210,13 +208,15 @@ export class ListComponent implements OnInit, OnDestroy {
 
   refreshColumns(): void {
     this.setup = Utils.createColumns(this.list, this.showInvalid, false, (attribute, column) => {
-      this.service
+      return this.service
         .values(this.list.oid, column.text, attribute.name, this.tableState.filters)
         .then((options) => {
           column.results = options;
+          return options;
         })
         .catch((err: HttpErrorResponse) => {
           this.error(err);
+          return [];
         });
     });
   }
@@ -427,7 +427,7 @@ export class ListComponent implements OnInit, OnDestroy {
       });
   }
 
-  onLoadEvent(event: TableLazyLoadEvent): void {
+  onLoadEvent(event: TableQuery): void {
     this.tableState = event;
     this.isFiltered =
       this.tableState != null && this.tableState.filters != null && Object.keys(this.tableState.filters).length > 0;

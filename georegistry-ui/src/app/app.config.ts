@@ -34,8 +34,6 @@ import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { provideAppInitializer } from '@angular/core';
 import { inject } from '@angular/core';
-import { providePrimeNG } from 'primeng/config';
-import Aura from '@primeuix/themes/aura';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { InjectionToken, type Provider } from '@angular/core';
 
@@ -97,14 +95,6 @@ export const appConfig: ApplicationConfig = {
     provideAppInitializer(() => {
       const service = inject(ConfigurationService);
       return service.load();
-    }),
-    providePrimeNG({
-      theme: {
-        preset: Aura,
-        options: {
-          darkModeSelector: false || 'none',
-        },
-      },
     }),
     importProvidersFrom(
       // FileUploadModule,

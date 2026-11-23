@@ -193,9 +193,7 @@ export default class Utils {
         } else if (!readonly && attribute.type === "list") {
             column.type = "AUTOCOMPLETE";
             column.text = "";
-            column.onComplete = () => {
-                autocomplete(attribute, column);
-            };
+            column.onComplete = () => autocomplete(attribute, column);
         }
 
         return column;
@@ -218,27 +216,35 @@ export default class Utils {
 
         list.attributes.forEach(group => {
             if (displayInvalidColumn || group.name !== "invalid") {
-                mainGroups.push({
+                const groupColumn: GenericTableColumn = {
                     header: group.label,
                     colspan: group.colspan,
                     rowspan: group.rowspan,
-                    headerType: "GROUP"
-                });
+                    headerType: "GROUP",
+                    children: []
+                };
+
+                mainGroups.push(groupColumn);
 
                 group.columns.forEach(subgroup => {
                     if (subgroup.columns != null) {
-                        subGroups.push({
+                        const subgroupColumn: GenericTableColumn = {
                             header: subgroup.label,
                             colspan: subgroup.colspan,
                             rowspan: subgroup.rowspan,
-                            headerType: "GROUP"
-                        });
+                            headerType: "GROUP",
+                            children: []
+                        };
+
+                        subGroups.push(subgroupColumn);
+                        groupColumn.children.push(subgroupColumn);
 
                         subgroup.columns.forEach(attribute => {
                             if (displayInvalidColumn || attribute.name !== "invalid") {
                                 const column = this.createColumn(attribute, readonly, autocomplete);
 
                                 orderedArray.push(column);
+                                subgroupColumn.children.push(column);
                                 columns.push(column);
                             }
                         });
@@ -247,6 +253,7 @@ export default class Utils {
                             const column = this.createColumn(subgroup, readonly, autocomplete);
 
                             subGroups.push(column);
+                            groupColumn.children.push(column);
                             columns.push(column);
                         }
                     }

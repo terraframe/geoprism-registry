@@ -74,7 +74,6 @@ $fa-font-path: "~@fortawesome/fontawesome-free/webfonts";
 
 @use "@angular/cdk/overlay-prebuilt.css";
 
-@use "primeicons/primeicons.css";
 
 @use "theme.css";
 @use "main.css";
@@ -611,17 +610,6 @@ li.list-group-item.active {
 
 .list-table .fa.fa-pencil.ico-edit {
   float: none;
-}
-
-//
-// PrimeNG styling
-//
-.p-component {
-  font-size: 14px;
-}
-
-.p-link {
-  font-size: 14px;
 }
 
 /* .list-table input[type="text"] {

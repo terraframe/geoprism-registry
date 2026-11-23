@@ -19,9 +19,8 @@
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ListData, ListTypeVersion } from '@registry/model/list-type';
-import { GenericTableColumn, GenericTableConfig, TableEvent } from '@shared/model/generic-table';
+import { GenericTableColumn, GenericTableConfig, TableEvent, TableQuery } from '@shared/model/generic-table';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
-import { LazyLoadEvent } from 'primeng/api';
 import { ListTypeService } from '@registry/service/list-type.service';
 import { AuthService } from '@shared/service';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -65,7 +64,7 @@ export class ListModalComponent implements OnInit, OnDestroy {
 
   showInvalid = false;
 
-  tableState: LazyLoadEvent = null;
+  tableState: TableQuery = null;
 
   message: string = null;
 
@@ -244,7 +243,7 @@ export class ListModalComponent implements OnInit, OnDestroy {
     this.refresh.next();
   }
 
-  onLoadEvent(event: LazyLoadEvent): void {
+  onLoadEvent(event: TableQuery): void {
     this.tableState = event;
 
     const data: ListData = {
