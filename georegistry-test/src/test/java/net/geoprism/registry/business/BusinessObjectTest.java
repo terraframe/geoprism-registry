@@ -1137,6 +1137,113 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     }
   }
 
+  @Test
+  @Request
+  public void testDataFilterClassification()
+  {
+    List<BusinessObject> objects = createDataObjects();
+
+    try
+    {
+      objects.get(0).setValue(attributeClassification.getCode(), rootConcept.getVertex());
+      this.bObjectService.apply(objects.get(0));
+
+      objects.get(1).setValue(attributeClassification.getCode(), parentConcept.getVertex());
+      this.bObjectService.apply(objects.get(1));
+
+      JsonSerializablePage<JsonSerializable> page = this.bObjectService.data(type, dataFilter(attributeClassification.getCode(), MatchMode.EQUALS, rootConcept.getCode()));
+
+      Assertions.assertEquals(1L, page.getCount());
+      Assertions.assertEquals(List.of(DATA_ALPHA), getCodes(page));
+    }
+    finally
+    {
+      deleteDataObjects(objects);
+    }
+  }
+
+  @Test
+  @Request
+  public void testDataSortClassification()
+  {
+    List<BusinessObject> objects = createDataObjects();
+
+    try
+    {
+      // Classification attributes are sorted by the code of the concept
+      setClassifications(objects);
+
+      PageCriteria criteria = new PageCriteria();
+      criteria.setRows(10);
+      criteria.setSortField(attributeClassification.getCode());
+      criteria.setSortOrder(1);
+
+      JsonSerializablePage<JsonSerializable> page = this.bObjectService.data(type, criteria);
+
+      Assertions.assertEquals(List.of(DATA_BETA, DATA_GAMMA, DATA_ALPHA), getCodes(page));
+      Assertions.assertEquals(List.of(CHILD_CONCEPT, PARENT_CONCEPT, ROOT_CONCEPT), getValues(page, attributeClassification.getCode()));
+
+      criteria.setSortOrder(-1);
+
+      page = this.bObjectService.data(type, criteria);
+
+      Assertions.assertEquals(List.of(DATA_ALPHA, DATA_GAMMA, DATA_BETA), getCodes(page));
+      Assertions.assertEquals(List.of(ROOT_CONCEPT, PARENT_CONCEPT, CHILD_CONCEPT), getValues(page, attributeClassification.getCode()));
+    }
+    finally
+    {
+      deleteDataObjects(objects);
+    }
+  }
+
+  @Test
+  @Request
+  public void testDataMultiSortClassification()
+  {
+    List<BusinessObject> objects = createDataObjects();
+
+    try
+    {
+      setClassifications(objects);
+
+      PageCriteria criteria = new PageCriteria();
+      criteria.setRows(10);
+      criteria.setMultiSortMeta(List.of(new PageCriteria.SortMeta(attributeClassification.getCode(), -1)));
+
+      JsonSerializablePage<JsonSerializable> page = this.bObjectService.data(type, criteria);
+
+      Assertions.assertEquals(List.of(DATA_ALPHA, DATA_GAMMA, DATA_BETA), getCodes(page));
+    }
+    finally
+    {
+      deleteDataObjects(objects);
+    }
+  }
+
+  /**
+   * Assigns classifications so that the classification order differs from the
+   * code order: Alpha -> ROOT_CONCEPT ("Test Term"), Beta -> CHILD_CONCEPT
+   * ("Child Concept"), Gamma -> PARENT_CONCEPT ("Parent Concept")
+   */
+  private void setClassifications(List<BusinessObject> objects)
+  {
+    objects.get(0).setValue(attributeClassification.getCode(), rootConcept.getVertex());
+    this.bObjectService.apply(objects.get(0));
+
+    objects.get(1).setValue(attributeClassification.getCode(), childConcept.getVertex());
+    this.bObjectService.apply(objects.get(1));
+
+    objects.get(2).setValue(attributeClassification.getCode(), parentConcept.getVertex());
+    this.bObjectService.apply(objects.get(2));
+  }
+
+  private static List<String> getValues(JsonSerializablePage<JsonSerializable> page, String attributeName)
+  {
+    return page.getResultSet().stream() //
+        .map(result -> result.toJSON().getAsJsonObject().get(attributeName).getAsString()) //
+        .collect(Collectors.toList());
+  }
+
   private static PageCriteria dataFilter(String attributeName, MatchMode mode, String value)
   {
     PageCriteria criteria = new PageCriteria();
