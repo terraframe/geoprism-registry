@@ -3,9 +3,11 @@
  */
 package net.geoprism.registry.business;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -20,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 
+import com.google.gson.JsonObject;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.runwaysdk.session.Request;
@@ -35,6 +38,8 @@ import net.geoprism.registry.model.EdgeDirection;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.query.graph.PageCriteria;
+import net.geoprism.registry.query.graph.PageCriteria.MatchMode;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
@@ -42,9 +47,12 @@ import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.view.BusinessEdgeTypeDTO;
 import net.geoprism.registry.view.BusinessTypeDTO;
+import net.geoprism.registry.view.JsonSerializable;
+import net.geoprism.registry.view.JsonSerializablePage;
 import net.geoprism.registry.view.ObjectAtTimeDTO;
 import net.geoprism.registry.view.ObjectOverTimeDTO;
 import net.geoprism.registry.view.ValueOverTimeEntryDTO;
+import tools.jackson.databind.node.StringNode;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
@@ -780,6 +788,369 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     Assertions.assertEquals(FastTestDataset.DEFAULT_END_TIME_DATE, entry.getEndDate());
     Assertions.assertEquals(expectedCode, entry.getValue());
     Assertions.assertEquals(expectedCode, dto.getValue(attributeClassificationOverTime.getCode(), FastTestDataset.DEFAULT_OVER_TIME_DATE).orElseThrow());
+  }
+
+  /*
+   * Tests for BusinessObjectBusinessService.data()
+   */
+
+  private static final String DATA_ALPHA = "Alpha Object";
+
+  private static final String DATA_BETA  = "Beta Object";
+
+  private static final String DATA_GAMMA = "Gamma Item";
+
+  private List<BusinessObject> createDataObjects()
+  {
+    List<BusinessObject> objects = new LinkedList<>();
+
+    try
+    {
+      for (String code : List.of(DATA_ALPHA, DATA_BETA, DATA_GAMMA))
+      {
+        BusinessObject object = this.bObjectService.newInstance(type);
+        object.setCode(code);
+        object.setValue(attribute.getCode(), code + " Text");
+        this.bObjectService.apply(object);
+
+        objects.add(object);
+      }
+    }
+    catch (RuntimeException e)
+    {
+      deleteDataObjects(objects);
+
+      throw e;
+    }
+
+    return objects;
+  }
+
+  private void deleteDataObjects(List<BusinessObject> objects)
+  {
+    objects.forEach(object -> this.bObjectService.delete(object));
+  }
+
+  @Test
+  @Request
+  public void testData()
+  {
+    List<BusinessObject> objects = createDataObjects();
+
+    try
+    {
+      PageCriteria criteria = new PageCriteria();
+      criteria.setRows(10);
+
+      JsonSerializablePage<JsonSerializable> page = this.bObjectService.data(type, criteria);
+
+      Assertions.assertEquals(3L, page.getCount());
+      Assertions.assertEquals(1, page.getPageNumber());
+      Assertions.assertEquals(10, page.getPageSize());
+      Assertions.assertEquals(3, page.getResultSet().size());
+
+      List<String> codes = getCodes(page);
+
+      Assertions.assertTrue(codes.contains(DATA_ALPHA));
+      Assertions.assertTrue(codes.contains(DATA_BETA));
+      Assertions.assertTrue(codes.contains(DATA_GAMMA));
+    }
+    finally
+    {
+      deleteDataObjects(objects);
+    }
+  }
+
+  @Test
+  @Request
+  public void testDataEmpty()
+  {
+    PageCriteria criteria = new PageCriteria();
+    criteria.setRows(10);
+
+    JsonSerializablePage<JsonSerializable> page = this.bObjectService.data(type, criteria);
+
+    Assertions.assertEquals(0L, page.getCount());
+    Assertions.assertEquals(0, page.getResultSet().size());
+  }
+
+  @Test
+  @Request
+  public void testDataAttributeValues()
+  {
+    BusinessObject object = this.bObjectService.newInstance(type);
+    object.setCode(TEST_CODE);
+    object.setValue(attribute.getCode(), "Test Text");
+    object.setValue(attributeOverTime.getCode(), new LocalizedValue("Test Text 2"), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
+    object.setValue(attributeClassification.getCode(), rootConcept.getVertex());
+    object.setValue(attributeClassificationOverTime.getCode(), parentConcept.getVertex(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
+    this.bObjectService.apply(object);
+
+    try
+    {
+      PageCriteria criteria = new PageCriteria();
+      criteria.setRows(10);
+
+      JsonSerializablePage<JsonSerializable> page = this.bObjectService.data(type, criteria);
+
+      Assertions.assertEquals(1L, page.getCount());
+      Assertions.assertEquals(1, page.getResultSet().size());
+
+      JsonObject result = page.getResultSet().get(0).toJSON().getAsJsonObject();
+
+      Assertions.assertEquals(TEST_CODE, result.get(DefaultAttribute.CODE.getName()).getAsString());
+      Assertions.assertEquals("Test Text", result.get(attribute.getCode()).getAsString());
+      Assertions.assertEquals(rootConcept.getCode(), result.get(attributeClassification.getCode()).getAsString());
+
+      // Change over time attributes are not included in the data results
+      Assertions.assertFalse(result.has(attributeOverTime.getCode()));
+      Assertions.assertFalse(result.has(attributeClassificationOverTime.getCode()));
+    }
+    finally
+    {
+      this.bObjectService.delete(object);
+    }
+  }
+
+  @Test
+  @Request
+  public void testDataSortAscending()
+  {
+    List<BusinessObject> objects = createDataObjects();
+
+    try
+    {
+      PageCriteria criteria = new PageCriteria();
+      criteria.setRows(10);
+      criteria.setSortField(DefaultAttribute.CODE.getName());
+      criteria.setSortOrder(1);
+
+      JsonSerializablePage<JsonSerializable> page = this.bObjectService.data(type, criteria);
+
+      Assertions.assertEquals(List.of(DATA_ALPHA, DATA_BETA, DATA_GAMMA), getCodes(page));
+    }
+    finally
+    {
+      deleteDataObjects(objects);
+    }
+  }
+
+  @Test
+  @Request
+  public void testDataSortDescending()
+  {
+    List<BusinessObject> objects = createDataObjects();
+
+    try
+    {
+      PageCriteria criteria = new PageCriteria();
+      criteria.setRows(10);
+      criteria.setSortField(DefaultAttribute.CODE.getName());
+      criteria.setSortOrder(-1);
+
+      JsonSerializablePage<JsonSerializable> page = this.bObjectService.data(type, criteria);
+
+      Assertions.assertEquals(List.of(DATA_GAMMA, DATA_BETA, DATA_ALPHA), getCodes(page));
+    }
+    finally
+    {
+      deleteDataObjects(objects);
+    }
+  }
+
+  @Test
+  @Request
+  public void testDataMultiSort()
+  {
+    List<BusinessObject> objects = createDataObjects();
+
+    try
+    {
+      PageCriteria criteria = new PageCriteria();
+      criteria.setRows(10);
+      criteria.setMultiSortMeta(List.of(new PageCriteria.SortMeta(attribute.getCode(), -1)));
+
+      JsonSerializablePage<JsonSerializable> page = this.bObjectService.data(type, criteria);
+
+      Assertions.assertEquals(List.of(DATA_GAMMA, DATA_BETA, DATA_ALPHA), getCodes(page));
+    }
+    finally
+    {
+      deleteDataObjects(objects);
+    }
+  }
+
+  @Test
+  @Request
+  public void testDataPagination()
+  {
+    List<BusinessObject> objects = createDataObjects();
+
+    try
+    {
+      PageCriteria criteria = new PageCriteria();
+      criteria.setFirst(0);
+      criteria.setRows(2);
+      criteria.setSortField(DefaultAttribute.CODE.getName());
+      criteria.setSortOrder(1);
+
+      JsonSerializablePage<JsonSerializable> page = this.bObjectService.data(type, criteria);
+
+      Assertions.assertEquals(3L, page.getCount());
+      Assertions.assertEquals(1, page.getPageNumber());
+      Assertions.assertEquals(2, page.getPageSize());
+      Assertions.assertEquals(List.of(DATA_ALPHA, DATA_BETA), getCodes(page));
+
+      criteria.setFirst(2);
+
+      page = this.bObjectService.data(type, criteria);
+
+      Assertions.assertEquals(3L, page.getCount());
+      Assertions.assertEquals(2, page.getPageNumber());
+      Assertions.assertEquals(2, page.getPageSize());
+      Assertions.assertEquals(List.of(DATA_GAMMA), getCodes(page));
+    }
+    finally
+    {
+      deleteDataObjects(objects);
+    }
+  }
+
+  @Test
+  @Request
+  public void testDataFilterEquals()
+  {
+    List<BusinessObject> objects = createDataObjects();
+
+    try
+    {
+      JsonSerializablePage<JsonSerializable> page = this.bObjectService.data(type, dataFilter(DefaultAttribute.CODE.getName(), MatchMode.EQUALS, DATA_BETA));
+
+      Assertions.assertEquals(1L, page.getCount());
+      Assertions.assertEquals(List.of(DATA_BETA), getCodes(page));
+    }
+    finally
+    {
+      deleteDataObjects(objects);
+    }
+  }
+
+  @Test
+  @Request
+  public void testDataFilterStartsWith()
+  {
+    List<BusinessObject> objects = createDataObjects();
+
+    try
+    {
+      // Starts with matching is case insensitive
+      JsonSerializablePage<JsonSerializable> page = this.bObjectService.data(type, dataFilter(DefaultAttribute.CODE.getName(), MatchMode.STARTS_WITH, "gam"));
+
+      Assertions.assertEquals(1L, page.getCount());
+      Assertions.assertEquals(List.of(DATA_GAMMA), getCodes(page));
+    }
+    finally
+    {
+      deleteDataObjects(objects);
+    }
+  }
+
+  @Test
+  @Request
+  public void testDataFilterContains()
+  {
+    List<BusinessObject> objects = createDataObjects();
+
+    try
+    {
+      // Contains matching is case insensitive
+      PageCriteria criteria = dataFilter(DefaultAttribute.CODE.getName(), MatchMode.CONTAINS, "OBJECT");
+      criteria.setSortField(DefaultAttribute.CODE.getName());
+      criteria.setSortOrder(1);
+
+      JsonSerializablePage<JsonSerializable> page = this.bObjectService.data(type, criteria);
+
+      Assertions.assertEquals(2L, page.getCount());
+      Assertions.assertEquals(List.of(DATA_ALPHA, DATA_BETA), getCodes(page));
+    }
+    finally
+    {
+      deleteDataObjects(objects);
+    }
+  }
+
+  @Test
+  @Request
+  public void testDataFilterNoMatch()
+  {
+    List<BusinessObject> objects = createDataObjects();
+
+    try
+    {
+      JsonSerializablePage<JsonSerializable> page = this.bObjectService.data(type, dataFilter(DefaultAttribute.CODE.getName(), MatchMode.EQUALS, "BAD"));
+
+      Assertions.assertEquals(0L, page.getCount());
+      Assertions.assertEquals(0, page.getResultSet().size());
+    }
+    finally
+    {
+      deleteDataObjects(objects);
+    }
+  }
+
+  @Test
+  @Request
+  public void testDataFilterUnknownAttribute()
+  {
+    List<BusinessObject> objects = createDataObjects();
+
+    try
+    {
+      // Filters on attributes which do not exist on the type are ignored
+      JsonSerializablePage<JsonSerializable> page = this.bObjectService.data(type, dataFilter("doesNotExist", MatchMode.EQUALS, "BAD"));
+
+      Assertions.assertEquals(3L, page.getCount());
+      Assertions.assertEquals(3, page.getResultSet().size());
+    }
+    finally
+    {
+      deleteDataObjects(objects);
+    }
+  }
+
+  @Test
+  @Request
+  public void testDataFilterAttribute()
+  {
+    List<BusinessObject> objects = createDataObjects();
+
+    try
+    {
+      JsonSerializablePage<JsonSerializable> page = this.bObjectService.data(type, dataFilter(attribute.getCode(), MatchMode.CONTAINS, "alpha object text"));
+
+      Assertions.assertEquals(1L, page.getCount());
+      Assertions.assertEquals(List.of(DATA_ALPHA), getCodes(page));
+    }
+    finally
+    {
+      deleteDataObjects(objects);
+    }
+  }
+
+  private static PageCriteria dataFilter(String attributeName, MatchMode mode, String value)
+  {
+    PageCriteria criteria = new PageCriteria();
+    criteria.setRows(10);
+    criteria.setFilters(Map.of(attributeName, new PageCriteria.Filter(mode, new StringNode(value))));
+
+    return criteria;
+  }
+
+  private static List<String> getCodes(JsonSerializablePage<JsonSerializable> page)
+  {
+    return page.getResultSet().stream() //
+        .map(result -> result.toJSON().getAsJsonObject().get(DefaultAttribute.CODE.getName()).getAsString()) //
+        .collect(Collectors.toList());
   }
 
 }

@@ -3,10 +3,14 @@
  */
 package net.geoprism.registry.service;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.junit.jupiter.api.AfterEach;
@@ -15,10 +19,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.geojson.GeoJsonReader;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -38,6 +43,7 @@ import com.runwaysdk.system.scheduler.SchedulerManager;
 import net.geoprism.registry.ChangeFrequency;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.IncrementalListType;
+import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.IntervalListType;
 import net.geoprism.registry.InvalidMasterListException;
@@ -46,13 +52,13 @@ import net.geoprism.registry.ListTypeBuilder;
 import net.geoprism.registry.ListTypeEntry;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.SingleListType;
-import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.etl.PublishListTypeVersionJobQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.query.graph.PageCriteria;
+import net.geoprism.registry.query.graph.PageCriteria.MatchMode;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GraphRepoServiceIF;
 import net.geoprism.registry.service.request.ListTypeService;
@@ -64,8 +70,7 @@ import net.geoprism.registry.test.TestUserInfo;
 import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.JsonSerializable;
 import net.geoprism.registry.view.Page;
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import tools.jackson.databind.node.StringNode;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = TestApplication.class)
 @AutoConfigureMockMvc
@@ -447,16 +452,8 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
     dataTest(null);
   }
 
-  @Test
-  public void testFetchDataWithGeometries()
-  {
-    dataTest(true);
-  }
-
   private void dataTest(Boolean includeGeometries)
   {
-    GeoJsonReader reader = new GeoJsonReader();
-
     TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
 
       ListTypeBuilder.Hierarchy hierarchy = new ListTypeBuilder.Hierarchy();
@@ -489,45 +486,28 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
 
           Assertions.assertNotNull(mdTable);
 
-          Page<JsonSerializable> data = version.data(new PageCriteria(), true, includeGeometries);
+          assertDataResult(version, new PageCriteria(), 4L, true);
+          assertDataResult(version, new PageCriteria(), 4L, false);
 
-          // Entries should be HP_1, HP_2, HS_1, HS_2
-          Assertions.assertEquals(Long.valueOf(4), data.getCount());
+          PageCriteria sort = new PageCriteria();
+          sort.setMultiSortMeta(List.of(new PageCriteria.SortMeta(DefaultAttribute.CODE.getName(), 1)));
 
-          List<JsonSerializable> results = data.getResultSet();
+          assertDataResult(version, sort, 4L, false);
 
-          for (int i = 0; i < results.size(); i++)
+          PageCriteria.Filter[] filters = new PageCriteria.Filter[] { //
+              new PageCriteria.Filter(MatchMode.EQUALS, new StringNode(USATestData.HS_ONE.getCode())), //
+              new PageCriteria.Filter(MatchMode.STARTS_WITH, new StringNode(USATestData.HS_ONE.getCode())), //
+              new PageCriteria.Filter(MatchMode.CONTAINS, new StringNode(USATestData.HS_ONE.getCode())), //
+          };
+
+          for (PageCriteria.Filter filter : filters)
           {
-            JsonObject result = results.get(i).toJSON().getAsJsonObject();
+            PageCriteria withEquals = new PageCriteria();
+            withEquals.setFilters(Map.of(DefaultAttribute.CODE.getName(), filter));
 
-            String code = result.get("code").getAsString();
-
-            if (code.equals(USATestData.HS_ONE.getCode()))
-            {
-              String reportsTo = result.get("usatestdatareportstocode").getAsString();
-              Assertions.assertEquals(USATestData.HP_ONE.getCode(), reportsTo);
-            }
-            else if (code.equals(USATestData.HS_TWO.getCode()))
-            {
-              String reportsTo = result.get("usatestdatareportstocode").getAsString();
-
-              Assertions.assertEquals(USATestData.HP_TWO.getCode(), reportsTo);
-            }
-
-            if (includeGeometries != null && includeGeometries.equals(Boolean.TRUE))
-            {
-              Assertions.assertEquals(true, result.has("geometry"));
-
-              JsonObject geometries = result.get("geometry").getAsJsonObject();
-
-              Geometry jtsGeom = reader.read(geometries.toString());
-              Assertions.assertTrue(jtsGeom.isValid());
-            }
-            else
-            {
-              Assertions.assertEquals(false, result.has("geometry"));
-            }
+            assertDataResult(version, withEquals, 1L, false);
           }
+
         }
         finally
         {
@@ -544,6 +524,51 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
         test.delete();
       }
     });
+  }
+
+  public void assertDataResult(ListTypeVersion version, PageCriteria criteria, Long count, Boolean includeGeometries) throws ParseException
+  {
+    GeoJsonReader reader = new GeoJsonReader();
+
+    Page<JsonSerializable> data = version.data(criteria, true, includeGeometries);
+
+    // Entries should be HP_1, HP_2, HS_1, HS_2
+    Assertions.assertEquals(count, data.getCount());
+
+    List<JsonSerializable> results = data.getResultSet();
+
+    for (int i = 0; i < results.size(); i++)
+    {
+      JsonObject result = results.get(i).toJSON().getAsJsonObject();
+
+      String code = result.get("code").getAsString();
+
+      if (code.equals(USATestData.HS_ONE.getCode()))
+      {
+        String reportsTo = result.get("usatestdatareportstocode").getAsString();
+        Assertions.assertEquals(USATestData.HP_ONE.getCode(), reportsTo);
+      }
+      else if (code.equals(USATestData.HS_TWO.getCode()))
+      {
+        String reportsTo = result.get("usatestdatareportstocode").getAsString();
+
+        Assertions.assertEquals(USATestData.HP_TWO.getCode(), reportsTo);
+      }
+
+      if (includeGeometries)
+      {
+        Assertions.assertEquals(true, result.has("geometry"));
+
+        JsonObject geometries = result.get("geometry").getAsJsonObject();
+
+        Geometry jtsGeom = reader.read(geometries.toString());
+        Assertions.assertTrue(jtsGeom.isValid());
+      }
+      else
+      {
+        Assertions.assertEquals(false, result.has("geometry"));
+      }
+    }
   }
 
   @Test

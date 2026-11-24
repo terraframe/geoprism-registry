@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.google.gson.JsonObject;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import net.geoprism.registry.graph.ObjectClass;
 import net.geoprism.registry.model.graph.ServerObjectVertex;
@@ -69,7 +70,7 @@ public abstract class ObjectController<V extends ServerObjectVertex, T extends O
   }
 
   @GetMapping("/data")
-  public ResponseEntity<String> data(@NotBlank @RequestParam(name = "typeCode") String typeCode, @RequestParam(required = false, name = "criteria") PageCriteria criteria)
+  public ResponseEntity<String> data(@NotBlank @RequestParam(name = "typeCode") String typeCode, @Valid @RequestParam(required = false, name = "criteria") PageCriteria criteria)
   {
     JsonObject page = this.service.data(this.getSessionId(), typeCode, criteria);
 

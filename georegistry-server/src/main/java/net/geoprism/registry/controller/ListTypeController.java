@@ -221,7 +221,7 @@ public class ListTypeController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/data")
-  public ResponseEntity<String> data(@NotEmpty @RequestParam(name = "oid") String oid, @RequestParam(name = "criteria", required = false) PageCriteria criteria, @RequestParam(name = "showInvalid", required = false) Boolean showInvalid, @RequestParam(name = "includeGeometries", required = false) Boolean includeGeometries)
+  public ResponseEntity<String> data(@NotEmpty @RequestParam(name = "oid") String oid, @Valid @RequestParam(name = "criteria", required = false) PageCriteria criteria, @RequestParam(name = "showInvalid", required = false) Boolean showInvalid, @RequestParam(name = "includeGeometries", required = false) Boolean includeGeometries)
   {
     if (criteria == null)
     {

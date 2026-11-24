@@ -4,7 +4,9 @@
 package net.geoprism.registry.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -16,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.google.gson.JsonObject;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.session.Request;
 
@@ -26,12 +29,18 @@ import net.geoprism.registry.InstanceTestClassExtension;
 import net.geoprism.registry.config.TestApplication;
 import net.geoprism.registry.graph.ConceptClass;
 import net.geoprism.registry.model.ConceptObject;
+import net.geoprism.registry.query.graph.PageCriteria;
+import net.geoprism.registry.query.graph.PageCriteria.MatchMode;
 import net.geoprism.registry.test.TestOrganizationInfo;
 import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.ConceptSetDTO;
 import net.geoprism.registry.view.DiscreteType;
+import net.geoprism.registry.view.JsonSerializable;
+import net.geoprism.registry.view.JsonSerializablePage;
 import net.geoprism.registry.view.ObjectOverTimeDTO;
 import net.geoprism.registry.view.ValueOverTimeEntryDTO;
+
+import tools.jackson.databind.node.StringNode;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -447,6 +456,252 @@ public class ConceptObjectServiceTest extends ConceptDatasetTest implements Inst
         this.cObjectService.delete(parent);
       }
     });
+  }
+
+  /*
+   * Tests for ConceptObjectBusinessService.data(). Note that ConceptDatasetTest
+   * creates three concepts before each test: ROOT_CONCEPT ("Test Term"),
+   * PARENT_CONCEPT ("Parent Concept") and CHILD_CONCEPT ("Child Concept").
+   */
+
+  @Test
+  @Request
+  public void testData()
+  {
+    PageCriteria criteria = new PageCriteria();
+    criteria.setRows(10);
+
+    JsonSerializablePage<JsonSerializable> page = this.cObjectService.data(cClass, criteria);
+
+    Assertions.assertEquals(3L, page.getCount());
+    Assertions.assertEquals(1, page.getPageNumber());
+    Assertions.assertEquals(10, page.getPageSize());
+    Assertions.assertEquals(3, page.getResultSet().size());
+
+    List<String> codes = getCodes(page);
+
+    Assertions.assertTrue(codes.contains(ROOT_CONCEPT));
+    Assertions.assertTrue(codes.contains(PARENT_CONCEPT));
+    Assertions.assertTrue(codes.contains(CHILD_CONCEPT));
+  }
+
+  @Test
+  @Request
+  public void testDataEmpty()
+  {
+    PageCriteria criteria = new PageCriteria();
+    criteria.setRows(10);
+
+    JsonSerializablePage<JsonSerializable> page = this.cObjectService.data(secondClass, criteria);
+
+    Assertions.assertEquals(0L, page.getCount());
+    Assertions.assertEquals(0, page.getResultSet().size());
+  }
+
+  @Test
+  @Request
+  public void testDataAttributeValues()
+  {
+    ConceptObject object = this.cObjectService.newInstance(cClass);
+    object.setCode(TEST_CODE);
+    object.setValue(attribute.getCode(), "Test Text");
+    object.setValue(attributeOverTime.getCode(), "Test Text 2", USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+    this.cObjectService.apply(object);
+
+    try
+    {
+      PageCriteria criteria = new PageCriteria();
+      criteria.setRows(10);
+      criteria.setFilters(Map.of(DefaultAttribute.CODE.getName(), new PageCriteria.Filter(MatchMode.EQUALS, new StringNode(TEST_CODE))));
+
+      JsonSerializablePage<JsonSerializable> page = this.cObjectService.data(cClass, criteria);
+
+      Assertions.assertEquals(1L, page.getCount());
+      Assertions.assertEquals(1, page.getResultSet().size());
+
+      JsonObject result = page.getResultSet().get(0).toJSON().getAsJsonObject();
+
+      Assertions.assertEquals(TEST_CODE, result.get(DefaultAttribute.CODE.getName()).getAsString());
+      Assertions.assertEquals("Test Text", result.get(attribute.getCode()).getAsString());
+
+      // Change over time attributes are not included in the data results
+      Assertions.assertFalse(result.has(attributeOverTime.getCode()));
+    }
+    finally
+    {
+      this.cObjectService.delete(object);
+    }
+  }
+
+  @Test
+  @Request
+  public void testDataSortAscending()
+  {
+    PageCriteria criteria = new PageCriteria();
+    criteria.setRows(10);
+    criteria.setSortField(DefaultAttribute.CODE.getName());
+    criteria.setSortOrder(1);
+
+    JsonSerializablePage<JsonSerializable> page = this.cObjectService.data(cClass, criteria);
+
+    Assertions.assertEquals(List.of(CHILD_CONCEPT, PARENT_CONCEPT, ROOT_CONCEPT), getCodes(page));
+  }
+
+  @Test
+  @Request
+  public void testDataSortDescending()
+  {
+    PageCriteria criteria = new PageCriteria();
+    criteria.setRows(10);
+    criteria.setSortField(DefaultAttribute.CODE.getName());
+    criteria.setSortOrder(-1);
+
+    JsonSerializablePage<JsonSerializable> page = this.cObjectService.data(cClass, criteria);
+
+    Assertions.assertEquals(List.of(ROOT_CONCEPT, PARENT_CONCEPT, CHILD_CONCEPT), getCodes(page));
+  }
+
+  @Test
+  @Request
+  public void testDataMultiSort()
+  {
+    PageCriteria criteria = new PageCriteria();
+    criteria.setRows(10);
+    criteria.setMultiSortMeta(List.of(new PageCriteria.SortMeta(DefaultAttribute.CODE.getName(), -1)));
+
+    JsonSerializablePage<JsonSerializable> page = this.cObjectService.data(cClass, criteria);
+
+    Assertions.assertEquals(List.of(ROOT_CONCEPT, PARENT_CONCEPT, CHILD_CONCEPT), getCodes(page));
+  }
+
+  @Test
+  @Request
+  public void testDataPagination()
+  {
+    PageCriteria criteria = new PageCriteria();
+    criteria.setFirst(0);
+    criteria.setRows(2);
+    criteria.setSortField(DefaultAttribute.CODE.getName());
+    criteria.setSortOrder(1);
+
+    JsonSerializablePage<JsonSerializable> page = this.cObjectService.data(cClass, criteria);
+
+    Assertions.assertEquals(3L, page.getCount());
+    Assertions.assertEquals(1, page.getPageNumber());
+    Assertions.assertEquals(2, page.getPageSize());
+    Assertions.assertEquals(List.of(CHILD_CONCEPT, PARENT_CONCEPT), getCodes(page));
+
+    criteria.setFirst(2);
+
+    page = this.cObjectService.data(cClass, criteria);
+
+    Assertions.assertEquals(3L, page.getCount());
+    Assertions.assertEquals(2, page.getPageNumber());
+    Assertions.assertEquals(2, page.getPageSize());
+    Assertions.assertEquals(List.of(ROOT_CONCEPT), getCodes(page));
+  }
+
+  @Test
+  @Request
+  public void testDataFilterEquals()
+  {
+    JsonSerializablePage<JsonSerializable> page = this.cObjectService.data(cClass, codeFilter(MatchMode.EQUALS, PARENT_CONCEPT));
+
+    Assertions.assertEquals(1L, page.getCount());
+    Assertions.assertEquals(List.of(PARENT_CONCEPT), getCodes(page));
+  }
+
+  @Test
+  @Request
+  public void testDataFilterStartsWith()
+  {
+    // Starts with matching is case insensitive
+    JsonSerializablePage<JsonSerializable> page = this.cObjectService.data(cClass, codeFilter(MatchMode.STARTS_WITH, "parent"));
+
+    Assertions.assertEquals(1L, page.getCount());
+    Assertions.assertEquals(List.of(PARENT_CONCEPT), getCodes(page));
+  }
+
+  @Test
+  @Request
+  public void testDataFilterContains()
+  {
+    // Contains matching is case insensitive
+    PageCriteria criteria = codeFilter(MatchMode.CONTAINS, "CONCEPT");
+    criteria.setSortField(DefaultAttribute.CODE.getName());
+    criteria.setSortOrder(1);
+
+    JsonSerializablePage<JsonSerializable> page = this.cObjectService.data(cClass, criteria);
+
+    Assertions.assertEquals(2L, page.getCount());
+    Assertions.assertEquals(List.of(CHILD_CONCEPT, PARENT_CONCEPT), getCodes(page));
+  }
+
+  @Test
+  @Request
+  public void testDataFilterNoMatch()
+  {
+    JsonSerializablePage<JsonSerializable> page = this.cObjectService.data(cClass, codeFilter(MatchMode.EQUALS, "BAD"));
+
+    Assertions.assertEquals(0L, page.getCount());
+    Assertions.assertEquals(0, page.getResultSet().size());
+  }
+
+  @Test
+  @Request
+  public void testDataFilterUnknownAttribute()
+  {
+    // Filters on attributes which do not exist on the type are ignored
+    PageCriteria criteria = new PageCriteria();
+    criteria.setRows(10);
+    criteria.setFilters(Map.of("doesNotExist", new PageCriteria.Filter(MatchMode.EQUALS, new StringNode("BAD"))));
+
+    JsonSerializablePage<JsonSerializable> page = this.cObjectService.data(cClass, criteria);
+
+    Assertions.assertEquals(3L, page.getCount());
+    Assertions.assertEquals(3, page.getResultSet().size());
+  }
+
+  @Test
+  @Request
+  public void testDataFilterAttribute()
+  {
+    ConceptObject object = this.cObjectService.newInstance(cClass);
+    object.setCode(TEST_CODE);
+    object.setValue(attribute.getCode(), "Test Text");
+    this.cObjectService.apply(object);
+
+    try
+    {
+      PageCriteria criteria = new PageCriteria();
+      criteria.setRows(10);
+      criteria.setFilters(Map.of(attribute.getCode(), new PageCriteria.Filter(MatchMode.CONTAINS, new StringNode("text"))));
+
+      JsonSerializablePage<JsonSerializable> page = this.cObjectService.data(cClass, criteria);
+
+      Assertions.assertEquals(1L, page.getCount());
+      Assertions.assertEquals(List.of(TEST_CODE), getCodes(page));
+    }
+    finally
+    {
+      this.cObjectService.delete(object);
+    }
+  }
+
+  private static PageCriteria codeFilter(MatchMode mode, String value)
+  {
+    PageCriteria criteria = new PageCriteria();
+    criteria.setRows(10);
+    criteria.setFilters(Map.of(DefaultAttribute.CODE.getName(), new PageCriteria.Filter(mode, new StringNode(value))));
+
+    return criteria;
+  }
+
+  private static List<String> getCodes(JsonSerializablePage<JsonSerializable> page)
+  {
+    return page.getResultSet().stream() //
+        .map(result -> result.toJSON().getAsJsonObject().get(DefaultAttribute.CODE.getName()).getAsString()) //
+        .collect(Collectors.toList());
   }
 
 }
