@@ -67,6 +67,8 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
 
   private static AttributeType               attributeOverTime;
 
+  private static AttributeLocalType          attributeLocal;
+
   private static AttributeClassificationType attributeClassification;
 
   private static AttributeClassificationType attributeClassificationOverTime;
@@ -112,6 +114,7 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     type = this.bTypeService.apply(object);
 
     attribute = this.bTypeService.createAttributeType(type, new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test True"), false, false, false, false));
+    attributeLocal = this.bTypeService.createAttributeType(type, new AttributeLocalType("testLocal", new LocalizedValue("Test Local"), new LocalizedValue("Test Local"), false, false, false, false));
     attributeOverTime = this.bTypeService.createAttributeType(type, new AttributeLocalType("testCharacter2", new LocalizedValue("Test Character 2"), new LocalizedValue("Test True"), false, false, false, true));
 
     attributeClassification = this.createAttributeClassificationType();
@@ -124,7 +127,6 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     relationshipType = this.bEdgeService.create(BusinessEdgeTypeDTO.build(FastTestDataset.ORG_CGOV.getCode(), "TEST_REL", new LocalizedValue("Test Rel"), new LocalizedValue("Test Rel"), type.getCode(), type.getCode()));
 
     bGeoEdgeType = this.bEdgeService.create(BusinessEdgeTypeDTO.build(FastTestDataset.ORG_CGOV.getCode(), "GEO_EDGE", new LocalizedValue("Geo Edge"), new LocalizedValue("Geo Edge"), BusinessEdgeTypeDTO.GEO_OBJECT_TYPE, type.getCode()));
-
   }
 
   @Override
@@ -811,6 +813,8 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
         BusinessObject object = this.bObjectService.newInstance(type);
         object.setCode(code);
         object.setValue(attribute.getCode(), code + " Text");
+        object.setValue(attributeLocal.getCode(), new LocalizedValue(code + " Localized"));
+
         this.bObjectService.apply(object);
 
         objects.add(object);
@@ -1242,6 +1246,177 @@ public class BusinessObjectTest extends FastDatasetTest implements InstanceTestC
     return page.getResultSet().stream() //
         .map(result -> result.toJSON().getAsJsonObject().get(attributeName).getAsString()) //
         .collect(Collectors.toList());
+  }
+
+  @Test
+  @Request
+  public void testDataLocalValues()
+  {
+    List<BusinessObject> objects = createDataObjects();
+
+    try
+    {
+      setLocals(objects);
+
+      PageCriteria criteria = new PageCriteria();
+      criteria.setRows(10);
+      criteria.setSortField(DefaultAttribute.CODE.getName());
+      criteria.setSortOrder(1);
+
+      JsonSerializablePage<JsonSerializable> page = this.bObjectService.data(type, criteria);
+
+      Assertions.assertEquals(List.of(DATA_ALPHA, DATA_BETA, DATA_GAMMA), getCodes(page));
+      Assertions.assertEquals(List.of(LOCAL_ZEBRA, LOCAL_APPLE, LOCAL_MANGO), getValues(page, attributeLocal.getCode()));
+    }
+    finally
+    {
+      deleteDataObjects(objects);
+    }
+  }
+
+  @Test
+  @Request
+  public void testDataFilterLocalEquals()
+  {
+    List<BusinessObject> objects = createDataObjects();
+
+    try
+    {
+      setLocals(objects);
+
+      JsonSerializablePage<JsonSerializable> page = this.bObjectService.data(type, dataFilter(attributeLocal.getCode(), MatchMode.EQUALS, LOCAL_MANGO));
+
+      Assertions.assertEquals(1L, page.getCount());
+      Assertions.assertEquals(List.of(DATA_GAMMA), getCodes(page));
+      Assertions.assertEquals(List.of(LOCAL_MANGO), getValues(page, attributeLocal.getCode()));
+    }
+    finally
+    {
+      deleteDataObjects(objects);
+    }
+  }
+
+  @Test
+  @Request
+  public void testDataFilterLocalStartsWith()
+  {
+    List<BusinessObject> objects = createDataObjects();
+
+    try
+    {
+      setLocals(objects);
+
+      // Starts with matching is case insensitive
+      JsonSerializablePage<JsonSerializable> page = this.bObjectService.data(type, dataFilter(attributeLocal.getCode(), MatchMode.STARTS_WITH, "zeb"));
+
+      Assertions.assertEquals(1L, page.getCount());
+      Assertions.assertEquals(List.of(DATA_ALPHA), getCodes(page));
+    }
+    finally
+    {
+      deleteDataObjects(objects);
+    }
+  }
+
+  @Test
+  @Request
+  public void testDataFilterLocalContains()
+  {
+    List<BusinessObject> objects = createDataObjects();
+
+    try
+    {
+      setLocals(objects);
+
+      // Contains matching is case insensitive
+      JsonSerializablePage<JsonSerializable> page = this.bObjectService.data(type, dataFilter(attributeLocal.getCode(), MatchMode.CONTAINS, "PPL"));
+
+      Assertions.assertEquals(1L, page.getCount());
+      Assertions.assertEquals(List.of(DATA_BETA), getCodes(page));
+    }
+    finally
+    {
+      deleteDataObjects(objects);
+    }
+  }
+
+  @Test
+  @Request
+  public void testDataSortLocal()
+  {
+    List<BusinessObject> objects = createDataObjects();
+
+    try
+    {
+      setLocals(objects);
+
+      PageCriteria criteria = new PageCriteria();
+      criteria.setRows(10);
+      criteria.setSortField(attributeLocal.getCode());
+      criteria.setSortOrder(1);
+
+      JsonSerializablePage<JsonSerializable> page = this.bObjectService.data(type, criteria);
+
+      Assertions.assertEquals(List.of(DATA_BETA, DATA_GAMMA, DATA_ALPHA), getCodes(page));
+      Assertions.assertEquals(List.of(LOCAL_APPLE, LOCAL_MANGO, LOCAL_ZEBRA), getValues(page, attributeLocal.getCode()));
+
+      criteria.setSortOrder(-1);
+
+      page = this.bObjectService.data(type, criteria);
+
+      Assertions.assertEquals(List.of(DATA_ALPHA, DATA_GAMMA, DATA_BETA), getCodes(page));
+      Assertions.assertEquals(List.of(LOCAL_ZEBRA, LOCAL_MANGO, LOCAL_APPLE), getValues(page, attributeLocal.getCode()));
+    }
+    finally
+    {
+      deleteDataObjects(objects);
+    }
+  }
+
+  @Test
+  @Request
+  public void testDataMultiSortLocal()
+  {
+    List<BusinessObject> objects = createDataObjects();
+
+    try
+    {
+      setLocals(objects);
+
+      PageCriteria criteria = new PageCriteria();
+      criteria.setRows(10);
+      criteria.setMultiSortMeta(List.of(new PageCriteria.SortMeta(attributeLocal.getCode(), -1)));
+
+      JsonSerializablePage<JsonSerializable> page = this.bObjectService.data(type, criteria);
+
+      Assertions.assertEquals(List.of(DATA_ALPHA, DATA_GAMMA, DATA_BETA), getCodes(page));
+    }
+    finally
+    {
+      deleteDataObjects(objects);
+    }
+  }
+
+  private static final String LOCAL_ZEBRA = "Zebra Label";
+
+  private static final String LOCAL_APPLE = "Apple Label";
+
+  private static final String LOCAL_MANGO = "Mango Label";
+
+  /**
+   * Assigns local values so that the local value order differs from the code
+   * order: Alpha -> "Zebra Label", Beta -> "Apple Label", Gamma -> "Mango
+   * Label"
+   */
+  private void setLocals(List<BusinessObject> objects)
+  {
+    List<String> values = List.of(LOCAL_ZEBRA, LOCAL_APPLE, LOCAL_MANGO);
+
+    for (int i = 0; i < objects.size(); i++)
+    {
+      objects.get(i).setValue(attributeLocal.getCode(), new LocalizedValue(values.get(i)));
+      this.bObjectService.apply(objects.get(i));
+    }
   }
 
   private static PageCriteria dataFilter(String attributeName, MatchMode mode, String value)
