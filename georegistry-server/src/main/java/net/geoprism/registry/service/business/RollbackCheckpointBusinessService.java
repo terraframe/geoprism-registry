@@ -152,6 +152,19 @@ public class RollbackCheckpointBusinessService
         ch.delete();
       });
     }
+    catch (RuntimeException e)
+    {
+      // Do not leave the remaining checkpoints SCHEDULED or RUNNING. A
+      // checkpoint left in either state blocks new rollbacks and, before this
+      // change, was silently resumed on the next server start, rolling back
+      // everything imported since. The data may be partially rolled back, so
+      // the user must decide whether to run the rollback again.
+      logger.error("Rollback failed for checkpoint [" + checkpoint.getOid() + "]. Resetting the unfinished checkpoints so the rollback can be run again manually.", e);
+
+      this.resetUnfinished();
+
+      throw e;
+    }
     finally
     {
       ProgressService.put(PROGRESS_KEY, new Progress(100L, 100L, "Finished"));
@@ -238,6 +251,34 @@ public class RollbackCheckpointBusinessService
     return RollbackCheckpoint.get(oid);
   }
 
+  /**
+   * Sets every checkpoint that is SCHEDULED or RUNNING back to AVAILABLE.
+   */
+  public void resetUnfinished()
+  {
+    for (RollbackCheckpoint ch : this.getExecutionList())
+    {
+      try
+      {
+        ch.appLock();
+        ch.setStatus(Status.AVAILABLE.name());
+        ch.apply();
+      }
+      catch (RuntimeException e)
+      {
+        logger.error("Unable to reset rollback checkpoint [" + ch.getOid() + "]", e);
+      }
+    }
+  }
+
+  /**
+   * A checkpoint that is still SCHEDULED or RUNNING at startup belongs to a
+   * rollback that was interrupted or failed. It is not resumed automatically:
+   * a rollback reverts every event after its checkpoint, including data
+   * imported after the interruption, so resuming it unattended can delete data
+   * that was loaded since. The checkpoints are reset instead, and the rollback
+   * can be run again from the Rollback Data page.
+   */
   @EventListener
   @Request
   public void onApplicationEvent(ContextRefreshedEvent event)
@@ -246,22 +287,11 @@ public class RollbackCheckpointBusinessService
     {
       List<RollbackCheckpoint> list = this.getExecutionList();
 
-      if (list.size() > 0 && !this.store.isLocked())
+      if (list.size() > 0)
       {
-        executor.execute(() -> {
+        logger.warn("Found " + list.size() + " rollback checkpoint(s) from an interrupted or failed rollback. They will not be resumed; resetting them so the rollback can be run again manually.");
 
-          // TODO: Find a better solution for this race condition
-          // Give time for the metadata cache to be populated
-          try
-          {
-            Thread.sleep(15000);
-          }
-          catch (InterruptedException e)
-          {
-          }
-
-          this.execute(list.get(list.size() - 1));
-        });
+        this.resetUnfinished();
       }
     }
     catch (Exception e)
