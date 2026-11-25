@@ -24,7 +24,7 @@
   </modules>
 
   <properties>
-    <geoprism.version>2.1.13-SNAPSHOT</geoprism.version>
+    <geoprism.version>2.1.13</geoprism.version>
     <spring.boot.version>4.1.2</spring.boot.version>
     <!-- Must match the JUnit that spring-boot-starter-test brings in -->
     <junit.jupiter.version>6.0.3</junit.jupiter.version>
