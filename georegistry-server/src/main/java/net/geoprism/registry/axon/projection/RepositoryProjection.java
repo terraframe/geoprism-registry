@@ -20,6 +20,7 @@ package net.geoprism.registry.axon.projection;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -361,11 +362,12 @@ public class RepositoryProjection
     if (event.getValidate())
     {
 
-      if (ImportStrategy.NEW_AND_UPDATE.equals(event.getStrategy()) && ImportStrategy.UPDATE_ONLY.equals(event.getStrategy()))
+      if (ImportStrategy.NEW_AND_UPDATE.equals(event.getStrategy()) || ImportStrategy.UPDATE_ONLY.equals(event.getStrategy()))
       {
         // The only existing UNIQUE indexes that exist with edges are by uid. So
-        // we have to look this up if we want an 'update' mechanism.
-        EdgeObject edge = source.getEdge(target, graphType, null, null);
+        // we have to look this up if we want an 'update' mechanism. Edges are
+        // created from the source (out) to the target (in).
+        EdgeObject edge = findEdge(target.getVertex().getRID(), source.getVertex().getRID(), graphType, event.getStartDate(), event.getEndDate());
 
         if (edge != null)
         {
@@ -408,11 +410,11 @@ public class RepositoryProjection
       Object targetRid = target.getVertex().getRID();
       Object sourceRid = source.getVertex().getRID();
 
-      if (ImportStrategy.NEW_AND_UPDATE.equals(event.getStrategy()) && ImportStrategy.UPDATE_ONLY.equals(event.getStrategy()))
+      if (ImportStrategy.NEW_AND_UPDATE.equals(event.getStrategy()) || ImportStrategy.UPDATE_ONLY.equals(event.getStrategy()))
       {
         // The only existing UNIQUE indexes that exist with edges are by uid. So
         // we have to look this up if we want an 'update' mechanism.
-        EdgeObject edge = findEdge(targetRid, sourceRid, graphType, null, null);
+        EdgeObject edge = findEdge(targetRid, sourceRid, graphType, event.getStartDate(), event.getEndDate());
 
         if (edge != null)
         {
@@ -966,7 +968,20 @@ public class RepositoryProjection
 
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement.toString(), parameters);
 
-    return query.getSingleResult();
+    // The same pair of objects can have more than one edge, for example one
+    // per period of validity or duplicates from earlier imports. Prefer the
+    // edge with the same start date, otherwise use the first one.
+    List<EdgeObject> edges = query.getResults();
+
+    if (edges.isEmpty())
+    {
+      return null;
+    }
+
+    return edges.stream() //
+        .filter(edge -> startDate != null && startDate.equals(edge.getObjectValue(EdgeType.START_DATE))) //
+        .findFirst() //
+        .orElse(edges.get(0));
   }
 
   public void handleRemoveGeoObjectEvent(RemoveGeoObjectEvent event)
