@@ -25,32 +25,51 @@
 
   <div class="row">
     <nav class="col-md-3 list-sidebar">
-      <div class="row">
-        <div class="col-md-12">
-          <h2><localize key="skg.list.label"></localize></h2>
-        </div>
+      <div class="sidebar-header">
+        <h3><localize key="skg.list.label"></localize></h3>
       </div>
+
+      <hr class="sidebar-divider" />
+
       <div class="sidebar-section-content">
         <ul class="list-group">
-          <li class="list-group-item got-li-item">
-            <button type="submit" (click)="onCreate()" class="btn btn-primary" role="button">
+          <div style="text-align: center; padding: 10px 0">
+            <button
+              (click)="onCreate()"
+              type="button"
+              class="btn btn-primary"
+              style="margin-bottom: 20px; min-width: 45%"
+            >
               <localize key="hierarchy.management.button.create"></localize>
             </button>
-          </li>
-          <hr />
+          </div>
 
           @for (type of publishes; track type.uid) {
-            <li class="list-group-item got-li-item" [id]="type.uid">
-              <a [routerLink]="'/registry/publish'" [queryParams]="{ uid: type.uid }" routerLinkActive="active">
-                {{ type.label }}
-              </a>
-              <span style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%)">
+            <li
+              class="list-group-item type-li-item"
+              [id]="type.uid"
+              [ngClass]="{ 'primary active': current != null && current.uid === type.uid }"
+              [routerLink]="'/registry/publish'"
+              [queryParams]="{ uid: type.uid }"
+            >
+              {{ type.label }}
+              <div class="btn-group float-end" dropdown [dropup]="true" container="body">
                 <a
-                  class="fa fa-trash ico-remove"
-                  (click)="onDelete(type)"
-                  [title]="'button.delete.helptext' | localize"
-                ></a>
-              </span>
+                  class="float-end"
+                  dropdownToggle
+                  (click)="$event.stopPropagation()"
+                  aria-controls="basic-link-dropdown"
+                >
+                  <i class="fa fa-ellipsis-vertical clickable"></i>
+                </a>
+                <ul *dropdownMenu class="dropdown-menu" role="menu" aria-labelledby="button-animated">
+                  <li role="menuitem">
+                    <a class="dropdown-item" (click)="onDelete(type)">
+                      <localize key="button.delete.helptext"></localize>
+                    </a>
+                  </li>
+                </ul>
+              </div>
             </li>
           }
         </ul>

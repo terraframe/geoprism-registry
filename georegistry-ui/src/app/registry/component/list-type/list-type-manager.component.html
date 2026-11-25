@@ -25,33 +25,30 @@
 
   <div class="row">
     <nav class="col-md-3 list-sidebar">
-      <div class="row">
-        <div class="col-md-12">
-          <h2><localize key="header.list.type"></localize></h2>
-        </div>
+      <div class="sidebar-header">
+        <h2><localize key="header.list.type"></localize></h2>
       </div>
+
+      <hr class="sidebar-divider" />
 
       <div class="sidebar-section-content">
         @for (typeByOrg of typesByOrg; track typeByOrg.org.code) {
           <ul class="list-group">
             <div>
               <div class="got-org-label-wrapper">
-                <h3>{{ typeByOrg.org.label.localizedValue }}</h3>
+                <label>{{ typeByOrg.org.label.localizedValue }}</label>
               </div>
               @for (type of typeByOrg.types; track type.code) {
                 <li
-                  class="list-group-item got-li-item"
+                  class="list-group-item type-li-item got-li-item"
                   [ngClass]="{ 'got-group-child': type.superTypeCode }"
                   [id]="type.code"
+                  [routerLink]="'/registry/master-lists'"
+                  [queryParams]="{ typeCode: type.code }"
+                  routerLinkActive="primary active"
                   #typesByOrgIter
                 >
-                  <a
-                    [routerLink]="'/registry/master-lists'"
-                    [queryParams]="{ typeCode: type.code }"
-                    routerLinkActive="active"
-                  >
-                    {{ type.label.localizedValue }}
-                  </a>
+                  {{ type.label.localizedValue }}
                 </li>
               }
             </div>

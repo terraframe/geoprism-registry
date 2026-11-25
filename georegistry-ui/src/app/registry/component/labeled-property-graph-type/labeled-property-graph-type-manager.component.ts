@@ -20,6 +20,7 @@
 import { Component, OnDestroy, OnInit, ViewChildren, QueryList, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Params, Router, RouterLinkActive, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
+import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 
 import { ConfirmModalComponent, ErrorHandler } from '@shared/component';
 import { Subscription } from 'rxjs';
@@ -28,7 +29,6 @@ import { LabeledPropertyGraphTypeService } from '@registry/service/labeled-prope
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { LabeledPropertyGraphTypePublishModalComponent } from './publish-modal.component';
 import { LocalizationService } from '@shared/service';
-import { LocalizePipe } from '../../../shared/pipe/localize.pipe';
 import { LabeledPropertyGraphTypeComponent } from './labeled-property-graph-type.component';
 import { LocalizeComponent } from '../../../shared/component/localize/localize.component';
 
@@ -46,8 +46,8 @@ import { ModalTypes } from '@shared/model/modal';
     LocalizeComponent,
     RouterLinkActive,
     RouterLink,
+    BsDropdownModule,
     LabeledPropertyGraphTypeComponent,
-    LocalizePipe,
   ],
 })
 export class LabeledPropertyGraphTypeManagerComponent implements OnInit, OnDestroy {
@@ -99,6 +99,16 @@ export class LabeledPropertyGraphTypeManagerComponent implements OnInit, OnDestr
         .getAll()
         .then((types) => {
           this.types = types;
+
+          // On initial load, select the first type if one wasn't specified in the URL
+          if (this.noQueryParams && this.current == null && types.length > 0) {
+            this.router.navigate([], {
+              relativeTo: this.route,
+              queryParams: { oid: types[0].oid },
+              queryParamsHandling: 'merge',
+              replaceUrl: true,
+            });
+          }
         })
         .catch((err: HttpErrorResponse) => {
           this.error(err);

@@ -18,7 +18,9 @@
 ///
 
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
-import { ActivatedRoute, Params, Router, RouterLinkActive, RouterLink } from '@angular/router';
+import { ActivatedRoute, Params, Router, RouterLink } from '@angular/router';
+import { NgClass } from '@angular/common';
+import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { ConfirmModalComponent, ErrorHandler, ProgressBarComponent } from '@shared/component';
@@ -52,8 +54,9 @@ import { WebSockets } from '@shared/component/web-sockets/web-sockets';
   imports: [
     PageContainerComponent,
     LocalizeComponent,
-    RouterLinkActive,
     RouterLink,
+    NgClass,
+    BsDropdownModule,
     PublishEventsComponent,
     LocalizePipe,
     ProgressBarComponent,
@@ -131,7 +134,7 @@ export class PublishManagerComponent implements OnInit, OnDestroy {
     });
 
     if (this.publishes.length === 0) {
-      this.refreshPublishes();
+      this.refreshPublishes(true);
     }
 
     this.businessService.getAll().then((response) => {
@@ -209,10 +212,22 @@ export class PublishManagerComponent implements OnInit, OnDestroy {
     }
   }
 
-  refreshPublishes(): void {
+  refreshPublishes(selectFirst: boolean = false): void {
     this.service
       .getAll()
-      .then((publishes) => (this.publishes = publishes))
+      .then((publishes) => {
+        this.publishes = publishes;
+
+        // On initial load, select the first publish if one wasn't specified in the URL
+        if (selectFirst && this.noQueryParams && this.current == null && publishes.length > 0) {
+          this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: { uid: publishes[0].uid },
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
+          });
+        }
+      })
       .catch((err: HttpErrorResponse) => {
         this.error(err);
       });

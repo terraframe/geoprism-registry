@@ -21,14 +21,39 @@
     height: calc(100% - 88px);
 } */
 
+/* Matches the sidebar layout used by the concept-class-page (hierarchy-sidebar) */
+
 .list-sidebar {
     z-index: 999;
     background: #f1f1f1;
     transition: all 0.3s;
+    padding: 0;
     vertical-align: top;
     height: calc(100vh - 50px);
     overflow-x: hidden;
     overflow-y: auto;
+}
+
+.sidebar-header {
+    padding: 10px 15px 5px 15px;
+}
+
+.sidebar-divider {
+    margin: 0;
+    border: none;
+    border-top: 1px solid #ddd;
+}
+
+.sidebar-section-content {
+    overflow-y: auto;
+}
+
+.got-org-label-wrapper {
+    padding: 5px 5px;
+}
+
+.got-org-label-wrapper > label {
+    width: 100%;
 }
 
 .list-type-content {
@@ -36,18 +61,39 @@
     height: calc(100vh - 50px);
 }
 
-.list-group-item,
 li.list-group-item {
+    font-size: 14px;
+    border: none;
     background-color: transparent;
-    padding: 3px 10px;
+    margin-bottom: 0;
 }
 
-.got-group-child {
-    margin-left: 10px;
+li.list-group-item.type-li-item {
+    display: flex;
+    align-items: center;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: var(--theme-text-dark, #767676);
+    padding: 5px 10px;
+    margin: 0 5px 2px 5px;
+    cursor: pointer;
+    /* Match the row height of the other sidebars, whose rows include the ellipsis menu button */
+    min-height: 39px;
 }
-.got-group-child > a {
-    padding-left: 5px;
-    border-left: 1px solid;
+
+li.list-group-item.type-li-item:hover {
+    background-color: rgba(162, 155, 171, 0.4);
+}
+
+li.list-group-item.type-li-item.primary {
+    background: #A29BAB;
+    color: var(--theme-primary-color, #3E2A5A);
+    font-weight: 700;
+}
+
+li.list-group-item.type-li-item.got-group-child {
+    margin-left: 20px;
 }
 
 .cr-sort-arrow {

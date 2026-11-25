@@ -179,7 +179,7 @@ export class ListTypeManagerComponent implements OnInit, OnDestroy {
       if (this.noQueryParams && t.length > 0) {
         let els = document.getElementsByClassName('got-li-item');
         if (els && els.length > 0) {
-          let el = els[0].firstChild as HTMLElement;
+          let el = els[0] as HTMLElement;
           el.click();
         }
       }
