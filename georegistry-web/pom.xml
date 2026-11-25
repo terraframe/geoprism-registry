@@ -201,8 +201,15 @@
 							<outputDirectory>${project.build.directory}/classes/static/</outputDirectory>
 							<resources>
 								<resource>
+									<directory>${project.basedir}/../georegistry-ui/dist/browser</directory>
+									<filtering>false</filtering>
+								</resource>
+								<resource>
 									<directory>${project.basedir}/../georegistry-ui/dist</directory>
 									<filtering>false</filtering>
+									<includes>
+										<include>3rdpartylicenses.txt</include>
+									</includes>
 								</resource>
 							</resources>
 						</configuration>
