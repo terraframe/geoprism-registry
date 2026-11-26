@@ -160,6 +160,22 @@ public class RollbackCheckpointBusinessServiceTest extends EventDatasetTest impl
 
   @Test
   @Request
+  public void testStartupResetsInterruptedRollback() throws InterruptedException
+  {
+    this.service.create(history, 100000L, Status.SCHEDULED);
+    this.service.create(history, 999999L, Status.RUNNING);
+
+    // Simulate a server start with checkpoints left by an interrupted rollback
+    this.service.onApplicationEvent(null);
+
+    // The checkpoints are reset, not resumed: none are left running and none
+    // were rolled back and deleted
+    Assertions.assertEquals(0, this.service.getExecutionCount());
+    Assertions.assertEquals(2, this.service.getCount());
+  }
+
+  @Test
+  @Request
   public void testRollback() throws InterruptedException, ExecutionException
   {
     this.service.create(history, 100000L, Status.AVAILABLE);
